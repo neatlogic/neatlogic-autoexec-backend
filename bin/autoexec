@@ -1,0 +1,82 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+"""
+
+import os
+import sys
+import json
+import argparse
+import logging
+from logging.handlers import RotatingFileHandler
+import Context
+import Operation
+import TaskExecutor
+
+
+class ExecError(RuntimeError):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class Runner:
+    def __init__(self, stepId, taskId, isForce=False, dataPath=None):
+        # 初始化运行上下文
+        context = Context.Context(stepId, taskId, isForce, dataPath)
+        self.context = context
+        loggingLevel = context.config.get('autoexec', 'logging.level')
+
+        pPaths = os.path.split(os.path.realpath(__file__))
+        logFilePath = '{}/logs/{}.log'.format(os.path.realpath(pPaths[0]+'/..'), pPaths[1])
+        logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
+        logger = logging.getLogger('')
+        logger.setLevel(loggingLevel)
+        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
+        logHandler.setFormatter(formatter)
+        logger.addHandler(logHandler)
+
+        # 切换到任务的执行路径
+        os.chdir(context.runPath)
+
+        # 获取运行参数和运行节点参数文件
+        serverAdapter = context.serverAdapter
+        serverAdapter.getParams()
+        serverAdapter.getNodes()
+
+        # 加载运行参数文件
+        paramFile = open(context.paramsFilePath, 'r')
+        self.params = json.loads(paramFile.read())
+        paramFile.close()
+
+    def execute(self):
+        params = self.params
+        parallelCount = 25
+        if 'parallel' in params:
+            parallelCount = int(params['parallel'])
+
+        operations = []
+        # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
+        for operation in params['operations']:
+            op = Operation.Operation(self.context, operation)
+            operations.append(op)
+
+        executor = TaskExecutor.TaskExecutor(self.context, operations, parallelCount)
+        executor.execute()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
+    parser.add_argument('--stepid', '-s', default='00', help='Step id for task, default is "00"')
+    parser.add_argument('--taskid', '-t', default='00', help='Task id fro this execution')
+    parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes')
+    args = parser.parse_args()
+    print("StepId:{}, TaskId:{}, isForce:{}".format(args.stepid, args.taskid, args.force))
+
+    runner = Runner(args.stepid, args.taskid, args.force)
+    sys.exit(runner.execute())

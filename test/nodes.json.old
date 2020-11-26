@@ -1,0 +1,4 @@
+{"nodeId":123, "nodeType":"tagent", "host": "192.168.0.26", "port": 3939, "username":"app", "password":"nehjYrUnn0QJQUcN"}
+{"nodeId":234, "nodeType":"tagent", "host": "192.168.0.26", "port": 3939, "username":"app", "password":"nehjYrUnn0QJQUcN"}
+{"nodeId":567, "nodeType":"tagent", "host": "192.168.0.26", "port": 3939, "username":"app", "password":"nehjYrUnn0QJQUcN"}
+{"nodeId":567, "nodeType":"ssh", "host": "192.168.0.26", "port": 22, "username":"root", "password":"techsure"}
