@@ -2,9 +2,31 @@
         "taskId": 156,
         "stepId": 353,
         "parallel": 10,
-        "operations": [{
+        "pre": [{
+                "opId": "addme",
+                "opName": "添加用户",
+                "opType": "local",
+                "arg": {
+                        "param1": "xxxx",
+                        "param2": "yyyy",
+                        "password": "{RC4}xxxxxxx"
+                },
+
+                "desc": {
+                        "param1": "common",
+                        "param2": "common",
+                        "password": "password",
+                        "media": "file"
+                },
+                "output": {
+                        "outparam1": "common",
+                        "outparam2": "file"
+                }
+        }],
+        "run": [{
                         "opId": "adduser",
                         "opName": "添加用户",
+                        "opType": "remote",
                         "arg": {
                                 "param1": "xxxx",
                                 "param2": "yyyy",
@@ -25,7 +47,47 @@
                 {
                         "opId": "chggrp",
                         "opName": "修改用户组",
-                        "isLocal": "True",
+                        "opType": "localremote",
+                        "arg": {
+                                "param1": "xxxx",
+                                "param2": "yyyy",
+                                "media": "${fetchfile}",
+                                "password": "{RC4}xxxxxxx"
+                        },
+
+                        "desc": {
+                                "param1": "common",
+                                "param2": "common",
+                                "password": "password",
+                                "media": "file"
+                        }
+                }
+        ],
+        "post": [{
+                        "opId": "addme",
+                        "opName": "添加用户",
+                        "opType": "local",
+                        "arg": {
+                                "param1": "xxxx",
+                                "param2": "yyyy",
+                                "password": "{RC4}xxxxxxx"
+                        },
+
+                        "desc": {
+                                "param1": "common",
+                                "param2": "common",
+                                "password": "password",
+                                "media": "file"
+                        },
+                        "output": {
+                                "outparam1": "common",
+                                "outparam2": "file"
+                        }
+                },
+                {
+                        "opId": "chggrp",
+                        "opName": "修改用户组",
+                        "opType": "local",
                         "arg": {
                                 "param1": "xxxx",
                                 "param2": "yyyy",

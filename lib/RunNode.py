@@ -6,6 +6,9 @@
 """
 import sys
 import os
+import io
+import signal
+import time
 import stat
 import subprocess
 import select
@@ -17,6 +20,26 @@ from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
 import NodeStatus
 import TagentClient
+import Utils
+
+
+class LogFile(io.TextIOWrapper):
+    def write(self, d, encoding=sys.getdefaultencoding()):
+        if isinstance(d, bytes):
+            d = d.decode(encoding)
+
+        for line in d.splitlines(True):
+            super().write(Utils.getTimeStr())
+            super().write(line)
+            super().flush()
+
+    def write0(self, d):
+        super().write(d)
+        super().flush()
+
+    def close(self):
+        super().flush()
+        super().close()
 
 
 class RunNode:
@@ -32,13 +55,17 @@ class RunNode:
         self.username = node['username']
         self.password = node['password']
 
+        self.childPid = None
+        self.killCmd = None
+
         self.output = {}
         self.statusPath = '{}/status/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
 
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
         self.outputPath = self.outputPathPrefix + '.json'
         self.logPath = '{}/log/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
-        self.logHandle = open(self.logPath, 'a')
+        #self.logHandle = open(self.logPath, 'a', buffering=1)
+        self.logHandle = LogFile(open(self.logPath, 'a').detach())
 
         self.status = NodeStatus.pending
         self._loadOutput()
@@ -48,16 +75,17 @@ class RunNode:
             self.logHandle.close()
 
     def updateNodeStatus(self, status, op=None):
-
         statuses = {}
 
         statusFile = None
         try:
             statusFile = open(self.statusPath, 'a+')
             statusFile.seek(0, 0)
-            statuses = json.loads(statusFile.read())
+            content = statusFile.read()
+            if content is not None and content != '':
+                statuses = json.loads(content)
         except Exception as ex:
-            logging.error('Load status file:{}, failed {}'.format(self.statusPath, ex))
+            self.logHandle.write('ERROR: Load and update status file:{}, failed {}\n'.format(self.statusPath, ex))
 
         if statusFile:
             if op is None:
@@ -69,24 +97,27 @@ class RunNode:
                 statusFile.write(json.dumps(statuses))
                 statusFile.close()
             except Exception as ex:
-                logging.error('Save status file:{}, failed {}'.format(self.statusPath, ex))
+                self.logHandle.write('ERROR: Save status file:{}, failed {}\n'.format(self.statusPath, ex))
 
         if op is None:
             try:
                 serverAdapter = self.context.serverAdapter
                 serverAdapter.pushNodeStatus(self, status)
             except Exception as ex:
-                logging.error('Push status:{} to Server, failed {}'.format(self.statusPath, ex))
+                self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
         statuses = {}
         try:
-            statusFile = open(self.statusPath, 'r')
-            statuses = json.loads(statusFile.read())
-            statusFile.close()
+            if os.path.exists(self.statusPath):
+                statusFile = open(self.statusPath, 'r')
+                content = statusFile.read()
+                if content is not None and content != '':
+                    statuses = json.loads(content)
+                statusFile.close()
         except Exception as ex:
-            logging.error('Load status file:{}, failed {}'.format(self.statusPath, ex))
+            self.logHandle.write('ERROR: Load status file:{}, failed {}\n'.format(self.statusPath, ex))
 
         if op is None:
             if 'status' in statuses:
@@ -108,7 +139,7 @@ class RunNode:
                 output = json.loads(outputFile.read())
                 self.output = output
             except Exception as ex:
-                logging.error('Load output file:{}, failed {}'.format(self.outputPath, ex))
+                self.logHandle.write('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
 
             if outputFile:
                 outputFile.close()
@@ -120,7 +151,7 @@ class RunNode:
                 outputFile.write(json.dumps(self.output))
                 outputFile.close()
             except Exception as ex:
-                logging.error('Save output file:{}, failed {}'.format(self.outputPath, ex))
+                self.logHandle.write('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
 
     def _loadOpOutput(self, op):
         # 加载操作输出并进行合并
@@ -135,89 +166,162 @@ class RunNode:
                 if opOutputFile:
                     opOutputFile.close()
             except Exception as ex:
-                logging.error('Load operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
+                self.logHandle.write('ERROR: Load operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
 
     def getNodeLogHandle(self):
         return self.logHandle
 
     def execute(self, ops):
+        if self.context.goToStop:
+            return 2
+
+        self.logHandle.write("------[{}]{}:{}------\n\n".format(self.id, self.host, self.port))
+
         isFail = 0
         for op in ops:
+            ret = 0
+
             if not self.context.isForce and self.getNodeStatus(op) == NodeStatus.succeed:
                 continue
 
-            self.updateNodeStatus(NodeStatus.running, op)
-            if op.isLocal:
-                # 本地执行，逐个node循环本地调用插件
-                self.logHandle.write("======Local execute:{} {} {}\n".format(self.host, self.type, op.opName))
-                ret = self._localExecute(op)
-                if ret == 0:
-                    self.logHandle.write("------Local execute succeed.\n\n")
+            # 如果节点是虚构的本地节点，则只执行类型是local的操作
+            if self.host == 'local' or self.host == 'local-pre' or self.host == 'local-post':
+                ret = 0
+                if op.opType == 'local':
+                    # 本地执行，逐个node循环本地调用插件
+                    self.logHandle.write("------BEGIN-- {}[{}] local execute...\n".format(op.opId, op.opName))
+                    ret = self._localExecute(op)
                 else:
-                    isFail = 1
-                    self.logHandle.write("------Local execute failed.\n\n")
+                    continue
+            # 否则则按照以节点的方式来运行操作
             else:
-                # 远程执行，则推送插件到远端并执行插件运行命令
-                self.logHandle.write("======Remote execute:{} {} {}\n".format(self.host, self.type, op.opName))
-                ret = self._remoteExecute(op)
+                ret = 0
+                if op.opType == 'localremote':
+                    # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
+                    # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                    self.logHandle.write("------BEGIN-- {}[{}] local-remote execute...\n".format(op.opId, op.opName))
+                    ret = self._localRemoteExecute(op)
 
-                if ret == 0:
-                    self.logHandle.write("------Remote execute succeed.\n\n")
-                else:
-                    isFail = 1
-                    self.logHandle.write("------Remote execute failed.\n\n")
+                elif op.opType == 'remote':
+                    # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                    self.logHandle.write("------BEGIN-- {}[{}] remote execute...\n".format(op.opId, op.opName))
+                    ret = self._remoteExecute(op)
 
-            if isFail > 0:
+            if ret != 0:
                 self.updateNodeStatus(NodeStatus.failed, op)
-                break
             else:
                 self._loadOpOutput(op)
                 self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op)
+
+            if ret == 0:
+                self.logHandle.write("------END-- {}[{}] Execute {} succeed.\n\n".format(op.opId, op.opName, op.opType))
+            else:
+                isFail = 1
+                self.logHandle.write("------END-- {}[{}] Execute {} failed.\n\n".format(op.opId, op.opName, op.opType))
+                break
 
         if isFail == 0:
             self.updateNodeStatus(NodeStatus.succeed)
         else:
             self.updateNodeStatus(NodeStatus.failed)
 
+        if isFail == 0:
+            self.logHandle.write("------[{}]{}:{} succeed------\n".format(self.id, self.host, self.port))
+        else:
+            self.logHandle.write("------[{}]{}:{} failed------\n".format(self.id, self.host, self.port))
+
+        self.killCmd = None
         return isFail
 
     def _localExecute(self, op):
+        self.childPid = None
+        self.killCmd = None
         os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(self.output)
-        cmdline = 'exec {}/{} --node \'{}\''.format(op.pluginPath, orgCmdLine, json.dumps(self.node))
-        self.logHandle.flush()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(self.output)
+
+        cmdline = 'exec {}/{}'.format(op.pluginPath, orgCmdLine)
         environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
-        child = subprocess.Popen(cmdline, env=environment, shell=True, stdout=self.logHandle, stderr=self.logHandle)
-        #child = subprocess.Popen(cmdline, shell=True, stdout=sys.stdout, stderr=sys.stderr)
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.childPid = child.pid
         # 管道启动成功后，更新状态为running
+        self.updateNodeStatus(NodeStatus.running, op)
+
+        while True:
+            line = child.stdout.readline()
+            if not line:
+                break
+            self.logHandle.write(line)
 
         # 等待插件执行完成并获取进程返回值，0代表成功
         child.wait()
         ret = child.returncode
 
         if ret == 0:
-            logging.debug('Execute command succeed:{} on node[{}]{}:{}'.format(orgCmdLine, self.id, self.host, self.port))
+            self.logHandle.write("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
         else:
-            logging.debug('Execute command faled:{} on node[{}]{}:{}'.format(orgCmdLine, self.id, self.host, self.port))
+            self.logHandle.write("ERROR: Execute local command faled:{}\n".format(orgCmdLineHidePassword))
+
+        return ret
+
+    def _localRemoteExecute(self, op):
+        self.childPid = None
+        self.killCmd = None
+        os.chdir(self.runPath)
+        ret = -1
+        # 本地执行，则使用管道启动运行插件
+        orgCmdLine = op.getCmdLine(self.output)
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(self.output)
+
+        cmdline = 'exec {}/{} --node \'{}\''.format(op.pluginPath, orgCmdLine, json.dumps(self.node))
+        environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.childPid = child.pid
+        # 管道启动成功后，更新状态为running
+        self.updateNodeStatus(NodeStatus.running, op)
+
+        while True:
+            line = child.stdout.readline()
+            if not line:
+                break
+            self.logHandle.write(line)
+
+        # 等待插件执行完成并获取进程返回值，0代表成功
+        child.wait()
+        ret = child.returncode
+
+        if ret == 0:
+            self.logHandle.write("INFO: Execute local-remote command succeed:{}\n".format(orgCmdLineHidePassword))
+        else:
+            self.logHandle.write("ERROR: Execute local-remote command faled:{}\n".format(orgCmdLineHidePassword))
 
         return ret
 
     def _remoteExecute(self, op):
+        self.childPid = None
+
         remoteCmd = ''
         ret = -1
         if self.type == 'tagent':
             try:
                 remotePath = '$TMPDIR/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
                 remoteCmd = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine(self.output))
+                remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword(self.output))
+
+                runEnv = {'AUTOEXEC_TASKID': self.context.taskId, 'AUTOEXEC_STEPID': self.context.stepId}
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+
+                # 更新节点状态为running
+                self.updateNodeStatus(NodeStatus.running, op)
+
                 uploadRet = 0
                 uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
-                if uploadRet == 0:
-                    ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine(self.output)), isVerbose=0, callback=self.logHandle.write)
+                if uploadRet == 0 and not self.context.goToStop:
+                    ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine(self.output)), env=runEnv, isVerbose=0, callback=self.logHandle.write)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
                         outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opId), outputFilePath)
@@ -226,19 +330,26 @@ class RunNode:
                             ret = 2
                     try:
                         if tagent.agentOsType == 'windows':
-                            tagent.execCmd(self.username, "rd /s /q {}".format(remotePath))
+                            tagent.execCmd(self.username, "rd /s /q {}".format(remotePath), env=runEnv)
                         else:
-                            tagent.execCmd(self.username, "rm -rf {}".format(remotePath))
+                            tagent.execCmd(self.username, "rm -rf {}".format(remotePath), env=runEnv)
                     except Exception as ex:
-                        self.logHandle.write('Remote remoe directory {} failed {}'.format(remotePath, ex))
+                        self.logHandle.write('ERROR: Remote remove directory {} failed {}\n'.format(remotePath, ex))
             except Exception as ex:
-                self.logHandle.write('Execute command {} failed, {}'.format(op.opId, ex))
+                self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opId, ex))
+
+            if ret == 0:
+                self.logHandle.write("INFO: Execute remote command by agent succeed:{}\n".format(remoteCmdHidePassword))
+            else:
+                self.logHandle.write("ERROR: Execute remote command by agent failed:{}\n".format(remoteCmdHidePassword))
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
             remotePath = '{}/{}'.format(remoteRoot, op.opId)
-            remoteCmd = 'cd {} && ./{}'.format(remotePath, op.getCmdLine(self.output))
+            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine(self.output))
+            remoteCmdHidePassword = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLineHidePassword(self.output))
+            self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
             uploaded = False
             scp = None
@@ -247,6 +358,9 @@ class RunNode:
                 # 建立连接
                 scp = paramiko.Transport((self.host, self.port))
                 scp.connect(username=self.username, password=self.password)
+
+                # 更新节点状态为running
+                self.updateNodeStatus(NodeStatus.running, op)
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
                 sftp = paramiko.SFTPClient.from_transport(scp)
@@ -257,7 +371,7 @@ class RunNode:
                     except IOError:
                         sftp.mkdir(remoteRoot)
                 except SFTPError as err:
-                    self.logHandle.write("mkdir {} error: {}".format(remoteRoot, err))
+                    self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                 os.chdir(op.pluginRootPath)
@@ -277,9 +391,9 @@ class RunNode:
 
                 sftp.chmod('{}/{}'.format(remotePath, op.opId), stat.S_IXUSR)
             except Exception as err:
-                self.logHandle.write('Upload plugin:{} to remoteRoot:{} error: {}'.format(op.opId, remoteRoot, err))
+                self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opId, remoteRoot, err))
 
-            if uploaded:
+            if uploaded and not self.context.goToStop:
                 ssh = None
                 try:
                     ssh = paramiko.SSHClient()
@@ -296,7 +410,7 @@ class RunNode:
 
                         r, w, x = select.select([channel], [], [])
                         if len(r) > 0:
-                            self.logHandle.write(channel.recv(1024).decode())
+                            self.logHandle.write(channel.recv(1024).decode() + '\n')
 
                     if ret == 0 and op.hasOutput:
                         try:
@@ -309,10 +423,10 @@ class RunNode:
                     try:
                         ssh.exec_command("rm -rf {} || rd /s /q {}".format(remotePath, remotePath))
                     except Exception as ex:
-                        self.logHandle.write("Remove remote directory {} failed {}\n".format(remotePath, ex))
+                        self.logHandle.write("ERROR: Remove remote directory {} failed {}\n".format(remotePath, ex))
 
                 except Exception as err:
-                    self.logHandle.write("Execute command:{} failed, {}".format(op.opId, err))
+                    self.logHandle.write("ERROR: Execute remote operation {} failed, {}\n".format(op.opId, err))
                 finally:
                     if ssh:
                         ssh.close()
@@ -320,9 +434,57 @@ class RunNode:
                 if scp:
                     scp.close()
 
-        if ret == 0:
-            logging.debug('Execute command succeed:{} on node[{}]{}:{}'.format(remoteCmd, self.id, self.host, self.port))
-        else:
-            logging.debug('Execute command failed:{} on node[{}]{}:{}'.format(remoteCmd, self.id, self.host, self.port))
+            if ret == 0:
+                self.logHandle.write("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmdHidePassword))
+            else:
+                self.logHandle.write("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmdHidePassword))
 
         return ret
+
+    def kill(self):
+        if self.childPid is not None:
+            pid = self.childPid
+
+            try:
+                if pid is not None:
+                    os.kill(pid, signal.SIGTERM)
+
+                (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
+                # 如果子进程没有结束，等待3秒
+                loopCount = 3
+                while exitPid != pid:
+                    if loopCount <= 0:
+                        break
+
+                    time.sleep(1)
+                    (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
+                    loopCount = loopCount - 1
+            except OSError:
+                # 子进程不存在，已经退出了
+                pass
+
+        killCmd = self.killCmd
+        if self.type == 'ssh' and killCmd is not None:
+            ssh = None
+            try:
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(self.host, self.port, self.username, self.password)
+                channel = ssh.get_transport().open_session()
+                channel.set_combine_stderr(True)
+                channel.exec_command(killCmd)
+
+                while True:
+                    if channel.exit_status_ready():
+                        ret = channel.recv_exit_status()
+                        break
+
+                    r, w, x = select.select([channel], [], [])
+                    if len(r) > 0:
+                        self.logHandle.write(channel.recv(1024).decode() + '\n')
+
+            except Exception as err:
+                self.logHandle.write("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
+            finally:
+                if ssh:
+                    ssh.close()

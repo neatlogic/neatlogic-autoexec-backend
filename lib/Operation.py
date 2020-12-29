@@ -18,22 +18,25 @@ import ServerAdapter
 
 class Operation:
 
-    def __init__(self, context, param):
+    def __init__(self, context, opsParam, param):
         self.context = context
         self.stepId = context.stepId
         self.taskId = context.taskId
+        self.opsParam = opsParam
         self.opId = param['opId']
         self.opName = param['opName']
+
+        # opType有三种
+        # remote：推送到远程主机上运行，每个目标节点调用一次
+        # localremote：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
+        # local：在本地运行，与运行节点无关，只会运行一次
+        self.opType = param['opType']
+        ##############
+
         self.runPath = context.runPath
         self.dataPath = context.dataPath
         self.passKey = context.config.get('server', 'password.key')
         self.param = param
-        if not 'isLocal' in param:
-            self.isLocal = False
-        elif param['isLocal'].lower() == 'true':
-            self.isLocal = True
-        else:
-            self.isLocal = False
 
         if 'output' in param:
             self.hasOutput = True
@@ -73,12 +76,15 @@ class Operation:
         opArgs = self.param['arg']
 
         for argName, argValue in opArgs.items():
+            argValue = self.resolveArgValue(argValue)
             argType = opDesc[argName]
             if(argType == 'password' and argValue[0:5] == '{RC4}'):
-                argValue = Utils.Utils.rc4(self.passKey, argValue[5:])
+                argValue = Utils.rc4(self.passKey, argValue[5:])
             elif(argType == 'file'):
-                fileName = self.fetchFile(argName, argValue)
-                argValue = 'file/' + fileName
+                matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
+                if not matchObj:
+                    fileName = self.fetchFile(argName, argValue)
+                    argValue = 'file/' + fileName
             self.options[argName] = argValue
 
         # print("DEBUG:{}".format(str(self.options)))
@@ -92,11 +98,35 @@ class Operation:
         if fileName is None:
             fileName = argName
 
+        cacheFilePath = cachePath + '/' + fileId
         linkPath = self.runPath + '/file/' + fileName
+        if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
+            os.unlink(linkPath)
+
         if not os.path.exists(linkPath):
-            os.symlink(cachePath + '/' + fileId, linkPath)
+            os.symlink(cacheFilePath, linkPath)
 
         return fileName
+
+    def resolveArgValue(self, argValue, refMap=None):
+        if not refMap:
+            refMap = self.opsParam
+
+        matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
+        while matchObj:
+            newArgValue = None
+            opId = matchObj.group(1)
+            paramName = matchObj.group(2)
+            if opId in refMap:
+                paramMap = refMap[opId]
+                if paramName in paramMap:
+                    newArgValue = refMap[paramName]
+            if newArgValue is not None:
+                argValue = newArgValue
+                matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
+            else:
+                break
+        return argValue
 
     def getCmdLine(self, refMap):
         cmd = self.opId
@@ -111,4 +141,22 @@ class Operation:
                         v = refMap[paramName]
 
             cmd = cmd + ' --{} "{}" '.format(k, v)
+        return cmd
+
+    def getCmdLineHidePassword(self, refMap):
+        cmd = self.opId
+        for k, v in self.options.items():
+            matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', v)
+            if matchObj:
+                opId = matchObj.group(1)
+                paramName = matchObj.group(2)
+                if opId in refMap:
+                    paramMap = refMap[opId]
+                    if paramName in paramMap:
+                        v = refMap[paramName]
+
+            if k == 'password' or k == 'pass':
+                cmd = cmd + ' --{} "{}" '.format(k, '******')
+            else:
+                cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd

@@ -13,8 +13,14 @@ class Context:
     def __init__(self, stepId, taskId, isForce=False, dataPath=None):
         self.stepId = stepId
         self.taskId = taskId
+        self.phase = 'pre'
         self.isForce = isForce
         self.dataPath = dataPath
+
+        self.goToStop = False
+
+        self.hasLocal = False
+        self.hasRemote = False
         self.failNodeCount = 0
         self.sucNodeCount = 0
         self.skipNodeCount = 0

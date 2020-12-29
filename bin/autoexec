@@ -6,6 +6,9 @@
 
 import os
 import sys
+import time
+import re
+import signal
 import json
 import argparse
 import logging
@@ -29,6 +32,8 @@ class Runner:
         # 初始化运行上下文
         context = Context.Context(stepId, taskId, isForce, dataPath)
         self.context = context
+        self.executor = None
+
         loggingLevel = context.config.get('autoexec', 'logging.level')
 
         pPaths = os.path.split(os.path.realpath(__file__))
@@ -53,20 +58,71 @@ class Runner:
         self.params = json.loads(paramFile.read())
         paramFile.close()
 
+    def execOperations(self, opsParams, opArgsRefMap, parallelCount):
+        self.context.hasLocal = False
+        self.context.hasRemote = False
+
+        operations = []
+        # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
+
+        for operation in opsParams:
+            if 'arg' in operation:
+                opArgsRefMap[operation['opId']] = operation['arg']
+            else:
+                opArgsRefMap[operation['opId']] = {}
+
+            op = Operation.Operation(self.context, opArgsRefMap, operation)
+
+            # 如果有本地操作，则在context中进行标记
+            if op.opType == 'local':
+                self.context.hasLocal = True
+            else:
+                self.context.hasRemote = True
+
+            operations.append(op)
+
+        executor = TaskExecutor.TaskExecutor(self.context, operations, parallelCount)
+        self.executor = executor
+        return executor.execute()
+
     def execute(self):
         params = self.params
         parallelCount = 25
         if 'parallel' in params:
             parallelCount = int(params['parallel'])
 
-        operations = []
-        # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
-        for operation in params['operations']:
-            op = Operation.Operation(self.context, operation)
-            operations.append(op)
+        opArgsRefMap = {}
 
-        executor = TaskExecutor.TaskExecutor(self.context, operations, parallelCount)
-        executor.execute()
+        failCount = 0
+        if 'pre' in params:
+            self.context.phase = 'pre'
+            print("INFO: Begin to execute pre operations...")
+            failCount = self.execOperations(params['pre'], opArgsRefMap, parallelCount)
+            print("INFO: Execute pre operations finish, failCount:{}".format(failCount))
+
+        if failCount == 0 and 'run' in params:
+            self.context.phase = 'run'
+            print("INFO: Begin to execute operations...")
+            failCount = self.execOperations(params['run'], opArgsRefMap, parallelCount)
+            print("INFO: Execute operations finish, failCount:{}".format(failCount))
+
+        if failCount == 0 and 'post' in params:
+            self.context.phase = 'post'
+            print("INFO: Begin to execute post operations...")
+            failCount = self.execOperations(params['post'], opArgsRefMap, parallelCount)
+            print("INFO: Execute post operations finish, failCount:{}".format(failCount))
+
+        if failCount == 0:
+            print("INFO: ======Execute succeed======")
+        else:
+            print("INFO: ======Execute failed======")
+
+        return failCount
+
+    def kill(self):
+        self.context.goToStop = True
+        if self.executor is not None:
+            self.executor.kill()
 
 
 if __name__ == "__main__":
@@ -75,8 +131,47 @@ if __name__ == "__main__":
     parser.add_argument('--stepid', '-s', default='00', help='Step id for task, default is "00"')
     parser.add_argument('--taskid', '-t', default='00', help='Task id fro this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes')
-    args = parser.parse_args()
-    print("StepId:{}, TaskId:{}, isForce:{}".format(args.stepid, args.taskid, args.force))
+    parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
 
-    runner = Runner(args.stepid, args.taskid, args.force)
-    sys.exit(runner.execute())
+    args = parser.parse_args()
+    print("INFO: StepId:{}, TaskId:{}, isForce:{}".format(args.stepid, args.taskid, args.force))
+
+    if not args.abort:
+        os.environ['AUTOEXEC_TASKID'] = args.taskid
+        os.environ['AUTOEXEC_STEPID'] = args.stepid
+        runner = Runner(args.stepid, args.taskid, args.force)
+
+        def handler(signum, frame):
+            runner.kill()
+
+        signal.signal(signal.SIGTERM, handler)
+        signal.signal(signal.SIGINT, handler)
+        signal.signal(signal.SIGHUP, handler)
+
+        sys.exit(runner.execute())
+    else:
+        loopCount = 0
+        hasProcess = True
+        while hasProcess:
+            hasProcess = False
+            with os.scandir('/proc') as it:
+                for entry in it:
+                    if not entry.name.startswith('.') and entry.is_dir():
+                        if re.match('^\d+$', entry.name):
+                            pid = entry.name
+                            try:
+                                f = open(entry.path + '/environ')
+                                content = f.read()
+                                if re.match('AUTOEXEC_TASKID=' + args.taskid, content) and re.match('AUTOEXEC_STEPID=' + args.stepid, content):
+                                    hasProcess = True
+                                    if loopCount < 10:
+                                        os.kill(pid, signal.SIGTERM)
+                                    else:
+                                        os.kill(pid, signal.SIGKILL)
+                                        break
+                            except:
+                                pass
+            if hasProcess and loopCount < 10:
+                time.sleep(1)
+
+            loopCount = loopCount + 1

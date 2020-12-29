@@ -10,8 +10,10 @@ import locale
 import re
 import os
 import sys
+import time
 import traceback
 import subprocess
+import json
 
 try:
     import urllib2
@@ -20,6 +22,7 @@ except ImportError:
 import struct
 
 PROTOCOL_VER = 'Tagent1.1'
+SECURE_PROTOCOL_VER = 'Tagent1.1s'
 PYTHON_VER = sys.version_info.major
 
 
@@ -30,13 +33,16 @@ def _rc4(key, data):
         x = (x + box[i] + ord(key[i % len(key)])) % 256
         box[i], box[x] = box[x], box[i]
     x = y = 0
-    out = []
-    for char in data:
+    out = bytearray()
+    for by in data:
         x = (x + 1) % 256
         y = (y + box[x]) % 256
         box[x], box[y] = box[y], box[x]
-        out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
-    return ''.join(out)
+        if PYTHON_VER == 2:
+            out.append(ord(by) ^ box[(box[x] + box[y]) % 256])
+        else:
+            out.append(by ^ box[(box[x] + box[y]) % 256])
+    return bytes(out)
 
 
 def strEncodeToHex(data):
@@ -48,14 +54,14 @@ def _rc4_encrypt_hex(key, data):
     if PYTHON_VER == 2:
         return binascii.hexlify(_rc4(key, data))
     elif PYTHON_VER == 3:
-        return binascii.hexlify(_rc4(key, data).encode('latin-1')).decode()
+        return binascii.hexlify(_rc4(key, data)).decode("latin-1")
 
 
 def _rc4_decrypt_hex(key, data):
     if PYTHON_VER == 2:
         return _rc4(key, binascii.unhexlify(data))
     elif PYTHON_VER == 3:
-        return _rc4(key, binascii.unhexlify(data).decode('latin-1'))
+        return _rc4(key, binascii.unhexlify(data))
 
 
 class AuthError(RuntimeError):
@@ -90,7 +96,7 @@ class TagentClient:
         self.readTimeout = readTimeout
         self.writeTimeout = writeTimeout
         self.agentCharset = agentCharset
-        charset = 'UTF-8'
+        self.encrypt = False
         uname = platform.uname()
         ostype = uname[0].lower()
 
@@ -99,13 +105,16 @@ class TagentClient:
         charset = locale.getdefaultlocale()[1]
         self.charset = charset
 
-    def __readChunk(self, sock):
+    def __readChunk(self, sock, encrypt=None):
         """
         读取一个chunk，chunk开头是两个字节的unsigned short(big endian)，用于说明chunk的长度
         先读取chunk的长度，然后依据长度读取payload
         如果chunk的长度是0，则读取到连接关闭为止, chunk长度为0只会出现在最后一个chunk
         使用异常进行异常处理，譬如：连接被reset， 连接已经关闭，返回错误等
         """
+        if encrypt is None:
+            encrypt = self.encrypt
+
         readLen = 0
         readTimeout = self.readTimeout
         while readLen >= 2:
@@ -136,13 +145,23 @@ class TagentClient:
                         break
                     chunk += buf
                     if chunk:
-                        raise ExecError(chunk.decode())
+                        if encrypt:
+                            chunk = _rc4(self.password, chunk)
+                        raise ExecError(chunk)
         else:
             raise ExecError("Connection reset!")
 
+        if encrypt and chunk:
+            chunk = _rc4(self.password, chunk)
         return chunk
 
-    def __writeChunk(self, sock, chunk=b'', chunkLen=None):
+    def __writeChunk(self, sock, chunk=b'', chunkLen=None, encrypt=None):
+        if encrypt is None:
+            encrypt = self.encrypt
+
+        if encrypt and chunk:
+            chunk = _rc4(self.password, chunk)
+
         if not chunkLen:
             chunkLen = len(chunk)
         else:
@@ -189,10 +208,11 @@ class TagentClient:
         try:
             # 读取agent服务端发来的"ostype|charset|challenge",
             # agent os类型|agent 字符集|加密的验证挑战token, '|'相隔
-            challenge = self.__readChunk(sock).decode()
+            challenge = self.__readChunk(sock, False).decode()
             agentOsType, agentCharset, challenge, protocolVer = challenge.split('|')
-
-            if protocolVer != self.protocolVer:
+            if protocolVer == SECURE_PROTOCOL_VER:
+                self.encrypt = True
+            elif protocolVer != self.protocolVer:
                 sock.shutdown(2)
                 print("ERROR: server protocol version is {}, not match client protocol version {}.".format(
                     protocolVer, self.protocolVer))
@@ -200,14 +220,16 @@ class TagentClient:
             self.agentOsType = agentOsType
             self.agentCharset = agentCharset
             # 挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
-            plainChlg = _rc4_decrypt_hex(str(authKey), str(challenge))
+            plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode('latin-1')
             if ',' not in plainChlg:
                 return 0
-            factor1, factor2 = plainChlg.split(',')
+            chlgArray = plainChlg.split(',')
+            factor1 = chlgArray[0]
+            factor2 = chlgArray[1]
             if str(factor1).isdigit() == False or str(factor2).isdigit() == False:
                 return 0
-            reverseChlg = str(int(factor1) * int(factor2))
-            encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg)
+            reverseChlg = str(int(factor1) * int(factor2)) + ',' + str(time.time())
+            encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg.encode("latin-1"))
             self.__writeChunk(sock, encryptChlg.encode(encoding="utf-8"))
             authResult = self.__readChunk(sock).decode()
             # 如果返回内容中不出现auth succeed，则验证失败
@@ -288,29 +310,38 @@ class TagentClient:
 
     # 执行远程命令
 
-    def execCmd(self, user, cmd, isVerbose=0, eofStr='', callback=None, cbparams=()):
+    def execCmd(self, user, cmd, isVerbose=0, env=None, eofStr='', callback=None, cbparams=()):
         cmd = cmd.strip()
         sock = self.getConnection(isVerbose)
         agentCharset = self.agentCharset
         charset = self.charset
+
+        envJson = ''
+        if env is not None:
+            envJson = json.dumps(env)
+
         if agentCharset != charset:
             cmd = cmd.decode(charset).encode(agentCharset)
             user = user.decode(charset).encode(agentCharset)
             eofStr = eofStr.decode(charset).encode(agentCharset)
+            envJson = envJson.decode(charset).encode(agentCharset)
+
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        self.__writeChunk(sock, "{}|execmd|{}|{}|{}".format(user, agentCharset, strEncodeToHex(cmd), strEncodeToHex(eofStr)).encode(agentCharset))
+        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}".format(user, agentCharset, strEncodeToHex(cmd), strEncodeToHex(eofStr), strEncodeToHex(envJson)).encode(agentCharset))
         status = 0
         try:
             while True:
                 line = self.__readChunk(sock)
                 if not line:
                     break
-                if agentCharset != '' and agentCharset != charset:
-                    line = line.decode(agentCharset).encode(charset)
+                if agentCharset != '':
+                    line = line.decode(agentCharset)
+                else:
+                    line = line.decode()
                 if isVerbose == 1:
-                    print(line.strip().decode())
+                    print(line.strip())
                 if callback:
-                    callback(line.decode(), *cbparams)
+                    callback(line, *cbparams)
         except ExecError as errMsg:
             status = -1
             errContent = errMsg.value.split('\n')
@@ -335,16 +366,24 @@ class TagentClient:
         return content
 
     # 异步执行远程命令，不需要等待远程命令执行完
-    def execCmdAsync(self, user, cmd, isVerbose=0):
+    def execCmdAsync(self, user, cmd, isVerbose=0, env=None):
         cmd = cmd.strip()
         sock = self.getConnection()
         agentCharset = self.agentCharset
         charset = self.charset
+
+        envJson = ''
+        if env is not None:
+            envJson = json.dumps(env)
+
         if agentCharset != charset:
             cmd = cmd.decode(charset).encode(agentCharset)
             user = user.decode(charset).encode(agentCharset)
+            envJson = envJson.decode(charset).encode(agentCharset)
+
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, strEncodeToHex(cmd)))
+        #sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, strEncodeToHex(cmd)))
+        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, strEncodeToHex(cmd), '', strEncodeToHex(envJson)).encode(agentCharset))
         try:
             statusLine = self.__readChunk(sock).decode()
             if statusLine:
@@ -365,7 +404,7 @@ class TagentClient:
     def __writeSockToFile(self, sock, destFile, isVerbose=0):
         status = 0
         try:
-            with open(destFile, 'ab') as f:
+            with open(destFile, 'wb') as f:
                 while True:
                     chunk = self.__readChunk(sock)
                     if chunk:
@@ -443,7 +482,7 @@ class TagentClient:
 
                         try:
                             while True:
-                                chunk = self.__readChunk(sock).decode()
+                                chunk = self.__readChunk(sock)
                                 if not chunk:
                                     break
                                 p.stdin.write(chunk)
@@ -510,7 +549,7 @@ class TagentClient:
         else:
             self.__writeChunk(sock)
         try:
-            self.__readChunk(sock).decode()
+            self.__readChunk(sock)
         except ExecError as errMsg:
             status = -1
             if isVerbose == 1:
@@ -532,7 +571,7 @@ class TagentClient:
                     if convertCharset == 1:
                         buf = buf.decode(charset).encode(agentCharset)
                     try:
-                        self.__writeChunk(sock, buf.enode())
+                        self.__writeChunk(sock, buf)
                     except ExecError:
                         status = -1
                         break
@@ -540,7 +579,7 @@ class TagentClient:
                 self.__writeChunk(sock)
 
             try:
-                self.__readChunk(sock).decode()
+                self.__readChunk(sock)
             except ExecError as errMsg:
                 status = -1
                 if isVerbose == 1:
@@ -576,7 +615,7 @@ class TagentClient:
                         buf = buf.decode(charset).encode(agentCharset)
                 # sock.sendall(buf)
                 try:
-                    self.__writeChunk(sock, buf.encode())
+                    self.__writeChunk(sock, buf)
                 except ExecError:
                     status = -1
         else:
@@ -584,7 +623,7 @@ class TagentClient:
         if status == 0:
             self.__writeChunk(sock)
             try:
-                self.__readChunk(sock).decode()
+                self.__readChunk(sock)
             except ExecError as errMsg:
                 status = -1
                 if isVerbose == 1:
@@ -625,8 +664,8 @@ class TagentClient:
 
         self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset))
 
-        preStatus = self.__readChunk(sock)
-        if not preStatus.lstrip().startswith(b"Status:200"):
+        preStatus = self.__readChunk(sock).decode(agentCharset)
+        if not preStatus.lstrip().startswith('Status:200'):
             sock.close()
             if isVerbose == 1:
                 print("ERROR: Upload failed:{}.".format(preStatus))
@@ -691,7 +730,7 @@ class TagentClient:
         try:
             self.__writeChunk(sock, content.decode())
             self.__writeChunk(sock)
-            self.__readChunk(sock).decode()
+            self.__readChunk(sock)
         except ExecError as errMsg:
             status = -1
             print("ERROR: {}".format(errMsg.value))
