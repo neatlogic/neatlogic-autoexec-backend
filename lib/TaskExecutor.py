@@ -10,6 +10,7 @@ import threading
 from threading import Thread
 import subprocess
 import queue
+import copy
 import json
 import RunNodeFactory
 import RunNode
@@ -34,7 +35,8 @@ class TaskWorker(threading.Thread):
 
             try:
                 # 运行完所有操作
-                ret = node.execute(self.operations)
+                localOps = copy.copy(self.operations)  # 为了让每个节点都有独立的插件参数记录，复制operation
+                ret = node.execute(localOps)
                 if ret != 0:
                     self.context.failNodeCount = self.context.failNodeCount + 1
                     print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))

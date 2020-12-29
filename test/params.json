@@ -1,6 +1,8 @@
 {
-        "taskId": 156,
-        "stepId": 353,
+        "taskId": "156",
+        "stepId": "353",
+        "preTaskId": "156",
+        "preStepId": "353",
         "parallel": 10,
         "pre": [{
                 "opId": "addme",

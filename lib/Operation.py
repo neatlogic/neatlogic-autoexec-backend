@@ -71,12 +71,12 @@ class Operation:
             os.mkdir('output')
 
     # 分析操作参数进行相应处理
-    def parseParam(self):
+    def parseParam(self, refMap=None):
         opDesc = self.param['desc']
         opArgs = self.param['arg']
 
         for argName, argValue in opArgs.items():
-            argValue = self.resolveArgValue(argValue)
+            argValue = self.resolveArgValue(argValue, refMap=refMap)
             argType = opDesc[argName]
             if(argType == 'password' and argValue[0:5] == '{RC4}'):
                 argValue = Utils.rc4(self.passKey, argValue[5:])

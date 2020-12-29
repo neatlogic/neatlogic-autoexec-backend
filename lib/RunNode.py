@@ -32,10 +32,7 @@ class LogFile(io.TextIOWrapper):
             super().write(Utils.getTimeStr())
             super().write(line)
             super().flush()
-
-    def write0(self, d):
-        super().write(d)
-        super().flush()
+            # TODO: write log to share object storage
 
     def close(self):
         super().flush()
@@ -95,6 +92,7 @@ class RunNode:
             try:
                 statusFile.truncate(0)
                 statusFile.write(json.dumps(statuses))
+                # TODO: write status file to share object store
                 statusFile.close()
             except Exception as ex:
                 self.logHandle.write('ERROR: Save status file:{}, failed {}\n'.format(self.statusPath, ex))
@@ -149,6 +147,7 @@ class RunNode:
             try:
                 outputFile = open(self.outputPath, 'w')
                 outputFile.write(json.dumps(self.output))
+                # TODO: write output file to share object store
                 outputFile.close()
             except Exception as ex:
                 self.logHandle.write('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
@@ -174,6 +173,8 @@ class RunNode:
     def execute(self, ops):
         if self.context.goToStop:
             return 2
+
+        # TODO：restore status and output from share object storage
 
         self.logHandle.write("------[{}]{}:{}------\n\n".format(self.id, self.host, self.port))
 
@@ -213,6 +214,7 @@ class RunNode:
                 self._loadOpOutput(op)
                 self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op)
+                op.parseParam(self.output)
 
             if ret == 0:
                 self.logHandle.write("------END-- {}[{}] Execute {} succeed.\n\n".format(op.opId, op.opName, op.opType))
