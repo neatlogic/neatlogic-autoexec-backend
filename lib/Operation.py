@@ -51,7 +51,8 @@ class Operation:
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.pluginPath = '{}/plugins/{}'.format(self.context.homePath, self.opId)
 
-        self.parseParam()
+        # 不需要了，因为节点运行时会复制操作对象，所以放到节点运行时进行操作的参数处理
+        # self.parseParam(self.context.output)
 
         cmd = self.opId
         for k, v in self.options.items():
@@ -112,49 +113,44 @@ class Operation:
         if not refMap:
             refMap = self.opsParam
 
-        matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
-        while matchObj:
-            newArgValue = None
-            opId = matchObj.group(1)
-            paramName = matchObj.group(2)
-            if opId in refMap:
-                paramMap = refMap[opId]
-                if paramName in paramMap:
-                    newArgValue = refMap[paramName]
-            if newArgValue is not None:
-                argValue = newArgValue
-                matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
-            else:
-                break
-        return argValue
-
-    def getCmdLine(self, refMap):
-        cmd = self.opId
-        for k, v in self.options.items():
-            matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', v)
+        # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
+        matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', argValue)
+        if matchObj:
+            paramName = matchObj.group(1)
+            if 'arg' in self.opsParam:
+                nativeRefMap = self.opsParam['arg']
+                if paramName in nativeRefMap:
+                    argValue = nativeRefMap[paramName]
+        else:
+            # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
+            matchObj = re.match(r'^\s*\$\{\s*([^\.]+?)\.(.+)\s*\}\s*$', argValue)
             if matchObj:
+                newArgValue = None
                 opId = matchObj.group(1)
                 paramName = matchObj.group(2)
                 if opId in refMap:
                     paramMap = refMap[opId]
                     if paramName in paramMap:
-                        v = refMap[paramName]
+                        newArgValue = paramMap[paramName]
+                elif 'local' in self.context.output:
+                    paramMap = self.context.output['local']
+                    if paramName in paramMap:
+                        newArgValue = paramMap[paramName]
 
+                if newArgValue is not None:
+                    argValue = newArgValue
+
+        return argValue
+
+    def getCmdLine(self):
+        cmd = self.opId
+        for k, v in self.options.items():
             cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd
 
-    def getCmdLineHidePassword(self, refMap):
+    def getCmdLineHidePassword(self):
         cmd = self.opId
         for k, v in self.options.items():
-            matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', v)
-            if matchObj:
-                opId = matchObj.group(1)
-                paramName = matchObj.group(2)
-                if opId in refMap:
-                    paramMap = refMap[opId]
-                    if paramName in paramMap:
-                        v = refMap[paramName]
-
             if k == 'password' or k == 'pass':
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:

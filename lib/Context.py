@@ -13,6 +13,8 @@ class Context:
     def __init__(self, stepId, taskId, isForce=False, dataPath=None):
         self.stepId = stepId
         self.taskId = taskId
+        self.output = {}
+        self.output['local'] = {}
         self.phase = 'pre'
         self.isForce = isForce
         self.dataPath = dataPath

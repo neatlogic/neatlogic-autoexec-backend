@@ -55,13 +55,13 @@ class RunNode:
         self.childPid = None
         self.killCmd = None
 
-        self.output = {}
+        self.output = self.context.output
         self.statusPath = '{}/status/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
 
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
         self.outputPath = self.outputPathPrefix + '.json'
         self.logPath = '{}/log/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
-        #self.logHandle = open(self.logPath, 'a', buffering=1)
+        # self.logHandle = open(self.logPath, 'a', buffering=1)
         self.logHandle = LogFile(open(self.logPath, 'a').detach())
 
         self.status = NodeStatus.pending
@@ -160,7 +160,11 @@ class RunNode:
             try:
                 opOutputFile = open(opOutPutPath, 'r')
                 opOutput = json.loads(opOutputFile.read())
-                self.output[op.opId] = opOutput
+                if self.host == 'local-pre' or self.host == 'local-post':
+                    for key in opOutput:
+                        self.context.output['local'][key] = opOutput[key]
+                else:
+                    self.output[op.opId] = opOutput
 
                 if opOutputFile:
                     opOutputFile.close()
@@ -183,7 +187,10 @@ class RunNode:
             ret = 0
 
             if not self.context.isForce and self.getNodeStatus(op) == NodeStatus.succeed:
+                self._loadOpOutput(op)
                 continue
+
+            op.parseParam(self.output)
 
             # 如果节点是虚构的本地节点，则只执行类型是local的操作
             if self.host == 'local' or self.host == 'local-pre' or self.host == 'local-post':
@@ -214,7 +221,6 @@ class RunNode:
                 self._loadOpOutput(op)
                 self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op)
-                op.parseParam(self.output)
 
             if ret == 0:
                 self.logHandle.write("------END-- {}[{}] Execute {} succeed.\n\n".format(op.opId, op.opName, op.opType))
@@ -242,8 +248,8 @@ class RunNode:
         os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine(self.output)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(self.output)
+        orgCmdLine = op.getCmdLine()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
         cmdline = 'exec {}/{}'.format(op.pluginPath, orgCmdLine)
         environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
@@ -275,8 +281,8 @@ class RunNode:
         os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine(self.output)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(self.output)
+        orgCmdLine = op.getCmdLine()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
         cmdline = 'exec {}/{} --node \'{}\''.format(op.pluginPath, orgCmdLine, json.dumps(self.node))
         environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
@@ -310,8 +316,8 @@ class RunNode:
         if self.type == 'tagent':
             try:
                 remotePath = '$TMPDIR/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
-                remoteCmd = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine(self.output))
-                remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword(self.output))
+                remoteCmd = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine())
+                remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword())
 
                 runEnv = {'AUTOEXEC_TASKID': self.context.taskId, 'AUTOEXEC_STEPID': self.context.stepId}
 
@@ -323,7 +329,7 @@ class RunNode:
                 uploadRet = 0
                 uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
                 if uploadRet == 0 and not self.context.goToStop:
-                    ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine(self.output)), env=runEnv, isVerbose=0, callback=self.logHandle.write)
+                    ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine()), env=runEnv, isVerbose=0, callback=self.logHandle.write)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
                         outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opId), outputFilePath)
@@ -349,8 +355,8 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
             remotePath = '{}/{}'.format(remoteRoot, op.opId)
-            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine(self.output))
-            remoteCmdHidePassword = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLineHidePassword(self.output))
+            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine())
+            remoteCmdHidePassword = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLineHidePassword())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
             uploaded = False

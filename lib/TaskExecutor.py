@@ -94,10 +94,10 @@ class TaskExecutor:
                     execQueue.put(loalRunNode)
                 else:
                     nodeStatus = loalRunNode.getNodeStatus()
-                    if nodeStatus != NodeStatus.succeed:
-                        # 需要执行的节点实例加入等待执行队列
-                        print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
-                        execQueue.put(loalRunNode)
+                    # if nodeStatus != NodeStatus.succeed:
+                    # 需要执行的节点实例加入等待执行队列
+                    print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
+                    execQueue.put(loalRunNode)
 
             if self.context.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中

@@ -4,6 +4,9 @@
         "preTaskId": "156",
         "preStepId": "353",
         "parallel": 10,
+        "arg": {
+                "fetchfile": "testfile"
+        },
         "pre": [{
                 "opId": "addme",
                 "opName": "添加用户",
@@ -30,7 +33,7 @@
                         "opName": "添加用户",
                         "opType": "remote",
                         "arg": {
-                                "param1": "xxxx",
+                                "param1": "${addme.outputparam1}",
                                 "param2": "yyyy",
                                 "password": "{RC4}xxxxxxx"
                         },

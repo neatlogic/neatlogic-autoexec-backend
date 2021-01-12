@@ -147,7 +147,7 @@ class TagentClient:
                     if chunk:
                         if encrypt:
                             chunk = _rc4(self.password, chunk)
-                        raise ExecError(chunk)
+                        raise ExecError(chunk.decode(self.agentCharset))
         else:
             raise ExecError("Connection reset!")
 
