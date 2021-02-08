@@ -9,6 +9,7 @@ binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
+import platform
 import argparse
 import time
 import signal
@@ -157,7 +158,9 @@ if __name__ == "__main__":
 
         signal.signal(signal.SIGTERM, handler)
         signal.signal(signal.SIGINT, handler)
-        signal.signal(signal.SIGHUP, handler)
+
+        if platform.system() != 'Windows':
+            signal.signal(signal.SIGHUP, handler)
 
         sys.exit(runner.execute())
     else:
