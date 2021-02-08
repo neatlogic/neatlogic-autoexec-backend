@@ -226,9 +226,15 @@ class TagentClient:
             chlgArray = plainChlg.split(',')
             factor1 = chlgArray[0]
             factor2 = chlgArray[1]
+            serverTime = None
+            if len(chlgArray) > 2:
+                serverTime = chlgArray[2]
+            if serverTime is None or serverTime == '0':
+                serverTime = str(time.time())
+
             if str(factor1).isdigit() == False or str(factor2).isdigit() == False:
                 return 0
-            reverseChlg = str(int(factor1) * int(factor2)) + ',' + str(time.time())
+            reverseChlg = str(int(factor1) * int(factor2)) + ',' + serverTime
             encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg.encode("latin-1"))
             self.__writeChunk(sock, encryptChlg.encode(encoding="utf-8"))
             authResult = self.__readChunk(sock).decode()
