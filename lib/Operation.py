@@ -82,7 +82,7 @@ class Operation:
             if(argType == 'password' and argValue[0:5] == '{RC4}'):
                 argValue = Utils.rc4(self.passKey, argValue[5:])
             elif(argType == 'file'):
-                matchObj = re.match(r'^\s*\$\{\s*(.+?)\.(.+)\s*\}\s*$', argValue)
+                matchObj = re.match(r'^\s*\$\{', argValue)
                 if not matchObj:
                     fileName = self.fetchFile(argName, argValue)
                     argValue = 'file/' + fileName
@@ -117,10 +117,9 @@ class Operation:
         matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', argValue)
         if matchObj:
             paramName = matchObj.group(1)
-            if 'arg' in self.opsParam:
-                nativeRefMap = self.opsParam['arg']
-                if paramName in nativeRefMap:
-                    argValue = nativeRefMap[paramName]
+            nativeRefMap = self.context.arg
+            if paramName in nativeRefMap:
+                argValue = nativeRefMap[paramName]
         else:
             # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
             matchObj = re.match(r'^\s*\$\{\s*([^\.]+?)\.(.+)\s*\}\s*$', argValue)

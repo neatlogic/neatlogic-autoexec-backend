@@ -14,6 +14,7 @@ class Context:
     def __init__(self, stepId, taskId, isForce=False, failBreak=False, dataPath=None):
         self.stepId = stepId
         self.taskId = taskId
+        self.arg = {}
         self.output = {}
         self.output['local'] = {}
         self.phase = 'pre'

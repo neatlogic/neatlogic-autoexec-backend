@@ -9,17 +9,17 @@ binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
-import time
-import re
-import signal
-import json
 import argparse
+import time
+import signal
+import re
+import json
 import logging
 from logging.handlers import RotatingFileHandler
 
-import Context
-import Operation
 import TaskExecutor
+import Operation
+import Context
 
 class ExecError(RuntimeError):
 
@@ -59,6 +59,10 @@ class Runner:
         # 加载运行参数文件
         paramFile = open(context.paramsFilePath, 'r')
         self.params = json.loads(paramFile.read())
+
+        if 'arg' in self.params:
+            self.context.arg = self.params['arg']
+
         paramFile.close()
 
     def execOperations(self, opsParams, opArgsRefMap, parallelCount):
@@ -103,12 +107,14 @@ class Runner:
             print("INFO: Begin to execute pre operations...")
             failCount = self.execOperations(params['pre'], opArgsRefMap, parallelCount)
             print("INFO: Execute pre operations finish, failCount:{}".format(failCount))
+            print("--------------------------------\n")
 
         if failCount == 0 and 'run' in params:
             self.context.phase = 'run'
             print("INFO: Begin to execute operations...")
             failCount = self.execOperations(params['run'], opArgsRefMap, parallelCount)
             print("INFO: Execute operations finish, failCount:{}".format(failCount))
+            print("--------------------------------\n")
 
         if failCount == 0 and 'post' in params:
             self.context.phase = 'post'
