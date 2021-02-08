@@ -5,27 +5,33 @@
 """
 
 import os
+import threading
 import configparser
 import ServerAdapter
 
 
 class Context:
-    def __init__(self, stepId, taskId, isForce=False, dataPath=None):
+    def __init__(self, stepId, taskId, isForce=False, failBreak=False, dataPath=None):
         self.stepId = stepId
         self.taskId = taskId
         self.output = {}
         self.output['local'] = {}
         self.phase = 'pre'
         self.isForce = isForce
+        self.failBreak = failBreak
         self.dataPath = dataPath
 
         self.goToStop = False
 
         self.hasLocal = False
         self.hasRemote = False
+
         self.failNodeCount = 0
+        self.failNodeCountLock = threading.Lock()
         self.sucNodeCount = 0
+        self.sucNodeCountLock = threading.Lock()
         self.skipNodeCount = 0
+        self.skipNodeCountLock = threading.Lock()
 
         homePath = os.path.split(os.path.realpath(__file__))[0]
         homePath = os.path.realpath(homePath + '/..')
@@ -64,3 +70,18 @@ class Context:
         taskIdLen = len(taskIdStr)
         subPath = subPath + [taskIdStr[i:i+3] for i in range(0, taskIdLen, 3)]
         return '/'.join(subPath)
+
+    def incFailNodeCount(self):
+        with self.failNodeCountLock:
+            self.failNodeCount += 1
+            return self.failNodeCount
+
+    def incSucNodeCount(self):
+        with self.sucNodeCountLock:
+            self.sucNodeCount += 1
+            return self.sucNodeCount
+
+    def incSkipNodeCount(self):
+        with self.skipNodeCountLock:
+            self.skipNodeCount += 1
+            return self.skipNodeCount

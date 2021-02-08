@@ -3,9 +3,12 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-
 import os
 import sys
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+
 import time
 import re
 import signal
@@ -13,10 +16,10 @@ import json
 import argparse
 import logging
 from logging.handlers import RotatingFileHandler
+
 import Context
 import Operation
 import TaskExecutor
-
 
 class ExecError(RuntimeError):
 
@@ -28,9 +31,9 @@ class ExecError(RuntimeError):
 
 
 class Runner:
-    def __init__(self, stepId, taskId, isForce=False, dataPath=None):
+    def __init__(self, stepId, taskId, isForce=False, failBreak=False, dataPath=None):
         # 初始化运行上下文
-        context = Context.Context(stepId, taskId, isForce, dataPath)
+        context = Context.Context(stepId, taskId, isForce, failBreak, dataPath)
         self.context = context
         self.executor = None
 
@@ -130,8 +133,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
     parser.add_argument('--stepid', '-s', default='00', help='Step id for task, default is "00"')
-    parser.add_argument('--taskid', '-t', default='00', help='Task id fro this execution')
-    parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes')
+    parser.add_argument('--taskid', '-t', default='00', help='Task id for this execution')
+    parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
+    parser.add_argument('--failbreak', '-b', default=False, action='store_true', help='Break the running loop while the node status is failed')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
 
     args = parser.parse_args()
@@ -140,7 +144,7 @@ if __name__ == "__main__":
     if not args.abort:
         os.environ['AUTOEXEC_TASKID'] = args.taskid
         os.environ['AUTOEXEC_STEPID'] = args.stepid
-        runner = Runner(args.stepid, args.taskid, args.force)
+        runner = Runner(args.stepid, args.taskid, args.force, args.failbreak)
 
         def handler(signum, frame):
             runner.kill()

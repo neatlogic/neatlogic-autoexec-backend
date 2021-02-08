@@ -38,10 +38,10 @@ class TaskWorker(threading.Thread):
                 localOps = copy.copy(self.operations)  # 为了让每个节点都有独立的插件参数记录，复制operation
                 ret = node.execute(localOps)
                 if ret != 0:
-                    self.context.failNodeCount = self.context.failNodeCount + 1
+                    self.context.incFailNodeCount()
                     print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))
                 else:
-                    self.context.sucNodeCount = self.context.sucNodeCount + 1
+                    self.context.incSucNodeCount()
                     print("INFO: Node({}) {}:{} execute succeed.".format(node.id, node.host, node.port))
             finally:
                 self.currentNode = None
@@ -60,7 +60,7 @@ class TaskExecutor:
 
     def _buildWorkerPool(self, queue):
         workers = []
-        for _ in range(self.parallelCount):
+        for i in range(self.parallelCount):
             worker = TaskWorker(self.context, self.operations, queue)
             worker.start()
             workers.append(worker)
@@ -99,7 +99,14 @@ class TaskExecutor:
                     print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
                     execQueue.put(loalRunNode)
 
-            if self.context.hasRemote:
+            if self.context.failBreak and self.context.failNodeCount > 0:
+                try:
+                    while True:
+                        execQueue.get_nowait()
+                except Exception as ex:
+                    pass
+
+            elif self.context.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
                 while True:
                     node = nodesFactory.nextNode()
@@ -117,12 +124,21 @@ class TaskExecutor:
                             execQueue.put(node)
                         else:
                             # 如果是成功状态，回写服务端，防止状态不一致
-                            self.context.skipNodeCount = self.context.skipNodeCount + 1
+                            self.context.incSkipNodeCount()
                             print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.id, nodeStatus, node.host, node.port))
                             try:
                                 self.context.serverAdapter.pushNodeStatus(node, nodeStatus)
                             except Exception as ex:
                                 logging.error('RePush node status to server failed, {}'.format(ex))
+
+                    if self.context.failBreak and self.context.failNodeCount > 0:
+                        try:
+                            while True:
+                                execQueue.get_nowait()
+                        except Exception as ex:
+                            pass
+
+                        break
         finally:
             # 入队对应线程数量的退出信号对象
             for worker in worker_threads:
