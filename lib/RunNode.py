@@ -59,6 +59,7 @@ class RunNode:
         self.statusPath = '{}/status/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
 
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
+        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
         self.outputPath = self.outputPathPrefix + '.json'
         self.logPath = '{}/log/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
         # self.logHandle = open(self.logPath, 'a', buffering=1)
@@ -126,7 +127,7 @@ class RunNode:
         return status
 
     def _getOpOutputPath(self, op):
-        return '{}-{}.json'.format(self.outputPathPrefix, op.opId)
+        return '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)
 
     def _loadOutput(self):
         # 加载操作输出并进行合并
@@ -160,11 +161,11 @@ class RunNode:
             try:
                 opOutputFile = open(opOutPutPath, 'r')
                 opOutput = json.loads(opOutputFile.read())
-                if self.host == 'local-pre' or self.host == 'local-post':
-                    for key in opOutput:
-                        self.context.output['local'][key] = opOutput[key]
-                else:
-                    self.output[op.opId] = opOutput
+                # if self.host == 'local-pre' or self.host == 'local-post':
+                #    for key in opOutput:
+                #        self.context.output['local'][key] = opOutput[key]
+                # else:
+                self.output[op.opId] = opOutput
 
                 if opOutputFile:
                     opOutputFile.close()

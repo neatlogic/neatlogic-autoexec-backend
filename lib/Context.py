@@ -16,7 +16,7 @@ class Context:
         self.taskId = taskId
         self.arg = {}
         self.output = {}
-        self.output['local'] = {}
+        #self.output['local'] = {}
         self.phase = 'pre'
         self.isForce = isForce
         self.failBreak = failBreak

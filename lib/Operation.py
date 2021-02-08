@@ -71,6 +71,9 @@ class Operation:
         if not os.path.exists('output'):
             os.mkdir('output')
 
+        if not os.path.exists('output-op'):
+            os.mkdir('output-op')
+
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
         opDesc = self.param['desc']
@@ -131,10 +134,10 @@ class Operation:
                     paramMap = refMap[opId]
                     if paramName in paramMap:
                         newArgValue = paramMap[paramName]
-                elif 'local' in self.context.output:
-                    paramMap = self.context.output['local']
-                    if paramName in paramMap:
-                        newArgValue = paramMap[paramName]
+                # elif 'local' in self.context.output:
+                #    paramMap = self.context.output['local']
+                #    if paramName in paramMap:
+                #        newArgValue = paramMap[paramName]
 
                 if newArgValue is not None:
                     argValue = newArgValue
