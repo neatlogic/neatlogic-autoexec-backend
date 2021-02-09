@@ -203,28 +203,21 @@ class RunNode:
 
             beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             startTime = time.time()
-            # 如果节点是虚构的本地节点，则只执行类型是local的操作
-            if self.host == 'local' or self.host == 'local-pre' or self.host == 'local-post':
-                ret = 0
-                if op.opType == 'local':
-                    # 本地执行，逐个node循环本地调用插件
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._localExecute(op)
-                else:
-                    continue
-            # 否则则按照以节点的方式来运行操作
-            else:
-                ret = 0
-                if op.opType == 'localremote':
-                    # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
-                    # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> local-remote execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._localRemoteExecute(op)
 
-                elif op.opType == 'remote':
-                    # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> remote execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._remoteExecute(op)
+            ret = 0
+            if op.opType == 'local':
+                # 本地执行，逐个node循环本地调用插件
+                self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
+                ret = self._localExecute(op)
+            elif op.opType == 'localremote':
+                # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
+                # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                self.logHandle.write("------{}[{}] BEGIN-- <{}> local-remote execute...\n".format(op.opId, op.opName, beginDateTime))
+                ret = self._localRemoteExecute(op)
+            elif op.opType == 'remote':
+                # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                self.logHandle.write("------{}[{}] BEGIN-- <{}> remote execute...\n".format(op.opId, op.opName, beginDateTime))
+                ret = self._remoteExecute(op)
 
             timeConsume = time.time() - startTime
             if ret != 0:
