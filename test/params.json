@@ -8,108 +8,119 @@
                 "fetchfile": "testfile"
         },
         "pre": [{
-                "opId": "addme",
-                "opName": "添加用户",
+                "opId": "localdemo",
+                "opName": "local测试",
                 "opType": "local",
                 "failIgnore": false,
                 "arg": {
-                        "param1": "xxxx",
-                        "param2": "yyyy",
-                        "password": "{RC4}xxxxxxx"
+                        "tinput": "xxxx",
+                        "tselect": "yyyy",
+                        "tpassword": "{RC4}xxxxxxx",
+                        "tfile": "testfile"
                 },
 
                 "desc": {
-                        "param1": "input",
-                        "param2": "input",
-                        "password": "password",
-                        "media": "file"
+                        "tinput": "input",
+                        "tselect": "input",
+                        "tpassword": "password",
+                        "tfile": "file"
                 },
                 "output": {
-                        "outparam1": "input",
-                        "outparam2": "file"
+                        "outtext": "text",
+                        "outfile": "file"
                 }
         }],
         "run": [{
-                        "opId": "adduser",
-                        "opName": "添加用户",
-                        "opType": "remote",
+                        "opId": "localdemo",
+                        "opName": "local测试",
+                        "opType": "local",
                         "failIgnore": false,
                         "arg": {
-                                "param1": "testtest",
-                                "param2": "yyyy",
-                                "password": "{RC4}xxxxxxx"
+                                "tinput": "xxxx",
+                                "tselect": "yyyy",
+                                "tpassword": "{RC4}xxxxxxx",
+                                "tfile": "testfile"
                         },
 
                         "desc": {
-                                "param1": "input",
-                                "param2": "input",
-                                "password": "password",
-                                "media": "file"
+                                "tinput": "input",
+                                "tselect": "input",
+                                "tpassword": "password",
+                                "tfile": "file"
                         },
                         "output": {
-                                "outparam1": "input",
-                                "outparam2": "file"
+                                "outtext": "text",
+                                "outfile": "file"
                         }
                 },
                 {
-                        "opId": "chggrp",
-                        "opName": "修改用户组",
+                        "opId": "localremotedemo",
+                        "opName": "localremote测试",
                         "opType": "localremote",
                         "failIgnore": false,
                         "arg": {
-                                "param1": "xxxx",
-                                "param2": "yyyy",
-                                "media": "${fetchfile}",
-                                "password": "{RC4}xxxxxxx"
+                                "tinput": "xxxx",
+                                "tselect": "yyyy",
+                                "tpassword": "{RC4}xxxxxxx",
+                                "tfile": "testfile"
                         },
 
                         "desc": {
-                                "param1": "input",
-                                "param2": "input",
-                                "password": "password",
-                                "media": "file"
+                                "tinput": "input",
+                                "tselect": "input",
+                                "tpassword": "password",
+                                "tfile": "file"
+                        },
+                        "output": {
+                                "outtext": "text",
+                                "outfile": "file"
                         }
                 }
         ],
         "post": [{
-                        "opId": "addme",
-                        "opName": "添加用户",
+                        "opId": "localdemo",
+                        "opName": "local测试",
                         "opType": "local",
                         "failIgnore": false,
                         "arg": {
-                                "param1": "xxxx",
-                                "param2": "yyyy",
-                                "password": "{RC4}xxxxxxx"
+                                "tinput": "xxxx",
+                                "tselect": "yyyy",
+                                "tpassword": "{RC4}xxxxxxx",
+                                "tfile": "testfile"
                         },
 
                         "desc": {
-                                "param1": "input",
-                                "param2": "input",
-                                "password": "password",
-                                "media": "file"
+                                "tinput": "input",
+                                "tselect": "input",
+                                "tpassword": "password",
+                                "tfile": "file"
                         },
                         "output": {
-                                "outparam1": "input",
-                                "outparam2": "file"
+                                "outtext": "text",
+                                "outfile": "file"
                         }
                 },
                 {
-                        "opId": "chggrp",
-                        "opName": "修改用户组",
+                        "opId": "localdemo",
+                        "opName": "local测试",
                         "opType": "local",
                         "failIgnore": false,
                         "arg": {
-                                "param1": "xxxx",
-                                "param2": "yyyy",
-                                "media": "${fetchfile}",
-                                "password": "{RC4}xxxxxxx"
+                                "tinput": "xxxx",
+                                "tselect": "yyyy",
+                                "tpassword": "{RC4}xxxxxxx",
+                                "tfile": "testfile"
                         },
 
                         "desc": {
-                                "param1": "input",
-                                "param2": "input",
-                                "password": "password",
-                                "media": "file"
+                                "tinput": "input",
+                                "tselect": "input",
+                                "tpassword": "password",
+                                "tfile": "file"
+                        },
+                        "output": {
+                                "outtext": "text",
+                                "outfile": "file"
                         }
                 }
         ]
