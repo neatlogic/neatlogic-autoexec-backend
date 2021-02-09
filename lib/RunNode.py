@@ -266,8 +266,16 @@ class RunNode:
         orgCmdLine = op.getCmdLine()
         orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
-        cmdline = 'exec {}/{}'.format(op.pluginPath, orgCmdLine)
-        environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
+        cmdline = 'exec {}/{}'.format(op.localPluginPath, orgCmdLine)
+        environment = {}
+        environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['PATH'] = '{}/{}:{}'.format(op.localPluginPath, op.opId, os.environ['PATH'])
+        environment['PERLLIB'] = '{}/lib:{}'.format(op.localPluginPath, os.environ['PERLLIB'])
+
+        pluginFile = op.localPluginPath + os.path.sep + op.opId
+        if not os.path.exists(pluginFile):
+            self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
+
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
         # 管道启动成功后，更新状态为running
@@ -299,8 +307,16 @@ class RunNode:
         orgCmdLine = op.getCmdLine()
         orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
-        cmdline = 'exec {}/{} --node \'{}\''.format(op.pluginPath, orgCmdLine, json.dumps(self.node))
-        environment = {'OUTPUT_PATH': self._getOpOutputPath(op)}
+        cmdline = 'exec {}/{} --node \'{}\''.format(op.localPluginPath, orgCmdLine, json.dumps(self.node))
+        environment = {}
+        environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['PATH'] = '{}/{}:{}'.format(op.localPluginPath, op.opId, os.environ['PATH'])
+        environment['PERLLIB'] = '{}/lib:{}'.format(op.localPluginPath, os.environ['PERLLIB'])
+
+        pluginFile = op.localPluginPath + os.path.sep + op.opId
+        if not os.path.exists(pluginFile):
+            self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
+
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
         # 管道启动成功后，更新状态为running
@@ -342,7 +358,11 @@ class RunNode:
                 self.updateNodeStatus(NodeStatus.running, op)
 
                 uploadRet = 0
-                uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
+                for srcPath in [op.remoteLibPath, op.remotePluginPath]:
+                    uploadRet = tagent.upload(self.username, srcPath, remotePath)
+                    if uploadRet != 0:
+                        break
+
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine()), env=runEnv, isVerbose=0, callback=self.logHandle.write)
                     if ret == 0 and op.hasOutput:
@@ -396,9 +416,20 @@ class RunNode:
                 except SFTPError as err:
                     self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
-                # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
-                os.chdir(op.pluginRootPath)
+                os.chdir(op.remotePluginRootPath)
+                for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
+                    try:
+                        # 创建当前目录
+                        sftp.mkdir(os.path.join(remoteRoot, root))
+                    except:
+                        pass
+                    for name in files:
+                        # 遍历文件并scp到目标上
+                        filePath = os.path.join(root, name)
+                        sftp.put(filePath, os.path.join(remoteRoot, filePath))
 
+                # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
+                os.chdir(op.remotePluginRootPath)
                 # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
                 for root, dirs, files in os.walk(op.opId, topdown=True, followlinks=True):
                     try:
@@ -410,7 +441,8 @@ class RunNode:
                         # 遍历文件并scp到目标上
                         filePath = os.path.join(root, name)
                         sftp.put(filePath, os.path.join(remoteRoot, filePath))
-                    uploaded = True
+
+                uploaded = True
 
                 sftp.chmod('{}/{}'.format(remotePath, op.opId), stat.S_IXUSR)
             except Exception as err:

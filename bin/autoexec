@@ -41,7 +41,17 @@ class Runner:
         loggingLevel = context.config.get('autoexec', 'logging.level')
 
         pPaths = os.path.split(os.path.realpath(__file__))
-        logFilePath = '{}/logs/{}.log'.format(os.path.realpath(pPaths[0]+'/..'), pPaths[1])
+        homePath = os.path.realpath(pPaths[0]+'/..')
+        sys.path.append(homePath + '/plugins/local/bin')
+        sys.path.append(homePath + '/plugins/local/lib')
+        sys.path.append(homePath + '/plugins/local/tools')
+
+        if 'PERLLIB' in os.environ:
+            os.environ['PERLLIB'] = '{}:{}'.format(homePath + '/plugins/local/lib', os.environ['PERLLIB'])
+        else:
+            os.environ['PERLLIB'] = homePath + '/plugins/local/lib'
+
+        logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
         logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
         logger = logging.getLogger('')
         logger.setLevel(loggingLevel)
@@ -80,7 +90,7 @@ class Runner:
                 opArgsRefMap[operation['opId']] = {}
 
             op = Operation.Operation(self.context, opArgsRefMap, operation)
-            #op.parseParam()
+            # op.parseParam()
 
             # 如果有本地操作，则在context中进行标记
             if op.opType == 'local':

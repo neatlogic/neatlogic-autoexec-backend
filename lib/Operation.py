@@ -55,7 +55,10 @@ class Operation:
 
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
-        self.pluginPath = '{}/plugins/{}'.format(self.context.homePath, self.opId)
+        self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
+        self.localPluginPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opId)
+        self.remotePluginPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opId)
+        self.remoteLibPath = '{}/plugins/remote/lib'.format(self.context.homePath)
 
         # 不需要了，因为节点运行时会复制操作对象，所以放到节点运行时进行操作的参数处理
         # self.parseParam(self.context.output)

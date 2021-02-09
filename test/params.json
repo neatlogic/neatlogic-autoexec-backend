@@ -35,7 +35,7 @@
                         "opType": "remote",
                         "failIgnore": false,
                         "arg": {
-                                "param1": "${addme.outputparam1}",
+                                "param1": "testtest",
                                 "param2": "yyyy",
                                 "password": "{RC4}xxxxxxx"
                         },
