@@ -85,20 +85,24 @@ class Operation:
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
-        opDesc = self.param['desc']
+        opDesc = {}
+        if 'desc' in self.param:
+            opDesc = self.param['desc']
+
         opArgs = self.param['arg']
 
         for argName, argValue in opArgs.items():
             argValue = self.resolveArgValue(argValue, refMap=refMap)
-            argType = opDesc[argName]
-            if(argType == 'password' and argValue[0:5] == '{RC4}'):
-                argValue = Utils.rc4(self.passKey, argValue[5:])
-            elif(argType == 'file'):
-                matchObj = re.match(r'^\s*\$\{', argValue)
-                if not matchObj:
-                    fileName = self.fetchFile(argName, argValue)
-                    argValue = 'file/' + fileName
-            self.options[argName] = argValue
+            if argName in opDesc:
+                argType = opDesc[argName]
+                if(argType == 'password' and argValue[0:5] == '{RC4}'):
+                    argValue = Utils.rc4(self.passKey, argValue[5:])
+                elif(argType == 'file'):
+                    matchObj = re.match(r'^\s*\$\{', argValue)
+                    if not matchObj:
+                        fileName = self.fetchFile(argName, argValue)
+                        argValue = 'file/' + fileName
+                self.options[argName] = argValue
 
         # print("DEBUG:{}".format(str(self.options)))
 
