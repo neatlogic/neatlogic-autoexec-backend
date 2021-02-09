@@ -1,0 +1,131 @@
+{
+   "meta-spec" : {
+      "version" : "2",
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec"
+   },
+   "release_status" : "stable",
+   "dynamic_config" : 1,
+   "resources" : {
+      "repository" : {
+         "web" : "http://repo.or.cz/w/Spreadsheet-Read.git",
+         "type" : "git",
+         "url" : "http://repo.or.cz/r/Spreadsheet-Read.git"
+      },
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "name" : "Spreadsheet-Read",
+   "provides" : {
+      "Spreadsheet::Read" : {
+         "file" : "Read.pm",
+         "version" : "0.54"
+      }
+   },
+   "version" : "0.54",
+   "license" : [
+      "perl_5"
+   ],
+   "optional_features" : {
+      "opt_csv" : {
+         "prereqs" : {
+            "runtime" : {
+               "recommends" : {
+                  "Text::CSV" : "1.32",
+                  "Text::CSV_PP" : "1.31",
+                  "Text::CSV_XS" : "1.04"
+               },
+               "requires" : {
+                  "Text::CSV_XS" : "0.71"
+               }
+            }
+         },
+         "description" : "Provides parsing of CSV streams"
+      },
+      "opt_oo" : {
+         "prereqs" : {
+            "runtime" : {
+               "requires" : {
+                  "Spreadsheet::ReadSXC" : "0.20"
+               }
+            }
+         },
+         "description" : "Provides parsing of OpenOffice spreadsheets"
+      },
+      "opt_excelx" : {
+         "prereqs" : {
+            "runtime" : {
+               "requires" : {
+                  "Spreadsheet::ParseExcel::FmtDefault" : "0",
+                  "Spreadsheet::ParseXLSX" : "0.13"
+               }
+            }
+         },
+         "description" : "Provides parsing of Microsoft Excel 2007 files"
+      },
+      "opt_tools" : {
+         "description" : "Spreadsheet tools",
+         "prereqs" : {
+            "runtime" : {
+               "recommends" : {
+                  "Tk::NoteBook" : "0",
+                  "Tk" : "804.032",
+                  "Tk::TableMatrix::Spreadsheet" : "0"
+               }
+            }
+         }
+      },
+      "opt_excel" : {
+         "prereqs" : {
+            "runtime" : {
+               "recommends" : {
+                  "Spreadsheet::ParseExcel" : "0.59"
+               },
+               "requires" : {
+                  "Spreadsheet::ParseExcel" : "0.34",
+                  "Spreadsheet::ParseExcel::FmtDefault" : "0"
+               }
+            }
+         },
+         "description" : "Provides parsing of Microsoft Excel files"
+      }
+   },
+   "generated_by" : "Author",
+   "author" : [
+      "H.Merijn Brand <h.m.brand@xs4all.nl>"
+   ],
+   "prereqs" : {
+      "runtime" : {
+         "recommends" : {
+            "Data::Peek" : "0.39",
+            "File::Temp" : "0.2304",
+            "IO::Scalar" : "0",
+            "perl" : "5.018001"
+         },
+         "requires" : {
+            "Carp" : "0",
+            "Data::Dumper" : "0",
+            "File::Temp" : "0.22",
+            "Exporter" : "0",
+            "Data::Peek" : "0",
+            "perl" : "5.006"
+         }
+      },
+      "test" : {
+         "recommends" : {
+            "Test::More" : "1.001002"
+         },
+         "requires" : {
+            "Test::Harness" : "0",
+            "Test::NoWarnings" : "0",
+            "Test::More" : "0.88"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      }
+   },
+   "abstract" : "Meta-Wrapper for reading spreadsheet data"
+}

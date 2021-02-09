@@ -1,0 +1,60 @@
+{
+   "abstract" : "automate interactions with command line programs that expose a text terminal interface.",
+   "author" : [
+      "unknown"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Expect",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {}
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.64"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Carp" : "0",
+            "Errno" : "0",
+            "Exporter" : "0",
+            "Fcntl" : "0",
+            "IO::Handle" : "0",
+            "IO::Pty" : "1.11",
+            "IO::Tty" : "1.11",
+            "POSIX" : "0"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "File::Temp" : "0",
+            "Test::Exception" : "0.32",
+            "Test::More" : "1.00"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "repository" : {
+         "type" : "git",
+         "url" : "http://github.com/szabgab/expect.pm.git",
+         "web" : "http://github.com/szabgab/expect.pm"
+      }
+   },
+   "version" : "1.32"
+}

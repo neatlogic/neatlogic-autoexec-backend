@@ -46,8 +46,11 @@ class Context:
 
         # 存放任务参数，输入输出信息，日志的目录，为了避免单目录子目录数量太多，对ID进行每3个字母分段处理
         self.runPath = self.dataPath + '/task/' + self._getSubPath(stepId, taskId)
+        os.environ['TASK_PATH'] = self.runPath
         self.paramsFilePath = self.runPath + '/params.json'
+        os.environ['TASK_PARAMS_PATH'] = self.paramsFilePath
         self.nodesFilePath = self.runPath + '/nodes.json'
+        os.environ['TASK_NODES_PATH'] = self.nodesFilePath
 
         # 如果任务数据目录不存在，则创建目录
         if not os.path.exists(self.runPath):

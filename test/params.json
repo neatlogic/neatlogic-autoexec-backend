@@ -19,13 +19,13 @@
                 },
 
                 "desc": {
-                        "param1": "common",
-                        "param2": "common",
+                        "param1": "input",
+                        "param2": "input",
                         "password": "password",
                         "media": "file"
                 },
                 "output": {
-                        "outparam1": "common",
+                        "outparam1": "input",
                         "outparam2": "file"
                 }
         }],
@@ -41,13 +41,13 @@
                         },
 
                         "desc": {
-                                "param1": "common",
-                                "param2": "common",
+                                "param1": "input",
+                                "param2": "input",
                                 "password": "password",
                                 "media": "file"
                         },
                         "output": {
-                                "outparam1": "common",
+                                "outparam1": "input",
                                 "outparam2": "file"
                         }
                 },
@@ -64,8 +64,8 @@
                         },
 
                         "desc": {
-                                "param1": "common",
-                                "param2": "common",
+                                "param1": "input",
+                                "param2": "input",
                                 "password": "password",
                                 "media": "file"
                         }
@@ -83,13 +83,13 @@
                         },
 
                         "desc": {
-                                "param1": "common",
-                                "param2": "common",
+                                "param1": "input",
+                                "param2": "input",
                                 "password": "password",
                                 "media": "file"
                         },
                         "output": {
-                                "outparam1": "common",
+                                "outparam1": "input",
                                 "outparam2": "file"
                         }
                 },
@@ -106,8 +106,8 @@
                         },
 
                         "desc": {
-                                "param1": "common",
-                                "param2": "common",
+                                "param1": "input",
+                                "param2": "input",
                                 "password": "password",
                                 "media": "file"
                         }
