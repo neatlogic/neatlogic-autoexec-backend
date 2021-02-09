@@ -196,7 +196,10 @@ class RunNode:
             try:
                 op.parseParam(self.output)
             except AutoExecError.AutoExecError as err:
-                self.logHandle.write("ERROR {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
+                self.logHandle.write("ERROR: {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
+                if not op.failIgnore:
+                    isFail = 1
+                    break
 
             beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             startTime = time.time()
@@ -235,21 +238,20 @@ class RunNode:
             if ret == 0:
                 self.logHandle.write("------END--<{}> {}[{}] {:.2f}second Execute {} succeed.\n\n".format(endDateTime, op.opId, op.opName, timeConsume, op.opType))
             else:
-                isFail = 1
                 self.logHandle.write("------END--<{}> {}[{}] {:.2f}second Execute {} failed.\n\n".format(endDateTime, op.opId, op.opName, timeConsume, op.opType))
-                break
+
+                if not op.failIgnore:
+                    isFail = 1
+                    break
 
         nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeConsumeTime = time.time() - nodeStartTime
 
         if isFail == 0:
             self.updateNodeStatus(NodeStatus.succeed, consumeTime=nodeConsumeTime)
-        else:
-            self.updateNodeStatus(NodeStatus.failed, consumeTime=nodeConsumeTime)
-
-        if isFail == 0:
             self.logHandle.write("------<{}> {:.2f}second [{}]{}:{} succeed------\n".format(nodeEndDateTime, nodeConsumeTime, self.id, self.host, self.port))
         else:
+            self.updateNodeStatus(NodeStatus.failed, consumeTime=nodeConsumeTime)
             self.logHandle.write("------<{}> {:.2f}second [{}]{}:{} failed------\n".format(nodeEndDateTime, nodeConsumeTime, self.id, self.host, self.port))
 
         self.killCmd = None

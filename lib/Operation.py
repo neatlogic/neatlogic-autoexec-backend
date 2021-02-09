@@ -34,6 +34,11 @@ class Operation:
         self.opType = param['opType']
         ##############
 
+        # failIgnore参数，用于插件运行失败不影响后续插件运行
+        self.failIgnore = False
+        if 'failIgnore' in param:
+            self.failIgnore = param['failIgnore']
+
         self.runPath = context.runPath
         self.dataPath = context.dataPath
         self.passKey = context.config.get('server', 'password.key')

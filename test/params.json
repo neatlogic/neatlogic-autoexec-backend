@@ -11,6 +11,7 @@
                 "opId": "addme",
                 "opName": "添加用户",
                 "opType": "local",
+                "failIgnore": false,
                 "arg": {
                         "param1": "xxxx",
                         "param2": "yyyy",
@@ -32,6 +33,7 @@
                         "opId": "adduser",
                         "opName": "添加用户",
                         "opType": "remote",
+                        "failIgnore": false,
                         "arg": {
                                 "param1": "${addme.outputparam1}",
                                 "param2": "yyyy",
@@ -53,6 +55,7 @@
                         "opId": "chggrp",
                         "opName": "修改用户组",
                         "opType": "localremote",
+                        "failIgnore": false,
                         "arg": {
                                 "param1": "xxxx",
                                 "param2": "yyyy",
@@ -72,6 +75,7 @@
                         "opId": "addme",
                         "opName": "添加用户",
                         "opType": "local",
+                        "failIgnore": false,
                         "arg": {
                                 "param1": "xxxx",
                                 "param2": "yyyy",
@@ -93,6 +97,7 @@
                         "opId": "chggrp",
                         "opName": "修改用户组",
                         "opType": "local",
+                        "failIgnore": false,
                         "arg": {
                                 "param1": "xxxx",
                                 "param2": "yyyy",
