@@ -120,12 +120,14 @@ class ServerAdapter:
 
         nodesFile.close()
 
-    def pushNodeStatus(self, runNode, status):
+    def pushNodeStatus(self, runNode, status, consumeTime):
         params = {
             'stepId': self.context.stepId,
             'taskId': self.context.taskId,
             'nodeId': runNode.node,
-            'output': runNode.output
+            'output': runNode.output,
+            'status': status,
+            'time': consumeTime
         }
 
         response = self.httpJSON('callback', self.authToken, params)
