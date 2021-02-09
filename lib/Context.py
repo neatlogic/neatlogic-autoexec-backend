@@ -86,3 +86,8 @@ class Context:
         with self.skipNodeCountLock:
             self.skipNodeCount += 1
             return self.skipNodeCount
+
+    def resetCounter(self):
+        self.skipNodeCount = 0
+        self.failNodeCount = 0
+        self.sucNodeCount = 0

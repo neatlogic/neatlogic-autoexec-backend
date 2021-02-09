@@ -94,10 +94,16 @@ class TaskExecutor:
                     execQueue.put(loalRunNode)
                 else:
                     nodeStatus = loalRunNode.getNodeStatus()
-                    # if nodeStatus != NodeStatus.succeed:
-                    # 需要执行的节点实例加入等待执行队列
-                    print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
-                    execQueue.put(loalRunNode)
+                    if nodeStatus == NodeStatus.succeed:
+                        print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
+                        self.context.incSkipNodeCount()
+                    elif nodeStatus == NodeStatus.running:
+                        print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
+                        self.context.incFailNodeCount()
+                    else:
+                        # 需要执行的节点实例加入等待执行队列
+                        print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
+                        execQueue.put(loalRunNode)
 
             if self.context.failBreak and self.context.failNodeCount > 0:
                 try:
@@ -118,11 +124,7 @@ class TaskExecutor:
                         execQueue.put(node)
                     else:
                         nodeStatus = node.getNodeStatus()
-                        if nodeStatus != NodeStatus.succeed:
-                            # 需要执行的节点实例加入等待执行队列
-                            print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
-                            execQueue.put(node)
-                        else:
+                        if nodeStatus == NodeStatus.succeed:
                             # 如果是成功状态，回写服务端，防止状态不一致
                             self.context.incSkipNodeCount()
                             print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.id, nodeStatus, node.host, node.port))
@@ -130,6 +132,13 @@ class TaskExecutor:
                                 self.context.serverAdapter.pushNodeStatus(node, nodeStatus)
                             except Exception as ex:
                                 logging.error('RePush node status to server failed, {}'.format(ex))
+                        elif nodeStatus == NodeStatus.running:
+                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.id, nodeStatus, node.host, node.port))
+                            self.context.incFailNodeCount()
+                        else:
+                            # 需要执行的节点实例加入等待执行队列
+                            print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
+                            execQueue.put(node)
 
                     if self.context.failBreak and self.context.failNodeCount > 0:
                         try:

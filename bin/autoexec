@@ -115,23 +115,26 @@ class Runner:
         failCount = 0
         if 'pre' in params:
             self.context.phase = 'pre'
+            self.context.resetCounter()
             print("INFO: Begin to execute pre operations...")
             failCount = self.execOperations(params['pre'], opArgsRefMap, parallelCount)
-            print("INFO: Execute pre operations finish, failCount:{}".format(failCount))
+            print("INFO: Execute pre operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
             print("--------------------------------\n")
 
         if failCount == 0 and 'run' in params:
             self.context.phase = 'run'
+            self.context.resetCounter()
             print("INFO: Begin to execute operations...")
             failCount = self.execOperations(params['run'], opArgsRefMap, parallelCount)
-            print("INFO: Execute operations finish, failCount:{}".format(failCount))
+            print("INFO: Execute run operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
             print("--------------------------------\n")
 
         if failCount == 0 and 'post' in params:
             self.context.phase = 'post'
+            self.context.resetCounter()
             print("INFO: Begin to execute post operations...")
             failCount = self.execOperations(params['post'], opArgsRefMap, parallelCount)
-            print("INFO: Execute post operations finish, failCount:{}".format(failCount))
+            print("INFO: Execute post operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
 
         if failCount == 0:
             print("INFO: ======Execute succeed======")
