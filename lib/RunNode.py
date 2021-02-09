@@ -207,6 +207,7 @@ class RunNode:
             ret = 0
             if op.opType == 'local':
                 # 本地执行，逐个node循环本地调用插件
+                # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                 self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
                 ret = self._localExecute(op)
             elif op.opType == 'localremote':
