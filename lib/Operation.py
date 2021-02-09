@@ -13,6 +13,7 @@ import re
 import json
 
 import Utils
+import AutoExecError
 import ServerAdapter
 
 
@@ -123,6 +124,8 @@ class Operation:
             nativeRefMap = self.context.arg
             if paramName in nativeRefMap:
                 argValue = nativeRefMap[paramName]
+            else:
+                raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
         else:
             # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
             matchObj = re.match(r'^\s*\$\{\s*([^\.]+?)\.(.+)\s*\}\s*$', argValue)
@@ -141,6 +144,8 @@ class Operation:
 
                 if newArgValue is not None:
                     argValue = newArgValue
+                else:
+                    raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
 
         return argValue
 

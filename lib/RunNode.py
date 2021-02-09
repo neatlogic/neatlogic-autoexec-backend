@@ -18,6 +18,7 @@ import traceback
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
+import AutoExecError
 import NodeStatus
 import TagentClient
 import Utils
@@ -192,7 +193,10 @@ class RunNode:
                 self._loadOpOutput(op)
                 continue
 
-            op.parseParam(self.output)
+            try:
+                op.parseParam(self.output)
+            except AutoExecError.AutoExecError as err:
+                self.logHandle.write("ERROR {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
 
             beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             startTime = time.time()
@@ -239,9 +243,9 @@ class RunNode:
         nodeConsumeTime = time.time() - nodeStartTime
 
         if isFail == 0:
-            self.updateNodeStatus(NodeStatus.succeed, consumeTime=timeConsume)
+            self.updateNodeStatus(NodeStatus.succeed, consumeTime=nodeConsumeTime)
         else:
-            self.updateNodeStatus(NodeStatus.failed, consumeTime=timeConsume)
+            self.updateNodeStatus(NodeStatus.failed, consumeTime=nodeConsumeTime)
 
         if isFail == 0:
             self.logHandle.write("------<{}> {:.2f}second [{}]{}:{} succeed------\n".format(nodeEndDateTime, nodeConsumeTime, self.id, self.host, self.port))

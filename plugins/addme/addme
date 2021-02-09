@@ -1,0 +1,12 @@
+#!/usr/bin/python
+import sys
+import os
+import time
+
+outputPath = os.environ['OUTPUT_PATH']
+
+print("hello remote wrold!\n")
+# time.sleep(10)
+file = open(outputPath, 'w')
+file.write('{"outputparam1":"xxxxxxxxxx", "outputparam2":"YYYYYYYYYYYY"}')
+file.close()
