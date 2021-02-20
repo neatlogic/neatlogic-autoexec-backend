@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+use JSON;
+use utf8;
+use Encode;
+use File::Basename;
+use Getopt::Long;
+
+use collection_linux;
+use collection_aix;
+use collection_windows;
+use Utils;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [--node|nodeip <nodeip>\n");
+    print("       nodeip:   run node ip .\n");
+
+    exit(1);
+}
+
+#设置MongoDb表的主键，根据主键判断数据是新增还是修改
+sub uniqueName {
+    my ($data)     = @_;
+    my $ip         = $data->{"IP"};
+    my $uniqueName = "{IP:{\$eq: \"$ip\"}}}";
+    return $uniqueName;
+}
+
+sub main {
+    my ( $ishelp, $nodeip, @items );
+
+    GetOptions(
+        'h|help'        => \$ishelp,
+        'node|nodeip:s' => \$nodeip,
+        '<>'            => sub { my $item = shift(@_); push( @items, $item ); }
+    );
+
+    usage() if ($ishelp);
+
+    if ( not defined($nodeip) ) {
+        $nodeip = `hostname -i `;
+        chomp($nodeip);
+    }
+
+    my $os = `uname`;
+    chomp($os);
+    my $data;
+    if ( $os eq 'Linux' ) {
+        $data = collection_linux::collect($nodeip);
+    }
+    elsif ( $os eq 'Aix' ) {
+        $data = collection_aix::collect($nodeip);
+    }
+    else {
+        $data = collection_windows::collect($nodeip);
+    }
+    $data->{"类型"} = "collect";
+    my %result = ();
+    $result{'data'}       = $data;
+    $result{'table'}      = "os";
+    $result{'uniqueName'} = uniqueName($data);
+    my $resultJson = encode_json( \%result );
+    print($ENV{OUTPUT_PATH});
+    print("======baron===================");
+    $ENV{OUTPUT_PATH} = 'output.json';
+    Utils::saveOutput( \%result );
+    print "$resultJson";
+}
+
+main();
