@@ -1,8 +1,0 @@
-% my $self = shift;
-<!DOCTYPE html>
-<html>
-<head></head>
-<body>
-<%= $self->render_to_string(template => '23') %><%= $self->content %>
-</body>
-</html>

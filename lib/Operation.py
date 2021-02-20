@@ -62,11 +62,10 @@ class Operation:
 
         # 不需要了，因为节点运行时会复制操作对象，所以放到节点运行时进行操作的参数处理
         # self.parseParam(self.context.output)
-
-        cmd = self.opId
-        for k, v in self.options.items():
-            cmd = cmd + ' --{} "{}" '.format(k, v)
-        self.cmdline = cmd
+        #cmd = self.opId
+        # for k, v in self.options.items():
+        #    cmd = cmd + ' --{} "{}" '.format(k, v)
+        #self.cmdline = cmd
 
         if not os.path.exists('file'):
             os.mkdir('file')
@@ -164,14 +163,37 @@ class Operation:
     def getCmdLine(self):
         cmd = self.opId
         for k, v in self.options.items():
-            cmd = cmd + ' --{} "{}" '.format(k, v)
+            isNodeParam = False
+            if 'desc' in self.param and k in self.param['desc']:
+                kDesc = self.param['desc'][k]
+                if kDesc.lower() == 'node':
+                    isNodeParam = True
+
+            if isNodeParam:
+                cmd = cmd + ' --{} \'{}\' '.format(k, v)
+            elif len(k) == 1:
+                cmd = cmd + ' -{} "{}" '.format(k, v)
+            else:
+                cmd = cmd + ' --{} "{}" '.format(k, v)
+
         return cmd
 
     def getCmdLineHidePassword(self):
         cmd = self.opId
         for k, v in self.options.items():
+            isNodeParam = False
+            if 'desc' in self.param and k in self.param['desc']:
+                kDesc = self.param['desc'][k]
+                if kDesc.lower() == 'node':
+                    isNodeParam = True
+
             if k == 'password' or k == 'pass':
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                cmd = cmd + ' --{} "{}" '.format(k, v)
+                if isNodeParam:
+                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
+                elif len(k) == 1:
+                    cmd = cmd + ' -{} "{}" '.format(k, v)
+                else:
+                    cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd

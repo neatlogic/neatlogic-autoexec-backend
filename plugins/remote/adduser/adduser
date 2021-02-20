@@ -1,8 +1,0 @@
-#!/usr/bin/python
-import sys
-import time
-
-print("hello remote wrold!\n")
-file = open("output.json", 'w')
-file.write('{"outputparam1":"xxxxxxxxxx", "outputparam2":"YYYYYYYYYYYY"}')
-file.close()

@@ -1,5 +1,0 @@
-MD4_CTX*	T_MD4_CTX
-
-INPUT
-T_MD4_CTX
-	$var = get_md4_ctx($arg)

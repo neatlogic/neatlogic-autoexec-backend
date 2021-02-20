@@ -10,6 +10,7 @@ import io
 import signal
 import time
 import stat
+import copy
 import subprocess
 import select
 import json
@@ -46,6 +47,8 @@ class RunNode:
         self.context = context
         self.runPath = context.runPath
         self.node = node
+        self.nodeWithoutPassword = copy.copy(node)
+        self.nodeWithoutPassword['password'] = ''
         self.type = node['nodeType']
         self.host = node['host']
         self.port = node['port']
@@ -347,7 +350,7 @@ class RunNode:
         if self.type == 'tagent':
             try:
                 remotePath = '$TMPDIR/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
-                remoteCmd = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine())
+                remoteCmd = 'cd {}/{} && ./{} --node \'{}\''.format(remotePath, op.opId, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
                 remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword())
 
                 runEnv = {'AUTOEXEC_TASKID': self.context.taskId, 'AUTOEXEC_STEPID': self.context.stepId}
@@ -390,7 +393,7 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
             remotePath = '{}/{}'.format(remoteRoot, op.opId)
-            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine())
+            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{} --node\'{}\''.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
             remoteCmdHidePassword = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLineHidePassword())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
