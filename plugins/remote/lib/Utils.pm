@@ -12,6 +12,7 @@ use IO::File;
 use JSON qw(to_json from_json);
 
 sub setEnv {
+    $ENV{OUTPUT_PATH} = 'output.json';
 }
 
 sub saveOutput {

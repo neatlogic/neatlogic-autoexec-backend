@@ -33,7 +33,7 @@ sub uniqueName {
 
 sub main {
     my ( $ishelp, $nodeip, @items );
-
+    
     GetOptions(
         'h|help'        => \$ishelp,
         'node|nodeip:s' => \$nodeip,
@@ -47,6 +47,7 @@ sub main {
         chomp($nodeip);
     }
 
+    Utils::setEnv();
     my $os = `uname`;
     chomp($os);
     my $data;
@@ -65,9 +66,6 @@ sub main {
     $result{'table'}      = "os";
     $result{'uniqueName'} = uniqueName($data);
     my $resultJson = encode_json( \%result );
-    print($ENV{OUTPUT_PATH});
-    print("======baron===================");
-    $ENV{OUTPUT_PATH} = 'output.json';
     Utils::saveOutput( \%result );
     print "$resultJson";
 }
