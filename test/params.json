@@ -59,7 +59,7 @@
                         "opType": "localremote",
                         "failIgnore": false,
                         "arg": {
-                                "tinput": "xxxx",
+                                "tinput": "${localdemo.outtext}",
                                 "tselect": "yyyy",
                                 "tpassword": "{RC4}xxxxxxx",
                                 "tfile": "testfile"

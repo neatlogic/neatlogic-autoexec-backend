@@ -8,16 +8,16 @@ import os
 import sys
 import json
 
-class Utils :
+
+class Utils:
 
     def __init__(self):
-        pass 
-
+        pass
 
     def setEnv():
         pass
 
-    def saveOutput(self,outputData):
+    def saveOutput(self, outputData):
         if 'OUTPUT_PATH' in os.environ:
             outputPath = os.environ['OUTPUT_PATH']
             outputFile = open(outputPath, 'w')
@@ -25,7 +25,7 @@ class Utils :
             outputFile.write(json.dumps(outputData))
             outputFile.close()
 
-    def getOutput(self,output_path):
+    def getOutput(self, output_path):
         outputFile = open(output_path, "r", encoding="utf-8")
         data = json.load(outputFile)
         outputFile.close()
@@ -34,14 +34,13 @@ class Utils :
     def getNode(self):
         pass
 
-
     def getNodes(self):
         if 'TASK_NODES_PATH' in os.environ:
             nodesJsonPath = os.environ['TASK_NODES_PATH']
             fh = open(nodesJsonPath, 'r')
             line = fh.readline()
-    
-    def isJson(self,data): 
+
+    def isJson(self, data):
         valid = False
         print(type(data))
         try:
