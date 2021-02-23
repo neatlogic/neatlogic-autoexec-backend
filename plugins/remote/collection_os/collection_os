@@ -27,8 +27,9 @@ sub usage {
 sub uniqueName {
     my ($data)     = @_;
     my $ip         = $data->{"IP"};
-    my $uniqueName = "{IP:{\$eq: \"$ip\"}}}";
-    return $uniqueName;
+    my %uniqueName = ();
+    $uniqueName{'IP'} = ("\$eq" => "$ip");
+    return \%uniqueName;
 }
 
 sub main {
@@ -48,6 +49,7 @@ sub main {
     }
 
     Utils::setEnv();
+
     my $os = `uname`;
     chomp($os);
     my $data;
@@ -65,6 +67,10 @@ sub main {
     $result{'data'}       = $data;
     $result{'table'}      = "os";
     $result{'uniqueName'} = uniqueName($data);
+
+    #定义插件的输出变量output
+    #my %output = (); 
+    #$output{'output'} = \%result;
     my $resultJson = encode_json( \%result );
     Utils::saveOutput( \%result );
     print "$resultJson";
