@@ -1,0 +1,69 @@
+{
+	"table": "os",
+	"uniqueName": {
+		"IP": {
+			"$eq": "192.168.2.60"
+		}
+	},
+	"data": {
+		"用户列表": [{
+			"uid": "0",
+			"主目录": "/root",
+			"用户名": "root",
+			"gid": "0",
+			"命令解释器": "/bin/bash"
+		}, {
+			"uid": "999",
+			"主目录": "/",
+			"用户名": "polkitd",
+			"gid": "998",
+			"命令解释器": "/sbin/nologin"
+		}, {
+			"uid": "1000",
+			"主目录": "/home/app",
+			"用户名": "app",
+			"gid": "1000",
+			"命令解释器": "/bin/bash"
+		}, {
+			"uid": "1001",
+			"主目录": "/home/nginx",
+			"用户名": "nginx",
+			"gid": "1001",
+			"命令解释器": "/bin/bash"
+		}],
+		"主机名称": "codedriverBaron",
+		"类型": "collect",
+		"启用NetworkManager": "是",
+		"selinux自启": "是",
+		"ntpd自启": "否",
+		"内存swap": "2047MB",
+		"挂载NFS": null,
+		"最大打开文件数": "app     -       nofile  65535",
+		"启用NTP": "否",
+		"NetworkManager自启": "否",
+		"启用SELinux": "是",
+		"服务器或CLUSTER": "",
+		"内核版本": "3.10.0-957.el7.x86_64",
+		"ssh版本": "OpenSSH_7.4p1",
+		"OS版本": "CentOS Linux release 7.6.1810 (Core) ",
+		"CPU核数": "2",
+		"IP列表": ["192.168.2.60"],
+		"最大进程数": "*          soft    nproc     4096\nroot       soft    nproc     unlimited",
+		"NTP服务器": [],
+		"bond": "否",
+		"内存": "2827MB",
+		"逻辑磁盘": [{
+			"盘名称": "/dev/sda",
+			"盘源": "local",
+			"容量": 21.5
+		}],
+		"DNS服务": ["114.114.114.114", "221.228.225.1", "192.168.2.1"],
+		"补丁情况": "none",
+		"虚拟机": "是",
+		"IP": "192.168.2.60",
+		"启用iptables": "否",
+		"iptables自启": "否",
+		"位长": "64",
+        "新字段_baron" :"baron"
+	}
+}
