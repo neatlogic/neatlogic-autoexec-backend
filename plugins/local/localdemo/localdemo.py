@@ -1,7 +1,13 @@
 #!/usr/bin/python
 
 import os
+import sys
 import argparse
+import Utils
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
 
 
 def usage():
@@ -43,3 +49,10 @@ if __name__ == "__main__":
 
     # 保存输出到json文件
     print("Save output to file\n")
+    out = []
+    out['outtext'] = "this is the text out value"
+    out['outpassword'] = "{RC4}xxxxxxxxxx"
+    out['outfile'] = "this is the output file name"
+    out['outjson'] = '{"key1":"value1", "key2":"value2"}'
+    out['outcsv'] = '"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"}'
+    Utils.saveOutput(out)
