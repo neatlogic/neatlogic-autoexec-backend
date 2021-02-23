@@ -9,7 +9,7 @@ use strict;
 package Utils;
 
 use IO::File;
-use JSON qw(to_json from_json);
+use JSON qw(to_json from_json encode_json);
 
 sub setEnv {
     $ENV{OUTPUT_PATH} = 'output.json';
@@ -22,7 +22,7 @@ sub saveOutput {
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
-            print $fh ( to_json($outputData) );
+            print $fh ( encode_json($outputData) );
             $fh->close();
         }
         else {
