@@ -69,10 +69,10 @@ sub main {
     $result{'uniqueName'} = uniqueName($data);
 
     #定义插件的输出变量output
-    #my %output = (); 
-    #$output{'output'} = \%result;
+    my $out = {};
+    $out->{outjson} = \%result;
+    Utils::saveOutput( $out );
     my $resultJson = encode_json( \%result );
-    Utils::saveOutput( \%result );
     print "$resultJson";
 }
 
