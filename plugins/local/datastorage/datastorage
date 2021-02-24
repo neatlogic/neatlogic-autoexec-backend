@@ -41,7 +41,7 @@ if __name__ == "__main__":
     #    print("Illegal parameter :{} / {}".format(output_path,data_json))
     #    exit(-1)
     if collect_data == None : 
-        print("pleaase check plugin param data format: {}".format(data_json))
+        print("please check plugin input param data format : {}".format(data_json))
     else :
         table = collect_data['table']
         uniqueName = collect_data['uniqueName']
