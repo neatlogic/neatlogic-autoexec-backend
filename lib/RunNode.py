@@ -193,6 +193,7 @@ class RunNode:
             ret = 0
 
             if not self.context.isForce and self.getNodeStatus(op) == NodeStatus.succeed:
+                op.parseParam(self.output)
                 self._loadOpOutput(op)
                 continue
 
