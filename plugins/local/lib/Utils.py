@@ -42,10 +42,19 @@ class Utils:
 
     def isJson(self, data):
         valid = False
-        print(type(data))
         try:
             json.load(data, encoding='utf-8')
             valid = True
         except ValueError:
             pass
         return valid
+    
+    #以下几种JSON字符都会影响json字符串转换成JSON格式
+    def handleJsonstr(self , jsonstr):
+        #将字符串里的单引号替换成双引号
+        jsonstr = jsonstr.replace('\'' , '\"')
+        #带u'的字符串
+        jsonstr = jsonstr.replace('u\'' , '\'')
+        #None数据
+        jsonstr = jsonstr.replace('None' , '\'\'')
+        return jsonstr

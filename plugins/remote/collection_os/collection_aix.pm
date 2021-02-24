@@ -96,7 +96,7 @@ sub collect {
         }
     }
     else {
-        @dns = ();
+        @dns = '';
     }
     $data{'DNS服务'} = \@dns;
 
@@ -125,7 +125,7 @@ sub collect {
         }
     }
     else {
-        @ntp = ();
+        @ntp = '';
     }
     $data{'NTP服务器'} = \@ntp;
 

@@ -9,10 +9,10 @@ libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 import MongoDB 
 import Utils
+import json
 
 def usage():
     pname = os.path.basename(__file__)
-    print("请提供参数：")
     print(pname + " --output_path <output_path> --data_json <data_json>")
     exit(1)
 
@@ -30,7 +30,9 @@ if __name__ == "__main__":
     collect_data = None
     Util = Utils.Utils()
     if data_json != None and data_json != '' :
-        collect_data = data_json
+        data_json = Util.handleJsonstr(data_json)
+        collect_data = json.loads(data_json, strict=False)
+        print(collect_data)
     else :
         collect_data = Util.getOutput(output_path)
 
@@ -38,19 +40,20 @@ if __name__ == "__main__":
     #if valid == False :
     #    print("Illegal parameter :{} / {}".format(output_path,data_json))
     #    exit(-1)
-    
-    table = collect_data['table']
-    uniqueName = collect_data['uniqueName']
-    data = collect_data['data'] 
-    db = MongoDB.MongoDB()
-    #保存采集的数据
-    count = db.count(table ,uniqueName)
-    #print("count:{}".format(count))
-    if count == 0 : 
-        db.insert(table,data)
+    if collect_data == None : 
+        print("pleaase check plugin param data format: {}".format(data_json))
     else :
-        db.update(table ,uniqueName , data)
-    db.close()
+        table = collect_data['table']
+        uniqueName = collect_data['uniqueName']
+        data = collect_data['data'] 
+        db = MongoDB.MongoDB()
+        #保存采集的数据
+        count = db.count(table ,uniqueName)
+        if count == 0 : 
+            db.insert(table,data)
+        else :
+            db.update(table ,uniqueName , data)
+        db.close()
         
 
 

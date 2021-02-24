@@ -51,7 +51,7 @@ sub collect {
         $data{'挂载NFS'} = $tmp;
     }
     else {
-        $data{'挂载NFS'} = ();
+        $data{'挂载NFS'} = '';
     }
 
     my $ssh_ver = `ssh -V 2>&1 > /dev/null |cut -d , -f 1`;
@@ -87,12 +87,12 @@ sub collect {
     chomp($totalMemory);
     $data{'内存'} = $totalMemory;
 
-    $data{'补丁情况'} = 'none';
+    $data{'补丁情况'} = '';
     my @dns;
     if ( -e "/etc/resolv.conf" && -s "/etc/resolv.conf" ) {
         my @dns_info = `cat /etc/resolv.conf|grep nameserver\\ |awk \'{print \$2}\'`;
         if ( @dns_info == 0 ) {
-            @dns = ();
+            @dns = '';
         }
         else {
             foreach (@dns_info) {
@@ -102,7 +102,7 @@ sub collect {
         }
     }
     else {
-        @dns = ();
+        @dns = '';
     }
     $data{'DNS服务'} = \@dns;
 
@@ -199,7 +199,7 @@ sub collect {
             }
         }
         else {
-            @ntp = ();
+            @ntp = '';
         }
         $data{'NTP服务器'} = \@ntp;
     }
@@ -273,7 +273,7 @@ sub collect {
             }
         }
         else {
-            @ntp = ();
+            @ntp = '';
         }
         $data{'NTP服务器'} = \@ntp;
     }
