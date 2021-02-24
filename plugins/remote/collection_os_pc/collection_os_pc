@@ -26,15 +26,15 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $ip         = $data->{"IP"};
+    my $agentIP    = $data->{"agentIP"};
     my %uniqueName = ();
-    $uniqueName{'IP'} = ("\$eq" => "$ip");
+    $uniqueName{'agentIP'} = ( "\$eq" => "$agentIP" );
     return \%uniqueName;
 }
 
 sub main {
     my ( $ishelp, $nodeip, @items );
-    
+
     GetOptions(
         'h|help'        => \$ishelp,
         'node|nodeip:s' => \$nodeip,
@@ -44,8 +44,7 @@ sub main {
     usage() if ($ishelp);
 
     if ( not defined($nodeip) ) {
-        $nodeip = `hostname -i `;
-        chomp($nodeip);
+        usage();
     }
 
     Utils::setEnv();
@@ -65,13 +64,13 @@ sub main {
     $data->{"类型"} = "collect";
     my %result = ();
     $result{'data'}       = $data;
-    $result{'table'}      = "os";
+    $result{'table'}      = "os_pc";
     $result{'uniqueName'} = uniqueName($data);
 
     #定义插件的输出变量output
     my $out = {};
     $out->{outjson} = \%result;
-    Utils::saveOutput( $out );
+    Utils::saveOutput($out);
     my $resultJson = encode_json( \%result );
     print "$resultJson";
 }
