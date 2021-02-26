@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+use JSON;
+use utf8;
+use Encode;
+use File::Basename;
+use Getopt::Long;
+
+use collection_unix;
+use collection_windows;
+use Utils;
+
+sub usage {
+    my $pname = basename($0);
+    print("ERROR: must defined option --node \n");
+    print("Usage: $pname [--node|nodeip <nodeip>\n");
+    print("       nodeip:   run node ip .\n");
+
+    exit(1);
+}
+
+#设置MongoDb表的主键，根据主键判断数据是新增还是修改
+sub uniqueName {
+    my ($data)     = @_;
+    my $agentIP    = $data->{"agentIP"};
+    my %uniqueName = ();
+    $uniqueName{'agentIP'} = ( "\$eq" => "$agentIP" );
+    return \%uniqueName;
+}
+
+sub main {
+    my ( $ishelp, $nodeip, @items );
+
+    GetOptions(
+        'h|help'        => \$ishelp,
+        'node|nodeip:s' => \$nodeip,
+        '<>'            => sub { my $item = shift(@_); push( @items, $item ); }
+    );
+
+    usage() if ($ishelp);
+
+    if ( not defined($nodeip) ) {
+        usage();
+    }
+
+    Utils::setEnv();
+
+    my $os = `uname`;
+    chomp($os);
+    my $data;
+    if ( $os eq 'Linux' or $os eq 'Aix' ) {
+        $data = collection_unix::collect($nodeip);
+    }
+    else {
+        $data = collection_windows::collect($nodeip);
+    }
+    $data->{"类型"} = "collect";
+    my %result = ();
+    $result{'data'}       = $data;
+    $result{'table'}      = "resin";
+    $result{'uniqueName'} = uniqueName($data);
+
+    #定义插件的输出变量output
+    my $out = {};
+    $out->{outjson} = \%result;
+    Utils::saveOutput($out);
+    my $resultJson = encode_json( \%result );
+    print "$resultJson";
+}
+
+main();
