@@ -31,6 +31,7 @@ sub collect {
         }
     }
     $data{'ip'} = $ip;
+    $data{'agentIP'} = $nodeIp;
 
     my $os_ver = `oslevel -s`;
     chomp($os_ver);

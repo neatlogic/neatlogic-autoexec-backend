@@ -1,5 +1,5 @@
 {
-	"opName": "apache采集插件",
+	"opName": "informix采集插件",
 	"opType": "remote",
 	"desc": {
 		"tinput": {

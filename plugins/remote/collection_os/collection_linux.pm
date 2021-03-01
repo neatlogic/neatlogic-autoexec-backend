@@ -21,7 +21,8 @@ sub collect {
         $ip = $nodeIp;
     }
     $data{'IP'} = $ip;
-
+    $data{'agentIP'} = $nodeIp;
+    
     my $os_ver;
     if ( -e '/etc/redhat-release' ) {
         $os_ver = `cat /etc/redhat-release`;

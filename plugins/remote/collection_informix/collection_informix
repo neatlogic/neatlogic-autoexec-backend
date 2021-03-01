@@ -15,9 +15,10 @@ use Utils;
 
 sub usage {
     my $pname = basename($0);
-    print("ERROR: must defined option --node \n");
-    print("Usage: $pname [--node|nodeip <nodeip>\n");
+    print("ERROR: must defined option --node --user \n");
+    print("Usage: $pname [--node|nodeip <nodeip>  --user|install_user <user> ]\n");
     print("       nodeip:   run node ip .\n");
+    print("       user:     informix install user .\n");
 
     exit(1);
 }
@@ -25,22 +26,28 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $agentIP         = $data->{"agentIP"};
-    
+    my $serviceIp    = $data->{"agentIP"};
+    my $dbid    = $data->{"DBID"};
+
     my @rule = ();
-    my %rule_agentIp = ();
-    $rule_agentIp{'agentIP'} = $agentIP ;
-    push @rule , \%rule_agentIp;
+    my %rule_ins_serviceIp = ();
+    $rule_ins_serviceIp{'agentIP'} = $serviceIp ;
+    push @rule , \%rule_ins_serviceIp;
+
+    my %rule_ins_dbid = ();
+    $rule_ins_dbid{'DBID'} = $dbid;
+    push @rule , \%rule_ins_dbid; 
 
     return \@rule;
 }
 
 sub main {
-    my ( $ishelp, $nodeip, @items );
+    my ( $ishelp, $nodeip , $install_user , @items );
 
     GetOptions(
         'h|help'        => \$ishelp,
         'node|nodeip:s' => \$nodeip,
+        'user|install_user:s' => \$install_user,
         '<>'            => sub { my $item = shift(@_); push( @items, $item ); }
     );
 
@@ -50,21 +57,25 @@ sub main {
         usage();
     }
 
+    if( not defined($install_user) ){
+        $install_user = 'informix';
+    }
+
     Utils::setEnv();
 
     my $os = `uname`;
     chomp($os);
     my $data;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        $data = collection_unix::collect($nodeip);
+        $data = collection_unix::collect($nodeip, $install_user  );
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        $data = collection_windows::collect($nodeip , $install_user  );
     }
     $data->{"类型"} = "collect";
     my %result = ();
     $result{'data'}       = $data;
-    $result{'table'}      = "tomcat";
+    $result{'table'}      = "informix";
     $result{'uniqueName'} = uniqueName($data);
 
     #定义插件的输出变量output

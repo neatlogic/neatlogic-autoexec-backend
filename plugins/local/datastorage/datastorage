@@ -45,14 +45,18 @@ if __name__ == "__main__":
     else :
         table = collect_data['table']
         uniqueName = collect_data['uniqueName']
-        data = collect_data['data'] 
+        data = collect_data['data']
+        #新增统一的采集更新时间
+        data['_updatetime'] = Util.getCurrentTime()
         db = MongoDB.MongoDB()
         #保存采集的数据
-        count = db.count(table ,uniqueName)
+        unique_query = {}
+        unique_query['$and'] = uniqueName
+        count = db.count(table ,unique_query)
         if count == 0 : 
             db.insert(table,data)
         else :
-            db.update(table ,uniqueName , data)
+            db.update(table ,unique_query , data)
         db.close()
         
 

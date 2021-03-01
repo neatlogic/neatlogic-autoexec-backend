@@ -26,10 +26,14 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $agentIP    = $data->{"agentIP"};
-    my %uniqueName = ();
-    $uniqueName{'agentIP'} = ( "\$eq" => "$agentIP" );
-    return \%uniqueName;
+    my $agentIP         = $data->{"agentIP"};
+    
+    my @rule = ();
+    my %rule_agentIp = ();
+    $rule_agentIp{'agentIP'} = $agentIP ;
+    push @rule , \%rule_agentIp;
+
+    return \@rule;
 }
 
 sub main {

@@ -15,9 +15,11 @@ use Utils;
 
 sub usage {
     my $pname = basename($0);
-    print("ERROR: must defined option --node \n");
-    print("Usage: $pname [--node|nodeip <nodeip>\n");
+    print("ERROR: must defined option --node --user --password \n");
+    print("Usage: $pname [--node|nodeip <nodeip>  --user <user> --password <password>]\n");
     print("       nodeip:   run node ip .\n");
+    print("       user:     mysql connection user .\n");
+    print("       password:  mysql connection user password .\n");
 
     exit(1);
 }
@@ -25,28 +27,35 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $agentIP         = $data->{"agentIP"};
-    
+    my $serviceIp    = $data->{"agentIP"};
+    my $dbid    = $data->{"DBID"};
+
     my @rule = ();
-    my %rule_agentIp = ();
-    $rule_agentIp{'agentIP'} = $agentIP ;
-    push @rule , \%rule_agentIp;
+    my %rule_ins_serviceIp = ();
+    $rule_ins_serviceIp{'agentIP'} = $serviceIp ;
+    push @rule , \%rule_ins_serviceIp;
+
+    my %rule_ins_dbid = ();
+    $rule_ins_dbid{'DBID'} = $dbid;
+    push @rule , \%rule_ins_dbid; 
 
     return \@rule;
 }
 
 sub main {
-    my ( $ishelp, $nodeip, @items );
+    my ( $ishelp, $nodeip , $user , $password, @items );
 
     GetOptions(
         'h|help'        => \$ishelp,
         'node|nodeip:s' => \$nodeip,
+        'user:s' => \$user,
+        'password:s' => \$password,
         '<>'            => sub { my $item = shift(@_); push( @items, $item ); }
     );
 
     usage() if ($ishelp);
 
-    if ( not defined($nodeip) ) {
+    if ( not defined($nodeip)  or not defined($user) or not defined($password)) {
         usage();
     }
 
@@ -56,15 +65,15 @@ sub main {
     chomp($os);
     my $data;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        $data = collection_unix::collect($nodeip);
+        $data = collection_unix::collect($nodeip, $user , $password );
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        $data = collection_windows::collect($nodeip , $user , $password );
     }
     $data->{"类型"} = "collect";
     my %result = ();
     $result{'data'}       = $data;
-    $result{'table'}      = "tomcat";
+    $result{'table'}      = "mysql";
     $result{'uniqueName'} = uniqueName($data);
 
     #定义插件的输出变量output

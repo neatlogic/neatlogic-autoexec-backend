@@ -1,5 +1,5 @@
 {
-	"opName": "OS操作系统采集插件",
+	"opName": "mysql采集插件",
 	"opType": "remote",
 	"desc": {
 		"tinput": {
@@ -20,3 +20,4 @@
 		}
 	}
 }
+

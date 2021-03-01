@@ -105,6 +105,7 @@ sub collect {
 
     my $ip = $nodeIp;
     $data{'IP'}         = $ip;
+    $data{'agentIP'} = $nodeIp;
     $data{'uniqueName'} = $ip;
 
     my $hostname = `hostname`;

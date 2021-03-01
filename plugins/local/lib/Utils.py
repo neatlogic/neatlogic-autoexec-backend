@@ -7,7 +7,7 @@
 import os
 import sys
 import json
-
+import time
 
 class Utils:
 
@@ -56,5 +56,9 @@ class Utils:
         #带u'的字符串
         jsonstr = jsonstr.replace('u\'' , '\'')
         #None数据
-        jsonstr = jsonstr.replace('None' , '\'\'')
+        jsonstr = jsonstr.replace('None' , '""')
         return jsonstr
+
+    #获取当前时间
+    def getCurrentTime(self):
+         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
