@@ -11,6 +11,7 @@ use Socket;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
     eval(
         q{
@@ -19,9 +20,9 @@ sub collect {
         }
     );
 
-    #todo windows tomcat collect
+    #todo windows  collect
 
-    #return \%data;
+    return @collect_data;
 }
 
 1;

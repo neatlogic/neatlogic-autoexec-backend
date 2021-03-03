@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $nginx_pro = `ps -ef|grep nginx|grep master|grep -v grep`;
@@ -84,8 +85,9 @@ sub collect {
 
         my $nginx_conf_file = $conf_dir . "/" . "nginx.conf";
         $data{'服务配置'} = get_server_config($nginx_conf_file);
+        push(@collect_data , \%data);
     }
-    return \%data;
+    return @collect_data;
 }
 
 sub get_conf_server {

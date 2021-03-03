@@ -10,6 +10,7 @@ use utf8;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data     = ();
     my $hostname = `hostname`;
     chomp($hostname);
@@ -499,7 +500,9 @@ sub collect {
     }
     close(FILE);
     $data{'用户列表'} = \@users;
-    return \%data;
+    
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

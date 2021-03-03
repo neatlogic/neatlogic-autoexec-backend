@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $first_test = `ps -ef|grep lsr|grep -v grep`;
@@ -95,7 +96,9 @@ sub collect {
         }
     }
     $data{'服务配置'} = \@instances;
-    return \%data;
+    push(@collect_data , \%data);
+
+    return @collect_data;
 }
 
 1;

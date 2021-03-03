@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $pro_num = `ps -ef |grep org.apache.zookeeper.server.quorum.QuorumPeerMain|grep -v grep|head -n1|awk '{print \$2}'`;
@@ -70,8 +71,9 @@ sub collect {
 
     my $port = '2181';
     $data{'端口'} = $port;
+    push(@collect_data , \%data);
 
-    return \%data;
+    return @collect_data;
 }
 
 1;

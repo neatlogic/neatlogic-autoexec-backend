@@ -10,6 +10,7 @@ use utf8;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data     = ();
     my $sn       = `dmidecode -t 1|grep Serial\\ Number|cut -d : -f 2`;
 
@@ -22,6 +23,7 @@ sub collect {
     $data{'序列号'} = $sn;
 
     if ( $sn =~ /vmware/i ) {
+        return @collect_data;
         exit 0;
     }
     my $ip = `hostname -i`;
@@ -175,7 +177,8 @@ sub collect {
         }
     }
     $data{'光纤网卡'} = \@arr_hba;
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

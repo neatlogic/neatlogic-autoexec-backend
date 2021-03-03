@@ -10,6 +10,7 @@ use utf8;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     system("prtconf > prtconf.txt");
@@ -148,7 +149,8 @@ sub collect {
         push @arr_hba, \%tmp_hba;
     }
     $data{'光纤网卡'} = \@arr_hba;
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

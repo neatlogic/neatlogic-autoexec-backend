@@ -47,7 +47,7 @@ sub main {
 
     usage() if ($ishelp);
 
-    if ( not defined($nodeip) ) {
+    if ( not defined($nodeip) or $nodeip eq '') {
         usage();
     }
 
@@ -55,27 +55,33 @@ sub main {
 
     my $os = `uname`;
     chomp($os);
-    my $data;
+    my @collectData;
     if ( $os eq 'Linux' ) {
-        $data = collection_linux::collect($nodeip);
+        @collectData = collection_linux::collect($nodeip);
     }
     elsif ( $os eq 'Aix' ) {
-        $data = collection_aix::collect($nodeip);
+        @collectData = collection_aix::collect($nodeip);
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        @collectData = collection_windows::collect($nodeip);
     }
-    $data->{"类型"} = "collect";
-    my %result = ();
-    $result{'data'}       = $data;
-    $result{'table'}      = "os_pc";
-    $result{'uniqueName'} = uniqueName($data);
+    my $plugin = {};
+    my $plugin->{"type"} = "collect";
+    my @entityList = ();
+    foreach my $data (@collectData){
+        my %entiry = ();
+        $entiry{'data'}       = $data;
+        $entiry{'table'}      = "collect_os_pc";
+        $entiry{'uniqueName'} = uniqueName($data);
+        push(@entityList ,\%entiry);
+    }
+    $plugin->{"data"} = \@entityList;
 
     #定义插件的输出变量output
     my $out = {};
-    $out->{outjson} = \%result;
+    $out->{outjson} = $plugin;
     Utils::saveOutput($out);
-    my $resultJson = encode_json( \%result );
+    my $resultJson = encode_json( $plugin );
     print "$resultJson";
 }
 

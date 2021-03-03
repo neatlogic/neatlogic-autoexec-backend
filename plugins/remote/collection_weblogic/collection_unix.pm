@@ -43,7 +43,7 @@ sub get_cfgxml {
 
 sub collect {
     my ($nodeIp) = @_;
-    my %data = ();
+    my @collect_data =();
 
     my $path_info = `ps -ef|grep weblogic.Name|grep -v grep|head -n1`;
     if ( !$path_info ) {
@@ -56,15 +56,17 @@ sub collect {
     my $prd_path     = $1 . $2;
 
     my @arr_config_xml = get_cfgxml();
-    $data{'安装路径'} = $install_path;
 
     foreach my $config_path (@arr_config_xml) {
+        my %data = ();
+        $data{'安装路径'} = $install_path;
+
         my $domain_home = dirname( dirname($config_path) );
         my @arr_mid_ware;
         my $ip = $nodeIp;
 
         $data{'IP'}  = $nodeIp;
-	$data{'agentIP'} = $nodeIp;
+	    $data{'agentIP'} = $nodeIp;
         $data{'部署于'} = $ip;
         my $osname = `hostname`;
         chomp($osname);
@@ -183,8 +185,9 @@ sub collect {
             }
         }
         $data{'包含实例'} = \@arr_instances;
+        push(@collect_data , \%data);
     }
-    return \%data;
+    return @collect_data;
 }
 
 1;

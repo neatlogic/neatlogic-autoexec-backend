@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $pro = `ps -ef | grep rabbitmq|grep -v grep`;
@@ -51,8 +52,8 @@ sub collect {
             $data{'端口'} = $str_port;
         }
     }
-    
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

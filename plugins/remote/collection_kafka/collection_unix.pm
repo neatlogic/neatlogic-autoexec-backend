@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $pro_num = `ps -ef | grep kafka/bin|grep -v collection_kafka |grep -v grep | head -n1 |awk '{print \$2}'`;
@@ -48,8 +49,8 @@ sub collect {
     $data{'安装路径'} = $home_dir;
     my $port = '9092';
     $data{'端口'} = $port;
-
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

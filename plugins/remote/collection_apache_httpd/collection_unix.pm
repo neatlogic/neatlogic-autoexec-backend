@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $httpd_pro = `ps -ef|grep httpd|grep -v grep|tail -n1`;
@@ -83,8 +84,9 @@ sub collect {
             push @instances, \%apache;
         }
         $data{'服务配置'} = \@instances;
-        return \%data;
+        push(@collect_data , \%data);
     }
+    return @collect_data;
 }
 
 1;

@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $pro_num = `ps -ef | grep -i ActiveMQ|grep -v collection_activemq |grep -v grep|head -n1|awk '{print \$2}'`;
@@ -67,7 +68,8 @@ sub collect {
         }
     }
 
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

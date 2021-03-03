@@ -70,7 +70,7 @@ sub get_user {
 
 sub collect {
     my ( $nodeIp, $user, $password ) = @_;
-    my %data = ();
+    my @collect_data =();
 
     my $mysqlProcess = `ps -ef|grep -P "\/mysqld\\s"|grep -v grep |grep -v collection_mysql |head -n 1`;
     if ( !$mysqlProcess ) {
@@ -85,7 +85,7 @@ sub collect {
         print "connect failed using $user\n";
         exit 1;
     }
-
+    my %data = ();
     $data{'DB类型'} = 'MySQL';
     my $ip = $nodeIp;
     $data{'服务IP'}    = $ip;
@@ -221,7 +221,9 @@ sub collect {
     my @user = get_user($queryCmd);
     $data{'包含用户'} = \@user;
 
-    return \%data;
+    push(@collect_data , \%data);
+
+    return @collect_data;
 }
 
 1;

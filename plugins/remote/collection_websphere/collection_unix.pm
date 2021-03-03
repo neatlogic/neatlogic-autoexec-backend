@@ -12,6 +12,7 @@ use Encode;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my @pro_was = `ps -ef|grep com.ibm.ws|grep -v grep`;
@@ -143,7 +144,9 @@ sub collect {
         push @was_instances, \%was_instance;
     }
     $data{'包含实例'} = \@was_instances;
-    return \%data;
+    push(@collect_data , \%data);
+    
+    return @collect_data;
 }
 
 1;

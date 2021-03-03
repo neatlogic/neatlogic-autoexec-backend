@@ -13,7 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
-    my %data = ();
+    my @collect_data =();
 
     my $pro_hdp = `ps -ef | grep Dhadoop.home.dir|grep -v grep`;
     if ( !$pro_hdp ) {
@@ -27,6 +27,7 @@ sub collect {
     };
     if ( @arr_inst_path != 0 ) {
         foreach my $inst_path (@arr_inst_path) {
+            my %data = ();
             $data{'安装路径'} = $inst_path;
             my $bin_path = $inst_path . '/bin';
             chdir($bin_path);
@@ -52,10 +53,10 @@ sub collect {
 
             my $port;
             $data{'端口'} = $port;
+            push(@collect_data , \%data);
         }
     }
-
-    return \%data;
+    return @collect_data;
 }
 
 1;

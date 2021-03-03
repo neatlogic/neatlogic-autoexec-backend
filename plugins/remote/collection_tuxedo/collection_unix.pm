@@ -13,6 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     my $istuxedo = `ps -ef|grep tuxedo|grep -v grep |grep -v collection_tuxedo`;
@@ -110,8 +111,9 @@ sub collect {
         push @tux_instances, \%tux;
     }
     $data{'服务配置'}  = \@tux_instances;
-    
-    return \%data;
+    push(@collect_data , \%data);
+
+    return @collect_data;
 }
 
 1;

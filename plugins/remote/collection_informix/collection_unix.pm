@@ -10,12 +10,12 @@ use utf8;
 use File::Basename;
 use Encode;
 use Utils;
-use Data::Dumper;
 
 sub collect {
     my ( $nodeIp, $installUser ) = @_;
+    
+    my @collect_data =();
     my %data = ();
-
     my $is_informix = `ps -ef|grep informix|grep -v grep |grep -v collection_informix`;
     if ( !defined $is_informix or $is_informix eq '' ) {
         print "not find informix .\n";
@@ -34,7 +34,6 @@ sub collect {
     chomp($informix_dir);
 
     my @ins_info = `cat $informix_dir/etc/sqlhosts|grep ^[^#]`;
-
     foreach my $instance (@ins_info) {
         my @splits   = split /\s+/, $instance;
         my $ins_name = $splits[0];
@@ -89,7 +88,9 @@ sub collect {
     $data{'包含用户'}  = \@users;
     $data{'包含服务名'} = \@all_db_names;
 
-    return \%data;
+    push(@collect_data , \%data);
+
+    return @collect_data;
 }
 
 1;

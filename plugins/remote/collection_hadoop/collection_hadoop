@@ -54,24 +54,31 @@ sub main {
 
     my $os = `uname`;
     chomp($os);
-    my $data;
+    my @collectData;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        $data = collection_unix::collect($nodeip);
+        @collectData = collection_unix::collect( $nodeip );
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        @collectData = collection_windows::collect( $nodeip );
     }
-    $data->{"类型"} = "collect";
-    my %result = ();
-    $result{'data'}       = $data;
-    $result{'table'}      = "hadoop";
-    $result{'uniqueName'} = uniqueName($data);
+
+    my $plugin = {};
+    my $plugin->{"type"} = "collect";
+    my @entityList = ();
+    foreach my $data (@collectData){
+        my %entiry = ();
+        $entiry{'data'}       = $data;
+        $entiry{'table'}      = "collect_hadoop";
+        $entiry{'uniqueName'} = uniqueName($data);
+        push(@entityList ,\%entiry);
+    }
+    $plugin->{"data"} = \@entityList;
 
     #定义插件的输出变量output
     my $out = {};
-    $out->{outjson} = \%result;
+    $out->{outjson} = $plugin;
     Utils::saveOutput($out);
-    my $resultJson = encode_json( \%result );
+    my $resultJson = encode_json( $plugin );
     print "$resultJson";
 }
 

@@ -11,6 +11,8 @@ use File::Basename;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
+    my @collect_data =();
     my %data = ();
 
     my $tomcat_info = `ps -ef|grep org.apache.catalina.startup.Bootstrap |grep -v grep|head -n1`;
@@ -122,7 +124,9 @@ sub collect {
         
     }
     $data{'包含实例'} = \@arr_instance;
-    return \%data;
+    push(@collect_data , \%data);
+    
+    return @collect_data;
 }
 
 1;

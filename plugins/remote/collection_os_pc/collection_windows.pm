@@ -11,6 +11,7 @@ use Socket;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
     eval(
         q{
@@ -41,6 +42,7 @@ sub collect {
     chomp($vendor);
     if ( $vendor =~ /vmware/i or $vendor =~ /Nutanix/ ) {
         print "it's vm\n";
+        return @collect_data;
         exit 0;
     }
     $data{'品牌'} = $vendor;
@@ -147,7 +149,8 @@ sub collect {
         }
     }
     $data{'包含网卡'} = \@nic;
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

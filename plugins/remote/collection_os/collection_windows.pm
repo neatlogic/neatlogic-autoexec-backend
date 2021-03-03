@@ -24,6 +24,7 @@ sub getWinCodePage {
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
     my $charSet;
     eval(
@@ -156,7 +157,8 @@ sub collect {
         }
     }
     $data{'用户列表'} = \@users;
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

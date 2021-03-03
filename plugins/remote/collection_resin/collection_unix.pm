@@ -13,7 +13,7 @@ use Utils;
 
 sub collect {
     my ($nodeIp) = @_;
-    my %data = ();
+    my @collect_data =();
 
     my $pro_resin = `ps -ef | grep Dresin.home |grep -v grep`;
     if ( !$pro_resin ) {
@@ -27,6 +27,7 @@ sub collect {
     };
     if ( @arr_inst_path != 0 ) {
         foreach my $inst_path (@arr_inst_path) {
+            my %data = ();
             $data{'安装路径'} = $inst_path;
             my $lib_path = $inst_path . '/lib';
             chdir($lib_path);
@@ -49,10 +50,11 @@ sub collect {
             $port = join( ',', @ports );
 
             $data{'端口'} = $port;
+            push(@collect_data , \%data);
         }
     }
 
-    return \%data;
+    return @collect_data;
 }
 
 1;

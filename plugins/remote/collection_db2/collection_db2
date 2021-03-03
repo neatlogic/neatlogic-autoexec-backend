@@ -15,8 +15,8 @@ use Utils;
 
 sub usage {
     my $pname = basename($0);
-    print("ERROR: must defined option --node \n");
-    print("Usage: $pname [--node|nodeip <nodeip>\n");
+    print("ERROR: must defined option --node  \n");
+    print("Usage: $pname [--node|nodeip <nodeip>  ]\n");
     print("       nodeip:   run node ip .\n");
 
     exit(1);
@@ -25,18 +25,23 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $agentIP         = $data->{"agentIP"};
-    
+    my $serviceIp    = $data->{"agentIP"};
+    my $dbid    = $data->{"DBID"};
+
     my @rule = ();
-    my %rule_agentIp = ();
-    $rule_agentIp{'agentIP'} = $agentIP ;
-    push @rule , \%rule_agentIp;
+    my %rule_ins_serviceIp = ();
+    $rule_ins_serviceIp{'agentIP'} = $serviceIp ;
+    push @rule , \%rule_ins_serviceIp;
+
+    my %rule_ins_dbid = ();
+    $rule_ins_dbid{'DBID'} = $dbid;
+    push @rule , \%rule_ins_dbid; 
 
     return \@rule;
 }
 
 sub main {
-    my ( $ishelp, $nodeip, @items );
+    my ( $ishelp, $nodeip , $install_user , @items );
 
     GetOptions(
         'h|help'        => \$ishelp,
@@ -50,25 +55,26 @@ sub main {
         usage();
     }
 
+
     Utils::setEnv();
 
     my $os = `uname`;
     chomp($os);
     my @collectData;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        @collectData = collection_unix::collect( $nodeip );
+        @collectData = collection_unix::collect($nodeip, $install_user  );
     }
     else {
-        @collectData = collection_windows::collect( $nodeip );
+        @collectData = collection_windows::collect($nodeip , $install_user  );
     }
-
+    
     my $plugin = {};
     my $plugin->{"type"} = "collect";
     my @entityList = ();
     foreach my $data (@collectData){
         my %entiry = ();
         $entiry{'data'}       = $data;
-        $entiry{'table'}      = "collect_nginx";
+        $entiry{'table'}      = "collect_db2";
         $entiry{'uniqueName'} = uniqueName($data);
         push(@entityList ,\%entiry);
     }

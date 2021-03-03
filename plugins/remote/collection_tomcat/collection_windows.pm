@@ -11,17 +11,18 @@ use Socket;
 
 sub collect {
     my ($nodeIp) = @_;
-    my %data     = ();
+    my @collect_data =();
+    my %data = ();
     eval(
         q{
             use Win32::API;
             use Win32;
         }
     );
-    
-    #todo windows tomcat collect
 
-    #return \%data;
+    #todo windows  collect
+
+    return @collect_data;
 }
 
 1;
