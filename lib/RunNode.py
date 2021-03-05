@@ -60,12 +60,21 @@ class RunNode:
         self.killCmd = None
 
         self.output = self.context.output
-        self.statusPath = '{}/status/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
+        self.statusPhaseDir = '{}/status/{}'.format(self.runPath, self.context.phase)
+        if not os.path.exists(self.statusPhaseDir):
+            os.mkdir(self.statusPhaseDir)
+
+        self.statusPath = '{}/{}-{}.txt'.format(self.statusPhaseDir, node['host'], node['nodeId'])
 
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
         self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
         self.outputPath = self.outputPathPrefix + '.json'
-        self.logPath = '{}/log/{}-{}.txt'.format(self.runPath, node['host'], node['nodeId'])
+
+        self.logPhaseDir = '{}/log/{}'.format(self.runPath, self.context.phase)
+        if not os.path.exists(self.logPhaseDir):
+            os.mkdir(self.logPhaseDir)
+
+        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, node['host'], node['nodeId'])
         # self.logHandle = open(self.logPath, 'a', buffering=1)
         self.logHandle = LogFile(open(self.logPath, 'a').detach())
 
@@ -209,9 +218,9 @@ class RunNode:
             startTime = time.time()
 
             ret = 0
-            if self.host in ['local-pre', 'local-run', 'local-post']:
+            if self.host == 'local':
                 if op.opType == 'local':
-                    # 本地执行，逐个node循环本地调用插件
+                    # 本地执行
                     # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                     self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
                     ret = self._localExecute(op)

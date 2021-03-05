@@ -86,7 +86,7 @@ class TaskExecutor:
             # 如果有本地执行的插件（不是每个节点调用一次的插件）则虚构一个local的节点，直接执行
             if self.context.hasLocal:
                 # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                localNode = {"nodeId": 0, "nodeType": "local", "host": "local-" + self.context.phase, "port": 0, "username": "", "password": ""}
+                localNode = {"nodeId": 0, "nodeType": "local", "host": "local", "port": 0, "username": "", "password": ""}
                 loalRunNode = RunNode.RunNode(self.context, localNode)
 
                 if self.context.isForce:
