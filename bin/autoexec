@@ -8,6 +8,7 @@ import sys
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
+
 import platform
 import argparse
 import time
@@ -16,9 +17,10 @@ import re
 import json
 import logging
 from logging.handlers import RotatingFileHandler
-import TaskExecutor
-import Operation
+
 import Context
+import Operation
+import TaskExecutor
 
 class ExecError(RuntimeError):
 
@@ -120,7 +122,9 @@ class Runner:
 
                 if phaseName is not None:
                     if failCount == 0:
-                        self.context.phase = phaseName
+                        serverAdapter = self.context.serverAdapter
+                        serverAdapter.getNodes(phaseName)
+                        self.context.setPhase(phaseName)
                         self.context.resetCounter()
                         print("INFO: Begin to execute phase:{} operations...".format(phaseName))
                         failCount = self.execOperations(phase[phaseName], opArgsRefMap, parallelCount)

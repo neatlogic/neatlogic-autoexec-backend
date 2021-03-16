@@ -90,6 +90,11 @@ class Context:
             self.skipNodeCount += 1
             return self.skipNodeCount
 
+    def setPhase(self, phaseName):
+        self.phase = phaseName
+        self.nodesFilePath = '{}/nodes-{}.json'.format(self.runPath, phaseName)
+        os.environ['TASK_NODES_PATH'] = self.nodesFilePath
+
     def resetCounter(self):
         self.skipNodeCount = 0
         self.failNodeCount = 0

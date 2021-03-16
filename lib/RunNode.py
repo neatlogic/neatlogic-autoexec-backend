@@ -289,13 +289,14 @@ class RunNode:
         if not os.path.exists(pluginFile):
             self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op)
 
         while True:
-            line = child.stdout.readline()
+            # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
+            line = child.stdout.readline(4096)
             if not line:
                 break
             self.logHandle.write(line)
@@ -330,13 +331,14 @@ class RunNode:
         if not os.path.exists(pluginFile):
             self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op)
 
         while True:
-            line = child.stdout.readline()
+            # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
+            line = child.stdout.readline(4096)
             if not line:
                 break
             self.logHandle.write(line)
