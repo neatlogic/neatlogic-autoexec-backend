@@ -10,6 +10,7 @@ import base64
 import urllib.request
 import urllib.parse
 from urllib.error import URLError
+from urllib.error import HTTPError
 
 from AutoExecError import AutoExecError
 
@@ -50,6 +51,8 @@ class ServerAdapter:
         self.addHeaders(req, headers)
         try:
             response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
         return response
@@ -66,6 +69,8 @@ class ServerAdapter:
 
         try:
             response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -80,7 +85,13 @@ class ServerAdapter:
 
         req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
         self.addHeaders(req, headers)
-        response = urllib.request.urlopen(req)
+
+        try:
+            response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+        except URLError as ex:
+            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
         return response
 
@@ -102,23 +113,30 @@ class ServerAdapter:
 
         paramsFile.close()
 
-    def getNodes(self):
+    def getNodes(self, phase=None):
         params = {
             'stepId': self.context.stepId,
             'taskId': self.context.taskId
         }
 
+        if phase is not None:
+            params['phase'] = phase
+
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
 
-        nodesFilePath = self.context.nodesFilePath
-        nodesFile = open(nodesFilePath, 'w')
+        if response.status == 200:
+            nodesFilePath = self.context.nodesFilePath
+            nodesFile = open(nodesFilePath, 'w')
 
-        for line in response:
-            nodesFile.write(str(line, encoding='utf-8'))
-            nodesFile.write("\n")
+            for line in response:
+                nodesFile.write(str(line, encoding='utf-8'))
+                nodesFile.write("\n")
 
-        nodesFile.close()
+            nodesFile.close()
+        elif response.status == 304:
+            # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
+            pass
 
     def pushNodeStatus(self, runNode, status, consumeTime):
         params = {

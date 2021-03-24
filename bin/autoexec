@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
@@ -18,9 +18,9 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
-import TaskExecutor
-import Operation
 import Context
+import Operation
+import TaskExecutor
 
 class ExecError(RuntimeError):
 
@@ -113,28 +113,23 @@ class Runner:
         opArgsRefMap = {}
 
         failCount = 0
-        if 'pre' in params:
-            self.context.phase = 'pre'
-            self.context.resetCounter()
-            print("INFO: Begin to execute pre operations...")
-            failCount = self.execOperations(params['pre'], opArgsRefMap, parallelCount)
-            print("INFO: Execute pre operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
-            print("--------------------------------\n")
+        if 'phases' in params:
+            for phase in params['phases']:
+                phaseName = None
+                phaseNames = list(phase.keys())
+                if len(phaseNames) > 0:
+                    phaseName = phaseNames[0]
 
-        if failCount == 0 and 'run' in params:
-            self.context.phase = 'run'
-            self.context.resetCounter()
-            print("INFO: Begin to execute operations...")
-            failCount = self.execOperations(params['run'], opArgsRefMap, parallelCount)
-            print("INFO: Execute run operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
-            print("--------------------------------\n")
-
-        if failCount == 0 and 'post' in params:
-            self.context.phase = 'post'
-            self.context.resetCounter()
-            print("INFO: Begin to execute post operations...")
-            failCount = self.execOperations(params['post'], opArgsRefMap, parallelCount)
-            print("INFO: Execute post operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
+                if phaseName is not None:
+                    if failCount == 0:
+                        serverAdapter = self.context.serverAdapter
+                        serverAdapter.getNodes(phaseName)
+                        self.context.setPhase(phaseName)
+                        self.context.resetCounter()
+                        print("INFO: Begin to execute phase:{} operations...".format(phaseName))
+                        failCount = self.execOperations(phase[phaseName], opArgsRefMap, parallelCount)
+                        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
+                        print("--------------------------------\n")
 
         if failCount == 0:
             print("INFO: ======Execute succeed======")
