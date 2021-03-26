@@ -261,6 +261,7 @@ sub collect {
     my $is_oracle = `ps -ef|grep oracle|grep -v grep`;
     if ( !$is_oracle ) {
         print "not find oracle process .\n";
+        return @collect_data;
         exit 0;
     }
 

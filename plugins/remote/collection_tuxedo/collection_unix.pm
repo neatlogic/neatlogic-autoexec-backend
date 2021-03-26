@@ -18,7 +18,8 @@ sub collect {
 
     my $istuxedo = `ps -ef|grep tuxedo|grep -v grep |grep -v collection_tuxedo`;
     if ( not defined($istuxedo) or $istuxedo eq '') {
-        print "no tuxedo process\n";
+        print "no find tuxedo process.\n";
+        return @collect_data;
         exit 0;
     }
 

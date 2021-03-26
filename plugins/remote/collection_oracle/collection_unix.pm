@@ -630,9 +630,10 @@ sub get_db_instance {
 sub collect {
     my ($nodeIp) = @_;
     my @collect_data =();
-    my $is_oracle = `ps -ef|grep oracle|grep -v grep`;
+    my $is_oracle = `ps -ef|grep oracle |grep -v collection_oracle|grep -v grep`;
     if ( !$is_oracle ) {
-        print "not find oracle . \n";
+        print "not find oracle process . \n";
+        return @collect_data;
         exit 0;
     }
 

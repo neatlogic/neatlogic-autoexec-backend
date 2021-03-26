@@ -1,23 +1,40 @@
 {
-	"opName": "mongodb采集插件",
-	"opType": "remote",
-	"desc": {
-		"tinput": {
-			"node": "节点IP",
-			"help": "执行节点IP",
-			"type": "input",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		}
-	},
-	"output": {
-		"outjson": {
-			"name": "采集数据",
-			"help": "采集数据输出字段",
-			"type": "json"
-		}
-	}
+    "opName": "mongodb采集插件",
+    "opType": "remote",
+    "desc": {
+        "node": {
+            "name": "节点IP",
+            "help": "执行节点IP",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        "user": {
+            "name": "用户",
+            "help": "数据库用户",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        "password": {
+            "name": "密码",
+            "help": "数据库用户的密码",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    },
+    "output": {
+        "outjson": {
+            "name": "采集数据",
+            "help": "采集数据输出字段",
+            "type": "json"
+        }
+    }
 }
-

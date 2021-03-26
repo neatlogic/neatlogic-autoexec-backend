@@ -17,7 +17,8 @@ sub collect {
 
     my $pro_hdp = `ps -ef | grep Dhadoop.home.dir|grep -v grep`;
     if ( !$pro_hdp ) {
-        print "not hdp\n";
+        print "not find hadoop process .\n";
+        return @collect_data;
         exit(0);
     }
     my @arr_inst_path = $pro_hdp =~ /(?<=-Dhadoop\.home\.dir=)(\S+)(?=\s)/g;

@@ -18,7 +18,8 @@ sub collect {
     my %data = ();
     my $is_informix = `ps -ef|grep informix|grep -v grep |grep -v collection_informix`;
     if ( !defined $is_informix or $is_informix eq '' ) {
-        print "not find informix .\n";
+        print "not find informix process .\n";
+        return @collect_data;
         exit 0;
     }
 

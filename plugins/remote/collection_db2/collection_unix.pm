@@ -19,7 +19,8 @@ sub collect {
     chomp(@db2_ins_users);
 
     if ( @db2_ins_users == 0 ) {
-        print "no db2sysc process\n";
+        print "no find db2sysc process.\n";
+        return @collect_data;
         exit 0;
     }
     

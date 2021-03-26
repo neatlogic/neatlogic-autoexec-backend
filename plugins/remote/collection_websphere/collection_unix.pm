@@ -17,7 +17,8 @@ sub collect {
 
     my @pro_was = `ps -ef|grep com.ibm.ws|grep -v grep`;
     if ( @pro_was == 0 ) {
-        print 'not websphere\n';
+        print 'not find websphere process .\n';
+        return @collect_data;
         exit 0;
     }
 

@@ -38,7 +38,7 @@ sub localRun {
 }
 
 sub collect {
-    my ( $nodeIp, $installUser ) = @_;
+    my ( $nodeIp ) = @_;
     my @collect_data = ();
 
     my $is_sybase = `ps -ef|grep /sybase/|grep -v grep`;

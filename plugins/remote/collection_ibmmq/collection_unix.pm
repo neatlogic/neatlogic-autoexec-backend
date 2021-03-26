@@ -18,13 +18,15 @@ sub collect {
 
     my $first_test = `ps -ef|grep lsr|grep -v grep`;
     if ( !$first_test ) {
-        print "not IBMmq\n";
+        print "not find IBMmq process .\n";
+        return @collect_data;
         exit 0;
     }
 
     system('su - mqm -c "echo  "');
     if ( $? != 0 ) {
-        print "not IBMmq\n";
+        print "not find IBMmq process .\n";
+        return @collect_data;
         exit 0;
     }
 

@@ -16,9 +16,10 @@ sub collect {
     my @collect_data =();
     my %data = ();
 
-    my $httpd_pro = `ps -ef|grep httpd|grep -v grep|tail -n1`;
+    my $httpd_pro = `ps -ef|grep httpd |grep -v collection_apache_httpd|grep -v grep|tail -n1`;
     if ( !defined $httpd_pro or $httpd_pro eq '' ) {
-        print "NOT APACHE\n";
+        print "not find apache httpd process .\n";
+        return @collect_data;
         exit 0;
     }
     else {

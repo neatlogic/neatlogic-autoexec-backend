@@ -17,7 +17,8 @@ sub collect {
 
     my $pro_resin = `ps -ef | grep Dresin.home |grep -v grep`;
     if ( !$pro_resin ) {
-        print "not find resin.\n";
+        print "not find resin process.\n";
+        return @collect_data;
         exit(0);
     }
     my @arr_inst_path = $pro_resin =~ /(?<=-Dresin\.home=)(\S+)(?=\s)/g;

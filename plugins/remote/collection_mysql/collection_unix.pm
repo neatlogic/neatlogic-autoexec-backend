@@ -74,7 +74,8 @@ sub collect {
 
     my $mysqlProcess = `ps -ef|grep -P "\/mysqld\\s"|grep -v grep |grep -v collection_mysql |head -n 1`;
     if ( !$mysqlProcess ) {
-        print "not find mysql .\n";
+        print "not find mysql process.\n";
+        return @collect_data;
         exit 0;
     }
 

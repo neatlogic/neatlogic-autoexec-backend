@@ -19,7 +19,8 @@ sub collect {
     my $nginx_pro = `ps -ef|grep nginx|grep master|grep -v grep`;
 
     if ( !defined $nginx_pro or $nginx_pro eq '' ) {
-        print "NOT NGINX\n";
+        print "not find nginx process .\n";
+        return @collect_data;
         exit 0;
     }
     else {

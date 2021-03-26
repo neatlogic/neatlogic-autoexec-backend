@@ -18,7 +18,8 @@ sub collect {
 
     my $pro_num = `ps -ef | grep -i ActiveMQ|grep -v collection_activemq |grep -v grep|head -n1|awk '{print \$2}'`;
     if ( !$pro_num ) {
-        print "not activeMQ\n";
+        print "not find activeMQ process. \n";
+        return @collect_data;
         exit(0);
     }
 

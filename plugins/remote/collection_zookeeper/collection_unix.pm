@@ -18,7 +18,8 @@ sub collect {
 
     my $pro_num = `ps -ef |grep org.apache.zookeeper.server.quorum.QuorumPeerMain|grep -v grep|head -n1|awk '{print \$2}'`;
     if ( !$pro_num ) {
-        print "not find zookeeper.\n";
+        print "not find zookeeper process.\n";
+        return @collect_data;
         exit(0);
     }
 

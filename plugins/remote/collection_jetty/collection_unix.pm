@@ -17,7 +17,8 @@ sub collect {
 
     my $pro_jetty = `ps -ef | grep Djetty.home|grep -v grep`;
     if ( !$pro_jetty ) {
-        print "not find jetty.\n";
+        print "not find jetty process.\n";
+        return @collect_data;
         exit(0);
     }
     my @arr_inst_path = $pro_jetty =~ /(?<=-Djetty\.home=)(\S+)(?=\s)/g;

@@ -18,7 +18,8 @@ sub collect {
 
     my $pro = `ps -ef | grep rabbitmq|grep -v grep`;
     if ( !$pro ) {
-        print "not find rabbitmq .\n";
+        print "not find rabbitmq process.\n";
+        return @collect_data;
         exit(0);
     }
 

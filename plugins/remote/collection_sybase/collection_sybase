@@ -62,10 +62,10 @@ sub main {
     chomp($os);
     my @collectData;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        @collectData = collection_unix::collect($nodeip, $install_user  );
+        @collectData = collection_unix::collect($nodeip  );
     }
     else {
-        @collectData = collection_windows::collect($nodeip , $install_user  );
+        @collectData = collection_windows::collect($nodeip );
     }
     
     my $plugin = {};

@@ -47,7 +47,8 @@ sub collect {
 
     my $path_info = `ps -ef|grep weblogic.Name|grep -v grep|head -n1`;
     if ( !$path_info ) {
-        print "can't find weblogic.Name process";
+        print "not find weblogic.Name process .\n";
+        return @collect_data;
         exit 0;
     }
 

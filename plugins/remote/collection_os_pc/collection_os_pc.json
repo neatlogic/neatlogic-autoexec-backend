@@ -2,8 +2,8 @@
 	"opName": "OS采集硬件信息插件",
 	"opType": "remote",
 	"desc": {
-		"tinput": {
-			"node": "节点IP",
+		"node": {
+			"name": "节点IP",
 			"help": "执行节点IP",
 			"type": "input",
 			"isConst": "false",

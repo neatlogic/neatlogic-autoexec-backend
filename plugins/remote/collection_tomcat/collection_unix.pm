@@ -20,7 +20,8 @@ sub collect {
     my $process_id  = $info_splits[1];
 
     if ( !$tomcat_info or $tomcat_info =~ /tomcat-\d+\.\d+/ ) {
-        print "can't find tomcat";
+        print "can't find tomcat process .\n";
+        return @collect_data;
         exit 0;
     }
 

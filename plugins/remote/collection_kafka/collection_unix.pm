@@ -18,7 +18,8 @@ sub collect {
 
     my $pro_num = `ps -ef | grep kafka/bin|grep -v collection_kafka |grep -v grep | head -n1 |awk '{print \$2}'`;
     if ( !$pro_num ) {
-        print "not find kafka.\n";
+        print "not find kafka process.\n";
+        return @collect_data;
         exit(0);
     }
     
