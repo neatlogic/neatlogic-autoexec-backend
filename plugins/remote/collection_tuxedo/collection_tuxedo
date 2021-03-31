@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
@@ -54,25 +55,33 @@ sub main {
 
     my $os = `uname`;
     chomp($os);
-    my $data;
+
+    my @collectData;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        $data = collection_unix::collect($nodeip);
+        @collectData = collection_unix::collect( $nodeip );
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        @collectData = collection_windows::collect( $nodeip );
     }
-    $data->{"类型"} = "collect";
-    my %result = ();
-    $result{'data'}       = $data;
-    $result{'table'}      = "tuxedo";
-    $result{'uniqueName'} = uniqueName($data);
+
+    my $plugin = {};
+    $plugin->{"type"} = "collect";
+    my @entityList = ();
+    foreach my $data (@collectData){
+        my %entiry = ();
+        $entiry{'data'}       = $data;
+        $entiry{'table'}      = "collection_tuxedo";
+        $entiry{'uniqueName'} = uniqueName($data);
+        push(@entityList ,\%entiry);
+    }
+    $plugin->{"data"} = \@entityList;
 
     #定义插件的输出变量output
     my $out = {};
-    $out->{outjson} = \%result;
+    $out->{outjson} = $plugin;
     Utils::saveOutput($out);
-    my $resultJson = encode_json( \%result );
-    print "$resultJson";
+    my $resultJson = encode_json( $plugin );
+    print "$resultJson"; 
 }
 
 main();

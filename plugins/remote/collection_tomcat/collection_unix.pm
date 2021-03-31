@@ -6,12 +6,12 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 
 sub collect {
     my ($nodeIp) = @_;
-    my @collect_data =();
     my @collect_data =();
     my %data = ();
 
@@ -51,19 +51,19 @@ sub collect {
     foreach my $line (@ver_out){
         if($line =~ /Server number/ ){
             my @values = split /:/, $line;
-            my $ver = @values[1];
+            my $ver = $values[1];
             $ver =~ s/^\s+|\s+$//g;
             $data{'版本'} = $ver;
         }
         if($line =~ /CATALINA_HOME/ ){
             my @values = split /:/, $line;
-            my $catalina_home = @values[1];
+            my $catalina_home = $values[1];
             $catalina_home =~ s/^\s+|\s+$//g;
             $data{'CATALINA_HOME'} = $catalina_home;
         }
         if($line =~ /JVM Vendor/ ){
             my @values = split /:/, $line;
-            my $jvm_vendor = @values[1];
+            my $jvm_vendor = $values[1];
             $jvm_vendor =~ s/^\s+|\s+$//g;
             $data{'JDK厂商'} = $jvm_vendor;
         }

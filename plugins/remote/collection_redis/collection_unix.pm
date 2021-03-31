@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;
@@ -28,9 +29,9 @@ sub handleResult {
     foreach my $line (@result_arr) {
         if ( $line !~ /^#/ig and $line !~ /^Warning: Using a password/ig ) {
             my @tmp_arr = Utils::str_split( $line, ':' );
-            if ( defined( @tmp_arr[1] ) ) {
-                my $key   = @tmp_arr[0];
-                my $value = @tmp_arr[1];
+            if ( defined( $tmp_arr[1] ) ) {
+                my $key   = $tmp_arr[0];
+                my $value = $tmp_arr[1];
                 $value =~ s/[\n\r]*//g;
                 $result{$key} = $value;
             }
@@ -61,7 +62,7 @@ sub collect {
             my @arr       = split /\s+/, $line;
             my $pid       = $arr[1];
             my @info      = Utils::str_split( $arr[-2], ':' );
-            my $port      = @info[1];
+            my $port      = $info[1];
             my $host_name = `hostname`;
             chomp($host_name);
             $data{'名称'} = $host_name;
@@ -112,11 +113,11 @@ sub collect {
                         foreach my $st (@slave_tmp) {
                             if ( $st =~ /ip/ig ) {
                                 my @st_tmp = Utils::str_split( $st, '=' );
-                                $slave_host = @st_tmp[1];
+                                $slave_host = $st_tmp[1];
                             }
                             if ( $st =~ /port/ig ) {
                                 my @st_tmp = Utils::str_split( $st, '=' );
-                                $slave_port = @st_tmp[1];
+                                $slave_port = $st_tmp[1];
                             }
                         }
                         push( @slave_arr, $slave_host . ":" . $slave_port );

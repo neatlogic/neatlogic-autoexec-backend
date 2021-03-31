@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;

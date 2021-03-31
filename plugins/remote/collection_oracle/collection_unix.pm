@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;
@@ -142,7 +143,7 @@ sub get_dbid {
     my $result = sqlplusRun( $oracle_home, $sid, $query );
     $result =~ s/^\s+|\s+$//g;
     my @arr0 = split /\n/, $result;
-    my $dbid = @arr0[-1];
+    my $dbid = $arr0[-1];
     $dbid =~ s/^\s+|\s+$//g;
     return $dbid;
 }
@@ -354,7 +355,7 @@ sub get_ora_dblog {
     my $dblogResult = sqlplusRun( $oracle_home, $sid, $dblogQuery );
     $dblogResult =~ s/^\s+|\s+$//g;
     my @dblog_arr = split /\n/, $dblogResult;
-    my $dir       = @dblog_arr[-1];
+    my $dir       = $dblog_arr[-1];
     my $abs_path  = $dir . '/alert*.log';
     my $log       = `ls $abs_path`;
     chomp($log);
@@ -393,7 +394,7 @@ sub get_db_instance {
     my $dbversionResult = sqlplusRun( $oracle_home, $sid, $dbversionQuery );
     $dbversionResult =~ s/^\s+|\s+$//g;
     my @dbversion_arr = split /\n/, $dbversionResult;
-    my $oracle_ver    = @dbversion_arr[-1];
+    my $oracle_ver    = $dbversion_arr[-1];
     $oracle_ver =~ s/^\s+|\s+$//g;
     $oracle_ins{'数据库版本'} = $oracle_ver;
 

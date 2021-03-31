@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;
@@ -109,12 +110,8 @@ sub collect {
             $app_port = $1;
         }
         $was_instance{'应用端口'} = $app_port;
-
-        my $manage_info = `cat $xml_path`;
-        $manage_info =~ /<serverEntries.*?serverName="$server_name"(.*?)<\/serverEntries>/s;
-        $manage_info = $1;
-
-        my @arr_app = ();
+        
+	my @arr_app = ();
         my $app_path = $config_path . '/..' . '/temp/' . $node_name . '/' . $server_name . '/*';
         my @apps     = glob($app_path);
         for my $ins (@apps) {

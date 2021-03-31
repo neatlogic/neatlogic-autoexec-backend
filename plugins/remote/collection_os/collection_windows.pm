@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use Socket;
 
@@ -55,8 +56,8 @@ sub collect {
 
     my $patchs = `wmic qfe list full`;
     $patchs =~ s/^\s+|\s+$//g;
-    my @arr = $patchs =~ /KB\d+/g;
-    my $p   = join( ',', @arr );
+    $patchs =~ /KB\d+/g;
+    my $p   = join( ',', $patchs );
     $data{'补丁情况'} = $p;
 
     my $ntp_server = `w32tm /query /configuration`;
@@ -67,7 +68,7 @@ sub collect {
         $data{'NTP服务器'} = 'cmd not support';
     }
 
-    if ( -e "C:\Windows\SysWOW64" ) {
+    if ( -e "C:\\Windows\\SysWOW64" ) {
         $data{'位长'} = '64';
     }
     else {
@@ -95,7 +96,6 @@ sub collect {
 
     my $os;
     my $build;
-    my $hostname;
     my $sys_info = `systeminfo`;
     if ( $sys_info =~ /OS\s\S+:\s+(Microsoft(\(R\))?\sWindows.*)\n/ ) {
         $os = $1;
@@ -133,9 +133,9 @@ sub collect {
             $i = $i + 1;
         }
     }
-    my $dns = join( ",", @dns );
-    chomp($dns);
-    $data{'DNS服务'} = $dns;
+    my $dns_join = join( ",", @dns );
+    chomp($dns_join);
+    $data{'DNS服务'} = $dns_join;
 
     my @ips;
     my $ip_info = `wmic nicconfig where 'IPEnabled = True' get ipaddress`;

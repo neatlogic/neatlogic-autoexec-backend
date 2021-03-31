@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
@@ -69,7 +70,7 @@ sub main {
     }
     
     my $plugin = {};
-    my $plugin->{"type"} = "collect";
+    $plugin->{"type"} = "collect";
     my @entityList = ();
     foreach my $data (@collectData){
         my %entiry = ();

@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use XML::Simple;
@@ -115,7 +116,7 @@ sub collect {
             if ( -d $opatch_home ) {
                 chdir($opatch_home);
                 if ( -f 'opatch' ) {
-                    my $user         = my $user = getpwuid( ( stat('opatch') )[4] );
+                    my $user = getpwuid( ( stat('opatch') )[4] );
                     my $patch_output = `sudo -u $user ./opatch lsinventory`;
 
                     my @arr_patch = $patch_output =~ /Patch\s+(\d+)\s+:/g;
@@ -145,22 +146,25 @@ sub collect {
 
                 my $process = `ps -ef |grep Dweblogic.Name=$server_name |grep -v grep`;
                 my @lines   = split /\s+/, $process;
-                my $user    = @lines[0] || "";
+                my $user    = $lines[0];
+		if(not defined($user)){
+		   $user = '';
+		}
                 chomp($user);
                 $intance{'启动用户'} = $user;
 
                 if ( $server_name eq 'AdminServer' ) {
-                    my $pid = @lines[1];
+                    my $pid = $lines[1];
                     chomp($pid);
                     my $process_port  = `netstat -tlpn 2>/dev/null | grep $pid | awk '{ print \$4 }' | tr '\n' ',' | tr ' ' ',' | grep -o ":....," | sort -u | tr -d '\n' | tr -d ':' | sed 's/,\$//'`;
                     my @process_ports = split( /,/, $process_port );
                     if ( scalar(@process_ports) == 1 ) {
-                        $intance{'端口'} = @process_ports[0];
+                        $intance{'端口'} = $process_ports[0];
                     }
                     else {
                         $intance{'端口'} = \@process_ports;
                     }
-                    $data{'端口'} = @process_ports[0];
+                    $data{'端口'} = $process_ports[0];
                 }
                 else {
                     next if ( !defined $server_ins->{'listen-port'} or $server_ins->{'listen-port'} eq '' );

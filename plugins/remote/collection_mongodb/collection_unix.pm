@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;
@@ -55,7 +56,7 @@ sub collect {
         my $bin;
         my @info_arr = split /\s+/, $info;
         if ( $info =~ /--config/ ) {
-            $conf_path = @info_arr[-1];
+            $conf_path = $info_arr[-1];
             chomp($conf_path);
             $install_base = dirname($conf_path);
             $bin          = $install_base . "/bin/mongo";
@@ -134,8 +135,14 @@ sub collect {
         my @servername_arr    = dbRun( $bin, $port, $user, $password, $servernameQuery );
         my @newServername_arr = ();
         foreach my $line (@servername_arr) {
-            my @tmp_arr = Utils::str_split( $line, '\s+' );
-            push( @newServername_arr, @tmp_arr[0] );
+	    if ($line =~ /Error: Authenticatio/){
+		print("user or password error ,login mongo db failed .\n");
+		return @collect_data;
+		exit(1);
+	    }else{
+            	my @tmp_arr = Utils::str_split( $line, '\s+' );
+            	push( @newServername_arr, $tmp_arr[0] );
+	    }
         }
         $data{'包含服务名'} = \@newServername_arr;
 

@@ -257,6 +257,7 @@ sub get_data_tablespace {
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();    
 
     my $is_oracle = `ps -ef|grep oracle|grep -v grep`;
     if ( !$is_oracle ) {
@@ -267,7 +268,6 @@ sub collect {
 
     my $os_type = `uname`;
     chomp($os_type);
-    my @collect_data =();
     my @arr_ins;
     my @or_home;
     if ( $os_type eq 'Linux' ) {

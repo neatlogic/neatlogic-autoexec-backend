@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 use File::Basename;
 use Encode;
@@ -69,7 +70,7 @@ sub collect {
             $ins{'安装于操作系统'} = $nodeIp;
             $ins{'端口'}    = $port;
             $ins{'服务名称'}  = $ser_name;
-            my $ver;
+	    my $ver ;
             my $ver_info = localRun("isql -v");
             if ( $ver_info =~ /Utility\/(\S+)\// ) {
                 $ver = $1;
@@ -85,7 +86,6 @@ sub collect {
 
             $ins{'库名'} = $str_name;
 
-            my $ver;
             my $ver_output = localRun("dataserver -v");
             if ( $ver_output =~ /Enterprise\/(\d+\.\d+)\/EBF/ ) {
                 $ver = $1;
