@@ -97,8 +97,7 @@ class ServerAdapter:
 
     def getParams(self):
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId
+            'jobId': self.context.jobId
         }
 
         # response = self.httpPOST(self.apiMap['getparams'], self.authToken, params)
@@ -115,8 +114,7 @@ class ServerAdapter:
 
     def getNodes(self, phase=None):
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId
+            'jobId': self.context.jobId
         }
 
         if phase is not None:
@@ -139,16 +137,32 @@ class ServerAdapter:
             pass
 
     def pushNodeStatus(self, runNode, status, consumeTime):
+        if self.context.devMode:
+            return
+
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId,
+            'jobId': self.context.jobId,
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
-            'time': consumeTime
+            'time': consumeTime,
+            'passThroughEnv': self.context.passThroughEnv
         }
+        response = self.httpJSON('nodeStatusNotify', self.authToken, params)
 
-        response = self.httpJSON('callback', self.authToken, params)
+    def pushPhaseStatus(self, phaseName, status, consumeTime, fireNext):
+        if self.context.devMode:
+            return
+
+        params = {
+            'jobId': self.context.jobId,
+            'phaseName': phaseName,
+            'status': status,
+            'time': consumeTime,
+            'fireNext': fireNext,
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON('phaseStatusNotify', self.authToken, params)
 
     def fetchFile(self, savePath, fileId):
         params = {
@@ -165,6 +179,7 @@ class ServerAdapter:
         url = self.serverBaseUrl + self.apiMap['fetchfile']
 
         fileName = None
+        response = None
         try:
             response = self.httpGET(self.apiMap['fetchfile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
@@ -185,7 +200,7 @@ class ServerAdapter:
                         f.write(chunk)
                     f.close()
         except:
-            if response.status != 304:
+            if response is None or response.status != 304:
                 raise
 
         return fileName

@@ -21,8 +21,7 @@ class Operation:
 
     def __init__(self, context, opsParam, param):
         self.context = context
-        self.stepId = context.stepId
-        self.taskId = context.taskId
+        self.jobId = context.jobId
         self.opsParam = opsParam
         self.opId = param['opId']
         self.opName = param['opName']
@@ -161,7 +160,7 @@ class Operation:
         return argValue
 
     def getCmdLine(self):
-        cmd = self.opId
+        cmd = self.opName
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:
@@ -179,7 +178,7 @@ class Operation:
         return cmd
 
     def getCmdLineHidePassword(self):
-        cmd = self.opId
+        cmd = self.opName
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:

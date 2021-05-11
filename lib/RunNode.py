@@ -361,11 +361,11 @@ class RunNode:
         ret = -1
         if self.type == 'tagent':
             try:
-                remotePath = '$TMPDIR/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
+                remotePath = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
                 remoteCmd = 'cd {}/{} && ./{} --node \'{}\''.format(remotePath, op.opId, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
                 remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword())
 
-                runEnv = {'AUTOEXEC_TASKID': self.context.taskId, 'AUTOEXEC_STEPID': self.context.stepId}
+                runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
 
@@ -403,10 +403,10 @@ class RunNode:
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
-            remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.stepId, self.context.taskId)
+            remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
             remotePath = '{}/{}'.format(remoteRoot, op.opId)
-            remoteCmd = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{} --node\'{}\''.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
-            remoteCmdHidePassword = 'AUTOEXEC_TASKID={} AUTOEXEC_STEPID={} cd {} && {}/{}'.format(self.context.taskId, self.context.stepId, remotePath, remotePath, op.getCmdLineHidePassword())
+            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}/{} --node\'{}\''.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
+            remoteCmdHidePassword = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLineHidePassword())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
             uploaded = False

@@ -17,10 +17,12 @@ import re
 import json
 import logging
 from logging.handlers import RotatingFileHandler
+from shutil import copyfile
 
 import Context
 import Operation
-import TaskExecutor
+import JobExecutor
+
 
 class ExecError(RuntimeError):
 
@@ -32,11 +34,13 @@ class ExecError(RuntimeError):
 
 
 class Runner:
-    def __init__(self, stepId, taskId, isForce=False, failBreak=False, dataPath=None):
+    def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, failBreak=False, devMode=False, dataPath=None):
         # 初始化运行上下文
-        context = Context.Context(stepId, taskId, isForce, failBreak, dataPath)
+        context = Context.Context(jobId, isForce, failBreak, devMode, dataPath)
         self.context = context
         self.executor = None
+        self.localDefinedParams = False
+        self.localDefinedNodes = False
 
         loggingLevel = context.config.get('autoexec', 'logging.level')
 
@@ -62,10 +66,26 @@ class Runner:
         # 切换到任务的执行路径
         os.chdir(context.runPath)
 
-        # 获取运行参数和运行节点参数文件
+        # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载
         serverAdapter = context.serverAdapter
-        serverAdapter.getParams()
-        serverAdapter.getNodes()
+        if paramsFile is None or paramsFile == '':
+            serverAdapter.getParams()
+        else:
+            self.localDefinedParams = True
+            # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
+            dstPath = '{}/params.json'.format(self.context.runPath)
+            print(dstPath)
+            if (os.path.exists(paramsFile) and dstPath != os.path.realpath(paramsFile)):
+                copyfile(paramsFile, dstPath)
+
+        if nodesFile is None or nodesFile == '':
+            serverAdapter.getNodes()
+        else:
+            self.localDefinedNodes = True
+            # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
+            dstPath = '{}/nodes.json'.format(self.context.runPath)
+            if (os.path.exists(nodesFile) and dstPath != os.path.realpath(nodesFile)):
+                copyfile(nodesFile, dstPath)
 
         # 加载运行参数文件
         paramFile = open(context.paramsFilePath, 'r')
@@ -73,6 +93,9 @@ class Runner:
 
         if 'arg' in self.params:
             self.context.arg = self.params['arg']
+
+        if 'passThroughEnv' in self.params:
+            self.context.passThroughENv = self.params['passThroughEnv']
 
         paramFile.close()
 
@@ -100,7 +123,7 @@ class Runner:
 
             operations.append(op)
 
-        executor = TaskExecutor.TaskExecutor(self.context, operations, parallelCount)
+        executor = JobExecutor.JobExecutor(self.context, operations, parallelCount)
         self.executor = executor
         return executor.execute()
 
@@ -113,8 +136,8 @@ class Runner:
         opArgsRefMap = {}
 
         failCount = 0
-        if 'phases' in params:
-            for phase in params['phases']:
+        if 'runFlow' in params:
+            for phase in params['runFlow']:
                 phaseName = None
                 phaseNames = list(phase.keys())
                 if len(phaseNames) > 0:
@@ -123,7 +146,9 @@ class Runner:
                 if phaseName is not None:
                     if failCount == 0:
                         serverAdapter = self.context.serverAdapter
-                        serverAdapter.getNodes(phaseName)
+                        if not self.localDefinedNodes:
+                            serverAdapter.getNodes(phaseName)
+
                         self.context.setPhase(phaseName)
                         self.context.resetCounter()
                         print("INFO: Begin to execute phase:{} operations...".format(phaseName))
@@ -147,19 +172,20 @@ class Runner:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
-    parser.add_argument('--stepid', '-s', default='00', help='Step id for task, default is "00"')
-    parser.add_argument('--taskid', '-t', default='00', help='Task id for this execution')
+    parser.add_argument('--jobid', '-j', default='0', help='Job id for this execution')
+    parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
+    parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
     parser.add_argument('--failbreak', '-b', default=False, action='store_true', help='Break the running loop while the node status is failed')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
+    parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
 
     args = parser.parse_args()
-    print("INFO: StepId:{}, TaskId:{}, isForce:{}".format(args.stepid, args.taskid, args.force))
+    print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
 
     if not args.abort:
-        os.environ['AUTOEXEC_TASKID'] = args.taskid
-        os.environ['AUTOEXEC_STEPID'] = args.stepid
-        runner = Runner(args.stepid, args.taskid, args.force, args.failbreak)
+        os.environ['AUTOEXEC_JOBID'] = args.jobid
+        runner = Runner(args.jobid, args.force, args.paramsfile, args.nodesfile, args.failbreak, args.devmode)
 
         def handler(signum, frame):
             runner.kill()
@@ -184,7 +210,7 @@ if __name__ == "__main__":
                             try:
                                 f = open(entry.path + '/environ')
                                 content = f.read()
-                                if re.match('AUTOEXEC_TASKID=' + args.taskid, content) and re.match('AUTOEXEC_STEPID=' + args.stepid, content):
+                                if re.match('AUTOEXEC_JOBID=' + args.jobid, content):
                                     hasProcess = True
                                     if loopCount < 10:
                                         os.kill(pid, signal.SIGTERM)
