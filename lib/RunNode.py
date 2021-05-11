@@ -287,7 +287,7 @@ class RunNode:
 
         pluginFile = op.localPluginPath + os.path.sep + op.opId
         if not os.path.exists(pluginFile):
-            self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
+            self.logHandle.write("ERROR: Plugin not exists {}\n".format(pluginFile))
 
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
@@ -348,9 +348,9 @@ class RunNode:
         ret = child.returncode
 
         if ret == 0:
-            self.logHandle.write("INFO: Execute local-remote command succeed:{}\n".format(orgCmdLineHidePassword))
+            self.logHandle.write("INFO: Execute local-remote command succeed: {}\n".format(orgCmdLineHidePassword))
         else:
-            self.logHandle.write("ERROR: Execute local-remote command faled:{}\n".format(orgCmdLineHidePassword))
+            self.logHandle.write("ERROR: Execute local-remote command faled: {}\n".format(orgCmdLineHidePassword))
 
         return ret
 
@@ -397,9 +397,9 @@ class RunNode:
                 self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opId, ex))
 
             if ret == 0:
-                self.logHandle.write("INFO: Execute remote command by agent succeed:{}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmdHidePassword))
             else:
-                self.logHandle.write("ERROR: Execute remote command by agent failed:{}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmdHidePassword))
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)

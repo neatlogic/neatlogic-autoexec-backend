@@ -55,16 +55,9 @@ class Operation:
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
-        self.localPluginPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opId)
-        self.remotePluginPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opId)
+        self.localPluginPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
+        self.remotePluginPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
         self.remoteLibPath = '{}/plugins/remote/lib'.format(self.context.homePath)
-
-        # 不需要了，因为节点运行时会复制操作对象，所以放到节点运行时进行操作的参数处理
-        # self.parseParam(self.context.output)
-        #cmd = self.opId
-        # for k, v in self.options.items():
-        #    cmd = cmd + ' --{} "{}" '.format(k, v)
-        #self.cmdline = cmd
 
         if not os.path.exists('file'):
             os.mkdir('file')
@@ -125,7 +118,7 @@ class Operation:
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
-            refMap = self.opsParam
+            refMap = self.context.output
 
         # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
         matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', argValue)
@@ -138,19 +131,28 @@ class Operation:
                 raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
         else:
             # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
-            matchObj = re.match(r'^\s*\$\{\s*([^\.]+?)\.(.+)\s*\}\s*$', argValue)
+            matchObj = re.match(r'^\s*\$\{\s*(.+)\s*\}\s*$', argValue)
             if matchObj:
+                varName = matchObj.group(1)
+                varNames = varName.split('.', 3)
                 newArgValue = None
-                opId = matchObj.group(1)
-                paramName = matchObj.group(2)
+                opId = None
+                paramName = None
+                if len(varNames) == 3:
+                    opId = varNames[1]
+                    paramName = varNames[2]
+                else:
+                    opId = varNames[0]
+                    paramName = varNames[1]
+
                 if opId in refMap:
                     paramMap = refMap[opId]
                     if paramName in paramMap:
                         newArgValue = paramMap[paramName]
-                # elif 'local' in self.context.output:
-                #    paramMap = self.context.output['local']
-                #    if paramName in paramMap:
-                #        newArgValue = paramMap[paramName]
+                elif 'local' in self.context.output:
+                    paramMap = self.context.output['local']
+                    if paramName in paramMap:
+                        newArgValue = paramMap[paramName]
 
                 if newArgValue is not None:
                     argValue = newArgValue

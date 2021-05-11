@@ -21,6 +21,7 @@ class Context:
         self.failBreak = failBreak
         self.devMode = devMode
         self.dataPath = dataPath
+        self.passThroughEnv = {}
 
         self.goToStop = False
 

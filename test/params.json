@@ -40,12 +40,12 @@
                 },
                 {
                         "run": [{
-                                        "opId": "localdemo_xxxx",
-                                        "opName": "localdemo",
-                                        "opType": "local",
+                                        "opId": "localremotedemo_tttt",
+                                        "opName": "localremotedemo",
+                                        "opType": "localremote",
                                         "failIgnore": false,
                                         "arg": {
-                                                "tinput": "${pre1.localdemo.outtext}",
+                                                "tinput": "${pre.localdemo.outtext}",
                                                 "tselect": "yyyy",
                                                 "tpassword": "{RC4}xxxxxxx",
                                                 "tfile": "testfile"
@@ -69,7 +69,7 @@
                                         "opType": "localremote",
                                         "failIgnore": false,
                                         "arg": {
-                                                "tinput": "${run.localdemo_xxxx.outtext}",
+                                                "tinput": "${run.localremotedemo_tttt.outtext}",
                                                 "tselect": "yyyy",
                                                 "tpassword": "{RC4}xxxxxxx",
                                                 "tfile": "testfile"
