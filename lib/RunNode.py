@@ -249,9 +249,9 @@ class RunNode:
 
             endDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             if ret == 0:
-                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} succeed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opType))
+                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} succeed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
             else:
-                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} failed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opType))
+                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} failed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
 
                 if not op.failIgnore:
                     isFail = 1

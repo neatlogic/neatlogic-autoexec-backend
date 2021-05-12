@@ -31,6 +31,20 @@ class Operation:
         # localremote：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
         # local：在本地运行，与运行节点无关，只会运行一次
         self.opType = param['opType']
+        self.opTypeDesc = {
+            "local": "Runner本地执行",
+            "remote": "远程执行",
+            "localremote": "Runner本地连接远程执行"
+        }
+
+        # 把runner、target、runner_target转换为local、remote、localremote
+        if self.opType == 'runner':
+            self.opType = 'local'
+
+        elif self.opType == 'target':
+            self.opType = 'remote'
+        elif self.opType == 'runner_target':
+            self.opType = 'localremote'
         ##############
 
         # failIgnore参数，用于插件运行失败不影响后续插件运行
