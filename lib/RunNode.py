@@ -64,17 +64,17 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}.txt'.format(self.statusPhaseDir, node['host'], node['nodeId'])
+        self.statusPath = '{}/{}-{}.txt'.format(self.statusPhaseDir, node['host'], node['port'])
 
-        self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
-        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['nodeId'])
+        self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['port'])
+        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.outputPath = self.outputPathPrefix + '.json'
 
         self.logPhaseDir = '{}/log/{}'.format(self.runPath, self.context.phase)
         if not os.path.exists(self.logPhaseDir):
             os.mkdir(self.logPhaseDir)
 
-        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, node['host'], node['nodeId'])
+        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, node['host'], node['port'])
         # self.logHandle = open(self.logPath, 'a', buffering=1)
         self.logHandle = LogFile(open(self.logPath, 'a').detach())
 
