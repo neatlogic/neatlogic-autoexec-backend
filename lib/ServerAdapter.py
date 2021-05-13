@@ -69,7 +69,8 @@ class ServerAdapter:
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
-        req = urllib.request.Request(url + '?' + data)
+        url = url + '?' + data
+        req = urllib.request.Request(url)
         self.addHeaders(req, headers)
 
         try:
@@ -120,7 +121,8 @@ class ServerAdapter:
 
     def getNodes(self, phase=None):
         params = {
-            'jobId': self.context.jobId
+            'jobId': self.context.jobId,
+            'phase': ''
         }
 
         if phase is not None:
