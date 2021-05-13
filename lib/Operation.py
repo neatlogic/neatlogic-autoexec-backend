@@ -25,6 +25,8 @@ class Operation:
         self.opsParam = opsParam
         self.opId = param['opId']
         self.opName = param['opName']
+        self.isScript = 0
+        self.interpreter = ''
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -46,6 +48,11 @@ class Operation:
         elif self.opType == 'runner_target':
             self.opType = 'localremote'
         ##############
+
+        if 'isScript' in param:
+            self.isScript = param['isScript']
+        if 'interpreter' in param:
+            self.interpreter = param['interpreter']
 
         # failIgnore参数，用于插件运行失败不影响后续插件运行
         self.failIgnore = False
@@ -69,9 +76,21 @@ class Operation:
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
-        self.localPluginPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
-        self.remotePluginPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
         self.remoteLibPath = '{}/plugins/remote/lib'.format(self.context.homePath)
+
+        self.pluginPath = None
+        self.pluginParentPath = None
+
+        if self.isScript == 1:
+            self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
+            self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+        else:
+            if self.opType == 'remote':
+                self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+            else:
+                self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
 
         if not os.path.exists('file'):
             os.mkdir('file')
@@ -175,8 +194,19 @@ class Operation:
 
         return argValue
 
-    def getCmdLine(self):
-        cmd = self.opName
+    def getCmdLine(self, fullPath=False):
+        cmd = None
+        if self.isScript:
+            if fullPath:
+                cmd = '{} {}'.format(self.interpreter, self.pluginPath)
+            else:
+                cmd = '{} {}'.format(self.interpreter, self.opName)
+        else:
+            if fullPath:
+                cmd = self.pluginPath
+            else:
+                cmd = self.opName
+
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:
@@ -194,7 +224,12 @@ class Operation:
         return cmd
 
     def getCmdLineHidePassword(self):
-        cmd = self.opName
+        cmd = None
+        if self.isScript:
+            cmd = self.interpreter + ' ' + self.opName
+        else:
+            cmd = self.opName
+
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:

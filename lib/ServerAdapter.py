@@ -214,4 +214,36 @@ class ServerAdapter:
             if response is None or response.status != 304:
                 raise
 
+    def fetchScript(self, savePath, scriptId):
+        params = {
+            'scriptId': scriptId
+        }
+
+        cachedFilePath = savePath + '/' + scriptId
+        lastModifiedTime = 0
+        if os.path.exists(cachedFilePath):
+            lastModifiedTime = os.path.getmtime(cachedFilePath)
+
+        params['lastModifed'] = lastModifiedTime
+
+        url = self.serverBaseUrl + self.apiMap['fetchScript']
+
+        fileName = scriptId
+        response = None
+        try:
+            response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
+
+            if response.status == 200:
+                CHUNK = 16 * 1024
+                with open(cachedFilePath, 'wb') as f:
+                    while True:
+                        chunk = response.read(CHUNK)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                    f.close()
+        except:
+            if response is None or response.status != 304:
+                raise
+
         return fileName

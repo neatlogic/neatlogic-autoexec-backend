@@ -214,6 +214,9 @@ class RunNode:
                     isFail = 1
                     break
 
+            if not os.path.exists(op.pluginPath):
+                self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))
+
             beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             startTime = time.time()
 
@@ -276,18 +279,14 @@ class RunNode:
         os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine()
+        orgCmdLine = op.getCmdLine(fullPath=True)
         orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
-        cmdline = 'exec {}/{}'.format(op.localPluginPath, orgCmdLine)
+        cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
-        environment['PATH'] = '{}/{}:{}'.format(op.localPluginPath, op.opId, os.environ['PATH'])
-        environment['PERLLIB'] = '{}/lib:{}'.format(op.localPluginPath, os.environ['PERLLIB'])
-
-        pluginFile = op.localPluginPath + os.path.sep + op.opId
-        if not os.path.exists(pluginFile):
-            self.logHandle.write("ERROR: Plugin not exists {}\n".format(pluginFile))
+        environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
+        environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
@@ -318,18 +317,14 @@ class RunNode:
         os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine()
+        orgCmdLine = op.getCmdLine(fullPath=True)
         orgCmdLineHidePassword = op.getCmdLineHidePassword()
 
-        cmdline = 'exec {}/{} --node \'{}\''.format(op.localPluginPath, orgCmdLine, json.dumps(self.node))
+        cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         environment = {}
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
-        environment['PATH'] = '{}/{}:{}'.format(op.localPluginPath, op.opId, os.environ['PATH'])
-        environment['PERLLIB'] = '{}/lib:{}'.format(op.localPluginPath, os.environ['PERLLIB'])
-
-        pluginFile = op.localPluginPath + os.path.sep + op.opId
-        if not os.path.exists(pluginFile):
-            self.logHandle.write('ERROR: Plugin not exists {}'.format(pluginFile))
+        environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
+        environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.childPid = child.pid
@@ -373,7 +368,7 @@ class RunNode:
                 self.updateNodeStatus(NodeStatus.running, op)
 
                 uploadRet = 0
-                for srcPath in [op.remoteLibPath, op.remotePluginPath]:
+                for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                     uploadRet = tagent.upload(self.username, srcPath, remotePath)
                     if uploadRet != 0:
                         break
