@@ -197,15 +197,21 @@ class Operation:
     def getCmdLine(self, fullPath=False):
         cmd = None
         if self.isScript:
-            if fullPath:
-                cmd = '{} {}'.format(self.interpreter, self.pluginPath)
+            if self.opType == 'remote':
+                cmd = '{} {}'.format(self.interpreter, self.opId)
             else:
-                cmd = '{} {}'.format(self.interpreter, self.opName)
+                if fullPath:
+                    cmd = '{} {}'.format(self.interpreter, self.pluginPath)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opName)
         else:
-            if fullPath:
-                cmd = self.pluginPath
+            if self.opType == 'remote':
+                cmd = '{} {}'.format(self.interpreter, self.opId)
             else:
-                cmd = self.opName
+                if fullPath:
+                    cmd = self.pluginPath
+                else:
+                    cmd = self.opName
 
         for k, v in self.options.items():
             isNodeParam = False

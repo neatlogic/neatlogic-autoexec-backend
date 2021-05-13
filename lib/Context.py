@@ -13,7 +13,7 @@ import ServerAdapter
 class Context:
     def __init__(self, jobId, isForce=False, failBreak=False, devMode=False, dataPath=None):
         self.jobId = jobId
-        self.tenent = ''
+        self.tenant = ''
         self.arg = {}
         self.output = {}
         #self.output['local'] = {}

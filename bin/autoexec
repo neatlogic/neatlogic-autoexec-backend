@@ -82,8 +82,11 @@ class Runner:
         paramFile = open(context.paramsFilePath, 'r')
         self.params = json.loads(paramFile.read())
 
-        if 'tenent' in self.params:
-            self.context.tenent = self.params['tenent']
+        if 'jobId' in self.params:
+            jobId = self.params['jobId']
+            self.context.jobId = jobId
+        if 'tenant' in self.params:
+            self.context.tenant = self.params['tenant']
 
         if 'arg' in self.params:
             self.context.arg = self.params['arg']

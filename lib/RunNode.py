@@ -357,9 +357,6 @@ class RunNode:
         if self.type == 'tagent':
             try:
                 remotePath = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
-                remoteCmd = 'cd {}/{} && ./{} --node \'{}\''.format(remotePath, op.opId, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
-                remoteCmdHidePassword = 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLineHidePassword())
-
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
@@ -367,17 +364,23 @@ class RunNode:
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op)
 
+                remoteCmd = None
                 uploadRet = 0
-                for srcPath in [op.remoteLibPath, op.pluginParentPath]:
-                    uploadRet = tagent.upload(self.username, srcPath, remotePath)
-                    if uploadRet != 0:
-                        break
+                if op.isScript == 1:
+                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine())
+                    uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
+                else:
+                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine())
+                    for srcPath in [op.remoteLibPath, op.pluginParentPath]:
+                        uploadRet = tagent.upload(self.username, srcPath, remotePath)
+                        if uploadRet != 0:
+                            break
 
                 if uploadRet == 0 and not self.context.goToStop:
-                    ret = tagent.execCmd(self.username, 'cd {}/{} && ./{}'.format(remotePath, op.opId, op.getCmdLine()), env=runEnv, isVerbose=0, callback=self.logHandle.write)
+                    ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.logHandle.write)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
-                        outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opId), outputFilePath)
+                        outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opName), outputFilePath)
                         if outputStatus != 0:
                             self.logHandle.write("ERROR: Download output failed.\n")
                             ret = 2
@@ -392,16 +395,15 @@ class RunNode:
                 self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opId, ex))
 
             if ret == 0:
-                self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmd))
             else:
-                self.logHandle.write("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmd))
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
             remotePath = '{}/{}'.format(remoteRoot, op.opId)
-            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}/{} --node\'{}\''.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine(), json.dumps(self.nodeWithoutPassword))
-            remoteCmdHidePassword = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLineHidePassword())
+            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
             uploaded = False
@@ -426,35 +428,39 @@ class RunNode:
                 except SFTPError as err:
                     self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
-                os.chdir(op.remotePluginRootPath)
-                for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
-                    try:
-                        # 创建当前目录
-                        sftp.mkdir(os.path.join(remoteRoot, root))
-                    except:
-                        pass
-                    for name in files:
-                        # 遍历文件并scp到目标上
-                        filePath = os.path.join(root, name)
-                        sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                if op.isScript == 1:
+                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opId))
+                else:
+                    os.chdir(op.remotePluginRootPath)
+                    for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
+                        try:
+                            # 创建当前目录
+                            sftp.mkdir(os.path.join(remoteRoot, root))
+                        except:
+                            pass
+                        for name in files:
+                            # 遍历文件并scp到目标上
+                            filePath = os.path.join(root, name)
+                            sftp.put(filePath, os.path.join(remoteRoot, filePath))
 
-                # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
-                os.chdir(op.remotePluginRootPath)
-                # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
-                for root, dirs, files in os.walk(op.opId, topdown=True, followlinks=True):
-                    try:
-                        # 创建当前目录
-                        sftp.mkdir(os.path.join(remoteRoot, root))
-                    except:
-                        pass
-                    for name in files:
-                        # 遍历文件并scp到目标上
-                        filePath = os.path.join(root, name)
-                        sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                    # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
+                    os.chdir(op.remotePluginRootPath)
+                    # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
+                    for root, dirs, files in os.walk(op.opId, topdown=True, followlinks=True):
+                        try:
+                            # 创建当前目录
+                            sftp.mkdir(os.path.join(remoteRoot, root))
+                        except:
+                            pass
+                        for name in files:
+                            # 遍历文件并scp到目标上
+                            filePath = os.path.join(root, name)
+                            sftp.put(filePath, os.path.join(remoteRoot, filePath))
+
+                    sftp.chmod('{}/{}'.format(remotePath, op.opId), stat.S_IXUSR)
 
                 uploaded = True
 
-                sftp.chmod('{}/{}'.format(remotePath, op.opId), stat.S_IXUSR)
             except Exception as err:
                 self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opId, remoteRoot, err))
 
@@ -500,9 +506,9 @@ class RunNode:
                     scp.close()
 
             if ret == 0:
-                self.logHandle.write("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmd))
             else:
-                self.logHandle.write("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmdHidePassword))
+                self.logHandle.write("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmd))
 
         return ret
 

@@ -47,7 +47,7 @@ class ServerAdapter:
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                    'User-Agent': userAgent,
-                   'Tenent': self.context.tenent,
+                   'Tenant': self.context.tenant,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
@@ -56,7 +56,12 @@ class ServerAdapter:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
         return response
@@ -65,7 +70,7 @@ class ServerAdapter:
         url = self.serverBaseUrl + apiUri
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'User-Agent': userAgent,
-                   'Tenent': self.context.tenent,
+                   'Tenant': self.context.tenant,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
@@ -76,7 +81,12 @@ class ServerAdapter:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -87,7 +97,7 @@ class ServerAdapter:
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'Content-Type': 'application/json; charset=utf-8',
                    'User-Agent': userAgent,
-                   'Tenent': self.context.tenent,
+                   'Tenant': self.context.tenant,
                    'Authorization': authToken, }
 
         req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
@@ -96,7 +106,12 @@ class ServerAdapter:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -126,7 +141,7 @@ class ServerAdapter:
         }
 
         if phase is not None:
-            params['phase'] = phase
+            params['phase'] = '系统'
 
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
