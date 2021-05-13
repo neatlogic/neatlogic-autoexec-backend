@@ -5,6 +5,7 @@
 """
 import sys
 import os
+import time
 import json
 import base64
 import urllib.request
@@ -21,8 +22,10 @@ class ServerAdapter:
         # api路径的映射
         self.apiMap = {
             'getparams': 'params.json',
-            'getnodes': 'nodes.json',
-            'fetchfile': 'fetchfile'
+            'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'nodeStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'phaseStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update'
         }
 
         self.context = context
@@ -44,6 +47,7 @@ class ServerAdapter:
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                    'User-Agent': userAgent,
+                   'Tenent': self.context.tenent,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
@@ -61,6 +65,7 @@ class ServerAdapter:
         url = self.serverBaseUrl + apiUri
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'User-Agent': userAgent,
+                   'Tenent': self.context.tenent,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
@@ -81,7 +86,8 @@ class ServerAdapter:
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'Content-Type': 'application/json; charset=utf-8',
                    'User-Agent': userAgent,
-                   'Authorization': authToken}
+                   'Tenent': self.context.tenent,
+                   'Authorization': authToken, }
 
         req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
         self.addHeaders(req, headers)
@@ -142,13 +148,15 @@ class ServerAdapter:
 
         params = {
             'jobId': self.context.jobId,
+            'phaseName': self.context.phase,
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
-            'time': consumeTime,
+            'time': time.time(),
+            'duration': consumeTime,
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON('nodeStatusNotify', self.authToken, params)
+        response = self.httpJSON(self.apiMap['nodeStatusNotify'], self.authToken, params)
 
     def pushPhaseStatus(self, phaseName, status, consumeTime, fireNext):
         if self.context.devMode:
@@ -158,11 +166,12 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phaseName': phaseName,
             'status': status,
-            'time': consumeTime,
+            'time': time.time(),
+            'duration': consumeTime,
             'fireNext': fireNext,
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON('phaseStatusNotify', self.authToken, params)
+        response = self.httpJSON(self.apiMap['phaseStatusNotify'], self.authToken, params)
 
     def fetchFile(self, savePath, fileId):
         params = {
