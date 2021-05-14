@@ -136,7 +136,10 @@ class Operation:
             if argName in opDesc:
                 argType = opDesc[argName]
                 if(argType == 'password' and argValue[0:5] == '{RC4}'):
-                    argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
+                    try:
+                        argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
+                    except:
+                        print("WARN: Decrypt password arg:{}->{} failed.\n".format(self.opName, argName))
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', argValue)
                     if not matchObj:
@@ -202,10 +205,6 @@ class Operation:
 
                 if opId in refMap:
                     paramMap = refMap[opId]
-                    if paramName in paramMap:
-                        newArgValue = paramMap[paramName]
-                elif 'local' in self.context.output:
-                    paramMap = self.context.output['local']
                     if paramName in paramMap:
                         newArgValue = paramMap[paramName]
 

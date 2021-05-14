@@ -178,7 +178,7 @@ class ServerAdapter:
         }
         response = self.httpJSON(self.apiMap['nodeStatusNotify'], self.authToken, params)
 
-    def pushPhaseStatus(self, phaseName, status, fireNext):
+    def pushPhaseStatus(self, phaseName, status, fireNext=0):
         if self.context.devMode:
             return
 

@@ -142,6 +142,21 @@ class RunNode:
     def _getOpOutputPath(self, op):
         return '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)
 
+    def _getLocalOutput(self):
+        output = {}
+        localOutputPath = '{}/output/local-0.json'.format(self.runPath)
+        if os.path.exists(localOutputPath):
+            outputFile = None
+            try:
+                outputFile = open(localOutputPath, 'r')
+                output = json.loads(outputFile.read())
+            except Exception as ex:
+                self.logHandle.write('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
+
+            if outputFile:
+                outputFile.close()
+        return output
+
     def _loadOutput(self):
         # 加载操作输出并进行合并
         if os.path.exists(self.outputPath):
@@ -155,6 +170,10 @@ class RunNode:
 
             if outputFile:
                 outputFile.close()
+
+        # 加载local节点的output
+        localOutput = self._getLocalOutput()
+        self.output.update(localOutput)
 
     def _saveOutput(self):
         if self.output:
