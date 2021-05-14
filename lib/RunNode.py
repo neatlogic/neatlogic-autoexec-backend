@@ -367,14 +367,14 @@ class RunNode:
                 remoteCmd = None
                 uploadRet = 0
                 if op.isScript == 1:
-                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine())
                     uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
+                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
                 else:
-                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine())
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remotePath)
                         if uploadRet != 0:
                             break
+                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
 
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.logHandle.write)
@@ -392,8 +392,8 @@ class RunNode:
                     except Exception as ex:
                         self.logHandle.write('ERROR: Remote remove directory {} failed {}\n'.format(remotePath, ex))
             except Exception as ex:
-                self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opId, ex))
-
+                self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
+                raise ex
             if ret == 0:
                 self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmd))
             else:
@@ -402,7 +402,7 @@ class RunNode:
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
-            remotePath = '{}/{}'.format(remoteRoot, op.opId)
+            remotePath = '{}/{}'.format(remoteRoot, op.opName)
             remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
@@ -429,7 +429,7 @@ class RunNode:
                     self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 if op.isScript == 1:
-                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opId))
+                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opName))
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -446,7 +446,7 @@ class RunNode:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     os.chdir(op.remotePluginRootPath)
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
-                    for root, dirs, files in os.walk(op.opId, topdown=True, followlinks=True):
+                    for root, dirs, files in os.walk(op.opName, topdown=True, followlinks=True):
                         try:
                             # 创建当前目录
                             sftp.mkdir(os.path.join(remoteRoot, root))
@@ -457,12 +457,12 @@ class RunNode:
                             filePath = os.path.join(root, name)
                             sftp.put(filePath, os.path.join(remoteRoot, filePath))
 
-                    sftp.chmod('{}/{}'.format(remotePath, op.opId), stat.S_IXUSR)
+                    sftp.chmod('{}/{}'.format(remotePath, op.opName), stat.S_IXUSR)
 
                 uploaded = True
 
             except Exception as err:
-                self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opId, remoteRoot, err))
+                self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
 
             if uploaded and not self.context.goToStop:
                 ssh = None
@@ -497,7 +497,7 @@ class RunNode:
                         self.logHandle.write("ERROR: Remove remote directory {} failed {}\n".format(remotePath, ex))
 
                 except Exception as err:
-                    self.logHandle.write("ERROR: Execute remote operation {} failed, {}\n".format(op.opId, err))
+                    self.logHandle.write("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
                 finally:
                     if ssh:
                         ssh.close()

@@ -27,6 +27,7 @@ class Operation:
         self.opName = param['opName']
         self.isScript = 0
         self.interpreter = ''
+        self.scriptId = ''
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -37,6 +38,16 @@ class Operation:
             "local": "Runner本地执行",
             "remote": "远程执行",
             "localremote": "Runner本地连接远程执行"
+        }
+
+        self.extNameMap = {
+            'perl': '.pl',
+            'python': '.py',
+            'ruby': '.rb',
+            'cmd': '.bat',
+            'powershell': '.ps1',
+            'vbscript': '.vbs',
+            'javascript:': '.js'
         }
 
         # 把runner、target、runner_target转换为local、remote、localremote
@@ -51,6 +62,8 @@ class Operation:
 
         if 'isScript' in param:
             self.isScript = param['isScript']
+            if 'scriptId' in param:
+                self.scriptId = param['scriptId']
         if 'interpreter' in param:
             self.interpreter = param['interpreter']
 
@@ -82,8 +95,11 @@ class Operation:
         self.pluginParentPath = None
 
         if self.isScript == 1:
+            scriptFileName = self.opName + self.extNameMap[self.interpreter]
+
             self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
-            self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
+
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
@@ -149,6 +165,10 @@ class Operation:
 
         return fileName
 
+    # 获取script
+    def fetchScript(self, scriptId, savePath):
+        pass
+
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
             refMap = self.context.output
@@ -194,19 +214,50 @@ class Operation:
 
         return argValue
 
-    def getCmdLine(self, fullPath=False):
+    def getCmdLine(self, fullPath=False, osType='linux'):
         cmd = None
         if self.isScript:
             if self.opType == 'remote':
-                cmd = '{} {}'.format(self.interpreter, self.opId)
+                # 如果自定义脚本远程执行，为了避免中文名称带来的问题，使用opId来作为脚本文件的名称
+                if osType == 'windows':
+                    # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
+                    if self.interpreter == 'cmd':
+                        cmd = 'cmd /c {}'.format(self.opId)
+                    elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                        cmd = 'cscript {}'.format(self.opId)
+                    else:
+                        cmd = '{} {}'.format(self.interpreter, self.opId)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opId)
             else:
                 if fullPath:
                     cmd = '{} {}'.format(self.interpreter, self.pluginPath)
                 else:
                     cmd = '{} {}'.format(self.interpreter, self.opName)
         else:
+            # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
             if self.opType == 'remote':
-                cmd = '{} {}'.format(self.interpreter, self.opId)
+                if osType == 'windows':
+                    # 如果是windows，windows的脚本执行必须要脚本具备扩展名
+                    extName = self.extNameMap[self.interpreter]
+                    nameWithExt = self.opName
+                    if self.opName.endswith(extName):
+                        nameWithExt = self.opName + extName
+                        if self.interpreter == 'cmd':
+                            cmd = 'cmd /c {}'.format(self.opName)
+                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                            cmd = 'cscript {}'.format(self.opName)
+                        else:
+                            cmd = '{} {}'.format(self.interpreter, self.opName)
+                    else:
+                        if self.interpreter == 'cmd':
+                            cmd = 'rename {} {} && cmd /c {}'.format(self.opName, nameWithExt, nameWithExt)
+                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                            cmd = 'rename {} {} && cscript {}'.format(self.opName, nameWithExt, nameWithExt)
+                        else:
+                            cmd = 'rename {} {} && {} {}'.format(self.opName, nameWithExt, self.interpreter, self.opName)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opName)
             else:
                 if fullPath:
                     cmd = self.pluginPath

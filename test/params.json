@@ -65,9 +65,10 @@
                                         }
                                 },
                                 {
-                                        "opId": "localremotedemo",
-                                        "opName": "localremotedemo",
-                                        "opType": "localremote",
+                                        "opId": "remotedemo_34234",
+                                        "opName": "remotedemo",
+                                        "opType": "remote",
+                                        "interpreter": "perl",
                                         "failIgnore": false,
                                         "arg": {
                                                 "tinput": "${run.localremotedemo_tttt.outtext}",

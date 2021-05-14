@@ -147,7 +147,7 @@ class TagentClient:
                     if chunk:
                         if encrypt:
                             chunk = _rc4(self.password, chunk)
-                        raise ExecError(chunk.decode(self.agentCharset))
+                        raise ExecError(chunk.decode(self.agentCharset, 'ignore'))
         else:
             raise ExecError("Connection reset!")
 
@@ -244,7 +244,7 @@ class TagentClient:
                     agentCharset = self.agentCharset
                     charset = self.charset
                     if charset != agentCharset:
-                        print("ERROR:{}".format(authResult.decode(agentCharset).encode(charset)))
+                        print("ERROR:{}".format(authResult.decode(agentCharset, 'ignore').encode(charset)))
                 return 0
             return 1
         except AuthError:
@@ -341,7 +341,7 @@ class TagentClient:
                 if not line:
                     break
                 if agentCharset != '':
-                    line = line.decode(agentCharset)
+                    line = line.decode(agentCharset, 'ignore')
                 else:
                     line = line.decode()
                 if isVerbose == 1:
