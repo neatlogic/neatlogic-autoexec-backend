@@ -136,7 +136,7 @@ class Operation:
             if argName in opDesc:
                 argType = opDesc[argName]
                 if(argType == 'password' and argValue[0:5] == '{RC4}'):
-                    argValue = Utils.rc4(self.passKey, argValue[5:])
+                    argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', argValue)
                     if not matchObj:
@@ -167,7 +167,9 @@ class Operation:
 
     # 获取script
     def fetchScript(self, scriptId, savePath):
-        pass
+        savePath = '{}/script/{}.{}'.format(self.pluginRootPath, scriptId, self.extNameMap[self.interpreter])
+        serverAdapter = self.context.serverAdapter
+        serverAdapter.fetchFile(savePath, scriptId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:

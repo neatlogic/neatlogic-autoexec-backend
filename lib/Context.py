@@ -6,12 +6,15 @@
 
 import os
 import threading
+from filelock import FileLock
 import configparser
 import ServerAdapter
+import Utils
 
 
 class Context:
     def __init__(self, jobId, isForce=False, failBreak=False, devMode=False, dataPath=None):
+        self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
         self.tenant = ''
         self.arg = {}
@@ -62,7 +65,53 @@ class Context:
         cfgPath = homePath + '/conf/config.ini'
         cfg = configparser.ConfigParser()
         cfg.read(cfgPath)
+
+        hasNoEncrypted = False
+        serverPass = cfg.get('server', 'server.password')
+        passKey = cfg.get('server', 'password.key')
+        mongoPass = cfg.get('mongoDB', 'db.password')
+
+        if serverPass.startswith('{ENCRYPTED}'):
+            serverPass = Utils._rc4_decrypt_hex(self.MY_KEY, serverPass[11:])
+            cfg.set('server', 'server.password', serverPass)
+        else:
+            hasNoEncrypted = True
+
+        if passKey.startswith('{ENCRYPTED}'):
+            passKey = Utils._rc4_decrypt_hex(self.MY_KEY, passKey[11:])
+            cfg.set('server', 'password.key', passKey)
+        else:
+            hasNoEncrypted = True
+
+        if mongoPass.startswith('{ENCRYPTED}'):
+            mongoPass = Utils._rc4_decrypt_hex(self.MY_KEY, mongoPass[11:])
+            cfg.set('mongoDB', 'db.password', mongoPass)
+        else:
+            hasNoEncrypted = True
+
         self.config = cfg
+
+        if hasNoEncrypted:
+            mcfg = configparser.ConfigParser()
+            mcfg.read(cfgPath)
+
+            serverPass = mcfg.get('server', 'server.password')
+            passKey = mcfg.get('server', 'password.key')
+            mongoPass = mcfg.get('mongoDB', 'db.password')
+
+            if not serverPass.startswith('{ENCRYPTED}'):
+                mcfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, serverPass))
+
+            if not passKey.startswith('{ENCRYPTED}'):
+                mcfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
+
+            if not mongoPass.startswith('{ENCRYPTED}'):
+                mcfg.set('mongoDB', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, mongoPass))
+
+            with FileLock(cfgPath):
+                fp = open(cfgPath, 'w')
+                mcfg.write(fp)
+                fp.close()
 
         serverAdapter = ServerAdapter.ServerAdapter(self)
         self.serverAdapter = serverAdapter

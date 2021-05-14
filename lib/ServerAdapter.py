@@ -5,6 +5,7 @@
 """
 import sys
 import os
+import ssl
 import time
 import json
 import base64
@@ -19,11 +20,14 @@ from AutoExecError import AutoExecError
 class ServerAdapter:
 
     def __init__(self, context):
+        ssl._create_default_https_context = ssl._create_unverified_context
+
         # api路径的映射
         self.apiMap = {
             'getparams': 'params.json',
             'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
             'nodeStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update',
             'phaseStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update'
         }
@@ -200,7 +204,7 @@ class ServerAdapter:
         if os.path.exists(cachedFilePath):
             lastModifiedTime = os.path.getmtime(cachedFilePath)
 
-        params['lastModifed'] = lastModifiedTime
+        params['lastModified'] = lastModifiedTime
 
         url = self.serverBaseUrl + self.apiMap['fetchfile']
 
@@ -231,19 +235,18 @@ class ServerAdapter:
 
     def fetchScript(self, savePath, scriptId):
         params = {
-            'scriptId': scriptId
+            'operationId': scriptId
         }
 
-        cachedFilePath = savePath + '/' + scriptId
+        cachedFilePath = savePath
         lastModifiedTime = 0
         if os.path.exists(cachedFilePath):
             lastModifiedTime = os.path.getmtime(cachedFilePath)
 
-        params['lastModifed'] = lastModifiedTime
+        params['lastModified'] = lastModifiedTime
 
         url = self.serverBaseUrl + self.apiMap['fetchScript']
 
-        fileName = scriptId
         response = None
         try:
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
@@ -261,4 +264,4 @@ class ServerAdapter:
             if response is None or response.status != 304:
                 raise
 
-        return fileName
+        return savePath
