@@ -163,33 +163,35 @@ class ServerAdapter:
             # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
-    def pushNodeStatus(self, runNode, status, consumeTime):
+    def pushNodeStatus(self, runNode, status):
         if self.context.devMode:
             return
 
         params = {
             'jobId': self.context.jobId,
-            'phaseName': self.context.phase,
+            'phase': self.context.phase,
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
             'time': time.time(),
-            'duration': consumeTime,
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['nodeStatusNotify'], self.authToken, params)
 
-    def pushPhaseStatus(self, phaseName, status, consumeTime, fireNext):
+    def pushPhaseStatus(self, phaseName, status, fireNext):
         if self.context.devMode:
             return
 
+        if phaseName is None:
+            phaseName = self.context.phaseName
+
         params = {
             'jobId': self.context.jobId,
-            'phaseName': phaseName,
+            'phase': phaseName,
             'status': status,
             'time': time.time(),
-            'duration': consumeTime,
             'fireNext': fireNext,
+            'failBreak': self.context.failBreak,
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['phaseStatusNotify'], self.authToken, params)

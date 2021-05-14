@@ -114,7 +114,7 @@ class RunNode:
         if op is None:
             try:
                 serverAdapter = self.context.serverAdapter
-                serverAdapter.pushNodeStatus(self, status, consumeTime)
+                serverAdapter.pushNodeStatus(self, status)
             except Exception as ex:
                 self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 

@@ -22,6 +22,7 @@ from shutil import copyfile
 import Context
 import Operation
 import JobExecutor
+import NodeStatus
 
 
 class ExecError(RuntimeError):
@@ -159,7 +160,7 @@ class Runner:
                     phaseName = phaseNames[0]
 
                 if phaseName is not None:
-                    if failCount == 0:
+                    if failCount == 0 or self.context.failBreak == False:
                         serverAdapter = self.context.serverAdapter
                         if not self.localDefinedNodes:
                             serverAdapter.getNodes(phaseName)
@@ -167,9 +168,17 @@ class Runner:
                         self.context.setPhase(phaseName)
                         self.context.resetCounter()
                         print("INFO: Begin to execute phase:{} operations...".format(phaseName))
+                        self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
                         failCount = self.execOperations(phase[phaseName], opArgsRefMap, parallelCount)
+                        if failCount == 0:
+                            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
+                        else:
+                            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
                         print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
                         print("--------------------------------\n")
+
+        if failCount == 0 or self.context.failBreak == False:
+            self.context.serverAdapter.pushPhaseStatus(None, '', 1)
 
         if failCount == 0:
             print("INFO: ======Execute succeed======")
