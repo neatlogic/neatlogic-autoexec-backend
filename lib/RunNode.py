@@ -114,7 +114,13 @@ class RunNode:
         if op is None:
             try:
                 serverAdapter = self.context.serverAdapter
-                serverAdapter.pushNodeStatus(self, status)
+                retObj = serverAdapter.pushNodeStatus(self, status)
+
+                # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
+                if 'Status' in retObj and retObj['Status'] == 'OK':
+                    if 'Return' in retObj and 'phaseStatus' in retObj['Return'] and retObj['Return']['phaseStatus'] == 'failed':
+                        self.context.hasFailNodeInGlobal = True
+
             except Exception as ex:
                 self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 

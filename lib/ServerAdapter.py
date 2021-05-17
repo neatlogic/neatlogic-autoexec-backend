@@ -178,6 +178,12 @@ class ServerAdapter:
         }
         response = self.httpJSON(self.apiMap['nodeStatusNotify'], self.authToken, params)
 
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
+
     def pushPhaseStatus(self, phaseName, status, fireNext=0):
         if self.context.devMode:
             return
@@ -195,6 +201,12 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['phaseStatusNotify'], self.authToken, params)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
 
     def fetchFile(self, savePath, fileId):
         params = {

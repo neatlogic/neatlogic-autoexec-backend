@@ -3,26 +3,24 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
+import NodeStatus
+import JobExecutor
+import Operation
+import Context
+from shutil import copyfile
+from logging.handlers import RotatingFileHandler
+import logging
+import json
+import re
+import signal
+import time
+import argparse
+import platform
 import os
 import sys
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
-
-import platform
-import argparse
-import time
-import signal
-import re
-import json
-import logging
-from logging.handlers import RotatingFileHandler
-from shutil import copyfile
-
-import Context
-import Operation
-import JobExecutor
-import NodeStatus
 
 
 class ExecError(RuntimeError):
@@ -177,7 +175,9 @@ class Runner:
                         print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
                         print("--------------------------------\n")
 
-        if failCount == 0 or self.context.failBreak == False:
+        # 如果全局存在失败的节点，或者failBreak是False，则通知console调度器调度下一个phase
+        if (failCount == 0 or self.context.hasFailNodeInGlobal == False) or self.context.failBreak == False:
+            # 所有跑完了，通知后台做fireNext的处理
             self.context.serverAdapter.pushPhaseStatus(None, '', 1)
 
         if failCount == 0:
