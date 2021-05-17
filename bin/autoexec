@@ -3,24 +3,26 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-import NodeStatus
-import JobExecutor
-import Operation
-import Context
-from shutil import copyfile
-from logging.handlers import RotatingFileHandler
-import logging
-import json
-import re
-import signal
-import time
-import argparse
-import platform
 import os
 import sys
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
+
+import platform
+import argparse
+import time
+import signal
+import re
+import json
+import logging
+from logging.handlers import RotatingFileHandler
+from shutil import copyfile
+
+import Context
+import Operation
+import JobExecutor
+import NodeStatus
 
 
 class ExecError(RuntimeError):

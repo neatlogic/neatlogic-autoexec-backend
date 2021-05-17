@@ -118,8 +118,9 @@ class RunNode:
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
-                    if 'Return' in retObj and 'phaseStatus' in retObj['Return'] and retObj['Return']['phaseStatus'] == 'failed':
-                        self.context.hasFailNodeInGlobal = True
+                    if 'Return' in retObj and 'phaseStatus' in retObj['Return']:
+                        if retObj['Return']['phaseStatus'] in ('failed', 'aborted'):
+                            self.context.hasFailNodeInGlobal = True
 
             except Exception as ex:
                 self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
