@@ -148,6 +148,7 @@ class Runner:
         parallelCount = 25
         if 'parallel' in params:
             parallelCount = int(params['parallel'])
+            self.context.parallelCount = parallelCount
 
         opArgsRefMap = {}
 

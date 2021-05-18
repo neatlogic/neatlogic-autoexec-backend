@@ -8,6 +8,7 @@ import os
 import threading
 from filelock import FileLock
 import configparser
+import pymongo
 import ServerAdapter
 import Utils
 
@@ -16,6 +17,7 @@ class Context:
     def __init__(self, jobId, isForce=False, failBreak=False, devMode=False, dataPath=None):
         self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
+        self.parallelCount = 25
         self.tenant = ''
         self.arg = {}
         self.output = {}
@@ -73,7 +75,8 @@ class Context:
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')
         passKey = cfg.get('server', 'password.key')
-        mongoPass = cfg.get('mongoDB', 'db.password')
+        cmdbDBPass = cfg.get('cmdb-db', 'db.password')
+        autoexecDBPass = cfg.get('autoexec-db', 'db.password')
 
         if serverPass.startswith('{ENCRYPTED}'):
             serverPass = Utils._rc4_decrypt_hex(self.MY_KEY, serverPass[11:])
@@ -87,9 +90,15 @@ class Context:
         else:
             hasNoEncrypted = True
 
-        if mongoPass.startswith('{ENCRYPTED}'):
-            mongoPass = Utils._rc4_decrypt_hex(self.MY_KEY, mongoPass[11:])
-            cfg.set('mongoDB', 'db.password', mongoPass)
+        if autoexecDBPass.startswith('{ENCRYPTED}'):
+            autoexecDBPass = Utils._rc4_decrypt_hex(self.MY_KEY, autoexecDBPass[11:])
+            cfg.set('autoexec-db', 'db.password', autoexecDBPass)
+        else:
+            hasNoEncrypted = True
+
+        if cmdbDBPass.startswith('{ENCRYPTED}'):
+            cmdbDBPass = Utils._rc4_decrypt_hex(self.MY_KEY, cmdbDBPass[11:])
+            cfg.set('cmdb-db', 'db.password', cmdbDBPass)
         else:
             hasNoEncrypted = True
 
@@ -101,7 +110,8 @@ class Context:
 
             serverPass = mcfg.get('server', 'server.password')
             passKey = mcfg.get('server', 'password.key')
-            mongoPass = mcfg.get('mongoDB', 'db.password')
+            cmdbDBPass = mcfg.get('cmdb-db', 'db.password')
+            autoexecDBPass = mcfg.get('autoexec-db', 'db.password')
 
             if not serverPass.startswith('{ENCRYPTED}'):
                 mcfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, serverPass))
@@ -109,8 +119,11 @@ class Context:
             if not passKey.startswith('{ENCRYPTED}'):
                 mcfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
 
-            if not mongoPass.startswith('{ENCRYPTED}'):
-                mcfg.set('mongoDB', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, mongoPass))
+            if not autoexecDBPass.startswith('{ENCRYPTED}'):
+                mcfg.set('autoexec-db', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, autoexecDBPass))
+
+            if not cmdbDBPass.startswith('{ENCRYPTED}'):
+                mcfg.set('cmdb-db', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, cmdbDBPass))
 
             with FileLock(cfgPath):
                 fp = open(cfgPath, 'w')
@@ -119,6 +132,17 @@ class Context:
 
         serverAdapter = ServerAdapter.ServerAdapter(self)
         self.serverAdapter = serverAdapter
+
+        # 初始化创建mongodb connect
+        mongoClient = pymongo.MongoClient(cfg.get('autoexec-db', 'db.url'), maxPoolSize=200)
+        autoexecDB = mongoClient[cfg.get('autoexec-db', 'db.name')]
+        autoexecDB.authenticate(cfg.get('autoexec-db', 'db.username'), cfg.get('autoexec-db', 'db.password'))
+        self.dbclient = mongoClient
+        self.db = autoexecDB
+
+    def __del__(self):
+        if self.dbclient is not None:
+            self.dbclient.close()
 
     def _getSubPath(self, jobId):
         jobIdStr = str(jobId)

@@ -23,6 +23,7 @@ import AutoExecError
 import NodeStatus
 import TagentClient
 import Utils
+import OutputStore
 
 
 class LogFile(io.TextIOWrapper):
@@ -58,6 +59,7 @@ class RunNode:
 
         self.childPid = None
         self.killCmd = None
+        self.logHandle = None
 
         self.output = self.context.output
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, self.context.phase)
@@ -79,6 +81,7 @@ class RunNode:
         self.logHandle = LogFile(open(self.logPath, 'a').detach())
 
         self.status = NodeStatus.pending
+        self.outputStore = OutputStore.OutputStore(context, node)
         self._loadOutput()
 
     def __del__(self):
@@ -162,6 +165,11 @@ class RunNode:
 
             if outputFile:
                 outputFile.close()
+        else:
+            localNode = {'host': 'local', 'port': 0}
+            loalOutStore = OutputStore.OutputStore(self.context, localNode)
+            output = loalOutStore.loadOutput()
+
         return output
 
     def _loadOutput(self):
@@ -177,18 +185,22 @@ class RunNode:
 
             if outputFile:
                 outputFile.close()
+        else:
+            output = self.outputStore.loadOutput()
 
         # 加载local节点的output
         localOutput = self._getLocalOutput()
-        self.output.update(localOutput)
+        if localOutput is not None:
+            self.output.update(localOutput)
 
     def _saveOutput(self):
         if self.output:
             try:
                 outputFile = open(self.outputPath, 'w')
                 outputFile.write(json.dumps(self.output))
-                # TODO: write output file to share object store
                 outputFile.close()
+
+                self.outputStore.saveOutput(self.output)
             except Exception as ex:
                 self.logHandle.write('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
 
