@@ -118,6 +118,7 @@ class Runner:
     def execOperations(self, opsParams, opArgsRefMap, parallelCount):
         self.context.hasLocal = False
         self.context.hasRemote = False
+        self.context.initDB(parallelCount)
 
         operations = []
         # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载

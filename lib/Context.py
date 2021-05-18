@@ -133,16 +133,20 @@ class Context:
         serverAdapter = ServerAdapter.ServerAdapter(self)
         self.serverAdapter = serverAdapter
 
-        # 初始化创建mongodb connect
-        mongoClient = pymongo.MongoClient(cfg.get('autoexec-db', 'db.url'), maxPoolSize=200)
-        autoexecDB = mongoClient[cfg.get('autoexec-db', 'db.name')]
-        autoexecDB.authenticate(cfg.get('autoexec-db', 'db.username'), cfg.get('autoexec-db', 'db.password'))
-        self.dbclient = mongoClient
-        self.db = autoexecDB
+        self.dbclient = None
+        self.db = None
 
     def __del__(self):
         if self.dbclient is not None:
             self.dbclient.close()
+
+    def initDB(self, parallelCount):
+        # 初始化创建mongodb connect
+        mongoClient = pymongo.MongoClient(self.config.get('autoexec-db', 'db.url'), maxPoolSize=parallelCount)
+        autoexecDB = mongoClient[self.config.get('autoexec-db', 'db.name')]
+        autoexecDB.authenticate(self.config.get('autoexec-db', 'db.username'), self.config.get('autoexec-db', 'db.password'))
+        self.dbclient = mongoClient
+        self.db = autoexecDB
 
     def _getSubPath(self, jobId):
         jobIdStr = str(jobId)
