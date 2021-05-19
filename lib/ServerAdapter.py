@@ -243,6 +243,8 @@ class ServerAdapter:
                             break
                         f.write(chunk)
                     f.close()
+
+            return fileName
         except:
             if response is None or response.status != 304:
                 raise

@@ -164,7 +164,7 @@ class Operation:
             os.unlink(linkPath)
 
         if not os.path.exists(linkPath):
-            os.symlink(cacheFilePath, linkPath)
+            os.link(cacheFilePath, linkPath)
 
         return fileName
 
