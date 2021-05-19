@@ -210,7 +210,7 @@ class ServerAdapter:
 
     def fetchFile(self, savePath, fileId):
         params = {
-            'fileId': fileId
+            'id': fileId
         }
 
         cachedFilePath = savePath + '/' + fileId
