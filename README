@@ -1,10 +1,9 @@
 autoexec的未处理的任务：
 1）callback的对接和处理
-2）文件参数的下载处理
 3）脚本工具的运行
 4）多runner并行执行的失败互相感知策略(通过callback更新节点状态返回phaseStatus来进行感知判断)
 5) output参数的传递（local执行和remote执行之间的传递问题解决）
 
-
+2）文件参数的下载处理
 6）并行phase的处理
 7）工具自注册对接

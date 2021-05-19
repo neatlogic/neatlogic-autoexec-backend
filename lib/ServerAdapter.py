@@ -279,3 +279,8 @@ class ServerAdapter:
                 raise
 
         return savePath
+
+
+def registerTool(self, toolObj):
+    # TODO
+    pass
