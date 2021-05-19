@@ -1,6 +1,9 @@
 {
 	"opDesc": "演示Local",
 	"opType": "local",
+	"typeName": "调度",
+	"riskName": "高风险",
+	"interpreter": "perl",
 	"desc": {
 		"tinput": {
 			"name": "普通输入",

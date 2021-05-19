@@ -195,6 +195,34 @@ class Runner:
             self.executor.kill()
 
 
+def registerTools(serverAdapter, pluginsPath, opType):
+    os.chdir(pluginsPath + '/' + opType)
+    with os.scandir() as iterator:
+        for entry in iterator:
+            if entry.is_dir():
+                descPath = entry.name + '/' + entry.name + '.json'
+                if os.path.isfile(descPath):
+                    print("INFO: Begin to register tool:{}/{}...\n".format(opType, entry.name))
+                    descFile = open(descPath, 'r')
+                    pluginObj = json.loads(descFile.read())
+
+                    if opType == 'local':
+                        if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
+                            pluginObj['opType'] = 'runner_target'
+                        else:
+                            pluginObj['opType'] = 'runner'
+
+                    if opType == 'remote':
+                        pluginObj['opType'] = 'target'
+
+                    try:
+                        retObj = serverAdapter.registerTool(pluginObj)
+                        if 'Status' in retObj and retObj['Status'] == 'OK':
+                            print("INFO: Register tool:{}/{} success.\n".format(opType, entry.name))
+                    except Exception as ex:
+                        print("ERROR: Register tool:{}/{} failed, {}\n".format(opType, entry.name, ex))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
@@ -217,31 +245,8 @@ if __name__ == "__main__":
         vContext.tenent = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
-        os.chdir(pluginsPath + '/local')
-        with os.scandir() as iterator:
-            for entry in iterator:
-                if entry.is_dir():
-                    descPath = entry.name + '/' + entry.name + '.json'
-                    if os.path.isfile(descPath):
-                        print('INFO: Begin to register tool:local/' + entry.name)
-                        descFile = open(descPath, 'r')
-                        pluginObj = json.loads(descFile.read())
-
-                        serverAdapter.registerTool('local', pluginObj)
-                        print('INFO: Register tool:local/' + entry.name + " success \n")
-
-        os.chdir(pluginsPath + '/remote')
-        with os.scandir() as iterator:
-            for entry in iterator:
-                if entry.is_dir():
-                    descPath = entry.name + '/' + entry.name + '.json'
-                    if os.path.isfile(descPath):
-                        print('INFO: Begin to register tool:remote/' + entry.name)
-                        descFile = open(descPath, 'r')
-                        pluginObj = json.loads(descFile.read())
-
-                        serverAdapter.registerTool('remote', pluginObj)
-                        print('INFO: Register tool:remote/' + entry.name + " success \n")
+        registerTools(serverAdapter, pluginsPath, 'local')
+        registerTools(serverAdapter, pluginsPath, 'remote')
 
     elif not args.abort:
         print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}\n".format(args.jobid, args.force, args.paramsfile, args.nodesfile))

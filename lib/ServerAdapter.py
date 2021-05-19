@@ -24,6 +24,7 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
+            'register': '/codedriver/public/api/rest/autoexec/tool/register',
             'getparams': 'params.json',
             'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
@@ -282,6 +283,11 @@ class ServerAdapter:
 
         return savePath
 
-    def registerTool(self, toolType, toolObj):
-        # TODO
-        pass
+    def registerTool(self, toolObj):
+        response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
