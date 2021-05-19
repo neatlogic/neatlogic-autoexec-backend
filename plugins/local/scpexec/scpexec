@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use File::Basename;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use SCPExec;
+use Utils;
+use Cwd;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [-h|--host <host>] [-u|--user <username>] [--direction <push|pull>] [--src <src,eg:/tmp/a,tmp/b>] [--dest <dest>] [-v] [-np]\n");
+    print("       -h|--host: remote host ip .\n");
+    print("       -p|--port: remote host ssh port .\n");
+    print("       -u|--user: remote host ssh user .\n");
+    print("       --pass: remote host ssh user password .\n");
+    print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       --src: copy source path ,many src path , separated .\n");
+    print("       --dest: remote target path .\n");
+    print("       -np    : not preserve the mode of file\n");
+    exit(-1);
+}
+
+sub main {
+    my ( $ishelp, $direction, $cpIfExists, $host, $port, $user, $pass, $src, $dest, $isVerbose, $np );
+    Utils::setEnv();
+
+    my $pname = basename($0);
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'v|verbose'   => \$isVerbose,
+        'np'          => \$np,
+        'direction:s' => \$direction,
+        'h|host:s'    => \$host,
+        'p|port:i'    => \$port,
+        'u|user:s'    => \$user,
+        'pass:s'      => \$pass,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest
+    );
+
+    my $optionError = 0;
+    if ( not defined($host) or $host eq '' ) {
+        print("ERROR: must define target host.\n");
+        $optionError = 1;
+    }
+
+    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
+        print("ERROR: must define user and password.\n");
+
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    $port = 22 if ( not defined($port) );
+    usage()    if ( $optionError == 1 );
+
+    my $src_dir  = '';
+    my @src_dirs = split( /,/, $src );
+
+    print("$direction , $host ,$port ,$user,$pass,$src_dir,$dest,$isVerbose,$np \n");
+    if ( $direction eq 'push' ) {
+        foreach my $dir (@src_dirs) {
+            $src_dir = "$src_dir $dir";
+        }
+        $dest = "$user\@$host:$dest";
+        myExec( $host, $port, $user, $pass, $src_dir, $dest, $isVerbose, $np );
+    }
+    elsif ( $direction eq 'pull' ) {
+        foreach my $dir (@src_dirs) {
+            $src_dir = "$user\@$host:$dir";
+            my $flag = myExec( $host, $port, $user, $pass, $src_dir, $dest, $isVerbose, $np );
+            if ( $flag ne 0 ) {
+                last;
+            }
+        }
+    }
+
+    if ( Utils::getErrFlag() ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+    Utils::exitWithFlag();
+}
+
+sub myExec {
+    my ( $host, $port, $user, $pass, $src, $dest, $isVerbose, $np ) = @_;
+    my $scpExec = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+    my $rc      = $scpExec->exec();
+    if ( $rc eq 0 ) {
+        Utils::setErrFlag();
+    }
+    return Utils::getErrFlag();
+}
+
+main();
+
