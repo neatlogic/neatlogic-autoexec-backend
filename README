@@ -8,3 +8,6 @@ autoexec的未处理的任务：
 
 6）并行phase的处理
 7）工具自注册对接
+
+TODO：
+output的加锁处理（并发phase）

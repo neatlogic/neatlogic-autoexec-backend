@@ -17,9 +17,10 @@ import RunNode
 import NodeStatus
 
 
-class JobWorker(threading.Thread):
-    def __init__(self, context, operations, queue):
+class PhaseWorker(threading.Thread):
+    def __init__(self, context, phaseName, operations, queue):
         threading.Thread.__init__(self)
+        self.phaseName = phaseName
         self.context = context
         self._queue = queue
         self.operations = operations
@@ -51,8 +52,9 @@ class JobWorker(threading.Thread):
             self.currentNode.kill()
 
 
-class JobExecutor:
-    def __init__(self, context, operations, parallelCount=25):
+class PhaseExecutor:
+    def __init__(self, context, phaseName, operations, parallelCount=25):
+        self.phaseName = phaseName
         self.context = context
         self.operations = operations
         self.workers = []
@@ -61,7 +63,7 @@ class JobExecutor:
     def _buildWorkerPool(self, queue):
         workers = []
         for i in range(self.parallelCount):
-            worker = JobWorker(self.context, self.operations, queue)
+            worker = PhaseWorker(self.context, self.phaseName, self.operations, queue)
             worker.start()
             workers.append(worker)
 

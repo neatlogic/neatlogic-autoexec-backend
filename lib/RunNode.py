@@ -6,6 +6,7 @@
 """
 import sys
 import os
+import fcntl
 import io
 import signal
 import time
@@ -159,12 +160,14 @@ class RunNode:
             outputFile = None
             try:
                 outputFile = open(localOutputPath, 'r')
+                fcntl.lockf(outputFile, fcntl.LOCK_SH)
                 output = json.loads(outputFile.read())
             except Exception as ex:
                 self.logHandle.write('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
-
-            if outputFile:
-                outputFile.close()
+            finally:
+                if outputFile is not None:
+                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
         else:
             localNode = {'host': 'local', 'port': 0}
             loalOutStore = OutputStore.OutputStore(self.context, localNode)
@@ -178,13 +181,15 @@ class RunNode:
             outputFile = None
             try:
                 outputFile = open(self.outputPath, 'r')
+                fcntl.lockf(outputFile, fcntl.LOCK_SH)
                 output = json.loads(outputFile.read())
                 self.output = output
             except Exception as ex:
                 self.logHandle.write('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
-
-            if outputFile:
-                outputFile.close()
+            finally:
+                if outputFile is not None:
+                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
         else:
             output = self.outputStore.loadOutput()
 
@@ -195,14 +200,18 @@ class RunNode:
 
     def _saveOutput(self):
         if self.output:
+            outputFile = None
             try:
                 outputFile = open(self.outputPath, 'w')
+                fcntl.lockf(outputFile, fcntl.LOCK_EX)
                 outputFile.write(json.dumps(self.output))
-                outputFile.close()
-
                 self.outputStore.saveOutput(self.output)
             except Exception as ex:
                 self.logHandle.write('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
+            finally:
+                if outputFile is not None:
+                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
 
     def _loadOpOutput(self, op):
         # 加载操作输出并进行合并

@@ -6,5 +6,15 @@
 import os
 import sys
 binPaths = os.path.split(os.path.realpath(__file__))
-libPath = os.path.realpath(binPaths[0]+'/../lib')
-sys.path.append(libPath)
+homePath = os.path.realpath(binPaths[0]+'/..')
+sys.path.append(homePath + '/lib')
+sys.path.append(homePath + '/plugins/local/bin')
+sys.path.append(homePath + '/plugins/local/lib')
+sys.path.append(homePath + '/plugins/local/tools')
+
+os.environ['AUTOEXEC_HOMEPATH'] = homePath
+
+if 'PERLLIB' in os.environ:
+    os.environ['PERLLIB'] = '{}:{}'.format(homePath + '/plugins/local/lib', os.environ['PERLLIB'])
+else:
+    os.environ['PERLLIB'] = homePath + '/plugins/local/lib'

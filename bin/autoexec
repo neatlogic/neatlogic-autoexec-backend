@@ -19,7 +19,7 @@ from shutil import copyfile
 import Context
 import ServerAdapter
 import Operation
-import JobExecutor
+import PhaseExecutor
 import NodeStatus
 
 
@@ -45,14 +45,6 @@ class Runner:
 
         pPaths = os.path.split(os.path.realpath(__file__))
         homePath = os.path.realpath(pPaths[0]+'/..')
-        sys.path.append(homePath + '/plugins/local/bin')
-        sys.path.append(homePath + '/plugins/local/lib')
-        sys.path.append(homePath + '/plugins/local/tools')
-
-        if 'PERLLIB' in os.environ:
-            os.environ['PERLLIB'] = '{}:{}'.format(homePath + '/plugins/local/lib', os.environ['PERLLIB'])
-        else:
-            os.environ['PERLLIB'] = homePath + '/plugins/local/lib'
 
         logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
         logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
@@ -113,7 +105,7 @@ class Runner:
             if (os.path.exists(nodesFile) and dstPath != os.path.realpath(nodesFile)):
                 copyfile(nodesFile, dstPath)
 
-    def execOperations(self, opsParams, opArgsRefMap, parallelCount):
+    def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
         self.context.hasLocal = False
         self.context.hasRemote = False
         self.context.initDB(parallelCount)
@@ -138,7 +130,7 @@ class Runner:
 
             operations.append(op)
 
-        executor = JobExecutor.JobExecutor(self.context, operations, parallelCount)
+        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, parallelCount)
         self.executor = executor
         return executor.execute()
 
@@ -169,7 +161,7 @@ class Runner:
                         self.context.resetCounter()
                         print("INFO: Begin to execute phase:{} operations...".format(phaseName))
                         self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
-                        failCount = self.execOperations(phase[phaseName], opArgsRefMap, parallelCount)
+                        failCount = self.execOperations(phaseName, phase[phaseName], opArgsRefMap, parallelCount)
                         if failCount == 0:
                             self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
                         else:

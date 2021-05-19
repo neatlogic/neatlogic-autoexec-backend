@@ -30,13 +30,12 @@ class Context:
         self.passThroughEnv = {}
 
         self.goToStop = False
-
-        self.hasLocal = False
-        self.hasRemote = False
-
         # 用于标记全局是否有失败的节点
         self.hasFailNodeInGlobal = False
 
+        # 用于标记当前phase是否有local或remote的工具
+        self.hasLocal = False
+        self.hasRemote = False
         # 用于标记当前runner的node的失败数量
         self.failNodeCount = 0
         self.failNodeCountLock = threading.Lock()
