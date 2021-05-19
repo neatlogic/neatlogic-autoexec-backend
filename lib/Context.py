@@ -9,6 +9,8 @@ import threading
 from filelock import FileLock
 import configparser
 import pymongo
+
+import PhaseStatus
 import ServerAdapter
 import Utils
 
@@ -19,10 +21,10 @@ class Context:
         self.jobId = jobId
         self.parallelCount = 25
         self.tenant = ''
+        self.phases = {}
         self.arg = {}
         self.output = {}
         #self.output['local'] = {}
-        self.phase = 'pre'
         self.isForce = isForce
         self.failBreak = failBreak
         self.devMode = devMode
@@ -32,17 +34,6 @@ class Context:
         self.goToStop = False
         # 用于标记全局是否有失败的节点
         self.hasFailNodeInGlobal = False
-
-        # 用于标记当前phase是否有local或remote的工具
-        self.hasLocal = False
-        self.hasRemote = False
-        # 用于标记当前runner的node的失败数量
-        self.failNodeCount = 0
-        self.failNodeCountLock = threading.Lock()
-        self.sucNodeCount = 0
-        self.sucNodeCountLock = threading.Lock()
-        self.skipNodeCount = 0
-        self.skipNodeCountLock = threading.Lock()
 
         homePath = os.path.split(os.path.realpath(__file__))[0]
         homePath = os.path.realpath(homePath + '/..')
@@ -59,8 +50,6 @@ class Context:
         os.environ['JOB_PATH'] = self.runPath
         self.paramsFilePath = self.runPath + '/params.json'
         os.environ['JOB_PARAMS_PATH'] = self.paramsFilePath
-        self.nodesFilePath = self.runPath + '/nodes.json'
-        os.environ['JOB_NODES_PATH'] = self.nodesFilePath
 
         # 如果任务数据目录不存在，则创建目录
         if not os.path.exists(self.runPath):
@@ -153,27 +142,14 @@ class Context:
         subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
         return '/'.join(subPath)
 
-    def incFailNodeCount(self):
-        with self.failNodeCountLock:
-            self.failNodeCount += 1
-            return self.failNodeCount
+    def getNodesFilePath(self, phaseName=None):
+        nodesFilePath = None
+        if phaseName is not None:
+            nodesFilePath = '{}/nodes-{}.json'.format(self.runPath, phaseName)
+        else:
+            nodesFilePath = '{}/nodes.json'.format(self.runPath)
+        return nodesFilePath
 
-    def incSucNodeCount(self):
-        with self.sucNodeCountLock:
-            self.sucNodeCount += 1
-            return self.sucNodeCount
-
-    def incSkipNodeCount(self):
-        with self.skipNodeCountLock:
-            self.skipNodeCount += 1
-            return self.skipNodeCount
-
-    def setPhase(self, phaseName):
-        self.phase = phaseName
-        self.nodesFilePath = '{}/nodes-{}.json'.format(self.runPath, phaseName)
-        os.environ['JOB_NODES_PATH'] = self.nodesFilePath
-
-    def resetCounter(self):
-        self.skipNodeCount = 0
-        self.failNodeCount = 0
-        self.sucNodeCount = 0
+    def addPhase(self, phaseName):
+        phase = PhaseStatus.PhaseStatus(phaseName)
+        self.phases[phaseName] = phase

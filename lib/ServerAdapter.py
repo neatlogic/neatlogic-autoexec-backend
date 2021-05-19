@@ -152,7 +152,7 @@ class ServerAdapter:
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
 
         if response.status == 200:
-            nodesFilePath = self.context.nodesFilePath
+            nodesFilePath = self.context.getNodesFilePath(phase)
             nodesFile = open(nodesFilePath, 'w')
 
             for line in response:
@@ -164,13 +164,13 @@ class ServerAdapter:
             # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
-    def pushNodeStatus(self, runNode, status):
+    def pushNodeStatus(self, phaseName, runNode, status):
         if self.context.devMode:
             return
 
         params = {
             'jobId': self.context.jobId,
-            'phase': self.context.phase,
+            'phase': phaseName,
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
@@ -188,9 +188,6 @@ class ServerAdapter:
     def pushPhaseStatus(self, phaseName, status, fireNext=0):
         if self.context.devMode:
             return
-
-        if phaseName is None:
-            phaseName = self.context.phaseName
 
         params = {
             'jobId': self.context.jobId,

@@ -45,8 +45,9 @@ class LogFile(io.TextIOWrapper):
 
 class RunNode:
 
-    def __init__(self, context, node):
+    def __init__(self, context, phaseName, node):
         self.context = context
+        self.phaseName = phaseName
         self.runPath = context.runPath
         self.node = node
         self.nodeWithoutPassword = copy.copy(node)
@@ -63,7 +64,7 @@ class RunNode:
         self.logHandle = None
 
         self.output = self.context.output
-        self.statusPhaseDir = '{}/status/{}'.format(self.runPath, self.context.phase)
+        self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
@@ -73,7 +74,7 @@ class RunNode:
         self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.outputPath = self.outputPathPrefix + '.json'
 
-        self.logPhaseDir = '{}/log/{}'.format(self.runPath, self.context.phase)
+        self.logPhaseDir = '{}/log/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.logPhaseDir):
             os.mkdir(self.logPhaseDir)
 
@@ -91,6 +92,9 @@ class RunNode:
 
     def updateNodeStatus(self, status, op=None, consumeTime=0):
         statuses = {}
+
+        if status in ('failed', 'aborted'):
+            self.context.hasFailNodeInGlobal = True
 
         statusFile = None
         try:
@@ -118,7 +122,7 @@ class RunNode:
         if op is None:
             try:
                 serverAdapter = self.context.serverAdapter
-                retObj = serverAdapter.pushNodeStatus(self, status)
+                retObj = serverAdapter.pushNodeStatus(self, self.phaseName, status)
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':

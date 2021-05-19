@@ -23,15 +23,6 @@ import PhaseExecutor
 import NodeStatus
 
 
-class ExecError(RuntimeError):
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
 class Runner:
     def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, failBreak=False, devMode=False, dataPath=None):
         # 初始化运行上下文
@@ -106,8 +97,10 @@ class Runner:
                 copyfile(nodesFile, dstPath)
 
     def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
-        self.context.hasLocal = False
-        self.context.hasRemote = False
+        phaseStatus = self.context.phases[phaseName]
+        phaseStatus.hasLocal = False
+        phaseStatus.hasRemote = False
+
         self.context.initDB(parallelCount)
 
         operations = []
@@ -124,9 +117,9 @@ class Runner:
 
             # 如果有本地操作，则在context中进行标记
             if op.opType == 'local':
-                self.context.hasLocal = True
+                phaseStatus.hasLocal = True
             else:
-                self.context.hasRemote = True
+                phaseStatus.hasRemote = True
 
             operations.append(op)
 
@@ -157,8 +150,8 @@ class Runner:
                         if not self.localDefinedNodes:
                             serverAdapter.getNodes(phaseName)
 
-                        self.context.setPhase(phaseName)
-                        self.context.resetCounter()
+                        self.context.addPhase(phaseName)
+                        phaseStatus = self.context.phases[phaseName]
                         print("INFO: Begin to execute phase:{} operations...".format(phaseName))
                         self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
                         failCount = self.execOperations(phaseName, phase[phaseName], opArgsRefMap, parallelCount)
@@ -166,7 +159,7 @@ class Runner:
                             self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
                         else:
                             self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
-                        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
+                        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.skipNodeCount))
                         print("--------------------------------\n")
 
         # 如果全局存在失败的节点，或者failBreak是False，则通知console调度器调度下一个phase
