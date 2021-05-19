@@ -78,10 +78,6 @@ class RunNode:
         if not os.path.exists(self.logPhaseDir):
             os.mkdir(self.logPhaseDir)
 
-        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, node['host'], node['port'])
-        # self.logHandle = open(self.logPath, 'a', buffering=1)
-        self.logHandle = LogFile(open(self.logPath, 'a').detach())
-
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, node)
         self._loadOutput()
@@ -242,6 +238,20 @@ class RunNode:
     def execute(self, ops):
         if self.context.goToStop:
             return 2
+
+        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
+        # 如果文件存在，则删除重建
+        if os.path.exists(self.logPath):
+            os.unlink(self.logPath)
+        self.logHandle = LogFile(open(self.logPath, 'w').detach())
+
+        hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
+        if not os.path.exists(hisLogDir):
+            os.mkdir(hisLogDir)
+
+        # 创建带时间戳的日志文件名
+        logPathWithTime = '{}/{}.{}.txt'.format(hisLogDir, self.context.execUser, time.strftime('%Y%m%d-%H%M%S'))
+        os.link(self.logPath, logPathWithTime)
 
         # TODO：restore status and output from share object storage
         nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
