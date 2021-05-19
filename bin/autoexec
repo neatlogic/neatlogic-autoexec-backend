@@ -17,6 +17,7 @@ from logging.handlers import RotatingFileHandler
 from shutil import copyfile
 
 import Context
+import ServerAdapter
 import Operation
 import JobExecutor
 import NodeStatus
@@ -203,12 +204,48 @@ if __name__ == "__main__":
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
     parser.add_argument('--failbreak', '-b', default=False, action='store_true', help='Break the running loop while the node status is failed')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
+    parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
 
     args = parser.parse_args()
-    print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
 
-    if not args.abort:
+    if args.register:
+        binPaths = os.path.split(os.path.realpath(__file__))
+        pluginsPath = os.path.realpath(binPaths[0]+'/../plugins')
+
+        vContext = Context.Context(0)
+        vContext.tenent = args.register
+        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+        os.chdir(pluginsPath + '/local')
+        with os.scandir() as iterator:
+            for entry in iterator:
+                if entry.is_dir():
+                    descPath = entry.name + '/' + entry.name + '.json'
+                    if os.path.isfile(descPath):
+                        print('INFO: Begin to register tool:local/' + entry.name)
+                        descFile = open(descPath, 'r')
+                        pluginObj = json.loads(descFile.read())
+
+                        serverAdapter.registerTool('local', pluginObj)
+                        print('INFO: Register tool:local/' + entry.name + " success \n")
+
+        os.chdir(pluginsPath + '/remote')
+        with os.scandir() as iterator:
+            for entry in iterator:
+                if entry.is_dir():
+                    descPath = entry.name + '/' + entry.name + '.json'
+                    if os.path.isfile(descPath):
+                        print('INFO: Begin to register tool:remote/' + entry.name)
+                        descFile = open(descPath, 'r')
+                        pluginObj = json.loads(descFile.read())
+
+                        serverAdapter.registerTool('remote', pluginObj)
+                        print('INFO: Register tool:remote/' + entry.name + " success \n")
+
+    elif not args.abort:
+        print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}\n".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
+
         os.environ['AUTOEXEC_JOBID'] = args.jobid
         runner = Runner(args.jobid, args.force, args.paramsfile, args.nodesfile, args.failbreak, args.devmode)
 
@@ -223,6 +260,8 @@ if __name__ == "__main__":
 
         sys.exit(runner.execute())
     else:
+        print("INFO: try to kill job:{}\n".format(args.jobid))
+
         loopCount = 0
         hasProcess = True
         while hasProcess:
