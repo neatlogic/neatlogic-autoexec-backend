@@ -25,7 +25,7 @@ class ServerAdapter:
         # api路径的映射
         self.apiMap = {
             'register': '/codedriver/public/api/rest/autoexec/tool/register',
-            'getparams': 'params.json',
+            'getparams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
             'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',

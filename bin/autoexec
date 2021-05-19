@@ -5,6 +5,7 @@
 """
 import os
 import sys
+import threading
 import initenv
 import platform
 import argparse
@@ -127,6 +128,24 @@ class Runner:
         self.executor = executor
         return executor.execute()
 
+    def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
+        serverAdapter = self.context.serverAdapter
+        if not self.localDefinedNodes:
+            serverAdapter.getNodes(phaseName)
+
+        self.context.addPhase(phaseName)
+        phaseStatus = self.context.phases[phaseName]
+        print("INFO: Begin to execute phase:{} operations...".format(phaseName))
+        self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
+        failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
+        if failCount == 0:
+            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
+        else:
+            self.context.hasFailNodeInGlobal = True
+            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
+        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.skipNodeCount))
+        print("--------------------------------------------------------------------------------------\n")
+
     def execute(self):
         params = self.params
         parallelCount = 25
@@ -136,43 +155,31 @@ class Runner:
 
         opArgsRefMap = {}
 
-        failCount = 0
         if 'runFlow' in params:
             for phase in params['runFlow']:
-                phaseName = None
-                phaseNames = list(phase.keys())
-                if len(phaseNames) > 0:
-                    phaseName = phaseNames[0]
+                threads = []
+                for phaseName, phaseConfig in phase.items():
+                    if not self.context.hasFailNodeInGlobal or self.context.failBreak == False:
+                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
+                        thread.start()
+                        threads.append(thread)
 
-                if phaseName is not None:
-                    if failCount == 0 or self.context.failBreak == False:
-                        serverAdapter = self.context.serverAdapter
-                        if not self.localDefinedNodes:
-                            serverAdapter.getNodes(phaseName)
-
-                        self.context.addPhase(phaseName)
-                        phaseStatus = self.context.phases[phaseName]
-                        print("INFO: Begin to execute phase:{} operations...".format(phaseName))
-                        self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
-                        failCount = self.execOperations(phaseName, phase[phaseName], opArgsRefMap, parallelCount)
-                        if failCount == 0:
-                            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
-                        else:
-                            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
-                        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.skipNodeCount))
-                        print("--------------------------------\n")
+                for thread in threads:
+                    thread.join()
 
         # 如果全局存在失败的节点，或者failBreak是False，则通知console调度器调度下一个phase
-        if (failCount == 0 or self.context.hasFailNodeInGlobal == False) or self.context.failBreak == False:
+        if (not self.context.hasFailNodeInGlobal or self.context.hasFailNodeInGlobal == False) or self.context.failBreak == False:
             # 所有跑完了，通知后台做fireNext的处理
             self.context.serverAdapter.pushPhaseStatus(None, '', 1)
 
-        if failCount == 0:
-            print("INFO: ======Execute succeed======")
-        else:
+        status = 0
+        if self.context.hasFailNodeInGlobal:
+            status = 1
             print("INFO: ======Execute failed======")
+        else:
+            print("INFO: ======Execute succeed======")
 
-        return failCount
+        return status
 
     def kill(self):
         self.context.goToStop = True
@@ -190,7 +197,7 @@ def registerTools(serverAdapter, pluginsPath, opType):
                     print("INFO: Begin to register tool:{}/{}...\n".format(opType, entry.name))
                     descFile = open(descPath, 'r')
                     pluginObj = json.loads(descFile.read())
-
+                    pluginObj['opName'] = entry.name
                     if opType == 'local':
                         if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
                             pluginObj['opType'] = 'runner_target'
@@ -227,7 +234,7 @@ if __name__ == "__main__":
         pluginsPath = os.path.realpath(binPaths[0]+'/../plugins')
 
         vContext = Context.Context(0)
-        vContext.tenent = args.register
+        vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         registerTools(serverAdapter, pluginsPath, 'local')
