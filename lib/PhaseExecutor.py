@@ -116,7 +116,7 @@ class PhaseExecutor:
                         print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
                         execQueue.put(loalRunNode)
 
-            if self.context.failBreak and (phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True):
+            if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                 try:
                     while True:
                         execQueue.get_nowait()
@@ -151,7 +151,7 @@ class PhaseExecutor:
                             print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
                             execQueue.put(node)
 
-                    if self.context.failBreak and (phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True):
+                    if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                         try:
                             while True:
                                 execQueue.get_nowait()

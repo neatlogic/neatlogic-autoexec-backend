@@ -25,9 +25,9 @@ import NodeStatus
 
 
 class Runner:
-    def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, failBreak=False, devMode=False, dataPath=None):
+    def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, devMode=False, dataPath=None):
         # 初始化运行上下文
-        context = Context.Context(jobId, paramsFile, isForce, failBreak, devMode, dataPath)
+        context = Context.Context(jobId, paramsFile, isForce, devMode, dataPath)
         self.context = context
         self.localDefinedParams = False
         self.localDefinedNodes = False
@@ -131,7 +131,7 @@ class Runner:
                 threads = []
                 # 每个group有多个phase，使用线程并发执行
                 for phaseName, phaseConfig in phaseGroup.items():
-                    if not self.context.hasFailNodeInGlobal or self.context.failBreak == False:
+                    if not self.context.hasFailNodeInGlobal:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
                         threads.append(thread)
@@ -139,23 +139,20 @@ class Runner:
                 for thread in threads:
                     thread.join()
 
-        # 如果全局存在失败的节点，或者failBreak是False，则通知console调度器调度下一个phase
-        if (not self.context.hasFailNodeInGlobal or self.context.hasFailNodeInGlobal == False) or self.context.failBreak == False:
-            # 所有跑完了，通知后台做fireNext的处理
-            self.context.serverAdapter.pushPhaseStatus(None, '', 1)
-
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
             print("INFO: ======Execute failed======")
         else:
+            # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
+            self.context.serverAdapter.pushPhaseStatus(None, '', 1)
             print("INFO: ======Execute succeed======")
 
         return status
 
     def kill(self):
         self.context.goToStop = True
-
+        # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
@@ -172,6 +169,7 @@ def registerTools(serverAdapter, pluginsPath, opType):
                     descFile = open(descPath, 'r')
                     pluginObj = json.loads(descFile.read())
                     pluginObj['opName'] = entry.name
+                    # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
                     if opType == 'local':
                         if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
                             pluginObj['opType'] = 'runner_target'
@@ -196,7 +194,6 @@ if __name__ == "__main__":
     parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
     parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
-    parser.add_argument('--failbreak', '-b', default=False, action='store_true', help='Break the running loop while the node status is failed')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
@@ -207,6 +204,7 @@ if __name__ == "__main__":
         binPaths = os.path.split(os.path.realpath(__file__))
         pluginsPath = os.path.realpath(binPaths[0]+'/../plugins')
 
+        # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         vContext = Context.Context(0)
         vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
@@ -218,11 +216,12 @@ if __name__ == "__main__":
         print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}\n".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
 
         os.environ['AUTOEXEC_JOBID'] = args.jobid
-        runner = Runner(args.jobid, args.force, args.paramsfile, args.nodesfile, args.failbreak, args.devmode)
+        runner = Runner(args.jobid, isForce=args.force, paramsFile=args.paramsfile, nodesFile=args.nodesfile, devMode=args.devmode)
 
         def handler(signum, frame):
             runner.kill()
 
+        # 注册TERM、INT的信号，当kill是响应信号进行退出处理，kill是另外独立的autoexec进程，仅仅发送一个信号
         signal.signal(signal.SIGTERM, handler)
         signal.signal(signal.SIGINT, handler)
 
@@ -243,15 +242,19 @@ if __name__ == "__main__":
                         if re.match('^\d+$', entry.name):
                             pid = entry.name
                             try:
-                                f = open(entry.path + '/environ')
-                                content = f.read()
-                                if re.match('AUTOEXEC_JOBID=' + args.jobid, content):
-                                    hasProcess = True
-                                    if loopCount < 10:
-                                        os.kill(pid, signal.SIGTERM)
-                                    else:
-                                        os.kill(pid, signal.SIGKILL)
-                                        break
+                                cf = open(entry.path + '/comm')
+                                comm = cf.read()
+                                comm.strip()
+                                if comm == 'autoexec':
+                                    f = open(entry.path + '/environ')
+                                    content = f.read()
+                                    if re.match('AUTOEXEC_JOBID=' + args.jobid, content):
+                                        hasProcess = True
+                                        if loopCount < 10:
+                                            os.kill(pid, signal.SIGTERM)
+                                        else:
+                                            os.kill(pid, signal.SIGKILL)
+                                            break
                             except:
                                 pass
             if hasProcess and loopCount < 10:

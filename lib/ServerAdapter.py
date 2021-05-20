@@ -219,7 +219,6 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phase': phaseName,
             'time': time.time(),
-            'failBreak': self.context.failBreak,
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)

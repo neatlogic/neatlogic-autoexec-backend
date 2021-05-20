@@ -18,7 +18,7 @@ import Utils
 
 
 class Context:
-    def __init__(self, jobId, paramsFile=None, isForce=False, failBreak=False, devMode=False, dataPath=None):
+    def __init__(self, jobId, paramsFile=None, isForce=False, devMode=False, dataPath=None):
         self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
         self.execUser = 'nouser'
@@ -30,7 +30,6 @@ class Context:
         self.output = {}
         #self.output['local'] = {}
         self.isForce = isForce
-        self.failBreak = failBreak
         self.devMode = devMode
         self.dataPath = dataPath
         self.passThroughEnv = {}
