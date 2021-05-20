@@ -44,7 +44,7 @@ class PhaseWorker(threading.Thread):
                     print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))
                 else:
                     if node.hasIgnoreFail == 1:
-                        phaseStatus.incIgnoreFailCount()
+                        phaseStatus.incIgnoreFailNodeCount()
                         print("INFO: Node({}) {}:{} execute failed, ignore.".format(node.id, node.host, node.port))
                     else:
                         phaseStatus.incSucNodeCount()
