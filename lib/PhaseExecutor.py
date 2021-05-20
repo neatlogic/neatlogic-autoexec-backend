@@ -142,7 +142,7 @@ class PhaseExecutor:
                             try:
                                 self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
                             except Exception as ex:
-                                logging.error('RePush node status to server failed, {}'.format(ex))
+                                logging.error("RePush node status to server failed, {}".format(ex))
                         elif nodeStatus == NodeStatus.running:
                             print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.id, nodeStatus, node.host, node.port))
                             phaseStatus.incFailNodeCount()
@@ -168,8 +168,8 @@ class PhaseExecutor:
             for worker in worker_threads:
                 worker.join()
 
-            if phaseStatus.hasRemote:
-                print("INFO: Execute complete, success nodes count:{}, skip nodes count:{}, failed nodes count:{}".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount))
+            # if phaseStatus.hasRemote:
+            #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
 
         return phaseStatus.failNodeCount
 

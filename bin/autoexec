@@ -105,7 +105,7 @@ class Runner:
 
         self.context.addPhase(phaseName)
         phaseStatus = self.context.phases[phaseName]
-        print("INFO: Begin to execute phase:{} operations...".format(phaseName))
+        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
         self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
         failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
         if failCount == 0:
@@ -113,7 +113,7 @@ class Runner:
         else:
             self.context.hasFailNodeInGlobal = True
             self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
-        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.skipNodeCount))
+        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------------------------------\n")
 
     def execute(self):
