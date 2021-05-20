@@ -30,7 +30,8 @@ class ServerAdapter:
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
             'nodeStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'phaseStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update'
+            'phaseStatusNotify': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
         }
 
         self.context = context
@@ -122,6 +123,7 @@ class ServerAdapter:
 
         return response
 
+    # 获取作业的运行参数文件params.json
     def getParams(self):
         params = {
             'jobId': self.context.jobId
@@ -139,6 +141,7 @@ class ServerAdapter:
 
         paramsFile.close()
 
+    # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None):
         params = {
             'jobId': self.context.jobId,
@@ -164,7 +167,8 @@ class ServerAdapter:
             # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
-    def pushNodeStatus(self, phaseName, runNode, status):
+    # 更新运行阶段某个节点的状态到服务端
+    def pushNodeStatus(self, phaseName, runNode, status, failIgnore):
         if self.context.devMode:
             return
 
@@ -174,6 +178,7 @@ class ServerAdapter:
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
+            'failIgnore': failIgnore,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
@@ -185,6 +190,7 @@ class ServerAdapter:
         except:
             return None
 
+    # 更新运行端阶段的状态
     def pushPhaseStatus(self, phaseName, status, fireNext=0):
         if self.context.devMode:
             return
@@ -194,8 +200,6 @@ class ServerAdapter:
             'phase': phaseName,
             'status': status,
             'time': time.time(),
-            'fireNext': fireNext,
-            'failBreak': self.context.failBreak,
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['phaseStatusNotify'], self.authToken, params)
@@ -206,6 +210,27 @@ class ServerAdapter:
         except:
             return None
 
+    # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def fireNextPhase(self, phaseName):
+        if self.context.devMode:
+            return
+
+        params = {
+            'jobId': self.context.jobId,
+            'phase': phaseName,
+            'time': time.time(),
+            'failBreak': self.context.failBreak,
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
+
+    # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
         params = {
             'id': fileId
@@ -247,6 +272,7 @@ class ServerAdapter:
             if response is None or response.status != 304:
                 raise
 
+    # 从自定义脚本库下载脚本到脚本目录
     def fetchScript(self, savePath, scriptId):
         params = {
             'operationId': scriptId
@@ -280,6 +306,7 @@ class ServerAdapter:
 
         return savePath
 
+    # 注册native工具到服务端工具库
     def registerTool(self, toolObj):
         response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
 

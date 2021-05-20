@@ -43,8 +43,12 @@ class PhaseWorker(threading.Thread):
                     phaseStatus.incFailNodeCount()
                     print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))
                 else:
-                    phaseStatus.incSucNodeCount()
-                    print("INFO: Node({}) {}:{} execute succeed.".format(node.id, node.host, node.port))
+                    if node.hasIgnoreFail == 1:
+                        phaseStatus.incIgnoreFailCount()
+                        print("INFO: Node({}) {}:{} execute failed, ignore.".format(node.id, node.host, node.port))
+                    else:
+                        phaseStatus.incSucNodeCount()
+                        print("INFO: Node({}) {}:{} execute succeed.".format(node.id, node.host, node.port))
             finally:
                 self.currentNode = None
 
@@ -61,6 +65,7 @@ class PhaseExecutor:
         self.operations = operations
         self.workers = []
         self.parallelCount = parallelCount
+        self.execQueue = None
 
     def _buildWorkerPool(self, queue):
         workers = []
@@ -85,6 +90,7 @@ class PhaseExecutor:
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
             execQueue = queue.Queue(self.parallelCount*2)
+            self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
 
@@ -94,7 +100,7 @@ class PhaseExecutor:
                 localNode = {"nodeId": 0, "nodeType": "local", "host": "local", "port": 0, "username": "", "password": ""}
                 loalRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
 
-                if self.context.isForce:
+                if self.context.isForce and self.context.goToStop == False:
                     # 需要执行的节点实例加入等待执行队列
                     execQueue.put(loalRunNode)
                 else:
@@ -105,7 +111,7 @@ class PhaseExecutor:
                     elif nodeStatus == NodeStatus.running:
                         print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
                         phaseStatus.incFailNodeCount()
-                    else:
+                    elif self.context.goToStop == False:
                         # 需要执行的节点实例加入等待执行队列
                         print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
                         execQueue.put(loalRunNode)
@@ -119,7 +125,7 @@ class PhaseExecutor:
 
             elif phaseStatus.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
-                while True:
+                while True and self.context.goToStop == False:
                     node = nodesFactory.nextNode()
                     if node is None:
                         break
@@ -169,6 +175,12 @@ class PhaseExecutor:
 
     def kill(self):
         self.context.goToStop = True
+        try:
+            while True:
+                self.execQueue.get_nowait()
+        except Exception as ex:
+            pass
+
         killWorkers = []
         for worker in self.workers:
             try:

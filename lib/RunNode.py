@@ -47,6 +47,10 @@ class RunNode:
 
     def __init__(self, context, phaseName, node):
         self.context = context
+        # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
+        self.hasIgnoreFail = 0
+
+        self.logger = logging.getLogger('')
         self.phaseName = phaseName
         self.runPath = context.runPath
         self.node = node
@@ -86,10 +90,10 @@ class RunNode:
         if self.logHandle is not None:
             self.logHandle.close()
 
-    def updateNodeStatus(self, status, op=None, consumeTime=0):
+    def updateNodeStatus(self, status, failIgnore=0, op=None, consumeTime=0):
         statuses = {}
 
-        if status in ('failed', 'aborted'):
+        if status == NodeStatus.aborted or status == NodeStatus.failed:
             self.context.hasFailNodeInGlobal = True
 
         statusFile = None
@@ -118,12 +122,13 @@ class RunNode:
         if op is None:
             try:
                 serverAdapter = self.context.serverAdapter
-                retObj = serverAdapter.pushNodeStatus(self, self.phaseName, status)
+                # 当status为failed，但是failIgnore为1，不影响继续执行
+                retObj = serverAdapter.pushNodeStatus(self, self.phaseName, status, failIgnore)
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
-                    if 'Return' in retObj and 'phaseStatus' in retObj['Return']:
-                        if retObj['Return']['phaseStatus'] in ('failed', 'aborted'):
+                    if 'Return' in retObj and 'hasFailNode' in retObj['Return']:
+                        if retObj['Return']['hasFailNode'] == 1:
                             self.context.hasFailNodeInGlobal = True
 
             except Exception as ex:
@@ -157,6 +162,8 @@ class RunNode:
         output = {}
         localOutputPath = '{}/output/local-0.json'.format(self.runPath)
         if os.path.exists(localOutputPath):
+            # 如果runner本地存在local的output文件，则从本地加载
+            # TODO：如果local的运行runner是随机选择的，那就要必须强制从mongodb中加载output
             outputFile = None
             try:
                 outputFile = open(localOutputPath, 'r')
@@ -169,6 +176,7 @@ class RunNode:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
         else:
+            # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
             localNode = {'host': 'local', 'port': 0}
             loalOutStore = OutputStore.OutputStore(self.context, localNode)
             output = loalOutStore.loadOutput()
@@ -178,6 +186,8 @@ class RunNode:
     def _loadOutput(self):
         # 加载操作输出并进行合并
         if os.path.exists(self.outputPath):
+            # 如果runner本地存在output文件，则从本地加载
+            # TODO：如果运行runner是随机选择的，那就要必须强制从mongodb中加载output
             outputFile = None
             try:
                 outputFile = open(self.outputPath, 'r')
@@ -191,6 +201,7 @@ class RunNode:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
         else:
+            # 如果本地output文件不存在则从mongodb加载
             output = self.outputStore.loadOutput()
 
         # 加载local节点的output
@@ -239,94 +250,120 @@ class RunNode:
         if self.context.goToStop:
             return 2
 
-        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
-        # 如果文件存在，则删除重建
-        if os.path.exists(self.logPath):
-            os.unlink(self.logPath)
-        self.logHandle = LogFile(open(self.logPath, 'w').detach())
+        try:
+            self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
+            # 如果文件存在，则删除重建
+            if os.path.exists(self.logPath):
+                os.unlink(self.logPath)
+            self.logHandle = LogFile(open(self.logPath, 'w').detach())
 
-        hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
-        if not os.path.exists(hisLogDir):
-            os.mkdir(hisLogDir)
+            # 更新节点状态为running
+            self.updateNodeStatus(NodeStatus.running)
 
-        # 创建带时间戳的日志文件名
-        logPathWithTime = '{}/{}.{}.txt'.format(hisLogDir, self.context.execUser, time.strftime('%Y%m%d-%H%M%S'))
-        os.link(self.logPath, logPathWithTime)
+            hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
+            if not os.path.exists(hisLogDir):
+                os.mkdir(hisLogDir)
+
+            # 创建带时间戳的日志文件名
+            logPathWithTime = '{}/{}.{}.txt'.format(hisLogDir, self.context.execUser, time.strftime('%Y%m%d-%H%M%S'))
+            os.link(self.logPath, logPathWithTime)
+        except Exception as ex:
+            self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
+            self.updateNodeStatus(NodeStatus.failed)
 
         # TODO：restore status and output from share object storage
         nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeStartTime = time.time()
         self.logHandle.write("======[{}]{}:{} <{}>======\n\n".format(self.id, self.host, self.port, nodeBeginDateTime))
 
+        hasIgnoreFail = 0
         isFail = 0
         for op in ops:
             ret = 0
 
-            if not self.context.isForce and self.getNodeStatus(op) == NodeStatus.succeed:
-                op.parseParam(self.output)
-                self._loadOpOutput(op)
-                continue
-
             try:
+                if not self.context.isForce and self.getNodeStatus(op) == NodeStatus.succeed:
+                    op.parseParam(self.output)
+                    self._loadOpOutput(op)
+                    continue
+
                 op.parseParam(self.output)
             except AutoExecError.AutoExecError as err:
-                self.logHandle.write("ERROR: {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
-                if not op.failIgnore:
+                try:
+                    self.logHandle.write("ERROR: {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
+                    self.updateNodeStatus(NodeStatus.failed, op=op)
+                    if op.failIgnore:
+                        hasIgnoreFail = 1
+                    else:
+                        isFail = 1
+                        break
+                except:
                     isFail = 1
-                    break
 
-            if not os.path.exists(op.pluginPath):
-                self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))
+            try:
+                if not os.path.exists(op.pluginPath):
+                    self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
-            beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
-            startTime = time.time()
+                beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+                startTime = time.time()
 
-            ret = 0
-            if self.host == 'local':
-                if op.opType == 'local':
-                    # 本地执行
-                    # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._localExecute(op)
+                ret = 0
+                if self.host == 'local':
+                    if op.opType == 'local':
+                        # 本地执行
+                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                        self.logHandle.write("------{}[{}] BEGIN-- <{}> local execute...\n".format(op.opId, op.opName, beginDateTime))
+                        ret = self._localExecute(op)
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                if op.opType == 'localremote':
-                    # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
-                    # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> local-remote execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._localRemoteExecute(op)
-                elif op.opType == 'remote':
-                    # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
-                    self.logHandle.write("------{}[{}] BEGIN-- <{}> remote execute...\n".format(op.opId, op.opName, beginDateTime))
-                    ret = self._remoteExecute(op)
+                    if op.opType == 'localremote':
+                        # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
+                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                        self.logHandle.write("------{}[{}] BEGIN-- <{}> local-remote execute...\n".format(op.opId, op.opName, beginDateTime))
+                        ret = self._localRemoteExecute(op)
+                    elif op.opType == 'remote':
+                        # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                        self.logHandle.write("------{}[{}] BEGIN-- <{}> remote execute...\n".format(op.opId, op.opName, beginDateTime))
+                        ret = self._remoteExecute(op)
+                    else:
+                        continue
+
+                timeConsume = time.time() - startTime
+                if ret != 0:
+                    self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
                 else:
-                    continue
+                    self._loadOpOutput(op)
+                    self._saveOutput()
+                    self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
 
-            timeConsume = time.time() - startTime
-            if ret != 0:
-                self.updateNodeStatus(NodeStatus.failed, op, consumeTime=timeConsume)
-            else:
-                self._loadOpOutput(op)
-                self._saveOutput()
-                self.updateNodeStatus(NodeStatus.succeed, op, consumeTime=timeConsume)
+                endDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+                if ret == 0:
+                    self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} succeed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
+                else:
+                    self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} failed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
 
-            endDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
-            if ret == 0:
-                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} succeed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
-            else:
-                self.logHandle.write("-++---{}[{}] END-- <{}> {:.2f}second Execute {} failed.\n\n".format(op.opId, op.opName, endDateTime, timeConsume, op.opTypeDesc[op.opType]))
-
-                if not op.failIgnore:
-                    isFail = 1
-                    break
+                    if op.failIgnore:
+                        hasIgnoreFail = 1
+                    else:
+                        isFail = 1
+                        break
+            except:
+                isFail = 1
+                break
 
         nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeConsumeTime = time.time() - nodeStartTime
 
         if isFail == 0:
-            self.updateNodeStatus(NodeStatus.succeed, consumeTime=nodeConsumeTime)
-            self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second succeed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+            if hasIgnoreFail == 1:
+                # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
+                self.hasIgnoreFail = 1
+                self.updateNodeStatus(NodeStatus.ingore, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
+                self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed, ignore======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+            else:
+                self.updateNodeStatus(NodeStatus.succeed, consumeTime=nodeConsumeTime)
+                self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second succeed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
         else:
             self.updateNodeStatus(NodeStatus.failed, consumeTime=nodeConsumeTime)
             self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
@@ -578,22 +615,28 @@ class RunNode:
             pid = self.childPid
 
             try:
+                (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
                 if pid is not None:
                     os.kill(pid, signal.SIGTERM)
 
                 (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
                 # 如果子进程没有结束，等待3秒
                 loopCount = 3
-                while exitPid != pid:
+                while exitPid != 0 and exitPid != pid:
                     if loopCount <= 0:
                         break
 
                     time.sleep(1)
                     (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
                     loopCount = loopCount - 1
+
+                (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
+                os.kill(pid, signal.SIGKILL)
             except OSError:
                 # 子进程不存在，已经退出了
                 pass
+            finally:
+                self.updateNodeStatus(NodeStatus.aborted)
 
         killCmd = self.killCmd
         if self.type == 'ssh' and killCmd is not None:
@@ -618,5 +661,8 @@ class RunNode:
             except Exception as err:
                 self.logHandle.write("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:
+                self.updateNodeStatus(NodeStatus.aborted)
                 if ssh:
                     ssh.close()
+        else:
+            self.updateNodeStatus(NodeStatus.aborted)

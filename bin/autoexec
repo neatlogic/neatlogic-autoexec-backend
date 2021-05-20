@@ -29,7 +29,6 @@ class Runner:
         # 初始化运行上下文
         context = Context.Context(jobId, paramsFile, isForce, failBreak, devMode, dataPath)
         self.context = context
-        self.executor = None
         self.localDefinedParams = False
         self.localDefinedNodes = False
 
@@ -50,7 +49,8 @@ class Runner:
         os.chdir(context.runPath)
 
         if 'runNode' in context.params:
-            # 如果在参数文件中声明了runNode，则以此作为运行目标
+            # 如果在参数文件中声明了runNode，则以此作为运行目标，用于工具测试的执行，所以不支持phase内部定义runNode
+            self.localDefinedNodes = True
             dstPath = '{}/nodes.json'.format(self.context.runPath)
             nodesFile = open(dstPath, 'w')
             for node in context.params['runNode']:
@@ -95,7 +95,7 @@ class Runner:
             operations.append(op)
 
         executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, parallelCount)
-        self.executor = executor
+        phaseStatus.executor = executor
         return executor.execute()
 
     def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
@@ -126,9 +126,11 @@ class Runner:
         opArgsRefMap = {}
 
         if 'runFlow' in params:
-            for phase in params['runFlow']:
+            for phaseGroup in params['runFlow']:
+                # runFlow是一个数组，每个元素是一个phaseGroup
                 threads = []
-                for phaseName, phaseConfig in phase.items():
+                # 每个group有多个phase，使用线程并发执行
+                for phaseName, phaseConfig in phaseGroup.items():
                     if not self.context.hasFailNodeInGlobal or self.context.failBreak == False:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
@@ -153,8 +155,10 @@ class Runner:
 
     def kill(self):
         self.context.goToStop = True
-        if self.executor is not None:
-            self.executor.kill()
+
+        for phaseStatus in self.context.phases.values():
+            if phaseStatus.executor is not None:
+                phaseStatus.executor.kill()
 
 
 def registerTools(serverAdapter, pluginsPath, opType):
