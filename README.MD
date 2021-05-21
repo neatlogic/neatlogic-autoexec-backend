@@ -280,7 +280,6 @@ python3 bin/autoexec --jobid "2983676" --abort
 ```
 
 > 说明:
-
 >* "jobId": 作业Id，如果定义的跟autoexec的命令行参数--jobid不一致，会强行改成一致。
 >* "preJobId": 前一个作业的Id，用于在ITSM流程串接多个作业时传入，会在callback时回传到控制后台。
 >* "runNode":如果含有此属性，运行目标就以此为准，autoexec不会再调用接口获取运行需要的目标节点。
@@ -288,7 +287,7 @@ python3 bin/autoexec --jobid "2983676" --abort
 >* "runFlow": 数组结构，包括多个运行组，一个数组元素是一个运行组，autoexec会按顺序执行运行组。运行组是key value结构，key是运行阶段（phase）的名称，运行阶段内容由多个操作组成的数组。一个运行组内的多个阶段会并发运行。
 >* 操作内的参数"isScript": 表示此操作是自定义脚本，如果isScript是1，那么必须有另外一个参数"scriptId"给出script的Id，这样autoexec才能根据scriptId到控制端下载脚本。
 
-##nodes文件样例
+## nodes文件样例
 ```json
 { "nodeId": 456, "nodeType": "ssh", "host": "192.168.0.27", "port": 22, "username": "root", "password": "xxxxxx" }
 { "nodeId": 567, "nodeType": "tagent", "host": "192.168.0.22", "port": 3939, "username": "root", "password": "{RC4}xxxxxxx" }
