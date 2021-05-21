@@ -40,13 +40,10 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --n test/nodes.json
 $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 ```
 > 注意：
-
+> 
 >* 如果没有指定jobid，则使用默认的jobid 0
-
 >* 如果没有设置参数paramsfile，需要指定jobid，告诉autoexec下载哪个作业的运行参数。
-
 >* 如果没有设置参数nodes.json，而且paramsfile中没有"runNode"属性，需要指定jobid，告诉autoexec下载哪个作业的运行的目标节点。否则，autoexec就会认为没有运行目标节点。 
-
 >* 如果在测试模式下或者当前进程关联了TTY，autoexec的console输出日志回直接打印到console。如果在生产模式下运行，console输出会写入日志文件中。运行目标相关的日志，不管在哪个模式下都会写入每个运行目标独立的日志文件中。
 
 ### 生产模式
@@ -55,13 +52,241 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 ```shell
 $ python3 bin/autoexec --jobid "2983676" --execuser "admin" --paramsfile "params.json"
 ```
-> 生产模式需要提供--jobid、--execuser、--paramsfile参数
+> 生产模式需要提供--jobid、--execuser、--paramsfile参数，作业运行过程中，某个节点运行结束、某个阶段运行结束，都会对后端服务进行callback，更新对应的状态。
 
 - 中止作业
 
 ```shell
 python3 bin/autoexec --jobid "2983676" --abort
 ```
-> 停止某个作业的运行，使用--jobid指定需要停止的作业号
+> 停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态“已中止”callback后台服务。
+
+
+## 文件目录介绍
+### 程序文件
+- bin/autoexec 
+
+> 主程序，进行参数处理和初始化作业运行需要的目录环境变量等信息
+
+- lib/Context.py
+
+> 保存所有运行相关的信息，在各个环境进行传递。信息包括：作业ID、执行用户、日志和状态等相关路径信息、各个阶段的运行状态、MongoDB的连接等等
+
+- lib/AutoexecError.py
+
+> 运行异常封装类
+
+- lib/NodeStatus.py
+
+> 节点状态的枚举类
+
+- lib/Operation.py
+
+> 操作信息类，用于记录操作相关的属性，完成对操作的运行准备：包括文件参数的文件下载、参数引用的解决，操作命令行生成等。
+
+- lib/OutputStoe.py
+
+> 用于保存每个运行节点的output保存到MongoDB，以及从MongoDB加载。
+
+- lib/PhaseExecutor.py
+
+> 每个阶段的执行器，每个阶段会实例化一个执行器，执行器创建线程池，读取Node节点信息生成RunNode对象，交由线程池的线程进行执行。
+
+- lib/PhaseStatus.py
+
+> 用于记录每个阶段的执行状态：成功、失败、忽略的节点数量。
+
+- lib/RunNode.py
+
+> 运行节点，节点运行的主程序，根据参数和节点类型选择正确的运行方式运行某个阶段的所有操作，并完成节点的状态、output记录。
+
+- lib/RunNodeFactory.py
+
+> 节点信息文件的Iterator
+
+- lib/ServerAdapter.py
+
+> 后台控制端的接口的Adapter类，到后台控制端的所有调用都经过它。
+
+- lib/TagentClient.py
+
+> Tagent Client的python实现
+
+- lib/Utils.pm
+
+> 工具类，所有小的可以共享的方法存放在这
+
+### 运行时数据日志目录
+- data
+
+> 目录，保存所有作业数据的根目录
+
+- data/cache
+
+> 文件类型参数下载文件的cache目录，以文件id作为保存的名字，下载文件是会传送lastModified属性到服务端，如果没有修改，服务端返回304。作业会建立hard link到这个目录中的文件。
+
+- data/job/xxx/yyy/zzz
+
+> 作业的运行目录，xxx/yyy/zzz是作业ID以3个字节切分得到的子目录，这样做是为了避免一个子目录下的文件目录数量太多，影响性能。
+
+- data/job/xxx/yyy/zzz/file
+
+> 作业运行需要的文件参数的文件存放目录，均是hard link到上述的cache目录
+
+- data/job/xxx/yyy/zzz/log
+
+> 各个阶段运行的日志保存的地方，每个节点保存一个日志。
+> 譬如：data/job/xxx/yyy/zzz/log/post，post就是阶段名，data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.txt，192.168.0.1是节点的IP，22是节点的端；data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.hislog/20210521-112018.anonymous.txt是节点的历史日志，历史日志名称包括了执行开始时间，执行用户，文件的最后修改时间就是执行的结束时间。
+
+- data/job/xxx/yyy/zzz/output
+
+> 节点运行的output目录，保存每个节点的output文件。每个节点一个output文件，譬如：192.168.0.22-3939.json。内容样例子：
+
+```json
+{
+    "localdemo": {
+        "outtext": "this is the text out value",
+        "outfile": "this is the output file name",
+        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}",
+        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u5f20\u4e09\u201c,\"\u7537\u201c,\"30\"\\n\"\u674e\u56db\",\"\u5973\u201c,\"35\"",
+        "outpassword": "{RC4}xxxxxxxxxx"
+    },
+    "localremotedemo_tttt": {
+        "outfile": "this is the output file name",
+        "outtext": "this is the text out value",
+        "outpassword": "{RC4}xxxxxxxxxx",
+        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u5f20\u4e09\u201c,\"\u7537\u201c,\"30\"\\n\"\u674e\u56db\",\"\u5973\u201c,\"35\"",
+        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}"
+    },
+    "remotedemo_34234": {
+        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u00e5\u00bc\u00a0\u00e4\u00b8\u0089\u00e2\u0080\u009c,\"\u00e7\u0094\u00b7\u00e2\u0080\u009c,\"30\"\\n\"\u00e6\u009d\u008e\u00e5\u009b\u009b\",\"\u00e5\u00a5\u00b3\u00e2\u0080\u009c,\"35\"",
+        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}",
+        "outfile": "this is the output file name",
+        "outpassword": "{RC4}xxxxxxxxxx",
+        "outtext": "this is the text out value"
+    }
+}
+```
+
+- data/job/xxx/yyy/zzz/status
+保存每个节点和节点关联操作运行状态的目录。每个节点一个status文件，譬如：post/192.168.0.22-3939.json（post阶段的节点192.168.0.22:3939的执行状态）。内容样例子：
+
+```json
+{
+    "status": "succeed",
+    "localremotedemo_tttt": "succeed",
+    "remotedemo_34234": "succeed"
+}
+```
+
+## 参数文件样例
+```json
+{
+        "jobId": "360782453596160",
+        "preJobId": "156",
+        "parallel": 10,
+        "tenant": "develop",
+
+
+        "passThroughEnv": {
+                "stepId": "353",
+                "preStepId": "353"
+        },
+
+        "arg": {
+                "fetchfile": "testfile"
+        },
+
+        "runFlow": [{
+                        "pre": [{
+                                "opId": "localdemo",
+                                "isScript:": 0,
+                                "scriptId": "",
+                                "opName": "localdemo",
+                                "opType": "local",
+                                "failIgnore": false,
+                                "arg": {
+                                        "tinput": "xxxx",
+                                        "tselect": "yyyy",
+                                        "tpassword": "{RC4}xxxxxxx",
+                                        "tfile": "${fetchfile}"
+                                },
+
+                                "desc": {
+                                        "tinput": "input",
+                                        "tselect": "input",
+                                        "tpassword": "password",
+                                        "tfile": "input"
+                                },
+                                "output": {
+                                        "outtext": "text",
+                                        "outfile": "input"
+                                }
+                        }]
+                },
+                {
+                        "run": [{
+                                        "opId": "localremotedemo_tttt",
+                                        "opName": "localremotedemo",
+                                        "opType": "localremote",
+                                        "failIgnore": false,
+                                        "arg": {
+                                                "tinput": "${pre.localdemo.outtext}",
+                                                "tselect": "yyyy",
+                                                "tpassword": "{RC4}xxxxxxx",
+                                                "tfile": "testfile"
+                                        },
+
+                                        "desc": {
+                                                "tinput": "input",
+                                                "tselect": "input",
+                                                "tpassword": "password",
+                                                "tfile": "input"
+                                        },
+
+                                        "output": {
+                                                "outtext": "text",
+                                                "outfile": "input"
+                                        }
+                                },
+                                {
+                                        "opId": "remotedemo_34234",
+                                        "opName": "remotedemo",
+                                        "opType": "remote",
+                                        "interpreter": "perl",
+                                        "failIgnore": false,
+                                        "arg": {
+                                                "tinput": "${run.localremotedemo_tttt.outtext}",
+                                                "tselect": "yyyy",
+                                                "tpassword": "{RC4}xxxxxxx",
+                                                "tfile": "testfile"
+                                        },
+
+                                        "desc": {
+                                                "tinput": "input",
+                                                "tselect": "input",
+                                                "tpassword": "password",
+                                                "tfile": "input"
+                                        },
+                                        "output": {
+                                                "outtext": "text",
+                                                "outfile": "input"
+                                        }
+                                }
+                        ]
+                }
+        ]
+}
+```
+
+##nodes文件样例
+```json
+{ "nodeId": 456, "nodeType": "ssh", "host": "192.168.0.27", "port": 22, "username": "root", "password": "xxxxxx" }
+{ "nodeId": 567, "nodeType": "tagent", "host": "192.168.0.22", "port": 3939, "username": "root", "password": "{RC4}xxxxxxx" }
+{ "nodeId": 458, "nodeType": "tagent", "host": "192.168.0.26", "port": 3939, "username": "root", "password": "xxxxxxxx" }
+
+```
+
+ 
 
 

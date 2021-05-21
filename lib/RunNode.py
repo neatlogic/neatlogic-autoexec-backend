@@ -72,7 +72,7 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}.txt'.format(self.statusPhaseDir, node['host'], node['port'])
+        self.statusPath = '{}/{}-{}.json'.format(self.statusPhaseDir, node['host'], node['port'])
 
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
