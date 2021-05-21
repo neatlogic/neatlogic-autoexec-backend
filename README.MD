@@ -39,7 +39,7 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --n test/nodes.json
 
 $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 ```
-> 注意：
+> 注意:
 > 
 >* 如果没有指定jobid，则使用默认的jobid 0
 >* 如果没有设置参数paramsfile，需要指定jobid，告诉autoexec下载哪个作业的运行参数。
@@ -59,7 +59,7 @@ $ python3 bin/autoexec --jobid "2983676" --execuser "admin" --paramsfile "params
 ```shell
 python3 bin/autoexec --jobid "2983676" --abort
 ```
-> 停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态“已中止”callback后台服务。
+> 停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态"已中止"callback后台服务。
 
 
 ## 文件目录介绍
@@ -70,7 +70,7 @@ python3 bin/autoexec --jobid "2983676" --abort
 
 - lib/Context.py
 
-> 保存所有运行相关的信息，在各个环境进行传递。信息包括：作业ID、执行用户、日志和状态等相关路径信息、各个阶段的运行状态、MongoDB的连接等等
+> 保存所有运行相关的信息，在各个环境进行传递。信息包括:作业ID、执行用户、日志和状态等相关路径信息、各个阶段的运行状态、MongoDB的连接等等
 
 - lib/AutoexecError.py
 
@@ -82,7 +82,7 @@ python3 bin/autoexec --jobid "2983676" --abort
 
 - lib/Operation.py
 
-> 操作信息类，用于记录操作相关的属性，完成对操作的运行准备：包括文件参数的文件下载、参数引用的解决，操作命令行生成等。
+> 操作信息类，用于记录操作相关的属性，完成对操作的运行准备:包括文件参数的文件下载、参数引用的解决，操作命令行生成等。
 
 - lib/OutputStoe.py
 
@@ -94,7 +94,7 @@ python3 bin/autoexec --jobid "2983676" --abort
 
 - lib/PhaseStatus.py
 
-> 用于记录每个阶段的执行状态：成功、失败、忽略的节点数量。
+> 用于记录每个阶段的执行状态:成功、失败、忽略的节点数量。
 
 - lib/RunNode.py
 
@@ -136,11 +136,11 @@ python3 bin/autoexec --jobid "2983676" --abort
 - data/job/xxx/yyy/zzz/log
 
 > 各个阶段运行的日志保存的地方，每个节点保存一个日志。
-> 譬如：data/job/xxx/yyy/zzz/log/post，post就是阶段名，data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.txt，192.168.0.1是节点的IP，22是节点的端；data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.hislog/20210521-112018.anonymous.txt是节点的历史日志，历史日志名称包括了执行开始时间，执行用户，文件的最后修改时间就是执行的结束时间。
+> 譬如:data/job/xxx/yyy/zzz/log/post，post就是阶段名，data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.txt，192.168.0.1是节点的IP，22是节点的端；data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.hislog/20210521-112018.anonymous.txt是节点的历史日志，历史日志名称包括了执行开始时间，执行用户，文件的最后修改时间就是执行的结束时间。
 
 - data/job/xxx/yyy/zzz/output
 
-> 节点运行的output目录，保存每个节点的output文件。每个节点一个output文件，譬如：192.168.0.22-3939.json。内容样例子：
+> 节点运行的output目录，保存每个节点的output文件。每个节点一个output文件，譬如:192.168.0.22-3939.json。内容样例子:
 
 ```json
 {
@@ -169,7 +169,7 @@ python3 bin/autoexec --jobid "2983676" --abort
 ```
 
 - data/job/xxx/yyy/zzz/status
-保存每个节点和节点关联操作运行状态的目录。每个节点一个status文件，譬如：post/192.168.0.22-3939.json（post阶段的节点192.168.0.22:3939的执行状态）。内容样例子：
+保存每个节点和节点关联操作运行状态的目录。每个节点一个status文件，譬如:post/192.168.0.22-3939.json（post阶段的节点192.168.0.22:3939的执行状态）。内容样例子:
 
 ```json
 {
@@ -279,6 +279,15 @@ python3 bin/autoexec --jobid "2983676" --abort
 }
 ```
 
+> 说明:
+
+>* "jobId": 作业Id，如果定义的跟autoexec的命令行参数--jobid不一致，会强行改成一致。
+>* "preJobId": 前一个作业的Id，用于在ITSM流程串接多个作业时传入，会在callback时回传到控制后台。
+>* "runNode":如果含有此属性，运行目标就以此为准，autoexec不会再调用接口获取运行需要的目标节点。
+>* "arg": 整个作业的输入参数列表，结构是key value结构
+>* "runFlow": 数组结构，包括多个运行组，一个数组元素是一个运行组，autoexec会按顺序执行运行组。运行组是key value结构，key是运行阶段（phase）的名称，运行阶段内容由多个操作组成的数组。一个运行组内的多个阶段会并发运行。
+>* 操作内的参数"isScript": 表示此操作是自定义脚本，如果isScript是1，那么必须有另外一个参数"scriptId"给出script的Id，这样autoexec才能根据scriptId到控制端下载脚本。
+
 ##nodes文件样例
 ```json
 { "nodeId": 456, "nodeType": "ssh", "host": "192.168.0.27", "port": 22, "username": "root", "password": "xxxxxx" }
@@ -286,6 +295,15 @@ python3 bin/autoexec --jobid "2983676" --abort
 { "nodeId": 458, "nodeType": "tagent", "host": "192.168.0.26", "port": 3939, "username": "root", "password": "xxxxxxxx" }
 
 ```
+
+> 补充说明:
+nodes文件是有多行组成，一行是一个节点信息。如果是本地插件，会虚拟一个host=local，port=0的节点进行运行。
+>* "nodeId": 在运行作业运行时对每个阶段的节点生成的关联Id
+>* "nodeType": 表示连接节点的方式
+>* "host": 连接目标的IP
+>* "port": 目标节点的IP
+>* "username": 在目标节点运行工具的OS用户s
+>* "password": 连接目标节点的密码
 
  
 
