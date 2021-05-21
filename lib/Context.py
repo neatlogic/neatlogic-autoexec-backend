@@ -133,8 +133,11 @@ class Context:
             self.localDefinedParams = True
             # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
             dstPath = '{}/params.json'.format(self.runPath)
-            if (os.path.exists(paramsFile) and dstPath != os.path.realpath(paramsFile)):
-                copyfile(paramsFile, dstPath)
+            if os.path.exists(paramsFile):
+                if dstPath != os.path.realpath(paramsFile):
+                    copyfile(paramsFile, dstPath)
+            else:
+                print("ERROR: Params file:{} not exists.\n".format(paramsFile))
 
         # 加载运行参数文件
         paramFile = open(self.paramsFilePath, 'r')

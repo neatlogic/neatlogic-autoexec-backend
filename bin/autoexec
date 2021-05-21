@@ -64,8 +64,11 @@ class Runner:
             self.localDefinedNodes = True
             # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
             dstPath = '{}/nodes.json'.format(self.context.runPath)
-            if (os.path.exists(nodesFile) and dstPath != os.path.realpath(nodesFile)):
-                copyfile(nodesFile, dstPath)
+            if os.path.exists(nodesFile):
+                if dstPath != os.path.realpath(nodesFile):
+                    copyfile(nodesFile, dstPath)
+            else:
+                print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
 
     def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
         phaseStatus = self.context.phases[phaseName]
