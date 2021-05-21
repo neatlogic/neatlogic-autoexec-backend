@@ -158,6 +158,13 @@ class Runner:
                 phaseStatus.executor.kill()
 
 
+def _getLogSubPath(jobId):
+    jobIdStr = str(jobId)
+    jobIdLen = len(jobIdStr)
+    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
+    return '/'.join(subPath)
+
+
 def registerTools(serverAdapter, pluginsPath, opType):
     os.chdir(pluginsPath + '/' + opType)
     with os.scandir() as iterator:
@@ -191,6 +198,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
     parser.add_argument('--jobid', '-j', default='0', help='Job id for this execution')
+    parser.add_argument('--execuser', '-u', default='anonymous',  help='Operator')
     parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
     parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
@@ -200,9 +208,25 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    binPaths = os.path.split(os.path.realpath(__file__))
+    homePath = os.path.realpath(binPaths[0]+'/..')
+
+    if not args.devmode and not sys.stdout.isatty():
+        logDir = consoleLogPath = '{}/data/job/{}/log'.format(homePath, _getLogSubPath(args.jobid))
+        consoleHisLogDir = logDir + '/console.hislog'
+        if not os.path.isdir(consoleHisLogDir):
+            os.mkdir(consoleHisLogDir)
+
+        consoleLogPath = logDir + '/console.txt'
+        consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+
+        f = open(consoleLogPath, 'w')
+        os.link(consoleLogPath, consoleHisLogPath)
+        sys.stdout = f
+        sys.stderr = f
+
     if args.register:
-        binPaths = os.path.split(os.path.realpath(__file__))
-        pluginsPath = os.path.realpath(binPaths[0]+'/../plugins')
+        pluginsPath = homePath + '/plugins'
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         vContext = Context.Context(0)
