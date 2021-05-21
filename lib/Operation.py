@@ -8,6 +8,7 @@
 """
 import sys
 import os
+import fcntl
 import subprocess
 import re
 import json
@@ -28,6 +29,7 @@ class Operation:
         self.isScript = 0
         self.interpreter = ''
         self.scriptId = ''
+        self.lockedFD = []
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -123,6 +125,11 @@ class Operation:
         if not os.path.exists('output-op'):
             os.mkdir('output-op')
 
+    def __del__(self):
+        for lockFD in self.lockedFD:
+            fcntl.lockf(lockFD, fcntl.LOCK_UN)
+            lockFD.close()
+
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
         opDesc = {}
@@ -159,6 +166,11 @@ class Operation:
             fileName = argName
 
         cacheFilePath = cachePath + '/' + fileId
+
+        cacheFile = open(cacheFilePath, 'r')
+        fcntl.flock(cacheFile, fcntl.LOCK_SH)
+        self.append(cacheFile)
+
         linkPath = self.runPath + '/file/' + fileName
         if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
             os.unlink(linkPath)
@@ -171,6 +183,11 @@ class Operation:
     # 获取script
     def fetchScript(self, scriptId, savePath):
         savePath = '{}/script/{}.{}'.format(self.pluginRootPath, scriptId, self.extNameMap[self.interpreter])
+
+        scriptFile = open(savePath, 'r')
+        fcntl.flock(scriptFile, fcntl.LOCK_SH)
+        self.append(scriptFile)
+
         serverAdapter = self.context.serverAdapter
         serverAdapter.fetchFile(savePath, scriptId)
 

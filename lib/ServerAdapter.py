@@ -5,6 +5,7 @@
 """
 import sys
 import os
+import fcntl
 import ssl
 import time
 import json
@@ -244,9 +245,11 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + self.apiMap['fetchfile']
 
+        cachedFile = None
         fileName = None
         response = None
         try:
+            cachedFile = open(cachedFilePath, 'a+')
             response = self.httpGET(self.apiMap['fetchfile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -257,19 +260,22 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
+                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+                cachedFile.truncate(0)
                 CHUNK = 16 * 1024
-                with open(cachedFilePath, 'wb') as f:
-                    while True:
-                        chunk = response.read(CHUNK)
-                        if not chunk:
-                            break
-                        f.write(chunk)
-                    f.close()
-
+                while True:
+                    chunk = response.read(CHUNK)
+                    if not chunk:
+                        break
+                    cachedFile.write(chunk)
             return fileName
         except:
             if response is None or response.status != 304:
                 raise
+        finally:
+            if cachedFile is not None:
+                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
     def fetchScript(self, savePath, scriptId):
@@ -286,22 +292,29 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + self.apiMap['fetchScript']
 
+        cachedFile = None
         response = None
         try:
+            cachedFile = open(cachedFilePath, 'a+')
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
+                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+                cachedFile.truncate(0)
                 CHUNK = 16 * 1024
-                with open(cachedFilePath, 'wb') as f:
-                    while True:
-                        chunk = response.read(CHUNK)
-                        if not chunk:
-                            break
-                        f.write(chunk)
-                    f.close()
+
+                while True:
+                    chunk = response.read(CHUNK)
+                    if not chunk:
+                        break
+                    cachedFile.write(chunk)
         except:
             if response is None or response.status != 304:
                 raise
+        finally:
+            if cachedFile is not None:
+                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
 
         return savePath
 
