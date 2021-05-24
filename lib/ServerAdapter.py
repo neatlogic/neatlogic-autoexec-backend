@@ -30,8 +30,8 @@ class ServerAdapter:
             'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
-            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
         }
 
@@ -42,7 +42,7 @@ class ServerAdapter:
 
         self.serverUserName = context.config.get('server', 'server.username')
         self.serverPassword = context.config.get('server', 'server.password')
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')))
+        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -143,14 +143,14 @@ class ServerAdapter:
         paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
-    def getNodes(self, phase=None):
+    def getNodes(self, phase):
         params = {
             'jobId': self.context.jobId,
             'phase': ''
         }
 
         if phase is not None:
-            params['phase'] = '系统'
+            params['phase'] = phase
 
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
