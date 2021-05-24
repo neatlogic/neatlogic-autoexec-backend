@@ -1,68 +1,52 @@
 {
-        "taskId": "156",
-        "stepId": "353",
-        "preTaskId": "156",
-        "preStepId": "353",
+        "jobId": "360782453596160",
+        "preJobId": "156",
         "parallel": 10,
+        "tenant": "develop",
+
+
+        "passThroughEnv": {
+                "stepId": "353",
+                "preStepId": "353"
+        },
+
         "arg": {
                 "fetchfile": "testfile"
         },
-        "phases": [{
+
+        "runFlow": [{
                         "pre": [{
                                 "opId": "localdemo",
-                                "opName": "local测试",
+                                "opName": "localdemo",
                                 "opType": "local",
                                 "failIgnore": false,
                                 "arg": {
                                         "tinput": "xxxx",
                                         "tselect": "yyyy",
                                         "tpassword": "{RC4}xxxxxxx",
-                                        "tfile": "testfile"
+                                        "tfile": "${fetchfile}"
                                 },
 
                                 "desc": {
                                         "tinput": "input",
                                         "tselect": "input",
                                         "tpassword": "password",
-                                        "tfile": "file"
+                                        "tfile": "input"
                                 },
                                 "output": {
                                         "outtext": "text",
-                                        "outfile": "file"
+                                        "outfile": "input"
                                 }
                         }]
                 },
                 {
                         "run": [{
-                                        "opId": "localdemo",
-                                        "opName": "local测试",
-                                        "opType": "local",
-                                        "failIgnore": false,
-                                        "arg": {
-                                                "tinput": "xxxx",
-                                                "tselect": "yyyy",
-                                                "tpassword": "{RC4}xxxxxxx",
-                                                "tfile": "testfile"
-                                        },
-
-                                        "desc": {
-                                                "tinput": "input",
-                                                "tselect": "input",
-                                                "tpassword": "password",
-                                                "tfile": "file"
-                                        },
-                                        "output": {
-                                                "outtext": "text",
-                                                "outfile": "file"
-                                        }
-                                },
-                                {
-                                        "opId": "localremotedemo",
-                                        "opName": "localremote测试",
+                                        "opId": "localremotedemo_tttt",
+                                        "opName": "localremotedemo",
                                         "opType": "localremote",
                                         "failIgnore": false,
                                         "arg": {
-                                                "tinput": "${localdemo.outtext}",
+                                                "tinput": "${pre.localdemo.outtext}",
                                                 "tselect": "yyyy",
                                                 "tpassword": "{RC4}xxxxxxx",
                                                 "tfile": "testfile"
@@ -72,11 +56,36 @@
                                                 "tinput": "input",
                                                 "tselect": "input",
                                                 "tpassword": "password",
-                                                "tfile": "file"
+                                                "tfile": "input"
+                                        },
+
+                                        "output": {
+                                                "outtext": "text",
+                                                "outfile": "input"
+                                        }
+                                },
+                                {
+                                        "opId": "remotedemo_34234",
+                                        "opName": "remotedemo",
+                                        "opType": "remote",
+                                        "interpreter": "perl",
+                                        "failIgnore": false,
+                                        "arg": {
+                                                "tinput": "${run.localremotedemo_tttt.outtext}",
+                                                "tselect": "yyyy",
+                                                "tpassword": "{RC4}xxxxxxx",
+                                                "tfile": "testfile"
+                                        },
+
+                                        "desc": {
+                                                "tinput": "input",
+                                                "tselect": "input",
+                                                "tpassword": "password",
+                                                "tfile": "input"
                                         },
                                         "output": {
                                                 "outtext": "text",
-                                                "outfile": "file"
+                                                "outfile": "input"
                                         }
                                 }
                         ]
@@ -84,7 +93,7 @@
                 {
                         "post": [{
                                         "opId": "localdemo",
-                                        "opName": "local测试",
+                                        "opName": "localdemo",
                                         "opType": "local",
                                         "failIgnore": false,
                                         "arg": {
@@ -98,16 +107,16 @@
                                                 "tinput": "input",
                                                 "tselect": "input",
                                                 "tpassword": "password",
-                                                "tfile": "file"
+                                                "tfile": "input"
                                         },
                                         "output": {
                                                 "outtext": "text",
-                                                "outfile": "file"
+                                                "outfile": "input"
                                         }
                                 },
                                 {
                                         "opId": "localdemo",
-                                        "opName": "local测试",
+                                        "opName": "localdemo",
                                         "opType": "local",
                                         "failIgnore": false,
                                         "arg": {
@@ -121,11 +130,11 @@
                                                 "tinput": "input",
                                                 "tselect": "input",
                                                 "tpassword": "password",
-                                                "tfile": "file"
+                                                "tfile": "input"
                                         },
                                         "output": {
                                                 "outtext": "text",
-                                                "outfile": "file"
+                                                "outfile": "input"
                                         }
                                 }
                         ]

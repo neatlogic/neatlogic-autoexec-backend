@@ -5,6 +5,9 @@
 """
 import sys
 import os
+import fcntl
+import ssl
+import time
 import json
 import base64
 import urllib.request
@@ -18,11 +21,18 @@ from AutoExecError import AutoExecError
 class ServerAdapter:
 
     def __init__(self, context):
+        ssl._create_default_https_context = ssl._create_unverified_context
+
         # api路径的映射
         self.apiMap = {
-            'getparams': 'params.json',
-            'getnodes': 'nodes.json',
-            'fetchfile': 'fetchfile'
+            'register': '/codedriver/public/api/rest/autoexec/tool/register',
+            'getparams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
+            'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
+            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
         }
 
         self.context = context
@@ -44,6 +54,7 @@ class ServerAdapter:
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                    'User-Agent': userAgent,
+                   'Tenant': self.context.tenant,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
@@ -52,7 +63,12 @@ class ServerAdapter:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
         return response
@@ -61,16 +77,23 @@ class ServerAdapter:
         url = self.serverBaseUrl + apiUri
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'User-Agent': userAgent,
+                   'Tenant': self.context.tenant,
                    'Authorization': authToken}
 
         data = urllib.parse.urlencode(params)
-        req = urllib.request.Request(url + '?' + data)
+        url = url + '?' + data
+        req = urllib.request.Request(url)
         self.addHeaders(req, headers)
 
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -81,7 +104,8 @@ class ServerAdapter:
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         headers = {'Content-Type': 'application/json; charset=utf-8',
                    'User-Agent': userAgent,
-                   'Authorization': authToken}
+                   'Tenant': self.context.tenant,
+                   'Authorization': authToken, }
 
         req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
         self.addHeaders(req, headers)
@@ -89,16 +113,21 @@ class ServerAdapter:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.code, ex))
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
         return response
 
+    # 获取作业的运行参数文件params.json
     def getParams(self):
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId
+            'jobId': self.context.jobId
         }
 
         # response = self.httpPOST(self.apiMap['getparams'], self.authToken, params)
@@ -113,20 +142,21 @@ class ServerAdapter:
 
         paramsFile.close()
 
+    # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None):
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId
+            'jobId': self.context.jobId,
+            'phase': ''
         }
 
         if phase is not None:
-            params['phase'] = phase
+            params['phase'] = '系统'
 
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
 
         if response.status == 200:
-            nodesFilePath = self.context.nodesFilePath
+            nodesFilePath = self.context.getNodesFilePath(phase)
             nodesFile = open(nodesFilePath, 'w')
 
             for line in response:
@@ -138,21 +168,72 @@ class ServerAdapter:
             # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
-    def pushNodeStatus(self, runNode, status, consumeTime):
+    # 更新运行阶段某个节点的状态到服务端
+    def pushNodeStatus(self, phaseName, runNode, status, failIgnore):
+        if self.context.devMode:
+            return
+
         params = {
-            'stepId': self.context.stepId,
-            'taskId': self.context.taskId,
+            'jobId': self.context.jobId,
+            'phase': phaseName,
             'nodeId': runNode.node,
             'output': runNode.output,
             'status': status,
-            'time': consumeTime
+            'failIgnore': failIgnore,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
         }
+        response = self.httpJSON(self.apiMap['updateNodeStatus'], self.authToken, params)
 
-        response = self.httpJSON('callback', self.authToken, params)
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
 
+    # 更新运行端阶段的状态
+    def pushPhaseStatus(self, phaseName, status, fireNext=0):
+        if self.context.devMode:
+            return
+
+        params = {
+            'jobId': self.context.jobId,
+            'phase': phaseName,
+            'status': status,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
+
+    # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def fireNextPhase(self, phaseName):
+        if self.context.devMode:
+            return
+
+        params = {
+            'jobId': self.context.jobId,
+            'phase': phaseName,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None
+
+    # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
         params = {
-            'fileId': fileId
+            'id': fileId
         }
 
         cachedFilePath = savePath + '/' + fileId
@@ -160,12 +241,15 @@ class ServerAdapter:
         if os.path.exists(cachedFilePath):
             lastModifiedTime = os.path.getmtime(cachedFilePath)
 
-        params['lastModifed'] = lastModifiedTime
+        params['lastModified'] = lastModifiedTime
 
         url = self.serverBaseUrl + self.apiMap['fetchfile']
 
+        cachedFile = None
         fileName = None
+        response = None
         try:
+            cachedFile = open(cachedFilePath, 'a+')
             response = self.httpGET(self.apiMap['fetchfile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -176,16 +260,70 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
+                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+                cachedFile.truncate(0)
                 CHUNK = 16 * 1024
-                with open(cachedFilePath, 'wb') as f:
-                    while True:
-                        chunk = response.read(CHUNK)
-                        if not chunk:
-                            break
-                        f.write(chunk)
-                    f.close()
+                while True:
+                    chunk = response.read(CHUNK)
+                    if not chunk:
+                        break
+                    cachedFile.write(chunk)
+            return fileName
         except:
-            if response.status != 304:
+            if response is None or response.status != 304:
                 raise
+        finally:
+            if cachedFile is not None:
+                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
 
-        return fileName
+    # 从自定义脚本库下载脚本到脚本目录
+    def fetchScript(self, savePath, scriptId):
+        params = {
+            'operationId': scriptId
+        }
+
+        cachedFilePath = savePath
+        lastModifiedTime = 0
+        if os.path.exists(cachedFilePath):
+            lastModifiedTime = os.path.getmtime(cachedFilePath)
+
+        params['lastModified'] = lastModifiedTime
+
+        url = self.serverBaseUrl + self.apiMap['fetchScript']
+
+        cachedFile = None
+        response = None
+        try:
+            cachedFile = open(cachedFilePath, 'a+')
+            response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
+
+            if response.status == 200:
+                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+                cachedFile.truncate(0)
+                CHUNK = 16 * 1024
+
+                while True:
+                    chunk = response.read(CHUNK)
+                    if not chunk:
+                        break
+                    cachedFile.write(chunk)
+        except:
+            if response is None or response.status != 304:
+                raise
+        finally:
+            if cachedFile is not None:
+                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
+
+        return savePath
+
+    # 注册native工具到服务端工具库
+    def registerTool(self, toolObj):
+        response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
+
+        try:
+            content = response.read()
+            return json.loads(content)
+        except:
+            return None

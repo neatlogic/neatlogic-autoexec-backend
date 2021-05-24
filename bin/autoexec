@@ -5,51 +5,37 @@
 """
 import os
 import sys
-binPaths = os.path.split(os.path.realpath(__file__))
-libPath = os.path.realpath(binPaths[0]+'/../lib')
-sys.path.append(libPath)
-
+import threading
+import initenv
 import platform
 import argparse
 import time
 import signal
+from shutil import copyfile
 import re
 import json
 import logging
 from logging.handlers import RotatingFileHandler
 
 import Context
+import ServerAdapter
 import Operation
-import TaskExecutor
-
-class ExecError(RuntimeError):
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
+import PhaseExecutor
+import NodeStatus
 
 
 class Runner:
-    def __init__(self, stepId, taskId, isForce=False, failBreak=False, dataPath=None):
+    def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, devMode=False, dataPath=None):
         # 初始化运行上下文
-        context = Context.Context(stepId, taskId, isForce, failBreak, dataPath)
+        context = Context.Context(jobId, paramsFile, isForce, devMode, dataPath)
         self.context = context
-        self.executor = None
+        self.localDefinedParams = False
+        self.localDefinedNodes = False
 
         loggingLevel = context.config.get('autoexec', 'logging.level')
 
         pPaths = os.path.split(os.path.realpath(__file__))
         homePath = os.path.realpath(pPaths[0]+'/..')
-        sys.path.append(homePath + '/plugins/local/bin')
-        sys.path.append(homePath + '/plugins/local/lib')
-        sys.path.append(homePath + '/plugins/local/tools')
-
-        if 'PERLLIB' in os.environ:
-            os.environ['PERLLIB'] = '{}:{}'.format(homePath + '/plugins/local/lib', os.environ['PERLLIB'])
-        else:
-            os.environ['PERLLIB'] = homePath + '/plugins/local/lib'
 
         logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
         logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
@@ -62,23 +48,34 @@ class Runner:
         # 切换到任务的执行路径
         os.chdir(context.runPath)
 
-        # 获取运行参数和运行节点参数文件
-        serverAdapter = context.serverAdapter
-        serverAdapter.getParams()
-        serverAdapter.getNodes()
+        if 'runNode' in context.params:
+            # 如果在参数文件中声明了runNode，则以此作为运行目标，用于工具测试的执行，所以不支持phase内部定义runNode
+            self.localDefinedNodes = True
+            dstPath = '{}/nodes.json'.format(self.context.runPath)
+            nodesFile = open(dstPath, 'w')
+            for node in context.params['runNode']:
+                nodesFile.write(json.dump(node))
+            nodesFile.close()
+        elif nodesFile is None or nodesFile == '':
+            # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
+            serverAdapter.getNodes()
+        else:
+            # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
+            self.localDefinedNodes = True
+            # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
+            dstPath = '{}/nodes.json'.format(self.context.runPath)
+            if os.path.exists(nodesFile):
+                if dstPath != os.path.realpath(nodesFile):
+                    copyfile(nodesFile, dstPath)
+            else:
+                print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
 
-        # 加载运行参数文件
-        paramFile = open(context.paramsFilePath, 'r')
-        self.params = json.loads(paramFile.read())
+    def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
+        phaseStatus = self.context.phases[phaseName]
+        phaseStatus.hasLocal = False
+        phaseStatus.hasRemote = False
 
-        if 'arg' in self.params:
-            self.context.arg = self.params['arg']
-
-        paramFile.close()
-
-    def execOperations(self, opsParams, opArgsRefMap, parallelCount):
-        self.context.hasLocal = False
-        self.context.hasRemote = False
+        self.context.initDB(parallelCount)
 
         operations = []
         # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
@@ -94,76 +91,164 @@ class Runner:
 
             # 如果有本地操作，则在context中进行标记
             if op.opType == 'local':
-                self.context.hasLocal = True
+                phaseStatus.hasLocal = True
             else:
-                self.context.hasRemote = True
+                phaseStatus.hasRemote = True
 
             operations.append(op)
 
-        executor = TaskExecutor.TaskExecutor(self.context, operations, parallelCount)
-        self.executor = executor
+        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, parallelCount)
+        phaseStatus.executor = executor
         return executor.execute()
 
+    def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
+        serverAdapter = self.context.serverAdapter
+        if not self.localDefinedNodes:
+            serverAdapter.getNodes(phaseName)
+
+        self.context.addPhase(phaseName)
+        phaseStatus = self.context.phases[phaseName]
+        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
+        self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
+        failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
+        if failCount == 0:
+            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
+        else:
+            self.context.hasFailNodeInGlobal = True
+            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
+        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
+        print("--------------------------------------------------------------------------------------\n")
+
     def execute(self):
-        params = self.params
+        params = self.context.params
         parallelCount = 25
         if 'parallel' in params:
             parallelCount = int(params['parallel'])
+            self.context.parallelCount = parallelCount
 
         opArgsRefMap = {}
 
-        failCount = 0
-        if 'phases' in params:
-            for phase in params['phases']:
-                phaseName = None
-                phaseNames = list(phase.keys())
-                if len(phaseNames) > 0:
-                    phaseName = phaseNames[0]
+        if 'runFlow' in params:
+            for phaseGroup in params['runFlow']:
+                # runFlow是一个数组，每个元素是一个phaseGroup
+                threads = []
+                # 每个group有多个phase，使用线程并发执行
+                for phaseName, phaseConfig in phaseGroup.items():
+                    if not self.context.hasFailNodeInGlobal:
+                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
+                        thread.start()
+                        threads.append(thread)
 
-                if phaseName is not None:
-                    if failCount == 0:
-                        serverAdapter = self.context.serverAdapter
-                        serverAdapter.getNodes(phaseName)
-                        self.context.setPhase(phaseName)
-                        self.context.resetCounter()
-                        print("INFO: Begin to execute phase:{} operations...".format(phaseName))
-                        failCount = self.execOperations(phase[phaseName], opArgsRefMap, parallelCount)
-                        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, skipCount:{}".format(phaseName, self.context.sucNodeCount, self.context.failNodeCount, self.context.skipNodeCount))
-                        print("--------------------------------\n")
+                for thread in threads:
+                    thread.join()
 
-        if failCount == 0:
-            print("INFO: ======Execute succeed======")
-        else:
+        status = 0
+        if self.context.hasFailNodeInGlobal:
+            status = 1
             print("INFO: ======Execute failed======")
+        else:
+            # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
+            self.context.serverAdapter.pushPhaseStatus(None, '', 1)
+            print("INFO: ======Execute succeed======")
 
-        return failCount
+        return status
 
     def kill(self):
         self.context.goToStop = True
-        if self.executor is not None:
-            self.executor.kill()
+        # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
+        for phaseStatus in self.context.phases.values():
+            if phaseStatus.executor is not None:
+                phaseStatus.executor.kill()
+
+
+def _getLogSubPath(jobId):
+    jobIdStr = str(jobId)
+    jobIdLen = len(jobIdStr)
+    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
+    return '/'.join(subPath)
+
+
+def registerTools(serverAdapter, pluginsPath, opType):
+    os.chdir(pluginsPath + '/' + opType)
+    with os.scandir() as iterator:
+        for entry in iterator:
+            if entry.is_dir():
+                descPath = entry.name + '/' + entry.name + '.json'
+                if os.path.isfile(descPath):
+                    print("INFO: Begin to register tool:{}/{}...\n".format(opType, entry.name))
+                    descFile = open(descPath, 'r')
+                    pluginObj = json.loads(descFile.read())
+                    pluginObj['opName'] = entry.name
+                    # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
+                    if opType == 'local':
+                        if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
+                            pluginObj['opType'] = 'runner_target'
+                        else:
+                            pluginObj['opType'] = 'runner'
+
+                    if opType == 'remote':
+                        pluginObj['opType'] = 'target'
+
+                    try:
+                        retObj = serverAdapter.registerTool(pluginObj)
+                        if 'Status' in retObj and retObj['Status'] == 'OK':
+                            print("INFO: Register tool:{}/{} success.\n".format(opType, entry.name))
+                    except Exception as ex:
+                        print("ERROR: Register tool:{}/{} failed, {}\n".format(opType, entry.name, ex))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
-    parser.add_argument('--stepid', '-s', default='00', help='Step id for task, default is "00"')
-    parser.add_argument('--taskid', '-t', default='00', help='Task id for this execution')
+    parser.add_argument('--jobid', '-j', default='0', help='Job id for this execution')
+    parser.add_argument('--execuser', '-u', default='anonymous',  help='Operator')
+    parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
+    parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
-    parser.add_argument('--failbreak', '-b', default=False, action='store_true', help='Break the running loop while the node status is failed')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
+    parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
+    parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
 
     args = parser.parse_args()
-    print("INFO: StepId:{}, TaskId:{}, isForce:{}".format(args.stepid, args.taskid, args.force))
 
-    if not args.abort:
-        os.environ['AUTOEXEC_TASKID'] = args.taskid
-        os.environ['AUTOEXEC_STEPID'] = args.stepid
-        runner = Runner(args.stepid, args.taskid, args.force, args.failbreak)
+    binPaths = os.path.split(os.path.realpath(__file__))
+    homePath = os.path.realpath(binPaths[0]+'/..')
+
+    if not args.devmode and not sys.stdout.isatty():
+        logDir = consoleLogPath = '{}/data/job/{}/log'.format(homePath, _getLogSubPath(args.jobid))
+        consoleHisLogDir = logDir + '/console.hislog'
+        if not os.path.isdir(consoleHisLogDir):
+            os.mkdir(consoleHisLogDir)
+
+        consoleLogPath = logDir + '/console.txt'
+        consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+
+        f = open(consoleLogPath, 'w')
+        os.link(consoleLogPath, consoleHisLogPath)
+        sys.stdout = f
+        sys.stderr = f
+
+    if args.register:
+        pluginsPath = homePath + '/plugins'
+
+        # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
+        vContext = Context.Context(0)
+        vContext.tenant = args.register
+        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+        registerTools(serverAdapter, pluginsPath, 'local')
+        registerTools(serverAdapter, pluginsPath, 'remote')
+
+    elif not args.abort:
+        print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}\n".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
+
+        os.environ['AUTOEXEC_JOBID'] = args.jobid
+        runner = Runner(args.jobid, isForce=args.force, paramsFile=args.paramsfile, nodesFile=args.nodesfile, devMode=args.devmode)
 
         def handler(signum, frame):
             runner.kill()
 
+        # 注册TERM、INT的信号，当kill是响应信号进行退出处理，kill是另外独立的autoexec进程，仅仅发送一个信号
         signal.signal(signal.SIGTERM, handler)
         signal.signal(signal.SIGINT, handler)
 
@@ -172,6 +257,8 @@ if __name__ == "__main__":
 
         sys.exit(runner.execute())
     else:
+        print("INFO: try to kill job:{}\n".format(args.jobid))
+
         loopCount = 0
         hasProcess = True
         while hasProcess:
@@ -182,15 +269,19 @@ if __name__ == "__main__":
                         if re.match('^\d+$', entry.name):
                             pid = entry.name
                             try:
-                                f = open(entry.path + '/environ')
-                                content = f.read()
-                                if re.match('AUTOEXEC_TASKID=' + args.taskid, content) and re.match('AUTOEXEC_STEPID=' + args.stepid, content):
-                                    hasProcess = True
-                                    if loopCount < 10:
-                                        os.kill(pid, signal.SIGTERM)
-                                    else:
-                                        os.kill(pid, signal.SIGKILL)
-                                        break
+                                cf = open(entry.path + '/comm')
+                                comm = cf.read()
+                                comm.strip()
+                                if comm == 'autoexec':
+                                    f = open(entry.path + '/environ')
+                                    content = f.read()
+                                    if re.match('AUTOEXEC_JOBID=' + args.jobid, content):
+                                        hasProcess = True
+                                        if loopCount < 10:
+                                            os.kill(pid, signal.SIGTERM)
+                                        else:
+                                            os.kill(pid, signal.SIGKILL)
+                                            break
                             except:
                                 pass
             if hasProcess and loopCount < 10:

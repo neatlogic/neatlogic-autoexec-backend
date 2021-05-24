@@ -12,10 +12,17 @@ import RunNode
 
 class RunNodeFactory:
 
-    def __init__(self, context):
+    def __init__(self, context, phaseName):
         self.context = context
-        self.runPath = context.runPath
-        self.nodesFile = open(self.runPath + '/nodes.json', 'r')
+        self.phaseName = phaseName
+        self.nodesFile = None
+
+        nodesFilePath = context.getNodesFilePath(phaseName)
+        if os.path.isfile(nodesFilePath):
+            self.nodesFile = open(nodesFilePath)
+        else:
+            nodesFilePath = context.getNodesFilePath()
+            self.nodesFile = open(nodesFilePath)
 
         line = self.nodesFile.readline()
         self.nodesFile.seek(0)
@@ -43,7 +50,7 @@ class RunNodeFactory:
 
         if line:
             nodeObj = json.loads(line)
-            runNode = RunNode.RunNode(self.context, nodeObj)
+            runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
             self.nodesFile.close()
 

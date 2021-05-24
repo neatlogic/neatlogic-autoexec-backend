@@ -8,6 +8,7 @@
 """
 import sys
 import os
+import fcntl
 import subprocess
 import re
 import json
@@ -21,18 +22,52 @@ class Operation:
 
     def __init__(self, context, opsParam, param):
         self.context = context
-        self.stepId = context.stepId
-        self.taskId = context.taskId
+        self.jobId = context.jobId
         self.opsParam = opsParam
         self.opId = param['opId']
         self.opName = param['opName']
+        self.isScript = 0
+        self.interpreter = ''
+        self.scriptId = ''
+        self.lockedFD = []
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
         # localremote：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
         # local：在本地运行，与运行节点无关，只会运行一次
         self.opType = param['opType']
+        self.opTypeDesc = {
+            "local": "Runner本地执行",
+            "remote": "远程执行",
+            "localremote": "Runner本地连接远程执行"
+        }
+
+        self.extNameMap = {
+            'perl': '.pl',
+            'python': '.py',
+            'ruby': '.rb',
+            'cmd': '.bat',
+            'powershell': '.ps1',
+            'vbscript': '.vbs',
+            'javascript:': '.js'
+        }
+
+        # 把runner、target、runner_target转换为local、remote、localremote
+        if self.opType == 'runner':
+            self.opType = 'local'
+
+        elif self.opType == 'target':
+            self.opType = 'remote'
+        elif self.opType == 'runner_target':
+            self.opType = 'localremote'
         ##############
+
+        if 'isScript' in param:
+            self.isScript = param['isScript']
+            if 'scriptId' in param:
+                self.scriptId = param['scriptId']
+        if 'interpreter' in param:
+            self.interpreter = param['interpreter']
 
         # failIgnore参数，用于插件运行失败不影响后续插件运行
         self.failIgnore = False
@@ -56,16 +91,24 @@ class Operation:
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
-        self.localPluginPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opId)
-        self.remotePluginPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opId)
         self.remoteLibPath = '{}/plugins/remote/lib'.format(self.context.homePath)
 
-        # 不需要了，因为节点运行时会复制操作对象，所以放到节点运行时进行操作的参数处理
-        # self.parseParam(self.context.output)
-        #cmd = self.opId
-        # for k, v in self.options.items():
-        #    cmd = cmd + ' --{} "{}" '.format(k, v)
-        #self.cmdline = cmd
+        self.pluginPath = None
+        self.pluginParentPath = None
+
+        if self.isScript == 1:
+            scriptFileName = self.opName + self.extNameMap[self.interpreter]
+
+            self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
+            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
+
+        else:
+            if self.opType == 'remote':
+                self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+            else:
+                self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
 
         if not os.path.exists('file'):
             os.mkdir('file')
@@ -82,6 +125,11 @@ class Operation:
         if not os.path.exists('output-op'):
             os.mkdir('output-op')
 
+    def __del__(self):
+        for lockFD in self.lockedFD:
+            fcntl.lockf(lockFD, fcntl.LOCK_UN)
+            lockFD.close()
+
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
         opDesc = {}
@@ -95,7 +143,10 @@ class Operation:
             if argName in opDesc:
                 argType = opDesc[argName]
                 if(argType == 'password' and argValue[0:5] == '{RC4}'):
-                    argValue = Utils.rc4(self.passKey, argValue[5:])
+                    try:
+                        argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
+                    except:
+                        print("WARN: Decrypt password arg:{}->{} failed.\n".format(self.opName, argName))
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', argValue)
                     if not matchObj:
@@ -115,18 +166,34 @@ class Operation:
             fileName = argName
 
         cacheFilePath = cachePath + '/' + fileId
+
+        cacheFile = open(cacheFilePath, 'r')
+        fcntl.flock(cacheFile, fcntl.LOCK_SH)
+        self.append(cacheFile)
+
         linkPath = self.runPath + '/file/' + fileName
         if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
             os.unlink(linkPath)
 
         if not os.path.exists(linkPath):
-            os.symlink(cacheFilePath, linkPath)
+            os.link(cacheFilePath, linkPath)
 
         return fileName
 
+    # 获取script
+    def fetchScript(self, scriptId, savePath):
+        savePath = '{}/script/{}.{}'.format(self.pluginRootPath, scriptId, self.extNameMap[self.interpreter])
+
+        scriptFile = open(savePath, 'r')
+        fcntl.flock(scriptFile, fcntl.LOCK_SH)
+        self.append(scriptFile)
+
+        serverAdapter = self.context.serverAdapter
+        serverAdapter.fetchFile(savePath, scriptId)
+
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
-            refMap = self.opsParam
+            refMap = self.context.output
 
         # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
         matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', argValue)
@@ -139,19 +206,24 @@ class Operation:
                 raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
         else:
             # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
-            matchObj = re.match(r'^\s*\$\{\s*([^\.]+?)\.(.+)\s*\}\s*$', argValue)
+            matchObj = re.match(r'^\s*\$\{\s*(.+)\s*\}\s*$', argValue)
             if matchObj:
+                varName = matchObj.group(1)
+                varNames = varName.split('.', 3)
                 newArgValue = None
-                opId = matchObj.group(1)
-                paramName = matchObj.group(2)
+                opId = None
+                paramName = None
+                if len(varNames) == 3:
+                    opId = varNames[1]
+                    paramName = varNames[2]
+                else:
+                    opId = varNames[0]
+                    paramName = varNames[1]
+
                 if opId in refMap:
                     paramMap = refMap[opId]
                     if paramName in paramMap:
                         newArgValue = paramMap[paramName]
-                # elif 'local' in self.context.output:
-                #    paramMap = self.context.output['local']
-                #    if paramName in paramMap:
-                #        newArgValue = paramMap[paramName]
 
                 if newArgValue is not None:
                     argValue = newArgValue
@@ -160,8 +232,56 @@ class Operation:
 
         return argValue
 
-    def getCmdLine(self):
-        cmd = self.opId
+    def getCmdLine(self, fullPath=False, osType='linux'):
+        cmd = None
+        if self.isScript:
+            if self.opType == 'remote':
+                # 如果自定义脚本远程执行，为了避免中文名称带来的问题，使用opId来作为脚本文件的名称
+                if osType == 'windows':
+                    # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
+                    if self.interpreter == 'cmd':
+                        cmd = 'cmd /c {}'.format(self.opId)
+                    elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                        cmd = 'cscript {}'.format(self.opId)
+                    else:
+                        cmd = '{} {}'.format(self.interpreter, self.opId)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opId)
+            else:
+                if fullPath:
+                    cmd = '{} {}'.format(self.interpreter, self.pluginPath)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opName)
+        else:
+            # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
+            if self.opType == 'remote':
+                if osType == 'windows':
+                    # 如果是windows，windows的脚本执行必须要脚本具备扩展名
+                    extName = self.extNameMap[self.interpreter]
+                    nameWithExt = self.opName
+                    if self.opName.endswith(extName):
+                        nameWithExt = self.opName + extName
+                        if self.interpreter == 'cmd':
+                            cmd = 'cmd /c {}'.format(self.opName)
+                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                            cmd = 'cscript {}'.format(self.opName)
+                        else:
+                            cmd = '{} {}'.format(self.interpreter, self.opName)
+                    else:
+                        if self.interpreter == 'cmd':
+                            cmd = 'rename {} {} && cmd /c {}'.format(self.opName, nameWithExt, nameWithExt)
+                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                            cmd = 'rename {} {} && cscript {}'.format(self.opName, nameWithExt, nameWithExt)
+                        else:
+                            cmd = 'rename {} {} && {} {}'.format(self.opName, nameWithExt, self.interpreter, self.opName)
+                else:
+                    cmd = '{} {}'.format(self.interpreter, self.opName)
+            else:
+                if fullPath:
+                    cmd = self.pluginPath
+                else:
+                    cmd = self.opName
+
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:
@@ -179,7 +299,12 @@ class Operation:
         return cmd
 
     def getCmdLineHidePassword(self):
-        cmd = self.opId
+        cmd = None
+        if self.isScript:
+            cmd = self.interpreter + ' ' + self.opName
+        else:
+            cmd = self.opName
+
         for k, v in self.options.items():
             isNodeParam = False
             if 'desc' in self.param and k in self.param['desc']:
