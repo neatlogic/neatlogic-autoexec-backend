@@ -170,12 +170,13 @@ class ServerAdapter:
                 nodesFile.write("\n")
 
             nodesFile.close()
-        elif response.status == 302:
-            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-            pass
-        elif response.status == 304:
-            # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出304反馈，代表没有更改，不需要处理
-            pass
+
+            if response.status == 205:
+                # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+                pass
+            elif response.status == 204:
+                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
+                pass
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore):
@@ -258,7 +259,7 @@ class ServerAdapter:
         fileName = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'a+')
+            cachedFile = open(cachedFilePath, 'wb+')
             response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -279,7 +280,7 @@ class ServerAdapter:
                     cachedFile.write(chunk)
             return fileName
         except:
-            if response is None or response.status != 304:
+            if response is None or response.status != 204:
                 raise
         finally:
             if cachedFile is not None:
@@ -304,21 +305,18 @@ class ServerAdapter:
         cachedFile = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'a+')
+            cachedFile = open(cachedFilePath, 'w+')
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
+                retObj = json.loads(response.read())
+                scriptContent = retObj['Return']['script']
+
                 fcntl.lockf(cachedFile, fcntl.LOCK_EX)
                 cachedFile.truncate(0)
-                CHUNK = 16 * 1024
-
-                while True:
-                    chunk = response.read(CHUNK)
-                    if not chunk:
-                        break
-                    cachedFile.write(chunk)
+                cachedFile.write(scriptContent)
         except:
-            if response is None or response.status != 304:
+            if response is None or response.status != 204:
                 raise
         finally:
             if cachedFile is not None:
