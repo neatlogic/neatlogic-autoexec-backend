@@ -47,6 +47,14 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 >* 如果在测试模式下或者当前进程关联了TTY，autoexec的console输出日志回直接打印到console。如果在生产模式下运行，console输出会写入日志文件中。运行目标相关的日志，不管在哪个模式下都会写入每个运行目标独立的日志文件中。
 
 ### 生产模式
+- 注册内置工具
+
+```shell
+$ python3 bin/autoexec --register tenant_name
+```
+
+*注册autoexec下的local和remote工具到某个租户下，tenant_name是租户的名称*
+
 - 运行作业
 
 ```shell
