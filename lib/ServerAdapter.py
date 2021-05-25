@@ -26,10 +26,10 @@ class ServerAdapter:
         # api路径的映射
         self.apiMap = {
             'register': '/codedriver/public/api/rest/autoexec/tool/register',
-            'getparams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
-            'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
+            'getParams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
+            'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchScript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
@@ -130,8 +130,8 @@ class ServerAdapter:
             'jobId': self.context.jobId
         }
 
-        # response = self.httpPOST(self.apiMap['getparams'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getparams'], self.authToken, params)
+        # response = self.httpPOST(self.apiMap['getParams'], self.authToken, params)
+        response = self.httpGET(self.apiMap['getParams'], self.authToken, params)
 
         paramsFilePath = self.context.paramsFilePath
         paramsFile = open(paramsFilePath, 'w')
@@ -159,8 +159,8 @@ class ServerAdapter:
 
         params['lastModified'] = lastModifiedTime
 
-        # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
+        # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
+        response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
         if response.status == 200:
             nodesFile = open(nodesFilePath, 'w')
@@ -252,14 +252,14 @@ class ServerAdapter:
 
         params['lastModified'] = lastModifiedTime
 
-        url = self.serverBaseUrl + self.apiMap['fetchfile']
+        url = self.serverBaseUrl + self.apiMap['fetchFile']
 
         cachedFile = None
         fileName = None
         response = None
         try:
             cachedFile = open(cachedFilePath, 'a+')
-            response = self.httpGET(self.apiMap['fetchfile'], self.authToken, params)
+            response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
             contentDisposition = resHeaders['Content-Disposition']
