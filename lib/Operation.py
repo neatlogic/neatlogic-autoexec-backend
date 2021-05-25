@@ -185,7 +185,7 @@ class Operation:
 
     # 获取script
     def fetchScript(self, savePath, scriptId):
-        scriptFile = open(savePath, 'r')
+        scriptFile = open(savePath, 'a+')
         fcntl.flock(scriptFile, fcntl.LOCK_SH)
         self.append(scriptFile)
 
