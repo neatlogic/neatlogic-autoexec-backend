@@ -5,6 +5,7 @@
 """
 import sys
 import os
+import stat
 import fcntl
 import ssl
 import time
@@ -322,6 +323,7 @@ class ServerAdapter:
             if cachedFile is not None:
                 fcntl.lockf(cachedFile, fcntl.LOCK_UN)
                 cachedFile.close()
+                os.chmod(savePath, stat.S_IRWXU)
 
         return savePath
 
