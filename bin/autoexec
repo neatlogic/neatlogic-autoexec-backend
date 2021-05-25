@@ -58,14 +58,7 @@ class Runner:
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
-            serverAdapter = self.context.serverAdapter
-            # 根据param.json获取phase
-            paramPath = '{}/params.json'.format(self.context.runPath)
-            descFile = open(descPath, 'r')
-            paramObj = json.loads(descFile.read())
-            for phaseGroup in paramObj["runFlow"]:
-                for phase,phaseConfig in phaseGroup.items():
-                    serverAdapter.getNodes(phase)
+            context.serverAdapter.getNodes()
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
             self.localDefinedNodes = True

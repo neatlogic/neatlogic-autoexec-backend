@@ -143,7 +143,7 @@ class ServerAdapter:
         paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
-    def getNodes(self, phase):
+    def getNodes(self, phase=None):
         params = {
             'jobId': self.context.jobId,
             'phase': ''
@@ -152,11 +152,17 @@ class ServerAdapter:
         if phase is not None:
             params['phase'] = phase
 
+        lastModifiedTime = 0
+        nodesFilePath = self.context.getNodesFilePath(phase)
+        if os.path.exists(nodesFilePath):
+            lastModifiedTime = os.path.getmtime(nodesFilePath)
+
+        params['lastModified'] = lastModifiedTime
+
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
 
         if response.status == 200:
-            nodesFilePath = self.context.getNodesFilePath(phase)
             nodesFile = open(nodesFilePath, 'w')
 
             for line in response:
@@ -164,8 +170,11 @@ class ServerAdapter:
                 nodesFile.write("\n")
 
             nodesFile.close()
+        elif response.status == 302:
+            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+            pass
         elif response.status == 304:
-            # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
+            # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
     # 更新运行阶段某个节点的状态到服务端
