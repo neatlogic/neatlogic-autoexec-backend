@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Utils;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use Net::FTP::Recursive;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [-h|--host <hostname>] [-p|--port <hostname>] [-u|--user <username>] [--pass <password>] [--direction <push|pull>] [--src <src>] [--dest <dest>] \n");
+    print("       host:        remote host name or ip\n");
+    print("       port:        remote host port \n");
+    print("       username:    ssh logon username\n");
+    print("       password:    ssh logon password\n");
+    print("       direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       src: copy source path ,many src path , separated .\n");
+    print("       dest: remote target path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest );
+
+    Utils::setEnv();
+    my $pname = basename($0);
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'h|host:s'    => \$host,
+        'p|port:i'    => \$port,
+        'u|user:s'    => \$user,
+        'pass:s'      => \$pass,
+        'direction:s' => \$direction,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest
+    );
+
+    my $optionError = 0;
+    if ( not defined($host) or $host eq '' ) {
+        print("ERROR: must define remote host.\n");
+        $optionError = 1;
+    }
+
+    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
+        print("ERROR: must define user and password.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: must define src path.\n");
+        usage();
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = 21;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $isSuccess = 0;
+    my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
+    $ftp->login( "ftpadmin", 'ftpadmin' ) or die "ERROR::$user login failed.\n";
+    $ftp->binary();
+    print("INFO:login ftp success.\n");
+
+    my @src_dirs = split( /,/, $src );
+    if ( $direction eq 'push' ) {
+        foreach my $target (@src_dirs) {
+            my $isFile = 0;
+            if ( !-d $target and !-e $target ) {
+                $isSuccess = 1;
+                print("ERROR:: src path $target not exists.\n");
+                last;
+            }
+            if ( -d $target ) {
+                $isFile = 0;
+            }
+            else {
+                $isFile = 1;
+            }
+            if ( $isFile == 0 ) {
+                my $target_name = basename($target);
+                print("INFO::upload folder $target.\n");
+
+                #切换目标根路径
+                $ftp->cwd($dest);
+                $ftp->mkdir($target_name);
+                $ftp->cwd($target_name);
+                chdir($target);
+                $ftp->rput($target);
+            }
+            else {
+                print("INFO::upload file $target.\n");
+                $ftp->put($target);
+            }
+        }
+    }
+    elsif ( $direction eq 'pull' ) {
+        if ( !-d $dest ) {
+            $isSuccess = 1;
+            print("ERROR:: dest path $dest not exists.\n");
+        }
+        else {
+            foreach my $target (@src_dirs) {
+                my $isFile = 0;
+                unless ( $ftp->cwd($target) ) {
+                    $isFile = 1;
+                }
+                else {
+                    $isFile = 0;
+                }
+                if ( $isFile == 0 ) {
+                    print("INFO::download folder $target.\n");
+                    my $folder = $dest . $target;
+                    system("mkdir -p $folder");
+                    chdir($folder);
+                    $ftp->rget( $target, $folder );
+                }
+                else {
+                    print("INFO::download file $target.\n");
+                    $ftp->get( $target, $dest );
+                }
+            }
+        }
+    }
+    $ftp->quit;
+    if ( $isSuccess ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+    return $isSuccess;
+}
+
+exit( main() );
+

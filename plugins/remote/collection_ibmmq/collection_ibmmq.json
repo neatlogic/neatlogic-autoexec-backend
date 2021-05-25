@@ -1,0 +1,23 @@
+{
+	"opName": "ibmmq采集插件",
+	"opType": "remote",
+	"desc": {
+		"node": {
+			"name": "节点IP",
+			"help": "执行节点IP",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		}
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
+}
+

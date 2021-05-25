@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use File::Basename;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use SCPExec;
+use Utils;
+use Cwd;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [-h|--host <host>] [-u|--user <username>] [--direction <push|pull>] [--src <src,eg:/tmp/a,tmp/b>] [--dest <dest>] [-v] [-np]\n");
+    print("       -h|--host: remote host ip .\n");
+    print("       -p|--port: remote host ssh port .\n");
+    print("       -u|--user: remote host ssh user .\n");
+    print("       --pass: remote host ssh user password .\n");
+    print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       --src: copy source path ,many src path , separated .\n");
+    print("       --dest: remote target path .\n");
+    print("       -np    : not preserve the mode of file\n");
+    exit(-1);
+}
+
+sub main {
+    my ( $ishelp, $direction, $cpIfExists, $host, $port, $user, $pass, $src, $dest, $isVerbose, $np );
+    Utils::setEnv();
+
+    my $pname = basename($0);
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'v|verbose'   => \$isVerbose,
+        'np'          => \$np,
+        'direction:s' => \$direction,
+        'h|host:s'    => \$host,
+        'p|port:i'    => \$port,
+        'u|user:s'    => \$user,
+        'pass:s'      => \$pass,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest
+    );
+
+    my $optionError = 0;
+    if ( not defined($host) or $host eq '' ) {
+        print("ERROR: must define target host.\n");
+        $optionError = 1;
+    }
+
+    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
+        print("ERROR: must define user and password.\n");
+
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($port) ) {
+        $port = 22;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $isSuccess = 0;
+    my @src_dirs  = split( /,/, $src );
+    my $src_path  = '';
+    if ( $direction eq 'push' ) {
+        foreach my $dir (@src_dirs) {
+            $src_path = "$src_path $dir";
+        }
+        $dest      = "$user\@$host:$dest";
+        $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+    }
+    elsif ( $direction eq 'pull' ) {
+        foreach my $dir (@src_dirs) {
+            $src_path  = "$user\@$host:$dir";
+            $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+            if ( $isSuccess ne 0 ) {
+                last;
+            }
+        }
+    }
+
+    if ( $isSuccess ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+    return $isSuccess;
+}
+
+sub myExec {
+    my (%args)    = @_;
+    my $host      = $args{host};
+    my $port      = $args{port};
+    my $user      = $args{user};
+    my $pass      = $args{pass};
+    my $src       = $args{src};
+    my $dest      = $args{dest};
+    my $isVerbose = $args{isVerbose};
+    my $np        = $args{notpreserve};
+    my $scpExec   = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+    my $rc        = $scpExec->exec();
+    return $rc;
+}
+
+exit( main() );

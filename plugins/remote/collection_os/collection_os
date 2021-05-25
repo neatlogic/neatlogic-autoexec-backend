@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
@@ -16,7 +17,7 @@ use Utils;
 
 sub usage {
     my $pname = basename($0);
-
+    print("ERROR: must defined option --node \n");
     print("Usage: $pname [--node|nodeip <nodeip>\n");
     print("       nodeip:   run node ip .\n");
 
@@ -26,10 +27,14 @@ sub usage {
 #设置MongoDb表的主键，根据主键判断数据是新增还是修改
 sub uniqueName {
     my ($data)     = @_;
-    my $ip         = $data->{"IP"};
-    my %uniqueName = ();
-    $uniqueName{'IP'} = ("\$eq" => "$ip");
-    return \%uniqueName;
+    my $agentIP         = $data->{"agentIP"};
+    
+    my @rule = ();
+    my %rule_agentIp = ();
+    $rule_agentIp{'agentIP'} = $agentIP ;
+    push @rule , \%rule_agentIp;
+
+    return \@rule;
 }
 
 sub main {
@@ -43,36 +48,42 @@ sub main {
 
     usage() if ($ishelp);
 
-    if ( not defined($nodeip) ) {
-        $nodeip = `hostname -i `;
-        chomp($nodeip);
+    if ( not defined($nodeip) or $nodeip eq '') {
+        usage();
     }
 
     Utils::setEnv();
 
     my $os = `uname`;
     chomp($os);
-    my $data;
+    my @collectData;
     if ( $os eq 'Linux' ) {
-        $data = collection_linux::collect($nodeip);
+        @collectData = collection_linux::collect($nodeip);
     }
     elsif ( $os eq 'Aix' ) {
-        $data = collection_aix::collect($nodeip);
+        @collectData = collection_aix::collect($nodeip);
     }
     else {
-        $data = collection_windows::collect($nodeip);
+        @collectData = collection_windows::collect($nodeip);
     }
-    $data->{"类型"} = "collect";
-    my %result = ();
-    $result{'data'}       = $data;
-    $result{'table'}      = "os";
-    $result{'uniqueName'} = uniqueName($data);
+    
+    my $plugin = {};
+    $plugin->{"type"} = "collect";
+    my @entityList = ();
+    foreach my $data (@collectData){
+        my %entiry = ();
+        $entiry{'data'}       = $data;
+        $entiry{'table'}      = "collect_os";
+        $entiry{'uniqueName'} = uniqueName($data);
+        push(@entityList ,\%entiry);
+    }
+    $plugin->{"data"} = \@entityList;
 
     #定义插件的输出变量output
     my $out = {};
-    $out->{outjson} = \%result;
-    Utils::saveOutput( $out );
-    my $resultJson = encode_json( \%result );
+    $out->{outjson} = $plugin;
+    Utils::saveOutput($out);
+    my $resultJson = encode_json( $plugin );
     print "$resultJson";
 }
 

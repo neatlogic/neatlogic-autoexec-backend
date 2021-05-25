@@ -6,10 +6,12 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data = ();
 
     system("prtconf > prtconf.txt");
@@ -31,6 +33,7 @@ sub collect {
         }
     }
     $data{'ip'} = $ip;
+    $data{'agentIP'} = $nodeIp;
 
     my $os_ver = `oslevel -s`;
     chomp($os_ver);
@@ -251,7 +254,8 @@ sub collect {
     }
     close(FILE);
     $data{'用户列表'} = \@users;
-    return \%data;
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

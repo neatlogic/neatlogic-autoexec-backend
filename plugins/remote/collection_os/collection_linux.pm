@@ -6,10 +6,12 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use warnings;
 use utf8;
 
 sub collect {
     my ($nodeIp) = @_;
+    my @collect_data =();
     my %data     = ();
     my $hostname = `hostname`;
     chomp($hostname);
@@ -21,7 +23,8 @@ sub collect {
         $ip = $nodeIp;
     }
     $data{'IP'} = $ip;
-
+    $data{'agentIP'} = $nodeIp;
+    
     my $os_ver;
     if ( -e '/etc/redhat-release' ) {
         $os_ver = `cat /etc/redhat-release`;
@@ -498,7 +501,9 @@ sub collect {
     }
     close(FILE);
     $data{'用户列表'} = \@users;
-    return \%data;
+    
+    push(@collect_data , \%data);
+    return @collect_data;
 }
 
 1;

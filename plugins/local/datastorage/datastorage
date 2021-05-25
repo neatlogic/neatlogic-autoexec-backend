@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding:UTF-8 -*-
 
 import os
 import argparse
@@ -27,33 +28,44 @@ if __name__ == "__main__":
     if (data_json == None or data_json == '') and (output_path == None or output_path == '' ) :
         usage()
 
-    collect_data = None
+    plugin_data = None
     Util = Utils.Utils()
     if data_json != None and data_json != '' :
         data_json = Util.handleJsonstr(data_json)
-        collect_data = json.loads(data_json, strict=False)
-        print(collect_data)
+        plugin_data = json.loads(data_json, strict=False)
     else :
-        collect_data = Util.getOutput(output_path)
+        plugin_data = Util.getOutput(output_path)
 
-    #valid = Util.isJson(collect_data)
+    #valid = Util.isJson(plugin_data)
     #if valid == False :
     #    print("Illegal parameter :{} / {}".format(output_path,data_json))
     #    exit(-1)
-    if collect_data == None : 
-        print("pleaase check plugin param data format: {}".format(data_json))
+    if plugin_data == None : 
+        print("please check plugin input param data format : {}".format(data_json))
     else :
-        table = collect_data['table']
-        uniqueName = collect_data['uniqueName']
-        data = collect_data['data'] 
-        db = MongoDB.MongoDB()
-        #保存采集的数据
-        count = db.count(table ,uniqueName)
-        if count == 0 : 
-            db.insert(table,data)
-        else :
-            db.update(table ,uniqueName , data)
-        db.close()
+        plugin_type = plugin_data['type']
+        collect_data = plugin_data['data']
+        #print("type : {} , data : {}".format(plugin_type , collect_data))
+        if collect_data == None or len(collect_data) == 0 :
+            print("exec warn: plug execution has no data.")
+            exit(0)
+        
+        for entity in collect_data:
+            table = entity['table']
+            uniqueName = entity['uniqueName']
+            data = entity['data']
+            #新增统一的采集更新时间
+            data['_updatetime'] = Util.getCurrentTime()
+            db = MongoDB.MongoDB()
+            #保存采集的数据
+            unique_query = {}
+            unique_query['$and'] = uniqueName
+            count = db.count(table ,unique_query)
+            if count == 0 : 
+                db.insert(table,data)
+            else :
+                db.update(table ,unique_query , data)
+            db.close()
         
 
 
