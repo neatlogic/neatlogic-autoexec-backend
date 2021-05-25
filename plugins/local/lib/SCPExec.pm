@@ -86,12 +86,10 @@ sub exec {
         ]
     );
 
-    my $rc = 1;
-
+    my $rc = 0;
     if ( $spawn->exitstatus() != 0 ) {
         print("ERROR: scp failed.\n");
-        $rc = 0;
-        Utils::setErrFlag();
+        $rc = 1;
     }
 
     return $rc;

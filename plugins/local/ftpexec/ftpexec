@@ -41,28 +41,29 @@ sub main {
         'dest:s'      => \$dest
     );
 
+    my $optionError = 0;
     if ( not defined($host) or $host eq '' ) {
         print("ERROR: must define remote host.\n");
-        usage();
+        $optionError = 1;
     }
 
     if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
         print("ERROR: must define user and password.\n");
-        usage();
+        $optionError = 1;
     }
 
     if ( not defined($direction) or $direction eq '' ) {
         print("ERROR: must define direction value pull or push .\n");
-        usage();
+        $optionError = 1;
     }
 
     if ( not defined($src) or $src eq '' ) {
         print("ERROR: must define src path.\n");
-        usage();
+        $optionError = 1;
     }
     if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
         print("ERROR: src path can not has parent dir opertor:\"..\".\n");
-        usage();
+        $optionError = 1;
     }
 
     if ( not defined($dest) or $dest eq '' ) {
@@ -71,12 +72,17 @@ sub main {
     }
     if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
         print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
-        usage();
+        $optionError = 1;
     }
 
     if ( not defined($port) or $port eq '' ) {
         $port = 21;
     }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
     my $isSuccess = 0;
     my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
     $ftp->login( "ftpadmin", 'ftpadmin' ) or die "ERROR::$user login failed.\n";
@@ -150,10 +156,8 @@ sub main {
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
-    Utils::exitWithFlag();
+    return $isSuccess;
 }
 
-main();
-
-1;
+exit( main() );
 

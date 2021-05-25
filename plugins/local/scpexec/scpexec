@@ -81,48 +81,56 @@ sub main {
         $optionError = 1;
     }
 
-    $port = 22 if ( not defined($port) );
-    usage()    if ( $optionError == 1 );
+    if ( not defined($port) ) {
+        $port = 22;
+    }
 
-    my $src_dir  = '';
-    my @src_dirs = split( /,/, $src );
+    if ( $optionError == 1 ) {
+        usage();
+    }
 
-    print("$direction , $host ,$port ,$user,$pass,$src_dir,$dest,$isVerbose,$np \n");
+    my $isSuccess = 0;
+    my @src_dirs  = split( /,/, $src );
+    my $src_path  = '';
     if ( $direction eq 'push' ) {
         foreach my $dir (@src_dirs) {
-            $src_dir = "$src_dir $dir";
+            $src_path = "$src_path $dir";
         }
-        $dest = "$user\@$host:$dest";
-        myExec( $host, $port, $user, $pass, $src_dir, $dest, $isVerbose, $np );
+        $dest      = "$user\@$host:$dest";
+        $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
     }
     elsif ( $direction eq 'pull' ) {
         foreach my $dir (@src_dirs) {
-            $src_dir = "$user\@$host:$dir";
-            my $flag = myExec( $host, $port, $user, $pass, $src_dir, $dest, $isVerbose, $np );
-            if ( $flag ne 0 ) {
+            $src_path  = "$user\@$host:$dir";
+            $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+            if ( $isSuccess ne 0 ) {
                 last;
             }
         }
     }
 
-    if ( Utils::getErrFlag() ne 0 ) {
+    if ( $isSuccess ne 0 ) {
         print("ERROR: $pname --$direction $src $dest failed.\n");
     }
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
-    Utils::exitWithFlag();
+    return $isSuccess;
 }
 
 sub myExec {
-    my ( $host, $port, $user, $pass, $src, $dest, $isVerbose, $np ) = @_;
-    my $scpExec = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
-    my $rc      = $scpExec->exec();
-    if ( $rc eq 0 ) {
-        Utils::setErrFlag();
-    }
-    return Utils::getErrFlag();
+    my (%args)    = @_;
+    my $host      = $args{host};
+    my $port      = $args{port};
+    my $user      = $args{user};
+    my $pass      = $args{pass};
+    my $src       = $args{src};
+    my $dest      = $args{dest};
+    my $isVerbose = $args{isVerbose};
+    my $np        = $args{notpreserve};
+    my $scpExec   = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+    my $rc        = $scpExec->exec();
+    return $rc;
 }
 
-main();
-
+exit( main() );
