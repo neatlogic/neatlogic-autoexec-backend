@@ -29,7 +29,6 @@ class Operation:
         self.isScript = 0
         self.interpreter = ''
         self.scriptId = ''
-        self.lockedFD = []
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -128,11 +127,6 @@ class Operation:
         if not os.path.exists('output-op'):
             os.mkdir('output-op')
 
-    def __del__(self):
-        for lockFD in self.lockedFD:
-            fcntl.lockf(lockFD, fcntl.LOCK_UN)
-            lockFD.close()
-
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
         opDesc = {}
@@ -187,10 +181,6 @@ class Operation:
     def fetchScript(self, savePath, scriptId):
         serverAdapter = self.context.serverAdapter
         serverAdapter.fetchScript(savePath, scriptId)
-
-        scriptFile = open(savePath, 'r')
-        fcntl.flock(scriptFile, fcntl.LOCK_SH)
-        self.append(scriptFile)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:

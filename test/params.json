@@ -23,7 +23,7 @@
                                 "arg": {
                                         "tinput": "xxxx",
                                         "tselect": "yyyy",
-                                        "tpassword": "{RC4}xxxxxxx",
+                                        "tpassword": "xxxxxxx",
                                         "tfile": "${fetchfile}"
                                 },
 
@@ -48,7 +48,7 @@
                                         "arg": {
                                                 "tinput": "${pre.localdemo.outtext}",
                                                 "tselect": "yyyy",
-                                                "tpassword": "{RC4}xxxxxxx",
+                                                "tpassword": "xxxxxxx",
                                                 "tfile": "testfile"
                                         },
 

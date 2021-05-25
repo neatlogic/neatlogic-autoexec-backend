@@ -386,8 +386,19 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        scriptFile = None
+        if op.isScript == 1:
+            scriptFile = open(op.pluginPath, 'r')
+            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
+
+        if scriptFile is not None:
+            fcntl.flock(scriptFile, fcntl.LOCK_UN)
+            scriptFile.close()
+            scriptFile = None
+
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op)
 
@@ -424,8 +435,19 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        scriptFile = None
+        if op.isScript == 1:
+            scriptFile = open(op.pluginPath, 'r')
+            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
+
+        if scriptFile is not None:
+            fcntl.flock(scriptFile, fcntl.LOCK_UN)
+            scriptFile.close()
+            scriptFile = None
+
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op)
 
@@ -453,6 +475,7 @@ class RunNode:
         remoteCmd = ''
         ret = -1
         if self.type == 'tagent':
+            scriptFile = None
             try:
                 remotePath = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
@@ -465,8 +488,13 @@ class RunNode:
                 remoteCmd = None
                 uploadRet = 0
                 if op.isScript == 1:
+                    scriptFile = open(op.pluginPath, 'r')
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
                     uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    scriptFile.close()
+                    scriptFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remotePath)
@@ -492,6 +520,11 @@ class RunNode:
             except Exception as ex:
                 self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
                 raise ex
+            finally:
+                if scriptFile is not None:
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    scriptFile.close()
+
             if ret == 0:
                 self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmd))
             else:
@@ -504,6 +537,7 @@ class RunNode:
             remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
+            scriptFile = None
             uploaded = False
             scp = None
             sftp = None
@@ -527,7 +561,12 @@ class RunNode:
                     self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 if op.isScript == 1:
+                    scriptFile = open(op.pluginPath, 'r')
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
                     sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opName))
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    scriptFile.close()
+                    scriptFile = None
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -561,6 +600,10 @@ class RunNode:
 
             except Exception as err:
                 self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
+            finally:
+                if scriptFile is not None:
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    scriptFile.close()
 
             if uploaded and not self.context.goToStop:
                 ssh = None
