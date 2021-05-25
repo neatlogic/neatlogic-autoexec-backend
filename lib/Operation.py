@@ -49,6 +49,7 @@ class Operation:
             'cmd': '.bat',
             'powershell': '.ps1',
             'vbscript': '.vbs',
+            'shell':'.sh',
             'javascript:': '.js'
         }
 
@@ -189,7 +190,7 @@ class Operation:
         self.append(scriptFile)
 
         serverAdapter = self.context.serverAdapter
-        serverAdapter.fetchFile(savePath, scriptId)
+        serverAdapter.fetchScript(savePath, scriptId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
