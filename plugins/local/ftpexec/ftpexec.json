@@ -1,0 +1,88 @@
+{
+	"opName": "FTP远程拷贝",
+	"opType": "local",
+	"desc": {
+		"host": {
+			"name": "FTP服务IP",
+			"help": "",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		"port": {
+			"name": "FTP端口",
+			"help": "默认为21端口",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "21",
+			"required": "false",
+			"validate": ""
+		},
+		"user": {
+			"name": "FTP用户",
+			"help": "",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		"pass": {
+			"name": "FTP用户密码",
+			"help": "",
+			"type": "input",
+			"isConst": "true",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		"direction": {
+			"name": "拷贝方式",
+			"help": "",
+			"type": "select",
+			"isConst": "false",
+			"defaultValue": [{
+				"text": "远程拷贝到本地",
+				"value": "pull",
+				"selected": "true"
+			}, {
+				"text": "本地拷贝到远程",
+				"value": "push"
+			}],
+			"required": "true",
+			"validate": ""
+		},
+		"src": {
+			"name": "源目录",
+			"help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		"dest": {
+			"name": "目标目录",
+			"help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		"v": {
+			"name": "输出详细信息",
+			"help": "",
+			"type": "checkbox",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		}
+	},
+	"output": {
+
+	}
+}
