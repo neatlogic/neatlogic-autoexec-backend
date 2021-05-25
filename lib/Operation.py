@@ -185,12 +185,12 @@ class Operation:
 
     # 获取script
     def fetchScript(self, savePath, scriptId):
-        scriptFile = open(savePath, 'a+')
-        fcntl.flock(scriptFile, fcntl.LOCK_SH)
-        self.append(scriptFile)
-
         serverAdapter = self.context.serverAdapter
         serverAdapter.fetchScript(savePath, scriptId)
+
+        scriptFile = open(savePath, 'r')
+        fcntl.flock(scriptFile, fcntl.LOCK_SH)
+        self.append(scriptFile)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
