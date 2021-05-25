@@ -30,8 +30,8 @@ class ServerAdapter:
             'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
-            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
         }
 
@@ -42,7 +42,7 @@ class ServerAdapter:
 
         self.serverUserName = context.config.get('server', 'server.username')
         self.serverPassword = context.config.get('server', 'server.password')
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')))
+        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -150,13 +150,19 @@ class ServerAdapter:
         }
 
         if phase is not None:
-            params['phase'] = '系统'
+            params['phase'] = phase
+
+        lastModifiedTime = 0
+        nodesFilePath = self.context.getNodesFilePath(phase)
+        if os.path.exists(nodesFilePath):
+            lastModifiedTime = os.path.getmtime(nodesFilePath)
+
+        params['lastModified'] = lastModifiedTime
 
         # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
         response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
 
         if response.status == 200:
-            nodesFilePath = self.context.getNodesFilePath(phase)
             nodesFile = open(nodesFilePath, 'w')
 
             for line in response:
@@ -164,8 +170,11 @@ class ServerAdapter:
                 nodesFile.write("\n")
 
             nodesFile.close()
+        elif response.status == 302:
+            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+            pass
         elif response.status == 304:
-            # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
+            # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出304反馈，代表没有更改，不需要处理
             pass
 
     # 更新运行阶段某个节点的状态到服务端

@@ -49,6 +49,7 @@ class Operation:
             'cmd': '.bat',
             'powershell': '.ps1',
             'vbscript': '.vbs',
+            'shell': '.sh',
             'javascript:': '.js'
         }
 
@@ -101,6 +102,8 @@ class Operation:
 
             self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
             self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
+
+            self.fetchScript(self.pluginPath, self.scriptId)
 
         else:
             if self.opType == 'remote':
@@ -181,15 +184,13 @@ class Operation:
         return fileName
 
     # 获取script
-    def fetchScript(self, scriptId, savePath):
-        savePath = '{}/script/{}.{}'.format(self.pluginRootPath, scriptId, self.extNameMap[self.interpreter])
-
+    def fetchScript(self, savePath, scriptId):
         scriptFile = open(savePath, 'r')
         fcntl.flock(scriptFile, fcntl.LOCK_SH)
         self.append(scriptFile)
 
         serverAdapter = self.context.serverAdapter
-        serverAdapter.fetchFile(savePath, scriptId)
+        serverAdapter.fetchScript(savePath, scriptId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
