@@ -103,6 +103,9 @@ class Operation:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
 
             self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
+            if not os.path.exists(self.pluginParentPath):
+                os.mkdir(self.pluginParentPath)
+
             self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
 
             self.fetchScript(self.pluginPath, self.scriptId)
