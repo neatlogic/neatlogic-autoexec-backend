@@ -48,7 +48,10 @@ class Operation:
             'cmd': '.bat',
             'powershell': '.ps1',
             'vbscript': '.vbs',
-            'shell': '.sh',
+            'bash': '.sh',
+            'ksh': '.sh',
+            'csh': '.sh',
+            'sh': '.sh',
             'javascript:': '.js'
         }
 
@@ -223,7 +226,27 @@ class Operation:
 
         return argValue
 
-    def getCmdLine(self, fullPath=False, osType='linux'):
+    def appendCmdOpts(self, cmd, noPassword=False):
+        for k, v in self.options.items():
+            isNodeParam = False
+            if 'desc' in self.param and k in self.param['desc']:
+                kDesc = self.param['desc'][k]
+                if kDesc.lower() == 'node':
+                    isNodeParam = True
+
+            if noPassword and (k == 'password' or k == 'pass'):
+                cmd = cmd + ' --{} "{}" '.format(k, '******')
+            else:
+                if isNodeParam:
+                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
+                elif len(k) == 1:
+                    cmd = cmd + ' -{} "{}" '.format(k, v)
+                else:
+                    cmd = cmd + ' --{} "{}" '.format(k, v)
+
+        return cmd
+
+    def getCmd(self, fullPath=False, osType='linux'):
         cmd = None
         if self.isScript:
             if self.opType == 'remote':
@@ -273,43 +296,14 @@ class Operation:
                 else:
                     cmd = self.opName
 
-        for k, v in self.options.items():
-            isNodeParam = False
-            if 'desc' in self.param and k in self.param['desc']:
-                kDesc = self.param['desc'][k]
-                if kDesc.lower() == 'node':
-                    isNodeParam = True
-
-            if isNodeParam:
-                cmd = cmd + ' --{} \'{}\' '.format(k, v)
-            elif len(k) == 1:
-                cmd = cmd + ' -{} "{}" '.format(k, v)
-            else:
-                cmd = cmd + ' --{} "{}" '.format(k, v)
-
         return cmd
 
-    def getCmdLineHidePassword(self):
-        cmd = None
-        if self.isScript:
-            cmd = self.interpreter + ' ' + self.opName
-        else:
-            cmd = self.opName
+    def getCmdLine(self, fullPath=False, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+        cmd = self.appendCmdOpts(cmd)
+        return cmd
 
-        for k, v in self.options.items():
-            isNodeParam = False
-            if 'desc' in self.param and k in self.param['desc']:
-                kDesc = self.param['desc'][k]
-                if kDesc.lower() == 'node':
-                    isNodeParam = True
-
-            if k == 'password' or k == 'pass':
-                cmd = cmd + ' --{} "{}" '.format(k, '******')
-            else:
-                if isNodeParam:
-                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
-                elif len(k) == 1:
-                    cmd = cmd + ' -{} "{}" '.format(k, v)
-                else:
-                    cmd = cmd + ' --{} "{}" '.format(k, v)
+    def getCmdLineHidePassword(self, fullPath=False, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+        cmd = self.appendCmdOpts(cmd, True)
         return cmd

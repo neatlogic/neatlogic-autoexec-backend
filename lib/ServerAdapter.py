@@ -260,7 +260,7 @@ class ServerAdapter:
         fileName = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'wb+')
+            cachedFile = open(cachedFilePath, 'ab+')
             response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -306,7 +306,7 @@ class ServerAdapter:
         cachedFile = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'w+')
+            cachedFile = open(cachedFilePath, 'a+')
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:

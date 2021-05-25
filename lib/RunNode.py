@@ -378,7 +378,7 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
@@ -427,7 +427,7 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         environment = {}
