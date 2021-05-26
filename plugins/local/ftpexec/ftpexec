@@ -135,16 +135,19 @@ sub main {
                 else {
                     $isFile = 0;
                 }
+                chdir($dest);
                 if ( $isFile == 0 ) {
                     print("INFO::download folder $target.\n");
-                    my $folder = $dest . $target;
-                    system("mkdir -p $folder");
+                    my $folder = File::Spec->catfile( $dest, $target );
+                    if ( !-d $folder ) {
+                        system("mkdir -p $folder");
+                    }
                     chdir($folder);
                     $ftp->rget( $target, $folder );
                 }
                 else {
                     print("INFO::download file $target.\n");
-                    $ftp->get( $target, $dest );
+                    $ftp->get($target);
                 }
             }
         }
