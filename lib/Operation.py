@@ -89,8 +89,6 @@ class Operation:
 
         self.options = {}
 
-        os.chdir(self.runPath)
-
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
@@ -102,14 +100,8 @@ class Operation:
         if self.isScript == 1:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
 
-            self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
-            if not os.path.exists(self.pluginParentPath):
-                os.mkdir(self.pluginParentPath)
-
-            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
-
+            self.pluginPath = '{}/script/{}'.format(self.context.runPath, scriptFileName)
             self.fetchScript(self.pluginPath, self.scriptId)
-
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
@@ -117,21 +109,6 @@ class Operation:
             else:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
-
-        if not os.path.exists('file'):
-            os.mkdir('file')
-
-        if not os.path.exists('status'):
-            os.mkdir('status')
-
-        if not os.path.exists('log'):
-            os.mkdir('log')
-
-        if not os.path.exists('output'):
-            os.mkdir('output')
-
-        if not os.path.exists('output-op'):
-            os.mkdir('output-op')
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):

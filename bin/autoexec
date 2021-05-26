@@ -27,15 +27,15 @@ import NodeStatus
 class Runner:
     def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, devMode=False, dataPath=None):
         # 初始化运行上下文
+        pPaths = os.path.split(os.path.realpath(__file__))
+        homePath = os.path.realpath(pPaths[0]+'/..')
+
         context = Context.Context(jobId, paramsFile, isForce, devMode, dataPath)
         self.context = context
         self.localDefinedParams = False
         self.localDefinedNodes = False
 
         loggingLevel = context.config.get('autoexec', 'logging.level')
-
-        pPaths = os.path.split(os.path.realpath(__file__))
-        homePath = os.path.realpath(pPaths[0]+'/..')
 
         logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
         logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
