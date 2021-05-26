@@ -33,7 +33,7 @@ class ServerAdapter:
             'fetchScript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
-            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
         }
 
         self.context = context
