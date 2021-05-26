@@ -127,13 +127,14 @@ class Runner:
             self.context.parallelCount = parallelCount
 
         opArgsRefMap = {}
-
+        lastPhase = None
         if 'runFlow' in params:
             for phaseGroup in params['runFlow']:
                 # runFlow是一个数组，每个元素是一个phaseGroup
                 threads = []
                 # 每个group有多个phase，使用线程并发执行
                 for phaseName, phaseConfig in phaseGroup.items():
+                    lastPhase = phaseName
                     if not self.context.hasFailNodeInGlobal:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
@@ -148,7 +149,7 @@ class Runner:
             print("INFO: ======Execute failed======")
         else:
             # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-            self.context.serverAdapter.fireNextPhase()
+            self.context.serverAdapter.fireNextPhase(lastPhase)
             print("INFO: ======Execute succeed======")
 
         return status
