@@ -1,0 +1,141 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use File::Basename;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Utils;
+use Cwd;
+use TagentClient;
+
+sub usage {
+    my $pname = basename($0);
+
+    print(
+        "Usage: $pname  [-h|--host <host>] [port <port>] [-u|--user <username>] [--pass <pass>] [--direction <push|pull>] [--src <src>] [--dest <dest>] [-v] [-np]  [--cpifexists] [--followlinks]\n");
+    print("       host:        tagent host ip .\n");
+    print("       port:        tagent host port. \n");
+    print("       username:    tagent sudo username(while tagent started by root/admin).\n");
+    print("       password:    tagent logon password.\n");
+    print("       direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       src: copy source path ,many src path , separated .\n");
+    print("       dest: remote target path .\n");
+    print("       -np:         not preserve the mode of file\n");
+    print("       -cpifexists: copy if local dir or file exists.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest, $isVerbose, $np, $cpIfExists, $followLinks );
+    Utils::setEnv();
+
+    my $pname = basename($0);
+
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'h|host:s'    => \$host,
+        'p|port:i'    => \$port,
+        'u|user:s'    => \$user,
+        'pass:s'      => \$pass,
+        'direction:s' => \$direction,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest,
+        'v|verbose'   => \$isVerbose,
+        'np'          => \$np,
+        'followlinks' => \$followLinks,
+        'cpifexists'  => \$cpIfExists
+    );
+
+    my $optionError = 0;
+
+    if ( not defined($host) or $host eq '' ) {
+        print("ERROR: must define remote host.\n");
+        $optionError = 1;
+    }
+
+    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
+        print("ERROR: must define user and password.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: must define src path.\n");
+        usage();
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = '3939';
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $isSuccess = 0;
+    my @src_dirs  = split( /,/, $src );
+    my $tagent    = new TagentClient( $host, $port, $pass );
+
+    if ( $direction eq 'push' ) {
+        foreach my $target (@src_dirs) {
+            if ( !-d $target ) {
+                $isSuccess = 1;
+                print("ERROR: src path $target not exists .\n");
+                last;
+            }
+            $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
+            if ( $isSuccess ne 0 ) {
+                last;
+            }
+        }
+    }
+    elsif ( $direction eq 'pull' ) {
+        if ( !-d $dest ) {
+            $isSuccess = 1;
+            print("ERROR: dest path $dest not exists .\n");
+        }
+        else {
+            foreach my $target (@src_dirs) {
+                $isSuccess = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
+                if ( $isSuccess ne 0 ) {
+                    last;
+                }
+            }
+        }
+    }
+
+    if ( $isSuccess ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+    return $isSuccess;
+}
+
+exit( main() );
+
