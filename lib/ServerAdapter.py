@@ -223,13 +223,12 @@ class ServerAdapter:
             return None
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
-    def fireNextPhase(self, phaseName):
+    def fireNextPhase(self):
         if self.context.devMode:
             return
 
         params = {
             'jobId': self.context.jobId,
-            'phase': phaseName,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
