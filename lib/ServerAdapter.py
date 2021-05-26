@@ -203,7 +203,7 @@ class ServerAdapter:
             return None
 
     # 更新运行端阶段的状态
-    def pushPhaseStatus(self, phaseName, status, fireNext=0):
+    def pushPhaseStatus(self, phaseName, phaseStatus, status):
         if self.context.devMode:
             return
 
@@ -211,6 +211,10 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phase': phaseName,
             'status': status,
+            'failNodeCount': phaseStatus.failNodeCount,
+            'sucNodeCount': phaseStatus.sucNodeCount,
+            'skipNodeCount': phaseStatus.skipNodeCount,
+            'ignoreFailNodeCount': phaseStatus.ignoreFailNodeCount,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }

@@ -8,6 +8,7 @@ pending = 'pending'  # 等待执行
 running = 'running'  # 执行中
 ingore = 'ignored'   # 已忽略
 succeed = 'succeed'  # 成功
+completed = 'completed'  # 已完成
 failed = 'failed'  # 失败
 aborted = 'aborted'  # 中断
 fin_failed = 'fin_failed'  # 失败并回调
