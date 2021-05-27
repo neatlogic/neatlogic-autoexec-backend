@@ -180,7 +180,7 @@ class ServerAdapter:
                 pass
 
     # 更新运行阶段某个节点的状态到服务端
-    def pushNodeStatus(self, phaseName, runNode, status, failIgnore):
+    def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
         if self.context.devMode:
             return
 
