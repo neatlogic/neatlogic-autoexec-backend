@@ -188,6 +188,8 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phase': phaseName,
             'nodeId': runNode.node,
+            'host': runNode.host,
+            'port': runNode.port,
             'output': runNode.output,
             'status': status,
             'failIgnore': failIgnore,
