@@ -91,7 +91,7 @@ class RunNode:
         if self.logHandle is not None:
             self.logHandle.close()
 
-    def updateNodeStatus(self, status, failIgnore=0, op=None, consumeTime=0):
+    def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
         statuses = {}
 
         if status == NodeStatus.aborted or status == NodeStatus.failed:
@@ -409,8 +409,7 @@ class RunNode:
             scriptFile = None
 
         # 管道启动成功后，更新状态为running
-        print("DEBUG: before callback node status.\n")
-        self.updateNodeStatus(NodeStatus.running, op)
+        self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -423,7 +422,9 @@ class RunNode:
         child.wait()
         ret = child.returncode
 
-        print("DEBUG: child return code:{}\n".format(ret))
+        lastContent = child.stdout.read()
+        if lastContent is not None:
+            self.logHandle.write(lastContent)
 
         if ret == 0:
             self.logHandle.write("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
@@ -461,7 +462,7 @@ class RunNode:
             scriptFile = None
 
         # 管道启动成功后，更新状态为running
-        self.updateNodeStatus(NodeStatus.running, op)
+        self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -495,7 +496,7 @@ class RunNode:
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op)
+                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 remoteCmd = None
                 uploadRet = 0
@@ -559,7 +560,7 @@ class RunNode:
                 scp.connect(username=self.username, password=self.password)
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op)
+                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
                 sftp = paramiko.SFTPClient.from_transport(scp)

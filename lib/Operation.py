@@ -134,8 +134,6 @@ class Operation:
                         argValue = 'file/' + fileName
                 self.options[argName] = argValue
 
-        # print("DEBUG:{}".format(str(self.options)))
-
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
     def fetchFile(self, argName, fileId):
         cachePath = self.dataPath + '/cache'

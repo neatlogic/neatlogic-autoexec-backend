@@ -196,12 +196,10 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
 
-        print("DEBUG: xxx params json:{}\n".format(json.dumps(params, ensure_ascii=False)))
-
         response = self.httpJSON(self.apiMap['updateNodeStatus'], self.authToken, params)
 
         try:
-            charset=response.info().get_content_charset()
+            charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
         except:
@@ -226,7 +224,7 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
 
         try:
-            charset=response.info().get_content_charset()
+            charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
         except:
@@ -246,7 +244,7 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
 
         try:
-            charset=response.info().get_content_charset()
+            charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
         except:
@@ -321,7 +319,7 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
-                charset=response.info().get_content_charset()
+                charset = response.info().get_content_charset()
                 content = response.read().decode(charset)
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
@@ -345,7 +343,7 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
 
         try:
-            charset=response.info().get_content_charset()
+            charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
         except:

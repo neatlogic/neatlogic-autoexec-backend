@@ -55,7 +55,7 @@ class OutputStore:
 
     def saveStatus(self, status):
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        # return
+        return
         db = self.db
         collection = db['node_status']
         pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.node['port']}
@@ -75,7 +75,7 @@ class OutputStore:
 
     def loadStatus(self):
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        # return
+        return
         db = self.db
         collection = db['node_status']
 
