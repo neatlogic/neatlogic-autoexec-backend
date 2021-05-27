@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
- 提供读取节点文件，遍历节点，更新节点运行状态功能
+ 运行节点类
 """
 import sys
 import os
@@ -83,7 +83,7 @@ class RunNode:
             os.mkdir(self.logPhaseDir)
 
         self.status = NodeStatus.pending
-        self.outputStore = OutputStore.OutputStore(context, node)
+        self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
         self._loadOutput()
 
     def __del__(self):
@@ -96,13 +96,18 @@ class RunNode:
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             self.context.hasFailNodeInGlobal = True
 
+        outputStore = OutputStore.OutputStore(self.context, self.phaseName, self.node)
         statusFile = None
         try:
-            statusFile = open(self.statusPath, 'a+')
-            statusFile.seek(0, 0)
-            content = statusFile.read()
-            if content is not None and content != '':
-                statuses = json.loads(content)
+            if not os.path.exists(self.statusPath):
+                statuses = outputStore.loadStatus()
+                statusFile = open(self.statusPath, 'a+')
+            else:
+                statusFile = open(self.statusPath, 'a+')
+                statusFile.seek(0, 0)
+                content = statusFile.read()
+                if content is not None and content != '':
+                    statuses = json.loads(content)
         except Exception as ex:
             self.logHandle.write('ERROR: Load and update status file:{}, failed {}\n'.format(self.statusPath, ex))
 
@@ -114,6 +119,7 @@ class RunNode:
             try:
                 statusFile.truncate(0)
                 statusFile.write(json.dumps(statuses))
+                outputStore.saveStatus(statuses)
                 # TODO: write status file to share object store
                 statusFile.close()
             except Exception as ex:
@@ -178,7 +184,7 @@ class RunNode:
         else:
             # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
             localNode = {'host': 'local', 'port': 0}
-            loalOutStore = OutputStore.OutputStore(self.context, localNode)
+            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
             output = loalOutStore.loadOutput()
 
         return output
