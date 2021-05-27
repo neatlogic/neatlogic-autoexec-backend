@@ -220,6 +220,9 @@ if __name__ == "__main__":
 
     if not args.devmode and not sys.stdout.isatty():
         logDir = consoleLogPath = '{}/data/job/{}/log'.format(homePath, _getLogSubPath(args.jobid))
+        if not os.path.isdir(logDir):
+            os.mkdir(logDir)
+
         consoleHisLogDir = logDir + '/console.hislog'
         if not os.path.isdir(consoleHisLogDir):
             os.mkdir(consoleHisLogDir)

@@ -187,22 +187,25 @@ class ServerAdapter:
         params = {
             'jobId': self.context.jobId,
             'phase': phaseName,
-            'nodeId': runNode.node,
+            'nodeId': runNode.id,
             'host': runNode.host,
             'port': runNode.port,
-            'output': runNode.output,
             'status': status,
             'failIgnore': failIgnore,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
+
+        print("DEBUG: xxx params json:{}\n".format(json.dumps(params, ensure_ascii=False)))
+
         response = self.httpJSON(self.apiMap['updateNodeStatus'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset=response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, phaseName, phaseStatus, status):
@@ -223,10 +226,11 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset=response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
     def fireNextPhase(self, lastPhase):
@@ -242,10 +246,11 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset=response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
@@ -316,7 +321,9 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
-                retObj = json.loads(response.read())
+                charset=response.info().get_content_charset()
+                content = response.read().decode(charset)
+                retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
 
                 fcntl.lockf(cachedFile, fcntl.LOCK_EX)
@@ -338,7 +345,8 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
 
         try:
-            content = response.read()
+            charset=response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise

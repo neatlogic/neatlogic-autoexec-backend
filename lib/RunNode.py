@@ -6,6 +6,7 @@
 """
 import sys
 import os
+import traceback
 import fcntl
 import io
 import signal
@@ -138,7 +139,8 @@ class RunNode:
                             self.context.hasFailNodeInGlobal = True
 
             except Exception as ex:
-                self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
+                raise
+                #self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
@@ -356,6 +358,7 @@ class RunNode:
                         break
             except:
                 isFail = 1
+                traceback.print_exc()
                 break
 
         nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -406,6 +409,7 @@ class RunNode:
             scriptFile = None
 
         # 管道启动成功后，更新状态为running
+        print("DEBUG: before callback node status.\n")
         self.updateNodeStatus(NodeStatus.running, op)
 
         while True:
@@ -418,6 +422,8 @@ class RunNode:
         # 等待插件执行完成并获取进程返回值，0代表成功
         child.wait()
         ret = child.returncode
+
+        print("DEBUG: child return code:{}\n".format(ret))
 
         if ret == 0:
             self.logHandle.write("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
