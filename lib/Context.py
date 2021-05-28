@@ -213,4 +213,5 @@ class Context:
 
     def addPhase(self, phaseName):
         phase = PhaseStatus.PhaseStatus(phaseName)
+        phase.nodesPath = self.getNodesFilePath()
         self.phases[phaseName] = phase

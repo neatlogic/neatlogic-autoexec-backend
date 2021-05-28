@@ -25,6 +25,7 @@ class PhaseStatus:
         self.skipNodeCountLock = threading.Lock()
         # 用于记录phase的Executor
         self.executor = None
+        self.nodesPath = None
 
     def incFailNodeCount(self):
         with self.failNodeCountLock:

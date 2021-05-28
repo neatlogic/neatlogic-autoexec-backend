@@ -394,6 +394,9 @@ class RunNode:
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
+        environment['AUTOEXEC_JOBID'] = self.context.jobId
+        environment['AUTOEXEC_NODE'] = json.dumps(self.node)
+        environment['AUTOEXEC_NODES_PATH'] = self.context.phases[phaseName].nodesFilePath
 
         scriptFile = None
         if op.isScript == 1:
@@ -447,6 +450,9 @@ class RunNode:
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
+        environment['AUTOEXEC_JOBID'] = self.context.jobId
+        environment['AUTOEXEC_NODE'] = json.dumps(self.node)
+        environment['AUTOEXEC_NODES_PATH'] = self.context.phases[phaseName].nodesFilePath
 
         scriptFile = None
         if op.isScript == 1:
