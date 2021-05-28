@@ -30,7 +30,7 @@ class ServerAdapter:
             'getParams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
             'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchScript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
+            'fetchScript': '/codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
@@ -299,9 +299,9 @@ class ServerAdapter:
                 cachedFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
-    def fetchScript(self, savePath, scriptId):
+    def fetchScript(self, savePath, opId):
         params = {
-            'operationId': scriptId
+            'operationId': opId
         }
 
         cachedFilePath = savePath
