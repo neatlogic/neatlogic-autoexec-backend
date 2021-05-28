@@ -75,6 +75,7 @@ class RunNode:
 
         self.statusPath = '{}/{}-{}.json'.format(self.statusPhaseDir, node['host'], node['port'])
 
+        self.outputRoot = self.runPath + '/output'
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.outputPath = self.outputPathPrefix + '.json'
@@ -391,6 +392,7 @@ class RunNode:
 
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
+        environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
@@ -447,6 +449,7 @@ class RunNode:
 
         cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         environment = {}
+        environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
