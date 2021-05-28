@@ -28,7 +28,7 @@ class Operation:
         self.opName = param['opName']
         self.isScript = 0
         self.interpreter = ''
-        self.scriptId = ''
+        #self.scriptId = ''
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -67,8 +67,8 @@ class Operation:
 
         if 'isScript' in param:
             self.isScript = param['isScript']
-            if 'scriptId' in param:
-                self.scriptId = param['scriptId']
+            # if 'scriptId' in param:
+            #    self.scriptId = param['scriptId']
         if 'interpreter' in param:
             self.interpreter = param['interpreter']
 
@@ -101,7 +101,7 @@ class Operation:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
 
             self.pluginPath = '{}/script/{}'.format(self.context.runPath, scriptFileName)
-            self.fetchScript(self.pluginPath, self.scriptId)
+            self.fetchScript(self.pluginPath, self.opId)
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
@@ -159,9 +159,9 @@ class Operation:
         return fileName
 
     # 获取script
-    def fetchScript(self, savePath, scriptId):
+    def fetchScript(self, savePath, opId):
         serverAdapter = self.context.serverAdapter
-        serverAdapter.fetchScript(savePath, scriptId)
+        serverAdapter.fetchScript(savePath, opId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
