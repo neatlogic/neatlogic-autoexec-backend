@@ -4,6 +4,7 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/";
 use JSON;
 use utf8;
 use Encode;
@@ -46,6 +47,18 @@ sub main {
     );
 
     usage() if ($ishelp);
+
+    my $AUTOEXEC_JOBID=$ENV{'AUTOEXEC_JOBID'};
+    my $AUTOEXEC_NODE =$ENV{'AUTOEXEC_NODE'};
+    my $hostIp ;
+    if(defined $AUTOEXEC_NODE and  $AUTOEXEC_NODE ne '' ){
+        $AUTOEXEC_NODE = decode_json($AUTOEXEC_NODE);
+        $hostIp = $AUTOEXEC_NODE->{'host'};
+    }
+
+    if(defined($hostIp) and  $hostIp ne ''){
+        $nodeip = $hostIp ;
+    }
 
     if ( not defined($nodeip) ) {
         usage();

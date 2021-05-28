@@ -1,34 +1,42 @@
 #!/usr/bin/perl
+
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use Utils;
-use IO::File;
-use Getopt::Long;
 use File::Basename;
-use Net::FTP::Recursive;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Utils;
+use Cwd;
+use TagentClient;
 
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname [-h|--host <hostname>] [-p|--port <hostname>] [-u|--user <username>] [--pass <password>] [--direction <push|pull>] [--src <src>] [--dest <dest>] \n");
-    print("       host:        remote host name or ip\n");
-    print("       port:        remote host port \n");
-    print("       username:    ssh logon username\n");
-    print("       password:    ssh logon password\n");
+    print(
+        "Usage: $pname  [-h|--host <host>] [port <port>] [-u|--user <username>] [--pass <pass>] [--direction <push|pull>] [--src <src>] [--dest <dest>] [-v] [-np]  [--cpifexists] [--followlinks]\n");
+    print("       host:        tagent host ip .\n");
+    print("       port:        tagent host port. \n");
+    print("       username:    tagent sudo username(while tagent started by root/admin).\n");
+    print("       password:    tagent logon password.\n");
     print("       direction: push from local site to remote site or pull from remote site to local site .\n");
     print("       src: copy source path ,many src path , separated .\n");
     print("       dest: remote target path .\n");
-    exit(1);
+    print("       -np:         not preserve the mode of file\n");
+    print("       -cpifexists: copy if local dir or file exists.\n");
+
+    exit(-1);
 }
 
 sub main {
-    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest );
-
+    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest, $isVerbose, $np, $cpIfExists, $followLinks );
     Utils::setEnv();
+
     my $pname = basename($0);
+
+    $isVerbose = 0;
 
     GetOptions(
         'help'        => \$ishelp,
@@ -38,10 +46,15 @@ sub main {
         'pass:s'      => \$pass,
         'direction:s' => \$direction,
         'src:s'       => \$src,
-        'dest:s'      => \$dest
+        'dest:s'      => \$dest,
+        'v|verbose'   => \$isVerbose,
+        'np'          => \$np,
+        'followlinks' => \$followLinks,
+        'cpifexists'  => \$cpIfExists
     );
 
     my $optionError = 0;
+
     if ( not defined($host) or $host eq '' ) {
         print("ERROR: must define remote host.\n");
         $optionError = 1;
@@ -76,7 +89,7 @@ sub main {
     }
 
     if ( not defined($port) or $port eq '' ) {
-        $port = 21;
+        $port = '3939';
     }
 
     if ( $optionError == 1 ) {
@@ -84,75 +97,37 @@ sub main {
     }
 
     my $isSuccess = 0;
-    my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
-    $ftp->login( "ftpadmin", 'ftpadmin' ) or die "ERROR::$user login failed.\n";
-    $ftp->binary();
-    print("INFO:login ftp success.\n");
+    my @src_dirs  = split( /,/, $src );
+    my $tagent    = new TagentClient( $host, $port, $pass );
 
-    my @src_dirs = split( /,/, $src );
     if ( $direction eq 'push' ) {
         foreach my $target (@src_dirs) {
-            my $isFile = 0;
-            if ( !-d $target and !-e $target ) {
+            if ( !-d $target ) {
                 $isSuccess = 1;
-                print("ERROR:: src path $target not exists.\n");
+                print("ERROR: src path $target not exists .\n");
                 last;
             }
-            if ( -d $target ) {
-                $isFile = 0;
-            }
-            else {
-                $isFile = 1;
-            }
-            if ( $isFile == 0 ) {
-                my $target_name = basename($target);
-                print("INFO::upload folder $target.\n");
-
-                #切换目标根路径
-                $ftp->cwd($dest);
-                $ftp->mkdir($target_name);
-                $ftp->cwd($target_name);
-                chdir($target);
-                $ftp->rput($target);
-            }
-            else {
-                print("INFO::upload file $target.\n");
-                $ftp->put($target);
+            $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
+            if ( $isSuccess ne 0 ) {
+                last;
             }
         }
     }
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
             $isSuccess = 1;
-            print("ERROR:: dest path $dest not exists.\n");
+            print("ERROR: dest path $dest not exists .\n");
         }
         else {
             foreach my $target (@src_dirs) {
-                my $isFile = 0;
-                unless ( $ftp->cwd($target) ) {
-                    $isFile = 1;
-                }
-                else {
-                    $isFile = 0;
-                }
-                chdir($dest);
-                if ( $isFile == 0 ) {
-                    print("INFO::download folder $target.\n");
-                    my $folder = File::Spec->catfile( $dest, $target );
-                    if ( !-d $folder ) {
-                        system("mkdir -p $folder");
-                    }
-                    chdir($folder);
-                    $ftp->rget( $target, $folder );
-                }
-                else {
-                    print("INFO::download file $target.\n");
-                    $ftp->get($target);
+                $isSuccess = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
+                if ( $isSuccess ne 0 ) {
+                    last;
                 }
             }
         }
     }
-    $ftp->quit;
+
     if ( $isSuccess ne 0 ) {
         print("ERROR: $pname --$direction $src $dest failed.\n");
     }
