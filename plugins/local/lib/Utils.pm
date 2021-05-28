@@ -47,9 +47,20 @@ sub saveOutput {
     }
 }
 
+sub getMyNode {
+    my $nodeJson = $ENV{AUTOEXEC_NODE};
+    my $node;
+    
+    if ( defined($nodeJson) and $nodeJson ne '' ){
+        $node = from_json($nodeJson);
+    }
+
+    return $node;
+}
+
 sub getNode {
     my ($nodeId) = @_;
-    my $nodesJsonPath = $ENV{TASK_NODES_PATH};
+    my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
 
     my $node = {};
     my $fh   = IO::File->new("<$nodesJsonPath");
@@ -69,7 +80,7 @@ sub getNode {
 }
 
 sub getNodes {
-    my $nodesJsonPath = $ENV{TASK_NODES_PATH};
+    my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
 
     my $nodesMap = {};
     my $fh       = IO::File->new("<$nodesJsonPath");

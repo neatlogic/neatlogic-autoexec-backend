@@ -9,6 +9,7 @@ import sys
 import json
 import time
 
+
 class Utils:
 
     def __init__(self):
@@ -31,14 +32,47 @@ class Utils:
         outputFile.close()
         return data
 
-    def getNode(self):
-        pass
+    def getMyNode(self):
+        nodeJson = os.environ['AUTOEXEC_NODE']
+        node = None
+
+        if nodeJson is not None and nodeJson != '':
+            node = json.load(nodeJson)
+
+        return node
+
+    def getNode(self, nodeId):
+        matchNode = None
+
+        if 'AUTOEXEC_NODES_PATH' in os.environ:
+            nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
+            fh = open(nodesJsonPath, 'r')
+
+            while True:
+                line = fh.readline()
+                if not line:
+                    break
+                node = json.loads(line)
+                if node['nodeId'] == nodeId:
+                    matchNode = node
+
+        return matchNode
 
     def getNodes(self):
-        if 'TASK_NODES_PATH' in os.environ:
-            nodesJsonPath = os.environ['TASK_NODES_PATH']
+        nodesMap = {}
+
+        if 'AUTOEXEC_NODES_PATH' in os.environ:
+            nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
             fh = open(nodesJsonPath, 'r')
-            line = fh.readline()
+
+            while True:
+                line = fh.readline()
+                if not line:
+                    break
+                node = json.loads(line)
+                nodesMap[node['nodeId']] = node
+
+        return nodesMap
 
     def isJson(self, data):
         valid = False
@@ -48,17 +82,17 @@ class Utils:
         except ValueError:
             pass
         return valid
-    
-    #以下几种JSON字符都会影响json字符串转换成JSON格式
-    def handleJsonstr(self , jsonstr):
-        #将字符串里的单引号替换成双引号
-        jsonstr = jsonstr.replace('\'' , '\"')
-        #带u'的字符串
-        jsonstr = jsonstr.replace('u\'' , '\'')
-        #None数据
-        jsonstr = jsonstr.replace('None' , '""')
+
+    # 以下几种JSON字符都会影响json字符串转换成JSON格式
+    def handleJsonstr(self, jsonstr):
+        # 将字符串里的单引号替换成双引号
+        jsonstr = jsonstr.replace('\'', '\"')
+        # 带u'的字符串
+        jsonstr = jsonstr.replace('u\'', '\'')
+        # None数据
+        jsonstr = jsonstr.replace('None', '""')
         return jsonstr
 
-    #获取当前时间
+    # 获取当前时间
     def getCurrentTime(self):
-         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

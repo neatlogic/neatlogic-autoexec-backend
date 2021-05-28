@@ -172,17 +172,19 @@ class ServerAdapter:
 
             nodesFile.close()
 
-            if response.status == 205:
-                # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-                pass
-            elif response.status == 204:
-                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
-                pass
+            self.phases[phase].nodesFilePath = nodesFilePath
+
+        elif response.status == 205:
+            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+            pass
+        elif response.status == 204:
+            # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
+            self.phases[phase].nodesFilePath = nodesFilePath
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
@@ -208,7 +210,7 @@ class ServerAdapter:
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, phaseName, phaseStatus, status):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
@@ -233,7 +235,7 @@ class ServerAdapter:
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
     def fireNextPhase(self, lastPhase):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
@@ -290,8 +292,7 @@ class ServerAdapter:
                     cachedFile.write(chunk)
             return fileName
         except:
-            if response is None or response.status != 204:
-                raise
+            raise
         finally:
             if cachedFile is not None:
                 fcntl.lockf(cachedFile, fcntl.LOCK_UN)
@@ -328,8 +329,7 @@ class ServerAdapter:
                 cachedFile.truncate(0)
                 cachedFile.write(scriptContent)
         except:
-            if response is None or response.status != 204:
-                raise
+            raise
         finally:
             if cachedFile is not None:
                 fcntl.lockf(cachedFile, fcntl.LOCK_UN)
