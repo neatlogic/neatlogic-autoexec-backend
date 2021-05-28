@@ -110,15 +110,17 @@ class RunNode:
                 content = statusFile.read()
                 if content is not None and content != '':
                     statuses = json.loads(content)
+            if statuses is None:
+                statuses = {}
         except Exception as ex:
             self.logHandle.write('ERROR: Load and update status file:{}, failed {}\n'.format(self.statusPath, ex))
 
         if statusFile:
-            if op is None:
-                statuses['status'] = status
-            else:
-                statuses[op.opId] = status
             try:
+                if op is None:
+                    statuses['status'] = status
+                else:
+                    statuses[op.opId] = status
                 statusFile.truncate(0)
                 statusFile.write(json.dumps(statuses))
                 outputStore.saveStatus(statuses)

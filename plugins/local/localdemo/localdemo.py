@@ -1,17 +1,18 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import os
 import sys
 import argparse
-import Utils
 
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
+import Utils
 
 def usage():
-    # 帮助提示信息
+    # 帮助信息
     pname = os.path.basename(__file__)
     print(pname + "--tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate> --ttime <ttime> --tdatetime <tdatetime>")
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 
     # 保存输出到json文件
     print("Save output to file\n")
-    out = []
+    out = {}
     out['outtext'] = "this is the text out value"
     out['outpassword'] = "{RC4}xxxxxxxxxx"
     out['outfile'] = "this is the output file name"
