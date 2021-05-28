@@ -165,6 +165,26 @@ class Context:
         self.dbclient = None
         self.db = None
 
+        os.chdir(self.runPath)
+
+        if not os.path.exists('script'):
+            os.mkdir('script')
+
+        if not os.path.exists('file'):
+            os.mkdir('file')
+
+        if not os.path.exists('status'):
+            os.mkdir('status')
+
+        if not os.path.exists('log'):
+            os.mkdir('log')
+
+        if not os.path.exists('output'):
+            os.mkdir('output')
+
+        if not os.path.exists('output-op'):
+            os.mkdir('output-op')
+
     def __del__(self):
         if self.dbclient is not None:
             self.dbclient.close()

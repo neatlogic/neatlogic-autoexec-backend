@@ -29,7 +29,6 @@ class Operation:
         self.isScript = 0
         self.interpreter = ''
         self.scriptId = ''
-        self.lockedFD = []
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -49,6 +48,10 @@ class Operation:
             'cmd': '.bat',
             'powershell': '.ps1',
             'vbscript': '.vbs',
+            'bash': '.sh',
+            'ksh': '.sh',
+            'csh': '.sh',
+            'sh': '.sh',
             'javascript:': '.js'
         }
 
@@ -86,8 +89,6 @@ class Operation:
 
         self.options = {}
 
-        os.chdir(self.runPath)
-
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
@@ -99,9 +100,8 @@ class Operation:
         if self.isScript == 1:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
 
-            self.pluginParentPath = '{}/plugins/script'.format(self.context.homePath)
-            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
-
+            self.pluginPath = '{}/script/{}'.format(self.context.runPath, scriptFileName)
+            self.fetchScript(self.pluginPath, self.scriptId)
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
@@ -109,26 +109,6 @@ class Operation:
             else:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
-
-        if not os.path.exists('file'):
-            os.mkdir('file')
-
-        if not os.path.exists('status'):
-            os.mkdir('status')
-
-        if not os.path.exists('log'):
-            os.mkdir('log')
-
-        if not os.path.exists('output'):
-            os.mkdir('output')
-
-        if not os.path.exists('output-op'):
-            os.mkdir('output-op')
-
-    def __del__(self):
-        for lockFD in self.lockedFD:
-            fcntl.lockf(lockFD, fcntl.LOCK_UN)
-            lockFD.close()
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
@@ -153,8 +133,6 @@ class Operation:
                         fileName = self.fetchFile(argName, argValue)
                         argValue = 'file/' + fileName
                 self.options[argName] = argValue
-
-        # print("DEBUG:{}".format(str(self.options)))
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
     def fetchFile(self, argName, fileId):
@@ -181,15 +159,9 @@ class Operation:
         return fileName
 
     # 获取script
-    def fetchScript(self, scriptId, savePath):
-        savePath = '{}/script/{}.{}'.format(self.pluginRootPath, scriptId, self.extNameMap[self.interpreter])
-
-        scriptFile = open(savePath, 'r')
-        fcntl.flock(scriptFile, fcntl.LOCK_SH)
-        self.append(scriptFile)
-
+    def fetchScript(self, savePath, scriptId):
         serverAdapter = self.context.serverAdapter
-        serverAdapter.fetchFile(savePath, scriptId)
+        serverAdapter.fetchScript(savePath, scriptId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not refMap:
@@ -232,7 +204,27 @@ class Operation:
 
         return argValue
 
-    def getCmdLine(self, fullPath=False, osType='linux'):
+    def appendCmdOpts(self, cmd, noPassword=False):
+        for k, v in self.options.items():
+            isNodeParam = False
+            if 'desc' in self.param and k in self.param['desc']:
+                kDesc = self.param['desc'][k]
+                if kDesc.lower() == 'node':
+                    isNodeParam = True
+
+            if noPassword and (k == 'password' or k == 'pass'):
+                cmd = cmd + ' --{} "{}" '.format(k, '******')
+            else:
+                if isNodeParam:
+                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
+                elif len(k) == 1:
+                    cmd = cmd + ' -{} "{}" '.format(k, v)
+                else:
+                    cmd = cmd + ' --{} "{}" '.format(k, v)
+
+        return cmd
+
+    def getCmd(self, fullPath=False, osType='linux'):
         cmd = None
         if self.isScript:
             if self.opType == 'remote':
@@ -251,7 +243,7 @@ class Operation:
                 if fullPath:
                     cmd = '{} {}'.format(self.interpreter, self.pluginPath)
                 else:
-                    cmd = '{} {}'.format(self.interpreter, self.opName)
+                    cmd = self.pluginPath
         else:
             # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
             if self.opType == 'remote':
@@ -282,43 +274,14 @@ class Operation:
                 else:
                     cmd = self.opName
 
-        for k, v in self.options.items():
-            isNodeParam = False
-            if 'desc' in self.param and k in self.param['desc']:
-                kDesc = self.param['desc'][k]
-                if kDesc.lower() == 'node':
-                    isNodeParam = True
-
-            if isNodeParam:
-                cmd = cmd + ' --{} \'{}\' '.format(k, v)
-            elif len(k) == 1:
-                cmd = cmd + ' -{} "{}" '.format(k, v)
-            else:
-                cmd = cmd + ' --{} "{}" '.format(k, v)
-
         return cmd
 
-    def getCmdLineHidePassword(self):
-        cmd = None
-        if self.isScript:
-            cmd = self.interpreter + ' ' + self.opName
-        else:
-            cmd = self.opName
+    def getCmdLine(self, fullPath=False, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+        cmd = self.appendCmdOpts(cmd)
+        return cmd
 
-        for k, v in self.options.items():
-            isNodeParam = False
-            if 'desc' in self.param and k in self.param['desc']:
-                kDesc = self.param['desc'][k]
-                if kDesc.lower() == 'node':
-                    isNodeParam = True
-
-            if k == 'password' or k == 'pass':
-                cmd = cmd + ' --{} "{}" '.format(k, '******')
-            else:
-                if isNodeParam:
-                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
-                elif len(k) == 1:
-                    cmd = cmd + ' -{} "{}" '.format(k, v)
-                else:
-                    cmd = cmd + ' --{} "{}" '.format(k, v)
+    def getCmdLineHidePassword(self, fullPath=False, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+        cmd = self.appendCmdOpts(cmd, True)
         return cmd

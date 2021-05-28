@@ -27,15 +27,15 @@ import NodeStatus
 class Runner:
     def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, devMode=False, dataPath=None):
         # 初始化运行上下文
+        pPaths = os.path.split(os.path.realpath(__file__))
+        homePath = os.path.realpath(pPaths[0]+'/..')
+
         context = Context.Context(jobId, paramsFile, isForce, devMode, dataPath)
         self.context = context
         self.localDefinedParams = False
         self.localDefinedNodes = False
 
         loggingLevel = context.config.get('autoexec', 'logging.level')
-
-        pPaths = os.path.split(os.path.realpath(__file__))
-        homePath = os.path.realpath(pPaths[0]+'/..')
 
         logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
         logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
@@ -58,7 +58,7 @@ class Runner:
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
-            serverAdapter.getNodes()
+            context.serverAdapter.getNodes()
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
             self.localDefinedNodes = True
@@ -109,13 +109,16 @@ class Runner:
         self.context.addPhase(phaseName)
         phaseStatus = self.context.phases[phaseName]
         print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
-        self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.running)
+        self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
         failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
         if failCount == 0:
-            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.succeed)
+            if phaseStatus.ignoreFailNodeCount > 0:
+                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
+            else:
+                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
         else:
             self.context.hasFailNodeInGlobal = True
-            self.context.serverAdapter.pushPhaseStatus(phaseName, NodeStatus.failed)
+            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
         print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------------------------------\n")
 
@@ -127,13 +130,14 @@ class Runner:
             self.context.parallelCount = parallelCount
 
         opArgsRefMap = {}
-
+        lastPhase = None
         if 'runFlow' in params:
             for phaseGroup in params['runFlow']:
                 # runFlow是一个数组，每个元素是一个phaseGroup
                 threads = []
                 # 每个group有多个phase，使用线程并发执行
                 for phaseName, phaseConfig in phaseGroup.items():
+                    lastPhase = phaseName
                     if not self.context.hasFailNodeInGlobal:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
@@ -148,7 +152,7 @@ class Runner:
             print("INFO: ======Execute failed======")
         else:
             # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-            self.context.serverAdapter.pushPhaseStatus(None, '', 1)
+            self.context.serverAdapter.fireNextPhase(lastPhase)
             print("INFO: ======Execute succeed======")
 
         return status
@@ -216,6 +220,9 @@ if __name__ == "__main__":
 
     if not args.devmode and not sys.stdout.isatty():
         logDir = consoleLogPath = '{}/data/job/{}/log'.format(homePath, _getLogSubPath(args.jobid))
+        if not os.path.isdir(logDir):
+            os.mkdir(logDir)
+
         consoleHisLogDir = logDir + '/console.hislog'
         if not os.path.isdir(consoleHisLogDir):
             os.mkdir(consoleHisLogDir)

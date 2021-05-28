@@ -5,6 +5,7 @@
 """
 import sys
 import os
+import stat
 import fcntl
 import ssl
 import time
@@ -26,13 +27,13 @@ class ServerAdapter:
         # api路径的映射
         self.apiMap = {
             'register': '/codedriver/public/api/rest/autoexec/tool/register',
-            'getparams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
-            'getnodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchfile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchscript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
-            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'getParams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
+            'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchScript': '/codedriver/public/api/rest/autoexec/script/active/version/get',
+            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
         }
 
         self.context = context
@@ -42,7 +43,7 @@ class ServerAdapter:
 
         self.serverUserName = context.config.get('server', 'server.username')
         self.serverPassword = context.config.get('server', 'server.password')
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')))
+        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -130,8 +131,8 @@ class ServerAdapter:
             'jobId': self.context.jobId
         }
 
-        # response = self.httpPOST(self.apiMap['getparams'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getparams'], self.authToken, params)
+        # response = self.httpPOST(self.apiMap['getParams'], self.authToken, params)
+        response = self.httpGET(self.apiMap['getParams'], self.authToken, params)
 
         paramsFilePath = self.context.paramsFilePath
         paramsFile = open(paramsFilePath, 'w')
@@ -150,13 +151,19 @@ class ServerAdapter:
         }
 
         if phase is not None:
-            params['phase'] = '系统'
+            params['phase'] = phase
 
-        # response = self.httpPOST(self.apiMap['getnodes'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getnodes'], self.authToken, params)
+        lastModifiedTime = 0
+        nodesFilePath = self.context.getNodesFilePath(phase)
+        if os.path.exists(nodesFilePath):
+            lastModifiedTime = os.path.getmtime(nodesFilePath)
+
+        params['lastModified'] = lastModifiedTime
+
+        # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
+        response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
         if response.status == 200:
-            nodesFilePath = self.context.getNodesFilePath(phase)
             nodesFile = open(nodesFilePath, 'w')
 
             for line in response:
@@ -164,35 +171,42 @@ class ServerAdapter:
                 nodesFile.write("\n")
 
             nodesFile.close()
-        elif response.status == 304:
-            # 如果阶段playbook的运行节点跟pipeline一致，则服务端api给出304反馈，代表没有更改，不需要处理
-            pass
+
+            if response.status == 205:
+                # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+                pass
+            elif response.status == 204:
+                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
+                pass
 
     # 更新运行阶段某个节点的状态到服务端
-    def pushNodeStatus(self, phaseName, runNode, status, failIgnore):
+    def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
         if self.context.devMode:
             return
 
         params = {
             'jobId': self.context.jobId,
             'phase': phaseName,
-            'nodeId': runNode.node,
-            'output': runNode.output,
+            'nodeId': runNode.id,
+            'host': runNode.host,
+            'port': runNode.port,
             'status': status,
             'failIgnore': failIgnore,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
+
         response = self.httpJSON(self.apiMap['updateNodeStatus'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 更新运行端阶段的状态
-    def pushPhaseStatus(self, phaseName, status, fireNext=0):
+    def pushPhaseStatus(self, phaseName, phaseStatus, status):
         if self.context.devMode:
             return
 
@@ -200,35 +214,41 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phase': phaseName,
             'status': status,
+            'failNodeCount': phaseStatus.failNodeCount,
+            'sucNodeCount': phaseStatus.sucNodeCount,
+            'skipNodeCount': phaseStatus.skipNodeCount,
+            'ignoreFailNodeCount': phaseStatus.ignoreFailNodeCount,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
-    def fireNextPhase(self, phaseName):
+    def fireNextPhase(self, lastPhase):
         if self.context.devMode:
             return
 
         params = {
             'jobId': self.context.jobId,
-            'phase': phaseName,
+            'lastPhase': lastPhase,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
 
         try:
-            content = response.read()
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise
 
     # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
@@ -243,14 +263,14 @@ class ServerAdapter:
 
         params['lastModified'] = lastModifiedTime
 
-        url = self.serverBaseUrl + self.apiMap['fetchfile']
+        url = self.serverBaseUrl + self.apiMap['fetchFile']
 
         cachedFile = None
         fileName = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'a+')
-            response = self.httpGET(self.apiMap['fetchfile'], self.authToken, params)
+            cachedFile = open(cachedFilePath, 'ab+')
+            response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
             contentDisposition = resHeaders['Content-Disposition']
@@ -270,7 +290,7 @@ class ServerAdapter:
                     cachedFile.write(chunk)
             return fileName
         except:
-            if response is None or response.status != 304:
+            if response is None or response.status != 204:
                 raise
         finally:
             if cachedFile is not None:
@@ -299,22 +319,22 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
+                charset = response.info().get_content_charset()
+                content = response.read().decode(charset)
+                retObj = json.loads(content)
+                scriptContent = retObj['Return']['script']
+
                 fcntl.lockf(cachedFile, fcntl.LOCK_EX)
                 cachedFile.truncate(0)
-                CHUNK = 16 * 1024
-
-                while True:
-                    chunk = response.read(CHUNK)
-                    if not chunk:
-                        break
-                    cachedFile.write(chunk)
+                cachedFile.write(scriptContent)
         except:
-            if response is None or response.status != 304:
+            if response is None or response.status != 204:
                 raise
         finally:
             if cachedFile is not None:
                 fcntl.lockf(cachedFile, fcntl.LOCK_UN)
                 cachedFile.close()
+                os.chmod(savePath, stat.S_IRWXU)
 
         return savePath
 
@@ -323,7 +343,8 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
 
         try:
-            content = response.read()
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
             return json.loads(content)
         except:
-            return None
+            raise

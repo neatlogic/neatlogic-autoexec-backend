@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
- 提供读取节点文件，遍历节点，更新节点运行状态功能
+ 运行节点类
 """
 import sys
 import os
+import traceback
 import fcntl
 import io
 import signal
@@ -83,26 +84,31 @@ class RunNode:
             os.mkdir(self.logPhaseDir)
 
         self.status = NodeStatus.pending
-        self.outputStore = OutputStore.OutputStore(context, node)
+        self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
         self._loadOutput()
 
     def __del__(self):
         if self.logHandle is not None:
             self.logHandle.close()
 
-    def updateNodeStatus(self, status, failIgnore=0, op=None, consumeTime=0):
+    def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
         statuses = {}
 
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             self.context.hasFailNodeInGlobal = True
 
+        outputStore = OutputStore.OutputStore(self.context, self.phaseName, self.node)
         statusFile = None
         try:
-            statusFile = open(self.statusPath, 'a+')
-            statusFile.seek(0, 0)
-            content = statusFile.read()
-            if content is not None and content != '':
-                statuses = json.loads(content)
+            if not os.path.exists(self.statusPath):
+                statuses = outputStore.loadStatus()
+                statusFile = open(self.statusPath, 'a+')
+            else:
+                statusFile = open(self.statusPath, 'a+')
+                statusFile.seek(0, 0)
+                content = statusFile.read()
+                if content is not None and content != '':
+                    statuses = json.loads(content)
         except Exception as ex:
             self.logHandle.write('ERROR: Load and update status file:{}, failed {}\n'.format(self.statusPath, ex))
 
@@ -114,6 +120,7 @@ class RunNode:
             try:
                 statusFile.truncate(0)
                 statusFile.write(json.dumps(statuses))
+                outputStore.saveStatus(statuses)
                 # TODO: write status file to share object store
                 statusFile.close()
             except Exception as ex:
@@ -123,7 +130,7 @@ class RunNode:
             try:
                 serverAdapter = self.context.serverAdapter
                 # 当status为failed，但是failIgnore为1，不影响继续执行
-                retObj = serverAdapter.pushNodeStatus(self, self.phaseName, status, failIgnore)
+                retObj = serverAdapter.pushNodeStatus(self.phaseName, self, status, failIgnore)
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
@@ -132,7 +139,8 @@ class RunNode:
                             self.context.hasFailNodeInGlobal = True
 
             except Exception as ex:
-                self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
+                raise
+                #self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
@@ -178,7 +186,7 @@ class RunNode:
         else:
             # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
             localNode = {'host': 'local', 'port': 0}
-            loalOutStore = OutputStore.OutputStore(self.context, localNode)
+            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
             output = loalOutStore.loadOutput()
 
         return output
@@ -350,6 +358,7 @@ class RunNode:
                         break
             except:
                 isFail = 1
+                traceback.print_exc()
                 break
 
         nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -378,7 +387,7 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
@@ -386,10 +395,21 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        scriptFile = None
+        if op.isScript == 1:
+            scriptFile = open(op.pluginPath, 'r')
+            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
+
+        if scriptFile is not None:
+            fcntl.flock(scriptFile, fcntl.LOCK_UN)
+            scriptFile.close()
+            scriptFile = None
+
         # 管道启动成功后，更新状态为running
-        self.updateNodeStatus(NodeStatus.running, op)
+        self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -401,6 +421,10 @@ class RunNode:
         # 等待插件执行完成并获取进程返回值，0代表成功
         child.wait()
         ret = child.returncode
+
+        lastContent = child.stdout.read()
+        if lastContent is not None:
+            self.logHandle.write(lastContent)
 
         if ret == 0:
             self.logHandle.write("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
@@ -416,7 +440,7 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword()
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         environment = {}
@@ -424,10 +448,21 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        scriptFile = None
+        if op.isScript == 1:
+            scriptFile = open(op.pluginPath, 'r')
+            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+
+        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
+
+        if scriptFile is not None:
+            fcntl.flock(scriptFile, fcntl.LOCK_UN)
+            scriptFile.close()
+            scriptFile = None
+
         # 管道启动成功后，更新状态为running
-        self.updateNodeStatus(NodeStatus.running, op)
+        self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -453,6 +488,7 @@ class RunNode:
         remoteCmd = ''
         ret = -1
         if self.type == 'tagent':
+            scriptFile = None
             try:
                 remotePath = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
@@ -460,13 +496,18 @@ class RunNode:
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op)
+                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 remoteCmd = None
                 uploadRet = 0
                 if op.isScript == 1:
+                    scriptFile = open(op.pluginPath, 'r')
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
                     uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    scriptFile.close()
+                    scriptFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remotePath)
@@ -492,6 +533,11 @@ class RunNode:
             except Exception as ex:
                 self.logHandle.write("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
                 raise ex
+            finally:
+                if scriptFile is not None:
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    scriptFile.close()
+
             if ret == 0:
                 self.logHandle.write("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmd))
             else:
@@ -504,6 +550,7 @@ class RunNode:
             remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
             self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
 
+            scriptFile = None
             uploaded = False
             scp = None
             sftp = None
@@ -513,7 +560,7 @@ class RunNode:
                 scp.connect(username=self.username, password=self.password)
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op)
+                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
                 sftp = paramiko.SFTPClient.from_transport(scp)
@@ -527,7 +574,12 @@ class RunNode:
                     self.logHandle.write("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 if op.isScript == 1:
+                    scriptFile = open(op.pluginPath, 'r')
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
                     sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opName))
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    scriptFile.close()
+                    scriptFile = None
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -561,6 +613,10 @@ class RunNode:
 
             except Exception as err:
                 self.logHandle.write('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
+            finally:
+                if scriptFile is not None:
+                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    scriptFile.close()
 
             if uploaded and not self.context.goToStop:
                 ssh = None
