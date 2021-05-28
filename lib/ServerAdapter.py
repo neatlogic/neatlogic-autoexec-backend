@@ -182,7 +182,7 @@ class ServerAdapter:
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
@@ -208,7 +208,7 @@ class ServerAdapter:
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, phaseName, phaseStatus, status):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
@@ -233,7 +233,7 @@ class ServerAdapter:
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
     def fireNextPhase(self, lastPhase):
         if self.context.devMode:
-            return
+            return {}
 
         params = {
             'jobId': self.context.jobId,
