@@ -1,8 +1,19 @@
 {
-    "opName" : "activemq采集插件", "opType" : "remote", "desc" : {
+	"opDesc": "activemq采集插件",
+	"opType": "target",
+	"typeName" :"自动采集",
+        "riskName":"低风险",
+	"interpreter":"perl",
+	"description":"activemq采集插件",
+	"desc": {
 
-        },
-        "output"
-        : { "outjson" : { "name" : "采集数据", "help" : "采集数据输出字段", "type" : "json" } }
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
 }
 

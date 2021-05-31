@@ -1,6 +1,10 @@
 {
-	"opName": "SSH远程拷贝",
-	"opType": "local",
+	"opDesc": "SSH远程拷贝",
+	"opType": "runner",
+	"typeName": "基础工具",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "基于SSH协议进行文件传输",
 	"desc": {
 		"host": {
 			"name": "主机IP",

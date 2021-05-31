@@ -1,8 +1,12 @@
 {
-	"opName": "tuxedo采集插件",
-	"opType": "remote",
+	"opDesc": "tuxedo采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "tuxedo采集插件",
 	"desc": {
-		
+
 	},
 	"output": {
 		"outjson": {

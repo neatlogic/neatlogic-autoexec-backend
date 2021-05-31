@@ -1,16 +1,12 @@
 {
-	"opName": "OS操作系统采集插件",
-	"opType": "remote",
+	"opDesc": "OS操作系统采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "操作系统采集插件",
 	"desc": {
-		"node": {
-			"name": "节点IP",
-			"help": "执行节点IP",
-			"type": "input",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		}
+
 	},
 	"output": {
 		"outjson": {

@@ -1,6 +1,10 @@
 {
-	"opName": "tagent文件拷贝",
-	"opType": "local",
+	"opDesc": "tagent文件拷贝",
+	"opType": "runner",
+	"typeName" :"基础工具",
+        "riskName":"低风险",
+	"interpreter":"perl",
+        "description":"基于tagent文件传输",
 	"desc": {
 		"host": {
 			"name": "tagent IP",
@@ -95,3 +99,4 @@
 
 	}
 }
+

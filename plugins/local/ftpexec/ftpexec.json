@@ -1,6 +1,10 @@
 {
-	"opName": "FTP远程拷贝",
-	"opType": "local",
+	"opDesc": "FTP远程拷贝",
+	"opType": "runner",
+	"typeName": "基础工具",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "基于FTP文件传输",
 	"desc": {
 		"host": {
 			"name": "FTP服务IP",

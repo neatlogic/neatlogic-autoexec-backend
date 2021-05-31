@@ -1,8 +1,12 @@
 {
-	"opName": "sybase采集插件",
-	"opType": "remote",
+	"opDesc": "sybase采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "sybase采集插件",
 	"desc": {
-		 
+
 	},
 	"output": {
 		"outjson": {
