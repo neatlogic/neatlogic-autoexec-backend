@@ -284,7 +284,12 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
-                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+                try:
+                    fcntl.lockf(cachedFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except IOError as ex:
+                    print("WARN: Lock file {} failed, {}, file is used by other jobs, waiting...".format(cachedFilePath, ex))
+                    fcntl.lockf(cachedFile, fcntl.LOCK_EX)
+
                 cachedFile.truncate(0)
                 CHUNK = 16 * 1024
                 while True:

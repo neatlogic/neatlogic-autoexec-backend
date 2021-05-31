@@ -28,7 +28,7 @@ class Operation:
         self.opName = param['opName']
         self.isScript = 0
         self.interpreter = ''
-        #self.scriptId = ''
+        self.lockedFDs = []
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -110,6 +110,11 @@ class Operation:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
 
+    def __del__(self):
+        for fd in self.lockedFDs:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            fd.close()
+
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None):
         opDesc = {}
@@ -135,28 +140,33 @@ class Operation:
                 self.options[argName] = argValue
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
-    def fetchFile(self, argName, fileId):
+    def fetchFile(self, argName, fileIds):
         cachePath = self.dataPath + '/cache'
         serverAdapter = self.context.serverAdapter
-        fileName = serverAdapter.fetchFile(cachePath, fileId)
 
-        if fileName is None:
-            fileName = argName
+        fileNamesArray = []
+        for fileId in fileIds:
+            fileName = serverAdapter.fetchFile(cachePath, fileId)
 
-        cacheFilePath = cachePath + '/' + fileId
+            if fileName is None:
+                fileName = '{}'.format(argName)
 
-        cacheFile = open(cacheFilePath, 'r')
-        fcntl.flock(cacheFile, fcntl.LOCK_SH)
-        self.append(cacheFile)
+            cacheFilePath = cachePath + '/' + fileId
 
-        linkPath = self.runPath + '/file/' + fileName
-        if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
-            os.unlink(linkPath)
+            cacheFile = open(cacheFilePath, 'r')
+            fcntl.flock(cacheFile, fcntl.LOCK_SH)
+            self.lockedFDs.append(cacheFile)
 
-        if not os.path.exists(linkPath):
-            os.link(cacheFilePath, linkPath)
+            linkPath = self.runPath + '/file/' + fileName
+            if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
+                os.unlink(linkPath)
 
-        return fileName
+            if not os.path.exists(linkPath):
+                os.link(cacheFilePath, linkPath)
+
+            fileNamesArray.append(fileName)
+
+        return ','.join(fileNamesArray)
 
     # 获取script
     def fetchScript(self, savePath, opId):

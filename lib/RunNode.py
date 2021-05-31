@@ -276,7 +276,7 @@ class RunNode:
                 os.mkdir(hisLogDir)
 
             # 创建带时间戳的日志文件名
-            logPathWithTime = '{}/{}.{}.txt'.format(hisLogDir, time.strftime('%Y%m%d-%H%M%S'), self.context.execUser)
+            logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, time.strftime('%Y%m%d-%H%M%S'), self.getNodeStatus(), self.context.execUser)
             os.link(self.logPath, logPathWithTime)
         except Exception as ex:
             self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
