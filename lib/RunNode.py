@@ -280,6 +280,7 @@ class RunNode:
             self.updateNodeStatus(NodeStatus.failed)
 
         # TODO：restore status and output from share object storage
+        nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
         nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeStartTime = time.time()
         self.logHandle.write("======[{}]{}:{} <{}>======\n\n".format(self.id, self.host, self.port, nodeBeginDateTime))
@@ -308,17 +309,16 @@ class RunNode:
                 except:
                     isFail = 1
 
-            if op.opName == 'setglobalenv':
-                envName = op.options['name']
-                envValue = op.options['value']
-                self.context.setEnv(envName, envValue)
-                continue
-
             try:
+                if op.opName == 'setenv' or op.opName == 'setglobalenv':
+                    envName = op.options['name']
+                    envValue = op.options['value']
+                    self.context.setEnv(envName, envValue)
+                    continue
+
                 if not os.path.exists(op.pluginPath):
                     self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
-                beginDateTimeInFileName = time.strftime('%Y%m%d-%H%M%S')
                 beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
                 startTime = time.time()
 
@@ -389,7 +389,7 @@ class RunNode:
             self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
 
         # 创建带时间戳的日志文件名
-        logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, beginDateTimeInFileName, finalStatus, self.context.execUser)
+        logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, nodeBeginDateTimeFN, finalStatus, self.context.execUser)
         os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None

@@ -18,7 +18,9 @@ class OutputStore:
         self.phaseName = phaseName
         self.db = context.db
         self.node = node
-        self.outputFile = '{}/output/{}-{}.json'.format(context.runPath, node['host'], node['port'])
+        self.outputFile = None
+        if node is not None:
+            self.outputFile = '{}/output/{}-{}.json'.format(context.runPath, node['host'], node['port'])
 
     def saveOutput(self, output):
         db = self.db
@@ -87,5 +89,18 @@ class OutputStore:
                 status = outData['data']
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not load status for node({}:{}), {}'.format(self.node['host'],  self.node['port'], ex))
+
+        return status
+
+    def removeJobStatus(self):
+        db = self.db
+        collection = db['node_status']
+
+        status = {}
+        try:
+            pk = {'jobId': self.jobId}
+            collection.remove(pk)
+        except Exception as ex:
+            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(jobId))
 
         return status

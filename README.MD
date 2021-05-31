@@ -69,6 +69,11 @@ python3 bin/autoexec --jobid "2983676" --abort
 ```
 *停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态"已中止"callback后台服务。*
 
+- 清理作业的运行状态记录
+```shell
+python3 bin/autoexec --jobid "374288003424256" --cleanstatus
+```
+*作业运行后会存储了各个节点的状态，运行成功的不会再运行，如为了测试需要，则可以执行此命令清除状态记录*
 
 ## 文件目录介绍
 ### 程序文件
@@ -76,8 +81,9 @@ python3 bin/autoexec --jobid "2983676" --abort
 
 *主程序，进行参数处理和初始化作业运行需要的目录环境变量等信息*
 
+- lib/VContext.py
 - lib/Context.py
-
+*VContext.py是Context.py的父亲类*
 *保存所有运行相关的信息，在各个环境进行传递。信息包括:作业ID、执行用户、日志和状态等相关路径信息、各个阶段的运行状态、MongoDB的连接等等*
 
 - lib/AutoexecError.py

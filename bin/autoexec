@@ -5,6 +5,7 @@
 """
 import os
 import sys
+import shutil
 import threading
 import initenv
 import platform
@@ -17,11 +18,13 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
+import VContext
 import Context
 import ServerAdapter
 import Operation
 import PhaseExecutor
 import NodeStatus
+import OutputStore
 
 
 class Runner:
@@ -213,6 +216,7 @@ if __name__ == "__main__":
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
+    parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
 
     args = parser.parse_args()
@@ -237,11 +241,22 @@ if __name__ == "__main__":
         sys.stdout = f
         sys.stderr = f
 
-    if args.register:
+    if args.cleanstatus:
+        vContext = VContext.VContext(args.jobid)
+        vContext.initDB(1)
+
+        outputStore = OutputStore.OutputStore(vContext, None, None)
+        outputStore.removeJobStatus()
+
+        statusPath = '{}/status'.format(vContext.runPath)
+        if os.path.exists(statusPath):
+            shutil.rmtree(statusPath)
+
+    elif args.register:
         pluginsPath = homePath + '/plugins'
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
-        vContext = Context.Context(0)
+        vContext = VContext.VContext(0)
         vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 

@@ -8,6 +8,7 @@ import os
 import logging
 import threading
 from threading import Thread
+import traceback
 import subprocess
 import queue
 import copy
@@ -38,7 +39,14 @@ class PhaseWorker(threading.Thread):
                 # 运行完所有操作
                 phaseStatus = self.context.phases[self.phaseName]
                 localOps = copy.copy(self.operations)  # 为了让每个节点都有独立的插件参数记录，复制operation
-                ret = node.execute(localOps)
+                try:
+                    ret = node.execute(localOps)
+                except Exception as ex:
+                    node.logHandle.write("ERROR: Unknow error occurred.\n")
+                    node.logHandle.write(str(ex))
+                    node.logHandle.write(traceback.format_exc())
+                    ret = 3
+
                 if ret != 0:
                     phaseStatus.incFailNodeCount()
                     print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))
