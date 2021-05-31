@@ -275,9 +275,6 @@ class RunNode:
             if not os.path.exists(hisLogDir):
                 os.mkdir(hisLogDir)
 
-            # 创建带时间戳的日志文件名
-            logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, time.strftime('%Y%m%d-%H%M%S'), self.getNodeStatus(), self.context.execUser)
-            os.link(self.logPath, logPathWithTime)
         except Exception as ex:
             self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
             self.updateNodeStatus(NodeStatus.failed)
@@ -321,6 +318,7 @@ class RunNode:
                 if not os.path.exists(op.pluginPath):
                     self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
+                beginDateTimeInFileName = time.strftime('%Y%m%d-%H%M%S')
                 beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
                 startTime = time.time()
 
@@ -373,18 +371,26 @@ class RunNode:
         nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeConsumeTime = time.time() - nodeStartTime
 
+        finalStatus = NodeStatus.succeed
         if isFail == 0:
             if hasIgnoreFail == 1:
                 # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                 self.hasIgnoreFail = 1
-                self.updateNodeStatus(NodeStatus.ingore, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
+                finalStatus = NodeStatus.ingore
+                self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
                 self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed, ignore======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
             else:
-                self.updateNodeStatus(NodeStatus.succeed, consumeTime=nodeConsumeTime)
+                finalStatus = NodeStatus.succeed
+                self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
                 self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second succeed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
         else:
-            self.updateNodeStatus(NodeStatus.failed, consumeTime=nodeConsumeTime)
+            finalStatus = NodeStatus.failed
+            self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
             self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+
+        # 创建带时间戳的日志文件名
+        logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, beginDateTimeInFileName, finalStatus, self.context.execUser)
+        os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None
         return isFail
