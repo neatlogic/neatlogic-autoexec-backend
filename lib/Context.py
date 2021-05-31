@@ -10,10 +10,12 @@ from filelock import FileLock
 import configparser
 import json
 from shutil import copyfile
+import datetime
 import pymongo
 
 import PhaseStatus
 import ServerAdapter
+import AutoExecError
 import Utils
 
 
@@ -146,7 +148,7 @@ class Context:
 
         if 'jobId' in params:
             jobId = params['jobId']
-            self.jobId = jobId
+            self.jobId = '{}'.format(jobId)
 
         if 'execUser' in params:
             self.execUser = params['execUser']
@@ -188,6 +190,42 @@ class Context:
     def __del__(self):
         if self.dbclient is not None:
             self.dbclient.close()
+
+    def loadEnv(self):
+        db = self.db
+        collection = db['autoexec_env']
+
+        envs = {}
+        try:
+            pk = {'jobId': self.jobId}
+            outData = collection.find_one(pk, {'data': True})
+
+            for item in collection.find(pk, {'_id': 0, 'name': 1, 'value': 1}):
+                os.environ[item['name']] = item['value']
+
+        except Exception as ex:
+            raise AutoExecError.AutoExecError('Can not load envirment, {}'.format(ex))
+
+    def setEnv(self, name, value):
+        os.environ[name] = value
+
+        db = self.db
+        collection = db['autoexec_env']
+        pk = {'jobId': self.jobId}
+        outData = {}
+        outData['name'] = name
+        outDate['value'] = value
+        outData['createDate'] = datetime.datetime.utcnow()
+        outData.update(pk)
+
+        try:
+            collection.update(
+                pk,
+                {'$set':     outData},
+                upsert=True
+            )
+        except Exception as ex:
+            raise AutoExecError.AutoExecError('Can not save envirment {}={}, {}'.format(name, value, ex))
 
     def initDB(self, parallelCount):
         # 初始化创建mongodb connect

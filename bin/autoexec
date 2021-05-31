@@ -76,6 +76,7 @@ class Runner:
         phaseStatus.hasRemote = False
 
         self.context.initDB(parallelCount)
+        self.context.loadEnv()
 
         operations = []
         # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
@@ -102,11 +103,12 @@ class Runner:
         return executor.execute()
 
     def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
+        self.context.addPhase(phaseName)
+
         serverAdapter = self.context.serverAdapter
         if not self.localDefinedNodes:
             serverAdapter.getNodes(phaseName)
 
-        self.context.addPhase(phaseName)
         phaseStatus = self.context.phases[phaseName]
         print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
         self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)

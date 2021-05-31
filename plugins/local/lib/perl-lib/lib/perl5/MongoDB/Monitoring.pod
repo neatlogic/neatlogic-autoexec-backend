@@ -1,0 +1,465 @@
+#  Copyright 2018 - present MongoDB, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+# PODNAME: MongoDB::Monitoring
+# ABSTRACT: Internal event monitoring API for instrumentation
+
+
+# vim: set ts=4 sts=4 sw=4 et tw=75:
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+MongoDB::Monitoring - Internal event monitoring API for instrumentation
+
+=head1 VERSION
+
+version v2.2.2
+
+=head1 DESCRIPTION
+
+The L<MongoDB::MongoClient> takes an optional C<monitoring_callback>
+attribute, which can be used to monitor events that occur during the
+operation of the driver.
+
+The API is very simple: given a code reference, a hashref for each event
+is passed to the code reference.  Here is a simple example that just
+accumulates events in an array:
+
+    our @events;
+    my $cb = sub { push @events, $_[0] };
+
+    MongoDB->connect( $uri, { monitoring_callback => $cb } );
+
+=head1 EVENT TYPES
+
+Every event is a hash reference, with a C<type> field indicating the type,
+e.g. C<command_started>.  Each type is described below.
+
+=head2 Command Monitoring
+
+These events are fired for commands directly to the wire and the response.
+
+=head3 command_started
+
+This event is sent just before a command is put one the wire.  It will be
+followed by either a C<command_succeeded> or C<command_failed> event.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "command_started"
+
+=item *
+
+databaseName: the name of the database to which the command applies
+
+=item *
+
+commandName: the name of the command being executed; for legacy operations that don't use commands, the driver will convert them to appear as if they are in command form.
+
+=item *
+
+command: a hash reference representing the full command to be sent
+
+=item *
+
+requestId: the request identifier sent to the server
+
+=item *
+
+connectionId: address and port of the destination server
+
+=back
+
+=head3 command_succeeded
+
+This event is sent just after a command reply is received, but only if the
+database reply document contains a non-false C<ok> field.  NOTE: write
+errors will have C<ok:1> even though they have write errors; for writes,
+success indicates that the write attempt was valid, not that the write
+succeeded.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "command_succeeded"
+
+=item *
+
+commandName: the name of the command being executed
+
+=item *
+
+durationSecs: the elapsed time in seconds since the C<command_started> event.
+
+=item *
+
+reply: a hash reference representing the full database reply
+
+=item *
+
+requestId: the request identifier sent to the server
+
+=item *
+
+connectionId: address and port of the destination server
+
+=back
+
+=head3 command_failed
+
+This event is sent just after a command reply is received, but only if the
+database reply document contains a false C<ok> field or if an exception
+occurred during send or receive operations.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "command_failed"
+
+=item *
+
+commandName: the name of the command being executed
+
+=item *
+
+durationSecs: the elapsed time in seconds since the C<command_started> event.
+
+=item *
+
+failure: a string with a error message about the failure
+
+=item *
+
+eval_error: if an exception occurs, this contains the value of C<$@> when the exception was caught
+
+=item *
+
+reply: a hash reference representing the full database reply or an empty hashref if the failure is due to an exception
+
+=item *
+
+requestId: the request identifier sent to the server
+
+=item *
+
+connectionId: address and port of the destination server
+
+=back
+
+=head2 Server Discovery and Monitoring
+
+These events are fired when servers and topology are amended.
+
+=head3 server_opening_event
+
+This event is sent when a new server is added to the topology.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_opening_event"
+
+=item *
+
+topologyId: The topology refaddr
+
+=item *
+
+address: address of the server
+
+=back
+
+=head3 server_closed_event
+
+This event is sent when a server is removed from the topology.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_closed_event"
+
+=item *
+
+topologyId: The topology refaddr
+
+=item *
+
+address: address of the server
+
+=back
+
+=head3 server_description_changed_event
+
+This event is sent when the server description changes, but does not include
+changes to the RTT.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_description_changed_event"
+
+=item *
+
+address: address of the server
+
+=item *
+
+topologyId: The topology refaddr
+
+=item *
+
+previousDescription: Server Description before the change
+
+=item *
+
+newDescription: Server Description after the change
+
+=back
+
+=head3 topology_opening_event
+
+This event is sent when the topology is created.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "topology_opening_event"
+
+=item *
+
+topologyId: The topology refaddr
+
+=back
+
+=head3 topology_closed_event
+
+This event is sent when the topology is closed.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "topology_closed_event"
+
+=item *
+
+topologyId: The topology refaddr
+
+=back
+
+=head3 topology_description_changed_event
+
+This event is sent when the topology description changes.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "topology_description_changed_event"
+
+=item *
+
+topologyId: The topology refaddr
+
+=item *
+
+previousDescription: Topology Description before the change
+
+=item *
+
+newDescription: Topology Description after the change
+
+=back
+
+=head3 server_heartbeat_started_event
+
+This event is sent before the ismaster command is sent to the server.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_heartbeat_started_event"
+
+=item *
+
+connectionId: address of the link to connect to
+
+=back
+
+=head3 server_heartbeat_succeeded_event
+
+This event is sent after the reply from the ismaster command arrives from a
+successful reply.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_heartbeat_succeeded_event"
+
+=item *
+
+duration: time it took to send and receive a reply
+
+=item *
+
+reply: the ismaster command reply
+
+=item *
+
+connectionId: address of the server
+
+=back
+
+=head3 server_heartbeat_failed_event
+
+This event is sent if there is a failure from the ismaster command, which returns
+an error string of some sort.
+
+Fields:
+
+=over 4
+
+=item *
+
+type: "server_heartbeat_failed_event"
+
+=item *
+
+duration: time it took to send and receive a reply
+
+=item *
+
+failure: Returns an error string of the failure
+
+=item *
+
+connectionId: address of the server
+
+=back
+
+=head1 REDACTION
+
+Certain commands are considered sensitive.  When any of the following
+commands are seen in monitoring, the command body and database reply body
+are replaced with an empty document:
+
+=over 4
+
+=item *
+
+authenticate
+
+=item *
+
+saslStart
+
+=item *
+
+saslContinue
+
+=item *
+
+getnonce
+
+=item *
+
+createUser
+
+=item *
+
+updateUser
+
+=item *
+
+copydbgetnonce
+
+=item *
+
+copydbsaslstart
+
+=back
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+David Golden <david@mongodb.com>
+
+=item *
+
+Rassi <rassi@mongodb.com>
+
+=item *
+
+Mike Friedman <friedo@friedo.com>
+
+=item *
+
+Kristina Chodorow <k.chodorow@gmail.com>
+
+=item *
+
+Florian Ragwitz <rafl@debian.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2020 by MongoDB, Inc.
+
+This is free software, licensed under:
+
+  The Apache License, Version 2.0, January 2004
+
+=cut

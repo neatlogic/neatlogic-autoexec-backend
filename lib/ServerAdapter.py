@@ -172,14 +172,16 @@ class ServerAdapter:
 
             nodesFile.close()
 
-            self.phases[phase].nodesFilePath = nodesFilePath
+            if phase is not None:
+                self.context.phases[phase].nodesFilePath = nodesFilePath
 
         elif response.status == 205:
             # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
             pass
         elif response.status == 204:
             # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
-            self.phases[phase].nodesFilePath = nodesFilePath
+            if phase is not None:
+                self.context.phases[phase].nodesFilePath = nodesFilePath
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):

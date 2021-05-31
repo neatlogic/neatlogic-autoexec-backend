@@ -311,6 +311,12 @@ class RunNode:
                 except:
                     isFail = 1
 
+            if op.opName == 'setglobalenv':
+                envName = op.options['name']
+                envValue = op.options['value']
+                self.context.setEnv(envName, envValue)
+                continue
+
             try:
                 if not os.path.exists(op.pluginPath):
                     self.logHandle.write("ERROR: Plugin not exists {}\n".format(op.pluginPath))

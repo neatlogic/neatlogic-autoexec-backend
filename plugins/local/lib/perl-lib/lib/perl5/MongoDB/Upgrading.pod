@@ -1,0 +1,465 @@
+#  Copyright 2014 - present MongoDB, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+# PODNAME: MongoDB::Upgrading
+# ABSTRACT: Deprecations and behavior changes from v1 to v2
+
+
+# vim: set ts=4 sts=4 sw=4 et tw=75:
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+MongoDB::Upgrading - Deprecations and behavior changes from v1 to v2
+
+=head1 VERSION
+
+version v2.2.2
+
+=head1 DESCRIPTION
+
+The v2 driver represents an evolutionary rather than revolutionary release,
+but with enough differences to justify a major version bump.
+
+The most significant change in v2 is a switch away from the embedded BSON
+encoder/decoder to an external library, L<BSON> and an optional
+optimization addon, L<BSON::XS>.  Many applications will continue to work
+unmodified, but some may need changes.
+
+This document is intended to help developers update their code to take into
+account API changes from the v1 driver to the v2 driver.
+
+=head1 RATIONALE
+
+API Changes are never something to do lightly.  Changes in the v2 driver
+were deemed necessary to achieve certain goals, all of which echo themes of
+the v1 driver release:
+
+=over 4
+
+=item *
+
+consistency – particularly with regards to Perl <-> BSON data conversion, the v2 driver provides a complete, consistently-designed set of BSON type wrappers, and significantly improved round-trip capabilities.
+
+=item *
+
+server compatibility – as the MongoDB server deprecates or removes functionality, the driver must be updated to match so that users don't develop apps around features that are going away.
+
+=item *
+
+portability – the switch to an external library that has both pure-Perl and XS optimized versions allows the MongoDB driver to support environments without a C compiler available.
+
+=back
+
+=head1 INSTALLATION AND DEPENDENCY CHANGES
+
+=head2 Installing v2 over v1
+
+Because the v2 driver is pure-Perl capable (see below), its Perl
+installation directory is different.  If upgrading, you need to be
+sure that the old version doesn't shadow the new one.
+
+That's easy with C<cpanm>:
+
+    cpanm --uninst-shadows MongoDB
+
+For the traditional CPAN client, you'll need to configure the
+C<make_install_arg> config argument like this:
+
+    $ perl -MCPAN -e shell
+    cpan> o conf make_install_arg UNINST=1
+    cpan> o conf commit
+    cpan> install MongoDB
+
+=head2 BSON library
+
+The MongoDB driver uses a newer version of the L<BSON> library.
+Previously, L<BSON> was already required for L<BSON::Decimal128>, so this
+is a version bump rather than an entirely new dependency.
+
+=head2 Minimum Perl version
+
+The MongoDB driver now requires Perl v5.10.1 or later.  This provides
+better pure-Perl support, several core dependencies, and many fewer bugs
+involving Unicode and threads.  While threads are discouraged, threads
+under Perl v5.8 were so broken that driver tests were regularly failing.
+
+=head2 Pure-perl capable
+
+The MongoDB driver can now be installed without needing a compiler.  If a
+compiler is detected, additional XS-based dependencies will be added to the
+prerequisites list for improved performance.  You can also specify
+C<PUREPERL_ONLY=1> as a C<Makefile.PL> argument to disable compiler
+detection.
+
+=head1 BSON BEHAVIOR CHANGES
+
+For detailed information on handling MongoDB data types in Perl, see
+L<MongoDB::DataTypes>.  The following sections provide an overview of major
+changes from past versions.
+
+=head2 MongoDB::BSON is removed
+
+Code that customized behavior by instantiating this class will need to
+use L<BSON> instead.  Options are generally similar, though L<BSON>
+provides much more flexibility.
+
+=head2 New type wrapper classes
+
+The L<BSON> module provides a complete set of classes mapping to every BSON
+type.  When decoding, these types will be returned for types that don't map
+by default to Perl types.
+
+Code that uses C<ref> to check documents returned from the database for
+legacy types (e.g.  L<MongoDB::BSON::Regexp>) will need to be updated for
+the new type wrappers.
+
+=head2 Legacy type wrappers
+
+All the legacy type wrappers have been updated to be subclasses of their
+corresponding L<BSON> library equivalents.  For example,
+L<MongoDB::BSON::Regexp> is a subclass of L<BSON::Regex>.  Most of them are
+empty subclasses -- the BSON-library versions provide the same API -- but
+some have some additional constructor argument behaviors for backwards
+compatibility.
+
+The L<BSON> library knows how to encode legacy types, so code that uses
+legacy types for encoding values should be able to work without
+modification.
+
+The legacy type wrappers will be removed in a future major version release
+of the driver.
+
+=head2 Default date type decoding
+
+The legacy driver defaulted to decoding the BSON date type as a L<DateTime>
+object.  Unfortunately, that type is very heavy-weight and slow to
+construct; it's a poor choice as a default as it inflicts that cost whether
+or not users ultimately need or want objects of that type.
+
+The previously-deprecated  C<dt_type> configuration argument has been
+removed from L<MongoDB::MongoClient> and the default date type of the
+L<BSON> library is L<BSON::Time>, which is extremely lightweight and
+provides convenience methods to convert to various popular time classes.
+It also works well with L<Time::HiRes> for recording datetimes with
+millisecond precision.
+
+Code that relied on date types being L<DateTime> objects will need to
+convert via the C<as_datetime> method of L<BSON::Time>.
+
+=head2 More consistent string/number heuristics
+
+Depending on their history of use, non-reference Perl scalars may have both
+string and number representations internally and the MongoDB driver wasn't
+always clear on how it treated them. Moreover, this treatment could vary
+slightly by Perl version.  The heuristics are now standardized as follows:
+
+=over 4
+
+=item *
+
+If the value has a valid double representation, it will be encoded to BSON as a double.
+
+=item *
+
+Otherwise, if the value has a valid integer interpretation, it will be encoded as either Int32 or Int64; the smallest type that the value fits will be used; a value that overflows will error.
+
+=item *
+
+Otherwise, the value will be encoded as a UTF-8 string.
+
+=back
+
+The L<BSON> library provides the C<prefer_numeric> attribute to more
+aggressively coerce number-like strings that don't already have a numeric
+representation into a numeric form.
+
+This is essentially the same as the legacy heuristic but some edge cases
+have been made consistent.
+
+=head2 Type helper functions
+
+To make it easy to use type wrappers (and to avoid unintentionally using a
+deprecated one), the L<BSON::Types> module has a standard
+set of type helper functions:
+
+    use BSON::Types ':all';
+
+    $int32    = bson_int32(42);
+    $time     = bson_time(); # now
+    $ordered  = bson_doc( first => "John", last => "Doe );
+
+=head1 NON-BSON BEHAVIOR CHANGES
+
+=head2 run_command requires an ordered document
+
+The MongoDB database uses the first key of the document provided to
+C<run_command> as the name of the command.  Due to Perl's hash order
+randomization, use of a hash reference with more than one key as an
+argument to C<run_command> is not reliable.  This restriction is now
+enforced.  The argument must be a L<BSON::Doc> object, a L<Tie::IxHash>
+object, an array reference with an even number of keys, or a hash reference
+with a single key.
+
+=head1 DEPRECATIONS
+
+=head2 Count method on collections
+
+The C<count> method is deprecated.
+
+The reasons for this change are as follows:
+
+=over 4
+
+=item *
+
+The performance and correctness characteristics of the C<count> method could vary widely depending on whether or not a predicate is used.
+
+=item *
+
+The C<count> method could be incorrect on sharded clusters during document migration between shards.
+
+=back
+
+Many users are unaware of these considerations in the use of C<count>.  As
+any change to C<count> could surprise users with unexpected differences in
+either performance or correctness, the C<count> method has been replaced
+with two new API methods, which more directly convey performance and
+correctness expectations:
+
+=over 4
+
+=item *
+
+C<estimated_document_count> takes no predicate; it does not work in transactions; performance is O(1).
+
+=item *
+
+C<count_documents> takes a predicate (even if "empty", meaning count all documents); in can be used with or without transactions; performance is O(N) in the worst case.
+
+=back
+
+B<NOTE>: When upgrading from the deprecated C<count> method, some legacy
+operators are not supported and must be replaced:
+
+    +-------------+--------------------------------+
+    | Legacy      | Modern Replacement             |
+    +=============+================================+
+    | $where      | $expr (Requires MongoDB 3.6+)  |
+    +-------------+--------------------------------+
+    | $near       | $geoWithin with $center        |
+    +-------------+--------------------------------+
+    | $nearSphere | $geoWithin with $centerSphere  |
+    +-------------+--------------------------------+
+
+=head2 Authentication
+
+The MONGODB-CR authentication mechanism was deprecated in MongoDB server
+3.6 and removed in MongoDB server 4.0.  The Perl driver is deprecating
+MONGODB-CR, but will not remove it until it no longer supports older
+servers.
+
+=head2 Query options
+
+The following query options are deprecated:
+
+=over 4
+
+=item *
+
+maxScan -- deprecated in MongoDB server 4.0
+
+=item *
+
+modifiers -- the old C<$> prefixed modifiers have been replaced with explicit, equivalent options for C<find>
+
+=item *
+
+snapshot -- deprecated in MongoDB server 4.0
+
+=back
+
+=head2 MD5 checksum for GridFS files
+
+The C<md5> field of GridFS documents is deprecated.  Use of a checksum like
+MD5 has been redundant since MongoDB added write concern and MD5 itself is
+no longer considered a secure digest function.  A future release will
+remove the use of MD5 entirely.  In the meantime, users can disable MD5
+digesting with the C<disable_md5> option in L<MongoDB::GridFSBucket>.
+
+Users who wish to continue storing a digest are encouraged to compute their
+own digest using a function of their choice and store it under a
+user-defined key in the C<metadata> field of the file document.
+
+=head2 Classes
+
+These classes are superseded by type wrappers from L<BSON>, as described
+earlier.
+
+=over 4
+
+=item *
+
+MongoDB::BSON::Binary
+
+=item *
+
+MongoDB::BSON::Regexp
+
+=item *
+
+MongoDB::Code
+
+=item *
+
+MongoDB::DBRef
+
+=item *
+
+MongoDB::OID
+
+=item *
+
+MongoDB::Timestamp
+
+=back
+
+=head1 REMOVED FEATURES
+
+Features deprecated in the v1 release have now been removed.  Additionally,
+C<MongoDB::BSON> has been removed in favor of L<BSON>, as described
+earlier.
+
+=head2 Configuration options
+
+=over 4
+
+=item *
+
+C<dt_type>
+
+=item *
+
+C<query_timeout>
+
+=item *
+
+C<sasl>
+
+=item *
+
+C<sasl_mechanism>
+
+=item *
+
+C<timeout>
+
+=item *
+
+C<$MongoDB::BSON::char>
+
+=item *
+
+C<$MongoDB::BSON::looks_like_number>
+
+=back
+
+=head2 Classes
+
+=over 4
+
+=item *
+
+C<MongoDB::BSON>
+
+=item *
+
+C<MongoDB::GridFS>
+
+=item *
+
+C<MongoDB::GridFS::File>
+
+=back
+
+=head2 Functions/Methods
+
+=over 4
+
+=item *
+
+From C<MongoDB> - C<force_double>, C<force_int>
+
+=item *
+
+From C<MongoDB::BulkWrite> and C<MongoDB::BulkWriteView> - C<insert>, C<update>, C<remove>, C<remove_one>
+
+=item *
+
+From C<MongoDB::Collection> - C<insert>, C<batch_insert>, C<remove>, C<update>, C<save>, C<query>, C<find_and_modify>, C<get_collection>, C<ensure_index>, C<drop_indexes>, C<drop_index>, C<get_index>, C<validate>
+
+=item *
+
+From C<MongoDB::Database> - C<eval>, C<last_error>, C<get_gridfs>
+
+=item *
+
+From C<MongoDB::CommandResult> - C<result>
+
+=item *
+
+From C<MongoDB::Cursor> - C<slave_okay>, C<count>
+
+=back
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+David Golden <david@mongodb.com>
+
+=item *
+
+Rassi <rassi@mongodb.com>
+
+=item *
+
+Mike Friedman <friedo@friedo.com>
+
+=item *
+
+Kristina Chodorow <k.chodorow@gmail.com>
+
+=item *
+
+Florian Ragwitz <rafl@debian.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2020 by MongoDB, Inc.
+
+This is free software, licensed under:
+
+  The Apache License, Version 2.0, January 2004
+
+=cut
