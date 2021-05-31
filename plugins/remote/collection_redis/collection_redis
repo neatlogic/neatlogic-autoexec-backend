@@ -4,6 +4,7 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/";
 use JSON;
 use utf8;
 use Encode;
@@ -16,19 +17,18 @@ use Utils;
 
 sub usage {
     my $pname = basename($0);
-    print("ERROR: must defined option --node <node> --auth <auth>\n");
-    print("Usage: $pname [--node|nodeip <nodeip>\n");
-    print("       nodeip:   run node ip .\n");
+    print("ERROR: must defined option  --auth <auth>\n");
+    print("Usage: $pname [--auth <auth password>\n");
     print("       auth: redis auth password .\n");
 
     exit(1);
 }
 
-#设置MongoDb表的主键，根据主键判断数据是新增还是修改
+#设置主键判断数据是新增还是修改
 sub uniqueName {
-    my ($data) = @_;
+    my ($data)  = @_;
     my $agentIP = $data->{"agentIP"};
-    my $port = $data->{'端口'};
+    my $port    = $data->{'端口'};
 
     my @rule         = ();
     my %rule_agentIp = ();
@@ -43,18 +43,28 @@ sub uniqueName {
 }
 
 sub main {
-    my ( $ishelp, $nodeip, $auth, @items );
+    my ( $ishelp, $auth );
 
     GetOptions(
-        'h|help'        => \$ishelp,
-        'node|nodeip:s' => \$nodeip,
-        'a|auth:s'      => \$auth,
-        '<>'            => sub { my $item = shift(@_); push( @items, $item ); }
+        'h|help'   => \$ishelp,
+        'a|auth:s' => \$auth
     );
 
     usage() if ($ishelp);
 
-    if ( not defined($nodeip) or not defined($auth) ) {
+    my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
+    my ( $targetIp, $targetPort );
+    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
+        $AUTOEXEC_NODE = decode_json($AUTOEXEC_NODE);
+        $targetIp      = $AUTOEXEC_NODE->{'host'};
+        $targetPort    = $AUTOEXEC_NODE->{'port'};
+    }
+    else {
+        print("ERROR:: must set node param env .\n");
+        usage();
+    }
+
+    if ( not defined($auth) ) {
         usage();
     }
 
@@ -64,15 +74,15 @@ sub main {
     chomp($os);
     my @collectData;
     if ( $os eq 'Linux' or $os eq 'Aix' ) {
-        @collectData = collection_unix::collect( $nodeip, $auth );
+        @collectData = collection_unix::collect( $targetIp, $auth );
     }
     else {
-        @collectData = collection_windows::collect( $nodeip, $auth );
+        @collectData = collection_windows::collect( $targetIp, $auth );
     }
 
-    my $plugin           = {};
+    my $plugin = {};
     $plugin->{"type"} = "collect";
-    my @entityList       = ();
+    my @entityList = ();
     foreach my $data (@collectData) {
         my %entiry = ();
         $entiry{'data'}       = $data;
