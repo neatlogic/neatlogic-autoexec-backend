@@ -13,9 +13,9 @@ use Encode;
 use Utils;
 
 sub collect {
-    my ($nodeIp) = @_;
-    my @collect_data =();
-    my %data = ();
+    my ($nodeIp)     = @_;
+    my @collect_data = ();
+    my %data         = ();
 
     my $pro_num = `ps -ef | grep -i ActiveMQ|grep -v collection_activemq |grep -v grep|head -n1|awk '{print \$2}'`;
     if ( !$pro_num ) {
@@ -24,9 +24,9 @@ sub collect {
         exit(0);
     }
 
-    $data{'IP'}    = $nodeIp;
+    $data{'IP'}      = $nodeIp;
     $data{'agentIP'} = $nodeIp;
-    $data{'部署于'}    = $nodeIp;
+    $data{'部署于'}     = $nodeIp;
     my $host = `hostname`;
     chomp($host);
     $data{'名称'} = $host;
@@ -70,7 +70,7 @@ sub collect {
         }
     }
 
-    push(@collect_data , \%data);
+    push( @collect_data, \%data );
     return @collect_data;
 }
 

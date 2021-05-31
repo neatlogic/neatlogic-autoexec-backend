@@ -13,7 +13,7 @@ use Encode;
 use Utils;
 
 sub collect {
-    my ( $nodeIp, $installUser ) = @_;
+    my ( $nodeIp ) = @_;
     my @collect_data =();
     
     my @db2_ins_users = `ps -ef|grep db2sysc|grep -v grep|awk '{print \$1}'`;

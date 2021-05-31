@@ -9,33 +9,29 @@ use IO::File;
 use Getopt::Long;
 use File::Basename;
 use utf8;
-use Cwd;
 use JSON;
 use File::Slurper 'read_text';
 
 use Utils;
 use CmdbUtils;
 
-use Data::Dumper;
-
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname [--jobid <jobid>][-p|--param <param>] \n");
+    print("Usage: $pname [-p|--param <param>] \n");
     print("       param: pre phase plugin output param key.\n");
     exit(1);
 }
 
 sub main {
-    my ( $ishelp, $param, $jobId );
+    my ( $ishelp, $param );
 
     Utils::setEnv();
     my $pname = basename($0);
 
     GetOptions(
         'help'      => \$ishelp,
-        'h|param:s' => \$param,
-        'jobid:s'   => \$jobId
+        'h|param:s' => \$param
     );
 
     if ( not defined($param) or $param eq '' ) {
@@ -52,26 +48,27 @@ sub main {
     my $preOptId = @keys[1];
     my $preParam = @keys[2];
 
-    my $AUTOEXEC_JOBID = $ENV{'AUTOEXEC_JOBID'};
-    if ( defined($AUTOEXEC_JOBID) and $AUTOEXEC_JOBID ne '' ) {
-        $jobId = $AUTOEXEC_JOBID;
-    }
-
-    my $cmdbUtil = new CmdbUtils();
-
     my $isSuccess;
-    my $pwd = getcwd;
-    print("pwd:$pwd\n");
-    my $output_path = "$pwd/../../../data/job/$jobId/output/*";
-    print("output:$output_path\n");
-
-    #my $output_path = "/tmp/autoexec/plugins/local/lib/../../../data/job/$jobId/output/*";
-    my @nodefiles = glob($output_path);
-    foreach my $node (@nodefiles) {
-        my $content      = read_text($node);
-        my $content_json = decode_json($content);
-        my $node_data    = $content_json->{$preOptId}->{$preParam};
-        if ( defined($node_data) and $node_data eq '' ) {
+    my $AUTOEXEC_ROOTPATH = $ENV{'OUTPUT_ROOT_PATH'};
+    my $AUTOEXEC_NODE     = $ENV{'AUTOEXEC_NODE'};
+    my ( $targetIp, $targetPort );
+    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
+        $AUTOEXEC_NODE = decode_json($AUTOEXEC_NODE);
+        $targetIp      = $AUTOEXEC_NODE->{host};
+        $targetPort    = $AUTOEXEC_NODE->{port};
+    }
+    if ( not defined($targetIp) or not defined($targetPort) ) {
+        print("ERROR:: must set node param env .\n");
+        $isSuccess = 1;
+    }
+    else {
+        my $cmdbUtil    = new CmdbUtils();
+        my $outputName  = "$targetIp" . "-" . "$targetPort" . ".json";
+        my $outputPath  = File::Spec->catfile( $AUTOEXEC_ROOTPATH, $outputName );
+        my $output      = read_text($outputPath);
+        my $output_json = decode_json($output);
+        my $node_data   = $output_json->{$preOptId}->{$preParam};
+        if ( defined($node_data) and $node_data ne '' ) {
             my $collect_data = $node_data->{data};
             foreach my $real_data (@$collect_data) {
 
@@ -85,8 +82,11 @@ sub main {
                 }
             }
         }
+        else {
+            print("ERROR:: collect data not exists or data format error .\n");
+            $isSuccess = 1;
+        }
     }
-
     if ( $isSuccess == 0 ) {
         print("INFO: $pname phase $preName $preOptId data save success.\n");
     }

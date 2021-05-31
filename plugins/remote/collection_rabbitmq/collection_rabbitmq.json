@@ -2,15 +2,7 @@
 	"opName": "rabbitmq采集插件",
 	"opType": "remote",
 	"desc": {
-		"node": {
-			"name": "节点IP",
-			"help": "执行节点IP",
-			"type": "input",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		}
+		 
 	},
 	"output": {
 		"outjson": {
