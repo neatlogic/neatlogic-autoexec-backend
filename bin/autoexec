@@ -142,10 +142,14 @@ class Runner:
                 threads = []
                 # 每个group有多个phase，使用线程并发执行
                 for phaseName, phaseConfig in phaseGroup.items():
+                    if self.context.goToStop == True:
+                        break
+
                     lastPhase = phaseName
                     if not self.context.hasFailNodeInGlobal:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
+                        thread.name = 'PhaseExecutor-' + phaseName
                         threads.append(thread)
 
                 for thread in threads:

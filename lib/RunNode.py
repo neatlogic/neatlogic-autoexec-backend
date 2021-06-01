@@ -393,6 +393,7 @@ class RunNode:
         os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None
+        self.childPid = None
         return isFail
 
     def _localExecute(self, op):
@@ -604,6 +605,9 @@ class RunNode:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
+                    remotePath = remoteRoot
+                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
+                    self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -697,22 +701,25 @@ class RunNode:
 
             try:
                 (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
-                if pid is not None:
+                if exitPid == 0:
                     os.kill(pid, signal.SIGTERM)
 
-                (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
-                # 如果子进程没有结束，等待3秒
-                loopCount = 3
-                while exitPid != 0 and exitPid != pid:
-                    if loopCount <= 0:
-                        break
-
-                    time.sleep(1)
                     (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
-                    loopCount = loopCount - 1
+                    # 如果子进程没有结束，等待3秒
+                    loopCount = 3
+                    while exitPid == 0:
+                        if loopCount <= 0:
+                            break
 
-                (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
-                os.kill(pid, signal.SIGKILL)
+                        time.sleep(1)
+                        (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
+                        loopCount = loopCount - 1
+
+                    (exitPid, exitStatus) = os.waitpid(pid, os.WNOHANG)
+                    if exitPid == 0:
+                        os.kill(pid, signal.SIGKILL)
+
+                    self.logHandle.write("INFO: Worker killed, pid:{}.\n".format(pid))
             except OSError:
                 # 子进程不存在，已经退出了
                 pass

@@ -29,7 +29,7 @@ class ServerAdapter:
             'register': '/codedriver/public/api/rest/autoexec/tool/register',
             'getParams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
             'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/codedriver/public/api/binary/public/file/download',
             'fetchScript': '/codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
@@ -260,7 +260,7 @@ class ServerAdapter:
             'id': fileId
         }
 
-        cachedFilePath = savePath + '/' + fileId
+        cachedFilePath = '{}/{}'.format(savePath, fileId)
         lastModifiedTime = 0
         if os.path.exists(cachedFilePath):
             lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -269,11 +269,12 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + self.apiMap['fetchFile']
 
-        cachedFile = None
+        cachedFilePathTmp = cachedFilePath + '.tmp'
+        cachedFileTmp = None
         fileName = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'ab+')
+            cachedFileTmp = open(cachedFilePathTmp, 'ab+')
             response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -284,26 +285,28 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
-                try:
-                    fcntl.lockf(cachedFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                except IOError as ex:
-                    print("WARN: Lock file {} failed, {}, file is used by other jobs, waiting...".format(cachedFilePath, ex))
-                    fcntl.lockf(cachedFile, fcntl.LOCK_EX)
-
-                cachedFile.truncate(0)
+                fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+                cachedFileTmp.truncate(0)
                 CHUNK = 16 * 1024
                 while True:
                     chunk = response.read(CHUNK)
                     if not chunk:
                         break
-                    cachedFile.write(chunk)
+                    cachedFileTmp.write(chunk)
+
+                if os.path.exists(cachedFilePath):
+                    os.unlink(cachedFilePath)
+                os.rename(cachedFilePathTmp, cachedFilePath)
+
             return fileName
         except:
             raise
         finally:
-            if cachedFile is not None:
-                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
-                cachedFile.close()
+            if cachedFileTmp is not None:
+                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
+                cachedFileTmp.close()
+            if os.path.exists(cachedFilePathTmp):
+                os.unlink(cachedFilePathTmp)
 
     # 从自定义脚本库下载脚本到脚本目录
     def fetchScript(self, savePath, opId):

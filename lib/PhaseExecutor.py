@@ -28,7 +28,7 @@ class PhaseWorker(threading.Thread):
         self.currentNode = None
 
     def run(self):
-        while True:
+        while self.context.goToStop == False:
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
             node = self._queue.get()
             if node is None:
@@ -42,6 +42,7 @@ class PhaseWorker(threading.Thread):
                 try:
                     ret = node.execute(localOps)
                 except Exception as ex:
+                    node.updateNodeStatus(NodeStatus.failed)
                     node.logHandle.write("ERROR: Unknow error occurred.\n")
                     node.logHandle.write(str(ex))
                     node.logHandle.write(traceback.format_exc())
@@ -61,6 +62,7 @@ class PhaseWorker(threading.Thread):
                 self.currentNode = None
 
     def kill(self):
+        self._queue.put(None)
         if self.currentNode is not None:
             self.currentNode.kill()
 
@@ -80,6 +82,7 @@ class PhaseExecutor:
         for i in range(self.parallelCount):
             worker = PhaseWorker(self.context, self.phaseName, self.operations, queue)
             worker.start()
+            worker.setName('Worker-{}'.format(i))
             workers.append(worker)
 
         self.workers = workers
@@ -133,7 +136,7 @@ class PhaseExecutor:
 
             elif phaseStatus.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
-                while True and self.context.goToStop == False:
+                while self.context.goToStop == False:
                     node = nodesFactory.nextNode()
                     if node is None:
                         break
@@ -186,15 +189,19 @@ class PhaseExecutor:
         try:
             while True:
                 self.execQueue.get_nowait()
+            self.execQueue.put(None)
         except Exception as ex:
             pass
 
+        i = 1
         killWorkers = []
         for worker in self.workers:
             try:
                 t = Thread(target=worker.kill, args=())
+                t.setName('Killer-{}'.format(i))
                 t.start()
                 killWorkers.append(t)
+                i = i+1
             except:
                 print("ERROR: unable to start thread to kill woker\n")
 

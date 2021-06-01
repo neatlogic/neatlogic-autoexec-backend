@@ -9,6 +9,7 @@
 import sys
 import os
 import fcntl
+import stat
 import subprocess
 import re
 import json
@@ -133,7 +134,7 @@ class Operation:
                     except:
                         print("WARN: Decrypt password arg:{}->{} failed.\n".format(self.opName, argName))
                 elif(argType == 'file'):
-                    matchObj = re.match(r'^\s*\$\{', argValue)
+                    matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
                     if not matchObj:
                         fileName = self.fetchFile(argName, argValue)
                         argValue = 'file/' + fileName
@@ -148,23 +149,22 @@ class Operation:
         for fileId in fileIds:
             fileName = serverAdapter.fetchFile(cachePath, fileId)
 
-            if fileName is None:
-                fileName = '{}'.format(argName)
+            if fileName is not None:
+                cacheFilePath = '{}/{}'.format(cachePath, fileId)
 
-            cacheFilePath = cachePath + '/' + fileId
+                linkPath = self.runPath + '/file/' + fileName
 
-            cacheFile = open(cacheFilePath, 'r')
-            fcntl.flock(cacheFile, fcntl.LOCK_SH)
-            self.lockedFDs.append(cacheFile)
+                if os.path.exists(linkPath):
+                    if not os.path.samefile(linkPath, cacheFilePath):
+                        os.unlink(linkPath)
+                        os.link(cacheFilePath, linkPath)
+                else:
+                    os.link(cacheFilePath, linkPath)
 
-            linkPath = self.runPath + '/file/' + fileName
-            if os.path.islink(linkPath) and os.path.realpath(linkPath) != cacheFilePath:
-                os.unlink(linkPath)
-
-            if not os.path.exists(linkPath):
-                os.link(cacheFilePath, linkPath)
-
-            fileNamesArray.append(fileName)
+                fileNamesArray.append(fileName)
+                #cacheFile = open(cacheFilePath, 'r')
+                #fcntl.flock(cacheFile, fcntl.LOCK_SH)
+                # self.lockedFDs.append(cacheFile)
 
         return ','.join(fileNamesArray)
 
