@@ -261,22 +261,28 @@ class RunNode:
         if self.context.goToStop:
             return 2
 
+        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
+        hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
+
         try:
-            self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
             # 如果文件存在，则删除重建
             if os.path.exists(self.logPath):
                 os.unlink(self.logPath)
+
             self.logHandle = LogFile(open(self.logPath, 'w').detach())
 
-            # 更新节点状态为running
-            self.updateNodeStatus(NodeStatus.running)
-
-            hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
             if not os.path.exists(hisLogDir):
                 os.mkdir(hisLogDir)
 
         except Exception as ex:
             self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
+            self.updateNodeStatus(NodeStatus.failed)
+
+        try:
+            # 更新节点状态为running
+            self.updateNodeStatus(NodeStatus.running)
+        except Exception as ex:
+            self.logHandle.write("ERROR: Update node status failed, {}\n".format(ex))
             self.updateNodeStatus(NodeStatus.failed)
 
         # TODO：restore status and output from share object storage
@@ -572,8 +578,8 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
             remotePath = '{}/{}'.format(remoteRoot, op.opName)
-            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
-            self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
+            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && chmod 700 * && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine())
+            self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
             scriptFile = None
             uploaded = False
@@ -601,13 +607,13 @@ class RunNode:
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
                     fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.opName))
+                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.scriptFileName))
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
                     remotePath = remoteRoot
-                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine())
-                    self.killCmd = "kill -9 `ps aux |grep '" + remotePath + "'|grep -v grep|awk '{print $1}'`"
+                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && chmod 700 * && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine())
+                    self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -746,6 +752,7 @@ class RunNode:
                     if len(r) > 0:
                         self.logHandle.write(channel.recv(1024).decode() + '\n')
 
+                self.logHandle.write("INFO: Execute kill command:{}\n".format(killCmd))
             except Exception as err:
                 self.logHandle.write("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:

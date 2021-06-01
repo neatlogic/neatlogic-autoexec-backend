@@ -97,10 +97,11 @@ class Operation:
 
         self.pluginPath = None
         self.pluginParentPath = None
+        self.scriptFileName = None
 
         if self.isScript == 1:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
-
+            self.scriptFileName = scriptFileName
             self.pluginPath = '{}/script/{}'.format(self.context.runPath, scriptFileName)
             self.fetchScript(self.pluginPath, self.opId)
         else:
@@ -242,16 +243,16 @@ class Operation:
                 if osType == 'windows':
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
                     if self.interpreter == 'cmd':
-                        cmd = 'cmd /c {}'.format(self.opId)
+                        cmd = 'cmd /c {}'.format(self.scriptFileName)
                     elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                        cmd = 'cscript {}'.format(self.opId)
+                        cmd = 'cscript {}'.format(self.scriptFileName)
                     else:
-                        cmd = '{} {}'.format(self.interpreter, self.opId)
+                        cmd = '{} {}'.format(self.interpreter, self.scriptFileName)
                 else:
-                    cmd = '{} {}'.format(self.interpreter, self.opId)
+                    cmd = self.scriptFileName
             else:
                 if fullPath:
-                    cmd = '{} {}'.format(self.interpreter, self.pluginPath)
+                    cmd = self.pluginPath
                 else:
                     cmd = self.pluginPath
         else:
