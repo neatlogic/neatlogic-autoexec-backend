@@ -1,22 +1,26 @@
 {
-    "opName": "informix采集插件",
-    "opType": "remote",
-    "desc": {
-        "user": {
-            "name": "安装用户",
-            "help": "执行节点IP",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        }
-    },
-    "output": {
-        "outjson": {
-            "name": "采集数据",
-            "help": "采集数据输出字段",
-            "type": "json"
-        }
-    }
+	"opDesc": "informix采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "informix采集插件",
+	"desc": {
+		"user": {
+			"name": "安装用户",
+			"help": "执行节点IP",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		}
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
 }

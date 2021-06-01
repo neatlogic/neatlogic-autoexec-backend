@@ -1,8 +1,12 @@
 {
-	"opName": "weblogic采集插件",
-	"opType": "remote",
+	"opDesc": "weblogic采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "weblogic采集插件",
 	"desc": {
-		 
+
 	},
 	"output": {
 		"outjson": {

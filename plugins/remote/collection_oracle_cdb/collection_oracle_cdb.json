@@ -1,16 +1,12 @@
 {
-	"opName": "oracle_cdb采集插件",
-	"opType": "remote",
+	"opDesc": "oracle_cdb采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "低风险",
+	"interpreter": "perl",
+	"description": "oracle_cdb采集插件",
 	"desc": {
-		"node": {
-			"name": "节点IP",
-			"help": "执行节点IP",
-			"type": "input",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		}
+
 	},
 	"output": {
 		"outjson": {
@@ -20,4 +16,3 @@
 		}
 	}
 }
-
