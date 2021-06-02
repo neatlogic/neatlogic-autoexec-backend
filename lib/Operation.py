@@ -235,21 +235,24 @@ class Operation:
 
         return cmd
 
-    def getCmd(self, fullPath=False, osType='linux'):
+    def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
         cmd = None
+        if remotePath is None:
+            remotePath = '.'
+
         if self.isScript:
             if self.opType == 'remote':
                 # 如果自定义脚本远程执行，为了避免中文名称带来的问题，使用opId来作为脚本文件的名称
                 if osType == 'windows':
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
                     if self.interpreter == 'cmd':
-                        cmd = 'cmd /c {}'.format(self.scriptFileName)
+                        cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                        cmd = 'cscript {}'.format(self.scriptFileName)
+                        cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
                     else:
-                        cmd = '{} {}'.format(self.interpreter, self.scriptFileName)
+                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
                 else:
-                    cmd = self.scriptFileName
+                    cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
@@ -278,7 +281,7 @@ class Operation:
                         else:
                             cmd = 'rename {} {} && {} {}'.format(self.opName, nameWithExt, self.interpreter, self.opName)
                 else:
-                    cmd = '{} {}'.format(self.interpreter, self.opName)
+                    cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
@@ -287,12 +290,12 @@ class Operation:
 
         return cmd
 
-    def getCmdLine(self, fullPath=False, osType='linux'):
-        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+    def getCmdLine(self, fullPath=False, remotePath=None, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
         cmd = self.appendCmdOpts(cmd)
         return cmd
 
-    def getCmdLineHidePassword(self, fullPath=False, osType='linux'):
-        cmd = self.getCmd(fullPath=fullPath, osType=osType)
+    def getCmdLineHidePassword(self, fullPath=False, remotePath=None, osType='linux'):
+        cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
         cmd = self.appendCmdOpts(cmd, True)
         return cmd

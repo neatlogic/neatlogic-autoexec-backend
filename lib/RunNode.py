@@ -68,6 +68,28 @@ class RunNode:
         self.killCmd = None
         self.logHandle = None
 
+        self.phaseLogDir = '{}/log/{}'.format(self.runPath, phaseName)
+        if not os.path.exists(self.phaseLogDir):
+            os.mkdir(self.phaseLogDir)
+
+        self.logPathWithTime = None
+        self.logPath = '{}/{}-{}.txt'.format(self.phaseLogDir, self.host, self.port)
+        self.hisLogDir = '{}/{}-{}.hislog'.format(self.phaseLogDir, self.host, self.port)
+
+        try:
+            # 如果文件存在，则删除重建
+            if os.path.exists(self.logPath):
+                os.unlink(self.logPath)
+
+            self.logHandle = LogFile(open(self.logPath, 'w').detach())
+
+            if not os.path.exists(self.hisLogDir):
+                os.mkdir(self.hisLogDir)
+
+        except Exception as ex:
+            self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
+            self.updateNodeStatus(NodeStatus.failed)
+
         self.output = self.context.output
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
@@ -79,10 +101,6 @@ class RunNode:
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
         self.outputPath = self.outputPathPrefix + '.json'
-
-        self.logPhaseDir = '{}/log/{}'.format(self.runPath, phaseName)
-        if not os.path.exists(self.logPhaseDir):
-            os.mkdir(self.logPhaseDir)
 
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
@@ -142,8 +160,8 @@ class RunNode:
                             self.context.hasFailNodeInGlobal = True
 
             except Exception as ex:
-                raise
-                #self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
+                # raise
+                self.logHandle.write('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
@@ -261,23 +279,6 @@ class RunNode:
         if self.context.goToStop:
             return 2
 
-        self.logPath = '{}/{}-{}.txt'.format(self.logPhaseDir, self.host, self.port)
-        hisLogDir = '{}/{}-{}.hislog'.format(self.logPhaseDir, self.host, self.port)
-
-        try:
-            # 如果文件存在，则删除重建
-            if os.path.exists(self.logPath):
-                os.unlink(self.logPath)
-
-            self.logHandle = LogFile(open(self.logPath, 'w').detach())
-
-            if not os.path.exists(hisLogDir):
-                os.mkdir(hisLogDir)
-
-        except Exception as ex:
-            self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
-            self.updateNodeStatus(NodeStatus.failed)
-
         try:
             # 更新节点状态为running
             self.updateNodeStatus(NodeStatus.running)
@@ -288,8 +289,15 @@ class RunNode:
         # TODO：restore status and output from share object storage
         nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
         nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+
         nodeStartTime = time.time()
         self.logHandle.write("======[{}]{}:{} <{}>======\n\n".format(self.id, self.host, self.port, nodeBeginDateTime))
+
+        # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
+        logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
+        if not os.path.exists(logPathWithTime):
+            os.link(self.logPath, logPathWithTime)
+        self.logPathWithTime = logPathWithTime
 
         hasIgnoreFail = 0
         isFail = 0
@@ -383,20 +391,26 @@ class RunNode:
                 # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                 self.hasIgnoreFail = 1
                 finalStatus = NodeStatus.ingore
-                self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
                 self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed, ignore======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+                self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
             else:
                 finalStatus = NodeStatus.succeed
-                self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
                 self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second succeed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+                self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
         else:
             finalStatus = NodeStatus.failed
-            self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
             self.logHandle.write("======[{}]{}:{} <{}> {:.2f}second failed======\n".format(self.id, self.host, self.port, nodeEndDateTime, nodeConsumeTime))
+            self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
 
         # 创建带时间戳的日志文件名
-        logPathWithTime = '{}/{}.{}.{}.txt'.format(hisLogDir, nodeBeginDateTimeFN, finalStatus, self.context.execUser)
-        os.link(self.logPath, logPathWithTime)
+        finalLogPathWithTime = logPathWithTime
+        finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(finalStatus))
+        if finalLogPathWithTime != logPathWithTime:
+            try:
+                os.rename(self.logPathWithTime, finalLogPathWithTime)
+            except:
+                pass
+        #os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None
         self.childPid = None
@@ -514,8 +528,8 @@ class RunNode:
 
     def _remoteExecute(self, op):
         self.childPid = None
-
         remoteCmd = ''
+
         ret = -1
         if self.type == 'tagent':
             scriptFile = None
@@ -534,7 +548,10 @@ class RunNode:
                     scriptFile = open(op.pluginPath, 'r')
                     fcntl.flock(scriptFile, fcntl.LOCK_SH)
                     uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
-                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
+                    if op.hasOutput:
+                        tagent.writeFile(self.username, '', remotePath + '/output.json')
+
+                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
@@ -543,7 +560,10 @@ class RunNode:
                         uploadRet = tagent.upload(self.username, srcPath, remotePath)
                         if uploadRet != 0:
                             break
-                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine(fullPath=False, osType=tagent.agentOsType))
+                    if op.hasOutput:
+                        tagent.writeFile(self.username, '', remotePath + '/output.json')
+
+                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
 
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.logHandle.write)
@@ -578,7 +598,7 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
             remotePath = '{}/{}'.format(remoteRoot, op.opName)
-            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && chmod 700 * && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine())
+            remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
             scriptFile = None
@@ -611,8 +631,14 @@ class RunNode:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
+                    sftp.chmod(os.path.join(remoteRoot, op.scriptFileName), stat.S_IXUSR)
+
                     remotePath = remoteRoot
-                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && chmod 700 * && {}/{}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, remotePath, op.getCmdLine())
+                    if op.hasOutput:
+                        ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
+                        ofh.close()
+
+                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine(remotePath=remotePath))
                     self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
                 else:
                     os.chdir(op.remotePluginRootPath)
@@ -642,6 +668,10 @@ class RunNode:
                             sftp.put(filePath, os.path.join(remoteRoot, filePath))
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opName), stat.S_IXUSR)
+
+                    if op.hasOutput:
+                        ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
+                        ofh.close()
 
                 uploaded = True
 
@@ -730,6 +760,16 @@ class RunNode:
                 # 子进程不存在，已经退出了
                 pass
             finally:
+                # 更新hislog里的日志名称里的状态为aborted
+                finalLogPathWithTime = self.logPathWithTime
+                finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(NodeStatus.aborted))
+                if finalLogPathWithTime != self.logPathWithTime:
+                    try:
+                        os.rename(self.logPathWithTime, finalLogPathWithTime)
+                    except:
+                        pass
+                ####################
+
                 self.updateNodeStatus(NodeStatus.aborted)
 
         killCmd = self.killCmd
@@ -742,6 +782,18 @@ class RunNode:
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
                 channel.exec_command(killCmd)
+
+                # 更新hislog里的日志名称里的状态为aborted
+                finalLogPathWithTime = self.logPathWithTime
+                finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(NodeStatus.aborted))
+                if finalLogPathWithTime != self.logPathWithTime:
+                    try:
+                        os.rename(self.logPathWithTime, finalLogPathWithTime)
+                    except:
+                        pass
+                #################
+
+                self.updateNodeStatus(NodeStatus.aborted)
 
                 while True:
                     if channel.exit_status_ready():
@@ -756,7 +808,6 @@ class RunNode:
             except Exception as err:
                 self.logHandle.write("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:
-                self.updateNodeStatus(NodeStatus.aborted)
                 if ssh:
                     ssh.close()
         else:
