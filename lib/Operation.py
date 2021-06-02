@@ -135,7 +135,7 @@ class Operation:
                     except:
                         print("WARN: Decrypt password arg:{}->{} failed.\n".format(self.opName, argName))
                 elif(argType == 'file'):
-                    matchObj = re.match(r'^\s*\$\{', argValue)
+                    matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
                     if not matchObj:
                         fileName = self.fetchFile(argName, argValue)
                         argValue = 'file/' + fileName
@@ -176,7 +176,7 @@ class Operation:
 
     def resolveArgValue(self, argValue, refMap=None):
         if not isinstance(argValue, str):
-            argValue = '{}'.format(argValue)
+            return argValue
 
         if not refMap:
             refMap = self.context.output
