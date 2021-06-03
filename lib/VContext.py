@@ -119,8 +119,13 @@ class VContext:
 
     def initDB(self, parallelCount):
         # 初始化创建mongodb connect
-        mongoClient = pymongo.MongoClient(self.config.get('autoexec-db', 'db.url'), maxPoolSize=parallelCount)
-        autoexecDB = mongoClient[self.config.get('autoexec-db', 'db.name')]
-        autoexecDB.authenticate(self.config.get('autoexec-db', 'db.username'), self.config.get('autoexec-db', 'db.password'))
-        self.dbclient = mongoClient
-        self.db = autoexecDB
+        dbUrl = self.config.get('autoexec-db', 'db.url')
+        dbName = self.config.get('autoexec-db', 'db.name')
+        dbUsername = self.config.get('autoexec-db', 'db.username')
+        dbPassword = self.config.get('autoexec-db', 'db.password')
+        if dbUrl is not None:
+            mongoClient = pymongo.MongoClient(dbUrl, maxPoolSize=parallelCount)
+            autoexecDB = mongoClient[dbName]
+            autoexecDB.authenticate(dbUsername, dbPassword)
+            self.dbclient = mongoClient
+            self.db = autoexecDB

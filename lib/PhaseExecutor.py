@@ -43,9 +43,10 @@ class PhaseWorker(threading.Thread):
                     ret = node.execute(localOps)
                 except Exception as ex:
                     node.updateNodeStatus(NodeStatus.failed)
-                    node.logHandle.write("ERROR: Unknow error occurred.\n")
-                    node.logHandle.write(str(ex))
-                    node.logHandle.write(traceback.format_exc())
+                    node.writeNodeLog("ERROR: Unknow error occurred.\n")
+                    node.writeNodeLog(str(ex))
+                    node.writeNodeLog(traceback.format_exc())
+                    node.writeNodeLog("\n")
                     ret = 3
 
                 if ret != 0:
@@ -107,25 +108,33 @@ class PhaseExecutor:
 
             # 如果有本地执行的插件（不是每个节点调用一次的插件）则虚构一个local的节点，直接执行
             if phaseStatus.hasLocal:
-                # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                localNode = {"nodeId": 0, "nodeType": "local", "host": "local", "port": 0, "username": "", "password": ""}
-                loalRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+                localRunNode = None
+                try:
+                    # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
+                    localNode = {"nodeId": 0, "nodeType": "local", "host": "local", "port": 0, "username": "", "password": ""}
+                    localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
 
-                if self.context.isForce and self.context.goToStop == False:
-                    # 需要执行的节点实例加入等待执行队列
-                    execQueue.put(loalRunNode)
-                else:
-                    nodeStatus = loalRunNode.getNodeStatus()
-                    if nodeStatus == NodeStatus.succeed:
-                        print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
-                        phaseStatus.incSkipNodeCount()
-                    elif nodeStatus == NodeStatus.running:
-                        print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
-                        phaseStatus.incFailNodeCount()
-                    elif self.context.goToStop == False:
+                    if self.context.isForce and self.context.goToStop == False:
                         # 需要执行的节点实例加入等待执行队列
-                        print("INFO: Node({}) status:{} {}:{} execute begin...".format(loalRunNode.id, nodeStatus, loalRunNode.host, loalRunNode.port))
-                        execQueue.put(loalRunNode)
+                        execQueue.put(localRunNode)
+                    else:
+                        nodeStatus = localRunNode.getNodeStatus()
+                        if nodeStatus == NodeStatus.succeed:
+                            print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            phaseStatus.incSkipNodeCount()
+                        elif nodeStatus == NodeStatus.running:
+                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            phaseStatus.incFailNodeCount()
+                        elif self.context.goToStop == False:
+                            # 需要执行的节点实例加入等待执行队列
+                            print("INFO: Node({}) status:{} {}:{} execute begin...".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            execQueue.put(localRunNode)
+                except Exception as ex:
+                    phaseStatus.incFailNodeCount()
+                    if localRunNode is not None:
+                        localRunNode.writeNodeLog("ERROR: Unknown error occurred\n{}\n" + traceback.format_exc())
+                    else:
+                        print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
 
             if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                 try:
@@ -137,39 +146,47 @@ class PhaseExecutor:
             elif phaseStatus.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
                 while self.context.goToStop == False:
-                    node = nodesFactory.nextNode()
-                    if node is None:
-                        break
+                    node = None
+                    try:
+                        node = nodesFactory.nextNode()
+                        if node is None:
+                            break
 
-                    if self.context.isForce:
-                        # 需要执行的节点实例加入等待执行队列
-                        execQueue.put(node)
-                    else:
-                        nodeStatus = node.getNodeStatus()
-                        if nodeStatus == NodeStatus.succeed:
-                            # 如果是成功状态，回写服务端，防止状态不一致
-                            phaseStatus.incSkipNodeCount()
-                            print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.id, nodeStatus, node.host, node.port))
-                            try:
-                                self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
-                            except Exception as ex:
-                                logging.error("RePush node status to server failed, {}".format(ex))
-                        elif nodeStatus == NodeStatus.running:
-                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.id, nodeStatus, node.host, node.port))
-                            phaseStatus.incFailNodeCount()
-                        else:
+                        if self.context.isForce:
                             # 需要执行的节点实例加入等待执行队列
-                            print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
                             execQueue.put(node)
+                        else:
+                            nodeStatus = node.getNodeStatus()
+                            if nodeStatus == NodeStatus.succeed:
+                                # 如果是成功状态，回写服务端，防止状态不一致
+                                phaseStatus.incSkipNodeCount()
+                                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.id, nodeStatus, node.host, node.port))
+                                try:
+                                    self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
+                                except Exception as ex:
+                                    logging.error("RePush node status to server failed, {}".format(ex))
+                            elif nodeStatus == NodeStatus.running:
+                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.id, nodeStatus, node.host, node.port))
+                                phaseStatus.incFailNodeCount()
+                            else:
+                                # 需要执行的节点实例加入等待执行队列
+                                print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
+                                execQueue.put(node)
 
-                    if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
-                        try:
-                            while True:
-                                execQueue.get_nowait()
-                        except Exception as ex:
-                            pass
+                        if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                            try:
+                                while True:
+                                    execQueue.get_nowait()
+                            except Exception as ex:
+                                pass
 
-                        break
+                            break
+                    except Exception as ex:
+                        phaseStatus.incFailNodeCount()
+                        if node is not None:
+                            node.writeNodeLog("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                        else:
+                            print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
         finally:
             # 入队对应线程数量的退出信号对象
             for worker in worker_threads:

@@ -30,6 +30,11 @@ class Context(VContext.VContext):
         serverAdapter = ServerAdapter.ServerAdapter(self)
         self.serverAdapter = serverAdapter
 
+        # cache目录如果不存在则创建
+        cachePath = os.path.join(self.dataPath, 'cache')
+        if not os.path.exists(cachePath):
+            os.mkdir(cachePath)
+
         # 如果任务数据目录不存在，则创建目录
         if not os.path.exists(self.runPath):
             os.makedirs(self.runPath)

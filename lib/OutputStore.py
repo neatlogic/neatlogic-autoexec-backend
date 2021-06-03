@@ -24,6 +24,10 @@ class OutputStore:
 
     def saveOutput(self, output):
         db = self.db
+
+        if db is None:
+            return
+
         collection = db['node_output']
         pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.node['port']}
         outData = {}
@@ -41,10 +45,14 @@ class OutputStore:
             raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.node['port'], ex))
 
     def loadOutput(self):
+        output = {}
         db = self.db
+
+        if db is None:
+            return output
+
         collection = db['node_output']
 
-        output = {}
         try:
             pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.node['port']}
             outData = collection.find_one(pk, {'data': True})
@@ -59,6 +67,10 @@ class OutputStore:
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
         return
         db = self.db
+
+        if db is None:
+            return
+
         collection = db['node_status']
         pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.node['port']}
         outData = {}
@@ -76,12 +88,17 @@ class OutputStore:
             raise AutoExecError.AutoExecError('Can not save status for node({}:{}) {}'.format(self.node['host'],  self.node['port'], ex))
 
     def loadStatus(self):
+        status = {}
+
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        return {}
+        return status
         db = self.db
+
+        if db is None:
+            return status
+
         collection = db['node_status']
 
-        status = {}
         try:
             pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.node['port']}
             outData = collection.find_one(pk, {'data': True})
@@ -94,6 +111,10 @@ class OutputStore:
 
     def removeJobStatus(self):
         db = self.db
+
+        if db is None:
+            return
+
         collection = db['node_status']
 
         status = {}
