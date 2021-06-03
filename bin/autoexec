@@ -5,6 +5,7 @@
 """
 import os
 import sys
+import io
 import shutil
 import threading
 import initenv
@@ -18,6 +19,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
+import Utils
 import VContext
 import Context
 import ServerAdapter
@@ -25,6 +27,14 @@ import Operation
 import PhaseExecutor
 import NodeStatus
 import OutputStore
+
+
+class ConsoleLog(io.TextIOWrapper):
+    def write(self, text, encoding=sys.getdefaultencoding()):
+        if isinstance(text, bytes):
+            textd = text.decode(encoding)
+        for line in text.splitlines(True):
+            super().write(Utils.getTimeStr() + text)
 
 
 class Runner:
@@ -158,11 +168,11 @@ class Runner:
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
-            print("INFO: ======Execute failed======")
+            print("INFO: ======Execute failed======\n")
         else:
             # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             self.context.serverAdapter.fireNextPhase(lastPhase)
-            print("INFO: ======Execute succeed======")
+            print("INFO: ======Execute succeed======\n")
 
         return status
 
@@ -240,10 +250,11 @@ if __name__ == "__main__":
         consoleLogPath = logDir + '/console.txt'
         consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
 
-        f = open(consoleLogPath, 'w')
+        consoleLogFile = open(consoleLogPath, 'w').detach()
+        sys.stdout = ConsoleLog(consoleLogFile)
+        sys.stderr = ConsoleLog(consoleLogFile)
+
         os.link(consoleLogPath, consoleHisLogPath)
-        sys.stdout = f
-        sys.stderr = f
 
     if args.cleanstatus:
         vContext = VContext.VContext(args.jobid)

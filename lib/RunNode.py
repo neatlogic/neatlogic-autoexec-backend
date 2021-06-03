@@ -34,9 +34,7 @@ class LogFile(io.TextIOWrapper):
             d = d.decode(encoding)
 
         for line in d.splitlines(True):
-            super().write(Utils.getTimeStr())
-            super().write(line)
-            super().flush()
+            super().write(Utils.getTimeStr() + line)
             # TODO: write log to share object storage
 
     def close(self):
