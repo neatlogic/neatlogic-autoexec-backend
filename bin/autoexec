@@ -44,25 +44,14 @@ class ConsoleLog(io.TextIOWrapper):
 
 
 class Runner:
-    def __init__(self, jobId, isForce=False, paramsFile=None, nodesFile=None, devMode=False, dataPath=None):
+    def __init__(self, context, nodesFile=None):
         # 初始化运行上下文
         pPaths = os.path.split(os.path.realpath(__file__))
         homePath = os.path.realpath(pPaths[0]+'/..')
 
-        context = Context.Context(jobId, paramsFile, isForce, devMode, dataPath)
         self.context = context
         self.localDefinedParams = False
         self.localDefinedNodes = False
-
-        loggingLevel = context.config.get('autoexec', 'logging.level')
-
-        logFilePath = '{}/logs/{}.log'.format(homePath, pPaths[1])
-        logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
-        logger = logging.getLogger('')
-        logger.setLevel(loggingLevel)
-        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
-        logHandler.setFormatter(formatter)
-        logger.addHandler(logHandler)
 
         # 切换到任务的执行路径
         os.chdir(context.runPath)
@@ -243,23 +232,7 @@ if __name__ == "__main__":
 
     binPaths = os.path.split(os.path.realpath(__file__))
     homePath = os.path.realpath(binPaths[0]+'/..')
-
-    logDir = consoleLogPath = '{}/data/job/{}/log'.format(homePath, _getLogSubPath(args.jobid))
-    if not os.path.isdir(logDir):
-        os.mkdir(logDir)
-
-    consoleHisLogDir = logDir + '/console.hislog'
-    if not os.path.isdir(consoleHisLogDir):
-        os.mkdir(consoleHisLogDir)
-
-    consoleLogPath = logDir + '/console.txt'
-    consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
-
-    consoleLogFile = open(consoleLogPath, 'w').detach()
-    sys.stdout = ConsoleLog(consoleLogFile)
-    sys.stderr = ConsoleLog(consoleLogFile)
-
-    os.link(consoleLogPath, consoleHisLogPath)
+    progName = binPaths[1]
 
     if args.cleanstatus:
         vContext = VContext.VContext(args.jobid)
@@ -284,11 +257,44 @@ if __name__ == "__main__":
         registerTools(serverAdapter, pluginsPath, 'remote')
 
     elif not args.abort:
+        # 初始化运行context
+        dataPath = homePath + '/data'
+        context = Context.Context(args.jobid, args.paramsfile, args.force, args.devmode, dataPath)
+
+        # 初始化console日志文件
+        logDir = context.runPath + '/log'
+        consoleHisLogDir = logDir + '/console.hislog'
+        if not os.path.isdir(consoleHisLogDir):
+            os.mkdir(consoleHisLogDir)
+
+        consoleLogPath = logDir + '/console.txt'
+        consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+
+        # console输出重定向到console log文件
+        consoleLogFile = open(consoleLogPath, 'w').detach()
+        sys.stdout = ConsoleLog(consoleLogFile)
+        sys.stderr = ConsoleLog(consoleLogFile)
+
+        os.link(consoleLogPath, consoleHisLogPath)
+
+        # 初始化全局Logger
+        loggingLevel = context.config.get(progName, 'logging.level')
+
+        logFilePath = '{}/logs/{}.log'.format(homePath, progName)
+        logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
+        logger = logging.getLogger('')
+        logger.setLevel(loggingLevel)
+        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
+        logHandler.setFormatter(formatter)
+        logger.addHandler(logHandler)
+
+        # 开始运行作业
         print("INFO: JobId:{}, isForce:{}, paramsFile:{}, nodesFile:{}\n".format(args.jobid, args.force, args.paramsfile, args.nodesfile))
 
         os.environ['AUTOEXEC_JOBID'] = args.jobid
-        runner = Runner(args.jobid, isForce=args.force, paramsFile=args.paramsfile, nodesFile=args.nodesfile, devMode=args.devmode)
+        runner = Runner(context, nodesFile=args.nodesfile)
 
+        # 信号处理函数，kill runner
         def handler(signum, frame):
             runner.kill()
 
