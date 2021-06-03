@@ -29,12 +29,13 @@ import OutputStore
 
 
 class LogFile(io.TextIOWrapper):
-    def write(self, d, encoding=sys.getdefaultencoding()):
-        if isinstance(d, bytes):
-            d = d.decode(encoding)
+    def write(self, text, encoding=sys.getdefaultencoding()):
+        if isinstance(text, bytes):
+            text = text.decode(encoding)
 
-        for line in d.splitlines(True):
+        for line in text.splitlines(True):
             super().write(Utils.getTimeStr() + line)
+            super().flush()
             # TODO: write log to share object storage
 
     def close(self):
@@ -385,7 +386,6 @@ class RunNode:
 
             except:
                 isFail = 1
-                traceback.print_exc()
                 self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
                 break
 

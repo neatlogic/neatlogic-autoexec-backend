@@ -51,14 +51,14 @@ class PhaseWorker(threading.Thread):
 
                 if ret != 0:
                     phaseStatus.incFailNodeCount()
-                    print("ERROR: Node({}) {}:{} execute failed.".format(node.id, node.host, node.port))
+                    print("ERROR: Node({}) {}:{} execute failed.\n".format(node.id, node.host, node.port))
                 else:
                     if node.hasIgnoreFail == 1:
                         phaseStatus.incIgnoreFailNodeCount()
-                        print("INFO: Node({}) {}:{} execute failed, ignore.".format(node.id, node.host, node.port))
+                        print("INFO: Node({}) {}:{} execute failed, ignore.\n".format(node.id, node.host, node.port))
                     else:
                         phaseStatus.incSucNodeCount()
-                        print("INFO: Node({}) {}:{} execute succeed.".format(node.id, node.host, node.port))
+                        print("INFO: Node({}) {}:{} execute succeed.\n".format(node.id, node.host, node.port))
             finally:
                 self.currentNode = None
 
@@ -120,14 +120,14 @@ class PhaseExecutor:
                     else:
                         nodeStatus = localRunNode.getNodeStatus()
                         if nodeStatus == NodeStatus.succeed:
-                            print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                             phaseStatus.incSkipNodeCount()
                         elif nodeStatus == NodeStatus.running:
-                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                             phaseStatus.incFailNodeCount()
                         elif self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
-                            print("INFO: Node({}) status:{} {}:{} execute begin...".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                            print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                             execQueue.put(localRunNode)
                 except Exception as ex:
                     phaseStatus.incFailNodeCount()
@@ -160,17 +160,17 @@ class PhaseExecutor:
                             if nodeStatus == NodeStatus.succeed:
                                 # 如果是成功状态，回写服务端，防止状态不一致
                                 phaseStatus.incSkipNodeCount()
-                                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.id, nodeStatus, node.host, node.port))
+                                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.id, nodeStatus, node.host, node.port))
                                 try:
                                     self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
                                 except Exception as ex:
-                                    logging.error("RePush node status to server failed, {}".format(ex))
+                                    logging.error("RePush node status to server failed, {}\n".format(ex))
                             elif nodeStatus == NodeStatus.running:
-                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.id, nodeStatus, node.host, node.port))
+                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.id, nodeStatus, node.host, node.port))
                                 phaseStatus.incFailNodeCount()
                             else:
                                 # 需要执行的节点实例加入等待执行队列
-                                print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.id, nodeStatus, node.host, node.port))
+                                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.id, nodeStatus, node.host, node.port))
                                 execQueue.put(node)
 
                         if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
@@ -225,4 +225,4 @@ class PhaseExecutor:
         for t in killWorkers:
             t.join()
 
-        print("INFO: kill complete.")
+        print("INFO: kill complete.\n")

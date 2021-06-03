@@ -137,7 +137,7 @@ class TagentClient:
                         chunk += buf
                         readLen = readLen + len(buf)
                     else:
-                        print("Connection reset or closed!")
+                        print("Connection reset or closed!\n")
             else:
                 while True:
                     buf = sock.recv(4096)
@@ -175,7 +175,7 @@ class TagentClient:
             if chunkLen == 0:
                 sock.shutdown(1)
         except socket.error as msg:
-            print("Connection closed:{}".format(str(msg)))
+            print("Connection closed:{}\n".format(str(msg)))
 
     def getConnection(self, isVerbose=0):
         # 创建Agent连接，并完成验证, 返回TCP连接
@@ -195,10 +195,10 @@ class TagentClient:
         if sock:
             ret = self.auth(sock, password, isVerbose)
             if ret != 1:
-                print("ERROR: Authenticate failed while connect to {0}:{1}.".format(host, port))
+                print("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
                 sys.exit(1)
         else:
-            print("ERROR: Authenticate failed while connect to {0}:{1}.".format(host, port))
+            print("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
             sys.exit(1)
         return sock
 
@@ -214,7 +214,7 @@ class TagentClient:
                 self.encrypt = True
             elif protocolVer != self.protocolVer:
                 sock.shutdown(2)
-                print("ERROR: server protocol version is {}, not match client protocol version {}.".format(
+                print("ERROR: server protocol version is {}, not match client protocol version {}.\n".format(
                     protocolVer, self.protocolVer))
 
             self.agentOsType = agentOsType
@@ -244,11 +244,11 @@ class TagentClient:
                     agentCharset = self.agentCharset
                     charset = self.charset
                     if charset != agentCharset:
-                        print("ERROR:{}".format(authResult.decode(agentCharset, 'ignore').encode(charset)))
+                        print("ERROR:{}\n".format(authResult.decode(agentCharset, 'ignore').encode(charset)))
                 return 0
             return 1
         except AuthError:
-            print("ERROR: Authenticate failed while connect to {0}:{1}.".format(host, port))
+            print("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
             sys.exit(1)
 
     def updateCred(self, cred, isVerbose=0):
@@ -267,11 +267,11 @@ class TagentClient:
                 if statusLine:
                     status = -1
                     if isVerbose == 1:
-                        print("ERROR: Change credential failed:{}.".format(statusLine))
+                        print("ERROR: Change credential failed:{}.\n".format(statusLine))
                 else:
                     status = 0
                     if isVerbose == 1:
-                        print("INFO: Change credential succeed.")
+                        print("INFO: Change credential succeed.\n")
             except BaseException:
                 status = -1
                 if isVerbose == 1:
@@ -290,11 +290,11 @@ class TagentClient:
             if buf.startswith("Status:200"):
                 status = 0
                 if isVerbose == 1:
-                    print("INFO: reload succeed.")
+                    print("INFO: reload succeed.\n")
             else:
                 status = -1
                 if isVerbose == 1:
-                    print("ERROR: reload failed.")
+                    print("ERROR: reload failed.\n")
         except ExecError as msg:
             status = -1
             if isVerbose == 1:
@@ -399,7 +399,7 @@ class TagentClient:
             else:
                 status = 0
                 if isVerbose == 1:
-                    print("INFO: Launch command asynchronized succeed.")
+                    print("INFO: Launch command asynchronized succeed.\n")
         except ExecError as errMsg:
             status = -1
             print("ERROR:" + errMsg)
@@ -418,7 +418,7 @@ class TagentClient:
                     else:
                         break
         except ExecError:
-            print("ERROR: Write to file {0} failed.".format(destFile))
+            print("ERROR: Write to file {0} failed.\n".format(destFile))
             status = -1
         return status
 
@@ -445,12 +445,12 @@ class TagentClient:
             status = 0
             fileType = tmp[0]
             if isVerbose == 1:
-                print("INFO: Download {0} {1} to {2} begin...".format(fileType, src, dest))
+                print("INFO: Download {0} {1} to {2} begin...\n".format(fileType, src, dest))
         else:
             status = -1
             if isVerbose == 1:
                 print("ERROR: " + statusLine)
-                print("ERROR: Download {0} {1} to {2} failed.".format(fileType, src, dest))
+                print("ERROR: Download {0} {1} to {2} failed.\n".format(fileType, src, dest))
                 sock.close()
             return status
 
@@ -482,7 +482,7 @@ class TagentClient:
                                 p = subprocess.Popen(["tar", "-xf-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                         except ExecError:
                             if isVerbose == 1:
-                                print("ERROR: Launch tar command failed.")
+                                print("ERROR: Launch tar command failed.\n")
                             status = -1
                             return status
 
@@ -501,26 +501,26 @@ class TagentClient:
                         except ExecError as errMsg:
                             status = -1
                             if isVerbose == 1:
-                                print("ERROR: download failed, {}".format(errMsg))
+                                print("ERROR: download failed, {}\n".format(errMsg))
                             return status
                         status = p.returncode
                     else:
                         if isVerbose == 1:
-                            print("ERROR: directory {} not exist.".format(destDir))
+                            print("ERROR: directory {} not exist.\n".format(destDir))
                             status = -1
                 else:
-                    print("ERROR: FileType {0} not supported.".format(fileType))
+                    print("ERROR: FileType {0} not supported.\n".format(fileType))
                     status = -1
             except ExecError as errMsg:
                 if isVerbose == 1:
-                    print("ERROR: download failed, {}".format(errMsg))
+                    print("ERROR: download failed, {}\n".format(errMsg))
                 status = -1
             sock.close()
         if isVerbose == 1:
             if status == 0:
-                print("INFO: Download succeed.")
+                print("INFO: Download succeed.\n")
             else:
-                print("ERROR: Download failed.")
+                print("ERROR: Download failed.\n")
         return status
 
     # 用于读取tar或者7-zip的打包输出内容，并写入网络连接中
@@ -533,7 +533,7 @@ class TagentClient:
             status = -1
             if isVerbose == 1:
                 if isVerbose == 1:
-                    print("ERROR: Can not launch command {}.".format(cmd))
+                    print("ERROR: Can not launch command {}.\n".format(cmd))
             sock.shutdown(2)
             return status
 
@@ -551,7 +551,7 @@ class TagentClient:
         exitStatus = p.returncode
         if exitStatus:
             status = -1
-            print("ERROR: request ended with status:{}.".format(exitStatus))
+            print("ERROR: request ended with status:{}.\n".format(exitStatus))
         else:
             self.__writeChunk(sock)
         try:
@@ -594,7 +594,7 @@ class TagentClient:
         except ExecError:
             status = -1
             if isVerbose == 1:
-                print("ERROR: Can not download file:{}".format(filePath))
+                print("ERROR: Can not download file:{}\n".format(filePath))
             sock.shutdown(2)
         return status
 
@@ -636,7 +636,7 @@ class TagentClient:
                     print(errMsg)
         elif status == 3:
             if isVerbose == 1:
-                print("ERROR: Can not open file:{}.".format(url))
+                print("ERROR: Can not open file:{}.\n".format(url))
             sock.shutdown(2)
         else:
             sock.shutdown(2)
@@ -655,7 +655,7 @@ class TagentClient:
 
         if fileType != 'url' and not os.path.exists(src):
             if isVerbose == 1:
-                print("ERROR: {0} not exists.".format(src))
+                print("ERROR: {0} not exists.\n".format(src))
             return -1
 
         sock = self.getConnection()
@@ -674,10 +674,10 @@ class TagentClient:
         if not preStatus.lstrip().startswith('Status:200'):
             sock.close()
             if isVerbose == 1:
-                print("ERROR: Upload failed:{}.".format(preStatus))
+                print("ERROR: Upload failed:{}.\n".format(preStatus))
             return -1
         if isVerbose == 1:
-            print("INFO: Upload {} {} to {} begin...".format(fileType, src, dest))
+            print("INFO: Upload {} {} to {} begin...\n".format(fileType, src, dest))
 
         status = 0
         if fileType == 'file':
@@ -697,9 +697,9 @@ class TagentClient:
 
         if isVerbose == 1:
             if status == 0:
-                print("INFO: Upload succeed.")
+                print("INFO: Upload succeed.\n")
             else:
-                print("ERROR: Upload failed.")
+                print("ERROR: Upload failed.\n")
         sock.close()
         return status
 
@@ -727,10 +727,10 @@ class TagentClient:
         if not preStatus.lstrip().startswith("Status:200"):
             sock.close()
             if isVerbose == 1:
-                print("ERROR: Upload failed:{}.".format(preStatus))
+                print("ERROR: Upload failed:{}.\n".format(preStatus))
             return -1
         if isVerbose == 1:
-            print("INFO: Write file {} begin...".format(dest))
+            print("INFO: Write file {} begin...\n".format(dest))
 
         status = 0
         try:
@@ -739,13 +739,13 @@ class TagentClient:
             self.__readChunk(sock)
         except ExecError as errMsg:
             status = -1
-            print("ERROR: {}".format(errMsg.value))
+            print("ERROR: {}\n".format(errMsg.value))
 
         if isVerbose == 1:
             if status == 0:
-                print("INFO: Write file succeed.")
+                print("INFO: Write file succeed.\n")
             else:
-                print("ERROR: Write file failed.")
+                print("ERROR: Write file failed.\n")
 
         sock.close()
         return status

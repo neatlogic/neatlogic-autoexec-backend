@@ -40,7 +40,9 @@ class ConsoleLog(io.TextIOWrapper):
             if isTTY:
                 sys.__stdout__.write(text)
 
-            super().write(Utils.getTimeStr() + text)
+            for line in text.splitlines(True):
+                super().write(Utils.getTimeStr() + line)
+                super().flush()
 
 
 class Runner:
