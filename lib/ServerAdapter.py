@@ -303,12 +303,14 @@ class ServerAdapter:
             raise
         finally:
             if cachedFileTmp is not None:
+                if os.path.exists(cachedFilePathTmp):
+                    os.unlink(cachedFilePathTmp)
+
                 fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
-            if os.path.exists(cachedFilePathTmp):
-                os.unlink(cachedFilePathTmp)
 
     # 从自定义脚本库下载脚本到脚本目录
+
     def fetchScript(self, savePath, opId):
         params = {
             'operationId': opId
@@ -323,10 +325,11 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + self.apiMap['fetchScript']
 
+        cachedFilePathTmp = cachedFilePath + '.tmp'
+        cachedFileTmp = None
         cachedFile = None
         response = None
         try:
-            cachedFile = open(cachedFilePath, 'a+')
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
@@ -335,18 +338,26 @@ class ServerAdapter:
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
 
-                fcntl.lockf(cachedFile, fcntl.LOCK_EX)
-                cachedFile.truncate(0)
-                cachedFile.write(scriptContent)
+                cachedFileTmp = open(cachedFilePathTmp, 'a+')
+                fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+                cachedFileTmp.truncate(0)
+                cachedFileTmp.write(scriptContent)
+
+                if os.path.exists(cachedFilePath):
+                    os.unlink(cachedFilePath)
+                os.rename(cachedFilePathTmp, cachedFilePath)
         except:
             raise
         finally:
-            if cachedFile is not None:
-                fcntl.lockf(cachedFile, fcntl.LOCK_UN)
-                cachedFile.close()
-                os.chmod(savePath, stat.S_IRWXU)
+            if cachedFileTmp is not None:
+                if os.path.exists(cachedFilePathTmp):
+                    os.unlink(cachedFilePathTmp)
 
-        return savePath
+                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
+                cachedFileTmp.close()
+                os.chmod(cachedFilePath, stat.S_IRWXU)
+
+        return cachedFilePath
 
     # 注册native工具到服务端工具库
     def registerTool(self, toolObj):
