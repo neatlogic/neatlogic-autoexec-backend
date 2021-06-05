@@ -16,6 +16,7 @@ class VContext:
     def __init__(self, jobId=0, isForce=False, devMode=False, dataPath=None):
         self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
+        self.pid = os.getpid()
         self.execUser = 'anonymous'
         self.params = {}
         self.parallelCount = 25

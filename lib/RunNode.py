@@ -39,7 +39,6 @@ class LogFile(io.TextIOWrapper):
             # TODO: write log to share object storage
 
     def close(self):
-        super().flush()
         super().close()
 
 
@@ -123,10 +122,14 @@ class RunNode:
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             self.context.hasFailNodeInGlobal = True
 
+        self.statuses['pid'] = self.context.pid
+
         if op is None:
             self.statuses['status'] = status
         else:
             self.statuses[op.opId] = status
+            self.statuses['currenOp'] = op.opId
+            self.statuses['opPid'] = self.childPid
 
         try:
             if self.statusFile is None:
@@ -182,6 +185,13 @@ class RunNode:
             status = self.statuses[op.opId]
 
         return status
+
+    def ensureNodeIsRunning(self):
+        isExists = False
+        if 'pid' in self.statuses:
+            isExists = Utils.checkPidExists(self.statuses['pid'])
+
+        return isExists
 
     def _getOpOutputPath(self, op):
         return '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)

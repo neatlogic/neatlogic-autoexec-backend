@@ -3,7 +3,7 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-
+import os
 import sys
 import time
 import binascii
@@ -39,6 +39,16 @@ def _rc4_decrypt_hex(key, data):
         return _rc4(key, binascii.unhexlify(data))
     elif PYTHON_VER == 3:
         return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
+
+
+def checkPidExists(pid):
+    isExists = False
+    try:
+        os.kill(pid, 0)
+        isExists = True
+    except:
+        pass
+    return isExists
 
 
 def getDateTimeStr():

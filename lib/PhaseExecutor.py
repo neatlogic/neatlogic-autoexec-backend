@@ -123,8 +123,12 @@ class PhaseExecutor:
                             print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                             phaseStatus.incSkipNodeCount()
                         elif nodeStatus == NodeStatus.running:
-                            print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
-                            phaseStatus.incFailNodeCount()
+                            if localRunNode.ensureNodeIsRunning():
+                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                                phaseStatus.incFailNodeCount()
+                            else:
+                                print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
+                                execQueue.put(localRunNode)
                         elif self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
                             print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
@@ -166,8 +170,12 @@ class PhaseExecutor:
                                 except Exception as ex:
                                     logging.error("RePush node status to server failed, {}\n".format(ex))
                             elif nodeStatus == NodeStatus.running:
-                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.id, nodeStatus, node.host, node.port))
-                                phaseStatus.incFailNodeCount()
+                                if node.ensureNodeIsRunning():
+                                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.id, nodeStatus, node.host, node.port))
+                                    phaseStatus.incFailNodeCount()
+                                else:
+                                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.id, nodeStatus, node.host, node.port))
+                                    execQueue.put(node)
                             else:
                                 # 需要执行的节点实例加入等待执行队列
                                 print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.id, nodeStatus, node.host, node.port))
