@@ -44,6 +44,9 @@ class Context(VContext.VContext):
             serverAdapter.getParams()
         else:
             self.localDefinedParams = True
+
+            if not paramsFile.startswith('/'):
+                paramsFile = os.path.join(self.runPath, paramsFile)
             # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
             dstPath = '{}/params.json'.format(self.runPath)
             if os.path.exists(paramsFile):
