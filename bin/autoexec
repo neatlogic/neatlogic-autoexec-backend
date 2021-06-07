@@ -225,6 +225,7 @@ if __name__ == "__main__":
     parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
     parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
+    parser.add_argument('--firstfire', '-i', default=False, action='store_true', help='the first phase fired')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
@@ -265,19 +266,19 @@ if __name__ == "__main__":
 
         # 初始化console日志文件
         logDir = context.runPath + '/log'
-        consoleHisLogDir = logDir + '/console.hislog'
-        if not os.path.isdir(consoleHisLogDir):
-            os.mkdir(consoleHisLogDir)
-
         consoleLogPath = logDir + '/console.txt'
-        consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
 
         # console输出重定向到console log文件
         consoleLogFile = open(consoleLogPath, 'w').detach()
         sys.stdout = ConsoleLog(consoleLogFile)
         sys.stderr = ConsoleLog(consoleLogFile)
 
-        os.link(consoleLogPath, consoleHisLogPath)
+        if args.firstfire:
+            consoleHisLogDir = logDir + '/console.hislog'
+            if not os.path.isdir(consoleHisLogDir):
+                os.mkdir(consoleHisLogDir)
+            consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+            os.link(consoleLogPath, consoleHisLogPath)
 
         # 初始化全局Logger
         loggingLevel = context.config.get(progName, 'logging.level')
