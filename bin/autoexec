@@ -274,11 +274,24 @@ if __name__ == "__main__":
         sys.stderr = ConsoleLog(consoleLogFile)
 
         if args.firstfire:
+            # console输出重定向到console log文件
+            if os.path.exists(consoleLogPath):
+                os.unlink(consoleLogPath)
+
+            consoleLogFile = open(consoleLogPath, 'w').detach()
+            sys.stdout = ConsoleLog(consoleLogFile)
+            sys.stderr = ConsoleLog(consoleLogFile)
+
             consoleHisLogDir = logDir + '/console.hislog'
             if not os.path.isdir(consoleHisLogDir):
                 os.mkdir(consoleHisLogDir)
             consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
             os.link(consoleLogPath, consoleHisLogPath)
+        else:
+            # console输出重定向到console log文件
+            consoleLogFile = open(consoleLogPath, 'a').detach()
+            sys.stdout = ConsoleLog(consoleLogFile)
+            sys.stderr = ConsoleLog(consoleLogFile)
 
         # 初始化全局Logger
         loggingLevel = context.config.get(progName, 'logging.level')
