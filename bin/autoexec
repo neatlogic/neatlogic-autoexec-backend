@@ -311,33 +311,41 @@ if __name__ == "__main__":
         sys.exit(runner.execute())
     else:
         print("INFO: try to kill job:{}\n".format(args.jobid))
+        autoexecIsKilled = False
+        autoexecPid = None
+        with os.scandir('/proc') as it:
+            for entry in it:
+                if not entry.name.startswith('.') and entry.is_dir():
+                    if re.match('^\d+$', entry.name):
+                        pid = entry.name
+                        try:
+                            cf = open(entry.path + '/comm')
+                            comm = cf.read()
+                            comm.strip()
+                            if comm == 'autoexec':
+                                f = open(entry.path + '/cmdline')
+                                content = f.read()
+                                if re.match(args.jobid, content):
+                                    autoexecPid = pid
+                                    break
+                        except:
+                            pass
 
-        loopCount = 0
-        hasProcess = True
-        while hasProcess:
-            hasProcess = False
-            with os.scandir('/proc') as it:
-                for entry in it:
-                    if not entry.name.startswith('.') and entry.is_dir():
-                        if re.match('^\d+$', entry.name):
-                            pid = entry.name
-                            try:
-                                cf = open(entry.path + '/comm')
-                                comm = cf.read()
-                                comm.strip()
-                                if comm == 'autoexec':
-                                    f = open(entry.path + '/environ')
-                                    content = f.read()
-                                    if re.match('AUTOEXEC_JOBID=' + args.jobid, content):
-                                        hasProcess = True
-                                        if loopCount < 10:
-                                            os.kill(pid, signal.SIGTERM)
-                                        else:
-                                            os.kill(pid, signal.SIGKILL)
-                                            break
-                            except:
-                                pass
-            if hasProcess and loopCount < 10:
+        if autoexecPid is not None:
+            try:
+                print("INFO: Try to stop process {}...\n".format(autoexecPid))
+                for i in range(10):
+                    os.kill(autoexecPid, signal.SIGTERM)
+                    time.sleep(1)
+
+                os.kill(autoexecPid, signal.SIGKILL)
                 time.sleep(1)
+                os.kill(autoexecPid, 0)
+            except:
+                autoexecIsKilled = True
+                print("INFO: Process {} killed.\n".format(autoexecPid))
 
-            loopCount = loopCount + 1
+            if not autoexecIsKilled:
+                print("WARN: Kill process {} failed.\n".format(autoexecPid))
+        else:
+            print("INFO: Can not find job {} process.\n".format(args.jobid))
