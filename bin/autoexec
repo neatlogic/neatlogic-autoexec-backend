@@ -275,11 +275,24 @@ if __name__ == "__main__":
         sys.stderr = ConsoleLog(consoleLogFile)
 
         if args.firstfire:
+            # console输出重定向到console log文件
+            if os.path.exists(consoleLogPath):
+                os.unlink(consoleLogPath)
+
+            consoleLogFile = open(consoleLogPath, 'w').detach()
+            sys.stdout = ConsoleLog(consoleLogFile)
+            sys.stderr = ConsoleLog(consoleLogFile)
+
             consoleHisLogDir = logDir + '/console.hislog'
             if not os.path.isdir(consoleHisLogDir):
                 os.mkdir(consoleHisLogDir)
             consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
             os.link(consoleLogPath, consoleHisLogPath)
+        else:
+            # console输出重定向到console log文件
+            consoleLogFile = open(consoleLogPath, 'a').detach()
+            sys.stdout = ConsoleLog(consoleLogFile)
+            sys.stderr = ConsoleLog(consoleLogFile)
 
         # 初始化全局Logger
         loggingLevel = context.config.get(progName, 'logging.level')
@@ -313,7 +326,7 @@ if __name__ == "__main__":
     else:
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
-        autoexecPid = None
+        autoexecPid = 0
         with os.scandir('/proc') as it:
             for entry in it:
                 if not entry.name.startswith('.') and entry.is_dir():
@@ -322,17 +335,17 @@ if __name__ == "__main__":
                         try:
                             cf = open(entry.path + '/comm')
                             comm = cf.read()
-                            comm.strip()
+                            comm = comm.strip()
                             if comm == 'autoexec':
                                 f = open(entry.path + '/cmdline')
                                 content = f.read()
-                                if re.match(args.jobid, content):
-                                    autoexecPid = pid
+                                if content.index(args.jobid) > 0:
+                                    autoexecPid = int(pid)
                                     break
                         except:
                             pass
 
-        if autoexecPid is not None:
+        if autoexecPid != 0:
             try:
                 print("INFO: Try to stop process {}...\n".format(autoexecPid))
                 for i in range(10):
