@@ -312,7 +312,7 @@ if __name__ == "__main__":
     else:
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
-        autoexecPid = None
+        autoexecPid = 0
         with os.scandir('/proc') as it:
             for entry in it:
                 if not entry.name.startswith('.') and entry.is_dir():
@@ -321,17 +321,17 @@ if __name__ == "__main__":
                         try:
                             cf = open(entry.path + '/comm')
                             comm = cf.read()
-                            comm.strip()
+                            comm = comm.strip()
                             if comm == 'autoexec':
                                 f = open(entry.path + '/cmdline')
                                 content = f.read()
-                                if re.match(args.jobid, content):
-                                    autoexecPid = pid
+                                if content.index(args.jobid) > 0:
+                                    autoexecPid = int(pid)
                                     break
                         except:
                             pass
 
-        if autoexecPid is not None:
+        if autoexecPid != 0:
             try:
                 print("INFO: Try to stop process {}...\n".format(autoexecPid))
                 for i in range(10):
