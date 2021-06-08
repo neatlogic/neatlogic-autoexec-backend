@@ -707,7 +707,7 @@ class RunNode:
                     ssh.connect(self.host, self.port, self.username, self.password)
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
-                    channel.exec_command(remoteCmd)
+                    channel.exec_command(remoteCmd, get_pty=True)
 
                     while True:
                         if channel.exit_status_ready():
