@@ -269,7 +269,7 @@ if __name__ == "__main__":
         consoleLogPath = logDir + '/console.txt'
 
         # console输出重定向到console log文件
-        consoleLogFile = open(consoleLogPath, 'w').detach()
+        consoleLogFile = open(consoleLogPath, 'a').detach()
         sys.stdout = ConsoleLog(consoleLogFile)
         sys.stderr = ConsoleLog(consoleLogFile)
 
