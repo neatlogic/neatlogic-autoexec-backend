@@ -230,8 +230,10 @@ class RunNode:
             try:
                 outputFile = open(self.outputPath, 'r')
                 fcntl.lockf(outputFile, fcntl.LOCK_SH)
-                output = json.loads(outputFile.read())
-                self.output = output
+                content = outputFile.read()
+                if content:
+                    output = json.loads(outputFile.read())
+                    self.output = output
             except Exception as ex:
                 self.writeNodeLog('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
             finally:
@@ -269,17 +271,15 @@ class RunNode:
         if os.path.exists(opOutPutPath):
             try:
                 opOutputFile = open(opOutPutPath, 'r')
-                opOutput = json.loads(opOutputFile.read())
-                # if self.host == 'local-pre' or self.host == 'local-post':
-                #    for key in opOutput:
-                #        self.context.output['local'][key] = opOutput[key]
-                # else:
-                self.output[op.opId] = opOutput
-
-                if opOutputFile:
-                    opOutputFile.close()
+                content = opOutputFile.read()
+                if content:
+                    opOutput = json.loads(opOutputFile.read())
+                    self.output[op.opId] = opOutput
             except Exception as ex:
                 self.writeNodeLog('ERROR: Load operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
+            finally:
+                if opOutputFile:
+                    opOutputFile.close()
 
     def getNodeLogHandle(self):
         return self.logHandle
@@ -707,16 +707,15 @@ class RunNode:
                     ssh.connect(self.host, self.port, self.username, self.password)
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
-                    channel.exec_command(remoteCmd, get_pty=True)
-
+                    channel.exec_command(remoteCmd)
                     while True:
+                        r, w, x = select.select([channel], [], [], 10)
+                        if len(r) > 0:
+                            self.writeNodeLog(channel.recv(4096).decode())
+
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
-
-                        r, w, x = select.select([channel], [], [])
-                        if len(r) > 0:
-                            self.writeNodeLog(channel.recv(1024).decode() + "\n")
 
                     if ret == 0 and op.hasOutput:
                         try:
@@ -725,7 +724,7 @@ class RunNode:
                         except:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
-
+                    self.writeNodeLog("TEST: run command")
                     try:
                         if ret != 0 and self.context.devMode:
                             ssh.exec_command("rm -rf {} || rd /s /q {}".format(remotePath, remotePath))
