@@ -231,6 +231,7 @@ if __name__ == "__main__":
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
 
+    os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
 
     binPaths = os.path.split(os.path.realpath(__file__))
