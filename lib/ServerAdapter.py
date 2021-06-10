@@ -34,6 +34,8 @@ class ServerAdapter:
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
+            'jobPaused': '/codedriver/public/api/rest/autoexec/job/paused',
+            'jobKilled': '/codedriver/public/api/rest/autoexec/job/killed'
         }
 
         self.context = context
@@ -246,6 +248,44 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise
+
+    # 通知后端当前job已经暂停完成
+    def jobPaused(self):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['jobPaused'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise
+
+    # 通知后端当前job已经Kill完成
+    def jobKilled(self):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['jobKilled'], self.authToken, params)
 
         try:
             charset = response.info().get_content_charset()

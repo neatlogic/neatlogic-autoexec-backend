@@ -179,6 +179,15 @@ class Runner:
         for phaseStatus in self.context.phases.values():
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
+        self.context.serverAdapter.jobKilled()
+
+    def pause(self):
+        self.context.goToStop = True
+        # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
+        for phaseStatus in self.context.phases.values():
+            if phaseStatus.executor is not None:
+                phaseStatus.executor.pause()
+        self.context.serverAdapter.jobPaused()
 
 
 def _getLogSubPath(jobId):
@@ -217,6 +226,28 @@ def registerTools(serverAdapter, pluginsPath, opType):
                         print("ERROR: Register tool:{}/{} failed, {}\n".format(opType, entry.name, ex))
 
 
+def findJobProcess(jobId):
+    autoexecPid = 0
+    with os.scandir('/proc') as it:
+        for entry in it:
+            if not entry.name.startswith('.') and entry.is_dir():
+                if re.match('^\d+$', entry.name):
+                    pid = entry.name
+                    try:
+                        cf = open(entry.path + '/comm')
+                        comm = cf.read()
+                        comm = comm.strip()
+                        if comm == 'autoexec':
+                            f = open(entry.path + '/cmdline')
+                            content = f.read()
+                            if content.index(jobid) > 0:
+                                autoexecPid = int(pid)
+                                break
+                    except:
+                        pass
+    return autoexecPid
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
@@ -227,6 +258,7 @@ if __name__ == "__main__":
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
     parser.add_argument('--firstfire', '-i', default=False, action='store_true', help='the first phase fired')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
+    parser.add_argument('--pause', '-s', default=False, action='store_true', help='puase the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
@@ -259,8 +291,54 @@ if __name__ == "__main__":
 
         registerTools(serverAdapter, pluginsPath, 'local')
         registerTools(serverAdapter, pluginsPath, 'remote')
+    elif args.pause:
+        print("INFO: try to pause job:{}\n".format(args.jobid))
+        autoexecIsPaused = False
+        autoexecPid = findJobProcess(args.jobId)
 
-    elif not args.abort:
+        if autoexecPid != 0:
+            try:
+                print("INFO: Try to pause process {}...\n".format(autoexecPid))
+                os.kill(autoexecPid, signal.SIGUSR1)
+
+                for i in range(1800):
+                    os.kill(autoexecPid, 0)
+                    time.sleep(1)
+                    os.kill(autoexecPid, signal.SIGUSR1)
+            except:
+                autoexecIsPaused = True
+                # TODO: call back job paused
+                print("INFO: Process {} puased.\n".format(autoexecPid))
+
+            if not autoexecIsPaused:
+                print("WARN: Kill process {} failed.\n".format(autoexecPid))
+        else:
+            print("INFO: Can not find job {} process.\n".format(args.jobid))
+    elif args.abort:
+        print("INFO: try to kill job:{}\n".format(args.jobid))
+        autoexecIsKilled = False
+        autoexecPid = findJobProcess(args.jobId)
+
+        if autoexecPid != 0:
+            try:
+                print("INFO: Try to stop process {}...\n".format(autoexecPid))
+                for i in range(10):
+                    os.kill(autoexecPid, signal.SIGTERM)
+                    time.sleep(1)
+
+                os.kill(autoexecPid, signal.SIGKILL)
+                time.sleep(1)
+                os.kill(autoexecPid, 0)
+            except:
+                autoexecIsKilled = True
+                # TODO: call back job killed
+                print("INFO: Process {} killed.\n".format(autoexecPid))
+
+            if not autoexecIsKilled:
+                print("WARN: Kill process {} failed.\n".format(autoexecPid))
+        else:
+            print("INFO: Can not find job {} process.\n".format(args.jobid))
+    else:
         # 初始化运行context
         dataPath = homePath + '/data'
         context = Context.Context(args.jobid, args.paramsfile, args.force, args.devmode, dataPath)
@@ -311,55 +389,20 @@ if __name__ == "__main__":
         os.environ['AUTOEXEC_JOBID'] = args.jobid
         runner = Runner(context, nodesFile=args.nodesfile)
 
+        # 信号处理函数，pause runner
+        def pauseHandler(signum, frame):
+            runner.pause()
+
         # 信号处理函数，kill runner
-        def handler(signum, frame):
+        def killHandler(signum, frame):
             runner.kill()
 
         # 注册TERM、INT的信号，当kill是响应信号进行退出处理，kill是另外独立的autoexec进程，仅仅发送一个信号
-        signal.signal(signal.SIGTERM, handler)
-        signal.signal(signal.SIGINT, handler)
+        signal.signal(signal.SIGTERM, killHandler)
+        signal.signal(signal.SIGINT, killHandler)
 
         if platform.system() != 'Windows':
-            signal.signal(signal.SIGHUP, handler)
+            signal.signal(signal.SIGHUP, killHandler)
+            signal.signal(signal.SIGUSR1, pauseHandler)
 
         sys.exit(runner.execute())
-    else:
-        print("INFO: try to kill job:{}\n".format(args.jobid))
-        autoexecIsKilled = False
-        autoexecPid = 0
-        with os.scandir('/proc') as it:
-            for entry in it:
-                if not entry.name.startswith('.') and entry.is_dir():
-                    if re.match('^\d+$', entry.name):
-                        pid = entry.name
-                        try:
-                            cf = open(entry.path + '/comm')
-                            comm = cf.read()
-                            comm = comm.strip()
-                            if comm == 'autoexec':
-                                f = open(entry.path + '/cmdline')
-                                content = f.read()
-                                if content.index(args.jobid) > 0:
-                                    autoexecPid = int(pid)
-                                    break
-                        except:
-                            pass
-
-        if autoexecPid != 0:
-            try:
-                print("INFO: Try to stop process {}...\n".format(autoexecPid))
-                for i in range(10):
-                    os.kill(autoexecPid, signal.SIGTERM)
-                    time.sleep(1)
-
-                os.kill(autoexecPid, signal.SIGKILL)
-                time.sleep(1)
-                os.kill(autoexecPid, 0)
-            except:
-                autoexecIsKilled = True
-                print("INFO: Process {} killed.\n".format(autoexecPid))
-
-            if not autoexecIsKilled:
-                print("WARN: Kill process {} failed.\n".format(autoexecPid))
-        else:
-            print("INFO: Can not find job {} process.\n".format(args.jobid))

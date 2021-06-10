@@ -62,6 +62,11 @@ class PhaseWorker(threading.Thread):
             finally:
                 self.currentNode = None
 
+    def pause(self):
+        self._queue.put(None)
+        if self.currentNode is not None:
+            self.currentNode.pause()
+
     def kill(self):
         self._queue.put(None)
         if self.currentNode is not None:
@@ -208,6 +213,32 @@ class PhaseExecutor:
             #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
 
         return phaseStatus.failNodeCount
+
+    def pause(self):
+        self.context.goToStop = True
+        try:
+            while True:
+                self.execQueue.get_nowait()
+            self.execQueue.put(None)
+        except Exception as ex:
+            pass
+
+        i = 1
+        pauseWorkers = []
+        for worker in self.workers:
+            try:
+                t = Thread(target=worker.kill, args=())
+                t.setName('Pauser-{}'.format(i))
+                t.start()
+                pauseWorkers.append(t)
+                i = i+1
+            except:
+                print("ERROR: unable to start thread to pause woker\n")
+
+        for t in pauseWorkers:
+            t.join()
+
+        print("INFO: pause complete.\n")
 
     def kill(self):
         self.context.goToStop = True

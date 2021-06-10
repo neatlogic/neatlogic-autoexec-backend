@@ -311,6 +311,11 @@ class RunNode:
         hasIgnoreFail = 0
         isFail = 0
         for op in ops:
+            if self.context.goToStop:
+                self.updateNodeStatus(NodeStatus.paused)
+                self.writeNodeLog("INFO: Node running paused.\n")
+                break
+
             ret = 0
 
             try:
@@ -748,6 +753,9 @@ class RunNode:
 
         return ret
 
+    def pause(self):
+        self.writeNodeLog("INFO: Try to puase node.\n".format(pid))
+
     def kill(self):
         if self.childPid is not None:
             pid = self.childPid
@@ -770,6 +778,7 @@ class RunNode:
             except OSError:
                 # 子进程不存在，已经退出了
                 self.isKilled = True
+                self.updateNodeStatus(NodeStatus.aborted)
                 self.writeNodeLog("INFO: Worker killed, pid:{}.\n".format(pid))
 
         killCmd = self.killCmd
@@ -792,6 +801,7 @@ class RunNode:
                     if len(r) > 0:
                         self.writeNodeLog(channel.recv(1024).decode() + "\n")
 
+                self.updateNodeStatus(NodeStatus.aborted)
                 self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
                 self.isKilled = True
             except Exception as err:
