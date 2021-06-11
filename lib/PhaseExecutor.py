@@ -131,7 +131,7 @@ class PhaseExecutor:
                             if localRunNode.ensureNodeIsRunning():
                                 print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                                 phaseStatus.incFailNodeCount()
-                            else:
+                            elif self.context.goToStop == False:
                                 print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(localRunNode.id, nodeStatus, localRunNode.host, localRunNode.port))
                                 execQueue.put(localRunNode)
                         elif self.context.goToStop == False:
@@ -145,12 +145,12 @@ class PhaseExecutor:
                     else:
                         print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
 
-            if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
-                try:
-                    while True:
-                        execQueue.get_nowait()
-                except Exception as ex:
-                    pass
+                if self.context.goToStop == False or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                    try:
+                        while True:
+                            execQueue.get_nowait()
+                    except Exception as ex:
+                        pass
 
             elif phaseStatus.hasRemote:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
@@ -161,7 +161,7 @@ class PhaseExecutor:
                         if node is None:
                             break
 
-                        if self.context.isForce:
+                        if self.context.isForce and self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
                         else:
@@ -178,15 +178,15 @@ class PhaseExecutor:
                                 if node.ensureNodeIsRunning():
                                     print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.id, nodeStatus, node.host, node.port))
                                     phaseStatus.incFailNodeCount()
-                                else:
+                                elif self.context.goToStop == False:
                                     print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.id, nodeStatus, node.host, node.port))
                                     execQueue.put(node)
-                            else:
+                            elif self.context.goToStop == False:
                                 # 需要执行的节点实例加入等待执行队列
                                 print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.id, nodeStatus, node.host, node.port))
                                 execQueue.put(node)
 
-                        if phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                        if self.context.goToStop == False or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                             try:
                                 while True:
                                     execQueue.get_nowait()
