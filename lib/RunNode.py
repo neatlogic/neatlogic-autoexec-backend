@@ -56,6 +56,12 @@ class RunNode:
         self.node = node
         self.nodeWithoutPassword = copy.copy(node)
         self.nodeWithoutPassword['password'] = ''
+
+        if 'nodeName' in node:
+            self.name = node['nodeName']
+        else:
+            self.name = ''
+
         self.type = node['nodeType']
         self.host = node['host']
         self.port = node['port']
