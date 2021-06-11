@@ -131,8 +131,8 @@ class Runner:
         else:
             self.context.hasFailNodeInGlobal = True
             self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
-        print("INFO: Execute phase:{} operations finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-        print("--------------------------------------------------------------------------------------\n")
+        print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
+        print("--------------------------------------------------------------\n\n")
 
     def execute(self):
         params = self.context.params
@@ -165,11 +165,9 @@ class Runner:
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
-            print("INFO: ======Execute failed======\n")
         else:
             # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             self.context.serverAdapter.fireNextPhase(lastPhase)
-            print("INFO: ======Execute succeed======\n")
 
         return status
 
