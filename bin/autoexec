@@ -240,7 +240,7 @@ def findJobProcess(jobId):
                         if comm == 'autoexec':
                             f = open(entry.path + '/cmdline')
                             content = f.read()
-                            if content.index(jobid) > 0:
+                            if content.index(jobId) > 0:
                                 autoexecPid = int(pid)
                                 break
                     except:
