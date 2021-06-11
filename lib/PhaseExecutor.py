@@ -145,7 +145,7 @@ class PhaseExecutor:
                     else:
                         print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
 
-                if self.context.goToStop == False or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                     try:
                         while True:
                             execQueue.get_nowait()
@@ -186,7 +186,7 @@ class PhaseExecutor:
                                 print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.id, nodeStatus, node.host, node.port))
                                 execQueue.put(node)
 
-                        if self.context.goToStop == False or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                        if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                             try:
                                 while True:
                                     execQueue.get_nowait()

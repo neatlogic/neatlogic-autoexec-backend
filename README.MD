@@ -22,6 +22,7 @@ optional arguments:
                         Nodes file path for this execution
   --force, -f           Force to run all nodes regardless the node status
   --abort, -k           abort the job
+  --pause, -s           pause the job
   --register REGISTER, -r REGISTER
                         register all tools to tenent
   --devmode, -d         develope test in command line
