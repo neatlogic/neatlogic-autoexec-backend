@@ -227,7 +227,7 @@ class PhaseExecutor:
         pauseWorkers = []
         for worker in self.workers:
             try:
-                t = Thread(target=worker.kill, args=())
+                t = Thread(target=worker.pause, args=())
                 t.setName('Pauser-{}'.format(i))
                 t.start()
                 pauseWorkers.append(t)

@@ -753,7 +753,7 @@ class RunNode:
         return ret
 
     def pause(self):
-        self.writeNodeLog("INFO: Try to puase node.\n".format(pid))
+        self.writeNodeLog("INFO: Try to puase node.\n")
 
     def kill(self):
         if self.childPid is not None:
