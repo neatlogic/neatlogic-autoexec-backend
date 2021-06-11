@@ -294,7 +294,7 @@ if __name__ == "__main__":
     elif args.pause:
         print("INFO: try to pause job:{}\n".format(args.jobid))
         autoexecIsPaused = False
-        autoexecPid = findJobProcess(args.jobId)
+        autoexecPid = findJobProcess(args.jobid)
 
         if autoexecPid != 0:
             try:
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     elif args.abort:
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
-        autoexecPid = findJobProcess(args.jobId)
+        autoexecPid = findJobProcess(args.jobid)
 
         if autoexecPid != 0:
             try:
