@@ -255,7 +255,10 @@ class Operation:
                     else:
                         cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
                 else:
-                    cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                    if self.interpreter in ('sh', 'bash', 'csh'):
+                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                    else:
+                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
@@ -284,7 +287,10 @@ class Operation:
                         else:
                             cmd = 'rename {} {} && {} {}'.format(self.opName, nameWithExt, self.interpreter, self.opName)
                 else:
-                    cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opName)
+                    if self.interpreter in ('sh', 'bash', 'csh'):
+                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opName)
+                    else:
+                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
