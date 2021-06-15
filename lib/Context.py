@@ -74,7 +74,7 @@ class Context(VContext.VContext):
             self.arg = params['arg']
 
         if 'passThroughEnv' in params:
-            self.passThroughENv = params['passThroughEnv']
+            self.passThroughEnv = params['passThroughEnv']
 
         paramFile.close()
 

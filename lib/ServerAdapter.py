@@ -149,6 +149,7 @@ class ServerAdapter:
     def getNodes(self, phase=None):
         params = {
             'jobId': self.context.jobId,
+            'passThroughEnv': self.context.passThroughEnv,
             'phase': ''
         }
 
