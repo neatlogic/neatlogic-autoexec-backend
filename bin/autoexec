@@ -340,6 +340,8 @@ if __name__ == "__main__":
         # 初始化运行context
         dataPath = homePath + '/data'
         context = Context.Context(args.jobid, args.paramsfile, args.force, args.devmode, dataPath)
+        os.environ['AUTOEXEC_JOBID'] = context.jobId
+        os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
 
         # 初始化console日志文件
         logDir = context.runPath + '/log'
@@ -383,8 +385,6 @@ if __name__ == "__main__":
 
         # 开始运行作业
         print("INFO: JobId:{} start...\n".format(args.jobid))
-
-        os.environ['AUTOEXEC_JOBID'] = args.jobid
         runner = Runner(context, nodesFile=args.nodesfile)
 
         # 信号处理函数，pause runner

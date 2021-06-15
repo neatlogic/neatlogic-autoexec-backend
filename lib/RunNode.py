@@ -463,6 +463,8 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
+        environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
+        environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
         environment['AUTOEXEC_NODE'] = json.dumps(self.node)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
@@ -520,6 +522,8 @@ class RunNode:
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
         environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
+        environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
+        environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
         environment['AUTOEXEC_NODE'] = json.dumps(self.node)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
