@@ -123,7 +123,7 @@ class RunNode:
             logHandle = LogFile(open(self.logPath, 'w').detach())
             self.logHandle = logHandle
         if msg.startswith('ERROR:') or msg.startswith('WARN:'):
-            self.warnCount = self.warCount + 1
+            self.warnCount = self.warnCount + 1
         logHandle.write(msg)
 
     def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
@@ -134,7 +134,7 @@ class RunNode:
 
         if op is None:
             self.statuses['status'] = status
-            self.statuses['warnCount'] = self.warCount
+            self.statuses['warnCount'] = self.warnCount
         else:
             self.statuses[op.opId] = status
             self.statuses['currenOp'] = op.opId
