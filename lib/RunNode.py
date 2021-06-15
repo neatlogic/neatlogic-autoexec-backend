@@ -729,7 +729,7 @@ class RunNode:
                     while True:
                         r, w, x = select.select([channel], [], [], 10)
                         if len(r) > 0:
-                            self.writeNodeLog(channel.readline())
+                            self.writeNodeLog(channel.recv(4096).decode())
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break

@@ -152,7 +152,7 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv,
             'phase': ''
         }
-
+        
         if phase is not None:
             params['phase'] = phase
 
