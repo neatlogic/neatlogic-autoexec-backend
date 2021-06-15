@@ -34,10 +34,10 @@ class PhaseWorker(threading.Thread):
             if node is None:
                 break
             self.currentNode = node
+            phaseStatus = self.context.phases[self.phaseName]
 
             try:
                 # 运行完所有操作
-                phaseStatus = self.context.phases[self.phaseName]
                 localOps = copy.copy(self.operations)  # 为了让每个节点都有独立的插件参数记录，复制operation
                 try:
                     ret = node.execute(localOps)
@@ -60,6 +60,7 @@ class PhaseWorker(threading.Thread):
                         phaseStatus.incSucNodeCount()
                         print("INFO: Node({}) {}:{} execute succeed.\n".format(node.id, node.host, node.port))
             finally:
+                phaseStatus.incWarnCount()
                 self.currentNode = None
 
     def pause(self):

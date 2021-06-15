@@ -225,6 +225,7 @@ class ServerAdapter:
             'sucNodeCount': phaseStatus.sucNodeCount,
             'skipNodeCount': phaseStatus.skipNodeCount,
             'ignoreFailNodeCount': phaseStatus.ignoreFailNodeCount,
+            'warnCount': phaseStatus.warnCount,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }

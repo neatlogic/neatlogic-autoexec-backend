@@ -54,6 +54,7 @@ class RunNode:
         self.phaseName = phaseName
         self.runPath = context.runPath
         self.node = node
+        self.warnCount = 0
         self.nodeWithoutPassword = copy.copy(node)
         self.nodeWithoutPassword['password'] = ''
 
@@ -121,7 +122,8 @@ class RunNode:
 
             logHandle = LogFile(open(self.logPath, 'w').detach())
             self.logHandle = logHandle
-
+        if msg.startswith('ERROR:') or msg.startswith('WARN:'):
+            self.warnCount = self.warCount + 1
         logHandle.write(msg)
 
     def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
@@ -132,6 +134,7 @@ class RunNode:
 
         if op is None:
             self.statuses['status'] = status
+            self.statuses['warnCount'] = self.warCount
         else:
             self.statuses[op.opId] = status
             self.statuses['currenOp'] = op.opId
@@ -722,8 +725,7 @@ class RunNode:
                     while True:
                         r, w, x = select.select([channel], [], [], 10)
                         if len(r) > 0:
-                            self.writeNodeLog(channel.recv(4096).decode())
-
+                            self.writeNodeLog(channel.readline())
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
@@ -735,7 +737,6 @@ class RunNode:
                         except:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
-                    self.writeNodeLog("TEST: run command")
                     try:
                         if ret != 0 and self.context.devMode:
                             ssh.exec_command("rm -rf {} || rd /s /q {}".format(remotePath, remotePath))

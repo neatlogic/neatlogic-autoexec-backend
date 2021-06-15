@@ -23,6 +23,9 @@ class PhaseStatus:
         self.sucNodeCountLock = threading.Lock()
         self.skipNodeCount = 0
         self.skipNodeCountLock = threading.Lock()
+        self.warnCount = 0
+        self.warnCountLock = threading.Lock()
+
         # 用于记录phase的Executor
         self.executor = None
         self.nodesFilePath = None
@@ -46,3 +49,8 @@ class PhaseStatus:
         with self.skipNodeCountLock:
             self.skipNodeCount += 1
             return self.skipNodeCount
+
+    def incWarnCount(self):
+        with self.warnCountLock:
+            self.warnCount += 1
+            return self.warnCount
