@@ -34,8 +34,7 @@ class ServerAdapter:
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'jobPaused': '/codedriver/public/api/rest/autoexec/job/paused',
-            'jobKilled': '/codedriver/public/api/rest/autoexec/job/killed'
+            'updateJobStatus': '/codedriver/public/api/rest/autoexec/job/status/update'
         }
 
         self.context = context
@@ -266,9 +265,10 @@ class ServerAdapter:
         params = {
             'jobId': self.context.jobId,
             'time': time.time(),
+            'status': 'paused',
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['jobPaused'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['updateJobStatus'], self.authToken, params)
 
         try:
             charset = response.info().get_content_charset()
@@ -285,9 +285,10 @@ class ServerAdapter:
         params = {
             'jobId': self.context.jobId,
             'time': time.time(),
+            'status': 'aborted',
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['jobKilled'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['updateJobStatus'], self.authToken, params)
 
         try:
             charset = response.info().get_content_charset()
