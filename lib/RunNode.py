@@ -486,7 +486,7 @@ class RunNode:
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
-            line = child.stdout.readline(4096)
+            line = child.stdout.readline(4096).decode()
             if not line:
                 break
             self.writeNodeLog(line)
@@ -545,7 +545,7 @@ class RunNode:
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
-            line = child.stdout.readline(4096)
+            line = child.stdout.readline(4096).decode()
             if not line:
                 break
             self.writeNodeLog(line)
