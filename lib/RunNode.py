@@ -495,7 +495,7 @@ class RunNode:
         child.wait()
         ret = child.returncode
 
-        lastContent = child.stdout.read()
+        lastContent = child.stdout.read().decode()
         if lastContent is not None:
             self.writeNodeLog(lastContent)
 
