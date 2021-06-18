@@ -174,7 +174,7 @@ class Runner:
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
-        else:
+        elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             self.context.serverAdapter.fireNextPhase(lastPhase)
 
@@ -350,7 +350,7 @@ if __name__ == "__main__":
     else:
         # 初始化运行context
         dataPath = homePath + '/data'
-        context = Context.Context(args.jobid, args.paramsfile, args.force, args.devmode, dataPath)
+        context = Context.Context(args.jobid, paramsFile=args.paramsfile, isForce=args.force, devMode=args.devmode, dataPath=dataPath)
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
 

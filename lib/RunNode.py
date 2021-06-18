@@ -28,18 +28,38 @@ import Utils
 import OutputStore
 
 
-class LogFile(io.TextIOWrapper):
-    def write(self, text, encoding=sys.getdefaultencoding()):
-        if isinstance(text, bytes):
-            text = text.decode(encoding)
+class LogFile:
+    def __init__(self, fileHandle):
+        self.foreLine = b''
+        self.fileHandle = fileHandle
 
-        for line in text.splitlines(True):
-            super().write(Utils.getTimeStr() + line)
-            super().flush()
-            # TODO: write log to share object storage
+    def write(self, text):
+        if not text:
+            return
+
+        if not isinstance(text, bytes):
+            text = text.encode()
+
+        timeBytes = Utils.getTimeStr().encode()
+        text = self.foreLine + text
+        self.foreLine = b''
+
+        start = 0
+        try:
+            while True:
+                end = text.index(b"\n", start)
+                self.fileHandle.write(timeBytes + text[start:end+1])
+                start = end + 1
+        except ValueError:
+            if start >= 0:
+                self.foreLine = text[start:]
 
     def close(self):
-        super().close()
+        if self.foreLine != b'':
+            timeBytes = Utils.getTimeStr().encode()
+            self.fileHandle.write(timeBytes + self.foreLine)
+
+        self.fileHandle.close()
 
 
 class RunNode:
@@ -120,7 +140,7 @@ class RunNode:
             if os.path.exists(self.logPath):
                 os.unlink(self.logPath)
 
-            logHandle = LogFile(open(self.logPath, 'w').detach())
+            logHandle = LogFile(open(self.logPath, 'wb').detach())
             self.logHandle = logHandle
         if msg.startswith('ERROR:') or msg.startswith('WARN:'):
             self.warnCount = self.warnCount + 1
@@ -486,7 +506,7 @@ class RunNode:
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
-            line = child.stdout.readline(4096).decode()
+            line = child.stdout.readline(4096)
             if not line:
                 break
             self.writeNodeLog(line)
@@ -495,7 +515,7 @@ class RunNode:
         child.wait()
         ret = child.returncode
 
-        lastContent = child.stdout.read().decode()
+        lastContent = child.stdout.read()
         if lastContent is not None:
             self.writeNodeLog(lastContent)
 
@@ -545,7 +565,7 @@ class RunNode:
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
-            line = child.stdout.readline(4096).decode()
+            line = child.stdout.readline(4096)
             if not line:
                 break
             self.writeNodeLog(line)
@@ -553,6 +573,10 @@ class RunNode:
         # 等待插件执行完成并获取进程返回值，0代表成功
         child.wait()
         ret = child.returncode
+
+        lastContent = child.stdout.read()
+        if lastContent is not None:
+            self.writeNodeLog(lastContent)
 
         if ret == 0:
             self.writeNodeLog("INFO: Execute local-remote command succeed: {}\n".format(orgCmdLineHidePassword))
@@ -729,7 +753,7 @@ class RunNode:
                     while True:
                         r, w, x = select.select([channel], [], [], 10)
                         if len(r) > 0:
-                            self.writeNodeLog(channel.recv(4096).decode())
+                            self.writeNodeLog(channel.recv(4096))
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
