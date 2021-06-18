@@ -32,17 +32,19 @@ import OutputStore
 class ConsoleLog(io.TextIOWrapper):
     def write(self, text, encoding=sys.getdefaultencoding()):
         if isinstance(text, bytes):
-            textd = text.decode(encoding)
+            text = text.decode(encoding)
+
+        if text == "\n":
+            return
 
         isTTY = sys.__stdout__.isatty()
 
         for line in text.splitlines(True):
             if isTTY:
-                sys.__stdout__.write(text)
+                sys.__stdout__.write(line)
 
-            for line in text.splitlines(True):
-                super().write(Utils.getTimeStr() + line)
-                super().flush()
+            super().write(Utils.getTimeStr() + line)
+            super().flush()
 
 
 class Runner:
