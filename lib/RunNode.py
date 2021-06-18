@@ -142,8 +142,13 @@ class RunNode:
 
             logHandle = LogFile(open(self.logPath, 'wb').detach())
             self.logHandle = logHandle
-        if msg.startswith('ERROR:') or msg.startswith('WARN:'):
-            self.warnCount = self.warnCount + 1
+        if isinstance(msg, bytes):
+            if msg.startswith(b'ERROR:') or msg.startswith(b'WARN:'):
+                self.warnCount = self.warnCount + 1
+        else:
+            if msg.startswith('ERROR:') or msg.startswith('WARN:'):
+                self.warnCount = self.warnCount + 1
+
         logHandle.write(msg)
 
     def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
