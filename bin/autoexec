@@ -130,7 +130,13 @@ class Runner:
                 self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
         else:
             self.context.hasFailNodeInGlobal = True
-            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
+            failStatus = NodeStatus.failed
+            if phaseStatus.isAborting:
+                failStatus = NodeStatus.aborted
+            elif phaseStatus.isPausing:
+                failStatus = NodeStatus.paused
+            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
+
         print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------\n\n")
 
@@ -178,6 +184,7 @@ class Runner:
         self.context.goToStop = True
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
+            phaseStatus.isAborting = 1
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
         self.context.serverAdapter.jobKilled()
@@ -186,6 +193,7 @@ class Runner:
         self.context.goToStop = True
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
+            phaseStatus.isPausing = 1
             if phaseStatus.executor is not None:
                 phaseStatus.executor.pause()
         self.context.serverAdapter.jobPaused()
