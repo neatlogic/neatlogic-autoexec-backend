@@ -21,7 +21,7 @@ import Utils
 
 class Context(VContext.VContext):
     def __init__(self, jobId, paramsFile=None, isForce=False, devMode=False, dataPath=None):
-        VContext.VContext.__init__(self, jobId=jobId, isForce=False, devMode=False, dataPath=None)
+        VContext.VContext.__init__(self, jobId=jobId, isForce=isForce, devMode=devMode, dataPath=dataPath)
 
         self.dbclient = None
         self.db = None

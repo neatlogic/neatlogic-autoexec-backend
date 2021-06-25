@@ -109,7 +109,8 @@ class PhaseExecutor:
 
     def execute(self):
         # 删除当前阶段的waitInput标记文件
-        os.unlink(self.waitInputFlagFilePath)
+        if os.path.exists(self.waitInputFlagFilePath):
+            os.unlink(self.waitInputFlagFilePath)
 
         phaseStatus = self.phaseStatus
         worker_threads = []

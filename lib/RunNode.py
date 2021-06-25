@@ -75,6 +75,12 @@ class RunNode:
         self.runPath = context.runPath
         self.node = node
         self.warnCount = 0
+
+        self.childPid = None
+        self.isKilled = False
+        self.killCmd = None
+        self.logHandle = None
+
         self.nodeWithoutPassword = copy.copy(node)
         self.nodeWithoutPassword['password'] = ''
 
@@ -89,11 +95,6 @@ class RunNode:
         self.id = node['nodeId']
         self.username = node['username']
         self.password = node['password']
-
-        self.childPid = None
-        self.isKilled = False
-        self.killCmd = None
-        self.logHandle = None
 
         self.phaseLogDir = '{}/log/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.phaseLogDir):
