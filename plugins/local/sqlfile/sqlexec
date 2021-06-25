@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+#use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Cwd;
+use Digest::MD5;
+use File::Basename;
+use Getopt::Long;
+use Expect;
+use JSON;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [-v|--verbose] [--dryrun] [--autocommit] [--dbversion <db version>] [--dbargs <db client tool args>] --sqlfilejson <1.ddl.a.sql>\n");
+    print("       dryrun:      only test, not realy execute the sql script\n");
+    print("       autocommit:  permit autocommit on mysql, postgresql\n");
+    print("       dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
+    print("       dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       sql file:    sql script file\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $isHelp        = 0;
+    my $isVerbose     = 0;
+    my $isDryRun      = 0;
+    my $isForce       = 0;
+    my $isAutoCommit  = 0;
+    my $parallelCount = 0;
+
+    my $dbVersion;
+    my $dbArgs;
+    my $dbNodeJson;
+    my $sqlFileJson;
+
+    GetOptions(
+        'help'          => \$isHelp,
+        'v|verbose'     => \$isVerbose,
+        'force'         => \$isForce,
+        'dryrun'        => \$isDryRun,
+        'parallel=i'    => \$parallelCount,
+        'autocommit'    => \$isAutoCommit,
+        'dbversion=s'   => \$dbVersion,
+        'dbargs=s'      => \$dbArgs,
+        'sqlfilejson=s' => \$sqlFileJson
+    );
+
+    $ENV{IS_INTERACT} = 1;
+    my $hasOptError = 0;
+
+    my $dbNode;
+    my $dbNodeJson = $ENV{AUTOEXEC_NODE};
+    if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+        $dbNode = from_json($dbNodeJson);
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ){
+        $hasOptError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ){
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    my $sqlFiles = [];
+    if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
+        $sqlFiles = from_json($sqlFileJson);
+    }
+    if ( scalar(@$sqlFiles) == 0 ) {
+        $hasOptError = 1;
+        print("ERROR: Must define sql files with option --sqlfiles in json string.\n");
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, sqlFiles => $sqlFiles, istty => 0 );
+    my $rc = 0;
+
+    $rc = $sqlFileRunner->checkSqlFiles();
+
+    if ( $rc == 0 ) {
+        $rc = $sqlFileRunner->execSqlFiles();
+    }
+
+    exit($rc);
+}
+
+main();
+

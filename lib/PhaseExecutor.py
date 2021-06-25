@@ -83,6 +83,7 @@ class PhaseExecutor:
         self.workers = []
         self.parallelCount = parallelCount
         self.execQueue = None
+        self.waitInputFlagFilePath = self.context.runPath + '/log/' + self.phaseName + '.waitInput'
 
     def _buildWorkerPool(self, queue):
         workers = []
@@ -95,7 +96,21 @@ class PhaseExecutor:
         self.workers = workers
         return workers
 
+    def checkWaitInput(self):
+        # 当存在插件或者节点在waitInput，工具本身需要往log目录中写入一个标记文件标记阶段的waitInput状态
+        waitInputFlagFilePath = self.waitInputFlagFilePath
+        if os.path.exists(waitInputFlagFilePath):
+            self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+            # callback成功后删除当前阶段的waitInput标记文件
+            os.unlink(waitInputFlagFilePath)
+            return True
+        else:
+            return False
+
     def execute(self):
+        # 删除当前阶段的waitInput标记文件
+        os.unlink(self.waitInputFlagFilePath)
+
         phaseStatus = self.phaseStatus
         worker_threads = []
         try:
@@ -162,6 +177,8 @@ class PhaseExecutor:
                         if node is None:
                             break
 
+                        self.checkWaitInput()
+
                         if self.context.isForce and self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
@@ -205,14 +222,20 @@ class PhaseExecutor:
             # 入队对应线程数量的退出信号对象
             for worker in worker_threads:
                 execQueue.put(None)
+                self.checkWaitInput()
 
             # 等待所有worker线程退出
-            for worker in worker_threads:
-                worker.join()
+            # for worker in worker_threads:
+            #    worker.join()
+            while not worker_threads:
+                worker = worker_threads[-1]
+                worker.join(3)
+                if not worker.is_alive():
+                    worker_threads.pop(-1)
+                self.checkWaitInput()
 
             # if phaseStatus.hasRemote:
             #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
-
         return phaseStatus.failNodeCount
 
     def pause(self):

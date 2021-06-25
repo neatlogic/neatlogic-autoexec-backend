@@ -6,6 +6,7 @@
 
 pending = 'pending'  # 等待执行
 running = 'running'  # 执行中
+waitInput = 'waitInput'  # 等待输入
 ingore = 'ignored'   # 已忽略
 succeed = 'succeed'  # 成功
 completed = 'completed'  # 已完成
