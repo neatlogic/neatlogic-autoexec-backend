@@ -228,7 +228,7 @@ class PhaseExecutor:
             # 等待所有worker线程退出
             # for worker in worker_threads:
             #    worker.join()
-            while not worker_threads:
+            while len(worker_threads) > 0:
                 worker = worker_threads[-1]
                 worker.join(3)
                 if not worker.is_alive():
