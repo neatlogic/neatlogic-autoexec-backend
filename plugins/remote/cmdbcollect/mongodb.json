@@ -1,0 +1,35 @@
+{
+	"opDesc": "mongodb采集插件",
+	"opType": "target",
+	"typeName": "自动采集",
+	"riskName": "LOW",
+	"interpreter": "perl",
+	"description": "mongodb采集插件",
+	"desc": {
+		"user": {
+			"name": "用户",
+			"help": "数据库用户",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		"password": {
+			"name": "密码",
+			"help": "数据库用户的密码",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		}
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
+}

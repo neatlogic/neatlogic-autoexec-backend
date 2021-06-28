@@ -1,0 +1,26 @@
+{
+	"opDesc": "redis采集插件",
+	"opType": "remote",
+	"typeName": "自动采集",
+	"riskName": "LOW",
+	"interpreter": "perl",
+	"description": "redis采集插件",
+	"desc": {
+		"auth": {
+			"name": "数据库密码",
+			"help": "redis登录密码",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		}
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
+}

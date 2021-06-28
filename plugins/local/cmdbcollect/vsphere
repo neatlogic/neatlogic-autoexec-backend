@@ -1,0 +1,72 @@
+#!/usr/bin/python
+
+import os
+import argparse
+import sys 
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+import vsphereQuery 
+import Utils
+import json
+import Utils
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <vcenter ip> --user <user> --password <password> ")
+    exit(1)
+
+def uniqueName(data):
+    IP = data["IP"]
+    rule = []
+    rule_Ip = {}
+    rule_Ip['IP'] = IP 
+    rule.append(rule_Ip)
+    return rule
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='vcenter管理IP')
+    parser.add_argument('--port', default='443', help='vcenter管理端口')
+    parser.add_argument('--user', default='', help='vcenter console login user')
+    parser.add_argument('--password', default='', help='vcenter console login user password')
+    parser.add_argument('--node', default='', help='vcenter console login user password')
+    args = parser.parse_args()
+
+    ip = args.ip
+    user = args.user
+    password = args.password
+    port = args.port	
+    AUTOEXEC_NODE = args.node
+ 
+    if AUTOEXEC_NODE != None :
+        AUTOEXEC_NODE = json.loads(AUTOEXEC_NODE)
+        ip = AUTOEXEC_NODE['host']
+        user = AUTOEXEC_NODE['username']
+        password = AUTOEXEC_NODE['password']
+
+    if (ip == None or ip == '') and (user == None or user == '' ) and (password == None or password == '' ) :
+        usage()
+
+    vc = vsphereQuery.vsphereQuery(ip , user , password ,port)
+    collect_data = vc.collect()
+
+    plugin = {}
+    plugin["type"] = "collect"
+    entityList = []
+    for data in collect_data:
+        entiry = {}
+        entiry['data']       = data
+        entiry['table']     = "collect_vsphere"
+        entiry['uniqueName'] = uniqueName(data)
+        entityList.append(entiry)
+    
+    plugin["data"] = entityList
+    print(plugin)
+    #定义插件的输出变量output
+    out = {}
+    out['outjson'] = plugin
+    Util = Utils.Utils()
+    Util.saveOutput(out)
+

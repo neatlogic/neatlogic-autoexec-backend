@@ -1,0 +1,19 @@
+{
+	"opDesc": "apache Httpd采集插件",
+	"opType": "target",
+	"typeName" :"自动采集",
+        "riskName":"LOW",
+	"interpreter":"perl",
+	"description":"apache Httpd采集插件",
+	"desc": {
+
+	},
+	"output": {
+		"outjson": {
+			"name": "采集数据",
+			"help": "采集数据输出字段",
+			"type": "json"
+		}
+	}
+}
+
