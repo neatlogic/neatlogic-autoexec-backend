@@ -377,7 +377,7 @@ class RunNode:
                     break
 
             try:
-                if op.opBunddleName == 'setenv' or op.opBunddleName == 'setglobalenv':
+                if op.opBunddleName == 'setenv':
                     envName = op.options['name']
                     envValue = op.options['value']
                     self.context.setEnv(envName, envValue)
