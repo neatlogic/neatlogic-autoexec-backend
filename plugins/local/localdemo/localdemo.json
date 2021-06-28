@@ -2,7 +2,7 @@
 	"opDesc": "演示Local",
 	"opType": "local",
 	"typeName": "调度",
-	"riskName": "高风险",
+	"riskName": "HIGH",
 	"interpreter": "perl",
 	"desc": {
 		"tinput": {

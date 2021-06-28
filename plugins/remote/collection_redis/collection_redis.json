@@ -2,7 +2,7 @@
 	"opDesc": "redis采集插件",
 	"opType": "remote",
 	"typeName": "自动采集",
-	"riskName": "低风险",
+	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "redis采集插件",
 	"desc": {

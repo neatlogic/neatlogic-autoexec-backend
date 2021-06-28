@@ -2,7 +2,7 @@
 	"opDesc": "vsphere采集插件",
 	"opType": "runner_target",
 	"typeName": "自动采集",
-	"riskName": "低风险",
+	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "vsphere采集插件",
 	"desc": {

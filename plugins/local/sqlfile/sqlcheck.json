@@ -1,8 +1,8 @@
 {
     "opDesc": "SQL文件检查工具",
     "opType": "sqlfile",
-    "typeName": "SQL文件执行",
-    "riskName": "高风险",
+    "typeName": "基础工具",
+    "riskName": "LOW",
     "interpreter": "perl",
     "desc": {
         "sqlfilejson": {

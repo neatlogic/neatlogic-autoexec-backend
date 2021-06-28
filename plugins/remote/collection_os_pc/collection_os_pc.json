@@ -2,7 +2,7 @@
         "opDesc": "OS采集硬件信息插件",
         "opType": "target",
         "typeName" :"自动采集",
-        "riskName":"低风险",
+        "riskName":"LOW",
         "interpreter":"perl",
         "description":"通过操作系统采集物理设备信息",
         "desc": {

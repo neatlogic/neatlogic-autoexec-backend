@@ -2,7 +2,7 @@
 	"opDesc": "ibmmq采集插件",
 	"opType": "target",
 	"typeName" :"自动采集",
-        "riskName":"低风险",
+        "riskName":"LOW",
 	"interpreter":"perl",
 	"description":"ibmmq采集插件",
 	"desc": {
