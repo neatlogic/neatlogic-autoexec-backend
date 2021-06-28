@@ -25,11 +25,21 @@ class Operation:
         self.context = context
         self.jobId = context.jobId
         self.opsParam = opsParam
-        self.opId = param['opId']
-        self.opName = param['opName']
         self.isScript = 0
         self.interpreter = ''
         self.lockedFDs = []
+
+        self.opId = param['opId']
+
+        opFullName = param['opName']
+        self.opName = opFullName
+        self.opSubName = os.path.basename(opFullName)
+
+        opBunddleName = os.path.dirname(opFullName)
+        if opBunddleName == '':
+            self.opBunddleName = self.opName
+        else:
+            self.opBunddleName = opBunddleName
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -106,11 +116,11 @@ class Operation:
             self.fetchScript(self.pluginPath, self.opId)
         else:
             if self.opType == 'remote':
-                self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opName)
-                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+                self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opBunddleName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opSubName)
             else:
-                self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opName)
-                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opName)
+                self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opBunddleName)
+                self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opSubName)
 
     def __del__(self):
         for fd in self.lockedFDs:
@@ -270,32 +280,32 @@ class Operation:
                 if osType == 'windows':
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名
                     extName = self.extNameMap[self.interpreter]
-                    nameWithExt = self.opName
-                    if self.opName.endswith(extName):
-                        nameWithExt = self.opName + extName
+                    nameWithExt = self.opSubName
+                    if self.opSubName.endswith(extName):
                         if self.interpreter == 'cmd':
-                            cmd = 'cmd /c {}'.format(self.opName)
+                            cmd = 'cmd /c {}'.format(self.opSubName)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'cscript {}'.format(self.opName)
+                            cmd = 'cscript {}'.format(self.opSubName)
                         else:
-                            cmd = '{} {}'.format(self.interpreter, self.opName)
+                            cmd = '{} {}'.format(self.interpreter, self.opSubName)
                     else:
+                        nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
-                            cmd = 'rename {} {} && cmd /c {}'.format(self.opName, nameWithExt, nameWithExt)
+                            cmd = 'rename {} {} && cmd /c {}'.format(self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'rename {} {} && cscript {}'.format(self.opName, nameWithExt, nameWithExt)
+                            cmd = 'rename {} {} && cscript {}'.format(self.opSubName, nameWithExt, nameWithExt)
                         else:
-                            cmd = 'rename {} {} && {} {}'.format(self.opName, nameWithExt, self.interpreter, self.opName)
+                            cmd = 'rename {} {} && {} {}'.format(self.opSubName, nameWithExt, self.interpreter, self.opName)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
-                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opName)
+                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                     else:
-                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opName)
+                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
                 else:
-                    cmd = self.opName
+                    cmd = self.opSubName
 
         return cmd
 

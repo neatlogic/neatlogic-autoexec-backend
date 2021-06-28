@@ -66,7 +66,7 @@ sub new {
         $self->_loadStatus();
     }
     else {
-        $self->{status} = { "status" => "pending", "warnCount" => 0, "md5" => '', "interact" => undef };
+        $self->{status} = { "status" => "pending", "isModified" => 0, "warnCount" => 0, "md5" => '', "interact" => undef };
         $self->_saveStatus();
     }
 

@@ -628,13 +628,13 @@ class RunNode:
                     if op.hasOutput:
                         tagent.writeFile(self.username, '', remotePath + '/output.json')
 
-                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opName, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opBunddleName, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
 
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
-                        outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opName), outputFilePath)
+                        outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opBunddleName), outputFilePath)
                         if outputStatus != 0:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
@@ -662,7 +662,7 @@ class RunNode:
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
-            remotePath = '{}/{}'.format(remoteRoot, op.opName)
+            remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
@@ -721,7 +721,7 @@ class RunNode:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     os.chdir(op.remotePluginRootPath)
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
-                    for root, dirs, files in os.walk(op.opName, topdown=True, followlinks=True):
+                    for root, dirs, files in os.walk(op.opBunddleName, topdown=True, followlinks=True):
                         try:
                             # 创建当前目录
                             sftp.mkdir(os.path.join(remoteRoot, root))
@@ -732,7 +732,7 @@ class RunNode:
                             filePath = os.path.join(root, name)
                             sftp.put(filePath, os.path.join(remoteRoot, filePath))
 
-                    sftp.chmod('{}/{}'.format(remotePath, op.opName), stat.S_IXUSR)
+                    sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IXUSR)
 
                     if op.hasOutput:
                         ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
@@ -773,9 +773,9 @@ class RunNode:
                             ret = 2
                     try:
                         if ret != 0 and self.context.devMode:
-                            ssh.exec_command("rm -rf {} || rd /s /q {}".format(remotePath, remotePath))
+                            ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
                     except Exception as ex:
-                        self.writeNodeLog("ERROR: Remove remote directory {} failed {}\n".format(remotePath, ex))
+                        self.writeNodeLog("ERROR: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
 
                 except Exception as err:
                     self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))

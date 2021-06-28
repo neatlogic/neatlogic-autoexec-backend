@@ -16,6 +16,7 @@ import signal
 from shutil import copyfile
 import re
 import json
+import glob
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -213,28 +214,30 @@ def registerTools(serverAdapter, pluginsPath, opType):
     with os.scandir() as iterator:
         for entry in iterator:
             if entry.is_dir():
-                descPath = entry.name + '/' + entry.name + '.json'
-                if os.path.isfile(descPath):
-                    print("INFO: Begin to register tool:{}/{}...\n".format(opType, entry.name))
-                    descFile = open(descPath, 'r')
-                    pluginObj = json.loads(descFile.read())
-                    pluginObj['opName'] = entry.name
-                    # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
-                    if opType == 'local':
-                        if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
-                            pluginObj['opType'] = 'runner_target'
-                        else:
-                            pluginObj['opType'] = 'runner'
+                for descPath in glob.glob(entry.name + '/' + '*.json'):
+                    toolSubName = os.path.basename(descPath)[:-5]
+                    opName = entry.name + '/' + toolSubName
+                    if os.path.isfile(opName):
+                        print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
+                        descFile = open(descPath, 'r')
+                        pluginObj = json.loads(descFile.read())
+                        pluginObj['opName'] = opName
+                        # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
+                        if opType == 'local':
+                            if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
+                                pluginObj['opType'] = 'runner_target'
+                            else:
+                                pluginObj['opType'] = 'runner'
 
-                    if opType == 'remote':
-                        pluginObj['opType'] = 'target'
+                        if opType == 'remote':
+                            pluginObj['opType'] = 'target'
 
-                    try:
-                        retObj = serverAdapter.registerTool(pluginObj)
-                        if 'Status' in retObj and retObj['Status'] == 'OK':
-                            print("INFO: Register tool:{}/{} success.\n".format(opType, entry.name))
-                    except Exception as ex:
-                        print("ERROR: Register tool:{}/{} failed, {}\n".format(opType, entry.name, ex))
+                        try:
+                            retObj = serverAdapter.registerTool(pluginObj)
+                            if 'Status' in retObj and retObj['Status'] == 'OK':
+                                print("INFO: Register tool:{} {} success.\n".format(opType, opName))
+                        except Exception as ex:
+                            print("ERROR: Register tool:{} {} failed, {}\n".format(opType, opName, ex))
 
 
 def findJobProcess(jobId):

@@ -9,7 +9,7 @@ package DBInfo;
 use strict;
 
 sub new {
-    my ( $type, $nodeInfo ) = @_;
+    my ( $type, $nodeInfo, $args ) = @_;
     my $self = {
         dbStr        => $nodeInfo->{accessEndpoing},
         dbType       => $nodeInfo->{nodeType},
@@ -19,13 +19,13 @@ sub new {
         sid          => $nodeInfo->{nodeName},
         user         => $nodeInfo->{username},
         pass         => $nodeInfo->{password},
-        oraWallet    => undef,
-        locale       => undef,
-        fileCharset  => undef,
-        autocommit   => 0,
-        version      => undef,
-        args         => undef,
-        ignoreErrors => 0
+        oraWallet    => $args->{nodeName},
+        locale       => $args->{locale},
+        fileCharset  => $args->{fileCharset},
+        autocommit   => $args->{autocommit},
+        version      => $args->{dbVersion},
+        args         => $args->{dbArgs},
+        ignoreErrors => $args->{ignoreErrors}
     };
 
     my @addrs;

@@ -1,0 +1,19 @@
+{
+    "opDesc": "SQL文件检查工具",
+    "opType": "sqlfile",
+    "typeName": "SQL文件执行",
+    "riskName": "高风险",
+    "interpreter": "perl",
+    "desc": {
+        "sqlfilejson": {
+            "name": "SQL文件",
+            "help": "上传到系统的多个SQL文件",
+            "type": "file",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    },
+    "output": {}
+}

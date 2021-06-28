@@ -24,9 +24,18 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
-        dbNode   => $args{dbNode},
-        sqlFiles => $args{sqlFiles},
-        istty    => $args{istty}
+        dbNode       => $args{dbNode},
+        sqlFiles     => $args{sqlFiles},
+        istty        => $args{istty},
+        isForce      => $args{isForce},
+        isDryRun     => $args{isDryRun},
+        dbVersion    => $args{dbVersion},
+        dbArgs       => $args{dbArgs},
+        oraWallet    => $args{oraWallet},
+        locale       => $args{locale},
+        fileCharset  => $args{fileCharset},
+        autocommit   => $args{autocommit},
+        ignoreErrors => $args{ignoreErrors}
     };
 
     bless( $self, $type );
@@ -36,7 +45,7 @@ sub new {
     $self->{jobPath}   = $jobPath;
     $self->{phaseName} = $phaseName;
 
-    my $dbInfo = DBInfo->new( $self->{dbNode} );
+    my $dbInfo = DBInfo->new( $self->{dbNode}, \%args );
     $self->{dbInfo}                = $dbInfo;
     $self->{sqlFileDir}            = "$jobPath/sqlfile/$phaseName";
     $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{dbName}";
@@ -208,41 +217,48 @@ sub execOneSqlFile {
     print("#***************************************\n\n");
 
     my $startTime = time();
-    my $handler;
-    eval {
-        print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
-        require $requireName;
-
-        $handler = $handlerName->new( $dbInfo, $sqlFilePath, $charSet, $logFilePath );
-    };
-    if ($@) {
-        $hasError = 1;
-        print("ERROR: $@\n");
-    }
-
     my $spawn;
-    if ( defined($handler) ) {
-        $spawn = $handler->{spawn};
-    }
 
-    if ( defined($spawn) ) {
-        $spawn->log_stdout(0);
-        $spawn->log_file(
-            sub {
-                if ( $handler->{hasLogon} == 1 ) {
-                    my $content = shift;
-                    $content =~ s/\x0D//g;
-                    print($content);
+    if ( $self->{isDryRun} == 1 ) {
+        print("INFO: Dry run sql $sqlFilePath.\n");
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running' );
+    }
+    else {
+        my $handler;
+        eval {
+            print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
+            require $requireName;
+
+            $handler = $handlerName->new( $dbInfo, $sqlFilePath, $charSet, $logFilePath );
+        };
+        if ($@) {
+            $hasError = 1;
+            print("ERROR: $@\n");
+        }
+
+        if ( defined($handler) ) {
+            $spawn = $handler->{spawn};
+        }
+
+        if ( defined($spawn) ) {
+            $spawn->log_stdout(0);
+            $spawn->log_file(
+                sub {
+                    if ( $handler->{hasLogon} == 1 ) {
+                        my $content = shift;
+                        $content =~ s/\x0D//g;
+                        print($content);
+                    }
                 }
-            }
-        );
-    }
+            );
+        }
 
-    $sqlFileStatus->updateStatus( interact => undef, status => 'running' );
-    eval { $hasError = $handler->run(); };
-    if ($@) {
-        print("ERROR: Unknow error ocurred.\n$@\n");
-        $hasError = 1;
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running' );
+        eval { $hasError = $handler->run(); };
+        if ($@) {
+            print("ERROR: Unknow error ocurred.\n$@\n");
+            $hasError = 1;
+        }
     }
 
     if ( $hasError == 0 ) {
@@ -334,7 +350,11 @@ sub needExecute {
 
     my $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
 
-    if ( $md5Sum eq $sqlFileStatus->getStatusValue('md5') ) {
+    if ( $self->{isForce} == 1 ) {
+        $sqlFileStatus->updateStatus( md5 => $md5Sum );
+        $ret = 1;
+    }
+    elsif ( $md5Sum eq $sqlFileStatus->getStatusValue('md5') ) {
         if ( $sqlFileStatus->getStatusValue('status') eq 'succeed' ) {
             print("INFO: Sql file:$sqlFile has been executed succeed, ignore.\n");
         }
@@ -453,7 +473,7 @@ sub checkOneSqlFile {
         $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef );
     }
     elsif ( $md5Sum ne $sqlFileStatus->getStatusValue('md5') ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "modified", warnCount => 0, interact => undef );
+        $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef );
     }
 }
 
