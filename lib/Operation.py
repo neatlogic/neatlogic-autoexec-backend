@@ -26,6 +26,7 @@ class Operation:
         self.jobId = context.jobId
         self.opsParam = opsParam
         self.isScript = 0
+        self.scriptContent = None
         self.interpreter = ''
         self.lockedFDs = []
 
@@ -78,8 +79,9 @@ class Operation:
 
         if 'isScript' in param:
             self.isScript = param['isScript']
-            # if 'scriptId' in param:
-            #    self.scriptId = param['scriptId']
+            if 'scriptContent' in param and param['scriptContent'] != '':
+                self.scriptContent = param['scriptContent']
+
         if 'interpreter' in param:
             self.interpreter = param['interpreter']
 
@@ -181,8 +183,19 @@ class Operation:
 
     # 获取script
     def fetchScript(self, savePath, opId):
-        serverAdapter = self.context.serverAdapter
-        serverAdapter.fetchScript(savePath, opId)
+        if self.scriptContent:
+            filePathTmp = savePath + '.tmp'
+            fileTmp = open(filePathTmp, 'a+')
+            fcntl.lockf(fileTmp, fcntl.LOCK_EX)
+            fileTmp.truncate(0)
+            fileTmp.write(scriptContent)
+
+            if os.path.exists(savePath):
+                os.unlink(savePath)
+            os.rename(filePathTmp, savePath)
+        else:
+            serverAdapter = self.context.serverAdapter
+            serverAdapter.fetchScript(savePath, opId)
 
     def resolveArgValue(self, argValue, refMap=None):
         if not isinstance(argValue, str):
