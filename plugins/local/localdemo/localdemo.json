@@ -4,6 +4,7 @@
 	"typeName": "调度",
 	"riskName": "HIGH",
 	"interpreter": "perl",
+	"description": "在runner执行工具的Demo",
 	"desc": {
 		"tinput": {
 			"name": "普通输入",

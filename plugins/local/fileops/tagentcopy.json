@@ -2,7 +2,7 @@
 	"opDesc": "tagent文件拷贝",
 	"opType": "runner",
 	"typeName": "基础工具",
-	"riskName": "LOW",
+	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于tagent文件传输",
 	"desc": {

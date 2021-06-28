@@ -4,6 +4,7 @@
     "typeName": "基础工具",
     "riskName": "LOW",
     "interpreter": "perl",
+    "description": "SQL文件检查",
     "desc": {
         "sqlfilejson": {
             "name": "SQL文件",

@@ -4,6 +4,7 @@
     "typeName": "调度",
     "riskName": "LOW",
     "interpreter": "python",
+    "description": "设置全局环境变量",
     "desc": {
         "name": {
             "name": "变量名",
