@@ -1,7 +1,7 @@
 {
 	"opDesc": "演示Local",
 	"opType": "local",
-	"typeName": "调度",
+	"typeName": "基础工具",
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "在runner远程执行工具的Demo",

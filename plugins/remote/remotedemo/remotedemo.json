@@ -1,7 +1,7 @@
 {
 	"opName": "演示Remote",
 	"opType": "remote",
-	"typeName": "调度",
+	"typeName": "基础工具",
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "在远程target OS执行工具的Demo",
