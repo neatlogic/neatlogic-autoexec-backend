@@ -75,15 +75,6 @@
 			"defaultValue": "",
 			"required": "true",
 			"validate": ""
-		},
-		"v": {
-			"name": "输出详细信息",
-			"help": "",
-			"type": "checkbox",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "false",
-			"validate": ""
 		}
 	},
 	"output": {

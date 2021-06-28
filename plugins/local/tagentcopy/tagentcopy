@@ -37,20 +37,23 @@ sub main {
     my $pname = basename($0);
 
     $isVerbose = 0;
+    $np = 0;
+    $followLinks = 0;
+    $cpIfExists = 0;
 
     GetOptions(
-        'help'        => \$ishelp,
-        'h|host:s'    => \$host,
-        'p|port:i'    => \$port,
-        'u|user:s'    => \$user,
-        'pass:s'      => \$pass,
-        'direction:s' => \$direction,
-        'src:s'       => \$src,
-        'dest:s'      => \$dest,
-        'v|verbose'   => \$isVerbose,
-        'np'          => \$np,
-        'followlinks' => \$followLinks,
-        'cpifexists'  => \$cpIfExists
+        'help'          => \$ishelp,
+        'h|host=s'      => \$host,
+        'p|port=i'      => \$port,
+        'u|user=s'      => \$user,
+        'pass=s'        => \$pass,
+        'direction=s'   => \$direction,
+        'src=s'         => \$src,
+        'dest=s'        => \$dest,
+        'v|verbose=i'   => \$isVerbose,
+        'np=i'          => \$np,
+        'followlinks=i' => \$followLinks,
+        'cpifexists=i'  => \$cpIfExists
     );
 
     my $optionError = 0;

@@ -30,8 +30,11 @@ sub main {
     Utils::setEnv();
     my $pname = basename($0);
 
+    my $isVerbose = 0;
+    
     GetOptions(
         'help'        => \$ishelp,
+        'v=i'         => \$isVerbose,
         'h|host:s'    => \$host,
         'p|port:i'    => \$port,
         'u|user:s'    => \$user,

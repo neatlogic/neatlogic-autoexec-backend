@@ -24,7 +24,8 @@ sub usage {
 sub main {
     my $isforce = 0;
 
-    my $isHelp        = 0; my $isVerbose     = 0;
+    my $isHelp        = 0; 
+    my $isVerbose     = 0;
     my $isDryRun      = 0;
     my $isForce       = 0;
     my $isAutoCommit  = 0;
@@ -37,7 +38,7 @@ sub main {
 
     GetOptions(
         'help'          => \$isHelp,
-        'v|verbose'     => \$isVerbose,
+        'v|verbose=i'   => \$isVerbose,
         'sqlfilejson=s' => \$sqlFileJson
     );
 

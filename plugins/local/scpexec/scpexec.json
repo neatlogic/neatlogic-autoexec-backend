@@ -79,18 +79,36 @@
 		"v": {
 			"name": "输出详细信息",
 			"help": "",
-			"type": "checkbox",
+			"type": "radio",
 			"isConst": "false",
-			"defaultValue": "",
+			"defaultValue": [{
+					"text": "否",
+					"value": "0",
+					"selected": "true"
+				},
+				{
+					"text": "是",
+					"value": "1"
+				}
+			],
 			"required": "false",
 			"validate": ""
 		},
 		"np": {
 			"name": "不保留文件信息",
 			"help": "不保留文件/目录的时间、权限",
-			"type": "checkbox",
+			"type": "radio",
 			"isConst": "false",
-			"defaultValue": "",
+			"defaultValue": [{
+					"text": "是",
+					"value": "1",
+					"selected": "true"
+				},
+				{
+					"text": "否",
+					"value": "0"
+				}
+			],
 			"required": "false",
 			"validate": ""
 		}

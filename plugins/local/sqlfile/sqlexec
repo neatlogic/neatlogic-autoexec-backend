@@ -43,7 +43,7 @@ sub main {
 
     GetOptions(
         'help'          => \$isHelp,
-        'v|verbose'     => \$isVerbose,
+        'v|verbose=i'   => \$isVerbose,
         'force'         => \$isForce,
         'dryrun'        => \$isDryRun,
         'parallel=i'    => \$parallelCount,

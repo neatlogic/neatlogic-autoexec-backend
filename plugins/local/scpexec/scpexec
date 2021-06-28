@@ -33,11 +33,12 @@ sub main {
 
     my $pname = basename($0);
     $isVerbose = 0;
+    $np = 0;
 
     GetOptions(
         'help'        => \$ishelp,
-        'v|verbose'   => \$isVerbose,
-        'np'          => \$np,
+        'v|verbose=i' => \$isVerbose,
+        'np=i'        => \$np,
         'direction:s' => \$direction,
         'h|host:s'    => \$host,
         'p|port:i'    => \$port,
