@@ -97,6 +97,7 @@ class TagentClient:
         self.protocolVer = PROTOCOL_VER
         self.host = host
         self.port = int(port)
+        self.sock = None
         self.password = password
         self.readTimeout = readTimeout
         self.writeTimeout = writeTimeout
@@ -109,6 +110,13 @@ class TagentClient:
         self.ostype = 'windows' if ostype == 'windows' else 'unix'
         charset = locale.getdefaultlocale()[1]
         self.charset = charset
+
+    def close(self):
+        if self.sock:
+            try:
+                self.sock.shutdown(2)
+            except:
+                pass
 
     def __readChunk(self, sock, encrypt=None):
         """
@@ -192,12 +200,14 @@ class TagentClient:
         port = self.port
         password = self.password
 
+        self.sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
         except AuthError:
             sock = None
         try:
             sock.connect((host, port))
+            self.sock = sock
         except AuthError:
             sock.close()
             sock = None

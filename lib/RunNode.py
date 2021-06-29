@@ -76,6 +76,7 @@ class RunNode:
         self.node = node
         self.warnCount = 0
 
+        self.tagent = None
         self.childPid = None
         self.isKilled = False
         self.killCmd = None
@@ -473,7 +474,7 @@ class RunNode:
                 os.rename(self.logPathWithTime, finalLogPathWithTime)
             except:
                 pass
-        #os.link(self.logPath, logPathWithTime)
+        # os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None
         self.childPid = None
@@ -611,6 +612,7 @@ class RunNode:
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+                self.tagent = tagent
 
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op=op)
@@ -638,6 +640,8 @@ class RunNode:
 
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
 
+                if tagent.agentOsType == 'windows':
+                    self.killCmd = ""
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
@@ -712,7 +716,7 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    #remotePath = remoteRoot
+                    # remotePath = remoteRoot
                     if op.hasOutput:
                         ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
                         ofh.close()
@@ -835,14 +839,18 @@ class RunNode:
                 self.writeNodeLog("INFO: Worker killed, pid:{}.\n".format(pid))
 
         killCmd = self.killCmd
-        if self.type == 'tagent' and killCmd is not None:
-            tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
-            if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
-                self.updateNodeStatus(NodeStatus.aborted)
-                self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                self.isKilled = True
-            else:
-                self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+        if self.type == 'tagent':
+            if killCmd is not None:
+                tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+                if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
+                    self.updateNodeStatus(NodeStatus.aborted)
+                    self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                    self.isKilled = True
+                else:
+                    self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+            if self.tagent:
+                self.tagent.close()
+                self.writeNodeLog("INFO: Stop agent execution success.\n")
         elif self.type == 'ssh' and killCmd is not None:
             ssh = None
             try:
