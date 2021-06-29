@@ -229,7 +229,11 @@ class RunNode:
         return isExists
 
     def _getOpOutputPath(self, op):
-        return '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)
+        opOutPutPath = '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)
+        opOutPutDir = os.path.dirname(opOutPutPath)
+        if len(opOutPutPath) > len(opOutPutDir) and not os.path.exists(opOutPutDir):
+            os.mkdir(opOutPutDir)
+        return opOutPutPath
 
     def _getLocalOutput(self):
         output = {}
@@ -241,9 +245,11 @@ class RunNode:
             try:
                 outputFile = open(localOutputPath, 'r')
                 fcntl.lockf(outputFile, fcntl.LOCK_SH)
-                output = json.loads(outputFile.read())
+                content = outputFile.read()
+                if content:
+                    output = json.loads(content)
             except Exception as ex:
-                self.writeNodeLog('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
+                self.writeNodeLog('ERROR: Load operation output file:{}, failed {}\n'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
@@ -267,7 +273,7 @@ class RunNode:
                 fcntl.lockf(outputFile, fcntl.LOCK_SH)
                 content = outputFile.read()
                 if content:
-                    output = json.loads(outputFile.read())
+                    output = json.loads(content)
                     self.output = output
             except Exception as ex:
                 self.writeNodeLog('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
@@ -308,7 +314,7 @@ class RunNode:
                 opOutputFile = open(opOutPutPath, 'r')
                 content = opOutputFile.read()
                 if content:
-                    opOutput = json.loads(opOutputFile.read())
+                    opOutput = json.loads(content)
                     self.output[op.opId] = opOutput
             except Exception as ex:
                 self.writeNodeLog('ERROR: Load operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
@@ -599,8 +605,10 @@ class RunNode:
         if self.type == 'tagent':
             scriptFile = None
             try:
-                remotePath = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
+                remoteRoot = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
+                remotePath = remoteRoot + '/' + op.opBunddleName
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
+                self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
 
@@ -612,9 +620,9 @@ class RunNode:
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
                     fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                    uploadRet = tagent.upload(self.username, op.pluginPath, remotePath)
+                    uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
                     if op.hasOutput:
-                        tagent.writeFile(self.username, '', remotePath + '/output.json')
+                        tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -622,30 +630,30 @@ class RunNode:
                     scriptFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
-                        uploadRet = tagent.upload(self.username, srcPath, remotePath)
+                        uploadRet = tagent.upload(self.username, srcPath, remoteRoot)
                         if uploadRet != 0:
                             break
                     if op.hasOutput:
-                        tagent.writeFile(self.username, '', remotePath + '/output.json')
+                        tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
-                    remoteCmd = 'cd {}/{} && {}'.format(remotePath, op.opBunddleName, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
 
                 if uploadRet == 0 and not self.context.goToStop:
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
-                        outputStatus = tagent.download(self.username, '{}/{}/output.json'.format(remotePath, op.opBunddleName), outputFilePath)
+                        outputStatus = tagent.download(self.username, '{}/output.json'.format(remotePath), outputFilePath)
                         if outputStatus != 0:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
                     try:
                         if ret != 0 and self.context.devMode:
                             if tagent.agentOsType == 'windows':
-                                tagent.execCmd(self.username, "rd /s /q {}".format(remotePath), env=runEnv)
+                                tagent.execCmd(self.username, "rd /s /q {}".format(remoteRoot), env=runEnv)
                             else:
-                                tagent.execCmd(self.username, "rm -rf {}".format(remotePath), env=runEnv)
+                                tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot), env=runEnv)
                     except Exception as ex:
-                        self.writeNodeLog('ERROR: Remote remove directory {} failed {}\n'.format(remotePath, ex))
+                        self.writeNodeLog('ERROR: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
             except Exception as ex:
                 self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
                 raise ex
@@ -665,7 +673,6 @@ class RunNode:
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
-
             scriptFile = None
             uploaded = False
             scp = None
@@ -690,21 +697,27 @@ class RunNode:
                     self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 if op.isScript == 1:
+                    try:
+                        sftp.stat(remotePath)
+                    except IOError:
+                        sftp.mkdir(remotePath)
+                    except SFTPError as err:
+                        self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remotePath, err))
+
                     scriptFile = open(op.pluginPath, 'r')
                     fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                    sftp.put(op.pluginPath, os.path.join(remoteRoot, op.scriptFileName))
+                    sftp.put(op.pluginPath, os.path.join(remotePath, op.scriptFileName))
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
-                    sftp.chmod(os.path.join(remoteRoot, op.scriptFileName), stat.S_IXUSR)
+                    sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    remotePath = remoteRoot
+                    #remotePath = remoteRoot
                     if op.hasOutput:
                         ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
                         ofh.close()
 
                     remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' cd {} && {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), remotePath, op.getCmdLine(remotePath=remotePath))
-                    self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
                 else:
                     os.chdir(op.remotePluginRootPath)
                     for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
@@ -822,7 +835,15 @@ class RunNode:
                 self.writeNodeLog("INFO: Worker killed, pid:{}.\n".format(pid))
 
         killCmd = self.killCmd
-        if self.type == 'ssh' and killCmd is not None:
+        if self.type == 'tagent' and killCmd is not None:
+            tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+            if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
+                self.updateNodeStatus(NodeStatus.aborted)
+                self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                self.isKilled = True
+            else:
+                self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+        elif self.type == 'ssh' and killCmd is not None:
             ssh = None
             try:
                 ssh = paramiko.SSHClient()

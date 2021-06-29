@@ -1,1 +1,2 @@
-{ "nodeName": "25", "nodeType": "ssh", "port": 22, "host": "192.168.0.25", "nodeId": 387371582685184, "username": "root", "password": "techsure" }
+{ "nodeName": "host25", "nodeType": "ssh", "port": 22, "host": "192.168.0.25", "nodeId": 387371582685184, "username": "root", "password": "techsure" }
+{ "nodeName": "host26", "nodeId": 458, "nodeType": "tagent", "host": "192.168.0.26", "port": 3939, "username": "root", "password": "ts9012501" }

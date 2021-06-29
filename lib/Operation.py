@@ -114,7 +114,10 @@ class Operation:
         if self.isScript == 1:
             scriptFileName = self.opName + self.extNameMap[self.interpreter]
             self.scriptFileName = scriptFileName
-            self.pluginPath = '{}/script/{}'.format(self.context.runPath, scriptFileName)
+            self.pluginParentPath = '{}/script/{}'.format(self.context.runPath, self.opBunddleName)
+            if not os.path.exists(self.pluginParentPath):
+                os.mkdir(self.pluginParentPath)
+            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
             self.fetchScript(self.pluginPath, self.opId)
         else:
             if self.opType == 'remote':

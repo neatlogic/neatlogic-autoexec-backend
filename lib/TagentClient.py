@@ -50,6 +50,11 @@ def strEncodeToHex(data):
     return hexStr
 
 
+def bytesEncodeToHex(data):
+    hexStr = binascii.hexlify(data).decode()
+    return hexStr
+
+
 def _rc4_encrypt_hex(key, data):
     if PYTHON_VER == 2:
         return binascii.hexlify(_rc4(key, data))
@@ -155,7 +160,7 @@ class TagentClient:
             chunk = _rc4(self.password, chunk)
         return chunk
 
-    def __writeChunk(self, sock, chunk=b'', chunkLen=None, encrypt=None):
+    def __writeChunk(self, sock, chunk: bytes = None, chunkLen=None, encrypt=None):
         if encrypt is None:
             encrypt = self.encrypt
 
@@ -163,7 +168,10 @@ class TagentClient:
             chunk = _rc4(self.password, chunk)
 
         if not chunkLen:
-            chunkLen = len(chunk)
+            if chunk:
+                chunkLen = len(chunk)
+            else:
+                chunkLen = 0
         else:
             chunkLen = 0
 
@@ -171,7 +179,8 @@ class TagentClient:
             raise ExecError("chunk is too long, max is 65535 bytes!")
         try:
             sock.sendall(struct.pack('>H', chunkLen))
-            sock.sendall(chunk)
+            if chunk:
+                sock.sendall(chunk)
             if chunkLen == 0:
                 sock.shutdown(1)
         except socket.error as msg:
@@ -356,7 +365,8 @@ class TagentClient:
                     status = int(line)
                 elif isVerbose == 1:
                     print(line)
-        sock.close()
+        finally:
+            sock.close()
         return status
 
     # 获取远程命令的所有输出
@@ -403,7 +413,8 @@ class TagentClient:
         except ExecError as errMsg:
             status = -1
             print("ERROR:" + errMsg)
-        sock.close()
+        finally:
+            sock.close()
         return status
 
     # 把从连接中接收的文件下载数据写入文件，用于文件的下载
@@ -451,7 +462,7 @@ class TagentClient:
             if isVerbose == 1:
                 print("ERROR: " + statusLine)
                 print("ERROR: Download {0} {1} to {2} failed.\n".format(fileType, src, dest))
-                sock.close()
+            sock.close()
             return status
 
         if fileType == 'file':
@@ -515,7 +526,8 @@ class TagentClient:
                 if isVerbose == 1:
                     print("ERROR: download failed, {}\n".format(errMsg))
                 status = -1
-            sock.close()
+            finally:
+                sock.close()
         if isVerbose == 1:
             if status == 0:
                 print("INFO: Download succeed.\n")
@@ -700,14 +712,13 @@ class TagentClient:
                 print("INFO: Upload succeed.\n")
             else:
                 print("ERROR: Upload failed.\n")
+
         sock.close()
         return status
 
-    def writeFile(self, user, content, dest, isVerbose=0, convertCharset=0):
+    def writeFile(self, user, content: bytes, dest, isVerbose=0, convertCharset=0):
         dest = dest.replace('\\', '/')
         destName = os.path.basename(dest)
-        destEncode = dest
-        destNameEncode = dest
 
         sock = self.getConnection(isVerbose)
 
@@ -716,11 +727,8 @@ class TagentClient:
         if agentCharset != charset:
             if convertCharset == 1:
                 content = content.decode(charset).encode(agentCharset)
-            destNameEncode = destName.decode(charset).encode(agentCharset)
-            destEncode = dest.decode(charset).encode(agentCharset)
-            user = user.decode(charset).encode(agentCharset)
 
-        param = "{}|{}|{}".format(strEncodeToHex('file'), strEncodeToHex(destNameEncode), strEncodeToHex(destEncode))
+        param = "{}|{}|{}".format(strEncodeToHex('file'), bytesEncodeToHex(destName.encode(agentCharset)), bytesEncodeToHex(dest.encode(agentCharset)))
         self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset))
 
         preStatus = self.__readChunk(sock).decode()
@@ -734,8 +742,7 @@ class TagentClient:
 
         status = 0
         try:
-            self.__writeChunk(sock, content.decode())
-            self.__writeChunk(sock)
+            self.__writeChunk(sock, content, 0)
             self.__readChunk(sock)
         except ExecError as errMsg:
             status = -1

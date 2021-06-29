@@ -151,7 +151,7 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv,
             'phase': ''
         }
-        
+
         if phase is not None:
             params['phase'] = phase
 
@@ -355,6 +355,7 @@ class ServerAdapter:
     # 从自定义脚本库下载脚本到脚本目录
 
     def fetchScript(self, savePath, opId):
+        return savePath
         params = {
             'operationId': opId
         }
