@@ -224,8 +224,11 @@ def registerTools(serverAdapter, pluginsPath, opType):
                         pluginObj['opName'] = opName
                         # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
                         if opType == 'local':
-                            if 'opType' in pluginObj and pluginObj['opType'] == 'localremote':
-                                pluginObj['opType'] = 'runner_target'
+                            if 'opType' in pluginObj:
+                                if pluginObj['opType'] == 'localremote':
+                                    pluginObj['opType'] = 'runner_target'
+                                elif pluginObj['opType'] == 'local':
+                                    pluginObj['opType'] = 'runner'
                             else:
                                 pluginObj['opType'] = 'runner'
 

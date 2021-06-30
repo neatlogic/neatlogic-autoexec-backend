@@ -1,5 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python -u
 # -*- coding: utf-8 -*-
+# python -u参数是运行中不对stdout的输出进行缓存，便于实时看到日志
 
 import os
 import sys
@@ -10,6 +11,7 @@ libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
 import Utils
+
 
 def usage():
     # 帮助信息

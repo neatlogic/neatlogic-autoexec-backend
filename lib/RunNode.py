@@ -399,7 +399,7 @@ class RunNode:
                 self.writeNodeLog("------<{}> START-- {} operation {}[{}] to be start...\n".format(beginDateTime, op.opType, op.opName, op.opId))
                 ret = 0
                 if self.host == 'local':
-                    if op.opType == 'local':
+                    if op.opType == 'local' or op.opType == 'sqlfile':
                         # 本地执行
                         # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                         ret = self._localExecute(op)

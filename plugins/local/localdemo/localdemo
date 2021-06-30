@@ -1,8 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 
 import os
 import sys
+import time
 import argparse
 
 binPaths = os.path.split(os.path.realpath(__file__))
@@ -47,7 +48,9 @@ if __name__ == "__main__":
     print("tdatetime:" + args.tdatetime)
 
     print("Do some jobs=====\n")
-
+    for i in range(1, 1000):
+        print("Loop:{}".format(i))
+        time.sleep(1)
     # 保存输出到json文件
     print("Save output to file\n")
     out = {}

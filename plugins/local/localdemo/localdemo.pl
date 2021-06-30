@@ -20,6 +20,7 @@ sub usage {
 #主程序
 ################################
 sub main {
+    $|=1; #不对输出进行buffer，便于实时看到输出日志
     Utils::setEnv();
 
     my ( $ishelp, $tinput, $tjson, $tselect, $tmultiselect, $tpassword, $tfile, $tnode, $tdate, $ttime, $tdatetime );
