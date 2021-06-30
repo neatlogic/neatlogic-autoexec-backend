@@ -5,8 +5,8 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "原备库（现主库）启动，需要在现备库启动前启动",
-    "desc": {
-        "sid": {
+    "desc": [{
+            "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
             "type": "input",
@@ -15,7 +15,8 @@
             "required": "false",
             "validate": ""
         },
-        "dbname": {
+        {
+            "opt": "dbname",
             "name": "DB库名",
             "help": "库名，主备是一致的",
             "type": "input",
@@ -24,7 +25,8 @@
             "required": "true",
             "validate": ""
         },
-        "israc": {
+        {
+            "opt": "israc",
             "name": "是否是RAC",
             "help": "当前节点是否是ORACLE RAC的成员",
             "type": "radio",
@@ -42,6 +44,6 @@
             "required": "true",
             "validate": ""
         }
-    },
-    "output": {}
+    ],
+    "output": []
 }

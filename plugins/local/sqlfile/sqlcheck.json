@@ -5,16 +5,15 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "SQL文件检查",
-    "desc": {
-        "sqlfilejson": {
-            "name": "SQL文件",
-            "help": "上传到系统的多个SQL文件",
-            "type": "file",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
-            "validate": ""
-        }
-    },
-    "output": {}
+    "desc": [{
+        "opt": "sqlfilejson",
+        "name": "SQL文件",
+        "help": "上传到系统的多个SQL文件",
+        "type": "file",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }],
+    "output": []
 }

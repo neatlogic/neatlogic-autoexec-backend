@@ -5,8 +5,8 @@
 	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "mysql采集插件",
-	"desc": {
-		"user": {
+	"desc": [{
+			"opt": "user",
 			"name": "用户",
 			"help": "数据库登录用户",
 			"type": "input",
@@ -15,7 +15,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"password": {
+		{
+			"opt": "password",
 			"name": "密码",
 			"help": "数据库登录用户的密码",
 			"type": "input",
@@ -24,12 +25,11 @@
 			"required": "true",
 			"validate": ""
 		}
-	},
-	"output": {
-		"outjson": {
-			"name": "采集数据",
-			"help": "采集数据输出字段",
-			"type": "json"
-		}
-	}
+	],
+	"output": [{
+		"opt": "outjson",
+		"name": "采集数据",
+		"help": "采集数据输出字段",
+		"type": "json"
+	}]
 }

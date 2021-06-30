@@ -5,8 +5,8 @@
 	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "vsphere采集插件",
-	"desc": {
-		"ip": {
+	"desc": [{
+			"opt": "ip",
 			"name": "管理IP",
 			"help": "vsphere管理IP",
 			"type": "input",
@@ -15,7 +15,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"user": {
+		{
+			"opt": "user",
 			"name": "账号",
 			"help": "vsphere管理用户",
 			"type": "input",
@@ -24,7 +25,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"password": {
+		{
+			"opt": "password",
 			"name": "密码",
 			"help": "vsphere管理用户密码",
 			"type": "input",
@@ -33,7 +35,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"port": {
+		{
+			"opt": "port",
 			"name": "端口",
 			"help": "管理端口",
 			"type": "input",
@@ -42,12 +45,11 @@
 			"required": "false",
 			"validate": ""
 		}
-	},
-	"output": {
-		"outjson": {
-			"name": "采集数据",
-			"help": "采集数据输出字段",
-			"type": "json"
-		}
-	}
+	],
+	"output": [{
+		"opt": "outjson",
+		"name": "采集数据",
+		"help": "采集数据输出字段",
+		"type": "json"
+	}]
 }

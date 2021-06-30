@@ -5,8 +5,8 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "ORACLE切换后检查",
-    "desc": {
-        "sid": {
+    "desc": [{
+            "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
             "type": "input",
@@ -15,7 +15,8 @@
             "required": "false",
             "validate": ""
         },
-        "primaryuniquename": {
+        {
+            "opt": "primaryuniquename",
             "name": "主库DB唯一名",
             "help": "原来主库的DB唯一名，主备名称不一样",
             "type": "input",
@@ -24,6 +25,6 @@
             "required": "true",
             "validate": ""
         }
-    },
-    "output": {}
+    ],
+    "output": []
 }

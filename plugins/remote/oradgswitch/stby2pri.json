@@ -5,16 +5,15 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "在备库执行，切换到主库状态，需要在主库执行切换后执行",
-    "desc": {
-        "sid": {
-            "name": "SID",
-            "help": "如不设置则直接使用环境变量ORACLE_SID",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        }
-    },
-    "output": {}
+    "desc": [{
+        "opt": "sid",
+        "name": "SID",
+        "help": "如不设置则直接使用环境变量ORACLE_SID",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }],
+    "output": []
 }

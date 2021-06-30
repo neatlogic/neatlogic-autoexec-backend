@@ -5,8 +5,8 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "切换前对原主库进行检查，确认可以切换",
-    "desc": {
-        "sid": {
+    "desc": [{
+            "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
             "type": "input",
@@ -15,7 +15,8 @@
             "required": "false",
             "validate": ""
         },
-        "dbname": {
+        {
+            "opt": "dbname",
             "name": "DB库名",
             "help": "库名，主备是一致的",
             "type": "input",
@@ -24,7 +25,8 @@
             "required": "true",
             "validate": ""
         },
-        "primaryuniquename": {
+        {
+            "opt": "primaryuniquename",
             "name": "主库DB唯一名",
             "help": "原来主库的DB唯一名，主备名称不一样",
             "type": "input",
@@ -33,7 +35,8 @@
             "required": "true",
             "validate": ""
         },
-        "standbyuniquename": {
+        {
+            "opt": "standbyuniquename",
             "name": "备库DB唯一名",
             "help": "原来备库的DB唯一名，主备名称不一样",
             "type": "input",
@@ -42,7 +45,8 @@
             "required": "true",
             "validate": ""
         },
-        "primarysequence": {
+        {
+            "opt": "primarysequence",
             "name": "主库Log Sequence号",
             "help": "Archive Log同步，主库的Log Sequence号",
             "type": "input",
@@ -51,7 +55,8 @@
             "required": "true",
             "validate": ""
         },
-        "standbysequence": {
+        {
+            "opt": "standbysequence",
             "name": "备库Log Sequence号",
             "help": "Archive Log同步，备库的Log Sequence号",
             "type": "input",
@@ -60,6 +65,6 @@
             "required": "true",
             "validate": ""
         }
-    },
-    "output": {}
+    ],
+    "output": []
 }

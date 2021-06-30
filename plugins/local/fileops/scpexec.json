@@ -5,8 +5,8 @@
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于SSH协议进行文件传输",
-	"desc": {
-		"host": {
+	"desc": [{
+			"opt": "host",
 			"name": "主机IP",
 			"help": "",
 			"type": "input",
@@ -15,7 +15,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"port": {
+		{
+			"opt": "port",
 			"name": "SSH端口",
 			"help": "默认为22端口",
 			"type": "input",
@@ -24,7 +25,8 @@
 			"required": "false",
 			"validate": ""
 		},
-		"user": {
+		{
+			"opt": "user",
 			"name": "SSH用户",
 			"help": "",
 			"type": "input",
@@ -33,7 +35,8 @@
 			"required": "false",
 			"validate": ""
 		},
-		"pass": {
+		{
+			"opt": "pass",
 			"name": "SSH用户密码",
 			"help": "",
 			"type": "input",
@@ -42,7 +45,8 @@
 			"required": "false",
 			"validate": ""
 		},
-		"direction": {
+		{
+			"opt": "direction",
 			"name": "拷贝方式",
 			"help": "",
 			"type": "select",
@@ -58,7 +62,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"src": {
+		{
+			"opt": "src",
 			"name": "源目录",
 			"help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
 			"type": "input",
@@ -67,7 +72,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"dest": {
+		{
+			"opt": "dest",
 			"name": "目标目录",
 			"help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
 			"type": "input",
@@ -76,7 +82,8 @@
 			"required": "true",
 			"validate": ""
 		},
-		"v": {
+		{
+			"opt": "v",
 			"name": "输出详细信息",
 			"help": "",
 			"type": "radio",
@@ -94,7 +101,8 @@
 			"required": "false",
 			"validate": ""
 		},
-		"np": {
+		{
+			"opt": "np",
 			"name": "不保留文件信息",
 			"help": "不保留文件/目录的时间、权限",
 			"type": "radio",
@@ -112,8 +120,6 @@
 			"required": "false",
 			"validate": ""
 		}
-	},
-	"output": {
-
-	}
+	],
+	"output": []
 }

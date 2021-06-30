@@ -5,10 +5,6 @@
 	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "对采集插件生成的output数据存储到DB插件",
-	"desc": {
-
-	},
-	"output": {
-
-	}
+	"desc": [],
+	"output": []
 }
