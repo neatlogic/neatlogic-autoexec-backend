@@ -1,0 +1,29 @@
+{
+    "opDesc": "ORACLE切换后检查",
+    "opType": "target",
+    "typeName": "灾备切换",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "description": "ORACLE切换后检查",
+    "desc": {
+        "sid": {
+            "name": "SID",
+            "help": "如不设置则直接使用环境变量ORACLE_SID",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        "primaryuniquename": {
+            "name": "主库DB唯一名",
+            "help": "原来主库的DB唯一名，主备名称不一样",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    },
+    "output": {}
+}
