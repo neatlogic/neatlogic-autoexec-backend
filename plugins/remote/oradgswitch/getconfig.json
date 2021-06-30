@@ -22,6 +22,12 @@
             "type": "input"
         },
         {
+            "opt": "isRAC",
+            "name": "是否RAC",
+            "help": "是否是Oracle RAC",
+            "type": "input"
+        },
+        {
             "opt": "dbUniqueName",
             "name": "DB实例名",
             "help": "实例名，RAC集群内一致，主备不一样",
