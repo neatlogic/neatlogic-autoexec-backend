@@ -1,7 +1,6 @@
 #!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 
-import Utils
 import os
 import sys
 import time
@@ -10,6 +9,8 @@ import argparse
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
+
+import Utils
 
 
 def usage():

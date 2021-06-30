@@ -191,7 +191,7 @@ class Operation:
             fileTmp = open(filePathTmp, 'a+')
             fcntl.lockf(fileTmp, fcntl.LOCK_EX)
             fileTmp.truncate(0)
-            fileTmp.write(scriptContent)
+            fileTmp.write(self.scriptContent)
 
             if os.path.exists(savePath):
                 os.unlink(savePath)
