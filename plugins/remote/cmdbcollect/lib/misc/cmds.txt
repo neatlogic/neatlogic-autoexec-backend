@@ -1,0 +1,10 @@
+AIX
+# svmon -P 5439658 -O filename=on|grep ksh.cat
+                        /usr/lib/nls/msg/en_US/ksh.cat
+
+Solaris
+root@solaris:/tmp# pfiles 815 |grep conf
+      /opt/tagent/run/root/conf/tagent.lock
+
+Windows:
+(Get-Process -id {PID here}).StartInfo.EnvironmentVariables

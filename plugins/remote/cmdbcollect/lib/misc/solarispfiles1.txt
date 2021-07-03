@@ -1,0 +1,32 @@
+966:	/usr/lib/ssh/sshd
+  Current rlimit: 256 file descriptors
+   0: S_IFCHR mode:0666 dev:553,0 ino:76021768 uid:0 gid:3 rdev:145,2
+      O_RDWR
+      /devices/pseudo/mm@0:null
+      offset:0
+   1: S_IFCHR mode:0666 dev:553,0 ino:76021768 uid:0 gid:3 rdev:145,2
+      O_RDWR
+      /devices/pseudo/mm@0:null
+      offset:0
+   2: S_IFCHR mode:0666 dev:553,0 ino:76021768 uid:0 gid:3 rdev:145,2
+      O_RDWR
+      /devices/pseudo/mm@0:null
+      offset:0
+   3: S_IFSOCK mode:0666 dev:564,0 ino:23840 uid:0 gid:0 size:0
+      O_RDWR|O_NONBLOCK
+	SOCK_STREAM
+	SO_REUSEADDR,SO_KEEPALIVE,SO_SNDBUF(49152),SO_RCVBUF(128480)
+	sockname: AF_INET 192.168.0.80  port: 22
+	peername: AF_INET 192.168.1.103  port: 50163
+	congestion control: newreno
+   4: S_IFIFO mode:0000 dev:551,0 ino:690 uid:0 gid:0 size:0
+      O_RDWR|O_NONBLOCK FD_CLOEXEC
+   5: S_IFDOOR mode:0444 dev:562,0 ino:44 uid:0 gid:0 size:0
+      O_RDONLY|O_LARGEFILE FD_CLOEXEC  door to nscd[440]
+      /system/volatile/name_service_door
+   6: S_IFIFO mode:0000 dev:551,0 ino:690 uid:0 gid:0 size:0
+      O_RDWR|O_NONBLOCK
+   7: S_IFIFO mode:0000 dev:551,0 ino:691 uid:0 gid:0 size:0
+      O_RDWR|O_NONBLOCK FD_CLOEXEC
+   8: S_IFIFO mode:0000 dev:551,0 ino:691 uid:0 gid:0 size:0
+      O_RDWR|O_NONBLOCK FD_CLOEXEC

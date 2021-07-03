@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use POSIX qw(uname);
+use ProcessFinder;
+use Data::Dumper;
+
+sub main {
+
+    #获取收集网络信息的实现类
+    my @uname       = uname();
+    my $ostype      = $uname[0];
+    my $gatherClass = "ConnGather$ostype";
+    require "$gatherClass.pm";
+    my $connGather = $gatherClass->new();
+
+    my $cb = sub {
+
+        #找到进程后的callback处理
+        my ($procInfo) = @_;
+
+        my $pid      = $procInfo->{PID};
+        my $connInfo = $connGather->getConnInfo($pid);
+        $procInfo->{CONN_INFO} = $connInfo;
+
+        my $appType      = $procInfo->{APP_TYPE};
+        my $appTypeClass = uc($appType) . "Collector";
+        require "$appTypeClass.pm";
+        my $collector = $appTypeClass->new($procInfo);
+        my $appInfo   = $collector->collect($procInfo);
+
+        #delete( $procInfo->{ENVRIONMENT} );
+        $appInfo->{PROC_INFO} = $procInfo;
+        $appInfo->{APP_TYPE}  = $appType;
+
+        print Dumper($appInfo);
+    };
+
+    my $filterMap = { tomcat => [ 'java', '-Dcatalina.home=(\S+)\s+' ] };
+
+    my $pFinder = ProcessFinder->new( $filterMap, callback => $cb );
+    $pFinder->findProcess();
+}
+
+main();

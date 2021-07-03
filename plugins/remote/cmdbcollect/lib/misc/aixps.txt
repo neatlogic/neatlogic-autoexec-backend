@@ -1,0 +1,30 @@
+     UID     PID    PPID   C    STIME    TTY  TIME CMD
+    root       1       0   0   Jun 18      -  0:00 /etc/init
+    root 2490476       1   0   Jun 18      -  0:00 /usr/ccs/bin/shlap64
+    root 2621450       1   0   Jun 18      -  1:32 /usr/sbin/syncd 60
+    root 3014876 3932360   0   Jun 18      -  0:00 /usr/sbin/inetd
+    root 3342538       1   0   Jun 18      -  0:01 /usr/lib/errdemon
+    root 3866824 5111842   0 07:09:45  pts/1  0:00 -ksh
+    root 3932360       1   0   Jun 18      -  0:00 /usr/sbin/srcmstr
+    root 4063332 4522066   0 06:40:16      -  0:00 sshd: root@pts/0
+    root 4194486 3932360   0   Jun 18      -  0:12 /usr/sbin/aixmibd
+    root 4259980 3932360   0   Jun 18      -  0:03 /usr/sbin/hostmibd
+    root 4325514 3932360   0   Jun 18      -  0:06 /usr/sbin/snmpd
+    root 4456588 3932360   0   Jun 18      -  0:03 /usr/sbin/snmpmibd
+    root 4522066 3932360   0   Jun 18      -  0:00 /usr/sbin/sshd
+    root 4653290       1   0   Jun 18      -  0:05 /usr/sbin/cron
+    root 4718754 3932360   0   Jun 18      -  0:11 sendmail: accepting connections
+    root 4784282 3932360   0   Jun 18      -  0:00 /usr/sbin/portmap
+    root 4915350 3932360   0   Jun 18      -  0:00 /usr/sbin/syslogd
+  daemon 4980912 3932360   0   Jun 18      -  0:00 /usr/sbin/rpc.statd -d 0 -t 50
+    root 5046304 3866824   1 07:10:08  pts/1  0:00 bash
+    root 5111842 4522066   0 07:09:45      -  0:00 sshd: root@pts/1
+    root 5177544 3932360   0   Jun 18      -  0:00 /usr/sbin/biod 6
+    root 5243060 3932360   0   Jun 18      -  0:00 /usr/sbin/hrd
+    root 5308648 3932360   0   Jun 18      -  0:00 /usr/sbin/rpc.lockd -d 0
+    root 5374132       1   0   Jun 18   vty0  0:00 /usr/sbin/install_assist
+    root 5439658 5374132   0   Jun 18   vty0  0:00 /bin/ksh /usr/lib/assist/assist_main
+    root 5505160 4063332   0 06:40:17  pts/0  0:00 -ksh
+    root 5570736 3932360   0   Jun 18      -  1:19 /usr/sbin/clcomd -d
+    root 5636270 5046304   0 07:10:21  pts/1  0:00 ps -ef
+#ps -ef

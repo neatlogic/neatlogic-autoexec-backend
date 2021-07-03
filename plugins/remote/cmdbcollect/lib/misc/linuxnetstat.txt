@@ -1,0 +1,257 @@
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN      21271/mysqld        
+tcp        0      0 0.0.0.0:9066            0.0.0.0:*               LISTEN      5023/java           
+tcp        0      0 0.0.0.0:9995            0.0.0.0:*               LISTEN      5031/java           
+tcp        0      0 0.0.0.0:9999            0.0.0.0:*               LISTEN      4153/java           
+tcp        0      0 0.0.0.0:8559            0.0.0.0:*               LISTEN      22239/java          
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      1/systemd           
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1489/sshd           
+tcp        0      0 0.0.0.0:9977            0.0.0.0:*               LISTEN      5055/java           
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      1680/master         
+tcp        0      0 0.0.0.0:8571            0.0.0.0:*               LISTEN      25831/java          
+tcp        0      0 0.0.0.0:19999           0.0.0.0:*               LISTEN      5074/java           
+tcp        0      0 127.0.0.1:3306          127.0.0.1:41202         ESTABLISHED 21271/mysqld        
+tcp        0      0 127.0.0.1:3306          127.0.0.1:36232         ESTABLISHED 21271/mysqld        
+tcp        0      0 127.0.0.1:3306          127.0.0.1:41366         ESTABLISHED 21271/mysqld        
+tcp        0      0 192.168.0.26:22         192.168.1.73:59368      ESTABLISHED 12211/sshd: root@pt 
+tcp        0      0 127.0.0.1:3306          127.0.0.1:36198         ESTABLISHED 21271/mysqld        
+tcp        0      0 127.0.0.1:3306          127.0.0.1:41362         ESTABLISHED 21271/mysqld        
+tcp        0      0 192.168.0.26:38896      192.168.0.26:8888       ESTABLISHED 25552/perl          
+tcp        0      0 192.168.0.26:3306       192.168.0.22:38998      TIME_WAIT   -                   
+tcp        0      0 127.0.0.1:3306          127.0.0.1:58366         ESTABLISHED 21271/mysqld        
+tcp        0      0 127.0.0.1:3306          127.0.0.1:60548         ESTABLISHED 21271/mysqld        
+tcp6       0      0 127.0.0.1:9194          :::*                    LISTEN      5074/java           
+tcp6       0      0 :::38411                :::*                    LISTEN      4153/java           
+tcp6       0      0 127.0.0.1:9195          :::*                    LISTEN      5074/java           
+tcp6       0      0 :::43757                :::*                    LISTEN      5023/java           
+tcp6       0      0 :::8911                 :::*                    LISTEN      22239/java          
+tcp6       0      0 :::111                  :::*                    LISTEN      1/systemd           
+tcp6       0      0 :::8080                 :::*                    LISTEN      4153/java           
+tcp6       0      0 :::9200                 :::*                    LISTEN      5047/java           
+tcp6       0      0 :::8081                 :::*                    LISTEN      5074/java           
+tcp6       0      0 :::36978                :::*                    LISTEN      25831/java          
+tcp6       0      0 127.0.0.1:9202          :::*                    LISTEN      5047/java           
+tcp6       0      0 127.0.0.1:9234          :::*                    LISTEN      5055/java           
+tcp6       0      0 :::10099                :::*                    LISTEN      4153/java           
+tcp6       0      0 127.0.0.1:9203          :::*                    LISTEN      5047/java           
+tcp6       0      0 :::8373                 :::*                    LISTEN      22239/java          
+tcp6       0      0 127.0.0.1:8374          :::*                    LISTEN      22239/java          
+tcp6       0      0 :::34678                :::*                    LISTEN      22239/java          
+tcp6       0      0 :::44982                :::*                    LISTEN      22239/java          
+tcp6       0      0 :::22                   :::*                    LISTEN      1489/sshd           
+tcp6       0      0 :::8471                 :::*                    LISTEN      25831/java          
+tcp6       0      0 :::10199                :::*                    LISTEN      5074/java           
+tcp6       0      0 :::8888                 :::*                    LISTEN      22239/java          
+tcp6       0      0 127.0.0.1:8184          :::*                    LISTEN      5023/java           
+tcp6       0      0 :::8088                 :::*                    LISTEN      5023/java           
+tcp6       0      0 :::36217                :::*                    LISTEN      4153/java           
+tcp6       0      0 127.0.0.1:8185          :::*                    LISTEN      5023/java           
+tcp6       0      0 ::1:25                  :::*                    LISTEN      1680/master         
+tcp6       0      0 :::35450                :::*                    LISTEN      5055/java           
+tcp6       0      0 :::8190                 :::*                    LISTEN      5055/java           
+tcp6       0      0 127.0.0.1:8671          :::*                    LISTEN      25831/java          
+tcp6       0      0 :::8191                 :::*                    LISTEN      5031/java           
+tcp6       0      0 127.0.0.1:9184          :::*                    LISTEN      4153/java           
+tcp6       0      0 :::9345                 :::*                    LISTEN      4153/java           
+tcp6       0      0 :::3939                 :::*                    LISTEN      25551/perl          
+tcp6       0      0 127.0.0.1:9187          :::*                    LISTEN      5031/java           
+tcp6       0      0 127.0.0.1:9347          :::*                    LISTEN      5055/java           
+tcp6       0      0 :::45155                :::*                    LISTEN      5074/java           
+tcp6       0      0 :::33379                :::*                    LISTEN      5047/java           
+tcp6       0      0 :::40037                :::*                    LISTEN      5074/java           
+tcp6       0      0 :::40518                :::*                    LISTEN      5023/java           
+tcp6       0      0 :::8071                 :::*                    LISTEN      25831/java          
+tcp6       0      0 :::8871                 :::*                    LISTEN      25831/java          
+tcp6       0      0 :::43015                :::*                    LISTEN      5031/java           
+tcp6       0      0 :::33000                :::*                    LISTEN      25831/java          
+tcp6       0      0 :::8072                 :::*                    LISTEN      22239/java          
+tcp6       0      0 :::10088                :::*                    LISTEN      5023/java           
+tcp6       0      0 127.0.0.1:58366         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.24:43492      ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:40306         127.0.0.1:8080          ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:8080          127.0.0.1:40306         ESTABLISHED 4153/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.61:4196       ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:60548         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 127.0.0.1:41366         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.29:31916      ESTABLISHED 22239/java          
+tcp6       0      0 192.168.0.26:8888       192.168.0.26:38896      ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:41362         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.31:60946      ESTABLISHED 22239/java          
+tcp6       1      0 192.168.0.26:54292      192.168.0.26:8080       CLOSE_WAIT  5055/java           
+tcp6       0      0 127.0.0.1:8080          127.0.0.1:40302         TIME_WAIT   -                   
+tcp6       0      0 192.168.0.26:8888       192.168.1.31:51323      ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:41202         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 127.0.0.1:8080          127.0.0.1:40290         TIME_WAIT   -                   
+tcp6       0      0 192.168.0.26:8888       192.168.0.25:58008      ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:36198         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.22:43334      ESTABLISHED 22239/java          
+tcp6       0      0 192.168.0.26:8888       192.168.0.42:60918      ESTABLISHED 22239/java          
+tcp6       0      0 127.0.0.1:36232         127.0.0.1:3306          ESTABLISHED 4153/java           
+tcp6       1      0 192.168.0.26:54294      192.168.0.26:8080       CLOSE_WAIT  5055/java           
+tcp6       0      0 192.168.0.26:8888       192.168.0.21:50350      ESTABLISHED 22239/java          
+udp        0      0 0.0.0.0:111             0.0.0.0:*                           1/systemd           
+udp        0      0 127.0.0.1:323           0.0.0.0:*                           751/chronyd         
+udp        0      0 0.0.0.0:905             0.0.0.0:*                           740/rpcbind         
+udp6       0      0 :::111                  :::*                                1/systemd           
+udp6       0      0 ::1:323                 :::*                                751/chronyd         
+udp6       0      0 :::905                  :::*                                740/rpcbind         
+Active UNIX domain sockets (servers and established)
+Proto RefCnt Flags       Type       State         I-Node   PID/Program name     Path
+unix  2      [ ACC ]     STREAM     LISTENING     17337    1680/master          private/rewrite
+unix  2      [ ACC ]     STREAM     LISTENING     17340    1680/master          private/bounce
+unix  2      [ ACC ]     STREAM     LISTENING     17343    1680/master          private/defer
+unix  2      [ ACC ]     STREAM     LISTENING     17346    1680/master          private/trace
+unix  2      [ ACC ]     STREAM     LISTENING     17349    1680/master          private/verify
+unix  2      [ ACC ]     STREAM     LISTENING     17355    1680/master          private/proxymap
+unix  2      [ ACC ]     STREAM     LISTENING     17358    1680/master          private/proxywrite
+unix  2      [ ACC ]     STREAM     LISTENING     17361    1680/master          private/smtp
+unix  2      [ ACC ]     STREAM     LISTENING     17364    1680/master          private/relay
+unix  2      [ ACC ]     STREAM     LISTENING     17370    1680/master          private/error
+unix  2      [ ACC ]     STREAM     LISTENING     17373    1680/master          private/retry
+unix  2      [ ACC ]     STREAM     LISTENING     17376    1680/master          private/discard
+unix  2      [ ACC ]     STREAM     LISTENING     17379    1680/master          private/local
+unix  2      [ ACC ]     STREAM     LISTENING     17382    1680/master          private/virtual
+unix  2      [ ACC ]     STREAM     LISTENING     17385    1680/master          private/lmtp
+unix  2      [ ACC ]     STREAM     LISTENING     17388    1680/master          private/anvil
+unix  2      [ ACC ]     STREAM     LISTENING     17391    1680/master          private/scache
+unix  2      [ ACC ]     STREAM     LISTENING     13588    1/systemd            /run/lvm/lvmetad.socket
+unix  2      [ ACC ]     STREAM     LISTENING     14627    1/systemd            /var/run/rpcbind.sock
+unix  2      [ ACC ]     STREAM     LISTENING     14639    1/systemd            /var/run/dbus/system_bus_socket
+unix  2      [ ACC ]     STREAM     LISTENING     15990    789/gssproxy         /var/lib/gssproxy/default.sock
+unix  2      [ ]         DGRAM                    8780     1/systemd            /run/systemd/notify
+unix  2      [ ]         DGRAM                    8782     1/systemd            /run/systemd/cgroups-agent
+unix  2      [ ACC ]     STREAM     LISTENING     8796     1/systemd            /run/systemd/journal/stdout
+unix  5      [ ]         DGRAM                    8799     1/systemd            /run/systemd/journal/socket
+unix  13     [ ]         DGRAM                    8801     1/systemd            /dev/log
+unix  2      [ ACC ]     STREAM     LISTENING     15991    789/gssproxy         /run/gssproxy.sock
+unix  2      [ ACC ]     STREAM     LISTENING     20329    1680/master          public/pickup
+unix  2      [ ACC ]     STREAM     LISTENING     17326    1680/master          public/cleanup
+unix  2      [ ACC ]     STREAM     LISTENING     17329    1680/master          public/qmgr
+unix  2      [ ACC ]     STREAM     LISTENING     17352    1680/master          public/flush
+unix  2      [ ACC ]     STREAM     LISTENING     17367    1680/master          public/showq
+unix  2      [ ACC ]     STREAM     LISTENING     17817    1003/VGAuthService   /var/run/vmware/guestServicePipe
+unix  2      [ ACC ]     STREAM     LISTENING     17333    1680/master          private/tlsmgr
+unix  2      [ ]         DGRAM                    13525    1/systemd            /run/systemd/shutdownd
+unix  2      [ ACC ]     STREAM     LISTENING     9434     1/systemd            /run/systemd/private
+unix  2      [ ACC ]     STREAM     LISTENING     13538    1/systemd            /run/lvm/lvmpolld.socket
+unix  2      [ ACC ]     SEQPACKET  LISTENING     13547    1/systemd            /run/udev/control
+unix  2      [ ACC ]     STREAM     LISTENING     900863   21271/mysqld         /app/databases/techsuredb/data/mysql.sock
+unix  2      [ ]         DGRAM                    18249    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17336    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     14781    745/NetworkManager   
+unix  2      [ ]         DGRAM                    14716    738/systemd-logind   
+unix  2      [ ]         STREAM     CONNECTED     912677   22239/java           
+unix  2      [ ]         DGRAM                    15999    745/NetworkManager   
+unix  3      [ ]         STREAM     CONNECTED     16000    739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  3      [ ]         STREAM     CONNECTED     22133429 549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     16397    739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  3      [ ]         STREAM     CONNECTED     15871    745/NetworkManager   
+unix  3      [ ]         STREAM     CONNECTED     14712    1/systemd            
+unix  2      [ ]         DGRAM                    9950     751/chronyd          
+unix  3      [ ]         STREAM     CONNECTED     20327    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     9918     549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     20328    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     16396    739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  2      [ ]         STREAM     CONNECTED     4983258  4153/java            
+unix  3      [ ]         STREAM     CONNECTED     22134397 25547/perl           
+unix  2      [ ]         STREAM     CONNECTED     30451    5023/java            
+unix  3      [ ]         STREAM     CONNECTED     14726    738/systemd-logind   
+unix  3      [ ]         STREAM     CONNECTED     11090    706/auditd           
+unix  3      [ ]         STREAM     CONNECTED     17366    1680/master          
+unix  2      [ ]         DGRAM                    20693    2172/crond           
+unix  3      [ ]         STREAM     CONNECTED     17368    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17369    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17324    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17371    1680/master          
+unix  2      [ ]         DGRAM                    9985     736/polkitd          
+unix  3      [ ]         STREAM     CONNECTED     11089    706/auditd           
+unix  3      [ ]         STREAM     CONNECTED     17372    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17323    1680/master          
+unix  2      [ ]         DGRAM                    13662    1/systemd            
+unix  3      [ ]         STREAM     CONNECTED     17008    549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17359    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17360    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17393    1680/master          
+unix  2      [ ]         DGRAM                    16504    739/dbus-daemon      
+unix  3      [ ]         STREAM     CONNECTED     17362    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17328    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     14791    739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  3      [ ]         STREAM     CONNECTED     17363    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17327    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     9915     739/dbus-daemon      
+unix  3      [ ]         STREAM     CONNECTED     17392    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     16106    745/NetworkManager   
+unix  3      [ ]         STREAM     CONNECTED     17330    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17389    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17365    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17390    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     28175    5031/java            
+unix  2      [ ]         STREAM     CONNECTED     30070    5047/java            
+unix  2      [ ]         DGRAM                    15971    789/gssproxy         
+unix  3      [ ]         STREAM     CONNECTED     15987    789/gssproxy         
+unix  3      [ ]         STREAM     CONNECTED     15986    789/gssproxy         
+unix  2      [ ]         STREAM     CONNECTED     3539417  25831/java           
+unix  3      [ ]         STREAM     CONNECTED     15997    736/polkitd          
+unix  3      [ ]         STREAM     CONNECTED     17331    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     9982     739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  2      [ ]         STREAM     CONNECTED     4981648  4153/java            
+unix  2      [ ]         STREAM     CONNECTED     910937   22239/java           
+unix  3      [ ]         STREAM     CONNECTED     22756    2172/crond           
+unix  2      [ ]         DGRAM                    23541417 6709/pickup          
+unix  2      [ ]         STREAM     CONNECTED     30274    5047/java            
+unix  2      [ ]         STREAM     CONNECTED     28165    5055/java            
+unix  3      [ ]         STREAM     CONNECTED     17384    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17265    739/dbus-daemon      /var/run/dbus/system_bus_socket
+unix  3      [ ]         STREAM     CONNECTED     9865     549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17383    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17354    1680/master          
+unix  2      [ ]         DGRAM                    13267    573/systemd-udevd    
+unix  3      [ ]         STREAM     CONNECTED     17357    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     3539399  25831/java           
+unix  3      [ ]         STREAM     CONNECTED     17381    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17356    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17341    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17335    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     10608    549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     20603    549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17338    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17351    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     9759     549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17387    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17350    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17339    1680/master          
+unix  2      [ ]         DGRAM                    19045    1688/qmgr            
+unix  3      [ ]         STREAM     CONNECTED     17386    1680/master          
+unix  3      [ ]         DGRAM                    13284    573/systemd-udevd    
+unix  3      [ ]         STREAM     CONNECTED     17353    1680/master          
+unix  3      [ ]         DGRAM                    13283    573/systemd-udevd    
+unix  2      [ ]         DGRAM                    23572162 12211/sshd: root@pt  
+unix  2      [ ]         DGRAM                    11088    706/auditd           
+unix  3      [ ]         STREAM     CONNECTED     10561    549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17347    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     15666    731/irqbalance       
+unix  3      [ ]         STREAM     CONNECTED     17375    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     13882    571/lvmetad          
+unix  2      [ ]         STREAM     CONNECTED     29234    5023/java            
+unix  3      [ ]         STREAM     CONNECTED     9758     549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     17374    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     30902    5031/java            
+unix  3      [ ]         STREAM     CONNECTED     9916     549/systemd-journal  /run/systemd/journal/stdout
+unix  3      [ ]         STREAM     CONNECTED     10607    573/systemd-udevd    
+unix  3      [ ]         STREAM     CONNECTED     17348    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     30749    5074/java            
+unix  3      [ ]         STREAM     CONNECTED     17380    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     30512    5074/java            
+unix  3      [ ]         STREAM     CONNECTED     11263    738/systemd-logind   
+unix  3      [ ]         STREAM     CONNECTED     18989    1259/python          
+unix  3      [ ]         STREAM     CONNECTED     17342    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     16395    739/dbus-daemon      
+unix  3      [ ]         STREAM     CONNECTED     15716    789/gssproxy         
+unix  3      [ ]         STREAM     CONNECTED     17378    1680/master          
+unix  2      [ ]         STREAM     CONNECTED     28424    5055/java            
+unix  3      [ ]         STREAM     CONNECTED     17345    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     18549    1259/python          
+unix  3      [ ]         STREAM     CONNECTED     17377    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     17344    1680/master          
+unix  3      [ ]         STREAM     CONNECTED     16394    739/dbus-daemon      
