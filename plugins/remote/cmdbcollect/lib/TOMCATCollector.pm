@@ -5,6 +5,7 @@ use lib $FindBin::Bin;
 package TOMCATCollector;
 
 use strict;
+use File::Basename;
 use Data::Dumper;
 
 sub new {
@@ -60,6 +61,13 @@ sub collect {
         elsif ( $line =~ /JVM Version/ ) {
             $appInfo->{JVM_VERSION} = $self->getCatalinaVal($line);
         }
+    }
+
+    if ( defined($confPath) ) {
+        $appInfo->{SERVICE_NAME} = basename($confPath);
+    }
+    else {
+        $appInfo->{SERVICE_NAME} = 'tomcat';
     }
 
     return $appInfo;
