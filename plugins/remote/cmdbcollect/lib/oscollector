@@ -22,11 +22,10 @@ sub main {
         #找到进程后的callback处理
         my ( $procInfo, $matchedProcsInfo ) = @_;
 
-        my $isMatched = 0;
+        $procInfo->{CONN_GATHER_CLASS} = $gatherClass;
 
-        my $pid      = $procInfo->{PID};
-        my $connInfo = $connGather->getConnInfo($pid);
-        $procInfo->{CONN_INFO} = $connInfo;
+        my $isMatched = 0;
+        my $pid       = $procInfo->{PID};
 
         my $appType      = $procInfo->{APP_TYPE};
         my $appTypeClass = uc($appType) . "Collector";
@@ -37,32 +36,46 @@ sub main {
         if ( defined($appInfo) ) {
             $isMatched = 1;
 
-            #delete( $procInfo->{ENVRIONMENT} );
             $appInfo->{PROC_INFO} = $procInfo;
             $appInfo->{APP_TYPE}  = $appType;
 
+            my $connInfo = $connGather->getConnInfo($pid);
+            if ( defined($procInfo->{CONN_INFO}) ){
+                push(@{$procInfo->{CONN_INFO}->{PEER}}, @{$connInfo->{PEER}});
+            }else{
+                $procInfo->{CONN_INFO} = $connInfo;
+            }
+
             push( @$apps, $appInfo );
-
-            #Just for DEBUG
-            print Dumper($appInfo);
         }
-
         return $isMatched;
     };
 
     #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
     #最终是否是需要的进程，还需要各个Collector进行增强性的判断。
     my $filterMap = {
-
-        #tomcat   => [ 'java', 'org.apache.catalina.startup.Bootstrap' ],
-        ActiveMQ => ['\bActiveMQ\b'],
-        Apache   => ['\bhttpd\s']
+        ActiveMQ => {
+            regExps  => ['\ActiveMQ\s'],
+            psAttrs  => {},
+            envAttrs => {}
+        },
+        Tomcat => {
+            regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
+            psAttrs  => { COMM => 'java' },
+            envAttrs => {}
+        },
+        Apache => {
+            regExps  => ['\bhttpd\s'],
+            psAttrs  => { COMM => 'httpd' },
+            envAttrs => {}
+        }
     };
 
     my $pFinder = ProcessFinder->new( $filterMap, callback => $cb );
     $pFinder->findProcess();
 
     #TODO: save $apps to output
+    print Dumper($apps);
 }
 
 main();

@@ -87,7 +87,7 @@ sub collect {
     my $binPath = "$installPath/bin";
     my $verCmd  = "sh $binPath/version.sh";
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
-        $verCmd = `cmd /c $binPath/version.cmd`;
+        $verCmd = `cmd /c $binPath/version.bat`;
     }
     my @verOut = `$verCmd`;
     foreach my $line (@verOut) {

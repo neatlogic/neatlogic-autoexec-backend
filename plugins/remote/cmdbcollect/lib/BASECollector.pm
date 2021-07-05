@@ -44,6 +44,13 @@ sub isMainProcess {
         if ( defined($parentProcInfo) ) {
             if ( $parentProcInfo->{COMMAND} eq $procInfo->{COMMAND} ) {
                 $isMainProcess = 0;
+
+                print("DEBUG: is not mainproc: $procInfo->{PID}, $procInfo->{COMMAND}\n");
+                my $gatherClass = $procInfo->{CONN_GATHER_CLASS};
+                my $connGather  = $gatherClass->new();
+                my $connInfo    = $connGather->getConnInfo( $procInfo->{PID} );
+                push( @{ $parentProcInfo->{CONN_INFO}->{PEER} }, @{ $connInfo->{PEER} } );
+                
                 last;
             }
         }

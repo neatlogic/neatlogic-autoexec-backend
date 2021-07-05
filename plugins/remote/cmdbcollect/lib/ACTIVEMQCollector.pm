@@ -39,7 +39,7 @@ sub collect {
         my $confFile = "$installPath/conf/activemq.xml";
         if ( -e $confFile ) {
             my $fSize = -s $confFile;
-            my $fh    = IO::File->new("<confFile");
+            my $fh    = IO::File->new("<$confFile");
             if ( defined($fh) ) {
                 my $xml;
                 $fh->read( $xml, $fSize );

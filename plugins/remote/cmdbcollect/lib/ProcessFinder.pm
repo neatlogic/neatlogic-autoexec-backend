@@ -42,66 +42,42 @@ sub new {
     #}
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
-    $self->{procInfoCmd} = 'ps -o pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args -p';
+    $self->{procEnvCmd} = 'ps eww';
 
     #列出所有进程的命令，包括环境变量，用于定位查找进程，命令行和环境变量放最后列，因为命令行有空格
-    $self->{listProcCmd} = 'ps aeSxvww';
+    $self->{listProcCmd} = 'ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args';
 
-    if ( $ostype eq 'AIX' ) {
-        $self->{listProcCmd} = 'ps aexvww';
-    }
-    elsif ( $ostype eq 'Windows' ) {
+    if ( $ostype eq 'Windows' ) {
 
         #windows需要编写powershell脚本实现ps的功能，用于根据命令行和环境变量过滤进程
         $self->{listProcCmd} = "$FindBin::Bin/windowsps.ps1";
 
-        #根据pid获取详细信息的powershell脚本，实现类似ps的功能
-        $self->{procInfoCmd} = "$FindBin::Bin/windowspinfo.ps1";
+        #根据pid获取进程环境变量的powershell脚本，实现类似ps的功能
+        $self->{procEnvCmd} = "$FindBin::Bin/windowspinfo.ps1";
     }
 
     bless( $self, $type );
     return $self;
 }
 
-#获取单个进程的信息
-sub getProcInfo {
+#获取单个进程的环境变量信息
+sub getProcEnv {
     my ( $self, $pid ) = @_;
+
+    my $envMap = {};
+
     if ( not defined($pid) ) {
         print("WARN: PID is not defined, can not get process info.\n");
     }
 
-    my $cmd     = $self->{procInfoCmd} . " $pid";
+    my $cmd     = $self->{procEnvCmd} . " $pid";
     my $procTxt = `$cmd`;
     my $status  = $?;
     if ( $status != 0 ) {
         print("WARN: Get process info for pid:$pid failed.\n");
     }
 
-    my ( $headLine, $line ) = split( /\n/, $procTxt );
-    $headLine =~ s/^\s*|\s*$//g;
-    $line =~ s/^\s*|\s*$//g;
-    my @fields      = split( /\s+/, $headLine );
-    my $fieldsCount = scalar(@fields);
-    my @vars        = split( /\s+/, $line );
-
-    my $infoMap = {};
-    for ( my $i = 0 ; $i < $fieldsCount - 1 ; $i++ ) {
-        if ( $fields[$i] eq 'COMMAND' ) {
-            $infoMap->{COMM} = shift(@vars);
-        }
-        else {
-            $infoMap->{ $fields[$i] } = shift(@vars);
-        }
-    }
-    $infoMap->{COMMAND} = join( ' ', @vars );
-
-    return $infoMap;
-}
-
-sub parseEnvs {
-    my ( $self, $envLine ) = @_;
-
-    my $envMap = {};
+    my ( $headLine, $envLine ) = split( /\n/, $procTxt );
 
     my $envName;
     my $envVal;
@@ -112,6 +88,7 @@ sub parseEnvs {
             $envMap->{$envName} = $envVal;
         }
     }
+
     my $lastEqualPos = rindex( $envLine, '=' );
     my $lastEnvPos = rindex( $envLine, ' ', $lastEqualPos );
     my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
@@ -131,6 +108,7 @@ sub findProcess {
     my $pid = open( $pipe, "$self->{listProcCmd}|" );
     if ( defined($pipe) ) {
         my $filterMap = $self->{filterMap};
+
         my $line;
         my $headLine = <$pipe>;
         $headLine =~ s/^\s*|\s*$//g;
@@ -138,10 +116,16 @@ sub findProcess {
         my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);
         while ( $line = <$pipe> ) {
+            my $regExps;
+            my $psAttrs;
+            my $envAttrs;
+            while ( my ( $key, $config ) = each(%$filterMap) ) {
+                $regExps  = $config->{regExps};
+                $psAttrs  = $config->{psAttrs};
+                $envAttrs = $config->{envAttrs};
 
-            while ( my ( $key, $patterns ) = each(%$filterMap) ) {
                 my $isMatched = 1;
-                foreach my $pattern (@$patterns) {
+                foreach my $pattern (@$regExps) {
                     if ( $line !~ /$pattern/ ) {
                         $isMatched = 0;
                         last;
@@ -156,26 +140,57 @@ sub findProcess {
                         OS_TYPE     => $self->{ostype},
                         HOST_NAME   => $self->{hostname},
                         MANAGE_IP   => $self->{manageIp},
-                        MANAGE_PORT => $self->{managePort}
+                        MANAGE_PORT => $self->{managePort},
+                        APP_TYPE    => $key
                     };
 
-                    $matchedMap->{APP_TYPE} = $key;
                     for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
-                        $matchedMap->{ $fields[$i] } = shift(@vars);
+                        if ( $fields[$i] eq 'COMMAND' ) {
+                            $matchedMap->{COMM} = shift(@vars);
+                        }
+                        else {
+                            $matchedMap->{ $fields[$i] } = shift(@vars);
+                        }
                     }
-                    my $envs = join( ' ', @vars );
+                    $matchedMap->{COMMAND} = join( ' ', @vars );
+                    my $envMap;
 
-                    #获取进程详细的信息
-                    my $procInfo = $self->getProcInfo( $matchedMap->{PID} );
-                    while ( my ( $k, $v ) = each(%$procInfo) ) {
-                        $matchedMap->{$k} = $v;
+                    if ( defined($psAttrs) ) {
+                        my $psAttrVal;
+                        while ( my ( $attr, $attrVal ) = each(%$psAttrs) ) {
+                            $psAttrVal = $matchedMap->{$attr};
+                            if ( $attrVal ne $psAttrVal ) {
+                                $isMatched = 0;
+                                last;
+                            }
+                        }
                     }
 
-                    #$matchedMap->{ENVRIONMENT} = substr( $envs, length( $matchedMap->{COMMAND} ) );
-                    $matchedMap->{ENVRIONMENT} = $self->parseEnvs($envs);
-                    my $matched = &$callback( $matchedMap, $self->{matchedProcsInfo} );
-                    if ( $matched == 1 ) {
-                        $self->{matchedProcsInfo}->{ $matchedMap->{PID} } = $matchedMap;
+                    if ( defined($envAttrs) ) {
+                        my $envAttrVal;
+                        while ( my ( $attr, $attrVal ) = each(%$envAttrs) ) {
+                            if ( not defined($envMap) ) {
+                                $envMap = $self->getProcEnv( $matchedMap->{PID} );
+                            }
+                            $envAttrVal = $envMap->{$attr};
+
+                            if ( $attrVal ne $envAttrVal ) {
+                                $isMatched = 0;
+                                last;
+                            }
+                        }
+                    }
+
+                    if ( $isMatched == 1 ) {
+                        if ( not defined($envMap) ) {
+                            $envMap = $self->getProcEnv( $matchedMap->{PID} );
+                        }
+                        $matchedMap->{ENVRIONMENT} = $envMap;
+
+                        my $matched = &$callback( $matchedMap, $self->{matchedProcsInfo} );
+                        if ( $matched == 1 ) {
+                            $self->{matchedProcsInfo}->{ $matchedMap->{PID} } = $matchedMap;
+                        }
                     }
                 }
             }

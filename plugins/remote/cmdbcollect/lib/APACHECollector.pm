@@ -78,7 +78,7 @@ sub getConfInfo {
     my @listenPorts = ();
     if ( -e $confFile ) {
         my $fSize = -s $confFile;
-        my $fh    = IO::File->new("<confFile");
+        my $fh    = IO::File->new("<$confFile");
 
         if ( defined($fh) ) {
             my $line;
