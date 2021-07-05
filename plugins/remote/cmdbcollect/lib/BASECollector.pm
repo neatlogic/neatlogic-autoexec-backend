@@ -54,6 +54,65 @@ sub isMainProcess {
 
 #采集器实现需要重载这个类
 #Return：如果判断当前进程不是想要的进程，返回undef，否则返回应用信息的HashMap
+# {
+#           'SERVER_ROOT' => '/etc/httpd',
+#           'INSTALL_PATH' => '/etc/httpd',
+#           'BIN_PATH' => '/usr/sbin/',
+#           'DEFAULT_PIDLOG' => '/run/httpd/httpd.pid',
+#           'CONF_PATH' => '/etc/httpd/conf',
+#           'AP_TYPES_CONFIG_FILE' => 'conf/mime.types',
+#           'PORT' => '80',
+#           'ERRORLOG' => 'logs/error_log',
+#           'PROC_INFO' => {
+#                            '%MEM' => '0.0',
+#                            'RSS' => '5196',
+#                            'MANAGE_PORT' => '',
+#                            'TRS' => '485',
+#                            'TTY' => '?',
+#                            'RUSER' => 'root',
+#                            'RGROUP' => 'root',
+#                            'STAT' => 'Ss',
+#                            'COMMAND' => '/usr/sbin/httpd -DFOREGROUND',
+#                            'DRS' => '225830',
+#                            'OS_TYPE' => 'Linux',
+#                            'PGID' => '17228',
+#                            'USER' => 'root',
+#                            'PID' => '17228',
+#                            'GROUP' => 'root',
+#                            'CONN_INFO' => {
+#                                             'PEER' => [],
+#                                             'LISTEN' => [
+#                                                           '80'
+#                                                         ]
+#                                           },
+#                            'TIME' => '00:00:00',
+#                            'PPID' => '1',
+#                            '%CPU' => '0.0',
+#                            'ELAPSED' => '02:12:33',
+#                            'HOST_NAME' => 'centos7base',
+#                            'MANAGE_IP' => '',
+#                            'APP_TYPE' => 'Apache',
+#                            'ENVRIONMENT' => {
+#                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
+#                                               'LANG' => 'C',
+#                                               'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
+#                                             },
+#                            'COMM' => 'httpd',
+#                            'MAJFL' => '0'
+#                          },
+#           'SERVER_MPM' => 'prefork',
+#           'PORTS' => [
+#                        '80'
+#                      ],
+#           'DEFAULT_ERRORLOG' => 'logs/error_log',
+#           'HTTPD_ROOT' => '/etc/httpd',
+#           'APP_TYPE' => 'Apache',
+#           'DOCUMENT_ROOT' => '/var/www/html',
+#           'VERSION' => 'Apache/2.4.6 (CentOS)',
+#           'SERVER_CONFIG_FILE' => 'conf/httpd.conf'
+#         }
+#上面的数据以httpd为例
+#其中PROC_INFO对应的就是collect使用的进程信息HashMap，里面的属性都可以使用
 sub collect {
     my ($self) = @_;
 
