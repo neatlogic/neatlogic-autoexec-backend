@@ -8,7 +8,7 @@ use ProcessFinder;
 use Data::Dumper;
 
 sub main {
-    my $apps = [];
+    my $appsMap = {};
 
     #获取收集网络信息的实现类
     my @uname       = uname();
@@ -40,14 +40,11 @@ sub main {
             $appInfo->{APP_TYPE}  = $appType;
 
             my $connInfo = $connGather->getConnInfo($pid);
-            if ( defined($procInfo->{CONN_INFO}) ){
-                push(@{$procInfo->{CONN_INFO}->{PEER}}, @{$connInfo->{PEER}});
-            }else{
-                $procInfo->{CONN_INFO} = $connInfo;
-            }
+            $procInfo->{CONN_INFO} = $connInfo;
 
-            push( @$apps, $appInfo );
+            $appsMap->{ $procInfo->{PID} } = $appInfo;
         }
+
         return $isMatched;
     };
 
@@ -74,8 +71,48 @@ sub main {
     my $pFinder = ProcessFinder->new( $filterMap, callback => $cb );
     $pFinder->findProcess();
 
+    #处理存在父子关系的进程的连接信息，并合并到父进程
+    my $pidToDel = ();
+    my @apps     = ();
+    foreach my $pid ( keys(%$appsMap) ) {
+        my $info     = $appsMap->{$pid};
+        my $procInfo = $info->{PROC_INFO};
+
+        my $parentInfo = $appsMap->{ $procInfo->{PPID} };
+
+        my $parentTopInfo;
+        while ( defined($parentInfo) ) {
+            $parentTopInfo = $parentInfo;
+            $parentInfo    = $appsMap->{ $parentInfo->{PROC_INFO}->{PPID} };
+        }
+
+        if ( defined($parentTopInfo) ) {
+            my $parentProc = $parentTopInfo->{PROC_INFO};
+
+            my $parentLsnInfo = $parentProc->{CONN_INFO}->{LISTEN};
+            map { $parentLsnInfo->{$_} = 1 } keys( %{ $procInfo->{CONN_INFO}->{LISTEN} } );
+
+            my $parentPeerInfo = $parentProc->{CONN_INFO}->{PEER};
+            map { $parentPeerInfo->{$_} = 1 } keys( %{ $procInfo->{CONN_INFO}->{PEER} } );
+
+            $pidToDel->{$pid} = 1;
+        }
+    }
+
+    #抽取所有的top层的进程，并对CONN_INFO信息进行整理，转换为数组的格式
+    while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
+        if ( not defined( $pidToDel->{$pid} ) ) {
+            my $connInfo = $appInfo->{PROC_INFO}->{CONN_INFO};
+            my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
+            $connInfo->{LISTEN} = \@lsnPorts;
+            my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
+            $connInfo->{PEER} = \@remoteAddrs;
+            push( @apps, $appInfo );
+        }
+    }
+
     #TODO: save $apps to output
-    print Dumper($apps);
+    print Dumper( \@apps );
 }
 
 main();

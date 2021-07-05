@@ -157,23 +157,23 @@ sub getConnInfo {
     my $lsnPortsMap = $self->{lsnPortsMap};
     my $remoteAddrs = $self->{remoteAddrs};
 
-    my $connInfo = {};
-    my @lsnPortsArray;
+    my $connInfo    = {};
+    my $lsnPortsMap = {};
     while ( my ( $lsnPort, $useByPid ) = each(%$lsnPortsMap) ) {
         if ( $useByPid == $pid ) {
-            push( @lsnPortsArray, $lsnPort );
+            $lsnPortsMap->{$lsnPort} = 1;
         }
     }
 
-    my @remoteAddrsArray;
-    while ( my ( $lsnPort, $useByPid ) = each(%$remoteAddrs) ) {
+    my $remoteAddrsMap = {};
+    while ( my ( $remoteAddr, $useByPid ) = each(%$remoteAddrs) ) {
         if ( $useByPid == $pid ) {
-            push( @remoteAddrsArray, $lsnPort );
+            $remoteAddrsMap->{$remoteAddr} = 1;
         }
     }
 
-    $connInfo->{LISTEN} = \@lsnPortsArray;
-    $connInfo->{PEER}   = \@remoteAddrsArray;
+    $connInfo->{LISTEN} = $lsnPortsMap;
+    $connInfo->{PEER}   = $remoteAddrsMap;
 
     return $connInfo;
 }

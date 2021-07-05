@@ -145,11 +145,9 @@ sub getConnInfo {
     my $lsnPortsMap = $self->getListenPorts($pid);
     my $remoteAddrs = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
-    my $connInfo         = {};
-    my @lsnPortsArray    = keys(%$lsnPortsMap);
-    my @remoteAddrsArray = keys(%$remoteAddrs);
-    $connInfo->{LISTEN} = \@lsnPortsArray;
-    $connInfo->{PEER}   = \@remoteAddrsArray;
+    my $connInfo = {};
+    $connInfo->{LISTEN} = $lsnPortsMap;
+    $connInfo->{PEER}   = $remoteAddrs;
 
     return $connInfo;
 }
