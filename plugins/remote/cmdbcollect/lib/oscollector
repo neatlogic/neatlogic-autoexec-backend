@@ -1,10 +1,13 @@
 #!/usr/bin/perl
 use FindBin;
 use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use strict;
 use POSIX qw(uname);
 use ProcessFinder;
+#use Utils;
 use Data::Dumper;
 
 sub main {
@@ -107,11 +110,15 @@ sub main {
             $connInfo->{LISTEN} = \@lsnPorts;
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
             $connInfo->{PEER} = \@remoteAddrs;
+            delete($appInfo->{PROC_INFO}->{CONN_INFO});
+            $appInfo->{CONN_INFO} = $connInfo;
             push( @apps, $appInfo );
         }
     }
 
     #TODO: save $apps to output
+    #$out->{DATA} = \@apps;
+    #Utils::saveOutput($out);
     print Dumper( \@apps );
 }
 

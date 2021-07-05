@@ -172,9 +172,25 @@ sub findProcess {
                             if ( not defined($envMap) ) {
                                 $envMap = $self->getProcEnv( $matchedMap->{PID} );
                             }
+
                             $envAttrVal = $envMap->{$attr};
 
-                            if ( $attrVal ne $envAttrVal ) {
+                            if ( not defined($envAttrVal) ) {
+                                $isMatched = 0;
+                                last;
+                            }
+
+                            if ( not defined($attrVal) or $attrVal eq '' ) {
+                                if ( defined($envAttrVal) ) {
+                                    next;
+                                }
+                                else {
+                                    $isMatched = 0;
+                                    last;
+                                }
+                            }
+
+                            if ( $envAttrVal !~ /$attrVal/ ) {
                                 $isMatched = 0;
                                 last;
                             }

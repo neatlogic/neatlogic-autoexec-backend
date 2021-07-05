@@ -135,7 +135,7 @@ sub collect {
     my $appInfo          = {};
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
-
+    #TODO: 各个不同应用的信息采集逻辑
     return $appInfo;
 }
 
