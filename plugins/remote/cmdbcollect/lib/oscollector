@@ -8,6 +8,7 @@ use ProcessFinder;
 use Data::Dumper;
 
 sub main {
+    my $apps = [];
 
     #获取收集网络信息的实现类
     my @uname       = uname();
@@ -19,7 +20,9 @@ sub main {
     my $cb = sub {
 
         #找到进程后的callback处理
-        my ($procInfo) = @_;
+        my ( $procInfo, $matchedProcsInfo ) = @_;
+
+        my $isMatched = 0;
 
         my $pid      = $procInfo->{PID};
         my $connInfo = $connGather->getConnInfo($pid);
@@ -28,20 +31,38 @@ sub main {
         my $appType      = $procInfo->{APP_TYPE};
         my $appTypeClass = uc($appType) . "Collector";
         require "$appTypeClass.pm";
-        my $collector = $appTypeClass->new($procInfo);
-        my $appInfo   = $collector->collect($procInfo);
+        my $collector = $appTypeClass->new( $procInfo, $matchedProcsInfo );
+        my $appInfo = $collector->collect($procInfo);
 
-        #delete( $procInfo->{ENVRIONMENT} );
-        $appInfo->{PROC_INFO} = $procInfo;
-        $appInfo->{APP_TYPE}  = $appType;
+        if ( defined($appInfo) ) {
+            $isMatched = 1;
 
-        print Dumper($appInfo);
+            #delete( $procInfo->{ENVRIONMENT} );
+            $appInfo->{PROC_INFO} = $procInfo;
+            $appInfo->{APP_TYPE}  = $appType;
+
+            push( @$apps, $appInfo );
+
+            #Just for DEBUG
+            print Dumper($appInfo);
+        }
+
+        return $isMatched;
     };
 
-    my $filterMap = { tomcat => [ 'java', '-Dcatalina.home=(\S+)\s+' ] };
+    #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
+    #最终是否是需要的进程，还需要各个Collector进行增强性的判断。
+    my $filterMap = {
+
+        #tomcat   => [ 'java', 'org.apache.catalina.startup.Bootstrap' ],
+        ActiveMQ => ['\bActiveMQ\b'],
+        Apache   => ['\bhttpd\s']
+    };
 
     my $pFinder = ProcessFinder->new( $filterMap, callback => $cb );
     $pFinder->findProcess();
+
+    #TODO: save $apps to output
 }
 
 main();

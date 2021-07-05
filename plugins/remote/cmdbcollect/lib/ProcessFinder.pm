@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+
 package ProcessFinder;
 
 use strict;
@@ -19,9 +22,9 @@ sub new {
     #key=>'tomcat',
     #pid=>3844,
     #command=>'xxxxxxxxxxxxxxxxx'
-
     my $self = { callback => $args{callback} };
-    $self->{filterMap} = $filterMap;
+    $self->{filterMap}        = $filterMap;
+    $self->{matchedProcsInfo} = {};
 
     my @uname  = uname();
     my $ostype = $uname[0];
@@ -39,7 +42,7 @@ sub new {
     #}
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
-    $self->{procInfoCmd} = 'ps -o pid,ppid,user,group,ruser,rgroup,pcpu,pmem,time,etime,args -p';
+    $self->{procInfoCmd} = 'ps -o pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args -p';
 
     #列出所有进程的命令，包括环境变量，用于定位查找进程，命令行和环境变量放最后列，因为命令行有空格
     $self->{listProcCmd} = 'ps aeSxvww';
@@ -83,15 +86,40 @@ sub getProcInfo {
 
     my $infoMap = {};
     for ( my $i = 0 ; $i < $fieldsCount - 1 ; $i++ ) {
-        $infoMap->{ $fields[$i] } = shift(@vars);
+        if ( $fields[$i] eq 'COMMAND' ) {
+            $infoMap->{COMM} = shift(@vars);
+        }
+        else {
+            $infoMap->{ $fields[$i] } = shift(@vars);
+        }
     }
     $infoMap->{COMMAND} = join( ' ', @vars );
 
     return $infoMap;
 }
 
-sub getOutgoingConn {
-    my ( $self, $pid ) = @_;
+sub parseEnvs {
+    my ( $self, $envLine ) = @_;
+
+    my $envMap = {};
+
+    my $envName;
+    my $envVal;
+    while ( $envLine =~ /(\w+)=([^=]*?|[^\s]+?)\s(?=\w+=)/g ) {
+        $envName = $1;
+        $envVal  = $2;
+        if ( $envName ne 'LS_COLORS' ) {
+            $envMap->{$envName} = $envVal;
+        }
+    }
+    my $lastEqualPos = rindex( $envLine, '=' );
+    my $lastEnvPos = rindex( $envLine, ' ', $lastEqualPos );
+    my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
+    my $lastEnvVal = substr( $envLine, $lastEqualPos + 1 );
+    chomp($lastEnvVal);
+    $envMap->{$lastEnvName} = $lastEnvVal;
+
+    return $envMap;
 }
 
 sub findProcess {
@@ -142,9 +170,13 @@ sub findProcess {
                     while ( my ( $k, $v ) = each(%$procInfo) ) {
                         $matchedMap->{$k} = $v;
                     }
-                    $matchedMap->{ENVRIONMENT} = substr( $envs, length( $matchedMap->{COMMAND} ) );
 
-                    &$callback($matchedMap);
+                    #$matchedMap->{ENVRIONMENT} = substr( $envs, length( $matchedMap->{COMMAND} ) );
+                    $matchedMap->{ENVRIONMENT} = $self->parseEnvs($envs);
+                    my $matched = &$callback( $matchedMap, $self->{matchedProcsInfo} );
+                    if ( $matched == 1 ) {
+                        $self->{matchedProcsInfo}->{ $matchedMap->{PID} } = $matchedMap;
+                    }
                 }
             }
         }
