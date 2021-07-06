@@ -22,7 +22,7 @@ sub new {
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
 
-    my $self->{isRoot} = 0;
+    $self->{isRoot} = 0;
     if ( $> == 0 ) {
 
         #如果EUID是0，那么运行用户就是root
@@ -45,14 +45,14 @@ sub getConfig {
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
     my $out = '';
-    if ( defined $user ) {
-        if ( $user == $> ) {
+    if ( defined($user) ) {
+        if ( $self->{isRoot} ) {
+            $out = `su - '$user' -c '$cmd'`;
+        }
+        elsif ( getpwnam($user) == $> ) {
 
             #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
             $out = `$cmd`;
-        }
-        elsif ( $self->{isRoot} ) {
-            $out = `su - '$user' -c '$cmd'`;
         }
         else {
             print("WARN: Can not execute cmd:$cmd by user $user.\n");
@@ -69,14 +69,14 @@ sub getCmdOut {
 sub getCmdOutLines {
     my ( $self, $cmd, $user ) = @_;
     my @out = ();
-    if ( defined $user ) {
-        if ( $user == $> ) {
+    if ( defined($user) ) {
+        if ( $self->{isRoot} ) {
+            @out = `su - '$user' -c '$cmd'`;
+        }
+        elsif ( getpwnam($user) == $> ) {
 
             #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
             @out = `$cmd`;
-        }
-        elsif ( $self->{isRoot} ) {
-            @out = `su - '$user' -c '$cmd'`;
         }
         else {
             print("WARN: Can not execute cmd:$cmd by user $user.\n");

@@ -9,7 +9,7 @@ use File::Basename;
 sub getConfig {
     return {
         DB2 => {
-            regExps  => [],
+            regExps  => ['\bdb2sysc\b'],
             psAttrs  => { COMM => 'db2sysc' },
             envAttrs => { DB2_HOME => undef, DB2INSTANCE => undef }
         }
@@ -70,6 +70,8 @@ sub collect {
             $sslSvcName = $1;
         }
     }
+
+    my @ports;
     my $port;
     my $sslPort;
     if ( $svcName =~ /^\d+$/ ) {
@@ -80,9 +82,9 @@ sub collect {
     }
 
     if ( not defined($port) ) {
-        my $cmd = qw{grep "$svcName" /etc/services};
+        my $cmd = qq{grep "$svcName" /etc/services};
         if ( defined($sslSvcName) and $sslSvcName ne '' ) {
-            $cmd = qw{grep "$svcName\|$sslSvcName" /etc/services};
+            $cmd = qq{grep "$svcName\|$sslSvcName" /etc/services};
         }
         my $portDef = $self->getCmdOutLines($cmd);
         foreach my $line (@$portDef) {
@@ -94,13 +96,21 @@ sub collect {
             }
         }
     }
-    if ( not defined($port) ) {
+
+    if ( defined($port) ) {
+        push( @ports, $port );
+    }
+    else {
         print("WARN: DB2 service $svcName not found in /etc/services.\n");
         $port = '50000';
     }
+    if ( defined($sslPort) ) {
+        push( @ports, $port );
+    }
+
     $appInfo->{PORT}     = $port;
     $appInfo->{SSL_PORT} = $sslPort;
-    $appInfo->{PORTS}    = [ $port, $sslPort ];
+    $appInfo->{PORTS}    = \@ports;
 
     # Database 1 entry:
 
@@ -116,8 +126,8 @@ sub collect {
     my @dbNames = ();
     my @dbTypes = ();
     my @dbDirs  = ();
-    my @dbDef   = $self->getCmdOut( 'db2 list db directory', $user );
-    foreach my $line (@dbDef) {
+    my $dbDef   = $self->getCmdOutLines( 'db2 list db directory', $user );
+    foreach my $line (@$dbDef) {
         if ( $line =~ /^\s*Database name\s+=\s+(.*)$/ ) {
             push( @dbNames, $1 );
         }
@@ -129,6 +139,7 @@ sub collect {
         }
     }
 
+    print Dumper ( \@dbNames );
     my @localDbs;
     for ( my $i = 0 ; $i < scalar(@dbTypes) ; $i++ ) {
         my $dbType = $dbTypes[$i];

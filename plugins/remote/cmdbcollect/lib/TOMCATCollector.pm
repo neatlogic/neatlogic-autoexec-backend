@@ -9,7 +9,6 @@ use parent 'BASECollector';    #继承BASECollector
 
 use File::Basename;
 
-
 sub getConfig {
     return {
         Tomcat => {
