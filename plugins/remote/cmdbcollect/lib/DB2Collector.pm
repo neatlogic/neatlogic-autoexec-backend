@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 package DB2Collector;
+use BASECollector;
+@ISA = qw(BASECollector);    #继承BASECollector
 
 use strict;
-use parent 'BASECollector';
 
 use File::Basename;
 

@@ -6,7 +6,10 @@ use lib "$FindBin::Bin/../../lib";
 
 use strict;
 use POSIX qw(uname);
+use JSON;
 use ProcessFinder;
+use ConnGather;
+
 #use Utils;
 use Data::Dumper;
 
@@ -14,18 +17,12 @@ sub main {
     my $appsMap = {};
 
     #获取收集网络信息的实现类
-    my @uname       = uname();
-    my $ostype      = $uname[0];
-    my $gatherClass = "ConnGather$ostype";
-    require "$gatherClass.pm";
-    my $connGather = $gatherClass->new();
+    my $connGather = ConnGather->new();
 
     my $cb = sub {
 
         #找到进程后的callback处理
         my ( $procInfo, $matchedProcsInfo ) = @_;
-
-        $procInfo->{CONN_GATHER_CLASS} = $gatherClass;
 
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
@@ -110,7 +107,7 @@ sub main {
             $connInfo->{LISTEN} = \@lsnPorts;
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
             $connInfo->{PEER} = \@remoteAddrs;
-            delete($appInfo->{PROC_INFO}->{CONN_INFO});
+            delete( $appInfo->{PROC_INFO}->{CONN_INFO} );
             $appInfo->{CONN_INFO} = $connInfo;
             push( @apps, $appInfo );
         }
@@ -119,7 +116,7 @@ sub main {
     #TODO: save $apps to output
     #$out->{DATA} = \@apps;
     #Utils::saveOutput($out);
-    print Dumper( \@apps );
+    print( to_json( \@apps ) );
 }
 
 main();

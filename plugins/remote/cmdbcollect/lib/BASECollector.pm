@@ -6,6 +6,7 @@ package BASECollector;
 
 use strict;
 use File::Basename;
+use ConnGather;
 use Data::Dumper;
 
 #参数：
@@ -45,8 +46,7 @@ sub isMainProcess {
             if ( $parentProcInfo->{COMMAND} eq $procInfo->{COMMAND} ) {
                 $isMainProcess = 0;
 
-                my $gatherClass = $procInfo->{CONN_GATHER_CLASS};
-                my $connGather  = $gatherClass->new();
+                my $connGather  = ConnGather->new();
                 my $connInfo    = $connGather->getConnInfo( $procInfo->{PID} );
 
                 my $parentLsnInfo = $parentProcInfo->{CONN_INFO}->{LISTEN};
@@ -135,6 +135,7 @@ sub collect {
     my $appInfo          = {};
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
+
     #TODO: 各个不同应用的信息采集逻辑
     return $appInfo;
 }

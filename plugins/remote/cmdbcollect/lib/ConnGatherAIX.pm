@@ -3,9 +3,9 @@ use FindBin;
 use lib $FindBin::Bin;
 
 package ConnGatherAIX;
+@ISA = qw(ConnGatherBase);    #继承BASECollector
 
 use strict;
-use parent 'ConnGather';
 
 sub new {
     my ($type) = @_;

@@ -4,10 +4,10 @@ use FindBin;
 use lib $FindBin::Bin;
 
 package DEMOCollector;
+use BASECollector;
+@ISA = qw(BASECollector);    #继承BASECollector
 
 use strict;
-use parent 'BASECollector';
-
 use File::Basename;
 
 sub collect {
