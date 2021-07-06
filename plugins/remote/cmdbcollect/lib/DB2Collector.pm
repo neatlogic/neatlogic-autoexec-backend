@@ -16,52 +16,50 @@ sub getConfig {
     };
 }
 
-sub collect {
-    my ($self) = @_;
+sub getMemInfo {
+    my ( $self, $appInfo ) = @_;
 
-    #如果不是主进程，则不match，则返回null
-    if ( not $self->isMainProcess() ) {
-        return undef;
-    }
+    # [db2inst1@sit-asm-123 tmp]$ db2pd -dbptnmem
 
-    my $procInfo = $self->{procInfo};
-    my $appInfo  = {};
+    # Database Member 0 -- Active -- Up 0 days 05:54:57 -- Date 2021-07-06-20.28.13.373391
 
-    my $db2InstUser = $procInfo->{USER};
+    # Database Member Memory Controller Statistics
 
-    my $db2InstArray = $self->getCmdOutLines( 'db2ilist', $db2InstUser );
-    my @db2Insts = grep { $_ !~ /mail/i } @$db2InstArray;
-    if ( scalar(@db2Insts) == 0 ) {
-        print("WARN: No db2 instance found.\n");
-        return;
-    }
-    chomp(@db2Insts);
+    # Controller Automatic: Y
+    # Memory Limit:         6647900 KB
+    # Current usage:        140800 KB
+    # HWM usage:            608832 KB
+    # Cached memory:        7680 KB
 
-    my $version;
-    my $user = $db2Insts[0];
-    my $verInfo = $self->getCmdOut( 'db2level', $user );
-    if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
-        $version = $1;
-        $appInfo->{VERSION} = $version;
+    # Individual Memory Consumers:
 
-        #$appInfo->{DB_ID}   = $version;    #为什么DB_ID是version？
-    }
-    else {
-        print("WARN: No db2 instance found, can not execute command:db2level.\n");
-        return;
-    }
+    # Name             Mem Used (KB) HWM Used (KB) Cached (KB)
+    # ========================================================
+    # DBMS-db2inst1           106240        106240        7680
+    # FMP_RESOURCES            22528         22528           0
+    # PRIVATE                  12032         12544           0
+}
 
-    my $envMap = $procInfo->{ENVRIONMENT};
-    $appInfo->{DB2_HOME} = $envMap->{DB2_HOME};
-    $appInfo->{DB2LIB}   = $envMap->{DB2LIB};
+sub getConnManInfo {
+    my ( $self, $appInfo ) = @_;
 
-    $appInfo->{INSTANCE_NAME} = $user;
+    #db2pd -dbptnmem
+}
+
+sub getTablespaceInfo {
+    my ( $self, $appInfo, $dbName ) = @_;
+
+    #db2 connect to test2 && db2pd -tablespace -db test2
+}
+
+sub getTCPInfo {
+    my ( $self, $appInfo ) = @_;
 
     #TCP/IP Service name                          (SVCENAME) = DB2_db2inst1
     #SSL service name                         (SSL_SVCENAME) =
     my $svcName;
     my $sslSvcName;
-    my $svcDef = $self->getCmdOutLines( 'db2 get dbm cfg|grep SVCENAME', $user );
+    my $svcDef = $self->getCmdOutLines( 'db2 get dbm cfg|grep SVCENAME', $appInfo->{OS_USER} );
     foreach my $line (@$svcDef) {
         if ( $line =~ /\(SVCENAME\)\s+=\s+(.*)\s*$/ ) {
             $svcName = $1;
@@ -111,6 +109,51 @@ sub collect {
     $appInfo->{PORT}     = $port;
     $appInfo->{SSL_PORT} = $sslPort;
     $appInfo->{PORTS}    = \@ports;
+}
+
+sub collect {
+    my ($self) = @_;
+
+    #如果不是主进程，则不match，则返回null
+    if ( not $self->isMainProcess() ) {
+        return undef;
+    }
+
+    my $procInfo = $self->{procInfo};
+    my $appInfo  = {};
+
+    my $db2InstUser = $procInfo->{USER};
+
+    my $db2InstArray = $self->getCmdOutLines( 'db2ilist', $db2InstUser );
+    my @db2Insts = grep { $_ !~ /mail/i } @$db2InstArray;
+    if ( scalar(@db2Insts) == 0 ) {
+        print("WARN: No db2 instance found.\n");
+        return;
+    }
+    chomp(@db2Insts);
+
+    my $version;
+    my $user = $db2Insts[0];
+    my $verInfo = $self->getCmdOut( 'db2level', $user );
+    if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
+        $version = $1;
+        $appInfo->{VERSION} = $version;
+
+        #$appInfo->{DB_ID}   = $version;    #TODO：原来的，为什么DB_ID是version？
+    }
+    else {
+        print("WARN: No db2 instance found, can not execute command:db2level.\n");
+        return;
+    }
+
+    my $envMap = $procInfo->{ENVRIONMENT};
+    $appInfo->{DB2_HOME} = $envMap->{DB2_HOME};
+    $appInfo->{DB2LIB}   = $envMap->{DB2LIB};
+
+    $appInfo->{INSTANCE_NAME} = $user;
+    $appInfo->{OS_USER}       = $user;
+
+    $self->getTCPInfo($appInfo);
 
     # Database 1 entry:
 
@@ -146,7 +189,7 @@ sub collect {
         if ( $dbType !~ /remote/i ) {
             my $localDb = {};
             $localDb->{DB_NAME}      = $dbNames[$i];
-            $localDb->{DB_DIRECTORY} = $dbDirs[$i];
+            $localDb->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
             push( @localDbs, $localDb );
         }
     }
