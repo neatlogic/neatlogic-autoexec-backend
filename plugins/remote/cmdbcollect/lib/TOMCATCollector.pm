@@ -2,12 +2,13 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package TOMCATCollector;
-use BASECollector;
-@ISA = qw(BASECollector);    #继承BASECollector
-
 use strict;
+
+package TOMCATCollector;
+use parent 'BASECollector';    #继承BASECollector
+
 use File::Basename;
+
 
 sub getConfig {
     return {

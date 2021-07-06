@@ -2,11 +2,11 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package APACHECollector;
-use BASECollector;
-@ISA = qw(BASECollector);    #继承BASECollector
-
 use strict;
+
+package APACHECollector;
+use parent 'BASECollector';    #继承BASECollector
+
 use File::Basename;
 
 sub getConfig {
@@ -157,7 +157,7 @@ sub collect {
         if ( $procInfo->{COMMAND} =~ /^(.*?)\/httpd\s/ ) {
             $binPath = $1;
             if ( $binPath eq './' or $binPath eq '' ) {
-                $binPath = $procInfo->{ENVRIONMENT}->{CWD};
+                $binPath = $procInfo->{ENVRIONMENT}->{PWD};
             }
             $instPath = dirname($binPath);
             $confPath = "$instPath/conf";

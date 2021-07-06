@@ -9,8 +9,6 @@ use File::Basename;
 use ConnGather;
 use Data::Dumper;
 
-our $PROCESS_FILTER;
-
 #参数：
 #procInfo：进程的基本信息，就是ps输出的各种字段
 #PID,PPID,PGID,USER,GROUP,RUSER,RGROUP,%CPU %MEM,TIME,ELAPSED,COMMAND,COMMAND
@@ -24,6 +22,13 @@ sub new {
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
 
+    my $self->{isRoot} = 0;
+    if ( $> == 0 ) {
+
+        #如果EUID是0，那么运行用户就是root
+        $self->{isRoot} = 1;
+    }
+
     bless( $self, $type );
     return $self;
 }
@@ -34,6 +39,54 @@ sub new {
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {};
+}
+
+#su运行命令，并返回输出的文本
+sub getCmdOut {
+    my ( $self, $cmd, $user ) = @_;
+    my $out = '';
+    if ( defined $user ) {
+        if ( $user == $> ) {
+
+            #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
+            $out = `$cmd`;
+        }
+        elsif ( $self->{isRoot} ) {
+            $out = `su - '$user' -c '$cmd'`;
+        }
+        else {
+            print("WARN: Can not execute cmd:$cmd by user $user.\n");
+        }
+    }
+    else {
+        $out = `$cmd`;
+    }
+
+    return $out;
+}
+
+#su运行命令，并返回输出的数组
+sub getCmdOutLines {
+    my ( $self, $cmd, $user ) = @_;
+    my @out = ();
+    if ( defined $user ) {
+        if ( $user == $> ) {
+
+            #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
+            @out = `$cmd`;
+        }
+        elsif ( $self->{isRoot} ) {
+            @out = `su - '$user' -c '$cmd'`;
+        }
+        else {
+            print("WARN: Can not execute cmd:$cmd by user $user.\n");
+        }
+    }
+    else {
+        @out = `$cmd`;
+    }
+
+    return \@out;
 }
 
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程

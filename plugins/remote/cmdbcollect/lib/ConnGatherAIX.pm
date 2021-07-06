@@ -2,10 +2,10 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package ConnGatherAIX;
-@ISA = qw(ConnGatherBase);    #继承BASECollector
-
 use strict;
+
+package ConnGatherAIX;
+use parent 'ConnGatherBase';    #继承BASECollector
 
 sub new {
     my ($type) = @_;

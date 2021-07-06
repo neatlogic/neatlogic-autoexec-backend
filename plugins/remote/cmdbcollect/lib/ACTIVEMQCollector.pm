@@ -2,11 +2,11 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package ACTIVEMQCollector;
-use BASECollector;
-@ISA = qw(BASECollector);    #继承BASECollector
-
 use strict;
+
+package ACTIVEMQCollector;
+use parent 'BASECollector';    #继承BASECollector
+
 use File::Basename;
 
 sub getConfig {
@@ -30,7 +30,7 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $appInfo  = {};
 
-    my $cwd = $procInfo->{ENVRIONMENT}->{CWD};
+    my $cwd = $procInfo->{ENVRIONMENT}->{PWD};
     if ( -e "$cwd/activemq" ) {
 
         #应用的安装目录并非一定是当前目录，TODO：需要补充更好的方法，

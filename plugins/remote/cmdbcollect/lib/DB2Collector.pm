@@ -1,18 +1,17 @@
 #!/usr/bin/perl
-package DB2Collector;
-use BASECollector;
-@ISA = qw(BASECollector);    #继承BASECollector
-
 use strict;
+
+package DB2Collector;
+use parent 'BASECollector';    #继承BASECollector
 
 use File::Basename;
 
 sub getConfig {
     return {
         DB2 => {
-            regExps  => ['\bdb2sysc\s'],
+            regExps  => [],
             psAttrs  => { COMM => 'db2sysc' },
-            envAttrs => {}
+            envAttrs => { DB2_HOME => undef, DB2INSTANCE => undef }
         }
     };
 }
@@ -28,139 +27,135 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $appInfo  = {};
 
-    my ($nodeIp) = @_;
-    my @collect_data = ();
+    my $db2InstUser = $procInfo->{USER};
 
-    my @db2_ins_users = `ps -ef|grep db2sysc|grep -v grep|awk '{print \$1}'`;
-    chomp(@db2_ins_users);
+    my $db2InstArray = $self->getCmdOutLines( 'db2ilist', $db2InstUser );
+    my @db2Insts = grep { $_ !~ /mail/i } @$db2InstArray;
+    if ( scalar(@db2Insts) == 0 ) {
+        print("WARN: No db2 instance found.\n");
+        return;
+    }
+    chomp(@db2Insts);
 
-    if ( @db2_ins_users == 0 ) {
-        print "no find db2sysc process.\n";
-        return @collect_data;
-        exit 0;
+    my $version;
+    my $user = $db2Insts[0];
+    my $verInfo = $self->getCmdOut( 'db2level', $user );
+    if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
+        $version = $1;
+        $appInfo->{VERSION} = $version;
+
+        #$appInfo->{DB_ID}   = $version;    #为什么DB_ID是version？
+    }
+    else {
+        print("WARN: No db2 instance found, can not execute command:db2level.\n");
+        return;
     }
 
-    my $host_ip = $nodeIp;
-    foreach my $db2_ins_user (@db2_ins_users) {
-        my %data = ();
-        $data{'agentIP'}         = $nodeIp;
-        $data{'数据库类型'} = 'db2';
-        $data{'服务IP'}        = $host_ip;
+    my $envMap = $procInfo->{ENVRIONMENT};
+    $appInfo->{DB2_HOME} = $envMap->{DB2_HOME};
+    $appInfo->{DB2LIB}   = $envMap->{DB2LIB};
 
-        my $dbid;
-        my @arr_server_name;
-        my @db2_ins = `su - $db2_ins_user -c 'db2ilist'`;
-        @db2_ins = grep { $_ !~ /mail/i } @db2_ins;
-        if ( @db2_ins == 0 ) {
-            print "no find db2sysc process\n";
-            exit 0;
+    $appInfo->{INSTANCE_NAME} = $user;
+
+    #TCP/IP Service name                          (SVCENAME) = DB2_db2inst1
+    #SSL service name                         (SSL_SVCENAME) =
+    my $svcName;
+    my $sslSvcName;
+    my $svcDef = $self->getCmdOutLines( 'db2 get dbm cfg|grep SVCENAME', $user );
+    foreach my $line (@$svcDef) {
+        if ( $line =~ /\(SVCENAME\)\s+=\s+(.*)\s*$/ ) {
+            $svcName = $1;
         }
-        chomp(@db2_ins);
-
-        my $ver;
-        foreach my $user (@db2_ins) {
-            my $ver_info = `su - $user -c 'db2level'`;
-            if ( $ver_info =~ /"DB2\s+(v\S+)"/ ) {
-                $ver = $1;
-            }
-            $data{'数据库版本'} = $ver;
-            $dbid                    = $ver;
-            $data{'DBID'}            = $dbid;
-            last;
+        elsif ( $line =~ /\(SSL_SVCENAME\)\s+=\s+(.*)\s*$/ ) {
+            $sslSvcName = $1;
         }
-
-        my @arr_users;
-        my @arr_ins;
-        foreach my $user (@db2_ins) {
-            my %ins = ();
-            $ins{'IP'}                    = $host_ip;
-            $ins{'实例名'}             = $user;
-            $ins{'安装于操作系统'} = $host_ip;
-
-            my $port;
-            my @arr_port_info = `su - $user -c 'db2 get dbm cfg|grep SVC|head -n1|cut -d = -f 2'`;
-            @arr_port_info = grep { $_ !~ /mail/i } @arr_port_info;
-            my $port_info = $arr_port_info[-1];
-            $port_info =~ s/^\s+|\s+$//g;
-            if ( $port_info =~ /^\d{1,5}$/ ) {
-                $port = $&;
-            }
-
-            if ( not defined($port) or $port eq '' ) {
-                my $ser_port = `cat /etc/services|grep -w $port_info`;
-                if ( !defined $ser_port || $ser_port eq '' ) {
-                    print "can't find ins_port in /etc/services\n";
-                }
-                else {
-                    if ( $ser_port =~ /(\d+)\/tcp/ ) {
-                        $port = $1;
-                    }
-                }
-            }
-
-            #异常
-            if ( ( not defined($port_info) or $port_info eq '' ) and ( not defined($port) or $port eq '' ) ) {
-                $port = '50000';
-            }
-
-            $ins{'端口'}        = $port;
-            $data{'服务端口'} = $port;
-
-            my $db_info = `su - $user -c "db2 list db directory|egrep -i 'Database name|Directory entry type'"`;
-
-            my @db_name_array = $db_info =~ /name\s*=\s*(\S+)/g;
-            my @db_type_array = $db_info =~ /type\s*=\s*(\S+)/g;
-            my @db_names;
-            my $i_count = 0;
-            foreach (@db_type_array) {
-                if ( $_ =~ /remote/i ) { $i_count++; next; }
-                my $tmpname = $db_name_array[$i_count];
-                push @db_names, $tmpname;
-                $i_count++;
-                push @arr_server_name, $tmpname;
-            }
-            my $db_name = join( ',', @db_names );
-            $ins{'库名'} = $db_name;
-
-            push @arr_ins, \%ins;
-
-            foreach (@db_names) {
-                my $os_type = `uname`;
-                chomp($os_type);
-                if ( $os_type eq 'AIX' ) {
-                    system("su - $user -c \"db2 connect to $_ \"");
-                    my @user_info = `su - $user -c "db2 'select distinct cast((grantee) as char(20)) as "aaa" from syscat.tabauth'"`;
-                    if ( $user_info[-1] =~ /not\s+exist/ ) {
-                        next;
-                    }
-                    my @users = grep { $_ !~ /aaa|grantee|--|selected|^\s*$|mail/i } @user_info;
-                    s/^\s+|\s+$//g foreach (@users);
-                    foreach my $u (@users) {
-                        push @arr_users, $u;
-                    }
-                }
-                elsif ( $os_type eq 'Linux' ) {
-                    my $b         = "db2 connect to $_";
-                    my $a         = "db2 'select distinct cast((grantee) as char(20)) as \"aaa\" from syscat.tabauth'";
-                    my @user_info = `su - $user -c "$b && $a"`;
-                    if ( $user_info[-1] =~ /not\s+exist/ ) {
-                        print "none";
-                    }
-                    my @users = grep { $_ !~ /aaa|sql|local|database|grantee|--|selected|^\s*$|mail/i } @user_info;
-                    s/^\s+|\s+$//g foreach (@users);
-                    foreach my $u (@users) {
-                        push @arr_users, $u;
-                    }
-                }
-            }
-        }
-
-        $data{'数据库实例'} = \@arr_ins;
-        $data{'包含用户'}    = \@arr_users;
-        $data{'包含服务名'} = \@arr_server_name;
-        push( @collect_data, \%data );
     }
-    return @collect_data;
+    my $port;
+    my $sslPort;
+    if ( $svcName =~ /^\d+$/ ) {
+        $port = $svcName;
+    }
+    if ( $sslSvcName =~ /^\d+$/ ) {
+        $sslPort = $sslSvcName;
+    }
+
+    if ( not defined($port) ) {
+        my $cmd = qw{grep "$svcName" /etc/services};
+        if ( defined($sslSvcName) and $sslSvcName ne '' ) {
+            $cmd = qw{grep "$svcName\|$sslSvcName" /etc/services};
+        }
+        my $portDef = $self->getCmdOutLines($cmd);
+        foreach my $line (@$portDef) {
+            if ( $line =~ /^$svcName\s+(\d+)\/tcp/ ) {
+                $port = $1;
+            }
+            elsif ( $line =~ /^$sslSvcName\s+(\d+)\/tcp/ ) {
+                $sslPort = $1;
+            }
+        }
+    }
+    if ( not defined($port) ) {
+        print("WARN: DB2 service $svcName not found in /etc/services.\n");
+        $port = '50000';
+    }
+    $appInfo->{PORT}     = $port;
+    $appInfo->{SSL_PORT} = $sslPort;
+    $appInfo->{PORTS}    = [ $port, $sslPort ];
+
+    # Database 1 entry:
+
+    #  Database alias                       = DB1
+    #  Database name                        = DB1
+    #  Local database directory             = /home/db2inst1
+    #  Database release level               = d.00
+    #  Comment                              =
+    #  Directory entry type                 = Indirect
+    #  Catalog database partition number    = 0
+    #  Alternate server hostname            =
+    #  Alternate server port number         =
+    my @dbNames = ();
+    my @dbTypes = ();
+    my @dbDirs  = ();
+    my @dbDef   = $self->getCmdOut( 'db2 list db directory', $user );
+    foreach my $line (@dbDef) {
+        if ( $line =~ /^\s*Database name\s+=\s+(.*)$/ ) {
+            push( @dbNames, $1 );
+        }
+        elsif ( $line =~ /^\s*Directory entry type\s+=\s+(.*)$/ ) {
+            push( @dbTypes, $1 );
+        }
+        elsif ( $line =~ /^\s*Local database directory\s+=\s+(.*)$/ ) {
+            push( @dbDirs, $1 );
+        }
+    }
+
+    my @localDbs;
+    for ( my $i = 0 ; $i < scalar(@dbTypes) ; $i++ ) {
+        my $dbType = $dbTypes[$i];
+        if ( $dbType !~ /remote/i ) {
+            my $localDb = {};
+            $localDb->{DB_NAME}      = $dbNames[$i];
+            $localDb->{DB_DIRECTORY} = $dbDirs[$i];
+            push( @localDbs, $localDb );
+        }
+    }
+    $appInfo->{DATABASES} = \@localDbs;
+
+    my @allDbUsers = ();
+    foreach my $db (@localDbs) {
+        my $dbName   = $db->{DB_NAME};
+        my $selCmd   = qq{db2 connect to "$dbName" && db2 "select distinct cast((grantee) as char(20)) as GRANTEE from syscat.tabauth"};
+        my $userInfo = $self->getCmdOutLines( $selCmd, $user );
+        if ( $$userInfo[-1] =~ /not\s+exist/ ) {
+            print("WARN: No user found.\n");
+        }
+        my @dbUsers = grep { $_ !~ /aaa|sql|local|database|grantee|--|selected|^\s*$|mail/i } @$userInfo;
+        foreach my $dbUser (@dbUsers) {
+            $dbUser =~ s/^\s*|\s*$//g;
+            push( @allDbUsers, $dbUser );
+        }
+    }
+    $appInfo->{USERS} = \@allDbUsers;
 
     return $appInfo;
 }

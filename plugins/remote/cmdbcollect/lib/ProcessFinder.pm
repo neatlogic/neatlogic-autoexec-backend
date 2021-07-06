@@ -116,13 +116,10 @@ sub findProcess {
         my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);
         while ( $line = <$pipe> ) {
-            my $regExps;
-            my $psAttrs;
-            my $envAttrs;
             while ( my ( $key, $config ) = each(%$filterMap) ) {
-                $regExps  = $config->{regExps};
-                $psAttrs  = $config->{psAttrs};
-                $envAttrs = $config->{envAttrs};
+                my $regExps  = $config->{regExps};
+                my $psAttrs  = $config->{psAttrs};
+                my $envAttrs = $config->{envAttrs};
 
                 my $isMatched = 1;
                 foreach my $pattern (@$regExps) {
@@ -157,7 +154,8 @@ sub findProcess {
 
                     if ( defined($psAttrs) ) {
                         my $psAttrVal;
-                        while ( my ( $attr, $attrVal ) = each(%$psAttrs) ) {
+                        foreach my $attr ( keys(%$psAttrs) ) {
+                            my $attrVal = $psAttrs->{$attr};
                             $psAttrVal = $matchedMap->{$attr};
                             if ( $attrVal ne $psAttrVal ) {
                                 $isMatched = 0;
@@ -168,7 +166,8 @@ sub findProcess {
 
                     if ( defined($envAttrs) ) {
                         my $envAttrVal;
-                        while ( my ( $attr, $attrVal ) = each(%$envAttrs) ) {
+                        foreach my $attr ( keys(%$envAttrs) ) {
+                            my $attrVal = $envAttrs->{$attr};
                             if ( not defined($envMap) ) {
                                 $envMap = $self->getProcEnv( $matchedMap->{PID} );
                             }

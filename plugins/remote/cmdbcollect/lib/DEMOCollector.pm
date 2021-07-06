@@ -3,11 +3,11 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package DEMOCollector;
-use BASECollector;
-@ISA = qw(BASECollector);    #继承BASECollector
-
 use strict;
+
+package DEMOCollector;
+use parent 'BASECollector';    #继承BASECollector
+
 use File::Basename;
 
 #配置进程的filter，下面是配置例子
