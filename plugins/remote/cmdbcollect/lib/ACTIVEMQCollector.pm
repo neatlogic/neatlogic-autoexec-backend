@@ -9,6 +9,16 @@ use BASECollector;
 use strict;
 use File::Basename;
 
+sub getConfig {
+    return {
+        ActiveMQ => {
+            regExps  => ['\ActiveMQ\s'],
+            psAttrs  => {},
+            envAttrs => {}
+        }
+    };
+}
+
 sub collect {
     my ($self) = @_;
 

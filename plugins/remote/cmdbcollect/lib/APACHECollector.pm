@@ -9,6 +9,16 @@ use BASECollector;
 use strict;
 use File::Basename;
 
+sub getConfig {
+    return {
+        Apache => {
+            regExps  => ['\bhttpd\s'],
+            psAttrs  => { COMM => 'httpd' },
+            envAttrs => {}
+        }
+    };
+}
+
 sub getVerInfo {
     my ( $self, $cmd ) = @_;
 

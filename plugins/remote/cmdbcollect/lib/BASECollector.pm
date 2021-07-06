@@ -9,6 +9,8 @@ use File::Basename;
 use ConnGather;
 use Data::Dumper;
 
+our $PROCESS_FILTER;
+
 #参数：
 #procInfo：进程的基本信息，就是ps输出的各种字段
 #PID,PPID,PGID,USER,GROUP,RUSER,RGROUP,%CPU %MEM,TIME,ELAPSED,COMMAND,COMMAND
@@ -24,6 +26,14 @@ sub new {
 
     bless( $self, $type );
     return $self;
+}
+
+#配置进程的filter，下面是配置例子
+#这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
+#最终是否是需要的进程，还需要各个Collector自身进行增强性的判断，
+#如果collect方法返回undef就代表不匹配
+sub getConfig {
+    return {};
 }
 
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程
@@ -46,8 +56,8 @@ sub isMainProcess {
             if ( $parentProcInfo->{COMMAND} eq $procInfo->{COMMAND} ) {
                 $isMainProcess = 0;
 
-                my $connGather  = ConnGather->new();
-                my $connInfo    = $connGather->getConnInfo( $procInfo->{PID} );
+                my $connGather = ConnGather->new();
+                my $connInfo   = $connGather->getConnInfo( $procInfo->{PID} );
 
                 my $parentLsnInfo = $parentProcInfo->{CONN_INFO}->{LISTEN};
                 map { $parentLsnInfo->{$_} = 1 } keys( %{ $connInfo->{LISTEN} } );

@@ -9,6 +9,16 @@ use BASECollector;
 use strict;
 use File::Basename;
 
+sub getConfig {
+    return {
+        Tomcat => {
+            regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
+            psAttrs  => { COMM => 'java' },
+            envAttrs => {}
+        }
+    };
+}
+
 sub collect {
     my ($self) = @_;
 

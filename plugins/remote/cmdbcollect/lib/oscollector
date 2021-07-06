@@ -5,6 +5,7 @@ use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../../lib";
 
 use strict;
+use File::Basename;
 use POSIX qw(uname);
 use JSON;
 use ProcessFinder;
@@ -16,9 +17,38 @@ use Data::Dumper;
 sub main {
     my $appsMap = {};
 
+    my $collectorMapper = {};
+
     #获取收集网络信息的实现类
     my $connGather = ConnGather->new();
 
+    #加载各个Collector，调用getConfig方法获取Process的filter配置
+    my $processFilter = {};
+    for my $collectorPmPath ( glob("$FindBin::Bin/*Collector.pm") ) {
+        my $collectorName = basename($collectorPmPath);
+        if ( $collectorName eq 'DEMOCollector.pm' or $collectorName eq 'BASECollector.pm' ) {
+            next;
+        }
+
+        my $collectClass = substr( $collectorName, 0, -3 );
+
+        my $subFilter = {};
+        eval {
+            require($collectorName);
+            $subFilter = $collectClass->getConfig();
+        };
+        if ($@) {
+            print("WARN: $@\n");
+        }
+
+        while ( my ( $appType, $filterConf ) = each(%$subFilter) ) {
+            $processFilter->{$appType}   = $filterConf;
+            $collectorMapper->{$appType} = $collectClass;
+        }
+    }
+
+    #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
+    #此回调函数会初始化Collector类并调用其collect方法
     my $cb = sub {
 
         #找到进程后的callback处理
@@ -28,8 +58,10 @@ sub main {
         my $pid       = $procInfo->{PID};
 
         my $appType      = $procInfo->{APP_TYPE};
-        my $appTypeClass = uc($appType) . "Collector";
-        require "$appTypeClass.pm";
+        my $appTypeClass = $collectorMapper->{$appType};
+
+        #my $appTypeClass = uc($appType) . "Collector";
+        #require "$appTypeClass.pm";
         my $collector = $appTypeClass->new( $procInfo, $matchedProcsInfo );
         my $appInfo = $collector->collect($procInfo);
 
@@ -48,27 +80,7 @@ sub main {
         return $isMatched;
     };
 
-    #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
-    #最终是否是需要的进程，还需要各个Collector进行增强性的判断。
-    my $filterMap = {
-        ActiveMQ => {
-            regExps  => ['\ActiveMQ\s'],
-            psAttrs  => {},
-            envAttrs => {}
-        },
-        Tomcat => {
-            regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
-            psAttrs  => { COMM => 'java' },
-            envAttrs => {}
-        },
-        Apache => {
-            regExps  => ['\bhttpd\s'],
-            psAttrs  => { COMM => 'httpd' },
-            envAttrs => {}
-        }
-    };
-
-    my $pFinder = ProcessFinder->new( $filterMap, callback => $cb );
+    my $pFinder = ProcessFinder->new( $processFilter, callback => $cb );
     $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
@@ -113,10 +125,12 @@ sub main {
         }
     }
 
+    print Dumper( \@apps );
+
     #TODO: save $apps to output
     #$out->{DATA} = \@apps;
     #Utils::saveOutput($out);
-    print( to_json( \@apps ) );
+    #print( to_json( \@apps ) );
 }
 
 main();

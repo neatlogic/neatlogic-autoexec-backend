@@ -7,6 +7,16 @@ use strict;
 
 use File::Basename;
 
+sub getConfig {
+    return {
+        DB2 => {
+            regExps  => ['\bdb2sysc\s'],
+            psAttrs  => { COMM => 'db2sysc' },
+            envAttrs => {}
+        }
+    };
+}
+
 sub collect {
     my ($self) = @_;
 
