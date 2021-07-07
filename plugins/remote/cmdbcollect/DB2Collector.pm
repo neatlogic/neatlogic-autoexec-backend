@@ -1,18 +1,20 @@
 #!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
 use strict;
 
 package DB2Collector;
-use parent 'BASECollector';    #继承BASECollector
+use parent 'BaseCollector';    #继承BASECollector
 
 use File::Basename;
 
 sub getConfig {
     return {
-        DB2 => {
-            regExps  => ['\bdb2sysc\b'],
-            psAttrs  => { COMM => 'db2sysc' },
-            envAttrs => { DB2_HOME => undef, DB2INSTANCE => undef }
-        }
+        seq      => 100,
+        regExps  => ['\bdb2sysc\b'],
+        psAttrs  => { COMM => 'db2sysc' },
+        envAttrs => { DB2_HOME => undef, DB2INSTANCE => undef }
     };
 }
 

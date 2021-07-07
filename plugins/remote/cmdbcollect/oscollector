@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 use FindBin;
 use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../../lib";
 
 use strict;
 use File::Basename;
@@ -24,6 +24,7 @@ sub main {
 
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my $processFilter = {};
+    my @procFilters;
     for my $collectorPmPath ( glob("$FindBin::Bin/*Collector.pm") ) {
         my $collectorName = basename($collectorPmPath);
         if ( $collectorName eq 'DEMOCollector.pm' or $collectorName eq 'BASECollector.pm' ) {
@@ -31,38 +32,39 @@ sub main {
         }
 
         my $collectClass = substr( $collectorName, 0, -3 );
+        my $appType      = substr( $collectorName, 0, -12 );
 
-        my $subFilter = {};
+        my @filters = ();
         eval {
             require($collectorName);
-            $subFilter = $collectClass->getConfig();
+            my $filter = $collectClass->getConfig();
+            $filter->{appType}   = $appType;
+            $filter->{className} = $collectClass;
+            push( @filters, $filter );
         };
         if ($@) {
             print("WARN: $@\n");
         }
 
-        while ( my ( $appType, $filterConf ) = each(%$subFilter) ) {
-            $processFilter->{$appType}   = $filterConf;
-            $collectorMapper->{$appType} = $collectClass;
-        }
+        #使用filter的seq值进行排序，控制先后匹配的次序，用于standalone应用的匹配
+        @procFilters = sort { $a->{seq} <=> $b->{seq} } @filters;
     }
 
     #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
     #此回调函数会初始化Collector类并调用其collect方法
     my $cb = sub {
+        my ( $collectorClass, $procInfo, $matchedProcsInfo ) = @_;
 
-        #找到进程后的callback处理
-        my ( $procInfo, $matchedProcsInfo ) = @_;
+        #collectorClass: 收集器类名
+        #procInfo；ps的进程信息
+        #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
 
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
 
-        my $appType      = $procInfo->{APP_TYPE};
-        my $appTypeClass = $collectorMapper->{$appType};
+        my $appType = $procInfo->{APP_TYPE};
 
-        #my $appTypeClass = uc($appType) . "Collector";
-        #require "$appTypeClass.pm";
-        my $collector = $appTypeClass->new( $procInfo, $matchedProcsInfo );
+        my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
         my $appInfo = $collector->collect($procInfo);
 
         if ( defined($appInfo) ) {
@@ -80,7 +82,7 @@ sub main {
         return $isMatched;
     };
 
-    my $pFinder = ProcessFinder->new( $processFilter, callback => $cb );
+    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb );
     $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程

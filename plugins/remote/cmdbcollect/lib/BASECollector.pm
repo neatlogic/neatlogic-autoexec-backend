@@ -2,7 +2,7 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package BASECollector;
+package BaseCollector;
 
 use strict;
 use File::Basename;

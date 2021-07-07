@@ -1,21 +1,20 @@
 #!/usr/bin/perl
 use FindBin;
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
 
 use strict;
 
-package ACTIVEMQCollector;
-use parent 'BASECollector';    #继承BASECollector
+package ActiveMQCollector;
+use parent 'BaseCollector';    #继承BASECollector
 
 use File::Basename;
 
 sub getConfig {
     return {
-        ActiveMQ => {
-            regExps  => ['\ActiveMQ\s'],
-            psAttrs  => {},
-            envAttrs => {}
-        }
+        seq      => 100,
+        regExps  => ['\ActiveMQ\s'],
+        psAttrs  => {},
+        envAttrs => {}
     };
 }
 

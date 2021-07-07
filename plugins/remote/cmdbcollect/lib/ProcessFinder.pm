@@ -13,17 +13,26 @@ use Sys::Hostname;
 use Data::Dumper;
 
 sub new {
-    my ( $type, $filterMap, %args ) = @_;
+    my ( $type, $procFilters, %args ) = @_;
 
-    #filterMap
-    #key=>'tomcat',
-    #patterns=>['org.apache.catalina.startup.Bootstrap','tomcat-\d+\.\d+']
+    #procFilters数组
+    #appType=>'Tomcat',
+    #className=>'TomcatCollector',
+    # seq => 100,
+    # regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
+    # psAttrs  => { COMM => 'java' },
+    # envAttrs => {}
+
     #Callback param map:
-    #key=>'tomcat',
-    #pid=>3844,
-    #command=>'xxxxxxxxxxxxxxxxx'
+    #APP_TYPE=>'tomcat',
+    #PID=>3844,
+    #COMM=>'xxxx',
+    #COMMAND=>'xxxxxxxxxxxxxxxxx'
+    #......
+
     my $self = { callback => $args{callback} };
-    $self->{filterMap}        = $filterMap;
+    $self->{procFilters}      = $procFilters;
+    $self->{filtersCount}     = scalar(@$procFilters);
     $self->{matchedProcsInfo} = {};
 
     my @uname  = uname();
@@ -107,7 +116,8 @@ sub findProcess {
     my $pipe;
     my $pid = open( $pipe, "$self->{listProcCmd}|" );
     if ( defined($pipe) ) {
-        my $filterMap = $self->{filterMap};
+        my $procFilters  = $self->{procFilters};
+        my $filtersCount = $self->{filtersCount};
 
         my $line;
         my $headLine = <$pipe>;
@@ -116,7 +126,8 @@ sub findProcess {
         my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);
         while ( $line = <$pipe> ) {
-            while ( my ( $key, $config ) = each(%$filterMap) ) {
+            for ( my $i = 0 ; $i < $filtersCount ; $i++ ) {
+                my $config   = $$procFilters[$i];
                 my $regExps  = $config->{regExps};
                 my $psAttrs  = $config->{psAttrs};
                 my $envAttrs = $config->{envAttrs};
@@ -138,7 +149,7 @@ sub findProcess {
                         HOST_NAME   => $self->{hostname},
                         MANAGE_IP   => $self->{manageIp},
                         MANAGE_PORT => $self->{managePort},
-                        APP_TYPE    => $key
+                        APP_TYPE    => $config->{appType}
                     };
 
                     for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
@@ -202,7 +213,7 @@ sub findProcess {
                         }
                         $matchedMap->{ENVRIONMENT} = $envMap;
 
-                        my $matched = &$callback( $matchedMap, $self->{matchedProcsInfo} );
+                        my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo} );
                         if ( $matched == 1 ) {
                             $self->{matchedProcsInfo}->{ $matchedMap->{PID} } = $matchedMap;
                         }

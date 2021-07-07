@@ -1,21 +1,20 @@
 #!/usr/bin/perl
 use FindBin;
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
 
 use strict;
 
-package TOMCATCollector;
-use parent 'BASECollector';    #继承BASECollector
+package TomcatCollector;
+use parent 'BaseCollector';    #继承BASECollector
 
 use File::Basename;
 
 sub getConfig {
     return {
-        Tomcat => {
-            regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
-            psAttrs  => { COMM => 'java' },
-            envAttrs => {}
-        }
+        seq      => 100,
+        regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
+        psAttrs  => { COMM => 'java' },
+        envAttrs => {}
     };
 }
 
