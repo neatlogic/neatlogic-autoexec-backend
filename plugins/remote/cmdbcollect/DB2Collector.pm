@@ -5,9 +5,14 @@ use lib "$FindBin::Bin/lib";
 use strict;
 
 package DB2Collector;
-use parent 'BaseCollector';    #继承BASECollector
 
+#use parent 'BaseCollector';    #继承BaseCollector
+use BaseCollector;
+our @ISA = qw(BaseCollector);
+
+use File::Spec;
 use File::Basename;
+use IO::File;
 
 sub getConfig {
     return {
@@ -154,9 +159,12 @@ sub getTCPInfo {
         push( @ports, $port );
     }
 
-    $appInfo->{PORT}     = $port;
-    $appInfo->{SSL_PORT} = $sslPort;
-    $appInfo->{PORTS}    = \@ports;
+    $appInfo->{PORT}           = $port;
+    $appInfo->{SSL_PORT}       = $sslPort;
+    $appInfo->{MON_PORT}       = $port;
+    $appInfo->{ADMIN_PORT}     = $port;
+    $appInfo->{ADMIN_SSL_PORT} = $sslPort;
+    $appInfo->{PORTS}          = \@ports;
 }
 
 sub getDBInfos {

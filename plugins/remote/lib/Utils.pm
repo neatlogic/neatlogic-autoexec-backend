@@ -32,14 +32,14 @@ sub saveOutput {
 }
 
 sub str_split {
-    my($str , $separator) = @_;
+    my ( $str, $separator ) = @_;
     my @values = split /$separator/, $str;
-    return @values ; 
+    return @values;
 }
 
 sub str_trim {
-    my($str) = @_;
-    $str =~ s/^\s+|\s+$//g; 
+    my ($str) = @_;
+    $str =~ s/^\s+|\s+$//g;
     return $str;
 }
 

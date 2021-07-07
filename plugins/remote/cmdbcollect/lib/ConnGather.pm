@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+
 package ConnGather;
 
 use strict;

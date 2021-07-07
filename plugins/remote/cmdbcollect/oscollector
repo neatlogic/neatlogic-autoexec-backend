@@ -6,8 +6,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 use File::Basename;
-use POSIX qw(uname);
-use JSON;
+#use JSON;
 use ProcessFinder;
 use ConnGather;
 
@@ -63,8 +62,10 @@ sub main {
 
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
-
         my $appType = $procInfo->{APP_TYPE};
+
+        my $connInfo = $connGather->getConnInfo($pid);
+        $procInfo->{CONN_INFO} = $connInfo;
 
         my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
         my $appInfo = $collector->collect($procInfo);
@@ -74,9 +75,6 @@ sub main {
 
             $appInfo->{PROC_INFO} = $procInfo;
             $appInfo->{APP_TYPE}  = $appType;
-
-            my $connInfo = $connGather->getConnInfo($pid);
-            $procInfo->{CONN_INFO} = $connInfo;
 
             $appsMap->{ $procInfo->{PID} } = $appInfo;
         }

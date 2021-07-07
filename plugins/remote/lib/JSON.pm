@@ -1,6 +1,5 @@
 package JSON;
 
-
 use strict;
 use Carp ();
 use Exporter;
@@ -10,8 +9,8 @@ BEGIN { @JSON::ISA = 'Exporter' }
 
 BEGIN {
     $JSON::VERSION = '2.97000';
-    $JSON::DEBUG   = 0 unless (defined $JSON::DEBUG);
-    $JSON::DEBUG   = $ENV{ PERL_JSON_DEBUG } if exists $ENV{ PERL_JSON_DEBUG };
+    $JSON::DEBUG   = 0 unless ( defined $JSON::DEBUG );
+    $JSON::DEBUG   = $ENV{PERL_JSON_DEBUG} if exists $ENV{PERL_JSON_DEBUG};
 }
 
 my %RequiredVersion = (
@@ -22,57 +21,55 @@ my %RequiredVersion = (
 # XS and PP common methods
 
 my @PublicMethods = qw/
-    ascii latin1 utf8 pretty indent space_before space_after relaxed canonical allow_nonref 
-    allow_blessed convert_blessed filter_json_object filter_json_single_key_object 
+    ascii latin1 utf8 pretty indent space_before space_after relaxed canonical allow_nonref
+    allow_blessed convert_blessed filter_json_object filter_json_single_key_object
     shrink max_depth max_size encode decode decode_prefix allow_unknown
-/;
+    /;
 
 my @Properties = qw/
     ascii latin1 utf8 indent space_before space_after relaxed canonical allow_nonref
     allow_blessed convert_blessed shrink max_depth max_size allow_unknown
-/;
+    /;
 
-my @XSOnlyMethods = qw/allow_tags/; # Currently nothing
+my @XSOnlyMethods = qw/allow_tags/;    # Currently nothing
 
 my @PPOnlyMethods = qw/
     indent_length sort_by
     allow_singlequote allow_bignum loose allow_barekey escape_slash as_nonblessed
-/; # JSON::PP specific
-
+    /;                                 # JSON::PP specific
 
 # used in _load_xs and _load_pp ($INSTALL_ONLY is not used currently)
-my $_INSTALL_DONT_DIE  = 1; # When _load_xs fails to load XS, don't die.
+my $_INSTALL_DONT_DIE  = 1;            # When _load_xs fails to load XS, don't die.
 my $_ALLOW_UNSUPPORTED = 0;
 my $_UNIV_CONV_BLESSED = 0;
 
-
-# Check the environment variable to decide worker module. 
+# Check the environment variable to decide worker module.
 
 unless ($JSON::Backend) {
-    $JSON::DEBUG and  Carp::carp("Check used worker module...");
+    $JSON::DEBUG and Carp::carp("Check used worker module...");
 
     my $backend = exists $ENV{PERL_JSON_BACKEND} ? $ENV{PERL_JSON_BACKEND} : 1;
 
-    if ($backend eq '1') {
+    if ( $backend eq '1' ) {
         $backend = 'JSON::XS,JSON::PP';
     }
-    elsif ($backend eq '0') {
+    elsif ( $backend eq '0' ) {
         $backend = 'JSON::PP';
     }
-    elsif ($backend eq '2') {
+    elsif ( $backend eq '2' ) {
         $backend = 'JSON::XS';
     }
     $backend =~ s/\s+//g;
 
     my @backend_modules = split /,/, $backend;
-    while(my $module = shift @backend_modules) {
-        if ($module =~ /JSON::XS/) {
-            _load_xs($module, @backend_modules ? $_INSTALL_DONT_DIE : 0);
+    while ( my $module = shift @backend_modules ) {
+        if ( $module =~ /JSON::XS/ ) {
+            _load_xs( $module, @backend_modules ? $_INSTALL_DONT_DIE : 0 );
         }
-        elsif ($module =~ /JSON::PP/) {
+        elsif ( $module =~ /JSON::PP/ ) {
             _load_pp($module);
         }
-        elsif ($module =~ /JSON::backportPP/) {
+        elsif ( $module =~ /JSON::backportPP/ ) {
             _load_pp($module);
         }
         else {
@@ -82,21 +79,19 @@ unless ($JSON::Backend) {
     }
 }
 
-
 sub import {
     my $pkg = shift;
     my @what_to_export;
     my $no_export;
 
     for my $tag (@_) {
-        if ($tag eq '-support_by_pp') {
-            if (!$_ALLOW_UNSUPPORTED++) {
-                JSON::Backend::XS
-                    ->support_by_pp(@PPOnlyMethods) if ($JSON::Backend->is_xs);
+        if ( $tag eq '-support_by_pp' ) {
+            if ( !$_ALLOW_UNSUPPORTED++ ) {
+                JSON::Backend::XS->support_by_pp(@PPOnlyMethods) if ( $JSON::Backend->is_xs );
             }
             next;
         }
-        elsif ($tag eq '-no_export') {
+        elsif ( $tag eq '-no_export' ) {
             $no_export++, next;
         }
         elsif ( $tag eq '-convert_blessed_universally' ) {
@@ -124,62 +119,60 @@ sub import {
 
     return if ($no_export);
 
-    __PACKAGE__->export_to_level(1, $pkg, @what_to_export);
+    __PACKAGE__->export_to_level( 1, $pkg, @what_to_export );
 }
-
 
 # OBSOLETED
 
 sub jsonToObj {
     my $alternative = 'from_json';
-    if (defined $_[0] and UNIVERSAL::isa($_[0], 'JSON')) {
-        shift @_; $alternative = 'decode';
+    if ( defined $_[0] and UNIVERSAL::isa( $_[0], 'JSON' ) ) {
+        shift @_;
+        $alternative = 'decode';
     }
     Carp::carp "'jsonToObj' will be obsoleted. Please use '$alternative' instead.";
     return JSON::from_json(@_);
-};
+}
 
 sub objToJson {
     my $alternative = 'to_json';
-    if (defined $_[0] and UNIVERSAL::isa($_[0], 'JSON')) {
-        shift @_; $alternative = 'encode';
+    if ( defined $_[0] and UNIVERSAL::isa( $_[0], 'JSON' ) ) {
+        shift @_;
+        $alternative = 'encode';
     }
     Carp::carp "'objToJson' will be obsoleted. Please use '$alternative' instead.";
     JSON::to_json(@_);
-};
-
+}
 
 # INTERFACES
 
 sub to_json ($@) {
-    if (
-        ref($_[0]) eq 'JSON'
-        or (@_ > 2 and $_[0] eq 'JSON')
-    ) {
+    if ( ref( $_[0] ) eq 'JSON'
+        or ( @_ > 2 and $_[0] eq 'JSON' ) )
+    {
         Carp::croak "to_json should not be called as a method.";
     }
     my $json = JSON->new;
 
-    if (@_ == 2 and ref $_[1] eq 'HASH') {
-        my $opt  = $_[1];
-        for my $method (keys %$opt) {
+    if ( @_ == 2 and ref $_[1] eq 'HASH' ) {
+        my $opt = $_[1];
+        for my $method ( keys %$opt ) {
             $json->$method( $opt->{$method} );
         }
     }
 
-    $json->encode($_[0]);
+    $json->encode( $_[0] );
 }
 
-
 sub from_json ($@) {
-    if ( ref($_[0]) eq 'JSON' or $_[0] eq 'JSON' ) {
+    if ( ref( $_[0] ) eq 'JSON' or $_[0] eq 'JSON' ) {
         Carp::croak "from_json should not be called as a method.";
     }
     my $json = JSON->new;
 
-    if (@_ == 2 and ref $_[1] eq 'HASH') {
-        my $opt  = $_[1];
-        for my $method (keys %$opt) {
+    if ( @_ == 2 and ref $_[1] eq 'HASH' ) {
+        my $opt = $_[1];
+        for my $method ( keys %$opt ) {
             $json->$method( $opt->{$method} );
         }
     }
@@ -187,14 +180,11 @@ sub from_json ($@) {
     return $json->decode( $_[0] );
 }
 
-
-
-sub true  { $JSON::true  }
+sub true { $JSON::true }
 
 sub false { $JSON::false }
 
-sub null  { undef; }
-
+sub null { undef; }
 
 sub require_xs_version { $RequiredVersion{'JSON::XS'}; }
 
@@ -205,28 +195,24 @@ sub backend {
 
 #*module = *backend;
 
-
 sub is_xs {
     return $_[0]->backend->is_xs;
 }
-
 
 sub is_pp {
     return $_[0]->backend->is_pp;
 }
 
-
 sub pureperl_only_methods { @PPOnlyMethods; }
 
-
 sub property {
-    my ($self, $name, $value) = @_;
+    my ( $self, $name, $value ) = @_;
 
-    if (@_ == 1) {
+    if ( @_ == 1 ) {
         my %props;
         for $name (@Properties) {
             my $method = 'get_' . $name;
-            if ($name eq 'max_size') {
+            if ( $name eq 'max_size' ) {
                 my $value = $self->$method();
                 $props{$name} = $value == 1 ? 0 : $value;
                 next;
@@ -235,12 +221,12 @@ sub property {
         }
         return \%props;
     }
-    elsif (@_ > 3) {
+    elsif ( @_ > 3 ) {
         Carp::croak('property() can take only the option within 2 arguments.');
     }
-    elsif (@_ == 2) {
-        if ( my $method = $self->can('get_' . $name) ) {
-            if ($name eq 'max_size') {
+    elsif ( @_ == 2 ) {
+        if ( my $method = $self->can( 'get_' . $name ) ) {
+            if ( $name eq 'max_size' ) {
                 my $value = $self->$method();
                 return $value == 1 ? 0 : $value;
             }
@@ -253,12 +239,10 @@ sub property {
 
 }
 
-
-
 # INTERNAL
 
 sub __load_xs {
-    my ($module, $opt) = @_;
+    my ( $module, $opt ) = @_;
 
     $JSON::DEBUG and Carp::carp "Load $module.";
     my $required_version = $RequiredVersion{$module} || '';
@@ -268,7 +252,7 @@ sub __load_xs {
     |;
 
     if ($@) {
-        if (defined $opt and $opt & $_INSTALL_DONT_DIE) {
+        if ( defined $opt and $opt & $_INSTALL_DONT_DIE ) {
             $JSON::DEBUG and Carp::carp "Can't load $module...($@)";
             return 0;
         }
@@ -279,20 +263,19 @@ sub __load_xs {
 }
 
 sub _load_xs {
-    my ($module, $opt) = @_;
-    __load_xs($module, $opt) or return;
+    my ( $module, $opt ) = @_;
+    __load_xs( $module, $opt ) or return;
 
-    my $data = join("", <DATA>); # this code is from Jcode 2.xx.
+    my $data = join( "", <DATA> );    # this code is from Jcode 2.xx.
     close(DATA);
     eval $data;
     JSON::Backend::XS->init($module);
 
     return 1;
-};
-
+}
 
 sub __load_pp {
-    my ($module, $opt) = @_;
+    my ( $module, $opt ) = @_;
 
     $JSON::DEBUG and Carp::carp "Load $module.";
     my $required_version = $RequiredVersion{$module} || '';
@@ -303,7 +286,7 @@ sub __load_pp {
         if ( $module eq 'JSON::PP' ) {
             $JSON::DEBUG and Carp::carp "Can't load $module ($@), so try to load JSON::backportPP";
             $module = 'JSON::backportPP';
-            local $^W; # if PP installed but invalid version, backportPP redefines methods.
+            local $^W;    # if PP installed but invalid version, backportPP redefines methods.
             eval qq| require $module |;
         }
         Carp::croak $@ if $@;
@@ -313,11 +296,11 @@ sub __load_pp {
 }
 
 sub _load_pp {
-    my ($module, $opt) = @_;
-    __load_pp($module, $opt);
+    my ( $module, $opt ) = @_;
+    __load_pp( $module, $opt );
 
     JSON::Backend::PP->init($module);
-};
+}
 
 #
 # Helper classes for Backend Module (PP)
@@ -326,22 +309,22 @@ sub _load_pp {
 package JSON::Backend::PP;
 
 sub init {
-    my ($class, $module) = @_;
+    my ( $class, $module ) = @_;
 
     # name may vary, but the module should (always) be a JSON::PP
 
     local $^W;
-    no strict qw(refs); # this routine may be called after JSON::Backend::XS init was called.
+    no strict qw(refs);    # this routine may be called after JSON::Backend::XS init was called.
     *{"JSON::decode_json"} = \&{"JSON::PP::decode_json"};
     *{"JSON::encode_json"} = \&{"JSON::PP::encode_json"};
-    *{"JSON::is_bool"} = \&{"JSON::PP::is_bool"};
+    *{"JSON::is_bool"}     = \&{"JSON::PP::is_bool"};
 
     $JSON::true  = ${"JSON::PP::true"};
     $JSON::false = ${"JSON::PP::false"};
 
     push @JSON::Backend::PP::ISA, 'JSON::PP';
-    push @JSON::ISA, $class;
-    $JSON::Backend = $class;
+    push @JSON::ISA,              $class;
+    $JSON::Backend       = $class;
     $JSON::BackendModule = $module;
     ${"$class\::VERSION"} = $module->VERSION;
 
@@ -355,8 +338,8 @@ sub init {
     return 1;
 }
 
-sub is_xs { 0 };
-sub is_pp { 1 };
+sub is_xs { 0 }
+sub is_pp { 1 }
 
 #
 # To save memory, the below lines are read only when XS backend is used.

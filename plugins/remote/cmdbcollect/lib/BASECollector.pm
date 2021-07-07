@@ -63,7 +63,7 @@ sub getCmdOut {
     }
 
     my $status = $?;
-    return ($status, $out);
+    return ( $status, $out );
 }
 
 #su运行命令，并返回输出的数组
@@ -88,7 +88,7 @@ sub getCmdOutLines {
     }
 
     my $status = $?;
-    return ($status, \@out);
+    return ( $status, \@out );
 }
 
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程

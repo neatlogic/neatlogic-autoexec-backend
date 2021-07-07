@@ -5,7 +5,10 @@ use lib $FindBin::Bin;
 use strict;
 
 package ConnGatherAIX;
-use parent 'ConnGatherBase';    #继承BASECollector
+
+#use parent 'ConnGatherBase';    #继承BASECollector
+use ConnGatherBase;
+our @ISA = qw(ConnGatherBase);
 
 sub new {
     my ($type) = @_;

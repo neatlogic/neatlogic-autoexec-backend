@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+
 package ConnGatherBase;
 
 use strict;
@@ -99,7 +102,7 @@ sub getRemoteAddrs {
     );
 
     if ( $status != 0 ) {
-        $cmd            = "netstat -ntudwp| grep pid=$pid |";
+        $cmd            = "netstat -ntudwp| grep $pid |";
         $localFieldIdx  = 3;
         $remoteFieldIdx = 4;
         ( $status, $remoteAddrs ) = $self->parseConnLines(
@@ -128,7 +131,7 @@ sub getListenPorts {
         lsnFieldIdx => $lsnFieldIdx
     );
     if ( $status != 0 ) {
-        $cmd         = "netstat -ntudwlp| grep pid=$pid |";
+        $cmd         = "netstat -ntudwlp| grep $pid |";
         $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,

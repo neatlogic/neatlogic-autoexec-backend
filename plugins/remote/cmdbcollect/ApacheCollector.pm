@@ -5,9 +5,14 @@ use lib "$FindBin::Bin/lib";
 use strict;
 
 package ApacheCollector;
-use parent 'BaseCollector';    #继承BASECollector
 
+#use parent 'BaseCollector';    #继承BaseCollector
+use BaseCollector;
+our @ISA = qw(BaseCollector);
+
+use File::Spec;
 use File::Basename;
+use IO::File;
 
 sub getConfig {
     return {
@@ -165,7 +170,7 @@ sub collect {
 
     $appInfo->{INSTALL_PATH} = $instPath;
     $appInfo->{BIN_PATH}     = $binPath;
-    $appInfo->{CONF_PATH}    = $confPath;
+    $appInfo->{CONFIG_PATH}  = $confPath;
 
     my $verInfo = $self->getVerInfo("$binPath/httpd -XV");
     if ( not defined( $verInfo->{VERSION} ) and -x "$binPath/apachectl" ) {
