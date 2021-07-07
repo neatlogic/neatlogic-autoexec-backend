@@ -88,10 +88,10 @@ sub getPorts {
     if ( defined($portConfXml) ) {
 
         #<serverEntries xmi:id="ServerEntry_1183122129640" serverName="server1" serverType="APPLICATION_SERVER">
-        if ( $portConfXml =~ /<serverEntries\s.*?serverName="$serverName".*?>(.*?)<\/serverEntries>/s ) {
-            my $subContent = $1;
-            while ( $subContent =~ /(<specialEndpoints\s(.*?)<\/specialEndpoints>)/sg ) {
-                my $portDef = $1;
+        if ( $portConfXml =~ /<\s*serverEntries\s.*?serverName="$serverName".*?<\/\s*serverEntries\s*>/s ) {
+            my $subContent = $&;
+            while ( $subContent =~ /<\s*specialEndpoints\s(.*?)<\/\s*specialEndpoints\s*>/sg ) {
+                my $portDef = $&;
                 if ( index( $portDef, '"WC_defaulthost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $port = $1;
