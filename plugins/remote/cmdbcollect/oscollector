@@ -23,32 +23,34 @@ sub main {
     my $connGather = ConnGather->new();
 
     #加载各个Collector，调用getConfig方法获取Process的filter配置
-    my $processFilter = {};
     my @procFilters;
     for my $collectorPmPath ( glob("$FindBin::Bin/*Collector.pm") ) {
         my $collectorName = basename($collectorPmPath);
-        if ( $collectorName eq 'DEMOCollector.pm' or $collectorName eq 'BASECollector.pm' ) {
+        if ( $collectorName eq 'DemoCollector.pm' or $collectorName eq 'BaseCollector.pm' ) {
             next;
         }
 
         my $collectClass = substr( $collectorName, 0, -3 );
         my $appType      = substr( $collectorName, 0, -12 );
 
-        my @filters = ();
         eval {
             require($collectorName);
             my $filter = $collectClass->getConfig();
-            $filter->{appType}   = $appType;
-            $filter->{className} = $collectClass;
-            push( @filters, $filter );
+            if ( defined( $filter->{regExps} ) ) {
+                if ( not defined( $filter->{seq} ) ) {
+                    $filter->{seq} = 100;
+                }
+                $filter->{appType}   = $appType;
+                $filter->{className} = $collectClass;
+                push( @procFilters, $filter );
+            }
         };
         if ($@) {
             print("WARN: $@\n");
         }
-
-        #使用filter的seq值进行排序，控制先后匹配的次序，用于standalone应用的匹配
-        @procFilters = sort { $a->{seq} <=> $b->{seq} } @filters;
     }
+    #使用filter的seq值进行排序，控制先后匹配的次序，用于standalone应用的匹配
+    @procFilters = sort { $a->{seq} <=> $b->{seq} } @procFilters;
 
     #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
     #此回调函数会初始化Collector类并调用其collect方法
