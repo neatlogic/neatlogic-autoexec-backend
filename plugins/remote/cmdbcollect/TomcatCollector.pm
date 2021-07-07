@@ -53,7 +53,7 @@ sub collect {
             my @ports = ();
             my ( $port, $sslPort );
 
-            while ( $xml =~ /<Connector\s[^>]+?\sSSLEnabled="true"\s.*?>/sg ) {
+            while ( $xml =~ /<\s*Connector\s[^>]+?\sSSLEnabled="true"\s.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
                     $sslPort = $1;
@@ -73,7 +73,7 @@ sub collect {
             }
 
             pos($xml) = 0;    #从头开始匹配
-            while ( $xml =~ /<Connector\s[^>]+?\sprotocol="HTTP\b.*?>/sg ) {
+            while ( $xml =~ /<\s*Connector\s[^>]+?\sprotocol="HTTP\b.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
                     $port = $1;
