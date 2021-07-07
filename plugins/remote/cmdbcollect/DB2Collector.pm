@@ -40,12 +40,58 @@ sub getMemInfo {
     # DBMS-db2inst1           106240        106240        7680
     # FMP_RESOURCES            22528         22528           0
     # PRIVATE                  12032         12544           0
+    my $memLines   = $self->getCmdOutLines( 'db2pd -dbptnmem', $appInfo->{OS_USER} );
+    my $linesCount = scalar(@$memLines);
+    my $idx        = 0;
+    for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
+        my $line = $$memLines[$idx];
+        if ( $line =~ /Memory Limit:\s*(\d+)\s*(KB)/ ) {
+            $appInfo->{MEMORY_LIMIT} = "$1$2";
+        }
+        elsif ( $line =~ /Current usage:\s*(\d+)\s*(KB)/ ) {
+            $appInfo->{MEMORY_CURRENT_USAGE} = "$1$2";
+        }
+        elsif ( $line =~ /HWM usage:\s*(\d+)\s*(KB)/ ) {
+            $appInfo->{MEMORY_HWM_USAGE} = "$1$2";
+        }
+        elsif ( $line =~ /Cached memory:\s*(\d+)\s*(KB)/ ) {
+            $appInfo->{CACHED_MEMORY} = "$1$2";
+        }
+        elsif ( $line =~ /=====================/ ) {
+            last;
+        }
+    }
+
+    my @dbMemory = ();
+    for ( $idx++ ; $idx < $linesCount ; $idx++ ) {
+        my $line = $$memLines[$idx];
+        $line =~ s/^\s*|\s*$//g;
+        my @idvMemInfos = split( /\s+/, $line );
+        my $info = {
+            DB_NAME  => $idvMemInfos[0],
+            MEM_USED => $idvMemInfos[1],
+            HWM_USED => $idvMemInfos[2],
+            CACHED   => $idvMemInfos[3]
+        };
+        push( @dbMemory, $info );
+    }
+
+    return \@dbMemory;
 }
 
 sub getConnManInfo {
     my ( $self, $appInfo ) = @_;
 
-    #db2pd -dbptnmem
+    #db2 get dbm cfg
+    #这里包含了DB2的大部分设置属性
+    my $dbmLines = $self->getCmdOutLines( 'db2 get dbm cfg', $appInfo->{OS_USER} );
+    my $linesCount = scalar(@$dbmLines);
+    for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
+        my $line = $$dbmLines[$idx];
+        if ( $line =~ /\((\w+)\)\s=\s(.*?)$/ ) {
+            $appInfo->{$1} = $2;
+        }
+    }
 }
 
 sub getTablespaceInfo {
@@ -113,6 +159,189 @@ sub getTCPInfo {
     $appInfo->{PORTS}    = \@ports;
 }
 
+sub getDBInfos {
+    my ( $self, $appInfo ) = @_;
+
+    my $user = $appInfo->{OS_USER};
+
+    # Database 1 entry:
+
+    #  Database alias                       = DB1
+    #  Database name                        = DB1
+    #  Local database directory             = /home/db2inst1
+    #  Database release level               = d.00
+    #  Comment                              =
+    #  Directory entry type                 = Indirect
+    #  Catalog database partition number    = 0
+    #  Alternate server hostname            =
+    #  Alternate server port number         =
+    my @dbNames = ();
+    my @dbTypes = ();
+    my @dbDirs  = ();
+    my $dbDef   = $self->getCmdOutLines( 'db2 list db directory', $user );
+    foreach my $line (@$dbDef) {
+        if ( $line =~ /^\s*Database name\s+=\s+(.*)$/ ) {
+            push( @dbNames, $1 );
+        }
+        elsif ( $line =~ /^\s*Directory entry type\s+=\s+(.*)$/ ) {
+            push( @dbTypes, $1 );
+        }
+        elsif ( $line =~ /^\s*Local database directory\s+=\s+(.*)$/ ) {
+            push( @dbDirs, $1 );
+        }
+    }
+
+    my @localDbs;
+    for ( my $i = 0 ; $i < scalar(@dbTypes) ; $i++ ) {
+        my $dbType = $dbTypes[$i];
+        if ( $dbType !~ /remote/i ) {
+            my $localDb = {};
+            $localDb->{DB_NAME}      = $dbNames[$i];
+            $localDb->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
+            push( @localDbs, $localDb );
+        }
+    }
+    $appInfo->{DATABASES} = \@localDbs;
+
+    #获取所有子DB的关联用户
+    my @allDbUsers = ();
+    foreach my $db (@localDbs) {
+        my $dbName = $db->{DB_NAME};
+
+        # [db2inst1@sit-asm-123 ~]$ db2 "select distinct cast((grantee) as char(20)) as GRANTEE from syscat.tabauth"
+
+        # GRANTEE
+        # --------------------
+        # DB2INST1
+        # PUBLIC
+
+        # 2 record(s) selected.
+        my $selCmd = qq{db2 connect to "$dbName" && db2 "select distinct cast((grantee) as char(20)) as GRANTEE from syscat.tabauth" && db2 disconnect current};
+
+        my $infoLines = $self->getCmdOutLines( $selCmd, $user );
+        my $linesCount = scalar(@$infoLines);
+
+        my $idx  = 0;
+        my $line = $$infoLines[$idx];
+        while ( $line !~ /^------/ ) {
+            $idx++;
+            $line = $$infoLines[$idx];
+        }
+
+        for ( $idx++ ; $idx < $linesCount ; $idx++ ) {
+            my $line = $$infoLines[$idx];
+            if ( $line =~ /record\(s\) selected\./ ) {
+                last;
+            }
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' ) {
+                push( @allDbUsers, $line );
+            }
+        }
+        $appInfo->{USERS} = \@allDbUsers;
+
+        #获取所有子DB的Table space信息
+        my $tblspaceCmd = qq{db2 connect to "$dbName" && db2pd -d "$dbName" -tablespace && db2 disconnect current};
+        my $status;
+        ( $status, $infoLines ) = $self->getCmdOutLines( $tblspaceCmd, $user );
+
+        if ( $status == 0 ) {
+            $linesCount = scalar(@$infoLines);
+            my $tableSpaceConf = {};
+
+            #skip掉前面没用的文本行
+            $idx = 0;
+            my $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            #第一个子表，抽取name和pageSize属性
+            $idx++;
+            $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                my @fields = split( /\s+/, $line );
+                if ( scalar(@fields) == 16 ) {
+                    $tableSpaceConf->{ $fields[1] } = {
+                        NAME      => $fields[-1],
+                        PAGE_SIZE => int( $fields[4] )
+                    };
+                }
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            #第二个子表
+            $idx++;
+            $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                my @fields = split( /\s+/, $line );
+                if ( scalar(@fields) == 14 ) {
+                    my $spcInfo = $tableSpaceConf->{ $fields[1] };
+
+                    my $totalPages   = int( $fields[2] );
+                    my $useablePages = int( $fields[3] );
+                    my $usedPages    = int( $fields[4] );
+                    my $freePages    = int( $fields[6] );
+                    my $pageSize     = $spcInfo->{PAGE_SIZE};
+
+                    $spcInfo->{TABLESPACE_SIZE} = sprintf( '%.4fGB', $totalPages * $pageSize / 1024 / 1024 / 1024 );
+                    $spcInfo->{TABLESPACE_USED} = sprintf( '%.4fGB', $usedPages * $pageSize / 1024 / 1024 / 1024 );
+                    $spcInfo->{TABLESPACE_FREE} = sprintf( '%.4fGB', $freePages * $pageSize / 1024 / 1024 / 1024 );
+
+                    $spcInfo->{TABLESPACE_FREE_PERCENT} = sprintf( '%.2f%', $freePages / $useablePages * 100 );
+                    $spcInfo->{TABLESPACE_USED_PERCENT} = sprintf( '%.2f%', $usedPages / $useablePages * 100 );
+                }
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            #第三个子表
+            $idx++;
+            $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                my @fields = split( /\s+/, $line );
+                if ( scalar(@fields) == 10 ) {
+                    my $spcInfo = $tableSpaceConf->{ $fields[1] };
+                    $spcInfo->{AUTO_EXTEND} = $fields[3];
+                }
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            #第四个子表
+            $idx++;
+            $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            #第五个子表
+            $idx++;
+            $line = $$infoLines[$idx];
+            while ( $idx < $linesCount and $line !~ /^Address            / ) {
+                my @fields = split( /\s+/, $line );
+                if ( scalar(@fields) == 9 ) {
+                    my $spcInfo  = $tableSpaceConf->{ $fields[1] };
+                    my $filePath = $fields[-1];
+                    my $fileSize = -s $filePath;
+                    $fileSize = $fileSize / 1024 / 1024 / 1024;
+
+                    $spcInfo->{DATA_FILE_PATH} = $filePath;
+                    $spcInfo->{DATA_FILE_SIZE} = "${fileSize}GB";
+                }
+                $idx++;
+                $line = $$infoLines[$idx];
+            }
+
+            my @tableSpaces = values(%$tableSpaceConf);
+            $db->{TABLESPACES} = \@tableSpaces;
+        }
+    }
+}
+
 sub collect {
     my ($self) = @_;
 
@@ -157,61 +386,9 @@ sub collect {
 
     $self->getTCPInfo($appInfo);
 
-    # Database 1 entry:
-
-    #  Database alias                       = DB1
-    #  Database name                        = DB1
-    #  Local database directory             = /home/db2inst1
-    #  Database release level               = d.00
-    #  Comment                              =
-    #  Directory entry type                 = Indirect
-    #  Catalog database partition number    = 0
-    #  Alternate server hostname            =
-    #  Alternate server port number         =
-    my @dbNames = ();
-    my @dbTypes = ();
-    my @dbDirs  = ();
-    my $dbDef   = $self->getCmdOutLines( 'db2 list db directory', $user );
-    foreach my $line (@$dbDef) {
-        if ( $line =~ /^\s*Database name\s+=\s+(.*)$/ ) {
-            push( @dbNames, $1 );
-        }
-        elsif ( $line =~ /^\s*Directory entry type\s+=\s+(.*)$/ ) {
-            push( @dbTypes, $1 );
-        }
-        elsif ( $line =~ /^\s*Local database directory\s+=\s+(.*)$/ ) {
-            push( @dbDirs, $1 );
-        }
-    }
-
-    print Dumper ( \@dbNames );
-    my @localDbs;
-    for ( my $i = 0 ; $i < scalar(@dbTypes) ; $i++ ) {
-        my $dbType = $dbTypes[$i];
-        if ( $dbType !~ /remote/i ) {
-            my $localDb = {};
-            $localDb->{DB_NAME}      = $dbNames[$i];
-            $localDb->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
-            push( @localDbs, $localDb );
-        }
-    }
-    $appInfo->{DATABASES} = \@localDbs;
-
-    my @allDbUsers = ();
-    foreach my $db (@localDbs) {
-        my $dbName   = $db->{DB_NAME};
-        my $selCmd   = qq{db2 connect to "$dbName" && db2 "select distinct cast((grantee) as char(20)) as GRANTEE from syscat.tabauth"};
-        my $userInfo = $self->getCmdOutLines( $selCmd, $user );
-        if ( $$userInfo[-1] =~ /not\s+exist/ ) {
-            print("WARN: No user found.\n");
-        }
-        my @dbUsers = grep { $_ !~ /aaa|sql|local|database|grantee|--|selected|^\s*$|mail/i } @$userInfo;
-        foreach my $dbUser (@dbUsers) {
-            $dbUser =~ s/^\s*|\s*$//g;
-            push( @allDbUsers, $dbUser );
-        }
-    }
-    $appInfo->{USERS} = \@allDbUsers;
+    #$self->getConnManInfo($appInfo);
+    $self->getMemInfo($appInfo);
+    $self->getDBInfos($appInfo);
 
     return $appInfo;
 }
