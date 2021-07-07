@@ -142,7 +142,6 @@ sub isMainProcess {
 #           'PROC_INFO' => {
 #                            '%MEM' => '0.0',
 #                            'RSS' => '5196',
-#                            'MANAGE_PORT' => '',
 #                            'TRS' => '485',
 #                            'TTY' => '?',
 #                            'RUSER' => 'root',

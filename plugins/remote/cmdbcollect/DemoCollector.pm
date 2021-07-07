@@ -21,7 +21,7 @@ use IO::File;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps  => ['\bjava\s'],               #正则表达是匹配ps输出
+        regExps  => ['\bjava\s'],              #正则表达是匹配ps输出
         psAttrs  => { COMM => 'java' },        #ps的属性的精确匹配
         envAttrs => { TS_INSNAME => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };

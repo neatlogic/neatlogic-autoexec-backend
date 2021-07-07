@@ -40,8 +40,8 @@ sub new {
     $self->{ostype}   = $ostype;
     $self->{hostname} = hostname();
 
-    $self->{manageIp}   = '';
-    $self->{managePort} = '';
+    $self->{manageIp}   = '';  #此主机节点Agent或ssh连接到此主机，主机节点端的IP
+    $self->{managePort} = '';  #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
     #if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {

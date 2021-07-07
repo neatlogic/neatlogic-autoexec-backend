@@ -143,8 +143,9 @@ sub collect {
             }
         }
     }
-    $appInfo->{MANAGEMENT_PORT} = $mngtPort;
-    $appInfo->{MON_PORT}        = $mngtPort;
+    $appInfo->{ADMIN_PORT}     = $mngtPort;
+    $appInfo->{ADMIN_SSL_PORT} = undef;
+    $appInfo->{MON_PORT}       = $mngtPort;
 
     $appInfo->{PORTS} = \@ports;
     if (@ports) {
