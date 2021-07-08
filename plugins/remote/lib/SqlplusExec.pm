@@ -3,6 +3,7 @@ use strict;
 
 package SqlplusExec;
 
+use POSIX qw(uname);
 use Carp;
 use Data::Dumper;
 
@@ -17,10 +18,16 @@ sub new {
         password => $args{password},
         dbname   => $args{dbname},
         sid      => $args{sid},
-        osUser   => $args{osUser}
+        osUser   => $args{osUser},
+        oraHome   => $args{oraHome}
     };
 
+    my @uname  = uname();
+    my $osType = $uname[0];
+    $self->{osType}   = $osType;
+
     my $osUser = $args{osUser};
+    my $oraHome = $args{oraHome};
 
     my $isRoot = 0;
     if ( $> == 0 ) {
@@ -67,12 +74,30 @@ sub new {
         $ENV{ORACLE_SID} = $self->{sid};
         print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
     }
+    if (defined($self->{oraHome} and $self->{oraHome} ne '')){
+        $ENV{ORACLE_HOME} = $self->{oraHome};
+        my $path = $ENV{PATH};
+        my $oraBin = File::Spec->canonpath("$oraHome/bin");
+        my $patchBin = File::Spec->canonpath("$oraHome/OPatch");
+        if ($path !~ /$oraBin/ or $path !~ /$patchBin/ ){
+            if ( $self->{osType} eq 'Windows'){
+                $ENV{PATH} = "$oraBin;$patchBin;$path";
+            }
+            else{
+                $ENV{PATH} = "$oraBin:$patchBin:$path";
+            }
+        }
+    }
 
     return $self;
 }
 
 sub evalProfile {
     my ($self) = @_;
+
+    if ($self->{osType} eq 'Windows'){
+        return;
+    }
 
     my $evalCmd  = 'env';
     my $homePath = $ENV{HOME};
@@ -107,10 +132,6 @@ sub evalProfile {
 
 sub _parseOutput {
     my ( $self, $output, $isVerbose ) = @_;
-    $output =~ s/^\s*//;
-    my @lines = split( /\n/, $output );
-    my $linesCount = scalar(@lines);
-
     my @lines = split( /\n/, $output );
     my $linesCount = scalar(@lines);
 
@@ -127,7 +148,7 @@ sub _parseOutput {
         #错误识别
         #ERROR at line 1:
         #ORA-00907: missing right parenthesis
-        if ( $line =~ /^ERROR at line \d+:/ ) {
+        if ( $line =~ /^ERROR/ ) {
             if ( $lines[ $i + 1 ] =~ /^ORA-\d+:/ ) {
                 $hasError = 1;
                 print( $line,            "\n" );
@@ -163,6 +184,7 @@ sub _parseOutput {
                     $fieldDesc->{name}  = $fieldName;
                     $fieldDesc->{start} = $linePos;
                     $fieldDesc->{len}   = $fieldLen;
+
                     push( @fieldDescs, $fieldDesc );
 
                     #@fieldNames数组用于保留在sqlplus中字段的显示顺序
@@ -176,12 +198,9 @@ sub _parseOutput {
                 push( @lineDescs, \@fieldDescs );
                 $lineCount++;
                 $i++;
-            }
-            else {
                 $state = 'row';
 
-                #行头分析完成，进入正常数据记录分析，因为上面读取多了一行，把当前行回退，然后进入后续的处理
-                $i--;
+                #行头分析完成，进入行处理
             }
         }
         else {
@@ -270,7 +289,7 @@ sub _execSql {
     }
 
     my $cmd = qq{$self->{sqlplusCmd} << "EOF"
-               set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on;
+               set linesize 4096 pagesize 9999 echo off feedback off tab off trimout on underline on wrap off;
                $sql
                exit;
                EOF
