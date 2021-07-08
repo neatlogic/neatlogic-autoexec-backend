@@ -93,10 +93,45 @@ sub getConfInfo {
     if ( -e $confFile ) {
         my $fSize = -s $confFile;
         my $fh    = IO::File->new("<$confFile");
-
         if ( defined($fh) ) {
-            my $line;
-            while ( $line = <$fh> ) {
+            my $conf;
+            $fh->read( $conf, $fSize );
+
+            # <VitrualHost apache.quovadisglobal.com:443>
+            # Listen 443
+            # ServerName <your_server_name>:443
+            # SSLEngine on
+            # SSLCertificateFile /<path to <your_SSL_Certificate>.crt
+            # SSLCertificateKeyFile /<path to the *.key file you created with the CSR>.key
+            # SSLCertificateChainFile /<path to qv_bundle.crt>
+            # </VirtualHost>
+            # TODO：virtualhost的抽取没有经过测试
+            my @virtualHosts;
+            while ( $conf =~ s/\n\s*<\s*VitrualHost\s.*?\n<\/\s*VirtualHost\s*>//s ) {
+                my $vConf       = $&;
+                my $virtualHost = {};
+                if ( $vConf =~ /\n\s*Listen\s+(\d+)\s*\n/s ) {
+                    $virtualHost->{LISTEN} = $1;
+                }
+                if ( $vConf =~ /\n\s*ServerName\s+"(.+)"|^\s*ServerName\s+(.+)\n/s ) {
+                    $virtualHost->{SERVER_NAME} = $1;
+                }
+                if ( $vConf =~ /\n\s*SSLEngine\s+on\s*\n/s ) {
+                    $virtualHost->{SSL_ENGINE} = 'on';
+                }
+                else {
+                    $virtualHost->{SSL_ENGINE} = 'off';
+                }
+                if ( $vConf =~ /\n\s*DocumentRoot\s+"(.+)"|^\s*DocumentRoot\s+(.+)\n/s ) {
+                    $virtualHost->{DOCUMENT_ROOT} = $1;
+                }
+                push( @virtualHosts, $virtualHost );
+            }
+
+            $confInfo->{VIRTUAL_HOST} = \@virtualHosts;
+
+            $confInfo->{SSL_ENGINE} = 'off';
+            foreach my $line ( split( /\n/, $conf ) ) {
                 ##Listen 12.34.56.78:80
                 #Listen 80
                 #ErrorLog "logs/error_log"
@@ -104,7 +139,10 @@ sub getConfInfo {
                 #PidFile ""
                 #ServerName www.example.com:80
                 #DocumentRoot "/var/www/html"
-                if ( $line =~ /^\s*Listen\s+(.+)$/i ) {
+                if ( $line =~ /^\s*SSLEngine\s+on\s*$/ ) {
+                    $confInfo->{SSL_ENGINE} = 'on';
+                }
+                elsif ( $line =~ /^\s*Listen\s+(.+)$/i ) {
                     push( @listenPorts, $1 );
                 }
                 elsif ( $line =~ /^\s*ErrorLog\s+"(.+)"|^\s*ErrorLog\s+(.+)$/i ) {
@@ -123,12 +161,24 @@ sub getConfInfo {
                     $confInfo->{DOCUMENT_ROOT} = $1;
                 }
             }
+
             $fh->close();
         }
     }
 
-    $confInfo->{PORTS} = \@listenPorts;
-    $confInfo->{PORT}  = $listenPorts[0];
+    $confInfo->{PORTS}      = \@listenPorts;
+    $confInfo->{PORT}       = $listenPorts[0];
+    $confInfo->{ADMIN_PORT} = $listenPorts[0];
+    $confInfo->{MON_PORT}   = $listenPorts[0];
+
+    if ( $confInfo->{SSL_ENGINE} eq 'on' ) {
+        $confInfo->{SSL_PORT}       = $listenPorts[0];
+        $confInfo->{ADMIN_SSL_PORT} = $listenPorts[0];
+    }
+    else {
+        $confInfo->{SSL_PORT} = undef;
+        $confInfo->{SSL_PORT} = undef;
+    }
 
     return $confInfo;
 }
