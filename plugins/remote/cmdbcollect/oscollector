@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 use File::Basename;
+
 #use JSON;
 use ProcessFinder;
 use ConnGather;
@@ -48,6 +49,7 @@ sub main {
             print("WARN: $@\n");
         }
     }
+
     #使用filter的seq值进行排序，控制先后匹配的次序，用于standalone应用的匹配
     @procFilters = sort { $a->{seq} <=> $b->{seq} } @procFilters;
 
@@ -62,8 +64,8 @@ sub main {
 
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
-        my $appType = $procInfo->{APP_TYPE};
-        print("INFO: Process $pid matched filter:$appType, begin to collect data...\n";)
+        my $appType   = $procInfo->{APP_TYPE};
+        print("INFO: Process $pid matched filter:$appType, begin to collect data...\n");
         my $connInfo = $connGather->getConnInfo($pid);
         $procInfo->{CONN_INFO} = $connInfo;
         print("INFO: Prcess connection infomation collected.\n");
@@ -73,8 +75,8 @@ sub main {
 
         if ( defined($appInfo) ) {
             $isMatched = 1;
-            $appType = $appInfo->{APP_TYPE};
-            print("INFO: Matched appType:$appType.\n")
+            $appType   = $appInfo->{APP_TYPE};
+            print("INFO: Matched appType:$appType.\n");
 
             $appInfo->{PROC_INFO} = $procInfo;
             $appsMap->{ $procInfo->{PID} } = $appInfo;
