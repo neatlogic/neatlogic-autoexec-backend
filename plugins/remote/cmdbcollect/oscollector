@@ -63,19 +63,20 @@ sub main {
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
         my $appType = $procInfo->{APP_TYPE};
-
+        print("INFO: Process $pid matched filter:$appType, begin to collect data...\n";)
         my $connInfo = $connGather->getConnInfo($pid);
         $procInfo->{CONN_INFO} = $connInfo;
+        print("INFO: Prcess connection infomation collected.\n");
 
         my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
         my $appInfo = $collector->collect($procInfo);
 
         if ( defined($appInfo) ) {
             $isMatched = 1;
+            $appType = $appInfo->{APP_TYPE};
+            print("INFO: Matched appType:$appType.\n")
 
             $appInfo->{PROC_INFO} = $procInfo;
-            $appInfo->{APP_TYPE}  = $appType;
-
             $appsMap->{ $procInfo->{PID} } = $appInfo;
         }
 
@@ -88,6 +89,7 @@ sub main {
     #处理存在父子关系的进程的连接信息，并合并到父进程
     my $pidToDel = ();
     my @apps     = ();
+    print("INFO: Begin to merge connection information with parent processes...\n");
     foreach my $pid ( keys(%$appsMap) ) {
         my $info     = $appsMap->{$pid};
         my $procInfo = $info->{PROC_INFO};
@@ -112,6 +114,7 @@ sub main {
             $pidToDel->{$pid} = 1;
         }
     }
+    print("INFO: Connection information merged.\n");
 
     #抽取所有的top层的进程，并对CONN_INFO信息进行整理，转换为数组的格式
     while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
@@ -127,12 +130,14 @@ sub main {
         }
     }
 
+    print("INFO: Begin to save collected data.\n");
     print Dumper( \@apps );
 
     #TODO: save $apps to output
     #$out->{DATA} = \@apps;
     #Utils::saveOutput($out);
     #print( to_json( \@apps ) );
+    print("INFO: All is completed.\n");
 }
 
 main();

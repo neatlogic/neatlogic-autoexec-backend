@@ -39,7 +39,7 @@ sub collect {
         $confPath                 = $1;
         $appInfo->{CATALINA_BASE} = $confPath;
         $appInfo->{CONFIG_PATH}   = $confPath;
-        $appInfo->{SERVICE_NAME}  = basename($confPath);
+        $appInfo->{SERVER_NAME}  = basename($confPath);
 
         my $confFile = "$confPath/conf/server.xml";
         my $fh       = IO::File->new("<$confFile");
@@ -105,7 +105,7 @@ sub collect {
         }
     }
     else {
-        $appInfo->{SERVICE_NAME} = 'tomcat';
+        $appInfo->{SERVER_NAME} = 'tomcat';
     }
 
     my $installPath;

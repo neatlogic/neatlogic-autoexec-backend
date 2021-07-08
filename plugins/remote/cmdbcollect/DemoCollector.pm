@@ -111,6 +111,8 @@ sub collect {
     #$appInfo->{APP_TYPE} = 'DemoApp';
 
     #！！！下面的是标准属性，必须采集并转换提供出来
+    #服务名, 要根据实际来设置
+    $appInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
     $appInfo->{INSTALL_PATH}   = undef;
     $appInfo->{CONFIG_PATH}    = undef;
     $appInfo->{PORT}           = undef;
