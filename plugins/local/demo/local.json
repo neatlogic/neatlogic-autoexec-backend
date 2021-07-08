@@ -32,10 +32,6 @@
 			"type": "select",
 			"isConst": "false",
 			"defaultValue": [{
-					"text": "未选择",
-					"value": ""
-				},
-				{
 					"text": "选择1",
 					"value": "sel1"
 				},
@@ -105,7 +101,7 @@
 			"help": "日期输入测试",
 			"type": "date",
 			"isConst": "false",
-			"defaultValue": "$nowdate-2",
+			"defaultValue": "",
 			"required": "true",
 			"validate": ""
 		},
@@ -115,7 +111,7 @@
 			"help": "时间输入测试",
 			"type": "time",
 			"isConst": "false",
-			"defaultValue": "$nowtime-600",
+			"defaultValue": "",
 			"required": "true",
 			"validate": ""
 		},
@@ -125,7 +121,7 @@
 			"help": "日期时间输入测试",
 			"type": "datetime",
 			"isConst": "false",
-			"defaultValue": "$nowdatetime-86400",
+			"defaultValue": "",
 			"required": "true",
 			"validate": ""
 		}
