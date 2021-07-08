@@ -15,10 +15,13 @@ use ConnGather;
 use Data::Dumper;
 
 sub main {
+    my $osInfo;
+    #收集OS和硬件信息
+    print("INFO: Begin to collect OS information...");
+
+    print("INFO: OS information collected.\n");
+    
     my $appsMap = {};
-
-    my $collectorMapper = {};
-
     #获取收集网络信息的实现类
     my $connGather = ConnGather->new();
 

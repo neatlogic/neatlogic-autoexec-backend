@@ -3,6 +3,7 @@ use strict;
 
 package SqlplusExec;
 
+use Carp;
 use Data::Dumper;
 
 #sqlplus的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
@@ -15,24 +16,50 @@ sub new {
         username => $args{username},
         password => $args{password},
         dbname   => $args{dbname},
-        sid      => $args{sid}
+        sid      => $args{sid},
+        osUser   => $args{osUser}
     };
 
-    my $connStr = '/ as sysdba';
-    if (    defined( $args{host} )
-        and defined( $args{username} )
+    my $osUser = $args{osUser};
+
+    my $isRoot = 0;
+    if ( $> == 0 ) {
+
+        #如果EUID是0，那么运行用户就是root
+        $isRoot = 1;
+    }
+
+    my $sqlplusCmd = 'sqlplus -s -R 1 -L / as sysdba';
+    if ( $isRoot and defined( $args{osUser} ) ) {
+        $sqlplusCmd = qq{su - $osUser -c "sqlplus -s -R 1 -L / as sysdba"};
+    }
+    if (    defined( $args{username} )
         and defined( $args{password} ) )
     {
+        if ( not defined( $args{dbname} ) and not defined( $args{sid} ) ) {
+            croak("ERROR: Must define attribute dbname or sid.\n");
+        }
+
+        if ( not defined( $args{host} ) ) {
+            $args{host} = '127.0.0.1';
+        }
         if ( not defined( $args{port} ) ) {
             $args{port} = 1521;
         }
 
+        if ( not defined( $args{dbname} ) ) {
+            $args{dbname} = $args{sid};
+        }
+
         if ( defined( $args{dbname} ) ) {
-            $connStr = "'$args{username}/\"$args{password}\"'\@//$args{host}:$args{port}/$args{dbname}";
+            $sqlplusCmd = qq(sqlplus -s -R 1 -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
+            if ( $isRoot and defined( $args{osUser} ) ) {
+                $sqlplusCmd = qq(su - $osUser -c "sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+            }
         }
     }
 
-    $self->{connStr} = $connStr;
+    $self->{sqlplusCmd} = $sqlplusCmd;
 
     bless( $self, $type );
     $self->evalProfile();
@@ -221,8 +248,7 @@ sub _parseOutput {
     }
 
     if ($hasError) {
-        print("ERROR: Sql execution failed.\n");
-        exit(-1);
+        die("ERROR: Sql execution failed.\n");
     }
 
     if ( scalar(@rowsArray) > 0 ) {
@@ -243,7 +269,7 @@ sub _execSql {
         $sql = $sql . ';';
     }
 
-    my $cmd = qq{sqlplus -s -R 1 -L $self->{connStr} << "EOF"
+    my $cmd = qq{$self->{sqlplusCmd} << "EOF"
                set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on;
                $sql
                exit;
@@ -262,8 +288,7 @@ sub _execSql {
     my $output = `$cmd`;
 
     if ( $? ne 0 ) {
-        print("ERROR: Execute cmd failed\n $output\n");
-        exit(-1);
+        die("ERROR: Execute cmd failed\n $output\n");
     }
 
     if ($parseData) {
@@ -305,4 +330,3 @@ sub do {
 }
 
 1;
-
