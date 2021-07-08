@@ -16,12 +16,14 @@ use Data::Dumper;
 
 sub main {
     my $osInfo;
+
     #收集OS和硬件信息
     print("INFO: Begin to collect OS information...");
 
     print("INFO: OS information collected.\n");
-    
+
     my $appsMap = {};
+
     #获取收集网络信息的实现类
     my $connGather = ConnGather->new();
 
@@ -74,15 +76,22 @@ sub main {
         print("INFO: Process connection infomation collected.\n");
 
         my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
-        my $appInfo = $collector->collect($procInfo);
+        my @appInfos = $collector->collect($procInfo);
 
-        if ( defined($appInfo) ) {
+        my $idx = 0;
+        for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
+            my $appInfo = $appInfos[$idx];
             $isMatched = 1;
             $appType   = $appInfo->{APP_TYPE};
             print("INFO: Matched appType:$appType.\n");
 
             $appInfo->{PROC_INFO} = $procInfo;
-            $appsMap->{ $procInfo->{PID} } = $appInfo;
+            if ( $idx == 0 ) {
+                $appsMap->{ $procInfo->{PID} } = $appInfo;
+            }
+            else {
+                $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
+            }
         }
 
         return $isMatched;

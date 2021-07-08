@@ -122,6 +122,7 @@ sub collect {
     $appInfo->{MON_PORT}       = undef;
 
     return $appInfo;
+    #如果返回多个应用信息，则：return ($appInfo1, $appInfo2);
 }
 
 1;
