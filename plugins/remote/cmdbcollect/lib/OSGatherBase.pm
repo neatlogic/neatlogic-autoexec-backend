@@ -18,6 +18,10 @@ sub new {
 
 sub collect{
     my ($self) = @_;
+    my $hostInfo = {};
+    my $osInfo = {};
+
+    return ($hostInfo, $osInfo);
 }
 
 1;

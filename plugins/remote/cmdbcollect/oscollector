@@ -9,6 +9,7 @@ use File::Basename;
 
 #use JSON;
 use ProcessFinder;
+use OSGather;
 use ConnGather;
 
 #use Utils;
@@ -19,7 +20,8 @@ sub main {
 
     #收集OS和硬件信息
     print("INFO: Begin to collect OS information...");
-
+    my $osGather = OSGather->new();
+    my ($hostInfo, $osInfo) = $osGather->collect();
     print("INFO: OS information collected.\n");
 
     my $appsMap = {};
@@ -145,7 +147,10 @@ sub main {
     }
 
     print("INFO: Begin to save collected data.\n");
-    print Dumper( \@apps );
+    #$hostInfo, $osInfo, @apps的数据
+    print Dumper ($hostInfo);
+    print Dumper ($osInfo);
+    print Dumper ( \@apps );
 
     #TODO: save $apps to output
     #$out->{DATA} = \@apps;
