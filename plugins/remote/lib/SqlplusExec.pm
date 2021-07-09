@@ -19,14 +19,14 @@ sub new {
         dbname   => $args{dbname},
         sid      => $args{sid},
         osUser   => $args{osUser},
-        oraHome   => $args{oraHome}
+        oraHome  => $args{oraHome}
     };
 
     my @uname  = uname();
     my $osType = $uname[0];
-    $self->{osType}   = $osType;
+    $self->{osType} = $osType;
 
-    my $osUser = $args{osUser};
+    my $osUser  = $args{osUser};
     my $oraHome = $args{oraHome};
 
     my $isRoot = 0;
@@ -74,16 +74,16 @@ sub new {
         $ENV{ORACLE_SID} = $self->{sid};
         print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
     }
-    if (defined($self->{oraHome} and $self->{oraHome} ne '')){
+    if ( defined( $self->{oraHome} and $self->{oraHome} ne '' ) ) {
         $ENV{ORACLE_HOME} = $self->{oraHome};
-        my $path = $ENV{PATH};
-        my $oraBin = File::Spec->canonpath("$oraHome/bin");
+        my $path     = $ENV{PATH};
+        my $oraBin   = File::Spec->canonpath("$oraHome/bin");
         my $patchBin = File::Spec->canonpath("$oraHome/OPatch");
-        if ($path !~ /$oraBin/ or $path !~ /$patchBin/ ){
-            if ( $self->{osType} eq 'Windows'){
+        if ( $path !~ /$oraBin/ or $path !~ /$patchBin/ ) {
+            if ( $self->{osType} eq 'Windows' ) {
                 $ENV{PATH} = "$oraBin;$patchBin;$path";
             }
-            else{
+            else {
                 $ENV{PATH} = "$oraBin:$patchBin:$path";
             }
         }
@@ -95,7 +95,7 @@ sub new {
 sub evalProfile {
     my ($self) = @_;
 
-    if ($self->{osType} eq 'Windows'){
+    if ( $self->{osType} eq 'Windows' ) {
         return;
     }
 
@@ -142,7 +142,19 @@ sub _parseOutput {
     my $lineCount    = 0;
     my @lineDescs    = ();
     my $state        = 'heading';
-    for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
+
+    my $pos = 0;
+
+    #Skip空行
+    for ( my $pos = 0 ; $pos < $linesCount ; $pos++ ) {
+        my $line = $lines[$pos];
+        print($line);
+        if ( $line !~ /^\s*$/ ) {
+            last;
+        }
+    }
+
+    for ( my $i = $pos + 1 ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
 
         #错误识别
@@ -198,7 +210,12 @@ sub _parseOutput {
                 push( @lineDescs, \@fieldDescs );
                 $lineCount++;
                 $i++;
+            }
+            else {
+                #当前行下一行不是------，则代笔当前行是数据行，退回上一行
+                $i--;
                 $state = 'row';
+                next;
 
                 #行头分析完成，进入行处理
             }
@@ -289,7 +306,7 @@ sub _execSql {
     }
 
     my $cmd = qq{$self->{sqlplusCmd} << "EOF"
-               set linesize 4096 pagesize 9999 echo off feedback off tab off trimout on underline on wrap off;
+               set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on wrap on;
                $sql
                exit;
                EOF
@@ -298,7 +315,7 @@ sub _execSql {
     $cmd =~ s/^\s*//mg;
 
     if ($isVerbose) {
-        print("INFO: Execute sql:\n");
+        print("\nINFO: Execute sql:\n");
         print( $sql, "\n" );
         my $len = length($sql);
         print( '=' x $len, "\n" );
