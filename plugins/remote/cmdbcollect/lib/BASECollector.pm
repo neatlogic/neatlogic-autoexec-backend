@@ -22,8 +22,8 @@ sub new {
     my $self = {};
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
-    $self->{defaultAppType} = substr($type, 0, -9);
-    $self->{isRoot} = 0;
+    $self->{defaultAppType}   = substr( $type, 0, -9 );
+    $self->{isRoot}           = 0;
     if ( $> == 0 ) {
 
         #如果EUID是0，那么运行用户就是root
@@ -49,11 +49,9 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [
-            'MANAGE_IP',
-            'PORT',
-        ]
-        #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
+        $self->{defaultAppType} => [ 'MANAGE_IP', 'PORT', ]
+
+            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
     };
 }
 

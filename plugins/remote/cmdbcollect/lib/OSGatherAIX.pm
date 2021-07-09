@@ -9,11 +9,11 @@ package OSGatherAIX;
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
-sub collect{
-    my ($self) = @_;
+sub collect {
+    my ($self)   = @_;
     my $hostInfo = {};
-    my $osInfo = {};
+    my $osInfo   = {};
 
-    return ($hostInfo, $osInfo);
+    return ( $hostInfo, $osInfo );
 }
 1;
