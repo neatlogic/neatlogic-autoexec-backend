@@ -2,6 +2,7 @@
 #采集器模板，复制然后修改类名和填入collect方法的内容
 use FindBin;
 use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
 
 use strict;
 
