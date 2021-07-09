@@ -17,6 +17,7 @@ use File::Basename;
 use IO::File;
 use Data::Dumper;
 use XML::MyXML qw(xml_to_object);
+use CollectObjType;
 
 #配置进程的filter
 sub getConfig {
@@ -164,6 +165,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
 
     my $envMap     = $procInfo->{ENVRIONMENT};
     my $domainHome = $envMap->{DOMAIN_HOME};

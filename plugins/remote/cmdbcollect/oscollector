@@ -11,6 +11,7 @@ use File::Basename;
 use ProcessFinder;
 use OSGather;
 use ConnGather;
+use CollectObjType;
 
 #use Utils;
 use Data::Dumper;
@@ -19,9 +20,9 @@ sub main {
     my $osInfo;
 
     #收集OS和硬件信息
-    print("INFO: Begin to collect OS information...");
+    print("INFO: Begin to collect OS information...\n");
     my $osGather = OSGather->new();
-    my ($hostInfo, $osInfo) = $osGather->collect();
+    my ( $hostInfo, $osInfo ) = $osGather->collect();
     print("INFO: OS information collected.\n");
 
     my $appsMap = {};
@@ -84,7 +85,16 @@ sub main {
         for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
             my $appInfo = $appInfos[$idx];
             $isMatched = 1;
-            $appType   = $appInfo->{APP_TYPE};
+            if ( not defined( $appInfo->{OBJECT_TYPE} ) ) {
+                $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+                print("WARN: $collectorClass did not return OBJECT_TYPE, fallback to $CollectObjType::APP.\n");
+            }
+            $appType = $appInfo->{APP_TYPE};
+            if ( not defined($appType) ) {
+                $appType = $procInfo->{APP_TYPE};
+                $appInfo->{APP_TYPE} = $appType;
+                print("WARN: $collectorClass did not return APP_TYPE, fallback to $appType.\n");
+            }
             print("INFO: Matched appType:$appType.\n");
 
             $appInfo->{PROC_INFO} = $procInfo;
@@ -147,6 +157,7 @@ sub main {
     }
 
     print("INFO: Begin to save collected data.\n");
+
     #$hostInfo, $osInfo, @apps的数据
     print Dumper ($hostInfo);
     print Dumper ($osInfo);

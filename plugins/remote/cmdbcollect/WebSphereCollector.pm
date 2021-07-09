@@ -14,6 +14,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
+use CollectObjType;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -172,6 +173,7 @@ sub collect {
     $self->{OS_TYPE} = $procInfo->{OS_TYPE};
 
     my $appInfo = {};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
     my $appType       = $procInfo->{APP_TYPE};

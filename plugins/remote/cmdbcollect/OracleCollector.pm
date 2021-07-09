@@ -15,6 +15,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
+use CollectObjType;
 use SqlplusExec;
 
 #配置进程的filter，下面是配置例子
@@ -29,13 +30,22 @@ sub getConfig {
     };
 }
 
-sub getEnvLine {
-    my ( $self, $oraHome, $oraSid ) = @_;
-    return "export ORACLE_HOME=$oraHome;export ORACLE_SID=$oraSid;export PATH=$oraHome/bin:$oraHome/OPatch:\$PATH";
+sub getDeviceId {
+    my ( $self, $devPath ) = @_;
+    if ( defined($devPath) and -e $devPath ) {
+        my $rdev  = ( stat($devPath) )[6];
+        my $minor = $rdev % 256;
+        my $major = int( $rdev / 256 );
+        return "$major,$minor";
+    }
+    else {
+        return undef;
+    }
 }
 
 sub collect {
     my ($self) = @_;
+    my $isVerbose = 1;
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
@@ -46,7 +56,9 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    my $envMap  = $procInfo->{ENVRIONMENT};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+
+    my $envMap = $procInfo->{ENVRIONMENT};
 
     my $oraUser = $procInfo->{USER};
     my $command = $procInfo->{COMMAND};
@@ -59,15 +71,38 @@ sub collect {
     my $oraBase     = $envMap->{ORACLE_BASE};
     my $oraHostname = $envMap->{ORACLE_HOSTNAME};
 
+    $appInfo->{ORACLE_HOME}     = $oraHome;
+    $appInfo->{ORACLE_BASE}     = $oraBase;
+    $appInfo->{ORACLE_HOSTNAME} = $oraHostname;
+    $appInfo->{ORACLE_SID}      = $oraSid;
+    $appInfo->{INSTANCE_NAME}   = $oraSid;
+
+    my $sqlplus = SqlplusExec->new(
+        sid     => $oraSid,
+        osUser  => $oraUser,
+        oraHome => $oraHome
+    );
+    
     #获取CDB（pluggable database的标记）
-    my $isCdb = 0;
-    my $sqlplus = SqlplusExec->new( sid => $oraSid, osUser => $oraUser, oraHome => $oraHome );
+    my $isCdb   = 0;
+    my $version = '';
+    my $rows    = $sqlplus->query(
+        sql     => q{select substr(BANNER,instr(BANNER,'Release',1)+7,11) VERSION from v$version where rownum <=1},
+        verbose => $isVerbose
+    );
+    if ( defined($rows) ) {
+        $version = $$rows[0]->{VERSION};
+    }
+    $appInfo->{VERSION} = $version;
 
     # NAME    TYPE   VALUE
     # ------- ------ -------
     # db_name string orcl11g
-    my $rows = $sqlplus->query( sql => 'show parameter enable_pluggable_database', verbose => 1 );
-    if ( @$rows and $$rows[0]->{VALUE} eq 'TRUE' ) {
+    my $rows = $sqlplus->query(
+        sql     => 'show parameter enable_pluggable_database',
+        verbose => $isVerbose
+    );
+    if ( defined($rows) and $$rows[0]->{VALUE} eq 'TRUE' ) {
         $isCdb = 1;
     }
     $self->{isCdb}     = $isCdb;
@@ -75,13 +110,19 @@ sub collect {
 
     my $dbId;
     my $logMode;
-    $rows = $sqlplus->query( sql => 'select dbid,log_mode from v$database', verbose => 1 );
-    if (@$rows) {
+    $rows = $sqlplus->query(
+        sql     => 'select dbid,log_mode from v$database',
+        verbose => $isVerbose
+    );
+    if ( defined($rows) ) {
         $dbId    = $$rows[0]->{DBID};
         $logMode = $$rows[0]->{LOG_MODE};
     }
 
-    $rows = $sqlplus->query( sql => q{select name,value from v$parameter where name in ('cluster_database','service_names','instance_name','sga_max_size','log_archive_dest','log_archive_dest_1','memory_target')}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select name,value from v$parameter where name in ('cluster_database', 'db_name', 'db_unique_name', 'service_names','sga_max_size','log_archive_dest','log_archive_dest_1','memory_target')},
+        verbose => $isVerbose
+    );
     my $param = {};
     foreach my $row (@$rows) {
         $param->{ $row->{NAME} } = $row->{VALUE};
@@ -105,7 +146,10 @@ sub collect {
     foreach my $oneSvcName ( split( /,/, $serviceNamesTxt ) ) {
         $svcNameMap->{$oneSvcName} = 1;
     }
-    $rows = $sqlplus->query( sql => q{select a.name from dba_services a,v$database b where b.DATABASE_ROLE='PRIMARY' and a.name not like 'SYS%'}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select a.name from dba_services a,v$database b where b.DATABASE_ROLE='PRIMARY' and a.name not like 'SYS%'},
+        verbose => $isVerbose
+    );
 
     foreach my $row (@$rows) {
         $svcNameMap->{ $row->{NAME} } = 1;
@@ -113,16 +157,19 @@ sub collect {
     my @serviceNames = keys(%$svcNameMap);
     $appInfo->{SERVICE_NAMES} = \@serviceNames;
 
-    my $instanceName = $param->{instance_name};
-    $appInfo->{INSTANCE_NAME} = $instanceName;
-
-    $rows = $sqlplus->query( sql => q{select PARAMETER CHARACTERSET,VALUE from nls_database_parameters where PARAMETER='NLS_CHARACTERSET'}, verbose => 1 );
-    if (@$rows) {
+    $rows = $sqlplus->query(
+        sql     => q{select PARAMETER CHARACTERSET,VALUE from nls_database_parameters where PARAMETER='NLS_CHARACTERSET'},
+        verbose => $isVerbose
+    );
+    if ( defined($rows) ) {
         $appInfo->{ $$rows[0]->{CHARACTERSET} } = $$rows[0]->{VALUE};
     }
 
     my @userInfos = ();
-    $rows = $sqlplus->query( sql => q{select  du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select  du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')},
+        verbose => $isVerbose
+    );
     foreach my $row (@$rows) {
         my $userInfo = {};
         $userInfo->{USERNAME}           = $row->{USERNAME};
@@ -132,7 +179,10 @@ sub collect {
     $appInfo->{USERS} = \@userInfos;
 
     my $tableSpaces = {};
-    $rows = $sqlplus->query( sql => q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) GIGA, autoextensible AUTOEX from dba_data_files}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) GIGA, autoextensible AUTOEX from dba_data_files},
+        verbose => $isVerbose
+    );
     foreach my $row (@$rows) {
         my $dataFileInfo   = {};
         my $tableSpaceName = $row->{TABLESPACE_NAME};
@@ -150,31 +200,54 @@ sub collect {
         my $dataFiles = $tableSpace->{DATA_FILES};
         push( @$dataFiles, $dataFileInfo );
     }
+    my @allTableSpaces = values(%$tableSpaces);
+    $appInfo->{TABLE_SPACESES} = \@allTableSpaces;
 
     my @diskGroups;
     my $diskGroupsMap = {};
-    $rows = $sqlplus->query( sql => q{select name, type, total_mb from v$asm_diskgroup}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select name, type, total_mb, free_mb from v$asm_diskgroup},
+        verbose => $isVerbose
+    );
     foreach my $row (@$rows) {
         my $diskGroup = {};
         my $groupName = $row->{NAME};
         $diskGroup->{NAME}     = $groupName;
         $diskGroup->{TYPE}     = $row->{TYPE};
         $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB};
+        $diskGroup->{FREE_MB}  = $row->{FREE_MB};
+        $diskGroup->{USAGE}    = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} );
         $diskGroup->{DISKS}    = [];
         push( @diskGroups, $diskGroup );
         $diskGroupsMap->{$groupName} = $diskGroup;
     }
-    $rows = $sqlplus->query( sql => q{select ad.name, adk.name groupname, ad.failgroup, ad.total_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path}, verbose => 1 );
+    $rows = $sqlplus->query(
+        sql     => q{select ad.name, adk.name groupname, ad.failgroup, ad.mount_status, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
+        verbose => $isVerbose
+    );
     foreach my $row (@$rows) {
         my $groupName = $row->{GROUPNAME};
         my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
         my $disk      = {};
-        $disk->{NAME}       = $row->{NAME};
-        $disk->{FAIL_GROUP} = $row->{FAILGROUP};
-        $disk->{TOTAL_MB}   = $row->{TOTAL_MB};
-        $disk->{PATH}       = $row->{PATH};
+        $disk->{NAME}         = $row->{NAME};
+        $disk->{FAIL_GROUP}   = $row->{FAILGROUP};
+        $disk->{MOUNT_STATUS} = $row->{MOUNT_STATUS};
+        $disk->{TOTAL_MB}     = $row->{TOTAL_MB};
+        $disk->{FREE_MB}      = $row->{FREE_MB};
+        $disk->{USAGE}        = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} );
+        $disk->{PATH}         = $row->{PATH};
 
-        #TODO：逻辑盘名称获取逻辑需要补充，老的逻辑比较乱
+        my $asmDiskId = $self->getDeviceId( $row->{PATH} );
+        $disk->{DEVICE_ID} = $asmDiskId;
+        for my $devPath ( glob("/dev/*") ) {
+            my $osDevId = $self->getDeviceId($devPath);
+            if ( $osDevId eq $asmDiskId ) {
+                my @diskStat = df($devPath);
+                $disk->{LOGIC_DISK} = $devPath;
+                last;
+            }
+        }
+
         push( @$disks, $disk );
     }
     $appInfo->{DISK_GROUPS} = \@diskGroups;
@@ -182,22 +255,10 @@ sub collect {
     #TODO：获取实例信息数据
 
     #默认的APP_TYPE是类名去掉Collector，如果要特殊的名称则自行设置
-    #$appInfo->{APP_TYPE} = 'DemoApp';
-
-    #！！！下面的是标准属性，必须采集并转换提供出来
-    #服务名, 要根据实际来设置
-    # $appInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
-    # $appInfo->{INSTALL_PATH}   = undef;
-    # $appInfo->{CONFIG_PATH}    = undef;
-    # $appInfo->{PORT}           = undef;
-    # $appInfo->{SSL_PORT}       = undef;
-    # $appInfo->{ADMIN_PORT}     = undef;
-    # $appInfo->{ADMIN_SSL_PORT} = undef;
-    # $appInfo->{MON_PORT}       = undef;
+    $appInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
+    $appInfo->{SERVER_NAME} = $appInfo->{INSTANCE_NAME};
 
     return $appInfo;
-
-    #如果返回多个应用信息，则：return ($appInfo1, $appInfo2);
 }
 
 1;

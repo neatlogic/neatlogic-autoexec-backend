@@ -13,6 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
+use CollectObjType;
 
 sub getConfig {
     return {
@@ -33,13 +34,14 @@ sub collect {
 
     my $procInfo = $self->{procInfo};
     my $appInfo  = {};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
 
     my $confPath;
     if ( $procInfo->{COMMAND} =~ /-Dcatalina.base=(\S+)\s+/ ) {
         $confPath                 = $1;
         $appInfo->{CATALINA_BASE} = $confPath;
         $appInfo->{CONFIG_PATH}   = $confPath;
-        $appInfo->{SERVER_NAME}  = basename($confPath);
+        $appInfo->{SERVER_NAME}   = basename($confPath);
 
         my $confFile = "$confPath/conf/server.xml";
         my $fh       = IO::File->new("<$confFile");

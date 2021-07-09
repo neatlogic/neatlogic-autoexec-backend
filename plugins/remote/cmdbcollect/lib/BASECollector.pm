@@ -7,6 +7,7 @@ package BaseCollector;
 use strict;
 use File::Basename;
 use ConnGather;
+use CollectObjType;
 use Data::Dumper;
 
 #参数：

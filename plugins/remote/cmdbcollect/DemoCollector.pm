@@ -14,6 +14,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
+use CollectObjType;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -104,6 +105,8 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
 
@@ -112,7 +115,7 @@ sub collect {
 
     #！！！下面的是标准属性，必须采集并转换提供出来
     #服务名, 要根据实际来设置
-    $appInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
+    $appInfo->{SERVER_NAME}    = $procInfo->{APP_TYPE};
     $appInfo->{INSTALL_PATH}   = undef;
     $appInfo->{CONFIG_PATH}    = undef;
     $appInfo->{PORT}           = undef;
@@ -122,6 +125,7 @@ sub collect {
     $appInfo->{MON_PORT}       = undef;
 
     return $appInfo;
+
     #如果返回多个应用信息，则：return ($appInfo1, $appInfo2);
 }
 
