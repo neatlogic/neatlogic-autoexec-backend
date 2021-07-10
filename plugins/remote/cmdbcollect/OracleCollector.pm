@@ -12,6 +12,7 @@ package OracleCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
+use Socket;
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -43,6 +44,82 @@ sub getDeviceId {
     }
 }
 
+sub getGridHome {
+    my ($self) = @_;
+
+    my $gridBase;
+    my $gridHome;
+
+    if ( not defined($gridHome) ) {
+        my $gridHomeDefLines;
+        if ( $self->{isRoot} ) {
+            $gridHomeDefLines = $self->getCmdOutLines( 'env', $self->{gridUser} );
+        }
+        else {
+            my $homeDir;
+            my $homeDirDef = $self->getCmdOut('cat /etc/passwd |grep ^grid:');
+            if ( defined($homeDirDef) and $homeDirDef ne '' ) {
+                my @items = split( /:/, $homeDirDef );
+                $homeDir = $items[-2];
+            }
+            if ( defined($homeDir) ) {
+                $gridHomeDefLines = $self->getCmdOutLines(q{cat "$homeDir/.profile" "$homeDir/.bash_profile" 2>&1});
+            }
+        }
+
+        foreach my $line (@$gridHomeDefLines) {
+            if ( $line =~ /ORACLE_HOME=(.*)$/ ) {
+                $gridHome = $1;
+            }
+            elsif ( $line =~ /ORACLE_BASE=(.*)$/ ) {
+                $gridBase = $1;
+            }
+        }
+    }
+
+    if ( not defined($gridHome) ) {
+
+        #oracle   1515      1   0   Mar 30 ?         173:36 /u01/app/11.2.0.3/grid/bin/evmd.bin
+        my $gridHomeDef = $self->getCmdOut('ps -ef |grep "/grid/bin/" | head -n1');
+        if ( $gridHomeDef =~ /\s(.*?\/grid)\/bin\// ) {
+            $gridHome = $1;
+        }
+    }
+
+    if ( not defined($gridHome) ) {
+        my $oraTabFile = '/etc/oratab';
+        if ( not -e $oraTabFile ) {
+            $oraTabFile = '/var/opt/oracle/oratab';
+        }
+        if ( -e $oraTabFile ) {
+            my $fh = IO::File->new( $oraTabFile, 'r' );
+            if ( defined($fh) ) {
+                my $fSize = -s $oraTabFile;
+                my $content;
+                $fh->read( $content, $fSize );
+                $fh->close();
+
+                #:/u01/app/11.2.0.3/grid:
+                if ( $content =~ /:(\/.*?\/grid):/s ) {
+                    $gridHome = $1;
+                }
+            }
+        }
+    }
+
+    if ( defined($gridHome) and not defined($gridBase) ) {
+        $gridBase = dirname( dirname($gridHome) );
+        while ( not -d "$gridBase/grid" ) {
+            $gridBase = dirname($gridBase);
+        }
+    }
+    if ( not defined($gridBase) ) {
+        $gridBase = dirname($gridHome);
+    }
+
+    return ( $gridBase, $gridHome );
+}
+
 sub isCDB {
     my ($self) = @_;
 
@@ -61,15 +138,12 @@ sub isCDB {
 }
 
 sub getVersion {
-    my ( $self, $isRAC ) = @_;
+    my ($self) = @_;
 
     my $version = '';
     my $sqlplus = $self->{sqlplus};
 
     my $sql = q{select banner VERSION from v$version where rownum <=1;};
-    if ( defined($isRAC) and $isRAC == 1 ) {
-        $sql = q{select substr(BANNER,instr(BANNER,'Release',1)+7,11) VERSION from v$version where rownum <=1};
-    }
 
     my $rows = $sqlplus->query(
         sql     => $sql,
@@ -77,6 +151,9 @@ sub getVersion {
     );
     if ( defined($rows) ) {
         $version = $$rows[0]->{VERSION};
+    }
+    if ( defined($version) and $version =~ /\s([\d\.]+)\s/ ) {
+        $version = $1;
     }
 
     return $version;
@@ -145,8 +222,16 @@ sub getTableSpaceInfo {
 sub collectInstances {
     my ( $self, $insInfo ) = @_;
 
+    my $procInfo = $self->{procInfo};
+    my $osUser   = $procInfo->{USER};
+
+    my $gridHome;
+    my $gridBase;
     my $sqlplus   = $self->{sqlplus};
     my $isVerbose = $self->{isVerbose};
+
+    my $version = $self->getVersion();
+    $insInfo->{VERSION} = $version;
 
     #获取CDB（pluggable database的标记）
     my $isCdb = $self->isCDB();
@@ -177,6 +262,13 @@ sub collectInstances {
     my $isRAC = 0;
     if ( $param->{cluster_database} eq 'TRUE' ) {
         $isRAC = 1;
+
+        #如果是集群增加两个属性
+        #TODO：确认gird版本的oracle的pmon进程身份是否是grid
+        ( $gridBase, $gridHome ) = $self->getGridHome();
+        $insInfo->{GRID_BASE} = $gridBase;
+        $insInfo->{GRID_HOME} = $gridHome;
+        $self->{srvctlPath}   = File::Spec->canonpath("$gridHome/bin/srvctl");
     }
     $insInfo->{IS_RAC} = $isRAC;
 
@@ -187,18 +279,12 @@ sub collectInstances {
         $insInfo->{LOG_ARCHIVE_DEST} = $param->{log_archive_dest};
     }
 
-    my $version;
-    if ( $isCdb == 1 or $isRAC == 1 ) {
-        $version = $self->getVersion(1);
-    }
-    else {
-        $version = $self->getVersion();
-    }
-    $insInfo->{VERSION} = $version;
-
     my $svcNameMap      = {};
     my $serviceNamesTxt = $param->{service_names};
     foreach my $oneSvcName ( split( /,/, $serviceNamesTxt ) ) {
+        if ( not defined( $insInfo->{SERVICE_NAME} ) ) {
+            $insInfo->{SERVICE_NAME} = $oneSvcName;
+        }
         $svcNameMap->{$oneSvcName} = 1;
     }
     $rows = $sqlplus->query(
@@ -207,6 +293,9 @@ sub collectInstances {
     );
 
     foreach my $row (@$rows) {
+        if ( not defined( $insInfo->{SERVICE_NAME} ) ) {
+            $insInfo->{SERVICE_NAME} = $row->{NAME};
+        }
         $svcNameMap->{ $row->{NAME} } = 1;
     }
     my @serviceNames = keys(%$svcNameMap);
@@ -277,19 +366,415 @@ sub collectInstances {
     $insInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
     $insInfo->{SERVER_NAME} = $insInfo->{INSTANCE_NAME};
 
+    if ($isRAC) {
+        my $clusterName = $self->getClusterName($insInfo);
+        $insInfo->{CLUSTER_NAME} = $clusterName;
+        my $nodeVip = $self->getLocalNodeVip($insInfo);
+        $insInfo->{NODE_VIP} = $nodeVip;
+    }
+
     return $insInfo;
 }
 
-sub collectPDBS {
+sub getClusterDBNames {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
 
+    # $ srvctl config database
+    # orcl1
+    # orcl2
+    my $dbNamesLines = $self->getCmdOutLines( "$gridBin/srvctl config database", $self->{gridUser} );
+    my @dbNames;
+    foreach my $dbName (@$dbNamesLines) {
+        $dbName =~ s/^\s*|\*$//g;
+        if ( $dbName ne '' ) {
+            push( @dbNames, $dbName );
+        }
+    }
+    return \@dbNames;
+}
+
+sub getClusterVersion {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    my $version;
+
+    # $ crsctl query crs activeversion -f
+    # Oracle Clusterware active version on the cluster is [12.1.0.0.2]. The cluster
+    # upgrade state is [NORMAL]. The cluster active patch level is [456789126].
+    my $verDef = $self->getCmdOut( "$gridBin/crsctl query crs activeversion -f", $self->{gridUser} );
+    if ( $verDef =~ /\[[\d\.]+\]/s ) {
+        $version = $1;
+    }
+    return $version;
+}
+
+sub getClusterName {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    # [root@rac1 bin]# ./cemutlo -n
+    # crs
+    my $clusterName = $self->getCmdOut( "$gridBin/cemutlo -n", $self->{gridUser} );
+    $clusterName =~ s/^\s*|\s*$//g;
+    return $clusterName;
+}
+
+sub getClusterLocalNode {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    #olsnodes -l #get local node
+    my $node = $self->getCmdOut( "$gridBin/olsnodes -l", $self->{gridUser} );
+    $node =~ s/^\s*|\s*$//g;
+    return $node;
+}
+
+sub getClusterNodes {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    # [root@node1]# olsnodes
+    # node1
+    # node2
+    # node3
+    # node4
+    my $dbNodesLines = $self->getCmdOutLines( "$gridBin/olsnodes", $self->{gridUser} );
+    my @dbNodes;
+    foreach my $dbNode (@$dbNodesLines) {
+        $dbNode =~ s/^\s*|\*$//g;
+        if ( $dbNode ne '' ) {
+            push( @dbNodes, $dbNode );
+        }
+    }
+
+    return \@dbNodes;
+}
+
+sub getScanInfo {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    my $scanInfo = {};
+    my @scanIps  = ();
+
+    # [grid@rac2 ~]$ srvctl config scan
+    # SCAN name: racnode-cluster-scan.racnode.com, Network: 1/192.168.3.0/255.255.255.0/eth0
+    # SCAN VIP name: scan1, IP: /racnode-cluster-scan.racnode.com/192.168.3.231
+    # SCAN VIP name: scan2, IP: /racnode-cluster-scan.racnode.com/192.168.3.233
+    # SCAN VIP name: scan3, IP: /racnode-cluster-scan.racnode.com/192.168.3.232
+    my $scanInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config scan", $self->{gridUser} );
+    foreach my $line (@$scanInfoLines) {
+        if ( $line =~ /^SCAN name:\s*(.*?),\s*Network:.*?\/(.*?)\/(.*?)\/(.*?)$/ ) {
+            $scanInfo->{NAME}    = $1;
+            $scanInfo->{NET}     = $2;
+            $scanInfo->{NETMASK} = $3;
+            $scanInfo->{NIC}     = $4;
+        }
+        elsif ( $line =~ /VIP.*?(\d+\.\d+\.\d+\.\d+)/ ) {
+            push( @scanIps, $1 );
+        }
+    }
+    $scanInfo->{VIPS} = \@scanIps;
+
+    return $scanInfo;
+}
+
+sub getLocalNodeVip {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    my $nodeVip;
+    my $localNode = $self->getClusterLocalNode($insInfo);
+
+    # [oracle@node-rac1 ~]$ srvctl config nodeapps -n node-rac2
+    # VIP exists.: /node-vip2/192.168.12.240/255.255.255.0/eth0
+    # GSD exists.
+    my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config nodeapps -n $localNode", $self->{gridUser} );
+    foreach my $line (@$nodeVipInfoLines) {
+        if ( $line =~ qr{/.*?/(.*?)/.*?/.*?/.*?, hosting node (.*)} ) {
+            $nodeVip = $1;
+        }
+        elsif ( $line =~ qr{VIP exists\.:\s*/.*?/(.*?)/.*?/.*?} ) {
+            $nodeVip = $2;
+        }
+    }
+
+    return $nodeVip;
+}
+
+sub getNodeVipInfo {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
+
+    # [oracle@node-rac1 ~]$ srvctl config nodeapps -n node-rac2
+    # VIP exists.: /node-vip2/192.168.12.240/255.255.255.0/eth0
+    # GSD exists.
+    # ONS daemon exists.
+    # Listener exists.
+    my @nodeVips         = ();
+    my $nodeVipInfo      = {};
+    my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config nodeapps -a", $self->{gridUser} );
+    foreach my $line (@$nodeVipInfoLines) {
+        if ( $line =~ qr{/(.*?)/(.*?)/(.*?)/(.*?)/(.*?), hosting node (.*)$} ) {
+            $nodeVipInfo->{NAME}    = $1;
+            $nodeVipInfo->{IP}      = $2;
+            $nodeVipInfo->{NETMASK} = $4;
+            $nodeVipInfo->{NIC}     = $5;
+            $nodeVipInfo->{NODE}    = $6;
+        }
+        elsif ( $line =~ qr{VIP exists\.:\s*/(.*?)/(.*?)/(.*?)/(.*?)$} ) {
+            $nodeVipInfo->{NAME}    = $1;
+            $nodeVipInfo->{IP}      = $2;
+            $nodeVipInfo->{NETMASK} = $3;
+            $nodeVipInfo->{NIC}     = $4;
+            $nodeVipInfo->{NODE}    = ( split( /-/, $nodeVipInfo->{NAME} ) )[0];
+        }
+        push( @nodeVips, $nodeVipInfo );
+    }
+
+    return \@nodeVips;
+}
+
+sub parseListenerInfo {
+    my ( $self, $outLines ) = @_;
+
+    my @listenAddrs = ();
+    my @services    = ();
+    my $servicesMap = ();
+    for ( my $i = 0 ; $i < scalar(@$outLines) ; $i++ ) {
+        my $line = $$outLines[$i];
+
+        # Listening Endpoints Summary...
+        if ( $line =~ /^Listening Endpoints Summary.../ ) {
+            $i++;
+            $line = $$outLines[$i];
+
+            #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
+            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=tcp\)\(HOST=(.*?)\)\(PORT=(\d+)\)\)\)/ ) {
+                my $listenInfo = {};
+                my $host       = $1;
+                my $port       = $2;
+                my $ipAddr     = gethostbyname($host);
+                $listenInfo->{IP}   = inet_ntoa($ipAddr);
+                $listenInfo->{PORT} = $port;
+                push( @listenAddrs, $listenInfo );
+                $i++;
+                $line = $$outLines[$i];
+            }
+        }
+
+        # Service "grac4" has 3 instance(s).
+        elsif ( $line =~ /^Service "(.*?)" has \d+ instance(s)./ ) {
+            my $serviceName = $1;
+
+            $i++;
+            $line = $$outLines[$i];
+
+            my @serviceInstances = ();
+
+            #   Instance "grac41", status READY, has 1 handler(s) for this service...
+            while ( $line =~ /Instance "(.*?)", status (\w+), has \d+ handler(s) for this service.../ ) {
+                my $insName   = $1;
+                my $insStatus = $2;
+                my $insMap    = {};
+                $insMap->{NAME}   = $insName;
+                $insMap->{STATUS} = $insStatus;
+
+                push( @serviceInstances, $insMap );
+            }
+
+            my $serviceInfo = {};
+            $serviceInfo->{NAME}      = $serviceName;
+            $serviceInfo->{INSTANCES} = \@serviceInstances;
+
+            $servicesMap->{$serviceName} = $serviceInfo;
+        }
+    }
+
+    return ( \@listenAddrs, $servicesMap );
+}
+
+# Listening Endpoints Summary...
+#   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
+#   (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=oracle)(PORT=1521)))
+# Services Summary...
+# Service "orcl11g" has 1 instance(s).
+#   Instance "orcl11g", status READY, has 1 handler(s) for this service...
+# Service "orcl11gXDB" has 1 instance(s).
+#   Instance "orcl11g", status READY, has 1 handler(s) for this service...
+# The command completed successfully
+sub getListenerInfo {
+    my ( $self, $insInfo ) = @_;
+    my $oraHome = $insInfo->{ORACLE_HOME};
+    my $osUser  = $self->{oracleUser};
+
+    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $oraHome/bin/lsnrctl status", $osUser );
+    return $self->parseListenerInfo($outLines);
+}
+
+# Listening Endpoints Summary...
+#   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
+#   (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=192.168.1.170)(PORT=1521)))
+# Services Summary...
+# Service "grac4" has 3 instance(s).
+#   Instance "grac41", status READY, has 1 handler(s) for this service...
+#   Instance "grac42", status READY, has 1 handler(s) for this service...
+#   Instance "grac43", status READY, has 1 handler(s) for this service...
+# Service "grac41" has 1 instance(s).
+#   Instance "grac41", status READY, has 1 handler(s) for this service...
+# Service "grac42" has 1 instance(s).
+#   Instance "grac42", status READY, has 1 handler(s) for this service...
+# Service "grac43" has 1 instance(s).
+#   Instance "grac43", status READY, has 1 handler(s) for this service...
+# Service "grac4XDB" has 3 instance(s).
+#   Instance "grac41", status READY, has 1 handler(s) for this service...
+#   Instance "grac42", status READY, has 1 handler(s) for this service...
+#   Instance "grac43", status READY, has 1 handler(s) for this service...
+# Service "report" has 1 instance(s).
+#   Instance "grac42", status READY, has 1 handler(s) for this service...
+# The command completed successfully
+sub getGridListenerInfo {
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridUser = $self->{gridUser};
+
+    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/lsnrctl status", $gridUser );
+    return $self->parseListenerInfo($outLines);
+}
+
+sub collectPDBS {
+    my ( $self, $insInfo ) = @_;
+
+    #获取所有的PDB信息
+    my @pdbs;
+    my $sqlplus = $self->{sqlplus};
+    my $sql     = q{select name,dbid,con_id from v$pdbs where name<>'PDB$SEED'};
+    my $rows    = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        my $pdb = {};
+        $pdb->{NAME}   = $row->{NAME};
+        $pdb->{DBID}   = $row->{DBID};
+        $pdb->{CON_ID} = $row->{CON_ID};
+        push( @pdbs, $pdb );
+    }
+
+    #获取PDB的service names
+    foreach my $pdb (@pdbs) {
+        my $pdbName = $pdb->{NAME};
+        my $sql     = qq{alter session set container=$pdbName;\nselect name from dba_services where name not like 'SYS%';};
+        my $rows    = $sqlplus->query(
+            sql     => $sql,
+            verbose => $self->{isVerbose}
+        );
+        my @serviceNames = ();
+        foreach my $row (@$rows) {
+            push( @serviceNames, $row->{NAME} );
+        }
+        $pdb->{SERVICE_NAMES}  = \@serviceNames;
+        $pdb->{SERVICE_NAME}   = $serviceNames[0];
+        $pdb->{USERS}          = $self->getUserInfo($pdbName);
+        $pdb->{TABLE_SPACESES} = $self->getTableSpaceInfo($pdbName);
+
+        #TODO: 需要补充当前PDB的IP信息，RAC和非RAC
+        #TODO: 根据模型设置是否需要全盘拷贝instance信息
+        map { $pdb->{$_} = $insInfo->{$_} } keys(%$insInfo);
+        $pdb->{APP_TYPE} = 'Oracle-PDB';
+    }
+
+    return \@pdbs;
 }
 
 sub collectRAC {
+    my ( $self, $insInfo ) = @_;
+    my ( $self, $insInfo ) = @_;
+    my $gridHome = $insInfo->{GRID_HOME};
+    my $gridBin  = "$gridHome/bin";
 
+    my $racInfo = {};
+
+    my $localNode = $self->getClusterLocalNode($insInfo);
+    if ( not defined($localNode) ) {
+        return undef;
+    }
+
+    my $clusterNodes = $self->getClusterNodes($insInfo);
+
+    #把$insInfo的信息复制过来
+    map { $racInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
+    $racInfo->{APP_TYPE} = 'Oracle-RAC';
+
+    my $version = $self->getClusterVersion($insInfo);
+    my $dbNames = $self->getClusterDBNames($insInfo);
+
+    my @dbInfos = ();
+    foreach my $dbName (@$dbNames) {
+        my $dbInfo = {};
+
+        my $nodeToInsMap = {};
+        my ( $status, $outLines ) = $self->getCmdOutLines( "$gridBin/srvctl status database -d '$dbName' -f", $self->{gridUser} );
+        if ( $status == 0 and defined($outLines) ) {
+            foreach my $line (@$outLines) {
+
+                #Instance ASKMDB1 is not running on node exaaskmdb01
+                #Instance ASKMDB2 is running on node exaaskmdb02
+                if ( $line =~ /Instance\s+(.*)\s+is\s+.*?running\s+on\s+node\s+(.*)$/ ) {
+                    my $instanceName = $1;
+                    my $nodeName     = $2;
+                    $nodeToInsMap->{$nodeName} = $instanceName;
+                }
+            }
+
+            my $sid = $1;
+            my ( $oraHome, $oraUser );
+            my $infoLines = $self->getCmdOutLines("$gridBin/srvctl config database -d '$dbName'");
+            foreach my $line (@$infoLines) {
+                if ( $line =~ /oracle home:\s*(.*)$/i ) {
+                    $oraHome = $1;
+                }
+                elsif ( $line =~ /oracle user:\s*(.*)$/i ) {
+                    $oraUser = $1;
+                }
+            }
+
+            if ( defined($oraHome) or defined($oraUser) ) {
+                my @nodes = ();
+                foreach my $node (@$clusterNodes) {
+                    my $instanceName = $nodeToInsMap->{$node};
+                    if ( defined($instanceName) ) {
+                        my $nodeInfo = {};
+                        $nodeInfo->{NODE_NAME}     = $node;
+                        $nodeInfo->{INSTANCE_NAME} = $instanceName;
+                        push( @nodes, $nodeInfo );
+                    }
+                }
+
+                my @serviceNames = ();    #TODO: caiji service
+                my $dbInfo       = {};
+                $dbInfo->{NAME}          = $dbName;
+                $dbInfo->{NODES}         = \@nodes;
+                $dbInfo->{SERVICE_NAMES} = \@serviceNames;
+                push( @dbInfos, $dbInfo );
+            }
+        }
+    }
 }
 
 sub collect {
     my ($self) = @_;
+    $self->{gridUser}  = 'grid';
     $self->{isVerbose} = 1;
 
     #如果不是主进程，则不match，则返回null
@@ -321,6 +806,8 @@ sub collect {
     $insInfo->{ORACLE_HOSTNAME} = $oraHostname;
     $insInfo->{ORACLE_SID}      = $oraSid;
     $insInfo->{INSTANCE_NAME}   = $oraSid;
+    $insInfo->{INSTALL_PATH}    = $oraBase;
+    $insInfo->{CONFIG_PATH}     = $oraHome;
 
     my $sqlplus = SqlplusExec->new(
         sid     => $oraSid,
@@ -336,14 +823,17 @@ sub collect {
     #ORACLE实例信息采集完成
 
     my @collectSet = ();
-    push( @collectSet, $insInfo );
 
     #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
     if ( $insInfo->{IS_CDB} == 1 ) {
-        my $PDBS = $self->collectPDBS();
+        my $PDBS = $self->collectPDBS($insInfo);
         if ( defined($PDBS) ) {
             push( @collectSet, @$PDBS );
         }
+    }
+    else {
+        #single DB
+        push( @collectSet, $insInfo );
     }
 
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息
