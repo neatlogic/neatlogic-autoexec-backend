@@ -366,7 +366,7 @@ sub collectInstances {
     $insInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
 
     my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
-    my @serviceNames = keys(@$servicesMap);
+    my @serviceNames = keys(%$servicesMap);
     $insInfo->{LISTEN_ADDRS} = $listenAddrs;
     $insInfo->{SERVICE_INFO} = $servicesMap;
     $insInfo->{SERVER_NAME} = $serviceNames[0];
@@ -832,7 +832,7 @@ sub collectRAC {
 
                 #TODO: listener 中service name如何跟库发生联系？？
                 my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
-                my @serviceNames = keys(@$servicesMap);
+                my @serviceNames = keys(%$servicesMap);
                 $dbInfo->{LISTEN_ADDRS} = $listenAddrs;
                 $dbInfo->{SERVICE_INFO} = $servicesMap;
 
