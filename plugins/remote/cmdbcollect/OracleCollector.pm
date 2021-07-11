@@ -547,6 +547,30 @@ sub getNodeVipInfo {
     return \@nodeVips;
 }
 
+sub getIpInHostsByHostName {
+    my ( $self, $hostName ) = @_;
+
+    my @ips = ();
+    my $fh  = IO::File->new('/etc/hosts');
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            if ( $line =~ /\b($hostName)\b/ and $line !~ /^\s*#/ ) {
+                if ( $hostName eq $1 ) {
+                    my $ip = ( split( /\s+/, $line ) )[0];
+                    if ( $ip ne '127.0.0.1' and $ip ne '0.0.0.0' ) {
+                        push( @ips, $ip );
+                    }
+                }
+            }
+        }
+
+        $fh->close();
+    }
+
+    return @ips;
+}
+
 # Listening Endpoints Summary...
 #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
 #   (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=192.168.1.170)(PORT=1521)))
@@ -588,7 +612,9 @@ sub parseListenerInfo {
                     my $listenInfo = {};
                     my $host       = $1;
                     my $port       = $2;
-                    my $ipAddr     = gethostbyname($host);
+
+                    #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
+                    my $ipAddr = gethostbyname($host);
                     $listenInfo->{IP}   = inet_ntoa($ipAddr);
                     $listenInfo->{PORT} = $port;
                     push( @listenAddrs, $listenInfo );
@@ -780,8 +806,23 @@ sub collectRAC {
                     my $instanceName = $nodeToInsMap->{$node};
                     if ( defined($instanceName) ) {
                         my $nodeInfo = {};
-                        $nodeInfo->{NODE_NAME}     = $node;
+                        $nodeInfo->{NAME}          = $node;
                         $nodeInfo->{INSTANCE_NAME} = $instanceName;
+
+                        #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
+                        my $nodeAddr = gethostbyname($node);
+                        my $nodeIp;
+                        if ( defined($nodeAddr) ) {
+                            $nodeIp = inet_ntoa($nodeAddr);
+                        }
+                        else {
+                            $nodeIp = $self->getIpInHostsByHostName($node);
+                        }
+
+                        if ( $nodeIp ne '0.0.0.0' and $nodeIp ne '127.0.0.1' ) {
+                            $nodeInfo->{IP} = $nodeIp;
+                        }
+
                         push( @nodes, $nodeInfo );
                     }
                 }
