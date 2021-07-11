@@ -364,7 +364,12 @@ sub collectInstances {
     my $procInfo = $self->{procInfo};
     $insInfo->{DISK_GROUPS} = \@diskGroups;
     $insInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
-    $insInfo->{SERVER_NAME} = $insInfo->{INSTANCE_NAME};
+
+    my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
+    my @serviceNames = keys(@$servicesMap);
+    $insInfo->{LISTEN_ADDRS} = $listenAddrs;
+    $insInfo->{SERVICE_INFO} = $servicesMap;
+    $insInfo->{SERVER_NAME} = $serviceNames[0];
 
     if ($isRAC) {
         my $clusterName = $self->getClusterName($insInfo);
@@ -818,11 +823,9 @@ sub collectRAC {
                         else {
                             $nodeIp = $self->getIpInHostsByHostName($node);
                         }
-
                         if ( $nodeIp ne '0.0.0.0' and $nodeIp ne '127.0.0.1' ) {
                             $nodeInfo->{IP} = $nodeIp;
                         }
-
                         push( @nodes, $nodeInfo );
                     }
                 }
@@ -896,16 +899,13 @@ sub collect {
 
     my @collectSet = ();
 
+    push( @collectSet, $insInfo );
     #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
     if ( $insInfo->{IS_CDB} == 1 ) {
         my $PDBS = $self->collectPDBS($insInfo);
         if ( defined($PDBS) ) {
             push( @collectSet, @$PDBS );
         }
-    }
-    else {
-        #single DB
-        push( @collectSet, $insInfo );
     }
 
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息
