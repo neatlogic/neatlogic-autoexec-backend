@@ -284,14 +284,14 @@ sub _parseOutput {
     }
 
     if ($hasError) {
-        die("ERROR: Sql execution failed.\n");
+        print("ERROR: Sql execution failed.\n");
     }
 
     if ( scalar(@rowsArray) > 0 ) {
-        return ( \@fieldNames, \@rowsArray );
+        return ( \@fieldNames, \@rowsArray, $hasError );
     }
     else {
-        return;
+        return ( undef, undef, $hasError );
     }
 }
 
@@ -322,9 +322,10 @@ sub _execSql {
     }
 
     my $output = `$cmd`;
-
-    if ( $? ne 0 ) {
-        die("ERROR: Execute cmd failed\n $output\n");
+    my $status = $?;
+    if ( $status ne 0 ) {
+        print("ERROR: Execute cmd failed\n $output\n");
+        return ( undef, undef, $status );
     }
 
     if ($parseData) {
@@ -332,7 +333,7 @@ sub _execSql {
     }
     elsif ($isVerbose) {
         print($output);
-        return;
+        return ( undef, undef, $status );
     }
 }
 
@@ -346,9 +347,9 @@ sub query {
         $isVerbose = 1;
     }
 
-    my ( $fieldNames, $rows ) = $self->_execSql( sql => $sql, verbose => $isVerbose, parseData => 1 );
+    my ( $fieldNames, $rows, $status ) = $self->_execSql( sql => $sql, verbose => $isVerbose, parseData => 1 );
 
-    return $rows;
+    return ( $status, $rows );
 }
 
 #运行非查询的sql，如果verbose=1，直接输出sqlplus执行的日志
@@ -361,8 +362,8 @@ sub do {
         $isVerbose = 1;
     }
 
-    $self->_execSql( sql => $sql, verbose => $isVerbose, parseData => 0 );
-    return;
+    my ( $fieldNames, $rows, $status ) = $self->_execSql( sql => $sql, verbose => $isVerbose, parseData => 0 );
+    return $status;
 }
 
 1;
