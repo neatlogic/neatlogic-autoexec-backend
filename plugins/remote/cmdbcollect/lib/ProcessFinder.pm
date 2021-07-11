@@ -40,14 +40,14 @@ sub new {
     $self->{ostype}   = $ostype;
     $self->{hostname} = hostname();
 
-    $self->{manageIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
-    $self->{managePort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
+    $self->{inboundIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
+    $self->{inboundPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
     #if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
     #    my $nodeInfo = from_json($AUTOEXEC_NODE);
-    #    $self->{manageIp}   = $nodeInfo->{host};
-    #    $self->{managePort} = $nodeInfo->{port};
+    #    $self->{inboundIp}   = $nodeInfo->{host};
+    #    $self->{inboundPort} = $nodeInfo->{port};
     #}
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
@@ -147,8 +147,8 @@ sub findProcess {
                     my $matchedMap = {
                         OS_TYPE     => $self->{ostype},
                         HOST_NAME   => $self->{hostname},
-                        MANAGE_IP   => $self->{manageIp},
-                        MANAGE_PORT => $self->{managePort},
+                        INBOUND_IP   => $self->{inboundIp},
+                        INBOUND_PORT => $self->{inboundPort},
                         APP_TYPE    => $config->{appType}
                     };
 

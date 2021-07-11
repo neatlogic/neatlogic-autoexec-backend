@@ -50,7 +50,7 @@ sub getPK {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
         $self->{defaultAppType} => [
-            'MANAGE_IP',
+            'INBOUND_IP',
             'PORT',
         ]
         #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
@@ -181,7 +181,7 @@ sub isMainProcess {
 #                            '%CPU' => '0.0',
 #                            'ELAPSED' => '02:12:33',
 #                            'HOST_NAME' => 'centos7base',
-#                            'MANAGE_IP' => '',
+#                            'INBOUND_IP' => '',
 #                            'APP_TYPE' => 'Apache',
 #                            'ENVRIONMENT' => {
 #                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
