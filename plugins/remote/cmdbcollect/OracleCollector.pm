@@ -504,7 +504,7 @@ sub getLocalNodeVip {
             $nodeVip = $1;
         }
         elsif ( $line =~ qr{VIP exists\.:\s*/.*?/(.*?)/.*?/.*?} ) {
-            $nodeVip = $2;
+            $nodeVip = $1;
         }
     }
 
@@ -521,105 +521,30 @@ sub getNodeVipInfo {
     # GSD exists.
     # ONS daemon exists.
     # Listener exists.
-    my @nodeVips         = ();
-    my $nodeVipInfo      = {};
+    my @nodeVips = ();
     my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config nodeapps -a", $self->{gridUser} );
     foreach my $line (@$nodeVipInfoLines) {
         if ( $line =~ qr{/(.*?)/(.*?)/(.*?)/(.*?)/(.*?), hosting node (.*)$} ) {
+            my $nodeVipInfo = {};
             $nodeVipInfo->{NAME}    = $1;
             $nodeVipInfo->{IP}      = $2;
             $nodeVipInfo->{NETMASK} = $4;
             $nodeVipInfo->{NIC}     = $5;
             $nodeVipInfo->{NODE}    = $6;
+            push( @nodeVips, $nodeVipInfo );
         }
         elsif ( $line =~ qr{VIP exists\.:\s*/(.*?)/(.*?)/(.*?)/(.*?)$} ) {
+            my $nodeVipInfo = {};
             $nodeVipInfo->{NAME}    = $1;
             $nodeVipInfo->{IP}      = $2;
             $nodeVipInfo->{NETMASK} = $3;
             $nodeVipInfo->{NIC}     = $4;
             $nodeVipInfo->{NODE}    = ( split( /-/, $nodeVipInfo->{NAME} ) )[0];
+            push( @nodeVips, $nodeVipInfo );
         }
-        push( @nodeVips, $nodeVipInfo );
     }
 
     return \@nodeVips;
-}
-
-sub parseListenerInfo {
-    my ( $self, $outLines ) = @_;
-
-    my @listenAddrs = ();
-    my @services    = ();
-    my $servicesMap = ();
-    for ( my $i = 0 ; $i < scalar(@$outLines) ; $i++ ) {
-        my $line = $$outLines[$i];
-
-        # Listening Endpoints Summary...
-        if ( $line =~ /^Listening Endpoints Summary.../ ) {
-            $i++;
-            $line = $$outLines[$i];
-
-            #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
-            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=tcp\)\(HOST=(.*?)\)\(PORT=(\d+)\)\)\)/ ) {
-                my $listenInfo = {};
-                my $host       = $1;
-                my $port       = $2;
-                my $ipAddr     = gethostbyname($host);
-                $listenInfo->{IP}   = inet_ntoa($ipAddr);
-                $listenInfo->{PORT} = $port;
-                push( @listenAddrs, $listenInfo );
-                $i++;
-                $line = $$outLines[$i];
-            }
-        }
-
-        # Service "grac4" has 3 instance(s).
-        elsif ( $line =~ /^Service "(.*?)" has \d+ instance(s)./ ) {
-            my $serviceName = $1;
-
-            $i++;
-            $line = $$outLines[$i];
-
-            my @serviceInstances = ();
-
-            #   Instance "grac41", status READY, has 1 handler(s) for this service...
-            while ( $line =~ /Instance "(.*?)", status (\w+), has \d+ handler(s) for this service.../ ) {
-                my $insName   = $1;
-                my $insStatus = $2;
-                my $insMap    = {};
-                $insMap->{NAME}   = $insName;
-                $insMap->{STATUS} = $insStatus;
-
-                push( @serviceInstances, $insMap );
-            }
-
-            my $serviceInfo = {};
-            $serviceInfo->{NAME}      = $serviceName;
-            $serviceInfo->{INSTANCES} = \@serviceInstances;
-
-            $servicesMap->{$serviceName} = $serviceInfo;
-        }
-    }
-
-    return ( \@listenAddrs, $servicesMap );
-}
-
-# Listening Endpoints Summary...
-#   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
-#   (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=oracle)(PORT=1521)))
-# Services Summary...
-# Service "orcl11g" has 1 instance(s).
-#   Instance "orcl11g", status READY, has 1 handler(s) for this service...
-# Service "orcl11gXDB" has 1 instance(s).
-#   Instance "orcl11g", status READY, has 1 handler(s) for this service...
-# The command completed successfully
-sub getListenerInfo {
-    my ( $self, $insInfo ) = @_;
-    my $oraHome = $insInfo->{ORACLE_HOME};
-    my $osUser  = $self->{oracleUser};
-
-    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $oraHome/bin/lsnrctl status", $osUser );
-    return $self->parseListenerInfo($outLines);
 }
 
 # Listening Endpoints Summary...
@@ -643,12 +568,113 @@ sub getListenerInfo {
 # Service "report" has 1 instance(s).
 #   Instance "grac42", status READY, has 1 handler(s) for this service...
 # The command completed successfully
+sub parseListenerInfo {
+    my ( $self, $outLines ) = @_;
+
+    my @listenAddrs = ();
+    my @services    = ();
+    my $servicesMap = ();
+    for ( my $i = 0 ; $i < scalar(@$outLines) ; $i++ ) {
+        my $line = $$outLines[$i];
+
+        # Listening Endpoints Summary...
+        if ( $line =~ /^Listening Endpoints Summary\.\.\./ ) {
+            $i++;
+            $line = $$outLines[$i];
+
+            #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
+            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=/ ) {
+                if ( $line =~ /\(HOST=(.*?)\)\(PORT=(\d+)\)/ ) {
+                    my $listenInfo = {};
+                    my $host       = $1;
+                    my $port       = $2;
+                    my $ipAddr     = gethostbyname($host);
+                    $listenInfo->{IP}   = inet_ntoa($ipAddr);
+                    $listenInfo->{PORT} = $port;
+                    push( @listenAddrs, $listenInfo );
+                }
+                $i++;
+                $line = $$outLines[$i];
+            }
+            $i--;
+        }
+
+        # Service "grac4" has 3 instance(s).
+        elsif ( $line =~ /^Service "(.*?)" has \d+ instance\(s\)\./ ) {
+            my $serviceName = $1;
+            $i++;
+            $line = $$outLines[$i];
+
+            my @serviceInstances = ();
+
+            #   Instance "grac41", status READY, has 1 handler(s) for this service...
+            while ( $line =~ /Instance "(.*?)", status (\w+), has \d+ handler\(s\) for this service\.\.\./ ) {
+                my $insName   = $1;
+                my $insStatus = $2;
+                my $insMap    = {};
+                $insMap->{NAME}   = $insName;
+                $insMap->{STATUS} = $insStatus;
+
+                push( @serviceInstances, $insMap );
+                $i++;
+                $line = $$outLines[$i];
+            }
+            $i--;
+
+            my $serviceInfo = {};
+            $serviceInfo->{NAME}      = $serviceName;
+            $serviceInfo->{INSTANCES} = \@serviceInstances;
+
+            $servicesMap->{$serviceName} = $serviceInfo;
+        }
+    }
+
+    return ( \@listenAddrs, $servicesMap );
+}
+
+sub getListenerInfo {
+    my ( $self, $insInfo ) = @_;
+    my $oraHome = $insInfo->{ORACLE_HOME};
+    my $osUser  = $self->{oracleUser};
+
+    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $oraHome/bin/lsnrctl status", $osUser );
+    return $self->parseListenerInfo($outLines);
+}
+
 sub getGridListenerInfo {
     my ( $self, $insInfo ) = @_;
     my $gridHome = $insInfo->{GRID_HOME};
     my $gridUser = $self->{gridUser};
 
-    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/lsnrctl status", $gridUser );
+    # srvctl status  scan_listener
+    # $ srvctl status  scan_listener
+    # SCAN Listener LISTENER_SCAN1 is enabled
+    # SCAN listener LISTENER_SCAN1 is running on node grac2
+    # SCAN Listener LISTENER_SCAN2 is enabled
+    # SCAN listener LISTENER_SCAN2 is running on node grac1
+    # SCAN Listener LISTENER_SCAN3 is enabled
+    # SCAN listener LISTENER_SCAN3 is running on node grac1
+
+    #获取其中一个Listener，通过lsnrctl获取service names信息
+    my ( $listener, $enableListener, $activeListener );
+    my $scanStatusLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/srvctl status scan_listener", $gridUser );
+    foreach my $line (@$scanStatusLines) {
+        if ( $line =~ /^SCAN listener (.*?) is running/ ) {
+            $activeListener = $1;
+        }
+        elsif ( $line =~ /^SCAN Listener (.*?) is enabled/ ) {
+            $enableListener = $1;
+        }
+    }
+
+    if ( defined($activeListener) ) {
+        $listener = $activeListener;
+    }
+    else {
+        $listener = $enableListener;
+    }
+
+    my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/lsnrctl status $listener", $gridUser );
     return $self->parseListenerInfo($outLines);
 }
 
@@ -723,13 +749,12 @@ sub collectRAC {
     foreach my $dbName (@$dbNames) {
         my $dbInfo = {};
 
+        #Instance ASKMDB1 is not running on node exaaskmdb01
+        #Instance ASKMDB2 is running on node exaaskmdb02
         my $nodeToInsMap = {};
         my ( $status, $outLines ) = $self->getCmdOutLines( "$gridBin/srvctl status database -d '$dbName' -f", $self->{gridUser} );
         if ( $status == 0 and defined($outLines) ) {
             foreach my $line (@$outLines) {
-
-                #Instance ASKMDB1 is not running on node exaaskmdb01
-                #Instance ASKMDB2 is running on node exaaskmdb02
                 if ( $line =~ /Instance\s+(.*)\s+is\s+.*?running\s+on\s+node\s+(.*)$/ ) {
                     my $instanceName = $1;
                     my $nodeName     = $2;
@@ -761,11 +786,17 @@ sub collectRAC {
                     }
                 }
 
-                my @serviceNames = ();    #TODO: caiji service
-                my $dbInfo       = {};
+                #TODO: listener 中service name如何跟库发生联系？？
+                my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
+                my @serviceNames = keys(@$servicesMap);
+                $dbInfo->{LISTEN_ADDRS} = $listenAddrs;
+                $dbInfo->{SERVICE_INFO} = $servicesMap;
+
+                my $dbInfo = {};
                 $dbInfo->{NAME}          = $dbName;
                 $dbInfo->{NODES}         = \@nodes;
                 $dbInfo->{SERVICE_NAMES} = \@serviceNames;
+
                 push( @dbInfos, $dbInfo );
             }
         }
