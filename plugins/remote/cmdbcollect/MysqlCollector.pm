@@ -179,23 +179,31 @@ sub collect {
     }
     $mysqlInfo->{DATABASES} = \@dbNames;
 
-    #TODO：需要补充db的字符集等信息
-
-    my $charSet;
     $rows = $mysql->query(
-        sql     => q{show variables like 'character_set_system';},
+        sql     => q{select * from information_schema.schemata},
         verbose => $self->{isVerbose}
     );
 
-    # +----------------------+-------+
-    # | Variable_name        | Value |
-    # +----------------------+-------+
-    # | character_set_system | utf8  |
-    # +----------------------+-------+
-    if ( salar(@$rows) > 0 ) {
-        $charSet = $$rows[0]->{Value};
+    # +--------------+-------------------------+----------------------------+------------------------+----------+
+    # | CATALOG_NAME | SCHEMA_NAME             | DEFAULT_CHARACTER_SET_NAME | DEFAULT_COLLATION_NAME | SQL_PATH |
+    # +--------------+-------------------------+----------------------------+------------------------+----------+
+    # | def          | ApolloConfigDB          | utf8                       | utf8_bin               | NULL     |
+    # | def          | ApolloPortalDB          | utf8                       | utf8_bin               | NULL     |
+
+    my $dbCharsetInfo = {};
+    foreach my $row (@$rows) {
+        my $dbInfo = {};
+        $dbInfo->{NAME}                         = $row->{SCHEMA_NAME};
+        $dbInfo->{DEFAULT_CHARACTER_SET}        = $row->{DEFAULT_CHARACTER_SET_NAME};
+        $dbInfo->{DEFAULT_COLLATION}            = $row->{DEFAULT_COLLATION_NAME};
+        $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
     }
-    $mysqlInfo->{SYSTEM_CHARSET} = $charSet;
+
+    my @dbInfos = ();
+    foreach my $dbName (@dbNames) {
+        push( @dbInfos, $dbCharsetInfo->{$dbName} );
+    }
+    $mysqlInfo->{DBTABASES_INFO} = \@dbInfos;
 
     #收集集群相关的信息
     $rows = $mysql->query(
@@ -248,6 +256,17 @@ sub collect {
         $mysqlInfo->{'CLUSTER_MODE'} = undef;
         $mysqlInfo->{'CLUSTER_ROLE'} = undef;
     }
+
+    $rows->query(
+        sql     => 'show variables;',
+        verbose => $self->{isVerbose}
+    );
+    my $variables = {};
+    foreach my $row (@$rows) {
+        $variables->{ $row->{Variable_name} } = $row->{Value};
+    }
+    map { $mysqlInfo->{ uc($_) } = $variables->{$_} } ( keys(%$variables) );
+    $mysqlInfo->{SYSTEM_CHARSET} = $variables->{character_set_database};
 
     #服务名, 要根据实际来设置
     $mysqlInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
