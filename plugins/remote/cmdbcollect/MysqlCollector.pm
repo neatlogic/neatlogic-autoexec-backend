@@ -11,6 +11,7 @@ package MysqlCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
+use Socket;
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -35,7 +36,7 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'MANAGE_IP', 'PORT', ]
+        $self->{defaultAppType} => [ 'INBOUND_IP', 'PORT', ]
 
             #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
     };
@@ -196,14 +197,62 @@ sub collect {
     }
     $mysqlInfo->{SYSTEM_CHARSET} = $charSet;
 
-    #TODO: 集群相关的信息
+    #收集集群相关的信息
+    $rows = $mysql->query(
+        sql     => q{show slave status},
+        verbose => $self->{isVerbose}
+    );
+    my $slaveIoRunning = 'No';
+    if ( scalar(@$rows) > 0 ) {
+        $slaveIoRunning = $$rows[0]->{Slave_IO_Running};
+    }
+
+    #binlog dump is a thread on a master server for sending binary log contents to a slave server.
+    #Slave端连接到Master执行binlog提送到Slave，host字段是Slave的hostname
+    $rows = $mysql->query(
+        sql     => q{select substring_index(host,':',1) slave_host from information_schema.processlist where COMMAND='Binlog Dump'},
+        verbose => $self->{isVerbose}
+    );
+    my @slaveIps   = ();
+    my @slaveHosts = ();
+    foreach my $row (@$rows) {
+        my $slaveHost = $row->{slave_host};
+        push( @slaveHosts, $slaveHost );
+        my $ipAddr = gethostbyname($slaveHost);
+        push( @slaveIps, inet_ntoa($ipAddr) );
+    }
+    $mysqlInfo->{SLAVE_IPS} = \@slaveIps;
+
+    $mysqlInfo->{'IS_CLUSTER'} = 1;
+    if ( $slaveIoRunning eq 'Yes' and scalar(@slaveHosts) != 0 ) {
+
+        #如果运行这SlaveIo而且同时在推送binlog到Slave，则是双主模式，两个节点都是Master
+        $mysqlInfo->{'CLUSTER_MODE'} = 'Master-Master';
+        $mysqlInfo->{'CLUSTER_ROLE'} = 'Master';
+    }
+    elsif ( $slaveIoRunning eq 'Yes' and scalar(@slaveHosts) == 0 ) {
+
+        #如果运行这SlaveIo而且没有推送binlog到Slave，则是主从模式，当前节点是Slave
+        $mysqlInfo->{'CLUSTER_MODE'} = 'Master-Slave';
+        $mysqlInfo->{'CLUSTER_ROLE'} = 'Slave';
+    }
+    elsif ( $slaveIoRunning ne 'Yes' and scalar(@slaveHosts) != 0 ) {
+
+        #如果SlaveIo没有运行，而且推送binlog到Slave，则是主从模式，当前节点是Master
+        $mysqlInfo->{'CLUSTER_MODE'} = 'Master-Slave';
+        $mysqlInfo->{'CLUSTER_ROLE'} = 'Master';
+    }
+    else {
+        #否则就是单节点运行
+        $mysqlInfo->{'IS_CLUSTER'}   = 0;
+        $mysqlInfo->{'CLUSTER_MODE'} = undef;
+        $mysqlInfo->{'CLUSTER_ROLE'} = undef;
+    }
 
     #服务名, 要根据实际来设置
     $mysqlInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
 
     return $mysqlInfo;
-
-    #如果返回多个应用信息，则：return ($appInfo1, $appInfo2);
 }
 
 1;
