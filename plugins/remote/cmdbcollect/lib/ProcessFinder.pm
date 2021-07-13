@@ -44,11 +44,11 @@ sub new {
     $self->{inboundPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
-    #if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
-    #    my $nodeInfo = from_json($AUTOEXEC_NODE);
-    #    $self->{inboundIp}   = $nodeInfo->{host};
-    #    $self->{inboundPort} = $nodeInfo->{port};
-    #}
+    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
+        my $nodeInfo = from_json($AUTOEXEC_NODE);
+        $self->{inboundIp}   = $nodeInfo->{host};
+        $self->{inboundPort} = $nodeInfo->{port};
+    }
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
     $self->{procEnvCmd} = 'ps eww';
