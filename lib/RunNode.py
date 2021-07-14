@@ -92,7 +92,14 @@ class RunNode:
 
         self.type = node['nodeType']
         self.host = node['host']
-        self.port = node['port']
+        if 'port' in node:
+            self.port = node['port']
+        else:
+            self.port = ''
+        if 'protocolPort' in node:
+            self.protocolPort = node['protocolPort']
+        else:
+            self.protocolPort = ''
         self.id = node['nodeId']
         self.username = node['username']
         self.password = node['password']
@@ -118,11 +125,11 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}.json'.format(self.statusPhaseDir, node['host'], node['port'])
+        self.statusPath = '{}/{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port)
 
         self.outputRoot = self.runPath + '/output'
-        self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], node['port'])
-        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], node['port'])
+        self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], self.port)
+        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], self.port)
         self.outputPath = self.outputPathPrefix + '.json'
 
         self.status = NodeStatus.pending
@@ -683,7 +690,7 @@ class RunNode:
             sftp = None
             try:
                 # 建立连接
-                scp = paramiko.Transport((self.host, self.port))
+                scp = paramiko.Transport((self.host, self.protocolPort))
                 scp.connect(username=self.username, password=self.password)
 
                 # 更新节点状态为running
@@ -769,7 +776,7 @@ class RunNode:
                 try:
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh.connect(self.host, self.port, self.username, self.password)
+                    ssh.connect(self.host, self.protocolPort, self.username, self.password)
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
                     channel.exec_command(remoteCmd)
@@ -856,7 +863,7 @@ class RunNode:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host, self.port, self.username, self.password)
+                ssh.connect(self.host, self.protocolPort, self.username, self.password)
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
                 channel.exec_command(killCmd)
