@@ -123,7 +123,7 @@ sub collect {
     $mysqlInfo->{SOCKET_PATH}   = $opts->{'socket'};
 
     my $port = $opts->{'port'};
-    my $host = 127.0.0.1;
+    my $host = '127.0.0.1';
 
     if ( not defined($port) ) {
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
@@ -211,7 +211,7 @@ sub collect {
         verbose => $self->{isVerbose}
     );
     my $slaveIoRunning = 'No';
-    if ( scalar(@$rows) > 0 ) {
+    if ( defined($rows) and scalar(@$rows) > 0 ) {
         $slaveIoRunning = $$rows[0]->{Slave_IO_Running};
     }
 
@@ -257,7 +257,7 @@ sub collect {
         $mysqlInfo->{'CLUSTER_ROLE'} = undef;
     }
 
-    $rows->query(
+    $rows = $mysql->query(
         sql     => 'show variables;',
         verbose => $self->{isVerbose}
     );

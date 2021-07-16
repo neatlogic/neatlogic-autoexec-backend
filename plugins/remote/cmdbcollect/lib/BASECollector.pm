@@ -57,6 +57,35 @@ sub getPK {
     };
 }
 
+#读取整个文件的内容
+sub getFileContent {
+    my ($self, $filePath) = @_;
+    my $fh = IO::File->new($filepath, 'r');
+    my $content;
+    if (defined($fh)){
+        my $fSize = -s $filePath;
+        $fh->read($fh, $content);
+        $fh->close();
+    }
+    else{
+        print("ERROR: Can not open file:$filePaht $!\n");
+    }
+
+    return $content;
+}
+
+#读取文件所有行
+sub getFileLines {
+    my ($self, $filePath) = @_;
+    my $content = $self->getFileContent($filePath);
+    
+    my @lines;
+    if (defined($content)){
+        @lines = split(/\n/, $content);
+    }
+    return \@lines;
+}
+
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
