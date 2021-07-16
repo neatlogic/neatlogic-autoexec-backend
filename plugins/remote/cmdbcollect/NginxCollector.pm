@@ -79,13 +79,13 @@ sub collect {
 }
 
 sub parseConfigServer {
-    my ($conf_path) = @_;
+    my ($confPath) = @_;
     my @server_cfg = ();
-    open( FILE, "< $conf_path " ) or die "can not open file: $!";
     my $server     = '';
     my $startCount = 0;
     my $endCount   = 0;
-    while ( my $read_line = <FILE> ) {
+    my @contents   = getFileContents($confPath);
+    foreach my $read_line (@contents) {
         chomp($read_line);
 
         if ( ( $read_line =~ /server/ and $read_line =~ /\{/ ) or ( $startCount > 0 and $read_line =~ /\{/ ) ) {
@@ -106,16 +106,15 @@ sub parseConfigServer {
             $endCount   = 0;
         }
     }
-    close(FILE);
     return @server_cfg;
 }
 
 sub parseConfigInclude {
-    my ($conf_path) = @_;
+    my ($confPath) = @_;
     my @includes = ();
-    push( @includes, $conf_path );
-    open( FILE, "< $conf_path " ) or die "can not open file: $!";
-    while ( my $read_line = <FILE> ) {
+    push( @includes, $confPath );
+    my @contents = getFileContents($confPath);
+    for my $read_line (@contents) {
         chomp($read_line);
         if ( $read_line =~ /include/ and $read_line !~ /mime.types/ ) {
             my $path = $read_line;
@@ -129,7 +128,7 @@ sub parseConfigInclude {
                 $dir = $dir;
             }
             else {
-                my $root = dirname($conf_path);
+                my $root = dirname($confPath);
                 $dir = File::Spec->catfile( $root, $dir );
             }
             if ( $file =~ /\*/ ) {
@@ -147,7 +146,6 @@ sub parseConfigInclude {
             }
         }
     }
-    close(FILE);
     return @includes;
 }
 
@@ -188,6 +186,22 @@ sub parseConfigParam {
     $nginx->{SERVICE_TYPE}   = $type;
     $nginx->{SERVICE_STATUS} = $status;
     return $nginx;
+}
+
+sub getFileContents {
+    my ($confPath) = @_;
+    my $fh = IO::File->new( $confPath, 'r' );
+    my $fileContent;
+    my $fileSize = -s $confPath;
+    if ( defined($fh) ) {
+        $fh->read( $fileContent, $fileSize );
+        $fh->close;
+    }
+    my @contents = ();
+    if ( defined($fileContent) ) {
+        @contents = str_split( $fileContent, '\n' );
+    }
+    return @contents;
 }
 
 sub parseConfig {
