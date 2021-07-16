@@ -67,7 +67,7 @@ sub getCmdOut {
     return ( $status, $out );
 }
 
-#su运行命令，并返回输出的数组
+#su运行命令，并返回输出的行数组
 sub getCmdOutLines {
     my ( $self, $cmd, $user ) = @_;
     my @out = ();
