@@ -19,8 +19,12 @@ class OutputStore:
         self.db = context.db
         self.node = node
         self.outputFile = None
+        if 'port' in self.node:
+            self.port = node['port']
+        else:
+            self.port = ''
         if node is not None:
-            self.outputFile = '{}/output/{}-{}.json'.format(context.runPath, node['host'], node['port'])
+            self.outputFile = '{}/output/{}-{}.json'.format(context.runPath, node['host'], self.port)
 
     def saveOutput(self, output):
         db = self.db
@@ -29,7 +33,7 @@ class OutputStore:
             return
 
         collection = db['node_output']
-        pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.node['port']}
+        pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.port}
         outData = {}
         outData['data'] = output
         outData['createDate'] = datetime.datetime.utcnow()
@@ -42,7 +46,7 @@ class OutputStore:
                 upsert=True
             )
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.node['port'], ex))
+            raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
 
     def loadOutput(self):
         output = {}
@@ -54,25 +58,25 @@ class OutputStore:
         collection = db['node_output']
 
         try:
-            pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.node['port']}
+            pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.port}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 output = outData['data']
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not load output for node({}:{}), {}'.format(self.node['host'],  self.node['port'], ex))
+            raise AutoExecError.AutoExecError('Can not load output for node({}:{}), {}'.format(self.node['host'],  self.port, ex))
 
         return output
 
     def saveStatus(self, status):
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        return
+        #return
         db = self.db
 
         if db is None:
             return
 
         collection = db['node_status']
-        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.node['port']}
+        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.port}
         outData = {}
         outData['data'] = status
         outData['createDate'] = datetime.datetime.utcnow()
@@ -85,13 +89,13 @@ class OutputStore:
                 upsert=True
             )
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not save status for node({}:{}) {}'.format(self.node['host'],  self.node['port'], ex))
+            raise AutoExecError.AutoExecError('Can not save status for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
 
     def loadStatus(self):
         status = {}
 
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        return status
+        #return status
         db = self.db
 
         if db is None:
@@ -100,12 +104,12 @@ class OutputStore:
         collection = db['node_status']
 
         try:
-            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.node['port']}
+            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.port}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 status = outData['data']
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not load status for node({}:{}), {}'.format(self.node['host'],  self.node['port'], ex))
+            raise AutoExecError.AutoExecError('Can not load status for node({}:{}), {}'.format(self.node['host'],  self.port, ex))
 
         return status
 
