@@ -13,6 +13,24 @@ use Data::Dumper;
 sub new {
     my ($type) = @_;
     my $self = {};
+
+    my @uname  = uname();
+    my $ostype = $uname[0];
+    $self->{ostype}   = $ostype;
+    $self->{hostname} = hostname();
+
+    $self->{osId}        = '';
+    $self->{inboundIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
+    $self->{inboundPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
+    my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
+
+    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
+        my $nodeInfo = from_json($AUTOEXEC_NODE);
+        $self->{inboundIp}   = $nodeInfo->{host};
+        $self->{inboundPort} = $nodeInfo->{port};
+        $self->{osId}        = $nodeInfo->{osId};
+    }
+
     bless( $self, $type );
     return $self;
 }
