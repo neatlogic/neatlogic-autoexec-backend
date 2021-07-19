@@ -181,7 +181,7 @@ sub parseConfigParam {
             $status = 'on';
         }
     }
-    $nginx->{'SERVICE_PORT'} = $port;
+    $nginx->{SERVICE_PORT} = $port;
     $nginx->{SERVICE_NAME}   = $server_name;
     $nginx->{SERVICE_TYPE}   = $type;
     $nginx->{SERVICE_STATUS} = $status;

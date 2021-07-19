@@ -106,6 +106,43 @@ sub getCmdOutLines {
     return ( $status, \@out );
 }
 
+sub getFileContent {
+    my ( $self, $filePath ) = @_;
+    my $fh = IO::File->new( $filePath, 'r' );
+    my $content;
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            $content = $content . $line;
+        }
+        $fh->close();
+    }
+    else {
+        print("ERROR: Can not open file:$filePath $!\n");
+    }
+
+    return $content;
+}
+
+#读取文件所有行
+sub getFileLines {
+    my ( $self, $filePath ) = @_;
+    my @lines;
+    my $fh = IO::File->new( $filePath, 'r' );
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            push( @lines, $line );
+        }
+        $fh->close();
+    }
+    else {
+        print("ERROR: Can not open file:$filePath $!\n");
+    }
+
+    return \@lines;
+}
+
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程
 #如果有特殊的实现，需要重写此方法
 #Return：1:主进程，0:不是主进程
