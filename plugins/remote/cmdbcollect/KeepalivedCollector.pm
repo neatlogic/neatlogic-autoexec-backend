@@ -278,8 +278,7 @@ sub str_split {
 
 sub str_trim {
     my ($str) = @_;
-    $str =~ s/^\s+|\s+$//g;
-    $str =~ s/[\r\n]$//;
+    $str =~ s/^\s*|\s*$//g;
     return $str;
 }
 
