@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
 use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../../lib";
 
 use strict;
 
@@ -17,6 +18,10 @@ sub collect {
     my ($self)   = @_;
     my $hostInfo = {};
     my $osInfo   = {};
+
+    my $machineId = $self->getFileContent('/etc/machine-id');
+    $machineId =~ /^\s*|\s*$//g;
+    $osInfo->{MACHINE_ID} = $machineId;
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
@@ -40,6 +45,8 @@ sub collect {
     #cat cat /sys/class/dmi/id/product_name
     my $sysVendor = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
     $sysVendor =~ s/^\*|\s$//g;
+    my $productUUID = $self->getFileContent('/sys/class/dmi/id/product_uuid');
+    $productUUID =~ s/^\*|\s$//g;
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
     $productName =~ s/^\*|\s$//g;
     $osInfo->{IS_VIRTUAL} = 0;
@@ -48,15 +55,17 @@ sub collect {
     }
     $osInfo->{SYS_VENDOR}   = $sysVendor;
     $osInfo->{PRODUCT_NAME} = $productName;
+    $osInfo->{PRODUCT_UUID} = $productUUID;
 
-    my $sn = $self->getFileContent('/sys/devices/virtual/dmi/id/chassis_serial');
-    $sn =~ s/^\*|\s$//g;
-    $osInfo->{SN} = $sn;
+    my $boardSerial = $self->getFileContent('/sys/class/dmi/id/board_serial');
+    $boardSerial =~ s/^\*|\s$//g;
+    $osInfo->{BOARD_SERIAL} = $boardSerial;
 
     #my ($fs_type, $fs_desc, $used, $avail, $fused, $favail) = df($dir);
     #TODO: df
-    my @mountPoints = ();
-    my $mountFilter = {
+    my $diskMountMap = {};
+    my @mountPoints  = ();
+    my $mountFilter  = {
         'autofs'      => 1,
         'binfmt_misc' => 1,
         'cgroup'      => 1,
@@ -89,7 +98,7 @@ sub collect {
         my $dump       = pop(@mountInfos);
         my $fsFlags    = pop(@mountInfos);
         my $fsType     = pop(@mountInfos);
-        my $mountPoint = substr( $line, length($device) + 1, length($line) - length($device) - length($fsckOrder) - length($dump) - length($fsFlags) - length($fsType) - 5 );
+        my $mountPoint = substr( $line, length($device) + 1, length($line) - length($device) - length($fsckOrder) - length($dump) - length($fsFlags) - length($fsType) - 6 );
 
         $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
@@ -100,7 +109,32 @@ sub collect {
             $mountInfo->{DEVICE}      = $device;
             $mountInfo->{MOUNT_POINT} = $mountPoint;
             $mountInfo->{FS_TYPE}     = $fsType;
+
+            if ( $fsType !~ /^nfs/i ) {
+                $diskMountMap->{$mountPoint} = $mountInfo;
+            }
             push( @mountPoints, $mountInfo );
+        }
+    }
+    my @diskMountPoints = keys(%$diskMountMap);
+    if ( scalar(@diskMountPoints) > 0 ) {
+        my $dfLines = $self->getCmdOutLines( "LANG=C df -m '" . join( "' '", @diskMountPoints ) . "'" );
+        foreach my $line (@$dfLines) {
+            if ( $line =~ /(\d+)\s+(\d+)\s+(\d+)\s+(\d+%)\s+(.*)$/ ) {
+                my $totalSize  = int($1);
+                my $usedSize   = int($2);
+                my $availSize  = int($3);
+                my $utility    = $4;
+                my $mountPoint = $5;
+                chomp($mountPoint);
+                my $mountInfo = $diskMountMap->{$mountPoint};
+                if ( defined($mountInfo) ) {
+                    $mountInfo->{CAPACITY}  = $totalSize;
+                    $mountInfo->{USED}      = $usedSize;
+                    $mountInfo->{AVAILABLE} = $availSize;
+                    $mountInfo->{'USED%'}   = $utility;
+                }
+            }
         }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
@@ -143,7 +177,7 @@ sub collect {
     my $memInfo      = {};
     foreach my $line (@$memInfoLines) {
         my @lineInfo = split( /:\s*|\s+/, $line );
-        $memInfo->{ $lineInfo[0] } = sprintf('%.2fM', int( $lineInfo[1] ) / 1024);
+        $memInfo->{ $lineInfo[0] } = sprintf( '%.2fM', int( $lineInfo[1] ) / 1024 );
     }
     $osInfo->{MEM_TOTAL}     = $memInfo->{MemTotal};
     $osInfo->{MEM_FREE}      = $memInfo->{MemFree};

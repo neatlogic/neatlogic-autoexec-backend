@@ -36,11 +36,9 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [
-            'INBOUND_IP',
-            'PORT',
-        ]
-        #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
+        $self->{defaultAppType} => [ 'INBOUND_IP', 'PORT' ]
+
+            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
     };
 }
 
@@ -122,6 +120,7 @@ sub collect {
 
     my $appInfo = {};
     $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
