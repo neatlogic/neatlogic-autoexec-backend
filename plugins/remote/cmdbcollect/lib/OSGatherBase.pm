@@ -22,7 +22,7 @@ sub getFileContent {
     my $content;
     if (defined($fh)){
         my $fSize = -s $filePath;
-        $fh->read($fh, $content);
+        $fh->read($content, $fSize);
         $fh->close();
     }
     else{
