@@ -17,15 +17,17 @@ sub new {
 }
 
 sub getFileContent {
-    my ($self, $filePath) = @_;
-    my $fh = IO::File->new($filePath, 'r');
+    my ( $self, $filePath ) = @_;
+    my $fh = IO::File->new( $filePath, 'r' );
     my $content;
-    if (defined($fh)){
-        my $fSize = -s $filePath;
-        $fh->read($content, $fSize);
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            $content = $content . $line;
+        }
         $fh->close();
     }
-    else{
+    else {
         print("ERROR: Can not open file:$filePath $!\n");
     }
 
@@ -34,13 +36,20 @@ sub getFileContent {
 
 #读取文件所有行
 sub getFileLines {
-    my ($self, $filePath) = @_;
-    my $content = $self->getFileContent($filePath);
-    
+    my ( $self, $filePath ) = @_;
     my @lines;
-    if (defined($content)){
-        @lines = split(/\n/, $content);
+    my $fh = IO::File->new( $filePath, 'r' );
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            push( @lines, $line );
+        }
+        $fh->close();
     }
+    else {
+        print("ERROR: Can not open file:$filePath $!\n");
+    }
+
     return \@lines;
 }
 

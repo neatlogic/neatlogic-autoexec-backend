@@ -91,10 +91,11 @@ sub collect {
         my $fsType     = pop(@mountInfos);
         my $mountPoint = substr( $line, length($device) + 1, length($line) - length($device) - length($fsckOrder) - length($dump) - length($fsFlags) - length($fsType) - 5 );
 
+        $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
             $osInfo->{NFS_MOUNTED} = 1;
         }
-        if ( defined( $mountFilter->{$fsType} ) ) {
+        if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
             $mountInfo->{DEVICE}      = $device;
             $mountInfo->{MOUNT_POINT} = $mountPoint;
@@ -138,12 +139,11 @@ sub collect {
     chomp($logicCPUCount);
     $osInfo->{CPU_CORES} = $logicCPUCount;
 
-    my $totalMemory  = `cat /proc/meminfo |grep MemTotal|awk '{print \$2}'`;
     my $memInfoLines = $self->getFileLines('/proc/meminfo');
     my $memInfo      = {};
     foreach my $line (@$memInfoLines) {
         my @lineInfo = split( /:\s*|\s+/, $line );
-        $memInfo->{ $lineInfo[0] } = int( $lineInfo[1] ) / 1024 . 'M';
+        $memInfo->{ $lineInfo[0] } = sprintf('%.2fM', int( $lineInfo[1] ) / 1024);
     }
     $osInfo->{MEM_TOTAL}     = $memInfo->{MemTotal};
     $osInfo->{MEM_FREE}      = $memInfo->{MemFree};
@@ -175,7 +175,7 @@ sub collect {
                 my $active  = $3;
                 $service->{DESC} = $4;
                 $service->{NAME} = $name;
-                if ( $enable eq 'enable' ) {
+                if ( $enable eq 'loaded' ) {
                     $service->{ENABLE} = 1;
                 }
                 else {
@@ -266,7 +266,7 @@ sub collect {
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
 
-    my $maxOpenFiles = $self->getCmdOut('/proc/sys/fs/file-max');
+    my $maxOpenFiles = $self->getFileContent('/proc/sys/fs/file-max');
     $maxOpenFiles =~ s/^\s*|\s*$//g;
     $osInfo->{MAX_OPEN_FILES} = $maxOpenFiles;
 
@@ -316,6 +316,7 @@ sub collect {
     }
     $osInfo->{USERS} = \@users;
 
+    #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     my @diskInfos;
     my $diskLines = $self->getCmdOutLines('fdisk -l|grep Disk|grep sd');
 
