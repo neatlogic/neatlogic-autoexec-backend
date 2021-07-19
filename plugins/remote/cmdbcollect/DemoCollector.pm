@@ -36,7 +36,7 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'INBOUND_IP', 'PORT' ]
+        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT' ]
 
             #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
     };
@@ -60,7 +60,7 @@ sub getPK {
 #           'PROC_INFO' => {
 #                            '%MEM' => '0.0',
 #                            'RSS' => '5196',
-#                            'INBOUND_PORT' => '',
+#                            'MGMT_PORT' => '',
 #                            'TRS' => '485',
 #                            'TTY' => '?',
 #                            'RUSER' => 'root',
@@ -84,7 +84,7 @@ sub getPK {
 #                            '%CPU' => '0.0',
 #                            'ELAPSED' => '02:12:33',
 #                            'HOST_NAME' => 'centos7base',
-#                            'INBOUND_IP' => '',
+#                            'MGMT_IP' => '',
 #                            'APP_TYPE' => 'Apache',
 #                            'ENVRIONMENT' => {
 #                                               'NOTIFY_SOCKET' => '/run/systemd/notify',

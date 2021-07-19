@@ -24,14 +24,14 @@ sub main {
     my $osGather = OSGather->new();
     my ( $hostInfo, $osInfo ) = $osGather->collect();
     if ( defined($osInfo) ) {
-        $osInfo->{OS_ID}        = $osGather->{osId};
-        $osInfo->{INBOUND_IP}   = $osGather->{inboundIp};
-        $osInfo->{INBOUND_PORT} = $osGather->{inboundPort};
+        $osInfo->{OS_ID}     = $osGather->{osId};
+        $osInfo->{MGMT_IP}   = $osGather->{mgmtIp};
+        $osInfo->{MGMT_PORT} = $osGather->{mgmtPort};
     }
     if ( defined($hostInfo) ) {
-        $hostInfo->{OS_ID}        = $osGather->{osId};
-        $hostInfo->{INBOUND_IP}   = $osGather->{inboundIp};
-        $hostInfo->{INBOUND_PORT} = $osGather->{inboundPort};
+        $hostInfo->{OS_ID}     = $osGather->{osId};
+        $hostInfo->{MGMT_IP}   = $osGather->{mgmtIp};
+        $hostInfo->{MGMT_PORT} = $osGather->{mgmtPort};
     }
 
     print("INFO: OS information collected.\n");
@@ -90,7 +90,8 @@ sub main {
         print("INFO: Process connection infomation collected.\n");
 
         my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
-        my @appInfos = $collector->collect($procInfo);
+        my @appInfos  = $collector->collect($procInfo);
+        my $pkConfig  = $collector->getPK();
 
         my $idx = 0;
         for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
@@ -116,8 +117,15 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_ID} = $procInfo->{OS_ID};
-            $appInfo->{PK}    = $collector->getPK();
+            $appInfo->{OS_ID}     = $procInfo->{OS_ID};
+            $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+            if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {
+                $appInfo->{PK} = $pkConfig->{$appType};
+            }
+            else {
+                print("ERROR: $appType PK not defined in the collector class:$collectorClass.\n");
+            }
         }
 
         return $isMatched;

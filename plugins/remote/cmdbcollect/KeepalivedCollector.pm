@@ -27,7 +27,7 @@ sub getConfig {
 
 sub getPK {
     my ($self) = @_;
-    return { $self->{defaultAppType} => ['INBOUND_IP'] };
+    return { $self->{defaultAppType} => ['MGMT_IP'] };
 }
 
 sub collect {

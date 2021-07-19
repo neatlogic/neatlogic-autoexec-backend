@@ -8,6 +8,7 @@ package OSGatherBase;
 use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
+use Sys::Hostname;
 use Data::Dumper;
 
 sub new {
@@ -20,14 +21,14 @@ sub new {
     $self->{hostname} = hostname();
 
     $self->{osId}        = '';
-    $self->{inboundIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
-    $self->{inboundPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
+    $self->{mgmtIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
+    $self->{mgmtPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
     if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
-        $self->{inboundIp}   = $nodeInfo->{host};
-        $self->{inboundPort} = $nodeInfo->{port};
+        $self->{mgmtIp}   = $nodeInfo->{host};
+        $self->{mgmtPort} = $nodeInfo->{mgmtPort};
         $self->{osId}        = $nodeInfo->{osId};
     }
 

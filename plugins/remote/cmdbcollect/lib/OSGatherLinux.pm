@@ -20,7 +20,7 @@ sub collect {
     my $osInfo   = {};
 
     my $machineId = $self->getFileContent('/etc/machine-id');
-    $machineId =~ /^\s*|\s*$//g;
+    $machineId =~ s/^\s*|\s*$//g;
     $osInfo->{MACHINE_ID} = $machineId;
 
     my @unameInfo = uname();
