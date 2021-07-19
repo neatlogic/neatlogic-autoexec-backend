@@ -318,7 +318,7 @@ sub collect {
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     my @diskInfos;
-    my $diskLines = $self->getCmdOutLines('fdisk -l|grep Disk|grep sd');
+    my $diskLines = $self->getCmdOutLines('LANG=C fdisk -l|grep Disk|grep sd');
 
     foreach my $line (@$diskLines) {
         my $diskInfo = {};
