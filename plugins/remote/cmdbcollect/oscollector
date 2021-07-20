@@ -5,6 +5,7 @@ use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use POSIX qw(uname);
 use File::Basename;
 
 #use JSON;
@@ -24,14 +25,19 @@ sub main {
     my $osGather = OSGather->new();
     my ( $hostInfo, $osInfo ) = $osGather->collect();
     if ( defined($osInfo) ) {
-        $osInfo->{OS_ID}     = $osGather->{osId};
-        $osInfo->{MGMT_IP}   = $osGather->{mgmtIp};
-        $osInfo->{MGMT_PORT} = $osGather->{mgmtPort};
+        $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
+        $osInfo->{OS_TYPE}     = ( uname() )[0];
+        $osInfo->{OS_ID}       = $osGather->{osId};
+        $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
+        $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
+        $osInfo->{PK}          = ['MGMT_IP'];
     }
     if ( defined($hostInfo) ) {
-        $hostInfo->{OS_ID}     = $osGather->{osId};
-        $hostInfo->{MGMT_IP}   = $osGather->{mgmtIp};
-        $hostInfo->{MGMT_PORT} = $osGather->{mgmtPort};
+        $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
+        $hostInfo->{OS_ID}       = $osGather->{osId};
+        $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
+        $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
+        $hostInfo->{PK}          = ['MGMT_IP'];
     }
 
     print("INFO: OS information collected.\n");

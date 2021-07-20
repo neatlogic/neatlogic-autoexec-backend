@@ -24,7 +24,7 @@ sub collectOsInfo {
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
-    $osInfo->{OSTYPE}         = $unameInfo[0];
+    $osInfo->{OS_TYPE}        = $unameInfo[0];
     $osInfo->{HOSTNAME}       = $hostName;
     $osInfo->{KERNEL_VERSION} = $unameInfo[2];
 
@@ -615,7 +615,7 @@ sub collect {
 
     my $hostInfo = $self->collectHostInfo();
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS} = $osInfo->{DISKS};
+    $hostInfo->{DISKS}      = $osInfo->{DISKS};
 
     return ( $hostInfo, $osInfo );
 }
