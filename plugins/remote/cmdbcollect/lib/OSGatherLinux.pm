@@ -14,10 +14,9 @@ use POSIX;
 use Cwd;
 use IO::File;
 
-sub collect {
-    my ($self)   = @_;
-    my $hostInfo = {};
-    my $osInfo   = {};
+sub collectOsInfo {
+    my ($self) = @_;
+    my $osInfo = {};
 
     my $machineId = $self->getFileContent('/etc/machine-id');
     $machineId =~ s/^\s*|\s*$//g;
@@ -50,6 +49,7 @@ sub collect {
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
     $productName =~ s/^\*|\s$//g;
     $osInfo->{IS_VIRTUAL} = 0;
+
     if ( $productName eq 'KVM' or $productName eq 'VirtualBox' or $productName eq 'VMware Virtual Platform' ) {
         $osInfo->{IS_VIRTUAL} = 1;
     }
@@ -165,9 +165,8 @@ sub collect {
         }
     }
 
-    my $bitsInfo = $self->getCmdOut('getconf LONG_BIT');
-    chomp($bitsInfo);
-    $osInfo->{BITS} = $bitsInfo;
+    my $cpuArch = ( POSIX::uname() )[4];
+    $osInfo->{CPU_ARCH} = $cpuArch;
 
     my $logicCPUCount = $self->getCmdOut('cat /proc/cpuinfo |grep processor |wc -l');
     chomp($logicCPUCount);
@@ -450,6 +449,173 @@ sub collect {
     else {
         $osInfo->{DISKS} = \@diskInfos;
     }
+
+    return $osInfo;
+}
+
+sub collectHostInfo {
+    my ($self) = @_;
+    my $hostInfo = {};
+
+    my $machineId = $self->getFileContent('/etc/machine-id');
+    $machineId =~ s/^\s*|\s*$//g;
+    $hostInfo->{MACHINE_ID} = $machineId;
+
+    my $sn = $self->getCmdOut('dmidecode -s system-serial-number');
+    $sn =~ s/^\*|\s$//g;
+    $hostInfo->{SN} = $sn;
+
+    my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
+    $productName =~ s/^\*|\s$//g;
+    $hostInfo->{PRODUCT_NAME} = $productName;
+
+    my $vendorName = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
+    $vendorName =~ s/^\*|\s$//g;
+    $hostInfo->{MANUFACTURER} = $vendorName;
+
+    my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
+    $biosVersion =~ s/^\*|\s$//g;
+    $hostInfo->{MANUFACTURER} = $biosVersion;
+
+    my $cpuCount     = 0;
+    my $cpuInfoLines = $self->getFileLines('/proc/cpuinfo');
+    my $pCpuMap      = {};
+    my $cpuInfo      = {};
+    for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
+        my $line = $$cpuInfoLines[$i];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line ne '' ) {
+            my @info = split( /\s*:\s*/, $line );
+            $cpuInfo->{ $info[0] } = $info[1];
+            if ( $info[0] eq 'physical id' ) {
+                $pCpuMap->{ $info[1] } = 1;
+            }
+        }
+    }
+    $hostInfo->{CPU_COUNT} = scalar( keys(%$pCpuMap) );
+    $hostInfo->{CPU_CORES} = int( $cpuInfo->{processor} ) + 1;
+    $hostInfo->{MICROCODE} = $cpuInfo->{microcode};
+    my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
+    $hostInfo->{MODEL_NAME}    = $modelInfo[0];
+    $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
+    my $cpuArch = ( POSIX::uname() )[4];
+    $hostInfo->{CPU_ARCH} = $cpuArch;
+
+    my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
+    my $usedSlots    = 0;
+    my $memInfo      = {};
+    for ( my $i = 0 ; $i < scalar(@$memInfoLines) ; $i++ ) {
+        my $line = $$memInfoLines[$i];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line ne '' ) {
+            my @info = split( /\s*:\s*/, $line );
+            $memInfo->{ $info[0] } = $info[1];
+            if ( $info[0] eq 'Size' ) {
+                if ( $info[1] =~ /^(\d+)/ ) {
+                    $usedSlots = $usedSlots + 1;
+                }
+            }
+        }
+    }
+    $hostInfo->{MEM_SLOTS}            = $memInfo->{'Number Of Devices'};
+    $hostInfo->{MEM_MAXIMUM_CAPACITY} = $memInfo->{'Maximum Capacity'};
+    $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
+
+    my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
+    my $chassisInfo      = {};
+    foreach my $line (@$chassisInfoLines) {
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line ne '' ) {
+            my @info = split( /\s*:\s*/, $line );
+            $chassisInfo->{ $info[0] } = $info[1];
+        }
+    }
+    $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
+
+    my @nicInfos         = ();
+    my $nicInfoLines     = $self->getCmdOutLines('ip addr');
+    my $nicInfoLineCount = scalar(@$nicInfoLines);
+    for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
+        my $line    = $$nicInfoLines[$i];
+        my $nicInfo = {};
+        my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
+        if ( $line =~ /^\d+:\s+(\S+):/ ) {
+            $ethName = $1;
+            my ( $ethtoolState, $ethtoolLines ) = $self->getCmdOutLines("ethtool $ethName");
+            if ( $ethtoolState == 0 ) {
+                foreach my $ethLine (@$ethtoolLines) {
+                    if ( $ethLine =~ /^\s*Speed:\s*(\S+)/ ) {
+                        $speed = $1;
+                    }
+                    elsif ( $ethLine =~ /^\s*Link detected:\s*(\S+)/ ) {
+                        $linkState = $1;
+                    }
+                }
+            }
+            $i    = $i + 1;
+            $line = $$nicInfoLines[$i];
+            while ( $line !~ /^\d+:\s+(\S+):/ and $i < $nicInfoLineCount ) {
+                if ( $line =~ /^\s*link\/ether\s+(.*?)\s+/i ) {
+                    $macAddr = $1;
+                }
+                elsif (/^\s*inet\s(\d+\.\d+\.\d+\.\d+)/) {
+                    $ipAddr = $1;
+                }
+                $i    = $i + 1;
+                $line = $$nicInfoLines[$i];
+            }
+
+            if ( defined($speed) and $speed ne '' ) {
+                $nicInfo->{NAME}       = $ethName;
+                $nicInfo->{MAC}        = $macAddr;
+                $nicInfo->{SPEED}      = $speed;
+                $nicInfo->{LINK_STATE} = $linkState;
+                push( @nicInfos, $nicInfo );
+            }
+
+            $i = $i - 1;
+        }
+    }
+    $hostInfo->{NET_INTERFACES} = \@nicInfos;
+
+    my @hbaInfos = ();
+    foreach my $fcHostPath ( glob('/sys/class/fc_host/*') ) {
+        my $hbaInfo = {};
+        $hbaInfo->{NAME} = basename($fcHostPath);
+
+        my $wwn = $self->getFileContent("$fcHostPath/port_name");
+        $wwn =~ s/^\s*|\s*$//g;
+        my @wwnSegments = ( $wwn =~ m/../g );    #切分为两个字符的数组
+        $hbaInfo->{WWN} = join( ':', @wwnSegments );
+
+        my $speed = $self->getFileContent("$fcHostPath/speed");
+        $speed =~ s/^\s*|\s*$//g;
+        $hbaInfo->{SPEED} = $speed;
+
+        my $state = 'up';
+        if ( $speed eq 'unknown' ) {
+            $state = 'down';
+        }
+        $hbaInfo->{STATE} = $state;
+        push( @hbaInfos, $hbaInfo );
+    }
+    $hostInfo->{HBA_INTERFACES} = \@hbaInfos;
+
+    return $hostInfo;
+}
+
+sub collect {
+    my ($self) = @_;
+    my $osInfo = $self->collectOsInfo();
+
+    # my $hostInfo;
+    # if ( $osInfo->{IS_VIRTUAL} == 0 ){
+    #     $hostInfo = $self->collectHostInfo();
+    # }
+
+    my $hostInfo = $self->collectHostInfo();
+    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS} = $osInfo->{DISKS};
 
     return ( $hostInfo, $osInfo );
 }

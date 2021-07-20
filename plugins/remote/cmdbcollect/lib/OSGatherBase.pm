@@ -95,6 +95,10 @@ sub getCmdOut {
     }
 
     my $status = $?;
+    if ( $status ne 0 ){
+        print("ERROR: execute cmd:$cmd failed.\n");
+    }
+
     return ( $status, $out );
 }
 
@@ -120,6 +124,10 @@ sub getCmdOutLines {
     }
 
     my $status = $?;
+    if ( $status ne 0 ){
+        print("ERROR: execute cmd:$cmd failed.\n");
+    }
+    
     return ( $status, \@out );
 }
 
