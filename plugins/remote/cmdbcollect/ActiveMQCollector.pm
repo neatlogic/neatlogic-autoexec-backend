@@ -4,7 +4,7 @@ use lib "$FindBin::Bin/lib";
 
 use strict;
 
-package ActivemqCollector;
+package ActiveMQCollector;
 
 #use parent 'BaseCollector';    #继承BaseCollector
 use BaseCollector;

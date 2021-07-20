@@ -14,6 +14,7 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use CollectObjType;
+use Data::Dumper;
 
 sub getConfig {
     return {
@@ -44,13 +45,13 @@ sub collect {
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);
     my $basePath = dirname($binPath);
-    chdir($binPath);
     my ( $version, $prefix );
-    my @nginx_info = `./nginx -V |& awk '{print \$0}'`;
-    foreach my $line (@nginx_info) {
+    my $nginx_info = $self->getCmdOutLines("$binPath/nginx -V 2>&1");
+    foreach my $line (@$nginx_info) {
         if ( $line =~ /nginx version:/ ) {
             my @values = str_split( $line, ':' );
             $version = @values[1] || '';
+            $version =~ s/nginx\///g;
             $version = str_trim($version);
         }
         if ( $line =~ /configure arguments:/ ) {
@@ -73,30 +74,30 @@ sub collect {
     $nginxInfo->{VERSION}      = $version;
     $nginxInfo->{PREFIX}       = $prefix;
     $nginxInfo->{CONFIG_PATH}  = $configPath;
-    $nginxInfo->{SERVERS}      = parseConfig($configFile);
+    $nginxInfo->{SERVERS}      = parseConfig( $self, $configFile );
     $nginxInfo->{MON_PORT}     = undef;
     return $nginxInfo;
 }
 
 sub parseConfigServer {
-    my ($confPath) = @_;
+    my ( $self, $confPath ) = @_;
     my @server_cfg = ();
     my $server     = '';
     my $startCount = 0;
     my $endCount   = 0;
-    my @contents   = getFileContents($confPath);
-    foreach my $read_line (@contents) {
-        chomp($read_line);
+    my $contents   = $self->getFileLines($confPath);
+    foreach my $line (@$contents) {
+        chomp($line);
 
-        if ( ( $read_line =~ /server/ and $read_line =~ /\{/ ) or ( $startCount > 0 and $read_line =~ /\{/ ) ) {
+        if ( ( $line =~ /server/ and $line =~ /\{/ ) or ( $startCount > 0 and $line =~ /\{/ ) ) {
             $startCount = $startCount + 1;
         }
-        if ( $startCount > 0 and $read_line =~ /\}/ ) {
+        if ( $startCount > 0 and $line =~ /\}/ ) {
             $endCount = $endCount + 1;
         }
 
         if ( $startCount > 0 and $startCount >= $endCount ) {
-            $server = $server . "\n" . $read_line;
+            $server = $server . "\n" . $line;
         }
 
         if ( $startCount == $endCount and $server ne '' ) {
@@ -110,14 +111,14 @@ sub parseConfigServer {
 }
 
 sub parseConfigInclude {
-    my ($confPath) = @_;
+    my ( $self, $confPath ) = @_;
     my @includes = ();
     push( @includes, $confPath );
-    my @contents = getFileContents($confPath);
-    for my $read_line (@contents) {
-        chomp($read_line);
-        if ( $read_line =~ /include/ and $read_line !~ /mime.types/ ) {
-            my $path = $read_line;
+    my $contents = $self->getFileLines($confPath);
+    for my $line (@$contents) {
+        chomp($line);
+        if ( $line =~ /include/ and $line !~ /mime.types/ ) {
+            my $path = $line;
             $path =~ s/include//;
             $path =~ s/;//;
             $path = str_trim($path);
@@ -181,35 +182,19 @@ sub parseConfigParam {
             $status = 'on';
         }
     }
-    $nginx->{SERVICE_PORT} = $port;
+    $nginx->{SERVICE_PORT}   = $port;
     $nginx->{SERVICE_NAME}   = $server_name;
     $nginx->{SERVICE_TYPE}   = $type;
     $nginx->{SERVICE_STATUS} = $status;
     return $nginx;
 }
 
-sub getFileContents {
-    my ($confPath) = @_;
-    my $fh = IO::File->new( $confPath, 'r' );
-    my $fileContent;
-    my $fileSize = -s $confPath;
-    if ( defined($fh) ) {
-        $fh->read( $fileContent, $fileSize );
-        $fh->close;
-    }
-    my @contents = ();
-    if ( defined($fileContent) ) {
-        @contents = str_split( $fileContent, '\n' );
-    }
-    return @contents;
-}
-
 sub parseConfig {
-    my ($conf_path)   = @_;
-    my @includes      = parseConfigInclude($conf_path);
+    my ( $self, $conf_path ) = @_;
+    my @includes      = parseConfigInclude( $self, $conf_path );
     my @nginx_servers = ();
     foreach my $cfg (@includes) {
-        my @server_cfg = parseConfigServer($cfg);
+        my @server_cfg = parseConfigServer( $self, $cfg );
         foreach my $server (@server_cfg) {
             chomp($server);
             my $param = parseConfigParam( $server, $cfg );
@@ -221,7 +206,7 @@ sub parseConfig {
 
 sub str_split {
     my ( $str, $separator ) = @_;
-    my @values = split /$separator/, $str;
+    my @values = split( /$separator/, $str );
     return @values;
 }
 

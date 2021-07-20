@@ -14,7 +14,7 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use CollectObjType;
-#use Data::Dumper;
+use Data::Dumper;
 
 sub getConfig {
     return {
@@ -45,14 +45,13 @@ sub collect {
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);
     my $basePath = dirname($binPath);
-    chdir($binPath);
     my ( $version, $prefix );
-    my @keepalived_info = `./keepalived -v |& awk '{print \$0}'`;
-    foreach my $line (@keepalived_info) {
+    my $keepalived_info = $self->getCmdOutLines("$binPath/keepalived -v 2>&1");
+    foreach my $line (@$keepalived_info) {
         if ( $line =~ /Keepalived/ ) {
             my $e = rindex( $line, '(' );
             $version = substr( $line, 0, $e );
-            $version =~ s/Keepalived//;
+            $version =~ s/Keepalived//g;
             $version = str_trim($version);
         }
         if ( $line =~ /configure options/ ) {
@@ -75,15 +74,15 @@ sub collect {
     $keepalivedInfo->{VERSION}       = $version;
     $keepalivedInfo->{PREFIX}        = $prefix;
     $keepalivedInfo->{CONFIG_PATH}   = $configPath;
-    $keepalivedInfo->{VRRP_SCRIPT}   = parseConfig( $configFile, 'vrrp_script' );
-    $keepalivedInfo->{VRRP_INSTANCE} = parseConfig( $configFile, 'vrrp_instance' );
+    $keepalivedInfo->{VRRP_SCRIPT}   = parseConfig( $self, $configFile, 'vrrp_script' );
+    $keepalivedInfo->{VRRP_INSTANCE} = parseConfig( $self, $configFile, 'vrrp_instance' );
     $keepalivedInfo->{MON_PORT}      = undef;
     return $keepalivedInfo;
 }
 
 sub parseConfig {
-    my ( $conf_path, $identification ) = @_;
-    my @vrrp       = parseVrrp( $conf_path, $identification );
+    my ( $self, $conf_path, $identification ) = @_;
+    my @vrrp       = parseVrrp( $self, $conf_path, $identification );
     my @vrrpResult = ();
     foreach my $content (@vrrp) {
         my $instance = parseStructure( $content, $identification );
@@ -230,49 +229,43 @@ sub analysisValue {
 }
 
 sub parseVrrp {
-    my ( $confPath, $identification ) = @_;
-    my @vrrp       = ();
-    my $info       = '';
-    my $startCount = 0;
-    my $endCount   = 0;
-    my $fh         = IO::File->new( $confPath, 'r' );
-    if ( defined($fh) ) {
-        my $fileSize = -s $confPath;
-        my $fileContent;
-        $fh->read( $fileContent, $fileSize );
-        $fileContent = formatStructure( $fileContent, '{' );
+    my ( $self, $confPath, $identification ) = @_;
+    my @vrrp        = ();
+    my $info        = '';
+    my $startCount  = 0;
+    my $endCount    = 0;
+    my $fileContent = $self->getFileContent($confPath);
+    $fileContent = formatStructure( $fileContent, '{' );
 
-        #        $fileContent = formatStructure( $fileContent, '}' );
-        my @contents = str_split( $fileContent, '\n' );
-        foreach my $read_line (@contents) {
-            chomp($read_line);
+    #        $fileContent = formatStructure( $fileContent, '}' );
+    my @contents = str_split( $fileContent, '\n' );
+    foreach my $read_line (@contents) {
+        chomp($read_line);
 
-            if ( ( $read_line =~ /$identification/ and $read_line =~ /\{/ ) or ( $startCount > 0 and $read_line =~ /\{/ ) ) {
-                $startCount = $startCount + 1;
-            }
-            if ( $startCount > 0 and $read_line =~ /\}/ ) {
-                $endCount = $endCount + 1;
-            }
-
-            if ( $startCount > 0 and $startCount >= $endCount ) {
-                $info = $info . "\n" . $read_line;
-            }
-
-            if ( $startCount == $endCount and $info ne '' ) {
-                push( @vrrp, $info );
-                $info       = '';
-                $startCount = 0;
-                $endCount   = 0;
-            }
+        if ( ( $read_line =~ /$identification/ and $read_line =~ /\{/ ) or ( $startCount > 0 and $read_line =~ /\{/ ) ) {
+            $startCount = $startCount + 1;
         }
-        $fh->close;
+        if ( $startCount > 0 and $read_line =~ /\}/ ) {
+            $endCount = $endCount + 1;
+        }
+
+        if ( $startCount > 0 and $startCount >= $endCount ) {
+            $info = $info . "\n" . $read_line;
+        }
+
+        if ( $startCount == $endCount and $info ne '' ) {
+            push( @vrrp, $info );
+            $info       = '';
+            $startCount = 0;
+            $endCount   = 0;
+        }
     }
     return @vrrp;
 }
 
 sub str_split {
     my ( $str, $separator ) = @_;
-    my @values = split /$separator/, $str;
+    my @values = split(/$separator/, $str);
     return @values;
 }
 
