@@ -70,7 +70,6 @@ sub collect {
 
     #检查是否装了reds-cli
     if ( !-e "$cliFile" ) {
-        system("cp redis-cli $basePath");
         copy( 'redis-cli', $basePath );
         my @uname  = uname();
         my $ostype = $uname[0];
