@@ -14,7 +14,7 @@ use OSGather;
 use ConnGather;
 use CollectObjType;
 
-#use Utils;
+use Utils;
 use Data::Dumper;
 
 sub main {
@@ -192,9 +192,11 @@ sub main {
     print Dumper ( \@apps );
 
     #TODO: save $apps to output
-    #$out->{DATA} = \@apps;
-    #Utils::saveOutput($out);
-    #print( to_json( \@apps ) );
+    my @data = ($hostInfo, $osInfo);
+    push(@data, @apps);
+    my $out = {};
+    $out->{DATA} = \@apps;
+    Utils::saveOutput($out);
     print("INFO: All is completed.\n");
 }
 
