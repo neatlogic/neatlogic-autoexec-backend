@@ -1,0 +1,35 @@
+{
+    "opName": "OS和应用自动采集",
+    "opType": "remote",
+    "typeName": "自动采集",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
+    "desc": [{
+            "opt": "class",
+            "name": "采集类列表",
+            "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "defaultpassconf",
+            "name": "默认密码设置",
+            "help": "例如：\\{\"Mysql\":\\{\"username\":\"root\",\"password\":\"xxxx\"\\},\"Postgresql\":\\{\"username\":\"pgroot\",\"password\":\"yyyy\"\\}\\}",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "测试1",
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}
