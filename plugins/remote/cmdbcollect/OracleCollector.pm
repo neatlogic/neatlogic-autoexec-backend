@@ -22,9 +22,9 @@ use SqlplusExec;
 sub getPK {
     my ($self) = @_;
     return {
-        $self->{defaultAppType} => [ 'ORACLE_SID', 'DBID' ],
-        'Oracle-PDB'            => [ 'DBID',       'NAME' ],
-        'Oracle-RAC'            => [ 'DBID',       'NAME' ]
+        'Oracle'     => [ 'ORACLE_SID', 'DBID' ],
+        'Oracle-PDB' => [ 'DBID',       'NAME' ],
+        'Oracle-RAC' => [ 'DBID',       'NAME' ]
     };
 }
 
