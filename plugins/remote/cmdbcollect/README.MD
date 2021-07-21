@@ -25,7 +25,7 @@
         "MGMT_IP": "",
         "CPU_FREQUENCY": "2.60GHz",
         "CPU_COUNT": 2,
-        "MEM_MAXIMUM_CAPACITY": "17 GB",
+        "MEM_MAXIMUM_CAPACITY": 17408,
         "CPU_ARCH": "x86_64",
         "POWER_CORDS_COUNT": "Unspecified",
         "MACHINE_ID": "99eebc4953394a6f8b5ae644778cbb1a",
@@ -34,8 +34,9 @@
         "MODEL_NAME": "Intel(R) Xeon(R) CPU E5-2670 0",
         "NET_INTERFACES": [{
             "LINK_STATE": "yes",
+            "UNIT": "Mb/s",
             "NAME": "ens160",
-            "SPEED": "10000Mb/s",
+            "SPEED": 10000,
             "MAC": "00:50:56:a1:eb:d2"
         }],
         "IS_VIRTUAL": 1,
@@ -54,6 +55,16 @@
             "NAME": "/dev/sdb",
             "TYPE": "local",
             "CAPACITY": 107.4
+        }, {
+            "UNIT": "GB",
+            "NAME": "/dev/mapper/cl-root",
+            "TYPE": "lvm",
+            "CAPACITY": 157.8
+        }, {
+            "UNIT": "GB",
+            "NAME": "/dev/mapper/cl-swap",
+            "TYPE": "lvm",
+            "CAPACITY": 2.147
         }],
         "MICROCODE": "0x71a",
         "SN": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
@@ -77,16 +88,16 @@
     {
         "SWAP_SIZE": "2047M",
         "IPV6_ADDRS": ["fe80::250:56ff:fea1:ebd2"],
-        "MEM_BUFFERS": 0.02,
-        "MEM_AVAILABLE": 7498.79,
+        "MEM_BUFFERS": 0.023,
+        "MEM_AVAILABLE": 8214.629,
         "MACHINE_ID": "99eebc4953394a6f8b5ae644778cbb1a",
         "OS_TYPE": "Linux",
         "BOARD_SERIAL": "None",
         "PRODUCT_NAME": "VMware Virtual Platform",
         "NTP_ENABLE": 1,
-        "SWAP_FREE": 2047.33,
+        "SWAP_FREE": 2046.699,
         "PRODUCT_UUID": "42213814-A3BC-2393-7625-FED86156C6C2",
-        "CPU_CORES": "4",
+        "CPU_CORES": 4,
         "SSH_VERSION": "OpenSSH_6.6.1p1",
         "USERS": [{
             "HOME": "/root",
@@ -159,10 +170,20 @@
             "NAME": "/dev/sdb",
             "TYPE": "local",
             "CAPACITY": 107.4
+        }, {
+            "UNIT": "GB",
+            "NAME": "/dev/mapper/cl-root",
+            "TYPE": "lvm",
+            "CAPACITY": 157.8
+        }, {
+            "UNIT": "GB",
+            "NAME": "/dev/mapper/cl-swap",
+            "TYPE": "lvm",
+            "CAPACITY": 2.147
         }],
         "SYS_VENDOR": "VMware, Inc.",
         "OS_ID": "",
-        "MEM_CACHED": 3145.72,
+        "MEM_CACHED": 3180.586,
         "NTP_SERVERS": ["202.112.10.36"],
         "NETWORKMANAGER_ENABLE": 1,
         "NFS_MOUNTED": 0,
@@ -171,17 +192,17 @@
         "NIC_BOND": 0,
         "CPU_ARCH": "x86_64",
         "MGMT_PORT": "",
-        "SWAP_TOTAL": 2048,
+        "SWAP_TOTAL": 2047.996,
         "IS_VIRTUAL": 1,
         "KERNEL_VERSION": "3.10.0-514.el7.x86_64",
         "PK": ["MGMT_IP"],
         "DNS_SERVERS": ["192.168.1.188"],
         "FIREWALL_ENABLE": 0,
         "HOSTNAME": "centos7base",
-        "MEM_TOTAL": 15886.96,
+        "MEM_TOTAL": 15886.957,
         "MOUNT_POINTS": [{
-            "USED": 114.741,
-            "AVAILABLE": 32.238,
+            "USED": 114.731,
+            "AVAILABLE": 32.248,
             "DEVICE": "/dev/mapper/cl-root",
             "MOUNT_POINT": "/",
             "USED%": 79,
@@ -200,9 +221,9 @@
         }],
         "IP_ADDRS": ["192.168.0.26"],
         "VERSION": "CentOS Linux release 7.3.1611 (Core) ",
-        "MEM_FREE": 4433.23,
+        "MEM_FREE": 5122.984,
         "SELINUX_STATUS": "permissive",
-        "MAX_OPEN_FILES": "1610558",
+        "MAX_OPEN_FILES": 1610558,
         "OBJECT_TYPE": "OS"
     }
 ```

@@ -8,6 +8,7 @@ use strict;
 use File::Basename;
 use ConnGather;
 use CollectObjType;
+use CollectUtils;
 use Data::Dumper;
 
 #参数：
@@ -23,13 +24,7 @@ sub new {
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultAppType}   = substr( $type, 0, -9 );
-
-    $self->{isRoot} = 0;
-    if ( $> == 0 ) {
-
-        #如果EUID是0，那么运行用户就是root
-        $self->{isRoot} = 1;
-    }
+    $self->{collectUtils}     = CollectUtils->new();
 
     bless( $self, $type );
     return $self;
@@ -59,96 +54,28 @@ sub getPK {
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
-    my $out = '';
-    if ( defined($user) ) {
-        if ( $self->{isRoot} ) {
-            $out = `su - '$user' -c '$cmd'`;
-        }
-        elsif ( getpwnam($user) == $> ) {
-
-            #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
-            $out = `$cmd`;
-        }
-        else {
-            print("WARN: Can not execute cmd:$cmd by user $user.\n");
-        }
-    }
-    else {
-        $out = `$cmd`;
-    }
-
-    my $status = $?;
-    if ( $status ne 0 ) {
-        print("ERROR: execute cmd:$cmd failed.\n");
-    }
-
-    return ( $status, $out );
+    my $utils = $self->{collectUtils};
+    return $utils->getCmdOut( $cmd, $user );
 }
 
 #su运行命令，并返回输出的行数组
 sub getCmdOutLines {
     my ( $self, $cmd, $user ) = @_;
-    my @out = ();
-    if ( defined($user) ) {
-        if ( $self->{isRoot} ) {
-            @out = `su - '$user' -c '$cmd'`;
-        }
-        elsif ( getpwnam($user) == $> ) {
-
-            #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
-            @out = `$cmd`;
-        }
-        else {
-            print("WARN: Can not execute cmd:$cmd by user $user.\n");
-        }
-    }
-    else {
-        @out = `$cmd`;
-    }
-
-    my $status = $?;
-    if ( $status ne 0 ) {
-        print("ERROR: execute cmd:$cmd failed.\n");
-    }
-
-    return ( $status, \@out );
+    my $utils = $self->{collectUtils};
+    return $utils->getCmdOutLines( $cmd, $user );
 }
 
 sub getFileContent {
     my ( $self, $filePath ) = @_;
-    my $fh = IO::File->new( $filePath, 'r' );
-    my $content;
-    if ( defined($fh) ) {
-        my $line;
-        while ( $line = $fh->getline() ) {
-            $content = $content . $line;
-        }
-        $fh->close();
-    }
-    else {
-        print("ERROR: Can not open file:$filePath $!\n");
-    }
-
-    return $content;
+    my $utils = $self->{collectUtils};
+    return $utils->getFileContent($filePath);
 }
 
 #读取文件所有行
 sub getFileLines {
     my ( $self, $filePath ) = @_;
-    my @lines;
-    my $fh = IO::File->new( $filePath, 'r' );
-    if ( defined($fh) ) {
-        my $line;
-        while ( $line = $fh->getline() ) {
-            push( @lines, $line );
-        }
-        $fh->close();
-    }
-    else {
-        print("ERROR: Can not open file:$filePath $!\n");
-    }
-
-    return \@lines;
+    my $utils = $self->{collectUtils};
+    return $utils->getFileLines($filePath);
 }
 
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程
@@ -250,6 +177,7 @@ sub isMainProcess {
 #其中PROC_INFO对应的就是collect使用的进程信息HashMap，里面的属性都可以使用
 sub collect {
     my ($self) = @_;
+    my $utils = $self->{collectUtils};
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {

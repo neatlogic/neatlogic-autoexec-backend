@@ -16,6 +16,8 @@ use IO::File;
 
 sub collectOsInfo {
     my ($self) = @_;
+
+    my $utils  = $self->{collectUtils};
     my $osInfo = {};
 
     my $machineId = $self->getFileContent('/etc/machine-id');
@@ -169,23 +171,23 @@ sub collectOsInfo {
     my $cpuArch = ( POSIX::uname() )[4];
     $osInfo->{CPU_ARCH} = $cpuArch;
 
-    my $logicCPUCount = $self->getCmdOut('cat /proc/cpuinfo |grep processor |wc -l');
-    chomp($logicCPUCount);
-    $osInfo->{CPU_CORES} = $logicCPUCount;
+    # my $logicCPUCount = $self->getCmdOut('cat /proc/cpuinfo |grep processor |wc -l');
+    # chomp($logicCPUCount);
+    # $osInfo->{CPU_CORES} = $logicCPUCount;
 
     my $memInfoLines = $self->getFileLines('/proc/meminfo');
     my $memInfo      = {};
     foreach my $line (@$memInfoLines) {
         my @lineInfo = split( /:\s*|\s+/, $line );
-        $memInfo->{ $lineInfo[0] } = sprintf( '%.2fM', int( $lineInfo[1] ) / 1024 );
+        $memInfo->{ $lineInfo[0] } = $lineInfo[1] . $lineInfo[2];
     }
-    $osInfo->{MEM_TOTAL}     = $memInfo->{MemTotal} + 0.0;
-    $osInfo->{MEM_FREE}      = $memInfo->{MemFree} + 0.0;
-    $osInfo->{MEM_AVAILABLE} = $memInfo->{MemAvailable} + 0.0;
-    $osInfo->{MEM_CACHED}    = $memInfo->{Cached} + 0.0;
-    $osInfo->{MEM_BUFFERS}   = $memInfo->{Buffers} + 0.0;
-    $osInfo->{SWAP_TOTAL}    = $memInfo->{SwapTotal} + 0.0;
-    $osInfo->{SWAP_FREE}     = $memInfo->{SwapFree} + 0.0;
+    $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $memInfo->{MemTotal} );
+    $osInfo->{MEM_FREE}      = $utils->getMemSizeFromStr( $memInfo->{MemFree} );
+    $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $memInfo->{MemAvailable} );
+    $osInfo->{MEM_CACHED}    = $utils->getMemSizeFromStr( $memInfo->{Cached} );
+    $osInfo->{MEM_BUFFERS}   = $utils->getMemSizeFromStr( $memInfo->{Buffers} );
+    $osInfo->{SWAP_TOTAL}    = $utils->getMemSizeFromStr( $memInfo->{SwapTotal} );
+    $osInfo->{SWAP_FREE}     = $utils->getMemSizeFromStr( $memInfo->{SwapFree} );
 
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
@@ -302,7 +304,7 @@ sub collectOsInfo {
 
     my $maxOpenFiles = $self->getFileContent('/proc/sys/fs/file-max');
     $maxOpenFiles =~ s/^\s*|\s*$//g;
-    $osInfo->{MAX_OPEN_FILES} = $maxOpenFiles;
+    $osInfo->{MAX_OPEN_FILES} = int($maxOpenFiles);
 
     my @ipv4;
     my @ipv6;
@@ -352,19 +354,30 @@ sub collectOsInfo {
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     my @diskInfos;
-    my $diskLines = $self->getCmdOutLines('LANG=C fdisk -l|grep Disk|grep sd');
+    my $diskLines = $self->getCmdOutLines('LANG=C fdisk -l');
 
     foreach my $line (@$diskLines) {
-        my $diskInfo = {};
-        my @diskSegs = split( /\s+/, $line );
-        my $name     = $diskSegs[1];
-        $name =~ s/://g;
-        $diskInfo->{NAME} = $name;
-        my $size = $diskSegs[2];
-        $diskInfo->{CAPACITY} = int( $size * 1000.0 + 0.5 ) / 1000;
-        $diskInfo->{UNIT}     = 'GB';
-        $diskInfo->{TYPE}     = 'local';
-        push( @diskInfos, $diskInfo );
+        if ( $line =~ /^\s*Disk\s+\// ) {
+            my $diskInfo = {};
+            my @diskSegs = split( /\s+/, $line );
+            my $name     = $diskSegs[1];
+            $name =~ s/://g;
+            $diskInfo->{NAME} = $name;
+            my $size = $diskSegs[2];
+            my $unit = $diskSegs[3];
+            ( $diskInfo->{UNIT}, $diskInfo->{CAPACITY} ) = $utils->getDiskSizeFormStr( $size . $unit );
+
+            if ( $diskSegs[1] =~ /\/dev\/sd/ ) {
+                $diskInfo->{TYPE} = 'local';
+            }
+            elsif ( $diskSegs[1] =~ /\/dev\/mapper\// ) {
+                $diskInfo->{TYPE} = 'lvm';
+            }
+            else {
+                $diskInfo->{TYPE} = 'remote';
+            }
+            push( @diskInfos, $diskInfo );
+        }
     }
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
@@ -457,6 +470,8 @@ sub collectOsInfo {
 
 sub collectHostInfo {
     my ($self) = @_;
+
+    my $utils    = $self->{collectUtils};
     my $hostInfo = {};
 
     my $machineId = $self->getFileContent('/etc/machine-id');
@@ -520,7 +535,7 @@ sub collectHostInfo {
         }
     }
     $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
-    $hostInfo->{MEM_MAXIMUM_CAPACITY} = $memInfo->{'Maximum Capacity'};
+    $hostInfo->{MEM_MAXIMUM_CAPACITY} = $utils->getMemSizeFromStr( $memInfo->{'Maximum Capacity'} );
     $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
 
     my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
@@ -568,9 +583,9 @@ sub collectHostInfo {
             }
 
             if ( defined($speed) and $speed ne '' ) {
-                $nicInfo->{NAME}       = $ethName;
-                $nicInfo->{MAC}        = $macAddr;
-                $nicInfo->{SPEED}      = $speed;
+                $nicInfo->{NAME} = $ethName;
+                $nicInfo->{MAC}  = $macAddr;
+                ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
                 $nicInfo->{LINK_STATE} = $linkState;
                 push( @nicInfos, $nicInfo );
             }
@@ -616,6 +631,7 @@ sub collect {
     # }
 
     my $hostInfo = $self->collectHostInfo();
+    $osInfo->{CPU_CORES}    = $hostInfo->{CPU_CORES};
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};
 

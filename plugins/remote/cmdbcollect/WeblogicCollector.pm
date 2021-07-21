@@ -156,6 +156,8 @@ sub getPatchInfo {
 sub collect {
     my ($self) = @_;
 
+    my $utils = $self->{collectUtils};
+
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
         return undef;
@@ -212,8 +214,8 @@ sub collect {
             $minHeapSize = $1;
         }
     }
-    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize + 0.0;
-    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize + 0.0;
+    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
+    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
 
     #！！！下面的是标准属性，必须采集并转换提供出来
     $appInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};

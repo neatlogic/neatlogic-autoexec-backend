@@ -162,6 +162,7 @@ sub getApplications {
 #Return：应用信息的Hash，undef:不匹配
 sub collect {
     my ($self) = @_;
+    my $utils = $self->{collectUtils};
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
@@ -234,8 +235,8 @@ sub collect {
             $minHeapSize = $1;
         }
     }
-    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize + 0.0;
-    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize + 0.0;
+    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
+    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
 
     $self->getVersion( $appInfo, $installPath );
 

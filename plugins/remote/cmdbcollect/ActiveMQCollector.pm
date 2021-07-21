@@ -26,6 +26,7 @@ sub getConfig {
 
 sub collect {
     my ($self) = @_;
+    my $utils = $self->{collectUtils};
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
@@ -71,8 +72,8 @@ sub collect {
         }
     }
 
-    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize + 0.0;
-    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize + 0.0;
+    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
+    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
     $appInfo->{JMX_PORT}      = $jmxPort;
     $appInfo->{JMX_SSL}       = $jmxSsl;
 
