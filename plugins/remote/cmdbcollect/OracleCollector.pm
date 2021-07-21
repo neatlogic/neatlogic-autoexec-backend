@@ -19,6 +19,15 @@ use IO::File;
 use CollectObjType;
 use SqlplusExec;
 
+sub getPK {
+    my ($self) = @_;
+    return {
+        $self->{defaultAppType} => [ 'ORACLE_SID', 'DBID' ],
+        'Oracle-PDB'            => [ 'DBID',       'NAME' ],
+        'Oracle-RAC'            => [ 'DBID',       'NAME' ]
+    };
+}
+
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
 #最终是否是需要的进程，还需要各个Collector自身进行增强性的判断，
