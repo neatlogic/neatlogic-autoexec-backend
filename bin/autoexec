@@ -67,7 +67,7 @@ class Runner:
             dstPath = '{}/nodes.json'.format(self.context.runPath)
             nodesFile = open(dstPath, 'w')
             for node in context.params['runNode']:
-                nodesFile.write(json.dump(node))
+                nodesFile.write(json.dumps(node))
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
@@ -178,8 +178,9 @@ class Runner:
         if self.context.hasFailNodeInGlobal:
             status = 1
         elif not self.context.goToStop:
-            # 所有跑完了，如果全局不存在失败的节点，则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-            self.context.serverAdapter.fireNextPhase(lastPhase)
+            # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
+            if not args.nofirenext:
+                self.context.serverAdapter.fireNextPhase(lastPhase)
 
         return status
 
@@ -279,6 +280,7 @@ if __name__ == "__main__":
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
+    parser.add_argument('--nofirenext','-e', default=False, action='store_true', help='fire next job phase')
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
