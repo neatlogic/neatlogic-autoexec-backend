@@ -17,7 +17,7 @@
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
 - OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: 主板序列号
-* 上述属性都可以用于关联OS
+> 上述属性都可以用于关联OS
 
 * 样例
 ```json
@@ -68,7 +68,7 @@
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
 - OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: 主板序列号
-* 上述属性都可以用于关联HOST硬件
+> 上述属性都可以用于关联HOST硬件
 
 * 样例
 ```json
@@ -207,7 +207,7 @@
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
 - OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-* 上述属性都可以用于关联OS
+> 上述属性都可以用于关联OS
 - INSTALL_PATH: 安装路径
 - SERVER_NAME: 应用实例名
 - CONN_INFO: (LISTEN: 监听端口，包括IPV4，IPV6), (PEER: 出方向的连接)，用于计算应用调用关系
