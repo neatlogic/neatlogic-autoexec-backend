@@ -187,9 +187,9 @@ sub main {
     print("INFO: Begin to save collected data.\n");
 
     #$hostInfo, $osInfo, @apps的数据
-    print Dumper ($hostInfo);
-    print Dumper ($osInfo);
-    print Dumper ( \@apps );
+    #print Dumper ($hostInfo);
+    #print Dumper ($osInfo);
+    #print Dumper ( \@apps );
 
     #TODO: save $apps to output
     my @data = ( $hostInfo, $osInfo, @apps );

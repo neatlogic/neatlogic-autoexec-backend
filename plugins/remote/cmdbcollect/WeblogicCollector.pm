@@ -201,6 +201,20 @@ sub collect {
     $self->getConfigInfo( $appInfo, $domainHome, $serverName, $confFile );
     $self->getPatchInfo( $appInfo, $installPath, $wlHome );
 
+    #获取-X的java扩展参数
+    my ( $minHeapSize, $maxHeapSize );
+    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
+    foreach my $cmdOpt (@cmdOpts) {
+        if ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
+            $maxHeapSize = $1;
+        }
+        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
+            $minHeapSize = $1;
+        }
+    }
+    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize + 0.0;
+    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize + 0.0;
+
     #！！！下面的是标准属性，必须采集并转换提供出来
     $appInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
     $appInfo->{CONFIG_PATH} = $domainHome;

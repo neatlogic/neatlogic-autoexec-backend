@@ -129,10 +129,11 @@ sub collectOsInfo {
                 chomp($mountPoint);
                 my $mountInfo = $diskMountMap->{$mountPoint};
                 if ( defined($mountInfo) ) {
-                    $mountInfo->{CAPACITY}  = $totalSize;
-                    $mountInfo->{USED}      = $usedSize;
-                    $mountInfo->{AVAILABLE} = $availSize;
-                    $mountInfo->{'USED%'}   = $utility;
+                    $mountInfo->{CAPACITY}  = int( $totalSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{USED}      = int( $usedSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{AVAILABLE} = int( $availSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{UNIT}      = 'GB';
+                    $mountInfo->{'USED%'}   = $utility + 0.0;
                 }
             }
         }
@@ -178,13 +179,13 @@ sub collectOsInfo {
         my @lineInfo = split( /:\s*|\s+/, $line );
         $memInfo->{ $lineInfo[0] } = sprintf( '%.2fM', int( $lineInfo[1] ) / 1024 );
     }
-    $osInfo->{MEM_TOTAL}     = $memInfo->{MemTotal};
-    $osInfo->{MEM_FREE}      = $memInfo->{MemFree};
-    $osInfo->{MEM_AVAILABLE} = $memInfo->{MemAvailable};
-    $osInfo->{MEM_CACHED}    = $memInfo->{Cached};
-    $osInfo->{MEM_BUFFERS}   = $memInfo->{Buffers};
-    $osInfo->{SWAP_TOTAL}    = $memInfo->{SwapTotal};
-    $osInfo->{SWAP_FREE}     = $memInfo->{SwapFree};
+    $osInfo->{MEM_TOTAL}     = $memInfo->{MemTotal} + 0.0;
+    $osInfo->{MEM_FREE}      = $memInfo->{MemFree} + 0.0;
+    $osInfo->{MEM_AVAILABLE} = $memInfo->{MemAvailable} + 0.0;
+    $osInfo->{MEM_CACHED}    = $memInfo->{Cached} + 0.0;
+    $osInfo->{MEM_BUFFERS}   = $memInfo->{Buffers} + 0.0;
+    $osInfo->{SWAP_TOTAL}    = $memInfo->{SwapTotal} + 0.0;
+    $osInfo->{SWAP_FREE}     = $memInfo->{SwapFree} + 0.0;
 
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
@@ -360,7 +361,8 @@ sub collectOsInfo {
         $name =~ s/://g;
         $diskInfo->{NAME} = $name;
         my $size = $diskSegs[2];
-        $diskInfo->{CAPACITY} = $size + "G";
+        $diskInfo->{CAPACITY} = int( $size * 1000.0 + 0.5 ) / 1000;
+        $diskInfo->{UNIT}     = 'GB';
         $diskInfo->{TYPE}     = 'local';
         push( @diskInfos, $diskInfo );
     }
@@ -517,7 +519,7 @@ sub collectHostInfo {
             }
         }
     }
-    $hostInfo->{MEM_SLOTS}            = $memInfo->{'Number Of Devices'};
+    $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
     $hostInfo->{MEM_MAXIMUM_CAPACITY} = $memInfo->{'Maximum Capacity'};
     $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
 

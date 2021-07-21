@@ -56,7 +56,7 @@ sub collect {
         }
         if ( $line =~ /configure arguments:/ ) {
             my @values = str_split( $line, ':' );
-            my $cfg    = @values[1];
+            my $cfg = @values[1];
             $cfg = str_trim($cfg);
             if ( $cfg =~ /--prefix=/ ) {
                 my @values = str_split( $cfg, '=' );
@@ -122,7 +122,7 @@ sub parseConfigInclude {
             $path =~ s/include//;
             $path =~ s/;//;
             $path = str_trim($path);
-            my $e    = rindex( $path, '/' );
+            my $e = rindex( $path, '/' );
             my $dir  = substr( $path, 0,      $e );
             my $file = substr( $path, $e + 1, length($path) );
             if ( -d $dir ) {
@@ -191,7 +191,7 @@ sub parseConfigParam {
 
 sub parseConfig {
     my ( $self, $conf_path ) = @_;
-    my @includes      = parseConfigInclude( $self, $conf_path );
+    my @includes = parseConfigInclude( $self, $conf_path );
     my @nginx_servers = ();
     foreach my $cfg (@includes) {
         my @server_cfg = parseConfigServer( $self, $cfg );

@@ -172,8 +172,8 @@ sub collect {
         }
     }
 
-    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize;
-    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize;
+    $appInfo->{MIN_HEAP_SIZE} = $minHeapSize + 0.0;
+    $appInfo->{MAX_HEAP_SIZE} = $maxHeapSize + 0.0;
     $appInfo->{JMX_PORT}      = $jmxPort;
     $appInfo->{JMX_SSL}       = $jmxSsl;
     $appInfo->{MON_PORT}      = $jmxPort;

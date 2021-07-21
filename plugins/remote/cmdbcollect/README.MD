@@ -21,7 +21,7 @@
 
 * 样例
 ```json
-{
+    {
         "MGMT_IP": "",
         "CPU_FREQUENCY": "2.60GHz",
         "CPU_COUNT": 2,
@@ -42,16 +42,18 @@
         "PK": ["MGMT_IP"],
         "CPU_CORES": 4,
         "MEM_SPEED": "Unknown",
-        "MEM_SLOTS": "64",
+        "MEM_SLOTS": 64,
         "HBA_INTERFACES": [],
         "DISKS": [{
+            "UNIT": "GB",
             "NAME": "/dev/sda",
             "TYPE": "local",
-            "CAPACITY": "53.7"
+            "CAPACITY": 53.7
         }, {
+            "UNIT": "GB",
             "NAME": "/dev/sdb",
             "TYPE": "local",
-            "CAPACITY": "107.4"
+            "CAPACITY": 107.4
         }],
         "MICROCODE": "0x71a",
         "SN": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
@@ -72,17 +74,17 @@
 
 * 样例
 ```json
-{
+    {
         "SWAP_SIZE": "2047M",
         "IPV6_ADDRS": ["fe80::250:56ff:fea1:ebd2"],
-        "MEM_BUFFERS": "0.02M",
-        "MEM_AVAILABLE": "7516.41M",
+        "MEM_BUFFERS": 0.02,
+        "MEM_AVAILABLE": 7498.79,
         "MACHINE_ID": "99eebc4953394a6f8b5ae644778cbb1a",
         "OS_TYPE": "Linux",
         "BOARD_SERIAL": "None",
         "PRODUCT_NAME": "VMware Virtual Platform",
         "NTP_ENABLE": 1,
-        "SWAP_FREE": "2047.33M",
+        "SWAP_FREE": 2047.33,
         "PRODUCT_UUID": "42213814-A3BC-2393-7625-FED86156C6C2",
         "CPU_CORES": "4",
         "SSH_VERSION": "OpenSSH_6.6.1p1",
@@ -148,17 +150,19 @@
             "GID": "1003"
         }],
         "DISKS": [{
+            "UNIT": "GB",
             "NAME": "/dev/sda",
             "TYPE": "local",
-            "CAPACITY": "53.7"
+            "CAPACITY": 53.7
         }, {
+            "UNIT": "GB",
             "NAME": "/dev/sdb",
             "TYPE": "local",
-            "CAPACITY": "107.4"
+            "CAPACITY": 107.4
         }],
         "SYS_VENDOR": "VMware, Inc.",
         "OS_ID": "",
-        "MEM_CACHED": "3121.00M",
+        "MEM_CACHED": 3145.72,
         "NTP_SERVERS": ["202.112.10.36"],
         "NETWORKMANAGER_ENABLE": 1,
         "NFS_MOUNTED": 0,
@@ -167,34 +171,36 @@
         "NIC_BOND": 0,
         "CPU_ARCH": "x86_64",
         "MGMT_PORT": "",
-        "SWAP_TOTAL": "2048.00M",
+        "SWAP_TOTAL": 2048,
         "IS_VIRTUAL": 1,
         "KERNEL_VERSION": "3.10.0-514.el7.x86_64",
         "PK": ["MGMT_IP"],
         "DNS_SERVERS": ["192.168.1.188"],
         "FIREWALL_ENABLE": 0,
         "HOSTNAME": "centos7base",
-        "MEM_TOTAL": "15886.96M",
+        "MEM_TOTAL": 15886.96,
         "MOUNT_POINTS": [{
-            "USED%": "79%",
+            "USED": 114.741,
+            "AVAILABLE": 32.238,
+            "DEVICE": "/dev/mapper/cl-root",
             "MOUNT_POINT": "/",
+            "USED%": 79,
             "FS_TYPE": "xfs",
-            "USED": 117470,
-            "AVAILABLE": 33037,
-            "CAPACITY": 150506,
-            "DEVICE": "/dev/mapper/cl-root"
+            "UNIT": "GB",
+            "CAPACITY": 146.979
         }, {
-            "USED%": "14%",
+            "USED": 0.136,
+            "AVAILABLE": 0.855,
+            "DEVICE": "/dev/sdb1",
             "MOUNT_POINT": "/boot",
+            "USED%": 14,
             "FS_TYPE": "xfs",
-            "USED": 139,
-            "AVAILABLE": 876,
-            "CAPACITY": 1014,
-            "DEVICE": "/dev/sdb1"
+            "UNIT": "GB",
+            "CAPACITY": 0.99
         }],
         "IP_ADDRS": ["192.168.0.26"],
         "VERSION": "CentOS Linux release 7.3.1611 (Core) ",
-        "MEM_FREE": "4475.05M",
+        "MEM_FREE": 4433.23,
         "SELINUX_STATUS": "permissive",
         "MAX_OPEN_FILES": "1610558",
         "OBJECT_TYPE": "OS"
@@ -221,79 +227,108 @@
 
 * 样例
 ```json
-{
-        "INSTALL_PATH": "/app/servers/bsmwechat",
-        "SERVER_NAME": "bsmwechat",
+    {
+        "INSTALL_PATH": "/app/servers/balantflow",
+        "SERVER_NAME": "balantflow",
         "MGMT_IP": "",
-        "CATALINA_BASE": "/app/servers/bsmwechat",
-        "JMX_PORT": null,
-        "MAX_HEAP_SIZE": "1024M",
+        "CATALINA_BASE": "/app/servers/balantflow",
+        "JMX_PORT": "10099",
+        "MAX_HEAP_SIZE": 4,
         "JVM_VENDER": "Oracle Corporation",
-        "CATALINA_HOME": "/app/servers/bsmwechat",
+        "CATALINA_HOME": "/app/servers/balantflow",
         "MGMT_PORT": "",
-        "MIN_HEAP_SIZE": null,
-        "CONFIG_PATH": "/app/servers/bsmwechat",
-        "PORT": "8190",
+        "MIN_HEAP_SIZE": 2,
+        "CONFIG_PATH": "/app/servers/balantflow",
+        "PORT": "8080",
         "JRE_HOME": "/app/serverware/jdk",
-        "MON_PORT": null,
+        "MON_PORT": "10099",
         "CONN_INFO": {
-            "PEER": [],
-            "LISTEN": ["41544", "9977", "::ffff:127.0.0.1:9347", "8190", "::ffff:127.0.0.1:9234"]
+            "PEER": ["::ffff:127.0.0.1:3306"],
+            "LISTEN": ["10099", "::ffff:127.0.0.1:9184", "36404", "43539", "9345", "9999", "8080"]
         },
         "PK": ["MGMT_IP", "PORT"],
         "JMX_SSL": "false",
         "PROC_INFO": {
-            "%MEM": "2.5",
+            "%MEM": "9.7",
             "MGMT_IP": "",
             "RUSER": "app",
             "RGROUP": "apps",
-            "COMMAND": "/app/serverware/jdk/bin/java -Dinstance.name=bsmwechat -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=9977,server=y,suspend=n -Xmx1024M -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -Xloggc:logs/gc.log -Dlog4j.home=app/logs/bsmwechat -Dlog4j.priority=ERROR -Djava.io.tmpdir=/app/servers/bsmwechat/tmp -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DINSTANCE_NAME=bsmwechat -Dtechsure.home=/app -Dhttp.port=8190 -Dhttps.port=9135 -Dshutdown.port=9234 -Dajp.port=9347 -Drmi.reg.port=9456 -Drmi.server.port=9598 -Dbind.ip= -Dvip= -Djava.endorsed.dirs=/app/serverware/tomcat/common/endorsed -Dcatalina.base=/app/servers/bsmwechat -Dcatalina.home=/app/servers/bsmwechat -Djava.io.tmpdir=/app/servers/bsmwechat/tmp org.apache.catalina.startup.Bootstrap start",
+            "COMMAND": "/app/serverware/jdk/bin/java -Dinstance.name=balantflow -Dfastjson.parser.safeMode=true -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=9999,server=y,suspend=n -Xms2G -Xmx4G -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -Xloggc:logs/gc.log -Dlog4j.home=/app/logs/balantflow -Dlog4j.priority=ERROR -Djava.io.tmpdir=/app/servers/balantflow/tmp -Djava.awt.headless=true -Dcom.sun.management.jmxremote.port=10099 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -DINSTANCE_NAME=balantflow -Dtechsure.home=/app -Dhttp.port=8080 -Dhttps.port=9345 -Dshutdown.port=9184 -Dajp.port=9185 -Drmi.reg.port=9285 -Drmi.server.port=9286 -javaagent:/app/systems/balantflow/javaagent/tsapm-javaagent.jar -Dbind.ip= -Dvip= -Djava.endorsed.dirs=/app/serverware/tomcat/common/endorsed -Dcatalina.base=/app/servers/balantflow -Dcatalina.home=/app/servers/balantflow -Djava.io.tmpdir=/app/servers/balantflow/tmp org.apache.catalina.startup.Bootstrap start",
             "OS_TYPE": "Linux",
             "MGMT_PORT": "",
-            "PGID": "5038",
+            "PGID": "19157",
             "USER": "app",
             "EXECUTABLE_FILE": "/app/serverware/jdk1.8.0_77/bin/java",
-            "PID": "5040",
+            "PID": "19159",
             "GROUP": "apps",
-            "PPID": "5038",
-            "TIME": "00:06:07",
-            "ELAPSED": "4-10:58:58",
-            "%CPU": "0.0",
+            "PPID": "19157",
+            "TIME": "00:26:39",
+            "ELAPSED": "1-05:17:01",
+            "%CPU": "1.5",
             "HOST_NAME": "centos7base",
             "APP_TYPE": "Tomcat",
             "ENVRIONMENT": {
-                "JAVA_HOME": "/app/serverware/jdk",
-                "SERVER_NAME": "bsmwechat",
-                "tmpdir": "/app/servers/bsmwechat/tmp org.apache.catalina.startup.Bootstrap start",
-                "LD_LIBRARY_PATH": "/app/serverware/tomcat/lib/",
+                "SSH_CLIENT": "192.168.0.123 49422 22",
+                "VAR_TEST": "abcefdfdf",
                 "LC_ALL": "",
-                "MEDIA_HOME": "/app/serverware/tomcat",
-                "AJP_PORT": "9347",
+                "AJP_PORT": "9185",
+                "LESSOPEN": "||/usr/bin/lesspipe.sh %s",
                 "ASM_HOME": "/app",
                 "PWD": "/app/serveradmin/bin",
-                "INSTANCE_NAME": "bsmwechat",
+                "SELINUX_ROLE_REQUESTED": "",
+                "SELINUX_USE_CURRENT_RANGE": "",
                 "LANG": "zh_CN.UTF-8",
+                "USER": "root",
+                "LOGNAME": "root",
+                "SHLVL": "2",
+                "APP_SYSTEM_HOME": "/app/systems/balantflow",
+                "HTTP_PORT": "8080",
+                "SELINUX_LEVEL_REQUESTED": "",
+                "port": "9286 -javaagent:/app/systems/balantflow/javaagent/tsapm-javaagent.jar",
+                "RMI_REG_PORT": "9285",
+                "PATH": "/usr/local/itom/java/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/app/serverware/node/bin",
+                "RMI_SERVER_PORT": "9286",
+                "SHUTDOWN_PORT": "9184",
+                "SYSTEM_NAME": "balantflow",
+                "HISTSIZE": "10000",
+                "TERM": "ansi",
+                "SSH_TTY": "/dev/pts/0",
+                "JAVA_HOME": "/app/serverware/jdk",
+                "HOME": "/root",
+                "SERVER_NAME": "balantflow",
+                "tmpdir": "/app/servers/balantflow/tmp org.apache.catalina.startup.Bootstrap start",
+                "LD_LIBRARY_PATH": "/app/serverware/tomcat/lib/",
+                "SSH_CONNECTION": "192.168.0.123 49422 192.168.0.26 22",
+                "HISTTIMEFORMAT": "%d/%m/%y %T ",
+                "MEDIA_HOME": "/app/serverware/tomcat",
+                "MAIL": "/var/spool/mail/root",
+                "XDG_SESSION_ID": "5297",
+                "INSTANCE_NAME": "balantflow",
+                "COMP_SYSTEM": "balantflow_test",
                 "APPDIR": "/app/servers",
                 "ssl": "false",
-                "SHLVL": "3",
-                "APP_SYSTEM_HOME": "/app/systems/bsmwechat",
+                "HOSTNAME": "centos7base",
+                "XDG_RUNTIME_DIR": "/run/user/0",
                 "OLDPWD": "/app",
-                "APP_SERVER_HOME": "/app/servers/bsmwechat",
-                "HTTP_PORT": "8190",
-                "port": "9598",
+                "APP_SERVER_HOME": "/app/servers/balantflow",
                 "TECHSURE_HOME": "/app",
                 "_": "/app/serveradmin/bin/serveradmin",
-                "RMI_REG_PORT": "9456",
-                "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin",
-                "RMI_SERVER_PORT": "9598",
-                "SHUTDOWN_PORT": "9234",
-                "SYSTEM_NAME": "bsmwechat",
-                "CLASSPATH": "/app/systems/bsmwechat/config/::/app/servers/bsmwechat/lib/:/app/servers/bsmwechat/lib/annotations-api.jar:/app/servers/bsmwechat/lib/catalina-ant.jar:/app/servers/bsmwechat/lib/catalina-ha.jar:/app/servers/bsmwechat/lib/catalina.jar:/app/servers/bsmwechat/lib/catalina-ssi.jar:/app/servers/bsmwechat/lib/catalina-storeconfig.jar:/app/servers/bsmwechat/lib/catalina-tribes.jar:/app/servers/bsmwechat/lib/ecj-4.18.jar:/app/servers/bsmwechat/lib/el-api.jar:/app/servers/bsmwechat/lib/jasper-el.jar:/app/servers/bsmwechat/lib/jasper.jar:/app/servers/bsmwechat/lib/jaspic-api.jar:/app/servers/bsmwechat/lib/jsp-api.jar:/app/servers/bsmwechat/lib/mysql-connector-java-5.1.25.jar:/app/servers/bsmwechat/lib/servlet-api.jar:/app/servers/bsmwechat/lib/techsure-balantrealm8.jar:/app/servers/bsmwechat/lib/techsure-valve8.jar:/app/servers/bsmwechat/lib/tomcat-api.jar:/app/servers/bsmwechat/lib/tomcat-coyote.jar:/app/servers/bsmwechat/lib/tomcat-dbcp.jar:/app/servers/bsmwechat/lib/tomcat-i18n-cs.jar:/app/servers/bsmwechat/lib/tomcat-i18n-de.jar:/app/servers/bsmwechat/lib/tomcat-i18n-es.jar:/app/servers/bsmwechat/lib/tomcat-i18n-fr.jar:/app/servers/bsmwechat/lib/tomcat-i18n-ja.jar:/app/servers/bsmwechat/lib/tomcat-i18n-ko.jar:/app/servers/bsmwechat/lib/tomcat-i18n-pt-BR.jar:/app/servers/bsmwechat/lib/tomcat-i18n-ru.jar:/app/servers/bsmwechat/lib/tomcat-i18n-zh-CN.jar:/app/servers/bsmwechat/lib/tomcat-jdbc.jar:/app/servers/bsmwechat/lib/tomcat-jni.jar:/app/servers/bsmwechat/lib/tomcat-util.jar:/app/servers/bsmwechat/lib/tomcat-util-scan.jar:/app/servers/bsmwechat/lib/tomcat-websocket.jar:/app/servers/bsmwechat/lib/websocket-api.jar::/app/servers/bsmwechat/bin/bootstrap.jar:/app/servers/bsmwechat/bin/commons-daemon.jar:/app/servers/bsmwechat/bin/tomcat-juli.jar:",
-                "HTTPS_PORT": "9135"
+                "SHELL": "/bin/bash",
+                "CLASSPATH": "/app/systems/balantflow/config/:.:/usr/local/itom/java/lib.tools.jar:/app/servers/balantflow/lib/:/app/servers/balantflow/lib/annotations-api.jar:/app/servers/balantflow/lib/catalina-ant.jar:/app/servers/balantflow/lib/catalina-ha.jar:/app/servers/balantflow/lib/catalina.jar:/app/servers/balantflow/lib/catalina-ssi.jar:/app/servers/balantflow/lib/catalina-storeconfig.jar:/app/servers/balantflow/lib/catalina-tribes.jar:/app/servers/balantflow/lib/ecj-4.18.jar:/app/servers/balantflow/lib/el-api.jar:/app/servers/balantflow/lib/jasper-el.jar:/app/servers/balantflow/lib/jasper.jar:/app/servers/balantflow/lib/jaspic-api.jar:/app/servers/balantflow/lib/jsp-api.jar:/app/servers/balantflow/lib/mysql-connector-java-5.1.25.jar:/app/servers/balantflow/lib/servlet-api.jar:/app/servers/balantflow/lib/techsure-balantrealm8.jar:/app/servers/balantflow/lib/techsure-valve8.jar:/app/servers/balantflow/lib/tomcat-api.jar:/app/servers/balantflow/lib/tomcat-coyote.jar:/app/servers/balantflow/lib/tomcat-dbcp.jar:/app/servers/balantflow/lib/tomcat-i18n-cs.jar:/app/servers/balantflow/lib/tomcat-i18n-de.jar:/app/servers/balantflow/lib/tomcat-i18n-es.jar:/app/servers/balantflow/lib/tomcat-i18n-fr.jar:/app/servers/balantflow/lib/tomcat-i18n-ja.jar:/app/servers/balantflow/lib/tomcat-i18n-ko.jar:/app/servers/balantflow/lib/tomcat-i18n-pt-BR.jar:/app/servers/balantflow/lib/tomcat-i18n-ru.jar:/app/servers/balantflow/lib/tomcat-i18n-zh-CN.jar:/app/servers/balantflow/lib/tomcat-jdbc.jar:/app/servers/balantflow/lib/tomcat-jni.jar:/app/servers/balantflow/lib/tomcat-util.jar:/app/servers/balantflow/lib/tomcat-util-scan.jar:/app/servers/balantflow/lib/tomcat-websocket.jar:/app/servers/balantflow/lib/websocket-api.jar::/app/servers/balantflow/bin/bootstrap.jar:/app/servers/balantflow/bin/commons-daemon.jar:/app/servers/balantflow/bin/tomcat-juli.jar:",
+                "HTTPS_PORT": "9345",
+                "HISTCONTROL": "ignoredups"
             },
             "COMM": "java",
             "OS_ID": ""
-        }
+        },
+        "JVM_VERSION": "1.8.0_77-b03",
+        "PORTS": ["8080", "9345"],
+        "APP_TYPE": "Tomcat",
+        "OS_ID": "",
+        "SSL_PORT": "9345",
+        "VERSION": "9.0.44.0",
+        "OBJECT_TYPE": "APP"
+    }
 ```
 
 

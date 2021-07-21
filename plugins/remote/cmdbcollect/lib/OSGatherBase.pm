@@ -20,7 +20,7 @@ sub new {
     $self->{ostype}   = $ostype;
     $self->{hostname} = hostname();
 
-    $self->{osId}        = '';
+    $self->{osId}     = '';
     $self->{mgmtIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP
     $self->{mgmtPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
@@ -29,7 +29,7 @@ sub new {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
         $self->{mgmtIp}   = $nodeInfo->{host};
         $self->{mgmtPort} = $nodeInfo->{mgmtPort};
-        $self->{osId}        = $nodeInfo->{osId};
+        $self->{osId}     = $nodeInfo->{osId};
     }
 
     bless( $self, $type );
@@ -95,7 +95,7 @@ sub getCmdOut {
     }
 
     my $status = $?;
-    if ( $status ne 0 ){
+    if ( $status ne 0 ) {
         print("ERROR: execute cmd:$cmd failed.\n");
     }
 
@@ -124,10 +124,10 @@ sub getCmdOutLines {
     }
 
     my $status = $?;
-    if ( $status ne 0 ){
+    if ( $status ne 0 ) {
         print("ERROR: execute cmd:$cmd failed.\n");
     }
-    
+
     return ( $status, \@out );
 }
 

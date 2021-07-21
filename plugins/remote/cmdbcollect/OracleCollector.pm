@@ -369,7 +369,7 @@ sub collectInstances {
     my @serviceNames = keys(%$servicesMap);
     $insInfo->{LISTEN_ADDRS} = $listenAddrs;
     $insInfo->{SERVICE_INFO} = $servicesMap;
-    $insInfo->{SERVER_NAME} = $serviceNames[0];
+    $insInfo->{SERVER_NAME}  = $serviceNames[0];
 
     if ($isRAC) {
         my $clusterName = $self->getClusterName($insInfo);
@@ -900,6 +900,7 @@ sub collect {
     my @collectSet = ();
 
     push( @collectSet, $insInfo );
+
     #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
     if ( $insInfo->{IS_CDB} == 1 ) {
         my $PDBS = $self->collectPDBS($insInfo);

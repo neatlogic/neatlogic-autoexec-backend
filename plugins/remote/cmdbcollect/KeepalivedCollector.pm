@@ -56,7 +56,7 @@ sub collect {
         }
         if ( $line =~ /configure options/ ) {
             my @values = str_split( $line, ':' );
-            my $cfg    = @values[1];
+            my $cfg = @values[1];
             $cfg = str_trim($cfg);
             if ( $cfg =~ /--prefix=/ ) {
                 my @values = str_split( $cfg, '=' );
@@ -82,7 +82,7 @@ sub collect {
 
 sub parseConfig {
     my ( $self, $conf_path, $identification ) = @_;
-    my @vrrp       = parseVrrp( $self, $conf_path, $identification );
+    my @vrrp = parseVrrp( $self, $conf_path, $identification );
     my @vrrpResult = ();
     foreach my $content (@vrrp) {
         my $instance = parseStructure( $content, $identification );
@@ -95,10 +95,10 @@ sub formatStructure {
     my ( $content, $identification ) = @_;
     my $newContent = '';
     while (1) {
-        my $index       = index( $content, $identification );
-        my $block       = substr( $content, 0, $index + 1 );
+        my $index = index( $content, $identification );
+        my $block = substr( $content, 0, $index + 1 );
         my @block_array = str_split( $block, '\n' );
-        my $newBlock    = '';
+        my $newBlock = '';
         foreach my $line (@block_array) {
             chomp($line);
             $line =~ s/^\s+//g;
@@ -116,7 +116,7 @@ sub formatStructure {
         $block =~ s/\n/ /;
         $block =~ s/\r/ /;
         $newContent = $newContent . $newBlock;
-        $content    = substr( $content, $index + 1, length($content) );
+        $content = substr( $content, $index + 1, length($content) );
         if ( $index == -1 ) {
             $newContent = $newContent . $content;
             last;
@@ -131,14 +131,14 @@ sub parseStructure {
     my $index    = 0;
     my $name;
     $content =~ s/$identification//g;
-    $index            = index( $content, '{' );
-    $name             = substr( $content, 0, $index );
+    $index = index( $content, '{' );
+    $name = substr( $content, 0, $index );
     $instance->{NAME} = str_trim($name);
-    $content          = substr( $content, $index + 1, length($content) );
+    $content = substr( $content, $index + 1, length($content) );
 
     #分析正文
     my @contents = str_split( $content, '[\n\r]' );
-    my $block    = '';
+    my $block = '';
     my ( $startIndex, $endIndex ) = ( 0, 0 );
     foreach my $line (@contents) {
         chomp($line);
@@ -196,7 +196,7 @@ sub analysisValue {
     my $instance  = {};
     my $index     = 0;
     my $name;
-    $index   = index( $content, '{' );
+    $index = index( $content, '{' );
     $name    = substr( $content, 0,      $index );
     $content = substr( $content, $index, length($content) );
     $content =~ ~s/^\s+|\s+$//g;
@@ -265,7 +265,7 @@ sub parseVrrp {
 
 sub str_split {
     my ( $str, $separator ) = @_;
-    my @values = split(/$separator/, $str);
+    my @values = split( /$separator/, $str );
     return @values;
 }
 
