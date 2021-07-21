@@ -11,13 +11,13 @@
 
 ## 采集标准说明
 - HOST主机硬件采集标准属性
-OBJECT_TYPE: HOST
-IS_VIRTUAL: 值是0|1，表明是否是虚拟机
-MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
-MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-SN: 主板序列号
-上述属性都可以用于关联OS
+- OBJECT_TYPE: HOST
+- IS_VIRTUAL: 值是0|1，表明是否是虚拟机
+- MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
+- MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- SN: 主板序列号
+* 上述属性都可以用于关联OS
 
 * 样例
 ```json
@@ -62,13 +62,13 @@ SN: 主板序列号
 ```
 
 - OS采集标准属性
-OBJECT_TYPE: OS
-IS_VIRTUAL: 值是0|1，表明是否是虚拟机
-MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
-MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-SN: 主板序列号
-上述属性都可以用于关联HOST硬件
+- OBJECT_TYPE: OS
+- IS_VIRTUAL: 值是0|1，表明是否是虚拟机
+- MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
+- MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- SN: 主板序列号
+* 上述属性都可以用于关联HOST硬件
 
 * 样例
 ```json
@@ -202,22 +202,22 @@ SN: 主板序列号
 ```
 
 - 应用采集标准属性
-OBJECT_TYPE: APP
-APP_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
-MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
-MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-上述属性都可以用于关联OS
-INSTALL_PATH: 安装路径
-SERVER_NAME: 应用实例名
-CONN_INFO: (LISTEN: 监听端口，包括IPV4，IPV6), (PEER: 出方向的连接)，用于计算应用调用关系
-PORT: 主服务端口
-SSL_PORT: ssl|https服务端口，，如果没有就为null
-ADMIN_PORT: 管理端口，，如果没有就为null
-ADMIN_SSL_PORT: ssl|https管理端口，如果没有就为null
-MON_PORT: 监控端口，如果没有就为null
-JMX_PORT: Java的jmx的监听端口，如果没有就为null
-PORC_INFO: 进程信息（CMDB中不需要，只是参考）
+- OBJECT_TYPE: APP
+- APP_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
+- MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
+- MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+* 上述属性都可以用于关联OS
+- INSTALL_PATH: 安装路径
+- SERVER_NAME: 应用实例名
+- CONN_INFO: (LISTEN: 监听端口，包括IPV4，IPV6), (PEER: 出方向的连接)，用于计算应用调用关系
+- PORT: 主服务端口
+- SSL_PORT: ssl|https服务端口，，如果没有就为null
+- ADMIN_PORT: 管理端口，，如果没有就为null
+- ADMIN_SSL_PORT: ssl|https管理端口，如果没有就为null
+- MON_PORT: 监控端口，如果没有就为null
+- JMX_PORT: Java的jmx的监听端口，如果没有就为null
+- PORC_INFO: 进程信息（CMDB中不需要，只是参考）
 
 * 样例
 ```json
