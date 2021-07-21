@@ -192,10 +192,9 @@ sub main {
     print Dumper ( \@apps );
 
     #TODO: save $apps to output
-    my @data = ($hostInfo, $osInfo);
-    push(@data, @apps);
+    my @data = ( $hostInfo, $osInfo, @apps );
     my $out = {};
-    $out->{DATA} = \@apps;
+    $out->{DATA} = \@data;
     Utils::saveOutput($out);
     print("INFO: All is completed.\n");
 }
