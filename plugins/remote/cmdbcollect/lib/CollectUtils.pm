@@ -194,19 +194,19 @@ sub getNicSpeedFromStr {
     chomp($speedStr);
     my $speed;
     my $unit = 'Mb/s';
-    if ( $speedStr =~ /K|Kb$/i ) {
+    if ( $speedStr =~ /K|Kb/i ) {
         $speed = int($speedStr) / 1000;
     }
-    elsif ( $speedStr =~ /M|Mb$/i ) {
+    elsif ( $speedStr =~ /M|Mb/i ) {
         $speed = $speedStr + 0.0;
     }
-    elsif ( $speedStr =~ /G|Gb$/i ) {
+    elsif ( $speedStr =~ /G|Gb/i ) {
         $speed = ( $speedStr + 0.0 ) * 1000;
     }
-    elsif ( $speedStr =~ /T|Tb$/i ) {
+    elsif ( $speedStr =~ /T|Tb/i ) {
         $speed = ( $speedStr + 0.0 ) * 1000 * 1000;
     }
-    elsif ( $speedStr =~ /P|Pb$/i ) {
+    elsif ( $speedStr =~ /P|Pb/i ) {
         $speed = ( $speedStr + 0.0 ) * 1000 * 1000 * 1000;
     }
     elsif ( $speedStr =~ /\d$/i ) {
