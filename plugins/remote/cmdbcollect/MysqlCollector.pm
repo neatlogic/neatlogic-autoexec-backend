@@ -151,11 +151,10 @@ sub collect {
 
     my $mysql = MysqlExec->new(
         mysqlHome => $mysqlHome,
-
-        #username=>$username,
-        #password=>$password,
-        host => $host,
-        port => $port
+        username  => $self->{defaultUsername},
+        password  => $self->{defaultPassword},
+        host      => $host,
+        port      => $port
     );
     $self->{mysql} = $mysql;
 

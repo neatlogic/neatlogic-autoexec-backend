@@ -5,8 +5,10 @@ use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use Getopt::Long;
 use POSIX qw(uname);
 use File::Basename;
+use JSON qw(from_json to_json);
 
 #use JSON;
 use ProcessFinder;
@@ -17,30 +19,94 @@ use CollectObjType;
 use Utils;
 use Data::Dumper;
 
+my $SINGLE_TIMEOUT = 300;
+my $START_TIME     = time();
+$ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
+
+sub collectTimeout {
+    my $osType = ( uname() )[0];
+    if ( $osType ne 'Windows' ) {
+        my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
+        foreach my $pid (@pids) {
+            if ( $pid ne $$ ) {
+                kill($pid);
+            }
+        }
+        sleep(3);
+        my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
+        foreach my $pid (@pids) {
+            if ( $pid ne $$ ) {
+                kill( 'KILL', $pid );
+            }
+        }
+    }
+    else {
+        #TODO: 需要实现根据环境变量查找进程的powershell脚本
+    }
+}
+
 sub main {
     my $osInfo;
+    $SIG{ALRM} = \&collectTimeout;
+
+    my $classDef;
+    my $defaultPassConf;
+
+    GetOptions(
+        'class=s'           => \$classDef,
+        'defaultpassconf=s' => \$defaultPassConf
+    );
+
+    my $collectClassMap;
+    if ( defined($classDef) and $classDef ne '' ) {
+        $collectClassMap = {};
+        map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
+    }
+
+    my $passArgs = {};
+
+    # #Example:
+    # {
+    #     "Mysql":{
+    #         "username":"root",
+    #         "password":"mypassword"
+    #     },
+    #     "Postgresql":{
+    #         "username":"pgroot",
+    #         "password":"pgpassword"
+    #     }
+    # }
+    if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
+        eval { $passArgs = from_json($defaultPassConf); };
+        if ($@) {
+            print("ERROR: parse password config option defaultpassconf failed, $@\n");
+        }
+    }
 
     #收集OS和硬件信息
-    print("INFO: Begin to collect OS information...\n");
-    my $osGather = OSGather->new();
-    my ( $hostInfo, $osInfo ) = $osGather->collect();
-    if ( defined($osInfo) ) {
-        $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
-        $osInfo->{OS_TYPE}     = ( uname() )[0];
-        $osInfo->{OS_ID}       = $osGather->{osId};
-        $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
-        $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-        $osInfo->{PK}          = ['MGMT_IP'];
-    }
-    if ( defined($hostInfo) ) {
-        $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
-        $hostInfo->{OS_ID}       = $osGather->{osId};
-        $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
-        $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-        $hostInfo->{PK}          = ['MGMT_IP'];
-    }
+    my ( $hostInfo, $osInfo );
+    if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
+        print("INFO: Begin to collect OS information...\n");
+        my $osGather = OSGather->new();
+        ( $hostInfo, $osInfo ) = $osGather->collect();
+        if ( defined($osInfo) ) {
+            $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
+            $osInfo->{OS_TYPE}     = ( uname() )[0];
+            $osInfo->{OS_ID}       = $osGather->{osId};
+            $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
+            $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
+            $osInfo->{PK}          = ['MGMT_IP'];
+        }
+        if ( defined($hostInfo) ) {
+            $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
+            $hostInfo->{OS_ID}       = $osGather->{osId};
+            $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
+            $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
+            $hostInfo->{PK}          = ['MGMT_IP'];
+        }
 
-    print("INFO: OS information collected.\n");
+        print("INFO: OS information collected.\n");
+    }
 
     my $appsMap = {};
 
@@ -57,6 +123,10 @@ sub main {
 
         my $collectClass = substr( $collectorName, 0, -3 );
         my $appType      = substr( $collectorName, 0, -12 );
+
+        if ( defined($collectClassMap) and not defined( $collectClassMap->{$appType} ) ) {
+            next;
+        }
 
         eval {
             require($collectorName);
@@ -95,9 +165,22 @@ sub main {
         $procInfo->{CONN_INFO} = $connInfo;
         print("INFO: Process connection infomation collected.\n");
 
-        my $collector = $collectorClass->new( $procInfo, $matchedProcsInfo );
-        my @appInfos  = $collector->collect($procInfo);
-        my $pkConfig  = $collector->getPK();
+        my $collector;
+        my @appInfos;
+        my $pkConfig;
+
+        alarm($SINGLE_TIMEOUT);
+        eval {
+            $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
+            @appInfos  = $collector->collect($procInfo);
+            $pkConfig  = $collector->getPK();
+        };
+        alarm(0);
+
+        if ($@) {
+            print("ERROR: $collectorClass return failed, $@\n");
+            return 0;
+        }
 
         my $idx = 0;
         for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
@@ -192,7 +275,15 @@ sub main {
     #print Dumper ( \@apps );
 
     #TODO: save $apps to output
-    my @data = ( $hostInfo, $osInfo, @apps );
+    my @data = ();
+    if ( defined($hostInfo) ) {
+        push( @data, $hostInfo );
+    }
+    if ( defined($osInfo) ) {
+        push( @data, $osInfo );
+    }
+    push( @data, @apps );
+
     my $out = {};
     $out->{DATA} = \@data;
     Utils::saveOutput($out);

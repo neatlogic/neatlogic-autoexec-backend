@@ -246,17 +246,15 @@ class Operation:
 
     def appendCmdOpts(self, cmd, noPassword=False):
         for k, v in self.options.items():
-            isNodeParam = False
+            kDesc = None
             if 'desc' in self.param and k in self.param['desc']:
-                kDesc = self.param['desc'][k]
-                if kDesc.lower() == 'node':
-                    isNodeParam = True
+                kDesc = self.param['desc'][k].lower()
 
-            if noPassword and (k == 'password' or k == 'pass'):
+            if noPassword and kDesc == 'password':
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                if isNodeParam:
-                    cmd = cmd + ' --{} \'{}\' '.format(k, v)
+                if kDesc in ('node', 'json', 'password'):
+                    cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
