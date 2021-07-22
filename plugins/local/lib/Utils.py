@@ -8,7 +8,9 @@ import os
 import sys
 import json
 import time
+import binascii
 
+PYTHON_VER = sys.version_info.major
 
 def setEnv():
     pass
@@ -29,6 +31,27 @@ def getOutput(output_path):
     outputFile.close()
     return data
 
+
+def _rc4(key, data):
+    x = 0
+    box = list(range(256))
+    for i in range(256):
+        x = (x + box[i] + ord(key[i % len(key)])) % 256
+        box[i], box[x] = box[x], box[i]
+    x = y = 0
+    out = []
+    for char in data:
+        x = (x + 1) % 256
+        y = (y + box[x]) % 256
+        box[x], box[y] = box[y], box[x]
+        out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
+    return ''.join(out)
+
+def _rc4_decrypt_hex(key, data):
+    if PYTHON_VER == 2:
+        return _rc4(key, binascii.unhexlify(data))
+    elif PYTHON_VER == 3:
+        return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
 
 def getMyNode(self):
     nodeJson = os.environ['AUTOEXEC_NODE']
@@ -99,5 +122,5 @@ def handleJsonstr(jsonstr):
 # 获取当前时间
 
 
-def getCurrentTime(self):
+def getCurrentTime():
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
