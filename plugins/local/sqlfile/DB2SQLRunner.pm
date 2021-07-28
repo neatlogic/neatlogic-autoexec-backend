@@ -488,7 +488,7 @@ sub run {
 
                         $opt = 'rollback' if ( not defined($opt) );
 
-                        my $ret = system("db2 $opt");
+                        $ret = system("db2 $opt");
                         if ( $opt eq 'rollback' ) {
                             $isFail = 1;
                         }
