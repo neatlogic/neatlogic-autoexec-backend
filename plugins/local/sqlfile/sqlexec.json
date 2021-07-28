@@ -73,7 +73,7 @@
             "validate": ""
         },
         {
-            "opt": "drargs",
+            "opt": "dbargs",
             "name": "DB自定义参数",
             "help": "数据库执行工具的自定义参数",
             "type": "input",
