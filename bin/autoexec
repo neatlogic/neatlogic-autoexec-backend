@@ -280,7 +280,7 @@ if __name__ == "__main__":
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
-    parser.add_argument('--nofirenext','-e', default=False, action='store_true', help='fire next job phase')
+    parser.add_argument('--nofirenext', '-e', default=False, action='store_true', help='fire next job phase')
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
@@ -313,6 +313,7 @@ if __name__ == "__main__":
         registerTools(serverAdapter, pluginsPath, 'local')
         registerTools(serverAdapter, pluginsPath, 'remote')
     elif args.pause:
+        ret = 0
         print("INFO: try to pause job:{}\n".format(args.jobid))
         autoexecIsPaused = False
         autoexecPid = findJobProcess(args.jobid)
@@ -332,10 +333,14 @@ if __name__ == "__main__":
                 print("INFO: Process {} puased.\n".format(autoexecPid))
 
             if not autoexecIsPaused:
+                ret = 1
                 print("WARN: Kill process {} failed.\n".format(autoexecPid))
         else:
+            ret = 2
             print("INFO: Can not find job {} process.\n".format(args.jobid))
+        sys.exit(ret)
     elif args.abort:
+        ret = 0
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
         autoexecPid = findJobProcess(args.jobid)
@@ -356,9 +361,12 @@ if __name__ == "__main__":
                 print("INFO: Process {} killed.\n".format(autoexecPid))
 
             if not autoexecIsKilled:
+                ret = 1
                 print("WARN: Kill process {} failed.\n".format(autoexecPid))
         else:
+            ret = 2
             print("INFO: Can not find job {} process.\n".format(args.jobid))
+        sys.exit(ret)
     else:
         # 初始化运行context
         dataPath = homePath + '/data'
