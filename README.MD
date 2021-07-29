@@ -6,12 +6,14 @@ autoexec是自动化runner上的backend执行工具。用于执行自动化作�
 
 ## 参数
 ```shell
-$ python3 bin/autoexec --helpusage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER]
+usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER]
                 [--paramsfile PARAMSFILE] [--nodesfile NODESFILE] [--force]
-                [--abort] [--register REGISTER] [--devmode]
+                [--firstfire] [--abort] [--pause] [--register REGISTER]
+                [--cleanstatus] [--devmode] [--nofirenext]
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --verbose         Automation Runner
   --jobid JOBID, -j JOBID
                         Job id for this execution
   --execuser EXECUSER, -u EXECUSER
@@ -21,12 +23,14 @@ optional arguments:
   --nodesfile NODESFILE, -n NODESFILE
                         Nodes file path for this execution
   --force, -f           Force to run all nodes regardless the node status
+  --firstfire, -i       the first phase fired, create new log file
   --abort, -k           abort the job
-  --pause, -s           pause the job
+  --pause, -s           puase the job
   --register REGISTER, -r REGISTER
                         register all tools to tenent
+  --cleanstatus, -c     clean all stats of job
   --devmode, -d         develope test in command line
-  
+  --nofirenext, -e      do not fire next job phase
 ```
 
 ## 使用
@@ -69,6 +73,15 @@ $ python3 bin/autoexec --jobid "2983676" --execuser "admin" --paramsfile "params
 python3 bin/autoexec --jobid "2983676" --abort
 ```
 *停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态"已中止"callback后台服务。*
+*进程返回值：0:停止成功；1:停止失败；2:作业不存在*
+
+- 暂停作业
+
+```shell
+python3 bin/autoexec --jobid "2983676" --pause
+```
+*暂停某个作业的运行，使用--jobid指定需要停止的作业号，调度器会等到最近发起的节点运行完成。*
+*进程返回值：0:停止成功；1:停止失败；2:作业不存在*
 
 - 清理作业的运行状态记录
 ```shell
