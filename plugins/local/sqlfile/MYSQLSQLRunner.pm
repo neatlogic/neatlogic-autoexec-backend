@@ -71,6 +71,7 @@ sub new {
     $ENV{MYSQL_HISTFILE}  = '/dev/null';
 
     print("INFO: mysql -vs -h$host -P$port -u$user -p'*******' -A -D$dbName\n");
+    system('env');
 
     my $spawn = Expect->spawn("mysql -vs -h$host -P$port -u$user -p'$pass' -A -D$dbName");
 

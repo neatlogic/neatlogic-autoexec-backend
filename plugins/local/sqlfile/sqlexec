@@ -29,6 +29,7 @@ sub usage {
 sub main {
     my $isforce = 0;
 
+    my $node;
     my $isHelp        = 0;
     my $isVerbose     = 0;
     my $isDryRun      = 0;
@@ -43,6 +44,7 @@ sub main {
 
     GetOptions(
         'help'          => \$isHelp,
+        'node=s'        => \$node,
         'v|verbose=i'   => \$isVerbose,
         'force'         => \$isForce,
         'dryrun'        => \$isDryRun,
@@ -59,7 +61,6 @@ sub main {
     my $dbNode;
     my $dbNodeJson = $ENV{AUTOEXEC_NODE};
     if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
-        print("DEBUG: $dbNodeJson\n");
         $dbNode = from_json($dbNodeJson);
     }
 
@@ -69,13 +70,13 @@ sub main {
     }
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
-    if ( not defined($phaseName) or $phaseName eq '' ){
+    if ( not defined($phaseName) or $phaseName eq '' ) {
         $hasOptError = 1;
         print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
     }
 
     my $execUser = $ENV{AUTOEXEC_USER};
-    if ( not defined($execUser) or $execUser eq '' ){
+    if ( not defined($execUser) or $execUser eq '' ) {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
@@ -84,8 +85,8 @@ sub main {
         my $sqlFileArray = from_json($sqlFileJson);
         foreach my $sqlFile (@$sqlFileArray) {
             $sqlFile =~ s/^\/?file\///;
-            push(@$sqlFiles, $sqlFile);
-        } 
+            push( @$sqlFiles, $sqlFile );
+        }
     }
     if ( scalar(@$sqlFiles) == 0 ) {
         $hasOptError = 1;
@@ -96,7 +97,16 @@ sub main {
         usage();
     }
 
-    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, sqlFiles => $sqlFiles, istty => 0 );
+    my $sqlFileRunner = SQLFileRunner->new(
+        dbNode     => $dbNode,
+        sqlFiles   => $sqlFiles,
+        isForce    => $isForce,
+        isDryRun   => $isDryRun,
+        autocommit => $isAutoCommit,
+        dbVersion  => $dbVersion,
+        dbArgs     => $dbArgs,
+        istty      => 0
+    );
     my $rc = 0;
 
     $rc = $sqlFileRunner->checkSqlFiles();

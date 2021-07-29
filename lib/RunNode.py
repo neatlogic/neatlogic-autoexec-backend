@@ -74,7 +74,6 @@ class RunNode:
         self.phaseName = phaseName
         self.runPath = context.runPath
         self.node = node
-        print("DEBUG: node:" + json.dumps(node) + "\n")
         self.warnCount = 0
 
         self.tagent = None

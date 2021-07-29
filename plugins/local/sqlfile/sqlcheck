@@ -15,7 +15,7 @@ use SQLFileRunner;
 sub usage {
     my $pname = basename($0);
 
-    print( "Usage: $pname [-v|--verbose] --sqlfilejson <1.ddl.a.sql>\n" );
+    print("Usage: $pname [-v|--verbose] --sqlfilejson <1.ddl.a.sql>\n");
     print("       sql file:    sql script file\n");
 
     exit(1);
@@ -24,7 +24,8 @@ sub usage {
 sub main {
     my $isforce = 0;
 
-    my $isHelp        = 0; 
+    my $node;
+    my $isHelp        = 0;
     my $isVerbose     = 0;
     my $isDryRun      = 0;
     my $isForce       = 0;
@@ -38,6 +39,7 @@ sub main {
 
     GetOptions(
         'help'          => \$isHelp,
+        'node=s'        => \$node,
         'v|verbose=i'   => \$isVerbose,
         'sqlfilejson=s' => \$sqlFileJson
     );
@@ -56,13 +58,13 @@ sub main {
     }
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
-    if ( not defined($phaseName) or $phaseName eq '' ){
+    if ( not defined($phaseName) or $phaseName eq '' ) {
         $hasOptError = 1;
         print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
     }
 
     my $execUser = $ENV{AUTOEXEC_USER};
-    if ( not defined($execUser) or $execUser eq '' ){
+    if ( not defined($execUser) or $execUser eq '' ) {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
@@ -76,7 +78,7 @@ sub main {
         my $sqlFileArray = from_json($sqlFileJson);
         foreach my $sqlFile (@$sqlFileArray) {
             $sqlFile =~ s/^\/?file\///;
-            push(@$sqlFiles, $sqlFile);
+            push( @$sqlFiles, $sqlFile );
         }
     }
     if ( scalar(@$sqlFiles) == 0 ) {

@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use FindBin;
+
 #use lib $FindBin::Bin;
 #use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
@@ -292,6 +293,8 @@ sub execOneSqlFile {
     print( "= End\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
     print("= Elapsed time: $consumeTime seconds.\n");
     print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+
+    return $hasError;
 }
 
 sub _checkAndDelBom {
@@ -452,6 +455,10 @@ sub execSqlFiles {
                     }
                 }
             }
+        }
+
+        if ( $hasError == 1 ) {
+            last;
         }
     }
 
