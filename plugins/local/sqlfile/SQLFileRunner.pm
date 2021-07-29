@@ -49,7 +49,7 @@ sub new {
     my $dbInfo = DBInfo->new( $self->{dbNode}, \%args );
     $self->{dbInfo}                = $dbInfo;
     $self->{sqlFileDir}            = "$jobPath/sqlfile/$phaseName";
-    $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{dbName}";
+    $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{nodeId}";
     $self->{waitInputFlagFilePath} = "$jobPath/log/$phaseName.waitInput";
 
     return $self;

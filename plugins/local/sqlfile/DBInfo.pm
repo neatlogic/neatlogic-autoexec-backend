@@ -12,10 +12,11 @@ sub new {
     my ( $type, $nodeInfo, $args ) = @_;
     my $self = {
         dbStr        => $nodeInfo->{accessEndpoint},
-        #dbType       => $nodeInfo->{nodeType},
-        dbType       => 'mysql',
+        dbType       => $nodeInfo->{nodeType},
+        #dbType       => 'mysql',
         host         => $nodeInfo->{host},
         port         => $nodeInfo->{port},
+        nodeId       => $nodeInfo->{nodeId},
         dbName       => $nodeInfo->{nodeName},
         sid          => $nodeInfo->{nodeName},
         user         => $nodeInfo->{username},
