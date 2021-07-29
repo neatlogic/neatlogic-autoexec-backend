@@ -109,8 +109,8 @@ class RunNode:
             os.mkdir(self.phaseLogDir)
 
         self.logPathWithTime = None
-        self.logPath = '{}/{}-{}.txt'.format(self.phaseLogDir, self.host, self.port)
-        self.hisLogDir = '{}/{}-{}.hislog'.format(self.phaseLogDir, self.host, self.port)
+        self.logPath = '{}/{}-{}-{}.txt'.format(self.phaseLogDir, self.host, self.port, self.id)
+        self.hisLogDir = '{}/{}-{}-{}.hislog'.format(self.phaseLogDir, self.host, self.port, self.id)
 
         try:
             if not os.path.exists(self.hisLogDir):
@@ -125,7 +125,7 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port)
+        self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port, self.id)
 
         self.outputRoot = self.runPath + '/output'
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], self.port)
