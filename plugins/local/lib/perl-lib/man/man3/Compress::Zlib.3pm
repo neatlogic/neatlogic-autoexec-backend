@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Compress::Zlib 3"
-.TH Compress::Zlib 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH Compress::Zlib 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -184,7 +184,7 @@ Compress::Zlib \- Interface to zlib compression library
 \&    $status = $gz\->gzclose() ;
 \&    $status = $gz\->gzeof() ;
 \&    $status = $gz\->gzsetparams($level, $strategy) ;
-\&    $errstring = $gz\->gzerror() ;
+\&    $errstring = $gz\->gzerror() ; 
 \&    $gzerrno
 \&
 \&    $dest = Compress::Zlib::memGzip($buffer) ;
@@ -277,7 +277,7 @@ IO::Uncompress::Gunzip for more details.
 .IX Item "$gz = gzopen($filehandle, $mode)"
 .PD
 This function opens either the \fIgzip\fR file \f(CW$filename\fR for reading or
-writing or attaches to the opened filehandle, \f(CW$filehandle\fR.
+writing or attaches to the opened filehandle, \f(CW$filehandle\fR. 
 It returns an object on success and \f(CW\*(C`undef\*(C'\fR on failure.
 .Sp
 When writing a gzip file this interface will \fIalways\fR create the smallest
@@ -456,12 +456,12 @@ Here is an example script which uses the interface. It implements a
 \&    foreach my $file (@ARGV) {
 \&        my $buffer ;
 \&    
-\&        my $gz = gzopen($file, "rb")
+\&        my $gz = gzopen($file, "rb") 
 \&             or die "Cannot open $file: $gzerrno\en" ;
 \&    
 \&        print $buffer while $gz\->gzread($buffer) > 0 ;
 \&    
-\&        die "Error reading from $file: $gzerrno" . ($gzerrno+0) . "\en"
+\&        die "Error reading from $file: $gzerrno" . ($gzerrno+0) . "\en" 
 \&            if $gzerrno != Z_STREAM_END ;
 \&        
 \&        $gz\->gzclose() ;
@@ -486,14 +486,14 @@ very simple \fIgrep\fR like script.
 \&    @ARGV = \*(Aq\-\*(Aq unless @ARGV ;
 \&    
 \&    foreach my $file (@ARGV) {
-\&        my $gz = gzopen($file, "rb")
+\&        my $gz = gzopen($file, "rb") 
 \&             or die "Cannot open $file: $gzerrno\en" ;
 \&    
 \&        while ($gz\->gzreadline($_) > 0) {
 \&            print if /$pattern/ ;
 \&        }
 \&    
-\&        die "Error reading from $file: $gzerrno\en"
+\&        die "Error reading from $file: $gzerrno\en" 
 \&            if $gzerrno != Z_STREAM_END ;
 \&        
 \&        $gz\->gzclose() ;
@@ -516,7 +516,7 @@ standard output.
 \&          or die "Cannot open stdout: $gzerrno\en" ;
 \&    
 \&    while (<>) {
-\&        $gz\->gzwrite($_)
+\&        $gz\->gzwrite($_) 
 \&          or die "error writing: $gzerrno\en" ;
 \&    }
 \&
@@ -528,7 +528,7 @@ This function is used to create an in-memory gzip file with the minimum
 possible gzip header (exactly 10 bytes).
 .PP
 .Vb 2
-\&    $dest = Compress::Zlib::memGzip($buffer)
+\&    $dest = Compress::Zlib::memGzip($buffer) 
 \&        or die "Cannot compress: $gzerrno\en";
 .Ve
 .PP
@@ -544,7 +544,7 @@ carry out in-memory gzip compression.
 This function is used to uncompress an in-memory gzip file.
 .PP
 .Vb 2
-\&    $dest = Compress::Zlib::memGunzip($buffer)
+\&    $dest = Compress::Zlib::memGunzip($buffer) 
 \&        or die "Cannot uncompress: $gzerrno\en";
 .Ve
 .PP
@@ -662,7 +662,7 @@ The default is Z_DEFAULT_STRATEGY.
 .IX Item "-Dictionary"
 When a dictionary is specified \fICompress::Zlib\fR will automatically
 call \f(CW\*(C`deflateSetDictionary\*(C'\fR directly after calling \f(CW\*(C`deflateInit\*(C'\fR. The
-Adler32 value for the dictionary can be obtained by calling the method
+Adler32 value for the dictionary can be obtained by calling the method 
 \&\f(CW\*(C`$d\-\*(C'\fR\fIdict_adler()\fR>.
 .Sp
 The default is no dictionary.
@@ -679,7 +679,7 @@ to override the default buffer size and compression level. All other
 options will take their default values.
 .PP
 .Vb 2
-\&    deflateInit( \-Bufsize => 300,
+\&    deflateInit( \-Bufsize => 300, 
 \&                 \-Level => Z_BEST_SPEED  ) ;
 .Ve
 .ie n .SS "\fB($out, \fP\fB$status\fP\fB) = \fP\fB$d\fP\fB\->deflate($buffer)\fP"
@@ -849,7 +849,7 @@ Inflates the complete contents of \f(CW$buffer\fR. The buffer can either be
 a scalar or a scalar reference.
 .PP
 Returns \f(CW\*(C`Z_OK\*(C'\fR if successful and \f(CW\*(C`Z_STREAM_END\*(C'\fR if the end of the
-compressed data has been successfully reached.
+compressed data has been successfully reached. 
 If not successful, \f(CW$out\fR will be \fIundef\fR and \f(CW$status\fR will hold
 the \fIzlib\fR error code.
 .PP
@@ -913,7 +913,7 @@ Here is an example of using \f(CW\*(C`inflate\*(C'\fR.
 \&    {
 \&        ($output, $status) = $x\->inflate(\e$input) ;
 \&    
-\&        print $output
+\&        print $output 
 \&            if $status == Z_OK or $status == Z_STREAM_END ;
 \&    
 \&        last if $status != Z_OK ;
@@ -968,27 +968,27 @@ File::GlobMapper, Archive::Zip,
 Archive::Tar,
 IO::Zlib
 .PP
-For \s-1RFC 1950, 1951\s0 and 1952 see
-<http://www.faqs.org/rfcs/rfc1950.html>,
-<http://www.faqs.org/rfcs/rfc1951.html> and
-<http://www.faqs.org/rfcs/rfc1952.html>
+For \s-1RFC 1950, 1951\s0 and 1952 see 
+\&\fIhttp://www.faqs.org/rfcs/rfc1950.html\fR,
+\&\fIhttp://www.faqs.org/rfcs/rfc1951.html\fR and
+\&\fIhttp://www.faqs.org/rfcs/rfc1952.html\fR
 .PP
 The \fIzlib\fR compression library was written by Jean-loup Gailly
-\&\f(CW\*(C`gzip@prep.ai.mit.edu\*(C'\fR and Mark Adler \f(CW\*(C`madler@alumni.caltech.edu\*(C'\fR.
+\&\fIgzip@prep.ai.mit.edu\fR and Mark Adler \fImadler@alumni.caltech.edu\fR.
 .PP
 The primary site for the \fIzlib\fR compression library is
-<http://www.zlib.org>.
+\&\fIhttp://www.zlib.org\fR.
 .PP
-The primary site for gzip is <http://www.gzip.org>.
+The primary site for gzip is \fIhttp://www.gzip.org\fR.
 .SH "AUTHOR"
 .IX Header "AUTHOR"
-This module was written by Paul Marquess, \f(CW\*(C`pmqs@cpan.org\*(C'\fR.
+This module was written by Paul Marquess, \fIpmqs@cpan.org\fR.
 .SH "MODIFICATION HISTORY"
 .IX Header "MODIFICATION HISTORY"
 See the Changes file.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (c) 1995\-2018 Paul Marquess. All rights reserved.
+Copyright (c) 1995\-2014 Paul Marquess. All rights reserved.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

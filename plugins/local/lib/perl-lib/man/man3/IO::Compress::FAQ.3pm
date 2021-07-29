@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "IO::Compress::FAQ 3"
-.TH IO::Compress::FAQ 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH IO::Compress::FAQ 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -251,7 +251,7 @@ recompression.
 \&    my $gunzip = new IO::Uncompress::Gunzip $gzipFile
 \&        or die "Cannot gunzip $gzipFile: $GunzipError\en" ;
 \&
-\&    bzip2 $gunzip => $bzipFile
+\&    bzip2 $gunzip => $bzipFile 
 \&        or die "Cannot bzip2 to $bzipFile: $Bzip2Error\en" ;
 .Ve
 .PP
@@ -346,9 +346,9 @@ An alternatively is the Info-Zip appnote. This is available from
 The primary reference for gzip files is \s-1RFC 1952
 \&\s0<http://www.faqs.org/rfcs/rfc1952.html>
 .PP
-The primary site for gzip is <http://www.gzip.org>.
-.SS "Dealing with concatenated gzip files"
-.IX Subsection "Dealing with concatenated gzip files"
+The primary site for gzip is \fIhttp://www.gzip.org\fR.
+.SS "Dealing with Concatenated gzip files"
+.IX Subsection "Dealing with Concatenated gzip files"
 If the gunzip program encounters a file containing multiple gzip files
 concatenated together it will automatically uncompress them all.
 The example below illustrates this behaviour
@@ -356,7 +356,7 @@ The example below illustrates this behaviour
 .Vb 5
 \&    $ echo abc | gzip \-c >x.gz
 \&    $ echo def | gzip \-c >>x.gz
-\&    $ gunzip \-c x.gz
+\&    $ gunzip \-c x.gz 
 \&    abc
 \&    def
 .Ve
@@ -378,27 +378,17 @@ include the \f(CW\*(C`MultiStream\*(C'\fR option, as shown below
 \&    abc
 \&    def
 .Ve
-.SS "Reading bgzip files with IO::Uncompress::Gunzip"
-.IX Subsection "Reading bgzip files with IO::Uncompress::Gunzip"
-A \f(CW\*(C`bgzip\*(C'\fR file consists of a series of valid gzip-compliant data streams
-concatenated together. To read a file created by \f(CW\*(C`bgzip\*(C'\fR with
-\&\f(CW\*(C`IO::Uncompress::Gunzip\*(C'\fR use the \f(CW\*(C`MultiStream\*(C'\fR option as shown in the
-previous section.
-.PP
-See the section titled \*(L"The \s-1BGZF\s0 compression format\*(R" in
-<http://samtools.github.io/hts\-specs/SAMv1.pdf> for a definition of
-\&\f(CW\*(C`bgzip\*(C'\fR.
 .SH "ZLIB"
 .IX Header "ZLIB"
 .SS "Zlib Resources"
 .IX Subsection "Zlib Resources"
 The primary site for the \fIzlib\fR compression library is
-<http://www.zlib.org>.
+\&\fIhttp://www.zlib.org\fR.
 .SH "Bzip2"
 .IX Header "Bzip2"
 .SS "Bzip2 Resources"
 .IX Subsection "Bzip2 Resources"
-The primary site for bzip2 is <http://www.bzip.org>.
+The primary site for bzip2 is \fIhttp://www.bzip.org\fR.
 .SS "Dealing with Concatenated bzip2 files"
 .IX Subsection "Dealing with Concatenated bzip2 files"
 If the bunzip2 program encounters a file containing multiple bzip2 files
@@ -441,7 +431,7 @@ data stream in a pbzip2 file. To uncompress the complete pbzip2 file you
 must include the \f(CW\*(C`MultiStream\*(C'\fR option, like this.
 .PP
 .Vb 2
-\&    bunzip2 $input => \e$output, MultiStream => 1
+\&    bunzip2 $input => \e$output, MultiStream => 1 
 \&        or die "bunzip2 failed: $Bunzip2Error\en";
 .Ve
 .SH "HTTP & NETWORK"
@@ -450,7 +440,7 @@ must include the \f(CW\*(C`MultiStream\*(C'\fR option, like this.
 .IX Subsection "Apache::GZip Revisited"
 Below is a mod_perl Apache compression module, called \f(CW\*(C`Apache::GZip\*(C'\fR,
 taken from
-<http://perl.apache.org/docs/tutorials/tips/mod_perl_tricks/mod_perl_tricks.html#On_the_Fly_Compression>
+\&\fIhttp://perl.apache.org/docs/tutorials/tips/mod_perl_tricks/mod_perl_tricks.html#On_the_Fly_Compression\fR
 .PP
 .Vb 2
 \&  package Apache::GZip;
@@ -489,7 +479,7 @@ taken from
 \&      return bless { r   => $r,
 \&                     crc =>  crc32(undef),
 \&                     d   => $d,
-\&                     l   =>  0
+\&                     l   =>  0 
 \&                   },$class;
 \&  }
 \&  
@@ -685,7 +675,7 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&        my $buffer;
 \&
 \&        my $x ;
-\&        ($x = $fh\->read($buffer, ZIP_LOCAL_HDR_LENGTH)) == ZIP_LOCAL_HDR_LENGTH
+\&        ($x = $fh\->read($buffer, ZIP_LOCAL_HDR_LENGTH)) == ZIP_LOCAL_HDR_LENGTH 
 \&            or die "Truncated file: $!\en";
 \&
 \&        my $signature = unpack ("V", substr($buffer, 0, 4));
@@ -697,11 +687,11 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&        my $compressedMethod   = unpack ("v", substr($buffer, 8, 2));
 \&        my $compressedLength   = unpack ("V", substr($buffer, 18, 4));
 \&        my $uncompressedLength = unpack ("V", substr($buffer, 22, 4));
-\&        my $filename_length    = unpack ("v", substr($buffer, 26, 2));
+\&        my $filename_length    = unpack ("v", substr($buffer, 26, 2)); 
 \&        my $extra_length       = unpack ("v", substr($buffer, 28, 2));
 \&
 \&        my $filename ;
-\&        $fh\->read($filename, $filename_length) == $filename_length
+\&        $fh\->read($filename, $filename_length) == $filename_length 
 \&            or die "Truncated file\en";
 \&
 \&        $fh\->read($buffer, $extra_length) == $extra_length
@@ -829,13 +819,13 @@ Archive::Tar,
 IO::Zlib
 .SH "AUTHOR"
 .IX Header "AUTHOR"
-This module was written by Paul Marquess, \f(CW\*(C`pmqs@cpan.org\*(C'\fR.
+This module was written by Paul Marquess, \fIpmqs@cpan.org\fR.
 .SH "MODIFICATION HISTORY"
 .IX Header "MODIFICATION HISTORY"
 See the Changes file.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (c) 2005\-2018 Paul Marquess. All rights reserved.
+Copyright (c) 2005\-2014 Paul Marquess. All rights reserved.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

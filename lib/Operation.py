@@ -152,8 +152,11 @@ class Operation:
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
                     if not matchObj:
-                        fileName = self.fetchFile(argName, argValue)
-                        argValue = 'file/' + fileName
+                        fileNames = self.fetchFile(argName, argValue)
+                        fileNamesJson = []
+                        for fileName in fileNames:
+                            fileNamesJson.append('file/' + fileName)
+                        argValue = json.dumps(fileNamesJson)
                 self.options[argName] = argValue
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
@@ -182,7 +185,7 @@ class Operation:
                 #fcntl.flock(cacheFile, fcntl.LOCK_SH)
                 # self.lockedFDs.append(cacheFile)
 
-        return ','.join(fileNamesArray)
+        return fileNamesArray
 
     # 获取script
     def fetchScript(self, savePath, opId):
@@ -253,7 +256,7 @@ class Operation:
             if noPassword and kDesc == 'password':
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                if kDesc in ('node', 'json', 'password'):
+                if kDesc in ('node', 'json', 'password', 'file'):
                     cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
                     cmd = cmd + ' -{} "{}" '.format(k, v)

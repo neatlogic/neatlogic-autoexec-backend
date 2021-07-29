@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Tty::Constant 3"
-.TH Tty::Constant 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH Tty::Constant 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -185,7 +185,7 @@ B300
 B307200
 .IP "+" 4
 B38400
-.IP "\-" 4
+.IP "+" 4
 B460800
 .IP "+" 4
 B4800
@@ -197,7 +197,7 @@ B57600
 B600
 .IP "+" 4
 B75
-.IP "+" 4
+.IP "\-" 4
 B76800
 .IP "+" 4
 B9600
@@ -209,13 +209,13 @@ B9600
 \&\s-1BS1\s0
 .IP "+" 4
 \&\s-1BSDLY\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1CBAUD\s0
 .IP "\-" 4
 \&\s-1CBAUDEXT\s0
 .IP "+" 4
 \&\s-1CBRK\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1CCTS_OFLOW\s0
 .IP "\-" 4
 \&\s-1CDEL\s0
@@ -235,7 +235,7 @@ B9600
 \&\s-1CESC\s0
 .IP "+" 4
 \&\s-1CFLUSH\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1CIBAUD\s0
 .IP "\-" 4
 \&\s-1CIBAUDEXT\s0
@@ -271,7 +271,7 @@ B9600
 \&\s-1CRTSCTS\s0
 .IP "\-" 4
 \&\s-1CRTSXOFF\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1CRTS_IFLOW\s0
 .IP "+" 4
 \&\s-1CS5\s0
@@ -357,7 +357,7 @@ B9600
 \&\s-1ISIG\s0
 .IP "+" 4
 \&\s-1ISTRIP\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1IUCLC\s0
 .IP "+" 4
 \&\s-1IXANY\s0
@@ -407,7 +407,7 @@ B9600
 \&\s-1OFDEL\s0
 .IP "+" 4
 \&\s-1OFILL\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1OLCUC\s0
 .IP "+" 4
 \&\s-1ONLCR\s0
@@ -445,11 +445,11 @@ B9600
 \&\s-1TABDLY\s0
 .IP "\-" 4
 \&\s-1TCDSET\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCFLSH\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCGETA\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCGETS\s0
 .IP "+" 4
 \&\s-1TCIFLUSH\s0
@@ -471,23 +471,23 @@ B9600
 \&\s-1TCSAFLUSH\s0
 .IP "+" 4
 \&\s-1TCSANOW\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSBRK\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETA\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETAF\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETAW\s0
 .IP "\-" 4
 \&\s-1TCSETCTTY\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETS\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETSF\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCSETSW\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TCXONC\s0
 .IP "\-" 4
 \&\s-1TERM_D40\s0
@@ -507,13 +507,13 @@ B9600
 \&\s-1TERM_V61\s0
 .IP "+" 4
 \&\s-1TIOCCBRK\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1TIOCCDTR\s0
 .IP "+" 4
 \&\s-1TIOCCONS\s0
 .IP "+" 4
 \&\s-1TIOCEXCL\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1TIOCFLUSH\s0
 .IP "+" 4
 \&\s-1TIOCGETD\s0
@@ -533,9 +533,9 @@ B9600
 \&\s-1TIOCSLTC\s0
 .IP "+" 4
 \&\s-1TIOCGPGRP\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TIOCGSID\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1TIOCGSOFTCAR\s0
 .IP "+" 4
 \&\s-1TIOCGWINSZ\s0
@@ -589,13 +589,13 @@ B9600
 \&\s-1TIOCNXCL\s0
 .IP "+" 4
 \&\s-1TIOCOUTQ\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1TIOCREMOTE\s0
 .IP "+" 4
 \&\s-1TIOCSBRK\s0
 .IP "+" 4
 \&\s-1TIOCSCTTY\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1TIOCSDTR\s0
 .IP "+" 4
 \&\s-1TIOCSETD\s0
@@ -605,13 +605,13 @@ B9600
 \&\s-1TIOCSPGRP\s0
 .IP "\-" 4
 \&\s-1TIOCSSID\s0
-.IP "\-" 4
-\&\s-1TIOCSSOFTCAR\s0
 .IP "+" 4
+\&\s-1TIOCSSOFTCAR\s0
+.IP "\-" 4
 \&\s-1TIOCSTART\s0
 .IP "+" 4
 \&\s-1TIOCSTI\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1TIOCSTOP\s0
 .IP "+" 4
 \&\s-1TIOCSWINSZ\s0
@@ -637,7 +637,7 @@ B9600
 \&\s-1VCEOL\s0
 .IP "+" 4
 \&\s-1VDISCARD\s0
-.IP "+" 4
+.IP "\-" 4
 \&\s-1VDSUSP\s0
 .IP "+" 4
 \&\s-1VEOF\s0
@@ -679,13 +679,13 @@ B9600
 \&\s-1VWERASE\s0
 .IP "\-" 4
 \&\s-1WRAP\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1XCASE\s0
 .IP "\-" 4
 \&\s-1XCLUDE\s0
 .IP "\-" 4
 \&\s-1XMT1EN\s0
-.IP "\-" 4
+.IP "+" 4
 \&\s-1XTABS\s0
 .SH "FOR MORE INFO SEE"
 .IX Header "FOR MORE INFO SEE"

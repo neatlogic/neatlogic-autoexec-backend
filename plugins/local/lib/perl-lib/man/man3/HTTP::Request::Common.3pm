@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "HTTP::Request::Common 3"
-.TH HTTP::Request::Common 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH HTTP::Request::Common 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -142,21 +142,27 @@
 HTTP::Request::Common \- Construct common HTTP::Request objects
 .SH "VERSION"
 .IX Header "VERSION"
-version 6.13
+version 6.18
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
-.Vb 4
+.Vb 6
 \&  use HTTP::Request::Common;
 \&  $ua = LWP::UserAgent\->new;
 \&  $ua\->request(GET \*(Aqhttp://www.sn.no/\*(Aq);
 \&  $ua\->request(POST \*(Aqhttp://somewhere/foo\*(Aq, [foo => bar, bar => foo]);
+\&  $ua\->request(PATCH \*(Aqhttp://somewhere/foo\*(Aq, [foo => bar, bar => foo]);
+\&  $ua\->request(PUT \*(Aqhttp://somewhere/foo\*(Aq, [foo => bar, bar => foo]);
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-This module provide functions that return newly created \f(CW\*(C`HTTP::Request\*(C'\fR
+This module provides functions that return newly created \f(CW\*(C`HTTP::Request\*(C'\fR
 objects.  These functions are usually more convenient to use than the
-standard \f(CW\*(C`HTTP::Request\*(C'\fR constructor for the most common requests.  The
-following functions are provided:
+standard \f(CW\*(C`HTTP::Request\*(C'\fR constructor for the most common requests.
+.PP
+Note that LWP::UserAgent has several convenience methods, including
+\&\f(CW\*(C`get\*(C'\fR, \f(CW\*(C`head\*(C'\fR, \f(CW\*(C`delete\*(C'\fR, \f(CW\*(C`post\*(C'\fR and \f(CW\*(C`put\*(C'\fR.
+.PP
+The following functions are provided:
 .ie n .IP "\s-1GET\s0 $url" 4
 .el .IP "\s-1GET\s0 \f(CW$url\fR" 4
 .IX Item "GET $url"
@@ -165,7 +171,7 @@ following functions are provided:
 .el .IP "\s-1GET\s0 \f(CW$url\fR, Header => Value,..." 4
 .IX Item "GET $url, Header => Value,..."
 .PD
-The \s-1\fIGET\s0()\fR function returns an \f(CW\*(C`HTTP::Request\*(C'\fR object initialized with
+The \f(CW\*(C`GET\*(C'\fR function returns an HTTP::Request object initialized with
 the \*(L"\s-1GET\*(R"\s0 method and the specified \s-1URL. \s0 It is roughly equivalent to the
 following call
 .Sp
@@ -179,11 +185,11 @@ following call
 but is less cluttered.  What is different is that a header named
 \&\f(CW\*(C`Content\*(C'\fR will initialize the content part of the request instead of
 setting a header field.  Note that \s-1GET\s0 requests should normally not
-have a content, so this hack makes more sense for the \s-1\fIPUT\s0()\fR, \s-1\fIPATCH\s0()\fR
- and \s-1\fIPOST\s0()\fR functions described below.
+have a content, so this hack makes more sense for the \f(CW\*(C`PUT\*(C'\fR, \f(CW\*(C`PATCH\*(C'\fR
+ and \f(CW\*(C`POST\*(C'\fR functions described below.
 .Sp
-The get(...) method of \f(CW\*(C`LWP::UserAgent\*(C'\fR exists as a shortcut for
-\&\f(CW$ua\fR\->request(\s-1GET ...\s0).
+The \f(CW\*(C`get(...)\*(C'\fR method of LWP::UserAgent exists as a shortcut for
+\&\f(CW\*(C`$ua\->request(GET ...)\*(C'\fR.
 .ie n .IP "\s-1HEAD\s0 $url" 4
 .el .IP "\s-1HEAD\s0 \f(CW$url\fR" 4
 .IX Item "HEAD $url"
@@ -194,38 +200,8 @@ The get(...) method of \f(CW\*(C`LWP::UserAgent\*(C'\fR exists as a shortcut for
 .PD
 Like \s-1\fIGET\s0()\fR but the method in the request is \*(L"\s-1HEAD\*(R".\s0
 .Sp
-The head(...)  method of \*(L"LWP::UserAgent\*(R" exists as a shortcut for
-\&\f(CW$ua\fR\->request(\s-1HEAD ...\s0).
-.ie n .IP "\s-1PUT\s0 $url" 4
-.el .IP "\s-1PUT\s0 \f(CW$url\fR" 4
-.IX Item "PUT $url"
-.PD 0
-.ie n .IP "\s-1PUT\s0 $url, Header => Value,..." 4
-.el .IP "\s-1PUT\s0 \f(CW$url\fR, Header => Value,..." 4
-.IX Item "PUT $url, Header => Value,..."
-.ie n .IP "\s-1PUT\s0 $url, Header => Value,..., Content => $content" 4
-.el .IP "\s-1PUT\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$content\fR" 4
-.IX Item "PUT $url, Header => Value,..., Content => $content"
-.PD
-Like \s-1\fIGET\s0()\fR but the method in the request is \*(L"\s-1PUT\*(R".\s0
-.Sp
-The content of the request can be specified using the \*(L"Content\*(R"
-pseudo-header.  This steals a bit of the header field namespace as
-there is no way to directly specify a header that is actually called
-\&\*(L"Content\*(R".  If you really need this you must update the request
-returned in a separate statement.
-.ie n .IP "\s-1PATCH\s0 $url" 4
-.el .IP "\s-1PATCH\s0 \f(CW$url\fR" 4
-.IX Item "PATCH $url"
-.PD 0
-.ie n .IP "\s-1PATCH\s0 $url, Header => Value,..." 4
-.el .IP "\s-1PATCH\s0 \f(CW$url\fR, Header => Value,..." 4
-.IX Item "PATCH $url, Header => Value,..."
-.ie n .IP "\s-1PATCH\s0 $url, Header => Value,..., Content => $content" 4
-.el .IP "\s-1PATCH\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$content\fR" 4
-.IX Item "PATCH $url, Header => Value,..., Content => $content"
-.PD
-Like \s-1\fIPUT\s0()\fR but the method in the request is \*(L"\s-1PATCH\*(R".\s0
+The \f(CW\*(C`head(...)\*(C'\fR  method of LWP::UserAgent exists as a shortcut for
+\&\f(CW\*(C`$ua\->request(HEAD ...)\*(C'\fR.
 .ie n .IP "\s-1DELETE\s0 $url" 4
 .el .IP "\s-1DELETE\s0 \f(CW$url\fR" 4
 .IX Item "DELETE $url"
@@ -234,8 +210,44 @@ Like \s-1\fIPUT\s0()\fR but the method in the request is \*(L"\s-1PATCH\*(R".\s0
 .el .IP "\s-1DELETE\s0 \f(CW$url\fR, Header => Value,..." 4
 .IX Item "DELETE $url, Header => Value,..."
 .PD
-Like \s-1\fIGET\s0()\fR but the method in the request is \*(L"\s-1DELETE\*(R". \s0 This function
+Like \f(CW\*(C`GET\*(C'\fR but the method in the request is \f(CW\*(C`DELETE\*(C'\fR.  This function
 is not exported by default.
+.ie n .IP "\s-1PATCH\s0 $url" 4
+.el .IP "\s-1PATCH\s0 \f(CW$url\fR" 4
+.IX Item "PATCH $url"
+.PD 0
+.ie n .IP "\s-1PATCH\s0 $url, Header => Value,..." 4
+.el .IP "\s-1PATCH\s0 \f(CW$url\fR, Header => Value,..." 4
+.IX Item "PATCH $url, Header => Value,..."
+.ie n .IP "\s-1PATCH\s0 $url, $form_ref, Header => Value,..." 4
+.el .IP "\s-1PATCH\s0 \f(CW$url\fR, \f(CW$form_ref\fR, Header => Value,..." 4
+.IX Item "PATCH $url, $form_ref, Header => Value,..."
+.ie n .IP "\s-1PATCH\s0 $url, Header => Value,..., Content => $form_ref" 4
+.el .IP "\s-1PATCH\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$form_ref\fR" 4
+.IX Item "PATCH $url, Header => Value,..., Content => $form_ref"
+.ie n .IP "\s-1PATCH\s0 $url, Header => Value,..., Content => $content" 4
+.el .IP "\s-1PATCH\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$content\fR" 4
+.IX Item "PATCH $url, Header => Value,..., Content => $content"
+.PD
+The same as \f(CW\*(C`POST\*(C'\fR below, but the method in the request is \f(CW\*(C`PATCH\*(C'\fR.
+.ie n .IP "\s-1PUT\s0 $url" 4
+.el .IP "\s-1PUT\s0 \f(CW$url\fR" 4
+.IX Item "PUT $url"
+.PD 0
+.ie n .IP "\s-1PUT\s0 $url, Header => Value,..." 4
+.el .IP "\s-1PUT\s0 \f(CW$url\fR, Header => Value,..." 4
+.IX Item "PUT $url, Header => Value,..."
+.ie n .IP "\s-1PUT\s0 $url, $form_ref, Header => Value,..." 4
+.el .IP "\s-1PUT\s0 \f(CW$url\fR, \f(CW$form_ref\fR, Header => Value,..." 4
+.IX Item "PUT $url, $form_ref, Header => Value,..."
+.ie n .IP "\s-1PUT\s0 $url, Header => Value,..., Content => $form_ref" 4
+.el .IP "\s-1PUT\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$form_ref\fR" 4
+.IX Item "PUT $url, Header => Value,..., Content => $form_ref"
+.ie n .IP "\s-1PUT\s0 $url, Header => Value,..., Content => $content" 4
+.el .IP "\s-1PUT\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$content\fR" 4
+.IX Item "PUT $url, Header => Value,..., Content => $content"
+.PD
+The same as \f(CW\*(C`POST\*(C'\fR below, but the method in the request is \f(CW\*(C`PUT\*(C'\fR
 .ie n .IP "\s-1POST\s0 $url" 4
 .el .IP "\s-1POST\s0 \f(CW$url\fR" 4
 .IX Item "POST $url"
@@ -253,11 +265,24 @@ is not exported by default.
 .el .IP "\s-1POST\s0 \f(CW$url\fR, Header => Value,..., Content => \f(CW$content\fR" 4
 .IX Item "POST $url, Header => Value,..., Content => $content"
 .PD
-This works mostly like \s-1\fIPUT\s0()\fR with \*(L"\s-1POST\*(R"\s0 as the method, but this
-function also takes a second optional array or hash reference
-parameter \f(CW$form_ref\fR.  As for \s-1\fIPUT\s0()\fR the content can also be specified
-directly using the \*(L"Content\*(R" pseudo-header, and you may also provide
+\&\f(CW\*(C`POST\*(C'\fR, \f(CW\*(C`PATCH\*(C'\fR and \f(CW\*(C`PUT\*(C'\fR all work with the same parameters.
+.Sp
+.Vb 4
+\&  %data = ( title => \*(Aqsomething\*(Aq, body => something else\*(Aq );
+\&  $ua = LWP::UserAgent\->new();
+\&  $request = HTTP::Request::Common::POST( $url, [ %data ] );
+\&  $response = $ua\->request($request);
+.Ve
+.Sp
+They take a second optional array or hash reference
+parameter \f(CW$form_ref\fR.  The content can also be specified
+directly using the \f(CW\*(C`Content\*(C'\fR pseudo-header, and you may also provide
 the \f(CW$form_ref\fR this way.
+.Sp
+The \f(CW\*(C`Content\*(C'\fR pseudo-header steals a bit of the header field namespace as
+there is no way to directly specify a header that is actually called
+\&\*(L"Content\*(R".  If you really need this you must update the request
+returned in a separate statement.
 .Sp
 The \f(CW$form_ref\fR argument can be used to pass key/value pairs for the
 form content.  By default we will initialize a request using the
@@ -310,7 +335,7 @@ want to suppress sending the filename when you provide a \f(CW$file\fR value.
 .Sp
 If a \f(CW$file\fR is provided by no \f(CW\*(C`Content\-Type\*(C'\fR header, then \f(CW\*(C`Content\-Type\*(C'\fR
 and \f(CW\*(C`Content\-Encoding\*(C'\fR will be filled in automatically with the values
-returned by \fILWP::MediaTypes::guess_media_type()\fR
+returned by \f(CW\*(C`LWP::MediaTypes::guess_media_type()\*(C'\fR
 .Sp
 Sending my \fI~/.profile\fR to the survey used as example above can be
 achieved by this:
@@ -367,17 +392,20 @@ the content attribute.  This subroutine will read the content of any
 files on demand and return it in suitable chunks.  This allow you to
 upload arbitrary big files without using lots of memory.  You can even
 upload infinite files like \fI/dev/audio\fR if you wish; however, if
-the file is not a plain file, there will be no Content-Length header
+the file is not a plain file, there will be no \f(CW\*(C`Content\-Length\*(C'\fR header
 defined for the request.  Not all servers (or server
 applications) like this.  Also, if the file(s) change in size between
-the time the Content-Length is calculated and the time that the last
+the time the \f(CW\*(C`Content\-Length\*(C'\fR is calculated and the time that the last
 chunk is delivered, the subroutine will \f(CW\*(C`Croak\*(C'\fR.
 .Sp
-The post(...)  method of \*(L"LWP::UserAgent\*(R" exists as a shortcut for
-\&\f(CW$ua\fR\->request(\s-1POST ...\s0).
+The \f(CW\*(C`post(...)\*(C'\fR  method of LWP::UserAgent exists as a shortcut for
+\&\f(CW\*(C`$ua\->request(POST ...)\*(C'\fR.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 HTTP::Request, LWP::UserAgent
+.PP
+Also, there are some examples in \*(L"\s-1EXAMPLES\*(R"\s0 in HTTP::Request that you might
+find useful. For example, batch requests are explained there.
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 Gisle Aas <gisle@activestate.com>

@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "File::GlobMapper 3"
-.TH File::GlobMapper 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH File::GlobMapper 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -193,7 +193,7 @@ Below is a possible implementation of a script to carry out the rename
 \&        my $new = $old;
 \&        $new =~ s#(.*)\e.tar\e.gz$#$1.tgz# ;
 \&
-\&        rename $old => $new
+\&        rename $old => $new 
 \&            or die "Cannot rename \*(Aq$old\*(Aq to \*(Aq$new\*(Aq: $!\en;
 \&    }
 .Ve
@@ -215,7 +215,7 @@ Here is same snippet of code rewritten using \f(CW\*(C`globmap\*(C'\fR
 \&    for my $pair (globmap \*(Aq<*.tar.gz>\*(Aq => \*(Aq<#1.tgz>\*(Aq )
 \&    {
 \&        my ($from, $to) = @$pair;
-\&        rename $from => $to
+\&        rename $from => $to 
 \&            or die "Cannot rename \*(Aq$old\*(Aq to \*(Aq$new\*(Aq: $!\en;
 \&    }
 .Ve
@@ -233,7 +233,7 @@ distinctive. The enclosing <> are optional, so you don't have to use them \- in
 fact the first thing globmap will do is remove these delimiters if they are
 present.
 .PP
-The first parameter to \f(CW\*(C`globmap\*(C'\fR, \f(CW\*(C`*.tar.gz\*(C'\fR, is an \fIInput File Glob\fR.
+The first parameter to \f(CW\*(C`globmap\*(C'\fR, \f(CW\*(C`*.tar.gz\*(C'\fR, is an \fIInput File Glob\fR. 
 Once the enclosing \*(L"< ... >\*(R" is removed, this is passed (more or
 less) unchanged to \f(CW\*(C`File::Glob\*(C'\fR to carry out a file match.
 .PP

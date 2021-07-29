@@ -1,4 +1,7 @@
-#!/usr/local/opt/perl/bin/perl
+#!/usr/bin/perl
+
+eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
 #$Id: mkmapfile,v 1.23 1998/02/17 18:04:26 schwartz Exp $
 #
 # mkmapfile - create character mapfile for Unicode::Map library

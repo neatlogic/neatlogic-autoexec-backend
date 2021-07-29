@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "HTTP::Request 3"
-.TH HTTP::Request 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH HTTP::Request 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -142,7 +142,7 @@
 HTTP::Request \- HTTP style request message
 .SH "VERSION"
 .IX Header "VERSION"
-version 6.13
+version 6.18
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 .Vb 2
@@ -249,6 +249,91 @@ module can be used to turn such strings into a string of bytes.
 .IX Item "$r->as_string( $eol )"
 .PD
 Method returning a textual representation of the request.
+.SH "EXAMPLES"
+.IX Header "EXAMPLES"
+Creating requests to be sent with LWP::UserAgent or others can be easy. Here
+are a few examples.
+.SS "Simple \s-1POST\s0"
+.IX Subsection "Simple POST"
+Here, we'll create a simple \s-1POST\s0 request that could be used to send \s-1JSON\s0 data
+to an endpoint.
+.PP
+.Vb 1
+\&    #!/usr/bin/env perl
+\&
+\&    use strict;
+\&    use warnings;
+\&
+\&    use Encode qw(encode_utf8);
+\&    use HTTP::Request ();
+\&    use JSON::MaybeXS qw(encode_json);
+\&
+\&    my $url = \*(Aqhttps://www.example.com/api/user/123\*(Aq;
+\&    my $header = [\*(AqContent\-Type\*(Aq => \*(Aqapplication/json; charset=UTF\-8\*(Aq];
+\&    my $data = {foo => \*(Aqbar\*(Aq, baz => \*(Aqquux\*(Aq};
+\&    my $encoded_data = encode_utf8(encode_json($data));
+\&
+\&    my $r = HTTP::Request\->new(\*(AqPOST\*(Aq, $url, $header, $encoded_data);
+\&    # at this point, we could send it via LWP::UserAgent
+\&    # my $ua = LWP::UserAgent\->new();
+\&    # my $res = $ua\->request($r);
+.Ve
+.SS "Batch \s-1POST\s0 Request"
+.IX Subsection "Batch POST Request"
+Some services, like Google, allow multiple requests to be sent in one batch.
+<https://developers.google.com/drive/v3/web/batch> for example. Using the
+\&\f(CW\*(C`add_part\*(C'\fR method from HTTP::Message makes this simple.
+.PP
+.Vb 1
+\&    #!/usr/bin/env perl
+\&
+\&    use strict;
+\&    use warnings;
+\&
+\&    use Encode qw(encode_utf8);
+\&    use HTTP::Request ();
+\&    use JSON::MaybeXS qw(encode_json);
+\&
+\&    my $auth_token = \*(Aqauth_token\*(Aq;
+\&    my $batch_url = \*(Aqhttps://www.googleapis.com/batch\*(Aq;
+\&    my $url = \*(Aqhttps://www.googleapis.com/drive/v3/files/fileId/permissions?fields=id\*(Aq;
+\&    my $url_no_email = \*(Aqhttps://www.googleapis.com/drive/v3/files/fileId/permissions?fields=id&sendNotificationEmail=false\*(Aq;
+\&
+\&    # generate a JSON post request for one of the batch entries
+\&    my $req1 = build_json_request($url, {
+\&        emailAddress => \*(Aqexample@appsrocks.com\*(Aq,
+\&        role => "writer",
+\&        type => "user",
+\&    });
+\&
+\&    # generate a JSON post request for one of the batch entries
+\&    my $req2 = build_json_request($url_no_email, {
+\&        domain => "appsrocks.com",
+\&        role => "reader",
+\&        type => "domain",
+\&    });
+\&
+\&    # generate a multipart request to send all of the other requests
+\&    my $r = HTTP::Request\->new(\*(AqPOST\*(Aq, $batch_url, [
+\&        \*(AqAccept\-Encoding\*(Aq => \*(Aqgzip\*(Aq,
+\&        # if we don\*(Aqt provide a boundary here, HTTP::Message will generate
+\&        # one for us. We could use UUID::uuid() here if we wanted.
+\&        \*(AqContent\-Type\*(Aq => \*(Aqmultipart/mixed; boundary=END_OF_PART\*(Aq
+\&    ]);
+\&
+\&    # add the two POST requests to the main request
+\&    $r\->add_part($req1, $req2);
+\&    # at this point, we could send it via LWP::UserAgent
+\&    # my $ua = LWP::UserAgent\->new();
+\&    # my $res = $ua\->request($r);
+\&    exit();
+\&
+\&    sub build_json_request {
+\&        my ($url, $href) = @_;
+\&        my $header = [\*(AqAuthorization\*(Aq => "Bearer $auth_token", \*(AqContent\-Type\*(Aq => \*(Aqapplication/json; charset=UTF\-8\*(Aq];
+\&        return HTTP::Request\->new(\*(AqPOST\*(Aq, $url, $header, encode_utf8(encode_json($href)));
+\&    }
+.Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 HTTP::Headers, HTTP::Message, HTTP::Request::Common,

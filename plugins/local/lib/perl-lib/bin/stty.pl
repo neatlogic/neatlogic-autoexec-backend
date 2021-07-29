@@ -1,4 +1,4 @@
-#!/usr/local/Cellar/perl/5.28.0/bin/perl 
+#!/usr/bin/perl 
 
 require IO::Stty;
 

@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "HTTP::Response 3"
-.TH HTTP::Response 3 "2019-10-08" "perl v5.18.4" "User Contributed Perl Documentation"
+.TH HTTP::Response 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -142,7 +142,7 @@
 HTTP::Response \- HTTP style response message
 .SH "VERSION"
 .IX Header "VERSION"
-version 6.13
+version 6.18
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 Response objects are returned by the \fIrequest()\fR method of the \f(CW\*(C`LWP::UserAgent\*(C'\fR:
@@ -302,10 +302,10 @@ received some redirect responses first.
 .Sp
 If none of these sources provide an absolute \s-1URI,\s0 undef is returned.
 .Sp
-When the \s-1LWP\s0 protocol modules produce the HTTP::Response object, then
-any base \s-1URI\s0 embedded in the document (step 1) will already have
-initialized the \*(L"Content-Base:\*(R" header. This means that this method
-only performs the last 2 steps (the content is not always available
+When the \s-1LWP\s0 protocol modules produce the HTTP::Response object, then any base
+\&\s-1URI\s0 embedded in the document (step 1) will already have initialized the
+\&\*(L"Content-Base:\*(R" header. (See \*(L"parse_head\*(R" in LWP::UserAgent).  This means that
+this method only performs the last 2 steps (the content is not always available
 either).
 .RE
 .ie n .IP "$r\->filename" 4

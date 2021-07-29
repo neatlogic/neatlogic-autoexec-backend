@@ -1,4 +1,7 @@
-#!/usr/local/opt/perl/bin/perl
+#!/usr/bin/perl
+
+eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
 
 	## shasum: filter for computing SHA digests (ref. sha1sum/md5sum)
 	##

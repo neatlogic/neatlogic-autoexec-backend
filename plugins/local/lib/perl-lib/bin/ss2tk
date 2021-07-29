@@ -1,4 +1,7 @@
-#!/usr/local/opt/perl/bin/perl
+#!/usr/bin/perl
+
+eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
 
 # ss2tk: show SpreadSheet file in Tk::TableMatrix::Spreadsheet (*)
 #	  (m)'07 [26-06-2007] Copyright H.M.Brand 2005-2014

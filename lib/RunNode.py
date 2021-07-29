@@ -90,7 +90,7 @@ class RunNode:
         else:
             self.name = ''
 
-        self.type = node['nodeType']
+        self.type = node['protocol']
         self.host = node['host']
         if 'port' in node:
             self.port = node['port']
@@ -515,7 +515,7 @@ class RunNode:
 
         child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
-
+        print("TEST: "+ str(scriptFile))
         if scriptFile is not None:
             fcntl.flock(scriptFile, fcntl.LOCK_UN)
             scriptFile.close()

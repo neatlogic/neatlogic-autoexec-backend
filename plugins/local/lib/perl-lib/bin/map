@@ -1,4 +1,7 @@
-#!/usr/local/opt/perl/bin/perl -w
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
 #$Id: map,v 1.20 1998/02/11 23:58:27 schwartz Exp $
 #
 # map - convert a text file to a different character set
