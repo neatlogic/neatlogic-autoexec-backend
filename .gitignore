@@ -5,5 +5,5 @@ tmp/*
 .vscode/*
 .DS_Store
 **/.DS_Store
-lib/perl-lib
-media/perl-pkgs/*/
+plugins/local/lib/perl-lib
+plugins/local/media/perl-pkgs/*/
