@@ -1,0 +1,12 @@
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep/BiDi.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep/Mapping.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep/Prohibited.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep/Unassigned.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Unicode/Stringprep/_Common.pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep::BiDi.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep::Mapping.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep::Prohibited.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep::Unassigned.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Unicode::Stringprep::_Common.3pm

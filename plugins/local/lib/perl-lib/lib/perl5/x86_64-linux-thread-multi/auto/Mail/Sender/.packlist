@@ -1,0 +1,4 @@
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Mail/Sender.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Mail/Sender/CType/Ext.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Mail/Sender/CType/Win32.pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Mail::Sender.3pm

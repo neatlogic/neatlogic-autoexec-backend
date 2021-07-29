@@ -1,0 +1,5 @@
+/app/autoexec/plugins/local/lib/perl-lib/bin/shasum
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/x86_64-linux-thread-multi/Digest/SHA.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/x86_64-linux-thread-multi/auto/Digest/SHA/SHA.so
+/app/autoexec/plugins/local/lib/perl-lib/man/man1/shasum.1
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Digest::SHA.3pm

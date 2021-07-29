@@ -1,0 +1,8 @@
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Authen/SCRAM.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Authen/SCRAM/Client.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Authen/SCRAM/Role/Common.pm
+/app/autoexec/plugins/local/lib/perl-lib/lib/perl5/Authen/SCRAM/Server.pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Authen::SCRAM.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Authen::SCRAM::Client.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Authen::SCRAM::Role::Common.3pm
+/app/autoexec/plugins/local/lib/perl-lib/man/man3/Authen::SCRAM::Server.3pm
