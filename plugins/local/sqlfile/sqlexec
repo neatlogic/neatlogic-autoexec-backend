@@ -59,6 +59,7 @@ sub main {
     my $dbNode;
     my $dbNodeJson = $ENV{AUTOEXEC_NODE};
     if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+        print("DEBUG: $dbNodeJson\n");
         $dbNode = from_json($dbNodeJson);
     }
 
@@ -80,7 +81,11 @@ sub main {
 
     my $sqlFiles = [];
     if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
-        $sqlFiles = from_json($sqlFileJson);
+        my $sqlFileArray = from_json($sqlFileJson);
+        foreach my $sqlFile (@$sqlFileArray) {
+            $sqlFile =~ s/^\/?file\///;
+            push(@$sqlFiles, $sqlFile);
+        } 
     }
     if ( scalar(@$sqlFiles) == 0 ) {
         $hasOptError = 1;

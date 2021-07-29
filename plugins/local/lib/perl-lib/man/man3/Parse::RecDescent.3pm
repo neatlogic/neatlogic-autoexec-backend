@@ -68,72 +68,10 @@
 .    \}
 .\}
 .rr rF
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "Parse::RecDescent 3"
-.TH Parse::RecDescent 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
+.TH Parse::RecDescent 3 "2021-07-29" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1510,7 +1448,7 @@ character, succeeding only if the newline is found, in which case it
 causes its surrounding rule to return zero on success.
 .Sp
 In other words, a \f(CW\*(C`<resync>\*(C'\fR is exactly equivalent to the token
-\&\f(CW\*(C`/[^\en]*\en/\*(C'\fR followed by the action \f(CW\*(C`{\ $return\ =\ 0\ }\*(C'\fR (except that
+\&\f(CW\*(C`/[^\en]*\en/\*(C'\fR followed by the action \f(CW\*(C`{ $return = 0 }\*(C'\fR (except that
 productions beginning with a \f(CW\*(C`<resync>\*(C'\fR are ignored when generating
 error messages). A typical use might be:
 .Sp
@@ -1526,7 +1464,7 @@ It is also possible to explicitly specify a resynchronization
 pattern, using the \f(CW\*(C`<resync:\f(CIpattern\f(CW>\*(C'\fR variant. This version
 succeeds only if the specified pattern matches (and consumes) the
 parsed text. In other words, \f(CW\*(C`<resync:\f(CIpattern\f(CW>\*(C'\fR is exactly
-equivalent to the token \f(CW\*(C`/\f(CIpattern\f(CW/\*(C'\fR (followed by a \f(CW\*(C`{\ $return\ =\ 0\ }\*(C'\fR
+equivalent to the token \f(CW\*(C`/\f(CIpattern\f(CW/\*(C'\fR (followed by a \f(CW\*(C`{ $return = 0 }\*(C'\fR
 action). For example, if commands were terminated by newlines or semi-colons:
 .Sp
 .Vb 3
@@ -1629,8 +1567,8 @@ Hence:
 would correctly insert the ambient text string which caused the error.
 .Sp
 There are two other forms of error directive: \f(CW\*(C`<error?>\*(C'\fR and
-\&\f(CW\*(C`<error?:\ msg>\*(C'\fR. These behave just like \f(CW\*(C`<error>\*(C'\fR
-and \f(CW\*(C`<error:\ msg>\*(C'\fR respectively, except that they are
+\&\f(CW\*(C`<error?: msg>\*(C'\fR. These behave just like \f(CW\*(C`<error>\*(C'\fR
+and \f(CW\*(C`<error: msg>\*(C'\fR respectively, except that they are
 only triggered if the rule is \*(L"committed\*(R" at the time they are
 encountered. For example:
 .Sp
@@ -1644,7 +1582,7 @@ will only generate an error for a string beginning with \*(L"Ya kenna
 change the Laws o' Phusics,\*(R" or a valid name, but which still fails to match the
 corresponding production. That is, \f(CW\*(C`$parser\->Scotty("Aye, Cap\*(Aqain")\*(C'\fR will
 fail silently (since neither production will \*(L"commit\*(R" the rule on that
-input), whereas \f(CW\*(C`$parser\->Scotty("Mr\ Spock,\ ah\ jest\ kenna\ do\*(Aqut!")\*(C'\fR
+input), whereas \f(CW\*(C`$parser\->Scotty("Mr Spock, ah jest kenna do\*(Aqut!")\*(C'\fR
 will fail with the error message:
 .Sp
 .Vb 2

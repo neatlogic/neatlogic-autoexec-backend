@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 use FindBin;
-use lib $FindBin::Bin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+#use lib $FindBin::Bin;
+#use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 package SQLFileRunner;
 
@@ -485,6 +485,8 @@ sub checkSqlFiles {
 
     my $hasError = 0;
     foreach my $sqlFile (@$sqlFiles) {
+        my $sqlDir = dirname($sqlFile);
+
         if ( -e "$jobPath/file/$sqlFile" ) {
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
@@ -496,6 +498,9 @@ sub checkSqlFiles {
 
             if ( -e "$self->{sqlFileDir}/$sqlFile" ) {
                 unlink("$self->{sqlFileDir}/$sqlFile");
+            }
+            if ( not -e "$self->{sqlFileDir}/$sqlDir" ) {
+                mkpath("$self->{sqlFileDir}/$sqlDir");
             }
 
             if ( not link( "$jobPath/file/$sqlFile", "$self->{sqlFileDir}/$sqlFile" ) ) {

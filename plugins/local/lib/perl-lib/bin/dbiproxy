@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
-
 use strict;
 
 my $VERSION = sprintf("1.%06d", q$Revision$ =~ /(\d+)/o);

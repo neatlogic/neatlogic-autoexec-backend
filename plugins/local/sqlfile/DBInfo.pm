@@ -11,8 +11,9 @@ use strict;
 sub new {
     my ( $type, $nodeInfo, $args ) = @_;
     my $self = {
-        dbStr        => $nodeInfo->{accessEndpoing},
-        dbType       => $nodeInfo->{nodeType},
+        dbStr        => $nodeInfo->{accessEndpoint},
+        #dbType       => $nodeInfo->{nodeType},
+        dbType       => 'mysql',
         host         => $nodeInfo->{host},
         port         => $nodeInfo->{port},
         dbName       => $nodeInfo->{nodeName},

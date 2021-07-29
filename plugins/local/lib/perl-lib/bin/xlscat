@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
-
 # xlscat:  show XLS/SXC file as Text
 # xlsgrep: grep pattern
 #	   (m)'13 [24-10-2013] Copyright H.M.Brand 2005-2014

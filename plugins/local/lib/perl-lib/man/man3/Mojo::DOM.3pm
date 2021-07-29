@@ -68,72 +68,10 @@
 .    \}
 .\}
 .rr rF
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "Mojo::DOM 3"
-.TH Mojo::DOM 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
+.TH Mojo::DOM 3 "2021-07-29" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -271,7 +209,7 @@ All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .SS "append"
 .IX Subsection "append"
 .Vb 1
-\&  $dom = $dom\->append(\*(Aq<p>I X Mojolicious!</p>\*(Aq);
+\&  $dom = $dom\->append(\*(Aq<p>I ♥ Mojolicious!</p>\*(Aq);
 .Ve
 .PP
 Append \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(CW\*(C`root\*(C'\fR).
@@ -288,7 +226,7 @@ Append \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(C
 .SS "append_content"
 .IX Subsection "append_content"
 .Vb 1
-\&  $dom = $dom\->append_content(\*(Aq<p>I X Mojolicious!</p>\*(Aq);
+\&  $dom = $dom\->append_content(\*(Aq<p>I ♥ Mojolicious!</p>\*(Aq);
 .Ve
 .PP
 Append \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this
@@ -379,7 +317,7 @@ All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .IX Subsection "content"
 .Vb 2
 \&  my $str = $dom\->content;
-\&  $dom    = $dom\->content(\*(Aq<p>I X Mojolicious!</p>\*(Aq);
+\&  $dom    = $dom\->content(\*(Aq<p>I ♥ Mojolicious!</p>\*(Aq);
 .Ve
 .PP
 Return this node's content or replace it with \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR
@@ -513,7 +451,7 @@ Find this element's namespace, or return \f(CW\*(C`undef\*(C'\fR if none could b
 .IX Subsection "new"
 .Vb 2
 \&  my $dom = Mojo::DOM\->new;
-\&  my $dom = Mojo::DOM\->new(\*(Aq<foo bar="baz">I X Mojolicious!</foo>\*(Aq);
+\&  my $dom = Mojo::DOM\->new(\*(Aq<foo bar="baz">I ♥ Mojolicious!</foo>\*(Aq);
 .Ve
 .PP
 Construct a new scalar-based Mojo::DOM object and \*(L"parse\*(R" \s-1HTML/XML\s0
@@ -565,14 +503,14 @@ no parent.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 1
-\&  $dom = $dom\->parse(\*(Aq<foo bar="baz">I X Mojolicious!</foo>\*(Aq);
+\&  $dom = $dom\->parse(\*(Aq<foo bar="baz">I ♥ Mojolicious!</foo>\*(Aq);
 .Ve
 .PP
 Parse \s-1HTML/XML\s0 fragment with Mojo::DOM::HTML.
 .PP
 .Vb 2
 \&  # Parse XML
-\&  my $dom = Mojo::DOM\->new\->xml(1)\->parse(\*(Aq<foo>I X Mojolicious!</foo>\*(Aq);
+\&  my $dom = Mojo::DOM\->new\->xml(1)\->parse(\*(Aq<foo>I ♥ Mojolicious!</foo>\*(Aq);
 .Ve
 .SS "preceding"
 .IX Subsection "preceding"
@@ -605,7 +543,7 @@ node as Mojo::DOM objects.
 .SS "prepend"
 .IX Subsection "prepend"
 .Vb 1
-\&  $dom = $dom\->prepend(\*(Aq<p>I X Mojolicious!</p>\*(Aq);
+\&  $dom = $dom\->prepend(\*(Aq<p>I ♥ Mojolicious!</p>\*(Aq);
 .Ve
 .PP
 Prepend \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(CW\*(C`root\*(C'\fR).
@@ -622,7 +560,7 @@ Prepend \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(
 .SS "prepend_content"
 .IX Subsection "prepend_content"
 .Vb 1
-\&  $dom = $dom\->prepend_content(\*(Aq<p>I X Mojolicious!</p>\*(Aq);
+\&  $dom = $dom\->prepend_content(\*(Aq<p>I ♥ Mojolicious!</p>\*(Aq);
 .Ve
 .PP
 Prepend \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this
@@ -690,7 +628,7 @@ Remove this node and return \*(L"root\*(R" (for \f(CW\*(C`root\*(C'\fR nodes) or
 .SS "replace"
 .IX Subsection "replace"
 .Vb 1
-\&  my $parent = $dom\->replace(\*(Aq<div>I X Mojolicious!</div>\*(Aq);
+\&  my $parent = $dom\->replace(\*(Aq<div>I ♥ Mojolicious!</div>\*(Aq);
 .Ve
 .PP
 Replace this node with \s-1HTML/XML\s0 fragment and return \*(L"root\*(R" (for \f(CW\*(C`root\*(C'\fR

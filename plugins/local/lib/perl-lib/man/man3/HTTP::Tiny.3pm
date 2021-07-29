@@ -68,72 +68,10 @@
 .    \}
 .\}
 .rr rF
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "HTTP::Tiny 3"
-.TH HTTP::Tiny 3 "2021-07-27" "perl v5.16.3" "User Contributed Perl Documentation"
+.TH HTTP::Tiny 3 "2021-07-29" "perl v5.16.3" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -184,33 +122,33 @@ Cookie support requires HTTP::CookieJar or an equivalent class.
 .PP
 This constructor returns a new HTTP::Tiny object.  Valid attributes include:
 .IP "\(bu" 4
-\&\f(CW\*(C`agent\*(C'\fR X A user-agent string (defaults to 'HTTP\-Tiny/$VERSION'). If \f(CW\*(C`agent\*(C'\fR X ends in a space character, the default user-agent string is appended.
+\&\f(CW\*(C`agent\*(C'\fR — A user-agent string (defaults to 'HTTP\-Tiny/$VERSION'). If \f(CW\*(C`agent\*(C'\fR — ends in a space character, the default user-agent string is appended.
 .IP "\(bu" 4
-\&\f(CW\*(C`cookie_jar\*(C'\fR X An instance of HTTP::CookieJar X or equivalent class that supports the \f(CW\*(C`add\*(C'\fR and \f(CW\*(C`cookie_header\*(C'\fR methods
+\&\f(CW\*(C`cookie_jar\*(C'\fR — An instance of HTTP::CookieJar — or equivalent class that supports the \f(CW\*(C`add\*(C'\fR and \f(CW\*(C`cookie_header\*(C'\fR methods
 .IP "\(bu" 4
-\&\f(CW\*(C`default_headers\*(C'\fR X A hashref of default headers to apply to requests
+\&\f(CW\*(C`default_headers\*(C'\fR — A hashref of default headers to apply to requests
 .IP "\(bu" 4
-\&\f(CW\*(C`local_address\*(C'\fR X The local \s-1IP\s0 address to bind to
+\&\f(CW\*(C`local_address\*(C'\fR — The local \s-1IP\s0 address to bind to
 .IP "\(bu" 4
-\&\f(CW\*(C`keep_alive\*(C'\fR X Whether to reuse the last connection (if for the same scheme, host and port) (defaults to 1)
+\&\f(CW\*(C`keep_alive\*(C'\fR — Whether to reuse the last connection (if for the same scheme, host and port) (defaults to 1)
 .IP "\(bu" 4
-\&\f(CW\*(C`max_redirect\*(C'\fR X Maximum number of redirects allowed (defaults to 5)
+\&\f(CW\*(C`max_redirect\*(C'\fR — Maximum number of redirects allowed (defaults to 5)
 .IP "\(bu" 4
-\&\f(CW\*(C`max_size\*(C'\fR X Maximum response size in bytes (only when not using a data callback).  If defined, responses larger than this will return an exception.
+\&\f(CW\*(C`max_size\*(C'\fR — Maximum response size in bytes (only when not using a data callback).  If defined, responses larger than this will return an exception.
 .IP "\(bu" 4
-\&\f(CW\*(C`http_proxy\*(C'\fR X \s-1URL\s0 of a proxy server to use for \s-1HTTP\s0 connections (default is \f(CW$ENV{http_proxy}\fR X if set)
+\&\f(CW\*(C`http_proxy\*(C'\fR — \s-1URL\s0 of a proxy server to use for \s-1HTTP\s0 connections (default is \f(CW$ENV{http_proxy}\fR — if set)
 .IP "\(bu" 4
-\&\f(CW\*(C`https_proxy\*(C'\fR X \s-1URL\s0 of a proxy server to use for \s-1HTTPS\s0 connections (default is \f(CW$ENV{https_proxy}\fR X if set)
+\&\f(CW\*(C`https_proxy\*(C'\fR — \s-1URL\s0 of a proxy server to use for \s-1HTTPS\s0 connections (default is \f(CW$ENV{https_proxy}\fR — if set)
 .IP "\(bu" 4
-\&\f(CW\*(C`proxy\*(C'\fR X \s-1URL\s0 of a generic proxy server for both \s-1HTTP\s0 and \s-1HTTPS\s0 connections (default is \f(CW$ENV{all_proxy}\fR X if set)
+\&\f(CW\*(C`proxy\*(C'\fR — \s-1URL\s0 of a generic proxy server for both \s-1HTTP\s0 and \s-1HTTPS\s0 connections (default is \f(CW$ENV{all_proxy}\fR — if set)
 .IP "\(bu" 4
-\&\f(CW\*(C`no_proxy\*(C'\fR X List of domain suffixes that should not be proxied.  Must be a comma-separated string or an array reference. (default is \f(CW$ENV{no_proxy}\fR X)
+\&\f(CW\*(C`no_proxy\*(C'\fR — List of domain suffixes that should not be proxied.  Must be a comma-separated string or an array reference. (default is \f(CW$ENV{no_proxy}\fR —)
 .IP "\(bu" 4
-\&\f(CW\*(C`timeout\*(C'\fR X Request timeout in seconds (default is 60) If a socket open, read or write takes longer than the timeout, an exception is thrown.
+\&\f(CW\*(C`timeout\*(C'\fR — Request timeout in seconds (default is 60) If a socket open, read or write takes longer than the timeout, an exception is thrown.
 .IP "\(bu" 4
-\&\f(CW\*(C`verify_SSL\*(C'\fR X A boolean that indicates whether to validate the \s-1SSL\s0 certificate of an \f(CW\*(C`https\*(C'\fR X connection (default is false)
+\&\f(CW\*(C`verify_SSL\*(C'\fR — A boolean that indicates whether to validate the \s-1SSL\s0 certificate of an \f(CW\*(C`https\*(C'\fR — connection (default is false)
 .IP "\(bu" 4
-\&\f(CW\*(C`SSL_options\*(C'\fR X A hashref of \f(CW\*(C`SSL_*\*(C'\fR X options to pass through to IO::Socket::SSL
+\&\f(CW\*(C`SSL_options\*(C'\fR — A hashref of \f(CW\*(C`SSL_*\*(C'\fR — options to pass through to IO::Socket::SSL
 .PP
 Passing an explicit \f(CW\*(C`undef\*(C'\fR for \f(CW\*(C`proxy\*(C'\fR, \f(CW\*(C`http_proxy\*(C'\fR or \f(CW\*(C`https_proxy\*(C'\fR will
 prevent getting the corresponding proxies from the environment.
@@ -309,15 +247,15 @@ A hashref of options may be appended to modify the request.
 .PP
 Valid options are:
 .IP "\(bu" 4
-\&\f(CW\*(C`headers\*(C'\fR X A hashref containing headers to include with the request.  If the value for a header is an array reference, the header will be output multiple times with each value in the array.  These headers over-write any default headers.
+\&\f(CW\*(C`headers\*(C'\fR — A hashref containing headers to include with the request.  If the value for a header is an array reference, the header will be output multiple times with each value in the array.  These headers over-write any default headers.
 .IP "\(bu" 4
-\&\f(CW\*(C`content\*(C'\fR X A scalar to include as the body of the request \s-1OR\s0 a code reference that will be called iteratively to produce the body of the request
+\&\f(CW\*(C`content\*(C'\fR — A scalar to include as the body of the request \s-1OR\s0 a code reference that will be called iteratively to produce the body of the request
 .IP "\(bu" 4
-\&\f(CW\*(C`trailer_callback\*(C'\fR X A code reference that will be called if it exists to provide a hashref of trailing headers (only used with chunked transfer-encoding)
+\&\f(CW\*(C`trailer_callback\*(C'\fR — A code reference that will be called if it exists to provide a hashref of trailing headers (only used with chunked transfer-encoding)
 .IP "\(bu" 4
-\&\f(CW\*(C`data_callback\*(C'\fR X A code reference that will be called for each chunks of the response body received.
+\&\f(CW\*(C`data_callback\*(C'\fR — A code reference that will be called for each chunks of the response body received.
 .IP "\(bu" 4
-\&\f(CW\*(C`peer\*(C'\fR X Override host resolution and force all connections to go only to a specific peer address, regardless of the \s-1URL\s0 of the request.  This will include any redirections!  This options should be used with extreme caution (e.g. debugging or very special circumstances).
+\&\f(CW\*(C`peer\*(C'\fR — Override host resolution and force all connections to go only to a specific peer address, regardless of the \s-1URL\s0 of the request.  This will include any redirections!  This options should be used with extreme caution (e.g. debugging or very special circumstances).
 .PP
 The \f(CW\*(C`Host\*(C'\fR header is generated from the \s-1URL\s0 in accordance with \s-1RFC 2616. \s0 It
 is a fatal error to specify \f(CW\*(C`Host\*(C'\fR in the \f(CW\*(C`headers\*(C'\fR option.  Other headers
@@ -340,17 +278,17 @@ received prior to the content body.)
 The \f(CW\*(C`request\*(C'\fR method returns a hashref containing the response.  The hashref
 will have the following keys:
 .IP "\(bu" 4
-\&\f(CW\*(C`success\*(C'\fR X Boolean indicating whether the operation returned a 2XX status code
+\&\f(CW\*(C`success\*(C'\fR — Boolean indicating whether the operation returned a 2XX status code
 .IP "\(bu" 4
-\&\f(CW\*(C`url\*(C'\fR X \s-1URL\s0 that provided the response. This is the \s-1URL\s0 of the request unless there were redirections, in which case it is the last \s-1URL\s0 queried in a redirection chain
+\&\f(CW\*(C`url\*(C'\fR — \s-1URL\s0 that provided the response. This is the \s-1URL\s0 of the request unless there were redirections, in which case it is the last \s-1URL\s0 queried in a redirection chain
 .IP "\(bu" 4
-\&\f(CW\*(C`status\*(C'\fR X The \s-1HTTP\s0 status code of the response
+\&\f(CW\*(C`status\*(C'\fR — The \s-1HTTP\s0 status code of the response
 .IP "\(bu" 4
-\&\f(CW\*(C`reason\*(C'\fR X The response phrase returned by the server
+\&\f(CW\*(C`reason\*(C'\fR — The response phrase returned by the server
 .IP "\(bu" 4
-\&\f(CW\*(C`content\*(C'\fR X The body of the response.  If the response does not have any content or if a data callback is provided to consume the response body, this will be the empty string
+\&\f(CW\*(C`content\*(C'\fR — The body of the response.  If the response does not have any content or if a data callback is provided to consume the response body, this will be the empty string
 .IP "\(bu" 4
-\&\f(CW\*(C`headers\*(C'\fR X A hashref of header fields.  All header field names will be normalized to be lower case. If a header is repeated, the value will be an arrayref; it will otherwise be a scalar string containing the value
+\&\f(CW\*(C`headers\*(C'\fR — A hashref of header fields.  All header field names will be normalized to be lower case. If a header is repeated, the value will be an arrayref; it will otherwise be a scalar string containing the value
 .IP "\(bu" 4
 \&\f(CW\*(C`redirects\*(C'\fR If this field exists, it is an arrayref of response hash references from redirects in the same order that redirections occurred.  If it does not exist, then no redirections occurred.
 .PP
@@ -650,13 +588,13 @@ Nicolas Rochelemagne <rochelemagne@cpanel.net>
 .IP "\(bu" 4
 Olaf Alders <olaf@wundersolutions.com>
 .IP "\(bu" 4
-Olivier Mengue\*' <dolmen@cpan.org>
+Olivier Mengué <dolmen@cpan.org>
 .IP "\(bu" 4
-Petr Pi\*'saX <ppisar@redhat.com>
+Petr Písař <ppisar@redhat.com>
 .IP "\(bu" 4
 SkyMarshal <skymarshal1729@gmail.com>
 .IP "\(bu" 4
-So\*:ren Kornetzki <soeren.kornetzki@delti.com>
+Sören Kornetzki <soeren.kornetzki@delti.com>
 .IP "\(bu" 4
 Steve Grazzini <steve.grazzini@grantstreet.com>
 .IP "\(bu" 4
