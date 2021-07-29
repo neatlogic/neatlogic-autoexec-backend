@@ -3,3 +3,7 @@ logs/*
 data/*
 tmp/*
 .vscode/*
+.DS_Store
+**/.DS_Store
+lib/perl-lib
+media/perl-pkgs/*/
