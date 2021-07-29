@@ -12,8 +12,8 @@ sub new {
     my ( $type, $nodeInfo, $args ) = @_;
     my $self = {
         dbStr        => $nodeInfo->{accessEndpoint},
-        #dbType       => $nodeInfo->{nodeType},
-        dbType       => 'mysql',
+        dbType       => $nodeInfo->{nodeType},
+        #dbType       => 'mysql',
         host         => $nodeInfo->{host},
         port         => $nodeInfo->{port},
         dbName       => $nodeInfo->{nodeName},
