@@ -498,7 +498,7 @@ class RunNode:
         orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {}'.format(orgCmdLine)
-        environment = {}
+        environment = os.environ
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
@@ -557,7 +557,7 @@ class RunNode:
         orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
         cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
-        environment = {}
+        environment = os.environ
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])

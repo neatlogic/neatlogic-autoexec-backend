@@ -325,7 +325,7 @@ if __name__ == "__main__":
 
                 for i in range(1800):
                     os.kill(autoexecPid, 0)
-                    time.sleep(1)
+                    time.sleep(3)
                     os.kill(autoexecPid, signal.SIGUSR1)
             except:
                 autoexecIsPaused = True
