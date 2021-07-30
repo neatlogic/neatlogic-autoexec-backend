@@ -442,7 +442,7 @@ sub execSqlFiles {
                             # if ( defined($fh) ) {
                             #     $fh->close();
                             # }
-                            AutoExecUtils.informNodeWaitInput($self->{dbInfo}->{nodeId})
+                            AutoExecUtils::informNodeWaitInput($self->{dbInfo}->{nodeId})
                         }
                         $isPreWaitInput = $isWaitInput;
 
