@@ -501,7 +501,7 @@ class RunNode:
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
-        environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
+        environment['PERL5LIB'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PERL5LIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
@@ -560,7 +560,7 @@ class RunNode:
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['PATH'] = '{}:{}'.format(op.pluginParentPath, os.environ['PATH'])
-        environment['PERLLIB'] = '{}/lib:{}'.format(op.pluginParentPath, os.environ['PERLLIB'])
+        environment['PERL5LIB'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PERL5LIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
