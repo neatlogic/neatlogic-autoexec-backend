@@ -127,8 +127,9 @@ sub collect {
 
     if ( not defined($port) ) {
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        if ( scalar(@$listenAddrs) > 1 ) {
-            $port = $$listenAddrs[0];
+        my @lsnAddrs = keys(%$listenAddrs);
+        if ( scalar(@lsnAddrs) > 1 ) {
+            $port = $lsnAddrs[0];
             if ( $port =~ /^(.*?):(\d+)$/ ) {
                 $host = $1;
                 $port = $2;

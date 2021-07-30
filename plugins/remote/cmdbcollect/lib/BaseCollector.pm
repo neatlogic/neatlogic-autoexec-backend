@@ -124,6 +124,40 @@ sub isMainProcess {
     return $isMainProcess;
 }
 
+sub getPortFromProcInfo {
+    my ($self) = @_;
+
+    my $listenAddrs = $self->{procInfo}->{CONN_INFO}->{LISTEN};
+    my $refType     = ref($listenAddrs);
+    my @lsnAddrs;
+    if ( $refType eq 'HASH' ) {
+        @lsnAddrs = keys(%$listenAddrs);
+    }
+    elsif ( $refType eq 'ARRAY' ) {
+        @lsnAddrs = @$listenAddrs;
+    }
+
+    my $port;
+
+    if ( scalar(@lsnAddrs) > 1 ) {
+        foreach my $lsnAddr (@lsnAddrs) {
+            if ( $lsnAddr =~ /^\d+$/ ) {
+                $port = $lsnAddr;
+                last;
+            }
+        }
+
+        if ( not defined($port) ) {
+            $port = $$listenAddrs[0];
+            if ( $port =~ /^(.*?):(\d+)$/ ) {
+                $port = $2;
+            }
+        }
+    }
+
+    return $port;
+}
+
 #采集器实现需要重载这个类
 #Return：如果判断当前进程不是想要的进程，返回undef，否则返回应用信息的HashMap
 # {
