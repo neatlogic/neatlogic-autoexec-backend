@@ -33,10 +33,10 @@ class OutputStore:
             return
 
         collection = db['node_output']
-        pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
+        pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
         outData = {}
-        #outData['host'] = self.node['host']
-        #outData['port'] = self.port
+        outData['host'] = self.node['host']
+        outData['port'] = self.port
         outData['data'] = output
         outData['createDate'] = datetime.datetime.utcnow()
         outData.update(pk)
@@ -60,7 +60,7 @@ class OutputStore:
         collection = db['node_output']
 
         try:
-            pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
+            pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 output = outData['data']
@@ -78,10 +78,10 @@ class OutputStore:
             return
 
         collection = db['node_status']
-        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
+        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'phase': self.phaseName}
         outData = {}
-        #outData['host'] = self.node['host']
-        #outData['port'] = self.port
+        outData['host'] = self.node['host']
+        outData['port'] = self.port
         outData['data'] = status
         outData['createDate'] = datetime.datetime.utcnow()
         outData.update(pk)
@@ -108,7 +108,7 @@ class OutputStore:
         collection = db['node_status']
 
         try:
-            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
+            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'phase': self.phaseName}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 status = outData['data']
