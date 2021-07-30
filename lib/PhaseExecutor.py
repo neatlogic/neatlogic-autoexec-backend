@@ -130,7 +130,7 @@ class PhaseExecutor:
                 localRunNode = None
                 try:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                    localNode = {"nodeId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+                    localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
                     localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
 
                     if self.context.isForce and self.context.goToStop == False:
