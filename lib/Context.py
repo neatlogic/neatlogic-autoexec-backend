@@ -20,8 +20,8 @@ import Utils
 
 
 class Context(VContext.VContext):
-    def __init__(self, jobId, paramsFile=None, isForce=False, devMode=False, dataPath=None):
-        VContext.VContext.__init__(self, jobId=jobId, isForce=isForce, devMode=devMode, dataPath=dataPath)
+    def __init__(self, jobId, paramsFile=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+        VContext.VContext.__init__(self, jobId=jobId, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.dbclient = None
         self.db = None

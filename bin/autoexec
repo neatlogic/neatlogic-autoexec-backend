@@ -5,28 +5,23 @@
 """
 import os
 import sys
-import io
 import shutil
-import threading
 import initenv
 import platform
 import argparse
 import time
 import signal
-from shutil import copyfile
 import re
 import json
 import glob
 import logging
 from logging.handlers import RotatingFileHandler
 
+import JobRunner
 import Utils
 import VContext
 import Context
 import ServerAdapter
-import Operation
-import PhaseExecutor
-import NodeStatus
 import OutputStore
 
 
@@ -46,161 +41,6 @@ class ConsoleLog(io.TextIOWrapper):
 
             super().write(Utils.getTimeStr() + line)
             super().flush()
-
-
-class Runner:
-    def __init__(self, context, nodesFile=None):
-        # 初始化运行上下文
-        pPaths = os.path.split(os.path.realpath(__file__))
-        homePath = os.path.realpath(pPaths[0]+'/..')
-
-        self.context = context
-        self.localDefinedParams = False
-        self.localDefinedNodes = False
-
-        # 切换到任务的执行路径
-        os.chdir(context.runPath)
-
-        if 'runNode' in context.params:
-            # 如果在参数文件中声明了runNode，则以此作为运行目标，用于工具测试的执行，所以不支持phase内部定义runNode
-            self.localDefinedNodes = True
-            dstPath = '{}/nodes.json'.format(self.context.runPath)
-            nodesFile = open(dstPath, 'w')
-            for node in context.params['runNode']:
-                nodesFile.write(json.dumps(node))
-            nodesFile.close()
-        elif nodesFile is None or nodesFile == '':
-            # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
-            context.serverAdapter.getNodes()
-        else:
-            # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
-            self.localDefinedNodes = True
-            # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
-            dstPath = '{}/nodes.json'.format(self.context.runPath)
-            if os.path.exists(nodesFile):
-                if dstPath != os.path.realpath(nodesFile):
-                    copyfile(nodesFile, dstPath)
-            else:
-                print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
-
-    def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
-        phaseStatus = self.context.phases[phaseName]
-        phaseStatus.hasLocal = False
-        phaseStatus.hasRemote = False
-
-        self.context.initDB(parallelCount)
-        self.context.loadEnv()
-
-        operations = []
-        # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
-
-        for operation in opsParams:
-            if 'arg' in operation:
-                opArgsRefMap[operation['opId']] = operation['arg']
-            else:
-                opArgsRefMap[operation['opId']] = {}
-
-            op = Operation.Operation(self.context, opArgsRefMap, operation)
-            # op.parseParam()
-
-            # 如果有本地操作，则在context中进行标记
-            if op.opType == 'local':
-                phaseStatus.hasLocal = True
-            else:
-                phaseStatus.hasRemote = True
-
-            operations.append(op)
-
-        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, parallelCount)
-        phaseStatus.executor = executor
-        return executor.execute()
-
-    def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
-        self.context.addPhase(phaseName)
-
-        serverAdapter = self.context.serverAdapter
-        if not self.localDefinedNodes:
-            serverAdapter.getNodes(phaseName)
-
-        phaseStatus = self.context.phases[phaseName]
-        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
-        self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
-        failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
-        if failCount == 0:
-            if phaseStatus.ignoreFailNodeCount > 0:
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
-            else:
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
-        else:
-            self.context.hasFailNodeInGlobal = True
-            failStatus = NodeStatus.failed
-            if phaseStatus.isAborting:
-                failStatus = NodeStatus.aborted
-            elif phaseStatus.isPausing:
-                failStatus = NodeStatus.paused
-            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
-
-        print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-        print("--------------------------------------------------------------\n\n")
-
-    def execute(self):
-        params = self.context.params
-        parallelCount = 25
-        if 'parallel' in params:
-            parallelCount = int(params['parallel'])
-            self.context.parallelCount = parallelCount
-
-        opArgsRefMap = {}
-        lastPhase = None
-        if 'runFlow' in params:
-            for phaseGroup in params['runFlow']:
-                if self.context.goToStop == True:
-                    break
-
-                # runFlow是一个数组，每个元素是一个phaseGroup
-                threads = []
-                # 每个group有多个phase，使用线程并发执行
-                for phaseName, phaseConfig in phaseGroup.items():
-                    if self.context.goToStop == True:
-                        break
-
-                    lastPhase = phaseName
-                    if not self.context.hasFailNodeInGlobal:
-                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
-                        thread.start()
-                        thread.name = 'PhaseExecutor-' + phaseName
-                        threads.append(thread)
-
-                for thread in threads:
-                    thread.join()
-
-        status = 0
-        if self.context.hasFailNodeInGlobal:
-            status = 1
-        elif not self.context.goToStop:
-            # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-            if not args.nofirenext:
-                self.context.serverAdapter.fireNextPhase(lastPhase)
-
-        return status
-
-    def kill(self):
-        self.context.goToStop = True
-        # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
-        for phaseStatus in self.context.phases.values():
-            phaseStatus.isAborting = 1
-            if phaseStatus.executor is not None:
-                phaseStatus.executor.kill()
-        self.context.serverAdapter.jobKilled()
-
-    def pause(self):
-        self.context.goToStop = True
-        # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
-        for phaseStatus in self.context.phases.values():
-            phaseStatus.isPausing = 1
-            if phaseStatus.executor is not None:
-                phaseStatus.executor.pause()
-        self.context.serverAdapter.jobPaused()
 
 
 def _getLogSubPath(jobId):
@@ -281,6 +121,7 @@ if __name__ == "__main__":
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
     parser.add_argument('--nofirenext', '-e', default=False, action='store_true', help='do not fire next job phase')
+    parser.add_argument('--passthroughenv', None, default='{}', help='Additinal json parameter while callback to console')
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
@@ -292,7 +133,8 @@ if __name__ == "__main__":
     progName = binPaths[1]
 
     if args.cleanstatus:
-        vContext = VContext.VContext(args.jobid)
+        passThroughEnv = json.loads(args.passthroughenv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv)
         vContext.initDB(1)
 
         outputStore = OutputStore.OutputStore(vContext, None, None)
@@ -306,13 +148,18 @@ if __name__ == "__main__":
         pluginsPath = homePath + '/plugins'
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
-        vContext = VContext.VContext(0)
+        passThroughEnv = json.loads(args.passthroughenv)
+        vContext = VContext.VContext(0, passThroughEnv)
         vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         registerTools(serverAdapter, pluginsPath, 'local')
         registerTools(serverAdapter, pluginsPath, 'remote')
     elif args.pause:
+        passThroughEnv = json.loads(args.passthroughenv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv)
+        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
         ret = 0
         print("INFO: try to pause job:{}\n".format(args.jobid))
         autoexecIsPaused = False
@@ -329,7 +176,7 @@ if __name__ == "__main__":
                     os.kill(autoexecPid, signal.SIGUSR1)
             except:
                 autoexecIsPaused = True
-                # TODO: call back job paused
+                serverAdapter.jobPaused()
                 print("INFO: Process {} puased.\n".format(autoexecPid))
 
             if not autoexecIsPaused:
@@ -337,9 +184,14 @@ if __name__ == "__main__":
                 print("WARN: Kill process {} failed.\n".format(autoexecPid))
         else:
             ret = 2
+            serverAdapter.jobPaused()
             print("INFO: Can not find job {} process.\n".format(args.jobid))
         sys.exit(ret)
     elif args.abort:
+        passThroughEnv = json.loads(args.passthroughenv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv)
+        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
         ret = 0
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
@@ -357,7 +209,7 @@ if __name__ == "__main__":
                 os.kill(autoexecPid, 0)
             except:
                 autoexecIsKilled = True
-                # TODO: call back job killed
+                serverAdapter.jobKilled()
                 print("INFO: Process {} killed.\n".format(autoexecPid))
 
             if not autoexecIsKilled:
@@ -365,12 +217,13 @@ if __name__ == "__main__":
                 print("WARN: Kill process {} failed.\n".format(autoexecPid))
         else:
             ret = 2
+            serverAdapter.jobKilled()
             print("INFO: Can not find job {} process.\n".format(args.jobid))
         sys.exit(ret)
     else:
         # 初始化运行context
         dataPath = homePath + '/data'
-        context = Context.Context(args.jobid, paramsFile=args.paramsfile, isForce=args.force, devMode=args.devmode, dataPath=dataPath)
+        context = Context.Context(args.jobid, paramsFile=args.paramsfile, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext)
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
 
@@ -416,7 +269,7 @@ if __name__ == "__main__":
 
         # 开始运行作业
         print("INFO: JobId:{} start...\n".format(args.jobid))
-        runner = Runner(context, nodesFile=args.nodesfile)
+        runner = JobRunner.JobRunner(context, nodesFile=args.nodesfile)
 
         # 信号处理函数，pause runner
         def pauseHandler(signum, frame):

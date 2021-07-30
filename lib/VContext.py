@@ -13,7 +13,7 @@ import Utils
 
 
 class VContext:
-    def __init__(self, jobId=0, isForce=False, devMode=False, dataPath=None):
+    def __init__(self, jobId=0, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
         self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
         self.pid = os.getpid()
@@ -27,7 +27,8 @@ class VContext:
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath
-        self.passThroughEnv = {}
+        self.noFireNext = noFireNext
+        self.passThroughEnv = passThroughEnv
 
         self.goToStop = False
         # 用于标记全局是否有失败的节点
@@ -36,6 +37,9 @@ class VContext:
         homePath = os.path.split(os.path.realpath(__file__))[0]
         homePath = os.path.realpath(homePath + '/..')
         self.homePath = homePath
+
+        if 'tenant' in os.environ:
+            self.tenant = os.environ['tenant']
 
         # 存放执行数据以及日志的根目录
         if (dataPath == None):
