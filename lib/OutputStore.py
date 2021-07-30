@@ -33,8 +33,10 @@ class OutputStore:
             return
 
         collection = db['node_output']
-        pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.port}
+        pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
         outData = {}
+        #outData['host'] = self.node['host']
+        #outData['port'] = self.port
         outData['data'] = output
         outData['createDate'] = datetime.datetime.utcnow()
         outData.update(pk)
@@ -58,7 +60,7 @@ class OutputStore:
         collection = db['node_output']
 
         try:
-            pk = {'jobId': self.jobId, 'host': self.node['host'],  'port': self.port}
+            pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 output = outData['data']
@@ -69,15 +71,17 @@ class OutputStore:
 
     def saveStatus(self, status):
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        #return
+        # return
         db = self.db
 
         if db is None:
             return
 
         collection = db['node_status']
-        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.port}
+        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
         outData = {}
+        #outData['host'] = self.node['host']
+        #outData['port'] = self.port
         outData['data'] = status
         outData['createDate'] = datetime.datetime.utcnow()
         outData.update(pk)
@@ -95,7 +99,7 @@ class OutputStore:
         status = {}
 
         # 状态本地有保存，不需要共享，存放到共享数据库，是为了多节点的高可用，如果有性能的问题，可以把此方法的处理逻辑直接pass掉，直接return
-        #return status
+        # return status
         db = self.db
 
         if db is None:
@@ -104,7 +108,7 @@ class OutputStore:
         collection = db['node_status']
 
         try:
-            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'host': self.node['host'],  'port': self.port}
+            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId'], 'host': self.node['host'],  'port': self.port}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 status = outData['data']

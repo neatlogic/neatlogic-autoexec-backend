@@ -85,6 +85,11 @@ class RunNode:
         self.nodeWithoutPassword = copy.copy(node)
         self.nodeWithoutPassword['password'] = ''
 
+        if 'resourceId' in node:
+            self.resourceId = node['resourceId']
+        else:
+            self.resourceId = ''
+
         if 'nodeName' in node:
             self.name = node['nodeName']
         else:
@@ -109,8 +114,8 @@ class RunNode:
             os.mkdir(self.phaseLogDir)
 
         self.logPathWithTime = None
-        self.logPath = '{}/{}-{}-{}.txt'.format(self.phaseLogDir, self.host, self.port, self.id)
-        self.hisLogDir = '{}/{}-{}-{}.hislog'.format(self.phaseLogDir, self.host, self.port, self.id)
+        self.logPath = '{}/{}-{}-{}.txt'.format(self.phaseLogDir, self.host, self.port, self.resourceId)
+        self.hisLogDir = '{}/{}-{}-{}.hislog'.format(self.phaseLogDir, self.host, self.port, self.resourceId)
 
         try:
             if not os.path.exists(self.hisLogDir):
@@ -125,7 +130,7 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port, self.id)
+        self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port, self.resourceId)
 
         self.outputRoot = self.runPath + '/output'
         self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], self.port)
