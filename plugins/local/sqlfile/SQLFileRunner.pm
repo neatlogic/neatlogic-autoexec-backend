@@ -50,8 +50,7 @@ sub new {
     my $dbInfo = DBInfo->new( $self->{dbNode}, \%args );
     $self->{dbInfo}                = $dbInfo;
     $self->{sqlFileDir}            = "$jobPath/sqlfile/$phaseName";
-    $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{nodeId}";
-    #$self->{waitInputFlagFilePath} = "$jobPath/log/$phaseName.waitInput";
+    $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
 
     return $self;
 }
@@ -408,12 +407,6 @@ sub execSqlFiles {
 
     my $hasError = 0;
 
-    # unlink( $self->{waitInputFlagFilePath} );
-
-    # END {
-    #     unlink( $self->{waitInputFlagFilePath} );
-    # }
-
     foreach my $sqlFile (@$sqlFiles) {
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
@@ -438,11 +431,7 @@ sub execSqlFiles {
                     if ( $exitPid eq 0 ) {
                         $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
                         if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            # my $fh = IO::File->new(">$self->{waitInputFlagFilePath}");
-                            # if ( defined($fh) ) {
-                            #     $fh->close();
-                            # }
-                            AutoExecUtils::informNodeWaitInput($self->{dbInfo}->{nodeId})
+                            AutoExecUtils::informNodeWaitInput($self->{dbInfo}->{resourceId})
                         }
                         $isPreWaitInput = $isWaitInput;
 
