@@ -5,6 +5,7 @@
 """
 import os
 import sys
+import io
 import shutil
 import initenv
 import platform
@@ -120,8 +121,8 @@ if __name__ == "__main__":
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
-    parser.add_argument('--nofirenext', '-e', default=False, action='store_true', help='do not fire next job phase')
-    parser.add_argument('--passthroughenv', None, default='{}', help='Additinal json parameter while callback to console')
+    parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
+    parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
