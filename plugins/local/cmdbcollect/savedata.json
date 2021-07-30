@@ -3,7 +3,7 @@
 	"opType": "runner_target",
 	"typeName": "自动采集",
 	"riskName": "LOW",
-	"interpreter": "perl",
+	"interpreter": "python",
 	"description": "对采集插件生成的output数据存储到DB插件",
 	"desc": [],
 	"output": []

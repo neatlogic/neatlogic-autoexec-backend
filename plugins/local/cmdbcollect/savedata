@@ -1,100 +1,89 @@
-#!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/";
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
 
-use strict;
-use IO::File;
-use Getopt::Long;
-use File::Basename;
-use utf8;
-use JSON;
-use File::Slurper 'read_text';
+import AutoExecUtils
+import CmdbUtils
+import os
+import argparse
+import sys
+import json
 
-use AutoExecUtils;
-use CmdbUtils;
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
 
-sub usage {
-    my $pname = basename($0);
 
-    print("Usage: $pname [-p|--param <param>] \n");
-    print("       param: pre phase plugin output param key.\n");
-    exit(1);
-}
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --path <path> ")
+    exit(1)
 
-sub main {
-    my ( $ishelp, $param );
 
-    AutoExecUtils::setEnv();
-    my $pname = basename($0);
+def _readJson(path):
+    f = open(path, "r", encoding="utf-8")
+    data = json.load(f)
+    f.close()
+    return data
 
-    GetOptions(
-        'help'      => \$ishelp,
-        'h|param:s' => \$param
-    );
 
-    if ( not defined($param) or $param eq '' ) {
-        usage();
-        exit(0);
-    }
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', default='', help='前置插件或步骤output输出路径')
+    parser.add_argument('--param', default='', help='前置节点输出参数')
+    parser.add_argument('--node', default='', help='执行节点')
+    args = parser.parse_args()
+    path = args.path
 
-    $param =~ s/#//;
-    $param =~ s/\}//;
-    $param =~ s/\{//;
+    host = None
+    port = None
+    AUTOEXEC_NODE = os.getenv('AUTOEXEC_NODE')
+    AUTOEXEC_ROOTPATH = os.getenv('OUTPUT_ROOT_PATH')
+    if AUTOEXEC_NODE != None:
+        AUTOEXEC_NODE = json.loads(AUTOEXEC_NODE)
+        host = AUTOEXEC_NODE['host']
+        port = AUTOEXEC_NODE['port']
 
-    my @keys     = split /\./, $param;
-    my $preName  = @keys[0];
-    my $preOptId = @keys[1];
-    my $preParam = @keys[2];
+    if ((host == None or port == None or AUTOEXEC_ROOTPATH == None) and path == None):
+        print("ERROR:: must set AUTOEXEC_NODE and OUTPUT_ROOT_PATH param or defined args --path.\n")
+        usage()
 
-    my $isSuccess;
-    my $AUTOEXEC_ROOTPATH = $ENV{'OUTPUT_ROOT_PATH'};
-    my $AUTOEXEC_NODE     = $ENV{'AUTOEXEC_NODE'};
-    my ( $targetIp, $targetPort );
-    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
-        $AUTOEXEC_NODE = decode_json($AUTOEXEC_NODE);
-        $targetIp      = $AUTOEXEC_NODE->{host};
-        $targetPort    = $AUTOEXEC_NODE->{port};
-    }
-    if ( not defined($targetIp) or not defined($targetPort) ) {
-        print("ERROR:: must set node param env .\n");
-        $isSuccess = 1;
-    }
-    else {
-        my $cmdbUtil    = new CmdbUtils();
-        my $outputName  = "$targetIp" . "-" . "$targetPort" . ".json";
-        my $outputPath  = File::Spec->catfile( $AUTOEXEC_ROOTPATH, $outputName );
-        my $output      = read_text($outputPath);
-        my $output_json = decode_json($output);
-        my $node_data   = $output_json->{$preOptId}->{$preParam};
-        if ( defined($node_data) and $node_data ne '' ) {
-            my $collect_data = $node_data->{data};
-            foreach my $real_data (@$collect_data) {
+    outputName = str(host) + "-" + str(port) + ".json"
+    outputPath = AUTOEXEC_ROOTPATH + "/" + outputName
+    output_Json = _readJson(outputPath)
+    collect_data = None
+    if output_Json != None:
+        cmdbcollect = output_Json["cmdbcollect"]
+        collect_data = cmdbcollect["DATA"]
 
-                my $table      = $real_data->{'table'};
-                my $uniqueName = $real_data->{'uniqueName'};
-                my $data       = $real_data->{'data'};
+    if collect_data == None:
+        print("WARN:: collect plugin has no return data .\n")
+        exit(1)
 
-                $isSuccess = $cmdbUtil->saveCollectData( table => $table, uniqueName => $uniqueName, data => $data );
-                if ( $isSuccess ne 0 ) {
-                    last;
-                }
-            }
-        }
-        else {
-            print("ERROR:: collect data not exists or data format error .\n");
-            $isSuccess = 1;
-        }
-    }
-    if ( $isSuccess == 0 ) {
-        print("INFO: $pname phase $preName $preOptId data save success.\n");
-    }
-    else {
-        print("ERROR: $pname phase $preName $preOptId data save failed.\n");
-    }
-    return $isSuccess;
-}
+    cmdbUtils = CmdbUtils.CmdbUtils()
+    for data in collect_data:
+        pk = data['PK']
+        tableName = data["OBJECT_TYPE"]
+        if("APP_TYPE" in data):
+            tableName = data["APP_TYPE"]
 
-exit( main() );
+        table = "collect_" + tableName
+        table = table.lower()
 
+        uniqueExp = []
+        for unique in pk:
+            exp = {}
+            exp[unique] = data[unique]
+            uniqueExp.append(exp)
+
+        dbUnique = {}
+        dbUnique['$and'] = uniqueExp
+
+        # 新增统一的采集更新时间
+        data['_updatetime'] = AutoExecUtils.getCurrentTime()
+
+        count = cmdbUtils.count(table, dbUnique)
+        if count == 0:
+            cmdbUtils.insert(table, data)
+        else:
+            cmdbUtils.update(table, dbUnique, data)
+        cmdbUtils.close()
