@@ -17,6 +17,7 @@ use File::Basename;
 use Getopt::Long;
 use JSON;
 use DBInfo;
+use AutoExecUtils;
 use Utils;
 
 use SQLFileStatus;
@@ -50,7 +51,7 @@ sub new {
     $self->{dbInfo}                = $dbInfo;
     $self->{sqlFileDir}            = "$jobPath/sqlfile/$phaseName";
     $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{nodeId}";
-    $self->{waitInputFlagFilePath} = "$jobPath/log/$phaseName.waitInput";
+    #$self->{waitInputFlagFilePath} = "$jobPath/log/$phaseName.waitInput";
 
     return $self;
 }
@@ -407,11 +408,11 @@ sub execSqlFiles {
 
     my $hasError = 0;
 
-    unlink( $self->{waitInputFlagFilePath} );
+    # unlink( $self->{waitInputFlagFilePath} );
 
-    END {
-        unlink( $self->{waitInputFlagFilePath} );
-    }
+    # END {
+    #     unlink( $self->{waitInputFlagFilePath} );
+    # }
 
     foreach my $sqlFile (@$sqlFiles) {
         my $sqlFileStatus = SQLFileStatus->new(
@@ -437,10 +438,11 @@ sub execSqlFiles {
                     if ( $exitPid eq 0 ) {
                         $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
                         if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            my $fh = IO::File->new(">$self->{waitInputFlagFilePath}");
-                            if ( defined($fh) ) {
-                                $fh->close();
-                            }
+                            # my $fh = IO::File->new(">$self->{waitInputFlagFilePath}");
+                            # if ( defined($fh) ) {
+                            #     $fh->close();
+                            # }
+                            AutoExecUtils.informNodeWaitInput($self->{dbInfo}->{nodeId})
                         }
                         $isPreWaitInput = $isWaitInput;
 
