@@ -269,7 +269,7 @@ class RunNode:
                     outputFile.close()
         else:
             # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
-            localNode = {'host': 'local', 'port': 0}
+            localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
             loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
             output = loalOutStore.loadOutput()
 
