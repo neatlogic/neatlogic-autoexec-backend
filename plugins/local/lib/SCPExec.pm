@@ -7,7 +7,6 @@ package SCPExec;
 
 use strict;
 use Expect;
-use Utils;
 $Expect::Multiline_Matching = 0;
 
 sub new {

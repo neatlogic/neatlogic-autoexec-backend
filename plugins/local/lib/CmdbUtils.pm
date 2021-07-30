@@ -6,7 +6,6 @@ use lib "$FindBin::Bin/../lib";
 package CmdbUtils;
 
 use strict;
-use Utils;
 use utf8;
 use MongodbRunner;
 

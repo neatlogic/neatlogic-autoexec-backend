@@ -69,5 +69,5 @@ if __name__ == "__main__":
     # 定义插件的输出变量output
     out = {}
     out['outjson'] = plugin
-    Util = AutoExecUtils.AutoExecUtils()
-    Util.saveOutput(out)
+    util = AutoExecUtils.AutoExecUtils()
+    util.saveOutput(out)

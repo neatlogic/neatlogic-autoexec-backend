@@ -15,7 +15,6 @@ use Config::IniFiles;
 use Cwd;
 use Try::Tiny;
 use Crypt::RC4;
-use Utils;
 
 sub _rc4_decrypt_hex ($$) {
     my ( $key, $data ) = ( $_[0], $_[1] );

@@ -10,7 +10,7 @@ import configparser
 import pymongo
 import json
 import binascii
-import Utils 
+import AutoExecUtils 
 
 
 class CmdbUtils:
@@ -34,7 +34,7 @@ class CmdbUtils:
         self.dbuser = dbuser
 
         if dbpwd.startswith('{ENCRYPTED}'):
-           dbpwd = Utils._rc4_decrypt_hex(my_key, dbpwd[11:])
+           dbpwd = AutoExecUtils._rc4_decrypt_hex(my_key, dbpwd[11:])
         self.dbpwd = dbpwd
 
         #初始化创建connect
