@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
+import AutoExecUtils
+import CmdbUtils
 import os
 import argparse
 import sys
@@ -9,14 +11,13 @@ import json
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
-import CmdbUtils
-import Utils
 
 
 def usage():
     pname = os.path.basename(__file__)
     print(pname + " --path <path> ")
     exit(1)
+
 
 def _readJson(path):
     f = open(path, "r", encoding="utf-8")
@@ -33,57 +34,56 @@ if __name__ == "__main__":
     args = parser.parse_args()
     path = args.path
 
-    host = None 
-    port =None 
+    host = None
+    port = None
     AUTOEXEC_NODE = os.getenv('AUTOEXEC_NODE')
     AUTOEXEC_ROOTPATH = os.getenv('OUTPUT_ROOT_PATH')
-    if AUTOEXEC_NODE != None :
+    if AUTOEXEC_NODE != None:
         AUTOEXEC_NODE = json.loads(AUTOEXEC_NODE)
         host = AUTOEXEC_NODE['host']
         port = AUTOEXEC_NODE['port']
-    
-    if ((host == None  or port == None or AUTOEXEC_ROOTPATH == None ) and path == None ) :
+
+    if ((host == None or port == None or AUTOEXEC_ROOTPATH == None) and path == None):
         print("ERROR:: must set AUTOEXEC_NODE and OUTPUT_ROOT_PATH param or defined args --path.\n")
         usage()
-    
-    outputName  = str(host) + "-" + str(port) + ".json"
+
+    outputName = str(host) + "-" + str(port) + ".json"
     outputPath = AUTOEXEC_ROOTPATH + "/" + outputName
     output_Json = _readJson(outputPath)
-    collect_data = None 
-    if output_Json != None :
+    collect_data = None
+    if output_Json != None:
         cmdbcollect = output_Json["cmdbcollect"]
         collect_data = cmdbcollect["DATA"]
 
-    if collect_data == None : 
+    if collect_data == None:
         print("WARN:: collect plugin has no return data .\n")
         exit(1)
 
     cmdbUtils = CmdbUtils.CmdbUtils()
-    for data in collect_data :
+    for data in collect_data:
         pk = data['PK']
         tableName = data["OBJECT_TYPE"]
-        if( "APP_TYPE" in data ) :
+        if("APP_TYPE" in data):
             tableName = data["APP_TYPE"]
 
         table = "collect_" + tableName
         table = table.lower()
-	
-        uniqueExp = [] 
-        for unique in pk :
+
+        uniqueExp = []
+        for unique in pk:
             exp = {}
-            exp[unique] = data[unique] 
+            exp[unique] = data[unique]
             uniqueExp.append(exp)
-        
+
         dbUnique = {}
         dbUnique['$and'] = uniqueExp
-        
-        #新增统一的采集更新时间
-        data['_updatetime'] = Utils.getCurrentTime()
-        
-        count = cmdbUtils.count(table ,dbUnique)
-        if count == 0 :
-            cmdbUtils.insert(table,data)
-        else :
-            cmdbUtils.update(table ,dbUnique , data)
-        cmdbUtils.close()
 
+        # 新增统一的采集更新时间
+        data['_updatetime'] = AutoExecUtils.getCurrentTime()
+
+        count = cmdbUtils.count(table, dbUnique)
+        if count == 0:
+            cmdbUtils.insert(table, data)
+        else:
+            cmdbUtils.update(table, dbUnique, data)
+        cmdbUtils.close()

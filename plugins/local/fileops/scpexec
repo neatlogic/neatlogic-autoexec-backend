@@ -9,7 +9,7 @@ use File::Basename;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use SCPExec;
-use Utils;
+use AutoExecUtils;
 use Cwd;
 
 sub usage {
@@ -29,7 +29,7 @@ sub usage {
 
 sub main {
     my ( $ishelp, $direction, $cpIfExists, $host, $port, $user, $pass, $src, $dest, $isVerbose, $np );
-    Utils::setEnv();
+    AutoExecUtils::setEnv();
 
     my $pname = basename($0);
     $isVerbose = 0;

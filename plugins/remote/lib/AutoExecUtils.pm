@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 
-package Utils;
+package AutoExecUtils;
 
 use IO::File;
 use JSON qw(to_json from_json encode_json);

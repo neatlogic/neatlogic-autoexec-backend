@@ -5,7 +5,7 @@ use lib $FindBin::Bin;
 use strict;
 use Getopt::Long;
 use SqlplusExec;
-use Utils;
+use AutoExecUtils;
 
 #input：
 #db主机节点（DB主机节点可用的RAC其中一个节点）主备都要运行，获取主备的dbUniqueName和dbName和isRAC，两个参数分别传递给下一个步骤
@@ -112,7 +112,7 @@ sub main {
     $out->{dbUniqueName}     = $dbUniqueName;
     $out->{dbSequence}     =  $dbSequence;
     $out->{tempFilesCount}      = $tempFilesCount;
-    Utils::saveOutput($out);
+    AutoExecUtils::saveOutput($out);
 
     if ( defined($dbName) and defined($dbUniqueName) and defined($dbSequence) ) {
         print("INFO: Get db base config success.\n");

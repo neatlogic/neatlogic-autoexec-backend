@@ -16,7 +16,7 @@ use OSGather;
 use ConnGather;
 use CollectObjType;
 
-use Utils;
+use AutoExecUtils;
 use Data::Dumper;
 
 my $SINGLE_TIMEOUT = 300;
@@ -286,7 +286,7 @@ sub main {
 
     my $out = {};
     $out->{DATA} = \@data;
-    Utils::saveOutput($out);
+    AutoExecUtils::saveOutput($out);
     print("INFO: All is completed.\n");
 }
 

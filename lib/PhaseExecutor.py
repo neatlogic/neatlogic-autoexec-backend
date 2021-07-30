@@ -63,6 +63,14 @@ class PhaseWorker(threading.Thread):
                 phaseStatus.incWarnCount()
                 self.currentNode = None
 
+    def informNodeWaitInput(self, nodeId):
+        currentNode = self.currentNode
+        if currentNode is not None and currentNode.id == nodeId:
+            currentNode.updateNodeStatus('waitInput')
+            return True
+        else:
+            return False
+
     def pause(self):
         self._queue.put(None)
         if self.currentNode is not None:
@@ -95,17 +103,6 @@ class PhaseExecutor:
 
         self.workers = workers
         return workers
-
-    def checkWaitInput(self):
-        # 当存在插件或者节点在waitInput，工具本身需要往log目录中写入一个标记文件标记阶段的waitInput状态
-        waitInputFlagFilePath = self.waitInputFlagFilePath
-        if os.path.exists(waitInputFlagFilePath):
-            self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-            # callback成功后删除当前阶段的waitInput标记文件
-            os.unlink(waitInputFlagFilePath)
-            return True
-        else:
-            return False
 
     def execute(self):
         # 删除当前阶段的waitInput标记文件
@@ -178,8 +175,6 @@ class PhaseExecutor:
                         if node is None:
                             break
 
-                        self.checkWaitInput()
-
                         if self.context.isForce and self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
@@ -223,7 +218,6 @@ class PhaseExecutor:
             # 入队对应线程数量的退出信号对象
             for worker in worker_threads:
                 execQueue.put(None)
-                self.checkWaitInput()
 
             # 等待所有worker线程退出
             # for worker in worker_threads:
@@ -233,11 +227,19 @@ class PhaseExecutor:
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
-                self.checkWaitInput()
 
             # if phaseStatus.hasRemote:
             #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
         return phaseStatus.failNodeCount
+
+    def informNodeWaitInput(self, nodeId):
+        hasInformed = False
+        for worker in self.workers:
+            if (worker.informNodeWaitInput(nodeId)):
+                hasInformed = True
+        if hasInformed:
+            self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+            print("INFO: Update node:nodeId status to waitInput succeed.\n")
 
     def pause(self):
         self.context.goToStop = True

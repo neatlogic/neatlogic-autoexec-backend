@@ -6,11 +6,13 @@
 
 import os
 import sys
+import socket
 import json
 import time
 import binascii
 
 PYTHON_VER = sys.version_info.major
+
 
 def setEnv():
     pass
@@ -47,11 +49,13 @@ def _rc4(key, data):
         out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
     return ''.join(out)
 
+
 def _rc4_decrypt_hex(key, data):
     if PYTHON_VER == 2:
         return _rc4(key, binascii.unhexlify(data))
     elif PYTHON_VER == 3:
         return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
+
 
 def getMyNode(self):
     nodeJson = os.environ['AUTOEXEC_NODE']
@@ -79,6 +83,25 @@ def getNode(nodeId):
                 matchNode = node
 
     return matchNode
+
+
+def informNodeWaitInput(nodeId):
+    sockPath = os.environ['AUTOEXEC_WORK_PATH'] + '/job.sock'
+    if os.path.exists(sockPath):
+        try:
+            client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+            client.connect(sockPath)
+            request = {}
+            request['action'] = 'informNodeWaitInput'
+            request['nodeId'] = nodeId
+            client.send(json.dumps(request))
+            client.close()
+            print("INFO: Inform node:{} udpate status to waitInput success.\n".format(nodeId))
+        except Exception as ex:
+            print("WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(nodeId, ex))
+    else:
+        print("WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(nodeId, sockPath))
+    return
 
 
 def getNodes(self):

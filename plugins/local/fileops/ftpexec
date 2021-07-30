@@ -4,7 +4,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use Utils;
+use AutoExecUtils;
 use IO::File;
 use Getopt::Long;
 use File::Basename;
@@ -27,7 +27,7 @@ sub usage {
 sub main {
     my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest );
 
-    Utils::setEnv();
+    AutoExecUtils::setEnv();
     my $pname = basename($0);
 
     my $isVerbose = 0;

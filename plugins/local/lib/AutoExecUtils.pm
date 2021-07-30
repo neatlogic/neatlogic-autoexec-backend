@@ -8,6 +8,7 @@ use strict;
 use POSIX;
 use IO::Socket;
 use IO::Socket::SSL;
+use IO::Socket::UNIX;
 use IO::File;
 use Sys::Hostname;
 use File::Copy;
@@ -20,8 +21,9 @@ use CharsetDetector;
 use File::Basename;
 use Cwd;
 use File::Glob qw(bsd_glob);
+use JSON qw(from_json to_json);
 
-package Utils;
+package AutoExecUtils;
 
 use IO::File;
 use JSON qw(to_json from_json);
@@ -50,8 +52,8 @@ sub saveOutput {
 sub getMyNode {
     my $nodeJson = $ENV{AUTOEXEC_NODE};
     my $node;
-    
-    if ( defined($nodeJson) and $nodeJson ne '' ){
+
+    if ( defined($nodeJson) and $nodeJson ne '' ) {
         $node = from_json($nodeJson);
     }
 
@@ -77,6 +79,36 @@ sub getNode {
     }
 
     return $node;
+}
+
+sub informNodeWaitInput {
+    my ($nodeId) = @_;
+    my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '.job.sock';
+
+    if ( -e $sockPath ) {
+        eval {
+            my $client = IO::Socket::UNIX->new(
+                PeerAddr => $sockPath,
+                Type     => IO::Socket::SOCK_DGRAM,
+                Timeout  => 10
+            );
+
+            my $request = {};
+            $request->{action} = 'informNodeWaitInput';
+            $request->{nodeId} = $nodeId;
+
+            $client->send( to_json($request) );
+            $client->close();
+            print("INFO: Inform node:$nodeId udpate status to waitInput success.\n");
+        };
+        if ($@) {
+            print("WARN: Inform node:$nodeId udpate status to waitInput failed, $@\n");
+        }
+    }
+    else {
+        print("WARN: Inform node:$nodeId update status to waitInput failed:socket file $sockPath not exist.\n");
+    }
+    return;
 }
 
 sub getNodes {
@@ -114,7 +146,7 @@ sub exitWithFlag {
 sub getErrFlag {
     my $flag = $ENV{runflag};
     return int($flag) if ( defined($flag) );
-    return 0          if ( not defined($flag) );
+    return 0 if ( not defined($flag) );
 }
 
 sub convToUTF8 {

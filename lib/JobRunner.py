@@ -14,6 +14,44 @@ import PhaseExecutor
 import NodeStatus
 
 
+class ListenThread (threading.Thread):  # 继承父类threading.Thread
+    def __init__(self, threadID, name, context=None):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.context = context
+        self.goToStop = False
+        self.socketPath = context.runPath + 'job.sock'
+
+    def run(self):
+        socketPath = self.socketPath
+        if os.path.exists(socketPath):
+            os.remove(socketPath)
+
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        server.bind(socketPath)
+        self.server = server
+
+        while not self.goToStop:
+            datagram = server.recv(4096)
+            if not datagram:
+                continue
+            actionData = json.loads(datagram.decode('utf-8'))
+            try:
+                if actionData['action'] == 'informNodeWaitInput':
+                    nodeId = actionData['nodeId']
+                    for phaseStatus in self.context.phases.values():
+                        if phaseStatus.executor is not None:
+                            phaseStatus.executor.informNodeWaitInput(nodeId)
+            except Exception as ex:
+                print('ERROR: Ileggle request from sock {}\n{}\n'.format(actionData, ex))
+
+    def stop(self):
+        self.goToStop = True
+        self.server.close()
+        os.remove(self.socketPath)
+
+
 class JobRunner:
     def __init__(self, context, nodesFile=None):
         self.context = context
@@ -106,6 +144,9 @@ class JobRunner:
         print("--------------------------------------------------------------\n\n")
 
     def execute(self):
+        listenThread = ListenThread(1, 'Listen-Thread', self.context)
+        listenThread.start()
+
         params = self.context.params
         parallelCount = 25
         if 'parallel' in params:
@@ -144,6 +185,8 @@ class JobRunner:
             if not self.context.noFireNext:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
+        self.context.goToStop = True
+        listenThread.stop()
         return status
 
     def kill(self):

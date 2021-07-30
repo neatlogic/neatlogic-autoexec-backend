@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use strict;
 use Getopt::Long;
 
-use Utils;
+use AutoExecUtils;
 
 #帮助提示信息
 ###############################
@@ -21,7 +21,7 @@ sub usage {
 ################################
 sub main {
     $|=1; #不对输出进行buffer，便于实时看到输出日志
-    Utils::setEnv();
+    AutoExecUtils::setEnv();
 
     my ( $ishelp, $tinput, $tjson, $tselect, $tmultiselect, $tpassword, $tfile, $tnode, $tdate, $ttime, $tdatetime );
 
@@ -73,7 +73,7 @@ sub main {
     $out->{outfile}     = "this is the output file name";
     $out->{outjson}     = '{"key1":"value1", "key2":"value2"}';
     $out->{outcsv}      = q{"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"};
-    Utils::saveOutput($out);
+    LoalUtils::saveOutput($out);
 }
 
 #运行主程序

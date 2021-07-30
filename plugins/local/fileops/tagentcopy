@@ -8,7 +8,7 @@ use strict;
 use File::Basename;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
-use Utils;
+use AutoExecUtils;
 use Cwd;
 use TagentClient;
 
@@ -32,7 +32,7 @@ sub usage {
 
 sub main {
     my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest, $isVerbose, $np, $cpIfExists, $followLinks );
-    Utils::setEnv();
+    AutoExecUtils::setEnv();
 
     my $pname = basename($0);
 
