@@ -47,7 +47,8 @@ sub getCmdOut {
     if ( $status ne 0 ) {
         print("WARN: execute cmd:$cmd failed.\n");
     }
-
+    
+    chomp($out);
     return ( $status, $out );
 }
 

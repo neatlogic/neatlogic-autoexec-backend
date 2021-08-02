@@ -161,12 +161,12 @@ sub collectOsInfo {
         $osInfo->{NIC_BOND} = 0;
     }
 
-    my $memInfoLines = $self->getCmdOutLines('free -m');
-    foreach my $line (@$memInfoLines) {
-        if ( $line =~ /Swap:\s+(\d+)/ ) {
-            $osInfo->{SWAP_SIZE} = $1 . 'M';
-        }
-    }
+    # my $memInfoLines = $self->getCmdOutLines('free -m');
+    # foreach my $line (@$memInfoLines) {
+    #     if ( $line =~ /Swap:\s+(\d+)/ ) {
+    #         $osInfo->{SWAP_SIZE} = int($1);
+    #     }
+    # }
 
     my $cpuArch = ( POSIX::uname() )[4];
     $osInfo->{CPU_ARCH} = $cpuArch;
@@ -492,7 +492,7 @@ sub collectHostInfo {
 
     my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
     $biosVersion =~ s/^\*|\s$//g;
-    $hostInfo->{MANUFACTURER} = $biosVersion;
+    $hostInfo->{BIOS_VERSION} = $biosVersion;
 
     my $cpuCount     = 0;
     my $cpuInfoLines = $self->getFileLines('/proc/cpuinfo');
@@ -511,9 +511,9 @@ sub collectHostInfo {
     }
     $hostInfo->{CPU_COUNT} = scalar( keys(%$pCpuMap) );
     $hostInfo->{CPU_CORES} = int( $cpuInfo->{processor} ) + 1;
-    $hostInfo->{MICROCODE} = $cpuInfo->{microcode};
+    $hostInfo->{CPU_MICROCODE} = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{MODEL_NAME}    = $modelInfo[0];
+    $hostInfo->{CPU_MODEL_NAME}    = $modelInfo[0];
     $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
