@@ -439,11 +439,16 @@ sub collectHostInfo {
             $nicInfo->{MAC} = $macAddr;
         }
 
-        #TODO: 网卡速率和接线状态
+        #TODO: 网卡速率和接线状态确认，在高版本AIX是有问题的
+        my $status = $self->getCmdOut("entstat -d $ethName | grep 'Link Status' | cut -d : -f 2");
+        $nicInfo->{STATUS} = $status;
+        my $speed = $self->getCmdOut("entstat -d $ethName |grep  'Speed Running' | cut -d : -f 2");
+        $nicInfo->{SPEED} = $speed;
     }
     my @nicInfos = values(%$nicInfosMap);
     $hostInfo->{NET_INTERFACES} = \@nicInfos;
 
+    #TODO: 需要确认HBA卡信息采集的正确性
     my @hbaInfos    = ();
     my @hbaInfosMap = {};
     my $fcNames     = $self->getCmdOutLines(q{lsdev -Cc adapter | grep 'FC Adapter' | awk '{print $1}'});
