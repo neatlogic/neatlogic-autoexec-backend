@@ -119,12 +119,10 @@ sub _parseOutput {
         #错误识别
         #ERROR at line 1:
         #ORA-00907: missing right parenthesis
-        if ( $line =~ /^ERROR/ ) {
-            if ( $lines[ $i + 1 ] =~ /^ORA-\d+:/ ) {
-                $hasError = 1;
-                print( $line,            "\n" );
-                print( $lines[ $i + 1 ], "\n" );
-            }
+        if ( $line =~ /^ERROR\s*[^:]*?:.*?$/ or $line =~ /^ERROR.*?:.*?$/ ) {
+            $hasError = 1;
+            print( $line,            "\n" );
+            print( $lines[ $i + 1 ], "\n" );
         }
 
         if ( $state eq 'heading' ) {
