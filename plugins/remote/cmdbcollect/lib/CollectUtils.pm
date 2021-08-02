@@ -45,7 +45,7 @@ sub getCmdOut {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("ERROR: execute cmd:$cmd failed.\n");
+        print("WARN: execute cmd:$cmd failed.\n");
     }
 
     return ( $status, $out );
@@ -74,7 +74,7 @@ sub getCmdOutLines {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("ERROR: execute cmd:$cmd failed.\n");
+        print("WARN: execute cmd:$cmd failed.\n");
     }
 
     return ( $status, \@out );
@@ -92,7 +92,7 @@ sub getFileContent {
         $fh->close();
     }
     else {
-        print("ERROR: Can not open file:$filePath $!\n");
+        print("WARN: Can not open file:$filePath $!\n");
     }
 
     return $content;
@@ -111,7 +111,7 @@ sub getFileLines {
         $fh->close();
     }
     else {
-        print("ERROR: Can not open file:$filePath $!\n");
+        print("WARN: Can not open file:$filePath $!\n");
     }
 
     return \@lines;
