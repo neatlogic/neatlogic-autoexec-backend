@@ -106,7 +106,7 @@ sub _parseOutput {
     my $pos = 0;
 
     #找到开头
-    for ( my $pos = 0 ; $pos < $linesCount ; $pos++ ) {
+    for ( $pos = 0 ; $pos < $linesCount ; $pos++ ) {
         my $line = $lines[$pos];
         if ( $line !~ /^[-\+]+$/ ) {
             last;
