@@ -113,7 +113,7 @@ sub _parseOutput {
         }
     }
 
-    for ( my $i = $pos + 1 ; $i < $linesCount ; $i++ ) {
+    for ( my $i = $pos ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
 
         #错误识别
