@@ -43,7 +43,7 @@ sub collectOsInfo {
     $osInfo->{VERSION} = $osVer;
 
     #cat /sys/class/dmi/id/sys_vendor #
-    #cat cat /sys/class/dmi/id/product_name
+    #cat /sys/class/dmi/id/product_name
     my $sysVendor = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
     $sysVendor =~ s/^\*|\s$//g;
     my $productUUID = $self->getFileContent('/sys/class/dmi/id/product_uuid');
@@ -589,7 +589,10 @@ sub collectHostInfo {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
                 ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
-                $nicInfo->{LINK_STATE} = $linkState;
+                $nicInfo->{LINK_STATE} = 'down';
+                if ( $linkState eq 'yes' ) {
+                    $nicInfo->{LINK_STATE} = 'up';
+                }
                 push( @nicInfos, $nicInfo );
             }
 
@@ -628,12 +631,13 @@ sub collect {
     my ($self) = @_;
     my $osInfo = $self->collectOsInfo();
 
-    # my $hostInfo;
-    # if ( $osInfo->{IS_VIRTUAL} == 0 ){
-    #     $hostInfo = $self->collectHostInfo();
-    # }
+    my $hostInfo;
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        $hostInfo = $self->collectHostInfo();
+    }
 
-    my $hostInfo = $self->collectHostInfo();
+    #my $hostInfo = $self->collectHostInfo();
+
     $osInfo->{CPU_CORES}    = $hostInfo->{CPU_CORES};
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};

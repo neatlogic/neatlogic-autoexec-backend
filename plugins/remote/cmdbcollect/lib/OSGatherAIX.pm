@@ -292,6 +292,15 @@ sub collectOsInfo {
     }
     $osInfo->{USERS} = \@users;
 
+    #打过的补丁
+    my @patchs         = ();
+    my $patchInfoLines = $self->getCmdOutLines(q{instfix -i|grep ML | awk '{print $4}'});
+    foreach my $patch (@$patchInfoLines) {
+        $patch =~ s/^\s*|\s*$//g;
+        push( @patchs, $patch );
+    }
+    $osInfo->{PATCHES_APPLIED} = \@patchs;
+
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     # lsdev -Cc disk
     #hdisk0 Available  Virtual SCSI Disk Drive
@@ -464,9 +473,14 @@ sub collectHostInfo {
 }
 
 sub collect {
-    my ($self)   = @_;
-    my $osInfo   = $self->collectOsInfo();
-    my $hostInfo = $self->collectHostInfo();
+    my ($self) = @_;
+    my $osInfo = $self->collectOsInfo();
+
+    #my $hostInfo = $self->collectHostInfo();
+    my $hostInfo;
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        $hostInfo = $self->collectHostInfo();
+    }
 
     $hostInfo->{IS_VIRTUAL}           = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}                = $osInfo->{DISKS};

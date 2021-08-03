@@ -123,6 +123,7 @@ sub getFileLines {
 sub getDiskSizeFormStr {
     my ( $self, $sizeStr ) = @_;
     chomp($sizeStr);
+    $sizeStr =~ s/,//g;
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -158,6 +159,7 @@ sub getDiskSizeFormStr {
 sub getMemSizeFromStr {
     my ( $self, $sizeStr ) = @_;
     chomp($sizeStr);
+    $sizeStr =~ s/,//g;
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -193,6 +195,7 @@ sub getMemSizeFromStr {
 sub getNicSpeedFromStr {
     my ( $self, $speedStr ) = @_;
     chomp($speedStr);
+    $speedStr =~ s/,//g;
     my $speed;
     my $unit = 'Mb/s';
     if ( $speedStr =~ /K|Kb/i ) {
