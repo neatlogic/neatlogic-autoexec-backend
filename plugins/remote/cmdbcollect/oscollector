@@ -102,7 +102,7 @@ sub main {
             $hostInfo->{OS_ID}       = $osGather->{osId};
             $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-            $hostInfo->{PK}          = ['MACHINE_ID'];
+            $hostInfo->{PK}          = ['BOARD_SERIAL'];
         }
 
         print("INFO: OS information collected.\n");
