@@ -22,6 +22,28 @@ sub new {
     return $self;
 }
 
+#获取windows的ps1文件内容拼装为powershell命令行
+sub getWinPs1Cmd {
+    my ( $self, $psPath ) = @_;
+
+    my $cmd;
+    my $fh = IO::File->new("<$psPath");
+    if ($fh) {
+        my $size = -s $psPath;
+        $fh->read( $cmd, $size );
+        $fh->close();
+        $cmd =~ s/\s+/ /g;
+    }
+
+    $cmd =~ s/\\/\\\\/g;
+    $cmd =~ s/\"/\\\"/g;
+    $cmd =~ s/\&/\"\&amp;\"/g;
+
+    $cmd = "PowerShell -Command $cmd";
+
+    return $cmd;
+}
+
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
@@ -47,7 +69,7 @@ sub getCmdOut {
     if ( $status ne 0 ) {
         print("WARN: execute cmd:$cmd failed.\n");
     }
-    
+
     chomp($out);
     return ( $status, $out );
 }

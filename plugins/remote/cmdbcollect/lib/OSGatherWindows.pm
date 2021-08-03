@@ -34,8 +34,10 @@ sub collectOsInfo {
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
+    my $osType = $unameInfo[0];
+    $osType =~ s/\s+.*$//;
     $osInfo->{SYS_VENDOR} = 'IBM';
-    $osInfo->{OS_TYPE}    = $unameInfo[0];
+    $osInfo->{OS_TYPE}    = $osType;
     $osInfo->{HOSTNAME}   = $hostName;
     $osInfo->{CPU_ARCH}   = $unameInfo[4];
 
@@ -144,7 +146,7 @@ sub collectOsInfo {
     my $cpuCount = 1;
     my $cpuModel;
     my $cpuFrequency;
-    my $sysInfoLines      = $self->getCmdout('chcp 437 && systeminfo');
+    my $sysInfoLines      = $self->getCmdOutLines('chcp 437 && systeminfo');
     my $sysInfoLinesCount = scalar(@$sysInfoLines);
     for ( my $i = 0 ; $i < $sysInfoLinesCount ; $i++ ) {
         my $line = $$sysInfoLines[$i];
@@ -210,7 +212,7 @@ sub collectOsInfo {
 
     #TODO: 磁盘信息的采集
     $osInfo->{DISKS} = [];
-    
+
     return $osInfo;
 }
 
@@ -259,7 +261,7 @@ sub collectHostInfo {
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
     my @nicInfos          = ();
-    my $nicInfoLines      = $self->getCmdOUtLines('wmic nicconfig where "IPEnabled = True" get description,macaddress');
+    my $nicInfoLines      = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get description,macaddress');
     my $nicInfoLinesCount = scalar(@$nicInfoLines);
     for ( my $i = 1 ; $i < $nicInfoLinesCount ; $i++ ) {
         my $line        = $$nicInfoLines[$i];

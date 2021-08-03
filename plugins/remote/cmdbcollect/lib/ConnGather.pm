@@ -18,6 +18,7 @@ sub new {
     if ( not defined($instance) ) {
         my @uname       = uname();
         my $osType      = $uname[0];
+        $osType =~ s/\s+.*$//;
         my $gatherClass = "ConnGather$osType";
         eval {
             require "$gatherClass.pm";
@@ -27,6 +28,7 @@ sub new {
         if ($@) {
 
             #fallback to linux
+            print("WARN: Load $gatherClass.pm failed, fallback to ConnGatherLinux\n");
             $gatherClass = "ConnGatherLinux";
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
