@@ -287,6 +287,7 @@ sub main {
     my $out = {};
     $out->{DATA} = \@data;
     AutoExecUtils::saveOutput($out);
+    print Dumper ($out);
     print("INFO: All is completed.\n");
 }
 

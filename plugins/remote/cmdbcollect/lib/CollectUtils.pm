@@ -34,6 +34,10 @@ sub getWinPs1Cmd {
         $fh->close();
         $cmd =~ s/\s+/ /g;
     }
+    else
+    {
+        print("WARN: Open file:$psPath for read failed, $!.\n");
+    }
 
     $cmd =~ s/\\/\\\\/g;
     $cmd =~ s/\"/\\\"/g;

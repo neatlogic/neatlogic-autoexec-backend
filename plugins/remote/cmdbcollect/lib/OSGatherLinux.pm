@@ -638,9 +638,10 @@ sub collect {
 
     #my $hostInfo = $self->collectHostInfo();
 
-    $osInfo->{CPU_CORES}    = $hostInfo->{CPU_CORES};
-    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS}      = $osInfo->{DISKS};
+    $osInfo->{CPU_CORES}      = $hostInfo->{CPU_CORES};
+    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+    $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS}        = $osInfo->{DISKS};
 
     return ( $hostInfo, $osInfo );
 }

@@ -34,7 +34,7 @@ sub collectOsInfo {
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
-    my $osType = $unameInfo[0];
+    my $osType    = $unameInfo[0];
     $osType =~ s/\s+.*$//;
     $osInfo->{SYS_VENDOR} = 'IBM';
     $osInfo->{OS_TYPE}    = $osType;
@@ -62,7 +62,7 @@ sub collectOsInfo {
     my @dnsServers = ();
     my $dnsInfo    = $self->getCmdOutLines('wmic nicconfig get DNSServerSearchOrder /value|findstr "DNSServerSearchOrder={"');
     foreach my $line (@$dnsInfo) {
-        while ( $line =~ /\d+(\.\d+){3}/g ) {
+        while ( $line =~ /(\d+\.\d+\.\d+\.\d+)/g ) {
             push( @dnsServers, $1 );
         }
     }
@@ -150,13 +150,8 @@ sub collectOsInfo {
     my $sysInfoLinesCount = scalar(@$sysInfoLines);
     for ( my $i = 0 ; $i < $sysInfoLinesCount ; $i++ ) {
         my $line = $$sysInfoLines[$i];
-        if ( $line =~ /^(\S.*?):\s*(.*?)\s*$/ ) {
-            $sysInfo->{$1} = $2;
-        }
-        elsif ( $line =~ /\[\d+\]:\s+(KB\d+)$/ ) {
-            push( @patches, $1 );
-        }
-        elsif ( $line =~ /^Processor\(s\):\s*(\d+)\s*Processor/ ) {
+
+        if ( $line =~ /^Processor\(s\):\s*(\d+)\s*Processor/ ) {
             $cpuCount = int($1);
             $i        = $i + 1;
             $line     = $$sysInfoLines[$i];
@@ -166,6 +161,12 @@ sub collectOsInfo {
                     $cpuFrequency = $1;
                 }
             }
+        }
+        elsif ( $line =~ /\[\d+\]:\s+(KB\d+)$/ ) {
+            push( @patches, $1 );
+        }
+        elsif ( $line =~ /^(\S.*?):\s*(.*?)\s*$/ ) {
+            $sysInfo->{$1} = $2;
         }
     }
     $osInfo->{PATCHES_APPLIED} = \@patches;
@@ -180,21 +181,22 @@ sub collectOsInfo {
     $osInfo->{DOMAIN}         = $sysInfo->{'Domain'};
     $osInfo->{SYSTEM_LOCALE}  = $sysInfo->{'System Locale'};
     $osInfo->{INPUT_LOCALE}   = $sysInfo->{'Input Locale'};
-    $osInfo->{TIME_ZONE}      = $sysInfo->{'Time Zone'};
-    $osInfo->{SYS_VENDOR}     = $sysInfo->{'System Manufacturer'};
-    $osInfo->{PRODUCT_NAME}   = $sysInfo->{'System Model'};
-    $osInfo->{BIOS_VERSION}   = $sysInfo->{'BIOS Version'};
-    $osInfo->{PRODUCT_UUID}   = $sysInfo->{'Product ID'};
+
+    #$osInfo->{TIME_ZONE}      = $sysInfo->{'Time Zone'};
+    $osInfo->{SYS_VENDOR}   = $sysInfo->{'System Manufacturer'};
+    $osInfo->{PRODUCT_NAME} = $sysInfo->{'System Model'};
+    $osInfo->{BIOS_VERSION} = $sysInfo->{'BIOS Version'};
+    $osInfo->{PRODUCT_UUID} = $sysInfo->{'Product ID'};
 
     $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $sysInfo->{'Total Physical Memory'} );
     $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $sysInfo->{'Available Physical Memory'} );
 
     my @ipV4Addrs = ();
     my $ipInfo    = $self->getCmdOut('wmic nicconfig where "IPEnabled = True" get ipaddress');
-    while ( $ipInfo =~ /(\d+\.\d+\.\d+\.\d+)/g ) {
+    while ( $ipInfo =~ /(\d+\.\d+\.\d+\.\d+)/sg ) {
         my $ip = $1;
         if ( $ip ne '127.0.0.1' ) {
-            push( @ipV4Addrs, $! );
+            push( @ipV4Addrs, $1 );
         }
     }
     $osInfo->{IP_ADDRS} = \@ipV4Addrs;
@@ -205,13 +207,18 @@ sub collectOsInfo {
     my $userInfoLines = $self->getCmdOutLines('wmic useraccount where disabled=false get name');
     for ( my $i = 1 ; $i < scalar(@$userInfoLines) ; $i++ ) {
         my $userInfo = {};
-        $userInfo->{NAME} = $$userInfoLines[$i];
-        push( @users, $userInfo );
+        my $userName = $$userInfoLines[$i];
+        $userName =~ s/^\s*|\s*$//g;
+        if ( $userName ne '' ) {
+            $userInfo->{NAME} = $userName;
+            push( @users, $userInfo );
+        }
     }
     $osInfo->{USERS} = \@users;
 
     #TODO: 磁盘信息的采集
-    $osInfo->{DISKS} = [];
+    my @disks = ();
+    $osInfo->{DISKS} = \@disks;
 
     return $osInfo;
 }
@@ -256,7 +263,12 @@ sub collectHostInfo {
     my $memSpeedInfo = $self->getCmdOutLines('wmic memorychip get speed');
     my $memSpeed     = $$memSpeedInfo[1];
     $memSpeed =~ s/^\s+|\s+$//g;
-    $hostInfo->{MEM_SLOTS} = $memSlots . 'MHz';
+    if ( $memSpeed ne '' ) {
+        $hostInfo->{MEM_SPEED} = $memSpeed . 'MHz';
+    }
+    else {
+        $hostInfo->{MEM_SPEED} = undef;
+    }
 
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
@@ -270,10 +282,11 @@ sub collectHostInfo {
         $nicInfo->{MAC} = pop(@nicInfoSegs);
         my $nicName = substr( $line, 0, length($line) - length( $nicInfo->{MAC} ) );
         $nicName =~ s/^\s*|\s*$//g;
-        $nicInfo->{NAME}       = $nicName;
-        $nicInfo->{LINK_STATE} = 'up';
-
-        push( @nicInfos, $nicInfo );
+        if ( $nicName ne '' ) {
+            $nicInfo->{NAME}       = $nicName;
+            $nicInfo->{LINK_STATE} = 'up';
+            push( @nicInfos, $nicInfo );
+        }
     }
     $hostInfo->{NET_INTERFACES} = \@nicInfos;
 
@@ -289,6 +302,7 @@ sub collect {
     # if ( $osInfo->{IS_VIRTUAL} == 0 ){
     #     $hostInfo = $self->collectHostInfo();
     # }
+    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
 
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};

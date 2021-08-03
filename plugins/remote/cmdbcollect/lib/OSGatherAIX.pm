@@ -482,6 +482,8 @@ sub collect {
         $hostInfo = $self->collectHostInfo();
     }
 
+    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+
     $hostInfo->{IS_VIRTUAL}           = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
     $hostInfo->{BOARD_SERIAL}         = $osInfo->{BOARD_SERIAL};
