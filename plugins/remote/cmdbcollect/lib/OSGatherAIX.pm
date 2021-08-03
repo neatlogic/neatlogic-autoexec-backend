@@ -6,6 +6,7 @@ use strict;
 
 package OSGatherAIX;
 
+use POSIX qw(uname);
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
@@ -55,12 +56,6 @@ sub collectOsInfo {
     #TODO：detect if os is vios or vioc or lpart
     #$osInfo->{IS_VIRTUAL} = 0;
 
-    my $boardSerial = $self->getFileContent('/sys/class/dmi/id/board_serial');
-    $boardSerial =~ s/^\*|\s$//g;
-    $osInfo->{BOARD_SERIAL} = $boardSerial;
-
-    #my ($fs_type, $fs_desc, $used, $avail, $fused, $favail) = df($dir);
-    #TODO: df
     my $diskMountMap = {};
     my @mountPoints  = ();
     my $mountFilter  = {
@@ -284,6 +279,9 @@ sub collectOsInfo {
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
             }
+            if ( $userInfo[0] eq 'nobody' ) {
+                next;
+            }
 
             $usersMap->{GID}   = $userInfo[3];
             $usersMap->{HOME}  = $userInfo[5];
@@ -400,16 +398,26 @@ sub collectHostInfo {
     my $nicInfoLineCount = scalar(@$nicInfoLines);
 
     my $nicInfosMap = {};
-    for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
+    for ( my $i = 1 ; $i < $nicInfoLineCount ; $i++ ) {
         my $line = $$nicInfoLines[$i];
         my @nicSegs = split( /\s+/, $line );
 
         my $ethName = $nicSegs[0];
+        if ( $ethName =~ /^lo/i or $nicSegs[2] eq '127' or $nicSegs[2] eq '::1%1' ) {
+            next;
+        }
+
         my $nicInfo = $nicInfosMap->{$ethName};
         if ( not defined($nicInfo) ) {
             $nicInfo                 = {};
             $nicInfo->{NAME}         = $ethName;
             $nicInfosMap->{$ethName} = $nicInfo;
+
+            #TODO: 网卡速率和接线状态确认，在高版本AIX是有问题的
+            my $status = $self->getCmdOut("entstat -d $ethName | grep 'Link Status' | cut -d : -f 2");
+            $nicInfo->{STATUS} = $status;
+            my $speed = $self->getCmdOut("entstat -d $ethName |grep  'Speed Running' | cut -d : -f 2");
+            $nicInfo->{SPEED} = $speed;
         }
 
         if ( $nicSegs[3] =~ /[a-f0-9]+(\.[a-f0-9]+){5}/ ) {
@@ -417,12 +425,6 @@ sub collectHostInfo {
             $macAddr =~ s/\./:/g;
             $nicInfo->{MAC} = $macAddr;
         }
-
-        #TODO: 网卡速率和接线状态确认，在高版本AIX是有问题的
-        my $status = $self->getCmdOut("entstat -d $ethName | grep 'Link Status' | cut -d : -f 2");
-        $nicInfo->{STATUS} = $status;
-        my $speed = $self->getCmdOut("entstat -d $ethName |grep  'Speed Running' | cut -d : -f 2");
-        $nicInfo->{SPEED} = $speed;
     }
     my @nicInfos = values(%$nicInfosMap);
     $hostInfo->{NET_INTERFACES} = \@nicInfos;
