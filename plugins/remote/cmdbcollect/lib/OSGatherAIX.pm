@@ -382,27 +382,6 @@ sub collectHostInfo {
     $machineId =~ s/^\s*|\s*$//g;
     $hostInfo->{MACHINE_ID} = $machineId;
 
-    my $prtConfLines = $self->getCmdOutLines('prtconf');
-    my $prtConfInfo  = {};
-    foreach my $line (@$prtConfLines) {
-        if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
-            $prtConfInfo->{$1} = $2;
-        }
-    }
-
-    $hostInfo->{SN}                   = $prtConfInfo->{'Machine Serial Number'};
-    $hostInfo->{MACHINE_ID}           = $prtConfInfo->{'Machine Serial Number'};
-    $hostInfo->{CPU_MODEL_NAME}       = $prtConfInfo->{'System Model'};
-    $hostInfo->{CPU_CORES}            = $prtConfInfo->{'Number Of Processors'};
-    $hostInfo->{CPU_BITS}             = int( $prtConfInfo->{'CPU Type'} );
-    $hostInfo->{CPU_ARCH}             = $prtConfInfo->{'Processor Type'};
-    $hostInfo->{CPU_VERSION}          = $prtConfInfo->{'Processor Version'};
-    $hostInfo->{CPU_MODE}             = $prtConfInfo->{'Processor Implementation Mode'};
-    $hostInfo->{CPU_FREQUENCY}        = $prtConfInfo->{'Processor Clock Speed'};
-    $hostInfo->{CPU_FIRMWARE_VERSION} = $prtConfInfo->{'Firmware Version'};
-    $hostInfo->{CPU_MICROCODE}        = $prtConfInfo->{'Platform Firmware level'};
-    $hostInfo->{AUTO_RESTART}         = $prtConfInfo->{'Auto Restart'};
-
     my $maxMemInfo = $self->getCmdOut("lparstat -i|grep 'Maximum Memory'");
     if ( $maxMemInfo =~ /(\d+.*)\s*$/ ) {
         $hostInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr($1);
@@ -483,18 +462,23 @@ sub collectHostInfo {
 }
 
 sub collect {
-    my ($self) = @_;
-    my $osInfo = $self->collectOsInfo();
-
-    # my $hostInfo;
-    # if ( $osInfo->{IS_VIRTUAL} == 0 ){
-    #     $hostInfo = $self->collectHostInfo();
-    # }
-
+    my ($self)   = @_;
+    my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo();
-    $osInfo->{CPU_CORES}    = $hostInfo->{CPU_CORES};
-    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS}      = $osInfo->{DISKS};
+
+    $hostInfo->{IS_VIRTUAL}           = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS}                = $osInfo->{DISKS};
+    $hostInfo->{BOARD_SERIAL}         = $osInfo->{BOARD_SERIAL};
+    $hostInfo->{CPU_MODEL_NAME}       = $osInfo->{CPU_MODEL_NAME};
+    $hostInfo->{CPU_CORES}            = $osInfo->{CPU_CORES};
+    $hostInfo->{CPU_BITS}             = $osInfo->{CPU_BITS};
+    $hostInfo->{CPU_ARCH}             = $osInfo->{CPU_ARCH};
+    $hostInfo->{CPU_VERSION}          = $osInfo->{CPU_VERSION};
+    $hostInfo->{CPU_MODE}             = $osInfo->{CPU_MODE};
+    $hostInfo->{CPU_FREQUENCY}        = $osInfo->{CPU_FREQUENCY};
+    $hostInfo->{CPU_FIRMWARE_VERSION} = $osInfo->{CPU_FIRMWARE_VERSION};
+    $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
+    $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
 
     return ( $hostInfo, $osInfo );
 }
