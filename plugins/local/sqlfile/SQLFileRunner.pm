@@ -222,7 +222,7 @@ sub execOneSqlFile {
 
     if ( $self->{isDryRun} == 1 ) {
         print("INFO: Dry run sql $sqlFilePath.\n");
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time() );
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
     }
     else {
         my $handler;
@@ -254,7 +254,7 @@ sub execOneSqlFile {
             );
         }
 
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time() );
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
         eval { $hasError = $handler->run(); };
         if ($@) {
             print("ERROR: Unknow error ocurred.\n$@\n");
@@ -468,10 +468,10 @@ sub checkOneSqlFile {
     my $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
 
     if ( $sqlFileStatus->getStatusValue('md5') eq '' ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef );
+        $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef, startTime => undef, endTime => undef );
     }
     elsif ( $md5Sum ne $sqlFileStatus->getStatusValue('md5') ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef );
+        $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef, startTime => undef, endTime => undef );
     }
 }
 
