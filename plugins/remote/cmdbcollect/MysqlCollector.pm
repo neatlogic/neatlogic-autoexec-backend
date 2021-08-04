@@ -127,7 +127,7 @@ sub collect {
 
     if ( not defined($port) ) {
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        my @lsnAddrs = keys(%$listenAddrs);
+        my @lsnAddrs    = keys(%$listenAddrs);
         if ( scalar(@lsnAddrs) > 1 ) {
             $port = $lsnAddrs[0];
             if ( $port =~ /^(.*?):(\d+)$/ ) {
@@ -143,10 +143,13 @@ sub collect {
     $mysqlInfo->{ADMIN_PORT}     = $port;
     $mysqlInfo->{ADMIN_SSL_PORT} = $port;
 
-    my $verOut = $self->getCmdOut( "'$mysqldPath' -version", $osUser );
+    my $verOutLines = $self->getCmdOutLines( "'$mysqldPath' --help", $osUser );
     my $version;
-    if ( $verOut =~ /\(mysqld\s+(.*?)\)/s ) {
-        $version = $1;
+    foreach my $line (@$verOutLines) {
+        if ( $line =~ /\bmysqld\s+(.*?)$/s ) {
+            $version = $1;
+            last;
+        }
     }
     $mysqlInfo->{VERSION} = $version;
 
