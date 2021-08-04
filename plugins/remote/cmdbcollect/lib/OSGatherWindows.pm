@@ -36,6 +36,7 @@ sub collectOsInfo {
     my $hostName  = $unameInfo[1];
     my $osType    = $unameInfo[0];
     $osType =~ s/\s+.*$//;
+
     $osInfo->{SYS_VENDOR} = 'IBM';
     $osInfo->{OS_TYPE}    = $osType;
     $osInfo->{HOSTNAME}   = $hostName;

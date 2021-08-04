@@ -12,6 +12,7 @@ package WeblogicCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
+use POSIX qw(uname);
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -21,11 +22,22 @@ use CollectObjType;
 
 #配置进程的filter
 sub getConfig {
-    return {
-        regExps  => ['\sweblogic.Server$'],    #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'java' },        #ps的属性的精确匹配
-        envAttrs => { WL_HOME => undef }       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
-    };
+    my @uname  = uname();
+    my $ostype = $uname[0];
+    if ( $ostype !~ /^Windows/ ) {
+        return {
+            regExps  => ['\sweblogic.Server$'],    #正则表达是匹配ps输出
+            psAttrs  => { COMM => 'java' },        #ps的属性的精确匹配
+            envAttrs => { WL_HOME => undef }       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        };
+    }
+    else {
+        return {
+            regExps  => ['\sweblogic.Server$|beasvc.exe'],    #正则表达是匹配ps输出
+            psAttrs  => {},                                   #ps的属性的精确匹配
+            envAttrs => { MW_HOME => undef }                  #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        };
+    }
 }
 
 sub getConfigInfo {

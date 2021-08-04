@@ -25,7 +25,10 @@ sub new {
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultAppType}   = $appType;
-    $self->{collectUtils}     = CollectUtils->new();
+
+    my $utils = CollectUtils->new();
+    $self->{ostype}       = $utils->{ostype};
+    $self->{collectUtils} = $utils;
 
     if ( defined($passArgs) ) {
         my $myDef = $passArgs->{$appType};

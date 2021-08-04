@@ -18,6 +18,7 @@ sub new {
 
     my @uname  = uname();
     my $ostype = $uname[0];
+    $ostype =~ s/\s.*$//;
     $self->{ostype}   = $ostype;
     $self->{hostname} = hostname();
 

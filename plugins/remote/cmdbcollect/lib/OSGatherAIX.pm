@@ -19,7 +19,7 @@ sub collectOsInfo {
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
     $osInfo->{SYS_VENDOR}     = 'IBM';
-    $osInfo->{OS_TYPE}        = $unameInfo[0];
+    $osInfo->{OS_TYPE}        = $self->{ostype};
     $osInfo->{HOSTNAME}       = $hostName;
     $osInfo->{KERNEL_VERSION} = $unameInfo[2];
 

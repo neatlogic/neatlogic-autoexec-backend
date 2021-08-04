@@ -72,7 +72,7 @@ sub collect {
     if ( !-e "$cliFile" ) {
         copy( 'redis-cli', $basePath );
         my @uname  = uname();
-        my $ostype = $uname[0];
+        my $ostype = $self->{ostype};
         if ( $ostype ne 'Windows' ) {
             system("chmod 755 $basePath/redis-cli");
         }
