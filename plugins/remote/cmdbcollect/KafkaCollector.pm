@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 
-package ZookeeperCollector;
+package KafkaCollector;
 
 use BaseCollector;
 our @ISA = qw(BaseCollector);
@@ -19,9 +19,9 @@ use CollectObjType;
 
 sub getConfig {
     return {
-        regExps  => ['\borg.apache.zookeeper.server.quorum.QuorumPeerMain\b'],    #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'java' },                                           #ps的属性的精确匹配
-        envAttrs => {}                                                            #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps  => ['\bkafka.Kafka\b'],    #正则表达是匹配ps输出
+        psAttrs  => { COMM => 'java' },     #ps的属性的精确匹配
+        envAttrs => {}                      #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -60,17 +60,18 @@ sub collect {
     my $version;
 
     my $zooLibPath;
-    if ( $cmdLine =~ /-cp\s+.*[:;]([\/\\].*[\/\\]zookeeper.*?.jar)/ ) {
+    if ( $cmdLine =~ /-cp\s+.*[:;]([\/\\].*[\/\\]kafka.*?.jar)/ ) {
         $zooLibPath = Cwd::abs_path( dirname($1) );
     }
-    elsif ( $envMap->{CLASSPATH} =~ /.*[:;]([\/\\].*[\/\\]zookeeper.*?.jar)/ ) {
+    elsif ( $envMap->{CLASSPATH} =~ /.*[:;]([\/\\].*[\/\\]kafka.*?.jar)/ ) {
         $zooLibPath = Cwd::abs_path( dirname($1) );
     }
 
+    print("DEBUG: zooLibPath:$zooLibPath\n");
     if ( defined($zooLibPath) ) {
         $homePath = dirname($zooLibPath);
-        foreach my $lib ( glob("$zooLibPath/zookeeper-*.jar") ) {
-            if ( $lib =~ /zookeeper-([\d\.]+)\.jar/ ) {
+        foreach my $lib ( glob("$zooLibPath/kafka_*.jar") ) {
+            if ( $lib =~ /kafka_([\d\.]+).*?\.jar/ ) {
                 $version = $1;
                 $appInfo->{MAIN_LIB} = $lib;
             }
@@ -80,7 +81,7 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
 
-    my $pos = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
+    my $pos = rindex( $cmdLine, 'kafka.Kafka' ) + 12;
     my $confPath = substr( $cmdLine, $pos );
     if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
         $confPath = Cwd::abs_path("$homePath/bin/$confPath");
@@ -116,17 +117,19 @@ sub collect {
         if ( $line !~ /^#/ ) {
             my ( $key, $val ) = split( /\s*=\s*/, $line );
             $confMap->{$key} = $val;
-            if ( $key =~ /server\.\d+/ ) {
-                push( @members, $val );
-            }
         }
     }
+    $appInfo->{BROKER_ID} = $confMap->{'broker.id'};
+    my $lsnAddr = $confMap->{'advertised.listeners'};
+    $appInfo->{ACCESS_ADDR} = $lsnAddr;
+    if ( $lsnAddr =~ /:(\d+)$/ ) {
+        $appInfo->{PORT} = $1;
+    }
 
-    $appInfo->{DATA_DIR}     = $confMap->{dataDir};
-    $appInfo->{PORT}         = $confMap->{clientPort};
-    $appInfo->{ADMIN_PORT}   = $confMap->{'admin.serverPort'};
-    $appInfo->{ADMIN_ENABLE} = $confMap->{'admin.enableServer'};
-    $appInfo->{MEMBERS}      = \@members;
+    my @logDirs = split( ',', $confMap->{'log.dirs'} );
+    $appInfo->{LOG_DIRS} = \@logDirs;
+    my @zookeeperConnects = split( ',', $confMap->{'zookeeper.connect'} );
+    $appInfo->{ZOOKEEPER_CONNECTS} = \@zookeeperConnects;
 
     #获取-X的java扩展参数
     my ( $jmxPort,     $jmxSsl );
