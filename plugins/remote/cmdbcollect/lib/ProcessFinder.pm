@@ -127,6 +127,7 @@ sub findProcess {
         my $line;
         my $headLine = <$pipe>;
         $headLine =~ s/^\s*|\s*$//g;
+        $headLine =~ s/^.*?PID/PID/g;
         my $cmdPos = rindex( $headLine, ' ' );
         my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);

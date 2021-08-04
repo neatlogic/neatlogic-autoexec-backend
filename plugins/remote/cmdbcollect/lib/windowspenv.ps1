@@ -1,12 +1,14 @@
+[Console]::OutputEncoding = [Text.Encoding]::UTF8;
+[Console]::InputEncoding = [Text.Encoding]::UTF8;
 Function getProcessEnv($processId){
-    #$processId = $ARGS[0];
     $process = Get-Process -ID $processId;
     $env = "";
     foreach($entry in $process.StartInfo.EnvironmentVariables){
-        $name = $entry.Name;
+        $name = $entry.Name.ToUpper();
         $val = $entry.Value;
         $env = "$env $name=$val";
     }
     Write-Output("PID:$processId environment");
-    Write-Output($env);
+    [Console]::Write($env);
+    Write-Output("");
 }

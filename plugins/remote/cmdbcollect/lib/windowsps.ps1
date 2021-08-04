@@ -1,21 +1,25 @@
+[Console]::OutputEncoding = [Text.Encoding]::UTF8;
+[Console]::InputEncoding = [Text.Encoding]::UTF8;
 Function getAllProcesses{
-    #ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
     Write-Output("PID PPID PGID USER TIME COMMAND COMMAND");
     foreach($process in Get-Process)
     {
         $processId = $process.id;
+        $wmiObj = Get-WmiObject Win32_Process -Filter "ProcessId=$processId";
+
         $processName = $process.ProcessName;
         $userName = $process.UserName;
         $cpuTime = $process.TotalProcessorTime;
         $command = $process.Path;
-        $wmiObj = Get-WmiObject Win32_Process -Filter "ProcessId=$processId";
+
+        $owner = $wmiObj.getOwner();
+        $domain=$owner.Domain;
+        $user=$owner.User;
         $parentPid = $wmiObj.ParentProcessId;
         $pgid = $wmiObj.SessionId;
         $cmdLine = $wmiObj.CommandLine;
-        $domain=$wmiObj.getOwner().Domain;
-        $user=$wmiObj.getOwner().User;
 
-        Write-output "$processId $parentPid $pgid $user $cpuTime $processName $cmdLine";
-        $process.StartInfo.Environment;
+        [Console]::Write("$processId $parentPid $pgid $user $cpuTime $processName $cmdLine");
+        Write-Output("")
     }
 }

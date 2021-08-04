@@ -179,14 +179,35 @@ sub collect {
         return undef;
     }
 
-    my $serverName  = $envMap->{SERVER_NAME};
-    my $wlHome      = $envMap->{WL_HOME};
-    my $installPath = dirname($wlHome);
-    my $javaHome    = $envMap->{JAVA_HOME};
+    my $wlHome = $envMap->{WL_HOME};
+
+    my $installPath;
+    if ( defined($wlHome) and $wlHome ne '' ) {
+        $installPath = dirname($wlHome);
+    }
+    else {
+        $installPath = $envMap->{MW_HOME};
+        $wlHome      = File::Spec->canonpath("$installPath/wlserver");
+    }
+
+    my $serverName = $envMap->{SERVER_NAME};
+    if ( not defined($serverName) or $serverName eq '' ) {
+        if ( $procInfo->{COMMAND} =~ /wblogic.Name=(.*?)\s-/ ) {
+            $serverName = $1;
+        }
+    }
+    $appInfo->{SERVER_NAME} = $serverName;
+
+    my $javaHome = $envMap->{JAVA_HOME};
+    if ( not defined($javaHome) or $javaHome ne '' ) {
+        if ( $procInfo->{COMMAND} =~ /(^.*?\bjava)\s/ ) {
+            my $javaPath = $1;
+            $javaHome = dirname( dirname($javaPath) );
+        }
+    }
 
     $appInfo->{WL_HOME}      = $wlHome;
     $appInfo->{DOMAIN_HOME}  = $domainHome;
-    $appInfo->{SERVER_NAME}  = $serverName;
     $appInfo->{DOMAIN_NAME}  = basename($domainHome);
     $appInfo->{INSTALL_PATH} = $installPath;
     $appInfo->{JAVA_HOME}    = $javaHome;
