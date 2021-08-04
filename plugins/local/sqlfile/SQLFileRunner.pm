@@ -48,9 +48,9 @@ sub new {
     $self->{phaseName} = $phaseName;
 
     my $dbInfo = DBInfo->new( $self->{dbNode}, \%args );
-    $self->{dbInfo}                = $dbInfo;
-    $self->{sqlFileDir}            = "$jobPath/sqlfile/$phaseName";
-    $self->{logFileDir}            = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
+    $self->{dbInfo}     = $dbInfo;
+    $self->{sqlFileDir} = "$jobPath/sqlfile/$phaseName";
+    $self->{logFileDir} = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
 
     return $self;
 }
@@ -137,7 +137,7 @@ sub execOneSqlFile {
                     unlink( $interact->{pipeFile} );
                 }
             }
-            $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT} );
+            $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
             return -1;
         }
     );
@@ -222,7 +222,7 @@ sub execOneSqlFile {
 
     if ( $self->{isDryRun} == 1 ) {
         print("INFO: Dry run sql $sqlFilePath.\n");
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running' );
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time() );
     }
     else {
         my $handler;
@@ -254,7 +254,7 @@ sub execOneSqlFile {
             );
         }
 
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running' );
+        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time() );
         eval { $hasError = $handler->run(); };
         if ($@) {
             print("ERROR: Unknow error ocurred.\n$@\n");
@@ -282,10 +282,10 @@ sub execOneSqlFile {
     }
 
     if ( $hasError == 0 ) {
-        $sqlFileStatus->updateStatus( status => 'succeed', warnCount => $ENV{WARNING_COUNT} );
+        $sqlFileStatus->updateStatus( status => 'succeed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
     }
     else {
-        $sqlFileStatus->updateStatus( status => 'failed', warnCount => $ENV{WARNING_COUNT} );
+        $sqlFileStatus->updateStatus( status => 'failed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
     }
 
     my $consumeTime = time() - $startTime;
@@ -431,7 +431,7 @@ sub execSqlFiles {
                     if ( $exitPid eq 0 ) {
                         $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
                         if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            AutoExecUtils::informNodeWaitInput($self->{dbInfo}->{resourceId})
+                            AutoExecUtils::informNodeWaitInput( $self->{dbInfo}->{resourceId} );
                         }
                         $isPreWaitInput = $isWaitInput;
 
