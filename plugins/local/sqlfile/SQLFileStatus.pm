@@ -33,7 +33,7 @@ sub new {
     };
 
     my $dbInfo    = $self->{dbInfo};
-    my $statusDir = "$self->{jobPath}/status/$self->{phaseName}/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{nodeId}";
+    my $statusDir = "$self->{jobPath}/status/$self->{phaseName}/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
     if ( not -e $statusDir ) {
         if ( not mkdir($statusDir) ) {
             die("ERROR: Create directory $statusDir failed $!\n");
