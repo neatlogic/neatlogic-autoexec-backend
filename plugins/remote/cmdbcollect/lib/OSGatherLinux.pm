@@ -43,7 +43,7 @@ sub collectOsInfo {
     $osInfo->{VERSION} = $osVer;
 
     #cat /sys/class/dmi/id/sys_vendor #
-    #cat cat /sys/class/dmi/id/product_name
+    #cat /sys/class/dmi/id/product_name
     my $sysVendor = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
     $sysVendor =~ s/^\*|\s$//g;
     my $productUUID = $self->getFileContent('/sys/class/dmi/id/product_uuid');
@@ -161,12 +161,12 @@ sub collectOsInfo {
         $osInfo->{NIC_BOND} = 0;
     }
 
-    my $memInfoLines = $self->getCmdOutLines('free -m');
-    foreach my $line (@$memInfoLines) {
-        if ( $line =~ /Swap:\s+(\d+)/ ) {
-            $osInfo->{SWAP_SIZE} = $1 . 'M';
-        }
-    }
+    # my $memInfoLines = $self->getCmdOutLines('free -m');
+    # foreach my $line (@$memInfoLines) {
+    #     if ( $line =~ /Swap:\s+(\d+)/ ) {
+    #         $osInfo->{SWAP_SIZE} = int($1);
+    #     }
+    # }
 
     my $cpuArch = ( POSIX::uname() )[4];
     $osInfo->{CPU_ARCH} = $cpuArch;
@@ -342,6 +342,9 @@ sub collectOsInfo {
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
             }
+            if ( $userInfo[0] eq 'nobody' ) {
+                next;
+            }
 
             $usersMap->{GID}   = $userInfo[3];
             $usersMap->{HOME}  = $userInfo[5];
@@ -492,7 +495,7 @@ sub collectHostInfo {
 
     my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
     $biosVersion =~ s/^\*|\s$//g;
-    $hostInfo->{MANUFACTURER} = $biosVersion;
+    $hostInfo->{BIOS_VERSION} = $biosVersion;
 
     my $cpuCount     = 0;
     my $cpuInfoLines = $self->getFileLines('/proc/cpuinfo');
@@ -509,12 +512,12 @@ sub collectHostInfo {
             }
         }
     }
-    $hostInfo->{CPU_COUNT} = scalar( keys(%$pCpuMap) );
-    $hostInfo->{CPU_CORES} = int( $cpuInfo->{processor} ) + 1;
-    $hostInfo->{MICROCODE} = $cpuInfo->{microcode};
+    $hostInfo->{CPU_COUNT}     = scalar( keys(%$pCpuMap) );
+    $hostInfo->{CPU_CORES}     = int( $cpuInfo->{processor} ) + 1;
+    $hostInfo->{CPU_MICROCODE} = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{MODEL_NAME}    = $modelInfo[0];
-    $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
+    $hostInfo->{CPU_MODEL_NAME} = $modelInfo[0];
+    $hostInfo->{CPU_FREQUENCY}  = $modelInfo[1];
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
 
@@ -586,7 +589,10 @@ sub collectHostInfo {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
                 ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
-                $nicInfo->{LINK_STATE} = $linkState;
+                $nicInfo->{LINK_STATE} = 'down';
+                if ( $linkState eq 'yes' ) {
+                    $nicInfo->{LINK_STATE} = 'up';
+                }
                 push( @nicInfos, $nicInfo );
             }
 
@@ -625,15 +631,17 @@ sub collect {
     my ($self) = @_;
     my $osInfo = $self->collectOsInfo();
 
-    # my $hostInfo;
-    # if ( $osInfo->{IS_VIRTUAL} == 0 ){
-    #     $hostInfo = $self->collectHostInfo();
-    # }
+    my $hostInfo;
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        $hostInfo = $self->collectHostInfo();
+    }
 
-    my $hostInfo = $self->collectHostInfo();
-    $osInfo->{CPU_CORES}    = $hostInfo->{CPU_CORES};
-    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS}      = $osInfo->{DISKS};
+    #my $hostInfo = $self->collectHostInfo();
+
+    $osInfo->{CPU_CORES}      = $hostInfo->{CPU_CORES};
+    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+    $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS}        = $osInfo->{DISKS};
 
     return ( $hostInfo, $osInfo );
 }

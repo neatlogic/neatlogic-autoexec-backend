@@ -9,6 +9,8 @@ use FindBin;
 use POSIX qw(uname);
 use Sys::Hostname;
 
+use CollectUtils;
+
 #use JSON qw(from_json to_json);
 use Data::Dumper;
 
@@ -37,6 +39,7 @@ sub new {
 
     my @uname  = uname();
     my $ostype = $uname[0];
+    $ostype =~ s/\s.*$//;
     $self->{ostype}   = $ostype;
     $self->{hostname} = hostname();
 
@@ -60,11 +63,11 @@ sub new {
 
     if ( $ostype eq 'Windows' ) {
 
-        #windows需要编写powershell脚本实现ps的功能，用于根据命令行和环境变量过滤进程
-        $self->{listProcCmd} = "$FindBin::Bin/windowsps.ps1";
+        #windows需要编写powershell脚本实现ps的功能，用于根据命令行过滤进程
+        $self->{listProcCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
 
-        #根据pid获取进程环境变量的powershell脚本，实现类似ps的功能
-        $self->{procEnvCmd} = "$FindBin::Bin/windowspinfo.ps1";
+        #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
+        $self->{procEnvCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
     }
 
     bless( $self, $type );
@@ -124,6 +127,7 @@ sub findProcess {
         my $line;
         my $headLine = <$pipe>;
         $headLine =~ s/^\s*|\s*$//g;
+        $headLine =~ s/^.*?PID/PID/g;
         my $cmdPos = rindex( $headLine, ' ' );
         my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);

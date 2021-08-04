@@ -352,4 +352,15 @@
     }
 ```
 
-
+## oscollect执行说明
+- oscollect会完成对OS、HOST、应用的自动发现和信息收集
+- 支持通过json参数输入密码设置
+- 支持只对某一类别的对象进行发现和收集
+譬如只收集Mysql
+```
+oscollector  --class Mysql,Postgresql --defaultpassconf '{"Mysql":{"username":"root","password":"xxxxxx"},"Postgresql":{"username":"postgres","password":"xxxxxx"}}'
+```
+譬如收集Apache、Tomcat、Mysql
+```
+oscollector  --class Apache,Tomcat,Mysql
+```

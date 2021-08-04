@@ -133,7 +133,7 @@ sub collect {
     }
     $data{'NTP服务器'} = \@ntp;
 
-    my $mfo = `cat /etc/security/limits|grep ^[^#]`;
+    my $mfo = `cat /etc/security/limits|grep ^[^#]|grep nofiles`;
     $data{'最大打开文件数'} = $mfo;
 
     my $mpo = `lsattr -E -l sys0|grep maxuproc|awk '{print \$2}'`;

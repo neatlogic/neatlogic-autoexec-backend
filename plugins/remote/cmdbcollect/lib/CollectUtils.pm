@@ -6,10 +6,16 @@ package CollectUtils;
 
 use strict;
 use IO::File;
+use POSIX qw(uname);
 
 sub new {
     my ($type) = @_;
     my $self = {};
+
+    my @uname  = uname();
+    my $ostype = $uname[0];
+    $ostype =~ s/\s.*$//;
+    $self->{ostype}   = $ostype;
 
     $self->{isRoot} = 0;
     if ( $> == 0 ) {
@@ -22,11 +28,37 @@ sub new {
     return $self;
 }
 
+#获取windows的ps1文件内容拼装为powershell命令行
+sub getWinPs1Cmd {
+    my ( $self, $psPath ) = @_;
+
+    my $cmd;
+    my $fh = IO::File->new("<$psPath");
+    if ($fh) {
+        my $size = -s $psPath;
+        $fh->read( $cmd, $size );
+        $fh->close();
+        $cmd =~ s/\s+/ /g;
+    }
+    else
+    {
+        print("WARN: Open file:$psPath for read failed, $!.\n");
+    }
+
+    $cmd =~ s/\\/\\\\/g;
+    $cmd =~ s/\"/\\\"/g;
+    $cmd =~ s/\&/\"\&amp;\"/g;
+
+    $cmd = "PowerShell -Command $cmd";
+
+    return $cmd;
+}
+
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
     my $out = '';
-    if ( defined($user) ) {
+    if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             $out = `su - '$user' -c '$cmd'`;
         }
@@ -48,6 +80,7 @@ sub getCmdOut {
         print("WARN: execute cmd:$cmd failed.\n");
     }
 
+    chomp($out);
     return ( $status, $out );
 }
 
@@ -55,7 +88,7 @@ sub getCmdOut {
 sub getCmdOutLines {
     my ( $self, $cmd, $user ) = @_;
     my @out = ();
-    if ( defined($user) ) {
+    if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             @out = `su - '$user' -c '$cmd'`;
         }
@@ -122,6 +155,7 @@ sub getFileLines {
 sub getDiskSizeFormStr {
     my ( $self, $sizeStr ) = @_;
     chomp($sizeStr);
+    $sizeStr =~ s/,//g;
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -157,6 +191,7 @@ sub getDiskSizeFormStr {
 sub getMemSizeFromStr {
     my ( $self, $sizeStr ) = @_;
     chomp($sizeStr);
+    $sizeStr =~ s/,//g;
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -192,6 +227,7 @@ sub getMemSizeFromStr {
 sub getNicSpeedFromStr {
     my ( $self, $speedStr ) = @_;
     chomp($speedStr);
+    $speedStr =~ s/,//g;
     my $speed;
     my $unit = 'Mb/s';
     if ( $speedStr =~ /K|Kb/i ) {
