@@ -2,7 +2,7 @@
 	"opDesc": "演示Local",
 	"opType": "local",
 	"typeName": "基础工具",
-	"riskName": "HIGH",
+	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "在runner执行工具的Demo",
 	"desc": [{
