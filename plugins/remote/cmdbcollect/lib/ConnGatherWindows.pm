@@ -90,9 +90,9 @@ sub parseConnLines {
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $cmd            = "chcp && netstat -ano| findstr $pid |";
-    my $localFieldIdx  = 1;
-    my $remoteFieldIdx = 2;
+    my $cmd            = "netstat -ano| findstr $pid |";
+    my $localFieldIdx  = 2;
+    my $remoteFieldIdx = 3;
     my ( $status, $remoteAddrs ) = $self->parseConnLines(
         cmd            => $cmd,
         lsnPortsMap    => $lsnPortsMap,
@@ -106,8 +106,8 @@ sub getRemoteAddrs {
 sub getListenPorts {
     my ( $self, $pid ) = @_;
 
-    my $cmd         = "chcp 437 && netstat -ano| findstr $pid | findstr LISTEN";
-    my $lsnFieldIdx = 1;
+    my $cmd         = "netstat -ano| findstr $pid | findstr LISTENING |";
+    my $lsnFieldIdx = 2;
     my ( $status, $portsMap ) = $self->parseListenLines(
         cmd         => $cmd,
         lsnFieldIdx => $lsnFieldIdx

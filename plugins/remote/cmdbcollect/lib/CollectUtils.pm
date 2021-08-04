@@ -6,10 +6,16 @@ package CollectUtils;
 
 use strict;
 use IO::File;
+use POSIX qw(uname);
 
 sub new {
     my ($type) = @_;
     my $self = {};
+
+    my @uname  = uname();
+    my $ostype = $uname[0];
+    $ostype =~ s/\s.*$//;
+    $self->{ostype}   = $ostype;
 
     $self->{isRoot} = 0;
     if ( $> == 0 ) {
@@ -52,7 +58,7 @@ sub getWinPs1Cmd {
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
     my $out = '';
-    if ( defined($user) ) {
+    if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             $out = `su - '$user' -c '$cmd'`;
         }
@@ -82,7 +88,7 @@ sub getCmdOut {
 sub getCmdOutLines {
     my ( $self, $cmd, $user ) = @_;
     my @out = ();
-    if ( defined($user) ) {
+    if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             @out = `su - '$user' -c '$cmd'`;
         }

@@ -192,7 +192,7 @@ sub collect {
 
     my $serverName = $envMap->{SERVER_NAME};
     if ( not defined($serverName) or $serverName eq '' ) {
-        if ( $procInfo->{COMMAND} =~ /wblogic.Name=(.*?)\s-/ ) {
+        if ( $procInfo->{COMMAND} =~ /\s-Dweblogic.Name=(.*?)\s-/ ) {
             $serverName = $1;
         }
     }
