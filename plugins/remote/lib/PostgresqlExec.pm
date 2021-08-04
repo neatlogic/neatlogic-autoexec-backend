@@ -12,13 +12,13 @@ use Data::Dumper;
 sub new {
     my ( $type, %args ) = @_;
     my $self = {
-        host       => $args{host},
-        port       => $args{port},
-        username   => $args{username},
-        password   => $args{password},
-        dbname     => $args{dbname},
-        osUser     => $args{osUser},
-        psqlHome  => $args{psqlHome}
+        host     => $args{host},
+        port     => $args{port},
+        username => $args{username},
+        password => $args{password},
+        dbname   => $args{dbname},
+        osUser   => $args{osUser},
+        psqlHome => $args{psqlHome}
     };
 
     my @uname  = uname();
@@ -62,6 +62,7 @@ sub new {
     }
 
     if ( defined( $args{password} ) ) {
+
         #探测到需要用密码才设置密码
         $psqlCmd = "$psqlCmd -p'$args{password}'";
     }
@@ -92,48 +93,33 @@ sub _parseOutput {
     my @rowsArray  = ();
     my $state      = 'heading';
 
-    my $pos = 0;
+    for ( my $i = 0 ; $i < $linesCount - 1 ; $i++ ) {
+        my $line = $lines[$i];
 
-
-
-    #错误识别
-    #ERROR at line 1:
-    #ORA-00907: missing right parenthesis
-    for ( my $ei = 0; $ei < $linesCount - 1 ; $ei++ ) {
-        if ( $lines[$ei] =~ /^ERROR/ ) {
+        #错误识别
+        if ( $line =~ /^ERROR:/ ) {
             $hasError = 1;
-            print( $lines[$ei],            "\n" );
+            print( $line, "\n" );
         }
-    }
-
-    #找到开头
-    for ( $pos = 0 ; $pos < $linesCount ; $pos++ ) {
-        my $line = $lines[$pos];
-        if ( $line =~ /^[-\+]+$/ ) {
-            last;
-        }
-    }
-
-    for ( my $i = $pos; $i < $linesCount - 1 ; $i++ ) {
-        my $onLine = $lines[ $i - 1 ];
 
         if ( $state eq 'heading' ) {
 
             #sqlplus的输出根据headsize的设置，一条记录会用多个行进行输出
-            my $line = $lines[$i];
             if ( $line =~ /^[-\+]+$/ ) {
-                my $linePos = 1;
+                my $headerLine = $lines[ $i - 1 ];
+                my $linePos    = 1;
 
                 #sqlplus的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
                 #如果一行多个字段，字段之间的------中间会有空格，譬如：---- ---------
                 my @lineSegs = split( /\+/, $line );
                 for ( my $j = 0 ; $j < scalar(@lineSegs) ; $j++ ) {
                     my $segment = $lineSegs[$j];
+
                     #减号的数量就时字段的显示字节宽度
                     my $fieldLen = length($segment);
 
                     #linePos记录了当前行匹配的开始位置，根据字段的显示宽度从当前行抽取字段名
-                    my $fieldName = substr( $onLine, $linePos, $fieldLen - 1 );
+                    my $fieldName = substr( $headerLine, $linePos, $fieldLen - 1 );
                     $fieldName =~ s/^\s+|\s+$//g;
 
                     #生成字段描述，记录名称、行中的开始位置、长度信息

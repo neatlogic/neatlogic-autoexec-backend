@@ -102,18 +102,8 @@ sub _parseOutput {
     my @fieldDescs = ();
     my @rowsArray  = ();
     my $state      = 'heading';
-
-    my $pos = 0;
-
-    #找到开头
-    for ( $pos = 0 ; $pos < $linesCount ; $pos++ ) {
-        my $line = $lines[$pos];
-        if ( $line !~ /^[-\+]+$/ ) {
-            last;
-        }
-    }
-
-    for ( my $i = $pos ; $i < $linesCount ; $i++ ) {
+    my $headingBegin = 0;
+    for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
 
         #错误识别
@@ -123,6 +113,13 @@ sub _parseOutput {
             $hasError = 1;
             print( $line,            "\n" );
             print( $lines[ $i + 1 ], "\n" );
+        }
+
+        if ( $headingBegin==0 and $line !~ /^[-\+]+$/ ) {
+            next;
+        }
+        else{
+            $headingBegin = 1;
         }
 
         if ( $state eq 'heading' ) {

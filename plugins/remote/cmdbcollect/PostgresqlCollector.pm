@@ -25,7 +25,7 @@ use Data::Dumper;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps => ['\b(postgres|postmaster).*-D.*']         #正则表达是匹配ps输出
+        regExps => ['\b(postgres|postmaster).*-D.*']    #正则表达是匹配ps输出
     };
 }
 
@@ -52,7 +52,7 @@ sub getUser {
         verbose => $self->{isVerbose}
     );
 
-    #rolname  
+    #rolname
     #----------
     #postgres
     #(1 row)
@@ -70,6 +70,7 @@ sub getUser {
 
 sub parseCommandOpts {
     my ( $self, $command ) = @_;
+
     #/usr/bin/postgres -D /var/lib/pgsql/data -p 5432
     my $opts = {};
     my @items = split( /\s+-/, $command );
@@ -109,20 +110,20 @@ sub collect {
 
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
 
-    my $osUser     = $procInfo->{USER};
-    my $command    = $procInfo->{COMMAND};
-    my $opts       = $self->parseCommandOpts($command);
-    my $postgresqlHome  = $opts->{postgresqlHome};
+    my $osUser         = $procInfo->{USER};
+    my $command        = $procInfo->{COMMAND};
+    my $opts           = $self->parseCommandOpts($command);
+    my $postgresqlHome = $opts->{postgresqlHome};
     my $postgresqlPath = $opts->{postgresqlPath};
 
-    $postgresqlInfo->{INSTALL_PATH}  = $postgresqlHome;
+    $postgresqlInfo->{INSTALL_PATH} = $postgresqlHome;
 
     my $port = $opts->{'p'};
     my $host = '';
 
     if ( not defined($port) ) {
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        my @lsnAddrs = keys(%$listenAddrs);
+        my @lsnAddrs    = keys(%$listenAddrs);
         if ( scalar(@lsnAddrs) > 1 ) {
             $port = $lsnAddrs[0];
             if ( $port =~ /^(.*?):(\d+)$/ ) {
@@ -132,9 +133,9 @@ sub collect {
         }
     }
 
-    $postgresqlInfo->{PORT}           = $port;
-    $postgresqlInfo->{SSL_PORT}       = $port;
-    $postgresqlInfo->{MON_PORT}       = $port;
+    $postgresqlInfo->{PORT}     = $port;
+    $postgresqlInfo->{SSL_PORT} = $port;
+    $postgresqlInfo->{MON_PORT} = $port;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;
@@ -145,7 +146,8 @@ sub collect {
 
     my $postgresql = PostgresqlExec->new(
         psqlHome => $postgresqlHome,
-        osUser => $osUser,
+        osUser   => $osUser,
+
         #username=>$username,
         #password=>$password,
         port => $port
@@ -172,43 +174,43 @@ sub collect {
 
     my $results;
     foreach my $row (@$rows) {
-        $results->{$row->{name}} = $row->{setting};
+        $results->{ $row->{name} } = $row->{setting};
     }
 
-    if ( $results ){
-        $postgresqlInfo->{LISTEN_ADDRESSES} = $results->{listen_addresses};
-        $postgresqlInfo->{PORT} = $results->{port};
-        $postgresqlInfo->{APPLICATION_NAME} = $results->{application_name};
-        $postgresqlInfo->{SERVER_VERSION} = $results->{server_version};
-        $postgresqlInfo->{DATA_DIRECTORY} = $results->{data_directory};
-        $postgresqlInfo->{CONFIG_FILE} = $results->{config_file};
-        $postgresqlInfo->{HBA_FILE} = $results->{hba_file};
-        $postgresqlInfo->{IDENT_FILE} = $results->{ident_file};
-        $postgresqlInfo->{MAX_CONNECTIONS} = $results->{max_connections};
-        $postgresqlInfo->{SHARED_BUFFERS} = $results->{shared_buffers};
-        $postgresqlInfo->{WORK_MEM} = $results->{work_mem};
-        $postgresqlInfo->{EFFECTIVE_CACHE_SIZE} = $results->{effective_cache_size};
-        $postgresqlInfo->{MAINTENANCE_WORK_MEM} = $results->{maintenance_work_mem};
-        $postgresqlInfo->{WAL_BUFFERS} = $results->{wal_buffers};
-        $postgresqlInfo->{WAL_LEVEL} = $results->{wal_level};
-        $postgresqlInfo->{CHECKPOINT_SEGMENTS} = $results->{checkpoint_segments};
+    if ($results) {
+        $postgresqlInfo->{LISTEN_ADDRESSES}             = $results->{listen_addresses};
+        $postgresqlInfo->{PORT}                         = $results->{port};
+        $postgresqlInfo->{APPLICATION_NAME}             = $results->{application_name};
+        $postgresqlInfo->{SERVER_VERSION}               = $results->{server_version};
+        $postgresqlInfo->{DATA_DIRECTORY}               = $results->{data_directory};
+        $postgresqlInfo->{CONFIG_FILE}                  = $results->{config_file};
+        $postgresqlInfo->{HBA_FILE}                     = $results->{hba_file};
+        $postgresqlInfo->{IDENT_FILE}                   = $results->{ident_file};
+        $postgresqlInfo->{MAX_CONNECTIONS}              = $results->{max_connections};
+        $postgresqlInfo->{SHARED_BUFFERS}               = $results->{shared_buffers};
+        $postgresqlInfo->{WORK_MEM}                     = $results->{work_mem};
+        $postgresqlInfo->{EFFECTIVE_CACHE_SIZE}         = $results->{effective_cache_size};
+        $postgresqlInfo->{MAINTENANCE_WORK_MEM}         = $results->{maintenance_work_mem};
+        $postgresqlInfo->{WAL_BUFFERS}                  = $results->{wal_buffers};
+        $postgresqlInfo->{WAL_LEVEL}                    = $results->{wal_level};
+        $postgresqlInfo->{CHECKPOINT_SEGMENTS}          = $results->{checkpoint_segments};
         $postgresqlInfo->{CHECKPOINT_COMPLETION_TARGET} = $results->{checkpoint_completion_target};
-        $postgresqlInfo->{COMMIT_DELAY} = $results->{commit_delay};
-        $postgresqlInfo->{COMMIT_SIBLINGS} = $results->{commit_siblings};
-        $postgresqlInfo->{CLUSTER_NAME} = $results->{cluster_name};
-        $postgresqlInfo->{DATESTYLE} = $results->{datestyle};
-        $postgresqlInfo->{LC_TIME} = $results->{lc_time};
-        $postgresqlInfo->{DEFAULT_TEXT_SEARCH_CONFIG} = $results->{default_text_search_config};
-        $postgresqlInfo->{MAX_WORKER_PROCESSES} = $results->{max_worker_processes};
-        $postgresqlInfo->{MAX_LOCKS_PER_TRANSACTION} = $results->{max_locks_per_transaction};
-        $postgresqlInfo->{TRACK_COMMIT_TIMESTAMP} = $results->{track_commit_timestamp};
-        $postgresqlInfo->{MAX_PREPARED_TRANSACTIONS} = $results->{max_prepared_transactions};
-        $postgresqlInfo->{HOT_STANDBY} = $results->{hot_standby};
-        $postgresqlInfo->{MAX_REPLICATION_SLOTS} = $results->{max_replication_slots};
-        $postgresqlInfo->{WAL_LOG_HINTS} = $results->{wal_log_hints};
-        $postgresqlInfo->{MAX_WAL_SENDERS} = $results->{max_wal_senders};
+        $postgresqlInfo->{COMMIT_DELAY}                 = $results->{commit_delay};
+        $postgresqlInfo->{COMMIT_SIBLINGS}              = $results->{commit_siblings};
+        $postgresqlInfo->{CLUSTER_NAME}                 = $results->{cluster_name};
+        $postgresqlInfo->{DATESTYLE}                    = $results->{datestyle};
+        $postgresqlInfo->{LC_TIME}                      = $results->{lc_time};
+        $postgresqlInfo->{DEFAULT_TEXT_SEARCH_CONFIG}   = $results->{default_text_search_config};
+        $postgresqlInfo->{MAX_WORKER_PROCESSES}         = $results->{max_worker_processes};
+        $postgresqlInfo->{MAX_LOCKS_PER_TRANSACTION}    = $results->{max_locks_per_transaction};
+        $postgresqlInfo->{TRACK_COMMIT_TIMESTAMP}       = $results->{track_commit_timestamp};
+        $postgresqlInfo->{MAX_PREPARED_TRANSACTIONS}    = $results->{max_prepared_transactions};
+        $postgresqlInfo->{HOT_STANDBY}                  = $results->{hot_standby};
+        $postgresqlInfo->{MAX_REPLICATION_SLOTS}        = $results->{max_replication_slots};
+        $postgresqlInfo->{WAL_LOG_HINTS}                = $results->{wal_log_hints};
+        $postgresqlInfo->{MAX_WAL_SENDERS}              = $results->{max_wal_senders};
     }
-    
+
 #############################
 
     #服务名, 要根据实际来设置
