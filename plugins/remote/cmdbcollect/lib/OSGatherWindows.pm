@@ -183,7 +183,7 @@ sub collectOsInfo {
     $osInfo->{SYSTEM_LOCALE}  = $sysInfo->{'System Locale'};
     $osInfo->{INPUT_LOCALE}   = $sysInfo->{'Input Locale'};
 
-    #$osInfo->{TIME_ZONE}      = $sysInfo->{'Time Zone'};
+    $osInfo->{TIME_ZONE}      = $sysInfo->{'Time Zone'};
     $osInfo->{SYS_VENDOR}   = $sysInfo->{'System Manufacturer'};
     $osInfo->{PRODUCT_NAME} = $sysInfo->{'System Model'};
     $osInfo->{BIOS_VERSION} = $sysInfo->{'BIOS Version'};
