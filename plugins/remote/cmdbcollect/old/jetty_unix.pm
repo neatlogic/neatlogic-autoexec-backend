@@ -23,6 +23,7 @@ sub collect {
         return @collect_data;
         exit(0);
     }
+    
     my @arr_inst_path = $pro_jetty =~ /(?<=-Djetty\.home=)(\S+)(?=\s)/g;
     if ( @arr_inst_path != 0 ) {
         foreach my $inst_path (@arr_inst_path) {
