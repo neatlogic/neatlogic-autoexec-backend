@@ -5,7 +5,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 
-package JettyCollector;
+package ElasticsearchCollector;
 
 use BaseCollector;
 our @ISA = qw(BaseCollector);
@@ -14,13 +14,14 @@ use Cwd;
 use File::Spec;
 use File::Basename;
 use IO::File;
+use YAML::Tiny;
 use CollectObjType;
 
 sub getConfig {
     return {
-        regExps  => ['\b-Djetty.home=|start\.jar'],    #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'java' },                #ps的属性的精确匹配
-        envAttrs => {}                                 #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps  => ['\borg.elasticsearch.bootstrap.Elasticsearch\b'],    #正则表达是匹配ps输出
+        psAttrs  => { COMM => 'java' },                                   #ps的属性的精确匹配
+        envAttrs => {}                                                    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -54,50 +55,73 @@ sub collect {
     my $pid     = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};
 
-    my $homePath;
-    my $basePath;
+    my $user     = $procInfo->{USER};
+    my $workPath = readlink("/proc/$pid/cwd");
 
-    $homePath = $envMap->{JETTY_HOME};
-    if ( not defined($homePath) or $homePath eq '' ) {
-        if ( $cmdLine =~ /-Djetty.home=(.*?)\s+-/ ) {
-            $homePath = Cwd::abs_path($1);
+    #-Des.path.home=/opt/elasticsearch-7.5.1 -Des.path.conf=/opt/elasticsearch-7.5.1/config -Des.distribution.flavor=oss
+    my $homePath;
+    my $confPath;
+
+    if ( $cmdLine =~ /\s-Des.path.home=(.*?)\s+-/ ) {
+        $homePath = $1;
+        if ( $homePath =~ /^\.{1,2}[\/\\]/ ) {
+            $homePath = "$workPath/$homePath";
         }
+        $homePath = Cwd::abs_path($homePath);
     }
 
     if ( not defined($homePath) or $homePath eq '' ) {
-        print("WARN: $cmdLine not a jetty process.\n");
+        print("WARN: $cmdLine not a elasticsearch process.\n");
         return;
     }
 
-    $basePath = $envMap->{JETTY_BASE};
-    if ( not defined($basePath) or $basePath eq '' ) {
-        if ( $cmdLine =~ /-Djetty.base=(.*?)\s+-/ ) {
-            $basePath = Cwd::abs_path($1);
+    if ( $cmdLine =~ /\s-Des.path.conf=(.*?)\s+-/ ) {
+        $confPath = $1;
+        if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
+            $confPath = "$workPath/$confPath";
         }
-    }
-    if ( not defined($basePath) or $basePath eq '' ) {
-        $basePath = $homePath;
+        $confPath = Cwd::abs_path($confPath);
     }
 
     $appInfo->{INSTALL_PATH} = $homePath;
-    $appInfo->{JETTY_HOME}   = $homePath;
-    $appInfo->{JETTY_BASE}   = $basePath;
+    $appInfo->{CONFIG_PATH}  = $confPath;
 
-    my $confPath = "$basePath/etc";
-    if ( -d $confPath ) {
-        $appInfo->{CONFIG_PATH} = $confPath;
+    my $yaml = YAML::Tiny->read('elasticsearch.yml');
+
+    my $clusterName = $yaml->[0]->{'cluster.name'};
+    my $nodeName    = $yaml->[0]->{'node.name'};
+    my $port        = $yaml->[0]->{'http.port'};
+    if ( not defined($port) ) {
+        $port = 9200;
     }
-    else {
-        $appInfo->{CONFIG_PATH} = undef;
-    }
+
+    my $initNodes       = $yaml->[0]{'discovery.seed_hosts'};
+    my $initMasterNodes = $yaml->[0]{'cluster.initial_master_nodes'};
+    $appInfo->{CLUSTER_NAME}         = $clusterName;
+    $appInfo->{NODE_NAME}            = $nodeName;
+    $appInfo->{PORT}                 = $port;
+    $appInfo->{CLUSTER_MEMBERS}      = $initNodes;
+    $appInfo->{INITIAL_MASTER_NODES} = $initMasterNodes;
 
     my $javaHome;
     my $javaVersion;
     my $javaPath = readlink('/proc/$pid/exe');
     if ( not defined($javaPath) ) {
-        $javaHome = $envMap->{JAVA_HOME};
-        if ( defined($javaHome) ) {
-            $javaPath = "$javaHome/bin/java";
+        if ( $cmdLine =~ /^(.*?\bjava)/ ) {
+            $javaPath = $1;
+            if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {
+                $javaPath = "$workPath/$javaPath";
+            }
+        }
+
+        if ( not -e $javaPath ) {
+            $javaHome = $envMap->{JAVA_HOME};
+            if ( defined($javaHome) ) {
+                $javaPath = "$javaHome/bin/java";
+            }
+        }
+        if ( -e $javaPath ) {
+            $javaPath = Cwd::abs_path($javaPath);
         }
     }
 
@@ -111,8 +135,11 @@ sub collect {
     $appInfo->{JAVA_VERSION} = $javaVersion;
     $appInfo->{JAVA_HOME}    = $javaHome;
 
-    my $version = $self->getCmdOut("'$javaPath' -jar '$homePath/start.jar' --version | grep jetty-server | awk '{print \$2}'");
-    $version =~ s/^\s*|\s*$//g;
+    my $version;
+    my $verInfo = $self->getCmdOut("$homePath/bin/elasticsearch -V | grep Version");
+    if ( $verInfo =~ /^Version:\s*([\d\.]+)/ ) {
+        $version = $1;
+    }
     $appInfo->{VERSION} = $version;
 
     #获取-X的java扩展参数
@@ -140,19 +167,7 @@ sub collect {
     $appInfo->{JMX_PORT}      = $jmxPort;
     $appInfo->{JMX_SSL}       = $jmxSsl;
 
-    my $port;
-    my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPortInfo ( keys(%$lsnPortsMap) ) {
-        if ( $lsnPortInfo =~ /:(\d+)$/ or $lsnPortInfo =~ /^(\d+)$/ ) {
-            my $lsnPort = $1;
-            if ( $jmxPort ne $1 ) {
-                $port = $lsnPort;
-            }
-        }
-    }
-    $appInfo->{PORT}       = $port;
-    $appInfo->{ADMIN_PORT} = undef;
-
+    $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $jmxPort;
