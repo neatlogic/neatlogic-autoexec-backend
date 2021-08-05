@@ -147,7 +147,7 @@ sub collectOsInfo {
     my $cpuCount = 1;
     my $cpuModel;
     my $cpuFrequency;
-    my $sysInfoLines      = $self->getCmdOutLines('chcp 437 && systeminfo');
+    my $sysInfoLines      = $self->getCmdOutLines('chcp 65001 && systeminfo');
     my $sysInfoLinesCount = scalar(@$sysInfoLines);
     for ( my $i = 0 ; $i < $sysInfoLinesCount ; $i++ ) {
         my $line = $$sysInfoLines[$i];
