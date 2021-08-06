@@ -63,7 +63,7 @@ sub collect {
     }
 
     if ( not defined($homePath) or $homePath eq '' ) {
-        print("WARN: $cmdLine not a jetty process.\n");
+        print("WARN: Can not find home path for resin command:$cmdLine, not a jetty process.\n");
         return;
     }
 
@@ -127,25 +127,9 @@ sub collect {
         $appInfo->{CONFIG_PATH} = undef;
     }
 
-    my $javaHome;
-    my $javaVersion;
-    my $javaPath = readlink('/proc/$pid/exe');
-    if ( not defined($javaPath) ) {
-        $javaHome = $envMap->{JAVA_HOME};
-        if ( defined($javaHome) ) {
-            $javaPath = "$javaHome/bin/java";
-        }
-    }
-
-    if ( defined($javaPath) ) {
-        $javaHome = dirname($javaHome);
-        my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
-        if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
-            $javaVersion = $1;
-        }
-    }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
-    $appInfo->{JAVA_HOME}    = $javaHome;
+    $self->getJavaAttrs($appInfo);
+    my $javaHome = $appInfo->{JAVA_HOME};
+    my $javaPath = "$javaHome/bin/java";
 
     # Resin-3.1.14 (built Mon, 28 Oct 2013 09:30:45 PDT)
     # Copyright(c) 1998-2008 Caucho Technology.  All rights reserved.
@@ -156,36 +140,11 @@ sub collect {
     }
     $appInfo->{VERSION} = $version;
 
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
-
     $appInfo->{ADMIN_PORT} = undef;
 
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $jmxPort;
+    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

@@ -210,45 +210,15 @@ sub collect {
     }
     $appInfo->{SERVER_NAME} = $serverName;
 
-    my $javaHome = $envMap->{JAVA_HOME};
-    if ( not defined($javaHome) or $javaHome ne '' ) {
-        if ( $procInfo->{COMMAND} =~ /(^.*?\bjava)\s/ ) {
-            my $javaPath = $1;
-            $javaHome = dirname( dirname($javaPath) );
-        }
-    }
-
     $appInfo->{WL_HOME}      = $wlHome;
     $appInfo->{DOMAIN_HOME}  = $domainHome;
     $appInfo->{DOMAIN_NAME}  = basename($domainHome);
     $appInfo->{INSTALL_PATH} = $installPath;
-    $appInfo->{JAVA_HOME}    = $javaHome;
-    $appInfo->{JAVA_VENDOR}  = $envMap->{JAVA_VENDOR};
 
-    my $javaVersion;
-    my $javaPath    = File::Spec->canonpath("$javaHome/bin/java");
-    my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
-    if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
-        $javaVersion = $1;
-    }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
+    $self->getJavaAttrs($appInfo);
 
     $self->getConfigInfo( $appInfo, $domainHome, $serverName, $confFile );
     $self->getPatchInfo( $appInfo, $installPath, $wlHome );
-
-    #获取-X的java扩展参数
-    my ( $minHeapSize, $maxHeapSize );
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
 
     #！！！下面的是标准属性，必须采集并转换提供出来
     $appInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};

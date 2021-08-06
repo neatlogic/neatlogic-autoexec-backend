@@ -67,6 +67,13 @@ sub collect {
         }
         $homePath = Cwd::abs_path($homePath);
     }
+    if ( not defined($homePath) or $homePath eq '' ) {
+        print("WARN: Can not find elasticsearch home.dir in $cmdLine, failed.\n");
+        return;
+    }
+
+    $self->getJavaAttrs($appInfo);
+
     if ( $cmdLine =~ /-DDhadoop.log.dir=(.*?)\s+-D/ ) {
         $logPath = $1;
         if ( defined($workPath) and $logPath =~ /^\.{1,2}[\/\\]/ ) {
@@ -127,59 +134,15 @@ sub collect {
     # DFS Used%: 0.08%
     # DFS Remaining%: 92.03%
     # Last contact: Tue Aug 20 13:23:34 EDT 2013
-    
+
     #TODO: 收集配置路径和读取配置文件路径
     #$appInfo->{CONFIG_PATH} = $confPath;
 
-    my $javaHome;
-    my $javaVersion;
-    my $javaPath = readlink('/proc/$pid/exe');
-    if ( not defined($javaPath) ) {
-        $javaHome = $envMap->{JAVA_HOME};
-        if ( defined($javaHome) ) {
-            $javaPath = "$javaHome/bin/java";
-        }
-    }
-
-    if ( defined($javaPath) ) {
-        $javaHome = dirname($javaHome);
-        my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
-        if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
-            $javaVersion = $1;
-        }
-    }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
-    $appInfo->{JAVA_HOME}    = $javaHome;
-    $appInfo->{SERVER_NAME}  = $procInfo->{HOST_NAME};
-
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
-
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $jmxPort;
+    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
+
+    $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 
     return $appInfo;
 }

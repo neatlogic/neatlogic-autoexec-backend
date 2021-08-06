@@ -69,6 +69,8 @@ sub collect {
         return;
     }
 
+    $self->getJavaAttrs($appInfo);
+
     $basePath = $envMap->{JETTY_BASE};
     if ( not defined($basePath) or $basePath eq '' ) {
         if ( $cmdLine =~ /-Djetty.base=(.*?)\s+-/ ) {
@@ -91,54 +93,13 @@ sub collect {
         $appInfo->{CONFIG_PATH} = undef;
     }
 
-    my $javaHome;
-    my $javaVersion;
-    my $javaPath = readlink('/proc/$pid/exe');
-    if ( not defined($javaPath) ) {
-        $javaHome = $envMap->{JAVA_HOME};
-        if ( defined($javaHome) ) {
-            $javaPath = "$javaHome/bin/java";
-        }
-    }
-
-    if ( defined($javaPath) ) {
-        $javaHome = dirname($javaHome);
-        my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
-        if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
-            $javaVersion = $1;
-        }
-    }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
-    $appInfo->{JAVA_HOME}    = $javaHome;
+    my $javaHome = $appInfo->{JAVA_HOME};
+    my $javaPath = "$javaHome/bin/java";
+    my $jmxPort  = $appInfo->{JMX_PORT};
 
     my $version = $self->getCmdOut("'$javaPath' -jar '$homePath/start.jar' --version | grep jetty-server | awk '{print \$2}'");
     $version =~ s/^\s*|\s*$//g;
     $appInfo->{VERSION} = $version;
-
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
 
     my $port;
     my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};

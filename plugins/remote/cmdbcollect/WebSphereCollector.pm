@@ -46,7 +46,7 @@ sub getVersion {
     # Name                  IBM WebSphere SDK Java Technology Edition (Optional)
     # Version               8.0.5.6
     my $binPath = "$installPath/bin";
-    my $verCmd  = "LANG=en_US.UTF-8 $binPath/versionInfo.sh";
+    my $verCmd  = "LANG=C $binPath/versionInfo.sh";
     if ( $self->{OS_TYPE} eq 'Windows' ) {
         $verCmd = "$binPath/versionInfo.bat";
     }
@@ -203,7 +203,6 @@ sub collect {
     $appInfo->{WAS_NODE}    = $nodeName;
 
     my $envMap = $procInfo->{ENVRIONMENT};
-    $appInfo->{JAVA_HOME}                     = $envMap->{JAVA_HOME};
     $appInfo->{OSGI_INSTALL}                  = $envMap->{OSGI_INSTALL};
     $appInfo->{CLIENT_CONNECTOR_INSTALL_ROOT} = $envMap->{CLIENT_CONNECTOR_INSTALL_ROOT};
     $appInfo->{USER_INSTALL_ROOT}             = $envMap->{USER_INSTALL_ROOT};
@@ -224,19 +223,7 @@ sub collect {
         $serverRoot = $1;
     }
 
-    #获取-X的java扩展参数
-    my ( $minHeapSize, $maxHeapSize );
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
+    $self->getJavaAttrs($appInfo);
 
     $self->getVersion( $appInfo, $installPath );
 

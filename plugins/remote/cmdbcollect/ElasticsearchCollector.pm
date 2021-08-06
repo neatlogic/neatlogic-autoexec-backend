@@ -75,6 +75,15 @@ sub collect {
         return;
     }
 
+    $self->getJavaAttrs($appInfo);
+
+    my $version;
+    my $verInfo = $self->getCmdOut("$homePath/bin/elasticsearch -V | grep Version");
+    if ( $verInfo =~ /^Version:\s*([\d\.]+)/ ) {
+        $version = $1;
+    }
+    $appInfo->{VERSION} = $version;
+
     if ( $cmdLine =~ /\s-Des.path.conf=(.*?)\s+-/ ) {
         $confPath = $1;
         if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
@@ -103,74 +112,10 @@ sub collect {
     $appInfo->{CLUSTER_MEMBERS}      = $initNodes;
     $appInfo->{INITIAL_MASTER_NODES} = $initMasterNodes;
 
-    my $javaHome;
-    my $javaVersion;
-    my $javaPath = readlink('/proc/$pid/exe');
-    if ( not defined($javaPath) ) {
-        if ( $cmdLine =~ /^(.*?\bjava)/ ) {
-            $javaPath = $1;
-            if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {
-                $javaPath = "$workPath/$javaPath";
-            }
-        }
-
-        if ( not -e $javaPath ) {
-            $javaHome = $envMap->{JAVA_HOME};
-            if ( defined($javaHome) ) {
-                $javaPath = "$javaHome/bin/java";
-            }
-        }
-        if ( -e $javaPath ) {
-            $javaPath = Cwd::abs_path($javaPath);
-        }
-    }
-
-    if ( defined($javaPath) ) {
-        $javaHome = dirname($javaHome);
-        my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
-        if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
-            $javaVersion = $1;
-        }
-    }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
-    $appInfo->{JAVA_HOME}    = $javaHome;
-
-    my $version;
-    my $verInfo = $self->getCmdOut("$homePath/bin/elasticsearch -V | grep Version");
-    if ( $verInfo =~ /^Version:\s*([\d\.]+)/ ) {
-        $version = $1;
-    }
-    $appInfo->{VERSION} = $version;
-
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
-
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
-
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $jmxPort;
+    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

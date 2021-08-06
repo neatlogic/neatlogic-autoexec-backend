@@ -34,11 +34,12 @@ sub collect {
     }
 
     my $procInfo = $self->{procInfo};
+    my $cmdLine  = $procInfo->{COMMAND};
     my $appInfo  = {};
     $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
 
     my $confPath;
-    if ( $procInfo->{COMMAND} =~ /-Dcatalina.base=(\S+)\s+/ ) {
+    if ( $cmdLine =~ /-Dcatalina.base=(\S+)\s+/ ) {
         $confPath                 = $1;
         $appInfo->{CATALINA_BASE} = $confPath;
         $appInfo->{CONFIG_PATH}   = $confPath;
@@ -62,7 +63,7 @@ sub collect {
                     $sslPort = $1;
                     if ( $sslPort =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
-                        if ( $procInfo->{COMMAND} =~ /-D$optName=(\d+)/ ) {
+                        if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
                             $sslPort = $1;
                         }
                     }
@@ -82,7 +83,7 @@ sub collect {
                     $port = $1;
                     if ( $port =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
-                        if ( $procInfo->{COMMAND} =~ /-D$optName=(\d+)/ ) {
+                        if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
                             $port = $1;
                         }
                     }
@@ -108,11 +109,12 @@ sub collect {
         }
     }
     else {
-        $appInfo->{SERVER_NAME} = 'tomcat';
+        print("WARN: Can not fand catalina.base in command:$cmdLine, failed.\n");
+        return;
     }
 
     my $installPath;
-    if ( $procInfo->{COMMAND} =~ /-Dcatalina.home=(\S+)\s+/ ) {
+    if ( $cmdLine =~ /-Dcatalina.home=(\S+)\s+/ ) {
         $installPath              = $1;
         $appInfo->{CATALINA_HOME} = $installPath;
         $appInfo->{INSTALL_PATH}  = $installPath;
@@ -142,42 +144,11 @@ sub collect {
         if ( $line =~ /Server number:\s*(.*?)\s*$/ ) {
             $appInfo->{VERSION} = $1;
         }
-        elsif ( $line =~ /JVM Vendor:\s*(.*?)\s*$/ ) {
-            $appInfo->{JVM_VENDER} = $1;
-        }
-        elsif ( $line =~ /JRE_HOME:\s*(.*?)\s*$/ ) {
-            $appInfo->{JRE_HOME} = $1;
-        }
-        elsif ( $line =~ /JVM Version:\s*(.*?)\s*$/ ) {
-            $appInfo->{JVM_VERSION} = $1;
-        }
     }
 
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
-    foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-    }
+    $self->getJavaAttrs($appInfo);
 
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
-    $appInfo->{MON_PORT}      = $jmxPort;
+    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     return $appInfo;
 }

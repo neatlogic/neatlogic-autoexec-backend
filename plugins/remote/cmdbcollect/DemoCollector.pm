@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-#采集器模板，复制然后修改类名和填入collect方法的内容
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
@@ -8,7 +7,6 @@ use strict;
 
 package DemoCollector;
 
-#use parent 'BaseCollector';    #继承BaseCollector
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
@@ -48,65 +46,6 @@ sub getPK {
 #Return：应用信息的Hash，undef:不匹配
 #采集器实现需要重载这个类
 #Return：如果判断当前进程不是想要的进程，返回undef，否则返回应用信息的HashMap
-# {
-#           'SERVER_ROOT' => '/etc/httpd',
-#           'INSTALL_PATH' => '/etc/httpd',
-#           'BIN_PATH' => '/usr/sbin/',
-#           'DEFAULT_PIDLOG' => '/run/httpd/httpd.pid',
-#           'CONF_PATH' => '/etc/httpd/conf',
-#           'AP_TYPES_CONFIG_FILE' => 'conf/mime.types',
-#           'PORT' => '80',
-#           'ERRORLOG' => 'logs/error_log',
-#           'PROC_INFO' => {
-#                            '%MEM' => '0.0',
-#                            'RSS' => '5196',
-#                            'MGMT_PORT' => '',
-#                            'TRS' => '485',
-#                            'TTY' => '?',
-#                            'RUSER' => 'root',
-#                            'RGROUP' => 'root',
-#                            'STAT' => 'Ss',
-#                            'COMMAND' => '/usr/sbin/httpd -DFOREGROUND',
-#                            'DRS' => '225830',
-#                            'OS_TYPE' => 'Linux',
-#                            'PGID' => '17228',
-#                            'USER' => 'root',
-#                            'PID' => '17228',
-#                            'GROUP' => 'root',
-#                            'CONN_INFO' => {
-#                                             'PEER' => {},
-#                                             'LISTEN' => {
-#                                                          '3306' => 1
-#                                                         }
-#                                            },
-#                            'TIME' => '00:00:00',
-#                            'PPID' => '1',
-#                            '%CPU' => '0.0',
-#                            'ELAPSED' => '02:12:33',
-#                            'HOST_NAME' => 'centos7base',
-#                            'MGMT_IP' => '',
-#                            'APP_TYPE' => 'Apache',
-#                            'ENVRIONMENT' => {
-#                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
-#                                               'LANG' => 'C',
-#                                               'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
-#                                             },
-#                            'COMM' => 'httpd',
-#                            'MAJFL' => '0'
-#                          },
-#           'SERVER_MPM' => 'prefork',
-#           'PORTS' => [
-#                        '80'
-#                      ],
-#           'DEFAULT_ERRORLOG' => 'logs/error_log',
-#           'HTTPD_ROOT' => '/etc/httpd',
-#           'APP_TYPE' => 'Apache',
-#           'DOCUMENT_ROOT' => '/var/www/html',
-#           'VERSION' => 'Apache/2.4.6 (CentOS)',
-#           'SERVER_CONFIG_FILE' => 'conf/httpd.conf'
-#         }
-#上面的数据以httpd为例
-#其中PROC_INFO对应的就是collect使用的进程信息HashMap，里面的属性都可以使用
 sub collect {
     my ($self) = @_;
 
@@ -128,7 +67,10 @@ sub collect {
     #默认的APP_TYPE是类名去掉Collector，如果要特殊的名称则自行设置
     #$appInfo->{APP_TYPE} = 'DemoApp';
 
-    #！！！下面的是标准属性，必须采集并转换提供出来
+    #!!!如果是Java则采集Java的标准属性，否则删除这一行
+    $self->getJavaAttrs($appInfo);
+
+    #!!!下面的是标准属性，必须采集并转换提供出来
     #服务名, 要根据实际来设置
     $appInfo->{SERVER_NAME}    = $procInfo->{APP_TYPE};
     $appInfo->{INSTALL_PATH}   = undef;

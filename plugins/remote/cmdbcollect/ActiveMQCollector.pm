@@ -39,25 +39,9 @@ sub collect {
 
     my $installPath;
 
-    #获取-X的java扩展参数
-    my ( $jmxPort,     $jmxSsl );
-    my ( $minHeapSize, $maxHeapSize );
-    my $jvmExtendOpts = '';
     my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
     foreach my $cmdOpt (@cmdOpts) {
-        if ( $cmdOpt =~ /^-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
-            $jmxSsl = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
-            $maxHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
-            $minHeapSize = $1;
-        }
-        elsif ( $cmdOpt =~ /^-Dactivemq.home=(\S+)/ ) {
+        if ( $cmdOpt =~ /^-Dactivemq.home=(\S+)/ ) {
             $installPath              = $1;
             $appInfo->{ACTIVEMQ_HOME} = $installPath;
             $appInfo->{INSTALL_PATH}  = $installPath;
@@ -70,12 +54,12 @@ sub collect {
             $appInfo->{ACTIVEMQ_CONF} = $1;
             $appInfo->{CONFIG_PATH}   = $1;
         }
+        elsif ( $cmdOpt =~ /^-Dactivemq.data=(\S+)/ ) {
+            $appInfo->{ACTIVEMQ_DATA_PATH} = $1;
+        }
     }
 
-    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
-    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
-    $appInfo->{JMX_PORT}      = $jmxPort;
-    $appInfo->{JMX_SSL}       = $jmxSsl;
+    $self->getJavaAttrs($appInfo);
 
     if ( not -e "$installPath/bin/activemq" ) {
         print("WARN: activemq not found in $installPath.\n");
@@ -160,9 +144,7 @@ sub collect {
         $appInfo->{SSL_PORT} = undef;
     }
 
-    if ( defined($jmxPort) and $jmxPort ne '' ) {
-        $appInfo->{MON_PORT} = $jmxPort;
-    }
+    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     return $appInfo;
 }

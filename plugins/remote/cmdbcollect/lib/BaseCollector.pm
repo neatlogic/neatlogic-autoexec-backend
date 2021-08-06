@@ -161,6 +161,76 @@ sub getPortFromProcInfo {
     return $port;
 }
 
+#获取Java相关的属性，包括：JAVA_HOME, JAVA_VERSION, MIN_HEAP_SIZE, MAX_HEAP_SIZE, JMX_PORT, JMX_SSL
+#获取的属性存放到Hash的引用$appInfo中
+sub getJavaAttrs {
+    my ( $self, $appInfo ) = @_;
+
+    my $utils    = $self->{collectUtils};
+    my $procInfo = $self->{procInfo};
+    my $cmdLine  = $procInfo->{COMMAND};
+    my $envMap   = $procInfo->{ENVIRONMENT};
+    my $pid      = $procInfo->{PID};
+    my $workPath = readlink("/proc/$pid/cwd");
+
+    my $javaHome;
+    my $javaVersion;
+    my $javaPath = readlink('/proc/$pid/exe');
+    if ( not defined($javaPath) ) {
+        if ( $cmdLine =~ /^(.*?\bjava)/ ) {
+            $javaPath = $1;
+            if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {
+                $javaPath = "$workPath/$javaPath";
+            }
+        }
+
+        if ( not -e $javaPath ) {
+            $javaHome = $envMap->{JAVA_HOME};
+            if ( defined($javaHome) ) {
+                $javaPath = "$javaHome/bin/java";
+            }
+        }
+        if ( -e $javaPath ) {
+            $javaPath = Cwd::abs_path($javaPath);
+        }
+    }
+
+    if ( defined($javaPath) ) {
+        $javaHome = dirname($javaHome);
+        my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
+        if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
+            $javaVersion = $1;
+        }
+    }
+    $appInfo->{JAVA_VERSION} = $javaVersion;
+    $appInfo->{JAVA_HOME}    = $javaHome;
+
+    #获取-X的java扩展参数
+    my ( $jmxPort,     $jmxSsl );
+    my ( $minHeapSize, $maxHeapSize );
+    my $jvmExtendOpts = '';
+    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
+    foreach my $cmdOpt (@cmdOpts) {
+        if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
+            $jmxPort = $1;
+        }
+        elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
+            $jmxSsl = $1;
+        }
+        elsif ( $cmdOpt =~ /^-Xmx(\d+.*?)\b/ ) {
+            $maxHeapSize = $1;
+        }
+        elsif ( $cmdOpt =~ /^-Xms(\d+.*?)\b/ ) {
+            $minHeapSize = $1;
+        }
+    }
+
+    $appInfo->{MIN_HEAP_SIZE} = $utils->getMemSizeFromStr($minHeapSize);
+    $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
+    $appInfo->{JMX_PORT}      = $jmxPort;
+    $appInfo->{JMX_SSL}       = $jmxSsl;
+}
+
 #采集器实现需要重载这个类
 #Return：如果判断当前进程不是想要的进程，返回undef，否则返回应用信息的HashMap
 # {
