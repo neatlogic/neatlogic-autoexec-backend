@@ -56,6 +56,8 @@ sub collect {
 
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
+    my $user             = $procInfo->{USER};
+    my $envMap           = $procInfo->{ENVIRONMENT};
 
     my $appInfo = {};
     $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
