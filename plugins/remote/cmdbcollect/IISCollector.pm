@@ -5,7 +5,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 
-package DemoCollector;
+package IISCollector;
 
 use BaseCollector;
 our @ISA = qw(BaseCollector);
