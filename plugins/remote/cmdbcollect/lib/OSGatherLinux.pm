@@ -59,10 +59,6 @@ sub collectOsInfo {
     $osInfo->{PRODUCT_NAME} = $productName;
     $osInfo->{PRODUCT_UUID} = $productUUID;
 
-    my $boardSerial = $self->getFileContent('/sys/class/dmi/id/board_serial');
-    $boardSerial =~ s/^\*|\s$//g;
-    $osInfo->{BOARD_SERIAL} = $boardSerial;
-
     #my ($fs_type, $fs_desc, $used, $avail, $fused, $favail) = df($dir);
     #TODO: df
     my $diskMountMap = {};
@@ -483,7 +479,7 @@ sub collectHostInfo {
 
     my $sn = $self->getCmdOut('dmidecode -s system-serial-number');
     $sn =~ s/^\*|\s$//g;
-    $hostInfo->{SN} = $sn;
+    $hostInfo->{BOARD_SERIAL} = $sn;
 
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
     $productName =~ s/^\*|\s$//g;
