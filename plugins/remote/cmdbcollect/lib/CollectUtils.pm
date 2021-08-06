@@ -54,6 +54,44 @@ sub getWinPs1Cmd {
     return $cmd;
 }
 
+#执行powershell脚本
+sub getWinPSCmdOut {
+    my ($self, $psScript) = @_;
+    
+    $psScript =~ s/\\/\\\\/g;
+    $psScript =~ s/\"/\\\"/g;
+    $psScript =~ s/\&/\"\&amp;\"/g;
+
+    my $out = `PowerShell -Command $psScript`;
+
+    my $status = $?;
+    if ( $status ne 0 ) {
+        print("WARN: execute powershell script:$psScript failed.\n");
+    }
+
+    chomp($out);
+
+    return ( $status, $out );
+}
+
+#执行powershell脚本
+sub getWinPSCmdOutLines {
+    my ($self, $psScript) = @_;
+    
+    $psScript =~ s/\\/\\\\/g;
+    $psScript =~ s/\"/\\\"/g;
+    $psScript =~ s/\&/\"\&amp;\"/g;
+
+    my @out = `PowerShell -Command $psScript`;
+
+    my $status = $?;
+    if ( $status ne 0 ) {
+        print("WARN: execute powershell script:$psScript failed.\n");
+    }
+
+    return ($status, \@out);
+}
+
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user ) = @_;
