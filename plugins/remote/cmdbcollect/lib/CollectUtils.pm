@@ -15,7 +15,7 @@ sub new {
     my @uname  = uname();
     my $ostype = $uname[0];
     $ostype =~ s/\s.*$//;
-    $self->{ostype}   = $ostype;
+    $self->{ostype} = $ostype;
 
     $self->{isRoot} = 0;
     if ( $> == 0 ) {
@@ -40,8 +40,7 @@ sub getWinPs1Cmd {
         $fh->close();
         $cmd =~ s/\s+/ /g;
     }
-    else
-    {
+    else {
         print("WARN: Open file:$psPath for read failed, $!.\n");
     }
 
@@ -56,13 +55,14 @@ sub getWinPs1Cmd {
 
 #执行powershell脚本
 sub getWinPSCmdOut {
-    my ($self, $psScript) = @_;
-    
+    my ( $self, $psScript ) = @_;
+
+    $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my $out = `PowerShell -Command $psScript`;
+    my $out = `PowerShell -Command "$psScript"`;
 
     my $status = $?;
     if ( $status ne 0 ) {
@@ -76,20 +76,22 @@ sub getWinPSCmdOut {
 
 #执行powershell脚本
 sub getWinPSCmdOutLines {
-    my ($self, $psScript) = @_;
-    
+    my ( $self, $psScript ) = @_;
+
+    $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my @out = `PowerShell -Command $psScript`;
+    my $out = `PowerShell -Command "$psScript"`;
+    my @outLines = split( /\n/, $out );
 
     my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: execute powershell script:$psScript failed.\n");
     }
 
-    return ($status, \@out);
+    return ( $status, \@outLines );
 }
 
 #su运行命令，并返回输出的文本

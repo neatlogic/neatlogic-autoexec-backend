@@ -21,9 +21,9 @@ use CollectObjType;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps  => ['\System\s'],           #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'System' },    #ps的属性的精确匹配
-        envAttrs => {}                       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps => ['\System\s'],    #正则表达是匹配ps输出
+                                     #psAttrs  => { COMM => 'System' },    #ps的属性的精确匹配
+                                     #envAttrs => {}                       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -54,41 +54,33 @@ sub collect {
         return;
     }
 
-    my $isRunCmd = q{
-        $vm = "localhost";
-        $iis = Get-WmiObject Win32_Service -ComputerName $vm -Filter "name='IISADMIN'";
-        if ($iis.State -eq "Running") {
-            Write-Output "true";
-        } 
-        else {
-            Write-Output "false";
-        }
-    };
-    my $isRunInfo = $utils->getWinPSCmdOut($isRunCmd);
-    if ( $isRunInfo ne 'true' ) {
-        return;
-    }
-
-    #如果不是主进程，则不match，则返回null
-    if ( not $self->isMainProcess() ) {
-        return undef;
-    }
-
-    my $procInfo         = $self->{procInfo};
-    my $matchedProcsInfo = $self->{matchedProcsInfo};
-
-    my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
-
     # VersionString
     # -------------
     # Version 10.0
     my $version;
-    my $verInfo = $utils->getWinPSCmdOut('get-itemproperty HKLM:\SOFTWARE\Microsoft\InetStp\  | select versionstring');
-    if ( $verInfo =~ /[\d\.]+\s*$/ ) {
+    my ( $status, $verInfo ) = $utils->getWinPSCmdOut('get-itemproperty HKLM:\SOFTWARE\Microsoft\InetStp\  | select versionstring');
+    if ( $verInfo =~ /([\d\.]+)\s*$/ ) {
         $version = $1;
     }
-    $appInfo->{VERSION} = $version;
+    if ( $status ne 0 or not defined($version) ) {
+        print("WARN: IIS not installed.\n");
+        return;
+    }
+
+    # #如果不是主进程，则不match，则返回null
+    # if ( not $self->isMainProcess() ) {
+    #     return undef;
+    # }
+
+    my $procInfo = $self->{procInfo};
+    $procInfo->{COMM} = 'System';
+    $procInfo->{USER} = 'System';
+
+    my $matchedProcsInfo = $self->{matchedProcsInfo};
+
+    my $appInfo = {};
+    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{VERSION}     = $version;
 
     # Name             ID   State      Physical Path                  Bindings
     # ----             --   -----      -------------                  --------
@@ -98,7 +90,8 @@ sub collect {
     my $siteLineCount = scalar(@$siteInfoLines);
     foreach ( my $i = 3 ; $i < $siteLineCount ; $i++ ) {
         my $line = $$siteInfoLines[$i];
-        if ( $line =~ /^\s*(.*?)\s+(\d+)\s+(Started|Stopped)\s+(.*?)\s+(https|http|ftp)\s(.*)$/ ) {
+
+        if ( $line =~ /^\s*(.*?)\s+(\d+)\s+(Started|Stopped)\s+(.*?)\s+(https|http|ftp)\s(.*)\s*$/ ) {
             my $siteInfo = {};
             $siteInfo->{NAME}     = $1;
             $siteInfo->{ID}       = $2;
@@ -111,6 +104,7 @@ sub collect {
     }
     $appInfo->{SITES} = \@sites;
 
+    my $lsnMap = {};
     my ( $port, $sslPort );
     foreach my $oneSite (@sites) {
         my $protocol = $oneSite->{PROTOCOL};
@@ -120,6 +114,17 @@ sub collect {
         }
         if ( $protocol eq 'https' and $lsnInfo =~ /:443:/ ) {
             $sslPort = 443;
+        }
+
+        while ( $lsnInfo =~ /([^:]+):(\d+)/g ) {
+            my $lsnAddr = $1;
+            my $lsnPort = $2;
+            if ( $lsnAddr eq '*' ) {
+                $lsnMap->{$lsnPort} = 1;
+            }
+            else {
+                $lsnMap->{"$lsnAddr:$lsnPort"} = 1;
+            }
         }
     }
 
@@ -156,7 +161,9 @@ sub collect {
     my $poolLineCount    = scalar(@$appPoolInfoLines);
     foreach ( my $i = 3 ; $i < $poolLineCount ; $i++ ) {
         my $line = $$appPoolInfoLines[$i];
-        if ( $line =~ /^\s*(.*?)\s+(Started|Stopped)\s+(\S+)\s+(\S+)\s(\S+)$/ ) {
+        print("DEBUG: line:$line\n");
+
+        if ( $line =~ /^\s*(.*?)\s+(Started|Stopped)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/ ) {
             my $poolInfo = {};
             $poolInfo->{NAME}          = $1;
             $poolInfo->{State}         = $2;
@@ -166,7 +173,7 @@ sub collect {
             push( @appPools, $poolInfo );
         }
     }
-    $appInfo->{APPPOOLS} = @appPools;
+    $appInfo->{APPPOOLS} = \@appPools;
 
     #!!!下面的是标准属性，必须采集并转换提供出来
     #服务名, 要根据实际来设置
@@ -175,6 +182,10 @@ sub collect {
     $appInfo->{CONFIG_PATH}    = undef;
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
+
+    #因为IIS的监听是由System内核来完成的，所以连接信息基本没用
+    $procInfo->{CONN_INFO}->{PEER}   = {};
+    $procInfo->{CONN_INFO}->{LISTEN} = $lsnMap;
 
     return $appInfo;
 

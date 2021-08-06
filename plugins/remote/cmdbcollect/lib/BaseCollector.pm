@@ -196,7 +196,7 @@ sub getJavaAttrs {
     }
 
     if ( defined($javaPath) ) {
-        $javaHome = dirname($javaHome);
+        $javaHome = dirname(dirname($javaPath));
         my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
         if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
             $javaVersion = $1;

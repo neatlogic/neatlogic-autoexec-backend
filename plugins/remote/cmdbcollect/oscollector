@@ -25,6 +25,7 @@ $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 
 sub collectTimeout {
     my $osType = ( uname() )[0];
+    $osType =~ s/\s*.*$//;
     if ( $osType ne 'Windows' ) {
         my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
         foreach my $pid (@pids) {
@@ -47,6 +48,9 @@ sub collectTimeout {
 
 sub main {
     my $osInfo;
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s*.*$//;
+
     $SIG{ALRM} = \&collectTimeout;
 
     my $classDef;
@@ -91,7 +95,7 @@ sub main {
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($osInfo) ) {
             $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
-            $osInfo->{OS_TYPE}     = ( uname() )[0];
+            $osInfo->{OS_TYPE}     = $osType;
             $osInfo->{OS_ID}       = $osGather->{osId};
             $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
@@ -161,8 +165,14 @@ sub main {
         my $pid       = $procInfo->{PID};
         my $appType   = $procInfo->{APP_TYPE};
         print("INFO: Process $pid matched filter:$appType, begin to collect data...\n");
-        my $connInfo = $connGather->getConnInfo($pid);
-        $procInfo->{CONN_INFO} = $connInfo;
+        my $connInfo;
+        if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
+            $connInfo = { PEER => {}, LISTEN => {} };
+        }
+        else {
+            $connInfo = $connGather->getConnInfo($pid);
+            $procInfo->{CONN_INFO} = $connInfo;
+        }
         print("INFO: Process connection infomation collected.\n");
 
         my $collector;
