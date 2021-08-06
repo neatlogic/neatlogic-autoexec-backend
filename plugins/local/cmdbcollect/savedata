@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
-import AutoExecUtils
-import CmdbUtils
 import os
 import argparse
 import sys
@@ -11,6 +9,9 @@ import json
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
+import CmdbUtils
+import AutoExecUtils
+
 
 
 def usage():
@@ -52,8 +53,11 @@ if __name__ == "__main__":
     output_Json = _readJson(outputPath)
     collect_data = None
     if output_Json != None:
-        cmdbcollect = output_Json["cmdbcollect"]
-        collect_data = cmdbcollect["DATA"]
+        items = output_Json.items()
+        for key, value in items:
+            if key.startswith("cmdbcollect"):
+               cmdbcollect = value
+               collect_data = cmdbcollect["DATA"]
 
     if collect_data == None:
         print("WARN:: collect plugin has no return data .\n")
@@ -72,7 +76,11 @@ if __name__ == "__main__":
         uniqueExp = []
         for unique in pk:
             exp = {}
-            exp[unique] = data[unique]
+            if unique in data :
+                exp[unique] = data[unique]
+            else:
+                exp[unique] = ''
+                print("ERROR: {} collect return data not contain PK {} value.\n".format(tableName,unique))
             uniqueExp.append(exp)
 
         dbUnique = {}
