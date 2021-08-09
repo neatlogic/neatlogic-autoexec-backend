@@ -51,8 +51,8 @@ sub new {
     if ( defined($AUTOEXEC_NODE) and $AUTOEXEC_NODE ne '' ) {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
         $self->{mgmtIp}   = $nodeInfo->{host};
-        $self->{mgmtPort} = $nodeInfo->{mgmtPort};
-        $self->{osId}     = $nodeInfo->{osId};
+        $self->{mgmtPort} = $nodeInfo->{protocolPort};
+        $self->{osId}     = $nodeInfo->{resourceId};
     }
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
