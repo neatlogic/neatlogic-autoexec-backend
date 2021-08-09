@@ -95,7 +95,8 @@ class CmdbUtils:
            collection.remove()
         except Exception as ex:
             print('MongoDb table : {} , remove table data failed , reason :{} '.format(table , ex))
-
+    
+    #count统计
     def count(self , table , uniqueName):
         mydb = self.db
         collection = mydb[table]
@@ -106,6 +107,29 @@ class CmdbUtils:
             count = 0
             print('MongoDb table: {} ,condition {}, query count failed , reason : {} '.format( table, uniqueName ,ex))
         return count
+
+   #创建索引
+   def createIndex(self , table , pk ):
+        mydb = self.db
+        collection = mydb[table]
+        idx_name = "idx_"
+        indexOptions = []
+        for filed in pk :    
+            indexOptions.append((filed ,pymongo.ASCENDING))
+            idx_name = idx_name + filed
+        idx_name = idx_name.lower()
+
+        needAddIndexes = 1
+        indexes = collection.index_information()
+        if indexes == None or len(indexes) == 0 :
+            needAddIndexes = 1
+        else:
+            for index in indexes :
+                if idx_name == index : 
+                    needAddIndexes = 0
+                    break
+        if needAddIndexes == 1 : 
+            collection.create_index(indexOptions,name=idx_name)
 
     #关闭连接
     def close(self) :
