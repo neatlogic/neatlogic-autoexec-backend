@@ -48,7 +48,7 @@ sub new {
     $self->{mgmtPort} = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
-    if ( defined $AUTOEXEC_NODE and $AUTOEXEC_NODE ne '' ) {
+    if ( defined($AUTOEXEC_NODE) and $AUTOEXEC_NODE ne '' ) {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
         $self->{mgmtIp}   = $nodeInfo->{host};
         $self->{mgmtPort} = $nodeInfo->{mgmtPort};
