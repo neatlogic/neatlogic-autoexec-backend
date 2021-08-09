@@ -16,7 +16,7 @@ import NodeStatus
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def __init__(self, threadID, name, context=None):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name=name, daemon=True)
         self.threadID = threadID
         self.name = name
         self.context = context
