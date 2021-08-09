@@ -108,8 +108,8 @@ class CmdbUtils:
             print('MongoDb table: {} ,condition {}, query count failed , reason : {} '.format( table, uniqueName ,ex))
         return count
 
-   #创建索引
-   def createIndex(self , table , pk ):
+    #创建索引
+    def createIndex(self , table , pk ):
         mydb = self.db
         collection = mydb[table]
         idx_name = "idx_"
