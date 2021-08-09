@@ -6,6 +6,7 @@
 import os
 import sys
 import traceback
+import threading
 
 import io
 import shutil
@@ -50,14 +51,14 @@ def threadDump(signum, frame):
     id2name = {}
     for th in threading.enumerate():
         id2name[th.ident] = th.name
-
     print("INFO: ====================ThreadDump===================\n")
     for threadId, stack in sys._current_frames().items():
-        print("\n# ThreadID: %s(%d)\n" % (id2name[threadId], threadId))
+        print("# ThreadID: %s(%d)\n" % (id2name[threadId], threadId))
         for filename, lineno, name, line in traceback.extract_stack(stack):
-            print('File: "%s", line %d, in %s\n' % (filename, lineno, name))
             if line:
-                print("  %s\n" % (line.strip()))
+                print("  %s(%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
+            else:
+                print("  (%s, line %d, in %s)\n" % (filename, lineno, name))
     print("INFO: ====================End ThreadDump=================\n")
 
 
@@ -140,8 +141,6 @@ if __name__ == "__main__":
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
     parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
     parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
-
-    signal.signal(signal.SIGQUIT, threadDump)
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
@@ -251,19 +250,13 @@ if __name__ == "__main__":
         logDir = context.runPath + '/log'
         consoleLogPath = logDir + '/console.txt'
 
-        # console输出重定向到console log文件
-        consoleLogFile = open(consoleLogPath, 'a').detach()
-        sys.stdout = ConsoleLog(consoleLogFile)
-        sys.stderr = ConsoleLog(consoleLogFile)
-
+        consoleLogFile = None
         if args.firstfire:
-            # console输出重定向到console log文件
+            # 作业的第一个阶段执行，需要创建新的console 日志文件
             if os.path.exists(consoleLogPath):
                 os.unlink(consoleLogPath)
 
             consoleLogFile = open(consoleLogPath, 'w').detach()
-            sys.stdout = ConsoleLog(consoleLogFile)
-            sys.stderr = ConsoleLog(consoleLogFile)
 
             consoleHisLogDir = logDir + '/console.hislog'
             if not os.path.isdir(consoleHisLogDir):
@@ -271,10 +264,12 @@ if __name__ == "__main__":
             consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
             os.link(consoleLogPath, consoleHisLogPath)
         else:
-            # console输出重定向到console log文件
+            # 后续阶段执行，不需要新建文件，在原来的console文件中追加日志
             consoleLogFile = open(consoleLogPath, 'a').detach()
-            sys.stdout = ConsoleLog(consoleLogFile)
-            sys.stderr = ConsoleLog(consoleLogFile)
+
+        # console输出重定向到console log文件
+        sys.stdout = ConsoleLog(consoleLogFile)
+        sys.stderr = ConsoleLog(consoleLogFile)
 
         # 初始化全局Logger
         loggingLevel = context.config.get(progName, 'logging.level')
@@ -286,6 +281,8 @@ if __name__ == "__main__":
         formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
         logHandler.setFormatter(formatter)
         logger.addHandler(logHandler)
+
+        signal.signal(signal.SIGQUIT, threadDump)
 
         # 开始运行作业
         print("INFO: JobId:{} start...\n".format(args.jobid))
