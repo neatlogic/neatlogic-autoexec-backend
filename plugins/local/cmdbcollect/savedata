@@ -94,4 +94,8 @@ if __name__ == "__main__":
             cmdbUtils.insert(table, data)
         else:
             cmdbUtils.update(table, dbUnique, data)
+
+        #添加索引
+        cmdbUtils.createIndex(table , pk)
+        #关闭连接
         cmdbUtils.close()
