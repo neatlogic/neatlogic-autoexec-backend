@@ -8,6 +8,7 @@ package ProcessFinder;
 use strict;
 use FindBin;
 use POSIX qw(uname);
+use Sys::Hostname;
 use JSON qw(from_json to_json);
 
 use CollectUtils;
