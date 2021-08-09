@@ -61,7 +61,6 @@ sub collect {
 
     #TODO：下面获取版本和端口的方法缺少环境测试，需要优化
     my $rbctlPath = "$homePath/sbin/rabbitmqctl";
-    print("DEBUG: '$rbctlPath' status | grep {rabbit,\n");
     my $verInfo = $self->getCmdOut( "'$rbctlPath' status | grep {rabbit,", $procInfo->{USER} );
     if ( $verInfo =~ /(\d+\.\d+\.\d+)/ ) {
         $appInfo->{VERSION} = $1;
