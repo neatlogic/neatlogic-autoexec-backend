@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 use FindBin;
 use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../../lib";
 
 package ProcessFinder;
 
 use strict;
 use FindBin;
 use POSIX qw(uname);
-use Sys::Hostname;
+use JSON qw(from_json to_json);
 
 use CollectUtils;
 

@@ -8,7 +8,8 @@ package OSGatherBase;
 use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
-use Sys::Hostname;
+use JSON qw(from_json to_json);
+
 use CollectUtils;
 use Data::Dumper;
 
