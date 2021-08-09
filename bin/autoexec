@@ -5,6 +5,8 @@
 """
 import os
 import sys
+import traceback
+
 import io
 import shutil
 import initenv
@@ -42,6 +44,21 @@ class ConsoleLog(io.TextIOWrapper):
 
             super().write(Utils.getTimeStr() + line)
             super().flush()
+
+
+def threadDump(signum, frame):
+    id2name = {}
+    for th in threading.enumerate():
+        id2name[th.ident] = th.name
+
+    print("INFO: ====================ThreadDump===================\n")
+    for threadId, stack in sys._current_frames().items():
+        print("\n# ThreadID: %s(%d)\n" % (id2name[threadId], threadId))
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            print('File: "%s", line %d, in %s\n' % (filename, lineno, name))
+            if line:
+                print("  %s\n" % (line.strip()))
+    print("INFO: ====================End ThreadDump=================\n")
 
 
 def _getLogSubPath(jobId):
@@ -123,6 +140,8 @@ if __name__ == "__main__":
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
     parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
     parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
+
+    signal.signal(signal.SIGQUIT, threadDump)
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()

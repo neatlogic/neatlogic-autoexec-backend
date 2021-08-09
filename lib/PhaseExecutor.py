@@ -20,7 +20,7 @@ import NodeStatus
 
 class PhaseWorker(threading.Thread):
     def __init__(self, context, phaseName, operations, queue):
-        threading.Thread.__init__(self, daemon=True)
+        threading.Thread.__init__(self)
         self.phaseName = phaseName
         self.context = context
         self._queue = queue
