@@ -15,13 +15,11 @@ import NodeStatus
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
-    def __init__(self, threadID, name, context=None):
+    def __init__(self, name, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
-        self.threadID = threadID
-        self.name = name
         self.context = context
         self.goToStop = False
-        self.socketPath = context.runPath + 'job.sock'
+        self.socketPath = context.runPath + '/job.sock'
 
     def run(self):
         socketPath = self.socketPath
@@ -144,7 +142,7 @@ class JobRunner:
         print("--------------------------------------------------------------\n\n")
 
     def execute(self):
-        listenThread = ListenThread(1, 'Listen-Thread', self.context)
+        listenThread = ListenThread('Listen-Thread', self.context)
         listenThread.start()
 
         params = self.context.params

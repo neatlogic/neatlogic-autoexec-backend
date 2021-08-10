@@ -342,6 +342,11 @@ class RunNode:
         if self.context.goToStop:
             return 2
 
+        if 'PATH' not in os.environ:
+            os.environ['PATH'] = ''
+        if 'PERL5LIB' not in os.environ:
+            os.environ['PERL5LIB'] = ''
+
         try:
             # 更新节点状态为running
             self.updateNodeStatus(NodeStatus.running)
