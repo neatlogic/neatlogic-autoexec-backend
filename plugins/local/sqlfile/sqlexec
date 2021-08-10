@@ -66,7 +66,7 @@ sub main {
 
     if ( not defined($dbNode) ) {
         $hasOptError = 1;
-        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+        print("ERROR: Must define db schema with environment varialble AUTOEXEC_NODE in json string.\n");
     }
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};

@@ -63,10 +63,10 @@ class PhaseWorker(threading.Thread):
                 phaseStatus.incWarnCount()
                 self.currentNode = None
 
-    def informNodeWaitInput(self, nodeId):
+    def informNodeWaitInput(self, nodeId, interact=None):
         currentNode = self.currentNode
         if currentNode is not None and currentNode.id == nodeId:
-            currentNode.updateNodeStatus('waitInput')
+            currentNode.updateNodeStatus('waitInput', interact=interactDesc)
             return True
         else:
             return False

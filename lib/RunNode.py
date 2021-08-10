@@ -165,11 +165,12 @@ class RunNode:
 
         logHandle.write(msg)
 
-    def updateNodeStatus(self, status, op=None, failIgnore=0, consumeTime=0):
+    def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             self.context.hasFailNodeInGlobal = True
 
         self.statuses['pid'] = self.context.pid
+        self.statuses['interact'] = interact
 
         if op is None:
             self.statuses['status'] = status

@@ -182,21 +182,21 @@ sub isatty {
 }
 
 sub doInteract {
-    my ( $inputPipe, %args ) = @_;
+    my ( $pipeFile, %args ) = @_;
 
-    my $msg  = $args{msg};
-    my $type = $args{type};    #input, select, mselect, button
-    my $name = $args{name};
-    my $opts = $args{opts};    #array for optioins
-    my $role = $args{role};    #only this role can operation
-    $args{inputPipe} = $inputPipe;
+    my $message = $args{message};    # 交互操作文案
+    my $opType  = $args{opType};     # 类型：button|input|select|mselect
+    my $title   = $args{title};      # 交互操作标题
+    my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
+    my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
+    $args{pipeFile} = $pipeFile;
 
     my $optsMap = {};
 
     for my $opt (@$opts) {
         $optsMap->{$opt} = 1;
     }
-    my $pipeDescFile = "$inputPipe.json";
+    my $pipeDescFile = "$pipeFile.json";
 
     my $pipe;
 
@@ -205,15 +205,15 @@ sub doInteract {
         if ( defined($pipe) ) {
             $pipe->close();
         }
-        unlink($inputPipe);
+        unlink($pipeFile);
         unlink($pipeDescFile);
     }
 
     my $userId;
     my $enter;
 
-    if ( -e $inputPipe ) {
-        unlink($inputPipe);
+    if ( -e $pipeFile ) {
+        unlink($pipeFile);
     }
 
     my $pipeDescFH = IO::File->new(">$pipeDescFile");
@@ -223,13 +223,13 @@ sub doInteract {
     print $pipeDescFH ( to_json( \%args ) );
     close($pipeDescFH);
 
-    POSIX::mkfifo( $inputPipe, 0700 );
-    $pipe = IO::File->new("+<$inputPipe");
+    POSIX::mkfifo( $pipeFile, 0700 );
+    $pipe = IO::File->new("+<$pipeFile");
 
     if ( defined($pipe) ) {
         my $hasGetInput = 0;
         while ( $hasGetInput == 0 ) {
-            print("$msg\n");
+            print("$message\n");
 
             my $select = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
@@ -240,7 +240,7 @@ sub doInteract {
                 if ( defined($pipe) ) {
                     $pipe->close();
                 }
-                unlink($inputPipe);
+                unlink($pipeFile);
                 die("ERROR: Read time out");
             }
 
@@ -258,7 +258,7 @@ sub doInteract {
                 }
                 print("INFO: Get input:$enter\n");
 
-                if ( $type eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
+                if ( $opType eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
                     $hasGetInput = 1;
                     last;
                 }
@@ -275,7 +275,7 @@ sub doInteract {
     if ( defined($pipe) ) {
         $pipe->close();
     }
-    unlink($inputPipe);
+    unlink($pipeFile);
     unlink($pipeDescFile);
 
     if ( $enter eq 'force-exit' ) {
@@ -286,7 +286,7 @@ sub doInteract {
 }
 
 sub decideOption {
-    my ( $msg, $inputPipe ) = @_;
+    my ( $msg, $pipeFile ) = @_;
 
     my @opts;
     if ( $msg =~ /\(([\w\|]+)\)$/ ) {
@@ -296,28 +296,28 @@ sub decideOption {
 
     my $role = $ENV{DECIDE_WITH_ROLE};
     my ( $userId, $enter ) = doInteract(
-        $inputPipe,
-        msg  => $msg,
-        name => 'Choose the action',
-        type => 'button',
-        role => $role,
-        opts => \@opts
+        $pipeFile,
+        message => $msg,
+        title   => 'Choose the action',
+        opType  => 'button',
+        role    => $role,
+        options => \@opts
     );
 
     return ( $userId, $enter );
 }
 
 sub decideContinue {
-    my ( $msg, $inputPipe, $logFH ) = @_;
+    my ( $msg, $pipeFile, $logFH ) = @_;
 
     my $role = $ENV{DECIDE_WITH_ROLE};
     my ( $userId, $enter ) = doInteract(
-        $inputPipe,
-        msg  => $msg,
-        name => '',
-        type => 'button',
-        role => $role,
-        opts => [ 'Yes', 'No' ]
+        $pipeFile,
+        message => $msg,
+        title   => '',
+        opType  => 'button',
+        role    => $role,
+        options => [ 'Yes', 'No' ]
     );
 
     my $isYes = 0;

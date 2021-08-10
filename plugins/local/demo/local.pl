@@ -73,7 +73,7 @@ sub main {
     $out->{outfile}     = "this is the output file name";
     $out->{outjson}     = '{"key1":"value1", "key2":"value2"}';
     $out->{outcsv}      = q{"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"};
-    LoalUtils::saveOutput($out);
+    AutoExecUtils::saveOutput($out);
 }
 
 #运行主程序

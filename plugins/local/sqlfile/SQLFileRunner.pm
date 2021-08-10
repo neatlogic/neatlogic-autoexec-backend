@@ -431,7 +431,7 @@ sub execSqlFiles {
                     if ( $exitPid eq 0 ) {
                         $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
                         if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            AutoExecUtils::informNodeWaitInput( $self->{dbInfo}->{resourceId} );
+                            AutoExecUtils::informNodeWaitInput( $self->{dbInfo}->{nodeId} );
                         }
                         $isPreWaitInput = $isWaitInput;
 

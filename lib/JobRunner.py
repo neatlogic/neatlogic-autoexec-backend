@@ -40,7 +40,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                     nodeId = actionData['nodeId']
                     for phaseStatus in self.context.phases.values():
                         if phaseStatus.executor is not None:
-                            phaseStatus.executor.informNodeWaitInput(nodeId)
+                            phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
             except Exception as ex:
                 print('ERROR: Ileggle request from sock {}\n{}\n'.format(actionData, ex))
 

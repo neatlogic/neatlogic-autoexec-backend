@@ -85,7 +85,7 @@ def getNode(nodeId):
     return matchNode
 
 
-def informNodeWaitInput(nodeId):
+def informNodeWaitInput(nodeId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
     sockPath = os.environ['AUTOEXEC_WORK_PATH'] + '/job.sock'
     if os.path.exists(sockPath):
         try:
@@ -94,6 +94,19 @@ def informNodeWaitInput(nodeId):
             request = {}
             request['action'] = 'informNodeWaitInput'
             request['nodeId'] = nodeId
+
+            if (options is not None and (isinstance(options, tuple) or isinstance(options, list))):
+                request['interact'] = {
+                    'title': title,  # 交互操作标题
+                    'opType': opType,  # 类型：button|input|select|mselect
+                    'message': message,  # 交互操作文案
+                    'options': options,  # 操作列表json数组，譬如：["commit","rollback"]
+                    'role': role,  # 可以操作此操作的角色，如果空代表不控制
+                    'pipeFile': pipeFile  # 交互管道文件
+                }
+            else:
+                request['interact'] = None
+
             client.send(json.dumps(request))
             client.close()
             print("INFO: Inform node:{} udpate status to waitInput success.\n".format(nodeId))
@@ -146,5 +159,5 @@ def handleJsonstr(jsonstr):
 
 
 def getCurrentTime():
-    #return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    # return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     return time.localtime()
