@@ -24,8 +24,8 @@ use Data::Dumper;
 
 sub getConfig {
     return {
-        regExps => ['\b\/bin\/mongod\s'],         #正则表达是匹配ps输出
-        psAttrs => { COMM => 'mongod' }    #ps的属性的精确匹配
+        regExps => ['\b\/bin\/mongod\s'],    #正则表达是匹配ps输出
+        psAttrs => { COMM => 'mongod' }      #ps的属性的精确匹配
     };
 }
 
@@ -33,9 +33,7 @@ sub getConfig {
 #注意：！！如果是返回单类型对象的采集器不需要定义此函数，可以删除此函数
 sub getPK {
     my ($self) = @_;
-    return {
-        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT', ]
-    };
+    return { $self->{defaultAppType} => [ 'MGMT_IP', 'PORT', ] };
 }
 
 #可用参数：
@@ -55,19 +53,21 @@ sub collect {
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $osUser           = $procInfo->{USER};
-    my $mongodbInfo        = {};
+    my $mongodbInfo      = {};
     $mongodbInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+
+    #服务名, 要根据实际来设置
+    $mongodbInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
 
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
     my $command    = $procInfo->{COMMAND};
     my $exePath    = $procInfo->{EXECUTABLE_FILE};
-    my $binPath   = dirname($exePath);
+    my $binPath    = dirname($exePath);
     my $basePath   = dirname($binPath);
     my $configFile = File::Spec->catfile( $basePath, "mongodb.conf" );
     $mongodbInfo->{INSTALL_PATH} = $basePath;
-    $mongodbInfo->{BIN_PATH}=$binPath ;
+    $mongodbInfo->{BIN_PATH}     = $binPath;
     $mongodbInfo->{CONFIG_FILE}  = $configFile;
-    
 
     #配置文件
     parseConfig( $self, $configFile, $mongodbInfo );
@@ -80,110 +80,119 @@ sub collect {
     $mongodbInfo->{MON_PORT}       = $port;
     $mongodbInfo->{ADMIN_PORT}     = $port;
     $mongodbInfo->{ADMIN_SSL_PORT} = $port;
-    
+
     my $version = $self->getCmdOut("$exePath --version");
     $version =~ /\"version\": (\S+)\s+/;
     $version = $1;
     $version =~ s/,//g;
     $version =~ s/"//g;
-    $mongodbInfo->{VERSION} = $version ;    
+    $mongodbInfo->{VERSION}      = $version;
     $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVRIONMENT'}->{'LANG'};
 
     my $mongodb = MongoDBExec->new(
         mongodbHome => $binPath,
-        username  => $self->{defaultUsername},
-        password  => $self->{defaultPassword},
-        host      => $host,
-        port      => $port
+        username    => $self->{defaultUsername},
+        password    => $self->{defaultPassword},
+        host        => $host,
+        port        => $port
     );
     $self->{mongodb} = $mongodb;
     my ( $status, $rows ) = $mongodb->query(
-        sql     => q(
+        sql => q(
 		use admin;
 		show dbs ;
 		),
         verbose => $self->{isVerbose}
     );
-    my @dbNames =();
-    foreach my $line (@$rows){
+    my @dbNames = ();
+    foreach my $line (@$rows) {
         my @tmp_arr = str_split( $line, '\s+' );
-        my $dbname = str_trim(@tmp_arr[0]);
-        if( $dbname ne 'local' and $dbname ne 'config'  ){
-	    my $db = {};
-	    $db->{NAME} = $dbname ;    
-	    push(@dbNames , $db);
+        my $dbname  = str_trim( @tmp_arr[0] );
+        if ( $dbname ne 'local' and $dbname ne 'config' ) {
+            my $db = {};
+            $db->{NAME} = $dbname;
+            push( @dbNames, $db );
         }
     }
 
-   my ( $status, $rows ) = $mongodb->query(
-        sql     => q(
+    my ( $status, $rows ) = $mongodb->query(
+        sql => q(
                 use admin;
                 db.system.users.find({},{"user":1 , "db" :2}) ;
                 ),
         verbose => $self->{isVerbose}
     );
     my %allUser = ();
-    foreach my $line (@$rows){
-	my $tmp = decode_json($line);
-	my $user = $tmp->{'user'} ;
-        my $db = $tmp->{'db'};
-	my @users ;
-        if(defined( $allUser{$db}) ){
-	    @users = $user->{$db};
-        }else{
-	    @users = ();
-	}
-	push(@users , $user);
-	$allUser{$db} = \@users;
-    }
-    
-    my @newDbNames = ();
-    foreach my $db (@dbNames){
-	if( defined($allUser{$db->{NAME}}) ){
-	    $db->{USERS} = $allUser{$db->{NAME}};
-	}
-	push(@newDbNames , $db);
-    }
-    $mongodbInfo->{DB_INS}= \@newDbNames ;
-
-    $mongodbInfo->{CLUSTER_MODE} = undef;
-    $mongodbInfo->{CLUSTER_ROLE} = undef;
-    $mongodbInfo->{IS_CLUSTER}   = 0;
-=pod
-    if ( $mode eq 'cluster' ) {
-        $mongodbInfo->{CLUSTER_MODE} = 'Master-Slave';
-        $mongodbInfo->{CLUSTER_ROLE} = $role;
-        $mongodbInfo->{IS_CLUSTER}   = 1;
-        if ( $role eq 'slave' ) {
-            $mongodbInfo->{MASTER_IPS} = $master_host . ":" . $master_port;
-        }
-        else {
-            my $cns       = int( $info->{CONNECTED_SLAVES} );
-            my @slave_arr = ();
-            for ( $a = 0 ; $a < $cns ; $a = $a + 1 ) {
-                my $slave = $info->{ 'SLAVE' . $a };
-                $slave =~ s/'slave'$a//g;
-                my @slave_tmp = str_split( $slave, ',' );
-                my $slave_host;
-                my $slave_port;
-                foreach my $st (@slave_tmp) {
-                    if ( $st =~ /ip/ig ) {
-                        my @st_tmp = str_split( $st, '=' );
-                        $slave_host = $st_tmp[1];
-                    }
-                    if ( $st =~ /port/ig ) {
-                        my @st_tmp = str_split( $st, '=' );
-                        $slave_port = $st_tmp[1];
-                    }
-                }
-                push( @slave_arr, $slave_host . ":" . $slave_port );
+    if ( $status == 0 ) {
+        foreach my $line (@$rows) {
+            my $tmp  = decode_json($line);
+            my $user = $tmp->{'user'};
+            my $db   = $tmp->{'db'};
+            my @users;
+            if ( defined( $allUser{$db} ) ) {
+                @users = $user->{$db};
             }
-            $mongodbInfo->{SLAVE_IPS} = \@slave_arr;
+            else {
+                @users = ();
+            }
+            push( @users, $user );
+            $allUser{$db} = \@users;
         }
     }
-=cut
-    #服务名, 要根据实际来设置
-    $mongodbInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
+
+    my @newDbNames = ();
+    foreach my $db (@dbNames) {
+        if ( defined( $allUser{ $db->{NAME} } ) ) {
+            $db->{USERS} = $allUser{ $db->{NAME} };
+        }
+        push( @newDbNames, $db );
+    }
+    $mongodbInfo->{DB_INS} = \@newDbNames;
+
+    my ( $status, $rows ) = $mongodb->query(
+        sql => q(
+		use admin;
+		print(rs.status().ok);
+		),
+        verbose     => $self->{isVerbose},
+        parseOutput => 0
+    );
+    chomp($rows);
+    my $rsStatus = int( str_trim($rows) );
+    if ( $rsStatus == 0 ) {    #单实例
+        $mongodbInfo->{CLUSTER_MODE} = undef;
+        $mongodbInfo->{CLUSTER_ROLE} = undef;
+        $mongodbInfo->{IS_CLUSTER}   = 0;
+    }
+    else {
+        my ( $status, $rows ) = $mongodb->query(
+            sql => q(
+            use admin;
+            printjson(rs.status().members.map(function(m) { return {'name':m.name, 'stateStr':m.stateStr} }));
+            ),
+            verbose     => $self->{isVerbose},
+            parseOutput => 0
+        );
+        my $members = decode_json($rows);
+        my $master_ips;
+        my @slave_arr = ();
+        foreach my $node (@$members) {
+            my $name     = $node->{'name'};
+            my $stateStr = $node->{'stateStr'};
+            $mongodbInfo->{CLUSTER_MODE} = 'replSet';
+
+            if ( $name eq "$host:$port" ) {
+                $mongodbInfo->{CLUSTER_ROLE} = $stateStr;
+            }
+            if ( $stateStr == 'PRIMARY' && $name eq "$host:$port" ) {
+                $mongodbInfo->{MASTER_IPS} = $name;
+            }
+            else {
+                push( @slave_arr, $name );
+            }
+        }
+        $mongodbInfo->{SLAVE_IPS} = \@slave_arr;
+    }
     return $mongodbInfo;
 }
 
@@ -194,13 +203,13 @@ sub parseConfig {
 
     #只取定义的配置
     my $filter = {
-        "port"     => 1,
-        "dbpath"        => 1,
-        "logpath"       => 1,
-        "fork"           => 1,
-        "auth"    => 1,
-        "logappend"     => 1,
-        "bind_ip"     => 1,
+        "port"            => 1,
+        "dbpath"          => 1,
+        "logpath"         => 1,
+        "fork"            => 1,
+        "auth"            => 1,
+        "logappend"       => 1,
+        "bind_ip"         => 1,
         "nohttpinterface" => 1
     };
     foreach my $line (@$configData) {
@@ -236,3 +245,4 @@ sub str_trim {
 }
 
 1;
+
