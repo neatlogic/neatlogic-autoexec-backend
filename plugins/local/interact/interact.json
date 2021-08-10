@@ -1,0 +1,82 @@
+{
+    "opDesc": "执行交互工具",
+    "opType": "local",
+    "typeName": "基础工具",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "执行过程中获取用户输入",
+    "desc": [{
+            "opt": "optype",
+            "name": "交互类型",
+            "help": "选择交互的类型",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "按钮",
+                    "value": "button",
+                    "selected": "true"
+                },
+                {
+                    "text": "下拉选择",
+                    "value": "select"
+                },
+                {
+                    "text": "下拉多项选择",
+                    "value": "mselect"
+                },
+                {
+                    "text": "输入",
+                    "value": "input"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "optionsjson",
+            "name": "输入选项",
+            "help": "输入选项的JSON数组，例如：[\"Yes\",\"No\"], 如果输入类型是input，则设置为[]",
+            "type": "json",
+            "isConst": "false",
+            "defaultValue": "[]",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "role",
+            "name": "操作角色",
+            "help": "允许操作的角色",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "title",
+            "name": "标题",
+            "help": "交互标题",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "Please Select",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "message",
+            "name": "交互说明",
+            "help": "交互主体中显示的说明文案",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": [{
+        "opt": "interactOut",
+        "name": "交互结果",
+        "help": "交互输入的结果",
+        "type": "input"
+    }]
+}

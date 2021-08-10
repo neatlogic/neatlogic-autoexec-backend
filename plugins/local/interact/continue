@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use Getopt::Long;
+use JSON;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname --message <message>\n");
+    
+    exit(1);
+}
+
+sub main {
+    my ($title, $opType, $message, $options, $role);
+
+    GetOptions(
+        'message=s' => \$message
+        );
+
+    $title = 'Continue';
+    $opType = 'button';
+    $options = ['Yes', 'No'];
+    
+    my $rc = 0;
+
+    my $hasOptError = 0;
+
+    
+    if ( not defined($message) ){
+        $hasOptError = 1;
+        print("ERROR: Must defined option message.\n");
+    }
+
+    my $nodeInfo;
+    my $nodeJson = $ENV{AUTOEXEC_NODE};
+    if ( defined($nodeJson) and $nodeJson ne '' ) {
+        $nodeInfo = from_json($nodeJson);
+    }
+
+    if ( not defined($nodeInfo) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define node info environment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasOptError = 1;
+        print("WARN: phaseName not defined, must define environment variable AUTOEXEC_PHASE_NAME.\n");
+        $phaseName = 'run';
+    }
+
+    if ( $hasOptError == 1 ){
+        usage();
+    }
+
+    my $pipeFile = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
+
+    AutoExecUtils::informNodeWaitInput(
+        $nodeInfo->{nodeId},
+        title    => $title,
+        opType     => $opType,
+        message  => $message,
+        options  => $options,
+        role     => $role,
+        pipeFile => $pipeFile
+    );
+
+    my ( $userId, $enter ) = AutoExecUtils::doInteract(
+        title    => $title,
+        opType     => $opType,
+        message  => $message,
+        options  => $options,
+        role     => $role,
+        pipeFile => $pipeFile
+    );
+
+    my $out = {};
+
+    $out->{interactOut}     = $enter;
+    AutoExecUtils::saveOutput($out);
+    exit($rc);
+}
+
+main();
+
