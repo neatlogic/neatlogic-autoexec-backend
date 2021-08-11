@@ -265,7 +265,7 @@ class PhaseExecutor:
         for t in pauseWorkers:
             t.join()
 
-        print("INFO: pause complete.\n")
+        print("INFO: Try to pause job complete.\n")
 
     def kill(self):
         self.context.goToStop = True
@@ -291,4 +291,4 @@ class PhaseExecutor:
         for t in killWorkers:
             t.join()
 
-        print("INFO: kill complete.\n")
+        print("INFO: Try to kill job complete.\n")
