@@ -10,6 +10,7 @@ import socket
 import json
 import time
 import binascii
+from dateutil import parser
 
 PYTHON_VER = sys.version_info.major
 
@@ -159,5 +160,5 @@ def handleJsonstr(jsonstr):
 
 
 def getCurrentTime():
-    # return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    return time.localtime()
+    dateStr = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    return parser.parse(dateStr)

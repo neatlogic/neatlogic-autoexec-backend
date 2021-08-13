@@ -1,0 +1,70 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import os
+import argparse
+import sys
+import json
+from bson.json_util import dumps, loads
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+import CmdbUtils
+import AutoExecUtils
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --lang <lang> eg : zh_CN.UTF-8 or en_US.UTF-8 ,default value zh_CN.UTF-8.\n")
+    print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
+    exit(1)
+
+def _readJson(path):
+    f = open(path, "r", encoding="utf-8")
+    data = json.load(f)
+    f.close()
+    return data
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lang', default='', help='导入语言')
+    parser.add_argument('--mode', default='', help='更新模式')
+    args = parser.parse_args()
+    lang = args.lang
+    mode = args.mode 
+    if lang == None or lang == '' :
+       lang = 'zh_CN.UTF-8'
+    if mode == None or mode == '' :
+       mode = 'truncate'
+    cmdbUtils = CmdbUtils.CmdbUtils()
+    current_path = os.path.abspath(__file__)
+    path = current_path +"/../../../../i18n/cmdbcollect"
+    path = os.path.abspath(path)
+    dirs = os.listdir( path )
+    table = 'collect_data_dictionary'
+    if mode == 'truncate' :
+        cmdbUtils.remove(table)
+    
+    for dfile in dirs :
+        info = dfile.split('.')
+        if (info[1]+"."+info[2] == lang) :
+            field = _readJson(path + "/" + dfile)
+            optType = info[0].strip()
+            uniqueExp = [] 
+            uniqueExp.append({"type":optType})
+            dbUnique = {}
+            dbUnique['$and'] = uniqueExp
+            data = {}
+            data['type'] = optType
+            data['field'] = field 
+            pk = []
+            pk.append("type")
+            count = cmdbUtils.count(table, dbUnique )
+            if count == 0 :
+                cmdbUtils.insert(table, data)
+            else:
+                cmdbUtils.update(table, dbUnique, data)
+            #添加索引
+            cmdbUtils.createIndex(table , pk)
+    #关闭连接
+    cmdbUtils.close()
