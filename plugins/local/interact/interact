@@ -28,7 +28,7 @@ sub main {
         'optype=s' => \$opType, 
         'message=s' => \$message,
         'optionsjson=s' => \$optionsJson,
-        'role' => $role
+        'role=s' => \$role
         );
 
     my $rc = 0;
