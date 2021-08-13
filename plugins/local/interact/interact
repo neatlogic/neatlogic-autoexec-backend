@@ -16,48 +16,46 @@ sub usage {
 
     print("Usage: $pname --title <title> --message <message> --optype <button|input|select|mselect> --options <options to select> --role <privileged role name>\n");
     print(qq{Example: $pname --title "Confirm" --message "Confirm your operation, continue?" --optype "button", --options '["Yes", "No"]'\n});
-    
+
     exit(1);
 }
 
 sub main {
-    my ($title, $opType, $message, $options, $optionsJson, $role);
+    my ( $title, $opType, $message, $options, $optionsJson, $role );
 
     GetOptions(
-        'title=s' => \$title,
-        'optype=s' => \$opType, 
-        'message=s' => \$message,
+        'title=s'       => \$title,
+        'optype=s'      => \$opType,
+        'message=s'     => \$message,
         'optionsjson=s' => \$optionsJson,
-        'role=s' => \$role
-        );
+        'role=s'        => \$role
+    );
 
     my $rc = 0;
 
     my $hasOptError = 0;
 
-    if ( not defined($title) ){
+    if ( not defined($title) ) {
         $title = "Please Select";
     }
 
-    if ( not defined($opType) ){
+    if ( not defined($opType) ) {
         $hasOptError = 1;
         print("ERROR: Must defined option optype.\n");
     }
 
-    if ( not defined($message) ){
+    if ( not defined($message) ) {
         $hasOptError = 1;
         print("ERROR: Must defined option message.\n");
     }
 
-    if ( not defined($optionsJson) ){
+    if ( not defined($optionsJson) ) {
         $hasOptError = 1;
         print("ERROR: Must defined option optionsjson.\n");
     }
 
-    eval{
-        $options = from_json($optionsJson);
-    };
-    if($@){
+    eval { $options = from_json($optionsJson); };
+    if ($@) {
         print("ERROR: Options config:$optionsJson not in json array format, $@\n");
     }
 
@@ -83,16 +81,16 @@ sub main {
         $phaseName = 'run';
     }
 
-    if ( $hasOptError == 1 ){
+    if ( $hasOptError == 1 ) {
         usage();
     }
 
     my $pipeFile = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
 
     AutoExecUtils::informNodeWaitInput(
-        $nodeInfo->{nodeId},
+        nodeId   => $nodeInfo->{nodeId},
         title    => $title,
-        opType     => $opType,
+        opType   => $opType,
         message  => $message,
         options  => $options,
         role     => $role,
@@ -101,7 +99,7 @@ sub main {
 
     my ( $userId, $enter ) = AutoExecUtils::doInteract(
         title    => $title,
-        opType     => $opType,
+        opType   => $opType,
         message  => $message,
         options  => $options,
         role     => $role,
@@ -110,7 +108,7 @@ sub main {
 
     my $out = {};
 
-    $out->{interactOut}     = $enter;
+    $out->{interactOut} = $enter;
     AutoExecUtils::saveOutput($out);
     exit($rc);
 }

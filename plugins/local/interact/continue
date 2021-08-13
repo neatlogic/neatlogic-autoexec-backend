@@ -15,27 +15,24 @@ sub usage {
     my $pname = basename($0);
 
     print("Usage: $pname --message <message>\n");
-    
+
     exit(1);
 }
 
 sub main {
-    my ($title, $opType, $message, $options, $role);
+    my ( $title, $opType, $message, $options, $role );
 
-    GetOptions(
-        'message=s' => \$message
-        );
+    GetOptions( 'message=s' => \$message );
 
-    $title = 'Continue';
-    $opType = 'button';
-    $options = ['Yes', 'No'];
-    
+    $title   = 'Continue';
+    $opType  = 'button';
+    $options = [ 'Yes', 'No' ];
+
     my $rc = 0;
 
     my $hasOptError = 0;
 
-    
-    if ( not defined($message) ){
+    if ( not defined($message) ) {
         $hasOptError = 1;
         print("ERROR: Must defined option message.\n");
     }
@@ -62,16 +59,16 @@ sub main {
         $phaseName = 'run';
     }
 
-    if ( $hasOptError == 1 ){
+    if ( $hasOptError == 1 ) {
         usage();
     }
 
     my $pipeFile = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
 
     AutoExecUtils::informNodeWaitInput(
-        $nodeInfo->{nodeId},
+        nodeId   => $nodeInfo->{nodeId},
         title    => $title,
-        opType     => $opType,
+        opType   => $opType,
         message  => $message,
         options  => $options,
         role     => $role,
@@ -80,7 +77,7 @@ sub main {
 
     my ( $userId, $enter ) = AutoExecUtils::doInteract(
         title    => $title,
-        opType     => $opType,
+        opType   => $opType,
         message  => $message,
         options  => $options,
         role     => $role,
@@ -89,7 +86,7 @@ sub main {
 
     my $out = {};
 
-    $out->{interactOut}     = $enter;
+    $out->{interactOut} = $enter;
     AutoExecUtils::saveOutput($out);
     exit($rc);
 }

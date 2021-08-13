@@ -286,6 +286,8 @@ if __name__ == "__main__":
         logHandler.setFormatter(formatter)
         logger.addHandler(logHandler)
 
+        # Java启动的进程，SIGQUIT信号被block了，所以设置所有信号handler前，unblock那些用到的信号
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGQUIT, signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGUSR1])
         signal.signal(signal.SIGQUIT, threadDump)
 
         # 开始运行作业

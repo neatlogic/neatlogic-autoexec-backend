@@ -89,13 +89,15 @@ sub getNodePipeFile {
 }
 
 sub doInteract {
-    my ( $pipeFile, %args ) = @_;
+    my (%args) = @_;
 
-    my $message = $args{message};    # 交互操作文案
-    my $opType  = $args{opType};     # 类型：button|input|select|mselect
-    my $title   = $args{title};      # 交互操作标题
-    my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
-    my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
+    my $pipeFile = $args{pipeFile};    # 管道文件的全路径
+    my $message  = $args{message};     # 交互操作文案
+    my $opType   = $args{opType};      # 类型：button|input|select|mselect
+    my $title    = $args{title};       # 交互操作标题
+    my $opts     = $args{options};     # 操作列表json数组，譬如：["commit","rollback"]
+    my $role     = $args{role};        # 可以操作此操作的角色，如果空代表不控制
+
     $args{pipeFile} = $pipeFile;
 
     my $optsMap = {};
@@ -193,8 +195,18 @@ sub doInteract {
 }
 
 sub informNodeWaitInput {
-    my ( $nodeId, %args ) = @_;
+    my (%args) = @_;
+
+    # $args{nodeId}     #节点Id
+    # $args{pipeFile};  # 管道文件的全路径
+    # $args{message};    # 交互操作文案
+    # $args{opType};     # 类型：button|input|select|mselect
+    # $args{title};      # 交互操作标题
+    # $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
+    # $args{role};       # 可以操作此操作的角色，如果空代表不控制
+
     my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    my $nodeId   = $args{nodeId};
 
     if ( -e $sockPath ) {
         eval {
