@@ -51,15 +51,17 @@ def threadDump(signum, frame):
     id2name = {}
     for th in threading.enumerate():
         id2name[th.ident] = th.name
-    print("INFO: ====================ThreadDump===================\n")
-    for threadId, stack in sys._current_frames().items():
-        print("# ThreadID: %s(%d)\n" % (id2name[threadId], threadId))
-        for filename, lineno, name, line in traceback.extract_stack(stack):
-            if line:
-                print("  %s(%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
-            else:
-                print("  (%s, line %d, in %s)\n" % (filename, lineno, name))
-    print("INFO: ====================End ThreadDump=================\n")
+
+        code = []
+        for threadId, stack in sys._current_frames().items():
+            subcode = []
+            subcode.append("\n# Thread: %s(%d)" % (id2name.get(threadId, ""), threadId))
+            for filename, lineno, name, line in traceback.extract_stack(stack):
+                if line:
+                    line = line.strip()
+                subcode.insert(1, '  at %s [%s:%d in %s]\n' % (line, filename, lineno, name))
+            code.append("".join(subcode))
+        print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
 
 
 def _getLogSubPath(jobId):
