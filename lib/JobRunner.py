@@ -47,7 +47,8 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def stop(self):
         self.goToStop = True
         self.server.close()
-        os.remove(self.socketPath)
+        if os.path.exists(self.socketPath):
+            os.remove(self.socketPath)
 
 
 class JobRunner:

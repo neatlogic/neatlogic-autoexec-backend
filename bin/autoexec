@@ -52,17 +52,18 @@ def threadDump(signum, frame):
     for th in threading.enumerate():
         id2name[th.ident] = th.name
 
-        code = []
-        for threadId, stack in sys._current_frames().items():
-            subcode = []
-            subcode.append("\n# Thread: %s(%d)\n" % (id2name.get(threadId, ""), threadId))
-            for filename, lineno, name, line in traceback.extract_stack(stack):
-                if line:
-                    subcode.insert(1, "  at %s (%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
-                else:
-                    subcode.insert(1, "  at (%s, line %d, in %s)\n" % (filename, lineno, name))
-            code.append("".join(subcode))
-        print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
+    code = []
+    for threadId, stack in sys._current_frames().items():
+        subcode = []
+        subcode.append("\n# Thread: %s(%d)\n" % (id2name.get(threadId, ""), threadId))
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            if line:
+                subcode.insert(1, "  at %s (%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
+            else:
+                subcode.insert(1, "  at (%s, line %d, in %s)\n" % (filename, lineno, name))
+        code.append("".join(subcode))
+
+    print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
 
 
 def _getLogSubPath(jobId):
