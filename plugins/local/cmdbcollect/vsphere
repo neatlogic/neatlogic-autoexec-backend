@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import vsphereQuery
-import AutoExecUtils
 import json
 import os
 import argparse
@@ -10,6 +8,9 @@ import sys
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
+
+import vsphereQuery
+import AutoExecUtils
 
 
 def usage():

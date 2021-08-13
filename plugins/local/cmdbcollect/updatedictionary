@@ -15,7 +15,7 @@ import AutoExecUtils
 
 def usage():
     pname = os.path.basename(__file__)
-    print(pname + " --lang <lang> eg : zh_CN.UTF-8 or en_US.UTF-8 ,default value zh_CN.UTF-8.\n")
+    print(pname + " --lang <lang> eg : zh_CN.UTF-8 or en_US ,default value zh_CN.\n")
     print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
     exit(1)
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     lang = args.lang
     mode = args.mode 
     if lang == None or lang == '' :
-       lang = 'zh_CN.UTF-8'
+       lang = 'zh_CN'
     if mode == None or mode == '' :
        mode = 'truncate'
     cmdbUtils = CmdbUtils.CmdbUtils()
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     
     for dfile in dirs :
         info = dfile.split('.')
-        if (info[1]+"."+info[2] == lang) :
+        if (info[1] == lang) :
             field = _readJson(path + "/" + dfile)
             optType = info[0].strip()
             uniqueExp = [] 
