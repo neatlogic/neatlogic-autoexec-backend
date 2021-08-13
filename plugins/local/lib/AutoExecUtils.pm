@@ -246,14 +246,14 @@ sub informNodeWaitInput {
 
             $client->send( to_json($request) );
             $client->close();
-            print("INFO: Inform node:$nodeId udpate status to waitInput success.\n");
+            print("INFO: Inform runner udpate status to waitInput success.\n");
         };
         if ($@) {
-            print("WARN: Inform node:$nodeId udpate status to waitInput failed, $@\n");
+            print("WARN: Inform runner udpate status to waitInput failed, $@\n");
         }
     }
     else {
-        print("WARN: Inform node:$nodeId update status to waitInput failed:socket file $sockPath not exist.\n");
+        print("WARN: Inform runner update status to waitInput failed:socket file $sockPath not exist.\n");
     }
     return;
 }

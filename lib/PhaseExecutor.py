@@ -239,7 +239,7 @@ class PhaseExecutor:
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-            print("INFO: Update node:nodeId status to waitInput succeed.\n")
+            print("INFO: Update runner node status to waitInput succeed.\n")
 
     def pause(self):
         self.context.goToStop = True
