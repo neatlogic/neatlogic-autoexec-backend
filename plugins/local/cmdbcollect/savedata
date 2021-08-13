@@ -59,7 +59,6 @@ def _getType(value):
 def _makeDesc(json_data):
     filed_data = []
     for filed in json_data :
-        print(filed , "\n")
         value = json_data[filed]
         vt = _getType(value)
         tmp = {} 
@@ -93,11 +92,11 @@ def _compare(db_data , new_data):
     else:
         return 1
 
-def _makeDictionary(data):
+def _makeDictionary(table,data):
     current_path = os.path.abspath(__file__)
     path = current_path +"/../../../../i18n/cmdbcollect"
     path = os.path.abspath(path)
-    i18n=["en_US.UTF-8","zh_CN.UTF-8"]
+    i18n=["en_US","zh_CN"]
     #data = _ordered(data)
     data = _convert(data)
     data  = _makeDesc(data)
@@ -189,6 +188,6 @@ if __name__ == "__main__":
         #添加索引
         cmdbUtils.createIndex(table , pk)
         #生成数据字典文件
-        _makeDictionary(data)
+        _makeDictionary(tableName.lower(),data)
         #关闭连接
         cmdbUtils.close()
