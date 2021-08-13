@@ -66,7 +66,7 @@ class PhaseWorker(threading.Thread):
     def informNodeWaitInput(self, nodeId, interact=None):
         currentNode = self.currentNode
         if currentNode is not None and currentNode.id == nodeId:
-            currentNode.updateNodeStatus('waitInput', interact=interactDesc)
+            currentNode.updateNodeStatus('waitInput', interact=interact)
             return True
         else:
             return False
@@ -232,10 +232,10 @@ class PhaseExecutor:
             #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
         return phaseStatus.failNodeCount
 
-    def informNodeWaitInput(self, nodeId):
+    def informNodeWaitInput(self, nodeId, interact=None):
         hasInformed = False
         for worker in self.workers:
-            if (worker.informNodeWaitInput(nodeId)):
+            if (worker.informNodeWaitInput(nodeId, interact=interact)):
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)

@@ -4,6 +4,8 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
+package AutoExecUtils;
+
 use strict;
 use POSIX;
 use IO::Socket;
@@ -24,10 +26,6 @@ use Cwd;
 use File::Glob qw(bsd_glob);
 use JSON qw(from_json to_json);
 
-package AutoExecUtils;
-
-use IO::File;
-use JSON qw(to_json from_json);
 
 my $READ_TMOUT = 86400;
 my $TERM_CHARSET;
@@ -211,7 +209,7 @@ sub informNodeWaitInput {
     if ( -e $sockPath ) {
         eval {
             my $client = IO::Socket::UNIX->new(
-                PeerAddr => $sockPath,
+                Peer => $sockPath,
                 Type     => IO::Socket::SOCK_DGRAM,
                 Timeout  => 10
             );

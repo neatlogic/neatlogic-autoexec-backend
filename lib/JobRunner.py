@@ -42,7 +42,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                         if phaseStatus.executor is not None:
                             phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
             except Exception as ex:
-                print('ERROR: Ileggle request from sock {}\n{}\n'.format(actionData, ex))
+                print('ERROR: Inform node status to waitInput failed, {}\n{}\n'.format(actionData, ex))
 
     def stop(self):
         self.goToStop = True
