@@ -75,6 +75,7 @@ sub collect {
     if ( $status ne 0 ) {
 
         #not WebSphereMQ
+        print("WARN: process is not a WebSphereMQ process, $cmdLine.\n");
         return undef;
     }
 

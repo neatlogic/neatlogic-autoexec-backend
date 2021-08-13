@@ -21,9 +21,9 @@ use CollectObjType;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps => ['\System\s'],    #正则表达是匹配ps输出
-                                     #psAttrs  => { COMM => 'System' },    #ps的属性的精确匹配
-                                     #envAttrs => {}                       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps => ['\System\s'],           #正则表达是匹配ps输出
+        psAttrs => { COMM => 'System' },    #ps的属性的精确匹配
+                                            #envAttrs => {}                       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
