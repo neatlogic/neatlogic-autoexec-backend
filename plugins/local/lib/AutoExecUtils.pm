@@ -136,7 +136,8 @@ sub doInteract {
     if ( defined($pipe) ) {
         my $hasGetInput = 0;
         while ( $hasGetInput == 0 ) {
-            print("$message\n");
+            print("[wait interact]$message\n");
+            STDOUT->flush();
 
             my $select = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
