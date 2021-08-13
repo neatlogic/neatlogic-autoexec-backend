@@ -58,8 +58,9 @@ def threadDump(signum, frame):
             subcode.append("\n# Thread: %s(%d)" % (id2name.get(threadId, ""), threadId))
             for filename, lineno, name, line in traceback.extract_stack(stack):
                 if line:
-                    line = line.strip()
-                subcode.insert(1, '  at %s [%s:%d in %s]\n' % (line, filename, lineno, name))
+                    subcode.insert(1, "  at %s(%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
+                else:
+                    subcode.insert(1, "  at (%s, line %d, in %s)\n" % (filename, lineno, name))
             code.append("".join(subcode))
         print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
 
