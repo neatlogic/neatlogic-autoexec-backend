@@ -16,9 +16,9 @@ sub new {
     my $instance = $_INSTANCES->{$type};
 
     if ( not defined($instance) ) {
-        my @uname       = uname();
-        my $osType      = $uname[0];
-        $osType =~ s/\s+.*$//;
+        my @uname  = uname();
+        my $osType = $uname[0];
+        $osType =~ s/\s.*$//;
         my $gatherClass = "ConnGather$osType";
         eval {
             require "$gatherClass.pm";

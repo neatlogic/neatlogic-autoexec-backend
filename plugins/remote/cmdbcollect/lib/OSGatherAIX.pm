@@ -476,11 +476,7 @@ sub collect {
     my ($self) = @_;
     my $osInfo = $self->collectOsInfo();
 
-    #my $hostInfo = $self->collectHostInfo();
-    my $hostInfo;
-    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
-        $hostInfo = $self->collectHostInfo();
-    }
+    my $hostInfo = $self->collectHostInfo();
 
     $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
 
@@ -498,7 +494,12 @@ sub collect {
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
 
-    return ( $hostInfo, $osInfo );
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        return ( $hostInfo, $osInfo );
+    }
+    else {
+        return $osInfo;
+    }
 }
 
 1;

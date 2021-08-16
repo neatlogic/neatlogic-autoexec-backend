@@ -18,7 +18,7 @@ sub new {
     if ( not defined($instance) ) {
         my @uname  = uname();
         my $osType = $uname[0];
-        $osType =~ s/\s+.*$//;
+        $osType =~ s/\s.*$//;
         my $gatherClass = "OSGather$osType";
         eval {
             require "$gatherClass.pm";

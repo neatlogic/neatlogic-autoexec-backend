@@ -627,19 +627,19 @@ sub collect {
     my ($self) = @_;
     my $osInfo = $self->collectOsInfo();
 
-    my $hostInfo;
-    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
-        $hostInfo = $self->collectHostInfo();
-    }
-
-    #my $hostInfo = $self->collectHostInfo();
+    my $hostInfo = $self->collectHostInfo();
 
     $osInfo->{CPU_CORES}      = $hostInfo->{CPU_CORES};
     $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
     $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}        = $osInfo->{DISKS};
 
-    return ( $hostInfo, $osInfo );
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        return ( $hostInfo, $osInfo );
+    }
+    else {
+        return $osInfo;
+    }
 }
 
 1;

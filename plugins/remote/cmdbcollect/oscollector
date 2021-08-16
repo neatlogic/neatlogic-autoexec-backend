@@ -25,7 +25,7 @@ $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 
 sub collectTimeout {
     my $osType = ( uname() )[0];
-    $osType =~ s/\s*.*$//;
+    $osType =~ s/\s.*$//;
     if ( $osType ne 'Windows' ) {
         my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
         foreach my $pid (@pids) {
@@ -49,7 +49,7 @@ sub collectTimeout {
 sub main {
     my $osInfo;
     my $osType = ( uname() )[0];
-    $osType =~ s/\s*.*$//;
+    $osType =~ s/\s.*$//;
 
     $SIG{ALRM} = \&collectTimeout;
 
