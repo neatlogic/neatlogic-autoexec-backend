@@ -34,7 +34,8 @@ class ServerAdapter:
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'updateJobStatus': '/codedriver/public/api/rest/autoexec/job/status/update'
+            'updateJobStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
+            'exportJobEnv': '/codedriver/public/api/rest/autoexec/job/env/update'
         }
 
         self.context = context
@@ -413,3 +414,19 @@ class ServerAdapter:
             return json.loads(content)
         except:
             raise
+
+    def exportEnv(self, name, value):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'envName': name,
+            'envValue': value,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+
+        response = self.httpJSON(self.apiMap['exportJobEnv'], self.authToken, params)
+
+        return

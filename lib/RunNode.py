@@ -404,8 +404,12 @@ class RunNode:
             try:
                 if op.opBunddleName == 'setenv':
                     envName = op.options['name']
-                    envValue = op.options['value']
-                    self.context.setEnv(envName, envValue)
+
+                    if op.opSubName == 'export':
+                        self.context.exportEnv(envName)
+                    else:
+                        envValue = op.options['value']
+                        self.context.setEnv(envName, envValue)
                     continue
 
                 if not os.path.exists(op.pluginPath):
