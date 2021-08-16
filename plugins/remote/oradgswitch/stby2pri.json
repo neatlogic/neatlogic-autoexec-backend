@@ -1,7 +1,7 @@
 {
     "opDesc": "切换到Primary",
     "opType": "target",
-    "typeName": "灾备切换",
+    "typeName": "DR_SWITCH",
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "在备库执行，切换到主库状态，需要在主库执行切换后执行",

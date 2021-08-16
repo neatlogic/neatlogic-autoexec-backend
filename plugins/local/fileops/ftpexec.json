@@ -1,7 +1,7 @@
 {
 	"opDesc": "FTP远程拷贝",
 	"opType": "runner",
-	"typeName": "基础工具",
+	"typeName": "BASIC",
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于FTP文件传输",

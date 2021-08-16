@@ -1,7 +1,7 @@
 {
 	"opDesc": "SSH远程拷贝",
 	"opType": "runner",
-	"typeName": "基础工具",
+	"typeName": "BASIC",
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于SSH协议进行文件传输",

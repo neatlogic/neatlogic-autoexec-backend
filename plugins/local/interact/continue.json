@@ -1,7 +1,7 @@
 {
     "opDesc": "是否继续",
     "opType": "local",
-    "typeName": "基础工具",
+    "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "执行过程中确认是否继续，不继续则中止运行",

@@ -1,7 +1,7 @@
 {
     "opDesc": "SQL文件执行工具",
     "opType": "sqlfile",
-    "typeName": "SQL处理",
+    "typeName": "SQL_FILE",
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "SQL文件执行",

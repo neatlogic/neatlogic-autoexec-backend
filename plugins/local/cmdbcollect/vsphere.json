@@ -1,7 +1,7 @@
 {
 	"opDesc": "vsphere采集插件",
 	"opType": "runner_target",
-	"typeName": "自动采集",
+	"typeName": "CMDB",
 	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "vsphere采集插件",

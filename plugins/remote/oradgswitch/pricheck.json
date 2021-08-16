@@ -1,7 +1,7 @@
 {
     "opDesc": "主库切换前检查",
     "opType": "target",
-    "typeName": "灾备切换",
+    "typeName": "DR_SWITCH",
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "切换前对原主库进行检查，确认可以切换",

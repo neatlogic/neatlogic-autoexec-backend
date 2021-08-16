@@ -1,7 +1,7 @@
 {
     "opDesc": "执行交互工具",
     "opType": "local",
-    "typeName": "基础工具",
+    "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "执行过程中获取用户输入",

@@ -1,7 +1,7 @@
 {
     "opDesc": "获取切换需要的DB的参数",
     "opType": "target",
-    "typeName": "灾备切换",
+    "typeName": "DR_SWITCH",
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "参数包括：库名（主备一致），实例名：RAC集群内一致，主备不一样，同步的sequence等",
