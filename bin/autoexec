@@ -81,7 +81,7 @@ def registerTools(serverAdapter, pluginsPath, opType):
                 for descPath in glob.glob(entry.name + '/' + '*.json'):
                     toolSubName = os.path.basename(descPath)[:-5]
                     opName = entry.name + '/' + toolSubName
-                    if toolSubName.startswith(entry.name) or os.path.isfile(opName):
+                    if entry.name == 'setenv' or toolSubName.startswith(entry.name) or os.path.isfile(opName):
                         print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
                         descFile = open(descPath, 'r')
                         pluginObj = json.loads(descFile.read())
