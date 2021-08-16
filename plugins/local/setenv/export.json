@@ -1,0 +1,18 @@
+{
+    "opDesc": "导出全局环境变量",
+    "opType": "local",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "description": "导出全局环境变量，提供给外部流程工具引用",
+    "desc": [{
+        "opt": "name",
+        "name": "变量名",
+        "help": "在环境变量中的名称",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }]
+}
