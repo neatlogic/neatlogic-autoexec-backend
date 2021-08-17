@@ -1,1 +1,105 @@
-[{"name": "BIND_IP", "desc": "bind_ip", "type": "String"}, {"name": "INSTALL_PATH", "desc": "install_path", "type": "String"}, {"name": "SERVER_NAME", "desc": "server_name", "type": "String"}, {"name": "CONFIG_FILE", "desc": "config_file", "type": "String"}, {"name": "MGMT_IP", "desc": "mgmt_ip", "type": "String"}, {"name": "CHARACTERSET", "desc": "characterset", "type": "String"}, {"name": "DBPATH", "desc": "dbpath", "type": "String"}, {"name": "ADMIN_SSL_PORT", "desc": "admin_ssl_port", "type": "String"}, {"name": "IS_CLUSTER", "desc": "is_cluster", "type": "int"}, {"name": "BIN_PATH", "desc": "bin_path", "type": "String"}, {"name": "CLUSTER_MODE", "desc": "cluster_mode", "type": "String"}, {"name": "MGMT_PORT", "desc": "mgmt_port", "type": "int"}, {"name": "DB_INS", "desc": "db_ins", "type": "Array"}, {"name": "LOGPATH", "desc": "logpath", "type": "String"}, {"name": "CLUSTER_ROLE", "desc": "cluster_role", "type": "String"}, {"name": "PORT", "desc": "port", "type": "String"}, {"name": "MON_PORT", "desc": "mon_port", "type": "String"}, {"name": "PK", "desc": "pk", "type": "Array"}, {"name": "ADMIN_PORT", "desc": "admin_port", "type": "String"}, {"name": "FORK", "desc": "fork", "type": "String"}, {"name": "LOGAPPEND", "desc": "logappend", "type": "String"}, {"name": "APP_TYPE", "desc": "app_type", "type": "String"}, {"name": "OS_ID", "desc": "os_id", "type": "String"}, {"name": "SSL_PORT", "desc": "ssl_port", "type": "String"}, {"name": "VERSION", "desc": "version", "type": "String"}, {"name": "OBJECT_TYPE", "desc": "object_type", "type": "String"}]
+[{
+	"name": "BIND_IP",
+	"desc": "监听ip",
+	"type": "String"
+}, {
+	"name": "INSTALL_PATH",
+	"desc": "安装路径",
+	"type": "String"
+}, {
+	"name": "SERVER_NAME",
+	"desc": "服务名称",
+	"type": "String"
+}, {
+	"name": "CONFIG_FILE",
+	"desc": "配置文件路径",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理ip",
+	"type": "String"
+}, {
+	"name": "CHARACTERSET",
+	"desc": "数据库编码",
+	"type": "String"
+}, {
+	"name": "DBPATH",
+	"desc": "数据文件存储路径",
+	"type": "String"
+}, {
+	"name": "ADMIN_SSL_PORT",
+	"desc": "管理SSL端口",
+	"type": "String"
+}, {
+	"name": "IS_CLUSTER",
+	"desc": "是否是集群",
+	"type": "int"
+}, {
+	"name": "BIN_PATH",
+	"desc": "bin目录路径",
+	"type": "String"
+}, {
+	"name": "CLUSTER_MODE",
+	"desc": "集群模式",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理port",
+	"type": "int"
+}, {
+	"name": "DB_INS",
+	"desc": "数据库服务名",
+	"type": "Array"
+}, {
+	"name": "LOGPATH",
+	"desc": "日志路径",
+	"type": "String"
+}, {
+	"name": "CLUSTER_ROLE",
+	"desc": "集群角色",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "端口",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "监控端口",
+	"type": "String"
+}, {
+	"name": "PK",
+	"desc": "pk",
+	"type": "Array"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "admin port",
+	"type": "String"
+}, {
+	"name": "FORK",
+	"desc": "以守护进程方式启服务",
+	"type": "String"
+}, {
+	"name": "LOGAPPEND",
+	"desc": "日志切割方式",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "app类型",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "ssl端口",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}]

@@ -18,57 +18,94 @@ def usage():
     print(pname + " --ip <vcenter ip> --user <user> --password <password> ")
     exit(1)
 
-
-def uniqueName(data):
-    IP = data["IP"]
-    rule = []
-    rule_Ip = {}
-    rule_Ip['IP'] = IP
-    rule.append(rule_Ip)
-    return rule
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ip', default='', help='vcenter管理IP')
     parser.add_argument('--port', default='443', help='vcenter管理端口')
     parser.add_argument('--user', default='', help='vcenter console login user')
     parser.add_argument('--password', default='', help='vcenter console login user password')
-    parser.add_argument('--node', default='', help='vcenter console login user password')
+    parser.add_argument('--node', default='', help='set job run node env')
     args = parser.parse_args()
 
     ip = args.ip
     user = args.user
     password = args.password
     port = args.port
-    AUTOEXEC_NODE = args.node
+    node = args.node 
 
-    if AUTOEXEC_NODE != None:
-        AUTOEXEC_NODE = json.loads(AUTOEXEC_NODE)
-        ip = AUTOEXEC_NODE['host']
-        user = AUTOEXEC_NODE['username']
-        password = AUTOEXEC_NODE['password']
-
-    if (ip == None or ip == '') and (user == None or user == '') and (password == None or password == ''):
+    if ((ip == None or ip == '' or user == None or user == '' or password == None or password == '' ) and ( node == None or node == '')):
         usage()
 
+    if ((ip == None or ip == '' or user ==None or user =='' or password == '' or password == None ) and  node != None):
+        node = json.loads(node)
+        ip = node['host']
+        port = node['port']
+        user = node['username']
+        password = node['password']
+    
+    data = [] 
     vc = vsphereQuery.vsphereQuery(ip, user, password, port)
-    collect_data = vc.collect()
+    result = vc.collect()
 
-    plugin = {}
-    plugin["type"] = "collect"
-    entityList = []
-    for data in collect_data:
-        entiry = {}
-        entiry['data'] = data
-        entiry['table'] = "collect_vsphere"
-        entiry['uniqueName'] = uniqueName(data)
-        entityList.append(entiry)
+    novmtools = [] 
+    for dc in result['DATACENTER']:
+        clusters = dc['CLUSTER']
+        for cluster in clusters:
+            #物理机信息
+            hosts = cluster['HOST']
+            rel_host = [] 
+            if hosts != None and len(hosts) > 0 :
+                for host in hosts :
+                    host['MGMT_IP'] = host['NAME']
+                    host['MGMT_PORT'] = 22
+                    host['VCENTER_IP']=ip
+                    host['OBJECT_TYPE']='HOST'
+                    #保存和主机采集的PK一致
+                    host['PK'] = ["BOARD_SERIAL"]
+                    data.append(host)
+                    rel_host.append(host['UUID'])
+            cluster['CONTAIN_HOST'] = rel_host 
+            del cluster['HOST']
+            
+            #操作系统信息
+            vms = cluster['VM']
+            rel_vms = []
+            if vms != None and len(vms) > 0 :
+                for vm in vms :
+                    vm_ip = vm['IP']
+                    if vm_ip == None or vm_ip == '':
+                        novmtools.append(vm)
+                    else :
+                        vm['MGMT_IP'] = vm['IP']
+                        vm['MGMT_PORT'] = 22
+                        vm['VCENTER_IP']=ip
+                        vm['OBJECT_TYPE']='OS'
+                        #保持和主机采集的PK一致
+                        vm['PK'] = ["MGMT_IP"]
+                        data.append(vm)
+                        rel_vms.append(result['MGMT_IP']  + ":"  +vm['VM_ID'])
+  
+            cluster['CONTAIN_VMS'] = rel_vms
+            del cluster['VM']
 
-    plugin["data"] = entityList
-    print(plugin)
+    #虚拟化信息
+    result['MGMT_IP'] = ip
+    result['MGMT_PORT'] = port
+    result['OBJECT_TYPE']='VIRTUALIZED'
+    result['OS_TYPE']='VCENTER'
+    result['PK'] = ["MGMT_IP"]
+    data.append(result)
+ 
+    #未安装vmtools工具的vms
+    for vm in novmtools :
+        vm['VCENTER_IP'] = ip 
+        vm['OBJECT_TYPE']='OS'
+        vm['OS_TYPE'] = 'novmtool'
+        vm['PK'] = ["VCENTER_IP" , "VM_ID"]
+        data.append(vm)
+    
+    #print(json.dumps(data))
     # 定义插件的输出变量output
     out = {}
-    out['outjson'] = plugin
-    util = AutoExecUtils.AutoExecUtils()
-    util.saveOutput(out)
+    out['DATA'] = data
+    AutoExecUtils.saveOutput(out)

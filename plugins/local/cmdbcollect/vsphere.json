@@ -12,7 +12,17 @@
 			"type": "input",
 			"isConst": "false",
 			"defaultValue": "",
-			"required": "true",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "port",
+			"name": "管理端口",
+			"help": "vsphere管理端口",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
 			"validate": ""
 		},
 		{
@@ -22,7 +32,7 @@
 			"type": "input",
 			"isConst": "false",
 			"defaultValue": "",
-			"required": "true",
+			"required": "false",
 			"validate": ""
 		},
 		{
@@ -32,24 +42,14 @@
 			"type": "input",
 			"isConst": "false",
 			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		},
-		{
-			"opt": "port",
-			"name": "端口",
-			"help": "管理端口",
-			"type": "input",
-			"isConst": "false",
-			"defaultValue": "443",
 			"required": "false",
 			"validate": ""
 		}
 	],
 	"output": [{
-		"opt": "outjson",
+		"opt": "DATA",
 		"name": "采集数据",
-		"help": "采集数据输出字段",
+		"help": "采集数据输出",
 		"type": "json"
 	}]
 }

@@ -1,0 +1,97 @@
+[{
+	"name": "VERSION",
+	"desc": "version",
+	"type": "String"
+}, {
+	"name": "VENDOR",
+	"desc": "vendor",
+	"type": "String"
+}, {
+	"name": "NAME",
+	"desc": "name",
+	"type": "String"
+}, {
+	"name": "OS_TYPE",
+	"desc": "os type",
+	"type": "String"
+}, {
+	"name": "FULLNAME",
+	"desc": "full name",
+	"type": "String"
+}, {
+	"name": "INSTANCEUUID",
+	"desc": "instance uuid",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "mgmt ip",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "mgmt port",
+	"type": "int"
+}, {
+	"name": "DATACENTER",
+	"desc": "datacenter",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "name",
+		"type": "String"
+	}, {
+		"name": "MOID",
+		"desc": "moid",
+		"type": "String"
+	}, {
+		"name": "CLUSTER",
+		"desc": "clusters",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "name",
+			"type": "String"
+		}, {
+			"name": "MOID",
+			"desc": "moid",
+			"type": "String"
+		}, {
+			"name": "DATASTORE",
+			"desc": "datastore",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "MOID",
+					"desc": "moid",
+					"type": "String"
+				}, {
+					"name": "NAME",
+					"desc": "name",
+					"type": "String"
+				}
+
+			]
+		}, {
+			"name": "NETWORK",
+			"desc": "network",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "MOID",
+					"desc": "moid",
+					"type": "String"
+				}, {
+					"name": "NAME",
+					"desc": "name",
+					"type": "String"
+				}
+
+			]
+		}]
+	}]
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "object type",
+	"type": "String"
+}, {
+	"name": "PK",
+	"desc": "pk",
+	"type": "Array"
+}]

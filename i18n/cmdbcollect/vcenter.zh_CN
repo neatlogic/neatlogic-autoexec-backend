@@ -1,0 +1,97 @@
+[{
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "VENDOR",
+	"desc": "厂商",
+	"type": "String"
+}, {
+	"name": "NAME",
+	"desc": "名称",
+	"type": "String"
+}, {
+	"name": "OS_TYPE",
+	"desc": "类型",
+	"type": "String"
+}, {
+	"name": "FULLNAME",
+	"desc": "全名称",
+	"type": "String"
+}, {
+	"name": "INSTANCEUUID",
+	"desc": "安装实例uuid",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理IP",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "DATACENTER",
+	"desc": "数据中心",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "MOID",
+		"desc": "id",
+		"type": "String"
+	}, {
+		"name": "CLUSTER",
+		"desc": "集群",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}, {
+			"name": "MOID",
+			"desc": "id",
+			"type": "String"
+		}, {
+			"name": "DATASTORE",
+			"desc": "存储",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "MOID",
+					"desc": "id",
+					"type": "String"
+				}, {
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				}
+
+			]
+		}, {
+			"name": "NETWORK",
+			"desc": "网络",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "MOID",
+					"desc": "id",
+					"type": "String"
+				}, {
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				}
+
+			]
+		}]
+	}]
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}, {
+	"name": "PK",
+	"desc": "pk",
+	"type": "Array"
+}]
