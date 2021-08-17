@@ -700,6 +700,7 @@ class RunNode:
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
+            hasError = False
             scp = None
             sftp = None
             try:
@@ -719,6 +720,7 @@ class RunNode:
                     except IOError:
                         sftp.mkdir(remoteRoot)
                 except SFTPError as err:
+                    hasError = True
                     self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 if op.isScript == 1:
@@ -727,6 +729,7 @@ class RunNode:
                     except IOError:
                         sftp.mkdir(remotePath)
                     except SFTPError as err:
+                        hasError = True
                         self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remotePath, err))
 
                     scriptFile = open(op.pluginPath, 'r')
@@ -759,7 +762,11 @@ class RunNode:
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
-                            sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                            try:
+                                sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                            except Exception as err:
+                                hasError = True
+                                self.writeNodeLog("ERROR: Put file {} failed:{}\n".format(filePath, err))
 
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     os.chdir(op.remotePluginRootPath)
@@ -778,7 +785,11 @@ class RunNode:
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
-                            sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                            try:
+                                sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                            except Exception as err:
+                                hasError = True
+                                self.writeNodeLog("ERROR: Put file {} failed:{}\n".format(filePath, err))
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IXUSR)
 
@@ -786,7 +797,8 @@ class RunNode:
                         ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
                         ofh.close()
 
-                uploaded = True
+                if hasError == False:
+                    uploaded = True
 
             except Exception as err:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
