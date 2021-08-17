@@ -751,6 +751,11 @@ class RunNode:
                             sftp.mkdir(os.path.join(remoteRoot, root))
                         except:
                             pass
+                        for direntry in dirs:
+                            try:
+                                sftp.mkdir(os.path.join(remoteRoot, root, direntry))
+                            except:
+                                pass
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
@@ -765,6 +770,11 @@ class RunNode:
                             sftp.mkdir(os.path.join(remoteRoot, root))
                         except:
                             pass
+                        for direntry in dirs:
+                            try:
+                                sftp.mkdir(os.path.join(remoteRoot, root, direntry))
+                            except:
+                                pass
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
