@@ -88,11 +88,13 @@ class CmdbUtils:
             print('MongoDb table : {} ,condition : {} ,delete data failed , reason :{} '.format(table ,where , ex))
 
     #清空表
-    def remove(self , table):
+    def remove(self , table , where):
         mydb = self.db
         collection = mydb[table]
+        if(where == None or where == ''):
+            where = {}
         try:
-           collection.remove()
+           collection.remove(where)
         except Exception as ex:
             print('MongoDb table : {} , remove table data failed , reason :{} '.format(table , ex))
     

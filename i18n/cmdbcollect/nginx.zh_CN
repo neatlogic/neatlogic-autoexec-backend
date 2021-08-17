@@ -1,1 +1,82 @@
-[{"name": "EXE_PATH", "desc": "exe_path", "type": "String"}, {"name": "INSTALL_PATH", "desc": "install_path", "type": "String"}, {"name": "SERVER_NAME", "desc": "server_name", "type": "String"}, {"name": "MGMT_IP", "desc": "mgmt_ip", "type": "String"}, {"name": "BIN_PATH", "desc": "bin_path", "type": "String"}, {"name": "MGMT_PORT", "desc": "mgmt_port", "type": "int"}, {"name": "CONFIG_PATH", "desc": "config_path", "type": "String"}, {"name": "MON_PORT", "desc": "mon_port", "type": "String"}, {"name": "PK", "desc": "pk", "type": "Array"}, {"name": "PREFIX", "desc": "prefix", "type": "String"}, {"name": "SERVERS", "desc": "servers", "type": "JsonArray", "subset": [{"name": "SERVICE_TYPE", "desc": "service_type", "type": "String"}, {"name": "SERVICE_STATUS", "desc": "service_status", "type": "String"}, {"name": "SERVICE_NAME", "desc": "service_name", "type": "String"}, {"name": "SERVICE_PORT", "desc": "service_port", "type": "String"}, {"name": "CONFIG_PATH", "desc": "config_path", "type": "String"}]}, {"name": "APP_TYPE", "desc": "app_type", "type": "String"}, {"name": "VERSION", "desc": "version", "type": "String"}, {"name": "OS_ID", "desc": "os_id", "type": "String"}, {"name": "OBJECT_TYPE", "desc": "object_type", "type": "String"}]
+[{
+	"name": "EXE_PATH",
+	"desc": "启停exe文件路径",
+	"type": "String"
+}, {
+	"name": "INSTALL_PATH",
+	"desc": "安装目录",
+	"type": "String"
+}, {
+	"name": "SERVER_NAME",
+	"desc": "类型名称",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理IP",
+	"type": "String"
+}, {
+	"name": "BIN_PATH",
+	"desc": "bin文件路径",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "CONFIG_PATH",
+	"desc": "配置文件目录",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "监控端口",
+	"type": "String"
+}, {
+	"name": "PK",
+	"desc": "pk",
+	"type": "Array"
+}, {
+	"name": "PREFIX",
+	"desc": "prefix",
+	"type": "String"
+}, {
+	"name": "SERVERS",
+	"desc": "服务",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "SERVICE_TYPE",
+		"desc": "类型",
+		"type": "String"
+	}, {
+		"name": "SERVICE_STATUS",
+		"desc": "状态",
+		"type": "String"
+	}, {
+		"name": "SERVICE_NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "SERVICE_PORT",
+		"desc": "监听端口",
+		"type": "String"
+	}, {
+		"name": "CONFIG_PATH",
+		"desc": "归属配置文件",
+		"type": "String"
+	}]
+}, {
+	"name": "APP_TYPE",
+	"desc": "app类型",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}]
