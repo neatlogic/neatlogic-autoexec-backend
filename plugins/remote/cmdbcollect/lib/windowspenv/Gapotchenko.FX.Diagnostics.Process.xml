@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gapotchenko.FX.Diagnostics.Process</name>
+    </assembly>
+    <members>
+        <member name="T:Gapotchenko.FX.Diagnostics.Implementation.IProcessMemoryAdapter">
+            <summary>
+            Provides low-level access to the process memory.
+            </summary>
+        </member>
+        <member name="P:Gapotchenko.FX.Diagnostics.Implementation.IProcessMemoryAdapter.PageSize">
+            <summary>
+            Gets the page size measured in bytes according to the granularity of memory access control.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.Implementation.IProcessMemoryAdapter.ReadMemory(Gapotchenko.FX.Diagnostics.Implementation.UniPtr,System.Byte[],System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Reads the process memory.
+            </summary>
+            <param name="address">The address to start reading at.</param>
+            <param name="buffer">The buffer to read to.</param>
+            <param name="offset">The buffer offset to start reading to.</param>
+            <param name="count">The count of bytes to read.</param>
+            <param name="throwOnError">
+            <para>
+            Indicates whether to throw an exception on error.
+            </para>
+            <para>
+            The support of this flag is optional; an adapter may just prefer to return -1 even when the flag is <c>true</c>.
+            </para>
+            </param>
+            <returns>The count of read bytes or -1 on error.</returns>
+        </member>
+        <member name="T:Gapotchenko.FX.Diagnostics.Implementation.UniPtr">
+            <summary>
+            Universal pointer that can hold both 32 and 64 bit values.
+            </summary>
+        </member>
+        <member name="P:Gapotchenko.FX.Diagnostics.Implementation.Windows.EnvironmentInfo.MaxSize">
+            <summary>
+            Gets the maximum environment block size or -1 if there is no limit.
+            </summary>
+        </member>
+        <member name="T:Gapotchenko.FX.Diagnostics.ProcessEndMode">
+            <summary>
+            Describes the possible modes of ending a process.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.None">
+            <summary>
+            No process shutdown.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Interrupt">
+            <summary>
+            A process shutdown by a SIGINT signal (CTRL+C).
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Close">
+            <summary>
+            A process shutdown by closing user interface elements if there are any.
+            For example, if the process has a main window then it is ended by sending a corresponding window close message.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Kill">
+            <summary>
+            A process shutdown by a SIGKILL signal (process kill).
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Exit">
+            <summary>
+            A process shutdown by issuing an exit request. Applies to a current process only.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Graceful">
+            <summary>
+            A graceful process shutdown.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Forceful">
+            <summary>
+            A forceful process shutdown.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Diagnostics.ProcessEndMode.Complete">
+            <summary>
+            Allows all process shutdown techniques.
+            </summary>
+        </member>
+        <member name="T:Gapotchenko.FX.Diagnostics.ProcessExtensions">
+            <summary>
+            Provides extended operations for <see cref="T:System.Diagnostics.Process"/> class.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.ReadEnvironmentVariables(System.Diagnostics.Process)">
+            <summary>
+            Reads the environment variables from the environment block of a process.
+            </summary>
+            <param name="process">The process. It can be any process running on local machine.</param>
+            <returns>The environment variables.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.GetParent(System.Diagnostics.Process)">
+            <summary>
+            Gets the parent process.
+            </summary>
+            <param name="process">The process to get the parent for.</param>
+            <returns>The parent process or <c>null</c> if it is no longer running or there is no parent.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EnumerateParents(System.Diagnostics.Process)">
+            <summary>
+            Enumerates parent processes.
+            </summary>
+            <remarks>
+            The closest parents are returned first.
+            </remarks>
+            <param name="process">The process to get the parents for.</param>
+            <returns>The sequence of parent processes.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.GetImageFileName(System.Diagnostics.Process)">
+            <summary>
+            Gets the file name of a process image.
+            </summary>
+            <remarks>
+            Usually, the value returned by this method equals to the value returned by <see cref="P:System.Diagnostics.ProcessModule.FileName"/> property of the main process module.
+            The difference becomes apparent when the current process cannot access the module information due to security restrictions imposed by the host platform.
+            While <see cref="P:System.Diagnostics.ProcessModule.FileName"/> may not work in that situation, this method always works.
+            </remarks>
+            <param name="process">The process to get image file name for.</param>
+            <returns>The file name of a process image.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.End(System.Diagnostics.Process)">
+            <summary>
+            Ends a process with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.End(System.Diagnostics.Process,System.Int32)">
+            <summary>
+            Ends a process with a specified timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.End(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode)">
+            <summary>
+            Ends a process according to a specified mode with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.End(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode,System.Int32)">
+            <summary>
+            Ends a process according to a specified mode and timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Ends a process asynchronously according to a specified mode and timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode,System.Threading.CancellationToken)">
+            <summary>
+            Ends a process asynchronously according to a specified mode with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode,System.Int32)">
+            <summary>
+            Ends a process asynchronously according to a specified mode and timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,Gapotchenko.FX.Diagnostics.ProcessEndMode)">
+            <summary>
+            Ends a process asynchronously according to a specified mode with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <param name="mode">The mode of ending a process.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,System.Int32)">
+            <summary>
+            Ends a process asynchronously with a specified timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process)">
+            <summary>
+            Ends a process asynchronously with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Ends a process asynchronously with a specified timeout.
+            </summary>
+            <param name="process">The process to end.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to end.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.EndAsync(System.Diagnostics.Process,System.Threading.CancellationToken)">
+            <summary>
+            Ends a process asynchronously with default timeout.
+            </summary>
+            <remarks>
+            The default timeout is 3 seconds.
+            </remarks>
+            <param name="process">The process to end.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The mode in which the process has been ended.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.WaitForExitAsync(System.Diagnostics.Process,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Instructs the <see cref="T:System.Diagnostics.Process"/> component to asynchronously wait the specified number of milliseconds for the associated process to exit.
+            </summary>
+            <param name="process">The process.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the associated process to exit.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns><c>true</c> if the associated process has exited; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.WaitForExitAsync(System.Diagnostics.Process,System.Threading.CancellationToken)">
+            <summary>
+            Instructs the <see cref="T:System.Diagnostics.Process"/> component to wait asynchronously and indefinitely for the associated process to exit.
+            </summary>
+            <param name="process">The process.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The task.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.WaitForExit(System.Diagnostics.Process,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Instructs the <see cref="T:System.Diagnostics.Process"/> component to wait the specified number of milliseconds for the associated process to exit.
+            </summary>
+            <param name="process">The process.</param>
+            <param name="milliseconds">The amount of time, in milliseconds, to wait for the associated process to exit.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Diagnostics.ProcessExtensions.WaitForExit(System.Diagnostics.Process,System.Threading.CancellationToken)">
+            <summary>
+            Instructs the <see cref="T:System.Diagnostics.Process"/> component to wait indefinitely for the associated process to exit.
+            </summary>
+            <param name="process">The process.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+    </members>
+</doc>

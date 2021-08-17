@@ -7,6 +7,7 @@ package ProcessFinder;
 
 use strict;
 use FindBin;
+use Cwd;
 use POSIX qw(uname);
 use Sys::Hostname;
 use JSON qw(from_json to_json);
@@ -69,7 +70,12 @@ sub new {
         $self->{listProcCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
 
         #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
-        $self->{procEnvCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
+        if ( $uname[4] =~ /64/ ){
+            $self->{procEnvCmd} = Cwd::abs_path("$FindBin::Bin/lib/windowspenv/getprocenv");
+        }
+        else{
+            $self->{procEnvCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
+        }
     }
 
     bless( $self, $type );
