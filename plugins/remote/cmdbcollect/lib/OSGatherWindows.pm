@@ -320,8 +320,11 @@ sub collect {
 
     $hostInfo->{MEM_TOTAL}     = $osInfo->{MEM_TOTAL};
     $hostInfo->{MEM_AVAILABLE} = $osInfo->{MEM_AVAILABLE};
-
-    return ( $hostInfo, $osInfo );
+    if( $osInfo->{IS_VIRTUAL} == 1){
+        return ( undef , $osInfo);
+    }else{
+        return ( $hostInfo, $osInfo );
+    }
 }
 
 1;

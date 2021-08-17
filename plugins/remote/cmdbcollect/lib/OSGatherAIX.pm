@@ -498,7 +498,7 @@ sub collect {
         return ( $hostInfo, $osInfo );
     }
     else {
-        return $osInfo;
+        return (undef ,$osInfo);
     }
 }
 
