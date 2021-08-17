@@ -311,11 +311,11 @@ class Operation:
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
-                            cmd = 'rename {} {} && cmd /c {}'.format(self.opSubName, nameWithExt, nameWithExt)
+                            cmd = 'rename {} {} & cmd /c {}'.format(self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'rename {} {} && cscript {}'.format(self.opSubName, nameWithExt, nameWithExt)
+                            cmd = 'rename {} {} & cscript {}'.format(self.opSubName, nameWithExt, nameWithExt)
                         else:
-                            cmd = 'rename {} {} && {} {}'.format(self.opSubName, nameWithExt, self.interpreter, nameWithExt)
+                            cmd = 'rename {} {} & {} {}'.format(self.opSubName, nameWithExt, self.interpreter, nameWithExt)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
                         cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
