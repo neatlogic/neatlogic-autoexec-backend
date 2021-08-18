@@ -1,7 +1,12 @@
 [{
 		"name": "IPV6_ADDRS",
 		"desc": "ipv6 addrs",
-		"type": "Array"
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "name",
+			"type": "String"
+		}]
 	}, {
 		"name": "MEM_BUFFERS",
 		"desc": "mem buffers",
@@ -150,7 +155,12 @@
 	}, {
 		"name": "NTP_SERVERS",
 		"desc": "ntp servers",
-		"type": "Array"
+               "type": "JsonArray",
+                "subset": [{
+                        "name": "NAME",
+                        "desc": "name",
+                        "type": "String"
+                }]
 	}, {
 		"name": "NETWORKMANAGER_ENABLE",
 		"desc": "enable networkmanager service",
@@ -192,13 +202,14 @@
 		"desc": "内核版本",
 		"type": "String"
 	}, {
-		"name": "PK",
-		"desc": "pk",
-		"type": "Array"
-	}, {
 		"name": "DNS_SERVERS",
 		"desc": "DNS 服务列表",
-		"type": "Array"
+               "type": "JsonArray",
+                "subset": [{
+                        "name": "NAME",
+                        "desc": "name",
+                        "type": "String"
+                }]
 	}, {
 		"name": "FIREWALL_ENABLE",
 		"desc": "是否开启防火墙",
@@ -247,7 +258,12 @@
 	}, {
 		"name": "IP_ADDRS",
 		"desc": "ip addrs",
-		"type": "Array"
+               "type": "JsonArray",
+                "subset": [{
+                        "name": "NAME",
+                        "desc": "name",
+                        "type": "String"
+                }]
 	}, {
 		"name": "VERSION",
 		"desc": "version",

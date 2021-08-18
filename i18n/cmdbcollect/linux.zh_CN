@@ -1,7 +1,12 @@
 [{
 		"name": "IPV6_ADDRS",
 		"desc": "IPV6监听地址",
-		"type": "Array"
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}]
 	}, {
 		"name": "MEM_BUFFERS",
 		"desc": "块设备所占用的缓存页",
@@ -150,7 +155,12 @@
 	}, {
 		"name": "NTP_SERVERS",
 		"desc": "ntp 服务列表",
-		"type": "Array"
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}]
 	}, {
 		"name": "NETWORKMANAGER_ENABLE",
 		"desc": "是否启动networkmanager",
@@ -192,13 +202,15 @@
 		"desc": "内核版本",
 		"type": "String"
 	}, {
-		"name": "PK",
-		"desc": "pk",
-		"type": "Array"
-	}, {
 		"name": "DNS_SERVERS",
 		"desc": "DNS 服务列表",
-		"type": "Array"
+		"type": "JsonArray",
+		"subset":[{
+			"name": "NAME",
+                	"desc": "名称",
+                        "type": "String"
+		}
+	 ]
 	}, {
 		"name": "FIREWALL_ENABLE",
 		"desc": "是否开启防火墙",
@@ -247,7 +259,12 @@
 	}, {
 		"name": "IP_ADDRS",
 		"desc": "IP 列表",
-		"type": "Array"
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}]
 	}, {
 		"name": "VERSION",
 		"desc": "版本",

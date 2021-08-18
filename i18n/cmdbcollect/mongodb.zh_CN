@@ -49,7 +49,21 @@
 }, {
 	"name": "DB_INS",
 	"desc": "数据库服务名",
-	"type": "Array"
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "USERS",
+		"desc": "用户",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}]
+	}]
 }, {
 	"name": "LOGPATH",
 	"desc": "日志路径",
@@ -66,10 +80,6 @@
 	"name": "MON_PORT",
 	"desc": "监控端口",
 	"type": "String"
-}, {
-	"name": "PK",
-	"desc": "pk",
-	"type": "Array"
 }, {
 	"name": "ADMIN_PORT",
 	"desc": "admin port",

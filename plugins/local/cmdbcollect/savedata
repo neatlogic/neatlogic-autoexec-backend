@@ -98,6 +98,7 @@ def _makeDictionary(table,data):
     path = os.path.abspath(path)
     i18n=["en_US","zh_CN"]
     #data = _ordered(data)
+    del data['PK']
     data = _convert(data)
     data  = _makeDesc(data)
     for lang in i18n:

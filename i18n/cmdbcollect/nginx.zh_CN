@@ -31,10 +31,6 @@
 	"desc": "监控端口",
 	"type": "String"
 }, {
-	"name": "PK",
-	"desc": "pk",
-	"type": "Array"
-}, {
 	"name": "PREFIX",
 	"desc": "prefix",
 	"type": "String"
