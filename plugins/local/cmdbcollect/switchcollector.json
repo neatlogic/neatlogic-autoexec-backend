@@ -1,10 +1,10 @@
 {
-    "opName": "HuaWei交换机CMDB采集",
+    "opName": "交换机CMDB采集",
     "opType": "localremote",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "采集HuaWei交换机信息",
+    "description": "采集交换机信息,支持Cisco、HuaWei、H3C等",
     "desc": [{
             "opt": "community",
             "name": "默认团体字",

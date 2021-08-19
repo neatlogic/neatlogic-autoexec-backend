@@ -1,15 +1,21 @@
 #!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+
 package SwitchSnmp;
 
 use strict;
+use File::Basename;
 use JSON;
 use Net::SNMP qw(:snmp);
 use Data::Dumper;
 
+my $BRANDS = [ 'HuaWei', 'Cisco', 'H3C', 'HillStone', 'Juniper' ];
+
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{DATA} = { PK => ['SN'], OBJECT_TYPE=>"SWITCH" };
+    $self->{DATA} = { PK => ['SN'] };
     bless( $self, $class );
 
     my $version = $args{version};
@@ -40,14 +46,28 @@ sub new {
     };
 
     #列表值定义
-    my $tableOidDef = { PORTS_TABLE_FOR_TEST => [ { DESC => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ] };
+    my $tableOidDef = {
+
+        #PORTS_TABLE_FOR_TEST => [ { NAME => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ]
+    };
 
     #通用列表值定义, 这部分不提供给外部修改
     my $commOidDef = {
-        PORT_INDEX          => '1.3.6.1.2.1.17.1.4.1.2',
-        PORT_DESC           => '1.3.6.1.2.1.2.2.1.2',
-        PORT_MAC            => '1.3.6.1.2.1.2.2.1.6',
-        MAC_TABLE           => '1.3.6.1.2.1.17.4.3.1.2',
+
+        #端口信息
+        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',
+        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',
+        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',
+        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',
+        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',
+        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',
+        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',
+        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',
+
+        #MAC地址和端口对照表
+        MAC_TABLE => '1.3.6.1.2.1.17.4.3.1.2',
+
+        #交换机邻居表
         LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',
         LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',
         LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9'
@@ -94,13 +114,59 @@ sub addTableOid {
     }
 }
 
+sub setCommonOid {
+    my ( $self, %args ) = @_;
+    my $commonOidDef = $self->{commOidDef};
+
+    foreach my $key ( keys(%args) ) {
+        $commonOidDef->{$key} = $args{$key};
+    }
+}
+
 sub _errCheck {
     my ( $self, $queryResult, $oid ) = @_;
-    my $snmp = $self->{snmpSession};
+    my $hasError = 0;
+    my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
+        $hasError = 1;
         my $errMsg = sprintf( "WARN: %s, %s\n", $snmp->error(), $oid );
         print($errMsg);
     }
+
+    return $hasError;
+}
+
+#根据文件顶部预定义的$BRANDS匹配sysDescr信息，得到设备的品牌
+sub _getBrand {
+    my ($self) = @_;
+    my $snmp = $self->{snmpSession};
+
+    my $sysDescrOid = '1.3.6.1.2.1.1.1.0';
+
+    my $sysDescr;
+    my $brand;
+    my $result = $snmp->get_request( -varbindlist => [$sysDescrOid] );
+    if ( $self->_errCheck( $result, $sysDescrOid ) ) {
+        die("ERROR: Snmp request failed.\n");
+    }
+    else {
+        $sysDescr = $result->{$sysDescrOid};
+        foreach my $aBrand (@$BRANDS) {
+            if ( $sysDescr =~ /$aBrand/is ) {
+                $brand = $aBrand;
+            }
+        }
+    }
+
+    if ( not defined($brand) ) {
+        print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
+        $self->{DATA}->{BRAND} = undef;
+    }
+    else {
+        $self->{DATA}->{BRAND} = $brand;
+    }
+
+    return $brand;
 }
 
 #get simple oid value
@@ -144,7 +210,7 @@ sub _getScalar {
             }
         }
         else {
-            $oidDesc = join( ',', @$val );
+            $oidDesc = join( ', ', @$val );
 
             #如果某个属性定义的是多个oid，则按照顺序获取值
             foreach my $oid (@$val) {
@@ -227,53 +293,99 @@ sub _getPorts {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
+    my @ports;
+    my $portsMap   = {};
+    my $portIdxMap = {};
+    my $portSeqMap = {};
+
     my $portIdxToSeqMap = $self->_getPortIdx();
+    while ( my ( $idx, $seq ) = each(%$portIdxToSeqMap) ) {
+        my $portInfo = { INDEX => $idx, SEQ => $seq };
+        $portsMap->{$idx}   = $portInfo;
+        $portIdxMap->{$idx} = $portInfo;
+        $portSeqMap->{$seq} = $portInfo;
+    }
 
-    my $portIdxToNameMap = {};
-    my $portDescInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_DESC} );
-    $self->_errCheck( $portDescInfo, $commOidDef->{PORT_DESC} );
+    my $portStatusMap = {
+        1 => 'up',
+        2 => 'down',
+        3 => 'testing'
+    };
 
-    #.1.3.6.1.2.1.2.2.1.2.770 = STRING: Ethernet0/3
-    while ( my ( $oid, $val ) = each(%$portDescInfo) ) {
-        if ( $oid =~ /(\d+)$/ ) {
-            $portIdxToNameMap->{$1} = $val;
+    my $portTypeMap = {
+        1  => 'other(1)',
+        2  => 'regular1822(2)',
+        3  => 'hdh1822(3)',
+        4  => 'ddn-x25(4)',
+        5  => 'rfc877-x25(5)',
+        6  => 'ethernet-csmacd(6)',
+        7  => 'iso88023-csmacd(7)',
+        8  => 'iso88024-tokenBus(8)',
+        9  => 'iso88025-tokenRing(9)',
+        10 => 'iso88026-man(10)',
+        11 => 'starLan(11)',
+        12 => 'proteon-10Mbit(12)',
+        13 => 'proteon-80Mbit(13)',
+        14 => 'hyperchannel(14)',
+        15 => 'fddi(15)',
+        16 => 'lapb(16)',
+        17 => 'sdlc(17)',
+        18 => 'ds1(18)',
+        19 => 'e1(19)',
+        20 => 'basicISDN(20)',
+        21 => 'primaryISDN(21)',
+        22 => 'propPointToPointSerial(22)',
+        23 => 'ppp(23)',
+        24 => 'softwareLoopback(24)',
+        25 => 'eon(25)',
+        26 => 'ethernet-3Mbit(26)',
+        27 => 'nsip(27)',
+        28 => 'slip(28)',
+        29 => 'ultra(29)',
+        30 => 'ds3(30)',
+        31 => 'sip(31)',
+        32 => 'frame-relay(32)'
+    };
+
+    foreach my $portInfoKey ( 'TYPE', 'NAME', 'MAC', 'ADMIN_STATUS', 'OPER_STATUS', 'SPEED', 'MTU' ) {
+        my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
+        $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"} );
+
+        #.1.3.6.1.2.1.2.2.1.6.514 => 0x000fe255d930
+        #.1.3.6.1.2.1.2.2.1.2.770 = STRING: Ethernet0/3
+        #.1.3.6.1.2.1.2.2.1.8.770 = INTEGER: down(2)
+        while ( my ( $oid, $val ) = each(%$result) ) {
+            if ( $oid =~ /(\d+)$/ ) {
+                my $idx      = $1;
+                my $portInfo = $portsMap->{$idx};
+
+                if ( $portInfoKey eq 'MAC' ) {
+
+                    #返回的值是16进制字串，需要去掉开头的0x以及每两个字节插入':'
+                    if ( $val !~ /\x00/ ) {
+                        $val = substr( $val, 2 );
+                        $val =~ s/..\K(?=.)/:/sg;
+                    }
+                    else {
+                        $val = '';
+                    }
+                }
+                elsif ( $portInfoKey eq 'ADMIN_STATUS' or $portInfoKey eq 'OPER_STATUS' ) {
+                    $val = $portStatusMap->{$val};
+                }
+                elsif ( $portInfoKey eq 'TYPE' ) {
+                    $val = $portTypeMap->{$val};
+                }
+                elsif ( $portInfoKey eq 'SPEED' ) {
+                    $val = $val / 1000 / 1000;
+                }
+
+                $portInfo->{$portInfoKey} = $val;
+            }
         }
     }
 
-    my $portIdxMap  = {};
-    my $portSeqMap  = {};
-    my @ports       = ();
-    my $portMacInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_MAC} );
-    $self->_errCheck( $portMacInfo, $commOidDef->{PORT_MAC} );
-
-    #.1.3.6.1.2.1.2.2.1.6.514 => 0x000fe255d930
-    while ( my ( $oid, $val ) = each(%$portMacInfo) ) {
-        if ( $oid =~ /(\d+)$/ ) {
-            my $idx = $1;
-
-            #返回的值是16进制字串，需要去掉开头的0x以及每两个字节插入':'
-            if ( $val !~ /\x00/ ) {
-                $val = substr( $val, 2 );
-                $val =~ s/..\K(?=.)/:/sg;
-            }
-            else {
-                $val = '';
-            }
-            my $seq = $portIdxToSeqMap->{$idx};
-
-            my $portInfo = {};
-            $portInfo->{INDEX} = $idx;
-            $portInfo->{SEQ}   = $seq;
-            $portInfo->{NAME}  = $portIdxToNameMap->{$idx};
-            $portInfo->{MAC}   = $val;
-
-            push( @ports, $portInfo );
-
-            $portIdxMap->{$idx} = $portInfo;
-            $portSeqMap->{$seq} = $portInfo;
-        }
-    }
-
+    my @ports = values(%$portsMap);
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
     $self->{portSeqMap}    = $portSeqMap;
@@ -385,11 +497,42 @@ sub _getLLDP {
 sub collect {
     my ($self) = @_;
 
+    my $brand = $self->_getBrand();
+    print("INFO: SWitch brand: $brand.\n");
+
+    my $pkgFile = __FILE__ ;
+    my $libPath = dirname($pkgFile);
+    my $switchIns;
+    my $switchClass = "Switch$brand";
+    if ( -e "$libPath/$switchClass.pm" ) {
+        print("INFO: Has defined class Switch$brand, try to load it.\n");
+        eval {
+            require "$switchClass.pm";
+            #our @ISA = ($switchClass);
+            $switchIns = $switchClass->new();
+
+            #调用对应品牌的pm进行采集前的oid的设置
+            $switchIns->before($self);
+        };
+        if ($@) {
+            print("WARN: Load $switchClass failed, $@");
+        }
+        else{
+            print("INFO: Class SWitch$brand loaded.\n");
+        }
+    }
+
     $self->_getScalar();
     $self->_getTable();
     $self->_getPorts();
     $self->_getMacTable();
     $self->_getLLDP();
+
+    if ( defined($switchIns) ) {
+
+        #调用对应品牌的pm进行采集后的数据处理，用户补充数据或者调整数据
+        $switchIns->after($self);
+    }
 
     return $self->{DATA};
 }

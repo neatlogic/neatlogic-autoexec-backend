@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+use Cwd qw(abs_path);
+use FindBin;
+use lib abs_path("$FindBin::Bin/lib");
+use lib abs_path("$FindBin::Bin/../lib");
+
+use strict;
+use Data::Dumper;
+use JSON;
+use Getopt::Long;
+#use AutoExecUtils;
+use SwitchSnmp;
+
+#./switchtest --node '{"host":"192.168.0.252","password":"public"}'
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    #AutoExecUtils::setEnv();
+
+    my ( $node, $defaultCommunity, $timeout );
+
+    GetOptions(
+        'node=s'      => \$node,
+        'community=s' => \$defaultCommunity,
+        'timeout=i'   => \$timeout
+    );
+
+    my $hasOptErr = 0;
+    if ( not defined($node) or $node eq '' ) {
+        print("ERROR: option --node not defined.\n");
+        $hasOptErr = 1;
+    }
+    else {
+        $node = from_json($node);
+    }
+
+    if ( not defined($timeout) ) {
+        $timeout = 10;
+    }
+
+    my $hostname  = $node->{host};
+    my $community = $node->{password};
+    if ( not defined($community) or $community eq '' ) {
+        $community = $defaultCommunity;
+    }
+    if ( not defined($community) or $community eq '' ) {
+        $community = 'public';
+    }
+
+    my $collector = SwitchSnmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
+    my $data = $collector->collect();
+
+    my $out = {};
+    $out->{DATA} = $data;
+    #AutoExecUtils::saveOutput($out);
+    print Dumper ($data);
+}
+
+main();
