@@ -70,7 +70,13 @@ sub new {
         #交换机邻居表
         LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',
         LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',
-        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9'
+        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',
+
+        #Cisco CDP 邻居表
+        CDP_REMOTE_SYSNAME  => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',
+        CDP_REMOTE_PORT     => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',
+        CDP_TYPE            => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',
+        CDP_IP              => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'
     };
 
     $self->{commonOidDef} = $commOidDef;
@@ -161,9 +167,11 @@ sub _getBrand {
     if ( not defined($brand) ) {
         print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
         $self->{DATA}->{BRAND} = undef;
+        $self->{DATA}->{APP_TYPE} = undef;
     }
     else {
         $self->{DATA}->{BRAND} = $brand;
+        $self->{DATA}->{APP_TYPE} = $brand;
     }
 
     return $brand;
@@ -358,7 +366,10 @@ sub _getPorts {
             if ( $oid =~ /(\d+)$/ ) {
                 my $idx      = $1;
                 my $portInfo = $portsMap->{$idx};
-
+                if ( not defined($portInfo) ){
+                    $portInfo = { INDEX => $idx, SEQ => undef };
+                }
+                
                 if ( $portInfoKey eq 'MAC' ) {
 
                     #返回的值是16进制字串，需要去掉开头的0x以及每两个字节插入':'
@@ -414,7 +425,7 @@ sub _getMacTable {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my $portToMacMap = {};
+    my @macTable = ();
     my $macTableInfo = $snmp->get_table( -baseoid => $commOidDef->{MAC_TABLE} );
     $self->_errCheck( $macTableInfo, $commOidDef->{MAC_TABLE} );
 
@@ -429,16 +440,11 @@ sub _getMacTable {
             my $portInfo = $portSeqMap->{$val};
             my $portDesc = $portInfo->{NAME};
 
-            my $portMacs = $portToMacMap->{$portDesc};
-            if ( not defined($portMacs) ) {
-                $portMacs = [];
-                $portToMacMap->{$portDesc} = $portMacs;
-            }
-            push( @$portMacs, $mac );
+            push(@macTable, {PORT=>$portDesc, REMOTE_MAC=>$mac});
         }
     }
 
-    $self->{DATA}->{MAC_TABLE} = $portToMacMap;
+    $self->{DATA}->{MAC_TABLE} = \@macTable;
 }
 
 sub _getLLDP {
@@ -494,6 +500,47 @@ sub _getLLDP {
     $self->{DATA}->{RELATIONS} = \@relations;
 }
 
+sub _getCDP {
+    my ($self)     = @_;
+    my $snmp       = $self->{snmpSession};
+    my $commOidDef = $self->{commonOidDef};
+
+
+    my $remoteSysInfoMap = {};
+    my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_SYSNAME} );
+    $self->_errCheck( $remoteSysNameInfo, $commOidDef->{CDP_REMOTE_SYSNAME} );
+
+    #iso.0.8802.1.1.2.1,4.1.1.9.569467705.48.1=STRING:"DCA_MAN_CSW_9850_02"
+    #iso.0.8802.1.1.2.1.4.1.1.9.1987299041.47.1-STRING:"DCA_MAN_CSW_9850_01"
+    while ( my ( $oid, $val ) = each(%$remoteSysNameInfo) ) {
+        if ( $oid =~ /(\d+\.\d+)$/ ) {
+            $remoteSysInfoMap->{$1} = $val;
+        }
+    }
+
+    my @relations;
+    my $remotePortInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_PORT} );
+    $self->_errCheck( $remotePortInfo, $commOidDef->{CDP_REMOTE_PORT} );
+
+    #iso.0.8802.1.1.2.1.4.1.1.7.569467705.47.1-STRING:"Ten-GigabitEtheznet1/1/6"
+    #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
+    while ( my ( $oid, $val ) = each(%$remotePortInfo) ) {
+        if ( $oid =~ /(\d+)\.(\d+)$/ ) {
+            my $portIdx = $1;
+            my $localPortInfo = $self->{portIdxMap}->{$portIdx};
+            my $relation = {};
+            $relation->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
+            $relation->{LOCAL_PORT} = $localPortInfo->{$portIdx};
+
+            $relation->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
+            $relation->{REMOTE_PORT} = $val;
+            push( @relations, $relation );
+        }
+    }
+
+    $self->{DATA}->{RELATIONS} = \@relations;
+}
+
 sub collect {
     my ($self) = @_;
 
@@ -526,7 +573,13 @@ sub collect {
     $self->_getTable();
     $self->_getPorts();
     $self->_getMacTable();
-    $self->_getLLDP();
+
+    if ($brand =~ /Cisco/i){
+        $self->_getCDP();
+    }
+    else{
+        $self->_getLLDP();
+    }
 
     if ( defined($switchIns) ) {
 
