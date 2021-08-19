@@ -479,7 +479,7 @@ sub _getLLDP {
         }
     }
 
-    my @relations;
+    my @neighbors;
     my $remotePortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_REMOTE_PORT} );
     $self->_errCheck( $remotePortInfo, $commOidDef->{LLDP_REMOTE_PORT} );
 
@@ -487,17 +487,17 @@ sub _getLLDP {
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
     while ( my ( $oid, $val ) = each(%$remotePortInfo) ) {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
-            my $relation = {};
-            $relation->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $relation->{LOCAL_PORT} = $portSeqToName->{$1};
+            my $neighbor = {};
+            $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
+            $neighbor->{LOCAL_PORT} = $portSeqToName->{$1};
 
-            $relation->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
-            $relation->{REMOTE_PORT} = $val;
-            push( @relations, $relation );
+            $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
+            $neighbor->{REMOTE_PORT} = $val;
+            push( @neighbors, $neighbor );
         }
     }
 
-    $self->{DATA}->{RELATIONS} = \@relations;
+    $self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub _getCDP {
@@ -518,7 +518,7 @@ sub _getCDP {
         }
     }
 
-    my @relations;
+    my @neighbors;
     my $remotePortInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_PORT} );
     $self->_errCheck( $remotePortInfo, $commOidDef->{CDP_REMOTE_PORT} );
 
@@ -528,17 +528,17 @@ sub _getCDP {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
             my $portIdx = $1;
             my $localPortInfo = $self->{portIdxMap}->{$portIdx};
-            my $relation = {};
-            $relation->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $relation->{LOCAL_PORT} = $localPortInfo->{$portIdx};
+            my $neighbor = {};
+            $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
+            $neighbor->{LOCAL_PORT} = $localPortInfo->{$portIdx};
 
-            $relation->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
-            $relation->{REMOTE_PORT} = $val;
-            push( @relations, $relation );
+            $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
+            $neighbor->{REMOTE_PORT} = $val;
+            push( @neighbors, $neighbor );
         }
     }
 
-    $self->{DATA}->{RELATIONS} = \@relations;
+    $self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub collect {
