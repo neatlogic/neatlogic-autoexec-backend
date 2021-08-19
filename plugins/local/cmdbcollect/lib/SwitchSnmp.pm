@@ -492,6 +492,8 @@ sub _getLLDP {
             $neighbor->{LOCAL_PORT} = $portSeqToName->{$1};
 
             $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
+            $val =~ s/Eth(?=\d)/Ethernet/g;
+            $val =~ s/Gig(?=\d)/GigabitEthernet/g;
             $neighbor->{REMOTE_PORT} = $val;
             push( @neighbors, $neighbor );
         }
