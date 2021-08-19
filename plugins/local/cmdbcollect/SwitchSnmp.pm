@@ -9,7 +9,7 @@ use Data::Dumper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{DATA} = { PK => ['SN'] };
+    $self->{DATA} = { PK => ['SN'], OBJECT_TYPE=>"SWITCH" };
     bless( $self, $class );
 
     my $version = $args{version};
