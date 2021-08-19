@@ -200,7 +200,9 @@ sub collectOsInfo {
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(.*)\s*$/i ) {
-            push( @dnsServers, $1 );
+            my $dns = {};
+            $dns->{NAME} = $1;
+            push( @dnsServers, $dns );
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
@@ -216,7 +218,9 @@ sub collectOsInfo {
     my @ntpServers   = ();
     foreach my $line (@$ntpInfoLines) {
         if ( $line =~ /^server\s+(\d+\.\d+\.\d+\.\d+)/i ) {
-            push( @ntpServers, $1 );
+            my $ntp = {};
+            $ntp->{NAME} = $1;
+            push( @ntpServers, $ntp );
         }
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
@@ -251,13 +255,17 @@ sub collectOsInfo {
         if ( $line =~ /^\s*inet\s+([\d\.]+)\s+netmask\s+/ ) {
             $ip = $1;
             if ( $ip !~ /^127\./ ) {
-                push( @ipv4, $ip );
+                my $nip = {};
+                $nip->{NAME} = $ip;
+                push( @ipv4, $nip );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/\d+/ ) {
             $ip = $1;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                push( @ipv6, $ip );
+                my $nip = {};
+                $nip->{NAME} = $ip;
+                push( @ipv6, $nip );
             }
         }
     }
@@ -297,7 +305,9 @@ sub collectOsInfo {
     my $patchInfoLines = $self->getCmdOutLines(q{instfix -i|grep ML | awk '{print $4}'});
     foreach my $patch (@$patchInfoLines) {
         $patch =~ s/^\s*|\s*$//g;
-        push( @patchs, $patch );
+        my $patchObj = {};
+        $patchObj->{NAME} = $patch;
+        push( @patchs, $patchObj );
     }
     $osInfo->{PATCHES_APPLIED} = \@patchs;
 
@@ -408,7 +418,7 @@ sub collectHostInfo {
 
     my $nicInfosMap = {};
     for ( my $i = 1 ; $i < $nicInfoLineCount ; $i++ ) {
-        my $line = $$nicInfoLines[$i];
+        my $line    = $$nicInfoLines[$i];
         my @nicSegs = split( /\s+/, $line );
 
         my $ethName = $nicSegs[0];
@@ -498,7 +508,7 @@ sub collect {
         return ( $hostInfo, $osInfo );
     }
     else {
-        return $osInfo;
+        return ( undef, $osInfo );
     }
 }
 

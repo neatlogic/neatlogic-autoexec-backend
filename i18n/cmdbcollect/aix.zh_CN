@@ -1,1 +1,273 @@
-[{"name": "IPV6_ADDRS", "desc": "ipv6_addrs", "type": "Array"}, {"name": "CPU_FREQUENCY", "desc": "cpu_frequency", "type": "String"}, {"name": "CPU_FIRMWARE_VERSION", "desc": "cpu_firmware_version", "type": "String"}, {"name": "OS_TYPE", "desc": "os_type", "type": "String"}, {"name": "MACHINE_ID", "desc": "machine_id", "type": "String"}, {"name": "BOARD_SERIAL", "desc": "board_serial", "type": "String"}, {"name": "NET_INTERFACES", "desc": "net_interfaces", "type": "JsonArray", "subset": [{"name": "NAME", "desc": "name", "type": "String"}, {"name": "STATUS", "desc": "status", "type": "String"}, {"name": "SPEED", "desc": "speed", "type": "String"}, {"name": "MAC", "desc": "mac", "type": "String"}]}, {"name": "PATCHES_APPLIED", "desc": "patches_applied", "type": "Array"}, {"name": "NTP_ENABLE", "desc": "ntp_enable", "type": "int"}, {"name": "SWAP_FREE", "desc": "swap_free", "type": "float"}, {"name": "CPU_CORES", "desc": "cpu_cores", "type": "String"}, {"name": "SSH_VERSION", "desc": "ssh_version", "type": "String"}, {"name": "USERS", "desc": "users", "type": "JsonArray", "subset": [{"name": "HOME", "desc": "home", "type": "String"}, {"name": "NAME", "desc": "name", "type": "String"}, {"name": "SHELL", "desc": "shell", "type": "String"}, {"name": "UID", "desc": "uid", "type": "String"}, {"name": "GID", "desc": "gid", "type": "String"}]}, {"name": "CPU_MODE", "desc": "cpu_mode", "type": "String"}, {"name": "DISKS", "desc": "disks", "type": "JsonArray", "subset": [{"name": "UNIT", "desc": "unit", "type": "String"}, {"name": "NAME", "desc": "name", "type": "String"}, {"name": "TYPE", "desc": "type", "type": "String"}, {"name": "CAPACITY", "desc": "capacity", "type": "int"}]}, {"name": "SYS_VENDOR", "desc": "sys_vendor", "type": "String"}, {"name": "OS_ID", "desc": "os_id", "type": "String"}, {"name": "NTP_SERVERS", "desc": "ntp_servers", "type": "Array"}, {"name": "NFS_MOUNTED", "desc": "nfs_mounted", "type": "int"}, {"name": "OPENSSL_VERSION", "desc": "openssl_version", "type": "String"}, {"name": "MAX_USER_PROCESS_COUNT", "desc": "max_user_process_count", "type": "int"}, {"name": "MGMT_IP", "desc": "mgmt_ip", "type": "String"}, {"name": "CPU_MICROCODE", "desc": "cpu_microcode", "type": "String"}, {"name": "NIC_BOND", "desc": "nic_bond", "type": "int"}, {"name": "CPU_ARCH", "desc": "cpu_arch", "type": "String"}, {"name": "MGMT_PORT", "desc": "mgmt_port", "type": "int"}, {"name": "CPU_BITS", "desc": "cpu_bits", "type": "int"}, {"name": "SWAP_TOTAL", "desc": "swap_total", "type": "int"}, {"name": "CPU_VERSION", "desc": "cpu_version", "type": "String"}, {"name": "KERNEL_VERSION", "desc": "kernel_version", "type": "String"}, {"name": "PK", "desc": "pk", "type": "Array"}, {"name": "DNS_SERVERS", "desc": "dns_servers", "type": "Array"}, {"name": "HOSTNAME", "desc": "hostname", "type": "String"}, {"name": "AUTO_RESTART", "desc": "auto_restart", "type": "String"}, {"name": "CPU_MODEL_NAME", "desc": "cpu_model_name", "type": "String"}, {"name": "MEM_TOTAL", "desc": "mem_total", "type": "int"}, {"name": "MOUNT_POINTS", "desc": "mount_points", "type": "JsonArray", "subset": [{"name": "USED", "desc": "used", "type": "float"}, {"name": "AVAILABLE", "desc": "available", "type": "float"}, {"name": "DEVICE", "desc": "device", "type": "String"}, {"name": "MOUNT_POINT", "desc": "mount_point", "type": "String"}, {"name": "USED%", "desc": "used%", "type": "int"}, {"name": "FS_TYPE", "desc": "fs_type", "type": "String"}, {"name": "UNIT", "desc": "unit", "type": "String"}, {"name": "INODE_USED%", "desc": "inode_used%", "type": "int"}, {"name": "CAPACITY", "desc": "capacity", "type": "int"}]}, {"name": "IP_ADDRS", "desc": "ip_addrs", "type": "Array"}, {"name": "VERSION", "desc": "version", "type": "String"}, {"name": "MAX_OPEN_FILES", "desc": "max_open_files", "type": "int"}, {"name": "OBJECT_TYPE", "desc": "object_type", "type": "String"}]
+[{
+	"name": "IPV6_ADDRS",
+	"desc": "ipv6地址",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}]
+}, {
+	"name": "CPU_FREQUENCY",
+	"desc": "cpu频率",
+	"type": "String"
+}, {
+	"name": "CPU_FIRMWARE_VERSION",
+	"desc": "cpu版本",
+	"type": "String"
+}, {
+	"name": "OS_TYPE",
+	"desc": "类型",
+	"type": "String"
+}, {
+	"name": "MACHINE_ID",
+	"desc": "机器id",
+	"type": "String"
+}, {
+	"name": "BOARD_SERIAL",
+	"desc": "序列号",
+	"type": "String"
+}, {
+	"name": "NET_INTERFACES",
+	"desc": "网卡",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "STATUS",
+		"desc": "状态",
+		"type": "String"
+	}, {
+		"name": "SPEED",
+		"desc": "速度",
+		"type": "String"
+	}, {
+		"name": "MAC",
+		"desc": "mac",
+		"type": "String"
+	}]
+}, {
+	"name": "PATCHES_APPLIED",
+	"desc": "补丁",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}]
+}, {
+	"name": "NTP_ENABLE",
+	"desc": "是否开启ntp服务",
+	"type": "int"
+}, {
+	"name": "SWAP_FREE",
+	"desc": "可用swap大小",
+	"type": "float"
+}, {
+	"name": "CPU_CORES",
+	"desc": "cpu核数",
+	"type": "String"
+}, {
+	"name": "SSH_VERSION",
+	"desc": "ssh版本",
+	"type": "String"
+}, {
+	"name": "USERS",
+	"desc": "用户",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "HOME",
+		"desc": "家目录",
+		"type": "String"
+	}, {
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "SHELL",
+		"desc": "shell",
+		"type": "String"
+	}, {
+		"name": "UID",
+		"desc": "用户id",
+		"type": "String"
+	}, {
+		"name": "GID",
+		"desc": "组id",
+		"type": "String"
+	}]
+}, {
+	"name": "CPU_MODE",
+	"desc": "cpu型号",
+	"type": "String"
+}, {
+	"name": "DISKS",
+	"desc": "磁盘",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "UNIT",
+		"desc": "磁盘单位",
+		"type": "String"
+	}, {
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "TYPE",
+		"desc": "类型",
+		"type": "String"
+	}, {
+		"name": "CAPACITY",
+		"desc": "大小",
+		"type": "int"
+	}]
+}, {
+	"name": "SYS_VENDOR",
+	"desc": "厂商",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "NTP_SERVERS",
+	"desc": "ntp服务",
+	"type": "Array"
+}, {
+	"name": "NFS_MOUNTED",
+	"desc": "是否挂载nfs",
+	"type": "int"
+}, {
+	"name": "OPENSSL_VERSION",
+	"desc": "openssl版本",
+	"type": "String"
+}, {
+	"name": "MAX_USER_PROCESS_COUNT",
+	"desc": "用户最大进程数",
+	"type": "int"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理ip",
+	"type": "String"
+}, {
+	"name": "CPU_MICROCODE",
+	"desc": "cpu微码",
+	"type": "String"
+}, {
+	"name": "NIC_BOND",
+	"desc": "是否有网卡bond",
+	"type": "int"
+}, {
+	"name": "CPU_ARCH",
+	"desc": "cpu arch",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "CPU_BITS",
+	"desc": "cpu位数",
+	"type": "int"
+}, {
+	"name": "SWAP_TOTAL",
+	"desc": "swap大小",
+	"type": "int"
+}, {
+	"name": "CPU_VERSION",
+	"desc": "cpu版本",
+	"type": "String"
+}, {
+	"name": "KERNEL_VERSION",
+	"desc": "内核版本",
+	"type": "String"
+}, {
+	"name": "DNS_SERVERS",
+	"desc": "dns servers",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "name",
+		"type": "String"
+	}]
+}, {
+	"name": "HOSTNAME",
+	"desc": "主机名",
+	"type": "String"
+}, {
+	"name": "AUTO_RESTART",
+	"desc": "是否配置自动重启",
+	"type": "String"
+}, {
+	"name": "CPU_MODEL_NAME",
+	"desc": "cpu型号名称",
+	"type": "String"
+}, {
+	"name": "MEM_TOTAL",
+	"desc": "内存",
+	"type": "int"
+}, {
+	"name": "MOUNT_POINTS",
+	"desc": "挂载盘",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "USED",
+		"desc": "已使用",
+		"type": "float"
+	}, {
+		"name": "AVAILABLE",
+		"desc": "空闲",
+		"type": "float"
+	}, {
+		"name": "DEVICE",
+		"desc": "设备",
+		"type": "String"
+	}, {
+		"name": "MOUNT_POINT",
+		"desc": "挂载点",
+		"type": "String"
+	}, {
+		"name": "USED%",
+		"desc": "使用率%",
+		"type": "int"
+	}, {
+		"name": "FS_TYPE",
+		"desc": "类型",
+		"type": "String"
+	}, {
+		"name": "UNIT",
+		"desc": "单位",
+		"type": "String"
+	}, {
+		"name": "INODE_USED%",
+		"desc": "inode使用率%",
+		"type": "int"
+	}, {
+		"name": "CAPACITY",
+		"desc": "总大小",
+		"type": "int"
+	}]
+}, {
+	"name": "IP_ADDRS",
+	"desc": "ip地址",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}]
+}, {
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "MAX_OPEN_FILES",
+	"desc": "最大打开文件数",
+	"type": "int"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}]

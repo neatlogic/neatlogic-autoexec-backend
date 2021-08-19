@@ -84,14 +84,34 @@
 				}
 
 			]
+		},{
+			"name": "CONTAIN_HOST",
+			"desc": "contain host",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UUID",
+					"desc": "uuid",
+					"type": "String"
+				}
+			]
+		}, {
+			"name": "CONTAIN_VMS",
+			"desc": "contain virtual system",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "MGMT_IP",
+					"desc": "vcenter IP",
+					"type": "String"
+				},{
+					"name": "VM_ID",
+					"desc": "virtual system id",
+					"type": "String"
+				}
+			]
 		}]
 	}]
 }, {
 	"name": "OBJECT_TYPE",
 	"desc": "object type",
 	"type": "String"
-}, {
-	"name": "PK",
-	"desc": "pk",
-	"type": "Array"
 }]

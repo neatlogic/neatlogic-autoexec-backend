@@ -31,10 +31,6 @@
 	"desc": "monitor port",
 	"type": "String"
 }, {
-	"name": "PK",
-	"desc": "pk",
-	"type": "Array"
-}, {
 	"name": "PREFIX",
 	"desc": "prefix",
 	"type": "String"

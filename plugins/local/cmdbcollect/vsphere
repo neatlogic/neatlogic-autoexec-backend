@@ -63,7 +63,7 @@ if __name__ == "__main__":
                     #保存和主机采集的PK一致
                     host['PK'] = ["BOARD_SERIAL"]
                     data.append(host)
-                    rel_host.append(host['UUID'])
+                    rel_host.append({'UUID':host['UUID']})
             cluster['CONTAIN_HOST'] = rel_host 
             del cluster['HOST']
             
@@ -83,7 +83,7 @@ if __name__ == "__main__":
                         #保持和主机采集的PK一致
                         vm['PK'] = ["MGMT_IP"]
                         data.append(vm)
-                        rel_vms.append(result['MGMT_IP']  + ":"  +vm['VM_ID'])
+                        rel_vms.append({'MGMT_IP':result['MGMT_IP'] ,'VM_ID': vm['VM_ID']})
   
             cluster['CONTAIN_VMS'] = rel_vms
             del cluster['VM']

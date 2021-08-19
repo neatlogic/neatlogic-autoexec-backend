@@ -1,30 +1,18 @@
 [{
-	"name": "BIND_IP",
-	"desc": "bind ip",
+	"name": "SERVER_NAME",
+	"desc": "server name",
 	"type": "String"
 }, {
 	"name": "INSTALL_PATH",
 	"desc": "install path",
 	"type": "String"
 }, {
-	"name": "SERVER_NAME",
-	"desc": "server name",
-	"type": "String"
-}, {
 	"name": "CONFIG_FILE",
-	"desc": "config file path",
+	"desc": "config file",
 	"type": "String"
 }, {
 	"name": "MGMT_IP",
 	"desc": "mgmt ip",
-	"type": "String"
-}, {
-	"name": "CHARACTERSET",
-	"desc": "characterset",
-	"type": "String"
-}, {
-	"name": "DBPATH",
-	"desc": "db store file path",
 	"type": "String"
 }, {
 	"name": "ADMIN_SSL_PORT",
@@ -35,8 +23,12 @@
 	"desc": "is cluster",
 	"type": "int"
 }, {
-	"name": "BIN_PATH",
-	"desc": "bin path",
+	"name": "MULTIPLEXING_API",
+	"desc": "multiplexing api",
+	"type": "String"
+}, {
+	"name": "EXECUTABLE",
+	"desc": "executable",
 	"type": "String"
 }, {
 	"name": "CLUSTER_MODE",
@@ -46,29 +38,6 @@
 	"name": "MGMT_PORT",
 	"desc": "mgmt port",
 	"type": "int"
-}, {
-	"name": "DB_INS",
-	"desc": "dbname list",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
-		"type": "String"
-	}, {
-		"name": "USERS",
-		"desc": "users",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "NAME",
-			"desc": "name",
-			"type": "String"
-		}]
-	}]
-
-}, {
-	"name": "LOGPATH",
-	"desc": "logpath",
-	"type": "String"
 }, {
 	"name": "CLUSTER_ROLE",
 	"desc": "cluster role",
@@ -86,14 +55,6 @@
 	"desc": "admin port",
 	"type": "String"
 }, {
-	"name": "FORK",
-	"desc": "fork",
-	"type": "String"
-}, {
-	"name": "LOGAPPEND",
-	"desc": "logappend",
-	"type": "String"
-}, {
 	"name": "APP_TYPE",
 	"desc": "app type",
 	"type": "String"
@@ -102,15 +63,19 @@
 	"desc": "os id",
 	"type": "String"
 }, {
-	"name": "SSL_PORT",
-	"desc": "ssl port",
-	"type": "String"
-}, {
 	"name": "VERSION",
 	"desc": "version",
 	"type": "String"
 }, {
+	"name": "SSL_PORT",
+	"desc": "ssl port",
+	"type": "String"
+}, {
+	"name": "RUN_ID",
+	"desc": "run id",
+	"type": "String"
+}, {
 	"name": "OBJECT_TYPE",
-	"desc": "object type",
+	"desc": "belong type",
 	"type": "String"
 }]

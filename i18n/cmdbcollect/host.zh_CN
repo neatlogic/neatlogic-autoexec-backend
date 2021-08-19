@@ -1,1 +1,152 @@
-[{"name": "DISKS", "desc": "disks", "type": "JsonArray", "subset": [{"name": "UNIT", "desc": "unit", "type": "String"}, {"name": "NAME", "desc": "name", "type": "String"}, {"name": "TYPE", "desc": "type", "type": "String"}, {"name": "CAPACITY", "desc": "capacity", "type": "float"}]}, {"name": "IS_VIRTUAL", "desc": "is_virtual", "type": "int"}, {"name": "PK", "desc": "pk", "type": "Array"}, {"name": "MGMT_PORT", "desc": "mgmt_port", "type": "int"}, {"name": "MGMT_IP", "desc": "mgmt_ip", "type": "String"}, {"name": "OS_ID", "desc": "os_id", "type": "String"}, {"name": "OBJECT_TYPE", "desc": "object_type", "type": "String"}]
+[{
+	"name": "MGMT_IP",
+	"desc": "管理ip",
+	"type": "String"
+}, {
+	"name": "CPU_MICROCODE",
+	"desc": "cpu微码",
+	"type": "String"
+}, {
+	"name": "CPU_FREQUENCY",
+	"desc": "cpu频率",
+	"type": "String"
+}, {
+	"name": "CPU_COUNT",
+	"desc": "cpu数量",
+	"type": "int"
+}, {
+	"name": "MEM_MAXIMUM_CAPACITY",
+	"desc": "内存",
+	"type": "int"
+}, {
+	"name": "CPU_ARCH",
+	"desc": "cpu架构",
+	"type": "String"
+}, {
+	"name": "POWER CORDS_COUNT",
+	"desc": "电源数量",
+	"type": "String"
+}, {
+	"name": "MACHINE_ID",
+	"desc": "机器id",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "BOARD_SERIAL",
+	"desc": "序列号",
+	"type": "String"
+}, {
+	"name": "PRODUCT_NAME",
+	"desc": "厂商名称",
+	"type": "String"
+}, {
+	"name": "NET_INTERFACES",
+	"desc": "网卡",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "LINK_STATE",
+		"desc": "接线状态",
+		"type": "String"
+	}, {
+		"name": "UNIT",
+		"desc": "单位",
+		"type": "String"
+	}, {
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "SPEED",
+		"desc": "速率",
+		"type": "int"
+	}, {
+		"name": "MAC",
+		"desc": "mac",
+		"type": "String"
+	}]
+}, {
+	"name": "CPU_CORES",
+	"desc": "cpu核数",
+	"type": "int"
+}, {
+	"name": "BIOS_VERSION",
+	"desc": "bios版本",
+	"type": "String"
+}, {
+	"name": "CPU_MODEL_NAME",
+	"desc": "cpu型号",
+	"type": "String"
+}, {
+	"name": "MEM_SPEED",
+	"desc": "内存速率",
+	"type": "String"
+}, {
+	"name": "MEM_SLOTS",
+	"desc": "内存槽量",
+	"type": "int"
+}, {
+	"name": "HBA_INTERFACES",
+	"desc": "hba卡",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "WWN",
+		"desc": "wwn",
+		"type": "String"
+	}, {
+		"name": "STATE",
+		"desc": "状态",
+		"type": "String"
+	}, {
+		"name": "SPEED",
+		"desc": "速率",
+		"type": "int"
+	}]
+}, {
+	"name": "DISKS",
+	"desc": "磁盘",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "UNIT",
+		"desc": "单位",
+		"type": "String"
+	}, {
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "TYPE",
+		"desc": "类型",
+		"type": "String"
+	}, {
+		"name": "CAPACITY",
+		"desc": "容量",
+		"type": "float"
+	}]
+}, {
+	"name": "MANUFACTURER",
+	"desc": "制造商",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}, {
+	"name": "UUID",
+	"desc": "虚拟化uuid",
+	"type": "String"
+}, {
+	"name": "ESXI_IP",
+	"desc": "ESXI IP",
+	"type": "String"
+}]

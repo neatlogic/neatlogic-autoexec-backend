@@ -50,6 +50,7 @@ if __name__ == "__main__":
     for dfile in dirs :
         info = dfile.split('.')
         if (info[1] == lang) :
+            print("INFO::import",dfile ,"start.")
             field = _readJson(path + "/" + dfile)
             optType = "collect_"+info[0].strip()
             uniqueExp = [] 
@@ -67,5 +68,6 @@ if __name__ == "__main__":
                 cmdbUtils.update(table, dbUnique, data)
             #添加索引
             cmdbUtils.createIndex(table , pk)
+            print("INFO::import" , dfile , "end.")
     #关闭连接
     cmdbUtils.close()

@@ -1,0 +1,49 @@
+[{
+	"name": "INSTALL_PATH",
+	"desc": "安装路径",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理ip",
+	"type": "String"
+}, {
+	"name": "BIN_PATH",
+	"desc": "bin路径",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "CONFIG_PATH",
+	"desc": "配置文件路径",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "端口",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "监控端口",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "管理端口",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "应用类型",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "ssl端口",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}]

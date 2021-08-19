@@ -1,0 +1,49 @@
+[{
+	"name": "INSTALL_PATH",
+	"desc": "install path",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "mgmt ip",
+	"type": "String"
+}, {
+	"name": "BIN_PATH",
+	"desc": "bin path",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "mgmt port",
+	"type": "int"
+}, {
+	"name": "CONFIG_PATH",
+	"desc": "config path",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "port",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "monitor port",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "admin port",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "app type",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "ssl port",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "os id",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "belong type",
+	"type": "String"
+}]
