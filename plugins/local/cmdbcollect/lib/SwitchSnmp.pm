@@ -39,13 +39,13 @@ sub new {
 
     #单值定义
     my $scalarOidDef = {
-        DEV_NAME    => '1.3.6.1.2.1.1.5.0',                                                        #sysName
-        UPTIME      => '1.3.6.1.2.1.1.3.0',                                                        #sysUpTime
-        VENDOR      => '1.3.6.1.2.1.1.4.0',                                                        #sysContact
-        MODEL       => '1.3.6.1.2.1.1.1.0',                                                        #sysDescr
-        IOS_INFO    => '1.3.6.1.2.1.1.1.0',                                                        #sysDescr
-        SN          => [ '1.3.6.1.4.1.2011.10.2.6.1.2.1.1.2.0', '1.3.6.1.2.1.47.1.1.1.1.11.1' ],
-        PORTS_COUNT => '1.3.6.1.2.1.2.1.0'                                                         #ifNumber
+        DEV_NAME    => '1.3.6.1.2.1.1.5.0',               #sysName
+        UPTIME      => '1.3.6.1.2.1.1.3.0',               #sysUpTime
+        VENDOR      => '1.3.6.1.2.1.1.4.0',               #sysContact
+        MODEL       => '1.3.6.1.2.1.1.1.0',               #sysDescr
+        IOS_INFO    => '1.3.6.1.2.1.1.1.0',               #sysDescr
+        SN          => ['1.3.6.1.2.1.47.1.1.1.1.11.1'],
+        PORTS_COUNT => '1.3.6.1.2.1.2.1.0'                #ifNumber
     };
 
     #列表值定义
