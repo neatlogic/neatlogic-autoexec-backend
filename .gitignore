@@ -2,6 +2,7 @@
 logs/*
 data/*
 tmp/*
+plib/*
 .vscode/*
 .DS_Store
 **/.DS_Store
