@@ -23,6 +23,31 @@ sub _errCheck {
     return $hasError;
 }
 
+sub hex2ip {
+  my ($self, $hexIp) = @_;
+
+  my $ip;
+  #每两个字符作为一个数组元素
+  my @array = ( $hexIp =~ m/../g );
+  if ($#array >= 3) {
+      if (lc($array[0]) eq '0x'){
+          #去掉开头的0x
+          shift(@array);
+      }
+
+      if ($#array == 3){
+          #4个字节，IPV4
+          @array = map {hex($_)} @array;
+          $ip = join('.', @array);
+      }
+      else{
+          #IPV6
+          $ip = join(':', @array);
+      }
+  }
+  return $ip;
+}
+
 #get simple oid value
 sub getScalar {
     my ( $self, $snmp, $oidDefMap ) = @_;

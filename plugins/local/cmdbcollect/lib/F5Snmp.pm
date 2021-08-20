@@ -8,12 +8,15 @@ use strict;
 use File::Basename;
 use JSON;
 use Net::SNMP qw(:snmp);
+use SnmpHelper;
 use Data::Dumper;
 
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
     bless( $self, $class );
+
+    $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
         DEV_NAME => '1.3.6.1.2.1.1.5',
@@ -24,7 +27,7 @@ sub new {
         VERSION  => '1.3.6.1.4.1.3375.2.1.4.2'
     };
 
-    my $tableOidDef = {
+    my $vsOidDef = {
         VS => {
             NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',
             IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',
@@ -42,11 +45,18 @@ sub new {
             POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1',
             IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',
             PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4'
+        },
+    };
+
+    my $snatOidDef = {
+        SNAT_IP => {
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'
         }
     };
 
     $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tableOidDef}  = $tableOidDef;
+    $self->{vsOidDef}  = $vsOidDef;
+    $self->{snatOidDef} = $snatOidDef;
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -101,20 +111,24 @@ sub _getScalar {
     my $snmpHelper = $self->{snmpHelper};
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
+    #IP格式转换，从0x0A064156转换为可读格式
+    $scalarData->{IP} = $snmpHelper->hex2ip($scalarData->{IP});
+
     return $scalarData;
 }
 
 sub _getVS {
     my ($self)      = @_;
     my $snmp        = $self->{snmpSession};
-    my $tableOidDef = $self->{tableOidDef};
+    my $vsOidDef = $self->{vsOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my $tableData = $snmpHelper->getTable( $snmp, $vsOidDef );
 
     my $vsData     = $tableData->{VS};
     my $poolData   = $tableData->{POOL};
     my $memberData = $tableData->{MEMBER};
+    my $snatIpData = $tableData->{SNAT_IP};
 
     my $poolMap = {};
     foreach my $poolInfo (@$poolData) {
@@ -128,15 +142,37 @@ sub _getVS {
             $members = [];
             $poolInfo->{MEMBERS} = $members;
         }
+        $memberInfo->{IP} = $snmpHelper->hex2ip($memberInfo->{IP});
         push( @$members, $memberInfo );
     }
 
-    my @vsArray = ();
     foreach my $vsInfo (@$vsData) {
+        $vsInfo->{IP} = $snmpHelper->hex2ip($vsInfo->{IP});
         $vsInfo->{POOL} = $poolMap->{ $vsInfo->{POOL_NAME} };
     }
 
+    foreach my $snatIpInfo (@$snatIpData){
+        $snatIpInfo->{IP} = $snmpHelper->hex2ip($snatIpInfo->{IP});
+    }
+
     return $vsData;
+}
+
+sub _getSnatIp {
+    my ($self)      = @_;
+    my $snmp        = $self->{snmpSession};
+    my $snatOidDef = $self->{snatOidDef};
+
+    my $snmpHelper = $self->{snmpHelper};
+    my $tableData = $snmpHelper->getTable( $snmp, $snatOidDef );
+
+    my $snatIpData = $tableData->{SNAT_IP};
+
+    foreach my $snatIpInfo (@$snatIpData){
+        $snatIpInfo->{IP} = $snmpHelper->hex2ip($snatIpInfo->{IP});
+    }
+
+    return $snatIpData;
 }
 
 sub collect {
@@ -148,6 +184,9 @@ sub collect {
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
+
+    my $snatArray = $self->_getSnatIp();
+    $devInfo->{SNAT_IPS} = $snatArray; 
 
     return $devInfo;
 }
