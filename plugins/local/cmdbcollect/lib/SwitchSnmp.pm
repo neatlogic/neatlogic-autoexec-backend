@@ -553,7 +553,7 @@ sub collect {
     my $libPath = dirname($pkgFile);
     my $switchIns;
     my $switchClass = "Switch$brand";
-    if ( -e "$libPath/$switchClass.pm" ) {
+    if ( -e "$libPath/$switchClass.pm" or -e "$FindBin::Bin/$switchClass.pm" ) {
         print("INFO: Has defined class Switch$brand, try to load it.\n");
         eval {
             require "$switchClass.pm";
