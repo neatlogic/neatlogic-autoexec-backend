@@ -19,44 +19,48 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5',
-        SN       => '1.3.6.1.4.1.3375.2.1.3.3.3',
-        IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',
-        MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2',
-        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1',
-        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2'
+        DEV_NAME => '1.3.6.1.2.1.1.5',                     #sysName
+        SN       => '1.3.6.1.4.1.3375.2.1.3.3.3.0',        #sysGeneralChassisSerialNum
+        IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',    #sysAdminIpAddr
+        MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2.0',        #sysPlatformInfoMarketingName
+                                                           #MODEL   => '1.3.6.1.4.1.3375.2.1.3.5.1', #sysPlatformInfoName
+        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',          #sysProductName
+        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2.0'           #sysProductVersion
     };
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',
-            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',
-            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'
+            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',    #ltmVirtualServName
+            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',    #ltmVirtualServAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',    #ltmVirtualServPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'    #ltmVirtualServDefaultPool
         },
 
         POOL => {
-            NAME       => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',
-            MON_METHOD => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',
-            LB_METHOD  => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'
+            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',     #ltmPoolName
+            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',    #ltmPoolMonitorRule
+            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'      #ltmPoolLbMode
         },
 
         MEMBER => {
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1',
-            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',
-            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4'
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1',        #ltmPoolMemberPoolName
+            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',        #ltmPoolMemberAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4'         #ltmPoolMemberPort
         },
     };
 
     my $snatOidDef = {
         SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'
-        }
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                #ltmTransAddrAddr
+            }
+
+            #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName
+            #1.3.6.1.4.1.3375.2.2.9.1.2.1.5  ltmSnatTransAddr
     };
 
     $self->{scalarOidDef} = $scalarOidDef;
-    $self->{vsOidDef}  = $vsOidDef;
-    $self->{snatOidDef} = $snatOidDef;
+    $self->{vsOidDef}     = $vsOidDef;
+    $self->{snatOidDef}   = $snatOidDef;
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -112,14 +116,14 @@ sub _getScalar {
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
     #IP格式转换，从0x0A064156转换为可读格式
-    $scalarData->{IP} = $snmpHelper->hex2ip($scalarData->{IP});
+    $scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
 
     return $scalarData;
 }
 
 sub _getVS {
-    my ($self)      = @_;
-    my $snmp        = $self->{snmpSession};
+    my ($self)   = @_;
+    my $snmp     = $self->{snmpSession};
     my $vsOidDef = $self->{vsOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
@@ -142,25 +146,25 @@ sub _getVS {
             $members = [];
             $poolInfo->{MEMBERS} = $members;
         }
-        $memberInfo->{IP} = $snmpHelper->hex2ip($memberInfo->{IP});
+        $memberInfo->{IP} = $snmpHelper->hex2ip( $memberInfo->{IP} );
         push( @$members, $memberInfo );
     }
 
     foreach my $vsInfo (@$vsData) {
-        $vsInfo->{IP} = $snmpHelper->hex2ip($vsInfo->{IP});
+        $vsInfo->{IP}   = $snmpHelper->hex2ip( $vsInfo->{IP} );
         $vsInfo->{POOL} = $poolMap->{ $vsInfo->{POOL_NAME} };
     }
 
-    foreach my $snatIpInfo (@$snatIpData){
-        $snatIpInfo->{IP} = $snmpHelper->hex2ip($snatIpInfo->{IP});
+    foreach my $snatIpInfo (@$snatIpData) {
+        $snatIpInfo->{IP} = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
     }
 
     return $vsData;
 }
 
 sub _getSnatIp {
-    my ($self)      = @_;
-    my $snmp        = $self->{snmpSession};
+    my ($self)     = @_;
+    my $snmp       = $self->{snmpSession};
     my $snatOidDef = $self->{snatOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
@@ -168,8 +172,8 @@ sub _getSnatIp {
 
     my $snatIpData = $tableData->{SNAT_IP};
 
-    foreach my $snatIpInfo (@$snatIpData){
-        $snatIpInfo->{IP} = $snmpHelper->hex2ip($snatIpInfo->{IP});
+    foreach my $snatIpInfo (@$snatIpData) {
+        $snatIpInfo->{IP} = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
     }
 
     return $snatIpData;
@@ -185,8 +189,8 @@ sub collect {
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
 
-    my $snatArray = $self->_getSnatIp();
-    $devInfo->{SNAT_IPS} = $snatArray; 
+    #my $snatArray = $self->_getSnatIp();
+    #$devInfo->{SNAT_IPS} = $snatArray;
 
     return $devInfo;
 }
