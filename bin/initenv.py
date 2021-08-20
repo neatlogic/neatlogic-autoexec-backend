@@ -8,6 +8,7 @@ import sys
 binPaths = os.path.split(os.path.realpath(__file__))
 homePath = os.path.realpath(binPaths[0]+'/..')
 sys.path.append(homePath + '/lib')
+sys.path.append(homePath + '/plib')
 sys.path.append(homePath + '/plugins/local/bin')
 sys.path.append(homePath + '/plugins/local/lib')
 sys.path.append(homePath + '/plugins/local/tools')
