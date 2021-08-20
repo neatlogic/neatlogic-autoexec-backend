@@ -1,7 +1,6 @@
 #!/bin/bash
-SCRIPT=$(readlink -f "$0")
-SCRIPT_DIR=$(dirname "$SCRIPT")
-AUTOEXEC_HOME=$(dirname "$SCRIPT_DIR")
+SCRIPT_DIR=$(dirname "$0")
+AUTOEXEC_HOME="$SCRIPT_DIR/.."
 
 pip3 install virtualenv -t $AUTOEXEC_HOME/plib
 pip3 install pymongo -t $AUTOEXEC_HOME/plib
