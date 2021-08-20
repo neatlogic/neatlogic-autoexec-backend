@@ -4,18 +4,18 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
 
+from pyVim import connect
+import traceback
+import atexit
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
-import atexit
-import traceback
-from pyVim import connect
 
 
-class vsphereQuery:
+class VsphereQuery:
 
-    def __init__(self , ip , user , passwd , port):
+    def __init__(self, ip, user, passwd, port):
         try:
-            if port == None :
+            if port == None:
                 port = 443
             service_instance = connect.SmartConnect(host=ip,  user=user, pwd=passwd,  port=port)
         except IOError as e:
@@ -30,10 +30,10 @@ class vsphereQuery:
         self.user = user
         self.port = port
 
-    def get_datastore(self,cluster):
+    def get_datastore(self, cluster):
         data_list = []
         datastore = cluster.datastore
-        if datastore != None :
+        if datastore != None:
             for dst in datastore:
                 ins = {}
                 name = dst.name
@@ -41,8 +41,8 @@ class vsphereQuery:
                 summary = dst.summary
                 ins['NAME'] = name
                 ins['MOID'] = moid
-                available = round(summary.freeSpace/1024/1204/1024,2)
-                capacity =  round(summary.capacity/1024/1024/1024,2)
+                available = round(summary.freeSpace/1024/1204/1024, 2)
+                capacity = round(summary.capacity/1024/1024/1024, 2)
                 ins['AVAILABLE'] = available
                 ins['CAPACITY'] = capacity
                 ins['TYPE'] = summary.type
@@ -51,10 +51,10 @@ class vsphereQuery:
                 data_list.append(ins)
         return data_list
 
-    def get_network(self,cluster):
+    def get_network(self, cluster):
         data_list = []
         network = cluster.network
-        if network != None :
+        if network != None:
             for nt in network:
                 ins = {}
                 name = nt.name
@@ -64,7 +64,7 @@ class vsphereQuery:
                 data_list.append(ins)
         return data_list
 
-    def get_hardware(self,host):
+    def get_hardware(self, host):
         hardware = {}
         ins = {}
         name = host.name
@@ -73,10 +73,10 @@ class vsphereQuery:
         ins['MOID'] = moid
         hardware = host.hardware
         systemInfo = hardware.systemInfo
-        vendor =  systemInfo.vendor
-        model =  systemInfo.model
-        uuid =  systemInfo.uuid
-        serialNumber =  systemInfo.serialNumber
+        vendor = systemInfo.vendor
+        model = systemInfo.model
+        uuid = systemInfo.uuid
+        serialNumber = systemInfo.serialNumber
         ins['MANUFACTURER'] = vendor
         ins['MODEL'] = model
         ins['UUID'] = uuid
@@ -87,7 +87,7 @@ class vsphereQuery:
         numCpuPackages = cpuInfo.numCpuPackages
         hz = cpuInfo.hz
         cpuPkg = hardware.cpuPkg
-        if cpuPkg != None :
+        if cpuPkg != None:
             CpuPackage = cpuPkg[0]
             cpuVendor = CpuPackage.vendor
             cpuDescription = CpuPackage.description
@@ -96,11 +96,11 @@ class vsphereQuery:
         ins['CPU_CORES'] = numCpuCores
         ins['CPU_THREADS'] = numCpuThreads
         ins['CPU_PACKAGES'] = numCpuPackages
-        ins['CPU_SPEED'] = round(hz/1000000000,0)
+        ins['CPU_SPEED'] = round(hz/1000000000, 0)
         #ins['CPU_UNIT'] = 'GHZ'
 
         memorySize = hardware.memorySize
-        ins['MEM_MAXIMUM_CAPACITY'] = round(memorySize/1024/1024/1024,0)
+        ins['MEM_MAXIMUM_CAPACITY'] = round(memorySize/1024/1024/1024, 0)
         #ins['MEMORY_UNIT'] = 'GB'
 
         biosInfo = hardware.biosInfo
@@ -119,8 +119,8 @@ class vsphereQuery:
 
         data_list = []
         net_list = host.config.network.pnic
-        if net_list != None :
-            for net in net_list :
+        if net_list != None:
+            for net in net_list:
                 net_ins = {}
                 net_ins['NAME'] = net.device
                 #net_ins['DRIVER'] = net.driver
@@ -131,30 +131,30 @@ class vsphereQuery:
         ins['NET_INTERFACES'] = data_list
         return ins
 
-    def get_hostlist(self,cluster):
+    def get_hostlist(self, cluster):
         data_list = []
         host_list = cluster.host
-        if host_list != None :
+        if host_list != None:
             for host in host_list:
                 data_list.append(self.get_hardware(host))
         return data_list
 
-    def str_format(self,str):
-        if str == None :
+    def str_format(self, str):
+        if str == None:
             return ''
-        else :
+        else:
             return str
 
-    def get_vm(self,host , vm) :
+    def get_vm(self, host, vm):
         ins = {}
         os_id = vm._moId
         os_name = vm.name
         guest = vm.guest
         config = vm.config
         os_type = config.guestFullName.lower()
-        if("windows" in os_type  or "win" in os_type) : 
+        if("windows" in os_type or "win" in os_type):
             os_type = 'Windows'
-        elif("aix" in os_type  ) :
+        elif("aix" in os_type):
             os_type = 'AIX'
         else:
             os_type = 'Linux'
@@ -168,43 +168,43 @@ class vsphereQuery:
 
         disk_list = vm.guest.disk
         data_list = []
-        if disk_list != None :
-            for disk in disk_list :
+        if disk_list != None:
+            for disk in disk_list:
                 disk_ins = {}
-                disk_ins['NAME']=disk.diskPath
-                disk_ins['CAPACITY']= round(disk.capacity/1024/1024/1024,0)
-                disk_ins['UNIT']= 'GB'
+                disk_ins['NAME'] = disk.diskPath
+                disk_ins['CAPACITY'] = round(disk.capacity/1024/1024/1024, 0)
+                disk_ins['UNIT'] = 'GB'
                 data_list.append(disk_ins)
-        ins['DISKS']=data_list
+        ins['DISKS'] = data_list
 
-        ins['NAME']=os_name
-        ins['IP']=os_ip
-        ins['VM_ID']=os_id
-        ins['OS_TYPE']=os_type
-        ins['MEM_TOTAL']= memory
+        ins['NAME'] = os_name
+        ins['IP'] = os_ip
+        ins['VM_ID'] = os_id
+        ins['OS_TYPE'] = os_type
+        ins['MEM_TOTAL'] = memory
         ins['MEM_UNIT'] = 'MB'
-        ins['STATE']=powerState
-        ins['CPU_COUNT']=numCPU
-        ins['CPU_CORES']=numCoresPerSocket
+        ins['STATE'] = powerState
+        ins['CPU_COUNT'] = numCPU
+        ins['CPU_CORES'] = numCoresPerSocket
         ins['IS_VIRTUAL'] = 1
 
-        ins['MACHINE_UUID']=host.hardware.systemInfo.uuid
-        ins['MACHINE_SN']=host.hardware.systemInfo.serialNumber
+        ins['MACHINE_UUID'] = host.hardware.systemInfo.uuid
+        ins['MACHINE_SN'] = host.hardware.systemInfo.serialNumber
 
         return ins
 
-    def get_vmlist(self,cluster):
+    def get_vmlist(self, cluster):
         data_list = []
         host_list = cluster.host
-        if host_list != None :
+        if host_list != None:
             for host in host_list:
                 vm_list = host.vm
-                if vm_list != None :
-                    for vm in vm_list :
-                        data_list.append(self.get_vm(host , vm ))
+                if vm_list != None:
+                    for vm in vm_list:
+                        data_list.append(self.get_vm(host, vm))
         return data_list
 
-    def collect (self) :
+    def collect(self):
         vsphere = {}
         about = self.vcontent.about
         vsphere['VERSION'] = about.version
@@ -221,28 +221,27 @@ class vsphereQuery:
             datacenter_ins = {}
             datacenter_name = datacenter.name
             datacenter_moid = datacenter._moId
-            datacenter_ins['NAME']=datacenter_name
-            datacenter_ins['MOID']=datacenter_moid
+            datacenter_ins['NAME'] = datacenter_name
+            datacenter_ins['MOID'] = datacenter_moid
             cluster_list = []
             for cluster in datacenter.hostFolder.childEntity:
                 cluster_ins = {}
                 cluster_name = cluster.name
                 cluster_moid = cluster._moId
-                cluster_ins['NAME']=cluster_name
-                cluster_ins['MOID']=cluster_moid
-                #datastore
+                cluster_ins['NAME'] = cluster_name
+                cluster_ins['MOID'] = cluster_moid
+                # datastore
                 cluster_ins['DATASTORE'] = self.get_datastore(cluster)
-                #network
+                # network
                 cluster_ins['NETWORK'] = self.get_network(cluster)
-                #host
+                # host
                 cluster_ins['HOST'] = self.get_hostlist(cluster)
-                #vm
+                # vm
                 cluster_ins['VM'] = self.get_vmlist(cluster)
 
                 cluster_list.append(cluster_ins)
-            datacenter_ins['CLUSTER']=cluster_list
+            datacenter_ins['CLUSTER'] = cluster_list
             datacenter_list.append(datacenter_ins)
 
         vsphere['DATACENTER'] = datacenter_list
         return vsphere
-
