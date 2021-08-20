@@ -1,0 +1,55 @@
+{
+	"opDesc": "vsphere采集插件",
+	"opType": "runner_target",
+	"typeName": "CMDB",
+	"riskName": "LOW",
+	"interpreter": "python",
+	"description": "vsphere采集插件",
+	"desc": [{
+			"opt": "ip",
+			"name": "管理IP",
+			"help": "vsphere管理IP",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "port",
+			"name": "管理端口",
+			"help": "vsphere管理端口",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "user",
+			"name": "账号",
+			"help": "vsphere管理用户",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "password",
+			"name": "密码",
+			"help": "vsphere管理用户密码",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		}
+	],
+	"output": [{
+		"opt": "DATA",
+		"name": "采集数据",
+		"help": "采集数据输出",
+		"type": "json"
+	}]
+}
