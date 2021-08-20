@@ -39,13 +39,13 @@ sub new {
 
     #单值定义
     my $scalarOidDef = {
-        DEV_NAME    => '1.3.6.1.2.1.1.5.0',
-        UPTIME      => '1.3.6.1.2.1.1.3.0',
-        VENDOR      => '1.3.6.1.2.1.1.4.0',
-        MODEL       => '1.3.6.1.2.1.1.1.0',
-        IOS_INFO    => '1.3.6.1.2.1.1.1.0',
+        DEV_NAME    => '1.3.6.1.2.1.1.5.0',                                                        #sysName
+        UPTIME      => '1.3.6.1.2.1.1.3.0',                                                        #sysUpTime
+        VENDOR      => '1.3.6.1.2.1.1.4.0',                                                        #sysContact
+        MODEL       => '1.3.6.1.2.1.1.1.0',                                                        #sysDescr
+        IOS_INFO    => '1.3.6.1.2.1.1.1.0',                                                        #sysDescr
         SN          => [ '1.3.6.1.4.1.2011.10.2.6.1.2.1.1.2.0', '1.3.6.1.2.1.47.1.1.1.1.11.1' ],
-        PORTS_COUNT => '1.3.6.1.2.1.2.1.0'
+        PORTS_COUNT => '1.3.6.1.2.1.2.1.0'                                                         #ifNumber
     };
 
     #列表值定义
@@ -58,28 +58,28 @@ sub new {
     my $commOidDef = {
 
         #端口信息
-        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',
-        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',
-        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',
-        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',
-        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',
-        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',
-        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',
-        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',
+        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
+        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',       #ifDescr
+        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
+        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
+        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
+        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',       #ifOperStatus
+        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',       #ifSpeed
+        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
 
         #MAC地址和端口对照表
-        MAC_TABLE => '1.3.6.1.2.1.17.4.3.1.2',
+        MAC_TABLE => '1.3.6.1.2.1.17.4.3.1.2',            #dot1qTpFdbPort
 
         #交换机邻居表
-        LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',
-        LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',
-        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',
+        LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',    #lldpLocPortId
+        LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',    #lldpRemPortId
+        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',    #lldpRemSysName
 
         #Cisco CDP 邻居表
-        CDP_REMOTE_SYSNAME  => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',
-        CDP_REMOTE_PORT     => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',
-        CDP_TYPE            => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',
-        CDP_IP              => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'
+        CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
+        CDP_REMOTE_PORT    => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',    #cdpCacheDevicePort
+        CDP_TYPE           => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',    #cdpCacheAddressType
+        CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'     #cdpCacheAddress
     };
 
     $self->{commonOidDef} = $commOidDef;
@@ -169,11 +169,11 @@ sub _getBrand {
 
     if ( not defined($brand) ) {
         print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
-        $self->{DATA}->{BRAND} = undef;
+        $self->{DATA}->{BRAND}    = undef;
         $self->{DATA}->{APP_TYPE} = undef;
     }
     else {
-        $self->{DATA}->{BRAND} = $brand;
+        $self->{DATA}->{BRAND}    = $brand;
         $self->{DATA}->{APP_TYPE} = $brand;
     }
 
@@ -187,8 +187,8 @@ sub _getScalar {
     my $scalarOidDef = $self->{scalarOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $scalarData = $snmpHelper->getScalar($snmp, $scalarOidDef);
-    
+    my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
+
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$scalarData) ) {
         $data->{$key} = $val;
@@ -204,7 +204,7 @@ sub _getTable {
     my $tableOidDef = $self->{tableOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable($snmp, $tableOidDef);
+    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
 
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$tableData) ) {
@@ -303,10 +303,10 @@ sub _getPorts {
             if ( $oid =~ /(\d+)$/ ) {
                 my $idx      = $1;
                 my $portInfo = $portsMap->{$idx};
-                if ( not defined($portInfo) ){
+                if ( not defined($portInfo) ) {
                     $portInfo = { INDEX => $idx, SEQ => undef };
                 }
-                
+
                 if ( $portInfoKey eq 'MAC' ) {
 
                     #返回的值是16进制字串，需要去掉开头的0x以及每两个字节插入':'
@@ -377,7 +377,7 @@ sub _getMacTable {
             my $portInfo = $portSeqMap->{$val};
             my $portDesc = $portInfo->{NAME};
 
-            push(@macTable, {PORT=>$portDesc, REMOTE_MAC=>$mac});
+            push( @macTable, { PORT => $portDesc, REMOTE_MAC => $mac } );
         }
     }
 
@@ -444,7 +444,6 @@ sub _getCDP {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-
     my $remoteSysInfoMap = {};
     my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_SYSNAME} );
     $self->_errCheck( $remoteSysNameInfo, $commOidDef->{CDP_REMOTE_SYSNAME} );
@@ -465,9 +464,9 @@ sub _getCDP {
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
     while ( my ( $oid, $val ) = each(%$remotePortInfo) ) {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
-            my $portIdx = $1;
+            my $portIdx       = $1;
             my $localPortInfo = $self->{portIdxMap}->{$portIdx};
-            my $neighbor = {};
+            my $neighbor      = {};
             $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
             $neighbor->{LOCAL_PORT} = $localPortInfo->{$portIdx};
 
@@ -486,7 +485,7 @@ sub collect {
     my $brand = $self->_getBrand();
     print("INFO: SWitch brand: $brand.\n");
 
-    my $pkgFile = __FILE__ ;
+    my $pkgFile = __FILE__;
     my $libPath = dirname($pkgFile);
     my $switchIns;
     my $switchClass = "Switch$brand";
@@ -494,6 +493,7 @@ sub collect {
         print("INFO: Has defined class Switch$brand, try to load it.\n");
         eval {
             require "$switchClass.pm";
+
             #our @ISA = ($switchClass);
             $switchIns = $switchClass->new();
 
@@ -503,7 +503,7 @@ sub collect {
         if ($@) {
             print("WARN: Load $switchClass failed, $@");
         }
-        else{
+        else {
             print("INFO: Class SWitch$brand loaded.\n");
         }
     }
@@ -513,10 +513,10 @@ sub collect {
     $self->_getPorts();
     $self->_getMacTable();
 
-    if ($brand =~ /Cisco/i){
+    if ( $brand =~ /Cisco/i ) {
         $self->_getCDP();
     }
-    else{
+    else {
         $self->_getLLDP();
     }
 
