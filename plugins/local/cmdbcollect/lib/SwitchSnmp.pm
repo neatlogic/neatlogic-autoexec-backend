@@ -8,6 +8,7 @@ use strict;
 use File::Basename;
 use JSON;
 use Net::SNMP qw(:snmp);
+use SnmpHelper;
 use Data::Dumper;
 
 my $BRANDS = [ 'HuaWei', 'Cisco', 'H3C', 'HillStone', 'Juniper' ];
@@ -17,6 +18,8 @@ sub new {
     my $self = {};
     $self->{DATA} = { PK => ['SN'] };
     bless( $self, $class );
+
+    $self->{snmpHelper} = SnmpHelper->new();
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -48,7 +51,7 @@ sub new {
     #列表值定义
     my $tableOidDef = {
 
-        #PORTS_TABLE_FOR_TEST => [ { NAME => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ]
+        #PORTS_TABLE_FOR_TEST => { NAME => '1.3.6.1.2.1.2.2.1.2', MAC => '1.3.6.1.2.1.2.2.1.6' }
     };
 
     #通用列表值定义, 这部分不提供给外部修改
@@ -183,64 +186,15 @@ sub _getScalar {
     my $snmp         = $self->{snmpSession};
     my $scalarOidDef = $self->{scalarOidDef};
 
-    my $value;
-
-    my @scalarOids = ();
-    foreach my $attr ( keys(%$scalarOidDef) ) {
-        my $val = $scalarOidDef->{$attr};
-
-        #支持单值oid可以定义多个oid进行尝试查询
-        if ( ref($val) eq 'ARRAY' ) {
-            push( @scalarOids, @$val );
-        }
-        else {
-            push( @scalarOids, $val );
-        }
-    }
-
-    my $result = $snmp->get_request( -varbindlist => \@scalarOids, );
-
+    my $snmpHelper = $self->{snmpHelper};
+    my $scalarData = $snmpHelper->getScalar($snmp, $scalarOidDef);
+    
     my $data = $self->{DATA};
-    foreach my $attr ( keys(%$scalarOidDef) ) {
-        my $oidDesc;
-        my $oidVal;
-        my $val = $scalarOidDef->{$attr};
-        if ( ref($val) ne 'ARRAY' ) {
-            $oidDesc = $val;
-            my $oid    = $val;
-            my $tmpVal = $result->{$oid};
-            if (    defined($tmpVal)
-                and $tmpVal ne 'noSuchObject'
-                and $tmpVal ne 'noSuchInstance'
-                and $tmpVal ne 'endOfMibView' )
-            {
-                $oidVal = $tmpVal;
-            }
-        }
-        else {
-            $oidDesc = join( ', ', @$val );
-
-            #如果某个属性定义的是多个oid，则按照顺序获取值
-            foreach my $oid (@$val) {
-                my $tmpVal = $result->{$val};
-                if (    defined($oidVal)
-                    and $tmpVal ne 'noSuchObject'
-                    and $tmpVal ne 'noSuchInstance'
-                    and $tmpVal ne 'endOfMibView' )
-                {
-                    $oidVal = $tmpVal;
-                    last;
-                }
-            }
-        }
-
-        if ( defined($oidVal) ) {
-            $data->{$attr} = $oidVal;
-        }
-        else {
-            print("WARN: Can not find value for attr $attr(oid:$oidDesc).\n");
-        }
+    while ( my ( $key, $val ) = each(%$scalarData) ) {
+        $data->{$key} = $val;
     }
+
+    return;
 }
 
 #get table values from 1 or more than table oid
@@ -249,29 +203,12 @@ sub _getTable {
     my $snmp        = $self->{snmpSession};
     my $tableOidDef = $self->{tableOidDef};
 
-    foreach my $attrName ( keys(%$tableOidDef) ) {
-        my @attrTable = ();    #每个属性会生成一个table
+    my $snmpHelper = $self->{snmpHelper};
+    my $tableData = $snmpHelper->getTable($snmp, $tableOidDef);
 
-        my $oidEntrys = $tableOidDef->{$attrName};
-        foreach my $oidEntry (@$oidEntrys) {
-            while ( my ( $name, $oid ) = each(%$oidEntry) ) {
-                my $table = $snmp->get_table( -baseoid => $oid );
-                $self->_errCheck( $table, $oid );
-
-                my @sortedOids = oid_lex_sort( keys(%$table) );
-                for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
-                    my $sortedOid = $sortedOids[$i];
-                    my $entryInfo = $attrTable[$i];
-                    if ( not defined($entryInfo) ) {
-                        $entryInfo = {};
-                        $attrTable[$i] = $entryInfo;
-                    }
-                    $entryInfo->{$name} = $table->{$sortedOid};
-                }
-            }
-        }
-
-        $self->{DATA}->{$attrName} = \@attrTable;
+    my $data = $self->{DATA};
+    while ( my ( $key, $val ) = each(%$tableData) ) {
+        $data->{$key} = $val;
     }
 
     return;
