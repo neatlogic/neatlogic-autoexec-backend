@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package SwitchH3C;
+package SwitchJuniper;
 
 sub before {
     my ( $self, $collector ) = @_;
