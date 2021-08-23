@@ -53,6 +53,8 @@ sub main {
 
     my $collector = SwitchSnmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
     my $data = $collector->collect();
+    $data->{OBJECT_TYPE} = 'SWITCH';
+    $data->{PK}          = ['SN'];
     $data->{RESOURCE_ID} = $node->{resourceId};
     
     my $out = {};
