@@ -34,8 +34,13 @@ sub new {
     foreach my $key ( keys(%args) ) {
         $options->{"-$key"} = $args{$key};
     }
+    $self->{snmpOptions} = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
+    if ( !defined $session ) {
+        print("ERROR:Create snmp session to $args{host} failed, $error\n");
+        exit(-1);
+    }
 
     #单值定义
     my $scalarOidDef = {
@@ -68,12 +73,14 @@ sub new {
         PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
 
         #MAC地址和端口对照表
-        MAC_TABLE => '1.3.6.1.2.1.17.4.3.1.2',            #dot1qTpFdbPort
+        CISCO_VLAN_STATE => '1.3.6.1.4.1.9.9.46.1.3.1.1.2',    #vtpVlanState
+        MAC_TABLE_PORT   => '1.3.6.1.2.1.17.4.3.1.2',          #dot1qTpFdbPort
+        MAC_TABLE_MAC    => '1.3.6.1.2.1.17.4.3.1.1',          #dot1qTpFdbMac
 
         #交换机邻居表
-        LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',    #lldpLocPortId
-        LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',    #lldpRemPortId
-        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',    #lldpRemSysName
+        LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',     #lldpLocPortId
+        LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',     #lldpRemPortId
+        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',     #lldpRemSysName
 
         #Cisco CDP 邻居表
         CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
@@ -85,11 +92,6 @@ sub new {
     $self->{commonOidDef} = $commOidDef;
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{tableOidDef}  = $tableOidDef;
-
-    if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{host} failed, $error\n");
-        exit(-1);
-    }
 
     $self->{snmpSession} = $session;
 
@@ -237,6 +239,7 @@ sub _getPorts {
     my ($self)     = @_;
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
+    my $snmpHelper = $self->{snmpHelper};
 
     my @ports;
     my $portsMap   = {};
@@ -310,13 +313,7 @@ sub _getPorts {
                 if ( $portInfoKey eq 'MAC' ) {
 
                     #返回的值是16进制字串，需要去掉开头的0x以及每两个字节插入':'
-                    if ( $val !~ /\x00/ ) {
-                        $val = substr( $val, 2 );
-                        $val =~ s/..\K(?=.)/:/sg;
-                    }
-                    else {
-                        $val = '';
-                    }
+                    $val = $snmpHelper->hex2mac($val);
                 }
                 elsif ( $portInfoKey eq 'ADMIN_STATUS' or $portInfoKey eq 'OPER_STATUS' ) {
                     $val = $portStatusMap->{$val};
@@ -362,22 +359,86 @@ sub _getMacTable {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my @macTable = ();
-    my $macTableInfo = $snmp->get_table( -baseoid => $commOidDef->{MAC_TABLE} );
-    $self->_errCheck( $macTableInfo, $commOidDef->{MAC_TABLE} );
-
-    #.1.3.6.1.2.1.17.4.3.1.2.228.112.184.173.172.60 = INTEGER: 2
-    #最后6段是远端的mac地址，值是端口序号
-
+    my @macTable   = ();
     my $portSeqMap = $self->{portSeqMap};
 
-    while ( my ( $oid, $val ) = each(%$macTableInfo) ) {
-        if ( $oid =~ /(\d+\.\d+\.\d+\.\d+\.\d+\.\d+)$/ ) {
-            my $mac      = $self->_decimalMacToHex($1);
-            my $portInfo = $portSeqMap->{$val};
+    my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
+    my $snmpHelper = $self->{snmpHelper};
+    my $tableData  = $snmpHelper->getTable( $snmp, $tableDef );
+    my $macTblData = $tableData->{MAC_TABLE};
+
+    for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
+        my $macInfo = $$macTblData[$i];
+
+        my $portSeq  = $macInfo->{PORT};
+        my $portInfo = $portSeqMap->{$portSeq};
+        my $portDesc = $portInfo->{NAME};
+
+        my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
+        if ( $remoteMac ne '' ) {
+            push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
+        }
+    }
+
+    $self->{DATA}->{MAC_TABLE} = \@macTable;
+}
+
+sub _getMacTableWithVlan {
+    my ($self)     = @_;
+    my $snmp       = $self->{snmpSession};
+    my $commOidDef = $self->{commonOidDef};
+    my $snmpHelper = $self->{snmpHelper};
+    my $portIdxMap = $self->{portIdxMap};
+
+    my @macTable = ();
+
+    my @vlanIdArray = ();
+    my $vlanStates = $snmp->get_table( -baseoid => $commOidDef->{CISCO_VLAN_STATE} );
+    while ( my ( $oid, $vlanState ) = each(%$vlanStates) ) {
+        if ( $oid =~ /(\d+)$/ and $vlanState eq 1 ) {
+            push( @vlanIdArray, $1 );
+        }
+    }
+
+    my $options  = $self->{snmpOptions};
+    my $comunity = $options->{'-community'};
+
+    foreach my $vlanId (@vlanIdArray) {
+        $options->{'-community'} = "$comunity\@$vlanId";
+        my ( $vlanSnmp, $error ) = Net::SNMP->session(%$options);
+        if ( !defined $vlanSnmp ) {
+            print("ERROR:Create snmp session to $options->{'-host'} failed, $error\n");
+            exit(-1);
+        }
+
+        my $portSeqToIdxMap = {};                                                          #序号到数字索引号的映射
+        my $portIdxInfo = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
+        $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
+
+        #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
+        while ( my ( $oid, $val ) = each(%$portIdxInfo) ) {
+            if ( $oid =~ /(\d+)$/ ) {
+                $portSeqToIdxMap->{$1} = $val;
+            }
+        }
+
+        my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
+        my $snmpHelper = $self->{snmpHelper};
+        my $tableData  = $snmpHelper->getTable( $vlanSnmp, $tableDef );
+        my $macTblData = $tableData->{MAC_TABLE};
+
+        for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
+            my $macInfo = $$macTblData[$i];
+
+            my $portSeq  = $macInfo->{PORT};
+            my $portIdx  = $portSeqToIdxMap->{$portSeq};
+            my $portInfo = $portIdxMap->{$portIdx};
             my $portDesc = $portInfo->{NAME};
 
-            push( @macTable, { PORT => $portDesc, REMOTE_MAC => $mac } );
+            my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
+            if ( $remoteMac ne '' ) {
+                push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
+            }
         }
     }
 
@@ -468,7 +529,7 @@ sub _getCDP {
             my $localPortInfo = $self->{portIdxMap}->{$portIdx};
             my $neighbor      = {};
             $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $neighbor->{LOCAL_PORT} = $localPortInfo->{$portIdx};
+            $neighbor->{LOCAL_PORT} = $localPortInfo->{NAME};
 
             $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
             $neighbor->{REMOTE_PORT} = $val;
@@ -511,12 +572,13 @@ sub collect {
     $self->_getScalar();
     $self->_getTable();
     $self->_getPorts();
-    $self->_getMacTable();
 
     if ( $brand =~ /Cisco/i ) {
+        $self->_getMacTableWithVlan();
         $self->_getCDP();
     }
     else {
+        $self->_getMacTable();
         $self->_getLLDP();
     }
 

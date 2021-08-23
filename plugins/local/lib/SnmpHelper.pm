@@ -23,6 +23,20 @@ sub _errCheck {
     return $hasError;
 }
 
+sub hex2mac {
+    my ($self, $hexMac) = @_;
+    if ( $hexMac !~ /\x00/ ) {
+        $hexMac = substr( $hexMac, 2 );
+        $hexMac =~ s/..\K(?=.)/:/sg;
+    }
+    else {
+        $hexMac = '';
+    }
+
+    return $hexMac;
+}
+
+
 sub hex2ip {
   my ($self, $hexIp) = @_;
 
