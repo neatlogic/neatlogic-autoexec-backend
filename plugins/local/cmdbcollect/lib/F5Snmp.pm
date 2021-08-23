@@ -2,7 +2,7 @@
 use FindBin;
 use lib $FindBin::Bin;
 
-package SwitchSnmp;
+package F5Snmp;
 
 use strict;
 use File::Basename;
@@ -43,10 +43,11 @@ sub new {
         },
 
         MEMBER => {
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1',        #ltmPoolMemberPoolName
+            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',       #ltmPoolMemberNodeName
             IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',        #ltmPoolMemberAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4'         #ltmPoolMemberPort
-        },
+            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',        #ltmPoolMemberPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'         #ltmPoolMemberPoolName
+        }
     };
 
     my $snatOidDef = {

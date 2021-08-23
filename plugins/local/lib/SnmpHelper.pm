@@ -145,5 +145,47 @@ sub getTable {
     return $data;
 }
 
+#get table values from 1 or more than table oid
+sub getTableOidAndVal {
+    my ( $self, $snmp, $oidDefMap ) = @_;
+
+    my $data = {};
+    my $oids = {};
+    foreach my $attrName ( keys(%$oidDefMap) ) {
+        my @attrTable = ();    #每个属性会生成一个table
+        my @oidTable = ();
+
+        my $oidEntrys = $oidDefMap->{$attrName};
+        while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
+            my $table = $snmp->get_table( -baseoid => $oid );
+            $self->_errCheck( $snmp, $table, $oid );
+
+            my @sortedOids = oid_lex_sort( keys(%$table) );
+            for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
+                my $sortedOid = $sortedOids[$i];
+
+                my $oidInfo = $oidTable[$i];
+                if ( not defined($oidInfo) ){
+                    $oidInfo = {};
+                    $oidTable[$i] = $oidInfo;
+                }
+                $oidInfo->{$name} = $sortedOid;
+
+                my $entryInfo = $attrTable[$i];
+                if ( not defined($entryInfo) ) {
+                    $entryInfo = {};
+                    $attrTable[$i] = $entryInfo;
+                }
+                $entryInfo->{$name} = $table->{$sortedOid};
+            }
+        }
+
+        $data->{$attrName} = \@attrTable;
+        $oids->{$attrName} = \@oidTable;
+    }
+
+    return ($oids, $data);
+}
+
 1;
 
