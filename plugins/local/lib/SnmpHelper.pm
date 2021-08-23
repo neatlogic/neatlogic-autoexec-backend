@@ -14,10 +14,17 @@ sub new {
 sub _errCheck {
     my ( $self, $snmp, $queryResult, $oid ) = @_;
     my $hasError = 0;
+    my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
         $hasError = 1;
-        my $errMsg = sprintf( "WARN: %s, %s\n", $snmp->error(), $oid );
-        print($errMsg);
+        my $error = $snmp->error();
+        if ( $error =~ /^No response/i ){
+            print("ERROR: $error, snmp failed, exit.\n");
+            exit(-1);
+        }
+        else{
+            print( "WARN: $error, $oid\n");
+        }
     }
 
     return $hasError;
