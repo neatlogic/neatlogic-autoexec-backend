@@ -221,18 +221,18 @@ sub _getPortIdx {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my $portIdxToSeqMap = {};                                                      #序号到数字索引号的映射
+    my $portIdxToNoMap = {};                                                      #序号到数字索引号的映射
     my $portIdxInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
     $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
 
     #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
     while ( my ( $oid, $val ) = each(%$portIdxInfo) ) {
         if ( $oid =~ /(\d+)$/ ) {
-            $portIdxToSeqMap->{$val} = $1;
+            $portIdxToNoMap->{$val} = $1;
         }
     }
 
-    return $portIdxToSeqMap;
+    return $portIdxToNoMap;
 }
 
 sub _getPorts {
@@ -244,14 +244,14 @@ sub _getPorts {
     my @ports;
     my $portsMap   = {};
     my $portIdxMap = {};
-    my $portSeqMap = {};
+    my $portNoMap = {};
 
-    my $portIdxToSeqMap = $self->_getPortIdx();
-    while ( my ( $idx, $seq ) = each(%$portIdxToSeqMap) ) {
-        my $portInfo = { INDEX => $idx, SEQ => $seq };
+    my $portIdxToNoMap = $self->_getPortIdx();
+    while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
+        my $portInfo = { INDEX => $idx, NO => $no };
         $portsMap->{$idx}   = $portInfo;
         $portIdxMap->{$idx} = $portInfo;
-        $portSeqMap->{$seq} = $portInfo;
+        $portNoMap->{$no} = $portInfo;
     }
 
     my $portStatusMap = {
@@ -307,7 +307,7 @@ sub _getPorts {
                 my $idx      = $1;
                 my $portInfo = $portsMap->{$idx};
                 if ( not defined($portInfo) ) {
-                    $portInfo = { INDEX => $idx, SEQ => undef };
+                    $portInfo = { INDEX => $idx, NO => undef };
                 }
 
                 if ( $portInfoKey eq 'MAC' ) {
@@ -333,7 +333,7 @@ sub _getPorts {
     my @ports = values(%$portsMap);
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
-    $self->{portSeqMap}    = $portSeqMap;
+    $self->{portNoMap}    = $portNoMap;
 }
 
 sub _decimalMacToHex {
@@ -360,7 +360,7 @@ sub _getMacTable {
     my $commOidDef = $self->{commonOidDef};
 
     my @macTable   = ();
-    my $portSeqMap = $self->{portSeqMap};
+    my $portNoMap = $self->{portNoMap};
 
     my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
     my $snmpHelper = $self->{snmpHelper};
@@ -370,8 +370,8 @@ sub _getMacTable {
     for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
         my $macInfo = $$macTblData[$i];
 
-        my $portSeq  = $macInfo->{PORT};
-        my $portInfo = $portSeqMap->{$portSeq};
+        my $portNo  = $macInfo->{PORT};
+        my $portInfo = $portNoMap->{$portNo};
         my $portDesc = $portInfo->{NAME};
 
         my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
@@ -411,14 +411,14 @@ sub _getMacTableWithVlan {
             exit(-1);
         }
 
-        my $portSeqToIdxMap = {};                                                          #序号到数字索引号的映射
+        my $portNoToIdxMap = {};                                                          #序号到数字索引号的映射
         my $portIdxInfo = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
         $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
 
         #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
         while ( my ( $oid, $val ) = each(%$portIdxInfo) ) {
             if ( $oid =~ /(\d+)$/ ) {
-                $portSeqToIdxMap->{$1} = $val;
+                $portNoToIdxMap->{$1} = $val;
             }
         }
 
@@ -430,8 +430,8 @@ sub _getMacTableWithVlan {
         for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
             my $macInfo = $$macTblData[$i];
 
-            my $portSeq  = $macInfo->{PORT};
-            my $portIdx  = $portSeqToIdxMap->{$portSeq};
+            my $portNo  = $macInfo->{PORT};
+            my $portIdx  = $portNoToIdxMap->{$portNo};
             my $portInfo = $portIdxMap->{$portIdx};
             my $portDesc = $portInfo->{NAME};
 
@@ -451,7 +451,7 @@ sub _getLLDP {
     my $commOidDef = $self->{commonOidDef};
 
     #获取邻居关系的本地端口名称列表（怀疑，这里的端口的idx和port信息里是一样的，如果是这样这里就不用采了
-    my $portSeqToName = {};
+    my $portNoToName = {};
     my $localPortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_LOCAL_PORT} );
     $self->_errCheck( $localPortInfo, $commOidDef->{LLDP_LOCAL_PORT} );
 
@@ -461,7 +461,7 @@ sub _getLLDP {
 
         #oid中最后的一位数字是端口号
         if ( $oid =~ /(\d+)$/ ) {
-            $portSeqToName->{$1} = $val;
+            $portNoToName->{$1} = $val;
         }
     }
 
@@ -487,7 +487,7 @@ sub _getLLDP {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
             my $neighbor = {};
             $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $neighbor->{LOCAL_PORT} = $portSeqToName->{$1};
+            $neighbor->{LOCAL_PORT} = $portNoToName->{$1};
 
             $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
             $val =~ s/Eth(?=\d)/Ethernet/g;
