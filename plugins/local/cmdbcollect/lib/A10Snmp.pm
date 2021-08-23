@@ -125,7 +125,7 @@ sub _getVS {
     my $vsOidDef = $self->{vsOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my ( $oidData, $tableData ) = $snmpHelper->getTable( $snmp, $vsOidDef );
+    my ( $oidData, $tableData ) = $snmpHelper->getTableOidAndVal( $snmp, $vsOidDef );
 
     my $poolMap  = {};
     my $poolData = $tableData->{POOL};
