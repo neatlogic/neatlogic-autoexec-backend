@@ -1,0 +1,91 @@
+{
+    "opDesc": "日志检查",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "description": "检查日志是否出现某些关键字",
+    "desc": [{
+            "opt": "verbose",
+            "name": "详细输出",
+            "help": "显示匹配的详细信息",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                "text": "是",
+                "value": "1",
+                "selected": "true"
+            }, {
+                "text": "否",
+                "value": "0"
+            }],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "logpath",
+            "name": "日志",
+            "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "maxsize",
+            "name": "最大检查量(MB)",
+            "help": "从日志文件末尾开始检查的最大的大小，单位MB",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "16",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "failcheck",
+            "name": "检测方向",
+            "help": "出现关键字是成功还是失败",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                "text": "失败",
+                "value": "1",
+                "selected": "true"
+            }, {
+                "text": "成功",
+                "value": "0"
+            }],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "pattern",
+            "name": "关键字",
+            "help": "关键字，支持正则表达式",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "ERROR",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "op",
+            "name": "多关键字",
+            "help": "多个关键字的操作符号",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                "text": "OR",
+                "value": "or",
+                "selected": "true"
+            }, {
+                "text": "AND",
+                "value": "and"
+            }],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

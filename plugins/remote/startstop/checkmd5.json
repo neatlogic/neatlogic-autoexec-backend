@@ -1,0 +1,64 @@
+{
+    "opDesc": "MD5检查",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "description": "根据MD5列表检查文件MD5是否正确",
+    "desc": [{
+            "opt": "verbose",
+            "name": "详细输出",
+            "help": "显示匹配的详细信息",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                "text": "是",
+                "value": "1",
+                "selected": "true"
+            }, {
+                "text": "否",
+                "value": "0"
+            }],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "md5listfile",
+            "name": "MD5列表文件",
+            "help": "文件路径，每行格式例子：2ac723bd99d4c359b4b8cba54a42de3f  /test/myfile.txt",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "dir",
+            "name": "检查目录",
+            "help": "进行MD5检查的目录，多个目录逗号相隔",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "delmd5",
+            "name": "删除MD5文件",
+            "help": "检查成功后是否删除MD5列表文件",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                "text": "否",
+                "value": "0",
+                "selected": "true"
+            }, {
+                "text": "是",
+                "value": "1"
+            }],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,22 @@
+=head2 Tue Sep 18 15:54:07 2018: C<Module> L<HTTP::Tiny|HTTP::Tiny>
+
+=over 4
+
+=item *
+
+C<installed into: /app/ezdeploy/tools/tagent/mod/patch/lib/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.070>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+

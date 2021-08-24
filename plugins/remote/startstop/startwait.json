@@ -1,0 +1,89 @@
+{
+    "opDesc": "应用启动",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "description": "调用远程命令启动应用，检测应用是否启动的同时tail日志",
+    "desc": [{
+            "opt": "prescript",
+            "name": "启动命令",
+            "help": "启动应用所需要的Shell命令",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "logfile",
+            "name": "日志",
+            "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "addr",
+            "name": "服务地址",
+            "help": "URL或者IP:PORT，例如：http://127.0.0.1:8080",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "eofstr",
+            "name": "启动成功字串",
+            "help": "出现此字串即启动成功，尽量留空少用，少用服务地址检测替代",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时(秒)",
+            "help": "启动超时的秒数，超时后启动失败",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "300",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "postscript",
+            "name": "启动后置命令",
+            "help": "应用启动，检测成功启动后执行此命令",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "endprescript",
+            "name": "Kill启动命令",
+            "help": "用于某些启动命令启动成功后，需要Ctrl+C的情况",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                },
+                {
+                    "text": "是",
+                    "value": "1"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}
