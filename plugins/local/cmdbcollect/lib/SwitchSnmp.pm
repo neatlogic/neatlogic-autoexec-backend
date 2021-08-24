@@ -141,12 +141,12 @@ sub _errCheck {
     if ( not defined($queryResult) ) {
         $hasError = 1;
         my $error = $snmp->error();
-        if ( $error =~ /^No response/i ){
+        if ( $error =~ /^No response/i ) {
             print("ERROR: $error, snmp failed, exit.\n");
             exit(-1);
         }
-        else{
-            print( "WARN: $error, $oid\n");
+        else {
+            print("WARN: $error, $oid\n");
         }
     }
 
@@ -227,7 +227,7 @@ sub _getPortIdx {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my $portIdxToNoMap = {};                                                      #序号到数字索引号的映射
+    my $portIdxToNoMap = {};                                                       #序号到数字索引号的映射
     my $portIdxInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
     $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
 
@@ -250,14 +250,14 @@ sub _getPorts {
     my @ports;
     my $portsMap   = {};
     my $portIdxMap = {};
-    my $portNoMap = {};
+    my $portNoMap  = {};
 
     my $portIdxToNoMap = $self->_getPortIdx();
     while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
         my $portInfo = { INDEX => $idx, NO => $no };
         $portsMap->{$idx}   = $portInfo;
         $portIdxMap->{$idx} = $portInfo;
-        $portNoMap->{$no} = $portInfo;
+        $portNoMap->{$no}   = $portInfo;
     }
 
     my $portStatusMap = {
@@ -339,7 +339,7 @@ sub _getPorts {
     my @ports = values(%$portsMap);
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
-    $self->{portNoMap}    = $portNoMap;
+    $self->{portNoMap}     = $portNoMap;
 }
 
 sub _decimalMacToHex {
@@ -365,7 +365,7 @@ sub _getMacTable {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my @macTable   = ();
+    my @macTable  = ();
     my $portNoMap = $self->{portNoMap};
 
     my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
@@ -376,7 +376,7 @@ sub _getMacTable {
     for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
         my $macInfo = $$macTblData[$i];
 
-        my $portNo  = $macInfo->{PORT};
+        my $portNo   = $macInfo->{PORT};
         my $portInfo = $portNoMap->{$portNo};
         my $portDesc = $portInfo->{NAME};
 
@@ -396,7 +396,8 @@ sub _getMacTableWithVlan {
     my $snmpHelper = $self->{snmpHelper};
     my $portIdxMap = $self->{portIdxMap};
 
-    my @macTable = ();
+    my @macTable   = ();
+    my $portMacMap = {};
 
     my @vlanIdArray = ();
     my $vlanStates = $snmp->get_table( -baseoid => $commOidDef->{CISCO_VLAN_STATE} );
@@ -417,7 +418,7 @@ sub _getMacTableWithVlan {
             exit(-1);
         }
 
-        my $portNoToIdxMap = {};                                                          #序号到数字索引号的映射
+        my $portNoToIdxMap = {};                                                           #序号到数字索引号的映射
         my $portIdxInfo = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
         $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
 
@@ -436,14 +437,17 @@ sub _getMacTableWithVlan {
         for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
             my $macInfo = $$macTblData[$i];
 
-            my $portNo  = $macInfo->{PORT};
+            my $portNo   = $macInfo->{PORT};
             my $portIdx  = $portNoToIdxMap->{$portNo};
             my $portInfo = $portIdxMap->{$portIdx};
             my $portDesc = $portInfo->{NAME};
 
             my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
             if ( $remoteMac ne '' ) {
-                push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
+                if ( not defined( $portMacMap->{"$remoteMac $portDesc"} ) ) {
+                    $portMacMap->{"$remoteMac $portDesc"} = 1;
+                    push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
+                }
             }
         }
     }
