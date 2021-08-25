@@ -5,8 +5,8 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "检查挂载点的空间是否足够",
-    "desc": [{
-        "opt": "checkexp",
+    "option": [],
+    "argument": {
         "name": "检查表达式",
         "help": "例如：'/app/mysystem1 100M 50','/app/mysystem2 10G 50'",
         "type": "input",
@@ -14,6 +14,6 @@
         "defaultValue": "",
         "required": "true",
         "validate": ""
-    }],
+    },
     "output": []
 }

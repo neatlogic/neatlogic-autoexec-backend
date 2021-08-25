@@ -11,11 +11,11 @@ use LogTailer;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-verbose <0|1>] [--op <and|or>] [--checkexp <expression for count check>] --pattern <pattern1>,<pattern2>...\n");
+    print("Usage: $pname [-verbose <0|1>] [--op <and|or>] [--checkexp <expression for count check>] <pattern1>,<pattern2>...\n");
     print("       -verbose <0|1>:          verbose\n");
     print("       --checkexp <expression>: expression to check the process count, example: '>10' or '==10' or '<10' or '>=10'\n");
     print("       --op <and|or>:           patterns operator and or or\n");
-    print("       --pattern <pattern>:     command line pattern\n");
+    print("       <pattern>:               command line pattern\n");
 
     exit(1);
 }
@@ -76,7 +76,7 @@ sub main {
 
     my $pname = $FindBin::Script;
 
-    my ( $isVerbose, $countExp, $patternOp, $pattern, @patterns );
+    my ( $isVerbose, $countExp, $patternOp, @patterns );
 
     $isVerbose = 0;
     $patternOp = 'and';
@@ -85,7 +85,7 @@ sub main {
         'verbose:i'  => \$isVerbose,
         'checkexp:s' => \$countExp,
         'op:s'       => \$patternOp,
-        'pattern:s'  => \$pattern
+        '<>'         => sub { my $item = shift(@_); push( @patterns, $item ); }
     );
 
     my $optError = 0;
@@ -102,7 +102,6 @@ sub main {
         }
     }
 
-    @patterns = split( /\s*,\s*/, $pattern );
     if ( scalar(@patterns) == 0 ) {
         $optError = 1;
         $rc       = 1;

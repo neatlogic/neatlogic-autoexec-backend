@@ -5,14 +5,14 @@
     "riskName": "LOW",
     "interpreter": "python",
     "description": "导出全局环境变量，提供给外部流程工具引用",
-    "desc": [{
-        "opt": "name",
-        "name": "变量名",
-        "help": "在环境变量中的名称",
-        "type": "input",
+    "option": [],
+    "argument": {
+        "name": "导出变量名",
+        "help": "需要导出的环境变量名",
         "isConst": "false",
+        "type": "input",
         "defaultValue": "",
         "required": "true",
         "validate": ""
-    }]
+    }
 }

@@ -5,7 +5,7 @@
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于FTP文件传输",
-	"desc": [{
+	"option": [{
 			"opt": "host",
 			"name": "FTP服务IP",
 			"help": "",

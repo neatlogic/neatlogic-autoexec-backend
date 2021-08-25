@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "python",
     "description": "设置全局环境变量",
-    "desc": [{
+    "option": [{
             "opt": "name",
             "name": "变量名",
             "help": "在环境变量中的名称",

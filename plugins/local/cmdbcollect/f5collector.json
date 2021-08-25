@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "使用SNMP采集F5的VS、POOL、MEMBER信息",
-    "desc": [{
+    "option": [{
             "opt": "community",
             "name": "默认团体字",
             "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",

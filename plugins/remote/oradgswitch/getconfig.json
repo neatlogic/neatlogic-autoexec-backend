@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "参数包括：库名（主备一致），实例名：RAC集群内一致，主备不一样，同步的sequence等",
-    "desc": [{
+    "option": [{
         "opt": "sid",
         "name": "SID",
         "help": "如不设置则直接使用环境变量ORACLE_SID",

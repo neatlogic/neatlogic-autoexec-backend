@@ -5,7 +5,7 @@
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于SSH协议进行文件传输",
-	"desc": [{
+	"option": [{
 			"opt": "host",
 			"name": "主机IP",
 			"help": "",

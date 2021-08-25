@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "SQL文件执行",
-    "desc": [{
+    "option": [{
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",

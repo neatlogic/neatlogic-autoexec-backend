@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
-use lib "$FindBin::Bin/lib";
-use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 use strict;
 use POSIX;
@@ -9,7 +9,7 @@ use POSIX;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --checkexp \"/app/mysystem1 100M 50\" \"/app/mysystem2 10G 50\" ...\n");
+    print("Usage: $pname \"/app/mysystem1 100M 50\" \"/app/mysystem2 10G 50\" ...\n");
     exit(1);
 }
 
@@ -33,7 +33,6 @@ sub getMountPointFreeSize {
         if ( scalar(@lines) >= 2 ) {
             my $firstLine = shift(@lines);
             my $info = join( ' ', @lines );
-
             #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
             if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
                 $freeSize = int($3);
@@ -101,7 +100,6 @@ sub getMountPointInodeUsage {
         if ( scalar(@lines) >= 2 ) {
             my $firstLine = shift(@lines);
             my $info = join( ' ', @lines );
-
             #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
             if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)%\s+/ ) {
                 $inodeUsage = int($4);
@@ -129,33 +127,20 @@ sub getMountPointInodeUsage {
 sub main() {
     my $hasError = 0;
 
-    #foreach my $arg (@ARGV) {
-    for ( my $i = 0 ; $i < scalar(@ARGV) ; $i++ ) {
-        my $arg = $ARGV[$i];
-        if ( $arg eq '-checkexp' ) {
-            next;
-        }
-        elsif ( $arg =~ /,/ ) {
-            my @patterns = split( /\s*,\s*/, $arg );
-            push( @ARGV, @patterns );
-            next;
-        }
-
-        my ( $dir, $minSize, $unit, $inodeMaxSize );
+    foreach my $arg (@ARGV) {
+        my ($dir, $minSize, $unit, $inodeMaxSize);
         if ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)\s+(\d+)/i ) {
-            $dir          = $1;
-            $minSize      = int($2);
-            $unit         = uc($3);
+            $dir     = $1;
+            $minSize = int($2);
+            $unit    = uc($3);
             $inodeMaxSize = $4;
-        }
-        elsif ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)/i ) {
-            $dir          = $1;
-            $minSize      = int($2);
-            $unit         = uc($3);
-            $inodeMaxSize = 50;
-        }
-        else {
-            usage();
+        }elsif($arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)/i){
+            $dir     = $1;
+            $minSize = int($2);
+            $unit    = uc($3);
+            $inodeMaxSize = 50;        
+        }else{
+             usage();
         }
 
         if ( $unit eq 'K' ) {

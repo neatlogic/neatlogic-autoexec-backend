@@ -5,7 +5,7 @@
 	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "在runner远程执行工具的Demo",
-	"desc": [{
+	"option": [{
 			"opt": "tinput",
 			"name": "普通输入",
 			"help": "普通输入测试",

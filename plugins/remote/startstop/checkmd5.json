@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "根据MD5列表检查文件MD5是否正确",
-    "desc": [{
+    "option": [{
             "opt": "verbose",
             "name": "详细输出",
             "help": "显示匹配的详细信息",
@@ -33,16 +33,6 @@
             "validate": ""
         },
         {
-            "opt": "dir",
-            "name": "检查目录",
-            "help": "进行MD5检查的目录，多个目录逗号相隔",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
-            "validate": ""
-        },
-        {
             "opt": "delmd5",
             "name": "删除MD5文件",
             "help": "检查成功后是否删除MD5列表文件",
@@ -60,5 +50,14 @@
             "validate": ""
         }
     ],
+    "argument": {
+        "name": "检查目录",
+        "help": "检查目录，支持通配符和反引号",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
     "output": []
 }

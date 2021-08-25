@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "检查日志是否出现某些关键字",
-    "desc": [{
+    "option": [{
             "opt": "verbose",
             "name": "详细输出",
             "help": "显示匹配的详细信息",
@@ -19,16 +19,6 @@
                 "text": "否",
                 "value": "0"
             }],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "logpath",
-            "name": "日志",
-            "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
             "validate": ""
         },
@@ -87,5 +77,14 @@
             "validate": ""
         }
     ],
+    "argument": {
+        "name": "日志路径",
+        "help": "日志路径，支持通配符和反引号",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
     "output": []
 }

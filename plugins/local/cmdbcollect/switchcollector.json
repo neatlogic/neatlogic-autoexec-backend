@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "采集交换机信息,支持Cisco、HuaWei、H3C等",
-    "desc": [{
+    "option": [{
             "opt": "community",
             "name": "默认团体字",
             "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",

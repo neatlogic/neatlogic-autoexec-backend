@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "检查进程数量是否符合预期",
-    "desc": [{
+    "option": [{
             "opt": "verbose",
             "name": "详细输出",
             "help": "显示匹配的详细信息",
@@ -33,16 +33,6 @@
             "validate": ""
         },
         {
-            "opt": "pattern",
-            "name": "关键字",
-            "help": "关键字，支持正则表达式",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "ERROR",
-            "required": "true",
-            "validate": ""
-        },
-        {
             "opt": "op",
             "name": "多关键字",
             "help": "多个关键字的操作符号",
@@ -60,5 +50,14 @@
             "validate": ""
         }
     ],
+    "argument": {
+        "name": "关键字",
+        "help": "关键字，支持正则表达式",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "ERROR",
+        "required": "true",
+        "validate": ""
+    },
     "output": []
 }

@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "在备库执行，切换到主库状态，需要在主库执行切换后执行",
-    "desc": [{
+    "option": [{
         "opt": "sid",
         "name": "SID",
         "help": "如不设置则直接使用环境变量ORACLE_SID",

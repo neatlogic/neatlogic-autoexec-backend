@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
-    "desc": [{
+    "option": [{
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",

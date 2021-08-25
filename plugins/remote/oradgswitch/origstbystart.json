@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "原备库（现主库）启动，需要在现备库启动前启动",
-    "desc": [{
+    "option": [{
             "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",

@@ -5,7 +5,7 @@
 	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "vsphere采集插件",
-	"desc": [{
+	"option": [{
 			"opt": "ip",
 			"name": "管理IP",
 			"help": "vsphere管理IP",

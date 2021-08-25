@@ -15,7 +15,7 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = $FindBin::Script;
 
-    print( "Usage: $pname --addr <url | host:port> --eofstr <eof string pattern> [--timeout <seconds>] [--prescript <script to execute>] [--endprescript <0|1>] [--postscript <script to execute> --logfile <log file pattern1>,<log file pattern2> ...\n" );
+    print( "Usage: $pname --addr <url | host:port> --eofstr <eof string pattern> [--timeout <seconds>] [--prescript <script to execute>] [--endprescript <0|1>] [--postscript <script to execute> <log file pattern1>,<log file pattern2> ...\n" );
     print("       url | host:port: example: http://10.0.0.1:8080/test or 10.0.0.1:8080\n");
     print("       eof string pattern: end tail log while match this pattern, low priority\n");
     print("       timeout:           timeout seconds\n");
@@ -34,7 +34,7 @@ sub main {
 
     my $pname = $FindBin::Script;
 
-    my ( $isVerbose, $addr, $eofStr, $timeout, $preScript, $postScript, $endPreScript, $logPatternStr, @logPatterns );
+    my ( $isVerbose, $addr, $eofStr, $timeout, $preScript, $postScript, $endPreScript, @logPatterns );
     $timeout = 300;
 
     GetOptions(
@@ -45,7 +45,7 @@ sub main {
         'prescript:s'    => \$preScript,
         'postscript:s'   => \$postScript,
         'endprescript:i' => \$endPreScript,
-        'logfile'        => \$logPatternStr
+        '<>'             => sub { my $item = shift(@_); push( @logPatterns, $item ); }
     );
 
     if ( $eofStr =~ /^\{([\w\-\d]+)\}/ ) {
@@ -60,8 +60,6 @@ sub main {
         print("ERROR: option --addr not defined.\n");
         $rc = 1;
     }
-
-    @logPatterns = split( /\s*,\s*/, $logPatternStr );
 
     #if ( scalar(@logPatterns) == 0 ) {
     #    $optError = 1;

@@ -5,6 +5,6 @@
 	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "更新采集插件数据字典",
-	"desc": [],
+	"option": [],
 	"output": []
 }

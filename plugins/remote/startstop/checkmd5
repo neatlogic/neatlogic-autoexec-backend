@@ -16,10 +16,10 @@ my $MD5_DIGEST;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-verbose <0|1>] [--md5listfile <md5 file>] [--delmd5 <0|1>] --dir <dir1>,<dir2>\n");
+    print("Usage: $pname [-verbose <0|1>] [--md5listfile <md5 file>] [--delmd5 <0|1>] <dir1>,<dir2>\n");
     print("       -verbose <0|1>:       verbose\n");
     print("       --delmd5:             remove the md5 file if check success.\n");
-    print("       --dir <dir pattern>:  directorys or files to process\n");
+    print("       <dir pattern>:        directorys or files to process\n");
 
     exit(1);
 }
@@ -107,16 +107,15 @@ sub checkOneDir {
 }
 
 sub main {
-    my ( $isVerbose, $delMd5, $dir, @dirPatterns );
+    my ( $isVerbose, $delMd5, @dirPatterns );
 
     GetOptions(
         'verbose:i'     => \$isVerbose,
         'delmd5:i'      => \$delMd5,
         'md5listfile:s' => \$md5ListFileName,
-        '--dir:s'       => \$dir
+        '<>'            => sub { my $item = shift(@_); push( @dirPatterns, $item ); }
     );
 
-    @dirPatterns = split( /\s*,\s*/, $dir );
     if ( scalar(@dirPatterns) == 0 ) {
         print("ERROR: no directory pattern specified.\n");
         usage();

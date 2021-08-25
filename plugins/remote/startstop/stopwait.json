@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "description": "调用远程命令停止应用，检测应用是否停止的同时tail日志",
-    "desc": [{
+    "option": [{
             "opt": "prescript",
             "name": "停止命令",
             "help": "停止应用所需要的Shell命令",
@@ -13,16 +13,6 @@
             "isConst": "false",
             "defaultValue": "",
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "logfile",
-            "name": "日志",
-            "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
-            "type": "input",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
             "validate": ""
         },
         {
@@ -85,5 +75,14 @@
             "validate": ""
         }
     ],
+    "argument": {
+        "name": "日志",
+        "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
     "output": []
 }
