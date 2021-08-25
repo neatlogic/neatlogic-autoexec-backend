@@ -22,7 +22,8 @@ class VContext:
         self.parallelCount = 25
         self.tenant = ''
         self.phases = {}
-        self.arg = {}
+        self.opt = {}
+        #self.arg = []
         self.output = {}
         self.isForce = isForce
         self.devMode = devMode

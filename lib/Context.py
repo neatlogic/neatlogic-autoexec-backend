@@ -70,8 +70,11 @@ class Context(VContext.VContext):
         if 'tenant' in params:
             self.tenant = params['tenant']
 
-        if 'arg' in params:
-            self.arg = params['arg']
+        if 'opt' in params:
+            self.opt = params['opt']
+
+        # if 'arg' in params:
+        #    self.arg = params['arg']
 
         if 'passThroughEnv' in params:
             self.passThroughEnv = params['passThroughEnv']

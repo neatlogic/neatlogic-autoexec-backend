@@ -94,8 +94,8 @@ class JobRunner:
         # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
 
         for operation in opsParams:
-            if 'arg' in operation:
-                opArgsRefMap[operation['opId']] = operation['arg']
+            if 'opt' in operation:
+                opArgsRefMap[operation['opId']] = operation['opt']
             else:
                 opArgsRefMap[operation['opId']] = {}
 

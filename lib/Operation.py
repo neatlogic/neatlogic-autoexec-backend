@@ -103,6 +103,7 @@ class Operation:
             self.hasOutput = False
 
         self.options = {}
+        self.arguments = []
 
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
@@ -141,29 +142,51 @@ class Operation:
         if 'desc' in self.param:
             opDesc = self.param['desc']
 
-        opArgs = self.param['arg']
+        opOpts = self.param['opt']
 
-        for argName, argValue in opArgs.items():
-            argValue = self.resolveArgValue(argValue, refMap=refMap)
-            if argName in opDesc:
-                argType = opDesc[argName]
+        for optName, optValue in opOpts.items():
+            optValue = self.resolveOptValue(optValue, refMap=refMap)
+            if optName in opDesc:
+                optType = opDesc[optName]
+                if(optType == 'password' and optValue[0:5] == '{RC4}'):
+                    try:
+                        optValue = Utils._rc4_decrypt_hex(self.passKey, optValue[5:])
+                    except:
+                        print("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
+                elif(optType == 'file'):
+                    matchObj = re.match(r'^\s*\$\{', '{}'.format(optValue))
+                    if not matchObj:
+                        fileNames = self.fetchFile(optName, optValue)
+                        fileNamesJson = []
+                        for fileName in fileNames:
+                            fileNamesJson.append('file/' + fileName)
+                        optValue = json.dumps(fileNamesJson)
+                self.options[optName] = optValue
+
+        if 'arg' in self.param and 'values' in self.param['arg']:
+            opArgs = self.param['arg']
+            argType = self.param['arg']['type']
+            argValues = []
+            for argValue in opArgs['values']:
+                argValue = self.resolveOptValue(argValue, refMap=refMap)
                 if(argType == 'password' and argValue[0:5] == '{RC4}'):
                     try:
                         argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
                     except:
-                        print("WARN: Decrypt password arg:{}->{} failed.\n".format(self.opName, argName))
+                        print("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
                     if not matchObj:
-                        fileNames = self.fetchFile(argName, argValue)
+                        fileNames = self.fetchFile(optName, argValue)
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
                         argValue = json.dumps(fileNamesJson)
-                self.options[argName] = argValue
+                argValues.append(argValue)
+            self.arguments = argValues
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
-    def fetchFile(self, argName, fileIds):
+    def fetchFile(self, optName, fileIds):
         cachePath = self.dataPath + '/cache'
         serverAdapter = self.context.serverAdapter
 
@@ -206,25 +229,27 @@ class Operation:
             serverAdapter = self.context.serverAdapter
             serverAdapter.fetchScript(savePath, opId)
 
-    def resolveArgValue(self, argValue, refMap=None):
-        if not isinstance(argValue, str):
-            return argValue
+    def resolveOptValue(self, optValue, refMap=None):
+        if not isinstance(optValue, str):
+            return optValue
 
         if not refMap:
             refMap = self.context.output
 
         # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
-        matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', argValue)
+        matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', optValue)
         if matchObj:
             paramName = matchObj.group(1)
-            nativeRefMap = self.context.arg
+            nativeRefMap = self.context.opt
             if paramName in nativeRefMap:
-                argValue = nativeRefMap[paramName]
+                optValue = nativeRefMap[paramName]
+            elif paramName in os.environ:
+                optValue = os.environ[paramName]
             else:
-                raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
+                raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
         else:
             # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
-            matchObj = re.match(r'^\s*\$\{\s*(.+)\s*\}\s*$', argValue)
+            matchObj = re.match(r'^\s*\$\{\s*(.+)\s*\}\s*$', optValue)
             if matchObj:
                 varName = matchObj.group(1)
                 varNames = varName.split('.', 3)
@@ -244,11 +269,27 @@ class Operation:
                         newArgValue = paramMap[paramName]
 
                 if newArgValue is not None:
-                    argValue = newArgValue
+                    optValue = newArgValue
                 else:
-                    raise AutoExecError.AutoExecError("Can not resolve param " + argValue)
+                    raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
-        return argValue
+        return optValue
+
+    def appendCmdArgs(self, cmd, noPassword=False):
+        argDesc = 'input'
+        if 'arg' in self.param and 'type' in self.param['arg']:
+            argDesc = self.param['arg']['type'].lower()
+
+        if noPassword and argDesc == 'password':
+            for argValue in self.arguments:
+                cmd = cmd + ' "******"'
+        elif argDesc in ('node', 'json', 'password', 'file'):
+            for argValue in self.arguments:
+                cmd = cmd + " '{}'".format(argValue)
+        else:
+            cmd = cmd + ' "{}"'.format(argValue)
+
+        return cmd
 
     def appendCmdOpts(self, cmd, noPassword=False):
         for k, v in self.options.items():
@@ -265,7 +306,6 @@ class Operation:
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
                     cmd = cmd + ' --{} "{}" '.format(k, v)
-
         return cmd
 
     def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
@@ -332,9 +372,11 @@ class Operation:
     def getCmdLine(self, fullPath=False, remotePath=None, osType='linux'):
         cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
         cmd = self.appendCmdOpts(cmd)
+        cmd = self.appendCmdArgs(cmd)
         return cmd
 
     def getCmdLineHidePassword(self, fullPath=False, remotePath=None, osType='linux'):
         cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
         cmd = self.appendCmdOpts(cmd, True)
+        cmd = self.appendCmdArgs(cmd, True)
         return cmd

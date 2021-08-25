@@ -5,7 +5,16 @@
 	"riskName": "LOW",
 	"interpreter": "perl",
 	"description": "在远程target OS执行工具的Demo",
-	"desc": [{
+	"arg": {
+		"count": "0",
+		"type": "input",
+		"defaultValue": "",
+		"help": "",
+		"isConst": "false",
+		"required": "true"
+	},
+
+	"opt": [{
 			"opt": "tinput",
 			"name": "普通输入",
 			"help": "普通输入测试",
