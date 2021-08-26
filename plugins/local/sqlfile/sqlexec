@@ -16,11 +16,12 @@ use SQLFileRunner;
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname [-v|--verbose] [--dryrun] [--autocommit] [--dbversion <db version>] [--dbargs <db client tool args>] --sqlfilejson <1.ddl.a.sql>\n");
+    print("Usage: $pname [-v|--verbose] [--dryrun] [--autocommit] [--dbversion <db version>] [--dbargs <db client tool args>] --encoding <encoding> --sqlfilejson <1.ddl.a.sql>\n");
     print("       dryrun:      only test, not realy execute the sql script\n");
     print("       autocommit:  permit autocommit on mysql, postgresql\n");
     print("       dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
     print("       dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       encoding:    encoding for sql file\n");
     print("       sql file:    sql script file\n");
 
     exit(1);
@@ -39,6 +40,7 @@ sub main {
 
     my $dbVersion;
     my $dbArgs;
+    my $charSet;
     my $dbNodeJson;
     my $sqlFileJson;
 
@@ -52,6 +54,7 @@ sub main {
         'autocommit'    => \$isAutoCommit,
         'dbversion=s'   => \$dbVersion,
         'dbargs=s'      => \$dbArgs,
+        'encoding=s'    => \$charSet,
         'sqlfilejson=s' => \$sqlFileJson
     );
 
@@ -105,6 +108,7 @@ sub main {
         autocommit => $isAutoCommit,
         dbVersion  => $dbVersion,
         dbArgs     => $dbArgs,
+        charSet    => $charSet,
         istty      => 0
     );
     my $rc = 0;

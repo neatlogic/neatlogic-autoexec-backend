@@ -26,6 +26,7 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
+        charSet      => $args{charSet},
         dbNode       => $args{dbNode},
         sqlFiles     => $args{sqlFiles},
         istty        => $args{istty},
@@ -206,9 +207,6 @@ sub execOneSqlFile {
     my $requireName = $handlerName . '.pm';
 
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
-    my $charSet     = Utils::guessEncoding($sqlFilePath);
-
-    #TODO: auto detect file charset.
 
     print("#***************************************\n");
     print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
@@ -216,6 +214,21 @@ sub execOneSqlFile {
     print("# MD5=$sqlFileStatus->{status}->{md5}\n");
     print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
     print("#***************************************\n\n");
+
+    my $charSet = $elf->{charSet};
+    if ( not defined($charSet) ) {
+        $charSet = Utils::guessEncoding($sqlFilePath);
+        if ( defined($charSet) ) {
+            print("INFO: Detech charset $charSet.\n");
+        }
+        else {
+            print("ERROR: Can not detect $sqlFilePath charset.\n");
+            return 1;
+        }
+    }
+    else {
+        print("INFO: Use charset: $charSet\n");
+    }
 
     my $startTime = time();
     my $spawn;

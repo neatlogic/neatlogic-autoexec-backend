@@ -16,6 +16,29 @@
             "validate": ""
         },
         {
+            "opt": "encoding",
+            "name": "SQL文件编码",
+            "help": "SQL文件的编码",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "自动识别",
+                    "value": "",
+                    "selected": "true"
+                },
+                {
+                    "text": "UTF-8",
+                    "value": "UTF-8"
+                },
+                {
+                    "text": "GBK",
+                    "value": "GBK"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
             "opt": "dryrun",
             "name": "测试运行",
             "help": "测试运行，并没有真正执行SQL",
