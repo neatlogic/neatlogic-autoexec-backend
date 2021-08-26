@@ -294,6 +294,9 @@ class Operation:
 
     def appendCmdOpts(self, cmd, noPassword=False):
         for k, v in self.options.items():
+            if v == "" or v is None:
+                continue
+
             kDesc = None
             if 'desc' in self.param and k in self.param['desc']:
                 kDesc = self.param['desc'][k].lower()
