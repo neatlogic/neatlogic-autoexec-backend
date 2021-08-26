@@ -287,7 +287,8 @@ class Operation:
             for argValue in self.arguments:
                 cmd = cmd + " '{}'".format(argValue)
         else:
-            cmd = cmd + ' "{}"'.format(argValue)
+            for argValue in self.arguments:
+                cmd = cmd + ' "{}"'.format(argValue)
 
         return cmd
 
