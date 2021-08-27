@@ -96,14 +96,16 @@ sub main {
         if ( defined($osInfo) ) {
             $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
             $osInfo->{OS_TYPE}     = $osType;
-            $osInfo->{OS_ID}       = $osGather->{osId};
+            #$osInfo->{OS_ID}       = $osGather->{osId};
+            $osInfo->{RESOURCE_ID} = $osGather->{resourceId};
             $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
             $osInfo->{PK}          = ['MGMT_IP'];
         }
         if ( defined($hostInfo) ) {
             $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
-            $hostInfo->{OS_ID}       = $osGather->{osId};
+            #$hostInfo->{OS_ID}       = $osGather->{osId};
+            $osInfo->{RESOURCE_ID}   = $osGather->{resourceId};
             $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
             $hostInfo->{PK}          = ['BOARD_SERIAL'];

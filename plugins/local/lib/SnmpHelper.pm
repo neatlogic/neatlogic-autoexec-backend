@@ -128,6 +128,7 @@ sub getScalar {
             $data->{$attr} = $oidVal;
         }
         else {
+            $data->{$attr} = undef;
             print("WARN: Can not find value for attr $attr(oid:$oidDesc).\n");
         }
     }

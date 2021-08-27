@@ -1,4 +1,4 @@
-# CMDBCOLLECT README
+# 远程OS运行的CMDBCOLLECT README
 
 ------
 ## 主要功能
@@ -15,7 +15,7 @@
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: 主板序列号
 > 上述属性都可以用于关联OS
 
@@ -69,7 +69,7 @@
         "MICROCODE": "0x71a",
         "SN": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
         "MANUFACTURER": "6.00",
-        "OS_ID": "",
+        "RESOURCE_ID": "380303927205890",
         "OBJECT_TYPE": "HOST"
     }
 ```
@@ -79,7 +79,7 @@
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: 主板序列号
 > 上述属性都可以用于关联HOST硬件
 
@@ -182,7 +182,7 @@
             "CAPACITY": 2.147
         }],
         "SYS_VENDOR": "VMware, Inc.",
-        "OS_ID": "",
+        "RESOURCE_ID": "380303927205890",
         "MEM_CACHED": 3180.586,
         "NTP_SERVERS": ["202.112.10.36"],
         "NETWORKMANAGER_ENABLE": 1,
@@ -233,7 +233,7 @@
 - APP_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 > 上述属性都可以用于关联OS
 - INSTALL_PATH: 安装路径
 - SERVER_NAME: 应用实例名
@@ -340,12 +340,12 @@
                 "HISTCONTROL": "ignoredups"
             },
             "COMM": "java",
-            "OS_ID": ""
+            "RESOURCE_ID": "380303927205890"
         },
         "JVM_VERSION": "1.8.0_77-b03",
         "PORTS": ["8080", "9345"],
         "APP_TYPE": "Tomcat",
-        "OS_ID": "",
+        "RESOURCE_ID": "380303927205890",
         "SSL_PORT": "9345",
         "VERSION": "9.0.44.0",
         "OBJECT_TYPE": "APP"
