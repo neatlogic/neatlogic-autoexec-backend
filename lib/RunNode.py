@@ -627,7 +627,7 @@ class RunNode:
         if self.type == 'tagent':
             scriptFile = None
             try:
-                remoteRoot = '$TMPDIR/autoexec-{}'.format(self.context.jobId)
+                remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
                 remotePath = remoteRoot + '/' + op.opBunddleName
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
@@ -672,7 +672,7 @@ class RunNode:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
                     try:
-                        if ret != 0 and self.context.devMode:
+                        if not self.context.devMode and ret == 0:
                             if tagent.agentOsType == 'windows':
                                 tagent.execCmd(self.username, "rd /s /q {}".format(remoteRoot), env=runEnv)
                             else:
@@ -694,7 +694,7 @@ class RunNode:
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
-            remoteRoot = '/tmp/autoexec-{}'.format(self.context.jobId)
+            remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
@@ -832,7 +832,7 @@ class RunNode:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
                     try:
-                        if ret != 0 and self.context.devMode:
+                        if not self.context.devMode and ret == 0:
                             ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
                     except Exception as ex:
                         self.writeNodeLog("ERROR: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
