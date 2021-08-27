@@ -204,7 +204,7 @@ sub main {
             if ( not defined($appType) ) {
                 $appType = $procInfo->{APP_TYPE};
                 $appInfo->{APP_TYPE} = $appType;
-                print("WARN: $collectorClass did not return APP_TYPE, fallback to $appType.\n");
+                print("INFO: $collectorClass did not return APP_TYPE, fallback to $appType.\n");
             }
             print("INFO: Matched appType:$appType.\n");
 
