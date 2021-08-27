@@ -27,10 +27,10 @@ sub new {
     my $pwd         = getcwd;
     my $cfg_path    = $pwd . '/../../../conf/config.ini';
     my $cfg         = Config::IniFiles->new( -file => "$cfg_path" );
-    my $db_url      = $cfg->val( 'cmdb-db', 'db.url' );
-    my $db_name     = $cfg->val( 'cmdb-db', 'db.name' );
-    my $db_username = $cfg->val( 'cmdb-db', 'db.username' );
-    my $db_password = $cfg->val( 'cmdb-db', 'db.password' );
+    my $db_url      = $cfg->val( 'autoexec-db', 'db.url' );
+    my $db_name     = $cfg->val( 'autoexec-db', 'db.name' );
+    my $db_username = $cfg->val( 'autoexec-db', 'db.username' );
+    my $db_password = $cfg->val( 'autoexec-db', 'db.password' );
 
     if ( $db_password =~ /\{ENCRYPTED\}/ ) {
         $db_password =~ s/\{ENCRYPTED\}//;

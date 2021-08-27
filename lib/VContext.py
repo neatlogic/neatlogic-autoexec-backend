@@ -56,7 +56,6 @@ class VContext:
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')
         passKey = cfg.get('server', 'password.key')
-        cmdbDBPass = cfg.get('cmdb-db', 'db.password')
         autoexecDBPass = cfg.get('autoexec-db', 'db.password')
 
         if serverPass.startswith('{ENCRYPTED}'):
@@ -77,12 +76,6 @@ class VContext:
         else:
             hasNoEncrypted = True
 
-        if cmdbDBPass.startswith('{ENCRYPTED}'):
-            cmdbDBPass = Utils._rc4_decrypt_hex(self.MY_KEY, cmdbDBPass[11:])
-            cfg.set('cmdb-db', 'db.password', cmdbDBPass)
-        else:
-            hasNoEncrypted = True
-
         self.config = cfg
 
         if hasNoEncrypted:
@@ -91,7 +84,6 @@ class VContext:
 
             serverPass = mcfg.get('server', 'server.password')
             passKey = mcfg.get('server', 'password.key')
-            cmdbDBPass = mcfg.get('cmdb-db', 'db.password')
             autoexecDBPass = mcfg.get('autoexec-db', 'db.password')
 
             if not serverPass.startswith('{ENCRYPTED}'):
@@ -102,9 +94,6 @@ class VContext:
 
             if not autoexecDBPass.startswith('{ENCRYPTED}'):
                 mcfg.set('autoexec-db', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, autoexecDBPass))
-
-            if not cmdbDBPass.startswith('{ENCRYPTED}'):
-                mcfg.set('cmdb-db', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, cmdbDBPass))
 
             with FileLock(cfgPath):
                 fp = open(cfgPath, 'w')
