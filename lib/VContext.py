@@ -56,7 +56,7 @@ class VContext:
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')
         passKey = cfg.get('server', 'password.key')
-        autoexecDBPass = cfg.get('autoexec-db', 'db.password')
+        autoexecDBPass = cfg.get('autoexec', 'db.password')
 
         if serverPass.startswith('{ENCRYPTED}'):
             serverPass = Utils._rc4_decrypt_hex(self.MY_KEY, serverPass[11:])
@@ -72,7 +72,7 @@ class VContext:
 
         if autoexecDBPass.startswith('{ENCRYPTED}'):
             autoexecDBPass = Utils._rc4_decrypt_hex(self.MY_KEY, autoexecDBPass[11:])
-            cfg.set('autoexec-db', 'db.password', autoexecDBPass)
+            cfg.set('autoexec', 'db.password', autoexecDBPass)
         else:
             hasNoEncrypted = True
 
@@ -84,7 +84,7 @@ class VContext:
 
             serverPass = mcfg.get('server', 'server.password')
             passKey = mcfg.get('server', 'password.key')
-            autoexecDBPass = mcfg.get('autoexec-db', 'db.password')
+            autoexecDBPass = mcfg.get('autoexec', 'db.password')
 
             if not serverPass.startswith('{ENCRYPTED}'):
                 mcfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, serverPass))
@@ -93,7 +93,7 @@ class VContext:
                 mcfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
 
             if not autoexecDBPass.startswith('{ENCRYPTED}'):
-                mcfg.set('autoexec-db', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, autoexecDBPass))
+                mcfg.set('autoexec', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, autoexecDBPass))
 
             with FileLock(cfgPath):
                 fp = open(cfgPath, 'w')
@@ -114,10 +114,10 @@ class VContext:
 
     def initDB(self, parallelCount):
         # 初始化创建mongodb connect
-        dbUrl = self.config.get('autoexec-db', 'db.url')
-        dbName = self.config.get('autoexec-db', 'db.name')
-        dbUsername = self.config.get('autoexec-db', 'db.username')
-        dbPassword = self.config.get('autoexec-db', 'db.password')
+        dbUrl = self.config.get('autoexec', 'db.url')
+        dbName = self.config.get('autoexec', 'db.name')
+        dbUsername = self.config.get('autoexec', 'db.username')
+        dbPassword = self.config.get('autoexec', 'db.password')
         if dbUrl is not None:
             mongoClient = pymongo.MongoClient(dbUrl, maxPoolSize=parallelCount)
             autoexecDB = mongoClient[dbName]

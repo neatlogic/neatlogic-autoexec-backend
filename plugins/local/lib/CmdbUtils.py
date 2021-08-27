@@ -25,10 +25,10 @@ class CmdbUtils:
         cfg.read(cfgPath)
         self.config = cfg
         my_key = 'E!YO@JyjD^RIwe*OE739#Sdk%'
-        dburl = cfg.get('autoexec-db', 'db.url')
-        dbname = cfg.get('autoexec-db', 'db.name')
-        dbuser = cfg.get('autoexec-db', 'db.username')
-        dbpwd = cfg.get('autoexec-db', 'db.password')
+        dburl = cfg.get('autoexec', 'db.url')
+        dbname = cfg.get('autoexec', 'db.name')
+        dbuser = cfg.get('autoexec', 'db.username')
+        dbpwd = cfg.get('autoexec', 'db.password')
         self.dburl = dburl
         self.dbname = dbname
         self.dbuser = dbuser
