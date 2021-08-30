@@ -18,6 +18,7 @@
 - RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: 主板序列号
 > 上述属性都可以用于关联OS
+> 为了便于检索，如果某个属性的值是一个数组，数组元素必须也是Object，譬如：IP地址列表：[{"VALUE":"192.168.0.1"}, {"VALUE":"10.168.0.1"}]
 
 * 样例
 ```json
@@ -33,7 +34,7 @@
         "PRODUCT_NAME": "VMware Virtual Platform",
         "MODEL_NAME": "Intel(R) Xeon(R) CPU E5-2670 0",
         "NET_INTERFACES": [{
-            "LINK_STATE": "yes",
+            "STATUS": "yes",
             "UNIT": "Mb/s",
             "NAME": "ens160",
             "SPEED": 10000,

@@ -64,9 +64,7 @@ sub collectOsInfo {
     my $dnsInfo    = $self->getCmdOutLines('wmic nicconfig get DNSServerSearchOrder /value|findstr "DNSServerSearchOrder={"');
     foreach my $line (@$dnsInfo) {
         while ( $line =~ /(\d+\.\d+\.\d+\.\d+)/g ) {
-            my $dns = {};
-            $dns->{NAME} = $1;
-            push( @dnsServers, $dns );
+            push( @dnsServers, { VALUE => $1 } );
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
@@ -75,9 +73,7 @@ sub collectOsInfo {
     my $ntpInfoLines = $self->getCmdOutLines('w32tm /query /configuration');
     foreach my $line (@$ntpInfoLines) {
         if ( $line =~ /NtpServer:\s*(\S+),/ ) {
-            my $ntp = {};
-            $ntp->{NAME} = $1;
-            push( @ntpServers, $ntp );
+            push( @ntpServers, { VALUE => $1 } );
         }
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
@@ -168,9 +164,7 @@ sub collectOsInfo {
             }
         }
         elsif ( $line =~ /\[\d+\]:\s+(KB\d+)$/ ) {
-            my $patch = {};
-            $patch->{NAME} = $1;
-            push( @patches, $patch );
+            push( @patches, { VALUE => $1 } );
         }
         elsif ( $line =~ /^(\S.*?):\s*(.*?)\s*$/ ) {
             $sysInfo->{$1} = $2;
@@ -203,9 +197,7 @@ sub collectOsInfo {
     while ( $ipInfo =~ /(\d+\.\d+\.\d+\.\d+)/sg ) {
         my $ip = $1;
         if ( $ip ne '127.0.0.1' ) {
-            my $nip = {};
-            $nip->{NAME} = $1;
-            push( @ipV4Addrs, $nip );
+            push( @ipV4Addrs, { VALUE => $ip } );
         }
     }
     $osInfo->{IP_ADDRS} = \@ipV4Addrs;

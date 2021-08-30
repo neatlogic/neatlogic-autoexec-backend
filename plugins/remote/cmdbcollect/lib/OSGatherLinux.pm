@@ -189,9 +189,7 @@ sub collectOsInfo {
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(.*)\s*$/i ) {
-            my $dns = {};
-            $dns->{NAME} = $1;
-            push( @dnsServers, $dns );
+            push( @dnsServers, { VALUE => $1 } );
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
@@ -295,9 +293,7 @@ sub collectOsInfo {
     my @ntpServers   = ();
     foreach my $line (@$ntpInfoLines) {
         if ( $line =~ /^server\s+(\d+\.\d+\.\d+\.\d+)/i ) {
-            my $ntp = {};
-            $ntp->{NAME} = $1;
-            push( @ntpServers, $ntp );
+            push( @ntpServers, { VALUE => $1 } );
         }
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
@@ -314,17 +310,13 @@ sub collectOsInfo {
         if ( $line =~ /^\s*inet\s+(.*?)\/\d+/ ) {
             $ip = $1;
             if ( $ip !~ /^127\./ ) {
-                my $nip = {};
-                $nip->{'NAME'} = $1;
-                push( @ipv4, $nip );
+                push( @ipv4, { VALUE => $ip } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/\d+/ ) {
             $ip = $1;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                my $nip = {};
-                $nip->{'NAME'} = $1;
-                push( @ipv6, $nip );
+                push( @ipv6, { VALUE => $ip } );
             }
         }
     }
@@ -394,7 +386,7 @@ sub collectOsInfo {
     if ( defined($arrayInfoLines) and scalar(@$arrayInfoLines) > 2 ) {
         foreach my $line ( splice( @$arrayInfoLines, 2, -1 ) ) {
             my $arrayInfo = {};
-            my @infos     = split( /\s+/, $line );
+            my @infos = split( /\s+/, $line );
             $arrayInfo->{NAME}                     = $infos[2];
             $arrayInfo->{SN}                       = $infos[3];
             $arrayInfosMap->{ $arrayInfo->{NAME} } = $arrayInfo;
@@ -405,7 +397,7 @@ sub collectOsInfo {
     if ( defined($hwLunInfoLines) and @$hwLunInfoLines > 0 ) {
         foreach my $line ( splice( @$hwLunInfoLines, 2, -1 ) ) {
             my $lunInfo = {};
-            my @infos   = split( /\s+/, $line );
+            my @infos = split( /\s+/, $line );
             $lunInfo->{NAME}  = '/dev/' . $infos[2];
             $lunInfo->{WWN}   = $infos[4];
             $lunInfo->{ARRAY} = $infos[8];
@@ -623,7 +615,7 @@ sub collectHostInfo {
         if ( $speed eq 'unknown' ) {
             $state = 'down';
         }
-        $hbaInfo->{STATE} = $state;
+        $hbaInfo->{STATUS} = $state;
         push( @hbaInfos, $hbaInfo );
     }
     $hostInfo->{HBA_INTERFACES} = \@hbaInfos;

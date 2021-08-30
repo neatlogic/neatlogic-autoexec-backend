@@ -1,77 +1,86 @@
 [{
-	"name": "IPV6_ADDRS",
-	"desc": "ipv6 address",
+	"name": "IP_ADDRS",
+	"desc": "IP Addresses",
 	"type": "JsonArray",
 	"subset": [{
-		"name": "NAME",
+		"name": "VALUE",
 		"desc": "name",
+		"type": "String"
+	}]
+}, {
+	"name": "IPV6_ADDRS",
+	"desc": "IPV6 Addresses",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "VALUE",
+		"desc": "IP",
 		"type": "String"
 	}]
 }, {
 	"name": "CPU_FREQUENCY",
-	"desc": "cpu frequency",
+	"desc": "Cpu Frequency",
 	"type": "String"
 }, {
 	"name": "CPU_FIRMWARE_VERSION",
-	"desc": "cpu firmware version",
+	"desc": "Cpu Firmware Version",
 	"type": "String"
 }, {
 	"name": "OS_TYPE",
-	"desc": "os type",
+	"desc": "Os Type",
 	"type": "String"
 }, {
 	"name": "MACHINE_ID",
-	"desc": "machine id",
+	"desc": "Machine ID",
 	"type": "String"
 }, {
 	"name": "BOARD_SERIAL",
-	"desc": "board serial",
+	"desc": "Main Board Serial",
 	"type": "String"
 }, {
 	"name": "NET_INTERFACES",
-	"desc": "net interfaces",
+	"desc": "NIC",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "NAME",
-		"desc": "name",
+		"desc": "Mask",
 		"type": "String"
 	}, {
 		"name": "STATUS",
-		"desc": "status",
+		"desc": "Link Status",
 		"type": "String"
 	}, {
 		"name": "SPEED",
-		"desc": "speed",
+		"desc": "Speed",
 		"type": "String"
 	}, {
 		"name": "MAC",
-		"desc": "mac",
+		"desc": "Mac Address",
 		"type": "String"
 	}]
 }, {
 	"name": "PATCHES_APPLIED",
-	"desc": "patches applied",
+	"desc": "Patches Applied",
 	"type": "JsonArray",
 	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+		"name": "VALUE",
+		"desc": "Patch Id",
 		"type": "String"
 	}]
 }, {
 	"name": "NTP_ENABLE",
-	"desc": "enable ntp",
+	"desc": "NTP Enabled",
 	"type": "int"
 }, {
 	"name": "SWAP_FREE",
-	"desc": "free swap",
+	"desc": "Free Swap",
 	"type": "float"
 }, {
 	"name": "CPU_CORES",
-	"desc": "cpu cores",
+	"desc": "Cpu Cores",
 	"type": "String"
 }, {
 	"name": "SSH_VERSION",
-	"desc": "ssh version",
+	"desc": "SSH Version",
 	"type": "String"
 }, {
 	"name": "USERS",
@@ -79,195 +88,191 @@
 	"type": "JsonArray",
 	"subset": [{
 		"name": "HOME",
-		"desc": "home",
+		"desc": "Home Directory",
 		"type": "String"
 	}, {
 		"name": "NAME",
-		"desc": "name",
+		"desc": "Name",
 		"type": "String"
 	}, {
 		"name": "SHELL",
-		"desc": "shell",
+		"desc": "Shell",
 		"type": "String"
 	}, {
 		"name": "UID",
-		"desc": "uid",
+		"desc": "UID",
 		"type": "String"
 	}, {
 		"name": "GID",
-		"desc": "gid",
+		"desc": "GID",
 		"type": "String"
 	}]
 }, {
 	"name": "CPU_MODE",
-	"desc": "cpu mode",
+	"desc": "Cpu Mode",
 	"type": "String"
 }, {
 	"name": "DISKS",
-	"desc": "disks",
+	"desc": "Disks",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "UNIT",
-		"desc": "unit",
+		"desc": "Unit",
 		"type": "String"
 	}, {
 		"name": "NAME",
-		"desc": "name",
+		"desc": "Name",
 		"type": "String"
 	}, {
 		"name": "TYPE",
-		"desc": "type",
+		"desc": "Type",
 		"type": "String"
 	}, {
 		"name": "CAPACITY",
-		"desc": "capacity",
+		"desc": "Capacity",
 		"type": "int"
 	}]
 }, {
 	"name": "SYS_VENDOR",
-	"desc": "sys vendor",
+	"desc": "System Vendor",
 	"type": "String"
 }, {
 	"name": "OS_ID",
-	"desc": "os id",
+	"desc": "OS ID",
 	"type": "String"
 }, {
 	"name": "NTP_SERVERS",
-	"desc": "ntp servers",
-	"type": "Array"
+	"desc": "NTP Servers",
+	"type": "Array",
+	"subset": {
+		"name": "VALUE",
+		"desc": "IP",
+		"type": "String"
+	}
 }, {
 	"name": "NFS_MOUNTED",
-	"desc": "nfs mounted",
+	"desc": "NFS Mounted",
 	"type": "int"
 }, {
 	"name": "OPENSSL_VERSION",
-	"desc": "openssl version",
+	"desc": "Openssl Version",
 	"type": "String"
 }, {
 	"name": "MAX_USER_PROCESS_COUNT",
-	"desc": "max user processcount",
+	"desc": "Max User Processes Count",
 	"type": "int"
 }, {
 	"name": "MGMT_IP",
-	"desc": "manager ip",
+	"desc": "Managent Ip",
 	"type": "String"
 }, {
 	"name": "CPU_MICROCODE",
-	"desc": "cpu microcode",
+	"desc": "Cpu Microcode",
 	"type": "String"
 }, {
 	"name": "NIC_BOND",
-	"desc": "nic bond",
+	"desc": "NIC Bond",
 	"type": "int"
 }, {
 	"name": "CPU_ARCH",
-	"desc": "cpu arch",
+	"desc": "Cpu Architechure",
 	"type": "String"
 }, {
 	"name": "MGMT_PORT",
-	"desc": "mgmt port",
+	"desc": "Management Port",
 	"type": "int"
 }, {
 	"name": "CPU_BITS",
-	"desc": "cpu bits",
+	"desc": "Cpu Bits",
 	"type": "int"
 }, {
 	"name": "SWAP_TOTAL",
-	"desc": "swap total",
+	"desc": "Swap Total",
 	"type": "int"
 }, {
 	"name": "CPU_VERSION",
-	"desc": "cpu version",
+	"desc": "Cpu Version",
 	"type": "String"
 }, {
 	"name": "KERNEL_VERSION",
-	"desc": "kernel version",
+	"desc": "Kernel Version",
 	"type": "String"
 }, {
 	"name": "DNS_SERVERS",
-	"desc": "dns servers",
+	"desc": "DNS Servers",
 	"type": "JsonArray",
 	"subset": [{
-		"name": "NAME",
+		"name": "VALUE",
 		"desc": "name",
 		"type": "String"
 	}]
 }, {
 	"name": "HOSTNAME",
-	"desc": "hostname",
+	"desc": "Host Name",
 	"type": "String"
 }, {
 	"name": "AUTO_RESTART",
-	"desc": "auto restart",
+	"desc": "Auto Restart",
 	"type": "String"
 }, {
 	"name": "CPU_MODEL_NAME",
-	"desc": "cpu modelname",
+	"desc": "Cpu Model Name",
 	"type": "String"
 }, {
 	"name": "MEM_TOTAL",
-	"desc": "total memory",
+	"desc": "Memory Total",
 	"type": "int"
 }, {
 	"name": "MOUNT_POINTS",
-	"desc": "mount points",
+	"desc": "Mount Points",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "USED",
-		"desc": "used",
+		"desc": "Used",
 		"type": "float"
 	}, {
 		"name": "AVAILABLE",
-		"desc": "available",
+		"desc": "Available",
 		"type": "float"
 	}, {
 		"name": "DEVICE",
-		"desc": "device",
+		"desc": "Device",
 		"type": "String"
 	}, {
 		"name": "MOUNT_POINT",
-		"desc": "mount_point",
+		"desc": "Mount Point",
 		"type": "String"
 	}, {
 		"name": "USED%",
-		"desc": "used%",
+		"desc": "Used%",
 		"type": "int"
 	}, {
 		"name": "FS_TYPE",
-		"desc": "fs_type",
+		"desc": "FS Type",
 		"type": "String"
 	}, {
 		"name": "UNIT",
-		"desc": "unit",
+		"desc": "Unit",
 		"type": "String"
 	}, {
 		"name": "INODE_USED%",
-		"desc": "inode_used%",
+		"desc": "Inode Used%",
 		"type": "int"
 	}, {
 		"name": "CAPACITY",
-		"desc": "capacity",
+		"desc": "Capacity",
 		"type": "int"
 	}]
 }, {
-	"name": "IP_ADDRS",
-	"desc": "ip_addrs",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
-		"type": "String"
-	}]
-}, {
 	"name": "VERSION",
-	"desc": "version",
+	"desc": "Version",
 	"type": "String"
 }, {
 	"name": "MAX_OPEN_FILES",
-	"desc": "max_open_files",
+	"desc": "Max Open Files",
 	"type": "int"
 }, {
 	"name": "OBJECT_TYPE",
-	"desc": "object_type",
+	"desc": "Object Type",
 	"type": "String"
 }]

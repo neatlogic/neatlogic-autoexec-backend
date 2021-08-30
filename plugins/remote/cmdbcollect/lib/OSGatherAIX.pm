@@ -200,9 +200,7 @@ sub collectOsInfo {
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(.*)\s*$/i ) {
-            my $dns = {};
-            $dns->{NAME} = $1;
-            push( @dnsServers, $dns );
+            push( @dnsServers, { VALUE => $1 } );
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
@@ -218,9 +216,7 @@ sub collectOsInfo {
     my @ntpServers   = ();
     foreach my $line (@$ntpInfoLines) {
         if ( $line =~ /^server\s+(\d+\.\d+\.\d+\.\d+)/i ) {
-            my $ntp = {};
-            $ntp->{NAME} = $1;
-            push( @ntpServers, $ntp );
+            push( @ntpServers, { VALUE => $1 } );
         }
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
@@ -255,17 +251,13 @@ sub collectOsInfo {
         if ( $line =~ /^\s*inet\s+([\d\.]+)\s+netmask\s+/ ) {
             $ip = $1;
             if ( $ip !~ /^127\./ ) {
-                my $nip = {};
-                $nip->{NAME} = $ip;
-                push( @ipv4, $nip );
+                push( @ipv4, { VALUE => $ip } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/\d+/ ) {
             $ip = $1;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                my $nip = {};
-                $nip->{NAME} = $ip;
-                push( @ipv6, $nip );
+                push( @ipv6, { VALUE => $ip } );
             }
         }
     }
@@ -305,9 +297,7 @@ sub collectOsInfo {
     my $patchInfoLines = $self->getCmdOutLines(q{instfix -i|grep ML | awk '{print $4}'});
     foreach my $patch (@$patchInfoLines) {
         $patch =~ s/^\s*|\s*$//g;
-        my $patchObj = {};
-        $patchObj->{NAME} = $patch;
-        push( @patchs, $patchObj );
+        push( @patchs, { VALUE => $patch } );
     }
     $osInfo->{PATCHES_APPLIED} = \@patchs;
 
@@ -418,7 +408,7 @@ sub collectHostInfo {
 
     my $nicInfosMap = {};
     for ( my $i = 1 ; $i < $nicInfoLineCount ; $i++ ) {
-        my $line    = $$nicInfoLines[$i];
+        my $line = $$nicInfoLines[$i];
         my @nicSegs = split( /\s+/, $line );
 
         my $ethName = $nicSegs[0];
@@ -473,7 +463,7 @@ sub collectHostInfo {
         else {
             $portState = 'down';
         }
-        $hbaInfo->{STATE} = $portState;
+        $hbaInfo->{STATUS} = $portState;
 
         push( @hbaInfos, $hbaInfo );
     }
