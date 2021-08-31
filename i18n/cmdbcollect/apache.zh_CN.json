@@ -4,11 +4,11 @@
 	"type": "String"
 }, {
 	"name": "MGMT_IP",
-	"desc": "管理ip",
+	"desc": "管理IP",
 	"type": "String"
 }, {
 	"name": "BIN_PATH",
-	"desc": "bin路径",
+	"desc": "BIN文件路径",
 	"type": "String"
 }, {
 	"name": "MGMT_PORT",
@@ -36,11 +36,11 @@
 	"type": "String"
 }, {
 	"name": "SSL_PORT",
-	"desc": "ssl端口",
+	"desc": "SSL端口",
 	"type": "String"
 }, {
 	"name": "OS_ID",
-	"desc": "os id",
+	"desc": "OS ID",
 	"type": "String"
 }, {
 	"name": "OBJECT_TYPE",

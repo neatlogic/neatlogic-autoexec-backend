@@ -33,8 +33,7 @@ sub new {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
         $self->{mgmtIp}     = $nodeInfo->{host};
         $self->{mgmtPort}   = $nodeInfo->{protocolPort};
-        #$self->{osId}       = $nodeInfo->{resourceId};
-        $self->{resourceid} = $nodeInfo->{resourceId};
+        $self->{osId}       = $nodeInfo->{resourceId};
     }
 
     $self->{collectUtils} = CollectUtils->new();

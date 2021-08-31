@@ -96,16 +96,14 @@ sub main {
         if ( defined($osInfo) ) {
             $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
             $osInfo->{OS_TYPE}     = $osType;
-            #$osInfo->{OS_ID}       = $osGather->{osId};
-            $osInfo->{RESOURCE_ID} = $osGather->{resourceId};
+            $osInfo->{OS_ID}       = $osGather->{osId};
             $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
             $osInfo->{PK}          = ['MGMT_IP'];
         }
         if ( defined($hostInfo) ) {
             $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
-            #$hostInfo->{OS_ID}       = $osGather->{osId};
-            $osInfo->{RESOURCE_ID}   = $osGather->{resourceId};
+            $hostInfo->{OS_ID}       = $osGather->{osId};
             $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
             $hostInfo->{PK}          = ['BOARD_SERIAL'];
@@ -218,7 +216,7 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_ID}     = $procInfo->{OS_ID};
+            $appInfo->{OS_RESOURCE_ID}     = $procInfo->{RESOURCE_ID};
             $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
             $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
             if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {

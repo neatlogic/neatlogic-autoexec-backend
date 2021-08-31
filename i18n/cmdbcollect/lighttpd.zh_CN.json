@@ -1,1 +1,65 @@
-[{"name": "CONF_PATH", "desc": "conf_path", "type": "String"}, {"name": "ADMIN_PORT", "desc": "admin_port", "type": "String"}, {"name": "CONF_FILE", "desc": "conf_file", "type": "String"}, {"name": "OS_ID", "desc": "os_id", "type": "String"}, {"name": "MGMT_PORT", "desc": "mgmt_port", "type": "int"}, {"name": "APP_TYPE", "desc": "app_type", "type": "String"}, {"name": "PORT", "desc": "port", "type": "String"}, {"name": "OBJECT_TYPE", "desc": "object_type", "type": "String"}, {"name": "ADMIN_SSL_PORT", "desc": "admin_ssl_port", "type": "String"}, {"name": "MGMT_IP", "desc": "mgmt_ip", "type": "String"}, {"name": "LOG_PATH", "desc": "log_path", "type": "String"}, {"name": "SERVER_NAME", "desc": "server_name", "type": "String"}, {"name": "SSL_PORT", "desc": "ssl_port", "type": "String"}, {"name": "PK", "desc": "pk", "type": "Array"}, {"name": "MON_PORT", "desc": "mon_port", "type": "String"}, {"name": "INSTALL_PATH", "desc": "install_path", "type": "String"}, {"name": "SERVER_ROOT", "desc": "server_root", "type": "String"}]
+[{
+    "name": "CONF_PATH",
+    "desc": "配置目录",
+    "type": "String"
+}, {
+    "name": "ADMIN_PORT",
+    "desc": "管理端口",
+    "type": "String"
+}, {
+    "name": "CONF_FILE",
+    "desc": "配置文件",
+    "type": "String"
+}, {
+    "name": "OS_ID",
+    "desc": "OS ID",
+    "type": "String"
+}, {
+    "name": "MGMT_PORT",
+    "desc": "管理端口",
+    "type": "int"
+}, {
+    "name": "APP_TYPE",
+    "desc": "中间件类型",
+    "type": "String"
+}, {
+    "name": "PORT",
+    "desc": "Port",
+    "type": "String"
+}, {
+    "name": "OBJECT_TYPE",
+    "desc": "归属类型",
+    "type": "String"
+}, {
+    "name": "ADMIN_SSL_PORT",
+    "desc": "管理SSL端口",
+    "type": "String"
+}, {
+    "name": "MGMT_IP",
+    "desc": "管理IP",
+    "type": "String"
+}, {
+    "name": "LOG_PATH",
+    "desc": "日志目录",
+    "type": "String"
+}, {
+    "name": "SERVER_NAME",
+    "desc": "服务名",
+    "type": "String"
+}, {
+    "name": "SSL_PORT",
+    "desc": "SSL端口",
+    "type": "String"
+}, {
+    "name": "MON_PORT",
+    "desc": "监控端口",
+    "type": "String"
+}, {
+    "name": "INSTALL_PATH",
+    "desc": "安装目录",
+    "type": "String"
+}, {
+    "name": "SERVER_ROOT",
+    "desc": "WWW根目录",
+    "type": "String"
+}]

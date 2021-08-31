@@ -1,189 +1,215 @@
 [{
-	"name": "SYSTEM_LOCALE",
-	"desc": "system locale",
-	"type": "String"
-}, {
-	"name": "MEM_AVAILABLE",
-	"desc": "mem available",
-	"type": "int"
-}, {
-	"name": "CPU_FREQUENCY",
-	"desc": "cpu frequency",
-	"type": "String"
-}, {
-	"name": "CPU_MODEL",
-	"desc": "cpu model",
-	"type": "String"
-}, {
-	"name": "OS_TYPE",
-	"desc": "os type",
-	"type": "String"
-}, {
-	"name": "MACHINE_ID",
-	"desc": "machine id",
-	"type": "String"
-}, {
-	"name": "PRODUCT_NAME",
-	"desc": "product name",
-	"type": "String"
-}, {
-	"name": "NET_INTERFACES",
-	"desc": "net interfaces",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "LINK_STATE",
-		"desc": "state",
+		"name": "RESOURCE_ID",
+		"desc": "CMDB对象ID",
+		"type": "String"
+	}, {
+		"name": "SYSTEM_LOCALE",
+		"desc": "System Locale",
+		"type": "String"
+	}, {
+		"name": "MEM_AVAILABLE",
+		"desc": "Memory Available",
+		"type": "int"
+	}, {
+		"name": "CPU_FREQUENCY",
+		"desc": "Cpu Frequency",
+		"type": "String"
+	}, {
+		"name": "CPU_MODEL",
+		"desc": "Cpu Model",
+		"type": "String"
+	}, {
+		"name": "OS_TYPE",
+		"desc": "Os Type",
+		"type": "String"
+	}, {
+		"name": "MACHINE_ID",
+		"desc": "Machine Id",
+		"type": "String"
+	}, {
+		"name": "PRODUCT_NAME",
+		"desc": "Product Name",
+		"type": "String"
+	}, {
+		"name": "NET_INTERFACES",
+		"desc": "NIC",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "STATUS",
+			"desc": "Link State",
+			"type": "String"
+		}, {
+			"name": "NAME",
+			"desc": "Name",
+			"type": "String"
+		}, {
+			"name": "MAC",
+			"desc": "MAC",
+			"type": "String"
+		}]
+	}, {
+		"name": "PATCHES_APPLIED",
+		"desc": "Patches Applied",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "Patch Number",
+			"type": "String"
+		}]
+	}, {
+		"name": "PRODUCT_UUID",
+		"desc": "Product UUID",
+		"type": "String"
+	}, {
+		"name": "NTP_ENABLE",
+		"desc": "NTP Enabled",
+		"type": "int"
+	}, {
+		"name": "INPUT_LOCALE",
+		"desc": "Input Locale",
+		"type": "String"
+	}, {
+		"name": "CPU_CORES",
+		"desc": "Cpu Cores",
+		"type": "int"
+	}, {
+		"name": "BIOS_VERSION",
+		"desc": "Bios Version",
+		"type": "String"
+	}, {
+		"name": "USERS",
+		"desc": "Users",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "User Name",
+			"type": "String"
+		}]
+	}, {
+		"name": "DISKS",
+		"desc": "Disks",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "UNIT",
+			"desc": "Unit",
+			"type": "String"
+		}, {
+			"name": "NAME",
+			"desc": "Name",
+			"type": "String"
+		}, {
+			"name": "TYPE",
+			"desc": "Type",
+			"type": "String"
+		}, {
+			"name": "CAPACITY",
+			"desc": "Capacity",
+			"type": "int"
+		}]
+	}, {
+		"name": "SYMANTEC_INSTALLED",
+		"desc": "Symantec Installed",
+		"type": "int"
+	}, {
+		"name": "SYS_VENDOR",
+		"desc": "Sys Vendor",
+		"type": "String"
+	}, {
+		"name": "OS_ID",
+		"desc": "OS ID",
+		"type": "String"
+	}, {
+		"name": "NTP_SERVERS",
+		"desc": "Ntp Servers",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "IP",
+			"type": "String"
+		}]
+	}, {
+		"name": "MGMT_IP",
+		"desc": "Managment IP",
+		"type": "String"
+	}, {
+		"name": "CPU_COUNT",
+		"desc": "Cpu Count",
+		"type": "int"
+	}, {
+		"name": "CPU_ARCH",
+		"desc": "Cpu Architecture",
+		"type": "String"
+	}, {
+		"name": "MGMT_PORT",
+		"desc": "Managment Port",
+		"type": "int"
+	}, {
+		"name": "CPU_BITS",
+		"desc": "Cpu Bits",
+		"type": "int"
+	}, {
+		"name": "IS_VIRTUAL",
+		"desc": "Is Virtual",
+		"type": "int"
+	}, {
+		"name": "KERNEL_VERSION",
+		"desc": "Kernel Version",
 		"type": "String"
 	}, {
 		"name": "NAME",
-		"desc": "name",
+		"desc": "OS Name",
 		"type": "String"
 	}, {
-		"name": "MAC",
-		"desc": "mac",
+		"name": "DNS_SERVERS",
+		"desc": "DNS Servers",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "IP",
+			"type": "String"
+		}]
+	}, {
+		"name": "HOSTNAME",
+		"desc": "Host Name",
 		"type": "String"
-	}]
-}, {
-	"name": "PATCHES_APPLIED",
-	"desc": "install patch list",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+	}, {
+		"name": "MEM_TOTAL",
+		"desc": "Total Memory",
+		"type": "int"
+	}, {
+		"name": "TIME_ZONE",
+		"desc": "Time Zone",
 		"type": "String"
-	}]
-}, {
-	"name": "PRODUCT_UUID",
-	"desc": "product uuid",
-	"type": "String"
-}, {
-	"name": "NTP_ENABLE",
-	"desc": "ntp enable",
-	"type": "int"
-}, {
-	"name": "INPUT_LOCALE",
-	"desc": "input locale",
-	"type": "String"
-}, {
-	"name": "CPU_CORES",
-	"desc": "cpu cores",
-	"type": "int"
-}, {
-	"name": "BIOS_VERSION",
-	"desc": "bios version",
-	"type": "String"
-}, {
-	"name": "USERS",
-	"desc": "users",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+	}, {
+		"name": "IP_ADDRS",
+		"desc": "IP Addrs",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "IP",
+			"type": "String"
+		}]
+	}, {
+		"name": "VERSION",
+		"desc": "Version",
 		"type": "String"
-	}]
-}, {
-	"name": "DISKS",
-	"desc": "disks",
-	"type": "Array"
-}, {
-	"name": "SYMANTEC_INSTALLED",
-	"desc": "symantec installed",
-	"type": "int"
-}, {
-	"name": "SYS_VENDOR",
-	"desc": "vendor",
-	"type": "String"
-}, {
-	"name": "OS_ID",
-	"desc": "os id",
-	"type": "String"
-}, {
-	"name": "NTP_SERVERS",
-	"desc": "ntp servers",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+	}, {
+		"name": "DOMAIN",
+		"desc": "Domain",
 		"type": "String"
-	}]
-}, {
-	"name": "MGMT_IP",
-	"desc": "manager ip",
-	"type": "String"
-}, {
-	"name": "CPU_COUNT",
-	"desc": "cpu count",
-	"type": "int"
-}, {
-	"name": "CPU_ARCH",
-	"desc": "cpu arch",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "manager port",
-	"type": "int"
-}, {
-	"name": "CPU_BITS",
-	"desc": "cpu bits",
-	"type": "int"
-}, {
-	"name": "IS_VIRTUAL",
-	"desc": "is virtual",
-	"type": "int"
-}, {
-	"name": "KERNEL_VERSION",
-	"desc": "kernel version",
-	"type": "String"
-}, {
-	"name": "NAME",
-	"desc": "name",
-	"type": "String"
-}, {
-	"name": "DNS_SERVERS",
-	"desc": "dns servers",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+	}, {
+		"name": "OBJECT_TYPE",
+		"desc": "Object Type",
 		"type": "String"
-	}]
-}, {
-	"name": "HOSTNAME",
-	"desc": "hostname",
-	"type": "String"
-}, {
-	"name": "MEM_TOTAL",
-	"desc": "total memory",
-	"type": "int"
-}, {
-	"name": "TIME_ZONE",
-	"desc": "timezone",
-	"type": "String"
-}, {
-	"name": "IP_ADDRS",
-	"desc": "ip addrs",
-	"type": "Array"
-}, {
-	"name": "VERSION",
-	"desc": "version",
-	"type": "String"
-}, {
-	"name": "DOMAIN",
-	"desc": "domain",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "belog type",
-	"type": "String"
-},
-{
-	"name": "VM_ID",
-	"desc": "vmware id",
-	"type": "String"
-},
-{
-	"name": "VCENTER_IP",
-	"desc": "vcenter ip",
-	"type": "String"
-}
+	},
+	{
+		"name": "VM_ID",
+		"desc": "VM Id",
+		"type": "String"
+	},
+	{
+		"name": "VCENTER_IP",
+		"desc": "Vcenter IP",
+		"type": "String"
+	}
 ]

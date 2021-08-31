@@ -1,4 +1,8 @@
 [{
+		"name": "RESOURCE_ID",
+		"desc": "CMDB对象ID",
+		"type": "String"
+	}, {
 		"name": "SYSTEM_LOCALE",
 		"desc": "系统语言环境",
 		"type": "String"
@@ -20,7 +24,7 @@
 		"type": "String"
 	}, {
 		"name": "MACHINE_ID",
-		"desc": "machine id",
+		"desc": "Machine ID",
 		"type": "String"
 	}, {
 		"name": "PRODUCT_NAME",
@@ -31,8 +35,8 @@
 		"desc": "网卡",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "LINK_STATE",
-			"desc": "状态",
+			"name": "STATUS",
+			"desc": "端口状态",
 			"type": "String"
 		}, {
 			"name": "NAME",
@@ -40,7 +44,7 @@
 			"type": "String"
 		}, {
 			"name": "MAC",
-			"desc": "mac",
+			"desc": "MAC",
 			"type": "String"
 		}]
 	}, {
@@ -48,13 +52,13 @@
 		"desc": "补丁列表",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "NAME",
-			"desc": "名称",
+			"name": "VALUE",
+			"desc": "补丁号",
 			"type": "String"
 		}]
 	}, {
 		"name": "PRODUCT_UUID",
-		"desc": "uuid",
+		"desc": "产品UUID",
 		"type": "String"
 	}, {
 		"name": "NTP_ENABLE",
@@ -70,7 +74,7 @@
 		"type": "int"
 	}, {
 		"name": "BIOS_VERSION",
-		"desc": "bios版本",
+		"desc": "BIOS版本",
 		"type": "String"
 	}, {
 		"name": "USERS",
@@ -78,13 +82,30 @@
 		"type": "JsonArray",
 		"subset": [{
 			"name": "NAME",
-			"desc": "名称",
+			"desc": "用户名",
 			"type": "String"
 		}]
 	}, {
 		"name": "DISKS",
-		"desc": "磁盘",
-		"type": "Array"
+		"desc": "Disks",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "UNIT",
+			"desc": "单位",
+			"type": "String"
+		}, {
+			"name": "NAME",
+			"desc": "磁盘名",
+			"type": "String"
+		}, {
+			"name": "TYPE",
+			"desc": "类型",
+			"type": "String"
+		}, {
+			"name": "CAPACITY",
+			"desc": "容量",
+			"type": "int"
+		}]
 	}, {
 		"name": "SYMANTEC_INSTALLED",
 		"desc": "是否安装ccSvcHst",
@@ -95,28 +116,28 @@
 		"type": "String"
 	}, {
 		"name": "OS_ID",
-		"desc": "os id",
+		"desc": "OS ID",
 		"type": "String"
 	}, {
 		"name": "NTP_SERVERS",
-		"desc": "ntp服务",
+		"desc": "NTP服务IP",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "NAME",
-			"desc": "名称",
+			"name": "VALUE",
+			"desc": "IP",
 			"type": "String"
 		}]
 	}, {
 		"name": "MGMT_IP",
-		"desc": "管理ip",
+		"desc": "管理IP",
 		"type": "String"
 	}, {
 		"name": "CPU_COUNT",
-		"desc": "cpu数量",
+		"desc": "CPU数量",
 		"type": "int"
 	}, {
 		"name": "CPU_ARCH",
-		"desc": "cpu架构",
+		"desc": "CPU架构",
 		"type": "String"
 	}, {
 		"name": "MGMT_PORT",
@@ -124,7 +145,7 @@
 		"type": "int"
 	}, {
 		"name": "CPU_BITS",
-		"desc": "cpu bits",
+		"desc": "CPU位数",
 		"type": "int"
 	}, {
 		"name": "IS_VIRTUAL",
@@ -136,20 +157,20 @@
 		"type": "String"
 	}, {
 		"name": "NAME",
-		"desc": "名称",
+		"desc": "系统名称",
 		"type": "String"
 	}, {
 		"name": "DNS_SERVERS",
-		"desc": "DNS服务",
+		"desc": "DNS服务IP",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "NAME",
-			"desc": "名称",
+			"name": "VALUE",
+			"desc": "IP",
 			"type": "String"
 		}]
 	}, {
 		"name": "HOSTNAME",
-		"desc": "主机名称",
+		"desc": "主机名",
 		"type": "String"
 	}, {
 		"name": "MEM_TOTAL",
@@ -161,7 +182,7 @@
 		"type": "String"
 	}, {
 		"name": "IP_ADDRS",
-		"desc": "ip地址",
+		"desc": "IP地址列表",
 		"type": "Array"
 	}, {
 		"name": "VERSION",

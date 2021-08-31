@@ -180,7 +180,7 @@ sub collect {
             push( @dbNames, $dbName );
         }
     }
-    $mysqlInfo->{DATABASES} = \@dbNames;
+    #$mysqlInfo->{DATABASES} = \@dbNames;
 
     $rows = $mysql->query(
         sql     => q{select * from information_schema.schemata},
@@ -206,7 +206,7 @@ sub collect {
     foreach my $dbName (@dbNames) {
         push( @dbInfos, $dbCharsetInfo->{$dbName} );
     }
-    $mysqlInfo->{DBTABASES_INFO} = \@dbInfos;
+    $mysqlInfo->{DATABASES} = \@dbInfos;
 
     #收集集群相关的信息
     $rows = $mysql->query(

@@ -1,4 +1,8 @@
 [{
+	"name": "OS_ID",
+	"desc": "CMDB对象ID",
+	"type": "String"
+}, {
 	"name": "IP_ADDRS",
 	"desc": "IP地址",
 	"type": "JsonArray",
@@ -137,10 +141,6 @@
 	"desc": "厂商",
 	"type": "String"
 }, {
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
 	"name": "NTP_SERVERS",
 	"desc": "NTP服务",
 	"type": "Array",
@@ -273,6 +273,6 @@
 	"type": "int"
 }, {
 	"name": "OBJECT_TYPE",
-	"desc": "对象类型",
+	"desc": "归属类型",
 	"type": "String"
 }]

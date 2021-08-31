@@ -1,10 +1,10 @@
 [{
 	"name": "BIND_IP",
-	"desc": "监听ip",
+	"desc": "监听IP配置",
 	"type": "String"
 }, {
 	"name": "INSTALL_PATH",
-	"desc": "安装路径",
+	"desc": "安装目录",
 	"type": "String"
 }, {
 	"name": "SERVER_NAME",
@@ -12,11 +12,11 @@
 	"type": "String"
 }, {
 	"name": "CONFIG_FILE",
-	"desc": "配置文件路径",
+	"desc": "配置文件目录",
 	"type": "String"
 }, {
 	"name": "MGMT_IP",
-	"desc": "管理ip",
+	"desc": "管理IP",
 	"type": "String"
 }, {
 	"name": "CHARACTERSET",
@@ -24,7 +24,7 @@
 	"type": "String"
 }, {
 	"name": "DBPATH",
-	"desc": "数据文件存储路径",
+	"desc": "数据文件存储目录",
 	"type": "String"
 }, {
 	"name": "ADMIN_SSL_PORT",
@@ -36,7 +36,7 @@
 	"type": "int"
 }, {
 	"name": "BIN_PATH",
-	"desc": "bin目录路径",
+	"desc": "BIN目录路径",
 	"type": "String"
 }, {
 	"name": "CLUSTER_MODE",
@@ -44,7 +44,7 @@
 	"type": "String"
 }, {
 	"name": "MGMT_PORT",
-	"desc": "管理port",
+	"desc": "管理Port",
 	"type": "int"
 }, {
 	"name": "DB_INS",
@@ -66,7 +66,7 @@
 	}]
 }, {
 	"name": "LOGPATH",
-	"desc": "日志路径",
+	"desc": "日志目录",
 	"type": "String"
 }, {
 	"name": "CLUSTER_ROLE",
@@ -82,7 +82,7 @@
 	"type": "String"
 }, {
 	"name": "ADMIN_PORT",
-	"desc": "admin port",
+	"desc": "管理端口",
 	"type": "String"
 }, {
 	"name": "FORK",
@@ -94,15 +94,15 @@
 	"type": "String"
 }, {
 	"name": "APP_TYPE",
-	"desc": "app类型",
+	"desc": "中间件类型",
 	"type": "String"
 }, {
 	"name": "OS_ID",
-	"desc": "os id",
+	"desc": "所在OS的CMDB ID",
 	"type": "String"
 }, {
 	"name": "SSL_PORT",
-	"desc": "ssl端口",
+	"desc": "SSL端口",
 	"type": "String"
 }, {
 	"name": "VERSION",

@@ -1,26 +1,26 @@
 [{
 	"name": "MGMT_IP",
-	"desc": "管理ip",
+	"desc": "管理IP",
 	"type": "String"
 }, {
 	"name": "CPU_MICROCODE",
-	"desc": "cpu微码",
+	"desc": "CPU微码",
 	"type": "String"
 }, {
 	"name": "CPU_FREQUENCY",
-	"desc": "cpu频率",
+	"desc": "CPU频率",
 	"type": "String"
 }, {
 	"name": "CPU_COUNT",
-	"desc": "cpu数量",
+	"desc": "CPU数量",
 	"type": "int"
 }, {
 	"name": "MEM_MAXIMUM_CAPACITY",
-	"desc": "内存",
+	"desc": "可安装内存",
 	"type": "int"
 }, {
 	"name": "CPU_ARCH",
-	"desc": "cpu架构",
+	"desc": "CPU架构",
 	"type": "String"
 }, {
 	"name": "POWER CORDS_COUNT",
@@ -28,7 +28,7 @@
 	"type": "String"
 }, {
 	"name": "MACHINE_ID",
-	"desc": "机器id",
+	"desc": "机器ID",
 	"type": "String"
 }, {
 	"name": "MGMT_PORT",
@@ -36,15 +36,15 @@
 	"type": "int"
 }, {
 	"name": "BOARD_SERIAL",
-	"desc": "序列号",
+	"desc": "主板序列号",
 	"type": "String"
 }, {
 	"name": "PRODUCT_NAME",
-	"desc": "厂商名称",
+	"desc": "产品名称",
 	"type": "String"
 }, {
 	"name": "NET_INTERFACES",
-	"desc": "网卡",
+	"desc": "网卡列表",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "LINK_STATE",
@@ -64,20 +64,20 @@
 		"type": "int"
 	}, {
 		"name": "MAC",
-		"desc": "mac",
+		"desc": "MAC",
 		"type": "String"
 	}]
 }, {
 	"name": "CPU_CORES",
-	"desc": "cpu核数",
+	"desc": "CPU核数",
 	"type": "int"
 }, {
 	"name": "BIOS_VERSION",
-	"desc": "bios版本",
+	"desc": "BIOS版本",
 	"type": "String"
 }, {
 	"name": "CPU_MODEL_NAME",
-	"desc": "cpu型号",
+	"desc": "CPU型号",
 	"type": "String"
 }, {
 	"name": "MEM_SPEED",
@@ -89,7 +89,7 @@
 	"type": "int"
 }, {
 	"name": "HBA_INTERFACES",
-	"desc": "hba卡",
+	"desc": "HBA卡列表",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "NAME",
@@ -97,11 +97,11 @@
 		"type": "String"
 	}, {
 		"name": "WWN",
-		"desc": "wwn",
+		"desc": "WWN",
 		"type": "String"
 	}, {
-		"name": "STATE",
-		"desc": "状态",
+		"name": "LINK_STATE",
+		"desc": "接线状态",
 		"type": "String"
 	}, {
 		"name": "SPEED",
@@ -135,7 +135,7 @@
 	"type": "String"
 }, {
 	"name": "OS_ID",
-	"desc": "os id",
+	"desc": "OS ID",
 	"type": "String"
 }, {
 	"name": "OBJECT_TYPE",
@@ -143,10 +143,10 @@
 	"type": "String"
 }, {
 	"name": "UUID",
-	"desc": "虚拟化uuid",
+	"desc": "虚拟化UUID",
 	"type": "String"
 }, {
 	"name": "ESXI_IP",
-	"desc": "ESXI IP",
+	"desc": "Esxi IP",
 	"type": "String"
 }]

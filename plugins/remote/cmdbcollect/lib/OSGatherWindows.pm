@@ -285,7 +285,7 @@ sub collectHostInfo {
         $nicName =~ s/^\s*|\s*$//g;
         if ( $nicName ne '' ) {
             $nicInfo->{NAME}       = $nicName;
-            $nicInfo->{LINK_STATE} = 'up';
+            $nicInfo->{STATUS} = 'up';
             push( @nicInfos, $nicInfo );
         }
     }
