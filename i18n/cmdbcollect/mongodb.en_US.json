@@ -1,22 +1,62 @@
 [{
-	"name": "BIND_IP",
-	"desc": "Bind IP config",
+	"name": "OS_ID",
+	"desc": "OS ID",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "Object Type",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "Application Type",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "Managment IP",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "Managment Port",
+	"type": "int"
+}, {
+	"name": "SERVER_NAME",
+	"desc": "Server Name",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "Port",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "SSL Port",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "Admin Port",
+	"type": "String"
+}, {
+	"name": "ADMIN_SSL_PORT",
+	"desc": "Admin SSL Port",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "Monitor Port",
 	"type": "String"
 }, {
 	"name": "INSTALL_PATH",
 	"desc": "Install Path",
 	"type": "String"
 }, {
-	"name": "SERVER_NAME",
-	"desc": "Server Name",
+	"name": "BIN_PATH",
+	"desc": "Bin Path",
 	"type": "String"
 }, {
 	"name": "CONFIG_FILE",
 	"desc": "Config File Path",
 	"type": "String"
 }, {
-	"name": "MGMT_IP",
-	"desc": "Managment IP",
+	"name": "BIND_IP",
+	"desc": "Bind IP config",
 	"type": "String"
 }, {
 	"name": "CHARACTERSET",
@@ -27,25 +67,17 @@
 	"desc": "DB Storage Directory",
 	"type": "String"
 }, {
-	"name": "ADMIN_SSL_PORT",
-	"desc": "Admin SSL Port",
+	"name": "LOGPATH",
+	"desc": "Log Dirctory",
 	"type": "String"
 }, {
 	"name": "IS_CLUSTER",
 	"desc": "Is Cluster",
 	"type": "int"
 }, {
-	"name": "BIN_PATH",
-	"desc": "Bin Path",
-	"type": "String"
-}, {
 	"name": "CLUSTER_MODE",
 	"desc": "Cluster Mode",
 	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "Managment Port",
-	"type": "int"
 }, {
 	"name": "DB_INS",
 	"desc": "DB Name List",
@@ -66,24 +98,8 @@
 	}]
 
 }, {
-	"name": "LOGPATH",
-	"desc": "Log Dirctory",
-	"type": "String"
-}, {
 	"name": "CLUSTER_ROLE",
 	"desc": "Cluster Role",
-	"type": "String"
-}, {
-	"name": "PORT",
-	"desc": "Port",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "Monitor Port",
-	"type": "String"
-}, {
-	"name": "ADMIN_PORT",
-	"desc": "Admin Port",
 	"type": "String"
 }, {
 	"name": "FORK",
@@ -94,23 +110,7 @@
 	"desc": "Log Append",
 	"type": "String"
 }, {
-	"name": "APP_TYPE",
-	"desc": "App Type",
-	"type": "String"
-}, {
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "SSL Port",
-	"type": "String"
-}, {
 	"name": "VERSION",
 	"desc": "Version",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "Object Type",
 	"type": "String"
 }]

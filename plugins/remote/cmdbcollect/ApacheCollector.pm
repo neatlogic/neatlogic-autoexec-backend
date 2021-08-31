@@ -28,7 +28,7 @@ sub getVerInfo {
     my ( $self, $cmd ) = @_;
 
     my $versionInfo = {};
-    my @apacheInfos = `$cmd`;
+    my @apacheInfos = $self->getCmdOut(qq{"$cmd"});
 
     #httpd -V或apachectl -V的输出
     # Server version: Apache/2.4.34 (Unix)

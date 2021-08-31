@@ -56,8 +56,9 @@ sub collect {
     my $workPath = readlink("/proc/$pid/cwd");
 
     my $homePath;
+    my $binPath;
     if ( $cmdLine =~ /^(.*?lighttpd)\s+-/ ) {
-        my $binPath = $1;
+        $binPath = $1;
         if ( $binPath =~ /^\.{1,2}[\/\\]/ ) {
             $binPath = "$workPath/$binPath";
         }
@@ -76,7 +77,6 @@ sub collect {
         if ( $cmdLine =~ /(\s-f\s+.+\s+-.*|\s-f\s+.+)$/ ) {
             $confFile = $1;
             $confFile =~ s/^\s*-f\s*//;
-            print("DEBUG: confFile:$confFile\n");
             if ( $confFile =~ /^\.{1,2}[\/\\]/ ) {
                 $confFile = "$workPath/$confFile";
             }
@@ -88,8 +88,17 @@ sub collect {
     }
 
     $appInfo->{INSTALL_PATH} = $homePath;
-    $appInfo->{CONF_PATH}    = $confPath;
-    $appInfo->{CONF_FILE}    = $confFile;
+    $appInfo->{BIN_PATH}     = $binPath;
+    $appInfo->{CONFIG_PATH}  = $confPath;
+    $appInfo->{CONFIG_FILE}  = $confFile;
+
+    my $version
+    my $verInfo = $self->getCmdOut(qq{"$binPath" -v});
+    #lighttpd/1.4.54 (ssl) - a light and fast webserver
+    if ( $verInfo =~ /lighttpd\/([\d\.]+))/ ){
+        $version = $1;
+    }
+    $appInfo->{VERSION} = $version;
 
     my $portsMap    = {};
     my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};

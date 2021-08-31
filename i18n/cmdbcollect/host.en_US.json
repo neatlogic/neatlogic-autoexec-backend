@@ -1,7 +1,23 @@
 [{
+	"name": "BOARD_SERIAL",
+	"desc": "Board Serial",
+	"type": "String"
+}, {
+	"name": "OS_ID",
+	"desc": "OS ID",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "Object Type",
+	"type": "String"
+}, {
 	"name": "MGMT_IP",
 	"desc": "Managment IP",
 	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "Management Port",
+	"type": "int"
 }, {
 	"name": "CPU_MICROCODE",
 	"desc": "CPU Microcode",
@@ -29,14 +45,6 @@
 }, {
 	"name": "MACHINE_ID",
 	"desc": "Machine ID",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "Management Port",
-	"type": "int"
-}, {
-	"name": "BOARD_SERIAL",
-	"desc": "Board Serial",
 	"type": "String"
 }, {
 	"name": "PRODUCT_NAME",
@@ -136,14 +144,6 @@
 }, {
 	"name": "MANUFACTURER",
 	"desc": "Manufacturer",
-	"type": "String"
-}, {
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "Object Type",
 	"type": "String"
 }, {
 	"name": "UUID",

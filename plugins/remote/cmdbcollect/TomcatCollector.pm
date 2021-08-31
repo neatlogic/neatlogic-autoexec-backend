@@ -135,11 +135,11 @@ sub collect {
     #JVM Version:    1.8.0_77-b03
     #JVM Vendor:     Oracle Corporation
     my $binPath = "$installPath/bin";
-    my $verCmd  = "sh $binPath/version.sh";
+    my $verCmd  = qq{sh "$binPath/version.sh"};
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
-        $verCmd = `cmd /c $binPath/version.bat`;
+        $verCmd = qq{cmd /c "$binPath/version.bat"};
     }
-    my @verOut = `$verCmd`;
+    my @verOut = $self->getCmdOut($verCmd);
     foreach my $line (@verOut) {
         if ( $line =~ /Server number:\s*(.*?)\s*$/ ) {
             $appInfo->{VERSION} = $1;

@@ -70,7 +70,7 @@ sub collect {
 
     #应用的安装目录并非一定是当前目录，TODO：需要补充更好的方法，
     #譬如：如果命令行启动命令是绝对路径，直接可以作为安装的路径的计算
-    my $output = `$installPath/bin/activemq --version`;
+    my $output = $self->getCmdOut(qq{"$installPath/bin/activemq" --version});
     if ( $output =~ /ActiveMQ\s+(\d+\.\d+\.\d+)/ ) {
         my $version = $1;
         $appInfo->{VERSION} = $version;

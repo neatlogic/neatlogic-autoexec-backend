@@ -1,54 +1,46 @@
 [{
-    "name": "CONF_PATH",
-    "desc": "Conf Path",
-    "type": "String"
-}, {
-    "name": "ADMIN_PORT",
-    "desc": "Admin Port",
-    "type": "String"
-}, {
-    "name": "CONF_FILE",
-    "desc": "Conf File",
-    "type": "String"
-}, {
     "name": "OS_ID",
     "desc": "OS ID",
-    "type": "String"
-}, {
-    "name": "MGMT_PORT",
-    "desc": "Managment Port",
-    "type": "int"
-}, {
-    "name": "APP_TYPE",
-    "desc": "Application Type",
-    "type": "String"
-}, {
-    "name": "PORT",
-    "desc": "Port",
     "type": "String"
 }, {
     "name": "OBJECT_TYPE",
     "desc": "Object Type",
     "type": "String"
 }, {
-    "name": "ADMIN_SSL_PORT",
-    "desc": "Admin SSL Port",
+    "name": "APP_TYPE",
+    "desc": "Application Type",
     "type": "String"
 }, {
     "name": "MGMT_IP",
     "desc": "Managment IP",
     "type": "String"
 }, {
-    "name": "LOG_PATH",
-    "desc": "Log Path",
-    "type": "String"
+    "name": "MGMT_PORT",
+    "desc": "Managment Port",
+    "type": "int"
 }, {
     "name": "SERVER_NAME",
     "desc": "Server Name",
     "type": "String"
 }, {
+    "name": "VERSION",
+    "desc": "Version",
+    "type": "String"
+}, {
+    "name": "PORT",
+    "desc": "Port",
+    "type": "String"
+}, {
     "name": "SSL_PORT",
     "desc": "SSL Port",
+    "type": "String"
+}, {
+    "name": "ADMIN_PORT",
+    "desc": "Admin Port",
+    "type": "String"
+}, {
+    "name": "ADMIN_SSL_PORT",
+    "desc": "Admin SSL Port",
     "type": "String"
 }, {
     "name": "MON_PORT",
@@ -57,6 +49,22 @@
 }, {
     "name": "INSTALL_PATH",
     "desc": "Install Path",
+    "type": "String"
+}, {
+    "name": "BIN_PATH",
+    "desc": "Bin Path",
+    "type": "String"
+}, {
+    "name": "CONFIG_PATH",
+    "desc": "Conf Path",
+    "type": "String"
+}, {
+    "name": "CONF_FILE",
+    "desc": "Conf File",
+    "type": "String"
+}, {
+    "name": "LOG_PATH",
+    "desc": "Log Path",
     "type": "String"
 }, {
     "name": "SERVER_ROOT",

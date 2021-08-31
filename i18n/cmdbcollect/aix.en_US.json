@@ -4,6 +4,16 @@
 		"type": "String"
 	},
 	{
+		"name": "MGMT_IP",
+		"desc": "Managent Ip",
+		"type": "String"
+	},
+	{
+		"name": "MGMT_PORT",
+		"desc": "Management Port",
+		"type": "int"
+	},
+	{
 		"name": "IP_ADDRS",
 		"desc": "IP Addresses",
 		"type": "JsonArray",
@@ -12,7 +22,8 @@
 			"desc": "name",
 			"type": "String"
 		}]
-	}, {
+	},
+	{
 		"name": "IPV6_ADDRS",
 		"desc": "IPV6 Addresses",
 		"type": "JsonArray",
@@ -21,7 +32,8 @@
 			"desc": "IP",
 			"type": "String"
 		}]
-	}, {
+	},
+	{
 		"name": "CPU_FREQUENCY",
 		"desc": "Cpu Frequency",
 		"type": "String"
@@ -163,10 +175,6 @@
 		"desc": "Max User Processes Count",
 		"type": "int"
 	}, {
-		"name": "MGMT_IP",
-		"desc": "Managent Ip",
-		"type": "String"
-	}, {
 		"name": "CPU_MICROCODE",
 		"desc": "Cpu Microcode",
 		"type": "String"
@@ -178,10 +186,6 @@
 		"name": "CPU_ARCH",
 		"desc": "Cpu Architechure",
 		"type": "String"
-	}, {
-		"name": "MGMT_PORT",
-		"desc": "Management Port",
-		"type": "int"
 	}, {
 		"name": "CPU_BITS",
 		"desc": "Cpu Bits",
