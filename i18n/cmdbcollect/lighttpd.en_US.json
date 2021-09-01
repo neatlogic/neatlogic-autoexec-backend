@@ -59,7 +59,7 @@
     "desc": "Conf Path",
     "type": "String"
 }, {
-    "name": "CONF_FILE",
+    "name": "CONFIG_FILE",
     "desc": "Conf File",
     "type": "String"
 }, {

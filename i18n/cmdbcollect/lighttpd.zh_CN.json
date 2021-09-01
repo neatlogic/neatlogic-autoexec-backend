@@ -59,7 +59,7 @@
     "desc": "配置目录",
     "type": "String"
 }, {
-    "name": "CONF_FILE",
+    "name": "CONFIG_FILE",
     "desc": "配置文件",
     "type": "String"
 }, {

@@ -1,6 +1,58 @@
-[{	
+[{
+	"name": "OS_ID",
+	"desc": "OS ID",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "中间件类型",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "管理IP",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "管理端口",
+	"type": "int"
+}, {
+	"name": "SERVER_NAME",
+	"desc": "服务名",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "Port",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "SSL端口",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "管理端口",
+	"type": "String"
+}, {
+	"name": "ADMIN_SSL_PORT",
+	"desc": "管理SSL端口",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "监控端口",
+	"type": "String"
+}, {
+	"name": "INSTALL_PATH",
+	"desc": "安装目录",
+	"type": "String"
+}, {
 	"name": "CONFIG_PATH",
-	"desc": "配置文件路径",
+	"desc": "配置目录",
 	"type": "String"
 }, {
 	"name": "CATALINA_HOME",
@@ -11,16 +63,8 @@
 	"desc": "jmx端口",
 	"type": "String"
 }, {
-	"name": "PORT",
-	"desc": "端口",
-	"type": "String"
-}, {
 	"name": "CATALINA_BASE",
 	"desc": "catalina根目录",
-	"type": "String"
-}, {
-	"name": "INSTALL_PATH",
-	"desc": "安装路径",
 	"type": "String"
 }, {
 	"name": "JMX_SSL",
@@ -35,47 +79,11 @@
 	"desc": "最大heapsize",
 	"type": "int"
 }, {
-	"name": "OS_ID",
-	"desc": "os id",
-	"type": "String"
-}, {
 	"name": "MIN_HEAP_SIZE",
 	"desc": "最小heapsize",
 	"type": "String"
 }, {
-	"name": "OBJECT_TYPE",
-	"desc": "归属类型",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "应用类型",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "管理端口",
-	"type": "int"
-}, {
-	"name": "MGMT_IP",
-	"desc": "管理IP",
-	"type": "String"
-}, {
 	"name": "JAVA_HOME",
 	"desc": "java安装目录",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "版本",
-	"type": "String"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "服务名称",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "监控端口",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "ssl端口",
 	"type": "String"
 }]

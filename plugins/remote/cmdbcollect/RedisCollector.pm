@@ -127,7 +127,7 @@ sub collect {
         }
         else {
             my $cns       = int( $info->{CONNECTED_SLAVES} );
-            my @slave_arr = ();
+            my @slaveInfo = ();
             for ( $a = 0 ; $a < $cns ; $a = $a + 1 ) {
                 my $slave = $info->{ 'SLAVE' . $a };
                 $slave =~ s/'slave'$a//g;
@@ -144,9 +144,9 @@ sub collect {
                         $slave_port = $st_tmp[1];
                     }
                 }
-                push( @slave_arr, $slave_host . ":" . $slave_port );
+                push( @slaveInfo, { VALUE => $slave_host . ":" . $slave_port } );
             }
-            $redisInfo->{SLAVE_IPS} = \@slave_arr;
+            $redisInfo->{SLAVE_NODES} = \@slaveInfo;
         }
     }
 

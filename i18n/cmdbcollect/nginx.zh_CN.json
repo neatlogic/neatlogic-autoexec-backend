@@ -1,34 +1,66 @@
 [{
-	"name": "EXE_PATH",
-	"desc": "启停exe文件路径",
+	"name": "OS_ID",
+	"desc": "OS ID",
 	"type": "String"
 }, {
-	"name": "INSTALL_PATH",
-	"desc": "安装目录",
+	"name": "OBJECT_TYPE",
+	"desc": "归属类型",
 	"type": "String"
 }, {
-	"name": "SERVER_NAME",
-	"desc": "类型名称",
+	"name": "APP_TYPE",
+	"desc": "中间件类型",
 	"type": "String"
 }, {
 	"name": "MGMT_IP",
 	"desc": "管理IP",
 	"type": "String"
 }, {
-	"name": "BIN_PATH",
-	"desc": "bin文件路径",
-	"type": "String"
-}, {
 	"name": "MGMT_PORT",
 	"desc": "管理端口",
 	"type": "int"
 }, {
-	"name": "CONFIG_PATH",
-	"desc": "配置文件目录",
+	"name": "SERVER_NAME",
+	"desc": "服务名",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "版本",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "Port",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "SSL端口",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "管理端口",
+	"type": "String"
+}, {
+	"name": "ADMIN_SSL_PORT",
+	"desc": "管理SSL端口",
 	"type": "String"
 }, {
 	"name": "MON_PORT",
 	"desc": "监控端口",
+	"type": "String"
+}, {
+	"name": "INSTALL_PATH",
+	"desc": "安装目录",
+	"type": "String"
+}, {
+	"name": "EXE_PATH",
+	"desc": "启停exe文件路径",
+	"type": "String"
+}, {
+	"name": "BIN_PATH",
+	"desc": "bin文件路径",
+	"type": "String"
+}, {
+	"name": "CONFIG_PATH",
+	"desc": "配置文件目录",
 	"type": "String"
 }, {
 	"name": "PREFIX",
@@ -59,20 +91,4 @@
 		"desc": "归属配置文件",
 		"type": "String"
 	}]
-}, {
-	"name": "APP_TYPE",
-	"desc": "app类型",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "版本",
-	"type": "String"
-}, {
-	"name": "OS_ID",
-	"desc": "os id",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "归属类型",
-	"type": "String"
 }]

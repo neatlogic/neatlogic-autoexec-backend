@@ -1,6 +1,58 @@
 [{
+	"name": "OS_ID",
+	"desc": "OS ID",
+	"type": "String"
+}, {
+	"name": "OBJECT_TYPE",
+	"desc": "Object Type",
+	"type": "String"
+}, {
+	"name": "APP_TYPE",
+	"desc": "Application Type",
+	"type": "String"
+}, {
+	"name": "MGMT_IP",
+	"desc": "Managment IP",
+	"type": "String"
+}, {
+	"name": "MGMT_PORT",
+	"desc": "Managment Port",
+	"type": "int"
+}, {
+	"name": "SERVER_NAME",
+	"desc": "Server Name",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "Version",
+	"type": "String"
+}, {
+	"name": "PORT",
+	"desc": "Port",
+	"type": "String"
+}, {
+	"name": "SSL_PORT",
+	"desc": "SSL Port",
+	"type": "String"
+}, {
+	"name": "ADMIN_PORT",
+	"desc": "Admin Port",
+	"type": "String"
+}, {
+	"name": "ADMIN_SSL_PORT",
+	"desc": "Admin SSL Port",
+	"type": "String"
+}, {
+	"name": "MON_PORT",
+	"desc": "Monitor Port",
+	"type": "String"
+}, {
+	"name": "INSTALL_PATH",
+	"desc": "Install Path",
+	"type": "String"
+}, {
 	"name": "CONFIG_PATH",
-	"desc": "config path",
+	"desc": "Conf Path",
 	"type": "String"
 }, {
 	"name": "CATALINA_HOME",
@@ -11,16 +63,8 @@
 	"desc": "jmx port",
 	"type": "String"
 }, {
-	"name": "PORT",
-	"desc": "port",
-	"type": "String"
-}, {
 	"name": "CATALINA_BASE",
 	"desc": "catalina base",
-	"type": "String"
-}, {
-	"name": "INSTALL_PATH",
-	"desc": "install path",
 	"type": "String"
 }, {
 	"name": "JMX_SSL",
@@ -35,47 +79,11 @@
 	"desc": "max heap_size",
 	"type": "int"
 }, {
-	"name": "OS_ID",
-	"desc": "os id",
-	"type": "String"
-}, {
 	"name": "MIN_HEAP_SIZE",
 	"desc": "min heap_size",
 	"type": "String"
 }, {
-	"name": "OBJECT_TYPE",
-	"desc": "belong type",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "app type",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "manager port",
-	"type": "int"
-}, {
-	"name": "MGMT_IP",
-	"desc": "manager ip",
-	"type": "String"
-}, {
 	"name": "JAVA_HOME",
 	"desc": "java home",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "version",
-	"type": "String"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "server name",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "monitor port",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "ssl port",
 	"type": "String"
 }]

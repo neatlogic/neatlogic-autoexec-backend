@@ -1,117 +1,127 @@
 [{
-	"name": "VERSION",
-	"desc": "version",
+	"name": "OS_ID",
+	"desc": "OS ID",
 	"type": "String"
 }, {
-	"name": "VENDOR",
-	"desc": "vendor",
+	"name": "OBJECT_TYPE",
+	"desc": "Object Type",
 	"type": "String"
 }, {
-	"name": "NAME",
-	"desc": "name",
-	"type": "String"
-}, {
-	"name": "OS_TYPE",
-	"desc": "os type",
-	"type": "String"
-}, {
-	"name": "FULLNAME",
-	"desc": "full name",
-	"type": "String"
-}, {
-	"name": "INSTANCEUUID",
-	"desc": "instance uuid",
+	"name": "APP_TYPE",
+	"desc": "Application Type",
 	"type": "String"
 }, {
 	"name": "MGMT_IP",
-	"desc": "mgmt ip",
+	"desc": "Managment IP",
 	"type": "String"
 }, {
 	"name": "MGMT_PORT",
-	"desc": "mgmt port",
+	"desc": "Managment Port",
 	"type": "int"
 }, {
+	"name": "SERVER_NAME",
+	"desc": "Server Name",
+	"type": "String"
+}, {
+	"name": "VERSION",
+	"desc": "Version",
+	"type": "String"
+}, {
+	"name": "VENDOR",
+	"desc": "Vendor",
+	"type": "String"
+}, {
+	"name": "NAME",
+	"desc": "Name",
+	"type": "String"
+}, {
+	"name": "OS_TYPE",
+	"desc": "OS Type",
+	"type": "String"
+}, {
+	"name": "FULLNAME",
+	"desc": "Full Name",
+	"type": "String"
+}, {
+	"name": "INSTANCEUUID",
+	"desc": "Instance UUID",
+	"type": "String"
+}, {
 	"name": "DATACENTER",
-	"desc": "datacenter",
+	"desc": "Data Center",
 	"type": "JsonArray",
 	"subset": [{
 		"name": "NAME",
-		"desc": "name",
+		"desc": "Name",
 		"type": "String"
 	}, {
 		"name": "MOID",
-		"desc": "moid",
+		"desc": "MOID",
 		"type": "String"
 	}, {
 		"name": "CLUSTER",
-		"desc": "clusters",
+		"desc": "Clusters",
 		"type": "JsonArray",
 		"subset": [{
 			"name": "NAME",
-			"desc": "name",
+			"desc": "Name",
 			"type": "String"
 		}, {
 			"name": "MOID",
-			"desc": "moid",
+			"desc": "MOID",
 			"type": "String"
 		}, {
 			"name": "DATASTORE",
-			"desc": "datastore",
+			"desc": "DataStore",
 			"type": "JsonArray",
 			"subset": [{
 					"name": "MOID",
-					"desc": "moid",
+					"desc": "MOID",
 					"type": "String"
 				}, {
 					"name": "NAME",
-					"desc": "name",
+					"desc": "Name",
 					"type": "String"
 				}
 
 			]
 		}, {
 			"name": "NETWORK",
-			"desc": "network",
+			"desc": "Network",
 			"type": "JsonArray",
 			"subset": [{
 					"name": "MOID",
-					"desc": "moid",
+					"desc": "MOID",
 					"type": "String"
 				}, {
 					"name": "NAME",
-					"desc": "name",
+					"desc": "Name",
 					"type": "String"
 				}
 
 			]
-		},{
+		}, {
 			"name": "CONTAIN_HOST",
-			"desc": "contain host",
+			"desc": "Contain Host",
 			"type": "JsonArray",
 			"subset": [{
-					"name": "UUID",
-					"desc": "uuid",
-					"type": "String"
-				}
-			]
+				"name": "UUID",
+				"desc": "UUID",
+				"type": "String"
+			}]
 		}, {
 			"name": "CONTAIN_VMS",
-			"desc": "contain virtual system",
+			"desc": "Contain Virtual System",
 			"type": "JsonArray",
 			"subset": [{
-					"name": "MGMT_IP",
-					"desc": "vcenter IP",
-					"type": "String"
-				},{
-					"name": "VM_ID",
-					"desc": "virtual system id",
-					"type": "String"
-				}
-			]
+				"name": "MGMT_IP",
+				"desc": "Vcenter IP",
+				"type": "String"
+			}, {
+				"name": "VM_ID",
+				"desc": "Virtual System ID",
+				"type": "String"
+			}]
 		}]
 	}]
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "object type",
-	"type": "String"
 }]
