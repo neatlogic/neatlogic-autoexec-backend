@@ -78,20 +78,6 @@ sub collect {
     }
     $appInfo->{RUN_MODE} = $runMode;
 
-    #Using CATALINA_BASE:   /app/servers/balantflow
-    #Using CATALINA_HOME:   /app/servers/balantflow
-    #Using CATALINA_TMPDIR: /app/servers/balantflow/temp
-    #Using JRE_HOME:        /app/serverware/jdk
-    #Using CLASSPATH:       /app/servers/balantflow/bin/bootstrap.jar:/app/servers/balantflow/bin/tomcat-juli.jar
-    #Using CATALINA_OPTS:
-    #Server version: Apache Tomcat/9.0.44
-    #Server built:   Mar 4 2021 21:49:34 UTC
-    #Server number:  9.0.44.0
-    #OS Name:        Linux
-    #OS Version:     3.10.0-514.el7.x86_64
-    #Architecture:   amd64
-    #JVM Version:    1.8.0_77-b03
-    #JVM Vendor:     Oracle Corporation
     my $binPath = "$installPath/bin";
     my $verScript;
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
