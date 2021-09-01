@@ -206,5 +206,26 @@
 		"name": "VCENTER_IP",
 		"desc": "VCENTER管理IP",
 		"type": "String"
+	}, {
+		"name": "HBA_INTERFACES",
+		"desc": "HBA卡列表",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		}, {
+			"name": "WWN",
+			"desc": "WWN",
+			"type": "String"
+		}, {
+			"name": "STATUS",
+			"desc": "接线状态",
+			"type": "String"
+		}, {
+			"name": "SPEED",
+			"desc": "速率",
+			"type": "int"
+		}]
 	}
 ]

@@ -211,5 +211,26 @@
 		"name": "VCENTER_IP",
 		"desc": "Vcenter IP",
 		"type": "String"
+	}, {
+		"name": "HBA_INTERFACES",
+		"desc": "HBA Interfaces",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "NAME",
+			"desc": "name",
+			"type": "String"
+		}, {
+			"name": "WWN",
+			"desc": "WWN",
+			"type": "String"
+		}, {
+			"name": "STATUS",
+			"desc": "Link Status",
+			"type": "String"
+		}, {
+			"name": "SPEED",
+			"desc": "Speed",
+			"type": "int"
+		}]
 	}
 ]

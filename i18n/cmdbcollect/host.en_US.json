@@ -56,7 +56,7 @@
 	"type": "JsonArray",
 	"subset": [{
 		"name": "STATUS",
-		"desc": "Link STATE",
+		"desc": "Link Status",
 		"type": "String"
 	}, {
 		"name": "UNIT",
@@ -112,8 +112,8 @@
 		"desc": "WWN",
 		"type": "String"
 	}, {
-		"name": "LINK_STATE",
-		"desc": "Link State",
+		"name": "STATUS",
+		"desc": "Link Status",
 		"type": "String"
 	}, {
 		"name": "SPEED",

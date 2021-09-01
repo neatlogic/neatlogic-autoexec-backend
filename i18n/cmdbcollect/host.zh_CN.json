@@ -108,7 +108,7 @@
 		"desc": "WWN",
 		"type": "String"
 	}, {
-		"name": "LINK_STATE",
+		"name": "STATUS",
 		"desc": "接线状态",
 		"type": "String"
 	}, {

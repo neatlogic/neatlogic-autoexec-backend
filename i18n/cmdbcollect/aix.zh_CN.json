@@ -58,7 +58,7 @@
 		"type": "String"
 	}, {
 		"name": "STATUS",
-		"desc": "状态",
+		"desc": "接线状态",
 		"type": "String"
 	}, {
 		"name": "SPEED",
@@ -275,4 +275,25 @@
 	"name": "OBJECT_TYPE",
 	"desc": "归属类型",
 	"type": "String"
+}, {
+	"name": "HBA_INTERFACES",
+	"desc": "HBA卡列表",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "NAME",
+		"desc": "名称",
+		"type": "String"
+	}, {
+		"name": "WWN",
+		"desc": "WWN",
+		"type": "String"
+	}, {
+		"name": "STATUS",
+		"desc": "接线状态",
+		"type": "String"
+	}, {
+		"name": "SPEED",
+		"desc": "速率",
+		"type": "int"
+	}]
 }]
