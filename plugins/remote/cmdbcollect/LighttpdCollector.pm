@@ -92,10 +92,11 @@ sub collect {
     $appInfo->{CONFIG_PATH}  = $confPath;
     $appInfo->{CONFIG_FILE}  = $confFile;
 
-    my $version
+    my $version;
     my $verInfo = $self->getCmdOut(qq{"$binPath" -v});
+
     #lighttpd/1.4.54 (ssl) - a light and fast webserver
-    if ( $verInfo =~ /lighttpd\/([\d\.]+))/ ){
+    if ( $verInfo =~ /lighttpd\/([\d\.]+)/ ) {
         $version = $1;
     }
     $appInfo->{VERSION} = $version;

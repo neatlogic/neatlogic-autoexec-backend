@@ -147,10 +147,10 @@ sub collect {
     my $postgresql = PostgresqlExec->new(
         psqlHome => $postgresqlHome,
         osUser   => $osUser,
-
-        #username=>$username,
-        #password=>$password,
-        port => $port
+        username => $self->{defaultUsername},
+        password => $self->{defaultPassword},
+        host     => $host,
+        port     => $port
     );
     $self->{$postgresql} = $postgresql;
 
