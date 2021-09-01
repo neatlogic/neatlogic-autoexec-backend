@@ -63,7 +63,7 @@ sub main {
 
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
-        $collectClassMap = {};
+        $collectClassMap = { OS => 1 };
         map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
     }
 
@@ -88,7 +88,7 @@ sub main {
     }
 
     #收集OS和硬件信息
-    my ( $hostInfo, $osInfo );
+    my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
         print("INFO: Begin to collect OS information...\n");
         my $osGather = OSGather->new();
@@ -109,6 +109,8 @@ sub main {
             $hostInfo->{PK}          = ['BOARD_SERIAL'];
         }
 
+        $ipAddrs = $osInfo->{IP_ADDRS};
+        $ipv6Addrs = $osInfo->{IPV6_ADDRS};
         print("INFO: OS information collected.\n");
     }
 
@@ -269,6 +271,23 @@ sub main {
             my $connInfo = $appInfo->{PROC_INFO}->{CONN_INFO};
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
+            
+            my @bindAddrs = ();
+            foreach $lsnPort (@lsnPorts){
+                if ( index($lsnPort, ':') == -1 ){
+                    foreach my $ip (@$ipAddrs) {
+                        push(@bindAddrs, "$ip:$lsnPort");
+                    }
+                    foreach my $ip (@$ipv6Addrs) {
+                        push(@bindAddrs, "$ip:$lsnPort");
+                    }
+                }
+                else{
+                    push(@bindAddrs, $lsnPort);
+                }
+            }
+            $connInfo->{BIND} = \@bindAddrs;
+
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
             $connInfo->{PEER} = \@remoteAddrs;
             delete( $appInfo->{PROC_INFO}->{CONN_INFO} );
