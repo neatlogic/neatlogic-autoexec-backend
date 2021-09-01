@@ -52,7 +52,7 @@ if __name__ == "__main__":
         if (info[1] == lang) :
             print("INFO::import",dfile ,"start.")
             field = _readJson(path + "/" + dfile)
-            optType = "collect_"+info[0].strip()
+            optType = "collect_"+info[0].strip()+".json"
             uniqueExp = [] 
             uniqueExp.append({"type":optType})
             dbUnique = {}

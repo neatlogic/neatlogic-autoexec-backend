@@ -102,7 +102,7 @@ def _makeDictionary(table,data):
     data = _convert(data)
     data  = _makeDesc(data)
     for lang in i18n:
-        fpath = path + "/" + table +"." + lang
+        fpath = path + "/" + table +"." + lang + ".json"
         if(os.path.exists(fpath) == False):
             _writeJson(fpath ,data)
 

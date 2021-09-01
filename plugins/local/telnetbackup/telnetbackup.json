@@ -1,0 +1,80 @@
+{
+	"opDesc": "telnet配置备份",
+	"opType": "runner_target",
+	"typeName": "BACKUP",
+	"riskName": "HIGH",
+	"interpreter": "perl",
+	"description": "基于telnet对交换机配置备份",
+	"desc": [{
+			"opt": "ip",
+			"name": "Switch IP",
+			"help": "",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "port",
+			"name": "Switch端口",
+			"help": "默认为23端口",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "23",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "user",
+			"name": "用户",
+			"help": "",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "password",
+			"name": "密码",
+			"help": "",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "cmd",
+			"name": "备份命令",
+			"help": "如华为交换机：display current-configuration",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		{
+			"opt": "backupdir",
+			"name": "备份存放目录",
+			"help": "如：/tmp/config,目录不存在会自动创建",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "",
+			"required": "true",
+			"validate": ""
+		},
+		{
+			"opt": "timeout",
+			"name": "连接超时时间",
+			"help": "默认是3秒",
+			"type": "input",
+			"isConst": "false",
+			"defaultValue": "3",
+			"required": "false",
+			"validate": ""
+		}
+	],
+	"output": []
+}
