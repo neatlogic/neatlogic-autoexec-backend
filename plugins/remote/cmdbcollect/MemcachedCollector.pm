@@ -119,7 +119,7 @@ sub collect {
                 $appInfo->{BACKLOG} = int($optVal);
             }
             elsif ( $opt eq 'R' ) {
-                $appInfo->{MAC_REQ_PER_EVENT} = int($optVal);
+                $appInfo->{MAX_REQ_PER_EVENT} = int($optVal);
             }
             elsif ( $opt eq 'L' ) {
                 $appInfo->{USE_LARGE_PAGE} = 1;

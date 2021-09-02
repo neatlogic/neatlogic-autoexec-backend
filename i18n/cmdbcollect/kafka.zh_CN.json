@@ -4,27 +4,27 @@
     "type": "String"
 }, {
     "name": "OBJECT_TYPE",
-    "desc": "Object Type",
+    "desc": "归属类型",
     "type": "String"
 }, {
     "name": "APP_TYPE",
-    "desc": "Application Type",
+    "desc": "中间件类型",
     "type": "String"
 }, {
     "name": "MGMT_IP",
-    "desc": "Managment IP",
+    "desc": "管理IP",
     "type": "String"
 }, {
     "name": "MGMT_PORT",
-    "desc": "Managment Port",
+    "desc": "管理端口",
     "type": "int"
 }, {
     "name": "SERVER_NAME",
-    "desc": "Server Name",
+    "desc": "服务名",
     "type": "String"
 }, {
     "name": "VERSION",
-    "desc": "Version",
+    "desc": "版本",
     "type": "String"
 }, {
     "name": "PORT",
@@ -32,19 +32,15 @@
     "type": "String"
 }, {
     "name": "SSL_PORT",
-    "desc": "SSL Port",
+    "desc": "SSL端口",
     "type": "String"
 }, {
     "name": "ADMIN_PORT",
-    "desc": "Admin Port",
+    "desc": "管理端口",
     "type": "String"
 }, {
     "name": "ADMIN_SSL_PORT",
-    "desc": "Admin SSL Port",
-    "type": "String"
-}, {
-    "name": "MON_PORT",
-    "desc": "Monitor Port",
+    "desc": "管理SSL端口",
     "type": "String"
 }, {
     "name": "PORTS",
@@ -56,89 +52,81 @@
         "type": "int"
     }]
 }, {
+    "name": "MON_PORT",
+    "desc": "监控端口",
+    "type": "String"
+}, {
     "name": "INSTALL_PATH",
-    "desc": "Install Path",
+    "desc": "安装目录",
+    "type": "String"
+}, {
+    "name": "BIN_PATH",
+    "desc": "BIN文件路径",
     "type": "String"
 }, {
     "name": "CONFIG_PATH",
-    "desc": "Conf Path",
+    "desc": "配置目录",
     "type": "String"
 }, {
     "name": "JAVA_HOME",
-    "desc": "Java Home Dir",
+    "desc": "Java目录",
     "type": "String"
 }, {
     "name": "JAVA_VERSION",
-    "desc": "Java Version",
+    "desc": "Java版本",
     "type": "String"
 }, {
     "name": "JVM_TYPE",
-    "desc": "JVM Type",
+    "desc": "JVM类型",
     "type": "String"
 }, {
     "name": "JVM_VERSION",
-    "desc": "JVM Version",
+    "desc": "JVM版本",
     "type": "String"
 }, {
     "name": "MIN_HEAP_SIZE",
-    "desc": "Min Heap Size",
+    "desc": "最小Heap Size",
     "type": "int"
 }, {
     "name": "MAX_HEAP_SIZE",
-    "desc": "Max Heap Size",
+    "desc": "最大Heap Size",
     "type": "int"
 }, {
     "name": "JMX_PORT",
-    "desc": "JMX Port",
+    "desc": "JMX端口",
     "type": "int"
 }, {
     "name": "JMX_SSL",
-    "desc": "JMX SSL Enabled",
+    "desc": "JMX SSL启用",
     "type": "String"
 }, {
-    "name": "WL_HOME",
-    "desc": "Weblogic Home Dir",
+    "name": "MAIN_LIB",
+    "desc": "Main Lib",
     "type": "String"
 }, {
-    "name": "DOMAIN_HOME",
-    "desc": "Domain Home Dir",
+    "name": "BROKER_ID",
+    "desc": "Broker ID",
     "type": "String"
 }, {
-    "name": "DOMAIN_NAME",
-    "desc": "Domain Name",
+    "name": "ACCESS_ADDR",
+    "desc": "Access Addr",
     "type": "String"
 }, {
-    "name": "APPLICATIONS",
-    "desc": "Application List",
+    "name": "LOG_DIRS",
+    "desc": "日志目录列表",
     "type": "JsonArray",
     "subset": [{
-        "name": "NAME",
-        "desc": "Application Name",
-        "type": "String"
-    }, {
-        "name": "TARGET",
-        "desc": "Application Target",
-        "type": "String"
-    }, {
-        "name": "MODULE_TYPE",
-        "desc": "Module Type",
-        "type": "String"
-    }, {
-        "name": "SOURCE_PATH",
-        "desc": "Source Path",
-        "type": "String"
-    }, {
-        "name": "STAGING_MODE",
-        "desc": "Staging Mode",
+        "name": "VALUE",
+        "desc": "日志目录",
         "type": "String"
     }]
 }, {
-    "name": "WL_PATCHES",
-    "desc": "Patch List",
-    "type": "String",
+    "name": "ZOOKEEPER_CONNECTS",
+    "desc": "Zookeeper连接列表",
+    "type": "JsonArray",
     "subset": [{
         "name": "VALUE",
-        "desc": "Patch Name",
+        "desc": "Zookeeper连接",
         "type": "String"
     }]
 }]

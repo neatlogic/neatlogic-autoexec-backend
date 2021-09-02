@@ -96,49 +96,35 @@
     "desc": "JMX SSL Enabled",
     "type": "String"
 }, {
-    "name": "WL_HOME",
-    "desc": "Weblogic Home Dir",
+    "name": "ACTIVEMQ_HOME",
+    "desc": "Conf Path",
     "type": "String"
 }, {
-    "name": "DOMAIN_HOME",
-    "desc": "Domain Home Dir",
+    "name": "ACTIVEMQ_BASE",
+    "desc": "Conf Path",
     "type": "String"
 }, {
-    "name": "DOMAIN_NAME",
-    "desc": "Domain Name",
+    "name": "ACTIVEMQ_CONF",
+    "desc": "Conf Path",
     "type": "String"
 }, {
-    "name": "APPLICATIONS",
-    "desc": "Application List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "Application Name",
-        "type": "String"
-    }, {
-        "name": "TARGET",
-        "desc": "Application Target",
-        "type": "String"
-    }, {
-        "name": "MODULE_TYPE",
-        "desc": "Module Type",
-        "type": "String"
-    }, {
-        "name": "SOURCE_PATH",
-        "desc": "Source Path",
-        "type": "String"
-    }, {
-        "name": "STAGING_MODE",
-        "desc": "Staging Mode",
-        "type": "String"
-    }]
+    "name": "ACTIVEMQ_DATA_PATH",
+    "desc": "Conf Path",
+    "type": "String"
 }, {
-    "name": "WL_PATCHES",
-    "desc": "Patch List",
-    "type": "String",
-    "subset": [{
-        "name": "VALUE",
-        "desc": "Patch Name",
-        "type": "String"
-    }]
+    "name": "AMQP_PORT",
+    "desc": "AMQP Port",
+    "type": "int"
+}, {
+    "name": "STOMP_PORT",
+    "desc": "STOMP Port",
+    "type": "int"
+}, {
+    "name": "MQTT",
+    "desc": "MQTT Port",
+    "type": "int"
+}, {
+    "name": "WS_PORT",
+    "desc": "WS Port",
+    "type": "int"
 }]

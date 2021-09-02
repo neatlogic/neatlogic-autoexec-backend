@@ -1,0 +1,110 @@
+[{
+    "name": "OS_ID",
+    "desc": "OS ID",
+    "type": "String"
+}, {
+    "name": "OBJECT_TYPE",
+    "desc": "归属类型",
+    "type": "String"
+}, {
+    "name": "APP_TYPE",
+    "desc": "中间件类型",
+    "type": "String"
+}, {
+    "name": "MGMT_IP",
+    "desc": "管理IP",
+    "type": "String"
+}, {
+    "name": "MGMT_PORT",
+    "desc": "管理端口",
+    "type": "int"
+}, {
+    "name": "SERVER_NAME",
+    "desc": "服务名",
+    "type": "String"
+}, {
+    "name": "VERSION",
+    "desc": "版本",
+    "type": "String"
+}, {
+    "name": "PORT",
+    "desc": "Port",
+    "type": "String"
+}, {
+    "name": "SSL_PORT",
+    "desc": "SSL端口",
+    "type": "String"
+}, {
+    "name": "ADMIN_PORT",
+    "desc": "管理端口",
+    "type": "String"
+}, {
+    "name": "ADMIN_SSL_PORT",
+    "desc": "管理SSL端口",
+    "type": "String"
+}, {
+    "name": "PORTS",
+    "desc": "Port List",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "VALUE",
+        "desc": "Port",
+        "type": "int"
+    }]
+}, {
+    "name": "MON_PORT",
+    "desc": "监控端口",
+    "type": "String"
+}, {
+    "name": "INSTALL_PATH",
+    "desc": "安装目录",
+    "type": "String"
+}, {
+    "name": "BIN_PATH",
+    "desc": "BIN文件路径",
+    "type": "String"
+}, {
+    "name": "CONFIG_PATH",
+    "desc": "配置目录",
+    "type": "String"
+}, {
+    "name": "UDP_PORT",
+    "desc": "UDP端口",
+    "type": "int"
+}, {
+    "name": "SASL_ENABLED",
+    "desc": "SASL启用",
+    "type": "int"
+}, {
+    "name": "MAX_CACHE_MEMORY",
+    "desc": "最大内存",
+    "type": "int"
+}, {
+    "name": "MAX_CONNECTION",
+    "desc": "最大并发连接数",
+    "type": "int"
+}, {
+    "name": "THREAD_COUNT",
+    "desc": "线程数",
+    "type": "int"
+}, {
+    "name": "BACKLOG",
+    "desc": "连接队列长度",
+    "type": "int"
+}, {
+    "name": "MAX_REQ_PER_EVENT",
+    "desc": "每连接最大处理请求数",
+    "type": "int"
+}, {
+    "name": "USE_LARGE_PAGE",
+    "desc": "使用Large Page",
+    "type": "int"
+}, {
+    "name": "CHUNK_GROW_FACTOR",
+    "desc": "内存块增长因子",
+    "type": "int"
+}, {
+    "name": "MIN_SPACE_PER_RECORD",
+    "desc": "最小记录内存大小（字节）",
+    "type": "int"
+}]

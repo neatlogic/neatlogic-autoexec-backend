@@ -102,7 +102,7 @@ sub collect {
             my ( $key, $val ) = split( /\s*=\s*/, $line );
             $confMap->{$key} = $val;
             if ( $key =~ /server\.\d+/ ) {
-                push( @members, $val );
+                push( @members, { VALUE => $val } );
             }
         }
     }

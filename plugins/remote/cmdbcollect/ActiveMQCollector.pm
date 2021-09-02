@@ -101,10 +101,10 @@ sub collect {
                 my $connectorsContent = $&;
                 while ( $connectorsContent =~ /<\s*transportConnector name="(\w+)" .*?:(\d+)/sg ) {
                     $proto = $1;
-                    $port  = $2;
+                    $port  = int($2);
                     if ( defined( $lsnPorts->{$port} ) ) {
                         $appInfo->{ uc("${proto}_PORT") } = $port;
-                        push( @ports, $port );
+                        push( @ports, { VALUE => $port } );
                     }
                 }
             }
@@ -122,7 +122,7 @@ sub collect {
             while ( $xml =~ /<property\s.*?name="port".*?\/>/sg ) {
                 my $portDef = $&;
                 if ( $portDef =~ /value="(\d+)"/ ) {
-                    my $pt = $1;
+                    my $pt = int($1);
                     if ( defined( $lsnPorts->{$pt} ) ) {
                         $mngtPort = $pt;
                     }

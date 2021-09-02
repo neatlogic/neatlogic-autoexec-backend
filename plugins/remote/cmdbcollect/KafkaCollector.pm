@@ -110,9 +110,16 @@ sub collect {
         $appInfo->{PORT} = $1;
     }
 
-    my @logDirs = split( ',', $confMap->{'log.dirs'} );
+    my @logDirs = ();
+    foreach my $logDir (split( ',', $confMap->{'log.dirs'} )){
+        push(@logDirs, { VALUE => $logDir });
+    }
     $appInfo->{LOG_DIRS} = \@logDirs;
-    my @zookeeperConnects = split( ',', $confMap->{'zookeeper.connect'} );
+
+    my @zookeeperConnects = ();
+    foreach my $zookeeperConn (split( ',', $confMap->{'zookeeper.connect'} )){
+        push(@zookeeperConnects, { VALUE => $zookeeperConn });
+    }
     $appInfo->{ZOOKEEPER_CONNECTS} = \@zookeeperConnects;
 
     $appInfo->{SSL_PORT}       = undef;

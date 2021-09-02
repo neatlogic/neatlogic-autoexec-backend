@@ -74,18 +74,18 @@ sub collect {
     $keepalivedInfo->{VERSION}       = $version;
     $keepalivedInfo->{PREFIX}        = $prefix;
     $keepalivedInfo->{CONFIG_PATH}   = $configPath;
-    $keepalivedInfo->{VRRP_SCRIPT}   = parseConfig( $self, $configFile, 'vrrp_script' );
-    $keepalivedInfo->{VRRP_INSTANCE} = parseConfig( $self, $configFile, 'vrrp_instance' );
+    $keepalivedInfo->{VRRP_SCRIPT}   = $self->parseConfig( $configFile, 'vrrp_script' );
+    $keepalivedInfo->{VRRP_INSTANCE} = $self->parseConfig( $configFile, 'vrrp_instance' );
     $keepalivedInfo->{MON_PORT}      = undef;
     return $keepalivedInfo;
 }
 
 sub parseConfig {
     my ( $self, $conf_path, $identification ) = @_;
-    my @vrrp       = parseVrrp( $self, $conf_path, $identification );
+    my @vrrp       = $self->parseVrrp( $conf_path, $identification );
     my @vrrpResult = ();
     foreach my $content (@vrrp) {
-        my $instance = parseStructure( $self, $content, $identification );
+        my $instance = $self->parseStructure( $content, $identification );
         push( @vrrpResult, $instance );
     }
     return \@vrrpResult;
@@ -181,7 +181,7 @@ sub parseStructure {
 
         #结构化配置
         if ( $startIndex == 1 and $endIndex == 1 and $block ne '' ) {
-            my ( $key, $value ) = analysisValue( $self, $block );
+            my ( $key, $value ) = $self->analysisValue( $block );
             $instance->{ uc($key) } = $value;
             $startIndex             = 0;
             $endIndex               = 0;
@@ -235,7 +235,7 @@ sub parseVrrp {
     my $startCount  = 0;
     my $endCount    = 0;
     my $fileContent = $self->getFileContent($confPath);
-    $fileContent = formatStructure( $self, $fileContent, '{' );
+    $fileContent = $self->formatStructure( $fileContent, '{' );
 
     #        $fileContent = formatStructure($self, $fileContent, '}' );
     my @contents = str_split( $fileContent, '\n' );

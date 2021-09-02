@@ -95,7 +95,7 @@ sub collect {
             my $siteInfo = {};
             $siteInfo->{NAME}     = $1;
             $siteInfo->{ID}       = $2;
-            $siteInfo->{State}    = $3;
+            $siteInfo->{STATE}    = $3;
             $siteInfo->{PATH}     = $4;
             $siteInfo->{PROTOCOL} = $5;
             $siteInfo->{LISTEN}   = $6;
@@ -166,7 +166,7 @@ sub collect {
         if ( $line =~ /^\s*(.*?)\s+(Started|Stopped)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/ ) {
             my $poolInfo = {};
             $poolInfo->{NAME}          = $1;
-            $poolInfo->{State}         = $2;
+            $poolInfo->{STATE}         = $2;
             $poolInfo->{CLR_VER}       = $3;
             $poolInfo->{PIPELINE_MODE} = $4;
             $poolInfo->{START_MODE}    = $5;

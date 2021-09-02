@@ -43,21 +43,25 @@
     "desc": "管理SSL端口",
     "type": "String"
 }, {
-    "name": "MON_PORT",
-    "desc": "监控端口",
-    "type": "String"
-}, {
     "name": "PORTS",
     "desc": "Port List",
     "type": "JsonArray",
     "subset": [{
         "name": "VALUE",
-        "desc": "端口",
+        "desc": "Port",
         "type": "int"
     }]
 }, {
+    "name": "MON_PORT",
+    "desc": "监控端口",
+    "type": "String"
+}, {
     "name": "INSTALL_PATH",
     "desc": "安装目录",
+    "type": "String"
+}, {
+    "name": "BIN_PATH",
+    "desc": "BIN文件路径",
     "type": "String"
 }, {
     "name": "CONFIG_PATH",
@@ -93,52 +97,6 @@
     "type": "int"
 }, {
     "name": "JMX_SSL",
-    "desc": "JMX使用SSL",
+    "desc": "JMX SSL启用",
     "type": "String"
-}, {
-    "name": "WL_HOME",
-    "desc": "Weblogic Home目录",
-    "type": "String"
-}, {
-    "name": "DOMAIN_HOME",
-    "desc": "Domain Home目录",
-    "type": "String"
-}, {
-    "name": "DOMAIN_NAME",
-    "desc": "Domain名称",
-    "type": "String"
-}, {
-    "name": "APPLICATIONS",
-    "desc": "应用包列表",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "应用名",
-        "type": "String"
-    }, {
-        "name": "TARGET",
-        "desc": "应用运行目标",
-        "type": "String"
-    }, {
-        "name": "MODULE_TYPE",
-        "desc": "模块类型",
-        "type": "String"
-    }, {
-        "name": "SOURCE_PATH",
-        "desc": "源目录",
-        "type": "String"
-    }, {
-        "name": "STAGING_MODE",
-        "desc": "Staging模式",
-        "type": "String"
-    }]
-}, {
-    "name": "WL_PATCHES",
-    "desc": "补丁列表",
-    "type": "String",
-    "subset": [{
-        "name": "VALUE",
-        "desc": "补丁名",
-        "type": "String"
-    }]
 }]

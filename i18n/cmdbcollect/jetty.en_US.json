@@ -96,49 +96,11 @@
     "desc": "JMX SSL Enabled",
     "type": "String"
 }, {
-    "name": "WL_HOME",
-    "desc": "Weblogic Home Dir",
+    "name": "JETTY_HOME",
+    "desc": "Jetty Home Dir",
     "type": "String"
 }, {
-    "name": "DOMAIN_HOME",
-    "desc": "Domain Home Dir",
+    "name": "JETTY_BASE",
+    "desc": "Jetty Base Dir",
     "type": "String"
-}, {
-    "name": "DOMAIN_NAME",
-    "desc": "Domain Name",
-    "type": "String"
-}, {
-    "name": "APPLICATIONS",
-    "desc": "Application List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "Application Name",
-        "type": "String"
-    }, {
-        "name": "TARGET",
-        "desc": "Application Target",
-        "type": "String"
-    }, {
-        "name": "MODULE_TYPE",
-        "desc": "Module Type",
-        "type": "String"
-    }, {
-        "name": "SOURCE_PATH",
-        "desc": "Source Path",
-        "type": "String"
-    }, {
-        "name": "STAGING_MODE",
-        "desc": "Staging Mode",
-        "type": "String"
-    }]
-}, {
-    "name": "WL_PATCHES",
-    "desc": "Patch List",
-    "type": "String",
-    "subset": [{
-        "name": "VALUE",
-        "desc": "Patch Name",
-        "type": "String"
-    }]
 }]
