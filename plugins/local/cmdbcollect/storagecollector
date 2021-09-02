@@ -55,7 +55,7 @@ sub main {
         require "$typeClass.pm";
 	print("class:$typeClass\n");
         our @ISA = ($typeClass);
-        $instance = $typeClass->new();
+        $instance = $typeClass->new( host=>$host ,user=>$user , pasword => $password );
     };
     if ($@) {
 	print($@);
