@@ -175,6 +175,8 @@ sub getJavaAttrs {
 
     my $javaHome;
     my $javaVersion;
+    my $jvmType;
+    my $jvmVersion;
     my $javaPath = readlink('/proc/$pid/exe');
     if ( not defined($javaPath) ) {
         if ( $cmdLine =~ /^(.*?\bjava)/ ) {
@@ -196,14 +198,33 @@ sub getJavaAttrs {
     }
 
     if ( defined($javaPath) ) {
-        $javaHome = dirname(dirname($javaPath));
+        $javaHome = dirname( dirname($javaPath) );
         my $javaVerInfo = $self->getCmdOut(qq{"$javaPath" -version 2>&1});
         if ( $javaVerInfo =~ /java version "(.*?)"/s ) {
             $javaVersion = $1;
         }
+
+        if ( $javaVerInfo =~ /IBM.*?VM.*?build\s*([\d\.\w\-]+)/i ) {
+            $jvmType    = "IBM";
+            $jvmVersion = $1;
+        }
+        elsif ( $javaVerInfo =~ /HotSpot.*?VM.*?build\s*([\d\.\w\-]+)/i ) {
+            $jvmType    = 'HotSpot';
+            $jvmVersion = $1;
+        }
+        elsif ( $javaVerInfo =~ /JRockit.*?VM.*?build\s*([\d\.\w\-]+)/i ) {
+            $jvmType    = 'JRockit';
+            $jvmVersion = $1;
+        }
+        elsif ( $javaVerInfo =~ /OpenJDK.*?VM.*?build\s*([\d\.\w\-]+)/i ) {
+            $jvmType    = 'OpenJDK';
+            $jvmVersion = $1;
+        }
     }
-    $appInfo->{JAVA_VERSION} = $javaVersion;
     $appInfo->{JAVA_HOME}    = $javaHome;
+    $appInfo->{JAVA_VERSION} = $javaVersion;
+    $appInfo->{JVM_TYPE}     = $jvmType;
+    $appInfo->{JVM_VERSION}  = $jvmVersion;
 
     #获取-X的java扩展参数
     my ( $jmxPort,     $jmxSsl );
@@ -212,7 +233,7 @@ sub getJavaAttrs {
     my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
     foreach my $cmdOpt (@cmdOpts) {
         if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
-            $jmxPort = $1;
+            $jmxPort = int($1);
         }
         elsif ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.ssl=(\w+)\b/ ) {
             $jmxSsl = $1;

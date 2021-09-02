@@ -134,7 +134,7 @@ sub getPatchInfo {
         my $cmdPath = File::Spec->canonpath($oPatchPath);
         my $patchInfo = $self->getCmdOut( qq{"$cmdPath" lsinventory}, $osUser );
         while ( $patchInfo =~ /Patch\s+(\d+)\s+:/g ) {
-            push( @patches, $1 );
+            push( @patches, { VALUE => $1 } );
         }
     }
     else {
@@ -142,7 +142,7 @@ sub getPatchInfo {
         my $cmdPath   = File::Spec->canonpath($bsuPath);
         my $patchInfo = $self->getCmdOut( qq{"$cmdPath" -prod_dir=$wlHome -status=applied -verbose -view}, $osUser );
         while ( $patchInfo =~ /Patch\s+ID:\s+(\w+)\s+/g ) {
-            push( @patches, $1 );
+            push( @patches, { VALUE => $1 } );
         }
     }
     $appInfo->{WL_PATCHES} = join( ',', @patches );

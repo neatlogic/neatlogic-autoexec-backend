@@ -55,6 +55,30 @@
 	"desc": "配置目录",
 	"type": "String"
 }, {
+	"name": "JAVA_HOME",
+	"desc": "Java目录",
+	"type": "String"
+}, {
+	"name": "JAVA_VERSION",
+	"desc": "Java版本",
+	"type": "String"
+}, {
+	"name": "JVM_TYPE",
+	"desc": "JVM类型",
+	"type": "String"
+}, {
+	"name": "JVM_VERSION",
+	"desc": "JVM版本",
+	"type": "String"
+}, {
+	"name": "MIN_HEAP_SIZE",
+	"desc": "最小Heap Size",
+	"type": "int"
+}, {
+	"name": "MAX_HEAP_SIZE",
+	"desc": "最大Heap Size",
+	"type": "int"
+}, {
 	"name": "CATALINA_HOME",
 	"desc": "catalina家目录",
 	"type": "String"

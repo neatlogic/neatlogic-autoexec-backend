@@ -55,6 +55,30 @@
 	"desc": "Conf Path",
 	"type": "String"
 }, {
+	"name": "JAVA_HOME",
+	"desc": "Java Home Dir",
+	"type": "String"
+}, {
+	"name": "JAVA_VERSION",
+	"desc": "Java Version",
+	"type": "String"
+}, {
+	"name": "JVM_TYPE",
+	"desc": "JVM Type",
+	"type": "String"
+}, {
+	"name": "JVM_VERSION",
+	"desc": "JVM Version",
+	"type": "String"
+}, {
+	"name": "MIN_HEAP_SIZE",
+	"desc": "Min Heap Size",
+	"type": "int"
+}, {
+	"name": "MAX_HEAP_SIZE",
+	"desc": "Max Heap Size",
+	"type": "int"
+}, {
 	"name": "CATALINA_HOME",
 	"desc": "catalina home",
 	"type": "String"

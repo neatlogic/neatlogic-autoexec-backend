@@ -95,34 +95,34 @@ sub getPorts {
                 my $portDef = $&;
                 if ( index( $portDef, '"WC_defaulthost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
-                        $port = $1;
-                        push( @ports, $port );
+                        $port = int($1);
+                        push( @ports, { VALUE => $port } );
                     }
                 }
                 elsif ( index( $portDef, '"WC_defaulthost_secure"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
-                        $sslPort = $1;
+                        $sslPort = int($1);
                         push( @ports, $sslPort );
                     }
                 }
                 elsif ( index( $portDef, '"WC_adminhost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
-                        $adminPort = $1;
-                        push( @ports, $adminPort );
+                        $adminPort = int($1);
+                        push( @ports, { VALUE => $adminPort } );
                     }
                 }
                 elsif ( index( $portDef, '"WC_adminhost_secure"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
-                        $adminSslPort = $1;
-                        push( @ports, $adminSslPort );
+                        $adminSslPort = int($1);
+                        push( @ports, { VALUE => $adminSslPort } );
                     }
                 }
 
                 #"SOAP_CONNECTOR_ADDRESS"
                 elsif ( index( $portDef, '"SOAP_CONNECTOR_ADDRESS"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
-                        $soapPort = $1;
-                        push( @ports, $soapPort );
+                        $soapPort = int($1);
+                        push( @ports, { VALUE => $soapPort } );
                     }
                 }
             }
@@ -149,7 +149,7 @@ sub getApplications {
         my @appPkgsDirs = glob("$appPkgTmpDir/*");
         foreach my $dir (@appPkgsDirs) {
             if ( $dir !~ /_extensionregistry$/ and $dir !~ /ibmasyncrsp$/ and $dir !~ /filetransferSecured$/ ) {
-                push( @applications, basename($dir) );
+                push( @applications, { NAME => basename($dir), SOURCE_PATH => dirname($dir) } );
             }
         }
     }
