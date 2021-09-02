@@ -1,0 +1,760 @@
+#HITACHI Dictionary
+#
+#RAIDCOM Dictionary Version : HI-1.00ii1.0
+#
+# update 2017/02/27  chg(HI-1.00ii1.0)
+#---------------------------------------
+CMDALIAS
+"InActName=add,InObjName=chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=copy_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o copygrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=device_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ldevgrp",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add,InObjName=dp_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o poola",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=external_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=hba_iscsi",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=hba_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=host_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=journal",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o jnl",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=license",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o licns",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add_async,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg async",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add,InObjName=parity_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o rgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=pfc_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=pfc_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=rcu",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o rcu",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=rcu_iscsi_port",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o rtar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=rcu_path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=snap_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o pools",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=add,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=spm_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=spm_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=ssid",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o ssid",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=add,InObjName=thp_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o poola",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=check_ext_storage,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=check,InObjName=external_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=check_ext_storage,InObjName=path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=check_ext_storage,InObjName=source_storage",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o df2hm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=copy_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o copygrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=device_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ldevgrp",ProvOutCommandFormat=horizontal,ParamType= ,SyslogOutput=on
+"InActName=delete,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=external_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=hba_iscsi",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=hba_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=host_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=journal",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o jnl",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=license",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o licns",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=parity_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o rgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=pfc_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=pfc_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=pfc_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=rcu",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o rcu",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=rcu_iscsi_port",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o rtar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=rcu_path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=spm_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=spm_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=spm_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=delete,InObjName=ssid",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a del",OutObjName="-o ssid",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=disconnect,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a disc",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=disconnect,InObjName=path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a disc",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=discover,InObjName=external_storage",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o wwn -pattr ELUN",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=discover,InObjName=external_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=discover,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=extend,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a ext",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=get,InObjName=chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o wwn -pkey opt",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=clpr",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o clpr",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=command_status",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ssb",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=get,InObjName=copy_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o copygrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=device_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ldevgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=dp_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o poola",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=drive",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o drive",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=error_message",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ssb",ProvOutCommandFormat=vertical,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=external_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=hba_iscsi",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=hba_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=host_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=initiator_iscsi_name",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o etar -pifc y",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=journal",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o jnl",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=journalt",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o jnlt",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ldev",ProvOutCommandFormat=both,ParamType= ,SyslogOutput=off
+"InActName=get,InObjName=license",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o licns",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=local_replica_opt",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o lcpop",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=parity_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o rgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=path",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o path",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=pfc_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=pfc_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=pfc_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=port",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o port",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=quorum",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o qrm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=rcu",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o rcu",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=rcu_iscsi_port",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o rtar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=snap_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o pools",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=source_storage",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o df2hm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=spm_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=spm_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=spm_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=ssid",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o ssid",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=get,InObjName=thp_pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a qry",OutObjName="-o poola",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=initialize,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a write",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=initialize,InObjName=parity_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=initialize,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=initialize,InObjName=shred_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a write",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=lock,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a lock",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=map,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a map",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=map,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a map",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=map,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a map",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=clpr",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o clpr",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=drive",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o drive",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=external_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o egrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=external_chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=host_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=initiator_chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o etar",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=journal",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o jnl",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=license",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o licns",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=local_replica_opt",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o lcpop",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=lun",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o lun",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=parity_grp",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=pfc_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=pfc_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=pfc_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=port",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o port",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=quorum",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o qrm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=rcu",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rcu",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=spm_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=spm_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=modify,InObjName=spm_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=monitor,InObjName=pfc_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=monitor,InObjName=pfc_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=monitor,InObjName=pfc_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=monitor,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=monitor,InObjName=spm_group",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc -pkey hgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=monitor,InObjName=spm_ldev",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc -pkey ldev",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=monitor,InObjName=spm_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a mon",OutObjName="-o ppc",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=off
+"InActName=mount,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a map",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reallocate,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=relocate,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o pool",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=rename,InObjName=pool",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reg",OutObjName="-o pools",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=replace,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=replace,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=replace,InObjName=quorum",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o qrm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reset,InObjName=chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reset,InObjName=command_status",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o ssb",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reset,InObjName=hba_iscsi",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reset,InObjName=hba_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=reset,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=set,InObjName=chap_user",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=set,InObjName=hba_iscsi",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=set,InObjName=hba_wwn",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=set,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a set",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=send,InObjName=ping",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a conn",OutObjName="-o wwn",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=switch,InObjName=source_storage",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a reloc",OutObjName="-o df2hm",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=unlock,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a unlock",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=unmap,InObjName=resource",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a unmap",OutObjName="-o rsgrp",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=unmap,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a unmap",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=unmap,InObjName=snapshotset",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a unmap",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+"InActName=unmount,InObjName=snapshot",<ProvInCommandType3>,<ProvOutCommandForRM1>,OutActName="-a unmap",OutObjName="-o snap",ProvOutCommandFormat=horizontal,ParamType=force_norange,SyslogOutput=on
+#---------------------------------------
+PARAMALIAS
+C CTXCHK LOAD,-c ctxchk load,-store
+DLDEV,-dldev,-dldev_id
+DPORT,-dport,-dport
+FORMATTIME,-pcmddev m,-format_time
+FX,-fx,-fx
+GLDEVGRP,-gldevgrp,-grp_opt
+GLDEVLST,-gldevlist ldev,-ldev_list
+I,-I,-I
+IH,-IH,-IH
+IM,-IM,-IM
+ITC,-ITC,-ITC
+ISI,-ISI,-ISI
+LOGIN,-login,-login
+LOGINS,-logins,-logins
+LOGOUT,-logout,-logout
+NOMSG,-nomsg,-nomsg
+NOWARNING,-nowarning,-nowarning
+PAIPADDR,-paipaddr,-addresses
+PALPA,-palpa,-loop_id
+PAPORT,-paport,-additional_port,-ports
+PASSID,-passid,-ssids
+PATHMD,-pathmd,-authmethod
+PATTR,-pattr,-port_attribute
+PBIT,-pbit,-host_mode_opt
+PBITR,-pbitr clear,-reset_host_mode_opt
+PBITS,-pbits,-set_host_mode_opt
+PC,-c,-checkmode
+PCACHMD,-pcachmd,-cache_mode
+PCACHMD2,-pcachmd,-external_attribute
+PCACHMD3,-pcachmd sm,-t10pi_enable
+PCHAP,-pchap,-chap_user
+PCHAPN,-pifc n -pchap,-target_chap_user
+PCHAPY,-pifc y -pchap,-initiator_chap_user
+PCLPR,-pclpr,-clpr
+PCLY,-pcyl,-cylinder
+PCMDDEV,-pcmddev,-command_device
+PCNT,-pcnt,-cnt
+PCPBK,-pcpbk,-copy_back
+PCPMD,-pcpmd,-snap_mode
+PCPOP,-pcpop,-snapshot_data
+PCPSZ,-pcpsz,-copy_size
+PCPSZ2,-pcpsz,-copy_pace
+PCRGRP,-pcrgrp,-concatenated_parity_grp_id
+PCUF,-pcuf,-cu_free
+PCUF2,-pcuf,-virtual_type,-quorum_enable,-rcu_id
+PCUF3,-pcuf 0 R700 0,-quorum_disable
+PCUF4,-pcuf %1 D8X 0,-source_storage_id %1
+PDLCN,-pdlcn,-drive_location
+PDOW,-pdow,-data_overflow_watch
+PDRD,-pdrd,-capacity_saving
+PDRD2,-pdrd,-deduplication
+PDTYPE,-pdtype,-opt_type
+PEGRP,-pegrp,-external_grp_id
+PENC,-penc,-encryption
+PFORC,-pforc y,-forcible
+PFTOP,-pftop,-topology
+PHMD,-phmd,-host_mode
+PIDNUM,-pifc n -pidnum,-reset_system_opt
+PIDNUM2,-pifc y -pidnum,-set_system_opt
+PIDNUM3,-pidnum,-product_id
+PIFC,-pifc,-cache_inflow,-virtual_switch,-pfc_priority,-spm_priority
+PIFC2,-pifc y,-fastsnap,-thinsnap,-allports
+PIFC3,-pifc,-mutual,-accelerated_compression,-capacity_expansion
+PIFC4,-pifc,-data_direct_mapping
+PIFC5,-pifc,-t10pi,-license_status
+PIFC6,-pifc y,-revert
+PINLINE,-pinline,-capacity_saving_mode
+PIPADDR,-pipaddr %1,-address %1
+PIPADDR4,-pipaddr %1,-ipv4_address %1
+PIPADDREXT,-pipaddr %1,-external_address %1
+PIPADDRRCU,-pipaddr %1,-rcu_address %1
+PIPADDR4GW,-pipaddr %1 GW4,-ipv4_gateway_address %1
+PIPADDR4SM,-pipaddr %1 SM,-ipv4_subnetmask %1
+PIPADDR6G2,-pipaddr %1 GA2,-ipv6_global_address2 %1
+PIPADDR6GA,-pipaddr %1 GA,-ipv6_global_address %1
+PIPADDR6GW,-pipaddr %1 GW6,-ipv6_gateway_address %1
+PIPADDR6LA,-pipaddr %1 LA,-ipv6_local_address %1
+PIPADDRNS,-pipaddr %1 NS,-isns_server_address %1
+PIQN,-piqn,-iscsi_name,-hba_iscsi_name
+PIQN2,-pwwn 0000000000000000 -piqn,-external_iscsi_name
+PJID,-pjid,-journal_id,-quorum_id
+PKEY,-pkey,-key
+PKEY2,-pkey rgrp,-spm_host_grp,-pfc_host_grp
+PKEY3,-pkey,-range
+PKYCD,-pkycd,-keycode
+PLBMD,-plbmd,-load_balance
+PLDEV,-pldev,-ldev_id
+PLDEVFC,-pldevfc,-tse_ldev_id
+PLOC,-ploc,-location
+PLUN,-plun,-lun_id
+PMP,-pmp,-mp_blade_id
+PMPORT,-pmport,-mcu_port
+PMUN,-pmun,-mirror_id
+PNAME,-pname,-copy_grp_name,-device_grp_name,-device_name,-emulation,-host_grp_name,-name,-resource_name,-serial,-uuid,-wwn_nickname,-pool_name,-ldev_name,-snapshot_name,-snapshotgroup,-pfc_name,-pfc_group,-spm_name,-spm_group,-iscsi_nickname
+PNAME2,-pname ?,-secret
+PNTEST,-pntest,-check_status_not
+POPE,-pope,-operation
+PPBW,-ppbw,-path_blocked_watch
+PPID,-ppid,-pool_id,-pool
+PPMM,-ppmm,-monitor_mode
+PPMM2,-ppmm,-blocking_mode
+PPORT,-pport,-port
+PPTHG,-ppthg,-path_grp
+PPWSV,-ppwsv,-powersave
+PRBR,-prbr,-tier_buffer_rate
+PRCU,-prcu,-rcu
+PRCUOPT,-prcuopt,-rcu_option
+PRGID,-prgid,-resource_id
+PRGRP,-prgrp,-parity_grp_id
+PRLV,-prlv,-raid_type
+PRPORT,-prport,-rcu_port
+PSIZE,-psize,-capacity
+PSIZEC,-psizec,-offset_capacity
+PSPD,-pspd,-port_speed
+PSPDI,-pspdi,-limit_io
+PSPDK,-pspdk,-limit_kb
+PSPDM,-pspdm,-limit_mb
+PSPDWNMT,-pspdwnmt,-spindown_monitortime
+PSPR,-pspr,-spare
+PSSB,-pssb,-ssb
+PSSID,-pssid,-ssid
+PSSW,-pssw,-security_switch,-alua_switch
+PSSW2,-pssw,-asymmetric_access_state
+PSSW3,-pssw,-alua
+PSTS,-psts,-status
+PSUSPTIPAIR,-psusptipair,-suspend_tipair
+PSUSPTIPAIR,-psusptipair,-suspend_fspair
+PTCPODAK,-ptcpo %1 dak,-delayed_ack_mode %1
+PTCPOINS,-ptcpo %1 ins,-isns_mode %1
+PTCPOIP6,-ptcpo %1 ip6,-ipv6_mode %1
+PTCPOIVPM,-ptcpo %1 ivpm,-iscsi_virtual_port_mode %1
+PTCPOSAK,-ptcpo %1 sak,-selective_ack_mode %1
+PTCPOSIZE,-ptcpo e wsc -psize %1,-window_size %1
+PTCPOVTM,-ptcpo %1 vtm,-vlan_tagging_mode %1
+PTCPVAIVP,-ptcpv %1 aivp,-add_iscsi_virtual_port %1
+PTCPVATM,-ptcpv %1 atm,-keep_alive_timer %1
+PTCPVDIVP,-ptcpv %1 divp,-delete_iscsi_virtual_port %1
+PTCPVIVP,-ptcpv %1 ivp,-iscsi_virtual_port_id %1
+PTCPVMIVP,-ptcpv %1 mivp,-modify_iscsi_virtual_port %1
+PTCPVMTU,-ptcpv %1 mtu,-mtu %1
+PTCPVNSP,-ptcpv %1 nsp,-isns_port %1
+PTCPVRVID,-ptcpv %1 rvid,-delete_vlan_id %1
+PTCPVSVID,-ptcpv %1 svid,-add_vlan_id %1
+PTCPVMVID,-ptcpv %1 mvid,-modify_vlan_id %1
+PTCPVTCP,-ptcpv %1 tcp,-tcp_port %1
+PTEST,-ptest,-check_status
+PTHS,-pths,-user_threshold
+PTIER,-ptier,-tier
+PTIERA,-ptier,-pool_attribute
+PTIME,-ptime,-time,-timeout
+PTTYPE,-pttype,-timer_type
+PUSG,-pusg,-usage
+PVCAPR,-pvcapr,-subscription
+PVLDEV,-pvldev,-virtual_ldev_id
+PVLDEV2,-pvldev,-mapping_ldev_id
+PVPORT,-pvport,-virtual_port
+PWWN,-pwwn,-external_wwn,-hba_wwn
+RESOURCE,-setrgid,-resource
+S,-s,-s
+SV,-sv,-sv
+U,-u,-u,-unit_id
+#---------------------------------------
+VALUEALIAS
+GLDEVLST,-pname aouldev,dp_volume,thp_volume
+GLDEVLST,-pname defldev,defined
+GLDEVLST,-pname elunldev,external_volume
+GLDEVLST,-pname jnlldev,journal
+GLDEVLST,-pname maplun,mapped
+GLDEVLST,-pname mpldev,mp_blade
+GLDEVLST,-pname poolldev,pool
+GLDEVLST,-pname qrdldev,quorum
+GLDEVLST,-pname rgrpldev,parity_grp
+GLDEVLST,-pname undefldev,undefined
+GLDEVLST,-pname unmaplun,unmapped
+PASSID,undef,auto
+PATHMD,chap,CHAP
+PATHMD,none,NONE
+PATHMD,both,BOTH
+PC,ctxchk,contextcheck
+PC,noexe,precheck
+PCACHMD,dm,through
+PCACHMD,sm,sync
+PCACHMD2,dm,migration
+PCPBK,y,enable
+PCPBK,n,disable
+PCPMD,cas,cascade
+PCPMD,ctg,CTG
+PCPMD,noread,NOREAD
+PCPOP,snapclone,clone
+PCPOP,snapshot,create,split
+PCPOP,snapresync,resync
+PCPOP,snaprestore,restore
+PCPSZ2,1,slower
+PCPSZ2,2,medium
+PCPSZ2,3,faster
+PCUF2,R500 0,R500
+PCUF2,R600 0,R600
+PCUF2,R700 0,R700
+PCUF2,R800 0,R800
+PCUF2,RK600 0,RK600
+PCUF2,RK500 0,RK500
+PCUF2,M700 0,M700
+PCUF2,M800 0,M800
+PCUF2,M8H00 0,M800H
+PCUF2,M8M00 0,M800M
+PCUF2,M8S00 0,M800S
+PCUF2,D8X 0,D850X
+PCUF2,D8S 0,D850S
+PCUF2,D8M 0,D850M
+PDRD,comp,compression
+PDRD,ddup,deduplication_compression
+PDRD,off,disable
+PDRD2,ddup,yes
+PDRD2,off,no
+PDTYPE,mf,mainframe
+PENC,y,enable
+PENC,n,disable
+PFTOP,fabric fcal,fl_port
+PFTOP,fabric ptop,f_port
+PFTOP,fcal,nl_port
+PFTOP,ptop,n_port
+PIFC3,y,enable
+PIFC3,n,disable
+PIFC4,y,enable
+PIFC4,n,disable
+PIFC5,y,enable
+PIFC5,n,disable
+PINLINE,inline,inline
+PINLINE,postp,post_process
+PKEY,elun,external
+PKEY,frnt,front_end
+PKEY,hgrp,host_grp
+PKEY,rgrp,parity_grp
+PKEY,frntp,tier
+PKEY,ldev,opt_page1
+PKEY,port,fmc
+PKEY,hgrp,saving
+PKEY,pwsv,powersave
+PKEY3,opt,tree
+PLBMD,nml,normal
+PLBMD,ext,extended
+PLBMD,dis,disable
+PNTEST,DELPL,SHRPL
+POPE,fmt,initialize_deduplication
+PPMM,cm,continuous
+PPMM,pm,period
+PPMM,rtre,realtime_tiering
+PPMM,rtrd,non_realtime_tiering
+PPMM2,bfb,full_or_blockade
+PPMM2,bpb,pool_vol_blockade
+PPMM2,bpf,pool_full
+PPMM2,brs,no_blocking
+PSIZE,none,all
+PSPR,y,enable
+PSPR,n,disable
+PSSW2,y,optimized
+PSSW2,n,non_optimized
+PSSW3,y,enable
+PSSW3,n,disable
+PSTS,0,all
+PSTS,trd,disable_reallocation
+PSTS,trd,disable_relocation
+PSTS,tre,enable_reallocation
+PSTS,tre,enable_relocation
+PSTS,tre,enalbe_relocation
+PSTS,zpd,discard_zero_page
+PSTS,tpr,enable_relocation_policy
+PSTS,tpr,enable_relocation_with_rate
+PSTS,tal,new_page_allocation
+PSTS,H,high
+PSTS,M,middle
+PSTS,L,low
+PSTS,ape,enable_fullallocation
+PSTS,apd,disable_fullallocation
+PSUSPTIPAIR,y,yes
+PSUSPTIPAIR,n,no
+PTCPODAK,e,enable
+PTCPODAK,d,disable
+PTCPOINS,e,enable
+PTCPOINS,d,disable
+PTCPOIP6,e,enable
+PTCPOIP6,d,disable
+PTCPOIVPM,e,enable
+PTCPOIVPM,d,disable
+PTCPOSAK,e,enable
+PTCPOSAK,d,disable
+PTCPOVTM,e,enable
+PTCPOVTM,d,disable
+PTEST,DELPL,SHRPL
+PTIERA,0,thp,dp
+PTIERA,1,smart_manual,dt_manual
+PVLDEV,undef,reserve
+PPWSV,n,disable
+PPWSV,spdwn,spindown
+#---------------------------------------
+CONVRULE
+C CTXCHK LOAD:C CTXCHK LOAD+
+DLDEV:DLDEV
+DPORT:DPORT
+FORMATTIME:none
+FX:none
+GLDEVGRP:GLDEVGRP+
+GLDEVLST:GLDEVLST
+I:I?
+IH:IH?
+IM:IM?
+ITC:ITC?
+ISI:ISI?
+LOGIN:LOGIN*
+LOGINS:none
+LOGOUT:none
+NOMSG:none
+NOWARNING:none
+PAIPADDR:PAIPADDR+
+PALPA:PALPA
+PAPORT:PAPORT+
+PASSID:PASSID+
+PATHMD:PATHMD
+PATTR:PATTR
+PBIT:PBIT+
+PBITR:none
+PBITS:PBITS+
+PC:PC+
+PCACHMD:PCACHMD
+PCACHMD2:PCACHMD2
+PCACHMD3:none
+PCHAP:PCHAP
+PCHAPN:PCHAPN
+PCHAPY:PCHAPY
+PCLPR:PCLPR
+PCLY:PCLY
+PCMDDEV:PCMDDEV+
+PCNT:PCNT
+PCPBK:PCPBK
+PCPMD:PCPMD+
+PCPOP:PCPOP
+PCPSZ:PCPSZ
+PCPSZ2:PCPSZ2
+PCRGRP:PCRGRP+
+PCUF:PCUF+
+PCUF2:PCUF2+
+PCUF3:none
+PCUF4:PCUF4
+PDLCN:PDLCN+
+PDOW:PDOW
+PDRD:PDRD
+PDRD2:PDRD2
+PDTYPE:PDTYPE
+PEGRP:PEGRP
+PENC:PENC
+PFORC:none
+PFTOP:PFTOP+
+PHMD:PHMD
+PIDNUM:PIDNUM
+PIDNUM2:PIDNUM2
+PIDNUM3:PIDNUM3
+PIFC:PIFC
+PIFC2:none
+PIFC3:PIFC3
+PIFC4:PIFC4
+PIFC5:PIFC5
+PIFC6:none
+PINLINE:PINLINE
+PIPADDR:PIPADDR
+PIPADDR4:PIPADDR4
+PIPADDREXT:PIPADDREXT
+PIPADDRRCU:PIPADDRRCU
+PIPADDR4GW:PIPADDR4GW
+PIPADDR4SM:PIPADDR4SM
+PIPADDR6GA:PIPADDR6GA
+PIPADDR6GW:PIPADDR6GW
+PIPADDR6LA:PIPADDR6LA
+PIPADDRNS:PIPADDRNS
+PIPADDR6G2:PIPADDR6G2
+PIQN:PIQN
+PIQN2:PIQN2
+PJID:PJID
+PKEY:PKEY
+PKEY2:none
+PKEY3:PKEY3
+PKYCD:PKYCD
+PLBMD:PLBMD
+PLDEV:PLDEV+-$
+PLDEVFC:PLDEVFC+-$
+PLOC:PLOC
+PLUN:PLUN
+PMP:PMP
+PMPORT:PMPORT
+PMUN:PMUN
+PNAME:PNAME+
+PNAME2:none
+PNTEST:PNTEST+
+POPE:POPE+
+PPBW:PPBW
+PPID:PPID
+PPMM:PPMM
+PPMM2:PPMM2
+PPORT:PPORT+
+PPTHG:PPTHG
+PPWSV:PPWSV+
+PRBR:PRBR
+PRCU:PRCU+
+PRCUOPT:PRCUOPT+
+PRGID:PRGID
+PRGRP:PRGRP
+PRLV:PRLV
+PRPORT:PRPORT
+PSIZE:PSIZE
+PSIZEC:PSIZEC
+PSPD:PSPD
+PSPDI:PSPDI
+PSPDK:PSPDK
+PSPDM:PSPDM
+PSPDWNMT:PSPDWNMT+
+PSPR:PSPR
+PSSB:PSSB+
+PSSID:PSSID+
+PSSW:PSSW
+PSSW2:PSSW2
+PSSW3:PSSW3
+PSTS:PSTS+
+PSUSPTIPAIR:PSUSPTIPAIR
+PTCPODAK:PTCPODAK
+PTCPOINS:PTCPOINS
+PTCPOIP6:PTCPOIP6
+PTCPOIVPM:PTCPOIVPM
+PTCPOSAK:PTCPOSAK
+PTCPOSIZE:PTCPOSIZE
+PTCPOVTM:PTCPOVTM
+PTCPVAIVP:PTCPVAIVP
+PTCPVATM:PTCPVATM
+PTCPVDIVP:PTCPVDIVP
+PTCPVIVP:PTCPVIVP
+PTCPVMIVP:PTCPVMIVP
+PTCPVMTU:PTCPVMTU
+PTCPVNSP:PTCPVNSP
+PTCPVRVID:PTCPVRVID
+PTCPVSVID:PTCPVSVID
+PTCPVMVID:PTCPVMVID
+PTCPVTCP:PTCPVTCP
+PTEST:PTEST+
+PTHS:PTHS+
+PTIER:PTIER+
+PTIERA:PTIERA
+PTIME:PTIME
+PTTYPE:PTTYPE
+PUSG:PUSG
+PVCAPR:PVCAPR
+PVLDEV:PVLDEV+-$
+PVLDEV2:PVLDEV2+-$
+PVPORT:PVPORT
+PWWN:PWWN
+RESOURCE:RESOURCE+
+S:S
+SV:SV
+U:U
+#---------------------------------------
+RESULTINDEXSALIAS
+get,ldev,horizontal, Serial# LDEV#,Serial#,Serial#
+get,ldev,vertical,Serial#  :,Serial#,Serial#
+get,ldev,vertical,Serial#  :,FLA(MB),APR(MB)
+get,ldev,vertical,GROUP =,GROUP,GROUP
+get,spm_wwn,horizontal,PORT,SPM_MD,PPC_MD
+get,spm_wwn,horizontal,PORT,SPM_WWN,PPC_WWN
+get,spm_group,horizontal,PORT,SPM_MD,PPC_MD
+get,spm_group,horizontal,PORT,SPM_WWN,PPC_WWN
+get,port,horizontal,PORT,-,LOGIN_NICK_NAME
+get,port,horizontal,PORT,LPID,ALPA
+monitor,spm_wwn,horizontal,PORT,SPM_MD,PPC_MD
+monitor,spm_group,horizontal,PORT,SPM_MD,PPC_MD
+send,ping,horizontal,raidcfg,raidcom,raidcfg
+#---------------------------------------
+RESULTVALUESALIAS
+get,command_status,CAUSE,HDP,AOU
+get,command_status,CAUSE,HDT,TAOU
+get,command_status,CAUSE,TSE,AOFC
+get,command_status,CAUSE,SHRPL,DELPL
+get,error_message,CAUSE,HDP,AOU
+get,error_message,CAUSE,HDT,TAOU
+get,error_message,CAUSE,TSE,AOFC
+get,error_message,CAUSE,SHRPL,DELPL
+get,ldev,VOL_ATTR,HDP,AOU
+get,ldev,VOL_ATTR,HDT,TAOU
+get,ldev,VOL_ATTR,TSE,AOFC
+get,ldev,ATTRIBUTE,HDP,AOU
+get,ldev,ATTRIBUTE,HDT,TAOU
+get,ldev,ATTRIBUTE,TSE,AOFC
+get,ldev,OPE_TYPE,SHRPL,DELPL
+#---------------------------------------
+REQUIREPARAMNAME
+add,ldev,!-device_grp_name,!-grp_opt,!-pool_id,!-ldev_name
+add,lun,!-command_device,!-host_grp_name,!-wwn_nickname
+add_async,lun,!-command_device
+delete,host_grp,!-host_grp_name
+get,command_status,!-ssb
+get,error_message,-ssb
+modify,ldev,!-device_grp_name,!-grp_opt,!-emulation
+rename,pool,!-ldev_id,!-device_grp_name,!-grp_opt,!-pool,-pool_id,-pool_name
+reset,hba_iscsi,-port,-hba_iscsi_name,!-iscsi_name,!-external_iscsi_name
+reset,hba_wwn,-port,-hba_wwn,!-wwn_nickname,!-hba_iscsi_name,!-iscsi_name,!-iscsi_nickname
+reset,resource,-resource_name,!-virtual_type
+set,hba_wwn,-port,-hba_wwn,-wwn_nickname,!-device_grp_name,!-host_grp_name,!-hba_iscsi_name,!-iscsi_name,!-iscsi_nickname
+set,resource,-resource_name,-virtual_type
+add,pfc_wwn,!-pfc_group
+add,pfc_group,!-pfc_name
+delete,pfc_wwn,!-pfc_group
+delete,pfc_group,!-pfc_name
+modify,pfc_wwn,!-pfc_group
+modify,pfc_group,!-pfc_name
+get,pfc_wwn,!-pfc_group
+get,pfc_group,!-pfc_name
+monitor,pfc_wwn,!-pfc_group
+monitor,pfc_group,!-pfc_name
+add,spm_wwn,!-spm_group
+add,spm_group,!-spm_name
+delete,spm_wwn,!-spm_group
+delete,spm_group,!-spm_name
+modify,spm_wwn,!-spm_group
+modify,spm_group,!-spm_name
+get,spm_wwn,!-spm_group
+get,spm_group,!-spm_name
+monitor,spm_wwn,!-spm_group
+monitor,spm_group,!-spm_name
+add,snap_pool,!-pool
+add,dp_pool,!-pool
+add,thp_pool,!-pool
+delete,pool,!-pool_id,!-pool_name
+get,dp_pool,!-pool_id
+get,thp_pool,!-pool_id
+modify,pool,!-pool_id,!-operation
+monitor,pool,!-pool_id
+reallocate,pool,!-pool_id
+relocate,pool,!-pool_id
+get,external_grp,!-parity_grp_id
+get,parity_grp,!-external_grp_id
+add,host_grp,!-device_grp_name,!-wwn_nickname,!-hba_iscsi_name
+delete,lun,!-host_grp_name,!-wwn_nickname
+delete,ldev,!-emulation,!-ldev_name
+extend,ldev,!-emulation,!-ldev_name
+get,ldev,!-pool,!-emulation,!-ldev_name
+initialize,ldev,!-emulation,!-ldev_name
+add,external_grp,!-device_grp_name,!-ipv4_address,!-address,!-rcu_address
+check_ext_storage,external_grp,!-emulation
+disconnect,external_grp,!-emulation
+add,resource,-resource_name
+delete,resource,-resource_name
+set,chap_user,-secret
+reset,chap_user,!-secret
+add,hba_wwn,!-hba_iscsi_name,!-iscsi_name
+delete,hba_wwn,!-hba_iscsi_name,!-iscsi_name
+add,hba_iscsi,!-hba_wwn,!-iscsi_name
+delete,hba_iscsi,!-hba_wwn,!-iscsi_name
+get,hba_iscsi,!-key
+set,hba_iscsi,-port,-hba_iscsi_name,-iscsi_nickname,!-device_grp_name,!-host_grp_name,!-hba_wwn,!-iscsi_name,!-wwn_nickname
+discover,lun,!-ipv4_address,!-address,!-rcu_address
+add,path,!-ipv4_address,!-address,!-rcu_address
+delete,path,!-ipv4_address,!-address,!-rcu_address
+disconnect,path,!-ipv4_address,!-address,!-rcu_address
+check_ext_storage,path,!-ipv4_address,!-address,!-rcu_address
+add,external_iscsi_name,-iscsi_name,-address,!-hba_iscsi_name,!-external_iscsi_name,!-external_address,!-ipv4_address,!-rcu_address
+delete,external_iscsi_name,-iscsi_name,-address,!-hba_iscsi_name,!-external_iscsi_name,!-external_address,!-ipv4_address,!-rcu_address
+get,external_iscsi_name,!-cache_inflow,!-virtual_switch,!-pfc_priority,!-spm_priority,!-fastsnap,!-thinsnap,!-mutual,!-data_direct_mapping,!-allports,!-t10pi
+modify,external_chap_user,-iscsi_name,-address,!-hba_iscsi_name,!-external_iscsi_name,!-external_address,!-ipv4_address,!-rcu_address
+modify,initiator_chap_user,!-external_iscsi_name,!-ipv4_address,!-address,!-external_address,!-rcu_address,!-iscsi_name,!-hba_iscsi_name
+discover,external_iscsi_name,-address,!-external_address,!-ipv4_address,!-rcu_address
+check,external_iscsi_name,!-ipv4_address,!-address,!-external_address,!-rcu_address
+add,rcu_iscsi_port,!-ipv4_address,!-address,!-external_address,!-cu_free,!-virtual_type,!-quorum_enable,!-quorum_disable
+delete,rcu_iscsi_port,!-cu_free,!-virtual_type,!-quorum_enable,!-quorum_disable
+check_ext_storage,source_storage,-source_storage_id
+get,source_storage,-source_storage_id
+switch,source_storage,-source_storage_id,-ports,-addresses,!-port,!-address
+modify,spm_ldev,!-limit_kb
+modify,pfc_ldev,!-limit_kb
+modify,quorum,!-journal_id,!-time
+get,quorum,!-journal_id
+replace,quorum,!-journal_id
+add,snapshot,!-copy_pace
+add,snapshotset,!-copy_pace
+modify,snapshot,!-copy_size
+modify,snapshotset,!-copy_size
+initialize,pool,!-pool_id,!-status,!-user_threshold,!-tier,!-tier_buffer_rate,!-subscription,!-pool_attribute,!-monitor_mode,!-blocking_mode,!-data_direct_mapping,!-deduplication,!-ssids

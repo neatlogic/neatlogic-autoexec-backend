@@ -1,0 +1,310 @@
+Model  : RAID-Manager
+Ver&Rev: 17-02-27/10
+Usage  : raidcom <action> <object> [options]
+ -h         Help/Usage
+ -I[#]  Set to HORCMINST#
+ -IH[#] or -ITC[#] Set to HORC mode [and HORCMINST#]
+ -IM[#] or -ISI[#] Set to MRCF mode [and HORCMINST#]
+ -nomsg     Not display message of raidcom
+ -resource <rgid#>... This option is used to mask the current resource groups of this user with the specified <rgid#>
+ -u <Unit#> Specify the unitid on HORCM configuration
+ -s[v] <Seq#>  Specify the Seq#(Serial#) of the RAID
+ -fx        Specify display of the LDEV#(hex)
+ -login  [ <user_name> <password> ]  Specify LOGIN explicitly
+ -logout               Specify LOGOUT
+ -zt <script_file> [-load <filename>] [-checkmode precheck]
+   -zt <script_file>     Specify the temporary file as script_file for configuration check
+   -load <filename>      Specify the temporary file as script_file for current configuration check
+   -checkmode <chk_mode> Specify 'precheck' as chk_mode for check
+ -store <filename>     Specify the temporary file as script_file for current configuration check
+ -h lun                Help/Usage for Lun  management
+ -h port               Help/Usage for Port management
+ -h ldev               Help/Usage for LDEV management
+ -h external           Help/Usage for External management
+ -h rcu                Help/Usage for RCU  management
+ -h jnl                Help/Usage for Jnl  management
+ -h pool               Help/Usage for Pool management
+ -h copy [group]       Help/Usage for Copy Group management
+ -h device [group]     Help/Usage for Device Group management
+ -h resource [group]   Help/Usage for Resource Group management
+ -h cmd                Help/Usage for CMD management
+ -h clpr               Help/Usage for CLPR management
+ -h spm                Help/Usage for SPM management
+ -h snapshot           Help/Usage for SnapShot management
+ -h itar               Help/Usage for iSCSI target
+ -h license            Help/Usage for License management
+ -h system_opt         Help/Usage for System Option management
+ -h quorum             Help/Usage for Quorum management
+
+<Lun  management>
+    <action> <object> <param>
+    add      chap_user -port <port> [<host group name>] {-target_chap_user <user name> | -initiator_chap_user <user name>}
+    delete   chap_user -port <port> [<host group name>] {-target_chap_user <user name> | -initiator_chap_user <user name>}
+    get      chap_user -port <port> [<host group name>]
+    reset    chap_user -port <port> [<host group name>] {-target_chap_user <user name>|-initiator_chap_user <user name>}
+    set      chap_user -port <port> [<host group name>] {-target_chap_user <user name> -secret | -initiator_chap_user <user name> -secret}
+    add      hba_iscsi -port <port> [<host group name>] -hba_iscsi_name <initiator iscsi name>
+    delete   hba_iscsi -port <port> [<host group name>] -hba_iscsi_name <initiator iscsi name>
+    get      hba_iscsi -port <port> [<host group name>]
+    set      hba_iscsi -port <port> [<host group name>] -hba_iscsi_name <initiator iscsi name> -iscsi_nickname <initiator iscsi nickname>
+    reset    hba_iscsi -port <port> [<host group name>] -hba_iscsi_name <initiator iscsi name>
+    add      hba_wwn   -port <port> [<host group name>] -hba_wwn <WWN strings>
+    delete   hba_wwn   -port <port> [<host group name>] -hba_wwn <WWN strings>
+    get      hba_wwn   -port <port> [<host group name>]
+    set      hba_wwn   -port <port> [<host group name>] -hba_wwn <WWN strings> -wwn_nickname <WWN nickname>
+    reset    hba_wwn   -port <port> [<host group name>] -hba_wwn <WWN strings>
+    add      host_grp  -port <port> -host_grp_name <host group name> [-iscsi_name <target iscsi name>]
+    delete   host_grp  -port <port> [<host group name>]
+    get      host_grp  {-port <port> [<host group name>] | -allports} [-key host_grp]
+    modify   host_grp  -port <port> [<host group name>] -host_mode <host mode> [-host_mode_opt <host mode option> ... | -set_host_mode_opt <host mode option> ... | -reset_host_mode_opt] [-authmethod {CHAP | NONE | BOTH}] [-mutual {enable | disable}]
+    add      lun       -port <port> [<host group name>] -ldev_id <ldev#> [-lun_id <lun#>]
+    add      lun       -port <port> [<host group name>] -grp_opt ldev -device_grp_name <device group name> [<device name>] [-lun_id <lun#>]
+    add      lun       -ldev_id <ldev#> -lun_id <lun#> -additional_port <additional port> ...
+    delete   lun       -port <port> [<host group name>] -lun_id <lun#>
+    delete   lun       -port <port> [<host group name>] -ldev_id <ldev#>
+    delete   lun       -port <port> [<host group name>] -grp_opt ldev -device_grp_name <device group name> [<device name>]
+    delete   lun       {-lun_id <lun#> | -ldev_id <ldev#>} -additional_port <additional port> ...
+    get      lun       -port <port> [<host group name>] [-key {opt | opt_page1}]
+    modify   lun       -port <port> [<host group name>] -lun_id {all} -asymmetric_access_state {optimized | non_optimized}
+<Port management>
+    <action> <object> <param>
+    get      port     [-port <port> [-key opt [-iscsi_virtual_port_id <iSCSI Virtual Port ID>]]]
+    modify   port     -port <port> [-port_speed <value>] [-loop_id <value>] [-topology <topology>] [-security_switch {y | n}]
+    modify   port     -port <port> [-mtu <value>] [-vlan_tagging_mode {enable | disable}] [-add_vlan_id <value>] [-delete_vlan_id <value>] [-modify_vlan_id <new value>]
+                                   [-ipv4_address <address>] [-ipv4_subnetmask <subnet mask>] [-ipv4_gateway_address <address>]
+                                   [-ipv6_mode {enable | disable}] [-ipv6_local_address {auto | <address>}] [-ipv6_global_address {auto | <address>}] [-ipv6_gateway_address <address>]
+                                   [-tcp_port <value>] [-selective_ack_mode {enable | disable}] [-delayed_ack_mode {enable | disable}]
+                                   [-window_size <size>] [-keep_alive_timer <value>] [-ipv6_global_address2 <address>]
+    modify   port     -port <port> -port_attribute <port attribute>
+    modify   port     -port <port> -t10pi {enable | disable}
+    modify   port     -port <port> [-isns_mode {enable | disable}] [-isns_server_address <IPv4 address | IPv6 address>] [-isns_port <iSNS TCP Port number>]
+    modify   port     -port <port> -iscsi_virtual_port_mode {enable | disable}
+    modify   port     -port <port> -add_iscsi_virtual_port <value> -ipv6_mode {enable | disable}
+                                   [-mtu <value>] [-vlan_tagging_mode {enable | disable}] [-add_vlan_id <value>]
+                                   [-ipv4_address <address>] [-ipv4_subnetmask <subnet mask>] [-ipv4_gateway_address <address>]
+                                   [-ipv6_local_address {auto | <address>}] [-ipv6_global_address {auto | <address>}] [-ipv6_gateway_address <address>]
+                                   [-tcp_port <value>] [-selective_ack_mode {enable | disable}] [-delayed_ack_mode {enable | disable}]
+                                   [-window_size <size>] [-keep_alive_timer <value>]
+    modify   port     -port <port> -modify_iscsi_virtual_port <value>
+                                   [-mtu <value>] [-vlan_tagging_mode {enable | disable}] [-add_vlan_id <value>] [-delete_vlan_id <value>] [-modify_vlan_id <new value>]
+                                   [-ipv4_address <address>] [-ipv4_subnetmask <subnet mask>] [-ipv4_gateway_address <address>]
+                                   [-ipv6_mode {enable | disable}] [-ipv6_local_address {auto | <address>}] [-ipv6_global_address {auto | <address>}] [-ipv6_gateway_address <address>]
+                                   [-tcp_port <value>] [-selective_ack_mode {enable | disable}] [-delayed_ack_mode {enable | disable}]
+                                   [-window_size <size>] [-keep_alive_timer <value>] [-ipv6_global_address2 <address>]
+    modify   port     -port <port> -delete_iscsi_virtual_port <value>
+    send     ping     -port <port> -address <IP address> [-iscsi_virtual_port_id <iSCSI Virtual Port ID>]
+<LDEV management>
+    <action>   <object>   <param>
+    get        drive      [-parity_grp_id <gno-sgno> | -usage {data | spare | free}]
+    modify     drive      -drive_location <drive location> -spare {enable | disable}
+    add        ldev       -parity_grp_id <gno-sgno>          -ldev_id <ldev#> {-capacity <size> | -offset_capacity <size> | -cylinder <size>} [-emulation <emulation type>] [-location <lba>] [-mp_blade_id <mp#>] [-t10pi_enable]
+    add        ldev       -external_grp_id <gno-sgno>        -ldev_id <ldev#> {-capacity <size> | -offset_capacity <size> | -cylinder <size>} [-emulation <emulation type>] [-location <lba>] [-mp_blade_id <mp#>]
+    add        ldev       -pool {<pool ID#> | <pool naming> | snap} {-ldev_id <ldev#> | -tse_ldev_id <ldev#>} {-capacity <size> | -offset_capacity <size> | -cylinder <size>} [-emulation <emulation type>] [-mp_blade_id <mp#>] [-clpr <clpr#>] [-status {enable_fullallocation | disable_fullallocation}] [-t10pi_enable] [-capacity_saving {disable | compression | deduplication_compression}] [-capacity_saving_mode {inline | post_process}]
+    add        ldev       -ldev_id <ldev#> -mapping_ldev_id <ldev#>
+    delete     ldev       -ldev_id <ldev#> [-operation initialize_capacity_saving]
+    delete     ldev       -grp_opt ldev -device_grp_name <device group name> [<device name>]
+    extend     ldev       -ldev_id <ldev#> {-capacity <size> | -offset_capacity <size> | -cylinder <size>}
+    extend     ldev       -grp_opt ldev -device_grp_name <device group name> [<device name>] -capacity <size>
+    get        ldev       -ldev_id <ldev#> ... [-cnt <count>] [-key {front_end | parity_grp | external | tier}] [{-check_status | -check_status_not} <string> [-time <time>]]
+    get        ldev       -ldev_list {dp_volume | external_volume | journal | pool | parity_grp | mp_blade | defined | undefined | mapped | unmapped} [-journal_id <journal ID#> | -pool_id <pool ID#> | -parity_grp_id <gno-sgno> | -mp_blade_id <mp#>] [-key {front_end | parity_grp | external | tier}] [{-check_status | -check_status_not} <string> [-time <time>]]
+    get        ldev       -grp_opt ldev -device_grp_name <device group name> [<device name>] [-key {front_end | parity_grp | external | tier}] [{-check_status | -check_status_not} <string> [-time <time>]]
+    initialize ldev       -ldev_id <ldev#> -operation {fmt |qfmt |shrd [<pattern>] |stop}
+    initialize ldev       -grp_opt ldev -device_grp_name <device group name> [<device name>] -operation {fmt |qfmt |shrd [<pattern>] |stop}
+    modify     ldev       -ldev_id <ldev#> -status {nml | blk | {enable_reallocation | enable_relocation}[<level>] | enable_relocation_policy <policy_id> | new_page_allocation {high | middle | low} | {disable_reallocation | disable_relocation} | discard_zero_page | {enable_fullallocation | disable_fullallocation}}
+    modify     ldev       -ldev_id <ldev#> -ldev_name <ldev naming>
+    modify     ldev       -ldev_id <ldev#> -mp_blade_id <mp#>
+    modify     ldev       -ldev_id <ldev#> -command_device {y | n} [Security value]
+    modify     ldev       -ldev_id <ldev#> -ssid <value>
+    modify     ldev       -ldev_id <ldev#> -quorum_enable <serial#> <id> -quorum_id <quorum id>
+    modify     ldev       -ldev_id <ldev#> -quorum_disable
+    modify     ldev       -ldev_id <ldev#> -alua {enable | disable}
+    modify     ldev       -ldev_id <ldev#> -capacity_saving {disable | compression | deduplication_compression}
+    modify     ldev       -ldev_id <ldev#> -capacity_saving_mode {inline | post_process}
+    add        parity_grp -parity_grp_id <gno-sgno> -drive_location <drive location>... -raid_type <raid type> [-encryption {enable | disable}] [-copy_back {enable | disable}] [-accelerated_compression {enable | disable}] [-clpr <clpr#>]
+    add        parity_grp -concatenated_parity_grp_id <gno-sgno>... -drive_location <drive location>... -raid_type <raid type> [-encryption {enable | disable}] [-copy_back {enable | disable}] [-accelerated_compression {enable | disable}] [-clpr <clpr#>]
+    delete     parity_grp -parity_grp_id <gno-sgno> 
+    get        parity_grp [-parity_grp_id <gno-sgno> | -key opt]
+    initialize parity_grp -parity_grp_id <gno-sgno> -operation fmt
+    modify     parity_grp -parity_grp_id <gno-sgno> -accelerated_compression {enable | disable}
+    
+    NOTE: Follow the procedure below in the case when you delete an LDEV whose capacity saving is enabled.
+     Procedure:
+      1. Change the LDEV status to Blockade with the raidcom modify ldev command.
+      2. Format the LDEV with the raidcom initialize ldev command.
+      3. Delete the LDEV with the raidcom delete ldev command.
+<External management>
+    <action>          <object>         <param>
+    add               external_grp     -path_grp <path group#> -external_grp_id <gno-sgno> -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]} -lun_id <lun#> [-emulation <emulation type>] [-clpr <clpr#>] [-external_attribute migration] [-data_direct_mapping enable]
+    check_ext_storage external_grp     -external_grp_id <gno-sgno>
+    check_ext_storage external_grp     -ldev_id <ldev#>
+    check_ext_storage external_grp     -grp_opt ldev -device_grp_name <device group name> [<device name>]
+    delete            external_grp     -external_grp_id <gno-sgno> [-forcible]
+    disconnect        external_grp     -external_grp_id <gno-sgno>
+    disconnect        external_grp     -ldev_id <ldev#>
+    disconnect        external_grp     -grp_opt ldev -device_grp_name <device group name> [<device name>]
+    get               external_grp     [-external_grp_id <gno-sgno>]
+    modify            external_grp     -external_grp_id <gno-sgno> -cache_mode {y | n | through | sync}
+    modify            external_grp     -external_grp_id <gno-sgno> -cache_inflow {y | n}
+    modify            external_grp     -external_grp_id <gno-sgno> -mp_blade_id <mp#>
+    modify            external_grp     -external_grp_id <gno-sgno> -load_balance <mode>
+    modify            external_grp     -external_grp_id <gno-sgno> -alua_switch {y | n}
+    add               path             -path_grp <path group#> -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]}
+    check_ext_storage path             -path_grp <path group#> -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]}
+    delete            path             -path_grp <path group#> -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]}
+    disconnect        path             -path_grp <path group#> -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]}
+    get               path             [-path_grp <path group#> | -external_grp_id <gno-sgno> | -ldev_id <ldev#>] [{-check_status | -check_status_not} <string> [-time <time>]]
+    discover          external_storage -port <port>
+    discover          lun              -port <port> {-external_wwn <WWN strings> | -external_iscsi_name <external iscsi name> -external_address <IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]}
+<RCU  management>
+    <action> <object> <param>
+    add      rcu      {-rcu <serial#> <mcu#> <rcu#> <id> -ssid <ssid> ...  | -cu_free <serial#> <id> <pid>} -mcu_port <port> -rcu_port <port>
+    delete   rcu      {-rcu <serial#> <mcu#> <rcu#> -ssid <ssid> | -cu_free <serial#> <id> <pid>}
+    get      rcu      [-rcu <serial#> <mcu#> <rcu#> | -cu_free <serial#> <id> <pid>]
+    modify   rcu      {-rcu <serial#> <mcu#> <rcu#> -ssid <ssid> | -cu_free <serial#> <id> <pid>} -rcu_option <mpth> <rto> <rtt> [fzd | fze]
+    add      rcu_path {-rcu <serial#> <mcu#> <rcu#> -ssid <ssid> | -cu_free <serial#> <id> <pid>} -mcu_port <port> -rcu_port <port>
+    delete   rcu_path {-rcu <serial#> <mcu#> <rcu#> -ssid <ssid> | -cu_free <serial#> <id> <pid>} -mcu_port <port> -rcu_port <port>
+    add      ssid      -rcu <serial#> <mcu#> <rcu#> <id> -ssid <ssid>
+    delete   ssid      -rcu <serial#> <mcu#> <rcu#> -ssid <ssid>
+<Jnl  management>
+    <action> <object> <param>
+    add      journal  -journal_id <journal ID#> -ldev_id <ldev#> ... [-cnt <count>] [-mp_blade_id <mp#>]
+    add      journal  -journal_id <journal ID#> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-mp_blade_id <mp#>]
+    add      journal  -journal_id <journal ID#> -ldev_id <ldev#> ... [-cnt <count>] [-timer_type {system | local | None}]
+    add      journal  -journal_id <journal ID#> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-timer_type {system | local | None}]
+    delete   journal  -journal_id <journal ID#> [-ldev_id <ldev#>]
+    delete   journal  -journal_id <journal ID#> [-grp_opt ldev -device_grp_name <device group name> [<device name>]]
+    get      journal  [-key opt]
+    get      journalt
+    modify   journal -journal_id <journal ID#> {[-data_overflow_watch <time(sec)>][-cache_mode {y | n}] [-timer_type {system | local | None}][-copy_size <size>]}
+    modify   journal -journal_id <journal ID#> -path_blocked_watch <time(min)> [-mirror_id <mu#>]
+    modify   journal -journal_id <journal ID#> -mp_blade_id <mp#>
+<Pool management>
+    <action>     <object>  <param>
+    add          snap_pool -pool_id <pool ID#> -ldev_id <ldev#> ...[-cnt <count>] [-user_threshold <%> ] [-thinsnap]
+    add          snap_pool -pool_id <pool ID#> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> ] [-thinsnap]
+    add          snap_pool -pool_name <pool naming> -ldev_id <ldev#> ...[-cnt <count>][-user_threshold <%> ] [-thinsnap]
+    add          snap_pool -pool_name <pool naming> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> ] [-thinsnap]
+    add          snap_pool -pool_id <pool ID#> -pool_name <pool naming> -ldev_id <ldev#> ...[-cnt <count>][-user_threshold <%> ] [-thinsnap]
+    add          snap_pool -pool_id <pool ID#> -pool_name <pool naming> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> ] [-thinsnap]
+    add          dp_pool   -pool_id <pool ID#> -ldev_id <ldev#> ...[-cnt <count>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    add          dp_pool   -pool_id <pool ID#> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    add          dp_pool   -pool_name <pool naming> -ldev_id <ldev#> ...[-cnt <count>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    add          dp_pool   -pool_name <pool naming> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    add          dp_pool   -pool_id <pool ID#> -pool_name <pool naming> -ldev_id <ldev#> ...[-cnt <count>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    add          dp_pool   -pool_id <pool ID#> -pool_name <pool naming> -grp_opt ldev -device_grp_name <device group name> [<device name>] [-user_threshold <%> [<%>]] [-suspend_tipair {yes | no}]
+    delete       pool      -pool {<pool ID#> | <pool naming>} [-ldev_id <ldev#>]
+    delete       pool      -pool {<pool ID#> | <pool naming>} [-grp_opt ldev -device_grp_name <device group name> [<device name>]]
+    get          pool      [-key {opt | fmc | saving | basic}]
+    get          snap_pool
+    get          dp_pool   [-key opt [-fx] [-pool {<pool ID#> | <pool naming>}]]
+    initialize   pool      -pool {<pool ID#> | <pool naming>} -operation initialize_deduplication
+    modify       pool      -pool {<pool ID#> | <pool naming>} -status nml
+    modify       pool      -pool {<pool ID#> | <pool naming>} -user_threshold <%> [<%>]
+    modify       pool      -pool {<pool ID#> | <pool naming>} -tier <Tier number> [<ratio>] [-tier_buffer_rate <%>]
+    modify       pool      -pool {<pool ID#> | <pool naming>} -subscription <%>
+    modify       pool      -pool {<pool ID#> | <pool naming>} -pool_attribute {dt_manual | dp}
+    modify       pool      -pool {<pool ID#> | <pool naming>} -monitor_mode {period | continuous | realtime_tiering | non_realtime_tiering}
+    modify       pool      -pool {<pool ID#> | <pool naming>} -blocking_mode {pool_full | pool_vol_blockade | full_or_blockade | no_blocking}
+    modify       pool      -pool {<pool ID#> | <pool naming>} -data_direct_mapping {enable | disable}
+    modify       pool      -pool {<pool ID#> | <pool naming>} -deduplication yes -ldev_id <ldev#>... [-ssids <ssid>...]
+    modify       pool      -pool {<pool ID#> | <pool naming>} -deduplication no
+    modify       pool      -pool {<pool ID#> | <pool naming>} -suspend_tipair {yes | no}
+    monitor      pool      -pool {<pool ID#> | <pool naming>} -operation {start | stop}
+   {reallocate | relocate} pool      -pool {<pool ID#> | <pool naming>} -operation {start | stop}
+    rename       pool      -pool_id <pool ID#> -pool_name <pool naming>
+<Copy Group management>
+    <action> <object> <param>
+    add      copy_grp -copy_grp_name <copy group name> <device group name> [<device group name>] [-mirror_id <mu#> -journal_id <journal ID#>]
+    delete   copy_grp -copy_grp_name <copy group name>
+    get      copy_grp
+<Device Group management>
+    <action> <object>   <param>
+    add      device_grp -device_grp_name <device group name> <device name> -ldev_id <ldev#> ... [-cnt <count>]
+    delete   device_grp -device_grp_name <device group name> -ldev_id <ldev#> ... [-cnt <count>]
+    get      device_grp [-device_grp_name <device group name>]
+<Resource Group management>
+    <action> <object> <param>
+    add      resource -resource_name <resource group name> [-virtual_type <serial#> <id> | -resource_id <resource group id > | -ldev_id <ldev#> | -port <port> [<host group name>] | -parity_grp_id <gno-sgno> | -external_grp_id <gno-sgno>] | -grp_opt ldev -device_grp_name <device group name> [<device name>]]
+    delete   resource -resource_name <resource group name> [-ldev_id <ldev#> | -port <port> [<host group name>] | -parity_grp_id <gno-sgno> | -external_grp_id <gno-sgno>] | -grp_opt ldev -device_grp_name <device group name> [<device name>]]
+    get      resource
+    lock     resource [-resource_name <resource group name>] [-time <time(sec)>]
+    unlock   resource [-resource_name <resource group name>]
+    modify   resource -resource_name <resource group name> -virtual_switch {y | n}
+    map      resource {-ldev_id <ldev#> -virtual_ldev_id {<ldev#> | reserve} [-ssid <ssid>] [-emulation <emulation type>] | -port <port> -virtual_port <port>}
+    unmap    resource {-ldev_id <ldev#> -virtual_ldev_id {<ldev#> | reserve} | -port <port> -virtual_port <port>}
+<CMD management>
+    <action> <object>          <param>
+    get      command_status    [-time <time(sec)>]
+    get      error_message     -ssb <ssb1> <ssb2>
+    reset    command_status
+<CLPR management>
+    <action> <object> <param>
+    get      clpr
+    modify   clpr -clpr <clpr#> {-ldev_id <ldev#> | -parity_grp_id <gno-sgno> | -external_grp_id <gno-sgno>}
+<SPM management>
+    <action> <object> <param>
+    add      spm_group -port <port> -spm_group <group name> <nickname>
+    add      spm_group -port <port> -spm_group <group name> -hba_wwn <WWN strings>
+    add      spm_group -spm_group <group name> -port <port> [<host group name>] -spm_host_grp
+    delete   spm_group -port <port> -spm_group <group name>
+    delete   spm_group -port <port> [<host group name>] -spm_host_grp
+    get      spm_group -port <port> -spm_group <group name>
+    get      spm_group -port <port> [<host group name>] -spm_host_grp
+    modify   spm_group -port <port> -spm_group <group name> [-spm_priority {y | n}] {-limit_io | -limit_kb | -limit_mb} <value>
+    modify   spm_group -port <port> [<host group name>] -spm_host_grp [-spm_priority {y | n}] {-limit_io | -limit_kb | -limit_mb} <value>
+    monitor  spm_group -spm_group <group name>
+    delete   spm_ldev  -ldev_id <ldev#> -hba_iscsi_name <initiator iscsi name>
+    delete   spm_ldev  -ldev_id <ldev#> -hba_wwn <WWN strings>
+    get      spm_ldev  [-ldev_id <ldev#> | -hba_wwn <WWN strings> | -hba_iscsi_name <initiator iscsi name>]
+    modify   spm_ldev  -ldev_id <ldev#> -hba_iscsi_name <initiator iscsi name> [-spm_priority {y | n}] [{-limit_io | -limit_mb} <value>]
+    modify   spm_ldev  -ldev_id <ldev#> -hba_wwn <WWN strings> [-spm_priority {y | n}] [{-limit_io | -limit_mb} <value>]
+    monitor  spm_ldev  -ldev_id <ldev#> -hba_iscsi_name <initiator iscsi name>
+    monitor  spm_ldev  -ldev_id <ldev#> -hba_wwn <WWN strings>
+    add      spm_wwn   -port <port> -spm_name <nickname> -hba_wwn <WWN strings>
+    delete   spm_wwn   -port <port> {-hba_wwn <WWN strings> | -spm_name <nickname>}
+    get      spm_wwn   -port <port> [-hba_wwn <WWN strings> | -spm_name <nickname>]
+    modify   spm_wwn   -port <port> [-spm_priority {y | n}] {-limit_io | -limit_kb | -limit_mb} <value> {-hba_wwn <WWN strings> | -spm_name <nickname>}
+    monitor  spm_wwn   {-hba_wwn <WWN strings> | -spm_name <nickname>}
+<SnapShot management>
+    <action> <object> <param>
+    add      snapshot -ldev_id <ldev#(P)> <ldev#(S)> -pool {<pool ID#> | <pool naming>} -snapshotgroup <name> [-snap_mode <mode>] [-copy_size <size>]
+    delete   snapshot {-snapshotgroup <name> | -ldev_id <ldev#> {-mirror_id <mu#> | -snapshotgroup <name> | -range <range>}}
+    get      snapshot [-ldev_id <ldev#> [-mirror_id <mu#>] [-key opt] | -snapshotgroup <name> [-key opt]] [-format_time] [{-check_status | -check_status_not} <string> [-time <time>]]
+    modify   snapshot -ldev_id <ldev#> {-snapshotgroup <name> | -mirror_id <mu#>} -snapshot_data {split(or create) | resync | restore | clone} [-copy_pace {slower | medium | faster}]
+    modify   snapshot -snapshotgroup <name> -snapshot_data {split(or create) | resync | restore | clone} [-copy_pace {slower | medium | faster}]
+    modify   snapshot -ldev_id <ldev#> -snapshot_data {split(or create) | resync | restore | clone} [-copy_pace {slower | medium | faster}]
+    modify   snapshot -snapshotgroup <current name> <new name> -snapshot_data rename
+    modify   snapshot -ldev_id <ldev#> -mirror_id <mu#> -snapshotgroup <name> -snapshot_data rename
+    map      snapshot -ldev_id <ldev#(P)> <ldev#(S)> {-mirror_id <mu#> | -snapshotgroup <name>}
+    unmap    snapshot -ldev_id <ldev#> [-snapshotgroup <name> | -mirror_id <mu#>]
+    replace  snapshot -ldev_id <ldev#> {-snapshotgroup <name> | -mirror_id <mu#>}
+    NOTE: 'snapshotset'    is specifiable instead of 'snapshot'.
+          '-snapshot_name' is specifiable instead of '-snapshotgroup'.
+<iSCSI target>
+    <action> <object>             <param>
+    modify   external_chap_user   -port <port> -iscsi_name <external iscsi name> -address <external IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>] [-chap_user <user name>] [-secret]
+    add      external_iscsi_name  -port <port> -iscsi_name <external iscsi name> -address <external IP address> [-authmethod {CHAP|NONE}] [-mutual {enable|disable}] [-tcp_port <value>] [-iscsi_virtual_port_id <iSCSI virtual port ID>]
+    check    external_iscsi_name  [-port <port> [-iscsi_virtual_port_id <iSCSI virtual port ID>]]
+    delete   external_iscsi_name  -port <port> -iscsi_name <external iscsi name> -address <external IP address> [-iscsi_virtual_port_id <iSCSI virtual port ID>]
+    discover external_iscsi_name  -port <port> -address <external IP address>  [-tcp_port <value>] [-iscsi_virtual_port_id <iSCSI virtual port ID>]
+    get      external_iscsi_name  [-port <port> [-iscsi_virtual_port_id <iSCSI virtual port ID>]]
+    get      initiator_iscsi_name -port <port> [-iscsi_virtual_port_id <iSCSI virtual port ID>]
+    modify   initiator_chap_user  -port <port> [-chap_user <user name>] [-secret]
+    add      rcu_iscsi_port       -port <port> -rcu_port <port> -rcu_id <serial#> <id> -rcu_address <IP address> [-tcp_port <value>]
+    delete   rcu_iscsi_port       -port <port> -rcu_port <port> -rcu_id <serial#> <id>
+    get      rcu_iscsi_port
+<License management>
+    <action> <object>          <param>
+    add      license           -keycode <key code>
+    delete   license           -product_id <product ID>
+    get      license           [-key <keyword>]
+    modify   license           -product_id <product ID> -license_status <status>
+<System Option management>
+    <action> <object>          <param>
+    get      local_replica_opt -opt_type <option type>
+    modify   local_replica_opt -opt_type <option type> {-set_system_opt <system option> | -reset_system_opt <system option>}
+<Quorum management>
+    <action> <object>          <param>
+    get      quorum            -quorum_id <quorum id> [-fx]
+    modify   quorum            -quorum_id <quorum id> -timeout <timeout>
+    replace  quorum            -quorum_id <quorum id> -ldev_id <ldev#>
