@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
+import AutoExecUtils
+import CmdbUtils
 import os
 import argparse
 import sys
@@ -10,8 +12,7 @@ from bson.json_util import dumps, loads
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
-import CmdbUtils
-import AutoExecUtils
+
 
 def usage():
     pname = os.path.basename(__file__)
@@ -20,11 +21,13 @@ def usage():
     print('         --tenant <tenant> eg: techsure ,must input .\n ')
     exit(1)
 
+
 def _readJson(path):
     f = open(path, "r", encoding="utf-8")
     data = json.load(f)
     f.close()
     return data
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -32,42 +35,42 @@ if __name__ == "__main__":
     parser.add_argument('--mode', default='', help='更新模式')
     args = parser.parse_args()
     lang = args.lang
-    mode = args.mode 
+    mode = args.mode
 
-    if lang == None or lang == '' :
-       lang = 'zh_CN'
-    if mode == None or mode == '' :
-       mode = 'truncate'
+    if lang == None or lang == '':
+        lang = 'zh_CN'
+    if mode == None or mode == '':
+        mode = 'truncate'
     cmdbUtils = CmdbUtils.CmdbUtils()
     current_path = os.path.abspath(__file__)
-    path = current_path +"/../../../../i18n/cmdbcollect"
+    path = current_path + "/../../../../i18n/cmdbcollect"
     path = os.path.abspath(path)
-    dirs = os.listdir( path )
+    dirs = os.listdir(path)
     table = '_dictionary'
-    if mode == 'truncate' :
-        cmdbUtils.remove(table,{})
-    
-    for dfile in dirs :
+    if mode == 'truncate':
+        cmdbUtils.remove(table, {})
+
+    for dfile in dirs:
         info = dfile.split('.')
-        if (info[1] == lang) :
-            print("INFO::import",dfile ,"start.")
+        if (info[1] == lang):
+            print("INFO::import", dfile, "start.")
             field = _readJson(path + "/" + dfile)
-            optType = "collect_"+info[0].strip()+".json"
-            uniqueExp = [] 
-            uniqueExp.append({"type":optType})
+            optType = "collect_"+info[0].strip()
+            uniqueExp = []
+            uniqueExp.append({"type": optType})
             dbUnique = {}
             dbUnique['$and'] = uniqueExp
             data = {}
             data['type'] = optType
-            data['field'] = field 
-            pk = ["type","tenant"]
-            count = cmdbUtils.count(table, dbUnique )
-            if count == 0 :
+            data['field'] = field
+            pk = ["type", "tenant"]
+            count = cmdbUtils.count(table, dbUnique)
+            if count == 0:
                 cmdbUtils.insert(table, data)
             else:
                 cmdbUtils.update(table, dbUnique, data)
-            #添加索引
-            cmdbUtils.createIndex(table , pk)
-            print("INFO::import" , dfile , "end.")
-    #关闭连接
+            # 添加索引
+            cmdbUtils.createIndex(table, pk)
+            print("INFO::import", dfile, "end.")
+    # 关闭连接
     cmdbUtils.close()
