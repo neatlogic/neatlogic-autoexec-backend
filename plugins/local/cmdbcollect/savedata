@@ -42,7 +42,7 @@ def _getType(value):
     elif type(value) is float:
         return "float"
     elif type(value) is str:
-        return "String"
+        return "string"
     elif type(value) is dict:
         return "JsonObject"
     elif type(value) is list:
@@ -51,11 +51,11 @@ def _getType(value):
             if type(t) is dict:
                 return "JsonArray"
             else:
-                return "Array"
+                return "JsonArray"
         else:
-            return "Array"
+            return "JsonArray"
     else:
-        return "String"
+        return "string"
 
 
 def _makeDesc(json_data):

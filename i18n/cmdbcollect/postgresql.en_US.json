@@ -1,4 +1,8 @@
 [{
+    "name": "OS_ID",
+    "desc": "OS ID",
+    "type": "String"
+}, {
     "name": "OS_USER",
     "desc": "OS User",
     "type": "String"
@@ -11,12 +15,65 @@
     "desc": "Command Line",
     "type": "String"
 }, {
-    "name": "DATESTYLE",
-    "desc": "datestyle",
+    "name": "OBJECT_TYPE",
+    "desc": "Object Type",
     "type": "String"
 }, {
+    "name": "APP_TYPE",
+    "desc": "Application Type",
+    "type": "String"
+}, {
+    "name": "MGMT_IP",
+    "desc": "Managment IP",
+    "type": "String"
+}, {
+    "name": "MGMT_PORT",
+    "desc": "Managment Port",
+    "type": "int"
+}, {
+    "name": "SERVER_NAME",
+    "desc": "Server Name",
+    "type": "String"
+}, {
+    "name": "VERSION",
+    "desc": "Version",
+    "type": "String"
+}, {
+    "name": "PORT",
+    "desc": "Port",
+    "type": "String"
+}, {
+    "name": "SSL_PORT",
+    "desc": "SSL Port",
+    "type": "String"
+}, {
+    "name": "ADMIN_PORT",
+    "desc": "Admin Port",
+    "type": "String"
+}, {
+    "name": "ADMIN_SSL_PORT",
+    "desc": "Admin SSL Port",
+    "type": "String"
+}, {
+    "name": "MON_PORT",
+    "desc": "Monitor Port",
+    "type": "String"
+}, {
+    "name": "PORTS",
+    "desc": "Port List",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "VALUE",
+        "desc": "Port",
+        "type": "int"
+    }]
+}, {
     "name": "INSTALL_PATH",
-    "desc": "install_path",
+    "desc": "Install Path",
+    "type": "String"
+}, {
+    "name": "DATESTYLE",
+    "desc": "datestyle",
     "type": "String"
 }, {
     "name": "LISTEN_ADDRESSES",
@@ -55,21 +112,9 @@
     "desc": "max_locks_per_transaction",
     "type": "String"
 }, {
-    "name": "APP_TYPE",
-    "desc": "app_type",
-    "type": "String"
-}, {
-    "name": "OS_ID",
-    "desc": "os_id",
-    "type": "String"
-}, {
     "name": "CLUSTER_NAME",
     "desc": "cluster_name",
     "type": "String"
-}, {
-    "name": "DATABASES",
-    "desc": "databases",
-    "type": "Array"
 }, {
     "name": "DEFAULT_TEXT_SEARCH_CONFIG",
     "desc": "default_text_search_config",
@@ -79,20 +124,8 @@
     "desc": "checkpoint_completion_target",
     "type": "String"
 }, {
-    "name": "SERVER_NAME",
-    "desc": "server_name",
-    "type": "String"
-}, {
     "name": "CHECKPOINT_SEGMENTS",
     "desc": "checkpoint_segments",
-    "type": "String"
-}, {
-    "name": "CONFIG_FILE",
-    "desc": "config_file",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "mgmt_ip",
     "type": "String"
 }, {
     "name": "TRACK_COMMIT_TIMESTAMP",
@@ -106,10 +139,6 @@
     "name": "MAX_CONNECTIONS",
     "desc": "max_connections",
     "type": "String"
-}, {
-    "name": "MGMT_PORT",
-    "desc": "mgmt_port",
-    "type": "int"
 }, {
     "name": "WAL_LEVEL",
     "desc": "wal_level",
@@ -125,14 +154,6 @@
 }, {
     "name": "MAX_WORKER_PROCESSES",
     "desc": "max_worker_processes",
-    "type": "String"
-}, {
-    "name": "PORT",
-    "desc": "port",
-    "type": "String"
-}, {
-    "name": "MON_PORT",
-    "desc": "mon_port",
     "type": "String"
 }, {
     "name": "SHARED_BUFFERS",
@@ -159,23 +180,20 @@
     "desc": "ident_file",
     "type": "String"
 }, {
-    "name": "SSL_PORT",
-    "desc": "ssl_port",
-    "type": "String"
-}, {
-    "name": "VERSION",
-    "desc": "version",
-    "type": "String"
-}, {
     "name": "MAX_WAL_SENDERS",
     "desc": "max_wal_senders",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "object_type",
     "type": "String"
 }, {
     "name": "COMMIT_DELAY",
     "desc": "commit_delay",
     "type": "String"
+}, {
+    "name": "DATABASES",
+    "desc": "databases",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "NAME",
+        "desc": "DB Name",
+        "type": "String"
+    }]
 }]

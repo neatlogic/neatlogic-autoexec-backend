@@ -163,7 +163,7 @@ sub collect {
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{datname};
-        push( @dbNames, $dbName );
+        push( @dbNames, { NAME => $dbName } );
     }
     $postgresqlInfo->{DATABASES} = \@dbNames;
 

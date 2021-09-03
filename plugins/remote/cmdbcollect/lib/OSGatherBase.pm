@@ -31,9 +31,9 @@ sub new {
 
     if ( defined($AUTOEXEC_NODE) and $AUTOEXEC_NODE ne '' ) {
         my $nodeInfo = from_json($AUTOEXEC_NODE);
-        $self->{mgmtIp}     = $nodeInfo->{host};
-        $self->{mgmtPort}   = $nodeInfo->{protocolPort};
-        $self->{osId}       = $nodeInfo->{resourceId};
+        $self->{mgmtIp}   = $nodeInfo->{host};
+        $self->{mgmtPort} = $nodeInfo->{protocolPort};
+        $self->{osId}     = $nodeInfo->{resourceId};
     }
 
     $self->{collectUtils} = CollectUtils->new();

@@ -196,13 +196,51 @@ sub getTableSpaceInfo {
     my ( $self, $pdbName ) = @_;
 
     my $sqlplus = $self->{sqlplus};
-    my $sql     = q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) GIGA, autoextensible AUTOEX from dba_data_files};
+
+    my $tableSpaces = {};
+
+    my $sql = q{
+        SELECT df.tablespace_name                    "NAME",
+            totalusedspace                        "USED_MB",
+            ( df.totalspace - tu.totalusedspace ) "FREE_MB",
+            df.totalspace                         "TOTAL_MB",
+            Round(100 * ( tu.totalusedspace / df.totalspace )) "PCT_USE"
+        FROM   (SELECT tablespace_name,
+                    Round(SUM(bytes) / ( 1024 * 1024 )) TotalSpace
+                FROM   dba_data_files
+                GROUP  BY tablespace_name) df,
+            (SELECT Round(SUM(bytes) / ( 1024 * 1024 )) totalusedspace,
+                    tablespace_name
+                FROM   dba_segments
+                GROUP  BY tablespace_name) tu
+        WHERE  df.tablespace_name = tu.tablespace_name;
+    };
+    if ( defined($pdbName) and $pdbName ne '' ) {
+        $sql = "alter session set container=$pdbName;\n$sql";
+    }
+    my $rows = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        my $tableSpaceName = $row->{NAME};
+
+        my $tableSpaceInfo = {};
+        $tableSpaceInfo->{TABLESPACE_NAME} = $tableSpaceName;
+        $tableSpaceInfo->{TOTAL_GB}        = $row->{TOTAL_MB} / 1024;
+        $tableSpaceInfo->{USED_GB}         = $row->{USED_MB} / 1024;
+        $tableSpaceInfo->{FREE_GB}         = $row->{FREE_MB} / 1024;
+        $tableSpaceInfo->{'USED%'}         = $row->{PCT_USE} + 0.0;
+
+        $tableSpaces->{$tableSpaceName} = $tableSpaceInfo;
+    }
+
+    $sql = q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) GIGA, autoextensible AUTOEX from dba_data_files};
     if ( defined($pdbName) and $pdbName ne '' ) {
         $sql = "alter session set container=$pdbName;\n$sql";
     }
 
-    my $tableSpaces = {};
-    my $rows        = $sqlplus->query(
+    $rows = $sqlplus->query(
         sql     => $sql,
         verbose => $self->{isVerbose}
     );
@@ -211,7 +249,7 @@ sub getTableSpaceInfo {
         my $tableSpaceName = $row->{TABLESPACE_NAME};
 
         $dataFileInfo->{FILE_NAME}      = $row->{FILE_NAME};
-        $dataFileInfo->{SIZE}           = $row->{GIGA} . 'G';
+        $dataFileInfo->{SIZE}           = $row->{GIGA} + 0.0;
         $dataFileInfo->{AUTOEXTENSIBLE} = $row->{AUTOEX};
 
         my $tableSpace = $tableSpaces->{$tableSpaceName};
@@ -307,15 +345,18 @@ sub collectInstances {
         }
         $svcNameMap->{ $row->{NAME} } = 1;
     }
-    my @serviceNames = keys(%$svcNameMap);
+    my @serviceNames = ();
+    foreach my $svcName ( keys(%$svcNameMap) ) {
+        push( @serviceNames, { NAME => $svcName } );
+    }
     $insInfo->{SERVICE_NAMES} = \@serviceNames;
 
     $rows = $sqlplus->query(
-        sql     => q{select PARAMETER CHARACTERSET,VALUE from nls_database_parameters where PARAMETER='NLS_CHARACTERSET'},
+        sql     => q{select PARAMETER,VALUE from nls_database_parameters where PARAMETER='NLS_CHARACTERSET'},
         verbose => $isVerbose
     );
     if ( defined($rows) ) {
-        $insInfo->{ $$rows[0]->{CHARACTERSET} } = $$rows[0]->{VALUE};
+        $insInfo->{NLS_CHARACTERSET} = $$rows[0]->{VALUE};
     }
 
     $insInfo->{USERS} = $self->getUserInfo();
@@ -333,10 +374,11 @@ sub collectInstances {
         my $groupName = $row->{NAME};
         $diskGroup->{NAME}     = $groupName;
         $diskGroup->{TYPE}     = $row->{TYPE};
-        $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB};
-        $diskGroup->{FREE_MB}  = $row->{FREE_MB};
-        $diskGroup->{USAGE}    = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} );
-        $diskGroup->{DISKS}    = [];
+        $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB} + 0.0;
+        $diskGroup->{FREE_MB}  = $row->{FREE_MB} + 0.0;
+        $diskGroup->{USED_MB}  = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
+        $diskGroup->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $diskGroup->{DISKS} = [];
         push( @diskGroups, $diskGroup );
         $diskGroupsMap->{$groupName} = $diskGroup;
     }
@@ -351,10 +393,11 @@ sub collectInstances {
         $disk->{NAME}         = $row->{NAME};
         $disk->{FAIL_GROUP}   = $row->{FAILGROUP};
         $disk->{MOUNT_STATUS} = $row->{MOUNT_STATUS};
-        $disk->{TOTAL_MB}     = $row->{TOTAL_MB};
-        $disk->{FREE_MB}      = $row->{FREE_MB};
-        $disk->{USAGE}        = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} );
-        $disk->{PATH}         = $row->{PATH};
+        $disk->{TOTAL_MB}     = $row->{TOTAL_MB} + 0.0;
+        $disk->{FREE_MB}      = $row->{FREE_MB} + 0.0;
+        $disk->{USED_MB}      = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
+        $disk->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $disk->{PATH} = $row->{PATH};
 
         my $asmDiskId = $self->getDeviceId( $row->{PATH} );
         $disk->{DEVICE_ID} = $asmDiskId;
@@ -625,7 +668,7 @@ sub parseListenerInfo {
                 if ( $line =~ /\(HOST=(.*?)\)\(PORT=(\d+)\)/ ) {
                     my $listenInfo = {};
                     my $host       = $1;
-                    my $port       = $2;
+                    my $port       = int($2);
 
                     #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
                     my $ipAddr = gethostbyname($host);
@@ -722,7 +765,7 @@ sub collectPDBS {
     my ( $self, $insInfo ) = @_;
 
     #获取所有的PDB信息
-    my @pdbs;
+    my @pdbs    = ();
     my $sqlplus = $self->{sqlplus};
     my $sql     = q{select name,dbid,con_id from v$pdbs where name<>'PDB$SEED'};
     my $rows    = $sqlplus->query(
@@ -757,7 +800,8 @@ sub collectPDBS {
         #TODO: 需要补充当前PDB的IP信息，RAC和非RAC
         #TODO: 根据模型设置是否需要全盘拷贝instance信息
         map { $pdb->{$_} = $insInfo->{$_} } keys(%$insInfo);
-        $pdb->{APP_TYPE} = 'Oracle-PDB';
+
+        #$pdb->{APP_TYPE} = 'Oracle-PDB';
     }
 
     return \@pdbs;
@@ -783,6 +827,8 @@ sub collectRAC {
     $racInfo->{APP_TYPE} = 'Oracle-RAC';
 
     my $version = $self->getClusterVersion($insInfo);
+    $insInfo->{CLUSTER_VERSION} = $version;
+
     my $dbNames = $self->getClusterDBNames($insInfo);
 
     my @dbInfos = ();
@@ -843,7 +889,8 @@ sub collectRAC {
                 my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
                 my @serviceNames = keys(%$servicesMap);
                 $dbInfo->{LISTEN_ADDRS} = $listenAddrs;
-                $dbInfo->{SERVICE_INFO} = $servicesMap;
+                my @serviceInfos = values(%$servicesMap);
+                $dbInfo->{SERVICE_INFOS} = \@serviceInfos;
 
                 my $dbInfo = {};
                 $dbInfo->{NAME}          = $dbName;
@@ -913,9 +960,11 @@ sub collect {
     #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
     if ( $insInfo->{IS_CDB} == 1 ) {
         my $PDBS = $self->collectPDBS($insInfo);
-        if ( defined($PDBS) ) {
-            push( @collectSet, @$PDBS );
-        }
+
+        #if ( defined($PDBS) ) {
+        #    push( @collectSet, @$PDBS );
+        #}
+        $insInfo->{PDBS} = $PDBS;
     }
 
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息

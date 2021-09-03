@@ -284,7 +284,7 @@ sub collectHostInfo {
         my $nicName = substr( $line, 0, length($line) - length( $nicInfo->{MAC} ) );
         $nicName =~ s/^\s*|\s*$//g;
         if ( $nicName ne '' ) {
-            $nicInfo->{NAME}       = $nicName;
+            $nicInfo->{NAME}   = $nicName;
             $nicInfo->{STATUS} = 'up';
             push( @nicInfos, $nicInfo );
         }

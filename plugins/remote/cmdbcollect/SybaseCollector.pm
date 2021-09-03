@@ -138,7 +138,7 @@ sub collect {
             OBJECT_TYPE  => $objType,
             SERVER_NAME  => $insName,
             INSTALL_PATH => $homePath,
-            CONF_PATH    => $confPath,
+            CONFIG_PATH  => $confPath,
             ERROR_LOG    => $errorLog,
             DATA_FILE    => $dataFile,
             VERSION      => $version,
@@ -160,16 +160,26 @@ sub collect {
             };
         my $dbNameInfo = isqlRun($dbQuery);
         my @dbNames    = $dbNameInfo =~ /\s(\S+)\s+\d+\.\d\sMB/sg;
-        $insInfo->{DB_NAMES} = \@dbNames;
+
+        my @dbNameArray = ();
+        foreach my $dbName (@dbNames) {
+            push( @dbNameArray, { NAME => $dbName } );
+        }
+
+        $insInfo->{DATABASES} = \@dbNameArray;
 
         #get all users
         my $userQuery = q {
                 sp_helpuser
                 go
             };
-        my $userInfo = isqlRun($userQuery);
-        my @users    = $userInfo =~ /\s(\w+)\s+\d+/sg;
-        $insInfo->{USERS} = \@users;
+        my $userInfo  = isqlRun($userQuery);
+        my @users     = $userInfo =~ /\s(\w+)\s+\d+/sg;
+        my @userArray = ();
+        foreach my $user (@users) {
+            push( @userArray, { NAME => $user } );
+        }
+        $insInfo->{USERS} = \@userArray;
 
         push( @collectSet, $insInfo );
     }

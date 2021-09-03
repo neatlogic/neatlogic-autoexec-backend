@@ -111,14 +111,14 @@ sub collect {
     }
 
     my @logDirs = ();
-    foreach my $logDir (split( ',', $confMap->{'log.dirs'} )){
-        push(@logDirs, { VALUE => $logDir });
+    foreach my $logDir ( split( ',', $confMap->{'log.dirs'} ) ) {
+        push( @logDirs, { VALUE => $logDir } );
     }
     $appInfo->{LOG_DIRS} = \@logDirs;
 
     my @zookeeperConnects = ();
-    foreach my $zookeeperConn (split( ',', $confMap->{'zookeeper.connect'} )){
-        push(@zookeeperConnects, { VALUE => $zookeeperConn });
+    foreach my $zookeeperConn ( split( ',', $confMap->{'zookeeper.connect'} ) ) {
+        push( @zookeeperConnects, { VALUE => $zookeeperConn } );
     }
     $appInfo->{ZOOKEEPER_CONNECTS} = \@zookeeperConnects;
 

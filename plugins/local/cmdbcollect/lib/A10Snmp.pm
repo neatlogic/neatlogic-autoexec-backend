@@ -101,12 +101,12 @@ sub _errCheck {
     if ( not defined($queryResult) ) {
         $hasError = 1;
         my $error = $snmp->error();
-        if ( $error =~ /^No response/i ){
+        if ( $error =~ /^No response/i ) {
             print("ERROR: $error, snmp failed, exit.\n");
             exit(-1);
         }
-        else{
-            print( "WARN: $error, $oid\n");
+        else {
+            print("WARN: $error, $oid\n");
         }
     }
 

@@ -365,9 +365,9 @@ sub _getMacTable {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my @macTable  = ();
+    my @macTable      = ();
     my $portMacCounts = {};
-    my $portNoMap = $self->{portNoMap};
+    my $portNoMap     = $self->{portNoMap};
 
     my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
     my $snmpHelper = $self->{snmpHelper};
@@ -388,7 +388,7 @@ sub _getMacTable {
         }
     }
 
-    $self->{DATA}->{MAC_TABLE} = \@macTable;
+    $self->{DATA}->{MAC_TABLE}       = \@macTable;
     $self->{DATA}->{PORT_MAC_COUNTS} = $portMacCounts;
 }
 
@@ -399,9 +399,9 @@ sub _getMacTableWithVlan {
     my $snmpHelper = $self->{snmpHelper};
     my $portIdxMap = $self->{portIdxMap};
 
-    my @macTable   = ();
+    my @macTable      = ();
     my $portMacCounts = {};
-    my $portMacMap = {};
+    my $portMacMap    = {};
 
     my @vlanIdArray = ();
     my $vlanStates = $snmp->get_table( -baseoid => $commOidDef->{CISCO_VLAN_STATE} );
@@ -457,7 +457,7 @@ sub _getMacTableWithVlan {
         }
     }
 
-    $self->{DATA}->{MAC_TABLE} = \@macTable;
+    $self->{DATA}->{MAC_TABLE}       = \@macTable;
     $self->{DATA}->{PORT_MAC_COUNTS} = $portMacCounts;
 }
 

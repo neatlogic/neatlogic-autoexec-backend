@@ -180,6 +180,7 @@ sub collect {
             push( @dbNames, $dbName );
         }
     }
+
     #$mysqlInfo->{DATABASES} = \@dbNames;
 
     $rows = $mysql->query(

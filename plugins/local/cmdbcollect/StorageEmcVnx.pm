@@ -70,11 +70,11 @@ sub collect {
 
     my $lun_out = $self->getCmdOut('getlun');
     my @arr_lun = $lun_out =~ /LOGICAL UNIT NUMBER(.*?)MirrorView/sg;
-    my @luns =();
+    my @luns    = ();
     foreach my $line (@arr_lun) {
         $line =~ s/^\s+|\s+$//g;
 
-        my ($name,$uuid , $size , $id );
+        my ( $name, $uuid, $size, $id );
         if ( $line =~ /^(\d+)\s+/ ) {
             $id = $1;
         }
@@ -91,21 +91,21 @@ sub collect {
         }
 
         my $lun = {};
-        $lun->{ID} = $id;
+        $lun->{ID}   = $id;
         $lun->{NAME} = $name;
         $lun->{UUID} = $uuid;
         $lun->{SIZE} = $size;
-        push(@luns , $lun);
+        push( @luns, $lun );
     }
     $data->{LUNS} = \@luns;
 
     my $pool_out = $self->getCmdOut('getrg');
     my @arr_pool = $pool_out =~ /RaidGroup ID:(.*?)Legal RAID types:/sg;
-    my @pools = ();
+    my @pools    = ();
     foreach my $line (@arr_pool) {
         $line =~ s/^\s+|\s+$//g;
-    
-        my ($name ,$size , $free );
+
+        my ( $name, $size, $free );
         if ( $line =~ /^(\d+)\s+/ ) {
             $name = $1;
         }
@@ -125,20 +125,20 @@ sub collect {
             my $pool_lunid = $1;
             $pool_lunid =~ s/^\s+|\s+$//g;
             foreach my $pool (@luns) {
-		my $rid = $pool->{ID};
+                my $rid = $pool->{ID};
                 if ( $rid eq $pool_lunid ) {
-                    push (@pool_lun, {'VALUE' => $rid} );
+                    push( @pool_lun, { 'VALUE' => $rid } );
                 }
             }
         }
 
         my $pool = {};
-        $pool->{NAME} = $name;
-        $pool->{SIZE} = $size;
-        $pool->{FREE} = $size;
+        $pool->{NAME}        = $name;
+        $pool->{SIZE}        = $size;
+        $pool->{FREE}        = $size;
         $pool->{CONTAIN_LUN} = \@pool_lun;
 
-        push(@pools , $pool);
+        push( @pools, $pool );
     }
 
     $data->{POOLS} = \@pools;

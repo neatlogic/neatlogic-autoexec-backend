@@ -109,16 +109,16 @@ sub collect {
             my @users      = ();
             while ( $dbNameInfo =~ /name\s+(\S+)/sg ) {
                 my $dbName = $1;
-                push( @dbNames, $dbName );
+                push( @dbNames, { NAME => $dbName } );
 
                 my $userInfo = $self->getCmdOut( "echo 'select * from sysusers'|dbaccess $dbName\@$insName", $user );
                 while ( $userInfo =~ /username\s+(\S+)/g ) {
                     my $user = $1;
-                    push( @users, $user );
+                    push( @users, { NAME => $user } );
                 }
             }
-            $insInfo->{DB_NAMES} = \@dbNames;
-            $insInfo->{USERS}    = \@users;
+            $insInfo->{DATABASES} = \@dbNames;
+            $insInfo->{USERS}     = \@users;
             push( @collectSet, $insInfo );
         }
     }

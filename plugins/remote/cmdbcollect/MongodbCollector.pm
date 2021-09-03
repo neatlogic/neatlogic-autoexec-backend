@@ -107,7 +107,7 @@ sub collect {
     my @dbNames = ();
     foreach my $line (@$rows) {
         my @tmp_arr = str_split( $line, '\s+' );
-        my $dbname  = str_trim( @tmp_arr[0] );
+        my $dbname = str_trim( @tmp_arr[0] );
         if ( $dbname ne 'local' and $dbname ne 'config' ) {
             my $db = {};
             $db->{NAME} = $dbname;

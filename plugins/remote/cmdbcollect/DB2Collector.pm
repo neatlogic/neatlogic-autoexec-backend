@@ -69,21 +69,21 @@ sub getMemInfo {
         }
     }
 
-    my @dbMemory = ();
+    my $dbMemory = {};
     for ( $idx++ ; $idx < $linesCount ; $idx++ ) {
         my $line = $$memLines[$idx];
         $line =~ s/^\s*|\s*$//g;
         my @idvMemInfos = split( /\s+/, $line );
         my $info = {
             DB_NAME  => $idvMemInfos[0],
-            MEM_USED => $idvMemInfos[1] / 1024 / 1024,
-            HWM_USED => $idvMemInfos[2] / 1024 / 1024,
-            CACHED   => $idvMemInfos[3] / 1024 / 1024
+            MEM_USED => int( $idvMemInfos[1] * 100 / 1024 / 1024 + 0.5 ) / 100,
+            HWM_USED => int( $idvMemInfos[2] * 100 / 1024 / 1024 + 0.5 ) / 100,
+            CACHED   => int( $idvMemInfos[3] * 100 / 1024 / 1024 + 0.5 ) / 100
         };
-        push( @dbMemory, $info );
+        $dbMemory->{ $idvMemInfos[0] } = $info;
     }
 
-    return \@dbMemory;
+    return $dbMemory;
 }
 
 sub getConnManInfo {
@@ -170,9 +170,10 @@ sub getTCPInfo {
 }
 
 sub getDBInfos {
-    my ( $self, $appInfo ) = @_;
+    my ( $self, $appInfo, $dbMemory ) = @_;
 
-    my $user = $appInfo->{OS_USER};
+    my $user  = $appInfo->{OS_USER};
+    my $utils = $self->{collectUtils};
 
     # Database 1 entry:
 
@@ -205,10 +206,10 @@ sub getDBInfos {
     for ( my $i = 0 ; $i < scalar(@dbTypes) ; $i++ ) {
         my $dbType = $dbTypes[$i];
         if ( $dbType !~ /remote/i ) {
-            my $localDb = {};
-            $localDb->{DB_NAME}      = $dbNames[$i];
-            $localDb->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
-            push( @localDbs, $localDb );
+            my $dbInfo = $dbMemory->{ $dbNames[$i] };
+            $dbInfo->{DB_NAME}      = $dbNames[$i];
+            $dbInfo->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
+            push( @localDbs, $dbInfo );
         }
     }
     $appInfo->{DATABASES} = \@localDbs;
@@ -245,7 +246,7 @@ sub getDBInfos {
             }
             $line =~ s/^\s*|\s*$//g;
             if ( $line ne '' ) {
-                push( @allDbUsers, $line );
+                push( @allDbUsers, { NAME => $line } );
             }
         }
         $appInfo->{USERS} = \@allDbUsers;
@@ -296,12 +297,12 @@ sub getDBInfos {
                     my $freePages    = int( $fields[6] );
                     my $pageSize     = $spcInfo->{PAGE_SIZE};
 
-                    $spcInfo->{TABLESPACE_SIZE} = sprintf( '%.4fGB', $totalPages * $pageSize / 1024 / 1024 / 1024 );
-                    $spcInfo->{TABLESPACE_USED} = sprintf( '%.4fGB', $usedPages * $pageSize / 1024 / 1024 / 1024 );
-                    $spcInfo->{TABLESPACE_FREE} = sprintf( '%.4fGB', $freePages * $pageSize / 1024 / 1024 / 1024 );
+                    $spcInfo->{TABLESPACE_SIZE} = sprintf( '%.4f', $totalPages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
+                    $spcInfo->{TABLESPACE_USED} = sprintf( '%.4f', $usedPages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
+                    $spcInfo->{TABLESPACE_FREE} = sprintf( '%.4f', $freePages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
 
-                    $spcInfo->{TABLESPACE_FREE_PERCENT} = sprintf( '%.2f%', $freePages / $useablePages * 100 );
-                    $spcInfo->{TABLESPACE_USED_PERCENT} = sprintf( '%.2f%', $usedPages / $useablePages * 100 );
+                    $spcInfo->{TABLESPACE_FREE_PERCENT} = sprintf( '%.2f', $freePages / $useablePages * 100 ) + 0.0;
+                    $spcInfo->{TABLESPACE_USED_PERCENT} = sprintf( '%.2f', $usedPages / $useablePages * 100 ) + 0.0;
                 }
                 $idx++;
                 $line = $$infoLines[$idx];
@@ -337,10 +338,16 @@ sub getDBInfos {
                     my $spcInfo  = $tableSpaceConf->{ $fields[1] };
                     my $filePath = $fields[-1];
                     my $fileSize = -s $filePath;
-                    $fileSize = $fileSize / 1024 / 1024 / 1024;
+                    $fileSize = int( $fileSize * 100 / 1024 / 1024 / 1024 ) / 100;
+                    my $dataFileInfo = {};
+                    $dataFileInfo->{DATA_FILE_PATH} = $filePath;
+                    $dataFileInfo->{DATA_FILE_SIZE} = $fileSize;
+                    my $dataFiles = $spcInfo->{DATA_FILES};
 
-                    $spcInfo->{DATA_FILE_PATH} = $filePath;
-                    $spcInfo->{DATA_FILE_SIZE} = "${fileSize}GB";
+                    if ( not defined($dataFiles) ) {
+                        $dataFiles = [];
+                    }
+                    push( @$dataFiles, $dataFileInfo );
                 }
                 $idx++;
                 $line = $$infoLines[$idx];
@@ -389,8 +396,9 @@ sub collect {
     }
 
     my $envMap = $procInfo->{ENVRIONMENT};
-    $appInfo->{DB2_HOME} = $envMap->{DB2_HOME};
-    $appInfo->{DB2LIB}   = $envMap->{DB2LIB};
+    $appInfo->{DB2_HOME}     = $envMap->{DB2_HOME};
+    $appInfo->{INSTALL_PATH} = $envMap->{DB2_HOME};
+    $appInfo->{DB2LIB}       = $envMap->{DB2LIB};
 
     $appInfo->{INSTANCE_NAME} = $user;
     $appInfo->{OS_USER}       = $user;
@@ -398,8 +406,8 @@ sub collect {
     $self->getTCPInfo($appInfo);
 
     #$self->getConnManInfo($appInfo);
-    $self->getMemInfo($appInfo);
-    $self->getDBInfos($appInfo);
+    my $dbMemory = $self->getMemInfo($appInfo);
+    $self->getDBInfos( $appInfo, $dbMemory );
 
     return $appInfo;
 }

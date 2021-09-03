@@ -10,13 +10,13 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
-use Data::Dumper ;
+use Data::Dumper;
 
-sub usage{
-   my $pname = $FindBin::Script;
-   print("INFO::option --node or --type not defined.\n");
-   print("$pname --node <node> --type <type> .\n");
-   exit(0);
+sub usage {
+    my $pname = $FindBin::Script;
+    print("INFO::option --node or --type not defined.\n");
+    print("$pname --node <node> --type <type> .\n");
+    exit(0);
 }
 
 sub main {
@@ -30,7 +30,7 @@ sub main {
         'type=s'    => \$type,
         'timeout=i' => \$timeout
     );
- 
+
     my $hasOptErr = 0;
     if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
         $hasOptErr = 1;
@@ -43,8 +43,8 @@ sub main {
         $timeout = 10;
     }
 
-    if( $hasOptErr == 1 ){
-	usage();	
+    if ( $hasOptErr == 1 ) {
+        usage();
     }
     my $host     = $node->{host};
     my $user     = $node->{username};
@@ -53,12 +53,12 @@ sub main {
     my $typeClass = "Storage$type";
     eval {
         require "$typeClass.pm";
-	print("class:$typeClass\n");
+        print("class:$typeClass\n");
         our @ISA = ($typeClass);
-        $instance = $typeClass->new( host=>$host ,user=>$user , pasword => $password );
+        $instance = $typeClass->new( host => $host, user => $user, pasword => $password );
     };
     if ($@) {
-	print($@);
+        print($@);
         print("ERROR::not found $type plugin .\n");
         exit(1);
     }

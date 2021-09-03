@@ -151,7 +151,7 @@ sub parseConfigInclude {
 }
 
 sub parseConfigParam {
-    my ($self, $data, $cfg ) = @_;
+    my ( $self, $data, $cfg ) = @_;
     my @lines = split( /[\r\n]+/, $data );
     my $nginx = {};
     $nginx->{CONFIG_PATH} = $cfg;
@@ -197,7 +197,7 @@ sub parseConfig {
         my @server_cfg = parseConfigServer( $self, $cfg );
         foreach my $server (@server_cfg) {
             chomp($server);
-            my $param = parseConfigParam( $self ,$server, $cfg );
+            my $param = parseConfigParam( $self, $server, $cfg );
             push( @nginx_servers, $param );
         }
     }

@@ -70,10 +70,10 @@ sub new {
         $self->{listProcCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
 
         #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
-        if ( $uname[4] =~ /64/ ){
+        if ( $uname[4] =~ /64/ ) {
             $self->{procEnvCmd} = Cwd::abs_path("$FindBin::Bin/lib/windowspenv/getprocenv");
         }
-        else{
+        else {
             $self->{procEnvCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
         }
     }
