@@ -7,6 +7,14 @@
 	"desc": "OS用户",
 	"type": "String"
 }, {
+	"name": "EXE_PATH",
+	"desc": "执行文件路径",
+	"type": "String"
+}, {
+	"name": "COMMAND",
+	"desc": "命令行",
+	"type": "String"
+}, {
 	"name": "INSTALL_PATH",
 	"desc": "安装目录",
 	"type": "String"

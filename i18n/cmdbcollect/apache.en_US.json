@@ -7,6 +7,14 @@
 	"desc": "OS User",
 	"type": "String"
 }, {
+	"name": "EXE_PATH",
+	"desc": "Executable File Path",
+	"type": "String"
+}, {
+	"name": "COMMAND",
+	"desc": "Command Line",
+	"type": "String"
+}, {
 	"name": "OBJECT_TYPE",
 	"desc": "Object Type",
 	"type": "String"

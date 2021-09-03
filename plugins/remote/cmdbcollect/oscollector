@@ -218,10 +218,11 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_ID}     = $procInfo->{RESOURCE_ID};
-            $appInfo->{OS_USER}   = $procInfo->{USER};
-            $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
-            $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+            $appInfo->{OS_ID}           = $procInfo->{RESOURCE_ID};
+            $appInfo->{OS_USER}         = $procInfo->{USER};
+            $appInfo->{COMMAND}         = $procInfo->{COMMAND};
+            $appInfo->{MGMT_IP}         = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT}       = $procInfo->{MGMT_PORT};
             if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {
                 $appInfo->{PK} = $pkConfig->{$appType};
             }

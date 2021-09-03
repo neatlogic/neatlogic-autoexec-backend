@@ -366,6 +366,7 @@ sub _getMacTable {
     my $commOidDef = $self->{commonOidDef};
 
     my @macTable  = ();
+    my $portMacCounts = {};
     my $portNoMap = $self->{portNoMap};
 
     my $tableDef   = { MAC_TABLE => { PORT => $commOidDef->{MAC_TABLE_PORT}, MAC => $commOidDef->{MAC_TABLE_MAC} } };
@@ -382,11 +383,13 @@ sub _getMacTable {
 
         my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
         if ( $remoteMac ne '' ) {
+            $portMacCounts->{$portDesc} = 1 + $portMacCounts->{$portDesc};
             push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
         }
     }
 
     $self->{DATA}->{MAC_TABLE} = \@macTable;
+    $self->{DATA}->{PORT_MAC_COUNTS} = $portMacCounts;
 }
 
 sub _getMacTableWithVlan {
@@ -397,6 +400,7 @@ sub _getMacTableWithVlan {
     my $portIdxMap = $self->{portIdxMap};
 
     my @macTable   = ();
+    my $portMacCounts = {};
     my $portMacMap = {};
 
     my @vlanIdArray = ();
@@ -446,6 +450,7 @@ sub _getMacTableWithVlan {
             if ( $remoteMac ne '' ) {
                 if ( not defined( $portMacMap->{"$remoteMac $portDesc"} ) ) {
                     $portMacMap->{"$remoteMac $portDesc"} = 1;
+                    $portMacCounts->{$portDesc} = 1 + $portMacCounts->{$portDesc};
                     push( @macTable, { PORT => $portDesc, REMOTE_MAC => $remoteMac } );
                 }
             }
@@ -453,6 +458,7 @@ sub _getMacTableWithVlan {
     }
 
     $self->{DATA}->{MAC_TABLE} = \@macTable;
+    $self->{DATA}->{PORT_MAC_COUNTS} = $portMacCounts;
 }
 
 sub _getLLDP {

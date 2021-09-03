@@ -7,6 +7,14 @@
     "desc": "OS用户",
     "type": "String"
 }, {
+    "name": "EXE_PATH",
+    "desc": "执行文件路径",
+    "type": "String"
+}, {
+    "name": "COMMAND",
+    "desc": "命令行",
+    "type": "String"
+}, {
     "name": "OBJECT_TYPE",
     "desc": "归属类型",
     "type": "String"
@@ -70,10 +78,6 @@
 }, {
     "name": "CONFIG_PATH",
     "desc": "配置目录",
-    "type": "String"
-}, {
-    "name": "EXE_PATH",
-    "desc": "执行文件路径",
     "type": "String"
 }, {
     "name": "BIN_PATH",
