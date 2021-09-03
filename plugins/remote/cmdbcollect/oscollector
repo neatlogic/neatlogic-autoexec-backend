@@ -218,9 +218,10 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_RESOURCE_ID} = $procInfo->{RESOURCE_ID};
-            $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};
-            $appInfo->{MGMT_PORT}      = $procInfo->{MGMT_PORT};
+            $appInfo->{OS_ID}     = $procInfo->{RESOURCE_ID};
+            $appInfo->{OS_USER}   = $procInfo->{USER};
+            $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
             if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {
                 $appInfo->{PK} = $pkConfig->{$appType};
             }
@@ -272,9 +273,11 @@ sub main {
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
 
-            my @bindAddrs = ();
+            my @portNumbers = ();
+            my @bindAddrs   = ();
             foreach my $lsnPort (@lsnPorts) {
                 if ( index( $lsnPort, ':' ) == -1 ) {
+                    push( @portNumbers, int($lsnPort) );
                     foreach my $ip (@$ipAddrs) {
                         push( @bindAddrs, "$ip:$lsnPort" );
                     }
@@ -283,7 +286,9 @@ sub main {
                     }
                 }
                 else {
-                    push( @bindAddrs, $lsnPort );
+                    push( @bindAddrs, "$lsnPort" );
+                    $lsnPort =~ s/^.*://;
+                    push( @portNumbers, $lsnPort );
                 }
             }
             $connInfo->{BIND} = \@bindAddrs;
@@ -292,6 +297,9 @@ sub main {
             $connInfo->{PEER} = \@remoteAddrs;
             delete( $appInfo->{PROC_INFO}->{CONN_INFO} );
             $appInfo->{CONN_INFO} = $connInfo;
+            if ( not defined( $appInfo->{PORTS} ) ) {
+                $appInfo->{PORTS} = \@portNumbers;
+            }
             push( @apps, $appInfo );
         }
     }

@@ -3,6 +3,10 @@
     "desc": "OS ID",
     "type": "String"
 }, {
+    "name": "OS_USER",
+    "desc": "OS User",
+    "type": "String"
+}, {
     "name": "OBJECT_TYPE",
     "desc": "Object Type",
     "type": "String"

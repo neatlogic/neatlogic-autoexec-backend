@@ -26,6 +26,7 @@ sub getConfig {
 
 sub getMemInfo {
     my ( $self, $appInfo ) = @_;
+    my $utils = $self->{collectUtils};
 
     # [db2inst1@sit-asm-123 tmp]$ db2pd -dbptnmem
 
@@ -52,16 +53,16 @@ sub getMemInfo {
     for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
         my $line = $$memLines[$idx];
         if ( $line =~ /Memory Limit:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_LIMIT} = "$1$2";
+            $appInfo->{MEMORY_LIMIT} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /Current usage:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_CURRENT_USAGE} = "$1$2";
+            $appInfo->{MEMORY_CURRENT_USAGE} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /HWM usage:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_HWM_USAGE} = "$1$2";
+            $appInfo->{MEMORY_HWM_USAGE} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /Cached memory:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{CACHED_MEMORY} = "$1$2";
+            $appInfo->{CACHED_MEMORY} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /=====================/ ) {
             last;
@@ -75,9 +76,9 @@ sub getMemInfo {
         my @idvMemInfos = split( /\s+/, $line );
         my $info = {
             DB_NAME  => $idvMemInfos[0],
-            MEM_USED => $idvMemInfos[1],
-            HWM_USED => $idvMemInfos[2],
-            CACHED   => $idvMemInfos[3]
+            MEM_USED => $idvMemInfos[1] / 1024 / 1024,
+            HWM_USED => $idvMemInfos[2] / 1024 / 1024,
+            CACHED   => $idvMemInfos[3] / 1024 / 1024
         };
         push( @dbMemory, $info );
     }
@@ -95,7 +96,7 @@ sub getConnManInfo {
     for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
         my $line = $$dbmLines[$idx];
         if ( $line =~ /\((\w+)\)\s=\s(.*?)$/ ) {
-            $appInfo->{$1} = $2;
+            $appInfo->{ uc($1) } = $2;
         }
     }
 }

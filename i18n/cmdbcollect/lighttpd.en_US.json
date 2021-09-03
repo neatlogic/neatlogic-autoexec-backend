@@ -3,6 +3,10 @@
     "desc": "OS ID",
     "type": "String"
 }, {
+    "name": "OS_USER",
+    "desc": "OS User",
+    "type": "String"
+}, {
     "name": "OBJECT_TYPE",
     "desc": "Object Type",
     "type": "String"
@@ -46,6 +50,15 @@
     "name": "MON_PORT",
     "desc": "Monitor Port",
     "type": "String"
+}, {
+    "name": "PORTS",
+    "desc": "Port List",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "VALUE",
+        "desc": "Port",
+        "type": "int"
+    }]
 }, {
     "name": "INSTALL_PATH",
     "desc": "Install Path",

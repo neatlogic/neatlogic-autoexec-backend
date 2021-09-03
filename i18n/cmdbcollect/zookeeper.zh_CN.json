@@ -3,6 +3,10 @@
     "desc": "OS ID",
     "type": "String"
 }, {
+    "name": "OS_USER",
+    "desc": "OS用户",
+    "type": "String"
+}, {
     "name": "OBJECT_TYPE",
     "desc": "归属类型",
     "type": "String"
@@ -44,11 +48,11 @@
     "type": "String"
 }, {
     "name": "PORTS",
-    "desc": "Port List",
+    "desc": "所有端口列表",
     "type": "JsonArray",
     "subset": [{
         "name": "VALUE",
-        "desc": "Port",
+        "desc": "端口",
         "type": "int"
     }]
 }, {

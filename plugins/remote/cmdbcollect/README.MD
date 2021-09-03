@@ -15,8 +15,8 @@
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-- SN: 主板序列号
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- BOARD_SERIAL: 主板序列号
 > 上述属性都可以用于关联OS
 > 为了便于检索，如果某个属性的值是一个数组，数组元素必须也是Object，譬如：IP地址列表：[{"VALUE":"192.168.0.1"}, {"VALUE":"10.168.0.1"}]
 
@@ -68,9 +68,9 @@
             "CAPACITY": 2.147
         }],
         "MICROCODE": "0x71a",
-        "SN": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
+        "BOARD_SERIAL": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
         "MANUFACTURER": "6.00",
-        "RESOURCE_ID": "380303927205890",
+        "OS_ID": "380303927205890",
         "OBJECT_TYPE": "HOST"
     }
 ```
@@ -80,8 +80,8 @@
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
-- SN: 主板序列号
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- BOARD_SERIAL: 主板序列号
 > 上述属性都可以用于关联HOST硬件
 
 * 样例
@@ -183,7 +183,7 @@
             "CAPACITY": 2.147
         }],
         "SYS_VENDOR": "VMware, Inc.",
-        "RESOURCE_ID": "380303927205890",
+        "OS_ID": "380303927205890",
         "MEM_CACHED": 3180.586,
         "NTP_SERVERS": ["202.112.10.36"],
         "NETWORKMANAGER_ENABLE": 1,
@@ -234,8 +234,9 @@
 - APP_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
-- RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
+- OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 > 上述属性都可以用于关联OS
+- OS_USER: 运行用户
 - INSTALL_PATH: 安装路径
 - SERVER_NAME: 应用实例名
 - CONN_INFO: (LISTEN: 监听端口，包括IPV4，IPV6), (PEER: 出方向的连接)，用于计算应用调用关系
@@ -245,11 +246,13 @@
 - ADMIN_SSL_PORT: ssl|https管理端口，如果没有就为null
 - MON_PORT: 监控端口，如果没有就为null
 - JMX_PORT: Java的jmx的监听端口，如果没有就为null
+- PORTS: 所有监听端口的列表，用于检索
 - PORC_INFO: 进程信息（CMDB中不需要，只是参考）
 
 * 样例
 ```json
     {
+        "OS_USER":"app",
         "INSTALL_PATH": "/app/servers/balantflow",
         "SERVER_NAME": "balantflow",
         "MGMT_IP": "",
@@ -341,12 +344,12 @@
                 "HISTCONTROL": "ignoredups"
             },
             "COMM": "java",
-            "RESOURCE_ID": "380303927205890"
+            "OS_ID": "380303927205890"
         },
         "JVM_VERSION": "1.8.0_77-b03",
         "PORTS": ["8080", "9345"],
         "APP_TYPE": "Tomcat",
-        "RESOURCE_ID": "380303927205890",
+        "OS_ID": "380303927205890",
         "SSL_PORT": "9345",
         "VERSION": "9.0.44.0",
         "OBJECT_TYPE": "APP"

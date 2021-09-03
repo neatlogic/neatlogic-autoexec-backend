@@ -3,6 +3,10 @@
 	"desc": "监听IP配置",
 	"type": "String"
 }, {
+	"name": "OS_USER",
+	"desc": "OS用户",
+	"type": "String"
+}, {
 	"name": "INSTALL_PATH",
 	"desc": "安装目录",
 	"type": "String"
@@ -80,6 +84,15 @@
 	"name": "MON_PORT",
 	"desc": "监控端口",
 	"type": "String"
+}, {
+	"name": "PORTS",
+	"desc": "所有端口列表",
+	"type": "JsonArray",
+	"subset": [{
+		"name": "VALUE",
+		"desc": "端口",
+		"type": "int"
+	}]
 }, {
 	"name": "ADMIN_PORT",
 	"desc": "管理端口",

@@ -1,4 +1,8 @@
 [{
+    "name": "OS_USER",
+    "desc": "OS User",
+    "type": "String"
+}, {
     "name": "DATESTYLE",
     "desc": "datestyle",
     "type": "String"
