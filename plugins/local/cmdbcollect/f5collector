@@ -57,7 +57,11 @@ sub main {
     $data->{APP_TYPE}    = 'F5';
     $data->{PK}          = ['SN'];
     $data->{RESOURCE_ID} = $node->{resourceId};
-    
+    $data->{MGMT_IP}     = $node->{host};
+
+    my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
+    $data->{UPTIME} = $upTime;
+
     my $out = {};
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);

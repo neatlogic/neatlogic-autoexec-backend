@@ -57,7 +57,8 @@ sub main {
     $data->{APP_TYPE}    = 'A10';
     $data->{PK}          = ['SN'];
     $data->{RESOURCE_ID} = $node->{resourceId};
-    
+    $data->{MGMT_IP}     = $node->{host};
+
     my $out = {};
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);

@@ -25,7 +25,8 @@ sub new {
         MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2.0',        #sysPlatformInfoMarketingName
                                                            #MODEL   => '1.3.6.1.4.1.3375.2.1.3.5.1', #sysPlatformInfoName
         VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',          #sysProductName
-        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2.0'           #sysProductVersion
+        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2.0',          #sysProductVersion
+        UPTIME   => '1.3.6.1.4.1.3375.1.1.50'              #uptime
     };
 
     my $vsOidDef = {
