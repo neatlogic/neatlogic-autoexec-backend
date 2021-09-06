@@ -570,7 +570,7 @@ sub collectHostInfo {
             }
             $i    = $i + 1;
             $line = $$nicInfoLines[$i];
-            while ( $line !~ /^\d+:\s+(\S+):/ and $i < $nicInfoLineCount ) {
+            while ( $i < $nicInfoLineCount and $line !~ /^\d+:\s+(\S+):/ ) {
                 if ( $line =~ /^\s*link\/ether\s+(.*?)\s+/i ) {
                     $macAddr = $1;
                 }
