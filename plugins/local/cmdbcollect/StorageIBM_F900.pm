@@ -118,14 +118,6 @@ sub collect {
     my @hbaInfoLines = $ssh->capture('svcinfo lsportfc -delim : -nohdr');
     foreach my $line (@hbaInfoLines) {
         $line =~ s/^\s+|\s+$//g;
-        my %hba_attr = (
-            'ciId'                 => 12,
-            'uniqueName'           => '',
-            'attr_名称'          => '',
-            'attr_传输速率'    => '',
-            'attr_WWN'             => '',
-            'attr_存储序列号' => ''
-        );
         my @splits = split( /:/, $line );
         my $speed  = $splits[4];
         my $name   = $splits[0] . ':' . $splits[1] . ':' . $splits[2];
