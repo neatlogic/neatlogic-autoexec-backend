@@ -14,9 +14,7 @@ sub new {
     my $self    = {};
     my $binPath = $args{binPath};
     if ( not defined($binPath) or $binPath == '' ) {
-        my $dir = `pwd`;
-        chomp($dir);
-        $binPath = "$dir/../../../tools/Navisphere/bin/naviseccli";
+        $binPath = abs_path("$FindBin::Bin/../../../tools/Navisphere/bin/naviseccli");
     }
     my $host     = $args{host};
     my $user     = $args{user};
@@ -42,7 +40,7 @@ sub getCmdOut {
     my $naviseccli = $self->{naviseccli};
     my $command    = $args{cmd};
     my $cmd        = "$naviseccli $command";
-    return $utils->getCmdOut( $cmd, undef );
+    return $utils->getCmdOut( $cmd );
 }
 
 sub getCmdOutLines {
@@ -51,7 +49,7 @@ sub getCmdOutLines {
     my $naviseccli = $self->{naviseccli};
     my $command    = $args{cmd};
     my $cmd        = "$naviseccli $command";
-    return $utils->getCmdOutLines( $cmd, undef );
+    return $utils->getCmdOutLines( $cmd );
 }
 
 sub collect {
