@@ -1,0 +1,100 @@
+[{
+    "name": "RESOURCE_ID",
+    "desc": "CMDB ID",
+    "type": "String"
+}, {
+    "name": "OBJECT_TYPE",
+    "desc": "Object Type",
+    "type": "String"
+}, {
+    "name": "APP_TYPE",
+    "desc": "Application Type",
+    "type": "String"
+}, {
+    "name": "SN",
+    "desc": "Chassis Serial",
+    "type": "String"
+}, {
+    "name": "MGMT_IP",
+    "desc": "Managment IP",
+    "type": "String"
+}, {
+    "name": "DEV_NAME",
+    "desc": "Device Name",
+    "type": "String"
+}, {
+    "name": "MODEL",
+    "desc": "Device Model",
+    "type": "String"
+}, {
+    "name": "UPTIME",
+    "desc": "Up Time",
+    "type": "String"
+}, {
+    "name": "VENDOR",
+    "desc": "Vendor",
+    "type": "String"
+}, {
+    "name": "BRAND",
+    "desc": "Brand",
+    "type": "String"
+}, {
+    "name": "LUNS",
+    "desc": "LUN List",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "ID",
+        "desc": "ID",
+        "type": "String"
+    }, {
+        "name": "NAME",
+        "desc": "Name",
+        "type": "String"
+    }, {
+        "name": "LUNID",
+        "desc": "Lun ID",
+        "type": "String"
+    }, {
+        "name": "SIZE",
+        "desc": "Size(GB)",
+        "type": "float"
+    }]
+}, {
+    "name": "POOLS",
+    "desc": "POOL List",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "NAME",
+        "desc": "Name",
+        "type": "String"
+    }, {
+        "name": "SIZE",
+        "desc": "Size(GB)",
+        "type": "String"
+    }, {
+        "name": "FREE",
+        "desc": "Free(GB)",
+        "type": "String"
+    }, {
+        "name": "LUNS",
+        "desc": "LUNS In Pool",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "ID",
+            "desc": "ID",
+            "type": "String"
+        }, {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        }, {
+            "name": "LUNID",
+            "desc": "Lun ID",
+            "type": "String"
+        }, {
+            "name": "SIZE",
+            "desc": "Size(GB)",
+            "type": "float"
+        }]
+    }]
+}]
