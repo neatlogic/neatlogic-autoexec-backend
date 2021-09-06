@@ -1,12 +1,13 @@
 #!/usr/bin/perl
-
-package StorageEmcVnx;
-use strict;
 use FindBin;
 use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
+
+package StorageEMC_Vnx;
+use strict;
+use JSON;
 use CollectUtils;
 
 sub new {
@@ -20,7 +21,7 @@ sub new {
     $self->{node} = $node;
 
     my $host     = $node->{host};
-    my $user     = $node->{user};
+    my $user     = $node->{username};
     my $password = $node->{password};
 
     my $naviSecCLI = "$binPath -h $host -Scope 0 -User $user -Password $password";

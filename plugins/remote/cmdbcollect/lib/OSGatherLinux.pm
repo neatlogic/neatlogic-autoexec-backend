@@ -574,7 +574,7 @@ sub collectHostInfo {
                 if ( $line =~ /^\s*link\/ether\s+(.*?)\s+/i ) {
                     $macAddr = $1;
                 }
-                elsif (/^\s*inet\s(\d+\.\d+\.\d+\.\d+)/) {
+                elsif ( $line =~ /^\s*inet\s(\d+\.\d+\.\d+\.\d+)/ ) {
                     $ipAddr = $1;
                 }
                 $i    = $i + 1;

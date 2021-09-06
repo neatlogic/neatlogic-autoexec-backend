@@ -39,6 +39,10 @@
     "desc": "Brand",
     "type": "String"
 }, {
+    "name": "CAPACITY",
+    "desc": "Capacity(TB)",
+    "type": "float"
+}, {
     "name": "LUNS",
     "desc": "LUN List",
     "type": "JsonArray",
