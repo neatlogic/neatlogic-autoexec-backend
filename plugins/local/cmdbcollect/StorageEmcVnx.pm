@@ -16,7 +16,7 @@ sub new {
     if ( not defined($binPath) or $binPath == '' ) {
         $binPath = abs_path("$FindBin::Bin/../../../tools/Navisphere/bin/naviseccli");
     }
-    my $node     = $args{node};
+    my $node = $args{node};
     $self->{node} = $node;
 
     my $host     = $node->{host};
@@ -28,7 +28,7 @@ sub new {
 
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
-    
+
     bless( $self, $type );
     return $self;
 }
@@ -39,7 +39,7 @@ sub getCmdOut {
     my $naviSecCLI = $self->{naviSecCLI};
     my $command    = $args{cmd};
     my $cmd        = "$naviSecCLI $command";
-    return $utils->getCmdOut( $cmd );
+    return $utils->getCmdOut($cmd);
 }
 
 sub getCmdOutLines {
@@ -48,7 +48,7 @@ sub getCmdOutLines {
     my $naviSecCLI = $self->{naviSecCLI};
     my $command    = $args{cmd};
     my $cmd        = "$naviSecCLI $command";
-    return $utils->getCmdOutLines( $cmd );
+    return $utils->getCmdOutLines($cmd);
 }
 
 sub collect {
@@ -70,7 +70,7 @@ sub collect {
         $data->{DEV_NAME} = $1;
     }
 
-    my $lunOutInfo = $self->getCmdOut('getlun');
+    my $lunOutInfo   = $self->getCmdOut('getlun');
     my @lunInfoLines = $lunOutInfo =~ /LOGICAL UNIT NUMBER(.*?)MirrorView/sg;
 
     my $lunsMap = {};
@@ -90,23 +90,23 @@ sub collect {
         }
         elsif ( $line =~ /LUN\s*Capacity\(Megabytes\):\s*(\d+)\s*/ ) {
             $size = $1;
-            $size = int( $size * 100 / 1024 + 0.5 )/100;
+            $size = int( $size * 100 / 1024 + 0.5 ) / 100;
         }
 
         my $lun = {};
-        $lun->{ID}   = $id;
-        $lun->{NAME} = $name;
+        $lun->{ID}    = $id;
+        $lun->{NAME}  = $name;
         $lun->{LUNID} = $uuid;
-        $lun->{SIZE} = $size;
+        $lun->{SIZE}  = $size;
         push( @luns, $lun );
         $lunsMap->{$id} = $lun;
     }
     $data->{LUNS} = \@luns;
 
-    my $poolOutInfo = $self->getCmdOut('getrg');
+    my $poolOutInfo   = $self->getCmdOut('getrg');
     my @poolInfoLines = $poolOutInfo =~ /RaidGroup ID:(.*?)Legal RAID types:/sg;
 
-    my @pools    = ();
+    my @pools = ();
     foreach my $line (@poolInfoLines) {
         $line =~ s/^\s+|\s+$//g;
 
@@ -128,16 +128,16 @@ sub collect {
         my @lunsInPool = ();
         if ( $line =~ /List of luns:\s*(.*?)\s*/ ) {
             my $lunId = $1;
-            if (defined($lunsMap->{$lunId})){
-                push(@lunsInPool, $lunsMap->{$lunId});
+            if ( defined( $lunsMap->{$lunId} ) ) {
+                push( @lunsInPool, $lunsMap->{$lunId} );
             }
         }
 
         my $pool = {};
-        $pool->{NAME}        = $name;
-        $pool->{SIZE}        = $size;
-        $pool->{FREE}        = $size;
-        $pool->{LUNS} = \@pool_lun;
+        $pool->{NAME} = $name;
+        $pool->{SIZE} = $size;
+        $pool->{FREE} = $size;
+        $pool->{LUNS} = \@lunsInPool;
 
         push( @pools, $pool );
     }

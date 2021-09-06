@@ -31,9 +31,9 @@ sub main {
         'timeout=i' => \$timeout
     );
 
-    my $nodeInfo = {};
+    my $nodeInfo  = {};
     my $hasOptErr = 0;
-    if ( not defined($node) ){
+    if ( not defined($node) ) {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
@@ -58,7 +58,7 @@ sub main {
         require "$typeClass.pm";
         print("class:$typeClass\n");
         our @ISA = ($typeClass);
-        $instance = $typeClass->new( node=>$nodeInfo );
+        $instance = $typeClass->new( node => $nodeInfo );
     };
     if ($@) {
         print($@);
