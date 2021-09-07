@@ -8,7 +8,6 @@ use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 package StorageHDS_VSP;
 use strict;
 
-use Net::OpenSSH;
 use JSON;
 use CollectUtils;
 
