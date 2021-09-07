@@ -29,15 +29,15 @@ sub new {
     $self->{password}    = $password;
     $self->{stonavmHome} = $stonavmHome;
 
-    $ENV{'LIBPATH'}         = "$stonavmHome:\$LIBPATH";
-    $ENV{'SHLIB_PATH'}      = "$stonavmHome/lib:\$SHLIB_PATH";
-    $ENV{'LD_LIBRARY_PATH'} = "$stonavmHome/lib:\$LD_LIBRARY_PATH";
+    $ENV{'LIBPATH'}         = "$stonavmHome:$ENV{LIBPATH}";
+    $ENV{'SHLIB_PATH'}      = "$stonavmHome/lib:$ENV{SHLIB_PATH}";
+    $ENV{'LD_LIBRARY_PATH'} = "$stonavmHome/lib:$ENV{LD_LIBRARY_PATH}";
     $ENV{'STONAVM_HOME'}    = "$stonavmHome";
     $ENV{'STONAVM_ACT'}     = 'on';
 
     #取消每次“y" or "no"提示
     $ENV{'STONAVM_RSP_PASS'} = 'on';
-    $ENV{'PATH'}             = "\$PATH:$stonavmHome";
+    $ENV{'PATH'}             = "$ENV{PATH}:$stonavmHome";
 
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
@@ -132,30 +132,26 @@ sub collect {
         my ( $name, $capacity, $size, $type, $poolname );
 
         $name     = $lineInfo[0];
-        $capacity = $lineInfo[1];
+        $capacity = int($lineInfo[1] * 100 + 0.5) / 100 ;
         $size     = $lineInfo[2];
         $type     = $lineInfo[6];
         $poolname = $lineInfo[5];
 
         my $lun = {};
         $lun->{NAME}     = $name;
-        $lun->{SIZE}     = $size;
         $lun->{CAPACITY} = $capacity;
         $lun->{TYPE}     = $type;
 
         push( @luns, $lun );
 
-        my @pool_luns;
+        my $pool_luns = [];
         if ( defined( $lunsMap->{$poolname} ) ) {
-            @pool_luns = $lunsMap->{$poolname};
+            $pool_luns = $lunsMap->{$poolname};
         }
-        else {
-            @pool_luns = ();
-        }
-        push( @pool_luns, $lun );
-        $lunsMap->{$poolname} = \@pool_luns;
+        push( @$pool_luns, $lun );
+        $lunsMap->{$poolname} = $pool_luns;
     }
-    $data->{LUNS} = \@luns;
+    #$data->{LUNS} = \@luns;
 
     #% audppool -unit HUS110 -refer -t
     # DP RAID Stripe
@@ -172,20 +168,19 @@ sub collect {
 
         $pool     = $lineInfo[0];
         $level    = $lineInfo[1];
-        $total    = $lineInfo[2];
+        $total    = int($lineInfo[2] * 1024 * 100 + 0.5) / 100 ;
         $capacity = $lineInfo[3];
 
         my $pool = {};
         $pool->{NAME}     = $pool;
         $pool->{LEVEL}    = $level;
-        $pool->{CAPACITY} = $capacity;
-        $pool->{SIZE}     = $total;
+        $pool->{CAPACITY} = $total;
 
-        my @lunsInPool = ();
+        my $lunsInPool = [];
         if ( defined( $lunsMap->{$pool} ) ) {
-            @lunsInPool = $lunsMap->{$pool};
+            $lunsInPool = $lunsMap->{$pool};
         }
-        $pool->{LUNS} = \@lunsInPool;
+        $pool->{LUNS} = $lunsInPool;
 
         push( @pools, $pool );
     }
