@@ -1,0 +1,26 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auchkuid    Confirming the Login
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    auchkuid -unit unit_name
+
+Description
+    This command checks to see who (user ID) is logging into the array unit.
+    This command can be used and information can be referred by users that
+    have not logged in yet. If an already logged in user executes this
+    command, the user information cannot be referenced.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the login status is
+            to be checked.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

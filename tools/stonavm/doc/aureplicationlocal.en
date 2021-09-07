@@ -1,0 +1,431 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aureplicationlocal    Local Pair Operation
+
+Format
+  SMS, AMS2000
+    aureplicationlocal -unit unit_name -refer [ -si ] [ -ss ]
+                       [ -pvol lun ] [ -svol lun ]
+    aureplicationlocal -unit unit_name -refer
+                       -splitinfo | -poolinfo
+    aureplicationlocal -unit unit_name -refer -detail
+                       -pairname pair_name
+                       -gno group_no | -gname group_name
+    aureplicationlocal -unit unit_name -refer -detail
+                       -pvol lun -svol lun
+  HUS100
+    aureplicationlocal -unit unit_name -refer [ -si ] [ -ss ]
+                       [ -pvol lun ] [ -svol lun ]
+    aureplicationlocal -unit unit_name -refer
+                       -splitinfo | -dppoolinfo
+                       [ -pvol lun ]
+    aureplicationlocal -unit unit_name -refer -pvolinfo
+    aureplicationlocal -unit unit_name -refer -detail
+                       -pairname pair_name
+                       -gno group_no | -gname group_name
+    aureplicationlocal -unit unit_name -refer -detail
+                       -pvol lun -svol lun
+    When operating the SnapShot Pair.
+      aureplicationlocal -unit unit_name -refer
+                         -gno group_no | -gname group_name
+
+  When operating the ShadowImage Pair.
+    SMS, AMS2000
+      When creating a pair and adding to "Ungrouped".
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy | -compsplit ]
+      When creating a pair and adding to a new or existing group
+                                                  with input group number.
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gno group_no
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy ]
+      When creating a pair and adding to an existing group
+                                                     with input group name.
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gname group_name
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy ]
+    HUS100
+      When creating a pair and adding to "Ungrouped".
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy | -compsplit ]
+                           [ -muno mu_no ]
+     When creating a pair and adding to a new or existing group
+                                                 with input group number.
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gno group_no
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy ]
+                           [ -muno mu_no ]
+      When creating a pair and adding to an existing group
+                                                     with input group name.
+        aureplicationlocal -unit unit_name -create -si
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gname group_name
+                           [ -pace prior | normal | slow ]
+                           [ -noread ]
+                           [ -nocopy ]
+                           [ -muno mu_no ]
+
+    SMS, AMS2000, HUS100
+      aureplicationlocal -unit unit_name -split -si
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -force | -splitstr split_str ]
+                         [ -quick ]
+      aureplicationlocal -unit unit_name -split -si
+                         -pvol lun -svol lun
+                         [ -force | -splitstr split_str ]
+                         [ -quick ]
+      aureplicationlocal -unit unit_name -split -si
+                         -gno group_no | -gname group_name
+                         [ -force | -splitstr split_str ]
+                         [ -quick ]
+
+      aureplicationlocal -unit unit_name -simplex -si
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+      aureplicationlocal -unit unit_name -simplex -si
+                         -pvol lun -svol lun
+      aureplicationlocal -unit unit_name -simplex -si
+                         -gno group_no | -gname group_name
+
+      aureplicationlocal -unit unit_name -resync -si
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -quick ]
+      aureplicationlocal -unit unit_name -resync -si
+                         -pvol lun -svol lun
+                         [ -quick ]
+      aureplicationlocal -unit unit_name -resync -si
+                         -gno group_no | -gname group_name
+                         [ -quick ]
+
+      aureplicationlocal -unit unit_name -restore -si
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+      aureplicationlocal -unit unit_name -restore -si
+                         -pvol lun -svol lun
+      aureplicationlocal -unit unit_name -restore -si
+                         -gno group_no | -gname group_name
+
+      aureplicationlocal -unit unit_name -chg -si
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+      aureplicationlocal -unit unit_name -chg -si
+                         -pvol lun -svol lun
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+
+  When operating the SnapShot Pair.
+    SMS, AMS2000
+      When creating a pair and adding to "Ungrouped".
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           [ -localpoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+                           [ -compsplit ]
+      When creating a pair and adding to a new or existing group
+                                                  with input group number.
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gno group_no
+                           [ -localpoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+      When creating a pair and adding to an existing group
+                                                     with input group name.
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun -svol lun [ -pairname pair_name ]
+                           -gname group_name
+                           [ -localpoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+    HUS100
+      When creating a pair and adding to "Ungrouped".
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun [ -svol lun ] [ -pairname pair_name ]
+                           [ -localrepdppoolno pool_no
+                             -localmngdppoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+                           [ -compsplit ]
+                           [ -muno mu_no ]
+      When creating a pair and adding to a new or existing group
+                                                  with input group number.
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun [ -svol lun ] [ -pairname pair_name ]
+                           -gno group_no
+                           [ -localrepdppoolno pool_no
+                             -localmngdppoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+                           [ -muno mu_no ]
+      When creating a pair and adding to an existing group
+                                                     with input group name.
+        aureplicationlocal -unit unit_name -create -ss
+                           -pvol lun [ -svol lun ] [ -pairname pair_name ]
+                           -gname group_name
+                           [ -localrepdppoolno pool_no
+                             -localmngdppoolno pool_no ]
+                           [ -pace prior | normal | slow ]
+                           [ -muno mu_no ]
+
+    SMS, AMS2000, HUS100
+      aureplicationlocal -unit unit_name -split -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -splitstr split_str ]
+      aureplicationlocal -unit unit_name -split -ss
+                         -pvol lun -svol lun
+                         [ -splitstr split_str ]
+      aureplicationlocal -unit unit_name -split -ss
+                         -gno group_no | -gname group_name
+                         [ -splitstr split_str ]
+
+      aureplicationlocal -unit unit_name -simplex -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+      aureplicationlocal -unit unit_name -simplex -ss
+                         -pvol lun -svol lun
+      aureplicationlocal -unit unit_name -simplex -ss
+                         -gno group_no | -gname group_name
+
+      aureplicationlocal -unit unit_name -resync -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+      aureplicationlocal -unit unit_name -resync -ss
+                         -pvol lun -svol lun
+      aureplicationlocal -unit unit_name -resync -ss
+                         -gno group_no | -gname group_name
+
+      aureplicationlocal -unit unit_name -restore -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+      aureplicationlocal -unit unit_name -restore -ss
+                         -pvol lun -svol lun
+      aureplicationlocal -unit unit_name -restore -ss
+                         -gno group_no | -gname group_name
+
+    SMS, AMS2000
+      aureplicationlocal -unit unit_name -chg -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+      aureplicationlocal -unit unit_name -chg -ss
+                         -pvol lun -svol lun
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+    HUS100
+      aureplicationlocal -unit unit_name -chg -ss
+                         -pairname pair_name
+                         -gno group_no | -gname group_name
+                         [ -svol lun | notallocate ]
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+      aureplicationlocal -unit unit_name -chg -ss
+                         -pvol lun -svol lun
+                         [ -newpairname new_pair_name ]
+                         [ -pace prior | normal | slow ]
+
+  SMS, AMS2000, HUS100
+    aureplicationlocal -unit unit_name -chg
+                       -gno group_no | -gname group_name
+                       -newgname new_group_name
+
+  SMS, AMS2000, HUS100
+    aureplicationlocal -unit unit_name -availablelist -si
+                       -pvol | -svol pvol_lun
+    aureplicationlocal -unit unit_name -availablelist -ss
+                       -pvol | -svol pvol_lun
+
+Description
+    This command operates the ShadowImage or SnapShot pair.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to operate the pair.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the pair information.
+            The values in parentheses of "Status" show synchronization rate
+            with primary volume and secondary volume by a pair status.
+    -create
+            Creates the pair.
+    -split
+            Splits the pair.
+    -simplex
+            Releases the pair.
+    -resync
+            Resynchronizes the pair.
+    -restore
+            Restores the pair.
+    -chg
+            Changes the group information or the pair information.
+
+    -availablelist
+            Displays the list of the P-VOL or S-VOL that the pair creation
+            is possible.
+    -si
+            Specify when operating the ShadowImage pair.
+    -ss
+            Specify when operating the SnapShot pair.
+
+    -pvol lun
+            Specify the LU number of the P-VOL.
+
+                lun: LU number
+
+    -svol lun
+            Specify the LU number of the S-VOL or V-VOL.
+
+                lun: LU number
+    -detail
+            Specify when referencing the detail pair information.
+
+    -splitinfo
+            Specify when referencing the split information.
+
+    -poolinfo
+            Specify when referencing the pool information.
+
+    -dppoolinfo
+            Specify when referencing the DP pool information.
+
+    -pvolinfo
+            Specify when referencing the P-VOL information.
+
+    -pairname pair_name
+            Specify the pair name.
+          When the -create option is specified:
+            When the specification is omitted, Navigator adds the below name.
+
+                ShadowImage pair: SI_LUXXXX_LUYYYY
+                SnapShot pair   : SS_LUXXXX_LUYYYY
+                                : SS_LUXXXX_LUNONE_nnnnnnnnnnnnnn
+                                  XXXX          : LU number of the P-VOL
+                                                  (4 digits with 0)
+                                  YYYY          : LU number of the S-VOL
+                                                  (4 digits with 0)
+                                  nnnnnnnnnnnnnn: The optional number 
+                                                  of 14 digits
+
+                pair_name: Pair name (See Note 1)
+
+    -gno group_no
+            Specify the group number.
+
+                group_no: Group number
+
+    -gname group_name
+            Specify the group name.
+          When the -create option is specified:
+            "Ungrouped" can not specify.
+          Other than the -create option is specified:
+            When pair does not belong to the group, specify "Ungrouped".
+
+                group_name: Group name (See Note 2)
+
+    -pace prior | normal | slow
+            Specify the copy pace.
+          When the -create option is specified:
+            When the specification is omitted, Navigator sets Normal.
+
+                prior : Prior
+                normal: Normal
+                slow  : Slow
+
+    -localrepdppoolno pool_no
+            Specify the replication data DP pool number.
+
+                pool_no: replication data DP pool number
+
+    -localmngdppoolno pool_no
+            Specify the management area DP pool number.
+
+                pool_no: management area DP pool number
+
+    -noread
+            Specify when making read to the S-VOL impossible after the pair
+            creation.
+    -nocopy
+            Specify when not copying from the P-VOL to the S-VOL after the
+            pair creation.
+    -force
+            Specify when executing the split forcibly.
+
+    -newpairname new_pair_name
+            Specify the changed pair name.
+
+                new_pair_name: Pair name (See Note 1)
+
+    -localpoolno pool_no
+            Specify the pool number.
+
+                pool_no: Pool number
+
+    -compsplit
+          When the -si option is specified:
+            Specify when it splits automatically immediately by quick mode
+            after the pair creation.
+          When the -ss option is specified:
+            Specify when it splits automatically immediately after the pair
+            creation.
+
+    -splitstr split_str
+            Specify when splitting it with the optional character string.
+    -quick
+            Specify when splitting or re-synchronizing with the quick mode.
+
+    -svol lun | notallocate
+            Specify the LU number assigned to V-VOL or releasing allocation.
+
+                lun        : LU number assigned to V-VOL
+                notallocate: Releasing allocation
+
+    -newgname new_group_name
+            Specify the changed group name.
+            "Ungrouped" can not specify.
+
+                new_group_name: Group name (See Note 2)
+    -pvol
+            Specify when displaying the LU settable to the P-VOL.
+
+    -svol pvol_lun
+            Specify when displaying the LU settable to the S-VOL or V-VOL.
+
+                pvol_lun: LU number of the P-VOL
+
+    -muno mu_no
+            Specify the MU number.
+
+                mu_no: MU number
+
+    Note 1: For Pair Name, less than or equal to 31 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (%,*,+,-,.,/,=,@,_,:,[,])
+
+    Note 2: For Group Name, less than or equal to 31 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (%,*,+,-,.,/,=,@,_,:,[,])
+

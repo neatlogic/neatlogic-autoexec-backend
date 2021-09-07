@@ -1,0 +1,38 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aupartinterface    Adding/Removing the I/F Module/Interface Board
+
+Format
+  HUS100
+    aupartinterface -unit unit_name -add
+
+    When removing I/F module.
+      aupartinterface -unit unit_name -rm -ifmodule slot_no
+    When removing interface board.
+      aupartinterface -unit unit_name -rm -ifboard
+
+Description
+    This command addition or remove the I/F module or interface board.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to addition
+            or remove the I/F module or interface board.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)".
+            Space in front and in the rear of the character string is removed.
+    -add
+            Adding the I/F module or interface board.
+    -rm
+            Removing the I/F module or interface board.
+
+    -ifmodule slot_no
+            Specify the I/F module slot number.
+
+                slot_no: Slot number (E, F)
+    -ifboard
+            Specify the interface board.
+

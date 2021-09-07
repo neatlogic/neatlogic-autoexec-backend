@@ -1,0 +1,39 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auping    Referencing/Sending Ping
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    auping -unit unit_name -refer
+
+    auping -unit unit_name -start ctl_no port_no
+           -addr inet_addr
+
+Description
+    This command references the result of Ping execution or send Ping.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference the
+            status or sends Ping.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the result of Ping execution.
+
+    -start ctl_no port_no
+            Sends Ping from the specified port.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -addr inet_addr
+            Specify the IP address.
+
+                inet_addr: IP address
+

@@ -1,0 +1,40 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aussdfmdendurance    Referencing/Setting the SSD/FMD Endurance Information
+
+Format
+  HUS100
+    aussdfmdendurance -unit unit_name -refer
+
+    aussdfmdendurance -unit unit_name -chg [ -ssdalertlevelthreshold num ]
+                                           [ -fmdalertlevelthreshold num ]
+
+Description
+    This command references or sets the SSD/FMD endurance information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the SSD/FMD endurance information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)".
+            Space in front and in the rear of the character string is
+            removed.
+    -refer
+            References the SSD/FMD endurance information.
+    -chg
+            Changes the SSD/FMD endurance information.
+
+    -ssdalertlevelthreshold num
+            Specify the SSD alert level threshold.
+
+                num: Alert level threshold
+
+    -fmdalertlevelthreshold num
+            Specify the FMD alert level threshold.
+
+                num: Alert level threshold
+

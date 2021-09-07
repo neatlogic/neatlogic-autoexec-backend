@@ -1,0 +1,72 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auluguard    Referencing/Setting the access level of LU and expiration lock
+
+Format
+  9500V, AMS, WMS, AMS2000, HUS100
+    auluguard -unit unit_name -refer
+
+    auluguard -unit unit_name -set -lu lun
+                                   -attr ReadWrite | ReadOnly | Protect
+                                   [ -term years days | unlimited ]
+    auluguard -unit unit_name -set -lu lun
+                                   -term years days | unlimited
+    auluguard -unit unit_name -set -lu lun
+                                   -svol enable | disable
+    auluguard -unit unit_name -set -exlock on | off
+
+Description
+    This command references or sets the access level of LU and expiration
+    lock.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the access level and expiration lock.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the access level and expiration lock.
+    -set
+            Sets the access level and expiration lock.
+    -lu lun
+            Specify the LU number of an LU whose access level is to
+            be changed.
+
+    -attr ReadWrite | ReadOnly | Protect
+            Specify an attribute.
+
+                ReadWrite: Read/Write mode
+                ReadOnly : ReadOnly mode
+                Protect  : Protect mode
+
+    -svol enable | disable
+            Specify an S-VOL attribute.
+
+                enable : Enables the S-VOL attribute.
+                disable: Disables the S-VOL attribute.
+
+    -term years days | unlimited
+            Specify a retention term on years and days. The unlimited
+            term can also be specified.
+            You cannot change access level of the LU to Read/Write
+            during the retention term.
+
+                years    : years (0 to 60)
+                days     : days (0 to 21900)
+                unlimited: unlimited
+
+    -exlock on | off
+            Specify an expiration lock effective or ineffective.
+            If the expiration lock is set to enable, you cannot change
+            access level of the LU to Read/Write after the retention term
+            expires.
+
+                on : Enables the expiration lock.
+                off: Disables the expiration lock.
+

@@ -1,0 +1,82 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    audptrend    Referencing the DP Pool Trend/Outputting its File
+
+Format
+  AMS2000, HUS100
+    audptrend -unit unit_name -refer -dppoolno pool_no
+    audptrend -unit unit_name -refer -dppoollist [ -dppoolno pool_no ... ]
+    audptrend -unit unit_name -refer -lulist [ -dppoolno pool_no ... ]
+
+    audptrend -unit unit_name -export [ -path path_name ]
+                                      [ -prefix prefix_str ]
+
+Description
+    This command references or outputs the DP pool trend.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or output the DP pool trend.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)".
+            Space in front and in the rear of the character string is
+            removed.
+    -refer
+            References the DP pool trend.
+    -export
+            Outputs the DP pool trend.(See Note 1)
+
+    -dppoollist
+            References the DP pool information.
+    -lulist
+            References the LU information of the DP pool.
+
+    -dppoolno pool_no
+            Specify the DP pool number.
+
+                pool_no: DP pool number
+
+    -dppoolno pool_no ...
+            Specify the DP pool number.
+            Single or multiple DP pool numbers can be specified.
+
+                Single specification  : Specifying a single DP pool number.
+                                        Example: -dppoolno 3
+                Multiple specification: Specifying multiple DP pool numbers.
+                                        Example: -dppoolno 0 1 2 3 4 5 8
+                                                 -dppoolno 0-5 8
+
+                pool_no: DP pool number
+
+    -path path_name
+            Specify the directory in which the DP pool trend is to be
+            acquired.
+            If omitted, the information is outputted into the current
+            directory.
+
+    -prefix prefix_str
+            Specify the character to add to the head of the output file name.
+            (See Note 2)
+            "_ (underline)" is attached and added behind a character.
+
+    Note 1: The output file names are as follows.
+              SerialNumber_DPPool_LU_yyyyMMddhhmmss.csv
+              SerialNumber_DPPool_Total_yyyyMMddhhmmss.csv
+              SerialNumber_DPPool_Consumed_yyyyMMddhhmmss.csv
+
+                yyyy: in A.D
+                MM  : month
+                dd  : day
+                hh  : hour
+                mm  : minute
+                ss  : second
+
+    Note 2: For prefix string, less than or equal to 32 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used.
+             (!,#,$,%,&,',(,),+,,,-,=,@,[,],^,_,`,{,},~)
+

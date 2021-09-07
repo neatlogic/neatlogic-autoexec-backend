@@ -1,0 +1,164 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autargetini    Referencing/Setting the Initiator Information
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    autargetini -unit unit_name -refer
+                [ ctl_no port_no -tno target_no | -talias target_alias ]
+                [ ctl_no port_no -login ]
+
+    autargetini -unit unit_name -set ctl_no port_no
+                -tgs on | off
+
+    When adding initiator.
+      autargetini -unit unit_name -add ctl_no port_no
+                  -tno target_no | -talias target_alias
+                  -iname initiator_iscsi_name | -inamefile file_name
+                  [ -ininame initiator_nickname ]
+    When added initiator is assigned to another target.
+      autargetini -unit unit_name -add ctl_no port_no
+                  -tno target_no | -talias target_alias
+                  -iname initiator_iscsi_name | -inamefile file_name |
+                  -ininame initiator_nickname
+
+    autargetini -unit unit_name -chg ctl_no port_no
+                -iname initiator_iscsi_name | -inamefile file_name |
+                -ininame initiator_nickname
+                [ -newiname new_initiator_iscsi_name |
+                  -newinamefile file_name ]
+                [ -newininame new_initiator_nickname ]
+
+    autargetini -unit unit_name -rm ctl_no port_no
+                -tno target_no | -talias target_alias
+                -iname initiator_iscsi_name | -inamefile file_name |
+                -ininame initiator_nickname
+
+    autargetini -unit unit_name -availablelist ctl_no port_no
+                -tno target_no | -talias target_alias
+
+Description
+    This command references or sets the initiator information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the initiator information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -refer [ ctl_no port_no ]
+            References the initiator information. 
+            The initiator information list is sorted by the iSCSI name.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -set ctl_no port_no
+            Sets the target security.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -add ctl_no port_no
+            Sets the initiator information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -chg ctl_no port_no
+            Changes the initiator information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -rm ctl_no port_no
+            Deletes the initiator information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -availablelist ctl_no port_no
+            Displays the eligible initiator information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -tno target_no
+            Specify the target number.
+
+                target_no: Target number
+
+    -talias target_alias
+            Specify the target alias. 
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                target_alias: Target alias (See Note 1)
+
+    -login
+            Specify this option when displaying initiator information
+            that is logged in on the specified port.
+
+    -tgs on | off
+            Specify whether to validate or invalidate the target security.
+
+                on : Enables the target security.
+                off: Disables the target security.
+
+    -iname initiator_iscsi_name
+            Specify the initiator iSCSI name.
+
+                initiator_iscsi_name: initiator iSCSI name (See Note 2)
+
+    -inamefile file_name
+            Specify the file(path) name when setting the initiator iSCSI name
+            using a file.
+
+                file_name: File(path) name
+
+    -ininame initiator_nickname
+            Specify the initiator name (Nickname).
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                initiator_nickname: initiator name (See Note 3)
+
+    -newiname new_initiator_iscsi_name
+            Specify the initiator iSCSI name to be changed.
+
+                new_initiator_iscsi_name: initiator iSCSI name (See Note 2)
+
+    -newinamefile file_name
+            Specify the file(path) name when changing the initiator iSCSI name
+            using a file.
+
+                file_name: File(path) name
+
+    -newininame new_initiator_nickname
+            Specify the initiator name (Nickname) to be changed.
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                new_initiator_nickname: initiator name (See Note 3)
+
+    Note 1: For target alias, less than or equal to 32 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (!,#,$,%,&,',+,-,.,=,@,^,_,{,},~,(,),[,],(space))
+
+    Note 2: Specify the iSCSI name of iqn format or eui format.
+            For iSCSI name, less than or equal to 223 ASCII characters
+            (alphabetic characters, period (.), hyphen (-) and colon (:))
+            can be used.
+
+    Note 3: For initiator name, less than or equal to 32 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (!,#,$,%,&,',+,-,.,=,@,^,_,{,},~,(,),[,],(space))
+

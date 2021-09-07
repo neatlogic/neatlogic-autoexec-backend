@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# $Id: aufstat 16531 2008-09-04 06:17:10Z kn-suzu $
+#
+
+LANG=C ; export LANG
+LC_TIME=C ; export LC_TIME
+
+cmdfpath="${STONAVM_HOME}"
+logdir="${cmdfpath}/log"
+
+if [ "X${cmdfpath}" = "X" ] ; then
+    echo "DMEA001024: Environment variable:STONAVM_HOME is not defined. Set the STONAVM_HOME." >&2
+    exit 1
+fi
+if [ ! -d ${cmdfpath} ] ; then
+    echo "DMEA001029: Environment variable:STONAVM_HOME is not set correctly. Check the STONAVM_HOME." >&2
+    exit 1
+fi
+if [ ! -d ${logdir} ] ; then
+    /bin/mkdir ${logdir}
+    if [ $? -ne 0 ] ; then
+	echo "DMEA001073: Failed to create a log directory. Confirm the execution environment." >&2
+	exit 1
+    fi
+fi
+
+cmdname="`basename $0`"
+ctime=`date "+%Y %m/%d %a %H:%M:%S"`
+printf "%s   %-16s %s\n" "${ctime}" "${cmdname}" "$0 ${*}" >> ${logdir}/cui.log
+
+
+if [ "X" = X$1 ] ; then
+    echo "Essential option/parameter not enough"
+    exit 1
+fi
+
+if [ "X-help" = X$1 ] ; then
+    echo "Usage:"
+    echo "    `basename $0` -unit unit_name -lu lun ..."
+    exit 0
+fi
+
+if [ "-unit" != $1 ] ; then
+    echo "$1 unknown option "
+    exit 1
+fi
+if [ "X" = X$2 ] ; then
+    echo "Essential option/parameter not enough"
+    exit 1
+fi
+Unit=$2
+
+if [ "-lu" != $3 ] ; then
+    echo "$3 unknown option"
+    exit 1
+fi
+shift 3
+
+FSTCMD=auformatst
+( $FSTCMD -help ) > /dev/null 2>&1
+if [ 0 -ne $? ] ; then
+    FSTCMD=./${FSTCMD}
+fi
+
+echo "C-c to stop" ; echo ""
+while
+    ctime=`date "+Time %H:%M:%S"`
+    echo "$ctime :  $Unit LU format status"
+    for lu in $@
+    do
+        $FSTCMD -unit $Unit -lu $lu
+    done
+do
+    sleep 10
+done

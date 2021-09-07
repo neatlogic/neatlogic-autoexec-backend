@@ -1,0 +1,64 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aucachept    Referencing/Setting Cache Partition
+
+Format
+  AMS, WMS, AMS2000, HUS100
+    aucachept -unit unit_name -refer
+
+    aucachept -unit unit_name -add
+              -ptsize pt_size
+              -segsize 4 | 8 | 16 | 64 | 256 | 512
+              -ctl0 | -ctl1
+
+    aucachept -unit unit_name -chg
+              -pt pt_no
+              [ -ptsize pt_size ]
+              [ -segsize 4 | 8 | 16 | 64 | 256 | 512 ]
+              [ -ctl0 | -ctl1 ]
+
+    aucachept -unit unit_name -rm -pt pt_no
+
+    aucachept -unit unit_name -refminsize
+
+Description
+    This command references or sets the cache partition.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the cache partition.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the cache partition.
+    -add
+            Adds the cache partition.
+            As for a partition number, Navigator assigns the minimum number.
+    -chg
+            Changes the cache partition.
+            Specify one or more options from "-ptsize" , "-segsize" or
+            "-ctl0 | -ctl1".
+    -rm
+            Deletes the cache partition.
+
+    -refminsize
+            Displays the minimum partition size.
+
+    -ptsize pt_size
+            Specify the cache partition size of per 10MB.
+
+    -segsize 4 | 8 | 16 | 64 | 256 | 512
+            Specify the segment size.
+
+    -ctl0 | -ctl1
+            Specify the controller of cache partition.
+
+    -pt pt_no
+            Specify the partition number.
+

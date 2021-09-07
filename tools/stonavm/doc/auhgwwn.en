@@ -1,0 +1,355 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auhgwwn    Referencing/Setting Host Information
+
+Format
+  9500V
+    When the LUN Management of the fee-basis option is effective.
+      auhgwwn -unit unit_name -refer
+              [ -login  ctl_no port_no ]
+              [ -permhg ctl_no port_no -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -set
+              [ -hgs    ctl_no port_no on | off ]
+              [ -permhg ctl_no port_no node_name port_name
+              -gno group_no | -gname group_name [ -wname wwn_name ] ]
+
+      When specifying the node name and port name
+        auhgwwn -unit unit_name -assign
+                -permhg ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name
+
+        auhgwwn -unit unit_name -rm
+                [ -perm   ctl_no port_no node_name port_name ]
+                [ -permhg ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name ]
+
+        auhgwwn -unit unit_name -chg
+                -rename ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name
+                -newwname new_wwn_name
+
+      When specifying the wwn name.
+        auhgwwn -unit unit_name -assign
+                -permhg ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name
+
+        auhgwwn -unit unit_name -rm
+                [ -perm   ctl_no port_no -wname wwn_name ]
+                [ -permhg ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name ]
+
+        auhgwwn -unit unit_name -chg
+                -rename ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name
+                -newwname new_wwn_name
+
+    When the LUN Security of the fee-basis option is effective.
+      auhgwwn -unit unit_name -refer
+
+      auhgwwn -unit unit_name -set
+              [ -lus       ctl_no port_no on | off ]
+              [ -luschk    ctl_no port_no inqc | allc ]
+              [ -perm      ctl_no port_no node_name port_name ]
+              [ -permlu    ctl_no port_no node_name port_name lun... ]
+              [ -permluall ctl_no port_no node_name port_name ]
+
+      auhgwwn -unit unit_name -rm
+              [ -perm      ctl_no port_no node_name port_name ]
+              [ -permlu    ctl_no port_no node_name port_name lun... ]
+              [ -permluall ctl_no port_no node_name port_name ]
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    auhgwwn -unit unit_name -refer
+            [ -login  ctl_no port_no ]
+            [ -permhg ctl_no port_no -gno group_no | -gname group_name ]
+
+    auhgwwn -unit unit_name -set
+            [ -hgs    ctl_no port_no on | off ]
+            [ -permhg ctl_no port_no port_name
+            -gno group_no | -gname group_name [ -wname wwn_name ] ]
+
+    When specifying the port name
+      auhgwwn -unit unit_name -assign
+              -permhg ctl_no port_no port_name
+              -gno group_no | -gname group_name
+
+      auhgwwn -unit unit_name -rm
+              [ -perm   ctl_no port_no port_name ]
+              [ -permhg ctl_no port_no port_name
+              -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -chg
+              -rename ctl_no port_no port_name
+              -gno group_no | -gname group_name
+              -newwname new_wwn_name
+
+    When specifying the wwn name.
+      auhgwwn -unit unit_name -assign
+              -permhg ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name
+
+      auhgwwn -unit unit_name -rm
+              [ -perm   ctl_no port_no -wname wwn_name ]
+              [ -permhg ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -chg
+              -rename ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name
+              -newwname new_wwn_name
+
+Description
+    This command references or sets the host information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference, 
+            set, delete, assign, or change the host information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the host information.
+    -set
+            Sets the host information.
+    -rm
+            Deletes the host information.
+    -chg
+            Changes the host information.
+    -assign
+            Assigns the host information to the specified host group.
+
+    -login ctl_no port_no
+            Displays the host information that is logged in on the specified
+            port.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+
+    -permhg ctl_no port_no
+          When the -refer option is specified:
+            Displays the host information that has been and can be assigned
+            to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+          When the -set option is specified:
+            Specify the host information to be assigned to the specified
+            host group.
+            Specification of the -wname option is indispensable.
+            Specification of the -gno or -gname option is indispensable.
+          When the -assign option is specified:
+            Specify the host information which can be assigned to the host
+            group from that logged in on the specified port.
+            Specification of the -wname option is indispensable.
+            Specification of the -gno or -gname option is indispensable.
+          When the -rm option is specified:
+            Specify the host information to be deleted from that which has
+            been assigned to the specified host group.
+            Specification of the -wname option is indispensable.
+            Specification of the -gno or -gname option is indispensable.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+
+    -hgs ctl_no port_no on | off
+            Specify whether to validate or invalidate the host group
+            security of the specified port.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+                on     : Enables the host group security.
+                off    : Disables the host group security.
+
+    -perm ctl_no port_no
+            Specify the host information to be deleted from that logged in
+            on the specified port.
+            Specification of the -wname option is indispensable.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+
+    -rename ctl_no port_no
+            Specify the host information whose WWN name is to be changed
+            from that which has been assigned to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+            Specification of the -wname and -newwname option is
+            indispensable.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+
+    -wname wwn_name
+            Specify a WWN name of the host.
+            Space in front and in the rear of the character string is
+            removed.
+            Cannot specify spaces only.
+
+                wwn_name: WWN name (See Note 1)
+
+    -gno group_no
+            Specify a host group number.
+
+                group_no: Host group number
+
+    -gname group_name
+            Specify a host group name.
+
+                group_name: Host group name (See Note 1)
+
+    -newwname new_wwn_name
+            Specify the changed WWN name.
+
+                new_wwn_name: WWN name (See Note 1)
+
+    Note 1: Less than or equal to 32 ASCII characters (alphabetic characters,
+            numerals and the following symbols) can be used (until AMS or
+            WMS, 16 characters).
+            (!,#,$,%,&,',+,-,.,=,@,^,_,{,},~,(,),[,],(space))
+
+  9500V only :
+    -permhg ctl_no port_no node_name port_name
+          When the -set option is specified:
+            Specify the host information to be assigned to the specified host
+            group.
+            Specification of the -gno or -gname option is indispensable.
+          When the -assign option is specified:
+            Specify the host information which can be assigned to the host
+            group from that logged in on the specified port.
+            Specification of the -gno or -gname option is indispensable.
+          When the -rm option is specified:
+            Specify the host information to be deleted from that which has
+            been assigned to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -perm ctl_no port_no node_name port_name
+            Specify the host information to be deleted from that logged in
+            on the specified port.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -rename ctl_no port_no node_name port_name
+            Specify the host information whose WWN name is to be changed
+            from that which has been assigned to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+            Specification of the -newwname option is indispensable.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -lus ctl_no port_no on | off
+            Specify whether the LUN security of the specified port is 
+            enabled or disabled.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D)
+                on     : Enables the LUN Security.
+                off    : Disables the LUN Security.
+
+    -luschk ctl_no port_no inqc | allc
+            Specify the LUN security check level of the specified port.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D)
+                inqc   : Check with an INQUIRY SCSI command.
+                allc   : Check with all the SCSI commands.
+
+    -perm ctl_no port_no node_name port_name
+          When the -set option is specified:
+            Specify host information (node name and port name) that can 
+            be accessed by the specified port.
+          When the -rm option is specified:
+            Specify the host information to be deleted from the host 
+            information (node name and port name) that can be accessed by 
+            the specified port.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -permlu ctl_no port_no node_name port_name lun...
+          When the -set option is specified:
+            When using the LUN security function at a specified port, 
+            specifies LUs, to which the host is permitted to access, 
+            into host information registered with the -perm option 
+            (multiple LUs can be specified).
+            Host information and LUN security are not allowed to be 
+            registered at the same time.
+          When the -rm option is specified:
+            Specify the LUNs whose access permission is to be deleted from 
+            the LUN security set by the specified port. (Multiple LUs can be 
+            specified.)
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+                lun...   : LU number
+
+    -permluall ctl_no port_no node_name port_name
+          When the -set option is specified:
+            When using the LUN security function at a specified port, 
+            specifies host information that is already registered with the 
+            -perm option, which specifies permission to access to all LUs. 
+            Host information and LUN security are not allowed to be 
+            registered at the same time.
+          When the -rm option is specified:
+            Specify the host information whose access permission is to be 
+            deleted from the LUN security set by the specified port.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D)
+                node_name: Node name of the host (16 hexadecimal characters)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+  For AMS, WMS, SMS, AMS2000 and HUS100 :
+    -permhg ctl_no port_no port_name
+          When the -set option is specified:
+            Specify the host information to be assigned to the specified host
+            group.
+            Specification of the -gno or -gname option is indispensable.
+          When the -assign option is specified:
+            Specify the host information which can be assigned to the host
+            group from that logged in on the specified port.
+            Specification of the -gno or -gname option is indispensable.
+          When the -rm option is specified:
+            Specify the host information to be deleted from that which has
+            been assigned to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D, E, F, G, H)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -perm ctl_no port_no port_name
+            Specify the host information to be deleted from that logged in
+            on the specified port.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D, E, F, G, H)
+                port_name: Port name of the host (16 hexadecimal characters)
+
+    -rename ctl_no port_no port_name
+            Specify the host information whose WWN name is to be changed
+            from that which has been assigned to the specified host group.
+            Specification of the -gno or -gname option is indispensable.
+            Specification of the -newwname option is indispensable.
+
+                ctl_no   : Controller number (0, 1)
+                port_no  : Port number (A, B, C, D, E, F, G, H)
+                port_name: Port name of the host (16 hexadecimal characters)
+

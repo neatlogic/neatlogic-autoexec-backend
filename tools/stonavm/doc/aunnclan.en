@@ -1,0 +1,53 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aunnclan    Referencing/Setting NNC LAN Information
+
+Format
+  AMS, WMS
+    aunnclan -unit unit_name -refer
+
+    aunnclan -unit unit_name -set -nnc nnc_no
+             [ -addr inet_addr ]
+             [ -mask netmask ]
+             [ -mtu num ]
+             [ -nego auto | 100mh | 100mf | 1000m ]
+
+Description
+    This command references or sets the NNC LAN information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the NNC LAN information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the NNC LAN information.
+    -set
+            Sets the NNC LAN information.
+
+    -nnc nnc_no
+            Specify the NNC number.
+
+    -addr inet_addr
+            Specify the IP addresses.
+
+    -mask netmask
+            Specify the subnet masks.
+
+    -mtu num
+            Specify the MTU.
+
+    -nego auto | 100mh | 100mf | 1000m
+            Specify the negotiations.
+
+                auto : The disk array unit makes the decision automatically.
+                100mh: 100 Mbps/Half
+                100mf: 100 Mbps/Full
+                1000m: 1000 Mbps/Full
+

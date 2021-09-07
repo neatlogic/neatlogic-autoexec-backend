@@ -1,0 +1,32 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auunitdel    Deleting the Registration Information
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    auunitdel -unit unit_name ... [ -f ]
+
+Description
+    This command deletes the registration information of an
+    already-registered array unit.
+
+Options
+    -unit unit_name ...
+            Specify the name of the registered array unit whose registration
+            information is to be deleted.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed.  Cannot specify spaces only. Single or multiple array
+            unit names can be specified.
+
+                Single specification  : Specifying a single array unit name.
+                                        Example: -unit ams2000a1
+                Multiple specification: Specifying multiple array unit names.
+                                        Example: -unit ams2000a1 ams2000
+    -f
+            Omits the confirmation message when the command is executed.
+

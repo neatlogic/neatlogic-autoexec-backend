@@ -1,0 +1,286 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    ausysparam    Referencing/Setting System Parameters
+
+Format
+  9500V
+    ausysparam -unit unit_name -refer
+
+    ausysparam -unit unit_name -set
+               [ -SystemStartup        Single | DualIDTake | DualNotIDTake |
+                                       HotIDTake | HotNotIDTake ]
+               [ -TakingID             port_no ctl_no ]
+               [ -DataShare            used | notUsed ]
+               [ -DelayPlannedShutdown time ]
+               [ -DriveDetach          enable | disable ]
+               [ -PROCOM               enable | disable ]
+               [ -ReportStatus         enable | disable ]
+               [ -LuCacheWarning       enable | disable ]
+               [ -NX                   enable | disable ]
+               [ -AutoReconst          enable | disable ]
+               [ -ForcedWriteThrough   enable | disable ]
+               [ -LUChanging1          enable | disable ]
+               [ -MultiStream          enable | disable ]
+               [ -MultiStreamWrite     enable | disable ]
+               [ -MultiStreamRead      enable | disable ]
+               [ -HiSpeedSeqWrite      enable | disable ]
+               [ -ShadowImageIOSwitch  enable | disable ]
+               [ -SyncCacheAllExec     enable | disable ]
+               [ -SyncCacheInvalid     enable | disable ]
+               [ -ProcessorFailures    reset | shutdown ]
+               [ -inquiryCommandQueue  on | off ]
+               [ -inquiryVendor        string ]
+               [ -inquiryProduct       string ]
+               [ -inquiryRomMicro      string ]
+               [ -inquiryRamMicro      string ]
+               [ -WebTitle             string ]
+               [ -Rs232cOutflow        ctl_no off | normal | hitrack ]
+               [ -WriteVerifyExecution ctl_no on | off ]
+               [ -dhcp                 ctl_no enable | disable ]
+               [ -IPAddress            ctl_no inet_addr ]
+               [ -SubnetMask           ctl_no netmask ]
+               [ -DefaultGateway       ctl_no gateway ]
+
+Description
+    This command references the contents of system parameters or set the
+    parameters.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the system parameters
+            are to be referenced or to be set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the system parameters.
+    -set
+            Sets the system parameters.
+
+    -SystemStartup Single | DualIDTake | DualNotIDTake | HotIDTake |
+                   HotNotIDTake
+            Specify the configuration of an array unit.
+
+                Single       : Single
+                DualIDTake   : Dual active (with a taking over SCSI ID)
+                DualNotIDTake: Dual active (without taking over SCSI ID)
+                HotIDTake    : Hot standby (with taking over SCSI ID)
+                HotNotIDTake : Hot standby (without taking over SCSI ID)
+
+    -TakingID port_no ctl_no
+            Specify the default controller of each port when a dual active
+            configuration used the SCSI ID take over.
+
+                port_no: Port number (A, B, C, D)
+                ctl_no : Controller number (0, 1)
+
+    -DataShare used | notUsed
+            Specify the data share mode.
+
+                used   : Uses the data share mode.
+                notUsed: Does not use the data share mode.
+
+    -DelayPlannedShutdown time
+            Specify the time in minutes to delay the execution of the
+            planned shutdown when the main switch has turned off. The
+            applicable range is from 0 to 60 minutes in unit of 1 minute.
+            The default value is 0.
+
+    -DriveDetach enable | disable
+            Specify whether to set the Drive Detach Mode effective or
+            ineffective.
+
+                enable : Enables the Drive Detach Mode.
+                disable: Disables the Drive Detach Mode.
+
+    -PROCOM enable | disable
+            Specify whether to set the PROCOM mode effective or
+            ineffective.
+
+                enable : Enables the PROCOM mode.
+                disable: Disables the PROCOM mode.
+
+    -ReportStatus enable | disable
+            Specify whether to set the warning status reporting mode
+            effective or ineffective.
+
+                enable : Enables the warning status report.
+                disable: Disables the warning status report.
+
+    -LuCacheWarning enable | disable
+            Specify whether or not to report a warning when the turbo LU
+            function is set effective.
+
+                enable : Reports warning.
+                disable: Does not report warning.
+
+    -NX enable | disable
+            Specify whether to set the NX host connection mode effective
+            or ineffective.
+
+                enable : Enables the NX host connection mode.
+                disable: Disables the NX host connection mode.
+
+    -AutoReconst enable | disable
+            Specify whether to set the auto reconstruction mode effective
+            or ineffective.
+
+                enable : Enables the auto reconstruction mode.
+                disable: Disables the auto reconstruction mode.
+
+    -ForcedWriteThrough enable | disable
+            Specify whether to set the forced write through mode effective
+            or ineffective.
+
+                enable : Enables the forced write through mode.
+                disable: Disables the forced write through mode.
+
+    -LUChanging1 enable | disable
+            Specify whether to set the Changing Logical Unit Mode 1
+            effective or ineffective.
+
+                enable : Enables the Changing Logical Unit Mode 1.
+                disable: Disables the Changing Logical Unit Mode 1.
+
+    -MultiStream enable | disable
+            Specify whether to set the Multiple Stream Mode
+            effective or ineffective.
+
+                enable : Enables the Multiple Stream Mode.
+                disable: Disables the Multiple Stream Mode.
+
+    -MultiStreamWrite enable | disable
+            Specify whether to set the Multiple Stream Write Mode
+            effective or ineffective.
+
+                enable : Enables the Multiple Stream Write Mode.
+                disable: Disables the Multiple Stream Write Mode.
+
+    -MultiStreamRead enable | disable
+            Specify whether to set the Multiple Stream Read Mode
+            effective or ineffective.
+
+                enable : Enables the Multiple Stream Read Mode.
+                disable: Disables the Multiple Stream Read Mode.
+
+    -HiSpeedSeqWrite enable | disable
+            Specify whether to set the High-speed Sequential Write Mode
+            effective or ineffective.
+
+                enable : Enables the High-speed Sequential Write Mode.
+                disable: Disables the High-speed Sequential Write Mode.
+
+    -ShadowImageIOSwitch enable | disable
+            Specify whether to set the ShadowImage I/O Switch Mode
+            effective or ineffective.
+
+                enable : Enables the ShadowImage I/O Switch Mode.
+                disable: Disables the ShadowImage I/O Switch Mode.
+
+    -SyncCacheAllExec enable | disable
+            Specify whether to set the Synchronize Cache All Execution
+            Mode effective or ineffective.
+
+                enable : Enables the Synchronize Cache All Execution Mode.
+                disable: Disables the Synchronize Cache All Execution Mode.
+
+    -SyncCacheInvalid enable | disable
+            Specify whether to set the Synchronize Cache Invalid Mode
+            effective or ineffective.
+
+                enable : Enables the Synchronize Cache Invalid Mode.
+                disable: Disables the Synchronize Cache Invalid Mode.
+
+    -ProcessorFailures reset | shutdown
+            Specify the action when a processor failure occurs.
+
+                reset   : Resets the failure and restarts the controller.
+                shutdown: Shuts down the array unit.
+
+    -inquiryCommandQueue on | off
+            Specify execution of command queuing for INQUIRY response
+            information.
+
+                on : Executes command queuing.
+                off: Suppresses command queuing.
+
+    -inquiryVendor string
+            Specify the vendor name of Inquiry response information in
+            less than or equal to 8 characters. If you want to enter NULL
+            characters, enter "".
+
+    -inquiryProduct string
+            Specify the product type of Inquiry response information in
+            less than or equal to 16 characters. If you want to enter NULL
+            characters, enter "".
+
+    -inquiryRomMicro string
+            Specify the ROM microprogram version of Inquiry response
+            information in less than or equal to 2 characters. If you want
+            to enter NULL characters, enter "".
+
+    -inquiryRamMicro string
+            Specify the RAM microprogram version of Inquiry response
+            information in less than or equal to 2 characters. If you want
+            to enter NULL characters, enter "".
+
+    -WebTitle string
+            If the home page of the array unit is displayed with the browser,
+            this option specifies a character string displayed on the title
+            bar of the browser. Enter up to 32 one-byte coded alphanumeric
+            characters or characters
+            (except for the ' (single quotation mark),
+            " (double quotation mark) and \ (backslash) symbols) other than
+            numeric.
+
+    -Rs232cOutflow ctl_no off | normal | hitrack
+            Sets the mode of sending out error information onto RS232C.
+
+                ctl_no : Controller number (0, 1)
+                off    : Does not send out information.
+                normal : Sends out information.
+                hitrack: Sends out information in the HITRACK mode.
+
+    -WriteVerifyExecution ctl_no on | off
+            Specify the execution of the write & verify operation.
+
+                ctl_no: Controller number (0, 1)
+                on    : Executes write & verify operation.
+                off   : Does not execute write & verify operation.
+
+    -dhcp ctl_no enable | disable
+            Specify whether the DHCP mode is enable or disable.
+
+                ctl_no : Controller number (0, 1)
+                enable : Enables the DHCP mode.
+                disable: Disables the DHCP mode.
+
+    -IPAddress ctl_no inet_addr
+            Specify the IP address.
+
+                ctl_no   : Controller number (0, 1)
+                inet_addr: IP address (format xxx.xxx.xxx.xxx)
+
+    -SubnetMask ctl_no netmask
+            Specify the subnet mask.
+
+                ctl_no : Controller number (0, 1)
+                netmask: Subnet mask (format xxx.xxx.xxx.xxx)
+
+    -DefaultGateway ctl_no gateway
+            Specify the default gateway.
+
+                ctl_no : Controller number (0, 1)
+                gateway: Default gateway (format xxx.xxx.xxx.xxx)
+
+    Note: If LAN configuration information (such as an IP Address) is
+          modified, an error message (Interface Error) may be displayed 
+          without displaying a restart completion message when restarting
+          an array unit.
+          When modifying LAN configuration information, restart an array
+          unit manually.
+

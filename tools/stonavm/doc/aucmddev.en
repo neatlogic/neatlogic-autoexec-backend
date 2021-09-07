@@ -1,0 +1,64 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aucmddev    Referencing/Setting the Command Device Information
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aucmddev -unit unit_name -refer
+
+    aucmddev -unit unit_name -set -dev n lu [ enable | disable ]
+                                  [ -dev n lu [ enable | disable ] ] ...
+
+    aucmddev -unit unit_name -chg -dev n lu enable | disable
+                                  [ -dev n lu enable | disable ] ...
+
+    aucmddev -unit unit_name -rm -dev n [ -dev n ] ...
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    aucmddev -unit unit_name -availablelist
+
+Description
+    This command references and sets the command device and the serial ID.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the command device
+            information is to be referenced or set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the command device and the serial ID.
+    -set
+            Sets the command device and the serial ID.
+    -rm
+            Deletes the command device.
+    -chg
+            Changes the protection function of RAID Manager (CCI).
+
+    -availablelist
+            A list of logical unit numbers, each of which is eligible for
+            the command device is displayed.
+
+    -dev n lu [ enable | disable ]
+            Specify the parameter of the command device. When the
+            specification of enable or disable is omitted, the protection
+            function of RAID Manager (CCI) set ineffective.
+            Single or multiple command device numbers can be specified.
+
+                n      : Command device number
+                lu     : Logical unit number
+                enable : Enables the protection function of RAID Manager (CCI).
+                disable: Disables the protection function of RAID Manager
+                         (CCI).
+
+    -dev n
+            Specify the command device number to be deleted.
+            Single or multiple command device numbers can be specified.
+
+                n: Command device number
+

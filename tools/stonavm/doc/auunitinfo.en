@@ -1,0 +1,24 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auunitinfo    Displaying the Equipment Information
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    auunitinfo -unit unit_name
+
+Description
+    This command displays the equipment type, serial number, firmware
+    revision and LAN information of the array unit.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit for which to display the
+            equipment information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

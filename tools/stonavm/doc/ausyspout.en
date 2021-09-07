@@ -1,0 +1,27 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    ausyspout    File Output of the System Parameters
+
+Format
+  9500V
+    ausyspout -unit unit_name -file file_name
+
+Description
+    This command outputs the contents of the setting for the system
+    parameters set in the array unit in a specified file, in a text format.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit whose system parameters are
+            to be output into the file.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -file file_name
+            Specify the name the file (path) to output the system parameters.
+

@@ -1,0 +1,687 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auperform    Outputting Performance Information File
+
+Format
+  9500V
+    auperform -unit unit_name -manual [ -cat ] [ -lu lun ... ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -manual -pfmstatis
+              [ -cat ]
+              [ -portinfo ]
+              [ -rginfo [ rg_no ... ] ]
+              [ -luinfo [ lun ... ] ]
+              [ -cacheinfo ]
+              [ -processorinfo ]
+              [ -driveinfo [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo [ unit_no.hdu_no ... ] ]
+              [ -backendinfo [ path_no.loop_no ... ] ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time [ -count n ] [ -cat ] [ -lu lun ... ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time -pfmstatis
+              [ -count n ]
+              [ -cat ]
+              [ -portinfo ]
+              [ -rginfo [ rg_no ... ] ]
+              [ -luinfo [ lun ... ] ]
+              [ -cacheinfo ]
+              [ -processorinfo ]
+              [ -driveinfo [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo [ unit_no.hdu_no ... ] ]
+              [ -backendinfo [ path_no.loop_no ... ] ]
+              [ -path path_name ]
+
+  AMS, WMS
+    auperform -unit unit_name -manual -pfmstatis
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no.loop_no ... ] ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time -pfmstatis
+              [ -count n ]
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no.loop_no ... ] ]
+              [ -path path_name ]
+
+  SMS
+    auperform -unit unit_name -manual -pfmstatis
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time -pfmstatis
+              [ -count n ]
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -path path_name ]
+              [ -neterrorskip ]
+
+  AMS2000
+    auperform -unit unit_name -manual -pfmstatis
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -dppoolinfo ctl_no [ pool_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -tapelibraryinfo ctl_no [ port_no ... ] ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time -pfmstatis
+              [ -count n ]
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -dppoolinfo ctl_no [ pool_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -tapelibraryinfo ctl_no [ port_no ... ] ]
+              [ -path path_name ]
+              [ -neterrorskip ]
+
+  HUS100
+    auperform -unit unit_name -manual -pfmstatis
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -dppoolinfo ctl_no [ pool_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no [ core ] ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -mngareainfo ctl_no [ core ]
+                                    [ [ -mngrginfo [ rg_no ... ] ]
+                                      [ -mngdppoolinfo [ pool_no ... ] ]
+                                      [ -mngdmluinfo ] ] ]
+              [ -path path_name ]
+
+    auperform -unit unit_name -auto time -pfmstatis
+              [ -count n ]
+              [ -cat ]
+              [ -portinfo ctl_no [ port_no ... ] ]
+              [ -rginfo ctl_no [ rg_no ... ] ]
+              [ -dppoolinfo ctl_no [ pool_no ... ] ]
+              [ -luinfo ctl_no [ lun ... ] ]
+              [ -cacheinfo ctl_no ]
+              [ -processorinfo ctl_no [ core ] ]
+              [ -driveinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -driveoprinfo ctl_no [ unit_no.hdu_no ... ] ]
+              [ -backendinfo ctl_no [ path_no ... ] ]
+              [ -mngareainfo ctl_no [ core ]
+                                    [ [ -mngrginfo [ rg_no ... ] ]
+                                      [ -mngdppoolinfo [ pool_no ... ] ]
+                                      [ -mngdmluinfo ] ] ]
+              [ -path path_name ]
+              [ -neterrorskip ]
+
+Description
+    This command acquires the command operational condition and performance
+    statistics information in an array unit and outputs their respective
+    information in a text-file format into the current or specified
+    directory.
+    When displaying an output file, a warning message may be reported
+    depending on the editor. However, the contents will be displayed
+    correctly.
+    
+    The following information will be acquired.
+      When the -pfmstatis option is absent:
+        - Number of Read commands received (Read CMD Count)
+        - Number of the cache-hit Read commands received within the Read
+          command (Read CMD Hit Count)
+        - Rate of cache-hitting within the received Read command
+          (Rate/Read Hit)
+        - Number of Write commands received (Write CMD Count)
+        - Number Write commands that had been cache-hit within the received
+          Write command (Write CMD Hit Count)
+        - Rate of cache-hitting within the received Write command
+          (Rate/Write Hit)
+      When the -pfmstatis option is present:
+        In addition to the six above information, the following
+        performance statistics information is acquired.
+        - Received number of Read/Write commands per second (IO Rate)
+        - Received number of Read commands per second (Read Rate)
+        - Received number of Write commands per second (Write Rate)
+        - Transfer size of Read/Write commands per second (Trans. Rate)
+        - Transfer size of Read commands per second (Read Trans. Rate)
+        - Transfer size of Write commands per second (Write Trans. Rate)
+        - Transfer size of Read commands (Read Trans. Size)
+        - Transfer size of Write commands (Write Trans. Size)
+        - Rate of cache usage capacity within the cache capacity
+          (Cache Write Pending Rate)
+        - Number of Online Verify commands per second (Online Verify Rate)
+        - Number of Online Verify commands (Online Verify CMD Count)
+        - Operation rate of the processor (Usage)
+        - Operation rate of the drive (HDU Operating Rate)
+        - Tag count (Tag Count)
+        - Clean cache usage rate (Cache Clean Queue Usage Rate)
+        - Middle cache usage rate (Cache Middle Queue Usage Rate)
+        - Physical cache usage rate (Cache Physical Queue Usage Rate)
+        - Total cache usage rate (Cache Total Queue Usage Rate)
+        - Received number of Initiator Control commands per second
+          (CTL CMD IO Rate)
+        - Received number of Initiator Data commands per second
+          (Data CMD IO Rate)
+        - Transfer size of Initiator Control commands per second
+          (CTL CMD Trans. Rate)
+        - Transfer size of Initiator Data commands per second
+           (Data CMD Trans. Rate)
+        - Response time of Initiator Control commands (CTL CMD Time)
+        - Response time of Initiator Data commands (Data CMD Time)
+        - Max response time of Initiator Control commands
+          (CTL CMD Max Time)
+        - Max response time of Initiator Data commands (Data CMD Max Time)
+        - Received number of Initiator Control commands (CTL CMD Count)
+        - Received number of Initiator Data commands (Data CMD Count)
+        - Transfer size of Initiator Control commands (CTL CMD Trans. Size)
+        - Transfer size of Initiator Data commands (Data CMD Trans. Size)
+        - Average tag count (Average Tag Count)
+        - Timeout error count (Timeout Error Count)
+        - Read/Write commands hit information (Read/Write CMD Hit)
+        - Read/Write commands miss information (Read/Write CMD Miss)
+        - Read/Write commands job information (Read/Write CMD Job)
+        - Unload time (Unload Time)
+        - Received number of Random Read/Write commands per second
+          (Random IO Rate)
+        - Received number of Random Read commands per second (Random Read Rate)
+        - Received number of Random Write commands per second
+          (Random Write Rate)
+        - Transfer size of Random Read/Write commands per second
+          (Random Trans. Rate)
+        - Transfer size of Random Read commands per second
+          (Random Read Trans. Rate)
+        - Transfer size of Random Write commands per second
+          (Random Write Trans. Rate)
+        - Received number of Random Read commands (Random Read CMD Count)
+        - Received number of Random Write commands (Random Write CMD Count)
+        - Transfer size of Random Read commands (Random Read Trans. Size)
+        - Transfer size of Random Write commands (Random Write Trans. Size)
+        - Received number of Sequential Read/Write commands per second
+          (Sequential IO Rate)
+        - Received number of Sequential Read commands per second
+          (Sequential Read Rate)
+        - Received number of Sequential Write commands per second
+          (Sequential Write Rate)
+        - Transfer size of Sequential Read/Write commands per second
+          (Sequential Trans. Rate)
+        - Transfer size of Sequential Read commands per second
+          (Sequential Read Trans. Rate)
+        - Transfer size of Sequential Write commands per second
+          (Sequential Write Trans. Rate)
+        - Received number of Sequential Read commands
+          (Sequential Read CMD Count)
+        - Received number of Sequential Write commands
+          (Sequential Write CMD Count)
+        - Transfer size of Sequential Read commands
+          (Sequential Read Trans. Size)
+        - Transfer size of Sequential Write commands
+          (Sequential Write Trans. Size)
+        - Received number of XCOPY commands per second (XCOPY Rate)
+        - Received number of XCOPY Read commands per second (XCOPY Read Rate)
+        - Received number of XCOPY Write commands per second (XCOPY Write Rate)
+        - Transfer size of XCOPY Read commands per second
+          (XCOPY Read Trans. Rate)
+        - Transfer size of XCOPY Write commands per second
+          (XCOPY Write Trans. Rate)
+        - Response time of XCOPY commands (XCOPY Time)
+        - Max response time of XCOPY commands (XCOPY Max Time)
+        - Cache prefetch counts (Total/Miss counts)
+        - Cache segment allocation counts (Total/Miss counts)
+        - Command issue interval (Read/Write int AVE/MAX/MIN)
+        - Command response time (Read/Write int AVE/MAX/MIN)
+        - Data rate (Read/Write Rate)
+        - Total tag count (Total Tag Count) (See Note 1)
+        - Read/Write tag count (Read/Write Tag Count)
+        - Total average tag count (Total Average Tag Count) (See Note 1)
+        - Read/Write average tag count (Read/Write Average Tag Count)
+        - Rate of cache-hitting within the management area (Cache Hit Rate)
+        - Access count of management area (Access Count)
+
+    The output file names are as follows.
+      When the -pfmstatis option is absent:
+        When the -cat option is present:
+                                   "pfms.txt" for a single configuration, and
+                                   "pfmd.txt" for a dual configuration
+        When the -cat option is absent:
+          For acquiring manually:
+                              "pfmsXXXXX.txt" for a single configuration, and
+                              "pfmdXXXXX.txt" for a dual configuration
+          For acquiring automatically:
+                              "pfmsXXXXX.txt" for a single configuration, and
+                              "pfmdXXXXX.txt" for a dual configuration
+          ("XXXXX" is a number from 00000 to 19999.)
+      When the -pfmstatis option is present:
+        When the -cat option is present: "pfm.txt"
+        When the -cat option is absent:
+          For acquiring manually:      "pfmXXXXX.txt"
+          For acquiring automatically: "pfmXXXXX.txt"
+          ("XXXXX" is a number from 00000 to 19999.)
+
+    Note 1: The tag count and the total tag count output a same value.
+            The average tag count and the total average tag count output a same
+            value.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the performance
+            information is to be acquired.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -manual
+            Acquires the performance information manually.
+
+    -auto time
+            Automatically acquires the performance information at specified
+            interval of time (1 to 1439 minutes).
+    -count n
+            If automatically acquisition is specified, specify the number of
+            times to repeat the acquisition (1 to 20000).
+    -cat
+            Specify this option when outputting files making them concatenated
+            as one file.
+
+    -path path_name
+            Specify the directory in which the performance information is
+            to be acquired.
+            If omitted, the information is outputted into the current
+            directory.
+
+    -pfmstatis
+            Specify this option when outputting the performance statistics
+            information. (See Note 2)
+
+  9500V only :
+    -lu lun ...
+            When outputting performance information of an optional logical
+            unit, specify the logical unit number to be output.
+            When doing that, enter the logical unit number using numerals or
+            a hyphen(s) (-).
+            If the specification is omitted, the information about all logical
+            units is output.
+            Single or multiple logical unit numbers can be specified.
+
+              Single specification  : Specifying a single logical unit number.
+                                      Example: -lu 3
+              Multiple specification: Specifying multiple logical unit numbers.
+                                      Example: -lu 0 1 2 3 4 5 8
+                                               -lu 0-5 8
+
+    -portinfo
+            Specify this option when outputting the performance statistics
+            information of port.
+
+    -rginfo [ rg_no ... ]
+            When outputting performance statistics information of RAID group,
+            specify the RAID group number to be output. 
+            When doing that, enter the RAID group number using numerals or
+            hyphen(s) (-).
+            If the specification of RAID group number is omitted, the
+            information about all RAID group is output.
+            Single or multiple RAID group numbers can be specified.
+
+              Single specification  : Specifying a single RAID group number.
+                                      Example: -rginfo 3
+              Multiple specification: Specifying multiple RAID group numbers.
+                                      Example: -rginfo 0 1 2 3 4 5 8
+                                               -rginfo 0-5 8
+
+    -luinfo [ lun ... ]
+            When outputting performance statistics information of logical
+            unit, specify the logical unit number to be output.
+            When doing that, enter the logical unit number using numerals
+            or a hyphen(s) (-).
+            If the specification of logical unit number is omitted, the
+            information about all logical units is output.
+            Single or multiple logical unit numbers can be specified.
+
+              Single specification  : Specifying a single logical unit number.
+                                      Example: -luinfo 3
+              Multiple specification: Specifying multiple logical unit numbers.
+                                      Example: -luinfo 0 1 2 3 4 5 8
+                                               -luinfo 0-5 8
+
+    -cacheinfo
+            Specify this option when outputting the performance statistics
+            information of cache.
+
+    -processorinfo
+            Specify this option when outputting the performance statistics
+            information of processor.
+
+    -driveinfo [ unit_no.hdu_no ... ]
+            When outputting statistical information on the drive performance,
+            specify the Unit number and HDU number punctuating them with a
+            period.
+            When doing that, enter the Unit number and HDU number using
+            numerals or hyphen(s) (-).
+            If the specification of Unit number and HDU number is omitted,
+            the information about all the drives is output.
+            Single or multiple Unit numbers and HDU numbers can be specified.
+
+              Single specification  : Specifying a single drive number.
+                                      Example: -driveinfo 1.1
+              Multiple specification: Specifying multiple drives numbers.
+                                      Example: -driveinfo 1.1 2.3 3.1
+                                               -driveinfo 1.0-2.2 2.8
+
+    -driveoprinfo [ unit_no.hdu_no ... ]
+            When outputting statistical information on the drive operation
+            performance, specify the Unit number and HDU number punctuating
+            them with a period.
+            When doing that, enter the Unit number and HDU number using
+            numerals or hyphen(s) (-). 
+            If the specification of Unit number and HDU number is omitted,
+            the information about all the drives operation is output.
+            Single or multiple Unit numbers and HDU numbers can be specified.
+
+              Single specification  : Specifying a single drive number.
+                                      Example: -driveoprinfo 1.1
+              Multiple specification: Specifying multiple drives numbers.
+                                      Example: -driveoprinfo 1.1 2.3 3.1
+                                               -driveoprinfo 1.0-2.2 2.8
+
+    -backendinfo [ path_no.loop_no ... ]
+            When outputting statistical information on the back-end
+            performance, specify the path number and loop number punctuating
+            them with a period.
+            When doing that, enter the path number and loop number using
+            numerals or hyphen(s) (-).
+            If the specification of path number and loop number is omitted,
+            the information about all the back-end is output.
+            Single or multiple path numbers and loop numbers can be specified.
+
+              Single specification  : Specifying a single path number and
+                                      loop number.
+                                      Example: -backendinfo 0.0
+              Multiple specification: Specifying multiple path numbers and
+                                      loop numbers.
+                                      Example: -backendinfo 0.0 1.0
+                                               -backendinfo 0.0-1.0
+
+  For AMS, WMS, SMS and AMS2000 :
+    -processorinfo ctl_no
+            Specify this option when outputting the performance statistics
+            information of processor.
+
+                ctl_no : Controller number (0, 1)
+
+  For AMS, WMS, SMS, AMS2000 and HUS100 :
+    -portinfo ctl_no [ port_no ... ]
+            Specify this option when outputting the performance statistics
+            information of port.
+            If the specification of port number is omitted, the information
+            about all ports is output.
+
+                ctl_no : Controller number (0, 1)
+
+    -rginfo ctl_no [ rg_no ... ]
+            When outputting performance statistics information of RAID group,
+            specify the RAID group number to be output. 
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the RAID group number using numerals or
+            hyphen(s) (-).
+            If the specification of RAID group number is omitted, the
+            information about all defined RAID group is output.
+            Single or multiple RAID group numbers can be specified.
+
+              Single specification  : Specifying a single RAID group number.
+                                      Example: -rginfo 0 3
+              Multiple specification: Specifying multiple RAID group numbers.
+                                      Example: -rginfo 0 0 1 2 3 4 5 8
+                                               -rginfo 0 0-5 8
+
+    -luinfo ctl_no [ lun ... ]
+            When outputting performance statistics information of logical
+            unit, specify the logical unit number to be output.
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the logical unit number using numerals
+            or a hyphen(s) (-).
+            If the specification of logical unit number is omitted, the
+            information about all defined logical units is output.
+            Single or multiple logical unit numbers can be specified.
+
+              Single specification  : Specifying a single logical unit number.
+                                      Example: -luinfo 0 3
+              Multiple specification: Specifying multiple logical unit numbers.
+                                      Example: -luinfo 0 0 1 2 3 4 5 8
+                                               -luinfo 0 0-5 8
+
+    -cacheinfo ctl_no
+            Specify this option when outputting the performance statistics
+            information of cache.
+
+                ctl_no : Controller number (0, 1)
+
+    -driveinfo ctl_no [ unit_no.hdu_no ... ]
+            When outputting statistical information on the drive performance,
+            specify the Unit number and HDU number punctuating them with a
+            period.
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the Unit number and HDU number using
+            numerals or hyphen(s) (-).
+            If the specification of Unit number and HDU number is omitted,
+            the information about all the drives is output.
+            Single or multiple Unit numbers and HDU numbers can be specified.
+
+              Single specification  : Specifying a single drive number.
+                                      Example: -driveinfo 0 0.1
+              Multiple specification: Specifying multiple drives numbers.
+                                      Example: -driveinfo 0 0.1 2.3 3.1
+                                               -driveinfo 0 1.0-2.2 2.8
+
+    -driveoprinfo ctl_no [ unit_no.hdu_no ... ]
+            When outputting statistical information on the drive operation
+            performance, specify the Unit number and HDU number punctuating
+            them with a period.
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the Unit number and HDU number using
+            numerals or hyphen(s) (-). 
+            If the specification of Unit number and HDU number is omitted,
+            the information about all the drives operation is output.
+            Single or multiple Unit numbers and HDU numbers can be specified.
+
+              Single specification  : Specifying a single drive number.
+                                      Example: -driveoprinfo 0 0.1
+              Multiple specification: Specifying multiple drives numbers.
+                                      Example: -driveoprinfo 0 0.1 2.3 3.1
+                                               -driveoprinfo 0 1.0-2.2 2.8
+
+  For AMS and WMS :
+    -backendinfo ctl_no [ path_no.loop_no ... ]
+            When outputting statistical information on the back-end
+            performance, specify the path number and loop number punctuating
+            them with a period.
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the path number and loop number using
+            numerals or hyphen(s) (-).
+            If the specification of path number and loop number is omitted,
+            the information about all the back-end is output.
+            Single or multiple path numbers and loop numbers can be specified.
+
+              Single specification  : Specifying a single path number and
+                                      loop number.
+                                      Example: -backendinfo 0 0.1
+              Multiple specification: Specifying multiple path numbers and
+                                      loop numbers.
+                                      Example: -backendinfo 0 0.0 1.0
+                                               -backendinfo 0 0.0-1.0
+
+  For SMS, AMS2000 and HUS100 :
+    -backendinfo ctl_no [ path_no ... ]
+            When outputting statistical information on the back-end
+            performance, specify the path number.
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the path number using numerals or
+            hyphen(s) (-).
+            If the specification of path number is omitted, the information
+            about all the back-end is output.
+            Single or multiple path numbers can be specified.
+
+              Single specification  : Specifying a single path number.
+                                      Example: -backendinfo 0 1
+              Multiple specification: Specifying multiple path numbers.
+                                      Example: -backendinfo 0 0 1
+                                               -backendinfo 0 0-1
+
+    -neterrorskip
+            Specify this option when continuing processing at the time of a
+            communication error in performance statistical information
+            acquisition from second time onwards.
+
+  For AMS2000 and HUS100 :
+    -dppoolinfo ctl_no [ pool_no ... ]
+            When outputting performance statistics information of DP pool,
+            specify the DP pool number to be output. 
+
+                ctl_no : Controller number (0, 1)
+
+            When doing that, enter the DP pool number using numerals or
+            hyphen(s) (-).
+            If the specification of DP pool number is omitted, the
+            information about all defined DP pool is output.
+            Single or multiple DP pool numbers can be specified.
+
+              Single specification  : Specifying a single DP pool number.
+                                      Example: -dppoolinfo 0 3
+              Multiple specification: Specifying multiple DP pool numbers.
+                                      Example: -dppoolinfo 0 0 1 2 3 4 5 8
+                                               -dppoolinfo 0 0-5 8
+
+  AMS2000 only :
+    -tapelibraryinfo ctl_no [ port_no ... ]
+            Specify this option when outputting the performance statistics
+            information of tape library.
+            If the specification of port number is omitted, the information
+            about all ports is output.
+
+                ctl_no : Controller number (0, 1)
+
+  For HUS100 only :
+    -processorinfo ctl_no [ core ]
+            Specify this option when outputting the performance statistics
+            information of processor.
+            If the specification of Core is omitted, the information about all
+            processor is output.
+
+                ctl_no : Controller number (0, 1)
+                core   : Core (X, Y)
+
+    -mngareainfo ctl_no [ core ]
+            Specify this option when outputting the performance statistics
+            information of management area.
+            If the specification of Core is omitted, the information about all
+            management areas is output. (See Note 3)
+
+                ctl_no : Controller number (0, 1)
+                core   : Core (X, Y)
+
+    -mngrginfo [ rg_no ... ]
+            When outputting performance statistics information of RAID group
+            of management area, specify the RAID group number to be output.
+            When doing that, enter the RAID group number using numerals or
+            hyphen(s) (-).
+            If the specification of RAID group number is omitted, the
+            information about all RAID group is output.
+            Single or multiple RAID group numbers can be specified.
+
+              Single specification  : Specifying a single RAID group number.
+                                      Example: -mngrginfo 3
+              Multiple specification: Specifying multiple RAID group numbers.
+                                      Example: -mngrginfo 0 1 2 3 4 5 8
+                                               -mngrginfo 0-5 8
+
+    -mngdppoolinfo [ pool_no ... ]
+            When outputting performance statistics information of DP pool
+            of management area, specify the DP pool number to be output.
+            When doing that, enter the DP pool number using numerals or
+            hyphen(s) (-).
+            If the specification of DP pool number is omitted, the information
+            about all DP pool is output.
+            Single or multiple DP pool numbers can be specified.
+
+              Single specification  : Specifying a single DP pool number.
+                                      Example: -mngdppoolinfo 3
+              Multiple specification: Specifying multiple DP pool numbers.
+                                      Example: -mngdppoolinfo 0 1 2 3 4 5 8
+                                               -mngdppoolinfo 0-5 8
+
+    -mngdmluinfo
+            Specify this option when outputting the performance statistics
+            information of DM-LU of management area.
+
+    Note 2: When the -pfmstatics option is present and the -portinfo, -rginfo,
+            -dppoolinfo, -luinfo, -cacheinfo, -processorinfo, -driveinfo,
+            -driveoprinfo, -backendinfo, -tapelibraryinfo and -mngareainfo
+            options are absent, all the information of port, RAID group,
+            DP pool, logical unit, cache, processor, drive, drive operation,
+            back-end, tape library, management area is outputted.
+            (For AMS, WMS and SMS, defined RAID group and logical unit are
+            outputted. For AMS2000, defined RAID group, DP pool and logical
+            unit are outputted, For tape library, defined tape group, tape
+            drive are outputted, port where the library has been connected are
+            outputted. For HUS100, defined RAID group, DP pool, logical unit
+            and DM-LU are outputted.)
+
+    Note 3: When the -mngareainfo option is present and the -mngrginfo,
+            -mngdppoolinfo and -mngdmluinfo options are absent, all the
+            management area information of RAID group, DP pool, DM-LU is
+            outputted.
+

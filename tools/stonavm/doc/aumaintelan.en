@@ -1,0 +1,58 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aumaintelan    Referencing/Setting the IP Address of Maintenance Port
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    aumaintelan -unit unit_name -refer
+
+  AMS, WMS
+    aumaintelan -unit unit_name -set -addr ip_addr
+  SMS, AMS2000, HUS100
+    When setting the IPv4.
+      aumaintelan -unit unit_name -set -addr ip_addr
+    When setting the IPv6.
+      aumaintelan -unit unit_name -set -ipv6_addr ipv6_addr
+
+  AMS, WMS
+    aumaintelan -unit unit_name -availablelist
+  SMS, AMS2000, HUS100
+    aumaintelan -unit unit_name -availablelist [ -ipv4 ] [ -ipv6 ]
+
+Description
+    This command references or sets the IP address of maintenance port.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the IP address of maintenance port.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the IP addresses of maintenance port.
+    -set
+            Sets the IP address of maintenance port.
+
+    -availablelist
+            References a list of IP addresses that can be assigned to the
+            maintenance port of CTL0.
+
+    -addr ip_addr
+            Specify an IPv4 address of the CTL0.
+            Specify the same host address as that which has been assigned.
+            (Host address: YYY of the XXX.XXX.XXX.YYY)
+
+    -ipv6_addr ipv6_addr
+            Specify an IPv6 address of the CTL0.
+            Specify the same address(YY part of YYYY::YYXX) as that which
+            has been assigned.
+    -ipv4
+            Specify this option when referencing the list of IPv4 address.
+    -ipv6
+            Specify this option when referencing the list of IPv6 address.
+

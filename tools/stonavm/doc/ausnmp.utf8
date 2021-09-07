@@ -1,0 +1,35 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    ausnmp    SNMP環境情報のファイル出力と設定
+
+【記述形式】
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    ausnmp -unit unit_name -get [ -config config.txt ] [ -name name.txt ]
+
+    ausnmp -unit unit_name -set [ -config config.txt ] [ -name name.txt ]
+
+【説明】
+    SNMP環境ファイルを指定ファイルへ出力、または指定ファイルから設定します。
+
+【オプション】
+    -unit unit_name
+            SNMP環境情報ファイルの読み出し、または設定するアレイ装置名を指定
+            します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -get
+            SNMP環境情報を読み出し、指定したファイルに出力します。
+            "-config"、"-name"の中から1つ以上のオプションを指定してください。
+    -set
+            指定したSNMP環境情報ファイルの内容をアレイ装置に設定します。
+            "-config"、"-name"の中から1つ以上のオプションを指定してください。
+
+    -config config.txt
+            動作環境設定ファイルのファイル名を指定します。
+
+    -name name.txt
+            アレイ装置名称設定ファイルのファイル名を指定します。
+

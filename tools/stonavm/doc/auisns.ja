@@ -1,0 +1,49 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auisns    iSNS情報参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    auisns -unit unit_name -refer
+
+    auisns -unit unit_name -set ctl_no port_no
+           [ -server used | notused ]
+           [ -addr inet_addr ]
+           [ -portnum port_num ]
+
+【説明】
+    iSNS情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            iSNS情報を参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            iSNS情報を参照します。
+
+    -set ctl_no port_no
+            iSNS情報を設定します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、E、F)
+
+    -server used | notused
+            iSNSサーバを使用する/しないを指定します。
+
+                used   : iSNSサーバを使用します。
+                notused: iSNSサーバを使用しません。
+
+    -addr inet_addr
+            IPアドレスを指定します。
+
+                inet_addr: IPアドレス
+
+    -portnum port_num
+            TCP/IP通信で使用するポート番号を指定します。
+
+                port_num: ポート番号
+

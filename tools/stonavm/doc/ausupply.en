@@ -1,0 +1,26 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    ausupply    Displaying the Status of Power Supply/Fan/Battery/Loop/ENC
+
+Format
+  9500V
+    ausupply -unit unit_name
+
+Description
+    This command displays the status of AC power supplies, fans, batteries,
+    battery backup circuits, loop and ENC.
+    Please use the auparts command, when you display the status of
+    Power Supply/Fan/Battery/Loop/ENC to 9500V(9580V)/AMS/WMS/AMS2000/HUS100.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit for which to display the
+            information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

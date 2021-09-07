@@ -1,0 +1,127 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aupfmstatiscfg    Referencing/Setting the Collection State of
+                      Performance Statistics Information
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aupfmstatiscfg -unit unit_name -refer
+
+  9500V, AMS, WMS, SMS
+    aupfmstatiscfg -unit unit_name -set
+                   [ -port      start | stop ]
+                   [ -rglu      start | stop ]
+                   [ -cache     start | stop ]
+                   [ -processor start | stop ]
+                   [ -drive     start | stop ]
+                   [ -driveopr  start | stop ]
+                   [ -backend   start | stop ]
+  AMS2000
+    aupfmstatiscfg -unit unit_name -set
+                   [ -port        start | stop ]
+                   [ -rglu        start | stop ]
+                   [ -cache       start | stop ]
+                   [ -processor   start | stop ]
+                   [ -drive       start | stop ]
+                   [ -driveopr    start | stop ]
+                   [ -backend     start | stop ]
+                   [ -tapelibrary start | stop ]
+  HUS100
+    aupfmstatiscfg -unit unit_name -set
+                   [ -port           start | stop ]
+                   [ -rglu           start | stop ]
+                   [ -cache          start | stop ]
+                   [ -processor      start | stop ]
+                   [ -drive          start | stop ]
+                   [ -driveopr       start | stop ]
+                   [ -backend        start | stop ]
+                   [ -managementarea start | stop ]
+
+Description
+    This command refers to or sets the collection state of performance
+    statistics information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit to which the collection
+            state of performance statistics information is referred or set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Refers to the collection state of performance statistics
+            information.
+    -set
+            Sets the collection state of performance statistics information.
+
+    -port start | stop
+            Specify whether to start or stop collection of information
+            for port.
+
+                start: Starts collecting information for port.
+                stop : Stops collecting information for port.
+
+    -rglu start | stop
+            Specify whether to start or stop collection of information
+            for RAID group, DP pool and Logical Unit.
+
+                start: Starts collecting information for RAID group, DP pool 
+                       and Logical Unit.
+                stop : Stops collecting information for RAID group, DP pool and
+                       Logical Unit.
+
+    -cache start | stop
+            Specify whether to start or stop collection of information
+            for cache.
+
+                start: Starts collecting information for cache.
+                stop : Stops collecting information for cache.
+
+    -processor start | stop
+            Specify whether to start or stop collection of information
+            for processor.
+
+                start: Starts collecting information for processor.
+                stop : Stops collecting information for processor.
+
+    -drive start | stop
+            Specify whether to start or stop collection of information
+            for drives.
+
+                start: Starts collecting information for drives.
+                stop : Stops collecting information for drives.
+
+    -driveopr start | stop
+            Specify whether to start or stop collection of information
+            for drive operatings.
+
+                start: Starts collecting information for drive operatings.
+                stop : Stops collecting information for drive operatings.
+
+    -backend start | stop
+            Specify whether to start or stop collection of information
+            for back-end.
+
+                start: Starts collecting information for back-end.
+                stop : Stops collecting information for back-end.
+
+  AMS2000 only :
+    -tapelibrary start | stop
+            Specify whether to start or stop collection of information
+            for tape library.
+
+                start: Starts collecting information for tape library.
+                stop : Stops collecting information for tape library.
+
+  HUS100 only :
+    -managementarea start | stop
+            Specify whether to start or stop collection of information
+            for management area.
+
+                start: Starts collecting information for management area.
+                stop : Stops collecting information for management area.
+

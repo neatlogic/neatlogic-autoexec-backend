@@ -1,0 +1,57 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    aumaintelan    保守ポートIPアドレス参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    aumaintelan -unit unit_name -refer
+
+  AMS, WMS
+    aumaintelan -unit unit_name -set -addr ip_addr
+  SMS, AMS2000, HUS100
+    When setting the IPv4.
+      aumaintelan -unit unit_name -set -addr ip_addr
+    When setting the IPv6.
+      aumaintelan -unit unit_name -set -ipv6_addr ipv6_addr
+
+  AMS, WMS
+    aumaintelan -unit unit_name -availablelist
+  SMS, AMS2000, HUS100
+    aumaintelan -unit unit_name -availablelist [ -ipv4 ] [ -ipv6 ]
+
+【説明】
+    保守ポートのIPアドレスを参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            保守ポートのIPアドレスを参照、または設定するアレイ装置名を指定し
+            ます。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            保守ポートのIPアドレスを参照します。
+    -set
+            保守ポートのIPアドレスを設定します。
+
+    -availablelist
+            CTL0の保守ポートに設定可能なIPアドレスを一覧表示します。
+
+    -addr ip_addr
+            CTL0のIPアドレスをIPv4形式で指定します。
+            ホストアドレスは設定値と同じ値を指定してください。
+            （ホストアドレス：XXX.XXX.XXX.YYYのYYY部分）
+
+    -ipv6_addr ipv6_addr
+            CTL0のIPアドレスをIPv6形式で指定します。
+            ホストアドレスの下位2桁以外（YYYY::YYXXのYY部分）は
+            設定値と同じ値を指定してください。
+    -ipv4
+            CTL0の保守ポートに設定可能なIPv4アドレスを表示する場合に指定しま
+            す。
+    -ipv6
+            CTL0の保守ポートに設定可能なIPv6アドレスを表示する場合に指定しま
+            す。
+

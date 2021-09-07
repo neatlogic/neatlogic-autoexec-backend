@@ -1,0 +1,36 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulupre    Referencing/Setting LU Pre-fetch Information
+
+Format
+  9500V
+    aulupre -unit unit_name -refer
+
+    aulupre -unit unit_name -lu lun -stag num | default
+
+Description
+    This command references or sets the LU pre-fetch information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the LU pre-fetch information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the LU pre-fetch information.
+    -lu lun
+            Specify the LU number of an LU whose pre-fetch information
+            is to be set.
+
+    -stag num | default
+            Specify the pre-fetch staging size.
+
+                num    : Specify the number of sub blocks.(1 to 65535)
+                default: Sets the default size.
+

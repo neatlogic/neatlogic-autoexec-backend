@@ -1,0 +1,273 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auluadd    LU設定
+
+【記述形式】
+  9500V
+    Dual System
+      auluadd -unit unit_name [ -lu lun ] -rg rg_no -size num[ m | g ] | rest
+              -ctl0 | -ctl1
+    Single System
+      auluadd -unit unit_name [ -lu lun ] -rg rg_no -size num[ m | g ] | rest
+
+  AMS, WMS
+    Dual System
+      auluadd -unit unit_name [ -lu lun ] -rg rg_no -size num[ m | g ] | rest
+              -ctl0 | -ctl1
+              [ -stripesize 64 | 256 | 512 ]
+              [ -cachept pt_no ]
+              [ -paircachept pt_no | auto ]
+              [ -createarea area_no ]
+    Single System
+      auluadd -unit unit_name [ -lu lun ] -rg rg_no -size num[ m | g ] | rest
+              [ -stripesize 64 | 256 | 512 ]
+              [ -cachept pt_no ]
+              [ -createarea area_no ]
+
+  SMS
+    When the area is selected automatically.
+      When creating the logical unit in the maximum free area.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ] | rest 
+                [ -stripesize 64 | 256 | 512 ]
+                [ -noluformat ]
+
+      When creating the logical unit using the free area in ascending order.
+        auluadd -unit unit_name -head
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ]
+                [ -stripesize 64 | 256 | 512 ]
+                [ -arealu lun ]
+                [ -noluformat ]
+
+      When creating the logical unit in the first free area.
+        auluadd -unit unit_name -head
+                [ -lu lun ] -rg rg_no -size rest
+                [ -stripesize 64 | 256 | 512 ]
+                [ -noluformat ]
+
+    When the area is selected manually.
+      When creating the logical unit in one free area.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ] | rest
+                [ -stripesize 64 | 256 | 512 ]
+                -createarea area_no
+                [ -noluformat ]
+
+      When creating the logical unit in two or more free areas.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ]
+                [ -stripesize 64 | 256 | 512 ]
+                -createarea area_no ...
+                [ -arealu lun ]
+                [ -noluformat ]
+
+    When creating the logical unit using all free areas of RAID Group.
+      auluadd -unit unit_name
+              [ -lu lun ] -rg rg_no -size rgrest
+              [ -stripesize 64 | 256 | 512 ]
+              [ -arealu lun ]
+              [ -noluformat ]
+
+  AMS2000, HUS100
+    When the area is selected automatically.
+      When creating the logical unit in the maximum free area.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no
+                -size num[ m | g | t ] | rest 
+                [ -stripesize 64 | 256 | 512 ]
+                [ -cachept pt_no ]
+                [ -paircachept pt_no | auto ]
+                [ -noluformat ]
+
+      When creating the logical unit using the free area in ascending order.
+        auluadd -unit unit_name -head
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ]
+                [ -stripesize 64 | 256 | 512 ]
+                [ -cachept pt_no ]
+                [ -paircachept pt_no | auto ]
+                [ -arealu lun ]
+                [ -noluformat ]
+
+      When creating the logical unit in the first free area.
+        auluadd -unit unit_name -head
+                [ -lu lun ] -rg rg_no -size rest
+                [ -stripesize 64 | 256 | 512 ]
+                [ -cachept pt_no ]
+                [ -paircachept pt_no | auto ]
+                [ -noluformat ]
+
+    When the area is selected manually.
+      When creating the logical unit in one free area.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ] | rest
+                [ -stripesize 64 | 256 | 512 ]
+                [ -cachept pt_no ]
+                [ -paircachept pt_no | auto ]
+                -createarea area_no
+                [ -noluformat ]
+
+      When creating the logical unit in two or more free areas.
+        auluadd -unit unit_name
+                [ -lu lun ] -rg rg_no -size num[ m | g | t ]
+                [ -stripesize 64 | 256 | 512 ]
+                [ -cachept pt_no ]
+                [ -paircachept pt_no | auto ]
+                -createarea area_no ...
+                [ -arealu lun ]
+                [ -noluformat ]
+
+    When creating the logical unit using all free areas of RAID Group.
+      auluadd -unit unit_name
+              [ -lu lun ] -rg rg_no -size rgrest
+              [ -stripesize 64 | 256 | 512 ]
+              [ -cachept pt_no ]
+              [ -paircachept pt_no | auto ]
+              [ -arealu lun ]
+              [ -noluformat ]
+
+    When creating the logical unit in DP pool.
+      auluadd -unit unit_name
+              [ -lu lun ] -dppoolno pool_no -size num[ m | g | t ]
+              [ -cachept pt_no ]
+              [ -paircachept pt_no | auto ]
+              [ -widestriping enable | disable ]
+              [ -fullcapacity enable | disable ]
+
+  HUS100
+    When creating the logical unit in DP pool of enabled tier mode.
+      auluadd -unit unit_name
+              [ -lu lun ] -dppoolno pool_no -size num[ m | g | t ]
+              [ -cachept pt_no ]
+              [ -paircachept pt_no | auto ]
+              [ -widestriping enable | disable ]
+              [ -fullcapacity enable | disable ]
+              [ -newpageassignmenttier high | middle | low ]
+              [ -monitoredio rw | r | w ]
+              [ -promptlypromote enable | disable ]
+              [ -disablingtierrelocation enable | disable ]
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    auluadd -unit unit_name -availablelist -rg rg_no
+
+【説明】
+    LUを設定します。
+
+【オプション】
+    -unit unit_name
+            LUを追加するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -lu lun
+            追加するLU番号を指定します。
+            省略した場合は、ナビゲーターがLU番号を自動決定します。
+
+    -rg rg_no
+            LUを追加するRAIDグループ番号を指定します。
+
+    -size num[ m | g | t ] | rest | rgrest
+            LUの容量を指定します。
+            ブロック数で指定する場合は数字のみを指定します。
+            MBで指定する場合は数字に続けて"m"、または"M"を指定します。
+            GBで指定する場合は数字に続けて"g"、または"G"を指定します。
+            TBで指定する場合は数字に続けて"t"、または"T"を指定します。
+            容量に"rest"の文字列を指定した場合は、指定空き領域すべて、または
+            最大空き領域すべてを割り当てます。
+            容量に"rgrest"の文字列を指定した場合はRAIDグループの残容量すべてを
+            割り当てます。
+
+    -ctl0 | -ctl1
+            LUのデフォルトコントローラ番号を指定します。
+            この指定はアレイ装置がデュアル構成の場合にだけ指定します。
+
+    -stripesize 64 | 256 | 512
+            ストライプサイズを指定します。省略した場合は、ナビゲーターが
+            AMS,WMSの場合は64、SMS,AMS2000、またはHUS100の場合は256を設定しま
+            す。
+
+    -cachept pt_no
+            キャッシュパーティションを指定します。省略した場合は、
+            ナビゲーターがパーティション0または1を自動的に割り当てます。
+
+                pt_no: パーティション番号
+
+    -paircachept pt_no | auto
+            ペアキャッシュパーティションを指定します。省略した場合は、アレイ
+            装置が自動決定します。
+
+                pt_no: ペアキャッシュパーティション番号
+                auto : アレイ装置が自動決定します。
+
+    -createarea area_no ...
+            LUを設定するRAIDグループの空き領域番号を指定します。領域番号には、
+            -availablelistオプションで表示される一覧の番号を指定します。
+            空き領域番号指定は、単一指定または複数指定できます。
+
+                単一指定：１つの空き領域番号を指定します。
+                          例：-createarea 3
+                複数指定：複数の空き領域番号を指定します。
+                          例：-createarea 0 1 2 3 4 5 8
+                              -createarea 0-5 8
+
+    -head
+            先頭の空き領域から順にLUを設定する場合に指定します。
+
+    -arealu
+            空き領域に設定する最大LU番号を指定します。
+            省略した場合は、ナビゲーターがLU番号を自動決定します。
+
+    -noluformat
+            LU設定後、フォーマットを実行しない場合に指定します。
+
+    -availablelist
+            LUを設定するRAIDグループの空き領域を表示します。
+
+    -dppoolno pool_no
+            LUを追加するDPプール番号を指定します。
+
+    -widestriping enable | disable
+            ワイドストライピングモードの有効/無効を指定します。
+            省略した場合は、無効を指定します。
+
+                enable : ワイドストライピングモードを有効にします。
+                disable: ワイドストライピングモードを無効にします。
+
+    -fullcapacity enable | disable
+            全容量割当モードの有効/無効を指定します。
+            省略した場合は、無効を指定します。
+
+                enable : 全容量割当モードを有効にします。
+                disable: 全容量割当モードを無効にします。
+
+    -newpageassignmenttier high | middle | low
+            新規ページ割り当て階層を指定します。
+            省略した場合は、中間階層を指定します。
+
+                high  : 上位階層
+                middle: 中間階層
+                low   : 下位階層
+
+    -monitoredio rw | r | w
+            モニターI/O種別を指定します。
+            省略した場合は、Read/Writeを指定します。
+
+                rw: Read/Write
+                r : Read
+                w : Write
+
+    -promptlypromote enable | disable
+            即時プロモーションモードの有効/無効を指定します。
+            省略した場合は、有効を指定します。
+
+                enable : 即時プロモーションモードを有効にします。
+                disable: 即時プロモーションモードを無効にします。
+
+    -disablingtierrelocation enable | disable
+            再配置抑止の有効/無効を指定します。
+            省略した場合は、無効を指定します。
+
+                enable : 再配置抑止を有効にします。
+                disable: 再配置抑止を無効にします。
+

@@ -1,0 +1,192 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auonsysprm    Referencing/Setting System Parameters Online
+
+Format
+  9500V
+    auonsysprm -unit unit_name -refer
+
+    auonsysprm -unit unit_name -set
+               [ -PROCOM               enable | disable ]
+               [ -ReportStatus         enable | disable ]
+               [ -LuCacheWarning       enable | disable ]
+               [ -NX                   enable | disable ]
+               [ -AutoReconst          enable | disable ]
+               [ -ForcedWriteThrough   enable | disable ]
+               [ -LUChanging1          enable | disable ]
+               [ -MultiStream          enable | disable ]
+               [ -MultiStreamWrite     enable | disable ]
+               [ -MultiStreamRead      enable | disable ]
+               [ -HiSpeedSeqWrite      enable | disable ]
+               [ -ShadowImageIOSwitch  enable | disable ]
+               [ -SyncCacheAllExec     enable | disable ]
+               [ -SyncCacheInvalid     enable | disable ]
+               [ -DriveDetach          enable | disable ]
+               [ -ProcessorFailures    reset | shutdown ]
+               [ -inquiryCommandQueue  on | off ]
+               [ -WebTitle             string ]
+               [ -Rs232cOutflow        ctl_no off | normal | hitrack ]
+               [ -WriteVerifyExecution ctl_no on | off ]
+
+Description
+    This command references the contents of system parameters or set the
+    parameters online.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the system
+            parameters are to be referenced or to be set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the system parameters.
+    -set
+            Sets the system parameters.
+
+    -PROCOM enable | disable
+            Specify whether to set the PROCOM mode effective or
+            ineffective.
+
+                enable : Enables the PROCOM mode.
+                disable: Disables the PROCOM mode.
+
+    -ReportStatus enable | disable
+            Specify whether to set the warning status reporting mode
+            effective or ineffective.
+
+                enable : Enables the warning status report.
+                disable: Disables the warning status report.
+
+    -LuCacheWarning enable | disable
+            Specify whether or not to report a warning when the turbo LU
+            function is set effective.
+
+                enable : Reports warning.
+                disable: Does not report warning.
+
+    -NX enable | disable
+            Specify whether to set the NX host connection mode effective
+            or ineffective.
+
+                enable : Enables the NX host connection mode.
+                disable: Disables the NX host connection mode.
+
+    -AutoReconst enable | disable
+            Specify whether to set the auto reconstruction mode effective
+            or ineffective.
+
+                enable : Enables the auto reconstruction mode.
+                disable: Disables the auto reconstruction mode.
+
+    -ForcedWriteThrough enable | disable
+            Specify whether to set the forced write through mode effective
+            or ineffective.
+
+                enable : Enables the forced write through mode.
+                disable: Disables the forced write through mode.
+
+    -LUChanging1 enable | disable
+            Specify whether to set the Changing Logical Unit Mode 1
+            effective or ineffective.
+
+                enable : Enables the Changing Logical Unit Mode 1.
+                disable: Disables the Changing Logical Unit Mode 1.
+
+    -MultiStream enable | disable
+            Specify whether to set the Multiple Stream Mode
+            effective or ineffective.
+
+                enable : Enables the Multiple Stream Mode.
+                disable: Disables the Multiple Stream Mode.
+
+    -MultiStreamWrite enable | disable
+            Specify whether to set the Multiple Stream Write Mode
+            effective or ineffective.
+
+                enable : Enables the Multiple Stream Write Mode.
+                disable: Disables the Multiple Stream Write Mode.
+
+    -MultiStreamRead enable | disable
+            Specify whether to set the Multiple Stream Read Mode effective
+            or ineffective.
+
+                enable : Enables the Multiple Stream Read Mode.
+                disable: Disables the Multiple Stream Read Mode.
+
+    -HiSpeedSeqWrite enable | disable
+            Specify whether to set the High-speed Sequential Write Mode
+            effective or ineffective.
+
+                enable : Enables the High-speed Sequential Write Mode.
+                disable: Disables the High-speed Sequential Write Mode.
+
+    -ShadowImageIOSwitch enable | disable
+            Specify whether to set the ShadowImage I/O Switch Mode
+            effective or ineffective.
+
+                enable : Enables the ShadowImage I/O Switch Mode.
+                disable: Disables the ShadowImage I/O Switch Mode.
+
+    -SyncCacheAllExec enable | disable
+            Specify whether to set the Synchronize Cache All Execution
+            Mode effective or ineffective.
+
+                enable : Enables the Synchronize Cache All Execution Mode.
+                disable: Disables the Synchronize Cache All Execution Mode.
+
+    -SyncCacheInvalid enable | disable
+            Specify whether to set the Synchronize Cache Invalid Mode
+            effective or ineffective.
+
+                enable : Enables the Synchronize Cache Invalid Mode.
+                disable: Disables the Synchronize Cache Invalid Mode.
+
+    -DriveDetach enable | disable
+            Specifies whether to set the Drive Detach Mode effective or
+            ineffective.
+
+                enable : Enables the Drive Detach Mode.
+                disable: Disables the Drive Detach Mode.
+
+    -ProcessorFailures reset | shutdown
+            Specify action when a processor failure occurs.
+
+                reset   : Resets the failure and restarts the controller.
+                shutdown: Shuts down the array unit.
+
+    -inquiryCommandQueue on | off
+            Specify execution of command queuing for INQUIRY response
+            information.
+
+                on : Executes command queuing.
+                off: Suppresses command queuing.
+
+    -WebTitle string
+            If the home page of the array unit is displayed with the browser,
+            this option specifies a character string displayed on the title
+            bar of the browser. Enter up to 32 one-byte coded alphanumeric
+            characters or characters
+            (except for the ' (single quotation mark),
+            " (double quotation mark) and \ (backslash) symbols) other than
+            numeric.
+
+    -Rs232cOutflow ctl_no off | normal | hitrack
+            Sets the mode of sending out error information onto RS232C.
+
+                ctl_no : Controller number (0, 1)
+                off    : Does not send out information.
+                normal : Sends out information.
+                hitrack: Sends out information in the HITRACK mode.
+
+    -WriteVerifyExecution ctl_no on | off
+            Specify the execution of the write & verify operation.
+
+                ctl_no: Controller number (0, 1)
+                on    : Executes write & verify operation.
+                off   : Does not execute write & verify operation.
+

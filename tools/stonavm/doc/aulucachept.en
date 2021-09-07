@@ -1,0 +1,52 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulucachept    Referencing/Setting LU Cache Partition
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    aulucachept -unit unit_name -refer [ -lu lun ... ]
+
+  AMS, WMS, AMS2000, HUS100
+    aulucachept -unit unit_name -set -lu lun ... -pt pt_no
+    aulucachept -unit unit_name -set -lu lun ... -pairpt pt_no | auto
+
+Description
+    This command references or sets the LU cache partition.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the LU cache partition.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the LU cache partition.
+    -set
+            Sets the LU cache partition.
+
+    -pt pt_no
+            Specify the partition.
+
+                pt_no: Partition number
+
+    -pairpt pt_no | auto
+            Specify the pair cache partition.
+
+                pt_no: Pair cache partition number
+                auto : The array unit makes the decision automatically.
+
+    -lu lun ...
+            Specify the LU number, which is to be referenced or to be set.
+            Single or multiple LU numbers can be specified.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+

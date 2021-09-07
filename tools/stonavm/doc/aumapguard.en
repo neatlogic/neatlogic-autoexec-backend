@@ -1,0 +1,52 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aumapguard   Referencing/Setting the Mapping Guard Information
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aumapguard -unit unit_name -refer [ -lu lun ... ]
+
+    aumapguard -unit unit_name -set -lu lun ... -guard enable | disable
+
+Description
+    This command references or sets the mapping guard information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the mapping guard information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the mapping guard information.
+    -set
+            Sets the mapping guard information.
+
+    -lu lun ...
+            Specify the LU numbers to reference or set the mapping
+            guard information.
+            When doing that, enter the LU number using numerals or
+            a hyphen(s) (-).
+            Single or multiple LU numbers can be specified.
+          When the -refer option is specified:
+            If the specification is omitted, all the mapping guard
+            information is displayed.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+
+    -guard enable | disable
+            Specify whether to set the mapping guard effective or 
+            ineffective.
+
+                enable : Enables the mapping guard.
+                disable: Disables the mapping guard.
+

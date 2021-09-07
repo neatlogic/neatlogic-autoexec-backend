@@ -1,0 +1,98 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auopt    Referencing/Setting the Fee-Basis Option
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+      auopt -unit unit_name -refer
+
+  When locking off the fee-basis option
+    9500V
+      auopt -unit unit_name -lock off -keycode key_code
+      auopt -unit unit_name -lock off -licensefile license_file_path
+    AMS, WMS
+      auopt -unit unit_name -lock off -keycode key_code
+      auopt -unit unit_name -lock off -licensefile license_file_path
+    SMS, AMS2000, HUS100
+      auopt -unit unit_name -lock off -keycode key_code
+      auopt -unit unit_name -lock off -licensefile license_file_path [ -all ]
+  When locking on the fee-basis option
+    9500V, AMS, WMS, SMS, AMS2000
+      auopt -unit unit_name -lock on -keycode key_code
+    HUS100
+      auopt -unit unit_name -lock on -keycode key_code
+      auopt -unit unit_name -lock on -licensefile license_file_path
+
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+      auopt -unit unit_name -option option_name -st enable | disable
+
+  AMS2000, HUS100
+      auopt -unit unit_name -reconfigurememory start | cancel
+
+Description
+    This command locks or unlocks the specified fee-basis option. Unlocking
+    or locking can be carried out by the key code or the license key file
+    which is attached to the option facility.
+    The fee-basis option can be enabled or disabled after it is
+    unlocked (installed).
+    This command starts or cancels the memory reconfiguring of
+    the fee-basis option.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit to setup or reference the
+            fee-basis option.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)".
+            Space in front and in the rear of the character string is
+            removed.
+    -refer
+            Displays an already unlocked (installed) fee-basis option and
+            the fee-basis option which memory reconfiguration has not
+            completed.
+
+    -lock off | on
+            Specify the fee-basis option to be unlocked (installed) or
+            unlocked (de-installed).
+
+                off: Unlocks (installs) the fee-basis option.
+                on : Locks (de-installs) the fee-basis option.
+
+    -keycode key_code
+            Specify the key code when unlocking or locking the fee-basis
+            option.
+
+    -licensefile license_file_path
+            Specify the path of the license key file when unlocking or locking
+            the fee-basis option.
+
+                license_file_path: The path of the license key file.
+    -all
+            Specify this option when unlocking (installing) all fee-basis
+            options at license key file.
+
+    -option option_name
+            Specify the name of the fee-basis option when enabling or
+            disabling the use of unlocked fee-basis option.
+            For the name of the option, refer to the manual for each
+            fee-basis option.
+
+    -st enable | disable
+            Specify whether to set the fee-basis option effective or
+            ineffective.
+
+                enable : Enables the use of the fee-basis option.
+                disable: Disables the use of the fee-basis option.
+
+    -reconfigurememory start | cancel
+            Specify the memory reconfiguring of fee-basis option
+            to be started or canceled.
+
+                start : Starts the memory reconfiguring of the fee-basis
+                        option.
+                cancel: Cancels the memory reconfiguring of the fee-basis
+                        option.
+

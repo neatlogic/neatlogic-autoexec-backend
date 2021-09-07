@@ -1,0 +1,25 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulurestoration    Restoring an LU
+
+Format
+  9500V
+    aulurestoration -unit unit_name -lu lun
+
+Description
+    This command restores the invalidated LU as it was before.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit defined as being correlated
+            with the LU to be restored.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -lu lun
+            Specify a number of the LU to be restored.
+

@@ -1,0 +1,84 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auauditlog    Referencing/Setting the Audit Log Information and
+                  Export/Initialize the Internal Log
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    auauditlog -unit unit_name -refer
+
+    auauditlog -unit unit_name -set
+               [ -syslogsrv enable | disable ]
+               [ -srv1addr inet_addr ]
+               [ -srv2 enable | disable ]
+               [ -srv2addr inet_addr ]
+               [ -internal enable | disable ]
+
+    auauditlog -unit unit_name -export [ -file file_name ]
+
+    auauditlog -unit unit_name -init
+
+Description
+    This command references or sets audit log information and
+    exports or initializes internal log.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set audit log information and export or initialize internal
+            log.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the audit log information.
+    -set
+            Sets the audit log information.
+    -export
+            Exports the internal log.
+    -init
+            Initializes the internal log.
+
+    -syslogsrv enable | disable
+            Specify whether to set the syslog server transfer effective or
+            ineffective.
+
+                enable : Enables the syslog server transfer.
+                disable: Disables the syslog server transfer.
+
+    -srv1addr inet_addr
+            Specify the syslog server1 IP address.
+
+                inet_addr: IP address
+
+    -srv2 enable | disable
+            Specify whether to set the syslog server2 effective or
+            ineffective.
+
+                enable : Enables the syslog server2.
+                disable: Disables the syslog server2.
+
+    -srv2addr inet_addr
+            Specify the syslog server2 IP address.
+
+                inet_addr: IP address
+
+    -internal enable | disable
+            Specify whether to set the internal log effective or ineffective.
+
+                enable : Enables the internal log.
+                disable: Disables the internal log.
+
+    -file file_name
+            Specify the name of the file (path) to output the internal log.
+            If the specification is omitted, it outputs the file
+            "syslog_xxxxxxxx.txt" in "audit" directory that indicate
+            STONAVM_HOME environment variable.
+            (xxxxxxxx: serial number of the array unit)
+
+                file_name: File(path) name
+

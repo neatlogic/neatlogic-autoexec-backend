@@ -1,0 +1,31 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aubackenddiag    Referencing/Setting the Backend Diagnosis Information
+
+Format
+  9500V, AMS, WMS
+    aubackenddiag -unit unit_name -refer
+
+    aubackenddiag -unit unit_name -set -autodiagthres num
+
+Description
+    This command refers to or sets the backend diagnosis information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference and
+            set the backend diagnosis information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is removed.
+    -refer
+            References the backend diagnosis information.
+    -set
+            Sets the backend diagnosis information.
+
+    -autodiagthres num
+            Specify the auto diagnosis threshold.
+

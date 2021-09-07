@@ -1,0 +1,59 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autimezone    Referencing/Setting Time Zone
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    autimezone -unit unit_name -refer
+
+    autimezone -unit unit_name -set
+               [ -timezone num ] [ -dst used | notused ]
+               [ -ntp1 address ] [ -ntp2 address ]
+
+    autimezone -unit unit_name -availablelist -timezone
+
+Description
+    This command references or sets the time zone/NTP server.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the time zone/NTP server.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the time zone/NTP server IP address.
+    -set
+            Sets the time zone/NTP server IP address.
+
+    -availablelist
+            A list of time zone numbers, each of which is eligible for
+            the time zone is displayed.
+
+    -timezone num
+            Specify the time zone number by selecting it from the list
+            of time zones that can be specified.
+
+    -dst used | notused
+            Specify whether to use the daylight saving time or not.
+
+                used   : Use the daylight saving time.
+                notused: Do not use the daylight saving time.
+
+    -ntp1 address
+            Specify NTP server1 IP address.
+            To cancel the specification, enter "".
+
+    -ntp2 address
+            Specify NTP server2 IP address.
+            To cancel the specification, enter "".
+
+    -timezone
+            A list of time zone numbers, each of which is eligible for
+            the time zone is displayed.
+

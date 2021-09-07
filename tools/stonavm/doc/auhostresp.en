@@ -1,0 +1,38 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auhostresp    Referencing/Setting the Host Response
+
+Format
+  HUS100
+    auhostresp -unit unit_name -refer
+
+    auhostresp -unit unit_name -set
+               -SystemOption AutoSetSeparating enable | disable
+
+Description
+    This command references or sets the host response.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the host response
+            are to be referenced or set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -refer
+            References the host response.
+    -set
+            Sets the host response.
+
+    -SystemOption AutoSetSeparating enable | disable
+            Specify option of system.
+
+                AutoSetSeparating: Sets Auto Set Separating Mode.
+                enable           : Enables the settings described above.
+                disable          : Disables the settings described above.
+

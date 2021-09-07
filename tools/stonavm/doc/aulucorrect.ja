@@ -1,0 +1,93 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    aulucorrect    パリティ回復参照/開始/スキップ/中止
+
+【記述形式】
+  9500V
+    aulucorrect -unit unit_name -refer
+                [ -status [ uncorrected ] [ aborted ] [ correcting ]
+                          [ waiting ] [ skipped ] ]
+  AMS, WMS, SMS, AMS2000, HUS100
+    aulucorrect -unit unit_name -refer
+                [ -status [ uncorrected ] [ aborted ] [ correcting ]
+                          [ waiting ] [ skipped ]
+                          [ uncorre_drvdetach ] [ waiting_drvreconst ] ]
+
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aulucorrect -unit unit_name -start [ -luorder lun ... ]
+
+    aulucorrect -unit unit_name -skip [ -lu lun ... ]
+
+    aulucorrect -unit unit_name -cancel -lu lun ...
+
+    aulucorrect -unit unit_name -lucorrectlist
+
+【説明】
+    LUのパリティ回復状態を参照または、回復開始、スキップ、中止、
+    回復対象一覧表示をします。
+
+【オプション】
+    -unit unit_name
+            LUのパリティ回復状態を参照、回復開始、スキップ、または中止するア
+            レイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            LUのパリティ回復状態を参照します。
+
+    -status [ uncorrected ] [ aborted ] [ correcting ]
+            [ waiting ] [ skipped ]
+            [ uncorre_drvdetach ] [ waiting_drvreconst ]
+            参照するLUの状態を指定します。省略すると、すべての状態を表示し
+            ます。単一または複数の状態を指定できます。
+
+                uncorrected       ：未実施
+                aborted           ：回復中断
+                correcting        ：実行中
+                waiting           ：待機中
+                skipped           ：スキップ
+                uncorre_drvdetach ：未実施１（RAID6でドライブ1台閉塞）
+                waiting_drvreconst：ドライブ復旧待機中
+                                    （RAID6でドライブ復旧待機中）
+    -start
+            LUのパリティ回復を開始します。
+            指定したLUの他に、未実施のLUがひとつでも存在する場合は確認メッセ
+            ージを表示し、指定したLU順に実行した後、残りの未実施のLUに対して
+            実行します。LUの指定を省略した場合は、すべての未実施のLUに対し
+            て実行します。
+    -skip
+            LUのパリティ回復をスキップします。
+            指定したLUの他に、未実施のLUがひとつでも存在する場合は確認メッセ
+            ージを表示し、指定したLUと残りの未実施のLUに対して実行します。
+            LUの指定を省略した場合は、すべての未実施のLUに対して実行します。
+    -cancel
+            LUのパリティ回復を中止します。
+            未実施のLUが存在する場合は実行できません。
+    -luorder lun ...
+            LUのパリティ回復を開始するLU番号を実行順に指定します。LU番号指定
+            は、単一指定または複数指定できます。
+
+                単一指定：1つのLU番号を指定します。
+                          例：-luorder 3
+                複数指定：複数のLU番号を指定します。
+                          例：-luorder 0 1 2 3 4 5 8
+                              -luorder 0-5 8
+
+    -lu lun ...
+            LUのパリティ回復をスキップ、または中止するLU番号を指定します。
+            LU番号指定は、単一指定または複数指定できます。
+
+                単一指定：1つのLU番号を指定します。
+                          例：-lu 3
+                複数指定：複数のLU番号を指定します。
+                          例：-lu 0 1 2 3 4 5 8
+                              -lu 0-5 8
+    -lucorrectlist
+            パリティ回復が必要なLUの一覧を表示します。
+            パリティ回復が必要なLUの状態は以下の通りです。
+            ・未実施
+            ・未実施１
+

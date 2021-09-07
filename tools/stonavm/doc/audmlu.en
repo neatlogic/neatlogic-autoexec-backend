@@ -1,0 +1,71 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    audmlu    Referencing/Setting the DM-LU Information
+
+Format
+  AMS, WMS, AMS2000, HUS100
+    audmlu -unit unit_name -refer
+
+    audmlu -unit unit_name -set -lu lun
+
+  AMS, WMS, AMS2000
+    audmlu -unit unit_name -rm -lu lun
+  HUS100
+    audmlu -unit unit_name -rm
+
+    When changing size the DM-LU in RAID Group.
+      audmlu -unit unit_name -chgsize -size num [ -rg rg_no ]
+    When changing size the DM-LU in DP pool.
+      audmlu -unit unit_name -chgsize -size num
+
+  AMS, WMS, AMS2000
+    audmlu -unit unit_name -availablelist
+  HUS100
+    When setting the DM-LU, the logical units which can be set to DM-LU are
+    displayed.
+      audmlu -unit unit_name -availablelist
+    When changing size the DM-LU, the RAID Groups which can be specified are
+    displayed.
+      audmlu -unit unit_name -availablelist -rg
+
+Description
+    This command references or sets the DM-LU information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the DM-LU information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the DM-LU information.
+    -set
+            Sets the DM-LU information.
+    -rm
+            Deletes the DM-LU information.
+    -chgsize
+            Adds the capacity of the DM-LU.
+
+    -availablelist
+            A list of logical unit numbers, each of which is eligible for
+            the DM-LU is displayed.
+    -lu lun
+            Specify the LU number of an LU whose DM-LU information is to be
+            set or deleted.
+
+    -size num
+            Specify in GB the DM-LU capacity after changes.
+
+    -rg rg_no
+            Specify the RAID group number which adds the capacity of DM-LU.
+            If omitted this option, the capacity is added to the RAID group to
+            which DM-LU belongs.
+    -rg
+            The RAID Group number list in which the DM-LU of changing size can
+            be set is displayed.
+

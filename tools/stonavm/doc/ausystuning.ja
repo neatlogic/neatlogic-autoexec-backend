@@ -1,0 +1,167 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    ausystuning    システムチューニングパラメータ参照/設定
+
+【記述形式】
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    ausystuning -unit unit_name -refer
+
+  9500V
+    When setting the Multi Streaming
+      ausystuning -unit unit_name -set
+                  [ -mspfcount num ]
+                  [ -msnextpf on | off ]
+                  [ -mspfsize 64 | 128 | 256 | 512 | 1024 | 2048 | 3072 |
+                              4096 | 5120 | 6144 | 7168 | 8192 | 9216 | 10240 ]
+    When setting the other configurations
+      ausystuning -unit unit_name -set
+                  [ -dtystart num ]
+                  [ -dtystop num ]
+                  [ -rndbufsize0 enable | disable ]
+                  [ -rndbuf num ]
+  AMS, WMS
+    ausystuning -unit unit_name -set
+                [ -dtystart num ]
+                [ -dtystop num ]
+                [ -cachecontrol FIFO | LRU ]
+                [ -detailedtrace on | off ]
+  SMS, AMS2000
+    ausystuning -unit unit_name -set
+                [ -dtystart num ]
+                [ -dtystop num ]
+                [ -cachecontrol FIFO | LRU ]
+                [ -detailedtrace on | off ]
+                [ -loadbalancing enable | disable ]
+                [ -loadbalancingtime 3 | 5 | 10 | 15 | 30 | 60 | 120 | 180 ]
+                [ -dtynumlimit enable | disable ]
+                [ -loadreductionchgconf enable | disable ]
+  HUS100
+    ausystuning -unit unit_name -set
+                [ -dtystart num ]
+                [ -dtystop num ]
+                [ -cachecontrol FIFO | LRU ]
+                [ -detailedtrace on | off ]
+                [ -loadbalancing enable | disable ]
+                [ -loadbalancingtime 3 | 5 | 10 | 15 | 30 | 60 | 120 | 180 ]
+                [ -dtynumlimit enable | disable ]
+                [ -loadreductionchgconf enable | disable ]
+                [ -xcopylowspeed enable | disable ]
+                [ -iooverloadreport enable | disable ]
+                [ -iscsitimeoutresettime num ]
+
+  9500V
+    ausystuning -unit unit_name -default
+    When setting the Multi Streaming
+      ausystuning -unit unit_name -default MultiStreaming
+  AMS, WMS, SMS, AMS2000, HUS100
+    ausystuning -unit unit_name -default
+
+【説明】
+    性能チューニングパラメータを参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            性能チューニングパラメータを参照、または設定するアレイ装置名を
+            指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            性能チューニングパラメータの設定値および予約値を参照します。
+    -set
+            性能チューニングパラメータを設定します。
+
+    -mspfcount num
+            マルチストリーミングの先読み判断数を指定します。(1〜10)
+            マルチストリームモードが有効の場合のみ設定できます。
+
+    -msnextpf on | off
+            マルチストリーミングの次回先読み契機を指定します。
+            マルチストリームモードが有効の場合のみ設定できます。
+
+                on ：指定した割合までリードされたら次を起動します。
+                off：ヒットする限り次を起動しません。
+
+    -mspfsize 64 | 128 | 256 | 512 | 1024 | 2048 | 3072 |
+              4096 | 5120 | 6144 | 7168 | 8192 | 9216 | 10240
+            マルチストリーミングの先読み量を指定します。
+            マルチストリームモードが有効の場合のみ設定できます。
+
+    -dtystart num
+            ダーティ掃き出し契機を指定します。(0〜50)
+
+    -dtystop num
+            ダーティ掃き出し停止契機を指定します。(0〜50)
+
+    -rndbufsize0 enable | disable
+            ランダム簡易バッファサイズ0%指定の有効/無効を指定します。
+
+                enable ：ランダム簡易バッファサイズ0%指定を有効にします。
+                disable：ランダム簡易バッファサイズ0%指定を無効にします。
+
+    -rndbuf num
+            ランダム簡易バッファサイズを指定します。(0〜100)
+            このオプションを指定した場合、設定を有効にするには再起動が必要と
+            なります。
+
+    -cachecontrol FIFO | LRU
+            キャッシュ制御モードを指定します。
+
+                FIFO: First-in First-out方式
+                LRU : Least Recently Used方式
+
+    -detailedtrace on | off
+            トレース強化モードの有効/無効を指定します。
+
+                on ：トレース強化モードを有効にします。
+                off：トレース強化モードを無効にします。
+
+    -loadbalancing enable | disable
+            ロードバランシングの有効/無効を指定します。
+
+                enable ：ロードバランシングを有効にします。
+                disable：ロードバランシングを無効にします。
+
+    -loadbalancingtime 3 | 5 | 10 | 15 | 30 | 60 | 120 | 180
+            ロードバランシング監視時間(分)を指定します。
+
+    -default MultiStreaming
+            マルチストリーミングの性能チューニングパラメータをデフォルト値に
+            戻します。
+            マルチストリームモードが有効の場合のみ設定できます。
+    -default
+            マルチストリーミング以外の性能チューニングパラメータをデフォルト
+            値に戻します。
+
+    -dtynumlimit enable | disable
+            ダーティ掃き出し処理数制限の有効/無効を指定します。
+
+                enable ：ダーティ掃き出し処理数制限を有効にします。
+                disable：ダーティ掃き出し処理数制限を無効にします。
+
+    -loadreductionchgconf enable | disable
+            構成変更負荷低減モードの有効/無効を指定します。
+
+                enable ：構成変更負荷低減モードを有効にします。
+                disable：構成変更負荷低減モードを無効にします。
+
+    -xcopylowspeed enable | disable
+            Extended COPY低速モードの有効/無効を指定します。
+
+                enable ：Extended COPY低速モードを有効にします。
+                disable：Extended COPY低速モードを無効にします。
+
+    -iooverloadreport enable | disable
+            I/O過負荷報告モードの有効/無効を指定します。
+
+                enable ：I/O過負荷報告モードを有効にします。
+                disable：I/O過負荷報告モードを無効にします。
+
+    -iscsitimeoutresettime num
+            iSCSIタイムアウトリセット時間(秒)を指定します。(20〜45)
+
+    注)マルチストリームモードは、オン中システムパラメータ(auonsysprm)、
+       またはシステムパラメータ(ausysparam)で設定します。(9500V)
+

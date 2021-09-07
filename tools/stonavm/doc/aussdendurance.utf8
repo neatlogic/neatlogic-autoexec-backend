@@ -1,0 +1,32 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    aussdendurance    SSD書き込み容量寿命情報参照/設定
+
+【記述形式】
+  HUS100
+    aussdendurance -unit unit_name -refer
+
+    aussdendurance -unit unit_name -chg -alertlevelthreshold num
+
+【説明】
+    SSD書き込み容量寿命情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            SSD書き込み容量寿命情報を参照、または設定するアレイ装置名を
+            指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            SSD書き込み容量寿命情報を参照します。
+    -chg 
+            SSD書き込み容量寿命情報を変更します。
+
+    -alertlevelthreshold num
+            警告レベルしきい値を指定します。
+
+                num: 警告レベルしきい値
+

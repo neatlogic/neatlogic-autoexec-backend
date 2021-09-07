@@ -1,0 +1,116 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aumicro    Downloading/Updating Firmware
+
+Format
+  9500V
+    aumicro -unit unit_name -read -fpath disk01
+
+    aumicro -unit unit_name -read -path disk01 disk02 disk03 ...
+
+    aumicro -revision
+
+    aumicro -unit unit_name -download -time time -check on | off
+
+    aumicro -unit unit_name -change -ctl0 | -ctl1
+
+    aumicro -clean
+
+  AMS, WMS
+    aumicro -unit unit_name -read -fpath micro_path
+
+    aumicro -unit unit_name -downloadrev
+
+    aumicro -revision
+
+    aumicro -unit unit_name -download -time time -check on | off
+
+    aumicro -unit unit_name -change -ctl0 | -ctl1
+
+    aumicro -clean
+
+  SMS, AMS2000, HUS100
+    aumicro -unit unit_name -auto -fpath micro_path
+            [ -time time ] [ -check on | off ] [ -cpuloadchk on | off ]
+
+    aumicro -unit unit_name -read -fpath micro_path
+
+    aumicro -unit unit_name -downloadrev
+
+    aumicro -revision
+
+    aumicro -unit unit_name -download -time time -check on | off
+
+    aumicro -unit unit_name -change [ -cpuloadchk on | off ]
+
+    aumicro -clean
+
+Description
+    This command downloads a firmware into the array unit. Additionally,
+    it updates the current firmware with a downloaded firmware.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit whose firmware to
+            download and update.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -read
+            Reads a firmware onto the Navigator.
+
+    -path disk01 disk02 disk03 ...
+            Specify sequentially the path names to individual directories
+            in which each file of a firmware to be downloaded is stored.
+
+    -fpath disk01
+            Specify the path name of the directory which stored a disk 01
+            file of firmware to download.
+
+    -fpath micro_path
+            Specify the path name of the directory which stored a file of
+            firmware to download.
+
+    -revision
+            Displays the revision of a firmware which has been read
+            onto the Navigator.
+
+    -download
+            Downloads a firmware into an array unit.
+
+    -time time
+            Specify the time interval (0 to 60 seconds) at which to
+            download a firmware.
+          When the -auto option is specified:
+            If the specification is omitted, the interval time is 3 seconds.
+
+    -check on | off
+            Specify whether or not to check the revision of a firmware.
+          When the -auto option is specified:
+            If the specification is omitted, checking the revision.
+
+    -downloadrev
+            Displays the revision of a firmware which has been downloaded
+            into an array unit.
+    -change
+            Updates a firmware.
+
+    -ctl0 | -ctl1
+            Specify the controller whose firmware is to be updated.
+    -clean
+            Deletes the firmware which has been read onto the Navigator.
+    -auto
+            Reads, download and update a firmware.
+
+    -cpuloadchk on | off
+            Specify whether to check the CPU loading or not.
+          When the -auto or -change option is specified:
+            If the specification is omitted, not checking the CPU loading.
+
+    Note: The time interval can be specified from 0 second, however, values
+          over 3 seconds are recommended if execution is carried out while ON.
+

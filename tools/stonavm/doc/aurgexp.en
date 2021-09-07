@@ -1,0 +1,68 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aurgexp    Expanding a RAID Group
+
+Format
+  9500V
+    aurgexp -unit unit_name -rg rg_no -pnum pty_num
+
+  AMS2000, HUS100
+    aurgexp -unit unit_name -rg rg_no -drive unit_no.hdu_no ...
+
+    aurgexp -unit unit_name -chg -priority host | expansion
+
+    aurgexp -unit unit_name -cancel -rg rg_no
+
+    aurgexp -unit unit_name -availablelist -rg rg_no
+
+Description
+    This command expands the already-defined size of a RAID group.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which a RAID group whose
+            size to expand has been defined.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -rg rg_no
+            Specify the RAID group number of a RAID group which is to be
+            expanded.
+
+    -pnum pty_num
+            Specify the number of parity groups after expansion.
+
+    -drive unit_no.hdu_no ...
+            Specify the Unit number and HDU number punctuating them with a
+            period to be expanded. Single or multiple drive numbers
+            can be specified.
+
+                unit_no: Unit number
+                hdu_no : HDU number
+
+                Single specification:   Specifying a single drive number.
+                                        Example: -drive 1.0
+                Multiple specification: Specifying multiple drives numbers.
+                                        Example: -drive 1.0 2.3 3.1
+                                                 -drive 1.0-2.2 2.8
+    -chg
+            Changes the priority of RAID group expansion.
+    -cancel
+            Cancels the RAID group expansion.
+
+    -availablelist
+            A list of drives, each of which is eligible for a expanding HDU is
+            displayed.
+
+    -priority host | expansion
+            Specify the priority.
+            The default value is Host access.
+
+                host     : Host access
+                expansion: RAID group expansion
+

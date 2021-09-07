@@ -1,0 +1,46 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auhicopy     Referencing/Splitting the Hi-Copy Pair Information
+
+Format
+  9500V
+    auhicopy -unit unit_name -refer [ -lu lun ... ]
+
+    auhicopy -unit unit_name -split -lu lun
+
+Description
+    This command references or splits the Hi-Copy pair information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or split the Hi-Copy pair information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the Hi-Copy pair information.
+    -split
+            Splits the Hi-Copy pair.
+
+    -lu lun ...
+            Specify the LU numbers to reference the Hi-Copy pair
+            information.
+            When doing that, enter the LU number using numerals or
+            a hyphen(s) (-).
+            If the specification is omitted, all the pair information
+            is displayed.
+            Single or multiple LU numbers can be specified.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+    -lu lun
+            Specify the LU number to split the Hi-Copy pair.
+

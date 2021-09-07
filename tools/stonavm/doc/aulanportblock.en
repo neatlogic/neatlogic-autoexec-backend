@@ -1,0 +1,36 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulanportblock    Referencing/Setting LAN Port Block Information
+
+Format
+  HUS100
+    aulanportblock -unit unit_name -refer
+
+    aulanportblock -unit unit_name -set
+                   -blockport80 enable | disable
+
+Description
+    This command references and sets LAN port block information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference and
+            set LAN port block information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References LAN port block information.
+    -set
+            Sets LAN port block information.
+
+    -blockport80 enable | disable
+            Specify whether to set the block port 80 effective or ineffective.
+
+                enable : Enables the block port 80.
+                disable: Disables the block port 80.
+

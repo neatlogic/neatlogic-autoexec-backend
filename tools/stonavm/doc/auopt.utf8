@@ -1,0 +1,84 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auopt    有償オプションの参照/設定
+
+【記述形式】
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+      auopt -unit unit_name -refer
+
+  When locking off the fee-basis option
+    9500V
+      auopt -unit unit_name -lock off -keycode key_code
+    AMS, WMS
+      auopt -unit unit_name -lock off -keycode key_code
+      auopt -unit unit_name -lock off -licensefile license_file_path
+    SMS, AMS2000, HUS100
+      auopt -unit unit_name -lock off -keycode key_code
+      auopt -unit unit_name -lock off -licensefile license_file_path [ -all ]
+  When locking on the fee-basis option
+    9500V, AMS, WMS, SMS, AMS2000
+      auopt -unit unit_name -lock on -keycode key_code
+    HUS100
+      auopt -unit unit_name -lock on -keycode key_code
+      auopt -unit unit_name -lock on -licensefile license_file_path
+
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+      auopt -unit unit_name -option option_name -st enable | disable
+
+  AMS2000, HUS100
+      auopt -unit unit_name -reconfigurememory start | cancel
+
+【説明】
+    指定した有償オプションを解錠/施錠します。解錠/施錠は、オプションに添付の
+    キーコードまたはライセンスキーファイルにより行います。
+    解錠後の有償オプションの有効/無効を設定します。
+    また、メモリ再構築の開始/中断を行います。
+
+【オプション】
+    -unit unit_name
+            有償オプションを設定、または参照するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            解錠されている有償オプションと
+            メモリ再構築が完了していない有償オプションを参照します。
+
+    -lock off | on
+            有償オプションの解錠/施錠を指定します。
+
+                off: 有償オプションを解錠します。
+                on : 有償オプションを施錠します。
+
+    -keycode key_code
+            有償オプションの解錠/施錠をキーコードを使用して行う場合、キーコー
+            ドを指定します。
+
+    -licensefile license_file_path
+            有償オプションの解錠/施錠をライセンスキーファイルを使用して行う
+            場合、ライセンスキーファイルが存在するパスを指定します。
+
+                license_file_path: ライセンスキーファイルが存在するパス
+    -all
+            ライセンスキーファイルで指定された有償オプションを全て解錠する場合
+            に指定します。
+
+    -option option_name
+            解錠されている有償オプションの有効/無効を設定する場合、オプショ
+            ン名を指定します。オプション名は、各有償オプションのマニュアルを
+            参照してください。
+
+    -st enable | disable
+            有償オプションの有効/無効を指定します。
+
+                enable : 有効にします。
+                disable: 無効にします。
+
+    -reconfigurememory start | cancel
+            有償オプションのメモリ再構築の開始/中断を指定します。
+
+                start : 有償オプションのメモリ再構築を開始します。
+                cancel: 有償オプションのメモリ再構築を中断します。
+

@@ -1,0 +1,160 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auchapuser    Referencing/Setting the CHAP User Information
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    auchapuser -unit unit_name -refer
+               [ ctl_no port_no [ -user user_name | -userfile file_name ] ]
+
+    auchapuser -unit unit_name -add ctl_no port_no
+               -user user_name | -userfile file_name
+               [ -tno target_no ... | -talias target_alias ... ]
+
+    auchapuser -unit unit_name -chg ctl_no port_no
+               -user user_name | -userfile file_name
+               [ -newuser new_user_name | -newuserfile file_name ]
+               [ -secret ]
+
+    auchapuser -unit unit_name -rm ctl_no port_no
+               -user user_name | -userfile file_name
+
+    auchapuser -unit unit_name -assign ctl_no port_no
+               -user user_name | -userfile file_name
+               -tno target_no ... | -talias target_alias ...
+
+    auchapuser -unit unit_name -release ctl_no port_no
+               -user user_name | -userfile file_name
+               -tno target_no ... | -talias target_alias ... | -all
+
+    auchapuser -unit unit_name -availablelist ctl_no port_no
+               -user user_name | -userfile file_name
+
+Description
+    This command references or sets CHAP user information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set CHAP user information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -refer [ ctl_no port_no ]
+            References CHAP user information. 
+            CHAP user information list is sorted by the CHAP user name.
+          When the ctl_no port_no is not specified:
+            CHAP user name of the all ports is displayed.
+          When the ctl_no port_no is specified:
+            CHAP user name of the specified port is displayed.
+            When the -user or -userfile option specified, the target that has
+            been assigned to the specified CHAP user is also displayed.
+
+    -add ctl_no port_no
+            Sets CHAP user information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -chg ctl_no port_no
+            Changes CHAP user information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -rm ctl_no port_no
+            Deletes CHAP user information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -assign ctl_no port_no
+            Assigns CHAP user to the target.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -release ctl_no port_no
+            Releases the target from CHAP user.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -availablelist ctl_no port_no
+            A list of targets that can be assigned to the specified controller
+            number, port number and CHAP user is displayed.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -user user_name
+            Specify CHAP user name.
+
+                user_name: CHAP user name (See Note 1)
+
+    -userfile file_name
+            Specify the file(path) name when setting the CHAP user name using
+            a file.
+
+                file_name: File(path) name
+
+    -tno target_no ...
+            Specify the target number.
+            Single or multiple target numbers can be specified.
+
+                Single specification  : Specifying a single target number.
+                                        Example: -tno 3
+                Multiple specification: Specifying multiple target numbers.
+                                        Example: -tno 0 1 2 3 4 5 8
+                                                 -tno 0-5 8
+
+                target_no: Target number
+
+    -talias target_alias ...
+            Specify the target alias. 
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+            Single or multiple target aliases can be specified.
+
+                Single specification  : Specifying a single target alias.
+                                        Example: -talias solaris
+                Multiple specification: Specifying multiple target aliases.
+                                        Example: -talias irix01 solaris win001
+
+                target_alias: Target alias (See Note 2)
+
+    -newuser new_user_name
+            Specify CHAP user name to be changed.
+
+                new_user_name: CHAP user name (See Note 1)
+
+    -newuserfile file_name
+            Specify the file(path) name when changing the CHAP user name
+            using a file.
+
+                file_name: File(path) name
+
+    -secret
+            Specify this option when changing Secret. (See Note 3)
+    -all
+            Specify this option when releasing all targets that have been
+            assigned to the specified CHAP user.
+
+    Note 1: For CHAP user name, less than or equal to 256 ASCII characters
+            (alphabetic characters and the following symbols) can be used.
+            (.,-,+,@,_,=,:,/,[,],~,(space))
+
+    Note 2: For target alias, less than or equal to 32 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (!,#,$,%,&,',+,-,.,=,@,^,_,{,},~,(,),[,],(space))
+
+    Note 3: For Secret, 12 to 32 ASCII characters(alphabetic characters and
+            the following symbols) can be used.
+            (.,-,+,@,_,=,:,/,[,],~,(space))
+

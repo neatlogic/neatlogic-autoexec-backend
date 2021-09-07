@@ -1,0 +1,54 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autruecopy    Referencing TrueCopy Pair Information
+
+Format
+  AMS, WMS
+    autruecopy -unit unit_name -refer [ -lu lun ... ] [ -tc | -tce ]
+    autruecopy -unit unit_name -refer -ctg [ -ctgno ctg_no ]
+
+Description
+    This command references the TrueCopy pair information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            the TrueCopy pair information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the TrueCopy pair information.
+
+    -lu lun ...
+            Specify the LU numbers to reference the TrueCopy pair information.
+            When doing that, enter the LU number using numerals or a 
+            hyphen(s) (-).
+            If the specification is omitted, all the TrueCopy pair information
+            is displayed.
+            Single or multiple LU numbers can be specified.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+    -tc
+            Specify this option when referencing the TrueCopy pair only.
+    -tce
+            Specify this option when referencing the TrueCopy Extended
+            Distance pair only.
+    -ctg
+            Specify this option when referencing the CTG information of
+            TrueCopy Extended Distance pair.
+
+    -ctgno ctg_no
+            Specify the CTG number to reference the CTG information of
+            TrueCopy Extended Distance pair.
+
+                ctg_no: CTG number
+

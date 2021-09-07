@@ -1,0 +1,65 @@
+#!/bin/sh
+
+HEAD="head -4"
+LC_TIME=C ; export LC_TIME
+
+if [ "X-help" = X$1 ] ; then
+    echo "Usage:"
+    echo "    `basename $0`"
+    exit 0
+fi
+
+AUBINS=" \
+  auunitref      auunitadd      auunitchg      auunitdel      aupasswd       \
+  auuidadd       auuidchg       auuiddel       aupwdchg       aulogin        \
+  aulogout       auchkuid       aurev          audrive        aucache        \
+  ausupply       aucrlan        aurgref        aurgadd        aurgexp        \
+  aurgdel        auluref        auluadd        auformat       auformatst     \
+  auluexp        auludel        auluchg        auturbolu                     \
+  aumrcfluc      ausysparam     auportop       aurtc                         \
+                 aulan                         auspare        audrecopt      \
+  auonlineverify                aufibre1       aumicro        ausnmp         \
+  aureboot       austatistics   auperform      auinfomsg                     \
+                 auextprog      auerroralert   auopt          ausyspout      \
+  auconfigout    ausyspset      auconfigset    aulumrg        aumluref       \
+  aumludiv       auman          aucmddev       aurmtpath      auhgwwn        \
+  auhgopt        auhgmap        auunitid       auhgout        auhgset        \
+  auhgdef        auonsysprm     auluinvalidate aulurestoration               \
+  aulureallocate aupool         auvvol         aupair         auparts        \
+  aupfmstatiscfg auluguard      auquickfmtopt  aulucorrect    ausystuning    \
+  aulutuning                    aulupre        aumapguard     auhicopy       \
+  auunitinfo     ausystemparam  aubootopt      audmlu         autruecopy     \
+  auunitaddauto  auconstitute   autuningprefetch  aucachept                  \
+  aulucachept    autimezone     aunnclan       aumaintelan    aunassyslu     \
+  aunasuserlu    aunnc          auiscsi        autargetdef    autargetini    \
+  auchapuser     auisns         auping         autargetmap    autargetopt    \
+  autuningmultistream           auonlan        autruecopyopt  aubackenddiag  \
+  auauditlog     aumvolmigration auerralertopt  auaccount      auaccountenv  \
+  aupowersave    aureplicationvvol autuningluown auadditionalunit aulocateled \
+  aureplicationlocal auaccountopt  aureplicationremote        auemailalert   \
+  aureplicationmon  auunitpowersave            ausslopt       aulanport      \
+  auluchgsize    aupartsopt     audppool       audptrend      audpoptimize   \
+  auenvinfo      auloginfo      ausatawrcmp    auconfigreport auaccountscript \
+  auencrypt      auups  auhostresp  aussdendurance  aupartinterface  audptier \
+  aulanportblock  auarraymigration  aussdfmdendurance  aufmdbatterylife       \
+  auhostlogininfo"
+
+for AB in $AUBINS
+do
+    ( $AB -help ) > /dev/null 2>&1
+    if [ 0 -eq $? ] ; then
+	echo $AB
+	$AB -help | $HEAD
+    else
+	if [ -f $AB ] ; then
+	    echo $AB
+	    ./${AB} -help | $HEAD
+	fi
+    fi
+done
+
+echo "Hitachi Storage Navigator Modular 2"
+echo "Version 28.82 (20181109.00)"
+echo "Copyright (C) 2005, 2018, Hitachi, Ltd."
+echo 
+

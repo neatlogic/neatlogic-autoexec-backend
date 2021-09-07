@@ -1,0 +1,29 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aureboot    Rebooting
+
+Format
+  When rebooting after a shutdown.
+    9500V, AMS, WMS, SMS, AMS2000, HUS100
+      aureboot -unit unit_name
+  When performing only a shutdown and not rebooting.
+    SMS, AMS2000, HUS100
+      aureboot -unit unit_name -onlyshutdown
+
+Description
+    This command reboots the subsystem after a shutdown.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit that is to be rebooted.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -onlyshutdown
+            Only a shutdown is performed. A reboot is not performed.
+

@@ -1,0 +1,30 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulogin    Logging In and Forcibly Logging In to the Array Unit
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aulogin -unit unit_name [ -discon ]
+
+Description
+    This command declares an intention to log into an array unit with a user
+    ID registered in the array unit. Using this command disables any other
+    user ID to log in.
+    When you want to log in forcibly to an array unit which other user has
+    already been logged in, specify the -discon option. When forcibly logged
+    in, an already logged in user will be logged out.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit to log in.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -discon
+            Specify this option to forcibly log into an array unit which
+            another user has already been logged in.
+

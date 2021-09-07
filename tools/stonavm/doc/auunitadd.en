@@ -1,0 +1,119 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auunitadd    Registering
+
+Format
+  9500V
+    Single system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -RS232C | -LAN ]
+                -ctl0 device | address [ -ignore ]
+
+    Dual system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -RS232C | -LAN ]
+                [ -ctl0 device | address ] [ -ctl1 device | address ]
+                [ -ignore ]
+
+  AMS, WMS
+    Single system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -LAN ]
+                -ctl0 address [ -ignore ]
+
+    Dual system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -LAN ]
+                [ -ctl0 address ] [ -ctl1 address ]
+                [ -ignore ]
+
+  SMS, AMS2000, HUS100
+    Single system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -LAN ]
+                -ctl0 address [ -ignore ]
+                [ -communicationtype nonsecure | secure | securepriority ]
+
+    Dual system
+      auunitadd [ -unit unit_name ] [ -group group_name ]
+                [ -LAN ]
+                [ -ctl0 address ] [ -ctl1 address ]
+                [ -ignore ]
+                [ -communicationtype nonsecure | secure | securepriority ]
+
+Description
+    This command registers an array unit into the Navigator.
+    4096 array units can be registered at maximum. 
+    Registration information consists of an array unit name, a group name,
+    connection interface and a communication type.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit whose registration 
+            information to set up.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. Cannot specify spaces only.  If omitted this option,
+            the name to be registered is given as "an array unit model
+            name_serial number". (For example, AMS2300_85010123)
+
+    -group group_name
+            Specify the name of a group in which multiple array units are
+            managed all together. If this option is omitted, array units are
+            not managed in a group all together.
+            The maximum number of groups registered is 200.
+            Specify the name in less than or equal to 16 characters using 
+            alphanumeric characters, special symbols "- (minus)", 
+            or "_ (underline)".
+
+    -RS232C | -LAN
+            Specify the connection interface (RS232C or LAN) to an array
+            unit. If omitted this option, the connection interface to be
+            registered is given as LAN.
+
+    -ctl0 device | address
+            Specify the device or address used to connect to Controller 0.
+            If "LAN" is selected, specify an "IP address" or "host name".
+            If "RS232C", specify a "device name".
+            Specify a host name with up to 15 one-byte coded characters. 
+            Specify a device name with a RS232C port name or a device file
+            name.
+            (Example: Windows - COM1, Solaris - /dev/ttya)
+
+    -ctl1 device | address
+            Specify the device or address used to connect to Controller 1.
+            If "LAN" is selected, specify an "IP address" or "host name".
+            If "RS232C", specify a "device name".
+            Specify a host name with up to 15 one-byte coded characters. 
+            Specify a device name with a RS232C port name or a device file
+            name.
+            (Example: Windows - COM1, Solaris - /dev/ttya)
+    -ignore
+            An array unit is not monitored for errors. If omitted this option,
+            an array unit registered is monitored for errors.
+
+    -communicationtype nonsecure | secure | securepriority
+            Specify the communication type. If omitted this option,
+            non-secure port is used.
+
+                nonsecure     : Non-secure port
+                secure        : Secure port
+                securepriority: Secure port
+                                When the secure port can not be used,
+                                the non-secure port is used.
+
+    Note: For the dual system disk array unit, only one controller can be used
+          in the LAN connection mode. Specify Controller 0 IP Address/Host
+          Name/Device Name or Controller 1 IP Address/Host Name/Device Name.
+          When registering the array unit in the dual system, verify that you
+          have selected the correct controller for the connection before 
+          specifying Controller 0 IP Address/Host Name/Device Name and 
+          Controller 1 IP Address/Host Name/Device Name.
+          If you specify the wrong controller, depending on the specified 
+          contents, the controller configuration can be set to the opposite
+          controller side.
+

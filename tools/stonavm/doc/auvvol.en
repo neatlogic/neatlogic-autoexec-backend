@@ -1,0 +1,39 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auvvol    Creating/Deleting SnapShot Logical Unit
+
+Format
+  9500V, AMS, WMS
+    auvvol -unit unit_name -add -pvol lun [ -lu lun ]
+
+    auvvol -unit unit_name -rm -lu lun
+
+    auvvol -unit unit_name -availablelist
+
+Description
+    This command creates or deletes the SnapShot logical unit.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to create
+            or delete the SnapShot logical unit.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -add
+            Creates the SnapShot logical unit.
+    -rm
+            Deletes the SnapShot logical unit.
+
+    -pvol lun
+            Specify the P-VOL number of the SnapShot logical unit.
+    -lu lun
+            Specify the LU number.
+
+    -availablelist
+            Displays the LU list which can be used as P-VOL.
+

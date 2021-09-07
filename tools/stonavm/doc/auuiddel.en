@@ -1,0 +1,25 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auuiddel    Deleting the User ID
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    auuiddel -unit unit_name
+
+Description
+    This command deletes the user ID that has been set in an array unit.
+    After deleting the user ID, the number of user IDs are set in the array
+    unit will be displayed.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the user ID is to
+            be deleted.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

@@ -1,0 +1,678 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    audppool    Referencing/Setting the DP Pool Information
+
+Format
+  AMS2000, HUS100
+    audppool -unit unit_name -refer
+             [ -m | -g | -t | -auto ]
+    audppool -unit unit_name -refer -detail
+             -dppoolno pool_no
+             [ -m | -g | -t | -auto ]
+
+  AMS2000
+    When the drive is selected automatically.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -RAID1 | -RAID5 | -RAID10 | -RAID6
+               -combination data_drive_count:parity_drive_count
+               -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+               -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 | 750 |
+                        1000 | 2000 | 3000
+               -drive auto
+               -drivecount num
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+    When the drive is selected manually.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -RAID1 | -RAID5 | -RAID10 | -RAID6
+               -combination data_drive_count:parity_drive_count
+               -drive unit_no.hdu_no ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+
+      When RAID1 or RAID10 is specified, the combination "parity_drive_count"
+      is specified as the mirroring drive count.
+
+  HUS100
+    When not specifying the tier mode.
+      When creating the DP pool of a single DP RAID group.
+        When the drive is selected automatically.
+          audppool -unit unit_name -add
+                   -dppoolno pool_no
+                   -RAID1 | -RAID5 | -RAID10 | -RAID6
+                   -combination data_drive_count:parity_drive_count
+                   -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+                   -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                            2000 | 3000 | 4000
+                   -drive auto
+                   -drivecount num
+                   [ -early_alert num ]
+                   [ -depletion_alert num ]
+                   [ -notification_alert enable | disable ]
+                   [ -warning num ]
+                   [ -limit num ]
+                   [ -notification enable | disable ]
+                   [ -stripesize 64 | 256 ]
+                   [ -dprg dprg_no ]
+                   [ -repdepletion_alert num ]
+                   [ -repdatareleased num ]
+                   [ -limitenforcement enable | disable ]
+                   [ -encryption enable | disable ]
+        When the drive is selected manually.
+          audppool -unit unit_name -add
+                   -dppoolno pool_no
+                   -RAID1 | -RAID5 | -RAID10 | -RAID6
+                   -combination data_drive_count:parity_drive_count
+                   -drive unit_no.hdu_no ...
+                   [ -early_alert num ]
+                   [ -depletion_alert num ]
+                   [ -notification_alert enable | disable ]
+                   [ -warning num ]
+                   [ -limit num ]
+                   [ -notification enable | disable ]
+                   [ -stripesize 64 | 256 ]
+                   [ -dprg dprg_no ]
+                   [ -repdepletion_alert num ]
+                   [ -repdatareleased num ]
+                   [ -limitenforcement enable | disable ]
+                   [ -encryption enable | disable ]
+      When creating the DP pool of a single or plural DP RAID groups.
+        audppool -unit unit_name -add
+                 -dppoolno pool_no
+                 -dprgcount num
+                 -composition
+                   [ auto raid_level data_drive_count:parity_drive_count
+                     drive_type drive_capa [ dprg_no ] ] ...
+                   [ manual raid_level data_drive_count:parity_drive_count
+                     unit_no.hdu_no ... [ dprg_no ] ] ...
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -stripesize 64 | 256 ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+                 [ -encryption enable | disable ]
+    When creating the DP pool of a single or plural DP RAID groups and
+    specifying the tier mode disable.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -tiermode disable
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+               [ -repdepletion_alert num ]
+               [ -repdatareleased num ]
+               [ -limitenforcement enable | disable ]
+               [ -encryption enable | disable ]
+    When creating the DP pool of a single or plural DP RAID groups and
+    specifying the tier mode enable.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -tiermode enable
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+               [ -repdepletion_alert num ]
+               [ -repdatareleased num ]
+               [ -limitenforcement enable | disable ]
+               [ -tier1st_newpageassignment num ]
+               [ -tier1st_tierrelocation num ]
+               [ -tier2nd_newpageassignment num ]
+               [ -tier2nd_tierrelocation num ]
+               [ -tier3rd_newpageassignment num ]
+               [ -tier3rd_tierrelocation num ]
+               [ -highefficiencyrelocation enable | disable ]
+               -autoprogress enable | disable
+               [ -relocationperiods always | alloff |
+                                    start_time end_time week ...
+                                    [ start_time end_time week ... ] ... ]
+               [ -monitoringperiods always | alloff |
+                                    start_time end_time week ...
+                                    [ start_time end_time week ... ] ... ]
+               [ -encryption enable | disable ]
+
+      When RAID1 or RAID10 is specified, the combination "parity_drive_count"
+      is specified as the mirroring drive count.
+
+  AMS2000, HUS100
+    audppool -unit unit_name -rm
+             -dppoolno pool_no ...
+
+  AMS2000
+    When the drive is selected automatically.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -drivecount num
+               [ -dpoptimize ]
+    When the drive is selected manually.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -drive unit_no.hdu_no ...
+               [ -dpoptimize ]
+  HUS100
+    When adding the same compositional DP RAID group as composited DP RAID
+    group.
+      When the drive is selected automatically.
+        audppool -unit unit_name -chgsize
+                 -dppoolno pool_no
+                 -drivecount num
+                 [ -dpoptimize ]
+                 [ -dprg dprg_no ]
+      When the drive is selected manually.
+        audppool -unit unit_name -chgsize
+                 -dppoolno pool_no
+                 -drive unit_no.hdu_no ...
+                 [ -dpoptimize ]
+                 [ -dprg dprg_no ]
+    When adding the DP RAID group to DP pool.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -dpoptimize ]
+    When shrinking the DP RAID groups to DP pool.
+      audppool -unit unit_name -chgsize -shrink
+               -dppoolno pool_no -dprg dprg_no ...
+
+  AMS2000
+    audppool -unit unit_name -chg
+             -dppoolno pool_no
+             [ -early_alert num ]
+             [ -depletion_alert num ]
+             [ -notification_alert enable | disable ]
+             [ -warning num ]
+             [ -limit num ]
+             [ -notification enable | disable ]
+  HUS100
+    When changing the attribute.
+      When the tier mode is disable or "N/A".
+        audppool -unit unit_name -chg
+                 -dppoolno pool_no
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+      When the tier mode is enable.
+        audppool -unit unit_name -chg
+                 -dppoolno pool_no
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+                 [ -tier1st_newpageassignment num ]
+                 [ -tier1st_tierrelocation num ]
+                 [ -tier2nd_newpageassignment num ]
+                 [ -tier2nd_tierrelocation num ]
+                 [ -tier3rd_newpageassignment num ]
+                 [ -tier3rd_tierrelocation num ]
+    When changing the tier mode.
+      audppool -unit unit_name -chg
+               -dppoolno pool_no ...
+               -tiermode enable | disable
+
+  AMS2000, HUS100
+    audppool -unit unit_name -recover
+             -dppoolno pool_no
+
+  HUS100
+    audppool -unit unit_name -cancel -shrink
+             -dppoolno pool_no -dprg dprg_no ...
+
+  AMS2000
+    When creating the DP pool.
+      audppool -unit unit_name -availablelist
+               -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+               [ -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 |
+                          750 | 1000 | 2000 | 3000 ]
+    When growing the DP pool.
+      audppool -unit unit_name -availablelist
+               -dppoolno pool_no
+  HUS100
+    When creating the DP pool.
+      audppool -unit unit_name -availablelist
+               -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+               [ -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                          2000 | 3000 | 4000 ]
+               [ -encryption enable | disable ]
+    When growing the DP pool.
+      audppool -unit unit_name -availablelist
+               -dppoolno pool_no
+               [ -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD ]
+               [ -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                          2000 | 3000 | 4000 ]
+
+Description
+    This command references or sets the DP pool information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the DP pool information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the DP pool information.
+    -add
+            Adds the DP pool.
+    -rm
+            Deletes the DP pool.
+    -chgsize
+            Changes the capacity of DP pool.
+    -chg
+            Changes the DP pool information.
+    -recover
+            Reinitialize the DP pool.
+    -cancel
+            Cancels directions to DP pool.
+
+    -availablelist
+          When the -type option is specified:
+            The drives list in which the DP pool can be set is displayed.
+          When the -dppoolno option is specified:
+            The drives list in which the DP pool can be set is displayed,
+            when changing DP pool size.
+    -detail
+            Specify when referencing the detail DP pool information.
+
+    -m | -g | -t | -auto
+            Expresses the capacity unit.
+            When the specification is omitted, the capacity is expressed 
+            in blocks.
+
+                -m   : MB
+                -g   : GB
+                -t   : TB
+                -auto: If the capacity is 1 TB or more, it is displayed
+                       in TB. If 1 GB or more and less than 1 TB, it is
+                       displayed in GB. If less than 1 GB, it is displayed
+                       in MB.
+
+    -dppoolno pool_no
+            Specify the DP pool number.
+
+                pool_no: DP pool number
+
+    -dppoolno pool_no ...
+            Specify the DP pool number.
+            Single or multiple DP pool numbers can be specified.
+
+                Single specification  : Specifying a single DP pool number.
+                                        Example: -dppoolno 3
+                Multiple specification: Specifying multiple DP pool numbers.
+                                        Example: -dppoolno 0 1 2 3 4 5 8
+                                                 -dppoolno 0-5 8
+
+                pool_no: DP pool number
+
+    -RAID1 | -RAID5 | -RAID10 | -RAID6
+            Specify the RAID level.
+
+    -combination data_drive_count:parity_drive_count
+            Specify the RAID combination.
+
+                data_drive_count  : Number of data drives
+                parity_drive_count: Number of parity drives
+                                    When RAID level is RAID1 or RAID10, 
+                                    specify number of mirroring drives.
+                                    Example: When RAID5(4D+1P) is specified:
+                                             -combination 4:1
+                                             When RAID10(3D+3D) is specified:
+                                             -combination 3:3
+
+    -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+    -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+          When the -add option is specified:
+            Specify the drives type that compose the DP pool.
+            Specify this option only when setting the drives automatically.
+          When the -availablelist option is specified:
+            Specify the drives type to be displayed in the list of
+            the usable drives.
+
+    -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 | 750 | 1000 |
+             2000 | 3000
+    -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 | 2000 | 3000 |
+             4000
+          When the -add option is specified:
+            Specify the capacity type that compose the DP pool.
+            Specify this option only when setting the drives automatically.
+          When the -availablelist option is specified:
+            Specify the capacity type to be displayed in the list of
+            the usable drives.
+
+    -drive auto | unit_no.hdu_no ...
+            Specify the drives that compose the DP pool.
+
+                auto          : The Unit number and HDU numbers are set
+                                automatically.
+                unit_no.hdu_no: Specify the Unit number and HDU number
+                                punctuating them with a period. When doing
+                                that, enter the Unit number and HDU number
+                                using numerals or hyphen(s) (-).
+                                Example: -drive 0.1 2.3 3.1
+                                Example: -drive 1.0-2.2 2.8
+
+    -drivecount num
+            Specify the number of drives.
+
+    -dpoptimize
+            Specify when executing the DP optimization after adding
+            capacity.
+
+    -early_alert num
+            Specify the early alert of the DP pool consumed capacity alert.
+
+    -depletion_alert num
+            Specify the depletion alert of the DP pool consumed 
+            capacity alert.
+
+    -notification_alert enable | disable
+            Specify whether to set the notification of the DP pool consumed
+            capacity alert effective or ineffective.
+
+                enable : Enables the notification of the DP pool consumed
+                         capacity alert.
+                disable: Disables the notification of the DP pool consumed
+                         capacity alert.
+
+    -warning num
+            Specify the warning of the DP pool over provisioning threshold.
+
+    -limit num
+            Specify the limit of the DP pool over provisioning threshold.
+
+    -notification enable | disable
+            Specify whether to set the notification of the DP pool
+            over provisioning threshold effective or ineffective.
+
+                enable : Enables the notification of 
+                         the DP pool over provisioning threshold.
+                disable: Disables the notification of 
+                         the DP pool over provisioning threshold.
+
+    -stripesize 64 | 256
+            Specify the stripe size. If omitted this option, the Navigator
+            sets for 256.
+
+                64 : Sets the stripe size 64KB.
+                256: Sets the stripe size 256KB.
+
+    -dprg dprg_no
+            Specify the DP RAID group number. If omitted this option,
+            the DP RAID group number will be assigned automatically.
+
+                dprg_no: DP RAID group number
+
+    -dprg dprg_no ...
+            Specify the DP RAID group number.
+            Single or multiple DP RAID group numbers can be specified.
+
+                Single specification  : Specifying a single DP RAID group
+                                        number.
+                                        Example: -dprg 3
+                Multiple specification: Specifying multiple DP RAID group
+                                        numbers.
+                                        Example: -dprg 0 1 2 3 4 5 8
+                                                 -dprg 0-5 8
+
+                dprg_no: DP RAID group number
+
+    -repdepletion_alert num
+            Specify the threshold of the replication depletion alert.
+
+    -repdatareleased num
+            Specify the threshold of the replication data released.
+
+    -limitenforcement enable | disable
+            Specify whether to set the over provisioning limit enforcement
+            effective or ineffective.
+
+                enable : Enables the over provisioning limit enforcement.
+                disable: Disables the over provisioning limit enforcement.
+
+    -tiermode enable | disable
+            Specify whether to set the tier mode effective or ineffective.
+
+                enable : Enables the tier mode.
+                disable: Disables the tier mode.
+
+    -dprgcount num
+            Specify the number of DP RAID groups.
+
+    -composition [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+            Specify the composition of DP RAID groups. It specifies by the DP
+            RAID group number specified as -dprgcount option.
+
+              Example: When specifying the plural DP RAID groups.
+                       -composition auto RAID5 4:1 SAS 600 5
+                                    manual RAID5 3:1 1.2,1.5-1.7 100
+                                    manual RAID5 4:1 2.2,2.5-2.7,2.10
+            
+                auto              : Specify the "auto", when selecting
+                                    automatically the drive for composition of
+                                    DP RAID group.
+                manual            : Specify the "manual", when specifying
+                                    manually the drive for composition of DP
+                                    RAID group.
+                raid_level        : Specify the RAID level. Specify any of the
+                                    following.
+                                      RAID1, RAID5, RAID10, RAID6
+                data_drive_count  : Number of data drives.
+                parity_drive_count: Number of parity drives.
+                                    When RAID level is RAID1 or RAID10,
+                                    specify number of mirroring drives.
+                drive_type        : Specify the drive type for composition of
+                                    DP RAID group. Specify this option only
+                                    when selecting the drives automatically.
+                                    Specify any of the following.
+                                      SAS, SAS:10K, SAS:15K, SAS7K, SSD, FMD
+                drive_capa        : Specify the drive capacity for composition
+                                    of DP RAID group. Specify this option only
+                                    when selecting the drives automatically.
+                                    Specify any of the following.
+                                      200, 300, 400, 600, 800, 900, 1200, 1600,
+                                      2000, 3000, 4000
+                dprg_no           : Specify the DP RAID group number.
+                                    If omitted this option, the DP RAID group
+                                    number are set automatically.
+                unit_no.hdu_no ...: Specify the Unit number and HDU number
+                                    punctuating them with a period. When doing
+                                    that, enter the Unit number and HDU number
+                                    using numerals or hyphen(s) (-).
+                                    Input the comma, when specifying plural.
+                                      Example: 0.1,2.3,3.1
+                                               1.0-2.2,2.8
+
+    -tier1st_newpageassignment num
+            Specify the buffer space for new page assignment of the 1st tier.
+            If omitted this option, sets for 0.
+
+    -tier1st_tierrelocation num
+            Specify the buffer space for tier relocation of the 1st tier.
+            If omitted this option, sets for 2.
+
+    -tier2nd_newpageassignment num
+            Specify the buffer space for new page assignment of the 2nd tier.
+            If omitted this option, sets for 8.
+
+    -tier2nd_tierrelocation num
+            Specify the buffer space for tier relocation of the 2nd tier.
+            If omitted this option, sets for 2.
+
+    -tier3rd_newpageassignment num
+            Specify the buffer space for new page assignment of the 3rd tier.
+            If omitted this option, sets for 8.
+
+    -tier3rd_tierrelocation num
+            Specify the buffer space for tier relocation of the 3rd tier.
+            If omitted this option, sets for 2.
+
+    -highefficiencyrelocation enable | disable
+            Specify whether to set the high efficiency relocation mode
+            effective or ineffective. If omitted this option, sets for enable.
+
+                enable : Enables the high efficiency relocation mode.
+                disable: Disables the high efficiency relocation mode.
+
+    -autoprogress enable | disable
+            Specify whether to set the auto progress mode effective or
+            ineffective.
+
+                enable : Enables the auto progress mode.
+                disable: Disables the auto progress mode.
+
+    -relocationperiods always | alloff |
+                       start_time end_time week ...
+                       [ start_time end_time week ... ] ...
+            Specify the relocation periods. If omitted this option, sets for
+            always.
+
+                always    : Sets the always running.
+                alloff    : Sets to not running.
+                start_time: Sets the start time by 4 digits(hhmm).
+                            The time which can be specified is
+                            0000 to 2330.
+
+                            hh: Hour (00 to 23)
+                            mm: Minute (00 or 30)
+
+                end_time  : Sets the end time by 4 digits(hhmm).
+                            The time which can be specified is
+                            0030 to 2400.
+
+                            hh: Hour (00 to 24)
+                            mm: Minute (00 or 30)
+
+                week ...  : Sets the day of week.
+                            Single or multiple days of week can be specified.
+
+                            Single specification  : Specifying a single day of
+                                                    week.
+                                                    Example: -relocationperiods
+                                                             1700 1830 mon
+                            Multiple specification: Specifying multiple days of
+                                                    week.
+                                                    Example: -relocationperiods
+                                                             0130 0300 wed fri
+
+                            mon: Monday
+                            tue: Tuesday
+                            wed: Wednesday
+                            thu: Thursday
+                            fri: Friday
+                            sat: Saturday
+                            sun: Sunday
+
+    -monitoringperiods always | alloff |
+                       start_time end_time week ...
+                       [ start_time end_time week ... ] ...
+            Specify the monitoring periods. If omitted this option, sets for
+            always.
+
+                always    : Sets the always running.
+                alloff    : Sets to not running.
+                start_time: Sets the start time by 4 digits(hhmm).
+                            The time which can be specified is
+                            0000 to 2330.
+
+                            hh: Hour (00 to 23)
+                            mm: Minute (00 or 30)
+
+                end_time  : Sets the end time by 4 digits(hhmm).
+                            The time which can be specified is
+                            0030 to 2400.
+
+                            hh: Hour (00 to 24)
+                            mm: Minute (00 or 30)
+
+                week ...  : Sets the day of week.
+                            Single or multiple days of week can be specified.
+
+                            Single specification  : Specifying a single day of
+                                                    week.
+                                                    Example: -monitoringperiods
+                                                             1700 1830 mon
+                            Multiple specification: Specifying multiple days of
+                                                    week.
+                                                    Example: -monitoringperiods
+                                                             0130 0300 wed fri
+
+                            mon: Monday
+                            tue: Tuesday
+                            wed: Wednesday
+                            thu: Thursday
+                            fri: Friday
+                            sat: Saturday
+                            sun: Sunday
+
+    -shrink
+          When the -chgsize option is specified:
+            Shrinks capacity of DP pool.
+          When the -cancel option is specified:
+            Cancels shrink DP pool capacity.
+
+    -encryption enable | disable
+            Specify whether to set the encryption effective or ineffective.
+            When the -add option is specified:
+              If omitted this option, sets for disable.
+
+                enable : Enables the encryption.
+                disable: Disables the encryption.
+
