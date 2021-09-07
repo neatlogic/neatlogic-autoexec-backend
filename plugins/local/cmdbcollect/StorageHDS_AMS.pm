@@ -29,15 +29,15 @@ sub new {
     $self->{password}    = $password;
     $self->{stonavmHome} = $stonavmHome;
 
-    $ENV{'LIBPATH'}         = "$stonavmHome:$ENV{LIBPATH}";
-    $ENV{'SHLIB_PATH'}      = "$stonavmHome/lib:$ENV{SHLIB_PATH}";
-    $ENV{'LD_LIBRARY_PATH'} = "$stonavmHome/lib:$ENV{LD_LIBRARY_PATH}";
-    $ENV{'STONAVM_HOME'}    = "$stonavmHome";
-    $ENV{'STONAVM_ACT'}     = 'on';
+    $ENV{LIBPATH}         = "$stonavmHome:$ENV{LIBPATH}";
+    $ENV{SHLIB_PATH}      = "$stonavmHome/lib:$ENV{SHLIB_PATH}";
+    $ENV{LD_LIBRARY_PATH} = "$stonavmHome/lib:$ENV{LD_LIBRARY_PATH}";
+    $ENV{STONAVM_HOME}    = "$stonavmHome";
+    $ENV{STONAVM_ACT}     = 'on';
 
     #取消每次“y" or "no"提示
-    $ENV{'STONAVM_RSP_PASS'} = 'on';
-    $ENV{'PATH'}             = "$ENV{PATH}:$stonavmHome";
+    $ENV{STONAVM_RSP_PASS} = 'on';
+    $ENV{PATH}             = "$ENV{PATH}:$stonavmHome";
 
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
