@@ -88,7 +88,7 @@ sub collect {
     my $registeredLines = $self->getCmdOutLines('auunitref');
     foreach my $registered (@$registeredLines) {
         if ( $registered =~ /$host/ ) {
-            my @registered_info = split( $registered, '\s+' );
+            my @registered_info = split( /\s+/, $registered );
             $unitName = @registered_info[0];
         }
     }
@@ -128,7 +128,7 @@ sub collect {
     my @luns            = ();
     foreach my $line (@lunOutInfoLines) {
         chomp($line);
-        my @lineInfo = split( $line, '\s+' );
+        my @lineInfo = split( /\s+/, $line );
         my ( $name, $capacity, $size, $type, $poolname );
 
         $name     = $lineInfo[0];
@@ -164,7 +164,7 @@ sub collect {
     my @pools            = ();
     foreach my $line (@poolOutInfoLines) {
         chomp($line);
-        my @lineInfo = split( $line, '\s+' );
+        my @lineInfo = split( /\s+/, $line );
         my ( $pool, $level, $total, $capacity );
 
         $pool     = $lineInfo[0];
