@@ -147,7 +147,7 @@ sub collect {
         my $name = ( split( /\s+/, $line ) )[1];
         my $ctrlInfo = {};
         $ctrlInfo->{NAME}           = $name;
-        $ctrlInfo->{NET_INTERFACES} = $ctrlNicsMap->{$name};
+        $ctrlInfo->{ETH_INTERFACES} = $ctrlNicsMap->{$name};
         $ctrlInfo->{HBA_INTERFACES} = $ctrlHbasMap->{$name};
 
         push( @ctrls, $ctrlInfo );

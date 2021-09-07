@@ -128,7 +128,7 @@ class VsphereQuery:
                 #net_ins['SPEED'] = net.linkSpeed.speedMb
                 net_ins['IP_ADDRESS'] = self.str_format(net.spec.ip.ipAddress)
                 data_list.append(net_ins)
-        ins['NET_INTERFACES'] = data_list
+        ins['ETH_INTERFACES'] = data_list
         return ins
 
     def get_hostlist(self, cluster):

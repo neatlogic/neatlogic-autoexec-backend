@@ -436,7 +436,7 @@ sub collectHostInfo {
         }
     }
     my @nicInfos = values(%$nicInfosMap);
-    $hostInfo->{NET_INTERFACES} = \@nicInfos;
+    $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
     #TODO: 需要确认HBA卡信息采集的正确性
     my @hbaInfos    = ();
@@ -478,7 +478,7 @@ sub collect {
 
     my $hostInfo = $self->collectHostInfo();
 
-    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
 
     $hostInfo->{IS_VIRTUAL}           = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}                = $osInfo->{DISKS};

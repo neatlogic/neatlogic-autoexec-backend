@@ -33,7 +33,7 @@
         "MGMT_PORT": "",
         "PRODUCT_NAME": "VMware Virtual Platform",
         "MODEL_NAME": "Intel(R) Xeon(R) CPU E5-2670 0",
-        "NET_INTERFACES": [{
+        "ETH_INTERFACES": [{
             "STATUS": "yes",
             "UNIT": "Mb/s",
             "NAME": "ens160",

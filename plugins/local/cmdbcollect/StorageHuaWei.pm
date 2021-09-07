@@ -221,7 +221,7 @@ sub getPools {
     $data->{POOLS}          = $pools;
     $data->{CONTROLLERS}    = $tableData->{CTRL_LIST};
     $data->{HBA_INTERFACES} = $tableData->{HBA_LIST};
-    $data->{NET_INTERFACES} = $tableData->{ETH_LIST};
+    $data->{ETH_INTERFACES} = $tableData->{ETH_LIST};
 
     return;
 }

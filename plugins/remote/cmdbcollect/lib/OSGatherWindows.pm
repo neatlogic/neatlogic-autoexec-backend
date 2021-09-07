@@ -289,7 +289,7 @@ sub collectHostInfo {
             push( @nicInfos, $nicInfo );
         }
     }
-    $hostInfo->{NET_INTERFACES} = \@nicInfos;
+    $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
     return $hostInfo;
 }
@@ -303,7 +303,7 @@ sub collect {
     # if ( $osInfo->{IS_VIRTUAL} == 0 ){
     #     $hostInfo = $self->collectHostInfo();
     # }
-    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
 
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};

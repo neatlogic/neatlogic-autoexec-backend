@@ -595,7 +595,7 @@ sub collectHostInfo {
             $i = $i - 1;
         }
     }
-    $hostInfo->{NET_INTERFACES} = \@nicInfos;
+    $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
     my @hbaInfos = ();
     foreach my $fcHostPath ( glob('/sys/class/fc_host/*') ) {
@@ -630,7 +630,7 @@ sub collect {
     my $hostInfo = $self->collectHostInfo();
 
     $osInfo->{CPU_CORES}      = $hostInfo->{CPU_CORES};
-    $osInfo->{NET_INTERFACES} = $hostInfo->{NET_INTERFACES};
+    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
     $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}        = $osInfo->{DISKS};
 
