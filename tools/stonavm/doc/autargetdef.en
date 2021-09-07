@@ -1,0 +1,195 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autargetdef    Referencing/Setting iSCSI Target Information
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    autargetdef -unit unit_name -refer
+
+    autargetdef -unit unit_name -add ctl_no port_no
+                [ -tno target_no ] -talias target_alias
+                -iname target_iscsi_name | -inamefile file_name
+                -authmethod CHAP | None | CHAP None
+                [ -mutual enable | disable ]
+                [ -tuser target_user_name | -tuserfile file_name ]
+
+    autargetdef -unit unit_name -chg ctl_no port_no
+                -tno target_no | -talias target_alias
+                [ -newtalias target_alias ]
+                [ -iname target_iscsi_name  | -inamefile file_name ]
+                [ -authmethod CHAP | None | CHAP None ]
+                [ -mutual enable | disable ]
+                [ -tuser target_user_name | -tuserfile file_name ]
+                [ -tsecret ]
+
+    autargetdef -unit unit_name -rm ctl_no port_no
+                -tno target_no ... | -talias target_alias ...
+
+    autargetdef -unit unit_name -init ctl_no port_no
+
+Description
+    This command references or sets the iSCSI target information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the target information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)".
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the target information.
+
+    -add ctl_no port_no
+            Adds the target information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -chg ctl_no port_no
+            Changes the target information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -rm ctl_no port_no
+            Deletes the target information.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -init ctl_no port_no
+            Initializes the Target 0.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, E, F)
+
+    -tno target_no
+         When the -add option is specified:
+            Specify the target number.
+            When the specification is omitted, Navigator assigns
+            the minimum number.
+         When the -chg option is specified:
+            Specify the target number.
+
+                target_no: Target number
+
+    -tno target_no ...
+            Specify the target number.
+            Single or multiple target numbers can be specified.
+
+                Single specification  : Specifying a single target number.
+                                        Example: -tno 3
+                Multiple specification: Specifying multiple target numbers.
+                                        Example: -tno 1 2 3 4 5 8
+                                                 -tno 1-5 8
+
+                target_no: Target number
+
+    -talias target_alias
+            Specify the target alias.
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                target_alias: Target alias (See Note 1)
+
+    -talias target_alias ...
+            Specify the target alias.
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+            Single or multiple target aliases can be specified. (See Note 7)
+
+                Single specification  : Specifying a single target alias.
+                                        Example: -talias solaris
+                Multiple specification: Specifying multiple target aliases.
+                                        Example: -talias irix01 solaris win001
+
+                target_alias: Target alias (See Note 1)
+
+    -iname target_iscsi_name
+            Specify the target iSCSI name.
+
+                target_iscsi_name: Target iSCSI name (See Note 2)(See Note 5)
+                                   (See Note 6)
+
+    -inamefile file_name
+            Specify the file(path) name when setting the target iSCSI name
+            using a file.
+
+                file_name: File(path) name
+
+    -authmethod CHAP | None | CHAP None
+            Specify the authentication method.
+
+                CHAP     : The hosts (as initiators) must with CHAP
+                           authentication.
+                None     : The hosts (as initiators) must without CHAP
+                           authentication.
+                CHAP None: If the hosts (as initiators) required with CHAP
+                           authentication, the authentication is done.
+                           (Same as "None CHAP")
+
+    -mutual enable | disable
+            Specify whether to set the mutual effective or ineffective.
+
+                enable : Enables the mutual.
+                disable: Disables the mutual.
+
+    -tuser target_user_name
+            Specify the target user name.
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                target_user_name: Target user name (See Note 3)
+
+    -tuserfile file_name
+            Specify the file(path) name when setting the target user name
+            using a file.
+
+                file_name: File(path) name
+
+    -newtalias target_alias
+            Specify the target alias to be changed.
+            Space in front and in the rear of the character string is removed.
+            Cannot specify spaces only.
+
+                target_alias: Target alias (See Note 1)
+
+    -tsecret
+            Specify this option when changing Secret of the target.
+            (See Note 4)
+
+    Note 1: For target alias, less than or equal to 32 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used.
+            (!,#,$,%,&,',+,-,.,=,@,^,_,{,},~,(,),[,],(space))
+
+    Note 2: Specify the iSCSI name of iqn format or eui format.
+            For iSCSI name, less than or equal to 223 ASCII characters
+            (alphabetic characters, period (.), hyphen (-) and colon (:))
+            can be used.
+
+    Note 3: For target user name, less than or equal to 256 ASCII characters
+            (alphabetic characters and the following symbols) can be used.
+            (.,-,+,@,_,=,:,/,[,],~,(space))
+
+    Note 4: For Secret, 12 to 32 ASCII characters(alphabetic characters and
+            the following symbols) can be used.
+            (.,-,+,@,_,=,:,/,[,],~,(space))
+
+    Note 5: For target iSCSI name, specify the iSCSI name different from
+            Initiator iSCSI name.
+
+    Note 6: Specify the different iSCSI name for target of each I/O path,
+            when I/O path between initiator and target is configured redundant
+            with multipath software. Set discovery addresses of iSCSI target
+            to each port for the host side.
+
+    Note 7: Specify the -talias option together with target_alias.
+            Since it becomes target_alias even if you specify other options
+            after the -talias option, specify the -talias option at the end.
+

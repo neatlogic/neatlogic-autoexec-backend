@@ -1,0 +1,102 @@
+#!/bin/sh
+
+osname=`uname -s`
+
+code_type=0
+
+GetCharacterCode() {
+  if [ $osname = 'Linux' ]
+  then
+    if [ $LANG = 'ja_JP.utf8' ]
+    then
+      return 3
+    elif [ $LANG = 'ja_JP.UTF-8' ]
+    then
+      return 3
+    else
+      return 1
+    fi
+  elif [ $osname = 'SunOS' ]
+  then
+    return 1
+  elif [ $osname = 'IRIX64' ]
+  then
+    return 1
+  elif [ $osname = 'IRIX' ]
+  then
+    return 1
+  elif [ $osname = 'HP-UX' ]
+  then
+    if [ X$CMDF_CODESET = 'XeucJP' ]
+    then
+      return 1
+    else
+      return 2
+    fi
+  elif [ $osname = 'AIX' ]
+  then
+    if [ X$CMDF_CODESET = 'XeucJP' ]
+    then
+      return 1
+    else
+      return 2
+    fi
+  else
+    exit 0
+  fi
+}
+
+Usage() {
+  echo "Usage:"
+  echo "    `basename $0` [ -en | -jp ]"
+  return 0
+}
+
+if [ $# -eq 0 ]
+then
+  if [ X$LANG = 'X' ]
+  then
+    code_type=0
+  else
+    echo $LANG | grep -i '^ja' > /dev/null
+    if [ $? -eq 0 ]
+    then
+      GetCharacterCode
+      code_type=$?
+    else
+      code_type=0
+    fi
+  fi
+else
+  if [ X$1 = 'X-help' ]
+  then
+    Usage
+    exit 0
+  fi
+  if [ X$1 = 'X-en' ]
+  then
+    code_type=0
+  elif [ X$1 = 'X-jp' ]
+  then
+    GetCharacterCode
+    code_type=$?
+  else
+    echo "Unknown option : $1"
+    exit 1
+  fi
+fi
+
+auhelp_path=`dirname $0`
+
+if [ $code_type -eq 0 ]
+then
+  cat ${auhelp_path}/auhelp.en
+elif [ $code_type -eq 1 ]
+then
+  cat ${auhelp_path}/auhelp.euc
+elif [ $code_type -eq 3 ]
+then
+  cat ${auhelp_path}/auhelp.utf8
+else
+  cat ${auhelp_path}/auhelp.sjis
+fi

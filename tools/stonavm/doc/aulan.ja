@@ -1,0 +1,76 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    aulan    LAN情報参照/設定
+
+【記述形式】
+  9500V, AMS, WMS
+    aulan -unit unit_name -refer
+
+  9500V
+    aulan -unit unit_name -set -ctl0 | -ctl1
+          [ -addr inet_addr ] [ -mask netmask ] [ -gate gateway ]
+          [ -dhcp enable | disable ]
+  AMS, WMS
+    aulan -unit unit_name -set
+          -ctl0 | -ctl1 [ -addr inet_addr ]
+                        [ -mask netmask ]
+                        [ -gate gateway ]
+                        [ -dhcp enable | disable ]
+                        [ -mipchg ]
+    aulan -unit unit_name -set
+          [ -mipchgmode enable | disable ]
+          [ -ctl0 | -ctl1 [ -addr inet_addr ]
+                          [ -mask netmask ]
+                          [ -gate gateway ]
+                          [ -nego auto | 10mh | 10mf | 100mh | 100mf ]
+                          [ -dhcp enable | disable ] ]
+
+【説明】
+    アレイ装置のLAN情報を表示、または設定します。
+
+【オプション】
+    -unit unit_name
+            LAN情報を参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            LAN情報を参照します。
+    -set
+            LAN情報を設定します。
+
+    -ctl0 | -ctl1
+            LAN情報を設定するコントローラを指定します。
+
+    -addr inet_addr
+            IPアドレスを設定する場合に指定します。
+
+    -mask netmask
+            サブネットマスクを設定する場合に指定します。
+
+    -gate gateway
+            デフォルトゲートウェイを設定する場合に指定します。
+
+    -nego auto | 10mh | 10mf | 100mh | 100mf
+            ネゴシエーションを設定する場合に指定します。
+
+                auto ：アレイ装置が自動決定します。
+                10mh ：10 Mbps/Half
+                10mf ：10 Mbps/Full
+                100mh：100 Mbps/Half
+                100mf：100 Mbps/Full
+
+    -dhcp enable | disable
+            DHCPモードの有効/無効を設定する場合に指定します。
+
+    -mipchg
+            保守ポートのIPアドレスを自動的に変更する場合に指定します。
+
+    -mipchgmode enable | disable
+            保守ポートIPアドレス自動変更モードの有効/無効を指定します。
+
+                enable ：保守ポートIPアドレス自動変更モードを有効にします。
+                disable：保守ポートIPアドレス自動変更モードを無効にします。
+

@@ -1,0 +1,24 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulogout    Logging Out from the Array Unit
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aulogout -unit unit_name
+
+Description
+    This command logs out the user ID who has already been logged into an
+    array unit.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit which the user ID is to be
+            logged out.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

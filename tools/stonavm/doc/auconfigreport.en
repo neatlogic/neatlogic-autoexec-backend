@@ -1,0 +1,161 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auconfigreport    Outputting the RAID Group/DP Pool/LU Information to File
+
+Format
+  SMS
+    auconfigreport -unit unit_name -filetype csv
+                   -resource rg
+                   [ -item [ raidlevel ] [ paritygroups ] [ type ]
+                           [ totalcapacity ] [ freecapacity ] [ priority ]
+                           [ status ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   -file file_name
+  AMS2000
+    auconfigreport -unit unit_name -filetype csv
+                   -resource rg
+                   [ -item [ raidlevel ] [ paritygroups ] [ type ]
+                           [ totalcapacity ] [ freecapacity ] [ priority ]
+                           [ status ] [ recoveryinfo ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   -file file_name
+  SMS, AMS2000
+    auconfigreport -unit unit_name -filetype csv
+                   -resource lu
+                   [ -item [ capacity ] [ stripesize ] [ rgnum ] [ dpnum ]
+                           [ raidlevel ] [ type ] [ pathinfo ] [ status ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   [ -nosublu ] [ -totalsize ]
+                   -file file_name
+  HUS100
+    auconfigreport -unit unit_name -filetype csv
+                   -resource rg
+                   [ -item [ raidlevel ] [ paritygroups ] [ type ]
+                           [ totalcapacity ] [ freecapacity ] [ priority ]
+                           [ status ] [ recoveryinfo ] [ rotationalspeed ]
+                           [ encryption ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   -file file_name
+    auconfigreport -unit unit_name -filetype csv
+                   -resource dp
+                   [ -item [ raidlevel ] [ totalcapacity ] [ consumedcapacity ]
+                           [ type ] [ status ] [ recoveryinfo ]
+                           [ stripesize ] [ needingpreparationcapacity ]
+                           [ tiermode ] [ utilizationpercent ]
+                           [ overprovisioningpercent ]
+                           [ replicationavailablecapacity ]
+                           [ replicationutilizationpercent ]
+                           [ rotationalspeed ] [ encryption ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   -file file_name
+    auconfigreport -unit unit_name -filetype csv
+                   -resource lu
+                   [ -item [ capacity ] [ stripesize ] [ rgnum ] [ dpnum ]
+                           [ raidlevel ] [ type ] [ pathinfo ] [ status ]
+                           [ tiermode ] [ rotationalspeed ] [ encryption ] ]
+                   [ -fmtcapa tb | gb | mb | block ]
+                   [ -nosublu ] [ -totalsize ]
+                   -file file_name
+
+Description
+    This command outputs the RAID group, DP pool or LU information
+    to a specified file.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit which you want to output
+            RAID group, DP pool or LU information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed.
+
+    -filetype csv
+            Specify the file format to output.
+
+                csv: CSV format
+
+    -resource rg | dp | lu
+            Specify resource to output.
+
+                rg: RAID group information
+                dp: DP pool information
+                lu: LU information
+
+    -item [ raidlevel ] [ paritygroups ] [ type ] [ totalcapacity ]
+          [ freecapacity ] [ priority ] [ capacity ] [ stripesize ]
+          [ rgnum ] [ dpnum ] [ pathinfo ] [ status ] [ recoveryinfo ]
+          [ consumedcapacity ] [ needingpreparationcapacity ] [ tiermode ]
+          [ utilizationpercent ] [ overprovisioningpercent ]
+          [ replicationavailablecapacity ] [ replicationutilizationpercent ]
+          [ rotationalspeed ] [ encryption ]
+            Specify the item to output.
+            If -item option is omitted, it outputs all the items.
+            When all the output items are omitted, it outputs only the
+            specified resource such a RAID group number or DP pool number
+            or LU number in the -resource option.
+
+              When the -resource rg is specified:
+                raidlevel      : RAID level
+                paritygroups   : number of parity groups
+                type           : drives type
+                totalcapacity  : total capacity
+                freecapacity   : free capacity
+                priority       : priority of RAID group expansion
+                status         : status
+                recoveryinfo   : reconstruction progress
+                rotationalspeed: rotational speed
+                encryption     : encryption
+              When the -resource lu is specified:
+                capacity       : capacity
+                stripesize     : stripe size
+                rgnum          : RAID group number
+                dpnum          : DP pool number
+                raidlevel      : RAID level
+                type           : drives type
+                pathinfo       : number of paths
+                status         : status
+                tiermode       : tier mode
+                rotationalspeed: rotational speed
+                encryption     : encryption
+              When the -resource dp is specified:
+                raidlevel                    : RAID level
+                totalcapacity                : total capacity
+                consumedcapacity             : consumed capacity
+                type                         : type
+                status                       : status
+                recoveryinfo                 : reconstruction progress
+                stripesize                   : stripe size
+                needingpreparationcapacity   : needing preparation capacity
+                tiermode                     : tier mode
+                utilizationpercent           : utilization percent
+                overprovisioningpercent      : over provisioning percent
+                replicationavailablecapacity : replication available capacity
+                replicationutilizationpercent: replication utilization percent
+                rotationalspeed              : rotational speed
+                encryption                   : encryption
+
+    -fmtcapa tb | gb | mb | block
+            Expresses the capacity unit.
+            When the specification is omitted,
+            if the capacity is 1 TB or more, it is displayed in TB.
+            If 1 GB or more and less than 1 TB, it is displayed in GB.
+            If less than 1 GB, it is displayed in MB.
+
+                tb   : TB
+                gb   : GB
+                mb   : MB
+                block: block
+
+    -nosublu
+            Specify when not outputting the Sub LU.
+
+    -totalsize
+            Specify when outputting the total capacity of unified Main LU.
+
+    -file file_name
+            Specify the name the file(path) to output.
+

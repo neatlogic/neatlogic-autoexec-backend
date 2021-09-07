@@ -1,0 +1,146 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    audpoptimize    Referencing/Starting/Canceling/Changing the DP Optimization
+
+Format
+  AMS2000, HUS100
+    audpoptimize -unit unit_name -refer
+
+    audpoptimize -unit unit_name -start
+                 -lu lun ...
+                 [ -zeropagereclaim ]
+                 [ -allindppool ]
+
+    audpoptimize -unit unit_name -cancel
+                 -lu lun ...
+                 [ -allindppool ]
+
+  AMS2000
+    audpoptimize -unit unit_name -chg
+                 -priority optimize | host
+    audpoptimize -unit unit_name -chg
+                 -capacitymode maximum | regular
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+  HUS100
+    audpoptimize -unit unit_name -chg
+                 -priority optimize | normal | host
+    audpoptimize -unit unit_name -chg
+                 -capacitymode maximum | regular
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+                 [ -auto enable [ -threshold num[ g | t ] ]
+                                [ -allindppool ] ]
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+                 [ -auto disable [ -allindppool ] ]
+
+    audpoptimize -unit unit_name -reconfigurememory start | cancel
+
+Description
+    This command performs a reference of DP optimization status, start of DP
+    optimization, cancellation, or DP optimization information change.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference,
+            start, cancel, or change the DP optimization.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed.
+    -refer
+            References the DP optimization status.
+    -start
+            Starts the DP optimization.
+    -cancel
+            Cancels the DP optimization.
+    -chg
+            Changes the DP optimization information.
+
+    -reconfigurememory start | cancel
+            Specify the memory reconfiguring to be started or canceled.
+
+                start : Starts the memory reconfiguring.
+                cancel: Cancels the memory reconfiguring.
+
+    -lu lun ...
+            Specify an LU number which belongs to DP pool.
+            Single or multiple LU numbers can be specified.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+
+    -zeropagereclaim
+            Specify when executing the reclaiming zero page.
+            If the specification is omitted, not executing the reclaiming
+            zero page.
+
+    -allindppool
+            Specify when executing for all logical units in DP pool including
+            specified logical units.
+            If the specification is omitted, executing the specified logical
+            units.
+
+    -priority optimize | normal | host
+            Specify the priority of DP optimization.
+
+                optimize: DP optimization
+                normal  : Normal
+                host    : Host access
+
+    -capacitymode maximum | regular
+            Specify the DP capacity mode.
+
+                maximum: Maximum capacity
+                regular: Regular capacity
+
+    -widestriping enable | disable
+            Specify whether to set the accelerated wide striping mode effective
+            or ineffective.
+
+                enable : Enables the accelerated wide striping mode.
+                disable: Disables the accelerated wide striping mode.
+
+    -dpoptimize
+            Specify when executing the DP optimization after the accelerated
+            wide striping mode changed.
+
+    -fullcapacity enable | disable
+            Specify whether to set the Full Capacity Mode effective or
+            ineffective.
+
+                enable : Enables the Full Capacity Mode.
+                disable: Disables the Full Capacity Mode.
+
+    -auto enable | disable
+            Specify whether to set the auto DP optimization effective or
+            ineffective.
+
+                enable : Enables the auto DP optimization.
+                disable: Disables the auto DP optimization.
+
+    -threshold num[ g | t ]
+            Specify the threshold of auto DP optimization.
+            When specifying the capacity in GB, only the numeric character is
+            specified or add "g" and "G" to the command option.
+            When specifying the capacity in TB, add "t" or "T" to the command
+            option.
+
+                num: Threshold
+                     Example: -threshold 50
+                              -threshold 50g
+                              -threshold 100T
+

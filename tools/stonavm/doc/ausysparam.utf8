@@ -1,0 +1,258 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    ausysparam    システムパラメータ参照/設定
+
+【記述形式】
+  9500V
+    ausysparam -unit unit_name -refer
+
+    ausysparam -unit unit_name -set
+               [ -SystemStartup        Single | DualIDTake | DualNotIDTake |
+                                       HotIDTake | HotNotIDTake ]
+               [ -TakingID             port_no ctl_no ]
+               [ -DataShare            used | notUsed ]
+               [ -DelayPlannedShutdown time ]
+               [ -DriveDetach          enable | disable ]
+               [ -PROCOM               enable | disable ]
+               [ -ReportStatus         enable | disable ]
+               [ -LuCacheWarning       enable | disable ]
+               [ -NX                   enable | disable ]
+               [ -AutoReconst          enable | disable ]
+               [ -ForcedWriteThrough   enable | disable ]
+               [ -LUChanging1          enable | disable ]
+               [ -MultiStream          enable | disable ]
+               [ -MultiStreamWrite     enable | disable ]
+               [ -MultiStreamRead      enable | disable ]
+               [ -HiSpeedSeqWrite      enable | disable ]
+               [ -ShadowImageIOSwitch  enable | disable ]
+               [ -SyncCacheAllExec     enable | disable ]
+               [ -SyncCacheInvalid     enable | disable ]
+               [ -ProcessorFailures    reset | shutdown ]
+               [ -inquiryCommandQueue  on | off ]
+               [ -inquiryVendor        string ]
+               [ -inquiryProduct       string ]
+               [ -inquiryRomMicro      string ]
+               [ -inquiryRamMicro      string ]
+               [ -WebTitle             string ]
+               [ -Rs232cOutflow        ctl_no off | normal | hitrack ]
+               [ -WriteVerifyExecution ctl_no on | off ]
+               [ -dhcp                 ctl_no enable | disable ]
+               [ -IPAddress            ctl_no inet_addr ]
+               [ -SubnetMask           ctl_no netmask ]
+               [ -DefaultGateway       ctl_no gateway ]
+
+【説明】
+    システムパラメータの内容を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            システムパラメータを参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            システムパラメータを参照します。
+    -set
+            システムパラメータを設定します。
+
+    -SystemStartup Single | DualIDTake | DualNotIDTake | HotIDTake |
+                   HotNotIDTake
+            アレイ装置の構成を指定します。
+
+                Single       ：シングル
+                DualIDTake   ：デュアルアクティブ(SCSI ID引継ぎあり)
+                DualNotIDTake：デュアルアクティブ(SCSI ID引継ぎなし)
+                HotIDTake    ：ホットスタンバイ(SCSI ID引継ぎあり)
+                HotNotIDTake ：ホットスタンバイ(SCSI ID引継ぎなし)
+
+    -TakingID port_no ctl_no
+            SCSI ID引継ぎを使用したデュアルアクティブ構成時のポートごとのデ
+            フォルトコントローラを指定します。
+
+                port_no：ポート番号(A、B、C、D)
+                ctl_no ：コントローラ番号(0、1)
+
+    -DataShare used | notUsed
+            データシェアモードを指定します。
+
+                used   ：データシェアモードを使用します。
+                notUsed：データシェアモードを使用しません。
+
+    -DelayPlannedShutdown time
+            メインスイッチをオフにしてから、計画停止を実行させるまでの時間を
+            指定します。
+            設定時間は、0〜60[分]で、1[分]単位です。
+            デフォルトは0[分]です。
+
+    -DriveDetach enable | disable
+            ドライブ閉塞モードの有効/無効を指定します。
+
+                enable ：ドライブ閉塞モードを有効にします。
+                disable：ドライブ閉塞モードを無効にします。
+
+    -PROCOM enable | disable
+            PROCOMモードの有効/無効を指定します。
+
+                enable ：PROCOMモードを有効にします。
+                disable：PROCOMモードを無効にします。
+
+    -ReportStatus enable | disable
+            ワーニング状態報告の有効/無効を指定します。
+
+                enable ：ワーニング状態報告を有効にします。
+                disable：ワーニング状態報告を無効にします。
+
+    -LuCacheWarning enable | disable
+            LUキャッシュ常駐機能が無効になった場合、ワーニング報告するか
+            どうかを指定します。
+
+                enable : ワーニング報告します。
+                disable: ワーニング報告しません。
+
+    -NX enable | disable
+            NXホスト接続モードの有効/無効を指定します。
+
+                enable ：NXホスト接続モードを有効にします。
+                disable：NXホスト接続モードを無効にします。
+
+    -AutoReconst enable | disable
+            自動再構築モードの有効/無効を指定します。
+
+                enable ：自動再構築モードを有効にします。
+                disable：自動再構築モードを無効にします。
+
+    -ForcedWriteThrough enable | disable
+            強制ライトスルーモードの有効/無効を指定します。
+
+                enable ：強制ライトスルーモードを有効にします。
+                disable：強制ライトスルーモードを無効にします。
+
+    -LUChanging1 enable | disable
+            ロジカルユニット切り替えモード1の有効/無効を指定します。
+
+                enable ：ロジカルユニット切り替えモード1を有効にします。
+                disable：ロジカルユニット切り替えモード1を無効にします。
+
+    -MultiStream enable | disable
+            マルチストリームモードの有効/無効を指定します。
+
+                enable ：マルチストリームモードを有効にします。
+                disable：マルチストリームモードを無効にします。
+
+    -MultiStreamWrite enable | disable
+            マルチストリームモード(ライト)の有効/無効を指定します。
+
+                enable ：マルチストリームモード(ライト)を有効にします。
+                disable：マルチストリームモード(ライト)を無効にします。
+
+    -MultiStreamRead enable | disable
+            マルチストリームモード(リード)の有効/無効を指定します。
+
+                enable ：マルチストリームモード(リード)を有効にします。
+                disable：マルチストリームモード(リード)を無効にします。
+
+    -HiSpeedSeqWrite enable | disable
+            高速シーケンシャルライトモードの有効/無効を指定します。
+
+                enable ：高速シーケンシャルライトモードを有効にします。
+                disable：高速シーケンシャルライトモードを無効にします。
+
+    -ShadowImageIOSwitch enable | disable
+            ShadowImage I/O切り替えモードの有効/無効を指定します。
+
+                enable ：ShadowImage I/O切り替えモードを有効にします。
+                disable：ShadowImage I/O切り替えモードを無効にします。
+
+    -SyncCacheAllExec enable | disable
+            Synchronize Cache全実施モードの有効/無効を指定します。
+
+                enable ：Synchronize Cache全実施モードを有効にします。
+                disable：Synchronize Cache全実施モードを無効にします。
+
+    -SyncCacheInvalid enable | disable
+            Synchronize Cache抑止モードの有効/無効を指定します。
+
+                enable ：Synchronize Cache抑止モードを有効にします。
+                disable：Synchronize Cache抑止モードを無効にします。
+
+    -ProcessorFailures reset | shutdown
+            プロセッサ障害発生時の動作を設定します。
+
+                reset   ：障害がリセットされ、コントローラを再起動します。
+                shutdown：アレイ装置をシャットダウンします。
+
+    -inquiryCommandQueue on | off
+            INQUIRY応答情報のコマンドキューイングを設定します。
+
+                on ：コマンドキューイングが実行されます。
+                off：コマンドキューイングが抑止されます。
+
+    -inquiryVendor string
+            INQUIRY応答情報のベンダー名称を8文字以内で指定します。NULL文字指
+            定する場合は、"" 指定します。
+
+    -inquiryProduct string
+            INQUIRY応答情報のプロダクトタイプを16文字以内で指定します。
+            NULL文字指定する場合は、"" 指定します。
+
+    -inquiryRomMicro string
+            INQUIRY応答情報のROMマイクロプログラムバージョンを2文字以内で指
+            定します。NULL文字指定する場合は、"" 指定します。
+
+    -inquiryRamMicro string
+            INQUIRY応答情報の RAMマイクロプログラムバージョンを2文字以内で指
+            定します。NULL文字指定する場合は、"" 指定します。
+
+    -WebTitle string
+            アレイ装置のホームページをブラウザで表示した場合、ブラウザのタイ
+            トルバーに表示する文字を指定します。
+            32文字以内の半角英数字または数字以外の文字（ '、"、および\を除く）
+            で入力してください。
+
+    -Rs232cOutflow ctl_no off | normal | hitrack
+            RS232Cへのエラー情報送出モードを設定します。
+
+                ctl_no ：コントローラ番号(0、1)
+                off    ：情報が送出されません。
+                normal ：情報が送出されます。
+                hitrack：HITRACKモードで情報が送出されます。
+
+    -WriteVerifyExecution ctl_no on | off
+            ライトアンドベリファイの実行を指定します。
+
+                ctl_no：コントローラ番号(0、1)
+                on    ：ライトアンドベリファイを実行します。
+                off   ：ライトアンドベリファイを実行しません。
+
+    -dhcp ctl_no enable | disable
+            DHCPモードの有効/無効を指定します。
+
+                ctl_no ：コントローラ番号(0、1)
+                enable ：DHCPモードを有効にします。
+                disable：DHCPモードを無効にします。
+
+    -IPAddress ctl_no inet_addr
+            IPアドレスを指定します。
+
+                ctl_no   ：コントローラ番号(0、1)
+                inet_addr：IPアドレス(xxx.xxx.xxx.xxx形式)
+
+    -SubnetMask ctl_no netmask
+            サブネットマスクを指定します。
+
+                ctl_no ：コントローラ番号(0、1)
+                netmask：サブネットマスク(xxx.xxx.xxx.xxx形式)
+
+    -DefaultGateway ctl_no gateway
+            デフォルトゲートウェイを指定します。
+
+                ctl_no ：コントローラ番号(0、1)
+                gateway：デフォルトゲートウェイ(xxx.xxx.xxx.xxx形式)
+
+    注)LAN構成情報(IP Addressなど)を変更した場合、再起動すると、再起動終了
+       メッセージが表示されず、エラーメッセージ(Interface Error)が表示され
+       る場合があります。LAN構成情報を変更した場合は、アレイ装置の再起動を
+       してください。
+

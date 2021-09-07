@@ -1,0 +1,908 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    autargetopt    iSCSI Targetオプションの参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    autargetopt -unit unit_name -refer
+
+  AMS, WMS
+    When specifying per target option.
+      autargetopt -unit unit_name -set
+                [ -HostConnection   ctl_no port_no target_no
+                                    standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               ctl_no port_no target_no enable | disable ]
+                [ -PSUEReadReject   ctl_no port_no target_no enable | disable ]
+                [ -UASuppress       ctl_no port_no target_no enable | disable ]
+                [ -NACA             ctl_no port_no target_no enable | disable ]
+                [ -HISUPOff         ctl_no port_no target_no enable | disable ]
+                [ -ResetPropagation ctl_no port_no target_no enable | disable ]
+                [ -UniqueReserve1   ctl_no port_no target_no enable | disable ]
+                [ -ASLReportAPG     ctl_no port_no target_no enable | disable ]
+                [ -ASLReportAP      ctl_no port_no target_no enable | disable ]
+                [ -ASLReportAA      ctl_no port_no target_no enable | disable ]
+                [ -PIDNoRep         ctl_no port_no target_no enable | disable ]
+                [ -PIDConv          ctl_no port_no target_no enable | disable ]
+                [ -TruCluster       ctl_no port_no target_no enable | disable ]
+                [ -SerialResponse   ctl_no port_no target_no enable | disable ]
+                [ -SameNodeName     ctl_no port_no target_no enable | disable ]
+                [ -CCHS             ctl_no port_no target_no enable | disable ]
+                [ -SPC2             ctl_no port_no target_no enable | disable ]
+                [ -SvolDisableAdvance
+                                    ctl_no port_no target_no enable | disable ]
+
+    When specifying per target.
+      autargetopt -unit unit_name -set ctl_no port_no
+                  -tno target_no | -talias target_alias
+                [ -HostConnection   standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               enable | disable ]
+                [ -PSUEReadReject   enable | disable ]
+                [ -UASuppress       enable | disable ]
+                [ -NACA             enable | disable ]
+                [ -HISUPOff         enable | disable ]
+                [ -ResetPropagation enable | disable ]
+                [ -UniqueReserve1   enable | disable ]
+                [ -ASLReportAPG     enable | disable ]
+                [ -ASLReportAP      enable | disable ]
+                [ -ASLReportAA      enable | disable ]
+                [ -PIDNoRep         enable | disable ]
+                [ -PIDConv          enable | disable ]
+                [ -TruCluster       enable | disable ]
+                [ -SerialResponse   enable | disable ]
+                [ -SameNodeName     enable | disable ]
+                [ -CCHS             enable | disable ]
+                [ -SPC2             enable | disable ]
+                [ -SvolDisableAdvance enable | disable ]
+
+  SMS
+    When specifying per target option.
+      autargetopt -unit unit_name -set
+                [ -HostConnection   ctl_no port_no target_no
+                                    standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               ctl_no port_no target_no enable | disable ]
+                [ -PSUEReadReject   ctl_no port_no target_no enable | disable ]
+                [ -ModeParamChanged ctl_no port_no target_no enable | disable ]
+                [ -NACA             ctl_no port_no target_no enable | disable ]
+                [ -TaskIsolation    ctl_no port_no target_no enable | disable ]
+                [ -UniqueReserve1   ctl_no port_no target_no enable | disable ]
+                [ -PIDConv          ctl_no port_no target_no enable | disable ]
+                [ -TruCluster       ctl_no port_no target_no enable | disable ]
+                [ -SerialResponse   ctl_no port_no target_no enable | disable ]
+                [ -SameNodeName     ctl_no port_no target_no enable | disable ]
+                [ -CCHS             ctl_no port_no target_no enable | disable ]
+                [ -InquirySerial    ctl_no port_no target_no enable | disable ]
+                [ -NOPInSuppress    ctl_no port_no target_no enable | disable ]
+                [ -SvolDisableAdvance
+                                    ctl_no port_no target_no enable | disable ]
+                [ -DiscoveryCHAP    ctl_no port_no target_no enable | disable ]
+                [ -ReportFullPortalList
+                                    ctl_no port_no target_no enable | disable ]
+                [ -UAChange         ctl_no port_no target_no enable | disable ]
+
+    When specifying per target.
+      autargetopt -unit unit_name -set ctl_no port_no
+                  -tno target_no | -talias target_alias
+                [ -HostConnection   standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               enable | disable ]
+                [ -PSUEReadReject   enable | disable ]
+                [ -ModeParamChanged enable | disable ]
+                [ -NACA             enable | disable ]
+                [ -TaskIsolation    enable | disable ]
+                [ -UniqueReserve1   enable | disable ]
+                [ -PIDConv          enable | disable ]
+                [ -TruCluster       enable | disable ]
+                [ -SerialResponse   enable | disable ]
+                [ -SameNodeName     enable | disable ]
+                [ -CCHS             enable | disable ]
+                [ -InquirySerial    enable | disable ]
+                [ -NOPInSuppress    enable | disable ]
+                [ -SvolDisableAdvance enable | disable ]
+                [ -DiscoveryCHAP    enable | disable ]
+                [ -ReportFullPortalList enable | disable ]
+                [ -UAChange         enable | disable ]
+
+    When specifying simple setting option.
+      autargetopt -unit unit_name -set ctl_no port_no
+                  -tno target_no | -talias target_alias
+                  -platform   NotSpecified | HP | Solaris | AIX | Linux |
+                              Windows | VMware | NetWare
+                  -middleware NotSpecified | VCS | TruCluster
+
+  AMS2000
+    When specifying per target option.
+      autargetopt -unit unit_name -set
+                [ -HostConnection   ctl_no port_no target_no
+                                    standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               ctl_no port_no target_no enable | disable ]
+                [ -PSUEReadReject   ctl_no port_no target_no enable | disable ]
+                [ -ModeParamChanged ctl_no port_no target_no enable | disable ]
+                [ -NACA             ctl_no port_no target_no enable | disable ]
+                [ -TaskIsolation    ctl_no port_no target_no enable | disable ]
+                [ -UniqueReserve1   ctl_no port_no target_no enable | disable ]
+                [ -PIDConv          ctl_no port_no target_no enable | disable ]
+                [ -TruCluster       ctl_no port_no target_no enable | disable ]
+                [ -SerialResponse   ctl_no port_no target_no enable | disable ]
+                [ -SameNodeName     ctl_no port_no target_no enable | disable ]
+                [ -CCHS             ctl_no port_no target_no enable | disable ]
+                [ -InquirySerial    ctl_no port_no target_no enable | disable ]
+                [ -NOPInSuppress    ctl_no port_no target_no enable | disable ]
+                [ -SvolDisableAdvance
+                                    ctl_no port_no target_no enable | disable ]
+                [ -DiscoveryCHAP    ctl_no port_no target_no enable | disable ]
+                [ -UniqueExtendedCOPY
+                                    ctl_no port_no target_no enable | disable ]
+                [ -UniqueWriteSame  ctl_no port_no target_no enable | disable ]
+                [ -ReportFullPortalList
+                                    ctl_no port_no target_no enable | disable ]
+                [ -DPDepletionReply ctl_no port_no target_no enable | disable ]
+                [ -UAChange         ctl_no port_no target_no enable | disable ]
+                [ -UNMAPShortLength ctl_no port_no target_no enable | disable ]
+                [ -ChangeRespRepli  ctl_no port_no target_no enable | disable ]
+                [ -WriteSameReject  ctl_no port_no target_no enable | disable ]
+                [ -FullProvisioning ctl_no port_no target_no enable | disable ]
+                [ -UNMAPReject      ctl_no port_no target_no enable | disable ]
+
+    When specifying per target.
+      autargetopt -unit unit_name -set ctl_no port_no
+                  -tno target_no | -talias target_alias
+                [ -HostConnection   standard | OpenVMS | TRESPASS | WolfPack ]
+                [ -HP               enable | disable ]
+                [ -PSUEReadReject   enable | disable ]
+                [ -ModeParamChanged enable | disable ]
+                [ -NACA             enable | disable ]
+                [ -TaskIsolation    enable | disable ]
+                [ -UniqueReserve1   enable | disable ]
+                [ -PIDConv          enable | disable ]
+                [ -TruCluster       enable | disable ]
+                [ -SerialResponse   enable | disable ]
+                [ -SameNodeName     enable | disable ]
+                [ -CCHS             enable | disable ]
+                [ -InquirySerial    enable | disable ]
+                [ -NOPInSuppress    enable | disable ]
+                [ -SvolDisableAdvance enable | disable ]
+                [ -DiscoveryCHAP    enable | disable ]
+                [ -UniqueExtendedCOPY enable | disable ]
+                [ -UniqueWriteSame  enable | disable ]
+                [ -ReportFullPortalList enable | disable ]
+                [ -DPDepletionReply enable | disable ]
+                [ -UAChange         enable | disable ]
+                [ -UNMAPShortLength enable | disable ]
+                [ -ChangeRespRepli  enable | disable ]
+                [ -WriteSameReject  enable | disable ]
+                [ -FullProvisioning enable | disable ]
+                [ -UNMAPReject      enable | disable ]
+
+    When specifying simple setting option.
+      autargetopt -unit unit_name -set ctl_no port_no
+                  -tno target_no | -talias target_alias
+                  -platform   NotSpecified | HP | Solaris | AIX | Linux |
+                              Windows | VMware | NetWare
+                  -middleware NotSpecified | VCS | TruCluster
+
+  HUS100
+    When specifying per target option.
+      When specifying "Name", "Option Name" the option name which is displayed
+      in "-availablelist".
+        autargetopt -unit unit_name -set
+                  [ -HostConnection ctl_no port_no target_no
+                                    hostconnection1_name ]
+                  [ hostconnection2_option ctl_no port_no target_no
+                                           enable | disable ] ...
+      When specifying "No." which is displayed in "-availablelist".
+        autargetopt -unit unit_name -set
+                  [ -HostConnectionNum ctl_no port_no target_no
+                                       hostconnection1_no ]
+                  [ -HostConnection2Num ctl_no port_no target_no
+                                    hostconnection2_no enable | disable ] ...
+
+    When specifying per target.
+      When specifying "Name", "Option Name" the option name which is displayed
+      in "-availablelist".
+        autargetopt -unit unit_name -set ctl_no port_no
+                    -tno target_no | -talias target_alias
+                  [ -HostConnection hostconnection1_name ]
+                  [ hostconnection2_option enable | disable ] ...
+      When specifying "No." which is displayed in "-availablelist".
+        autargetopt -unit unit_name -set ctl_no port_no
+                    -tno target_no | -talias target_alias
+                  [ -HostConnectionNum hostconnection1_no ]
+                  [ -HostConnection2Num
+                                    hostconnection2_no enable | disable ] ...
+
+    When specifying simple setting option.
+      When specifying "Name" the option name which is displayed in
+      "-availablelist".
+        autargetopt -unit unit_name -set ctl_no port_no
+                    -tno target_no | -talias target_alias
+                    -platform platform_name
+                    -middleware middleware_name
+      When specifying "No." which is displayed in "-availablelist".
+        autargetopt -unit unit_name -set ctl_no port_no
+                    -tno target_no | -talias target_alias
+                    -platformNum platform_no
+                    -middlewareNum middleware_no
+
+    autargetopt -unit unit_name -availablelist
+                -hostconnection1 | -hostconnection2 | -platform | -middleware
+
+【説明】
+    iSCSI Targetオプションを参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            Targetオプションを参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            Targetオプションを参照します。
+    -set
+          【オプション単位指定時】
+            Targetオプションを設定します。
+    -set ctl_no port_no
+          【ホストグループ単位指定時】
+            Targetオプションを設定します。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、E、F）
+
+    -tno target_no
+            Target番号を指定します。
+
+                target_no: Target番号
+
+    -talias target_alias
+            Targetエイリアスを指定します。
+            文字列の前後のスペースは無視します。全スペースは指定できません。
+
+                target_alias: Targetエイリアス(注1)
+
+  オプション単位指定時(AMS,WMS,SMS,AMS2000共通)
+    -HostConnection ctl_no port_no target_no
+                    standard | OpenVMS | TRESPASS | WolfPack
+            エミュレーションするモードを指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                standard : オープンシステムエミュレーションモード
+                OpenVMS  : Open VMSモード
+                TRESPASS : TRESPASSモード
+                WolfPack : WolfPackモード
+
+    -HP ctl_no port_no target_no enable | disable
+            HP-UXモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : HP-UXモードを有効にします。
+                disable  : HP-UXモードを無効にします。
+
+    -PSUEReadReject ctl_no port_no target_no enable | disable
+            PSUEリード抑止モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : PSUEリード抑止モードを有効にします。
+                disable  : PSUEリード抑止モードを無効にします。
+
+    -NACA ctl_no port_no target_no enable | disable
+            NACAモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : NACAモードを有効にします。
+                disable  : NACAモードを無効にします。
+
+    -UniqueReserve1 ctl_no port_no target_no enable | disable
+            特殊Reserveモード1の有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : 特殊Reserveモード1を有効にします。
+                disable  : 特殊Reserveモード1を無効にします。
+
+    -PIDConv ctl_no port_no target_no enable | disable
+            ポートID変換モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : ポートID変換モードを有効にします。
+                disable  : ポートID変換モードを無効にします。
+
+    -TruCluster ctl_no port_no target_no enable | disable
+            Tru Cluster接続モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Tru Cluster接続モードを有効にします。
+                disable  : Tru Cluster接続モードを無効にします。
+
+    -SerialResponse ctl_no port_no target_no enable | disable
+            きょう体シリアル応答モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : きょう体シリアル応答モードを有効にします。
+                disable  : きょう体シリアル応答モードを無効にします。
+
+    -SameNodeName ctl_no port_no target_no enable | disable
+            Node Name同一モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Node Name同一モードを有効にします。
+                disable  : Node Name同一モードを無効にします。
+
+    -CCHS ctl_no port_no target_no enable | disable
+            CCHS変換モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : CCHS変換モードを有効にします。
+                disable  : CCHS変換モードを無効にします。
+
+    -SvolDisableAdvance ctl_no port_no target_no enable | disable
+            S-VOL Disable拡張モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : S-VOL Disable拡張モードを有効にします。
+                disable  : S-VOL Disable拡張モードを無効にします。
+
+  オプション単位指定時(AMS,WMS専用)
+    -UASuppress ctl_no port_no target_no enable | disable
+            ユニットアテンション（06/2A00）を抑止するかどうかを指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : ユニットアテンションを抑止します。
+                disable  : ユニットアテンションを抑止しません。
+
+    -HISUPOff ctl_no port_no target_no enable | disable
+            HISUP OFFモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : HISUP OFFモードを有効にします。
+                disable  : HISUP OFFモードを無効にします。
+
+    -ResetPropagation ctl_no port_no target_no enable | disable
+            Reset伝播モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : Reset伝播モードを有効にします。
+                disable  : Reset伝播モードを無効にします。
+
+    -ASLReportAPG ctl_no port_no target_no enable | disable
+            ASL報告モード(Active/Passive Group)の有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : ASL報告モード(Active/Passive Group)を有効にします。
+                disable  : ASL報告モード(Active/Passive Group)を無効にします。
+
+    -ASLReportAP ctl_no port_no target_no enable | disable
+            ASL報告モード(Active/Passive)の有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : ASL報告モード(Active/Passive)を有効にします。
+                disable  : ASL報告モード(Active/Passive)を無効にします。
+
+    -ASLReportAA ctl_no port_no target_no enable | disable
+            ASL報告モード(Active/Active)の有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : ASL報告モード(Active/Active)を有効にします。
+                disable  : ASL報告モード(Active/Active)を無効にします。
+
+    -PIDNoRep ctl_no port_no target_no enable | disable
+            ポートID報告抑止モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : ポートID報告抑止モードを有効にします。
+                disable  : ポートID報告抑止モードを無効にします。
+
+    -SPC2 ctl_no port_no target_no enable | disable
+            SPC-2モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B）
+                target_no: Target番号
+                enable   : SPC-2モードを有効にします。
+                disable  : SPC-2モードを無効にします。
+
+  オプション単位指定時(SMS,AMS2000共通)
+    -ModeParamChanged ctl_no port_no target_no enable | disable
+            Mode Parameters Changed報告モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Mode Parameters Changed報告モードを有効にします。
+                disable  : Mode Parameters Changed報告モードを無効にします。
+
+    -TaskIsolation ctl_no port_no target_no enable | disable
+            Task Management分離モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Task Management分離モードを有効にします。
+                disable  : Task Management分離モードを無効にします。
+
+    -InquirySerial ctl_no port_no target_no enable | disable
+            INQUIRYシリアル番号変換モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : INQUIRYシリアル番号変換モードを有効にします。
+                disable  : INQUIRYシリアル番号変換モードを無効にします。
+
+    -NOPInSuppress ctl_no port_no target_no enable | disable
+            NOP-In抑止モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : NOP-In抑止モードを有効にします。
+                disable  : NOP-In抑止モードを無効にします。
+
+    -DiscoveryCHAP ctl_no port_no target_no enable | disable
+            Discovery CHAPモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Discovery CHAPモードを有効にします。
+                disable  : Discovery CHAPモードを無効にします。
+
+    -ReportFullPortalList ctl_no port_no target_no enable | disable
+            iSCSI全ポータルリスト報告モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : iSCSI全ポータルリスト報告モードを有効にします。
+                disable  : iSCSI全ポータルリスト報告モードを無効にします。
+
+    -UAChange ctl_no port_no target_no enable | disable
+            Unit Attention応答変更モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Unit Attention応答変更モードを有効にします。
+                disable  : Unit Attention応答変更モードを無効にします。
+
+  オプション単位指定時(AMS2000専用)
+    -UniqueExtendedCOPY ctl_no port_no target_no enable | disable
+            特殊Extended COPYモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : 特殊Extended COPYモードを有効にします。
+                disable  : 特殊Extended COPYモードを無効にします。
+
+    -UniqueWriteSame ctl_no port_no target_no enable | disable
+            特殊Write Sameモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : 特殊Write Sameモードを有効にします。
+                disable  : 特殊Write Sameモードを無効にします。
+
+    -DPDepletionReply ctl_no port_no target_no enable | disable
+            DP容量枯渇詳細応答モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : DP容量枯渇詳細応答モードを有効にします。
+                disable  : DP容量枯渇詳細応答モードを無効にします。
+
+    -UNMAPShortLength ctl_no port_no target_no enable | disable
+            UNMAP小レングスモードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : UNMAP小レングスモードを有効にします。
+                disable  : UNMAP小レングスモードを無効にします。
+
+    -ChangeRespRepli ctl_no port_no target_no enable | disable
+            Replication連携応答変更モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : Replication連携応答変更モードを有効にします。
+                disable  : Replication連携応答変更モードを無効にします。
+
+    -WriteSameReject ctl_no port_no target_no enable | disable
+            WriteSame抑止モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : WriteSame抑止モードを有効にします。
+                disable  : WriteSame抑止モードを無効にします。
+
+    -FullProvisioning ctl_no port_no target_no enable | disable
+            FullProvisioning応答モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : FullProvisioning応答モードを有効にします。
+                disable  : FullProvisioning応答モードを無効にします。
+
+    -UNMAPReject ctl_no port_no target_no enable | disable
+            UNMAP抑止モードの有効/無効を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、E、F）
+                target_no: Target番号
+                enable   : UNMAP抑止モードを有効にします。
+                disable  : UNMAP抑止モードを無効にします。
+
+  Target単位指定時(AMS,WMS,SMS,AMS2000共通)
+    -HostConnection standard | OpenVMS | TRESPASS | WolfPack
+            エミュレーションするモードを指定します。
+
+                standard: オープンシステムエミュレーションモード
+                OpenVMS : Open VMSモード
+                TRESPASS: TRESPASSモード
+                WolfPack: WolfPackモード
+
+    -HP enable | disable
+            HP-UXモードの有効/無効を指定します。
+
+                enable  : HP-UXモードを有効にします。
+                disable : HP-UXモードを無効にします。
+
+    -PSUEReadReject enable | disable
+            PSUEリード抑止モードの有効/無効を指定します。
+
+                enable  : PSUEリード抑止モードを有効にします。
+                disable : PSUEリード抑止モードを無効にします。
+
+    -NACA enable | disable
+            NACAモードの有効/無効を指定します。
+
+                enable  : NACAモードを有効にします。
+                disable : NACAモードを無効にします。
+
+    -UniqueReserve1 enable | disable
+            特殊Reserveモード1の有効/無効を指定します。
+
+                enable  : 特殊Reserveモード1を有効にします。
+                disable : 特殊Reserveモード1を無効にします。
+
+    -PIDConv enable | disable
+            ポートID変換モードの有効/無効を指定します。
+
+                enable  : ポートID変換モードを有効にします。
+                disable : ポートID変換モードを無効にします。
+
+    -TruCluster enable | disable
+            Tru Cluster接続モードの有効/無効を指定します。
+
+                enable  : Tru Cluster接続モードを有効にします。
+                disable : Tru Cluster接続モードを無効にします。
+
+    -SerialResponse enable | disable
+            きょう体シリアル応答モードの有効/無効を指定します。
+
+                enable  : きょう体シリアル応答モードを有効にします。
+                disable : きょう体シリアル応答モードを無効にします。
+
+    -SameNodeName enable | disable
+            Node Name同一モードの有効/無効を指定します。
+
+                enable  : Node Name同一モードを有効にします。
+                disable : Node Name同一モードを無効にします。
+
+    -CCHS enable | disable
+            CCHS変換モードの有効/無効を指定します。
+
+                enable  : CCHS変換モードを有効にします。
+                disable : CCHS変換モードを無効にします。
+
+    -SvolDisableAdvance enable | disable
+            S-VOL Disable拡張モードの有効/無効を指定します。
+
+                enable  : S-VOL Disable拡張モードを有効にします。
+                disable : S-VOL Disable拡張モードを無効にします。
+
+  Target単位指定時(AMS,WMS専用)
+    -UASuppress enable | disable
+            ユニットアテンション（06/2A00）を抑止するかどうかを指定します。
+
+                enable  : ユニットアテンションを抑止します。
+                disable : ユニットアテンションを抑止しません。
+
+    -HISUPOff enable | disable
+            HISUP OFFモードの有効/無効を指定します。
+
+                enable  : HISUP OFFモードを有効にします。
+                disable : HISUP OFFモードを無効にします。
+
+    -ResetPropagation enable | disable
+            Reset伝播モードの有効/無効を指定します。
+
+                enable  : Reset伝播モードを有効にします。
+                disable : Reset伝播モードを無効にします。
+
+    -ASLReportAPG enable | disable
+            ASL報告モード(Active/Passive Group)の有効/無効を指定します。
+
+                enable  : ASL報告モード(Active/Passive Group)を有効にします。
+                disable : ASL報告モード(Active/Passive Group)を無効にします。
+
+    -ASLReportAP enable | disable
+            ASL報告モード(Active/Passive)の有効/無効を指定します。
+
+                enable  : ASL報告モード(Active/Passive)を有効にします。
+                disable : ASL報告モード(Active/Passive)を無効にします。
+
+    -ASLReportAA enable | disable
+            ASL報告モード(Active/Active)の有効/無効を指定します。
+
+                enable  : ASL報告モード(Active/Active)を有効にします。
+                disable : ASL報告モード(Active/Active)を無効にします。
+
+    -PIDNoRep enable | disable
+            ポートID報告抑止モードの有効/無効を指定します。
+
+                enable  : ポートID報告抑止モードを有効にします。
+                disable : ポートID報告抑止モードを無効にします。
+
+    -SPC2 enable | disable
+            SPC-2モードの有効/無効を指定します。
+
+                enable  : SPC-2モードを有効にします。
+                disable : SPC-2モードを無効にします。
+
+  Target単位指定時(SMS,AMS2000共通)
+    -ModeParamChanged enable | disable
+            Mode Parameters Changed報告モードの有効/無効を指定します。
+
+                enable  : Mode Parameters Changed報告モードを有効にします。
+                disable : Mode Parameters Changed報告モードを無効にします。
+
+    -TaskIsolation enable | disable
+            Task Management分離モードの有効/無効を指定します。
+
+                enable  : Task Management分離モードを有効にします。
+                disable : Task Management分離モードを無効にします。
+
+    -InquirySerial enable | disable
+            INQUIRYシリアル番号変換モードの有効/無効を指定します。
+
+                enable  : INQUIRYシリアル番号変換モードを有効にします。
+                disable : INQUIRYシリアル番号変換モードを無効にします。
+
+    -NOPInSuppress enable | disable
+            NOP-In抑止モードの有効/無効を指定します。
+
+                enable  : NOP-In抑止モードを有効にします。
+                disable : NOP-In抑止モードを無効にします。
+
+    -DiscoveryCHAP enable | disable
+            Discovery CHAPモードの有効/無効を指定します。
+
+                enable  : Discovery CHAPモードを有効にします。
+                disable : Discovery CHAPモードを無効にします。
+
+    -ReportFullPortalList enable | disable
+            iSCSI全ポータルリスト報告モードの有効/無効を指定します。
+
+                enable  : iSCSI全ポータルリスト報告モードを有効にします。
+                disable : iSCSI全ポータルリスト報告モードを無効にします。
+
+    -UAChange enable | disable
+            Unit Attention応答変更モードの有効/無効を指定します。
+
+                enable  : Unit Attention応答変更モードを有効にします。
+                disable : Unit Attention応答変更モードを無効にします。
+
+    -platform NotSpecified | HP | Solaris | AIX | Linux | Windows | VMware |
+              NetWare
+            プラットフォームを指定します。
+
+                NotSpecified: 指定なし
+                HP          : HP-UX
+                Solaris     : Solaris
+                AIX         : AIX
+                Linux       : Linux
+                Windows     : Windows
+                VMware      : VMware
+                NetWare     : NetWare
+
+    -middleware NotSpecified | VCS | TruCluster
+            ミドルウェアを指定します。
+
+                NotSpecified: 指定なし
+                VCS         : VCS
+                TruCluster  : Tru Cluster
+
+  Target単位指定時(AMS2000専用)
+    -UniqueExtendedCOPY enable | disable
+            特殊Extended COPYモードの有効/無効を指定します。
+
+                enable  : 特殊Extended COPYモードを有効にします。
+                disable : 特殊Extended COPYモードを無効にします。
+
+    -UniqueWriteSame enable | disable
+            特殊Write Sameモードの有効/無効を指定します。
+
+                enable  : 特殊Write Sameモードを有効にします。
+                disable : 特殊Write Sameモードを無効にします。
+
+    -DPDepletionReply enable | disable
+            DP容量枯渇詳細応答モードの有効/無効を指定します。
+
+                enable  : DP容量枯渇詳細応答モードを有効にします。
+                disable : DP容量枯渇詳細応答モードを無効にします。
+
+    -UNMAPShortLength enable | disable
+            UNMAP小レングスモードの有効/無効を指定します。
+
+                enable  : UNMAP小レングスモードを有効にします。
+                disable : UNMAP小レングスモードを無効にします。
+
+    -ChangeRespRepli enable | disable
+            Replication連携応答変更モードの有効/無効を指定します。
+
+                enable  : Replication連携応答変更モードを有効にします。
+                disable : Replication連携応答変更モードを無効にします。
+
+    -WriteSameReject enable | disable
+            WriteSame抑止モードの有効/無効を指定します。
+
+                enable  : WriteSame抑止モードを有効にします。
+                disable : WriteSame抑止モードを無効にします。
+
+    -FullProvisioning enable | disable
+            FullProvisioning応答モードの有効/無効を指定します。
+
+                enable  : FullProvisioning応答モードを有効にします。
+                disable : FullProvisioning応答モードを無効にします。
+
+    -UNMAPReject enable | disable
+            UNMAP抑止モードの有効/無効を指定します。
+
+                enable  : UNMAP抑止モードを有効にします。
+                disable : UNMAP抑止モードを無効にします。
+
+  HUS100専用
+    -HostConnection ctl_no port_no target_no hostconnection1_name
+            ホスト接続モード1を指定します。
+
+                ctl_no              : コントローラ番号（0、1）
+                port_no             : ポート番号（A、B、E、F）
+                target_no           : target番号
+                hostconnection1_name: ホスト接続モード1の名称
+
+    -HostConnectionNum ctl_no port_no target_no hostconnection1_no
+            ホスト接続モード1を指定します。
+
+                ctl_no            : コントローラ番号（0、1）
+                port_no           : ポート番号（A、B、E、F）
+                target_no         : target番号
+                hostconnection1_no: ホスト接続モード1の番号
+
+    hostconnection2_option ctl_no port_no target_no enable | disable
+            ホスト接続モード2の有効/無効を指定します。
+            単一指定、または複数指定できます。
+
+                hostconnection2_option: ホスト接続モード2のオプション名
+                ctl_no                : コントローラ番号（0、1）
+                port_no               : ポート番号（A、B、E、F）
+                target_no             : target番号
+                enable                : ホスト接続モード2を有効にします。
+                disable               : ホスト接続モード2を無効にします。
+           
+    -HostConnection2Num ctl_no port_no target_no hostconnection2_no 
+                        enable | disable
+            ホスト接続モード2の有効/無効を指定します。
+            単一指定、または複数指定できます。
+
+                ctl_no            : コントローラ番号（0、1）
+                port_no           : ポート番号（A、B、E、F）
+                target_no         : target番号
+                hostconnection2_no: ホスト接続モード2の番号
+                enable            : ホスト接続モード2を有効にします。
+                disable           : ホスト接続モード2を無効にします。
+
+    -HostConnection hostconnection1_name
+            ホスト接続モード1を指定します。
+
+                hostconnection1_name: ホスト接続モード1の名称
+
+    -HostConnectionNum hostconnection1_no
+            ホスト接続モード1を指定します。
+
+                hostconnection1_no: ホスト接続モード1の番号
+
+    hostconnection2_option enable | disable
+            ホスト接続モード2の有効/無効を指定します。
+            単一指定、または複数指定できます。
+
+                hostconnection2_option: ホスト接続モード2の名称
+                enable                : ホスト接続モード2を有効にします。
+                disable               : ホスト接続モード2を無効にします。
+
+    -HostConnection2Num hostconnection2_no enable | disable
+            ホスト接続モード2の有効/無効を指定します。
+            単一指定、または複数指定できます。
+
+                hostconnection2_no: ホスト接続モード2の番号
+                enable            : ホスト接続モード2を有効にします。
+                disable           : ホスト接続モード2を無効にします。
+
+    -platform platform_name
+            プラットフォームを指定します。
+
+                platform_name: プラットフォーム名称
+
+    -platformNum platform_no
+            プラットフォームを指定します。
+
+                platform_no: プラットフォーム番号
+
+    -middleware middleware_name
+            ミドルウェアを指定します。
+
+                middleware_name: ミドルウェア名称
+
+    -middlewareNum middleware_no
+            ミドルウェアを指定します。
+
+                middleware_no: ミドルウェア番号
+
+    -avaiablelist
+         【-hostconnection1オプション指定の場合】
+            指定可能なホスト接続モード1一覧を表示します。
+         【-hostconnection2オプション指定の場合】
+            指定可能なホスト接続モード2一覧を表示します。
+         【-platformオプション指定の場合】
+            指定可能なプラットフォーム一覧を表示します。
+         【-middlewareオプション指定の場合】
+            指定可能なミドルウェア一覧を表示します。
+
+    注1) Targetエイリアスには、32文字以内の半角のASCII文字(英数字、および次の
+         記号)を使用できます。
+         (! 、# 、$ 、% 、& 、' 、+ 、- 、. 、= 、@ 、^ 、_ 、{ 、} 、
+          ~ 、( 、) 、[ 、] 、スペース)
+
+    注2) -platform, -middlewareと個々のTargetオプションを同時に指定することも
+         可能です。
+

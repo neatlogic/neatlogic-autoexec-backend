@@ -1,0 +1,29 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auluinvalidate    Invalidating an LU
+
+Format
+  9500V
+    auluinvalidate -unit unit_name -lu lun
+
+Description
+    This command invalidates the LU. The invalidated LU cannot be used by
+    a host. However, its data can be restored through restoration of the 
+    LU because the data is not invalidated. Besides, the invalidated LU
+    can be reused when the LU is reassigned.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit defined as being correlated
+            with the LU to be invalidated.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -lu lun
+            Specify a number of the LU to be invalidated.
+

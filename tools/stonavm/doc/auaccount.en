@@ -1,0 +1,130 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auaccount    Referencing/Setting the Account Information
+
+Format
+  When the user with Account Manager role uses this command.
+    AMS, WMS
+      auaccount -unit unit_name -refer
+                [ -uid user_id | -uidfile file_name | -askuid ]
+    SMS, AMS2000, HUS100
+      auaccount -unit unit_name -refer
+                [ -uid user_id | -uidfile file_name | -askuid ]
+                [ -modifyperm ]
+
+    AMS, WMS, SMS, AMS2000, HUS100
+      auaccount -unit unit_name -add
+                -uid user_id | -uidfile file_name | -askuid
+                [ -passwdfile file_name ]
+                [ -account enable | disable ]
+                -rolepattern nnnnnn
+
+      auaccount -unit unit_name -chg
+                -uid user_id | -uidfile file_name | -askuid
+                [ -account enable | disable ]
+                [ -rolepattern nnnnnn ]
+                [ -passwd | -passwdfile file_name ]
+
+      The role pattern value "nnnnnn" is as follows.
+        100000 : Audit Log Administrator(View Only)
+        010000 : Audit Log Administrator(View and Modify)
+        001000 : Account Administrator(View Only)
+        000100 : Account Administrator(View and Modify)
+        000010 : Storage Administrator(View Only)
+        000001 : Storage Administrator(View and Modify)
+        Example:
+          When the role pattern is assigned 
+          "Account Administrator(View and Modify)" and 
+          "Storage Administrator(View and Modify)", please specify "000101".
+
+      auaccount -unit unit_name -rm
+                -uid user_id | -uidfile file_name | -askuid
+
+      auaccount -unit unit_name -forcelogout
+                -uid user_id | -uidfile file_name | -askuid
+
+  When its own password is changed.
+    AMS, WMS, SMS, AMS2000, HUS100
+      auaccount -unit unit_name -chgownpwd
+                [ -passwdfile file_name ]
+                [ -newpasswdfile file_name ]
+
+Description
+    This command references or sets the account information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the account information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the account information.
+    -add
+            Adds the account.
+    -chg
+            Changes the account information.
+    -rm
+            Deletes the account.
+
+    -forcelogout
+            Forced logout the account.
+
+    -chgownpwd
+            Changes the password.
+
+    -uid user_id
+            Specify the user ID.
+
+                user_id: User ID (See Note 1)
+
+    -uidfile file_name
+            Specify the file(path) name when setting the user ID using a file.
+
+                file_name: file(path) name
+    -askuid
+            Specify this option when inputting the user ID for a request.
+
+    -modifyperm
+            Specify this option when outputting only the session with update
+            permission.
+
+    -account enable | disable
+            Specify whether to set the account effective or ineffective.
+
+                enable : Enables the account.
+                disable: Disables the account.
+
+    -rolepattern nnnnnn
+            Specify the role.
+            Assign either one role at least.
+
+                nnnnnn: Role pattern
+
+    -passwd
+            Specify this option when changing the password. (See Note 2)
+
+    -passwdfile file_name
+            Specify the file(path) name when setting the password using a file.
+
+                file_name: file(path) name
+
+    -newpasswdfile file_name
+            Specify the file(path) name when setting the changed password
+            using a file.
+
+                file_name: file(path) name
+
+    Note 1: For User ID, less than or equal to 256 ASCII characters
+            (alphabetic characters, numerals and the following symbols)
+            can be used. 
+            (!,#,$,%,&,',*,+,-,.,/,=,?,@,^,_,`,{,|,},~,(space))
+
+    Note 2: For Password, less than or equal to 256 ASCII characters
+            (alphabetic characters, numerals and symbols) can be used.
+

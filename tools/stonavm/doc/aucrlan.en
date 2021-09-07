@@ -1,0 +1,23 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aucrlan    Displaying the Current IP Address
+
+Format
+  9500V
+    aucrlan -unit unit_name
+
+Description
+    This command displays the enabled LAN information of the array unit.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit for which to display the LAN
+            information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+

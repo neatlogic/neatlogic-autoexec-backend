@@ -1,0 +1,41 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aurgdel    Deleting the RAID Group
+
+Format
+  9500V
+    aurgdel -unit unit_name -rg rg_no [ -f ]
+
+  AMS, WMS, AMS2000, HUS100
+    aurgdel -unit unit_name -rg rg_no ... [ -f ]
+
+  9500V, AMS, WMS, AMS2000, HUS100
+    aurgdel -unit unit_name -ALL [ -f ]
+
+Description
+    This command deletes the specified RAID group or deletes all RAID groups
+    in an array unit.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the RAID group to
+            be deleted is defined.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -rg rg_no ...
+            Specify the RAID group number of a RAID group which is to be
+            deleted.
+            For AMS, WMS, AMS2000 and HUS100, multiple RAID group number can
+            be specified.
+            The RAID groups are deleted in order that you specify them.
+    -ALL
+            Deletes all RAID groups.
+    -f
+            Omits the confirmation message when the command is executed.
+

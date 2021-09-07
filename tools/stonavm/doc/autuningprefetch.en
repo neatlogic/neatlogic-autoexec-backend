@@ -1,0 +1,107 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autuningprefetch    Referencing/Setting Prefetch Tuning Parameters
+
+Format
+  AMS, WMS
+    autuningprefetch -unit unit_name -refer
+
+    When the multi stream of LU is effective.
+      autuningprefetch -unit unit_name -set
+                       [ -seqcount num ]
+                       [ -fixedsize num ]
+                       [ -basesize num ]
+                       [ -lu lun ... ]
+    When the multi stream of LU is ineffective.
+      autuningprefetch -unit unit_name -set
+                       [ -multistreamread enable | disable ]
+                       [ -multistreamwrite enable | disable ]
+                       [ -multistreamnext on | off ]
+                       [ -seqcount num ]
+                       [ -criteria fixed | base ]
+                       [ -size num -lu lun ... ]
+
+    autuningprefetch -unit unit_name -default
+
+Description
+    This command refers to or sets the performance tuning parameters
+    (enable/disable of the multi-stream mode (read/write), decided sequential
+    number, criteria for the pre-fetch and size of data to be pre-fetched
+    per logical unit).
+
+Options
+    -unit unit_name
+            Specify the name of the array unit to which the performance tuning
+            parameters is referred or set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is removed.
+    -refer
+            References the performance tuning parameters.
+    -set
+            Sets the performance tuning parameters.
+    -default
+            Returns the performance tuning parameters to the default value.
+
+    -multistreamread enable | disable
+            Sets whether to validate or invalidate the specification of 
+            the multi-stream read.
+
+                enable : Enables the specification of the multi-stream read.
+                disable: Disables the specification of the multi-stream read.
+
+    -multistreamwrite enable | disable
+            Sets whether to validate or invalidate the specification of
+            the multi-stream write.
+
+                enable : Enables the specification of the multi-stream write.
+                disable: Disables the specification of the multi-stream write.
+
+    -multistreamnext on | off
+            Specify whether or not to do the following pre-fetch in the 
+            multi-stream mode. The specification can be made only when the
+            multi-stream mode (read) is valid.
+
+                on : When a reading is done up to the preset extent out
+                     of the data pre-fetched, the following pre-fetch is done.
+                off: No pre-fetch is done as long as the pre-fetched data 
+                     makes a hit.
+
+    -seqcount num
+            Specify the decided sequential number (0 to 10).
+
+    -criteria fixed | base
+            Specify the criteria for the pre-fetch.
+
+                fixed: Use the fixed size of data to be pre-fetched as the 
+                       criteria.
+                base : Use the base size of data to be pre-fetched as the
+                       criteria. The specification can be made only when the
+                       multi-stream mode (read) is invalid.
+
+    -size num
+            Specify the size of data to be pre-fetched for an LU
+            (1 to 65535 [KB]).
+            Specify the fixed size of data to be pre-fetched when the pre-fetch
+            criteria is fixed or the basic size of data to be pre-fetched when
+            the criteria is base.
+
+    -lu lun ...
+            Specify a number of an LU.
+            Single or multiple LU numbers can be specified. 
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+
+    -fixedsize num
+            Specify the fixed size of pre-fetched data (1 to 65535 [KB]).
+
+    -basesize num
+            Specify the base size of pre-fetched data (1 to 65535 [KB]).
+

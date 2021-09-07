@@ -1,0 +1,27 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auextprog    アプリケーション起動の設定
+
+【記述形式】
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    auextprog -refer
+
+    auextprog -set command
+
+    auextprog -test
+
+【説明】
+    障害監視中、障害を検出したときに起動する外部プログラムを設定します。
+
+【オプション】
+    -refer
+            設定した外部プログラムを表示します。
+
+    -set command
+            障害監視時、障害を検出したときに起動する外部プログラムを設定しま
+            す。
+    -test
+            -setで設定した外部プログラムを起動します。
+

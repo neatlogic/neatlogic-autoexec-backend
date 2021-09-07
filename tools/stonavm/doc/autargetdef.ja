@@ -1,0 +1,180 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    autargetdef    iSCSI Target情報参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    autargetdef -unit unit_name -refer
+
+    autargetdef -unit unit_name -add ctl_no port_no
+                [ -tno target_no ] -talias target_alias
+                -iname target_iscsi_name | -inamefile file_name
+                -authmethod CHAP | None | CHAP None
+                [ -mutual enable | disable ]
+                [ -tuser target_user_name | -tuserfile file_name ]
+
+    autargetdef -unit unit_name -chg ctl_no port_no
+                -tno target_no | -talias target_alias
+                [ -newtalias target_alias ]
+                [ -iname target_iscsi_name  | -inamefile file_name ]
+                [ -authmethod CHAP | None | CHAP None ]
+                [ -mutual enable | disable ]
+                [ -tuser target_user_name | -tuserfile file_name ]
+                [ -tsecret ]
+
+    autargetdef -unit unit_name -rm ctl_no port_no
+                -tno target_no ... | -talias target_alias ...
+
+    autargetdef -unit unit_name -init ctl_no port_no
+
+【説明】
+    iSCSI Target情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            iSCSI Target情報を参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            iSCSI Target情報を参照します。
+
+    -add ctl_no port_no
+            iSCSI Target情報を設定します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、E、F)
+
+    -chg ctl_no port_no
+            iSCSI Target情報を変更します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、E、F)
+
+    -rm ctl_no port_no
+            iSCSI Target情報を削除します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、E、F)
+
+    -init ctl_no port_no
+            Target 0を初期化します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、E、F)
+
+    -tno target_no
+         【-addオプションの場合】
+            Target番号を指定します。
+            省略した場合は、ナビゲーターが最小番号を割り振ります。
+         【-chgオプションの場合】
+            Target番号を指定します。
+
+                target_no: Target番号
+
+    -tno target_no ...
+            Target番号を指定します。
+            単一指定、または複数指定できます。
+
+                単一指定: 1つのTarget番号を指定します。
+                          例: -tno 3
+                複数指定: 複数のTarget番号を指定します。
+                          例: -tno 1 2 3 4 5 8
+                              -tno 1-5 8
+
+                target_no: Target番号
+
+    -talias target_alias
+            Targetエイリアスを指定します。
+            文字列の前後のスペースは無視します。全スペースは指定できません。
+
+                target_alias: Targetエイリアス(注1)
+
+    -talias target_alias ...
+            Targetエイリアスを指定します。
+            文字列の前後のスペースは無視します。全スペースは指定できません。
+            単一指定、または複数指定できます。(注7)
+
+                単一指定: 1つのエイリアスを指定します。
+                          例: -talias solaris
+                複数指定: 複数のエイリアスを指定します。
+                          例: -talias irix01 solaris win001
+
+                target_alias: Targetエイリアス(注1)
+
+    -iname target_iscsi_name
+            TargetのiSCSI名称を指定します。
+
+                target_iscsi_name: TargetのiSCSI名称(注2)(注5)(注6)
+
+    -inamefile file_name
+            TargetのiSCSI名称をファイルから入力する場合に、ファイル(パス)名を
+            指定します。
+
+                file_name: ファイル(パス)名
+
+    -authmethod CHAP | None | CHAP None
+            認証方法を指定します。
+
+                CHAP     : ホスト(Initiator)に対し必ずCHAP認証を行います。
+                None     : ホスト(Initiator)に対しCHAP認証を行いません。
+                CHAP None: ホスト(Initiator)がCHAP認証実施を提示したらCHAP認証
+                           を行います。("None CHAP"と指定しても同じです。)
+
+    -mutual enable | disable
+            双方向認証の有効/無効を指定します。
+
+                enable : 双方向認証を有効にします。
+                disable: 双方向認証を無効にします。
+
+    -tuser target_user_name
+            Targetのユーザ名称を指定します。
+            文字列の前後のスペースは無視します。全スペースは指定できません。
+
+                target_user_name: Targetユーザ名称(注3)
+
+    -tuserfile file_name
+            Targetのユーザ名称をファイルから入力する場合に、ファイル(パス)名を
+            指定します。
+
+                file_name: ファイル(パス)名
+
+    -newtalias target_alias
+            変更するTargetエイリアスを指定します。
+            文字列の前後のスペースは無視します。全スペースは指定できません。
+
+                target_alias: Targetエイリアス(注1)
+
+    -tsecret
+            TargetのSecretを変更する場合に指定します。(注4)
+
+    注1) Targetエイリアスには、32文字以内の半角のASCII文字(英数字、および次の
+         記号)を使用できます。
+         (! 、# 、$ 、% 、& 、' 、+ 、- 、. 、= 、@ 、^ 、_ 、{ 、} 、
+          ~ 、( 、) 、[ 、] 、スペース)
+
+    注2）iSCSI名称は、iqn形式またはeui形式の名称を指定します。
+         iSCSI名称には、223文字以内の半角のASCII文字（英数字、ピリオド（.）、
+         ハイフン（-）、コロン（:））を使用できます。
+
+    注3) Targetユーザ名称には、256文字以内の半角のASCII文字(英数字、および次の
+         記号)を使用できます。
+        （. 、- 、+ 、@ 、_ 、= 、: 、/ 、[ 、] 、~ 、スペース)
+
+    注4) Secretには、12文字以上32文字以内の半角のASCII文字(英数字、および次の
+         記号)を使用できます。
+        （. 、- 、+ 、@ 、_ 、= 、: 、/ 、[ 、] 、~ 、スペース)
+
+    注5) TargetのiSCSI名称は、InitiatorのiSCSI名称とは異なる名称を指定します。
+
+    注6) マルチパスのソフトウェアを用いてInitiatorとTarget間の入出力パスを冗長
+         化する場合、それぞれのパスのTargetのiSCSI名称には、異なる名称を指定し
+         ます。その後、それぞれのポートに対する iSCSI targetのディスカバリアド
+         レスをホスト側に指定します。
+
+    注7) -taliasオプションはtarget_aliasと合わせて指定します。-taliasオプション
+         の後に他のオプションを指定してもtarget_aliasとなるので、
+         -taliasオプションは最後に指定してください。
+

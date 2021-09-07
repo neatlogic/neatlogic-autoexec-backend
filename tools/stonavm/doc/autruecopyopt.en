@@ -1,0 +1,71 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    autruecopyopt    Referencing/Setting TrueCopy Option
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    autruecopyopt -unit unit_name -refer
+
+  AMS, WMS
+    autruecopyopt -unit unit_name -set
+                  -cycletime time
+  SMS
+    autruecopyopt -unit unit_name -set
+                  [ -cycletime time ]
+                  [ -cycleoverreport enable | disable ]
+                  [ -queueinhibittime time ]
+  AMS2000
+    autruecopyopt -unit unit_name -set
+                  [ -cycletime time ]
+                  [ -cycleoverreport enable | disable ]
+                  [ -writecontrolmode enable | disable ]
+  HUS100
+    autruecopyopt -unit unit_name -set
+                  [ -cycletime time ]
+                  [ -cycleoverreport enable | disable ]
+
+Description
+    This command references or sets the TrueCopy option.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference or set
+            the TrueCopy option.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the TrueCopy option.
+    -set
+            Sets the TrueCopy option.
+
+    -cycletime time
+            Specify the cycle time.
+
+                time: cycle time (second)
+
+    -cycleoverreport enable | disable
+            Set whether to validate or invalidate the specification of the
+            cycle over report.
+
+                enable : Enables the specification of the cycle over report.
+                disable: Disables the specification of the cycle over report.
+
+    -queueinhibittime time
+            Specify the queuing inhibition time.
+
+                time: queuing inhibition time (millisecond)
+
+    -writecontrolmode enable | disable
+            Set whether to validate or invalidate the specification of the
+            remote write control mode.
+            
+                enable : Enables the specification of the remote replication
+                         write control mode.
+                disable: Disables the specification of the remote replication
+                         write control mode.
+

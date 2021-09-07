@@ -1,0 +1,109 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    audrecopt    Referencing/Setting the Drive Restoration Control Information
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    audrecopt -unit unit_name -refer
+
+  9500V
+    audrecopt -unit unit_name -set
+              [ -restor back | normal | priority ] [ -auto enable | disable ]
+              [ -sparing rwv | rw | not ] [ -interval interval_time ]
+              [ -size n ]
+  AMS, WMS
+    audrecopt -unit unit_name -set
+              [ -restor back | normal | priority ] [ -auto enable | disable ]
+              [ -sparing rwv | rw | not ] [ -interval interval_time ]
+              [ -size n ]
+              [ -spare variable | fixed ]
+              [ -allunitnocopyback enable | disable ]
+  SMS, AMS2000, HUS100
+    audrecopt -unit unit_name -set
+              [ -restor back | normal | priority ] [ -auto enable | disable ]
+              [ -sparing rwv | rw | not ] [ -interval interval_time ]
+              [ -size n ]
+              [ -spare variable | fixed ]
+
+Description
+    This command references and sets the drive restoration control
+    information.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the drive
+            restoration control information is to be referenced or to be set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the drive restoration control information.
+    -set
+            Sets the drive restoration control information.
+
+    -restor back | normal | priority
+            Specify the drive restoration mode.
+
+                back    : Executes restoration during the interval of the
+                          host command process.
+                normal  : Prioritizes the command from the host and executes
+                          restoration every certain interval after the host
+                          command terminates.
+                priority: Executes restoration every certain interval with
+                          higher priority than that of the command from the
+                          host.
+
+    -auto enable | disable
+            Specify whether or not to automatically start the copy from
+            the spare drive (copy-back).
+
+    -sparing rwv | rw | not
+            Specify the operating mode of dynamic sparing.
+
+                rwv: When the count of either the Read/Write error or the
+                     online verify error exceeds a predetermined threshold
+                     value, the dynamic sparing starts.
+                rw : When the count of Read/Write error exceeds a
+                     predetermined threshold value, the dynamic sparing
+                     starts.
+                not: The dynamic sparing will not start even if the count
+                     of Read/Write error or online verify error exceeded
+                     a predetermined threshold value.
+
+    -interval interval_time
+            Specify the interval of executing restoration.
+            Specify the time using a value from 0 to 255 in units of 10 ms.
+            When specifying 1, which executes restoration at an interval of
+            every 10 ms.
+    -size n
+            Specify the unit of restored data per single operation in the
+            restoration process.
+            Specify a value of a multiple of 128 between 128 and 65408 in
+            units of 512 bytes.
+            When specifying 128, the unit of restore data per single operation
+            is 64 k bytes.
+            When the firmware revision of 9500V is less than x6x5, specify a
+            value of a multiple of 32 between 32 and 65504 in units of 512
+            bytes.
+            When specifying 32, the unit of restore data per single operation
+            is 16 k bytes.
+
+    -spare variable | fixed
+            Specify the operating mode of spare drive.
+
+                variable: Active spare mode (Non-copyback)
+                fixed   : Fixed spare mode (Copyback)
+
+    -allunitnocopyback enable | disable
+            Specify whether to set the Applying No Copy Back Mode on All the
+            Units effective or ineffective.
+
+                enable : Enables the Applying No Copy Back Mode on All the
+                         Units.
+                disable: Disables the Applying No Copy Back Mode on All the
+                         Units.
+

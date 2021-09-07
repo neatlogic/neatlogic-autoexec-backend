@@ -1,0 +1,637 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    audppool    DPプール情報参照/設定
+
+【記述形式】
+  AMS2000, HUS100
+    audppool -unit unit_name -refer
+             [ -m | -g | -t | -auto ]
+    audppool -unit unit_name -refer -detail
+             -dppoolno pool_no
+             [ -m | -g | -t | -auto ]
+
+  AMS2000
+    When the drive is selected automatically.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -RAID1 | -RAID5 | -RAID10 | -RAID6
+               -combination data_drive_count:parity_drive_count
+               -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+               -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 | 750 |
+                        1000 | 2000 | 3000
+               -drive auto
+               -drivecount num
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+    When the drive is selected manually.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -RAID1 | -RAID5 | -RAID10 | -RAID6
+               -combination data_drive_count:parity_drive_count
+               -drive unit_no.hdu_no ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+
+      When RAID1 or RAID10 is specified, the combination "parity_drive_count"
+      is specified as the mirroring drive count.
+
+  HUS100
+    When not specifying the tier mode.
+      When creating the DP pool of a single DP RAID group.
+        When the drive is selected automatically.
+          audppool -unit unit_name -add
+                   -dppoolno pool_no
+                   -RAID1 | -RAID5 | -RAID10 | -RAID6
+                   -combination data_drive_count:parity_drive_count
+                   -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+                   -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                            2000 | 3000 | 4000
+                   -drive auto
+                   -drivecount num
+                   [ -early_alert num ]
+                   [ -depletion_alert num ]
+                   [ -notification_alert enable | disable ]
+                   [ -warning num ]
+                   [ -limit num ]
+                   [ -notification enable | disable ]
+                   [ -stripesize 64 | 256 ]
+                   [ -dprg dprg_no ]
+                   [ -repdepletion_alert num ]
+                   [ -repdatareleased num ]
+                   [ -limitenforcement enable | disable ]
+                   [ -encryption enable | disable ]
+        When the drive is selected manually.
+          audppool -unit unit_name -add
+                   -dppoolno pool_no
+                   -RAID1 | -RAID5 | -RAID10 | -RAID6
+                   -combination data_drive_count:parity_drive_count
+                   -drive unit_no.hdu_no ...
+                   [ -early_alert num ]
+                   [ -depletion_alert num ]
+                   [ -notification_alert enable | disable ]
+                   [ -warning num ]
+                   [ -limit num ]
+                   [ -notification enable | disable ]
+                   [ -stripesize 64 | 256 ]
+                   [ -dprg dprg_no ]
+                   [ -repdepletion_alert num ]
+                   [ -repdatareleased num ]
+                   [ -limitenforcement enable | disable ]
+                   [ -encryption enable | disable ]
+      When creating the DP pool of a single or plural DP RAID groups.
+        audppool -unit unit_name -add
+                 -dppoolno pool_no
+                 -dprgcount num
+                 -composition
+                   [ auto raid_level data_drive_count:parity_drive_count
+                     drive_type drive_capa [ dprg_no ] ] ...
+                   [ manual raid_level data_drive_count:parity_drive_count
+                     unit_no.hdu_no ... [ dprg_no ] ] ...
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -stripesize 64 | 256 ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+                 [ -encryption enable | disable ]
+    When creating the DP pool of a single or plural DP RAID groups and
+    specifying the tier mode disable.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -tiermode disable
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+               [ -repdepletion_alert num ]
+               [ -repdatareleased num ]
+               [ -limitenforcement enable | disable ]
+               [ -encryption enable | disable ]
+    When creating the DP pool of a single or plural DP RAID groups and
+    specifying the tier mode enable.
+      audppool -unit unit_name -add
+               -dppoolno pool_no
+               -tiermode enable
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -early_alert num ]
+               [ -depletion_alert num ]
+               [ -notification_alert enable | disable ]
+               [ -warning num ]
+               [ -limit num ]
+               [ -notification enable | disable ]
+               [ -stripesize 64 | 256 ]
+               [ -repdepletion_alert num ]
+               [ -repdatareleased num ]
+               [ -limitenforcement enable | disable ]
+               [ -tier1st_newpageassignment num ]
+               [ -tier1st_tierrelocation num ]
+               [ -tier2nd_newpageassignment num ]
+               [ -tier2nd_tierrelocation num ]
+               [ -tier3rd_newpageassignment num ]
+               [ -tier3rd_tierrelocation num ]
+               [ -highefficiencyrelocation enable | disable ]
+               -autoprogress enable | disable
+               [ -relocationperiods always | alloff |
+                                    start_time end_time week ...
+                                    [ start_time end_time week ... ] ... ]
+               [ -monitoringperiods always | alloff |
+                                    start_time end_time week ...
+                                    [ start_time end_time week ... ] ... ]
+               [ -encryption enable | disable ]
+
+      When RAID1 or RAID10 is specified, the combination "parity_drive_count"
+      is specified as the mirroring drive count.
+
+  AMS2000, HUS100
+    audppool -unit unit_name -rm
+             -dppoolno pool_no ...
+
+  AMS2000
+    When the drive is selected automatically.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -drivecount num
+               [ -dpoptimize ]
+    When the drive is selected manually.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -drive unit_no.hdu_no ...
+               [ -dpoptimize ]
+  HUS100
+    When adding the same compositional DP RAID group as composited DP RAID
+    group.
+      When the drive is selected automatically.
+        audppool -unit unit_name -chgsize
+                 -dppoolno pool_no
+                 -drivecount num
+                 [ -dpoptimize ]
+                 [ -dprg dprg_no ]
+      When the drive is selected manually.
+        audppool -unit unit_name -chgsize
+                 -dppoolno pool_no
+                 -drive unit_no.hdu_no ...
+                 [ -dpoptimize ]
+                 [ -dprg dprg_no ]
+    When adding the DP RAID group to DP pool.
+      audppool -unit unit_name -chgsize
+               -dppoolno pool_no
+               -dprgcount num
+               -composition
+                 [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+               [ -dpoptimize ]
+    When shrinking the DP RAID groups to DP pool.
+      audppool -unit unit_name -chgsize -shrink
+               -dppoolno pool_no -dprg dprg_no ...
+
+  AMS2000
+    audppool -unit unit_name -chg
+             -dppoolno pool_no
+             [ -early_alert num ]
+             [ -depletion_alert num ]
+             [ -notification_alert enable | disable ]
+             [ -warning num ]
+             [ -limit num ]
+             [ -notification enable | disable ]
+  HUS100
+    When changing the attribute.
+      When the tier mode is disable or "N/A".
+        audppool -unit unit_name -chg
+                 -dppoolno pool_no
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+      When the tier mode is enable.
+        audppool -unit unit_name -chg
+                 -dppoolno pool_no
+                 [ -early_alert num ]
+                 [ -depletion_alert num ]
+                 [ -notification_alert enable | disable ]
+                 [ -warning num ]
+                 [ -limit num ]
+                 [ -notification enable | disable ]
+                 [ -repdepletion_alert num ]
+                 [ -repdatareleased num ]
+                 [ -limitenforcement enable | disable ]
+                 [ -tier1st_newpageassignment num ]
+                 [ -tier1st_tierrelocation num ]
+                 [ -tier2nd_newpageassignment num ]
+                 [ -tier2nd_tierrelocation num ]
+                 [ -tier3rd_newpageassignment num ]
+                 [ -tier3rd_tierrelocation num ]
+    When changing the tier mode.
+      audppool -unit unit_name -chg
+               -dppoolno pool_no ...
+               -tiermode enable | disable
+
+  AMS2000, HUS100
+    audppool -unit unit_name -recover
+             -dppoolno pool_no
+
+  HUS100
+    audppool -unit unit_name -cancel -shrink
+             -dppoolno pool_no -dprg dprg_no ...
+
+  AMS2000
+    When creating the DP pool.
+      audppool -unit unit_name -availablelist
+               -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+               [ -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 |
+                          750 | 1000 | 2000 | 3000 ]
+    When growing the DP pool.
+      audppool -unit unit_name -availablelist
+               -dppoolno pool_no
+  HUS100
+    When creating the DP pool.
+      audppool -unit unit_name -availablelist
+               -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+               [ -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                          2000 | 3000 | 4000 ]
+               [ -encryption enable | disable ]
+    When growing the DP pool.
+      audppool -unit unit_name -availablelist
+               -dppoolno pool_no
+               [ -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD ]
+               [ -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 |
+                          2000 | 3000 | 4000 ]
+
+【説明】
+    DPプール情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            DPプール情報を参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            DPプール情報を参照します。
+    -add
+            DPプールを設定します。
+    -rm
+            DPプールを削除します。
+    -chgsize
+            DPプールの容量を変更します。
+    -chg
+            DPプール情報を変更します。
+    -recover
+            DPプールを再初期化します。
+    -cancel
+            DPプールへの指示を中止します。
+
+    -availablelist
+         【-typeオプションの場合】
+            DPプールに設定可能なドライブ番号一覧を表示します。
+         【-dppoolnoオプションの場合】
+            DPプール容量変更時に設定可能なドライブ番号一覧を表示します。
+    -detail
+            詳細情報を参照する場合に指定します。
+
+    -m | -g | -t | -auto
+            容量の表示単位を指定します。
+            省略した場合は、ブロックで表示します。
+
+              -m   : MB
+              -g   : GB
+              -t   : TB
+              -auto: 容量が1TB以上の場合はTB、1GB以上1TB未満の場合はGB、
+                     1GB未満の場合はMBで表示します。
+
+    -dppoolno pool_no
+            DPプール番号を指定します。
+
+                pool_no: DPプール番号
+
+    -dppoolno pool_no ...
+            DPプール番号を指定します。
+            DPプール番号は、単一指定または複数指定できます。
+
+                単一指定: １つのDPプール番号を指定します。
+                          例: -dppoolno 3
+                複数指定: 複数のDPプール番号を指定します。
+                          例: -dppoolno 0 1 2 3 4 5 8
+                              -dppoolno 0-5 8
+
+                pool_no: DPプール番号
+
+    -RAID1 | -RAID5 | -RAID10 | -RAID6
+            RAIDレベルを指定します。
+
+    -combination data_drive_count:parity_drive_count
+            コンビネーションを指定します。
+
+                data_drive_count  : データドライブ数
+                parity_drive_count: パリティドライブ数
+                                    RAID1,RAID10の場合は、
+                                    ミラードライブ数を指定します。
+                                    例: RAID5(4D+1P)の場合
+                                        -combination 4:1
+                                        RAID10(3D+3D)の場合
+                                        -combination 3:3
+
+    -type SAS | SATA | SSD | SAS7K | SAS_SED | SAS_SFF
+    -type SAS | SAS:10K | SAS:15K | SAS7K | SSD | FMD
+         【-addオプションの場合】
+            DPプールを構成するドライブ種別を指定します。
+            ドライブ自動設定時のみ指定します。
+         【-availablelistのオプションの場合】
+            使用可能ドライブ一覧に表示するドライブ種別を指定します。
+
+    -drvcapa 100 | 146 | 200 | 300 | 400 | 450 | 500 | 600 | 750 | 1000 |
+             2000 | 3000
+    -drvcapa 200 | 300 | 400 | 600 | 800 | 900 | 1200 | 1600 | 2000 | 3000 |
+             4000
+         【-addオプションの場合】
+            DPプールを構成するドライブの容量を指定します。
+            ドライブ自動設定時のみ指定します。
+         【-availablelistオプションの場合】
+            DPプール設定可能なドライブ容量を指定します。
+
+    -drive auto | unit_no.hdu_no ...
+            DPプールを構成するドライブを指定します。
+
+                auto          : 使用するドライブを自動的に選択します。
+                unit_no.hdu_no: Unit番号とHDU番号をピリオドで区切って指定
+                                します。Unit番号とHDU番号は、半角数字、ハ
+                                イフン（-）で入力します。
+                                例: -drive 0.1 2.3 3.1
+                                例: -drive 1.0-2.2 2.8
+
+    -drivecount num
+            ドライブ数を指定します。
+
+    -dpoptimize
+            DPプール容量追加後にDP最適化を実行する場合に指定します。
+
+    -early_alert num
+            DPプール使用容量警告の初期警告を指定します。
+
+    -depletion_alert num
+            DPプール使用容量警告の枯渇警告を指定します。
+
+    -notification_alert enable | disable
+            DPプール使用容量警告の通知の有効/無効を指定します。
+
+                enable : DPプール使用容量警告の通知を有効にします。
+                disable: DPプール使用容量警告の通知を無効にします。
+
+    -warning num
+            仮想化超過しきい値の警告しきい値を指定します。
+
+    -limit num
+            仮想化超過しきい値の限界しきい値を指定します。
+
+    -notification enable | disable
+            仮想化超過しきい値の通知の有効/無効を指定します。
+
+                enable : 仮想化超過しきい値の通知を有効にします。
+                disable: 仮想化超過しきい値の通知を無効にします。
+
+    -stripesize 64 | 256
+            ストライプサイズを指定します。省略した場合は、ナビゲーターが
+            256を設定します。
+
+                64 : 64KBを設定します。
+                256: 256KBを設定します。
+
+    -dprg dprg_no
+            DP RAIDグループ番号を指定します。省略した場合は、DP RAIDグループ
+            番号を自動的に割り当てます。
+
+                dprg_no: DP RAIDグループ番号
+
+    -dprg dprg_no ...
+            DP RAIDグループ番号を指定します。
+            DP RAIDグループ番号は、単一指定または複数指定できます。
+
+                単一指定: １つのDP RAIDグループ番号を指定します。
+                          例: -dprg 3
+                複数指定: 複数のDP RAIDグループ番号を指定します。
+                          例: -dprg 0 1 2 3 4 5 8
+                              -dprg 0-5 8
+
+                dprg_no: DP RAIDグループ番号
+
+    -repdepletion_alert num
+            レプリケーション枯渇警告のしきい値を指定します。
+
+    -repdatareleased num
+            レプリケーションデータ解放のしきい値を指定します。
+
+    -limitenforcement enable | disable
+            仮想化超過時VOL操作強制実行の有効/無効を指定します。
+
+                enable : 仮想化超過時VOL操作強制実行を有効にします。
+                disable: 仮想化超過時VOL操作強制実行を無効にします。
+
+    -tiermode enable | disable
+            階層モードの有効/無効を指定します。
+
+                enable : 階層モードを有効にします。
+                disable: 階層モードを無効にします。
+
+    -dprgcount num
+            DP RAIDグループ数を指定します。
+
+    -composition [ auto raid_level data_drive_count:parity_drive_count
+                   drive_type drive_capa [ dprg_no ] ] ...
+                 [ manual raid_level data_drive_count:parity_drive_count
+                   unit_no.hdu_no ... [ dprg_no ] ] ...
+            DP RAIDグループの構成を指定します。-dprgcountオプションで指定し
+            たDP RAIDグループ数分指定します。
+
+              例: 複数DP RAIDグループを指定する場合
+                  -composition auto RAID5 4:1 SAS 600 5
+                               manual RAID5 3:1 1.2,1.5-1.7 100
+                               manual RAID5 4:1 2.2,2.5-2.7,2.10
+            
+                auto              : DP RAIDグループを構成するドライブを自動で
+                                    選択する場合、"auto"を指定します。
+                manual            : DP RAIDグループを構成するドライブを手動で
+                                    指定する場合、"manual"を指定します。
+                raid_level        : RAIDレベルを指定します。以下のいずれかを指
+                                    定します。
+                                      RAID1, RAID5, RAID10, RAID6
+                data_drive_count  : データドライブ数を指定します。
+                parity_drive_count: パリティドライブ数を指定します。
+                                    RAID1,RAID10の場合は、ミラードライブ数を指
+                                    定します。
+                drive_type        : DP RAIDグループを構成するドライブ種別を
+                                    指定します。ドライブ自動設定時のみ指定しま
+                                    す。以下のいずれかを指定します。
+                                      SAS, SAS:10K, SAS:15K, SAS7K, SSD, FMD
+                drive_capa        : DP RAIDグループを構成するドライブの容量を
+                                    指定します。ドライブ自動設定時のみ指定しま
+                                    す。以下のいずれかを指定します。
+                                      200, 300, 400, 600, 800, 900, 1200, 1600,
+                                      2000, 3000, 4000
+                dprg_no           : DP RAIDグループ番号を指定します。省略した
+                                    場合は、DP RAIDグループ番号を自動で設定し
+                                    ます。
+                unit_no.hdu_no ...: Unit番号とHDU番号をピリオドで区切って指定
+                                    します。Unit番号とHDU番号は、半角数字、
+                                    ハイフン（-）で入力します。複数指定時の境
+                                    界はカンマ（,）を入力します。
+                                      例: 0.1,2.3,3.1
+                                          1.0-2.2,2.8
+
+    -tier1st_newpageassignment num
+            階層1stの新規割当用空き容量率を指定します。省略した場合は、0を設定
+            します。
+
+    -tier1st_tierrelocation num
+            階層1stの再配置用バッファ容量率を指定します。省略した場合は、2を設
+            定します。
+
+    -tier2nd_newpageassignment num
+            階層2ndの新規割当用空き容量率を指定します。省略した場合は、8を設定
+            します。
+
+    -tier2nd_tierrelocation num
+            階層2ndの再配置用バッファ容量率を指定します。省略した場合は、2を設
+            定します。
+
+    -tier3rd_newpageassignment num
+            階層3rdの新規割当用空き容量率を指定します。省略した場合は、8を設定
+            します。
+
+    -tier3rd_tierrelocation num
+            階層3rdの再配置用バッファ容量率を指定します。省略した場合は、2を設
+            定します。
+
+    -highefficiencyrelocation enable | disable
+            高効果再配置モードの有効/無効を指定します。省略した場合は、有効を
+            設定します。
+
+                enable : 高効果再配置モードを有効にします。
+                disable: 高効果再配置モードを無効にします。
+
+    -autoprogress enable | disable
+            自動実行モードの有効/無効を指定します。
+
+                enable : 自動実行モードを有効にします。
+                disable: 自動実行モードを無効にします。
+
+    -relocationperiods always | alloff |
+                       start_time end_time week ...
+                       [ start_time end_time week ... ] ...
+            再配置時間を指定します。省略した場合は、常に実行するを設定します。
+
+                always    : 常に実行するを指定します。
+                alloff    : 常に実行しないを指定します。
+                start_time: 開始時間を4桁(hhmm)で指定します。
+                            指定可能な時間は、0000〜2330です。
+
+                            hh: 時(00〜23)
+                            mm: 分(00または30)
+
+                end_time  : 終了時間を4桁(hhmm)で指定します。
+                            指定可能な時間は、0030〜2400です。
+
+                            hh: 時(00〜24)
+                            mm: 分(00または30)
+
+                week ...  : 曜日を指定します。
+                            曜日は、単一指定または複数指定できます。
+
+                            単一指定: １つの曜日を指定します。
+                                      例: -relocationperiods 1700 1830 mon
+                            複数指定: 複数の曜日を指定します。
+                                      例: -relocationperiods 0130 0300 wed fri
+
+                            mon: 月曜日
+                            tue: 火曜日
+                            wed: 水曜日
+                            thu: 木曜日
+                            fri: 金曜日
+                            sat: 土曜日
+                            sun: 日曜日
+
+    -monitoringperiods always | alloff |
+                       start_time end_time week ...
+                       [ start_time end_time week ... ] ...
+            モニタ採取時間を指定します。省略した場合は、常に実行するを設定しま
+            す。
+
+                always    : 常に実行するを指定します。
+                alloff    : 常に実行しないを指定します。
+                start_time: 開始時間を4桁(hhmm)で指定します。
+                            指定可能な時間は、0000〜2330です。
+
+                            hh: 時(00〜23)
+                            mm: 分(00または30)
+
+                end_time  : 終了時間を4桁(hhmm)で指定します。
+                            指定可能な時間は、0030〜2400です。
+
+                            hh: 時(00〜24)
+                            mm: 分(00または30)
+
+                week ...  : 曜日を指定します。
+                            曜日は、単一指定または複数指定できます。
+
+                            単一指定: １つの曜日を指定します。
+                                      例: -monitoringperiods 1700 1830 mon
+                            複数指定: 複数の曜日を指定します。
+                                      例: -monitoringperiods 0130 0300 wed fri
+
+                            mon: 月曜日
+                            tue: 火曜日
+                            wed: 水曜日
+                            thu: 木曜日
+                            fri: 金曜日
+                            sat: 土曜日
+                            sun: 日曜日
+
+    -shrink
+         【-chgsizeオプションの場合】
+            DPプールの容量を縮小します。
+         【-cancelオプションの場合】
+            DPプール容量縮小を中止します。
+
+    -encryption enable | disable
+            暗号化の有効/無効を指定します。
+            【-addオプションの場合】
+               省略した場合は、無効を設定します。
+
+                enable : 暗号化を有効にします。
+                disable: 暗号化を無効にします。
+

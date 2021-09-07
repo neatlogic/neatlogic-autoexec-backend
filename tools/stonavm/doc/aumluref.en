@@ -1,0 +1,39 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aumluref    Referencing the Unified LU
+
+Format
+  9500V, AMS, WMS
+    aumluref -unit unit_name [ -m | -g ]
+
+  SMS, AMS2000, HUS100
+    aumluref -unit unit_name [ -m | -g | -t | -auto ]
+
+Description
+    This command refers the status of the unified LU.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit which contains the unified
+            LU to be referred.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -m | -g | -t | -auto
+            Expresses the LU capacity unit.
+            When the specification is omitted, the capacity is expressed 
+            in blocks.
+
+                -m   : MB
+                -g   : GB
+                -t   : TB
+                -auto: If the capacity is 1 TB or more, it is displayed
+                       in TB. If 1 GB or more and less than 1 TB, it is
+                       displayed in GB. If less than 1 GB, it is displayed
+                       in MB.
+

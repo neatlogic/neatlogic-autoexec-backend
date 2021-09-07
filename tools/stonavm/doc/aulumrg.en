@@ -1,0 +1,36 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulumrg    Unifying LUs
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    aulumrg -unit unit_name -lu main_lu sub_lu
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    aulumrg -unit unit_name -availablelist [ -lu main_lu ]
+
+Description
+    This command unifies the LUs.
+
+Options
+    -unit unit_name
+            Specify the name of the subsystem whose LUs are to be unified.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+
+    -lu main_lu sub_lu
+            Specify the LU numbers to be unified.
+
+    -availablelist
+            A list of LU numbers, each of which is eligible for the unifying LU
+            is displayed.
+            When -lu option is specified, the Sub LU list is displayed.
+
+    -lu main_lu
+            Specify the Main LU number.
+

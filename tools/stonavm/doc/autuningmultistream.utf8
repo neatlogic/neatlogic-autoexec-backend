@@ -1,0 +1,115 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    autuningmultistream    マルチストリームチューニングパラメータ参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    autuningmultistream -unit unit_name -refer
+
+  AMS, WMS
+    autuningmultistream -unit unit_name -set
+                        -scope system | lu
+                        [ -lu lun ... ]
+                        [ -read enable | disable ]
+                        [ -write enable | disable ]
+                        [ -next enable | disable ]
+                        [ -criteria fixed | base ]
+  SMS, AMS2000, HUS100
+    autuningmultistream -unit unit_name -set
+                        -scope system | lu
+                        [ -lu lun ... ]
+                        [ -readwrite enable | disable ]
+                        [ -next enable | disable ]
+                        [ -criteria fixed | base ]
+                        [ -seqcount num ]
+                        [ -fixedsize num ]
+                        [ -basesize num ]
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    autuningmultistream -unit unit_name -default
+
+【説明】
+    マルチストリーム(リード/ライトモードの有効/無効、次回先読み、先読み基準)
+    のチューニングパラメータを参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            マルチストリームチューニングパラメータを参照、または設定するアレイ
+            装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            マルチストリームチューニングパラメータを参照します。
+    -set
+            マルチストリームチューニングパラメータを設定します。
+    -default
+            マルチストリームチューニングパラメータをデフォルト値に戻します。
+
+    -scope system | lu
+            適用範囲を指定します。
+
+                system: システム
+                lu    : ロジカルユニット
+
+    -lu lun ...
+            LU番号を指定します。
+            LU番号は、単一指定または複数指定できます。
+
+                単一指定: １つのLU番号を指定します。
+                          例: -lu 3
+                複数指定: 複数のLU番号を指定します。
+                          例: -lu 0 1 2 3 4 5 8
+                              -lu 0-5 8
+
+    -read enable | disable
+            リードモードの有効/無効を指定します。
+
+                enable : リードモードを有効にします。
+                disable: リードモードを無効にします。
+
+    -write enable | disable
+            ライトモードの有効/無効を指定します。
+
+                enable : ライトモードを有効にします。
+                disable: ライトモードを無効にします。
+
+    -readwrite enable | disable
+            リード/ライトモードの有効/無効を指定します。
+            無効にした場合、リードモードになります。
+
+                enable : リード/ライトモードを有効にします。
+                disable: リード/ライトモードを無効にします。
+
+    -next enable | disable
+            次回先読みする/しないを指定します。
+         【適用範囲がシステムの場合】
+            リードモードが有効の場合のみ指定できます。
+         【適用範囲がロジカルユニットの場合】
+            指定されたLUのリードモードがすべて有効の場合のみ指定できます。
+
+                enable : 指定した値までリードされたら次の先読みを行います。
+                disable: ヒットする限り先読みを行いません。
+
+    -criteria fixed | base
+            先読み基準を指定します。
+
+                fixed: 固定先読み量を基準とします。
+                base : 基本先読み量を基準とします。
+                   【適用範囲がシステムの場合】
+                       リードモードが無効の場合のみ指定できます。
+                   【適用範囲がロジカルユニットの場合】
+                       指定されたLUのリードモードがすべて無効の場合のみ指定
+                       できます。
+
+    -seqcount num
+            シーケンシャル判定数を指定します。(0〜10)
+
+    -fixedsize num
+            固定先読み量を指定します。(1〜65535[KB])
+
+    -basesize num
+            基本先読み量を指定します。(1〜65535[KB])
+

@@ -1,0 +1,39 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aupair    Referencing Pair Information
+
+Format
+  9500V, AMS, WMS
+    aupair -unit unit_name -refer [ -pvol lun ... ]
+
+Description
+    This command references the pair information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            the pair information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            Displays the pair information.
+
+    -pvol lun ...
+            Specify the P-VOL numbers to reference the pair information.
+            When doing that, enter the P-VOL number using numerals or
+            a hyphen(s) (-).
+            If the specification is omitted, all the pair information is
+            displayed.
+            Single or multiple P-VOL numbers can be specified.
+
+                Single specification  : Specifying a single P-VOL number.
+                                        Example: -pvol 3
+                Multiple specification: Specifying multiple P-VOL numbers.
+                                        Example: -pvol 0 1 2 3 4 5 8
+                                                 -pvol 0-5 8
+

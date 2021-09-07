@@ -1,0 +1,27 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auluchg    Changing the Default Controller of LU
+
+Format
+  9500V, AMS, WMS
+    auluchg -unit unit_name -lu lun
+
+Description
+    This command changes the default controller of an connected LU to
+    another controller.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which LUs have been
+            defined.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -lu lun
+            Specify the LU number of an LU whose default controller is to
+            be changed.
+

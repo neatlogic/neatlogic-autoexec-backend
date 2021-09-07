@@ -1,0 +1,66 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auloginfo    Referencing/Setting/Resetting the Log Information
+
+Format
+  SMS, AMS2000, HUS100
+    auloginfo -unit unit_name -refer -porterror [ ctl_no port_no ]
+                                     [ -item [ threshold ]
+                                             [ portinfo ]
+                                             [ errorinfo ]
+                                             [ todayinfo ] ]
+
+    auloginfo -unit unit_name -set -porterror ctl_no port_no
+                                   -threshold num
+
+    auloginfo -unit unit_name -reset -porterror ctl_no port_no
+                                     -item errorinfo
+
+Description
+    This command references, sets, or resets the log information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference,
+            set, or reset the log information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the log information.
+    -set
+            Sets the log information.
+    -reset
+            Resets the log information.
+
+    -porterror ctl_no port_no
+            References, sets, or resets the log information of the specified
+            port.
+          When the -refer option is specified:
+            When the specification is omitted, error information of all the
+            ports are displayed.
+
+                ctl_no : Controller number (0, 1)
+                port_no: Port number (A, B, C, D, E, F, G, H)
+
+    -item [ threshold ] [ portinfo ] [ errorinfo ] [ todayinfo ]
+          When the -refer option is specified:
+            Specify a item you want to refer to.
+            When the specification is omitted, all the item are displayed.
+            One or more of the items can be specified.
+          When the -reset option is specified:
+            Specify a item you want to reset to.
+
+                threshold: Threshold of error alert
+                portinfo : Port information
+                errorinfo: Error information
+                todayinfo: Today's error information
+
+    -threshold num
+            Specify the threshold of error count for the alert.
+            When 0 is specified, the error alert is not carried out.
+

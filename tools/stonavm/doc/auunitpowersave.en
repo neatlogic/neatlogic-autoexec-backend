@@ -1,0 +1,64 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auunitpowersave    Referencing/Setting the Unit Power Saving Information
+
+Format
+  AMS2000
+    auunitpowersave -unit unit_name -refer
+
+  HUS100
+    auunitpowersave -unit unit_name -refer
+    auunitpowersave -unit unit_name -refer -rginfo [ -uno unit_no ]
+
+    auunitpowersave -unit unit_name -chg -uno unit_no ...
+                                         -unitpoweroff enable | disable
+
+    auunitpowersave -unit unit_name -connectiontest -uno unit_no
+
+Description
+    This command references or sets the unit power saving information.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference or set
+            the unit power saving information.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the unit power saving information.
+    -chg
+            Changes the unit power saving information.
+
+    -connectiontest
+            Tests the connection.
+    -rginfo
+            Specify the RAID group information.
+
+    -uno unit_no
+            Specify the unit number.
+
+                unit_no: unit number
+
+    -uno unit_no ...
+            Specify the unit number.
+            Single or multiple unit numbers can be specified.
+
+                Single specification  : Specifying a single unit number.
+                                        Example: -uno 3
+                Multiple specification: Specifying multiple unit numbers.
+                                        Example: -uno 1 2 3 4 5 8
+                                                 -uno 1-5 8
+
+                unit_no: unit number
+
+    -unitpoweroff enable | disable
+            Specify whether to set the unit power off effective or ineffective.
+
+                enable : Enables the unit power off.
+                disable: Disables the unit power off.
+

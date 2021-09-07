@@ -1,0 +1,58 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    aulutuning    Referencing/Setting LU Tuning Parameters
+
+Format
+  9500V
+    aulutuning -unit unit_name -refer
+
+    aulutuning -unit unit_name -set -lu lun ...
+               -pfdata disable | num
+
+    aulutuning -unit unit_name -default [ -lu lun ]
+
+Description
+    This command refers to or sets the LU tuning parameters.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit to which the LU tuning
+            parameters is referred or set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the LU tuning parameters.
+    -set
+            Sets the LU tuning parameters.
+    -default
+            Returns the parameter for tuning the performance to the default
+            value.
+
+    -lu lun
+            Specify the LU number.
+
+    -lu lun ...
+            Specify number(s) of LU(s) for which to be set the LU tuning
+            parameters. One or more LU number(s) can be specified. However,
+            only a single logical unit can be specified when the -default has
+            been specified.
+            Single or multiple LU numbers can be specified.
+
+                Single specification  : Specifying a single LU number.
+                                        Example: -lu 3
+                Multiple specification: Specifying multiple LU numbers.
+                                        Example: -lu 0 1 2 3 4 5 8
+                                                 -lu 0-5 8
+
+    -pfdata disable | num
+            Specify the time to start the pre-fetch.
+
+                disable: The pre-fetch is not started.
+                num    : Specify the condition to start the next pre-fetch,
+                         that is, a percentage of data to be pre-fetched that
+                         has been read (0 to 100).

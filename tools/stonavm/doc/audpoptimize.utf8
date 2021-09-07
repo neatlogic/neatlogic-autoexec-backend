@@ -1,0 +1,138 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    audpoptimize    DP最適化参照/開始/中止/変更
+
+【記述形式】
+  AMS2000, HUS100
+    audpoptimize -unit unit_name -refer
+
+    audpoptimize -unit unit_name -start
+                 -lu lun ...
+                 [ -zeropagereclaim ]
+                 [ -allindppool ]
+
+    audpoptimize -unit unit_name -cancel
+                 -lu lun ...
+                 [ -allindppool ]
+
+  AMS2000
+    audpoptimize -unit unit_name -chg
+                 -priority optimize | host
+    audpoptimize -unit unit_name -chg
+                 -capacitymode maximum | regular
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+  HUS100
+    audpoptimize -unit unit_name -chg
+                 -priority optimize | normal | host
+    audpoptimize -unit unit_name -chg
+                 -capacitymode maximum | regular
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+                 [ -auto enable [ -threshold num[ g | t ] ]
+                                [ -allindppool ] ]
+    audpoptimize -unit unit_name -chg
+                 -lu lun ...
+                 [ -widestriping enable | disable [ -dpoptimize ] ]
+                 [ -fullcapacity enable | disable ]
+                 [ -auto disable [ -allindppool ] ]
+
+    audpoptimize -unit unit_name -reconfigurememory start | cancel
+
+【説明】
+    DP最適化状態を参照、またはDP最適化を開始、中止、またはDP最適化情報を変更
+    します。
+
+【オプション】
+    -unit unit_name
+            DP最適化状態を参照、またはDP最適化を開始、中止、またはDP最適化情報
+            を変更するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            DP最適化状態を参照します。
+    -start
+            DP最適化を開始します。
+    -cancel
+            DP最適化を中止します。
+    -chg
+            DP最適化情報を変更します。
+
+    -reconfigurememory start | cancel
+            メモリ再構築の開始/中断を指定します。
+
+                start : メモリ再構築を開始します。
+                cancel: メモリ再構築を中断します。
+
+    -lu lun ...
+            DPプールに所属するLU番号を指定します。
+            LU番号指定は、単一指定または複数指定できます。
+
+                単一指定：１つのLU番号を指定します。
+                          例：-lu 3
+                複数指定：複数のLU番号を指定します。
+                          例：-lu 0 1 2 3 4 5 8
+                              -lu 0-5 8
+
+    -zeropagereclaim
+            ゼロデータページ破棄を実行する場合に指定します。
+            省略した場合は、ゼロデータページ破棄を実行しません。
+
+    -allindppool
+            指定したロジカルユニットを含むDPプールの全ロジカルユニットに対して
+            実行する場合に指定します。
+            省略した場合は、指定したロジカルユニットのみを実行します。
+
+    -priority optimize | normal | host
+            DP最適化の優先度を指定します。
+
+                optimize: DP最適化優先
+                normal  : 標準
+                host    : ホストアクセス優先
+
+    -capacitymode maximum | regular
+            DP容量モードを指定します。
+
+                maximum: 最大容量
+                regular: 通常容量
+
+    -widestriping enable | disable
+            ワイドストライピングモードの有効/無効を指定します。
+
+                enable : ワイドストライピングモードを有効にします。
+                disable: ワイドストライピングモードを無効にします。
+
+    -dpoptimize
+            ワイドストライピングモード変更後にDP最適化を実行する場合に指定しま
+            す。
+
+    -fullcapacity enable | disable
+            全容量割当モードの有効/無効を指定します。
+
+                enable : 全容量割当モードを有効にします。
+                disable: 全容量割当モードを無効にします。
+
+    -auto enable | disable
+            自動DP最適化の有効/無効を指定します。
+
+                enable : 自動DP最適化を有効にします。
+                disable: 自動DP最適化を無効にします。
+
+    -threshold num[ g | t ]
+            自動DP最適化のしきい値を指定します。
+            GBで指定する場合は数字のみ、または数字に続けて"g"、または"G"を指定
+            します。
+            TBで指定する場合は数字に続けて"t"、または"T"を指定します。
+
+                num: しきい値
+                     例: -threshold 50
+                         -threshold 50g
+                         -threshold 100T
+

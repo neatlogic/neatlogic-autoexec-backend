@@ -1,0 +1,99 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auportop    Referencing/Setting the Port Option
+
+Format
+  9500V, AMS, WMS, SMS, AMS2000, HUS100
+    auportop -unit unit_name -refer
+
+  9500V
+    auportop -unit unit_name -set
+             -PortTypeOption ctl_no port_no
+                             ResetLipSignal | ResetLipProcess |
+                             LipPortAllReset | ReadFrameMin128
+                             enable | disable
+  AMS, WMS
+    auportop -unit unit_name -set
+             -PortTypeOption ctl_no port_no
+                             ResetLipSignal | ResetLipProcess |
+                             LipPortAllReset
+                             enable | disable
+  SMS
+    auportop -unit unit_name -set
+             -PortTypeOption ctl_no port_no
+                             ResetLipSignal | ResetLipProcess |
+                             LipPortAllReset | PLOGITimeoutPrevention |
+                             DisableAutodiscoverNewHG
+                             enable | disable
+  AMS2000
+    auportop -unit unit_name -set
+             -PortTypeOption ctl_no port_no
+                             ResetLipSignal | ResetLipProcess |
+                             LipPortAllReset | CrossCtlIO |
+                             CmdUniqueResponse | PLOGITimeoutPrevention |
+                             DisableAutodiscoverNewHG | PLOGIResponseQuick
+                             enable | disable
+  HUS100
+    auportop -unit unit_name -set
+             -PortTypeOption ctl_no port_no
+                             ResetLipSignal | ResetLipProcess |
+                             LipPortAllReset |
+                             CmdUniqueResponse | PLOGITimeoutPrevention |
+                             DisableSelectiveAck | AutodiscoverNewHG |
+                             PLOGIResponseQuick | CmdQueueExpansion
+                             enable | disable
+
+Description
+    This command references and sets the port option.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the port option.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the port option.
+    -set
+            Sets the port option.
+
+    -PortTypeOption ctl_no port_no ResetLipSignal | ResetLipProcess |
+                    LipPortAllReset | ReadFrameMin128 | CrossCtlIO |
+                    CmdUniqueResponse | PLOGITimeoutPrevention |
+                    DisableAutodiscoverNewHG | DisableSelectiveAck |
+                    AutodiscoverNewHG | PLOGIResponseQuick | CmdQueueExpansion
+                    enable | disable
+
+                ctl_no                  : Controller number (0, 1)
+                port_no                 : Port number (A, B, C, D, E, F, G, H)
+                ResetLipSignal          : Sets ResetLip (signal).
+                ResetLipProcess         : Sets ResetLip (processing).
+                LipPortAllReset         : Sets the resetting of all ports by
+                                          an LIP.
+                ReadFrameMin128         : Sets Read Frame Min 128 Byte Mode.
+                                          (9500V only)
+                CrossCtlIO              : Sets CPU Load Reduction for Cross-CTL
+                                          I/O Mode.(AMS2000 only)
+                CmdUniqueResponse       : Sets Command Unique Response Mode.
+                                          (For AMS2000 and HUS100)
+                PLOGITimeoutPrevention  : Sets PLOGI Timeout Prevention Mode.
+                                          (For SMS, AMS2000 and HUS100)
+                DisableAutodiscoverNewHG: Sets Disable Autodiscover New HG
+                                          Mode.(For SMS and AMS2000)
+                DisableSelectiveAck     : Sets Disable Selective Ack Mode.
+                                          (HUS100 only)
+                AutodiscoverNewHG       : Sets Autodiscover New HG Mode.
+                                          (HUS100 only)
+                PLOGIResponseQuick      : Sets PLOGI Response Quick Mode.
+                                          (For AMS2000 and HUS100)
+                CmdQueueExpansion       : Sets Command Queue Expansion Mode.
+                                          (HUS100 only)
+                enable                  : Enables the settings described above.
+                disable                 : Disables the settings described 
+                                          above.
+

@@ -1,0 +1,66 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auaccountopt    Referencing/Setting the Account Options
+
+Format
+  SMS, AMS2000, HUS100
+    auaccountopt -unit unit_name -refer [ -banner ] [ -timeout ]
+
+    auaccountopt -unit unit_name -set
+                 [ -banner enable | disable ]
+                 [ -bannerfile file_name ]
+                 [ -timeout time | 24h | off ]
+    auaccountopt -unit unit_name -set
+                 -advancedsecuritymode enable | disable
+
+Description
+    This command references or sets the account options.
+
+Options
+    -unit unit_name
+            Specify the name of the array unit for which to reference
+            or set the account options.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the account options.
+    -set
+            Sets the account options.
+    -banner
+            Specify this option when referencing the banner only.
+    -timeout
+            Specify this option when referencing the time-out time only.
+
+    -banner enable | disable
+            Specify whether to set the banner display effective or
+            ineffective.
+
+                enable : Enables the banner display.
+                disable: Disables the banner display.
+
+    -bannerfile filename
+            Specify the file(path) name to which the banner is written.
+
+                file_name: file(path) name
+
+    -timeout time | 24h | off
+            Specify the session time-out time.
+
+                time: Session time-out time(minutes)
+                      It is 20 to 60 minutes in 5-minute unit and
+                      70 to 120 minutes in 10-minute unit.
+                24h : 24 hours
+                off : Without session time-out time
+
+    -advancedsecuritymode enable | disable
+            Specify whether to set the advanced security mode effective or
+            ineffective.
+
+                enable : Enables the advanced security mode.
+                disable: Disables the advanced security mode.
+

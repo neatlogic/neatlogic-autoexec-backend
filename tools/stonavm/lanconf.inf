@@ -1,0 +1,12 @@
+SplitLength(Sense)=32768
+SplitLength(Sel)=32768
+RetryCount=3
+RetryInterval=2
+RetryInterval(ms)=0
+RetryErrorCode=4098       ;0x00001002(DMEA00000B)
+RetryErrorCode=262144     ;0x00040000(DMEA000004)
+RetryErrorCode=393216     ;0x00060000(DMEA000006)
+RetryErrorCode=458752     ;0x00070000(DMEA000007)
+RetryErrorCode=17143296   ;0x01059600(DMES059600)
+LanTimeout_1=200000
+ConnectionTimeout=2

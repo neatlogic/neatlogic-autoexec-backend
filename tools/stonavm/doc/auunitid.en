@@ -1,0 +1,52 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    auunitid    Referencing/Setting the Equipment ID or Controller ID
+
+Format
+  9500V
+    auunitid -unit unit_name -refer
+
+    auunitid -unit unit_name -set
+             [ -EquipmentID string ]
+             [ -ControllerIDFlag ctl_no enable | disable ]
+             [ -ControllerID ctl_no string ]
+
+Description
+    This command references or sets the equipment ID or controller ID.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit for which to reference and
+            set the equipment ID or the controller ID.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the equipment ID or the controller ID.
+    -set
+            Sets the equipment ID or the controller ID.
+
+    -EquipmentID string
+            Sets the equipment ID.
+
+                string: The equipment ID (up to four numerals)
+
+    -ControllerIDFlag ctl_no enable | disable
+            Specify whether to set the controller ID flag effective or 
+            ineffective.
+
+                ctl_no : Controller number (0, 1)
+                enable : Enables the controller ID.
+                disable: Disables the controller ID.
+
+    -ControllerID ctl_no string
+            Specify the controller ID.
+
+                ctl_no: Controller number (0, 1)
+                string: Controller ID (up to eight characters)  If you want
+                        to enter NULL characters, enter "".
+

@@ -1,0 +1,338 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auhgwwn    ホスト情報参照/設定
+
+【記述形式】
+  9500V
+    When the LUN Management of the fee-basis option is effective.
+      auhgwwn -unit unit_name -refer
+              [ -login  ctl_no port_no ]
+              [ -permhg ctl_no port_no -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -set
+              [ -hgs    ctl_no port_no on | off ]
+              [ -permhg ctl_no port_no node_name port_name
+              -gno group_no | -gname group_name [ -wname wwn_name ] ]
+
+      When specifying the node name and port name
+        auhgwwn -unit unit_name -assign
+                -permhg ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name
+
+        auhgwwn -unit unit_name -rm
+                [ -perm   ctl_no port_no node_name port_name ]
+                [ -permhg ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name ]
+
+        auhgwwn -unit unit_name -chg
+                -rename ctl_no port_no node_name port_name
+                -gno group_no | -gname group_name
+                -newwname new_wwn_name
+
+      When specifying the wwn name.
+        auhgwwn -unit unit_name -assign
+                -permhg ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name
+
+        auhgwwn -unit unit_name -rm
+                [ -perm   ctl_no port_no -wname wwn_name ]
+                [ -permhg ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name ]
+
+        auhgwwn -unit unit_name -chg
+                -rename ctl_no port_no -wname wwn_name
+                -gno group_no | -gname group_name
+                -newwname new_wwn_name
+
+    When the LUN Security of the fee-basis option is effective.
+      auhgwwn -unit unit_name -refer
+
+      auhgwwn -unit unit_name -set
+              [ -lus       ctl_no port_no on | off ]
+              [ -luschk    ctl_no port_no inqc | allc ]
+              [ -perm      ctl_no port_no node_name port_name ]
+              [ -permlu    ctl_no port_no node_name port_name lun... ]
+              [ -permluall ctl_no port_no node_name port_name ]
+
+      auhgwwn -unit unit_name -rm
+              [ -perm      ctl_no port_no node_name port_name ]
+              [ -permlu    ctl_no port_no node_name port_name lun... ]
+              [ -permluall ctl_no port_no node_name port_name ]
+
+  AMS, WMS, SMS, AMS2000, HUS100
+    auhgwwn -unit unit_name -refer
+            [ -login  ctl_no port_no ]
+            [ -permhg ctl_no port_no -gno group_no | -gname group_name ]
+
+    auhgwwn -unit unit_name -set
+            [ -hgs    ctl_no port_no on | off ]
+            [ -permhg ctl_no port_no port_name
+            -gno group_no | -gname group_name [ -wname wwn_name ] ]
+
+    When specifying the port name
+      auhgwwn -unit unit_name -assign
+              -permhg ctl_no port_no port_name
+              -gno group_no | -gname group_name
+
+      auhgwwn -unit unit_name -rm
+              [ -perm   ctl_no port_no port_name ]
+              [ -permhg ctl_no port_no port_name
+              -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -chg
+              -rename ctl_no port_no port_name
+              -gno group_no | -gname group_name
+              -newwname new_wwn_name
+
+    When specifying the wwn name.
+      auhgwwn -unit unit_name -assign
+              -permhg ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name
+
+      auhgwwn -unit unit_name -rm
+              [ -perm   ctl_no port_no -wname wwn_name ]
+              [ -permhg ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name ]
+
+      auhgwwn -unit unit_name -chg
+              -rename ctl_no port_no -wname wwn_name
+              -gno group_no | -gname group_name
+              -newwname new_wwn_name
+
+【説明】
+    ホスト情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            ホスト情報を参照、設定、削除、割り当て、または変更するアレイ装
+            置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            ホスト情報を参照します。
+    -set
+            ホスト情報を設定します。
+    -rm
+            ホスト情報を削除します。
+    -chg
+            ホスト情報を変更します。
+    -assign
+            ホスト情報をホストグループに割り当てます。
+
+    -login ctl_no port_no
+            指定したポートにログインしているホスト情報を表示します。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D、E、F、G、H）
+
+    -permhg ctl_no port_no
+         【-referオプションの場合】
+            指定したホストグループに割り当て済みのホスト情報と割り当て可能な
+            ホスト情報を表示します。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-setオプションの場合】
+            指定したホストグループに割り当てるホスト情報を指定します。
+            -wnameオプションの指定が必須です。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-assignオプションの場合】
+            指定したポートにログインしているホスト情報からホストグループに割
+            り当て可能なホスト情報を指定します。
+            -wnameオプションの指定が必須です。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-rmオプションの場合】
+            指定したホストグループに割り当て済みのホスト情報から削除するホス
+            ト情報を指定します。
+            -wnameオプションの指定が必須です。
+            -gnoまたは-gnameオプションの指定が必須です。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D、E、F、G、H）
+
+    -hgs ctl_no port_no on | off
+            指定したポートのホストグループセキュリティの有効/無効を指定しま
+            す。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D、E、F、G、H）
+                on     : ホストグループセキュリティを有効にします。
+                off    : ホストグループセキュリティを無効にします。
+
+    -perm ctl_no port_no
+            指定したポートにログインしているホスト情報から削除するホスト情報
+            を指定します。
+            -wnameオプションの指定が必須です。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D、E、F、G、H）
+
+    -rename ctl_no port_no
+            指定したホストグループに割り当て済みのホスト情報からWWN名称を変
+            更するホスト情報を指定します。
+            -wnameオプション、-gnoまたは-gnameオプション、-newwnameオプショ
+            ンの指定が必須です。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D、E、F、G、H）
+
+    -wname wwn_name
+            ホストのWWN名称を指定します。
+            文字列の前後のスペースは無視します。
+            全スペースは指定できません。
+
+                wwn_name: WWN名称
+
+    -gno group_no
+            ホストグループ番号を指定します。
+
+                group_no: ホストグループ番号
+
+    -gname group_name
+            ホストグループ名称を指定します。
+
+                group_name: ホストグループ名称
+
+    -newwname new_wwn_name
+            変更後のWWN名称を指定します。
+
+                new_wwn_name: WWN名称
+
+    注）WWN名称とホストグループ名称には、32文字以内の半角のASCII文字（英数字、
+        および次の記号)を使用できます（AMS,WMSまでは、16文字）。
+         (! 、# 、$ 、% 、& 、' 、+ 、- 、. 、= 、@ 、^ 、_ 、{ 、} 、
+          ~ 、( 、) 、[ 、] 、スペース)
+
+  9500V専用
+    -permhg ctl_no port_no node_name port_name
+         【-setオプションの場合】
+            指定したホストグループに割り当てるホスト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-assignオプションの場合】
+            指定したポートにログインしているホスト情報からホストグループに割
+            り当て可能なホスト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-rmオプションの場合】
+            指定したホストグループに割り当て済みのホスト情報から削除するホス
+            ト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -perm ctl_no port_no node_name port_name
+            指定したポートにログインしているホスト情報から削除するホスト情報
+            を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -rename ctl_no port_no node_name port_name
+            指定したホストグループに割り当て済みのホスト情報からWWN名称を変
+            更するホスト情報を指定します。
+            -gnoまたは-gnameオプション、-newwnameオプションの指定が必須です。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -lus ctl_no port_no on | off
+            指定したポートのLUN Securityの有効/無効を指定します。
+
+                ctl_no : コントローラ番号(0、1)
+                port_no: ポート番号(A、B、C、D)
+                on     : LUN Securityを有効にします。
+                off    : LUN Securityを無効にします。
+
+    -luschk ctl_no port_no inqc | allc
+            指定したポートのLUN Securityの対象コマンドを指定します。
+
+                ctl_no : コントローラ番号（0、1）
+                port_no: ポート番号（A、B、C、D）
+                inqc   : Inquiryコマンドを対象にします。
+                allc   : 全コマンドを対象にします。
+
+    -perm ctl_no port_no node_name port_name
+         【-setオプションの場合】
+            指定したポートでアクセス許可するホスト情報（ノード名称とポート名
+            称）を指定します。
+         【-rmオプションの場合】
+            指定したポートのアクセス許可しているホスト情報（ノード名称とポー
+            ト名称）から削除するホスト情報を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -permlu ctl_no port_no node_name port_name lun...
+         【-setオプションの場合】
+            指定したポートでLUN Securityを使用する場合、-permオプションにて
+            登録されているホスト情報に対してアクセスを許可するLUNを指定します
+           （複数LU指定可能）。
+            ホスト情報とLUN Securityの同時登録はできません。
+         【-rmオプションの場合】
+            指定したポートで設定していたLUN Securityからアクセス許可を削除
+            するLUNを指定します（複数LU指定可能）。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+                lun...   : LU番号
+
+    -permluall ctl_no port_no node_name port_name
+         【-setオプションの場合】
+            指定したポートでLUN Securityを使用する場合、全LUに対してアクセス
+            を許可する-permオプションにて登録されているホスト情報を指定します。
+            ホスト情報とLUN Securityの同時登録はできません。
+         【-rmオプションの場合】
+            指定したポートで設定していたLUN Securityからアクセス許可を削除す
+            るホスト情報を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D）
+                node_name: ホストのノード名称（16進文字列16文字）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+  AMS, WMS, SMS, AMS2000, HUS100共通
+    -permhg ctl_no port_no port_name
+         【-setオプションの場合】
+            指定したホストグループに割り当てるホスト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-assignオプションの場合】
+            指定したポートにログインしているホスト情報からホストグループに割
+            り当て可能なホスト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+         【-rmオプションの場合】
+            指定したホストグループに割り当て済みのホスト情報から削除するホス
+            ト情報を指定します。
+            -gnoまたは-gnameオプションの指定が必須です。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D、E、F、G、H）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -perm ctl_no port_no port_name
+            指定したポートにログインしているホスト情報から削除するホスト情報
+            を指定します。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D、E、F、G、H）
+                port_name: ホストのポート名称（16進文字列16文字）
+
+    -rename ctl_no port_no port_name
+            指定したホストグループに割り当て済みのホスト情報からWWN名称を変
+            更するホスト情報を指定します。
+            -gnoまたは-gnameオプション、-newwnameオプションの指定が必須です。
+
+                ctl_no   : コントローラ番号（0、1）
+                port_no  : ポート番号（A、B、C、D、E、F、G、H）
+                port_name: ホストのポート名称（16進文字列16文字）
+

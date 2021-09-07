@@ -1,0 +1,244 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+Command name
+    ausystemparam    Referencing/Setting System Parameters
+
+Format
+  AMS, WMS, SMS, AMS2000, HUS100
+    ausystemparam -unit unit_name -refer
+
+  AMS, WMS
+    ausystemparam -unit unit_name -set
+                  [ -LuCacheWarning        enable | disable ]
+                  [ -WriteUniqueResponse   enable | disable ]
+                  [ -AutoReconst           enable | disable ]
+                  [ -ForcedWriteThrough    enable | disable ]
+                  [ -LUChangeDisable       enable | disable ]
+                  [ -ShadowImageIOSwitch   enable | disable ]
+                  [ -SyncCacheExec         enable | disable ]
+                  [ -DriveDetach           enable | disable ]
+                  [ -ProcessorFailures     reset | shutdown ]
+                  [ -WebTitle              string ]
+                  [ -WriteVerifyExecution  ctl_no on | off ]
+  SMS
+    ausystemparam -unit unit_name -set
+                  [ -LuCacheWarning        enable | disable ]
+                  [ -WriteUniqueResponse   enable | disable ]
+                  [ -AutoReconst           enable | disable ]
+                  [ -ForcedWriteThrough    enable | disable ]
+                  [ -ShadowImageIOSwitch   enable | disable ]
+                  [ -SyncCacheExec         enable | disable ]
+                  [ -DriveDetach           enable | disable ]
+                  [ -LowerDriveDetachThres enable | disable ]
+                  [ -ProcessorFailures     reset | shutdown ]
+                  [ -WebTitle              string ]
+                  [ -WriteVerifyExecution  ctl_no on | off ]
+  AMS2000
+    ausystemparam -unit unit_name -set
+                  [ -LuCacheWarning                     enable | disable ]
+                  [ -WriteUniqueResponse                enable | disable ]
+                  [ -AutoReconst                        enable | disable ]
+                  [ -ForcedWriteThrough                 enable | disable ]
+                  [ -ShadowImageIOSwitch                enable | disable ]
+                  [ -SyncCacheExec                      enable | disable ]
+                  [ -DriveDetach                        enable | disable ]
+                  [ -LowerDriveDetachThres              enable | disable ]
+                  [ -HostIORestraintStateReport         enable | disable ]
+                  [ -LowerResponseDelayDriveDetachThres enable | disable ]
+                  [ -ShadowImageCopyCacheUsageReduction enable | disable ]
+                  [ -443TCPPortTLS10Function            enable | disable ]
+                  [ -NavigatorSecurePortTLS10Function   enable | disable ]
+                  [ -ProcessorFailures                  reset | shutdown ]
+                  [ -WebTitle                           string ]
+                  [ -WriteVerifyExecution               ctl_no on | off ]
+  HUS100
+    ausystemparam -unit unit_name -set
+                  [ -LuCacheWarning                     enable | disable ]
+                  [ -WriteUniqueResponse                enable | disable ]
+                  [ -AutoReconst                        enable | disable ]
+                  [ -ForcedWriteThrough                 enable | disable ]
+                  [ -ShadowImageIOSwitch                enable | disable ]
+                  [ -SyncCacheExec                      enable | disable ]
+                  [ -DriveDetach                        enable | disable ]
+                  [ -LowerDriveDetachThres              enable | disable ]
+                  [ -HostIORestraintStateReport         enable | disable ]
+                  [ -DTHighEfficiencyRelocationUnique   enable | disable ]
+                  [ -LowerResponseDelayDriveDetachThres enable | disable ]
+                  [ -ShadowImageCopyCacheUsageReduction enable | disable ]
+                  [ -SSDCountofJudgmentSequentialZero   enable | disable ]
+                  [ -443TCPPortTLS10Function            enable | disable ]
+                  [ -NavigatorSecurePortTLS10Function   enable | disable ]
+                  [ -BatteryCharge              writethrough | writeback ]
+                  [ -ProcessorFailures                  reset | shutdown ]
+                  [ -WebTitle                           string ]
+                  [ -WriteVerifyExecution               ctl_no on | off ]
+
+Description
+    This command references the contents of system parameters or set the
+    parameters.
+
+Options
+    -unit unit_name
+            Specify the name of an array unit in which the system
+            parameters are to be referenced or to be set.
+            Specify the name in less than or equal to 64 characters using
+            alphanumeric characters, special symbols "- (minus)",
+            "_ (underline)", ". (period)", "@", or "  (space)". 
+            Space in front and in the rear of the character string is
+            removed. 
+    -refer
+            References the system parameters.
+    -set
+            Sets the system parameters.
+
+    -LuCacheWarning enable | disable
+            Specify whether or not to report a warning when the Cache
+            Residency LU function is set effective.
+
+                enable : Reports warning.
+                disable: Does not report warning.
+
+    -WriteUniqueResponse enable | disable
+            Specify whether to set the Write Unique Response Mode effective
+            or ineffective.
+
+                enable : Enables the Write Unique Response Mode.
+                disable: Disables the Write Unique Response Mode.
+
+    -AutoReconst enable | disable
+            Specify whether to set the Auto Reconstruction Mode effective
+            or ineffective.
+
+                enable : Enables the Auto Reconstruction Mode.
+                disable: Disables the Auto Reconstruction Mode.
+
+    -ForcedWriteThrough enable | disable
+            Specify whether to set the Forced Write Through Mode effective
+            or ineffective.
+
+                enable : Enables the Forced Write Through Mode.
+                disable: Disables the Forced Write Through Mode.
+
+    -LUChangeDisable enable | disable
+            Specify whether to set the LU Ownership Change Disable Mode
+            effective or ineffective.
+
+                enable : Enables the LU Ownership Change Disable Mode.
+                disable: Disables the LU Ownership Change Disable Mode.
+
+    -ShadowImageIOSwitch enable | disable
+            Specify whether to set the ShadowImage I/O Switch Mode
+            effective or ineffective.
+
+                enable : Enables the ShadowImage I/O Switch Mode.
+                disable: Disables the ShadowImage I/O Switch Mode.
+
+    -SyncCacheExec enable | disable
+            Specify whether to set the Synchronize Cache Execution
+            Mode effective or ineffective.
+
+                enable : Enables the Synchronize Cache Execution Mode.
+                disable: Disables the Synchronize Cache Execution Mode.
+
+    -DriveDetach enable | disable
+            Specifies whether to set the Drive Detach Mode effective or
+            ineffective.
+
+                enable : Enables the Drive Detach Mode.
+                disable: Disables the Drive Detach Mode.
+
+    -LowerDriveDetachThres enable | disable
+            Specify whether to set the Lower Drive Detach Threshold Mode
+            effective or ineffective.
+
+                enable : Enables the Lower Drive Detach Threshold Mode.
+                disable: Disables the Lower Drive Detach Threshold Mode.
+
+    -HostIORestraintStateReport enable | disable
+            Specify whether to set the Host I/O Restraint State Report Mode
+            effective or ineffective.
+
+                enable : Enables the Host I/O Restraint State Report Mode.
+                disable: Disables the Host I/O Restraint State Report Mode.
+
+    -DTHighEfficiencyRelocationUnique enable | disable
+            Specify whether to set the Dynamic Tiering High Efficiency
+            Relocation Unique Mode effective or ineffective.
+
+                enable : Enables the Dynamic Tiering High Efficiency
+                         Relocation Unique Mode.
+                disable: Disables the Dynamic Tiering High Efficiency
+                         Relocation Unique Mode.
+
+    -LowerResponseDelayDriveDetachThres enable | disable
+            Specify whether to set the Lower Response Delay Drive Detach
+            Threshold Mode effective or ineffective.
+
+                enable : Enables the Lower Response Delay Drive Detach
+                         Threshold Mode.
+                disable: Disables the Lower Response Delay Drive Detach
+                         Threshold Mode.
+
+    -ShadowImageCopyCacheUsageReduction enable | disable
+            Specify whether to set the ShadowImage Copy Cache Usage Reduction
+            Mode effective or ineffective.
+
+                enable : Enables the ShadowImage Copy Cache Usage
+                         Reduction Mode.
+                disable: Disables the ShadowImage Copy Cache Usage
+                         Reduction Mode.
+
+    -443TCPPortTLS10Function enable | disable
+            Specify whether to set the 443/TCP Port TLS1.0 Function Mode
+            effective or ineffective.
+
+                enable : Enables the 443/TCP Port TLS1.0 Function Mode.
+                disable: Disables the 443/TCP Port TLS1.0 Function Mode.
+
+    -NavigatorSecurePortTLS10Function enable | disable
+            Specify whether to set the Navigator Secure Port TLS1.0 Function
+            Mode effective or ineffective.
+
+                enable : Enables the Navigator Secure Port TLS1.0 Function
+                         Mode.
+                disable: Disables the Navigator Secure Port TLS1.0 Function
+                         Mode.
+
+    -SSDCountofJudgmentSequentialZero enable | disable
+            Specify whether to set the SSD Count of Judgment Sequential Zero
+            Mode effective or ineffective.
+
+                enable : Enables the SSD Count of Judgment Sequential Zero
+                         Mode.
+                disable: Disables the SSD Count of Judgment Sequential Zero
+                         Mode.
+
+    -BatteryCharge writethrough | writeback
+            Specify the Battery Charging Write Command.
+
+                writethrough: Sets the Write Through.
+                writeback   : Sets the Write Back.
+
+    -ProcessorFailures reset | shutdown
+            Specify action when a processor failure occurs.
+
+                reset   : Resets the failure and restarts the controller.
+                shutdown: Shuts down the array unit.
+
+    -WebTitle string
+            If the home page of the array unit is displayed with the browser,
+            this option specifies a character string displayed on the title
+            bar of the browser. Enter up to 32 one-byte coded alphanumeric
+            characters or characters
+            (except for the ' (single quotation mark),
+            " (double quotation mark) and \ (backslash) symbols) other than
+            numeric.
+
+    -WriteVerifyExecution ctl_no on | off
+            Specify the execution of the write & verify operation.
+
+                ctl_no: Controller number (0, 1)
+                on    : Executes write & verify operation.
+                off   : Does not execute write & verify operation.
+

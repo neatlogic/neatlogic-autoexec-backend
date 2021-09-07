@@ -1,0 +1,172 @@
+
+Copyright (C) 2005, 2018, Hitachi, Ltd.
+
+【コマンド名】
+    auonlan    オン中LAN情報参照/設定
+
+【記述形式】
+  AMS, WMS, SMS, AMS2000, HUS100
+    auonlan -unit unit_name -refer
+
+  AMS, WMS
+    auonlan -unit unit_name -set
+            [ -ctl0_addr inet_addr ] [ -ctl0_mask netmask ]
+            [ -ctl0_gate gateway ]
+            [ -ctl0_nego auto | 10mh | 10mf | 100mh | 100mf ]
+            [ -ctl1_addr inet_addr ] [ -ctl1_mask netmask ]
+            [ -ctl1_gate gateway ]
+            [ -ctl1_nego auto | 10mh | 10mf | 100mh | 100mf ]
+            [ -mipchgmode enable | disable ]
+  SMS, AMS2000, HUS100
+    When setting the IPv4.
+      auonlan -unit unit_name -set
+              [ -mipchgmode enable | disable ]
+              [ -ctl0_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf ]
+              [ -ctl1_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf ]
+              [ -ctl0_dhcp enable | disable ]
+              [ -ctl0_addr inet_addr ] [ -ctl0_mask netmask ]
+              [ -ctl0_gate gateway ]
+              [ -ctl1_dhcp enable | disable ]
+              [ -ctl1_addr inet_addr ] [ -ctl1_mask netmask ]
+              [ -ctl1_gate gateway ]
+    When setting the IPv6.
+      auonlan -unit unit_name -set
+              [ -ctl0_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf ]
+              [ -ctl1_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf ]
+              [ -ipv6_ctl0_setting auto | manual ]
+              [ -ipv6_ctl0_addr ipv6_addr ]
+              [ -ipv6_ctl0_prefix subnet_prefix ]
+              [ -ipv6_ctl0_gate ipv6_gateway ]
+              [ -ipv6_ctl1_setting auto | manual ]
+              [ -ipv6_ctl1_addr ipv6_addr ]
+              [ -ipv6_ctl1_prefix subnet_prefix ]
+              [ -ipv6_ctl1_gate ipv6_gateway ]
+
+【説明】
+    オンライン中にLAN情報を参照、または設定します。
+
+【オプション】
+    -unit unit_name
+            LAN情報を参照、または設定するアレイ装置名を指定します。
+            64文字以内の半角英数字、'-'(マイナス)、'_'(下線)、'.'(ピリオド)、
+            '@'、または' '(スペース)で指定します。
+            文字列の前後のスペースは無視します。
+    -refer
+            LAN情報を参照します。
+    -set
+            LAN情報を設定します。
+
+    -ctl0_addr inet_addr
+            コントローラ0のIPv4アドレスを指定します。
+
+                inet_addr: IPv4アドレス
+
+    -ctl0_mask netmask
+            コントローラ0のIPv4サブネットマスクを指定します。
+
+                netmask: IPv4サブネットマスク
+
+    -ctl0_gate gateway
+            コントローラ0のIPv4デフォルトゲートウェイを指定します。
+
+                gateway: IPv4デフォルトゲートウェイ
+
+    -ctl0_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf
+            コントローラ0のネゴシエーションを指定します。
+
+                auto  ：アレイ装置が自動決定します。
+                10mh  ：10 Mbps/Half
+                10mf  ：10 Mbps/Full
+                100mh ：100 Mbps/Half
+                100mf ：100 Mbps/Full
+                1000mf：1000 Mbps/Full
+
+    -ctl0_dhcp enable | disable
+            コントローラ0のDHCPモードの有効/無効を指定します。
+
+                enable ：DHCPモードを有効にします。
+                disable：DHCPモードを無効にします。
+
+    -ctl1_addr inet_addr
+            コントローラ1のIPv4アドレスを指定します。
+
+                inet_addr: IPv4アドレス
+
+    -ctl1_mask netmask
+            コントローラ1のIPv4サブネットマスクを指定します。
+
+                netmask: IPv4サブネットマスク
+
+    -ctl1_gate gateway
+            コントローラ1のIPv4デフォルトゲートウェイを指定します。
+
+                gateway: IPv4デフォルトゲートウェイ
+
+    -ctl1_nego auto | 10mh | 10mf | 100mh | 100mf | 1000mf
+            コントローラ1のネゴシエーションを指定します。
+
+                auto  ：アレイ装置が自動決定します。
+                10mh  ：10 Mbps/Half
+                10mf  ：10 Mbps/Full
+                100mh ：100 Mbps/Half
+                100mf ：100 Mbps/Full
+                1000mf：1000 Mbps/Full
+
+    -ctl1_dhcp enable | disable
+            コントローラ1のDHCPモードの有効/無効を指定します。
+
+                enable ：DHCPモードを有効にします。
+                disable：DHCPモードを無効にします。
+
+    -mipchgmode enable | disable
+            保守ポートIPアドレス自動変更モードの有効/無効を指定します。
+
+                enable ：保守ポートIPアドレス自動変更モードを有効にします。
+                disable：保守ポートIPアドレス自動変更モードを無効にします。
+
+    -ipv6_ctl0_setting auto | manual
+            IPv6アドレス設定モードを指定します。
+
+                auto  ：アレイ装置がIPv6アドレス、IPv6サブネットプレフィックス
+                        の長さ、 IPv6デフォルトゲートウェイを自動決定します。
+                manual：IPv6アドレス、IPv6サブネットプレフィックスの長さ、
+                        IPv6デフォルトゲートウェイを手動で設定します。
+
+    -ipv6_ctl0_addr ipv6_addr
+            コントローラ0のIPv6アドレスを指定します。
+
+                ipv6_addr: IPv6アドレス
+
+    -ipv6_ctl0_prefix subnet_prefix
+            コントローラ0のIPv6サブネットプレフィックスの長さ指定します。
+
+                subnet_prefix: IPv6サブネットプレフィックスの長さ
+
+    -ipv6_ctl0_gate ipv6_gateway
+            コントローラ0のIPv6デフォルトゲートウェイをIPv6形式で指定します。
+
+                ipv6_gateway: IPv6デフォルトゲートウェイ
+
+    -ipv6_ctl1_setting auto | manual
+            IPv6の設定モードを指定します。
+
+                auto  ：アレイ装置がIPv6アドレス、IPv6サブネットプレフィックス
+                        の長さ、 IPv6デフォルトゲートウェイを自動決定します。
+                manual：IPv6アドレス、IPv6サブネットプレフィックスの長さ、
+                        IPv6デフォルトゲートウェイを手動で設定します。
+
+    -ipv6_ctl1_addr ipv6_addr
+            コントローラ1のIPv6アドレスをIPv6形式で指定します。
+
+                ipv6_addr: IPv6アドレス
+
+    -ipv6_ctl1_prefix subnet_prefix
+            コントローラ1のIPv6サブネットプレフィックスの長さ指定します。
+
+                subnet_prefix: IPv6サブネットプレフィックスの長さ
+
+    -ipv6_ctl1_gate ipv6_gateway
+            コントローラ1のIPv6デフォルトゲートウェイをIPv6形式で指定します。
+
+                ipv6_gateway: IPv6デフォルトゲートウェイ
+
