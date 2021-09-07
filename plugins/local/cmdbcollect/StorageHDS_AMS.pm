@@ -132,7 +132,7 @@ sub collect {
         my ( $name, $capacity, $size, $type, $poolname );
 
         $name     = $lineInfo[0];
-        $capacity = int($lineInfo[1] * 100 + 0.5) / 100 ;
+        $capacity = int( $lineInfo[1] * 100 + 0.5 ) / 100;
         $size     = $lineInfo[2];
         $type     = $lineInfo[6];
         $poolname = $lineInfo[5];
@@ -144,13 +144,14 @@ sub collect {
 
         push( @luns, $lun );
 
-        my $pool_luns = [];
-        if ( defined( $lunsMap->{$poolname} ) ) {
-            $pool_luns = $lunsMap->{$poolname};
+        my $lunsInPool = $lunsMap->{$poolname};
+        if ( not defined($lunsInPool) ) {
+            $lunsInPool = [];
+            $lunsMap->{$poolname} = $lunsInPool;
         }
-        push( @$pool_luns, $lun );
-        $lunsMap->{$poolname} = $pool_luns;
+        push( @$lunsInPool, $lun );
     }
+
     #$data->{LUNS} = \@luns;
 
     #% audppool -unit HUS110 -refer -t
@@ -168,22 +169,18 @@ sub collect {
 
         $pool     = $lineInfo[0];
         $level    = $lineInfo[1];
-        $total    = int($lineInfo[2] * 1024 * 100 + 0.5) / 100 ;
+        $total    = int( $lineInfo[2] * 1024 * 100 + 0.5 ) / 100;
         $capacity = $lineInfo[3];
 
         my $pool = {};
         $pool->{NAME}     = $pool;
         $pool->{LEVEL}    = $level;
         $pool->{CAPACITY} = $total;
-
-        my $lunsInPool = [];
-        if ( defined( $lunsMap->{$pool} ) ) {
-            $lunsInPool = $lunsMap->{$pool};
-        }
-        $pool->{LUNS} = $lunsInPool;
+        $pool->{LUNS}     = $lunsMap->{$pool};
 
         push( @pools, $pool );
     }
+
     $data->{POOLS} = \@pools;
     return $data;
 }
