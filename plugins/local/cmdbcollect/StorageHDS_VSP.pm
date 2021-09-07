@@ -126,7 +126,7 @@ sub collect {
             my $lunId;
             my $capacity;
             if ( $line =~ /VOL_Capacity\(BLK\)\s+:\s+(\d+)/ ) {
-                $capacity = ( $1 * 100 / 1024 / 1024 + 0.5 ) / 100;
+                $capacity = int( $1 * 100 / 1024 / 1024 + 0.5 ) / 100;
             }
             if ( $line =~ /LDEV\s+:\s+(\d+)/ ) {
                 $lunId = $1;
