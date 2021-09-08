@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry install_date="2021-09-07 17:47:41" version="1.1" last_modified="2021-09-08 14:34:13">
+	<products>
+		<product name="IBM System Storage DS Command Line Interface" id="1c45428b-1eeb-11b2-b84e-bc38d71d4cbf" version="7.7.52.1350" copyright="2008" info_url="" support_url="" location="/opt/ibm/dscli" last_modified="2021-09-08 14:34:07" upgrade_id="1c45428b-1eeb-11b2-b84e-bc38d71d4cbf">
+		<![CDATA[IBM System Storage DS Command Line Interface]]>
+			<vendor name="" id="1c45428a-1eeb-11b2-b84e-bc38d71d4cbf" home_page="" email=""/>
+			<feature name="DSCLI" last_modified="2021-09-08 14:34:07" short_name="DSCLI">
+			<![CDATA[This feature was created because the original project contained root level components.  These types of components are not supported in InstallAnywhere.]]>
+				<component ref_id="d13699d5-1eeb-11b2-828f-bc38d71d4cbf" version="1.0.0.0" location="/opt/ibm/dscli/_uninst/uninstaller"/>
+				<component ref_id="c8a04236-1f2b-11b2-a8bd-fd6cd7923bdf" version="1.0.0.0" location="/opt/ibm/dscli/_uninst/uninstaller"/>
+				<component ref_id="1c587bff-1eeb-11b2-b723-bc38d71d4cbf" version="1.0.0.0" location="/opt/ibm/dscli/DSCLI.pdf"/>
+				<component ref_id="1c5f6285-1eeb-11b2-b72b-bc38d71d4cbf" version="1.0.0.0" location="/opt/ibm/dscli/bin/rsInquiryLinux-P.exe"/>
+				<component ref_id="1c5e6b81-1eeb-11b2-b729-bc38d71d4cbf" version="1.0.0.0" location="/opt/ibm/dscli/dscli"/>
+			</feature>
+		</product>
+	</products>
+	<components>
+		<component id="1c587bff-1eeb-11b2-b723-bc38d71d4cbf" version="1.0.0.0" name="Common" location="/opt/ibm/dscli/DSCLI.pdf">
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lib" location="/opt/ibm/dscli/lib" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="CLI.CFG" location="/opt/ibm/dscli/lib/CLI.CFG" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="dscli.jar" location="/opt/ibm/dscli/lib/dscli.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="dsclihelp.jar" location="/opt/ibm/dscli/lib/dsclihelp.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="ESSNIClient.jar" location="/opt/ibm/dscli/lib/ESSNIClient.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="hwmcaapi.jar" location="/opt/ibm/dscli/lib/hwmcaapi.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="ibmjsse.jar" location="/opt/ibm/dscli/lib/ibmjsse.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="logger.jar" location="/opt/ibm/dscli/lib/logger.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="rmcapi.jar" location="/opt/ibm/dscli/lib/rmcapi.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="ssgclihelp.jar" location="/opt/ibm/dscli/lib/ssgclihelp.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="ssgfrmwk.jar" location="/opt/ibm/dscli/lib/ssgfrmwk.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="xalan.jar" location="/opt/ibm/dscli/lib/xalan.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="xerces.jar" location="/opt/ibm/dscli/lib/xerces.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="profile" location="/opt/ibm/dscli/profile" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="dscli.profile" location="/opt/ibm/dscli/profile/dscli.profile" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="true" name="DSCLI.pdf" location="/opt/ibm/dscli/DSCLI.pdf" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+		</component>
+		<component id="1c5e6b81-1eeb-11b2-b729-bc38d71d4cbf" version="1.0.0.0" name="Unix_Common" location="/opt/ibm/dscli/dscli">
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="true" name="dscli" location="/opt/ibm/dscli/dscli" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="README_UNIX.txt" location="/opt/ibm/dscli/README_UNIX.txt" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="lshostvol.sh" location="/opt/ibm/dscli/bin/lshostvol.sh" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="lshostvolSDD.sh" location="/opt/ibm/dscli/bin/lshostvolSDD.sh" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+		</component>
+		<component id="d13699d5-1eeb-11b2-828f-bc38d71d4cbf" version="1.0.0.0" name="Uninstall" location="/opt/ibm/dscli/_uninst/uninstaller">
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="dscli" location="/opt/ibm/dscli" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" location="/opt/ibm/dscli/IBM_System_Storage_DS_Command_Line_Interface_InstallLog.log" type="file" uninstall="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true"/>
+		</component>
+		<component id="c8a04236-1f2b-11b2-a8bd-fd6cd7923bdf" version="1.0.0.0" name="InstallAnywhere Uninstall Component" location="/opt/ibm/dscli/_uninst/uninstaller">
+			<resource keyfile="false" name="IBM_System_Storage_DS_Command_Line_Interface_Install_09_08_2021_14_34_07.log" location="/opt/ibm/dscli/_uninst/Logs/IBM_System_Storage_DS_Command_Line_Interface_Install_09_08_2021_14_34_07.log" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="_uninst" location="/opt/ibm/dscli/_uninst" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="Logs" location="/opt/ibm/dscli/_uninst/Logs" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="uninstaller.jar" location="/opt/ibm/dscli/_uninst/uninstaller.jar" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="true" name="uninstaller" location="/opt/ibm/dscli/_uninst/uninstaller" type="executable" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="uninstaller.lax" location="/opt/ibm/dscli/_uninst/uninstaller.lax" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name=".com.zerog.registry.xml" location="/opt/ibm/dscli/_uninst/.com.zerog.registry.xml" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+		</component>
+		<component id="1c5f6285-1eeb-11b2-b72b-bc38d71d4cbf" version="1.0.0.0" name="Linux" location="/opt/ibm/dscli/bin/rsInquiryLinux-P.exe">
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="false" name="bin" location="/opt/ibm/dscli/bin" type="directory" uninstall="true" rollbackEnabledCancel="true">
+			<![CDATA[false]]>
+			</resource>
+			<resource keyfile="true" name="rsInquiryLinux-P.exe" location="/opt/ibm/dscli/bin/rsInquiryLinux-P.exe" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="rsInquiryLinux.exe" location="/opt/ibm/dscli/bin/rsInquiryLinux.exe" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="wbCsLinuxDPO-P.exe" location="/opt/ibm/dscli/bin/wbCsLinuxDPO-P.exe" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+			<resource keyfile="false" name="wbCsLinuxDPO.exe" location="/opt/ibm/dscli/bin/wbCsLinuxDPO.exe" type="file" uninstall="true" rollbackEnabledCancel="true"/>
+		</component>
+	</components>
+</registry>
