@@ -112,7 +112,7 @@ sub collect {
         push( @pools, $poolInfo );
     }
     $data->{CAPACITY} = $totalCapacity;
-    $data->{POOLS}    = \@pools;
+    $data->{STORAGE_POOLS}    = \@pools;
 
     my @hbas;
     my $hbaInfoLines = $utils->getCmdOutLines("$cliCmd lsioport");
@@ -137,7 +137,7 @@ sub collect {
     }
 
     $data->{HBA_INTERFACES} = \@hbas;
-    $data->{POOLS}          = \@pools;
+    $data->{STORAGE_POOLS}          = \@pools;
 
     return $data;
 }

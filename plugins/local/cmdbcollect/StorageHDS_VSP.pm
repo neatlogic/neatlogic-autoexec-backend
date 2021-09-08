@@ -184,7 +184,7 @@ sub collect {
     }
 
     $data->{CONTROLLERS} = \@ctrollers;
-    $data->{POOLS}       = \@pools;
+    $data->{STORAGE_POOLS}       = \@pools;
 
     return $data;
 }

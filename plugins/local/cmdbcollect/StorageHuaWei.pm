@@ -224,7 +224,7 @@ sub getPools {
     }
 
     my $data = $self->{DATA};
-    $data->{POOLS}          = $pools;
+    $data->{STORAGE_POOLS}          = $pools;
     $data->{CONTROLLERS}    = $tableData->{CTRL_LIST};
     $data->{HBA_INTERFACES} = $tableData->{HBA_LIST};
     $data->{ETH_INTERFACES} = $tableData->{ETH_LIST};

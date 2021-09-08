@@ -215,7 +215,7 @@ sub collect {
 
         push( @pools, $poolInfo );
     }
-    $data->{POOLS} = \@pools;
+    $data->{STORAGE_POOLS} = \@pools;
     $sshclient->disconnect();
 
     return $data;

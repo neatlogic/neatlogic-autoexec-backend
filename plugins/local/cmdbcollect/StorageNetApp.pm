@@ -173,7 +173,7 @@ sub getPools {
     }
 
     my $data = $self->{DATA};
-    $data->{POOLS} = $pools;
+    $data->{STORAGE_POOLS} = $pools;
 
     return;
 }
