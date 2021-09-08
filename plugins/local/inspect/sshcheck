@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use FindBin;
+use Cwd qw(abs_path);
+use lib abs_path("$FindBin::Bin/lib");
+use lib abs_path("$FindBin::Bin/../lib");
+use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
+
+use strict;
+use Getopt::Long;
+use AutoExecUtils;
+use Net::OpenSSH;
+use JSON;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --timeout <timeout seconds> .\n");
+    exit(0);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ( $node, $type );
+
+    my $community;
+    my $timeout = 10;
+
+    GetOptions(
+        'node=s'    => \$node,
+        'timeout=i' => \$timeout
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $resourceId = $nodeInfo->{resourceId};
+    my $data = { RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+
+    my $ssh = Net::OpenSSH->new(
+        $nodeInfo->{host},
+        port        => $nodeInfo->{port},
+        user        => $nodeInfo->{username},
+        password    => $nodeInfo->{password},
+        timeout     => 10,
+        master_opts => [ -o => "StrictHostKeyChecking=no" ]
+    );
+    if ( not $ssh->error ) {
+        my $out = $ssh->capture("echo HEALTH_OK");
+        if ( $out =~ /HEALTH_OK/ ) {
+            $data->{CONNECTIVITY}  = 1;
+            $data->{ERROR_MESSAGE} = '';
+        }
+    }
+    else {
+        $data->{ERROR_MESSAGE} = $ssh->error;
+    }
+
+    my $out = {};
+    $out->{DATA} = $data;
+    AutoExecUtils::saveOutput($out);
+    print Dumper ($data);
+}
+
+exit main();
