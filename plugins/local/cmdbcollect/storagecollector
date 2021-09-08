@@ -78,4 +78,4 @@ sub main {
     print Dumper ($data);
 }
 
-main();
+exit main();
