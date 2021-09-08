@@ -259,7 +259,7 @@
 
 - Storage Pool：Pool的概念是为了实现存储虚拟化(Storage Virtualization)而诞生的。该功能可以让用户在Pool中创建Thin或者Thick LUN来分配存储资源。Thin和Thick LUN都能够以较简便地方式进行创建、扩容和压缩操作。Thin LUN允许分配比存储上实际物理占用空间更多的可用空间给主机(高存储效率)，而Thin LUN在创建时会预留占用被分配的全部空间(高且可预测的性能)。
 
-- 补充信息
+## 补充信息
 Storage pool可以看作是RAID group上面一层的逻辑结构。也就是说，Storage pool其实从底层来说也是由多个RAID group所组成。这些Storage pool下的RAID group通常被称为Private RAID group，以和用于创建Tranditional LUN的普通RAID group相区别。
 
 引入Storage pool有诸如的好处，例如全自动存储分层(FAST)，等于是把不同应用的数据直接丢到Pool里，让系统自己去按照已有的优化算法来根据数据的使用情况做分层存储，平衡了性能和资源。使用pool里的thin LUN或thick LUN能给据实际需求在分配存储资源时带来更大的效率，灵活性，也易于管理。还有就是，单个传统RAID group会受到16个磁盘的限制，而Storage pool本身可含上百个的磁盘（很多个Private RAID group），所以在容量拓展和管理上也更方便。
