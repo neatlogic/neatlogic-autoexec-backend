@@ -58,7 +58,7 @@ sub main {
     my $data = { RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
 
     my $webCtl = WebCtl->new();
-
+    print("INFO: Begin url check...\n");
     eval {
         foreach my $req (@requests) {
             my @reqInfo = split( /\s*,\s*/, $req );
@@ -71,7 +71,7 @@ sub main {
             $url =~ s/\$\{username\}|\$\{user\}/$user/g;
             $url =~ s/\$\{password\}|\$\{pass\}/$pass/g;
 
-
+            print("INFO: Http request $url.\n");
             if ( $method eq 'POST' ) {
                 my $jsonData;
                 eval { $jsonData = from_json($data); };
@@ -92,14 +92,17 @@ sub main {
                 }
                 $webCtl->doRest( $method, $url, $jsonData );
             }
+            print("INFO: Http request succeed.\n");
         }
     };
     if ($@) {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
         $data->{'EOROR_MESSAGE'} = $errMsg;
+        print("ERROR: $errMsg");
     }
     else {
+        print("FINEST: Http requests all complete succeed.\n");
         $data->{ERROR_MESSAGE} = '';
         $data->{CONNECTIVITY}  = 1;
     }

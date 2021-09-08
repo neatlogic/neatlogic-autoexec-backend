@@ -1,0 +1,33 @@
+{
+    "opName": "URL序列检查",
+    "opType": "localremote",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "检查多个URL是否可以正常访问",
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "input",
+        "isConst": "false",
+        "defaultValue": "10",
+        "required": "false",
+        "validate": ""
+    }],
+    "argument": {
+        "name": "HTTP请求",
+        "help": "例如：GET, http://${host}:${port}/console",
+        "isConst": "false",
+        "type": "input",
+        "defaultValue": "GET, http://${host}:${port}/",
+        "required": "true",
+        "validate": ""
+    },
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

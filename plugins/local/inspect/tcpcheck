@@ -8,7 +8,7 @@ use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 use strict;
 use Getopt::Long;
 use AutoExecUtils;
-use Net::OpenSSH;
+use IO::Socket::INET;
 use JSON;
 
 sub usage {
@@ -53,27 +53,29 @@ sub main {
 
     my $host = $nodeInfo->{host};
     my $port = $nodeInfo->{port};
+    print("INFO: Try to connect to $host:$port.\n");
+    eval {
+        my $socket = IO::Socket::INET->new(
+            PeerHost => $host,
+            PeerPort => $port,
+            Timeout  => $timeout
+        );
 
-    print("INFO: Try to ssh logon to $host:$port.\n");
-    my $ssh = Net::OpenSSH->new(
-        $host,
-        port        => $port,
-        user        => $nodeInfo->{username},
-        password    => $nodeInfo->{password},
-        timeout     => 10,
-        master_opts => [ -o => "StrictHostKeyChecking=no" ]
-    );
-    if ( not $ssh->error ) {
-        my $out = $ssh->capture("echo HEALTH_OK");
-        if ( $out =~ /HEALTH_OK/ ) {
+        if ( defined($socket) ) {
             $data->{CONNECTIVITY}  = 1;
             $data->{ERROR_MESSAGE} = '';
+            $socket->close();
         }
-        print("FINEST: ssh logon succeed.\n");
+
+    };
+    if ($@) {
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        $data->{'EOROR_MESSAGE'} = $errMsg;
+        print("ERROR: $errMsg");
     }
     else {
-        $data->{ERROR_MESSAGE} = $ssh->error;
-        print("ERROR: ", $ssh->error, "\n");
+        print("FINEST: TCP handshake succeed.\n");
     }
 
     my $out = {};
