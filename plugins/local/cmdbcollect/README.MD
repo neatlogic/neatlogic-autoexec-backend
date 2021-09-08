@@ -251,13 +251,20 @@
     };
 ```
 ## 存储管理概念介绍
--RAID Group：简单来说，RAID Group就是将多个硬盘组合起来的一个集合，以实现更大容量、更快读写速度、更高冗余度等目的。常见的RAID Group类型有RAID 0、RAID 1、RAID 1/0、RAID 3、RAID 5、RAID 6。
+- RAID Group：简单来说，RAID Group就是将多个硬盘组合起来的一个集合，以实现更大容量、更快读写速度、更高冗余度等目的。常见的RAID Group类型有RAID 0、RAID 1、RAID 1/0、RAID 3、RAID 5、RAID 6。
 
--LUN：LUN是位于RAID Group之上的逻辑结构。LUN可以被添加进主机中，并被主机视作物理硬盘使用。
+- LUN：LUN是位于RAID Group之上的逻辑结构。LUN可以被添加进主机中，并被主机视作物理硬盘使用。
 
--Storage Group：为了实现LUN Masking (LUN的安全屏蔽机制，即1. 仅将LUN分配给特定的主机；2. 阻止主机看到存储中所有的LUN)，需要有一个容器来”存放”LUN与主机的关系，这个容器就是Storage Group。先创建一个Storage Group，再连接进主机(Connect Hosts)，然后将LUN添加进这个Storage Group，主机就可以看到添加进去的LUN。
+-S torage Group：为了实现LUN Masking (LUN的安全屏蔽机制，即1. 仅将LUN分配给特定的主机；2. 阻止主机看到存储中所有的LUN)，需要有一个容器来”存放”LUN与主机的关系，这个容器就是Storage Group。先创建一个Storage Group，再连接进主机(Connect Hosts)，然后将LUN添加进这个Storage Group，主机就可以看到添加进去的LUN。
 
--Storage Pool：Pool的概念是为了实现存储虚拟化(Storage Virtualization)而诞生的。对CLARiiON来说，就是其引入的Virtual Provisioning (虚拟资源分配)功能。该功能可以让用户在Pool中创建Thin或者Thick LUN来分配存储资源。Thin和Thick LUN都能够以较简便地方式进行创建、扩容和压缩操作。Thin LUN允许分配比存储上实际物理占用空间更多的可用空间给主机(高存储效率)，而Think LUN在创建时会预留占用被分配的全部空间(高且可预测的性能)。
+- Storage Pool：Pool的概念是为了实现存储虚拟化(Storage Virtualization)而诞生的。对CLARiiON来说，就是其引入的Virtual Provisioning (虚拟资源分配)功能。该功能可以让用户在Pool中创建Thin或者Thick LUN来分配存储资源。Thin和Thick LUN都能够以较简便地方式进行创建、扩容和压缩操作。Thin LUN允许分配比存储上实际物理占用空间更多的可用空间给主机(高存储效率)，而Think LUN在创建时会预留占用被分配的全部空间(高且可预测的性能)。
+
+- 补充信息
+Storage pool可以看作是RAID group上面一层的逻辑结构。也就是说，Storage pool其实从底层来说也是由多个RAID group所组成。这些Storage pool下的RAID group通常被称为Private RAID group，以和用于创建tranditional LUN的普通RAID group相区别。
+
+引入Storage pool有诸如的好处，例如全自动存储分层(FAST)，等于是把不同应用的数据直接丢到Pool里，让系统自己去按照已有的优化算法来根据数据的使用情况做分层存储，平衡了性能和资源。使用pool里的thin LUN或thick LUN能给据实际需求在分配存储资源时带来更大的效率，灵活性，也易于管理。还有就是，单个传统RAID group会受到16个磁盘的限制，而Storage pool本身可含上百个的磁盘（很多个Private RAID group），所以在容量拓展和管理上也更方便。
+
+并不是说有了Storage pool，传统RAID group就被完全被取代或是放弃了。从传统RAID group创建的tranditional LUN有其特殊的使用场合，特别是对性能要求严苛，并且需要物理上做到数据隔离的场合。
 
 ## storagecollector
 - storagecollector 不同品牌交换机都统一使用此工具进行采集，使用参数区分品牌型号
