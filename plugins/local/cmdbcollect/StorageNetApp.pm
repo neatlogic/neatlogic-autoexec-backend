@@ -39,9 +39,16 @@ sub new {
     foreach my $key ( keys(%args) ) {
         $options->{"-$key"} = $args{$key};
     }
+
     $options->{'-host'}      = $node->{host};
-    $options->{'-community'} = $node->{password};
-    $options->{'-timeout'}   = 5;
+    $options->{'-timeout'}   = $args{timeout};
+
+    if ( defined($args{community}) ){
+        $options->{'-community'} = $args{community};
+    }
+    else{
+        $options->{'-community'} = $node->{password};
+    }
     $self->{snmpOptions}     = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);

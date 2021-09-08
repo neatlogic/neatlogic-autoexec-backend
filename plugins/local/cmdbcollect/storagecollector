@@ -23,11 +23,15 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node, $type, $timeout );
+    my ( $node, $type );
+
+    my $community;
+    my $timeout = 10;
 
     GetOptions(
         'node=s'    => \$node,
         'type=s'    => \$type,
+        'community=s' => \$community,
         'timeout=i' => \$timeout
     );
 
@@ -44,10 +48,6 @@ sub main {
         $nodeInfo = from_json($node);
     }
 
-    if ( not defined($timeout) ) {
-        $timeout = 10;
-    }
-
     if ( $hasOptErr == 1 ) {
         usage();
     }
@@ -58,7 +58,7 @@ sub main {
         require "$typeClass.pm";
         print("class:$typeClass\n");
         our @ISA = ($typeClass);
-        $instance = $typeClass->new( node => $nodeInfo );
+        $instance = $typeClass->new( community=>$community, timeout=>$timeout, node => $nodeInfo );
     };
     if ($@) {
         print($@);
