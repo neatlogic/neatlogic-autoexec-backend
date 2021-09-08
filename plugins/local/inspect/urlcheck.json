@@ -1,7 +1,7 @@
 {
     "opName": "URL序列检查",
     "opType": "localremote",
-    "typeName": "INSPECT",
+    "typeName": "INSPECTION",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "检查多个URL是否可以正常访问",

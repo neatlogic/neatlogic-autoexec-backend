@@ -1,7 +1,7 @@
 {
     "opName": "SSH登录检查",
     "opType": "localremote",
-    "typeName": "INSPECT",
+    "typeName": "INSPECTION",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "检查SSH是否可以登录",
