@@ -1,0 +1,146 @@
+#!/bin/bash
+##-------------------------------------------------------------------#
+## %PS
+##    
+## Licensed Internal Code - Property of IBM
+##    
+## 2105/2107 Licensed Internal Code
+##    
+## (C) Copyright IBM Corp. 1999, 2005 All Rights Reserved.
+##    
+## US Government Users Restricted Rights - Use, duplication or
+## disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+## %EPS
+##
+## COMPONENT_NAME (Software-cli)
+##
+##-------------------------------------------------------------------#
+##
+## Filename: dscli
+##
+## Subsystem: Software-cli
+##
+## usage dscli [ { -ver|-overview|-script file_name|command } ] [ { -help|-h|-? } ]
+##
+## Description: Execute DS Config/CopyServices commands.
+##
+##-------------------------------------------------------------------#
+## Legacy Change History:
+##-------------------------------------------------------------------#
+##  John Wrobel         01/17/2002                       64443
+##      Initial version
+##  Paul Lee            03/08/2002                       66702
+##      Added ibmjsse.jar file to CLASSPATH
+##  John Wrobel         04/29/2002                       69524
+##  Removed usage statement if no params specified.
+##  Amy Therrien        12-June-2002                     71600
+##      Initial creation in R8n formal library
+##      Modify package from rsCopyServices to rsCliSeascape
+##  Stefan Jaquet       19-July-2002                     72535
+##      Preserve any double-quotes in parameters
+##   Matthew Ward       13-November-2002                 75956
+##     Changed the export INSTALL statement to allow users
+##     to dynamically choose their install path.
+##   Matthew Ward       17-March-2003                    82204
+##     Removed spaces in the INSTALL = CLI_install_directory
+##     line.
+##   Glenn Williamson   30-March-2003                    98848
+##     Dynamically determine which no jit syntax to be used
+##--------------------------------------------------------------------#
+##   Modifier                Date                             Change ID
+##--------------------------------------------------------------------#
+## Satoru Nakamura +         09-30-2004                       112566
+## Joshua Chuang +
+## Randy Tung
+##   Intial version.
+## Randy Tung                12-09-2004                       124783
+##   Fixed JAVA_EXEC_OPTIONS parsing statement to handle single
+##   equal sign condition
+## Ming LM Luo               05-12-2010                       242449
+##   dscli: not setting $NO_CFG_FILE_CODE
+##--------------------------------------------------------------------#
+
+##---------------------------------------------------------------------#
+## Set INSTALL system variable
+##---------------------------------------------------------------------#
+### 75956 82204
+INSTALL='/opt/ibm/dscli'
+export INSTALL
+
+##---------------------------------------------------------------------#
+## Assign COMMAND for messaging
+##---------------------------------------------------------------------#
+CLICOMMAND=dscli
+
+#----------------------------------------------------------------------#
+## Set default BLANK values
+##---------------------------------------------------------------------#
+CFGFILE="$INSTALL/lib/CLI.CFG"
+JAVA_INSTALL=
+JAVA_CLASSPATH=
+JAVA_EXEC_OPTIONS=-Djava.compiler=NONE                     #@98848
+
+#----------------------------------------------------------------------#
+## Set return codes
+##---------------------------------------------------------------------#
+NO_CFG_FILE_CODE=63
+NO_JAVA_INSTALL_CODE=64
+NO_JAVA_CLASSPATH_CODE=65
+
+##---------------------------------------------------------------------#
+## Test to see if Configuration File exists
+##---------------------------------------------------------------------#
+if [ ! -r "$CFGFILE" ] || [ ! -s "$CFGFILE" ];then
+      echo "$CLICOMMAND  The CLI.CFG file is not accessible. "
+      exit $NO_CFG_FILE_CODE
+fi
+
+##---------------------------------------------------------------------#
+## Parse Settings for Java environment
+## and check that no settings are blank
+##---------------------------------------------------------------------#
+JAVA_INSTALL=`awk -F= '$1 ~ /^JAVA_INSTALL$/ { print $2 }' "$CFGFILE"`
+if [ -z "$JAVA_INSTALL" ];then
+     echo "$CLICOMMAND JAVA_INSTALL is blank in the CLI.CFG file.  Please, set JAVA_INSTALL."
+     exit $NO_JAVA_INSTALL_CODE
+fi
+
+JAVA_ESSCLI_CLASS=`awk -F= '$1 ~ /^JAVA_ESSCLI_CLASS$/ { print $2 }' "$CFGFILE"`
+if [ -z "$JAVA_ESSCLI_CLASS" ];then
+     echo "$CLICOMMAND JAVA_ESSCLI_CLASS is blank in the CLI.CFG file.  Please, set JAVA_ESSCLI_CLASS"
+     exit 1;
+fi
+
+JAVA_CLASSPATH=`awk -F= '$1 ~ /^JAVA_CLASSPATH$/ {if(n++!=0)printf(":");printf("%s",$2)}' "$CFGFILE"`
+if [ -z "$JAVA_CLASSPATH" ];then
+     echo "$CLICOMMAND JAVA_CLASSPATH is blank in the CLI.CFG file.  Please, set JAVA_CLASSPATH."
+     exit $NO_JAVA_CLASSPATH_CODE
+fi
+
+### 124783
+JAVA_EXEC_OPTIONS=`awk -F= '$1 ~ /^JAVA_EXEC_OPTIONS$/ { if ( $3=="" ) { print $2 } else { print $2"="$3 } }' "$CFGFILE"`
+JAVA_JRE=`awk -F= '$1~/^JAVA_JRE$/ { print $2 }' "$CFGFILE"`
+
+##---------------------------------------------------------------------#
+## Set up Java Invocation String
+##---------------------------------------------------------------------#
+if [ "$JAVA_JRE" = JRE ];then
+     JAVA_INVOCATION=$JAVA_INSTALL/bin/jre
+else
+     JAVA_INVOCATION=$JAVA_INSTALL/bin/java
+fi
+
+
+
+# 137998
+# This gets rid of doublequotes in the things that we get from CLI.CFG
+# this allows us to forgo the old method of using 'eval' in the
+# invocation below.  That allows us to use the '$*' with impunity -
+# the old mechanism broke under certain circumstances when a "|"
+# was passed as an argument, because that got interpreted as a pipe
+# between 2 commands and not as an argument.
+java_invocation_no_dq=$(echo $JAVA_INVOCATION | sed -e 's/\"//g')
+java_args_no_dq=$(echo $JAVA_EXEC_OPTIONS -classpath $JAVA_CLASSPATH $JAVA_ESSCLI_CLASS | sed -e 's/\"//g')
+
+##Call to java 71600
+$java_invocation_no_dq $java_args_no_dq $*
