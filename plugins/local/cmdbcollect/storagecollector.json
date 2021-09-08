@@ -70,6 +70,14 @@
                 {
                     "text": "NetApp",
                     "value": "NetApp"
+                },
+                {
+                    "text": "FUJITSU",
+                    "value": "FUJITSU"
+                },
+                {
+                    "text": "浪潮(OEM FUJITSU)",
+                    "value": "FUJITSU"
                 }
             ],
             "required": "true",
