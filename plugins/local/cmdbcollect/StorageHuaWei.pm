@@ -39,16 +39,16 @@ sub new {
     foreach my $key ( keys(%args) ) {
         $options->{"-$key"} = $args{$key};
     }
-    $options->{'-host'}      = $node->{host};
-    $options->{'-timeout'}   = $args{timeout};
+    $options->{'-host'}    = $node->{host};
+    $options->{'-timeout'} = $args{timeout};
 
-    if ( defined($args{community}) ){
+    if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};
     }
-    else{
+    else {
         $options->{'-community'} = $node->{password};
     }
-    $self->{snmpOptions}     = $options;
+    $self->{snmpOptions} = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
     if ( !defined $session ) {
@@ -224,7 +224,7 @@ sub getPools {
     }
 
     my $data = $self->{DATA};
-    $data->{STORAGE_POOLS}          = $pools;
+    $data->{STORAGE_POOLS}  = $pools;
     $data->{CONTROLLERS}    = $tableData->{CTRL_LIST};
     $data->{HBA_INTERFACES} = $tableData->{HBA_LIST};
     $data->{ETH_INTERFACES} = $tableData->{ETH_LIST};

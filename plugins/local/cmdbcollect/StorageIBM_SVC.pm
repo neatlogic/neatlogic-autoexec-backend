@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
 use Cwd qw(abs_path);
+use lib abs_path("$FindBin::Bin");
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
@@ -10,7 +11,6 @@ use strict;
 
 use StorageIBM_V7000;
 our @ISA = qw(StorageIBM_V7000);
-
 
 sub collect {
     my ($self) = @_;

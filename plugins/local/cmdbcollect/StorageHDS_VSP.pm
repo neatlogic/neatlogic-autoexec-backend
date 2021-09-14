@@ -15,13 +15,13 @@ sub new {
     my ( $type, %args ) = @_;
     my $self = {};
 
-    my $binPath = $args{binPath};
-    if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/hds_cci/usr/bin");
+    my $cliHome = $args{cliHome};
+    if ( not defined($cliHome) or $cliHome == '' ) {
+        $cliHome = abs_path("$FindBin::Bin/../../../tools/storage/hds_cci/usr");
     }
     my $path = $ENV{PATH};
-    if ( $path !~ /\Q$binPath\E/ ) {
-        $ENV{PATH} = "$binPath:$path";
+    if ( $path !~ /\Q$cliHome\/bin\E/ ) {
+        $ENV{PATH} = "$cliHome/bin:$path";
     }
 
     my $node = $args{node};
@@ -183,8 +183,8 @@ sub collect {
         push( @ctrollers, $ctrlInfo );
     }
 
-    $data->{CONTROLLERS} = \@ctrollers;
-    $data->{STORAGE_POOLS}       = \@pools;
+    $data->{CONTROLLERS}   = \@ctrollers;
+    $data->{STORAGE_POOLS} = \@pools;
 
     return $data;
 }

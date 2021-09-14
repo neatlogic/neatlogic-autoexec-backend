@@ -12,11 +12,17 @@ use CollectUtils;
 
 sub new {
     my ( $type, %args ) = @_;
-    my $self    = {};
-    my $binPath = $args{binPath};
-    if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/Navisphere/bin/naviseccli");
+    my $self = {};
+
+    my $cliHome = $args{cliHome};
+    if ( not defined($cliHome) or $cliHome == '' ) {
+        $cliHome = abs_path("$FindBin::Bin/../../../tools/storage/Navisphere");
     }
+    my $path = $ENV{PATH};
+    if ( $path !~ /\Q$cliHome\/bin\E/ ) {
+        $ENV{PATH} = "$cliHome/bin:$path";
+    }
+
     my $node = $args{node};
     $self->{node} = $node;
 
@@ -24,7 +30,7 @@ sub new {
     my $user     = $node->{username};
     my $password = $node->{password};
 
-    my $naviSecCLI = "$binPath -h $host -Scope 0 -User $user -Password $password";
+    my $naviSecCLI = "naviseccli -h $host -Scope 0 -User $user -Password $password";
     $self->{naviSecCLI} = $naviSecCLI;
 
     my $utils = CollectUtils->new();

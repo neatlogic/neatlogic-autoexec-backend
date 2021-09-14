@@ -15,13 +15,13 @@ sub new {
     my ( $type, %args ) = @_;
     my $self = {};
 
-    my $binPath = $args{binPath};
-    if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/dscli");
+    my $cliHome = $args{cliHome};
+    if ( not defined($cliHome) or $cliHome == '' ) {
+        $cliHome = abs_path("$FindBin::Bin/../../../tools/storage/dscli");
     }
     my $path = $ENV{PATH};
-    if ( $path !~ /\Q$binPath\E/ ) {
-        $ENV{PATH} = "$binPath:$path";
+    if ( $path !~ /\Q$cliHome\E/ ) {
+        $ENV{PATH} = "$cliHome:$path";
     }
 
     my $node = $args{node};
@@ -111,15 +111,15 @@ sub collect {
 
         push( @pools, $poolInfo );
     }
-    $data->{CAPACITY} = $totalCapacity;
-    $data->{STORAGE_POOLS}    = \@pools;
+    $data->{CAPACITY}      = $totalCapacity;
+    $data->{STORAGE_POOLS} = \@pools;
 
     my @hbas;
     my $hbaInfoLines = $utils->getCmdOutLines("$cliCmd lsioport");
     for ( my $i = 3 ; $i < scalar(@$hbaInfoLines) ; $i++ ) {
         my $line   = $$hbaInfoLines[$i];
         my @splits = split( /\s+/, $line );
-        my $name     = $splits[0];
+        my $name   = $splits[0];
         my $wwn    = $splits[1];
         $wwn =~ s/..\K(?=.)/:/sg;
         my $status;
@@ -137,7 +137,7 @@ sub collect {
     }
 
     $data->{HBA_INTERFACES} = \@hbas;
-    $data->{STORAGE_POOLS}          = \@pools;
+    $data->{STORAGE_POOLS}  = \@pools;
 
     return $data;
 }
