@@ -15,7 +15,7 @@ sub new {
     my $self    = {};
     my $binPath = $args{binPath};
     if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/Navisphere/bin/naviseccli");
+        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/Navisphere/bin/naviseccli");
     }
     my $node = $args{node};
     $self->{node} = $node;

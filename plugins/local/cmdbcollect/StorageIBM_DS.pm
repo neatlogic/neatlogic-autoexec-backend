@@ -17,7 +17,7 @@ sub new {
 
     my $binPath = $args{binPath};
     if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/ibm/dscli");
+        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/dscli");
     }
     my $path = $ENV{PATH};
     if ( $path !~ /\Q$binPath\E/ ) {

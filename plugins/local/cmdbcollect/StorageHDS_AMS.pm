@@ -14,7 +14,7 @@ sub new {
     my $self        = {};
     my $stonavmHome = $args{STONAVM_HOME};
     if ( not defined($stonavmHome) or $stonavmHome == '' ) {
-        $stonavmHome = abs_path("$FindBin::Bin/../../../tools/stonavm");
+        $stonavmHome = abs_path("$FindBin::Bin/../../../tools/storage/stonavm");
     }
 
     my $node = $args{node};

@@ -21,7 +21,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node, $type );
+    my ( $node );
 
     my $community;
     my $timeout = 10;
@@ -38,7 +38,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+    if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
