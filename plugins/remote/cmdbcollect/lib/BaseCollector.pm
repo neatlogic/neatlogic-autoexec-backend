@@ -185,6 +185,9 @@ sub getJavaAttrs {
                 $javaPath = "$workPath/$javaPath";
             }
         }
+        elsif ( $cmdLine eq 'java' ){
+            $javaPath = "$workPath/java";
+        }
 
         if ( not -e $javaPath ) {
             $javaHome = $envMap->{JAVA_HOME};

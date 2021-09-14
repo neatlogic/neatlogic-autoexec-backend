@@ -59,14 +59,22 @@ sub collect {
     my $version;
 
     my $zooLibPath;
-    if ( $cmdLine =~ /-cp\s+.*?[:;]([\/\\].*?[\/\\]zookeeper.*?.jar)/ ) {
-        $zooLibPath = Cwd::abs_path( dirname($1) );
+    if ( $cmdLine =~ /-cp\s+.*?[:;]([^:;]*?[\/\\]zookeeper[^\/\\]*?\.jar)/ ) {
+        $zooLibPath = dirname($1);
     }
-    elsif ( $envMap->{CLASSPATH} =~ /.*?[:;]([\/\\].*?[\/\\]zookeeper.*?.jar)/ ) {
-        $zooLibPath = Cwd::abs_path( dirname($1) );
+    elsif ( $envMap->{CLASSPATH} =~ /.*?[:;]([^:;]*?[\/\\]zookeeper[^\/\\]*?\.jar)/ ) {
+        $zooLibPath = dirname($1);
     }
 
     if ( defined($zooLibPath) ) {
+        if ( $zooLibPath =~ /^.\// or $zooLibPath =~ /^[^\/\\]/ ) {
+            my $workPath = readlink("/proc/$pid/cwd");
+            $zooLibPath = "$workPath/$zooLibPath";
+        }
+        print("INFO: Get zookeeper lib path:$zooLibPath\n");
+        $zooLibPath = Cwd::abs_path($zooLibPath);
+        print("INFO: Get zookeeper absolute lib path:$zooLibPath\n");
+
         $homePath = dirname($zooLibPath);
         foreach my $lib ( glob("$zooLibPath/zookeeper-*.jar") ) {
             if ( $lib =~ /zookeeper-([\d\.]+)\.jar/ ) {
