@@ -34,7 +34,7 @@ sub collect {
 
     my $ssh = Net::OpenSSH->new(
         $nodeInfo->{host},
-        port        => $nodeInfo->{port},
+        port        => $nodeInfo->{protocolPort},
         user        => $nodeInfo->{username},
         password    => $nodeInfo->{password},
         timeout     => 10,

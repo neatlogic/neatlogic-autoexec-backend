@@ -13,6 +13,7 @@ our @ISA = qw(OSGatherBase);
 use POSIX;
 use Cwd;
 use IO::File;
+use File::Basename;
 
 sub collectOsInfo {
     my ($self) = @_;

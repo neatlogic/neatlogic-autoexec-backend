@@ -17,7 +17,7 @@ sub new {
 
     my $binPath = $args{binPath};
     if ( not defined($binPath) or $binPath == '' ) {
-        $binPath = abs_path("$FindBin::Bin/../../../tools/hds_cci/usr/bin");
+        $binPath = abs_path("$FindBin::Bin/../../../tools/storage/hds_cci/usr/bin");
     }
     my $path = $ENV{PATH};
     if ( $path !~ /\Q$binPath\E/ ) {

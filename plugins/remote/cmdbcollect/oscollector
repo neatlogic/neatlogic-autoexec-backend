@@ -277,13 +277,13 @@ sub main {
             my @portNumbers = ();
             my @bindAddrs   = ();
             foreach my $lsnPort (@lsnPorts) {
-                if ( index( $lsnPort, ':' ) == -1 ) {
+                if ( $lsnPort =~ /:\d+$/ ) {
                     push( @portNumbers, int($lsnPort) );
-                    foreach my $ip (@$ipAddrs) {
-                        push( @bindAddrs, "$ip:$lsnPort" );
+                    foreach my $ipInfo (@$ipAddrs) {
+                        push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
                     }
-                    foreach my $ip (@$ipv6Addrs) {
-                        push( @bindAddrs, "$ip:$lsnPort" );
+                    foreach my $ipInfo (@$ipv6Addrs) {
+                        push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
                     }
                 }
                 else {

@@ -59,10 +59,10 @@ sub collect {
     my $version;
 
     my $zooLibPath;
-    if ( $cmdLine =~ /-cp\s+.*[:;]([\/\\].*[\/\\]zookeeper.*?.jar)/ ) {
+    if ( $cmdLine =~ /-cp\s+.*?[:;]([\/\\].*?[\/\\]zookeeper.*?.jar)/ ) {
         $zooLibPath = Cwd::abs_path( dirname($1) );
     }
-    elsif ( $envMap->{CLASSPATH} =~ /.*[:;]([\/\\].*[\/\\]zookeeper.*?.jar)/ ) {
+    elsif ( $envMap->{CLASSPATH} =~ /.*?[:;]([\/\\].*?[\/\\]zookeeper.*?.jar)/ ) {
         $zooLibPath = Cwd::abs_path( dirname($1) );
     }
 
