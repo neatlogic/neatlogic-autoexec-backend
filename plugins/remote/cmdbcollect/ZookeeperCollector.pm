@@ -75,7 +75,7 @@ sub collect {
         $zooLibPath = Cwd::abs_path($zooLibPath);
         print("INFO: Get zookeeper absolute lib path:$zooLibPath\n");
 
-        $homePath = dirname($zooLibPath);
+        $homePath = $zooLibPath;
         foreach my $lib ( glob("$zooLibPath/zookeeper-*.jar") ) {
             if ( $lib =~ /zookeeper-([\d\.]+)\.jar/ ) {
                 $version = $1;
@@ -95,9 +95,9 @@ sub collect {
     my $pos = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
     my $confPath = substr( $cmdLine, $pos );
     if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
-        $confPath = Cwd::abs_path("$homePath/bin/$confPath");
+        $confPath = "$homePath/bin/$confPath";
     }
-    $appInfo->{CONFIG_PATH} = $confPath;
+    $appInfo->{CONFIG_PATH} = Cwd::abs_path($confPath);
 
     $self->getJavaAttrs($appInfo);
 

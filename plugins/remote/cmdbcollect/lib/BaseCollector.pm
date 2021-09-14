@@ -177,7 +177,7 @@ sub getJavaAttrs {
     my $javaVersion;
     my $jvmType;
     my $jvmVersion;
-    my $javaPath = readlink('/proc/$pid/exe');
+    my $javaPath = readlink("/proc/$pid/exe");
     if ( not defined($javaPath) ) {
         if ( $cmdLine =~ /^(.*?\bjava)/ ) {
             $javaPath = $1;
@@ -185,8 +185,9 @@ sub getJavaAttrs {
                 $javaPath = "$workPath/$javaPath";
             }
         }
-        elsif ( $cmdLine eq 'java' ){
-            $javaPath = "$workPath/java";
+        
+        if ( $javaPath eq 'java' ){
+            $javaPath = $self->getCmdOut('which java', $procInfo->{USER});
         }
 
         if ( not -e $javaPath ) {
