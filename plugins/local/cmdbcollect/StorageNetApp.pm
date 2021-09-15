@@ -47,7 +47,7 @@ sub new {
         $options->{"-$key"} = $args{$key};
     }
 
-    $options->{'-host'}    = $node->{host};
+    $options->{'-hostname'}    = $node->{host};
     $options->{'-timeout'} = $timeout;
 
     if ( defined( $args{community} ) ) {
