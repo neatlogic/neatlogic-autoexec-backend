@@ -333,6 +333,9 @@ sub main {
 
     if ( $isVerbose == 1 ){
         my $jsonData = to_json($out->{DATA}, {pretty=>1});
+        print("==================\n");
+        print($jsonData);
+        print("==================\n");
     }
 }
 
