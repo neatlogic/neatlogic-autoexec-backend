@@ -70,7 +70,7 @@ sub main {
     $data->{APP_TYPE}    = $type;
     $data->{MGMT_IP}     = $nodeInfo->{host};
     $data->{PK}          = ['MGMT_IP'];
-    $data->{RESOURCE_ID} = $node->{resourceId};
+    $data->{RESOURCE_ID} = $nodeInfo->{resourceId};
 
     my $out = {};
     $out->{DATA} = $data;

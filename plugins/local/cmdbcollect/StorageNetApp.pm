@@ -43,8 +43,10 @@ sub new {
     }
 
     my $options = {};
-    $options->{'-hostname'}    = $node->{host};
-    $options->{'-timeout'} = $timeout;
+    $options->{'-hostname'}  = $node->{host};
+    $options->{'-timeout'}   = $timeout;
+    $options->{'-version'}   = $args{version};
+    $options->{'-retries'}   = $args{retries};
 
     if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};
@@ -91,7 +93,13 @@ sub new {
             CAPACITY  => '1.3.6.1.4.1.789.1.17.15.2.1.28',
             RAID_NAME => '1.3.6.1.4.1.789.1.17.15.2.1.8'
         },
-        HBA_LIST => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' }
+        HBA_LIST => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
+        DF_LIST => {
+            NAME      => '1.3.6.1.4.1.789.1.5.4.1.10',
+            CAPACITY  => '1.3.6.1.4.1.789.1.5.4.1.29',
+            USED      => '1.3.6.1.4.1.789.1.5.4.1.30',
+            FREE      => '1.3.6.1.4.1.789.1.5.4.1.31'
+        }
     };
 
     $self->{tableOidDef} = $tableOidDef;

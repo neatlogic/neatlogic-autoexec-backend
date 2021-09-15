@@ -108,9 +108,12 @@ sub collect {
     }
 
     my $host = '127.0.0.1';
-    my $auth = $redisInfo->{REQUIREPASS};
+    my $auth = $self->{defaultPassword};
     if ( not defined($auth) ) {
-        $auth = $redisInfo->{MASTERAUTH};
+        $auth = $redisInfo->{REQUIREPASS};
+        if ( not defined($auth) ) {
+            $auth = $redisInfo->{MASTERAUTH};
+        }
     }
 
     $redisInfo->{PORT}           = $port;

@@ -90,7 +90,7 @@ sub main {
     if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
         eval { $passArgs = from_json($defaultPassConf); };
         if ($@) {
-            print("ERROR: parse password config option defaultpassconf failed, $@\n");
+            print("ERROR: parse password config option defaultpassconf failed, no in json format.\n");
         }
     }
 
