@@ -43,10 +43,10 @@ sub new {
     }
 
     my $options = {};
-    $options->{'-hostname'}  = $node->{host};
-    $options->{'-timeout'}   = $timeout;
-    $options->{'-version'}   = $args{version};
-    $options->{'-retries'}   = $args{retries};
+    $options->{'-hostname'} = $node->{host};
+    $options->{'-timeout'}  = $timeout;
+    $options->{'-version'}  = $args{version};
+    $options->{'-retries'}  = $args{retries};
 
     if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};
@@ -93,12 +93,16 @@ sub new {
             CAPACITY  => '1.3.6.1.4.1.789.1.17.15.2.1.28',
             RAID_NAME => '1.3.6.1.4.1.789.1.17.15.2.1.8'
         },
-        HBA_LIST => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
-        DF_LIST => {
-            NAME      => '1.3.6.1.4.1.789.1.5.4.1.10',
-            CAPACITY  => '1.3.6.1.4.1.789.1.5.4.1.29',
-            USED      => '1.3.6.1.4.1.789.1.5.4.1.30',
-            FREE      => '1.3.6.1.4.1.789.1.5.4.1.31'
+        HBA_LIST   => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
+        DF_VOLUMES => {
+            NAME               => '1.3.6.1.4.1.789.1.5.4.1.10',
+            CAPACITY           => '1.3.6.1.4.1.789.1.5.4.1.29',
+            USED               => '1.3.6.1.4.1.789.1.5.4.1.30',
+            FREE               => '1.3.6.1.4.1.789.1.5.4.1.31',
+            USED_PERCENT       => '1.3.6.1.4.1.789.1.5.4.1.6',
+            INODE_USED         => '1.3.6.1.4.1.789.1.5.4.1.7',
+            INODE_FREE         => '1.3.6.1.4.1.789.1.5.4.1.8',
+            USED_INODE_PERCENT => '1.3.6.1.4.1.789.1.5.4.1.9'
         }
     };
 
@@ -145,7 +149,9 @@ sub getPools {
     my $tableOidDef = $self->{tableOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+
+    #my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my $tableData = $snmpHelper->getTableByIndex( $snmp, $tableOidDef );
 
     my $pools    = $tableData->{POOL_LIST};
     my $poolsMap = {};
@@ -166,7 +172,8 @@ sub getPools {
 
     my $luns = $tableData->{LUN_LIST};
     foreach my $lunInfo (@$luns) {
-        my $raidInfo   = $raidsMap->{ $lunInfo->{RAID_NAME} };
+        my $raidInfo = $raidsMap->{ $lunInfo->{RAID_NAME} };
+        $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
         my $lunsInRaid = $raidInfo->{LUNS};
         push( @$lunsInRaid, $lunInfo );
     }
@@ -183,9 +190,16 @@ sub getPools {
         $hbaInfo->{WWN} = $wwn;
     }
 
+    my $dfVolumes = $tableData->{DF_VOLUMES};
+    foreach my $dfVolInfo (@$dfVolumes) {
+        $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
+        $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 ) / 100;
+        $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 ) / 100;
+    }
+
     my $data = $self->{DATA};
     $data->{STORAGE_POOLS} = $pools;
-
+    $data->{DF_VOLUMES}    = $dfVolumes;
     return;
 }
 

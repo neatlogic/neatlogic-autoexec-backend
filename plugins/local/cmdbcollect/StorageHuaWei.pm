@@ -43,10 +43,10 @@ sub new {
     }
 
     my $options = {};
-    $options->{'-hostname'}  = $node->{host};
-    $options->{'-timeout'}   = $timeout;
-    $options->{'-version'}   = $args{version};
-    $options->{'-retries'}   = $args{retries};
+    $options->{'-hostname'} = $node->{host};
+    $options->{'-timeout'}  = $timeout;
+    $options->{'-version'}  = $args{version};
+    $options->{'-retries'}  = $args{retries};
 
     if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};

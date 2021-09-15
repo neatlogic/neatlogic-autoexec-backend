@@ -23,7 +23,9 @@ sub main {
 
     my ( $node, $defaultCommunity, $timeout );
 
+    my $isVerbose = 0;
     GetOptions(
+        'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'community=s' => \$defaultCommunity,
         'timeout=i'   => \$timeout
@@ -62,7 +64,11 @@ sub main {
     my $out = {};
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);
-    print Dumper ($data);
+    if ( $isVerbose == 1 ) {
+        print("==================\n");
+        print( to_json( $data, { pretty => 1 } ) );
+        print("==================\n");
+    }
 }
 
 exit main();

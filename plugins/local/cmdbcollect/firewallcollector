@@ -10,7 +10,6 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
-use Data::Dumper;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -27,8 +26,10 @@ sub main {
 
     my $community;
     my $timeout = 10;
+    my $isVerbose = 0;
 
     GetOptions(
+        'verbose=i' => \$isVerbose,
         'node=s'    => \$node,
         'type=s'    => \$type,
         'community=s' => \$community,
@@ -75,7 +76,11 @@ sub main {
     my $out = {};
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);
-    print Dumper ($data);
+    if ( $isVerbose == 1 ) {
+        print("==================\n");
+        print( to_json( $data, { pretty => 1 } ) );
+        print("==================\n");
+    }
 }
 
 exit main();

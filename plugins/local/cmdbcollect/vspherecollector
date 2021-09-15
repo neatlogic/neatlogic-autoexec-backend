@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--user', default='', help='vcenter console login user')
     parser.add_argument('--password', default='', help='vcenter console login user password')
     parser.add_argument('--node', default='', help='set job run node env')
+    parser.add_argument('--verbose', dfault='0', help='verbose output')
     args = parser.parse_args()
 
     ip = args.ip
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     password = args.password
     port = args.port
     node = args.node
+    isVerbose = int(args.verbose)
 
     if ((ip == None or ip == '' or user == None or user == '' or password == None or password == '') and (node == None or node == '')):
         usage()
@@ -109,3 +111,8 @@ if __name__ == "__main__":
     out = {}
     out['DATA'] = data
     AutoExecUtils.saveOutput(out)
+
+    if isVerbose == 1:
+        print("==================\n")
+        print(json.dumps(data))
+        print("==================\n")

@@ -332,9 +332,8 @@ sub main {
     print("INFO: All is completed.\n");
 
     if ( $isVerbose == 1 ){
-        my $jsonData = to_json($out->{DATA}, {pretty=>1});
         print("==================\n");
-        print($jsonData);
+        print(to_json($out->{DATA}, {pretty=>1}));
         print("==================\n");
     }
 }

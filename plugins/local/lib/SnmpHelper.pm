@@ -167,6 +167,40 @@ sub getTable {
 }
 
 #get table values from 1 or more than table oid
+sub getTableByIndex {
+    my ( $self, $snmp, $oidDefMap ) = @_;
+
+    my $data = {};
+    foreach my $attrName ( keys(%$oidDefMap) ) {
+        my $attrMapByIdx = {};    #每个属性以最后一位OID为标记
+
+        my $oidEntrys = $oidDefMap->{$attrName};
+        while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
+            my $table = $snmp->get_table( -baseoid => $oid );
+            $self->_errCheck( $snmp, $table, $oid );
+
+            my @sortedOids = oid_lex_sort( keys(%$table) );
+            for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
+                my $sortedOid = $sortedOids[$i];
+                $sortedOid =~ /\.(\d+)$/;
+                my $idx = $1;
+                my $entryInfo = $attrMapByIdx->{$idx};
+                if ( not defined($entryInfo) ) {
+                    $entryInfo = {};
+                    $attrMapByIdx->{$idx} = $entryInfo;
+                }
+                $entryInfo->{$name} = $table->{$sortedOid};
+            }
+        }
+
+        my @attrTable = values(%$attrMapByIdx);
+        $data->{$attrName} = \@attrTable;
+    }
+
+    return $data;
+}
+
+#get table values from 1 or more than table oid
 sub getTableOidAndVal {
     my ( $self, $snmp, $oidDefMap ) = @_;
 

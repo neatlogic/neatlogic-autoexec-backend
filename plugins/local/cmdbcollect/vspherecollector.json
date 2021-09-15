@@ -44,6 +44,25 @@
 			"defaultValue": "",
 			"required": "false",
 			"validate": ""
+		},
+		{
+			"opt": "verbose",
+			"name": "回显结果数据",
+			"help": "回显采集到的数据",
+			"type": "select",
+			"isConst": "false",
+			"defaultValue": [{
+					"text": "不回显",
+					"value": "0",
+					"selected": "true"
+				},
+				{
+					"text": "回显",
+					"value": "1"
+				}
+			],
+			"required": "true",
+			"validate": ""
 		}
 	],
 	"output": [{
