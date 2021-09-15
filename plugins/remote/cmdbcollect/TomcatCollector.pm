@@ -52,7 +52,7 @@ sub collect {
             my $xml;
             $fh->read( $xml, $fSize );
 
-            my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
+            my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
 
             my @ports = ();
             my ( $port, $sslPort );
@@ -67,7 +67,7 @@ sub collect {
                             $sslPort = $1;
                         }
                     }
-                    if ( not defined( $lsnPorts->{$sslPort} ) ) {
+                    if ( not defined( $lsnPortsMap->{$sslPort} ) ) {
                         undef($sslPort);
                     }
                     else {
@@ -88,7 +88,7 @@ sub collect {
                         }
                     }
 
-                    if ( not defined( $lsnPorts->{$port} ) ) {
+                    if ( not defined( $lsnPortsMap->{$port} ) ) {
                         undef($port);
                     }
                     else {

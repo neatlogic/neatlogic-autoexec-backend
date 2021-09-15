@@ -29,10 +29,10 @@ sub main {
     my $timeout = 10;
 
     GetOptions(
-        'node=s'    => \$node,
-        'type=s'    => \$type,
+        'node=s'      => \$node,
+        'type=s'      => \$type,
         'community=s' => \$community,
-        'timeout=i' => \$timeout
+        'timeout=i'   => \$timeout
     );
 
     my $nodeInfo  = {};
@@ -58,7 +58,7 @@ sub main {
         require "$typeClass.pm";
         print("class:$typeClass\n");
         our @ISA = ($typeClass);
-        $instance = $typeClass->new( community=>$community, timeout=>$timeout, node => $nodeInfo );
+        $instance = $typeClass->new( community => $community, timeout => $timeout, node => $nodeInfo );
     };
     if ($@) {
         print($@);

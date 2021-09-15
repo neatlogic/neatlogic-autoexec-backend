@@ -44,7 +44,7 @@ sub collect {
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort (@$lsnPorts) {
+    foreach my $lsnPort (keys(%$lsnPorts)) {
         $lsnPort =~ s/^.*://;
         if ( $lsnPort ne $appInfo->{JMX_PORT} ) {
             $appInfo->{PORT} = $lsnPort;
