@@ -46,7 +46,7 @@
             "opt": "role",
             "name": "操作角色",
             "help": "允许操作的角色",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "false",
@@ -56,7 +56,7 @@
             "opt": "title",
             "name": "标题",
             "help": "交互标题",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "Please Select",
             "required": "true",
@@ -66,7 +66,7 @@
             "opt": "message",
             "name": "交互说明",
             "help": "交互主体中显示的说明文案",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "true",
@@ -77,6 +77,6 @@
         "opt": "interactOut",
         "name": "交互结果",
         "help": "交互输入的结果",
-        "type": "input"
+        "type": "text"
     }]
 }

@@ -14,7 +14,6 @@ sub new {
 sub _errCheck {
     my ( $self, $snmp, $queryResult, $oid ) = @_;
     my $hasError = 0;
-    my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
         $hasError = 1;
         my $error = $snmp->error();

@@ -43,9 +43,6 @@ sub new {
     }
 
     my $options = {};
-    foreach my $key ( keys(%args) ) {
-        $options->{"-$key"} = $args{$key};
-    }
     $options->{'-hostname'}    = $node->{host};
     $options->{'-timeout'} = $timeout;
 

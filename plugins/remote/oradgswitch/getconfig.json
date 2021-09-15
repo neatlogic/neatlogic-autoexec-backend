@@ -9,7 +9,7 @@
         "opt": "sid",
         "name": "SID",
         "help": "如不设置则直接使用环境变量ORACLE_SID",
-        "type": "input",
+        "type": "text",
         "isConst": "false",
         "defaultValue": "",
         "required": "false",
@@ -19,31 +19,31 @@
             "opt": "dbName",
             "name": "DB库名",
             "help": "库名，主备是一致的",
-            "type": "input"
+            "type": "text"
         },
         {
             "opt": "isRAC",
             "name": "是否RAC",
             "help": "是否是Oracle RAC",
-            "type": "input"
+            "type": "text"
         },
         {
             "opt": "dbUniqueName",
             "name": "DB实例名",
             "help": "实例名，RAC集群内一致，主备不一样",
-            "type": "input"
+            "type": "text"
         },
         {
             "opt": "dbSequence",
             "name": "同步Sequence号",
             "help": "同步的归档日志的Sequence号",
-            "type": "input"
+            "type": "text"
         },
         {
             "opt": "tempFilesCount",
             "name": "临时文件数量",
             "help": "临时文件数量",
-            "type": "input"
+            "type": "text"
         }
     ]
 }

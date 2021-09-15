@@ -9,7 +9,7 @@
 			"opt": "tinput",
 			"name": "普通输入",
 			"help": "普通输入测试",
-			"type": "input",
+			"type": "text",
 			"isConst": "false",
 			"defaultValue": "测试1",
 			"required": "true",
@@ -130,7 +130,7 @@
 			"opt": "outtext",
 			"name": "普通输出1",
 			"help": "普通输出测试",
-			"type": "input"
+			"type": "text"
 		},
 		{
 			"opt": "outfile",
