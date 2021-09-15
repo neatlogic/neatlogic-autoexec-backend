@@ -33,7 +33,7 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应APP_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'INBOUND_IP', 'PORT', ]
+        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT', ]
 
             #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
     };
@@ -46,7 +46,7 @@ sub getPK {
 sub collect {
     my ($self) = @_;
 
-    $self->{isVerbose} = 0;
+    $self->{isVerbose} = 1;
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
@@ -65,24 +65,48 @@ sub collect {
     my $binPath  = dirname($exePath);
     my $homePath = dirname($binPath);
 
+    #Redis server v=3.2.12 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=7897e7d0e13773f
+    my $verInfo = $self->getCmdOut(qq{"$exePath" -v});
+    if ( $verInfo =~ /v=([\d\.]+)/ ) {
+        $redisInfo->{VERSION} = $1;
+    }
+
     my $configFile = File::Spec->catfile( $binPath, "redis.conf" );
     if ( not -e $configFile ) {
         $configFile = File::Spec->catfile( $homePath, "redis.conf" );
+        if ( not -e $configFile ) {
+            $configFile = undef;
+            if ( $command =~ /redis-server\s+(\S+)/ ) {
+                my $possibleCfgFile = $1;
+                if ( -e $possibleCfgFile ) {
+                    $configFile = $possibleCfgFile;
+                }
+            }
+
+            if ( not defined($configFile) and -e '/etc/redis.conf' ) {
+                $configFile = '/etc/redis.conf';
+            }
+        }
     }
+
     my $cliFile = File::Spec->catfile( $binPath, "redis-cli" );
     $redisInfo->{INSTALL_PATH} = $homePath;
     $redisInfo->{CONFIG_FILE}  = $configFile;
 
     #检查是否装了reds-cli
-    if ( !-e "$cliFile" ) {
+    if ( not -e $cliFile ) {
         copy( 'redis-cli', $binPath );
         chmod( 0755, "$binPath/redis-cli" );
     }
 
     #配置文件
-    parseConfig( $self, $configFile, $redisInfo );
+    $self->parseConfig( $configFile, $redisInfo );
 
     my $port = $redisInfo->{PORT};
+    if ( $command =~ /:(\d+)$/ or $command =~ /--port\s+(\d+)/ ) {
+        $port = $1;
+    }
+
     my $host = '127.0.0.1';
     my $auth = $redisInfo->{REQUIREPASS};
     if ( not defined($auth) ) {
@@ -107,7 +131,6 @@ sub collect {
         sql     => 'info',
         verbose => $self->{isVerbose}
     );
-    $redisInfo->{VERSION}          = $info->{REDIS_VERSION};
     $redisInfo->{EXECUTABLE}       = $info->{EXECUTABLE};
     $redisInfo->{MULTIPLEXING_API} = $info->{MULTIPLEXING_API};
     $redisInfo->{RUN_ID}           = $info->{RUN_ID};
@@ -132,16 +155,16 @@ sub collect {
             for ( $a = 0 ; $a < $cns ; $a = $a + 1 ) {
                 my $slave = $info->{ 'SLAVE' . $a };
                 $slave =~ s/'slave'$a//g;
-                my @slave_tmp = str_split( $slave, ',' );
+                my @slave_tmp = split( /,/, $slave );
                 my $slave_host;
                 my $slave_port;
                 foreach my $st (@slave_tmp) {
                     if ( $st =~ /ip/ig ) {
-                        my @st_tmp = str_split( $st, '=' );
+                        my @st_tmp = split( /=/, $st );
                         $slave_host = $st_tmp[1];
                     }
                     if ( $st =~ /port/ig ) {
-                        my @st_tmp = str_split( $st, '=' );
+                        my @st_tmp = split( /=/, $st );
                         $slave_port = $st_tmp[1];
                     }
                 }
@@ -181,28 +204,17 @@ sub parseConfig {
             next;
         }
 
-        my @values = str_split( $line, '\s+' );
+        my @values = split( /\s+/, $line );
         if ( scalar(@values) > 1 ) {
-            my $key   = str_trim( @values[0] );
-            my $value = str_trim( @values[1] );
-            $value =~ s/['"]//g;
+            my $key = $values[0];
+            $key =~ s/^\s*|\s*$//g;
+            my $value = $values[1];
+            $value =~ s/^\s*['"]|['"]\s*$//g;
             if ( defined( $filter->{$key} ) ) {
                 $redisInfo->{ uc($key) } = $value;
             }
         }
     }
-}
-
-sub str_split {
-    my ( $str, $separator ) = @_;
-    my @values = split( /$separator/, $str );
-    return @values;
-}
-
-sub str_trim {
-    my ($str) = @_;
-    $str =~ s/^\s+|\s+$//g;
-    return $str;
 }
 
 1;

@@ -116,7 +116,9 @@ sub getProcEnv {
     my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
     my $lastEnvVal = substr( $envLine, $lastEqualPos + 1 );
     chomp($lastEnvVal);
-    $envMap->{$lastEnvName} = $lastEnvVal;
+    if ( $lastEnvVal =~ /^\w+$/ ) {
+        $envMap->{$lastEnvName} = $lastEnvVal;
+    }
 
     return $envMap;
 }

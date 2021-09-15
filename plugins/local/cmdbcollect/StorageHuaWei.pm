@@ -11,6 +11,7 @@ use File::Basename;
 use JSON;
 use Net::SNMP qw(:snmp);
 use SnmpHelper;
+use CollectUtils;
 use Data::Dumper;
 
 sub new {
