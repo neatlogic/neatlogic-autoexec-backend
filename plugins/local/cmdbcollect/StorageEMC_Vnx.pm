@@ -26,6 +26,12 @@ sub new {
     my $node = $args{node};
     $self->{node} = $node;
 
+    my $timeout = $args{timeout};
+    if ( not defined($timeout) or $timeout eq '0' ) {
+        $timeout = 10;
+    }
+    $self->{timeout} = $timeout;
+    
     my $host     = $node->{host};
     my $user     = $node->{username};
     my $password = $node->{password};

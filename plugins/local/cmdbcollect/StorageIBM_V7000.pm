@@ -19,6 +19,12 @@ sub new {
     my $node = $args{node};
     $self->{node} = $node;
 
+    my $timeout = $args{timeout};
+    if ( not defined($timeout) or $timeout eq '0' ) {
+        $timeout = 10;
+    }
+    $self->{timeout} = $timeout;
+
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
 
@@ -40,7 +46,7 @@ sub collect {
         port        => $nodeInfo->{protocolPort},
         user        => $nodeInfo->{username},
         password    => $nodeInfo->{password},
-        timeout     => 10,
+        timeout     => $self->{timeout},
         master_opts => [ -o => "StrictHostKeyChecking=no" ]
     );
 

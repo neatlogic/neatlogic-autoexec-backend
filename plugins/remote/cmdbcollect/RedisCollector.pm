@@ -60,30 +60,31 @@ sub collect {
     $redisInfo->{OBJECT_TYPE} = $CollectObjType::DB;
 
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
-    my $command    = $procInfo->{COMMAND};
-    my $exePath    = $procInfo->{EXECUTABLE_FILE};
-    my $basePath   = dirname($exePath);
-    my $configFile = File::Spec->catfile( $basePath, "redis.conf" );
-    my $cliFile    = File::Spec->catfile( $basePath, "redis-cli" );
-    $redisInfo->{INSTALL_PATH} = $basePath;
+    my $command  = $procInfo->{COMMAND};
+    my $exePath  = $procInfo->{EXECUTABLE_FILE};
+    my $binPath  = dirname($exePath);
+    my $homePath = dirname($binPath);
+
+    my $configFile = File::Spec->catfile( $binPath, "redis.conf" );
+    if ( not -e $configFile ) {
+        $configFile = File::Spec->catfile( $homePath, "redis.conf" );
+    }
+    my $cliFile = File::Spec->catfile( $binPath, "redis-cli" );
+    $redisInfo->{INSTALL_PATH} = $homePath;
     $redisInfo->{CONFIG_FILE}  = $configFile;
 
     #检查是否装了reds-cli
     if ( !-e "$cliFile" ) {
-        copy( 'redis-cli', $basePath );
-        my @uname  = uname();
-        my $ostype = $self->{ostype};
-        if ( $ostype ne 'Windows' ) {
-            system("chmod 755 $basePath/redis-cli");
-        }
+        copy( 'redis-cli', $binPath );
+        chmod( 0755, "$binPath/redis-cli" );
     }
 
     #配置文件
     parseConfig( $self, $configFile, $redisInfo );
 
-    my $port = $redisInfo->{'PORT'};
+    my $port = $redisInfo->{PORT};
     my $host = '127.0.0.1';
-    my $auth = $redisInfo->{'REQUIREPASS'};
+    my $auth = $redisInfo->{REQUIREPASS};
     if ( not defined($auth) ) {
         $auth = $redisInfo->{MASTERAUTH};
     }
@@ -95,7 +96,7 @@ sub collect {
     $redisInfo->{ADMIN_SSL_PORT} = $port;
 
     my $redis = RedisExec->new(
-        redisHome => $basePath,
+        redisHome => $binPath,
         auth      => $auth,
         host      => $host,
         port      => $port

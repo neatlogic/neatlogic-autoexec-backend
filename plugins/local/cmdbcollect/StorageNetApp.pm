@@ -21,6 +21,12 @@ sub new {
     my $node = $args{node};
     $self->{node} = $node;
 
+    my $timeout = $args{timeout};
+    if ( not defined($timeout) or $timeout eq '0' ) {
+        $timeout = 10;
+    }
+    $self->{timeout} = $timeout;
+
     $self->{collectUtils} = CollectUtils->new();
     $self->{snmpHelper}   = SnmpHelper->new();
 
@@ -41,7 +47,7 @@ sub new {
     }
 
     $options->{'-host'}    = $node->{host};
-    $options->{'-timeout'} = $args{timeout};
+    $options->{'-timeout'} = $timeout;
 
     if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};
