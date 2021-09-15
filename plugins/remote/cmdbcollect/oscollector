@@ -284,7 +284,7 @@ sub main {
             my @portNumbers = ();
             my @bindAddrs   = ();
             foreach my $lsnPort (@lsnPorts) {
-                if ( $lsnPort =~ /:\d+$/ ) {
+                if ( $lsnPort !~ /:\d+$/ ) {
                     push( @portNumbers, int($lsnPort) );
                     foreach my $ipInfo (@$ipAddrs) {
                         push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );

@@ -95,7 +95,7 @@ sub collect {
 
     #检查是否装了reds-cli
     if ( not -e $cliFile ) {
-        copy( 'redis-cli', $binPath );
+        copy( "$FindBin::Bin/redis-cli", $binPath );
         chmod( 0755, "$binPath/redis-cli" );
     }
 
