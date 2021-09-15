@@ -21,6 +21,7 @@ sub new {
     $self->{port} = $attr->{port};
     $self->{username} = $attr->{username};
     $self->{password} = $attr->{password};
+    $self->{timeout}  = $attr->{timeout};
 
     bless($self, $type);
 
@@ -99,6 +100,7 @@ sub configTerminal {
 sub runCmd {
     my ($self, $cmd, $leadingLineCount) = @_;
 
+    my $timeout = $self->{timeout};
     my $spawn = $self->{spawn};
     my $PROMPT = $self->{PROMPT};
 
@@ -122,7 +124,7 @@ sub runCmd {
 
 
     $spawn->send("$cmd\n");
-    $spawn->expect( undef, '-re', $PROMPT );
+    $spawn->expect( $timeout, '-re', $PROMPT );
     $spawn->log_file(undef);
 
     #去掉最后一行的命令提示行

@@ -177,8 +177,8 @@ sub getJavaAttrs {
     my $javaVersion;
     my $jvmType;
     my $jvmVersion;
-    my $javaPath = readlink("/proc/$pid/exe");
-    if ( not defined($javaPath) ) {
+    my $javaPath = $procInfo->{EXECUTABLE_FILE};
+    if ( not defined($javaPath) or not -e $javaPath ) {
         if ( $cmdLine =~ /^(.*?\bjava)/ ) {
             $javaPath = $1;
             if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {

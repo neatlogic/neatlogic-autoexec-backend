@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+use FindBin;
+use Cwd qw(abs_path);
+use FindBin;
+use lib abs_path($FindBin::Bin);
+use lib abs_path("$FindBin::Bin/lib");
+use lib abs_path("$FindBin::Bin/../lib");
+
+use strict;
+use JSON;
+use Getopt::Long;
+use AutoExecUtils;
+use Data::Dumper;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("INFO::option --node or --type not defined.\n");
+    print("$pname --node <node> --type <type> .\n");
+    exit(0);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ( $node, $type );
+
+    my $community;
+    my $timeout = 10;
+
+    GetOptions(
+        'node=s'    => \$node,
+        'type=s'    => \$type,
+        'community=s' => \$community,
+        'timeout=i' => \$timeout
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $instance;
+    my $typeClass = "FireWall$type";
+    eval {
+        require "$typeClass.pm";
+        print("class:$typeClass\n");
+        our @ISA = ($typeClass);
+        $instance = $typeClass->new( community=>$community, timeout=>$timeout, node => $nodeInfo );
+    };
+    if ($@) {
+        print($@);
+        print("ERROR::not found $type plugin .\n");
+        exit(1);
+    }
+    my $data = $instance->collect();
+    $data->{OBJECT_TYPE} = 'FIREWALL';
+    $data->{APP_TYPE}    = $type;
+    $data->{MGMT_IP}     = $nodeInfo->{host};
+    $data->{PK}          = ['MGMT_IP'];
+    $data->{RESOURCE_ID} = $node->{resourceId};
+
+    my $out = {};
+    $out->{DATA} = $data;
+    AutoExecUtils::saveOutput($out);
+    print Dumper ($data);
+}
+
+exit main();

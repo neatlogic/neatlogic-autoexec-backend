@@ -1,0 +1,51 @@
+{
+    "opName": "防火墙信息采集",
+    "opType": "localremote",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "采集防火墙设备信息,支持HuaWei、CheckPoint、HillStone、TopSec等",
+    "option": [{
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "input",
+            "isConst": "false",
+            "defaultValue": "10",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "type",
+            "name": "防火墙类别",
+            "help": "防火墙的类别型号",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "华为",
+                    "value": "Huawei"
+                },
+                {
+                    "text": "CheckPoint",
+                    "value": "CheckPoint"
+                },
+                {
+                    "text": "山石",
+                    "value": "HillStone"
+                },
+                {
+                    "text": "天融信",
+                    "value": "TopSec"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

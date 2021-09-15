@@ -53,16 +53,23 @@ sub main {
 
     $SIG{ALRM} = \&collectTimeout;
 
+    my $isVerbose = 0;
     my $classDef;
     my $defaultPassConf;
 
     GetOptions(
+        'verbose=i'         => \$isVerbose,
         'class=s'           => \$classDef,
         'defaultpassconf=s' => \$defaultPassConf
     );
 
+    my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
+        if ( $classDef ne 'OS' ){
+            $ignoreOsInfo = 1;
+        }
+
         $collectClassMap = { OS => 1 };
         map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
     }
@@ -314,11 +321,13 @@ sub main {
 
     #TODO: save $apps to output
     my @data = ();
-    if ( defined($hostInfo) ) {
-        push( @data, $hostInfo );
-    }
-    if ( defined($osInfo) ) {
-        push( @data, $osInfo );
+    if ( $ignoreOsInfo == 0 ){
+        if ( defined($hostInfo) ) {
+            push( @data, $hostInfo );
+        }
+        if ( defined($osInfo) ) {
+            push( @data, $osInfo );
+        }
     }
     push( @data, @apps );
 
@@ -327,8 +336,10 @@ sub main {
     AutoExecUtils::saveOutput($out);
     print("INFO: All is completed.\n");
 
-    #Just for debug
-    print Dumper ($out);
+    if ( $isVerbose == 1 ){
+        my $data = $out->{DATA};
+        my $jsonData = to_json($data, {pretty=>1});
+    }
 }
 
 main();
