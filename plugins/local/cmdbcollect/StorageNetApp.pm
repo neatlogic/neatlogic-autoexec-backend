@@ -43,10 +43,11 @@ sub new {
     }
 
     my $options = {};
-    $options->{'-hostname'} = $node->{host};
-    $options->{'-timeout'}  = $timeout;
-    $options->{'-version'}  = $args{version};
-    $options->{'-retries'}  = $args{retries};
+    $options->{'-hostname'}   = $node->{host};
+    $options->{'-timeout'}    = $timeout;
+    $options->{'-version'}    = $args{version};
+    $options->{'-retries'}    = $args{retries};
+    $options->{'-maxmsgsize'} = 65535;
 
     if ( defined( $args{community} ) ) {
         $options->{'-community'} = $args{community};

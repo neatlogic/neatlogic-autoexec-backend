@@ -52,16 +52,16 @@ sub collect {
             my $e = rindex( $line, '(' );
             $version = substr( $line, 0, $e );
             $version =~ s/Keepalived//g;
-            $version = str_trim($version);
+            $version =~ s/^\s*|\s*$//g;
         }
         if ( $line =~ /configure options/ ) {
-            my @values = str_split( $line, ':' );
-            my $cfg = @values[1];
-            $cfg = str_trim($cfg);
+            my @values = split( /:/, $line );
+            my $cfg = $values[1] || '';
+            $cfg =~ s/^\s*|\s*$//g;
             if ( $cfg =~ /--prefix=/ ) {
-                my @values = str_split( $cfg, '=' );
-                $prefix = @values[1] || '';
-                $prefix = str_trim($prefix);
+                my @values = split( /=/, $cfg );
+                $prefix = $values[1] || '';
+                $prefix =~ s/^\s*|\s*$//g;
             }
         }
     }
@@ -97,12 +97,10 @@ sub formatStructure {
     while (1) {
         my $index = index( $content, $identification );
         my $block = substr( $content, 0, $index + 1 );
-        my @block_array = str_split( $block, '\n' );
+        my @block_array = split( '\n', $block );
         my $newBlock = '';
         foreach my $line (@block_array) {
-            chomp($line);
-            $line =~ s/^\s+//g;
-            $line =~ ~s/\s+$//g;
+            $line =~ s/^\s*|\s*$//g;
             if ( $line eq '' or $line =~ /^#/ ) {
                 next;
             }
@@ -133,17 +131,16 @@ sub parseStructure {
     $content =~ s/$identification//g;
     $index = index( $content, '{' );
     $name = substr( $content, 0, $index );
-    $instance->{NAME} = str_trim($name);
+    $name =~ s/^\s*|\s*$//g;
+    $instance->{NAME} = $name;
     $content = substr( $content, $index + 1, length($content) );
 
     #分析正文
-    my @contents = str_split( $content, '[\n\r]' );
+    my @contents = split( '[\n\r]', $content );
     my $block = '';
     my ( $startIndex, $endIndex ) = ( 0, 0 );
     foreach my $line (@contents) {
-        chomp($line);
-        $line =~ s/^\s+//g;
-        $line =~ ~s/\s+$//g;
+        $line =~ s/^\s*|\s*$//g;
 
         #去掉配置文件注释
         my $notesIndex = index( $line, '#' );
@@ -168,14 +165,15 @@ sub parseStructure {
 
         #常规文本
         if ( $startIndex == 0 and $endIndex == 0 and $block eq '' ) {
-            my @values = str_split( $line, '\s+' );
+            my @values = split( /\s+/, $line );
             if ( scalar(@values) > 1 ) {
-                my $key   = str_trim( @values[0] );
-                my $value = str_trim( @values[1] );
+                my $key   = $values[0];
+                my $value = $values[1];
                 $instance->{ uc($key) } = $value;
             }
             else {
-                $instance->{ str_trim($line) } = str_trim($line);
+                $line =~ s/^\s*|\s*$//g;
+                $instance->{$line} = $line;
             }
         }
 
@@ -194,38 +192,32 @@ sub parseStructure {
 sub analysisValue {
     my ( $self, $content ) = @_;
     my $instance = {};
-    my $index    = 0;
-    my $name;
-    $index = index( $content, '{' );
-    $name    = substr( $content, 0,      $index );
+    my $index    = index( $content, '{' );
+    my $name     = substr( $content, 0, $index );
+    $name =~ s/^\s*|\s*$//g;
+
     $content = substr( $content, $index, length($content) );
-    $content =~ ~s/^\s+|\s+$//g;
+    $content =~ s/^\s+|\s+$//g;
     $content =~ s/\{//g;
     $content =~ s/\}//g;
-    my @contents = str_split( $content, '[\n\r]' );
+    my @contents = split( /[\n\r]/, $content );
 
     foreach my $line (@contents) {
-        chomp($line);
-        my $notesIndex = index( $line, '#' );
-        if ( $notesIndex > 0 ) {
-            $line = substr( $line, 0, $notesIndex );
-        }
-        $line =~ s/^\s+//g;
-        $line =~ ~s/\s+$//g;
+        $line =~ s/^\s*|\s*$//g;
         if ( $line eq '' or $line =~ /^#/ ) {
             next;
         }
-        my @values = str_split( $line, '\s+' );
+        my @values = split( /\s+/, $line );
         if ( scalar(@values) > 1 ) {
-            my $key   = str_trim( @values[0] );
-            my $value = str_trim( @values[1] );
+            my $key   = $values[0];
+            my $value = $values[1];
             $instance->{ uc($key) } = $value;
         }
         else {
-            $instance = [ str_trim($line) ];
+            $instance = [$line];
         }
     }
-    return ( str_trim($name), $instance );
+    return ( $name, $instance );
 }
 
 sub parseVrrp {
@@ -238,9 +230,9 @@ sub parseVrrp {
     $fileContent = $self->formatStructure( $fileContent, '{' );
 
     #        $fileContent = formatStructure($self, $fileContent, '}' );
-    my @contents = str_split( $fileContent, '\n' );
+    my @contents = split( '\n', $fileContent );
     foreach my $read_line (@contents) {
-        chomp($read_line);
+        $read_line =~ s/^\s*|\s*$//g;
 
         if ( ( $read_line =~ /$identification/ and $read_line =~ /\{/ ) or ( $startCount > 0 and $read_line =~ /\{/ ) ) {
             $startCount = $startCount + 1;
@@ -261,18 +253,6 @@ sub parseVrrp {
         }
     }
     return @vrrp;
-}
-
-sub str_split {
-    my ( $str, $separator ) = @_;
-    my @values = split( /$separator/, $str );
-    return @values;
-}
-
-sub str_trim {
-    my ($str) = @_;
-    $str =~ s/^\s*|\s*$//g;
-    return $str;
 }
 
 1;

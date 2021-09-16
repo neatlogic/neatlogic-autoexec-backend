@@ -46,22 +46,22 @@ sub collect {
     my $binPath  = dirname($exePath);
     my $basePath = dirname($binPath);
     my ( $version, $prefix );
-    my $nginx_info = $self->getCmdOutLines("$binPath/nginx -V 2>&1");
-    foreach my $line (@$nginx_info) {
+    my $nginxInfoLines = $self->getCmdOutLines("$binPath/nginx -V 2>&1");
+    foreach my $line (@$nginxInfoLines) {
         if ( $line =~ /nginx version:/ ) {
-            my @values = str_split( $line, ':' );
-            $version = @values[1] || '';
+            my @values = split( /:/, $line );
+            $version = $values[1] || '';
             $version =~ s/nginx\///g;
-            $version = str_trim($version);
+            $version =~ s/^\s+|\s+$//g;
         }
         if ( $line =~ /configure arguments:/ ) {
-            my @values = str_split( $line, ':' );
-            my $cfg = @values[1];
-            $cfg = str_trim($cfg);
+            my @values = split( /:/, $line );
+            my $cfg = $values[1];
+            $cfg =~ s/^\s+|\s+$//g;
             if ( $cfg =~ /--prefix=/ ) {
-                my @values = str_split( $cfg, '=' );
-                $prefix = @values[1] || '';
-                $prefix = str_trim($prefix);
+                my @values = split( /=/, $cfg );
+                $prefix = $values[1] || '';
+                $prefix =~ s/^\s+|\s+$//g;
             }
         }
     }
@@ -81,13 +81,13 @@ sub collect {
 
 sub parseConfigServer {
     my ( $self, $confPath ) = @_;
-    my @server_cfg = ();
+    my @serverCfg = ();
     my $server     = '';
     my $startCount = 0;
     my $endCount   = 0;
     my $contents   = $self->getFileLines($confPath);
     foreach my $line (@$contents) {
-        chomp($line);
+        $line =~ s/^\s*|\s*$//g;
 
         if ( ( $line =~ /server/ and $line =~ /\{/ ) or ( $startCount > 0 and $line =~ /\{/ ) ) {
             $startCount = $startCount + 1;
@@ -101,13 +101,13 @@ sub parseConfigServer {
         }
 
         if ( $startCount == $endCount and $server ne '' ) {
-            push( @server_cfg, $server );
+            push( @serverCfg, $server );
             $server     = '';
             $startCount = 0;
             $endCount   = 0;
         }
     }
-    return @server_cfg;
+    return \@serverCfg;
 }
 
 sub parseConfigInclude {
@@ -116,12 +116,13 @@ sub parseConfigInclude {
     push( @includes, $confPath );
     my $contents = $self->getFileLines($confPath);
     for my $line (@$contents) {
-        chomp($line);
+        $line =~ s/^\s*|\s*$//g;
+
         if ( $line =~ /include/ and $line !~ /mime.types/ ) {
             my $path = $line;
             $path =~ s/include//;
             $path =~ s/;//;
-            $path = str_trim($path);
+            $path =~ s/^\s+|\s+$//g;
             my $e = rindex( $path, '/' );
             my $dir  = substr( $path, 0,      $e );
             my $file = substr( $path, $e + 1, length($path) );
@@ -156,22 +157,23 @@ sub parseConfigParam {
     my $nginx = {};
     $nginx->{CONFIG_PATH} = $cfg;
     my $port        = '';
-    my $server_name = '';
+    my $serverName  = '';
     my $type        = 'http';
     my $status      = 'off';
 
     foreach my $line (@lines) {
-        chomp($line);
+        $line =~ s/^\s*|\s*$//g;
+
         if ( $line =~ /listen/ ) {
-            $port = $line;
-            $port =~ /(\d+)/;
-            $port = str_trim($1);
+            if ( $line =~ /(\d+)/ ) {
+                $port = int($1);
+            }
         }
 
         if ( $line =~ /server_name/ ) {
-            $server_name = $line;
-            $server_name =~ s/;//;
-            $server_name = str_trim($server_name);
+            $serverName = $line;
+            $serverName =~ s/;//;
+            $serverName =~ s/^\s+|\s+$//g;
         }
 
         if ( $line =~ /ssl/ ) {
@@ -183,7 +185,7 @@ sub parseConfigParam {
         }
     }
     $nginx->{SERVICE_PORT}   = $port;
-    $nginx->{SERVICE_NAME}   = $server_name;
+    $nginx->{SERVICE_NAME}   = $serverName;
     $nginx->{SERVICE_TYPE}   = $type;
     $nginx->{SERVICE_STATUS} = $status;
     return $nginx;
@@ -194,26 +196,14 @@ sub parseConfig {
     my @includes = parseConfigInclude( $self, $conf_path );
     my @nginx_servers = ();
     foreach my $cfg (@includes) {
-        my @server_cfg = parseConfigServer( $self, $cfg );
-        foreach my $server (@server_cfg) {
-            chomp($server);
+        my $serverCfg = parseConfigServer( $self, $cfg );
+        foreach my $server (@$serverCfg) {
+            $server =~ s/^\s*|\s*$//g;
             my $param = parseConfigParam( $self, $server, $cfg );
             push( @nginx_servers, $param );
         }
     }
     return \@nginx_servers;
-}
-
-sub str_split {
-    my ( $str, $separator ) = @_;
-    my @values = split( /$separator/, $str );
-    return @values;
-}
-
-sub str_trim {
-    my ($str) = @_;
-    $str =~ s/^\s+|\s+$//g;
-    return $str;
 }
 
 1;

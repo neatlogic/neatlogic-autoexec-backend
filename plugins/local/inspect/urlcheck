@@ -55,7 +55,7 @@ sub main {
     my $pass = $nodeInfo->{password};
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = { RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+    my $data = {  MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
 
     my $webCtl = WebCtl->new();
     print("INFO: Begin url check...\n");

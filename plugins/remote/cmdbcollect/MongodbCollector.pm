@@ -106,8 +106,9 @@ sub collect {
     );
     my @dbNames = ();
     foreach my $line (@$rows) {
-        my @tmp_arr = str_split( $line, '\s+' );
-        my $dbname = str_trim( @tmp_arr[0] );
+        my @tmp_arr = split( /\s+/, $line );
+        my $dbname = $tmp_arr[0];
+        $dbname =~ s/^\s*|\s*$//g;
         if ( $dbname ne 'local' and $dbname ne 'config' ) {
             my $db = {};
             $db->{NAME} = $dbname;
@@ -122,10 +123,11 @@ sub collect {
                 ),
         verbose => $self->{isVerbose}
     );
+
     my %allUser = ();
     if ( $status == 0 ) {
         foreach my $line (@$rows) {
-            my $tmp  = decode_json($line);
+            my $tmp  = from_json($line);
             my $user = $tmp->{'user'};
             my $db   = $tmp->{'db'};
             my @users;
@@ -157,8 +159,9 @@ sub collect {
         verbose     => $self->{isVerbose},
         parseOutput => 0
     );
-    chomp($rows);
-    my $rsStatus = int( str_trim($rows) );
+
+    $rows =~ s/^\s*|\s*$//g;
+    my $rsStatus = int($rows);
     if ( $rsStatus == 0 ) {    #单实例
         $mongodbInfo->{CLUSTER_MODE} = undef;
         $mongodbInfo->{CLUSTER_ROLE} = undef;
@@ -173,7 +176,7 @@ sub collect {
             verbose     => $self->{isVerbose},
             parseOutput => 0
         );
-        my $members = decode_json($rows);
+        my $members = from_json($rows);
         my $master_ips;
         my @slave_arr = ();
         foreach my $node (@$members) {
@@ -213,35 +216,22 @@ sub parseConfig {
         "nohttpinterface" => 1
     };
     foreach my $line (@$configData) {
-        chomp($line);
-        $line =~ s/^\s+//g;
-        $line =~ ~s/\s+$//g;
+        $line =~ s/^\s*|\s*$//g;
         if ( $line =~ /^#/ or $line eq '' ) {
             next;
         }
 
-        my @values = str_split( $line, '=' );
+        my @values = split( /=/, $line );
         if ( scalar(@values) > 1 ) {
-            my $key   = str_trim( @values[0] );
-            my $value = str_trim( @values[1] );
-            $value =~ s/['"]//g;
+            my $key   = $values[0];
+            my $value = $values[1];
+            $key =~ s/^\s+|\s+$//g;
+            $value =~ s/^\s+['"]|['"]\s+$//g;
             if ( defined( $filter->{$key} ) ) {
                 $mongodbInfo->{ uc($key) } = $value;
             }
         }
     }
-}
-
-sub str_split {
-    my ( $str, $separator ) = @_;
-    my @values = split( /$separator/, $str );
-    return @values;
-}
-
-sub str_trim {
-    my ($str) = @_;
-    $str =~ s/^\s+|\s+$//g;
-    return $str;
 }
 
 1;

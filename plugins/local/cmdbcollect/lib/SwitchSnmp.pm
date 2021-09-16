@@ -34,6 +34,7 @@ sub new {
     foreach my $key ( keys(%args) ) {
         $options->{"-$key"} = $args{$key};
     }
+    $options->{'-maxmsgsize'} = 65535;
     $self->{snmpOptions} = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);

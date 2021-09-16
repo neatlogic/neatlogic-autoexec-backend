@@ -49,7 +49,7 @@ sub main {
     }
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = { RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+    my $data = {  MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
 
     my $host = $nodeInfo->{host};
     my $port = $nodeInfo->{port};

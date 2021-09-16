@@ -200,9 +200,8 @@ sub parseConfig {
         "appendfilename" => 1
     };
     foreach my $line (@$configData) {
-        chomp($line);
-        $line =~ s/^\s+//g;
-        $line =~ ~s/\s+$//g;
+        $line =~ s/^\s*|\s*$//g;
+        
         if ( $line =~ /^#/ or $line eq '' ) {
             next;
         }
