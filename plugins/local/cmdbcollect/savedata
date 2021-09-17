@@ -202,6 +202,6 @@ if __name__ == "__main__":
         # 添加索引
         cmdbUtils.createIndex(table, pk)
         # 生成数据字典文件
-        _makeDictionary(tableName.lower(), data)
+        #_makeDictionary(tableName.lower(), data)
         # 关闭连接
         cmdbUtils.close()
