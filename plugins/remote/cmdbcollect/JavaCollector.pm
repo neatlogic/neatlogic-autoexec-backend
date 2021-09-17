@@ -37,7 +37,6 @@ sub collect {
     my $cmdLine  = $procInfo->{COMMAND};
     my $appInfo  = {};
     $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
-    $appInfo->{APP_TYPE}    = 'java';
 
     $self->getJavaAttrs($appInfo);
 

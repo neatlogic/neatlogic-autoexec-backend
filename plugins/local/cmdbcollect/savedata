@@ -9,10 +9,6 @@ import sys
 import json
 from bson.json_util import dumps, loads
 
-binPaths = os.path.split(os.path.realpath(__file__))
-libPath = os.path.realpath(binPaths[0]+'/../lib')
-sys.path.append(libPath)
-
 
 def usage():
     pname = os.path.basename(__file__)
@@ -151,6 +147,11 @@ if __name__ == "__main__":
 
     cmdbUtils = CmdbUtils.CmdbUtils()
     for data in collect_data:
+        if 'PK' not in data:
+            print(json.dumps(data))
+            print("\n")
+            continue
+
         pk = data['PK']
         tableName = data["OBJECT_TYPE"]
         if("OS_TYPE" in data):

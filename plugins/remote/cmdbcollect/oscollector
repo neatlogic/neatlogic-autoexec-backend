@@ -234,6 +234,7 @@ sub main {
                 $appInfo->{PK} = $pkConfig->{$appType};
             }
             else {
+                $appInfo->{PK} = ['MGMT_IP', 'MGMT_PORT'];
                 print("ERROR: $appType PK not defined in the collector class:$collectorClass.\n");
             }
         }
