@@ -237,7 +237,7 @@ sub _getPortIdx {
     for( my $i=0; $i<=$#sortedOids; $i++ ) {
         my $oid = $sortedOids[$i];
         my $val = $portIdxInfo->{$oid};
-        $portIdxToNoMap->{$val} = $i;
+        $portIdxToNoMap->{$val} = $i + 1;
     }
 
     return $portIdxToNoMap;
