@@ -290,6 +290,13 @@ if __name__ == "__main__":
         signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGQUIT, signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGUSR1])
         signal.signal(signal.SIGQUIT, threadDump)
 
+        if 'PYTHONPATH' not in os.environ:
+            os.environ['PYTHONPATH'] = ''
+        if 'PERL5LIB' not in os.environ:
+            os.environ['PERL5LIB'] = ''
+        if 'PATH' not in os.environ:
+            os.environ['PATH'] = ''
+
         # 开始运行作业
         print("INFO: JobId:{} start...\n".format(args.jobid))
         runner = JobRunner.JobRunner(context, nodesFile=args.nodesfile)
