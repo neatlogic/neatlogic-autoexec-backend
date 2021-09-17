@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package SwitchHuaWei;
+package SwitchHuawei;
 
 use SwitchBase;
 our @ISA = qw(SwitchBase);
