@@ -64,7 +64,10 @@ def _makeDesc(json_data):
         tmp['desc'] = filed.lower()
         tmp['type'] = vt
         if(vt == 'JsonArray'):
-            tmp['subset'] = _makeDesc(value[0])
+            try:
+                tmp['subset'] = _makeDesc(value[0])
+            except:
+                pass
         elif(vt == 'JsonObject'):
             tmp['subset'] = _makeDesc(value)
         filed_data.append(tmp)

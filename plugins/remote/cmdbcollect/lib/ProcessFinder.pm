@@ -239,6 +239,8 @@ sub findProcess {
                             $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                         }
                     }
+                    
+                    last;
                 }
             }
         }

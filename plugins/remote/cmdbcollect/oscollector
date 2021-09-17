@@ -297,7 +297,7 @@ sub main {
                 else {
                     push( @bindAddrs, "$lsnPort" );
                     $lsnPort =~ s/^.*://;
-                    push( @portNumbers, $lsnPort );
+                    push( @portNumbers, int($lsnPort) );
                 }
             }
             $connInfo->{BIND} = \@bindAddrs;

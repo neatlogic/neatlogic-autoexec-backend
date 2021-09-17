@@ -39,7 +39,7 @@ sub collect {
     $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
 
     my $confPath;
-    if ( $cmdLine =~ /-Dcatalina.base=(\S+)\s+/ ) {
+    if ( $cmdLine =~ /-Dcatalina.base=(\S+)/ ) {
         $confPath                 = $1;
         $appInfo->{CATALINA_BASE} = $confPath;
         $appInfo->{CONFIG_PATH}   = $confPath;
@@ -135,9 +135,9 @@ sub collect {
     #JVM Version:    1.8.0_77-b03
     #JVM Vendor:     Oracle Corporation
     my $binPath = "$installPath/bin";
-    my $verCmd  = qq{sh "$binPath/version.sh"};
+    my $verCmd  = qq{sh "$binPath/catalina.sh" version};
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
-        $verCmd = qq{cmd /c "$binPath/version.bat"};
+        $verCmd = qq{cmd /c "$binPath/catalina.bat" version};
     }
     my @verOut = $self->getCmdOut($verCmd);
     foreach my $line (@verOut) {
