@@ -82,17 +82,25 @@ sub new {
 
     #列表值定义
     my $tableOidDef = {
-        POOL_LIST => { NAME => '1.3.6.1.4.1.789.1.5.11.1.2' },
-        RAID_LIST => {
+        AGGR_LIST => {
+            NAME      => '1.3.6.1.4.1.789.1.5.11.1.2',
+            RAID_TYPE => '1.3.6.1.4.1.789.1.5.11.1.11'
+        },
+        VOL_LIST => {
             NAME      => '1.3.6.1.4.1.789.1.5.8.1.2',
             TYPE      => '1.3.6.1.4.1.789.1.5.8.1.6',
-            POOL_NAME => '1.3.6.1.4.1.789.1.5.8.1.9'
+            AGGR_NAME => '1.3.6.1.4.1.789.1.5.8.1.9'
+        },
+        QTREE_LIST => {
+            NAME     => '1.3.6.1.4.1.789.1.5.10.1.5',
+            ID       => '1.3.6.1.4.1.789.1.5.10.1.4',
+            VOL_NAME => '1.3.6.1.4.1.789.1.5.10.1.3'
         },
         LUN_LIST => {
-            NAME      => '1.3.6.1.4.1.789.1.17.15.2.1.2',
-            LUN_ID    => '1.3.6.1.4.1.789.1.17.15.2.1.7',
-            CAPACITY  => '1.3.6.1.4.1.789.1.17.15.2.1.28',
-            RAID_NAME => '1.3.6.1.4.1.789.1.17.15.2.1.8'
+            NAME       => '1.3.6.1.4.1.789.1.17.15.2.1.2',
+            LUN_ID     => '1.3.6.1.4.1.789.1.17.15.2.1.7',
+            CAPACITY   => '1.3.6.1.4.1.789.1.17.15.2.1.28',
+            QTREE_NAME => '1.3.6.1.4.1.789.1.17.15.2.1.8'
         },
         HBA_LIST   => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
         DF_VOLUMES => {
@@ -151,32 +159,43 @@ sub getPools {
 
     my $snmpHelper = $self->{snmpHelper};
 
-    #my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
-    my $tableData = $snmpHelper->getTableByIndex( $snmp, $tableOidDef );
+    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
 
-    my $pools    = $tableData->{POOL_LIST};
-    my $poolsMap = {};
-    foreach my $poolInfo (@$pools) {
-        $poolInfo->{RAIDS} = [];
-        $poolsMap->{ $poolInfo->{NAME} } = $poolInfo;
+    my $aggrs    = $tableData->{AGGR_LIST};
+    my $aggrsMap = {};
+    foreach my $aggrInfo (@$aggrs) {
+        $aggrInfo->{VOLUMES} = [];
+        $aggrsMap->{ $aggrInfo->{NAME} } = $aggrInfo;
     }
 
-    my $raids    = $tableData->{RAID_LIST};
-    my $raidsMap = {};
-    foreach my $raidInfo (@$raids) {
-        $raidInfo->{LUNS} = [];
-        $raidsMap->{ $raidInfo->{NAME} } = $raidInfo;
-        my $poolInfo    = $poolsMap->{ $raidInfo->{POOL_NAME} };
-        my $raidsInPool = $poolInfo->{RAIDS};
-        push( @$raidsInPool, $raidInfo );
+    my $vols    = $tableData->{VOL_LIST};
+    my $volsMap = {};
+    my $volIdxMap = {};
+    foreach my $volInfo (@$vols) {
+        $volInfo->{QTREES} = [];
+        $volsMap->{ $volInfo->{NAME} } = $volInfo;
+        $volIdxMap->{ $volInfo->{INDEX} } = $volInfo;
+        my $aggrInfo   = $aggrsMap->{ $volInfo->{AGGR_NAME} };
+        my $volsInAggr = $aggrInfo->{VOLUMES};
+        push( @$volsInAggr, $volInfo );
+    }
+
+    my $qtrees    = $tableData->{QTREE_LIST};
+    my $qtreesMap = {};
+    foreach my $qtreeInfo (@$qtrees) {
+        $qtreeInfo->{LUNS} = [];
+        $qtreesMap->{ $qtreeInfo->{NAME} } = $qtreeInfo;
+        my $volInfo     = $volsMap->{ $qtreeInfo->{VOL_NAME} };
+        my $qtreesInVol = $volInfo->{QTREES};
+        push( @$qtreesInVol, $qtreeInfo );
     }
 
     my $luns = $tableData->{LUN_LIST};
     foreach my $lunInfo (@$luns) {
-        my $raidInfo = $raidsMap->{ $lunInfo->{RAID_NAME} };
         $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
-        my $lunsInRaid = $raidInfo->{LUNS};
-        push( @$lunsInRaid, $lunInfo );
+        my $qtreeInfo   = $qtreesMap->{ $lunInfo->{QTREE_NAME} };
+        my $lunsInQtree = $qtreeInfo->{LUNS};
+        push( @$lunsInQtree, $lunInfo );
     }
 
     my $hbas = $tableData->{HBA_LIST};
@@ -191,16 +210,28 @@ sub getPools {
         $hbaInfo->{WWN} = $wwn;
     }
 
+    my @validDfVolumes = ();
     my $dfVolumes = $tableData->{DF_VOLUMES};
     foreach my $dfVolInfo (@$dfVolumes) {
+        my $dfName = $dfVolInfo->{NAME};
+        if ( $dfName eq ''){
+            $dfName = '/vol/' . $volIdxMap->{$dfVolInfo->{INDEX}};
+        }
+
         $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
         $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 ) / 100;
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 ) / 100;
+    
+        if ( $dfName ne '' ){
+            push(@$validDfVolumes, $dfVolInfo);
+        }
     }
 
     my $data = $self->{DATA};
-    $data->{STORAGE_POOLS} = $pools;
-    $data->{DF_VOLUMES}    = $dfVolumes;
+    $data->{STORAGE_AGGRS} = $aggrs;
+    $data->{LUNS}          = $luns;
+    $data->{VOLUMES}       = $vols;
+    $data->{DF_VOLUMES}    = \@validDfVolumes;
     return;
 }
 

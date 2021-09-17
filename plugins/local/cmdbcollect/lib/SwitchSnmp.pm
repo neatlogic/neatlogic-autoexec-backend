@@ -64,7 +64,7 @@ sub new {
     my $commOidDef = {
 
         #端口信息
-        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
+        PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',       #ifIndex
         PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',       #ifDescr
         PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
         PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
@@ -233,10 +233,11 @@ sub _getPortIdx {
     $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
 
     #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
-    while ( my ( $oid, $val ) = each(%$portIdxInfo) ) {
-        if ( $oid =~ /(\d+)$/ ) {
-            $portIdxToNoMap->{$val} = $1;
-        }
+    my @sortedOids = oid_lex_sort( keys(%$portIdxInfo) );
+    for( my $i=0; $i<=$#sortedOids; $i++ ) {
+        my $oid = $sortedOids[$i];
+        my $val = $portIdxInfo->{$oid};
+        $portIdxToNoMap->{$val} = $i;
     }
 
     return $portIdxToNoMap;

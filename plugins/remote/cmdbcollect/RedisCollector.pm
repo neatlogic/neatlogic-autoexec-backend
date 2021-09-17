@@ -108,11 +108,23 @@ sub collect {
     }
 
     my $host = '127.0.0.1';
-    my $auth = $self->{defaultPassword};
-    if ( not defined($auth) ) {
-        $auth = $redisInfo->{REQUIREPASS};
+    my $cliPort;
+    my $sentinelLsnInfo = $self->getCmdOut(qq{netstat -nap |grep $port|grep redis-sentine|grep LISTEN | awk '{print \$4}'});
+    if ( $sentinelLsnInfo =~ /:(\d+)\b/ ) {
+        $cliPort = int($1);
+        print("INFO: Connect info by redis sentinel, port:$cliPort.\n");
+    }
+
+    my $auth;
+    if ( not defined($cliPort) ) {
+        $cliPort = $port;
+
+        $auth = $self->{defaultPassword};
         if ( not defined($auth) ) {
-            $auth = $redisInfo->{MASTERAUTH};
+            $auth = $redisInfo->{REQUIREPASS};
+            if ( not defined($auth) ) {
+                $auth = $redisInfo->{MASTERAUTH};
+            }
         }
     }
 
@@ -126,7 +138,7 @@ sub collect {
         redisHome => $binPath,
         auth      => $auth,
         host      => $host,
-        port      => $port
+        port      => $cliPort
     );
     $self->{redis} = $redis;
 
@@ -201,7 +213,7 @@ sub parseConfig {
     };
     foreach my $line (@$configData) {
         $line =~ s/^\s*|\s*$//g;
-        
+
         if ( $line =~ /^#/ or $line eq '' ) {
             next;
         }

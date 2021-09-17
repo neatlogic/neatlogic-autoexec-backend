@@ -17,12 +17,12 @@ sub _errCheck {
     if ( not defined($queryResult) ) {
         $hasError = 1;
         my $error = $snmp->error();
-        if ( $error =~ /^No response/i ){
+        if ( $error =~ /^No response/i ) {
             print("ERROR: $error, snmp failed, exit.\n");
             exit(-1);
         }
-        else{
-            print( "WARN: $error, $oid\n");
+        else {
+            print("WARN: $error, $oid\n");
         }
     }
 
@@ -30,7 +30,7 @@ sub _errCheck {
 }
 
 sub hex2mac {
-    my ($self, $hexMac) = @_;
+    my ( $self, $hexMac ) = @_;
     if ( $hexMac !~ /\x00/ ) {
         $hexMac = substr( $hexMac, 2 );
         $hexMac =~ s/..\K(?=.)/:/sg;
@@ -42,33 +42,45 @@ sub hex2mac {
     return $hexMac;
 }
 
-
 sub hex2ip {
-  my ($self, $hexIp) = @_;
+    my ( $self, $hexIp ) = @_;
 
-  my $ip;
-  #每两个字符作为一个数组元素
-  my @array = ( $hexIp =~ m/../g );
-  if ($#array >= 3) {
-      if (lc($array[0]) eq '0x'){
-          #去掉开头的0x
-          shift(@array);
-      }
+    my $ip;
 
-      if ($#array == 3){
-          #4个字节，IPV4
-          @array = map {hex($_)} @array;
-          $ip = join('.', @array);
-      }
-      else{
-          #IPV6
-          $ip = join(':', @array);
-      }
-  }
-  return $ip;
+    #每两个字符作为一个数组元素
+    my @array = ( $hexIp =~ m/../g );
+    if ( $#array >= 3 ) {
+        if ( lc( $array[0] ) eq '0x' ) {
+
+            #去掉开头的0x
+            shift(@array);
+        }
+
+        if ( $#array == 3 ) {
+
+            #4个字节，IPV4
+            @array = map { hex($_) } @array;
+            $ip = join( '.', @array );
+        }
+        else {
+            #IPV6
+            $ip = join( ':', @array );
+        }
+    }
+    return $ip;
 }
 
-#get simple oid value
+#根据$oidDefMap定义获取SNMP 标量（非列表值的简单值），一次性可以获取多个
+#一个属性可以列出多个OID，会自动按照顺序尝试发出snmp请求，直到查询到值为止，适用于一个属性在多个型号的OID不一致的情况
+# {
+#     DEV_NAME    => '1.3.6.1.2.1.1.5.0',               #sysName
+#     UPTIME      => '1.3.6.1.2.1.1.3.0',               #sysUpTime
+#     VENDOR      => '1.3.6.1.2.1.1.4.0',               #sysContact
+#     MODEL       => '1.3.6.1.2.1.1.1.0',               #sysDescr
+#     IOS_INFO    => '1.3.6.1.2.1.1.1.0',               #sysDescr
+#     SN          => ['1.3.6.1.2.1.47.1.1.1.1.11.1'],
+#     PORTS_COUNT => '1.3.6.1.2.1.2.1.0'                #ifNumber
+# }
 sub getScalar {
     my ( $self, $snmp, $oidDefMap ) = @_;
 
@@ -135,80 +147,68 @@ sub getScalar {
     return $data;
 }
 
-#get table values from 1 or more than table oid
+#根据$oidDefMap定义的Table的列属性获取一个Table的多个列
+# {
+#     INDEX        => '1.3.6.1.2.1.2.2.1.1',       #ifIndex
+#     NAME         => '1.3.6.1.2.1.2.2.1.2',       #ifDescr
+#     TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
+#     MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
+#     ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
+#     OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',       #ifOperStatus
+#     SPEED        => '1.3.6.1.2.1.2.2.1.5',       #ifSpeed
+#     MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
+# }
+#注意：列表字段snmp获取的信息中，oid属性最后一位数字是index number，所以必须要求查询的table列属性的OID必须是使用同一个索引号
 sub getTable {
     my ( $self, $snmp, $oidDefMap ) = @_;
 
-    my $data = {};
+    my $data   = {};
+    my $oidMap = {};
     foreach my $attrName ( keys(%$oidDefMap) ) {
-        my @attrTable = ();    #每个属性会生成一个table
+        my $idx2AttrMap = {};    #OID最后一截数字是table字段的索引号
+        my $idx2OIDMap  = {};
 
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
             my $table = $snmp->get_table( -baseoid => $oid );
             $self->_errCheck( $snmp, $table, $oid );
 
-            my @sortedOids = oid_lex_sort( keys(%$table) );
-            for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
-                my $sortedOid = $sortedOids[$i];
-                my $entryInfo = $attrTable[$i];
+            while ( my ( $oid, $val ) = each(%$table) ) {
+                $oid =~ /\.(\d+)$/;
+                my $idx       = $1;
+                my $entryInfo = $idx2AttrMap->{$idx};
+                my $oidInfo   = $idx2OIDMap->{$idx};
                 if ( not defined($entryInfo) ) {
-                    $entryInfo = {};
-                    $attrTable[$i] = $entryInfo;
+                    $entryInfo = { INDEX => $idx };
+                    $idx2AttrMap->{$idx} = $entryInfo;
+
+                    $oidInfo = {};
+                    $idx2OIDMap->{$idx} = $oidInfo;
                 }
-                $entryInfo->{$name} = $table->{$sortedOid};
+                $entryInfo->{$name} = $val;
+                $oidInfo->{$name}   = $oid;
             }
         }
 
-        $data->{$attrName} = \@attrTable;
+        my @attrTable = values(%$idx2AttrMap);
+        $data->{$attrName}   = \@attrTable;
+        $oidMap->{$attrName} = $idx2OIDMap;
     }
 
-    return $data;
+    return ( $oidMap, $data );
 }
 
-#get table values from 1 or more than table oid
-sub getTableByIndex {
-    my ( $self, $snmp, $oidDefMap ) = @_;
-
-    my $data = {};
-    foreach my $attrName ( keys(%$oidDefMap) ) {
-        my $attrMapByIdx = {};    #每个属性以最后一位OID为标记
-
-        my $oidEntrys = $oidDefMap->{$attrName};
-        while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
-            my $table = $snmp->get_table( -baseoid => $oid );
-            $self->_errCheck( $snmp, $table, $oid );
-
-            my @sortedOids = oid_lex_sort( keys(%$table) );
-            for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
-                my $sortedOid = $sortedOids[$i];
-                $sortedOid =~ /\.(\d+)$/;
-                my $idx = $1;
-                my $entryInfo = $attrMapByIdx->{$idx};
-                if ( not defined($entryInfo) ) {
-                    $entryInfo = {};
-                    $attrMapByIdx->{$idx} = $entryInfo;
-                }
-                $entryInfo->{$name} = $table->{$sortedOid};
-            }
-        }
-
-        my @attrTable = values(%$attrMapByIdx);
-        $data->{$attrName} = \@attrTable;
-    }
-
-    return $data;
-}
-
-#get table values from 1 or more than table oid
-sub getTableOidAndVal {
+#根据$oidDefMap定义的Table的列属性获取一个Table的多个列
+#跟通用的getTable方法差异的地方是，多列的值的对应不是通过index number来对应，二是通过oid的排序的序号来对应
+#适用于跨OID列表查询（本不属于同一个table），这个时候index无法对应上
+sub getTableByOrder {
     my ( $self, $snmp, $oidDefMap ) = @_;
 
     my $data = {};
     my $oids = {};
     foreach my $attrName ( keys(%$oidDefMap) ) {
         my @attrTable = ();    #每个属性会生成一个table
-        my @oidTable = ();
+        my @oidTable  = ();
 
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
@@ -220,7 +220,7 @@ sub getTableOidAndVal {
                 my $sortedOid = $sortedOids[$i];
 
                 my $oidInfo = $oidTable[$i];
-                if ( not defined($oidInfo) ){
+                if ( not defined($oidInfo) ) {
                     $oidInfo = {};
                     $oidTable[$i] = $oidInfo;
                 }
@@ -239,7 +239,7 @@ sub getTableOidAndVal {
         $oids->{$attrName} = \@oidTable;
     }
 
-    return ($oids, $data);
+    return ( $oids, $data );
 }
 
 1;

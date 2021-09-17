@@ -132,8 +132,9 @@ sub _getVS {
     my $vsOidDef = $self->{vsOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my ( $oidData, $tableData ) = $snmpHelper->getTableOidAndVal( $snmp, $vsOidDef );
-
+    #my ( $oidData, $tableData ) = $snmpHelper->getTableOidAndVal( $snmp, $vsOidDef );
+    my ( $oidData, $tableData ) = $snmpHelper->getTable( $snmp, $vsOidDef, 1 );
+    
     my $poolMap  = {};
     my $poolData = $tableData->{POOL};
     foreach my $poolInfo (@$poolData) {
@@ -190,7 +191,7 @@ sub _getVS {
     my $vsIdx2PoolMap = {};
     for ( my $i = 0 ; $i < scalar(@$vsData) ; $i++ ) {
         my $vsInfo    = $$vsData[$i];
-        my $vsOidInfo = $$vsOidData[$i];
+        my $vsOidInfo = $vsOidData->{$vsInfo->{INDEX}};
 
         my $usePoolOid = $vsOidInfo->{POOL_NAME};
 
@@ -203,13 +204,7 @@ sub _getVS {
 
     for ( my $i = 0 ; $i < scalar(@$vsData) ; $i++ ) {
         my $vsInfo    = $$vsData[$i];
-        my $vsOidInfo = $$vsOidData[$i];
-
-        my $vsOid = $vsOidInfo->{NAME};
-
-        #NAME属性的oid的最后一段数字是VS的index号，用此index号跟POOL对应
-        $vsOid =~ /(\d+)$/;
-        my $vsIdx = $1;
+        my $vsIdx = $vsInfo->{INDEX};
         $vsInfo->{POOL_NAME} = $vsIdx2PoolMap->{$vsIdx};
         $vsInfo->{POOL}      = $poolMap->{ $vsInfo->{POOL_NAME} };
     }
