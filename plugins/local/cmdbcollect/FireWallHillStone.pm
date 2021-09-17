@@ -35,7 +35,9 @@ sub new {
 sub collect {
     my ($self) = @_;
     my $data = {};
-
+    $data->{VENDOR} = 'HillStone';
+    $data->{BRAND}  = 'HillStone';
+    
     my $nodeInfo = $self->{node};
 
     my $ssh = SSHExpect->new(

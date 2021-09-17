@@ -36,6 +36,9 @@ sub collect {
     my ($self) = @_;
     my $data = {};
 
+    $data->{VENDOR} = 'IBM';
+    $data->{BRAND}  = 'F';
+
     my $nodeInfo = $self->{node};
 
     my $ssh = Net::OpenSSH->new(
@@ -83,7 +86,7 @@ sub collect {
     }
 
     #pool and lun
-    my @pools;
+    my @pools = ();
     my @poolInfoLines = $ssh->capture('svcinfo lsmdiskgrp -nohdr');
     foreach my $line (@poolInfoLines) {
         $line =~ s/^\s+|\s+$//g;
@@ -159,6 +162,8 @@ sub collect {
         push( @ctrls, $ctrlInfo );
     }
     $data->{CONTROLLERS} = \@ctrls;
+    $data->{POOLS}       = \@pools;
+    $data->{LUNS}        = \@luns;
 
     $ssh->disconnect();
     return $data;

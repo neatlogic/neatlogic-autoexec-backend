@@ -35,6 +35,8 @@ sub new {
 sub collect {
     my ($self) = @_;
     my $data = {};
+    $data->{VENDOR} = 'Huawei';
+    $data->{BRAND}  = 'Huawei';
 
     my $nodeInfo = $self->{node};
 

@@ -187,7 +187,9 @@ sub collect {
         push( @pools, $pool );
     }
 
-    $data->{STORAGE_POOLS} = \@pools;
+    $data->{POOLS} = \@pools;
+    $data->{LUNS}  = \@luns;
+    
     return $data;
 }
 

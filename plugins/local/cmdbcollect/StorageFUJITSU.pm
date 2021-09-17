@@ -35,6 +35,8 @@ sub new {
 sub collect {
     my ($self) = @_;
     my $data = {};
+    $data->{VENDOR} = 'FUJITSU';
+    $data->{BRAND}  = 'FUJITSU';
 
     my $nodeInfo = $self->{node};
 
@@ -146,13 +148,18 @@ sub collect {
         my @splits = split( /,/, $line );
         my $rgNo = $splits[0];
 
+        my $size = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
+        my $free = ( $splits[6] * 100 / 1024 + 0.5 ) / 100;
+
         my $rgInfo = {};
         $rgInfo->{ID}       = $rgNo;
         $rgInfo->{NAME}     = $splits[1];
         $rgInfo->{LEVEL}    = $splits[2];
         $rgInfo->{STATUS}   = $splits[4];
-        $rgInfo->{CAPACITY} = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
-        $rgInfo->{FREE}     = ( $splits[6] * 100 / 1024 + 0.5 ) / 100;
+        $rgInfo->{CAPACITY} = $size;
+        $rgInfo->{FREE}     = $free;
+        $rgInfo->{USED}     = $size - $free;
+        $rgInfo->{USED_PERCENT} = int(($size - $free) * 10000 / $size * 0.5) / 100;
         $rgInfo->{LUNS}     = $poolLunsMap->{$rgNo};
 
         push( @raidGroups, $rgInfo );
@@ -183,10 +190,11 @@ sub collect {
         $poolInfo->{TYPE}                 = 'TPP';
         $poolInfo->{STATUS}               = $splits[2];
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{USED_CAPACITY}        = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{USED_RATE}            = $splits[6] + 0;
+        $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{FREE}                 = $poolInfo->{CAPACITY} - $poolInfo->{USED};
+        $poolInfo->{USED_PERCENT}         = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{PROVISIONED_RATE}     = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
 
         push( @pools, $poolInfo );
@@ -210,15 +218,18 @@ sub collect {
         $poolInfo->{TYPE}                 = 'FTRP';
         $poolInfo->{STATUS}               = $splits[2];
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{USED_CAPACITY}        = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{USED_RATE}            = $splits[6] + 0;
+        $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{FREE}                 = $poolInfo->{CAPACITY} - $poolInfo->{USED};
+        $poolInfo->{USED_PERCENT}         = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{PROVISIONED_RATE}     = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
 
         push( @pools, $poolInfo );
     }
-    $data->{STORAGE_POOLS} = \@pools;
+    
+    $data->{POOLS} = \@pools;
+    $data->{LUNS}  = \@luns;
 
     $ssh->disconnect();
     return $data;

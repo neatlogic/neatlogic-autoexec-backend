@@ -52,7 +52,7 @@ sub collect {
     my $data = {};
 
     $data->{VENDOR} = 'IBM';
-    $data->{BRAND}  = 'IBM';
+    $data->{BRAND}  = 'DS';
 
     my $nodeInfo = $self->{node};
     my $utils    = $self->{collectUtils};
@@ -78,6 +78,7 @@ sub collect {
 
     my $totalCapacity = 0;
     my @pools         = ();
+    my @luns          = ();
     my $poolIdOut     = $utils->getCmdOut("$cliCmd lsextpool -s");
     while ( $poolIdOut =~ /P\d+/g ) {
         my $poolName = $&;    #match content
@@ -91,7 +92,7 @@ sub collect {
             $totalCapacity += $poolCapacity;
         }
 
-        my @luns;
+        my @lunsInPool = ();
         my $lunInfoOut = $utils->getCmdOut("$cliCmd lsfbvol -extpool $poolName");
         foreach my $line (@$lunInfoOut) {
             if ( $line =~ /Online/ ) {
@@ -110,16 +111,18 @@ sub collect {
                 $lunInfo->{NAME}     = $lunName;
                 $lunInfo->{LUN_ID}   = $lunId;
                 $lunInfo->{CAPACITY} = $lunCapacity;
+                push( @lunsInPool, $lunInfo );
                 push( @luns, $lunInfo );
             }
         }
 
-        $poolInfo->{LUNS} = \@luns;
+        $poolInfo->{LUNS} = \@lunsInPool;
 
         push( @pools, $poolInfo );
     }
-    $data->{CAPACITY}      = $totalCapacity;
-    $data->{STORAGE_POOLS} = \@pools;
+    $data->{CAPACITY} = $totalCapacity;
+    $data->{POOLS}    = \@pools;
+    $data->{LUNS}     = \@luns;
 
     my @hbas;
     my $hbaInfoLines = $utils->getCmdOutLines("$cliCmd lsioport");
@@ -144,7 +147,7 @@ sub collect {
     }
 
     $data->{HBA_INTERFACES} = \@hbas;
-    $data->{STORAGE_POOLS}  = \@pools;
+    $data->{POOLS}          = \@pools;
 
     return $data;
 }

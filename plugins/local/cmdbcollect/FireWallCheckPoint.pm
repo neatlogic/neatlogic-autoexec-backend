@@ -35,6 +35,10 @@ sub new {
 sub collect {
     my ($self) = @_;
     my $data = {};
+    $data->{VENDOR} = 'CheckPoint';
+    $data->{BRAND}  = 'CheckPoint';
+    
+    $self->{DATA} = $data;
 
     my $nodeInfo = $self->{node};
 

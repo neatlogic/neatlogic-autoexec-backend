@@ -4,7 +4,7 @@ use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 
-package StorageHuaWei;
+package StorageHuawei;
 use strict;
 
 use File::Basename;
@@ -17,7 +17,11 @@ use Data::Dumper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{DATA} = {};
+    
+    my $data = {};
+    $data->{VENDOR} = 'Huawei';
+    $data->{BRAND}  = 'Huawei';
+    $self->{DATA} = $data;
 
     my $node = $args{node};
     $self->{node} = $node;
@@ -231,7 +235,8 @@ sub getPools {
     }
 
     my $data = $self->{DATA};
-    $data->{STORAGE_POOLS}  = $pools;
+    $data->{POOLS}  = $pools;
+    $data->{LUNS}   = $luns;
     $data->{CONTROLLERS}    = $tableData->{CTRL_LIST};
     $data->{HBA_INTERFACES} = $tableData->{HBA_LIST};
     $data->{ETH_INTERFACES} = $tableData->{ETH_LIST};

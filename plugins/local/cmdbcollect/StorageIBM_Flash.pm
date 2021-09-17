@@ -19,6 +19,9 @@ sub collect {
     my ($self) = @_;
     my $data = $self->SUPER::collect();
 
+    $data->{VENDOR} = 'IBM';
+    $data->{BRAND}  = 'Flash';
+
     #修正$data数据
     return $data;
 }

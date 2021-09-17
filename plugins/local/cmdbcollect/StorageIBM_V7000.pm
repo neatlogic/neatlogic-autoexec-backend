@@ -37,7 +37,7 @@ sub collect {
     my $data = {};
 
     $data->{VENDOR} = 'IBM';
-    $data->{BRAND}  = 'IBM';
+    $data->{BRAND}  = 'V';
 
     my $nodeInfo = $self->{node};
 
@@ -221,7 +221,7 @@ sub collect {
 
         push( @pools, $poolInfo );
     }
-    $data->{STORAGE_POOLS} = \@pools;
+    $data->{POOLS} = \@pools;
     $sshclient->disconnect();
 
     return $data;

@@ -55,8 +55,33 @@
         "desc": "Lun ID",
         "type": "String"
     }, {
-        "name": "SIZE",
+        "name": "CAPACITY",
         "desc": "大小(GB)",
+        "type": "float"
+    }]
+}, {
+    "name": "VOLUMES",
+    "desc": "卷列表",
+    "type": "JsonArray",
+    "subset": [{
+        "name": "NAME",
+        "desc": "名称",
+        "type": "String"
+    }, {
+        "name": "CAPACITY",
+        "desc": "大小(GB)",
+        "type": "float"
+    }, {
+        "name": "USED",
+        "desc": "使用(GB)",
+        "type": "float"
+    }, {
+        "name": "FREE",
+        "desc": "空闲(GB)",
+        "type": "float"
+    }, {
+        "name": "USED_PERCENT",
+        "desc": "使用百分比(%)",
         "type": "float"
     }]
 }, {
@@ -68,13 +93,21 @@
         "desc": "名称",
         "type": "String"
     }, {
-        "name": "SIZE",
+        "name": "CAPACITY",
         "desc": "大小(GB)",
-        "type": "String"
+        "type": "float"
+    }, {
+        "name": "USED",
+        "desc": "使用(GB)",
+        "type": "float"
     }, {
         "name": "FREE",
         "desc": "空闲(GB)",
-        "type": "String"
+        "type": "float"
+    }, {
+        "name": "USED_PERCENT",
+        "desc": "使用百分比(%)",
+        "type": "float"
     }, {
         "name": "LUNS",
         "desc": "逻辑磁盘列表",
@@ -92,7 +125,7 @@
             "desc": "Lun ID",
             "type": "String"
         }, {
-            "name": "SIZE",
+            "name": "CAPACITY",
             "desc": "大小(GB)",
             "type": "float"
         }]

@@ -65,7 +65,7 @@ sub collect {
     my $data = {};
 
     $data->{VENDOR} = 'HDS';
-    $data->{BRAND}  = 'HDS';
+    $data->{BRAND}  = 'VSP';
 
     my $nodeInfo  = $self->{node};
     my $utils     = $self->{collectUtils};
@@ -112,7 +112,8 @@ sub collect {
     $storageType = $storageTypeMap->{$storageType};
     $data->{MODEL} = $storageType;
 
-    my @pools;
+    my @luns = ();
+    my @pools = ();
     my $poolInfoLines = $utils->getCmdOutLines("raidcom get pool -I$storageId");
     for ( my $i = 0 ; $i < scalar(@$poolInfoLines) ; $i++ ) {
         my $line = $$poolInfoLines[$i];
@@ -150,6 +151,7 @@ sub collect {
             $lunInfo->{POOL_NAME} = $poolName;
 
             push( @lunsInPool, $lunInfo );
+            push( @luns, $lunInfo );
         }
         $poolInfo->{LUNS} = \@lunsInPool;
         push( @pools, $poolInfo );
@@ -191,7 +193,8 @@ sub collect {
     }
 
     $data->{CONTROLLERS}   = \@ctrollers;
-    $data->{STORAGE_POOLS} = \@pools;
+    $data->{POOLS} = \@pools;
+    $data->{LUNS}  = \@luns;
 
     return $data;
 }

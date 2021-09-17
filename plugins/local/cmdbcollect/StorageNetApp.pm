@@ -17,7 +17,10 @@ use Data::Dumper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{DATA} = {};
+
+    $data->{VENDOR} = 'NetApp';
+    $data->{BRAND}  = 'NetApp';
+    $self->{DATA} = $data;
 
     my $node = $args{node};
     $self->{node} = $node;

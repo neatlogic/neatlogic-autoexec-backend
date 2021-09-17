@@ -15,6 +15,8 @@ our @ISA = qw(StorageIBM_V7000);
 sub collect {
     my ($self) = @_;
     my $data = $self->SUPER::collect();
+    $data->{VENDOR} = 'IBM';
+    $data->{BRAND}  = 'SVC';
 
     #修正$data数据
     return $data;

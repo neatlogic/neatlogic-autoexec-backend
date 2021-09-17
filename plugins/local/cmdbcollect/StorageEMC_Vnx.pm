@@ -110,7 +110,7 @@ sub collect {
         $lun->{ID}    = $id;
         $lun->{NAME}  = $name;
         $lun->{LUNID} = $uuid;
-        $lun->{SIZE}  = $size;
+        $lun->{CAPACITY}  = $size;
         push( @luns, $lun );
         $lunsMap->{$id} = $lun;
     }
@@ -148,14 +148,16 @@ sub collect {
 
         my $pool = {};
         $pool->{NAME} = $name;
-        $pool->{SIZE} = $size;
-        $pool->{FREE} = $size;
+        $pool->{CAPACITY} = $size;
+        $pool->{USED} = $size - $free;
+        $pool->{FREE} = $free;
+        $pool->{USED_PERCENT} = int(($size - $free) * 10000 / $size * 0.5) / 100;
         $pool->{LUNS} = \@lunsInPool;
 
         push( @pools, $pool );
     }
 
-    $data->{STORAGE_POOLS} = \@pools;
+    $data->{POOLS} = \@pools;
 
     return $data;
 }
