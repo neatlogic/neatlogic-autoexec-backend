@@ -7,10 +7,6 @@
     "desc": "归属对象类型",
     "type": "String"
 }, {
-    "name": "APP_TYPE",
-    "desc": "交换机品牌",
-    "type": "String"
-}, {
     "name": "SN",
     "desc": "序列号",
     "type": "String"

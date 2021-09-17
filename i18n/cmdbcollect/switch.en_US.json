@@ -7,10 +7,6 @@
     "desc": "Object Type",
     "type": "String"
 }, {
-    "name": "APP_TYPE",
-    "desc": "Application Type",
-    "type": "String"
-}, {
     "name": "SN",
     "desc": "Chassis Serial",
     "type": "String"
