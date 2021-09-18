@@ -106,7 +106,7 @@ sub main {
             $osInfo->{OS_ID}       = $osGather->{osId};
             $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-            $osInfo->{PK}          = ['MGMT_IP'];
+            $osInfo->{PK}          = ['OS_ID', 'MGMT_IP'];
         }
         if ( defined($hostInfo) ) {
             $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
