@@ -16,12 +16,18 @@ def usage():
     exit(1)
 
 
-def createIndex(collection, pkDef):
+def createPKIndex(collection, pkDef):
     pkIdx = []
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name='idx_pk')
     collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+
+
+def createIndex(collectioin, data):
+    if 'INDEX_FIELDS' in data:
+        for idxField in data['INDEX_FIELDS']:
+            collection.create_index({idxField: 1}, name='idx_' + idxField.lower)
 
 
 if __name__ == "__main__":
@@ -104,7 +110,8 @@ if __name__ == "__main__":
                     data['_updatetime'] = currentTime
                     data['_renewtime'] = currentTime
                     collection.replace_one(primaryKey, data, upsert=True)
-                    createIndex(collection, pkDef)
+                    createPKIndex(collection, pkDef)
+                    createIndex(collection, data)
                     print('INFO: Save data {}:{}\n'.format(tableName, pkJson))
                 except Exception as ex:
                     print('ERROR: Save data for {}({}) failed, {}'.format(tableName, pkJson, ex))

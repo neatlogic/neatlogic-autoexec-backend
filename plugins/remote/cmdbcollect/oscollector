@@ -101,12 +101,13 @@ sub main {
         my $osGather = OSGather->new();
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($osInfo) ) {
-            $osInfo->{OBJECT_TYPE} = $CollectObjType::OS;
-            $osInfo->{OS_TYPE}     = $osType;
-            $osInfo->{OS_ID}       = $osGather->{osId};
-            $osInfo->{MGMT_IP}     = $osGather->{mgmtIp};
-            $osInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-            $osInfo->{PK}          = ['OS_ID', 'MGMT_IP'];
+            $osInfo->{OBJECT_TYPE}   = $CollectObjType::OS;
+            $osInfo->{OS_TYPE}       = $osType;
+            $osInfo->{OS_ID}         = $osGather->{osId};
+            $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $osInfo->{PK}            = ['MGMT_IP'];
+            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
         if ( defined($hostInfo) ) {
             $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
@@ -114,6 +115,7 @@ sub main {
             $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
             $hostInfo->{PK}          = ['BOARD_SERIAL'];
+            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
 
         $ipAddrs   = $osInfo->{IP_ADDRS};
