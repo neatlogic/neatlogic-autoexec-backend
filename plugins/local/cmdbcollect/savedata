@@ -72,6 +72,8 @@ if __name__ == "__main__":
                 # 计算mongodb的collection名称，优先使用APP_TYPE作为表名，如果没有APP_TYPE则使用OBJECT_TYPE
                 objType = data["OBJECT_TYPE"]
                 appType = None
+                if 'OS_TYPE' in data:
+                    appType = data['OS_TYPE']
                 if 'APP_TYPE' in data:
                     appType = data['APP_TYPE']
 
