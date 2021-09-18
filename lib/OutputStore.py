@@ -42,11 +42,7 @@ class OutputStore:
         outData.update(pk)
 
         try:
-            collection.update(
-                pk,
-                {'$set':     outData},
-                upsert=True
-            )
+            collection.replace_one(pk, outData, upsert=True)
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
 
@@ -87,11 +83,7 @@ class OutputStore:
         outData.update(pk)
 
         try:
-            collection.update(
-                pk,
-                {'$set':     outData},
-                upsert=True
-            )
+            collection.replace_one(pk, outData, upsert=True)
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not save status for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
 
