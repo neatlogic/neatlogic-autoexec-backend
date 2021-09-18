@@ -27,19 +27,6 @@ sub getConfig {
     };
 }
 
-#采集数据对象的Primary Key设置，只需要在返回多种类型对象的收集器里定义
-#注意：！！如果是返回单类型对象的采集器不需要定义此函数，可以删除此函数
-sub getPK {
-    my ($self) = @_;
-    return {
-        #默认KEY用类名去掉Collector，对应APP_TYPE属性值
-        #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT' ]
-
-            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
-    };
-}
-
 #可用参数：
 #$self->{procInfo}， 根据config命中的进程信息
 #$self->{matchedProcsInfo}，之前已经matched的进程信息

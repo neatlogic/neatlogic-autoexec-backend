@@ -25,11 +25,6 @@ sub getConfig {
     };
 }
 
-sub getPK {
-    my ($self) = @_;
-    return { $self->{defaultAppType} => ['MGMT_IP'] };
-}
-
 sub collect {
     my ($self) = @_;
 

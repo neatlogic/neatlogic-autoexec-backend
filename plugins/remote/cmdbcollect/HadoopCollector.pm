@@ -24,17 +24,6 @@ sub getConfig {
     };
 }
 
-sub getPK {
-    my ($self) = @_;
-    return {
-        #默认KEY用类名去掉Collector，对应APP_TYPE属性值
-        #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT' ]
-
-            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
-    };
-}
-
 sub collect {
     my ($self) = @_;
     my $utils = $self->{collectUtils};

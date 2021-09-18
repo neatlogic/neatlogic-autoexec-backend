@@ -23,17 +23,6 @@ sub getConfig {
     };
 }
 
-sub getPK {
-    my ($self) = @_;
-    return {
-        #默认KEY用类名去掉Collector，对应APP_TYPE属性值
-        #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'MGMT_IP', 'PORT' ]
-
-            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
-    };
-}
-
 #TODO：需要在实际环境进行测试，MQ的版本很多
 sub collect {
     my ($self) = @_;
