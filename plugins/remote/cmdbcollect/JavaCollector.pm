@@ -42,14 +42,15 @@ sub collect {
 
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
+    my $minPort  = 65535;
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort (keys(%$lsnPorts)) {
+    foreach my $lsnPort ( keys(%$lsnPorts) ) {
         $lsnPort =~ s/^.*://;
-        if ( $lsnPort ne $appInfo->{JMX_PORT} ) {
-            $appInfo->{PORT} = $lsnPort;
-            last;
+        if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $minPort ) {
+            $minPort = $lsnPort;
         }
     }
+    $appInfo->{PORT} = $minPort;
 
     return $appInfo;
 }

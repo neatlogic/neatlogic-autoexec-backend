@@ -32,7 +32,7 @@ sub new {
         $timeout = 10;
     }
     $self->{timeout} = $timeout;
-    
+
     my $host = $node->{host};
     my $user = $node->{username};
     my $pass = $node->{password};
@@ -112,7 +112,7 @@ sub collect {
                 $lunInfo->{LUN_ID}   = $lunId;
                 $lunInfo->{CAPACITY} = $lunCapacity;
                 push( @lunsInPool, $lunInfo );
-                push( @luns, $lunInfo );
+                push( @luns,       $lunInfo );
             }
         }
 

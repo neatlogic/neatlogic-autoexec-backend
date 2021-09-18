@@ -90,17 +90,17 @@ sub collect {
     $version =~ s/^\s*|\s*$//g;
     $appInfo->{VERSION} = $version;
 
-    my $port;
+    my $minPort     = 65535;
     my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
     foreach my $lsnPortInfo ( keys(%$lsnPortsMap) ) {
         if ( $lsnPortInfo =~ /:(\d+)$/ or $lsnPortInfo =~ /^(\d+)$/ ) {
-            my $lsnPort = $1;
-            if ( $jmxPort ne $1 ) {
-                $port = $lsnPort;
+            my $lsnPort = int($1);
+            if ( $jmxPort ne $lsnPort and $lsnPort < $minPort ) {
+                $minPort = $lsnPort;
             }
         }
     }
-    $appInfo->{PORT}       = $port;
+    $appInfo->{PORT}       = $minPort;
     $appInfo->{ADMIN_PORT} = undef;
 
     $appInfo->{SSL_PORT}       = undef;

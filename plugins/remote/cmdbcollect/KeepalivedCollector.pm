@@ -27,7 +27,7 @@ sub getConfig {
 
 sub getPK {
     my ($self) = @_;
-    return { $self->{defaultAppType} => ['OS_ID', 'MGMT_IP'] };
+    return { $self->{defaultAppType} => [ 'OS_ID', 'MGMT_IP' ] };
 }
 
 sub collect {

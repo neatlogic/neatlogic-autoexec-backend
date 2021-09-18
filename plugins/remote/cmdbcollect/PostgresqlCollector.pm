@@ -109,15 +109,18 @@ sub collect {
     my $host = '';
 
     if ( not defined($port) ) {
+        my $minPort     = 65535;
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        my @lsnAddrs    = keys(%$listenAddrs);
-        if ( scalar(@lsnAddrs) > 1 ) {
-            $port = $lsnAddrs[0];
-            if ( $port =~ /^(.*?):(\d+)$/ ) {
-                $host = $1;
-                $port = $2;
+        foreach my $lsnPort ( keys(%$listenAddrs) ) {
+            if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
+                $host    = $1;
+                $lsnPort = ($2);
+            }
+            if ( $lsnPort < $minPort ) {
+                $minPort = $lsnPort;
             }
         }
+        $port = $minPort;
     }
 
     $postgresqlInfo->{PORT}     = $port;

@@ -31,7 +31,7 @@ sub new {
         $timeout = 10;
     }
     $self->{timeout} = $timeout;
-    
+
     my $host     = $node->{host};
     my $user     = $node->{username};
     my $password = $node->{password};
@@ -107,10 +107,10 @@ sub collect {
         }
 
         my $lun = {};
-        $lun->{ID}    = $id;
-        $lun->{NAME}  = $name;
-        $lun->{LUNID} = $uuid;
-        $lun->{CAPACITY}  = $size;
+        $lun->{ID}       = $id;
+        $lun->{NAME}     = $name;
+        $lun->{LUNID}    = $uuid;
+        $lun->{CAPACITY} = $size;
         push( @luns, $lun );
         $lunsMap->{$id} = $lun;
     }
@@ -147,12 +147,12 @@ sub collect {
         }
 
         my $pool = {};
-        $pool->{NAME} = $name;
-        $pool->{CAPACITY} = $size;
-        $pool->{USED} = $size - $free;
-        $pool->{FREE} = $free;
-        $pool->{USED_PERCENT} = int(($size - $free) * 10000 / $size * 0.5) / 100;
-        $pool->{LUNS} = \@lunsInPool;
+        $pool->{NAME}         = $name;
+        $pool->{CAPACITY}     = $size;
+        $pool->{USED}         = $size - $free;
+        $pool->{FREE}         = $free;
+        $pool->{USED_PERCENT} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+        $pool->{LUNS}         = \@lunsInPool;
 
         push( @pools, $pool );
     }

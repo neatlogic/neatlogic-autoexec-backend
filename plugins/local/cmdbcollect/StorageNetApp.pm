@@ -20,7 +20,7 @@ sub new {
 
     $data->{VENDOR} = 'NetApp';
     $data->{BRAND}  = 'NetApp';
-    $self->{DATA} = $data;
+    $self->{DATA}   = $data;
 
     my $node = $args{node};
     $self->{node} = $node;
@@ -171,12 +171,12 @@ sub getPools {
         $aggrsMap->{ $aggrInfo->{NAME} } = $aggrInfo;
     }
 
-    my $vols    = $tableData->{VOL_LIST};
-    my $volsMap = {};
+    my $vols      = $tableData->{VOL_LIST};
+    my $volsMap   = {};
     my $volIdxMap = {};
     foreach my $volInfo (@$vols) {
-        $volInfo->{QTREES} = [];
-        $volsMap->{ $volInfo->{NAME} } = $volInfo;
+        $volInfo->{QTREES}                = [];
+        $volsMap->{ $volInfo->{NAME} }    = $volInfo;
         $volIdxMap->{ $volInfo->{INDEX} } = $volInfo;
         my $aggrInfo   = $aggrsMap->{ $volInfo->{AGGR_NAME} };
         my $volsInAggr = $aggrInfo->{VOLUMES};
@@ -214,19 +214,19 @@ sub getPools {
     }
 
     my @validDfVolumes = ();
-    my $dfVolumes = $tableData->{DF_VOLUMES};
+    my $dfVolumes      = $tableData->{DF_VOLUMES};
     foreach my $dfVolInfo (@$dfVolumes) {
         my $dfName = $dfVolInfo->{NAME};
-        if ( $dfName eq ''){
-            $dfName = '/vol/' . $volIdxMap->{$dfVolInfo->{INDEX}};
+        if ( $dfName eq '' ) {
+            $dfName = '/vol/' . $volIdxMap->{ $dfVolInfo->{INDEX} };
         }
 
         $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
         $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 ) / 100;
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 ) / 100;
-    
-        if ( $dfName ne '' ){
-            push(@$validDfVolumes, $dfVolInfo);
+
+        if ( $dfName ne '' ) {
+            push( @$validDfVolumes, $dfVolInfo );
         }
     }
 

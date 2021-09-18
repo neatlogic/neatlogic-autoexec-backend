@@ -37,7 +37,7 @@ sub collect {
     my $data = {};
     $data->{VENDOR} = 'CheckPoint';
     $data->{BRAND}  = 'CheckPoint';
-    
+
     $self->{DATA} = $data;
 
     my $nodeInfo = $self->{node};

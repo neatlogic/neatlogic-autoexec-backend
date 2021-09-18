@@ -70,13 +70,28 @@ sub collect {
     $nginxInfo->{PREFIX}       = $prefix;
     $nginxInfo->{CONFIG_PATH}  = $configPath;
     $nginxInfo->{SERVERS}      = parseConfig( $self, $configFile );
-    $nginxInfo->{MON_PORT}     = undef;
+
+    my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
+    my $minPort     = 65535;
+    my @ports       = ();
+    foreach my $lsnPort ( keys(%$lsnPortsMap) ) {
+        if ( $lsnPort =~ /:(\d+)$/ ) {
+            push( @ports, { VALUE => int($1) } );
+        }
+        elsif ( $lsnPort < $minPort ) {
+            $minPort = $lsnPort;
+        }
+    }
+
+    $nginxInfo->{PORT}     = $minPort;
+    $nginxInfo->{MON_PORT} = $minPort;
+    $nginxInfo->{PORTS}    = \@ports;
     return $nginxInfo;
 }
 
 sub parseConfigServer {
     my ( $self, $confPath ) = @_;
-    my @serverCfg = ();
+    my @serverCfg  = ();
     my $server     = '';
     my $startCount = 0;
     my $endCount   = 0;
@@ -151,10 +166,10 @@ sub parseConfigParam {
     my @lines = split( /[\r\n]+/, $data );
     my $nginx = {};
     $nginx->{CONFIG_PATH} = $cfg;
-    my $port        = '';
-    my $serverName  = '';
-    my $type        = 'http';
-    my $status      = 'off';
+    my $port       = '';
+    my $serverName = '';
+    my $type       = 'http';
+    my $status     = 'off';
 
     foreach my $line (@lines) {
         $line =~ s/^\s*|\s*$//g;

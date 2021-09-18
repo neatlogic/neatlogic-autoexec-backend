@@ -152,15 +152,15 @@ sub collect {
         my $free = ( $splits[6] * 100 / 1024 + 0.5 ) / 100;
 
         my $rgInfo = {};
-        $rgInfo->{ID}       = $rgNo;
-        $rgInfo->{NAME}     = $splits[1];
-        $rgInfo->{LEVEL}    = $splits[2];
-        $rgInfo->{STATUS}   = $splits[4];
-        $rgInfo->{CAPACITY} = $size;
-        $rgInfo->{FREE}     = $free;
-        $rgInfo->{USED}     = $size - $free;
-        $rgInfo->{USED_PERCENT} = int(($size - $free) * 10000 / $size * 0.5) / 100;
-        $rgInfo->{LUNS}     = $poolLunsMap->{$rgNo};
+        $rgInfo->{ID}           = $rgNo;
+        $rgInfo->{NAME}         = $splits[1];
+        $rgInfo->{LEVEL}        = $splits[2];
+        $rgInfo->{STATUS}       = $splits[4];
+        $rgInfo->{CAPACITY}     = $size;
+        $rgInfo->{FREE}         = $free;
+        $rgInfo->{USED}         = $size - $free;
+        $rgInfo->{USED_PERCENT} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+        $rgInfo->{LUNS}         = $poolLunsMap->{$rgNo};
 
         push( @raidGroups, $rgInfo );
     }
@@ -227,7 +227,7 @@ sub collect {
 
         push( @pools, $poolInfo );
     }
-    
+
     $data->{POOLS} = \@pools;
     $data->{LUNS}  = \@luns;
 

@@ -32,7 +32,7 @@ sub new {
         $timeout = 10;
     }
     $self->{timeout} = $timeout;
-    
+
     my $host = $node->{host};
     my $user = $node->{username};
     my $pass = $node->{password};
@@ -112,8 +112,8 @@ sub collect {
     $storageType = $storageTypeMap->{$storageType};
     $data->{MODEL} = $storageType;
 
-    my @luns = ();
-    my @pools = ();
+    my @luns          = ();
+    my @pools         = ();
     my $poolInfoLines = $utils->getCmdOutLines("raidcom get pool -I$storageId");
     for ( my $i = 0 ; $i < scalar(@$poolInfoLines) ; $i++ ) {
         my $line = $$poolInfoLines[$i];
@@ -151,7 +151,7 @@ sub collect {
             $lunInfo->{POOL_NAME} = $poolName;
 
             push( @lunsInPool, $lunInfo );
-            push( @luns, $lunInfo );
+            push( @luns,       $lunInfo );
         }
         $poolInfo->{LUNS} = \@lunsInPool;
         push( @pools, $poolInfo );
@@ -192,9 +192,9 @@ sub collect {
         push( @ctrollers, $ctrlInfo );
     }
 
-    $data->{CONTROLLERS}   = \@ctrollers;
-    $data->{POOLS} = \@pools;
-    $data->{LUNS}  = \@luns;
+    $data->{CONTROLLERS} = \@ctrollers;
+    $data->{POOLS}       = \@pools;
+    $data->{LUNS}        = \@luns;
 
     return $data;
 }

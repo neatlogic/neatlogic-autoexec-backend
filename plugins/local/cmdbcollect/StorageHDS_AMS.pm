@@ -25,7 +25,7 @@ sub new {
         $timeout = 10;
     }
     $self->{timeout} = $timeout;
-    
+
     my $host     = $node->{host};
     my $user     = $node->{user};
     my $password = $node->{password};
@@ -189,7 +189,7 @@ sub collect {
 
     $data->{POOLS} = \@pools;
     $data->{LUNS}  = \@luns;
-    
+
     return $data;
 }
 

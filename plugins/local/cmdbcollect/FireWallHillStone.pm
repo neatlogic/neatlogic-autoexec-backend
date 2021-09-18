@@ -37,7 +37,7 @@ sub collect {
     my $data = {};
     $data->{VENDOR} = 'HillStone';
     $data->{BRAND}  = 'HillStone';
-    
+
     my $nodeInfo = $self->{node};
 
     my $ssh = SSHExpect->new(

@@ -24,7 +24,7 @@ sub new {
         $timeout = 10;
     }
     $self->{timeout} = $timeout;
-    
+
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
 
@@ -86,7 +86,7 @@ sub collect {
     }
 
     #pool and lun
-    my @pools = ();
+    my @pools         = ();
     my @poolInfoLines = $ssh->capture('svcinfo lsmdiskgrp -nohdr');
     foreach my $line (@poolInfoLines) {
         $line =~ s/^\s+|\s+$//g;

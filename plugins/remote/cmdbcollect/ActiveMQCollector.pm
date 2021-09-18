@@ -88,6 +88,7 @@ sub collect {
     # -->
     #         </transportConnectors>
 
+    my $minPort  = 65535;
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     my $confFile = "$installPath/conf/activemq.xml";
     if ( -e $confFile ) {
@@ -105,6 +106,10 @@ sub collect {
                     if ( defined( $lsnPorts->{$port} ) ) {
                         $appInfo->{ uc("${proto}_PORT") } = $port;
                         push( @ports, { VALUE => $port } );
+
+                        if ( $port < $minPort ) {
+                            $minPort = $port;
+                        }
                     }
                 }
             }
@@ -134,15 +139,9 @@ sub collect {
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $mngtPort;
 
-    $appInfo->{PORTS} = \@ports;
-    if (@ports) {
-        $appInfo->{PORT}     = $ports[0]->{VALUE};
-        $appInfo->{SSL_PORT} = $ports[0]->{VALUE};
-    }
-    else {
-        $appInfo->{PORT}     = undef;
-        $appInfo->{SSL_PORT} = undef;
-    }
+    $appInfo->{PORTS}    = \@ports;
+    $appInfo->{PORT}     = $minPort;
+    $appInfo->{SSL_PORT} = $minPort;
 
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
