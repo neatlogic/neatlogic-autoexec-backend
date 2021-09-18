@@ -79,6 +79,7 @@ sub collect {
             push( @ports, { VALUE => int($1) } );
         }
         elsif ( $lsnPort < $minPort ) {
+            push( @ports, { VALUE => $lsnPort } );
             $minPort = $lsnPort;
         }
     }

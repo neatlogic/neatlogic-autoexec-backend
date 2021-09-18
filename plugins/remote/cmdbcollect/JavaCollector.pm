@@ -42,6 +42,8 @@ sub collect {
 
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
+    my @ports = ();
+
     my $minPort  = 65535;
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     foreach my $lsnPort ( keys(%$lsnPorts) ) {
@@ -49,8 +51,10 @@ sub collect {
         if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $minPort ) {
             $minPort = $lsnPort;
         }
+        push( @ports, $lsnPort );
     }
-    $appInfo->{PORT} = $minPort;
+    $appInfo->{PORT}  = $minPort;
+    $appInfo->{PORTS} = \@ports;
 
     return $appInfo;
 }

@@ -33,7 +33,8 @@ def createIndex(collectioin, data):
 
 def saveAppConnData(db, data):
     if 'CONN_INFO' in data:
-        connData = data.pop('CONN_INFO')
+        #connData = data.pop('CONN_INFO')
+        connData = data['CONN_INFO']
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['MGMT_IP'] = data['MGMT_IP']

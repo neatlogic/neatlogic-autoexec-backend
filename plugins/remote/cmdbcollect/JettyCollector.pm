@@ -90,6 +90,7 @@ sub collect {
     $version =~ s/^\s*|\s*$//g;
     $appInfo->{VERSION} = $version;
 
+    my @ports       = ();
     my $minPort     = 65535;
     my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
     foreach my $lsnPortInfo ( keys(%$lsnPortsMap) ) {
@@ -98,8 +99,10 @@ sub collect {
             if ( $jmxPort ne $lsnPort and $lsnPort < $minPort ) {
                 $minPort = $lsnPort;
             }
+            push( @ports, $lsnPort );
         }
     }
+    $appInfo->{PORTS}      = \@ports;
     $appInfo->{PORT}       = $minPort;
     $appInfo->{ADMIN_PORT} = undef;
 
