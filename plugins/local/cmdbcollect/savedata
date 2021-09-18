@@ -16,11 +16,11 @@ def usage():
 
 
 def createIndex(collection, pkDef):
-    pkIdx = {}
+    pkIdx = []
     for field in pkDef:
-        pkIdx[field] = 1
-    collection.create_index(pkIdx, {'name': 'idx_pk'})
-    collection.create_index({'_renewtime': 1}, {'name': 'idx_ttl', 'expireAfterSeconds': 15811200})
+        pkIdx.append((field, 1))
+    collection.create_index(pkIdx, name='idx_pk')
+    collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
 
 
 if __name__ == "__main__":
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     outputPath = args.outputfile
 
-    if outputPath is None:
+    if outputPath is None or outputPath == '':
         outputPath = os.getenv('NODE_OUTPUT_PATH')
     else:
         os.environ['NODE_OUTPUT_PATH'] = outputPath
@@ -93,18 +93,18 @@ if __name__ == "__main__":
                         primaryKey[pKey] = None
                         print("WARN: {} not contain PK attribute:{}.\n".format(tableName, pKey))
 
-                pkJson = json.dumps(pkDef)
+                pkJson = json.dumps(primaryKey)
                 collection = db[table]
                 #record = collection.find_one(primaryKey, {'data': True})
                 try:
                     currentTime = AutoExecUtils.getCurrentTime()
                     data['_updatetime'] = currentTime
-                    data['_lasttime'] = currentTime
-                    collection.update(primaryKey, {'$set': data}, upsert=True)
+                    data['_renewtime'] = currentTime
+                    collection.replace_one(primaryKey, data, upsert=True)
                     createIndex(collection, pkDef)
                     print('INFO: Save data {}\n'.format(pkJson))
                 except Exception as ex:
-                    print('ERROR: Save data for {}() failed, {}'.format(tableName, pkJson, ex))
+                    print('ERROR: Save data for {}({}) failed, {}'.format(tableName, pkJson, ex))
     except Exception as ex:
         print('ERROR: Unknow Error, {}\n'.format(ex))
         exit(-1)
