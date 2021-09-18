@@ -2,7 +2,6 @@
 # -*- coding:UTF-8 -*-
 
 import AutoExecUtils
-import CmdbUtils
 import os
 import argparse
 import sys
@@ -12,196 +11,103 @@ from bson.json_util import dumps, loads
 
 def usage():
     pname = os.path.basename(__file__)
-    print(pname + " --path <path> ")
+    print(pname + " --outputfile <path> ")
     exit(1)
 
 
-def _readJson(path):
-    f = open(path, "r", encoding="utf-8")
-    data = json.load(f)
-    f.close()
-    return data
-
-
-def _ordered(obj):
-    if isinstance(obj, dict):
-        return sorted((k, _ordered(v)) for k, v in obj.items())
-    if isinstance(obj, list):
-        return sorted(_ordered(x) for x in obj)
-    else:
-        return obj
-
-
-def _getType(value):
-    if type(value) is int:
-        return "int"
-    elif type(value) is float:
-        return "float"
-    elif type(value) is str:
-        return "string"
-    elif type(value) is dict:
-        return "JsonObject"
-    elif type(value) is list:
-        if len(value) > 0:
-            t = value[0]
-            if type(t) is dict:
-                return "JsonArray"
-            else:
-                return "JsonArray"
-        else:
-            return "JsonArray"
-    else:
-        return "string"
-
-
-def _makeDesc(json_data):
-    filed_data = []
-    for filed in json_data:
-        value = json_data[filed]
-        vt = _getType(value)
-        tmp = {}
-        tmp['name'] = filed
-        tmp['desc'] = filed.lower()
-        tmp['type'] = vt
-        if(vt == 'JsonArray'):
-            try:
-                tmp['subset'] = _makeDesc(value[0])
-            except:
-                pass
-        elif(vt == 'JsonObject'):
-            tmp['subset'] = _makeDesc(value)
-        filed_data.append(tmp)
-    return filed_data
-
-
-def _writeJson(fname, data):
-    # python3保存文件 必须需要'wb'  保存为json格式
-    f = open(fname, 'wb')
-    data = json.dumps(data, ensure_ascii=False)
-    f.write(data.encode('utf=8'))
-    f.close()
-
-
-def _convert(data):
-    tags = ['_updatetime', '_lasttime', '_id']
-    for t in tags:
-        if t in data:
-            del data[t]
-    return data
-
-
-def _compare(db_data, new_data):
-    if(_ordered(db_data) == _ordered(new_data)):
-        return 0
-    else:
-        return 1
-
-
-def _makeDictionary(table, data):
-    current_path = os.path.abspath(__file__)
-    path = current_path + "/../../../../i18n/cmdbcollect"
-    path = os.path.abspath(path)
-    i18n = ["en_US", "zh_CN"]
-    #data = _ordered(data)
-    del data['PK']
-    data = _convert(data)
-    data = _makeDesc(data)
-    for lang in i18n:
-        fpath = path + "/" + table + "." + lang + ".json"
-        if(os.path.exists(fpath) == False):
-            _writeJson(fpath, data)
+def createIndex(collection, pkDef):
+    pkIdx = {}
+    for field in pkDef:
+        pkIdx[field] = 1
+    collection.create_index(pkIdx, {'name': 'idx_pk'})
+    collection.create_index({'_renewtime': 1}, {'name': 'idx_ttl', 'expireAfterSeconds': 15811200})
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path', default='', help='前置插件或步骤output输出路径')
-    parser.add_argument('--param', default='', help='前置节点输出参数')
-    parser.add_argument('--node', default='', help='执行节点')
+    parser.add_argument('--outputfile', default='', help='Output json file path for node')
+    parser.add_argument('--node', default='', help='Execution node json')
     args = parser.parse_args()
-    path = args.path
+    outputPath = args.outputfile
 
-    host = None
-    port = None
-    AUTOEXEC_NODE = os.getenv('AUTOEXEC_NODE')
-    AUTOEXEC_ROOTPATH = os.getenv('OUTPUT_ROOT_PATH')
-    if AUTOEXEC_NODE != None:
-        AUTOEXEC_NODE = json.loads(AUTOEXEC_NODE)
-        host = AUTOEXEC_NODE['host']
-        port = AUTOEXEC_NODE['port']
+    if outputPath is None:
+        outputPath = os.getenv['NODE_OUTPUT_PATH']
+    else:
+        os.environ['NODE_OUTPUT_PATH'] = outputPath
 
-    if ((host == None or port == None or AUTOEXEC_ROOTPATH == None) and path == None):
-        print("ERROR:: must set AUTOEXEC_NODE and OUTPUT_ROOT_PATH param or defined args --path.\n")
+    if outputPath is None:
+        print("ERROR: Must set environment variable NODE_OUTPUT_PATH or defined option --outputfile.\n")
         usage()
 
-    outputName = str(host) + "-" + str(port) + ".json"
-    outputPath = AUTOEXEC_ROOTPATH + "/" + outputName
-    output_Json = _readJson(outputPath)
-    collect_data = None
-    if output_Json != None:
-        items = output_Json.items()
-        for key, value in items:
-            if key.startswith("cmdbcollect"):
-                cmdbcollect = value
-                collect_data = cmdbcollect["DATA"]
+    (dbclient, db) = AutoExecUtils.getDB()
 
-    if collect_data == None:
-        print("WARN:: collect plugin has no return data .\n")
-        exit(1)
-
-    cmdbUtils = CmdbUtils.CmdbUtils()
-    for data in collect_data:
-        if 'PK' not in data:
-            print(json.dumps(data))
-            print("\n")
-            continue
-
-        pk = data['PK']
-        tableName = data["OBJECT_TYPE"]
-        if("OS_TYPE" in data):
-            tableName = data['OS_TYPE']
-        elif("APP_TYPE" in data):
-            tableName = data["APP_TYPE"]
-
-        table = "collect_" + tableName
-        table = table.lower()
-
-        uniqueExp = []
-        for unique in pk:
-            exp = {}
-            if unique in data:
-                exp[unique] = data[unique]
-            else:
-                exp[unique] = ''
-                print("ERROR: {} collect return data not contain PK {} value.\n".format(tableName, unique))
-            uniqueExp.append(exp)
-
-        dbUnique = {}
-        dbUnique['$and'] = uniqueExp
-
-        result_data = cmdbUtils.find(table, dbUnique, None, 1)
-        result_data = dumps(result_data)
-        result_data = json.loads(result_data)
-        if len(result_data) == 0:
-            # 新增时采集时间和更新时间都是当前
-            data['_updatetime'] = AutoExecUtils.getCurrentTime()
-            # 采集更新时间
-            data['_lasttime'] = AutoExecUtils.getCurrentTime()
-            cmdbUtils.insert(table, data)
+    try:
+        outputData = AutoExecUtils.loadNodeOutput()
+        if outputData is None:
+            print("WARN: Node output data is empty.\n")
         else:
-            db_data = result_data[0]
-            db_data = _convert(db_data)
-            now_data = _convert(data)
-            diff = _compare(db_data, now_data)
-            # 判断数据是否有更新
-            if diff == 1:
-                data['_updatetime'] = AutoExecUtils.getCurrentTime()
-            # 采集更新时间
-            data['_lasttime'] = AutoExecUtils.getCurrentTime()
-            cmdbUtils.update(table, dbUnique, data)
+            for key, value in outputData.items():
+                if not key.startswith("cmdbcollect/"):
+                    continue
 
-        # 添加索引
-        cmdbUtils.createIndex(table, pk)
-        # 生成数据字典文件
-        #_makeDictionary(tableName.lower(), data)
-        # 关闭连接
-        cmdbUtils.close()
+                collectData = value['DATA']
+                if collectData is None:
+                    print('WARN: Plugin {} did not return any data.\n'.format(key))
+                    continue
+
+            for data in collectData:
+                # 检查数据，必须包含PK、OBJECT_TYPE
+                isMalformData = 0
+                if 'PK' not in data:
+                    isMalformData = 1
+                    print('WARN: Data not defined PK.\n')
+                if 'OBJECT_TYPE' not in data:
+                    isMalformData = 1
+                    print('WARN: Data not defined OBJECT_TYPE.\n')
+                if isMalformData == 1:
+                    print(json.dumps(data))
+                    continue
+
+                # 计算mongodb的collection名称，优先使用APP_TYPE作为表名，如果没有APP_TYPE则使用OBJECT_TYPE
+                objType = data["OBJECT_TYPE"]
+                appType = None
+                if 'APP_TYPE' in data:
+                    appType = data['APP_TYPE']
+
+                tableName = objType
+                if appType is not None:
+                    tableName = appType
+
+                table = "collect_" + tableName.lower()
+
+                # 根据PK的定义生成Primary Key filter
+                primaryKey = {}
+                pkDef = data['PK']
+                for pKey in pkDef:
+                    if pKey in data:
+                        pVal = data[pKey]
+                        primaryKey[pKey] = data[pKey]
+                        if pVal is None or pVal == '':
+                            print("WARN: {} PK attribute:{} is empty.\n".format(tableName, pKey))
+                    else:
+                        primaryKey[pKey] = None
+                        print("WARN: {} not contain PK attribute:{}.\n".format(tableName, pKey))
+
+                pkJson = json.dumps(pkDef)
+                collection = db[table]
+                #record = collection.find_one(primaryKey, {'data': True})
+                try:
+                    currentTime = AutoExecUtils.getCurrentTime()
+                    data['_updatetime'] = currentTime
+                    data['_lasttime'] = currentTime
+                    collection.update(primaryKey, {'$set': data}, upsert=True)
+                    createIndex(collection, pkDef)
+                    print('INFO: Save data {}\n'.format(pkJson))
+                except Exception as ex:
+                    print('ERROR: Save data for {}() failed, {}'.format(tableName, pkJson, ex))
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}\n'.format(ex))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

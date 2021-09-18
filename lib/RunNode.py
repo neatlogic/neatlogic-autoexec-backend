@@ -515,9 +515,10 @@ class RunNode:
         environment = os.environ
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
-        environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PATH'])
-        environment['PYTHONPATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PYTHONPATH'])
-        environment['PERL5LIB'] = '.:{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PERL5LIB'])
+        environment['NODE_OUTPUT_PATH'] = self.outputPath
+        environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PATH'])
+        environment['PYTHONPATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PYTHONPATH'])
+        environment['PERL5LIB'] = '.:{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PERL5LIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
@@ -574,9 +575,10 @@ class RunNode:
         environment = os.environ
         environment['OUTPUT_ROOT_PATH'] = self.outputRoot
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
-        environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PATH'])
-        environment['PYTHONPATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PYTHONPATH'])
-        environment['PERL5LIB'] = '.:{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.environ['PERL5LIB'])
+        environment['NODE_OUTPUT_PATH'] = self.outputPath
+        environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PATH'])
+        environment['PYTHONPATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PYTHONPATH'])
+        environment['PERL5LIB'] = '.:{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv['PERL5LIB'])
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName

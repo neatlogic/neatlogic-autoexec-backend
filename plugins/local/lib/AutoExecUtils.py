@@ -6,10 +6,13 @@
 
 import os
 import sys
+import fcntl
 import socket
 import json
 import time
 import binascii
+import configparser
+import pymongo
 from dateutil import parser
 
 PYTHON_VER = sys.version_info.major
@@ -57,7 +60,29 @@ def _rc4_decrypt_hex(key, data):
         return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
 
 
-def getMyNode(self):
+def getDB():
+    homePath = os.path.split(os.path.realpath(__file__))[0]
+    homePath = os.path.realpath(homePath + '/../../../')
+    # 读取配置
+    cfgPath = homePath + '/conf/config.ini'
+    cfg = configparser.ConfigParser()
+    cfg.read(cfgPath)
+    MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
+    dburl = cfg.get('autoexec', 'db.url')
+    dbname = cfg.get('autoexec', 'db.name')
+    dbuser = cfg.get('autoexec', 'db.username')
+    dbpwd = cfg.get('autoexec', 'db.password')
+    if dbpwd.startswith('{ENCRYPTED}'):
+        dbpwd = _rc4_decrypt_hex(MY_KEY, dbpwd[11:])
+
+    # 初始化创建connect
+    dbclient = pymongo.MongoClient(dburl)
+    mydb = dbclient[dbname]
+    mydb.authenticate(dbuser, dbpwd)
+    return (dbclient, mydb)
+
+
+def getMyNode():
     nodeJson = os.environ['AUTOEXEC_NODE']
     node = None
 
@@ -83,6 +108,30 @@ def getNode(nodeId):
                 matchNode = node
 
     return matchNode
+
+
+def loadNodeOutput():
+    output = {}
+    outputPath = os.getenv['NODE_OUTPUT_PATH']
+    # 加载操作输出并进行合并
+    if os.path.exists(outputPath):
+        outputFile = None
+        try:
+            outputFile = open(outputPath, 'r')
+            fcntl.lockf(outputFile, fcntl.LOCK_SH)
+            content = outputFile.read()
+            if content:
+                output = json.loads(content)
+        except Exception as ex:
+            print('ERROR: Load output file:{}, failed {}\n'.format(outputPath, ex))
+        finally:
+            if outputFile is not None:
+                fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                outputFile.close()
+    else:
+        print('WARN: Output file:{} not found.\n'.format(outputPath))
+
+    return output
 
 
 def informNodeWaitInput(nodeId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
@@ -117,7 +166,7 @@ def informNodeWaitInput(nodeId, title=None, opType='button', message='Please sel
     return
 
 
-def getNodes(self):
+def getNodes():
     nodesMap = {}
 
     if 'AUTOEXEC_NODES_PATH' in os.environ:
