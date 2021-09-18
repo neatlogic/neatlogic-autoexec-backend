@@ -31,7 +31,7 @@ if __name__ == "__main__":
     outputPath = args.outputfile
 
     if outputPath is None:
-        outputPath = os.getenv['NODE_OUTPUT_PATH']
+        outputPath = os.getenv('NODE_OUTPUT_PATH')
     else:
         os.environ['NODE_OUTPUT_PATH'] = outputPath
 

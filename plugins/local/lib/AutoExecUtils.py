@@ -112,7 +112,7 @@ def getNode(nodeId):
 
 def loadNodeOutput():
     output = {}
-    outputPath = os.getenv['NODE_OUTPUT_PATH']
+    outputPath = os.getenv('NODE_OUTPUT_PATH')
     # 加载操作输出并进行合并
     if os.path.exists(outputPath):
         outputFile = None
