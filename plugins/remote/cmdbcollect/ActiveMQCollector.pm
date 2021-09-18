@@ -136,8 +136,8 @@ sub collect {
 
     $appInfo->{PORTS} = \@ports;
     if (@ports) {
-        $appInfo->{PORT}     = $ports[0];
-        $appInfo->{SSL_PORT} = $ports[0];
+        $appInfo->{PORT}     = $ports[0]->{VALUE};
+        $appInfo->{SSL_PORT} = $ports[0]->{VALUE};
     }
     else {
         $appInfo->{PORT}     = undef;

@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     data['_renewtime'] = currentTime
                     collection.replace_one(primaryKey, data, upsert=True)
                     createIndex(collection, pkDef)
-                    print('INFO: Save data {}\n'.format(pkJson))
+                    print('INFO: Save data {}:{}\n'.format(tableName, pkJson))
                 except Exception as ex:
                     print('ERROR: Save data for {}({}) failed, {}'.format(tableName, pkJson, ex))
     except Exception as ex:
