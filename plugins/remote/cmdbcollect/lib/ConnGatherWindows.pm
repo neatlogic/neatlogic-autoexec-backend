@@ -35,7 +35,7 @@ sub parseListenLines {
             if ( $listenAddr =~ /^(.*):(\d+)$/ ) {
                 my $ip   = $1;
                 my $port = $2;
-                if ( $ip eq '*' or $ip eq '::' ) {
+                if ( $ip eq '*' or $ip eq '::' or $ip eq '0.0.0.0' ) {
                     $portsMap->{$port} = 1;
                 }
                 else {

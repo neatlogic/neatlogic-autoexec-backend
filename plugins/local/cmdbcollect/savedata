@@ -3,6 +3,7 @@
 
 import AutoExecUtils
 import os
+import traceback
 import datetime
 import argparse
 import sys
@@ -27,7 +28,32 @@ def createPKIndex(collection, pkDef):
 def createIndex(collectioin, data):
     if 'INDEX_FIELDS' in data:
         for idxField in data['INDEX_FIELDS']:
-            collection.create_index({idxField: 1}, name='idx_' + idxField.lower)
+            collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
+
+
+def saveAppConnData(db, data):
+    if 'CONN_INFO' in data:
+        connData = data.pop('CONN_INFO')
+        connInfo = {}
+        connInfo['OS_ID'] = data['OS_ID']
+        connInfo['MGMT_IP'] = data['MGMT_IP']
+        connInfo['PORT'] = data['PORT']
+
+        if 'RESOURCE_ID' in data:
+            connInfo['RESOURCE_ID'] = data['RESOURCE_ID']
+        else:
+            connInfo['RESOURCE_ID'] = None
+
+        connInfo['BIND'] = connData['BIND']
+        connInfo['PEER'] = connData['PEER']
+
+        primaryKey = {'MGMT_IP': connInfo['MGMT_IP'], 'BIND': connInfo['BIND']}
+        collection = db['relation_conn']
+        collection.replace_one(primaryKey, connInfo, upsert=True)
+        collection.create_index([('MGMT_IP', 1)], name='idx_mgmt_ip')
+        collection.create_index([('BIND', 1)], name='idx_bind')
+        collection.create_index([('PEER', 1)], name='idx_peer')
+        print('INFO: Save connection data success.')
 
 
 if __name__ == "__main__":
@@ -51,7 +77,7 @@ if __name__ == "__main__":
     try:
         outputData = AutoExecUtils.loadNodeOutput()
         if outputData is None:
-            print("WARN: Node output data is empty.\n")
+            print("WARN: Node output data is empty.")
         else:
             for key, value in outputData.items():
                 if not key.startswith("cmdbcollect/"):
@@ -59,7 +85,7 @@ if __name__ == "__main__":
 
                 collectData = value['DATA']
                 if collectData is None:
-                    print('WARN: Plugin {} did not return collect data.\n'.format(key))
+                    print('WARN: Plugin {} did not return collect data.'.format(key))
                     continue
 
             for data in collectData:
@@ -67,10 +93,10 @@ if __name__ == "__main__":
                 isMalformData = 0
                 if 'PK' not in data:
                     isMalformData = 1
-                    print('WARN: Data not defined PK.\n')
+                    print('WARN: Data not defined PK.')
                 if 'OBJECT_TYPE' not in data:
                     isMalformData = 1
-                    print('WARN: Data not defined OBJECT_TYPE.\n')
+                    print('WARN: Data not defined OBJECT_TYPE.')
                 if isMalformData == 1:
                     print(json.dumps(data))
                     continue
@@ -97,26 +123,31 @@ if __name__ == "__main__":
                         pVal = data[pKey]
                         primaryKey[pKey] = data[pKey]
                         if pVal is None or pVal == '':
-                            print("WARN: {} PK attribute:{} is empty.\n".format(tableName, pKey))
+                            print("WARN: {} PK attribute:{} is empty.".format(tableName, pKey))
                     else:
                         primaryKey[pKey] = None
-                        print("WARN: {} not contain PK attribute:{}.\n".format(tableName, pKey))
+                        print("WARN: {} not contain PK attribute:{}.".format(tableName, pKey))
 
                 pkJson = json.dumps(primaryKey)
                 collection = db[table]
                 #record = collection.find_one(primaryKey, {'data': True})
                 try:
+                    print('INFO: Begin save data {}:{} ...'.format(tableName, pkJson))
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['_renewtime'] = currentTime
+                    saveAppConnData(db, data)
+                    print('INFO: Save connection information success.')
                     collection.replace_one(primaryKey, data, upsert=True)
+                    print('INFO: Save data success.')
                     createPKIndex(collection, pkDef)
                     createIndex(collection, data)
-                    print('INFO: Save data {}:{}\n'.format(tableName, pkJson))
+                    print('INFO: Save data success.\n'.format(tableName, pkJson))
                 except Exception as ex:
                     print('ERROR: Save data for {}({}) failed, {}'.format(tableName, pkJson, ex))
+                    traceback.print_exc()
     except Exception as ex:
-        print('ERROR: Unknow Error, {}\n'.format(ex))
+        print('ERROR: Unknow Error, {}'.format(ex))
         exit(-1)
     finally:
         if dbclient is not None:
