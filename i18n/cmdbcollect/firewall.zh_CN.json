@@ -1,33 +1,36 @@
-[{
-    "name": "RESOURCE_ID",
-    "desc": "CMDB ID",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "归属类型",
-    "type": "String"
-}, {
-    "name": "SN",
-    "desc": "序列号",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "管理IP",
-    "type": "String"
-}, {
-    "name": "DEV_NAME",
-    "desc": "设备名",
-    "type": "String"
-}, {
-    "name": "VENDOR",
-    "desc": "厂商",
-    "type": "String"
-}, {
-    "name": "MODEL",
-    "desc": "设备型号",
-    "type": "String"
-}, {
-    "name": "BRAND",
-    "desc": "品牌",
-    "type": "String"
-}]
+{
+    "name": "防火墙",
+    "fields": [{
+        "name": "RESOURCE_ID",
+        "desc": "CMDB ID",
+        "type": "String"
+    }, {
+        "name": "OBJECT_TYPE",
+        "desc": "归属类型",
+        "type": "String"
+    }, {
+        "name": "SN",
+        "desc": "序列号",
+        "type": "String"
+    }, {
+        "name": "MGMT_IP",
+        "desc": "管理IP",
+        "type": "String"
+    }, {
+        "name": "DEV_NAME",
+        "desc": "设备名",
+        "type": "String"
+    }, {
+        "name": "VENDOR",
+        "desc": "厂商",
+        "type": "String"
+    }, {
+        "name": "MODEL",
+        "desc": "设备型号",
+        "type": "String"
+    }, {
+        "name": "BRAND",
+        "desc": "品牌",
+        "type": "String"
+    }]
+}

@@ -1,62 +1,52 @@
-[{
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "归属类型",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "中间件类型",
-	"type": "String"
-}, {
-	"name": "MGMT_IP",
-	"desc": "管理IP",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "管理端口",
-	"type": "int"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "服务名",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "版本",
-	"type": "String"
-}, {
-	"name": "VENDOR",
-	"desc": "厂商",
-	"type": "String"
-}, {
-	"name": "NAME",
-	"desc": "名称",
-	"type": "String"
-}, {
-	"name": "FULLNAME",
-	"desc": "全名称",
-	"type": "String"
-}, {
-	"name": "INSTANCEUUID",
-	"desc": "安装实例uuid",
-	"type": "String"
-}, {
-	"name": "DATACENTER",
-	"desc": "数据中心",
-	"type": "JsonArray",
-	"subset": [{
+{
+	"name": "VCenter",
+	"fields": [{
+		"name": "OS_ID",
+		"desc": "OS ID",
+		"type": "String"
+	}, {
+		"name": "OBJECT_TYPE",
+		"desc": "归属类型",
+		"type": "String"
+	}, {
+		"name": "APP_TYPE",
+		"desc": "中间件类型",
+		"type": "String"
+	}, {
+		"name": "MGMT_IP",
+		"desc": "管理IP",
+		"type": "String"
+	}, {
+		"name": "MGMT_PORT",
+		"desc": "管理端口",
+		"type": "int"
+	}, {
+		"name": "SERVER_NAME",
+		"desc": "服务名",
+		"type": "String"
+	}, {
+		"name": "VERSION",
+		"desc": "版本",
+		"type": "String"
+	}, {
+		"name": "VENDOR",
+		"desc": "厂商",
+		"type": "String"
+	}, {
 		"name": "NAME",
 		"desc": "名称",
 		"type": "String"
 	}, {
-		"name": "MOID",
-		"desc": "id",
+		"name": "FULLNAME",
+		"desc": "全名称",
 		"type": "String"
 	}, {
-		"name": "CLUSTER",
-		"desc": "集群",
+		"name": "INSTANCEUUID",
+		"desc": "安装实例uuid",
+		"type": "String"
+	}, {
+		"name": "DATACENTER",
+		"desc": "数据中心",
 		"type": "JsonArray",
 		"subset": [{
 			"name": "NAME",
@@ -67,57 +57,70 @@
 			"desc": "id",
 			"type": "String"
 		}, {
-			"name": "DATASTORE",
-			"desc": "存储",
+			"name": "CLUSTER",
+			"desc": "集群",
 			"type": "JsonArray",
 			"subset": [{
-					"name": "MOID",
-					"desc": "id",
-					"type": "String"
-				}, {
-					"name": "NAME",
-					"desc": "名称",
-					"type": "String"
-				}
-
-			]
-		}, {
-			"name": "NETWORK",
-			"desc": "网络",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "MOID",
-					"desc": "id",
-					"type": "String"
-				}, {
-					"name": "NAME",
-					"desc": "名称",
-					"type": "String"
-				}
-
-			]
-		}, {
-			"name": "CONTAIN_HOST",
-			"desc": "包含物理机",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "UUID",
-				"desc": "uuid",
-				"type": "String"
-			}]
-		}, {
-			"name": "CONTAIN_VMS",
-			"desc": "包含虚拟机",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "MGMT_IP",
-				"desc": "vcenter IP",
+				"name": "NAME",
+				"desc": "名称",
 				"type": "String"
 			}, {
-				"name": "VM_ID",
-				"desc": "虚拟机ID",
+				"name": "MOID",
+				"desc": "id",
 				"type": "String"
+			}, {
+				"name": "DATASTORE",
+				"desc": "存储",
+				"type": "JsonArray",
+				"subset": [{
+						"name": "MOID",
+						"desc": "id",
+						"type": "String"
+					}, {
+						"name": "NAME",
+						"desc": "名称",
+						"type": "String"
+					}
+
+				]
+			}, {
+				"name": "NETWORK",
+				"desc": "网络",
+				"type": "JsonArray",
+				"subset": [{
+						"name": "MOID",
+						"desc": "id",
+						"type": "String"
+					}, {
+						"name": "NAME",
+						"desc": "名称",
+						"type": "String"
+					}
+
+				]
+			}, {
+				"name": "CONTAIN_HOST",
+				"desc": "包含物理机",
+				"type": "JsonArray",
+				"subset": [{
+					"name": "UUID",
+					"desc": "uuid",
+					"type": "String"
+				}]
+			}, {
+				"name": "CONTAIN_VMS",
+				"desc": "包含虚拟机",
+				"type": "JsonArray",
+				"subset": [{
+					"name": "MGMT_IP",
+					"desc": "vcenter IP",
+					"type": "String"
+				}, {
+					"name": "VM_ID",
+					"desc": "虚拟机ID",
+					"type": "String"
+				}]
 			}]
 		}]
 	}]
-}]
+}

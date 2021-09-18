@@ -1,126 +1,129 @@
-[{
-    "name": "OS_ID",
-    "desc": "OS ID",
-    "type": "String"
-}, {
-    "name": "OS_USER",
-    "desc": "OS User",
-    "type": "String"
-}, {
-    "name": "EXE_PATH",
-    "desc": "Executable File Path",
-    "type": "String"
-}, {
-    "name": "COMMAND",
-    "desc": "Command Line",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "Object Type",
-    "type": "String"
-}, {
-    "name": "APP_TYPE",
-    "desc": "Application Type",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "Managment IP",
-    "type": "String"
-}, {
-    "name": "MGMT_PORT",
-    "desc": "Managment Port",
-    "type": "int"
-}, {
-    "name": "SERVER_NAME",
-    "desc": "Server Name",
-    "type": "String"
-}, {
-    "name": "VERSION",
-    "desc": "Version",
-    "type": "String"
-}, {
-    "name": "PORT",
-    "desc": "Port",
-    "type": "String"
-}, {
-    "name": "SSL_PORT",
-    "desc": "SSL Port",
-    "type": "String"
-}, {
-    "name": "ADMIN_PORT",
-    "desc": "Admin Port",
-    "type": "String"
-}, {
-    "name": "ADMIN_SSL_PORT",
-    "desc": "Admin SSL Port",
-    "type": "String"
-}, {
-    "name": "MON_PORT",
-    "desc": "Monitor Port",
-    "type": "String"
-}, {
-    "name": "PORTS",
-    "desc": "Port List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "VALUE",
-        "desc": "Port",
+{
+    "name": "Elastic Search",
+    "fields": [{
+        "name": "OS_ID",
+        "desc": "OS ID",
+        "type": "String"
+    }, {
+        "name": "OS_USER",
+        "desc": "OS User",
+        "type": "String"
+    }, {
+        "name": "EXE_PATH",
+        "desc": "Executable File Path",
+        "type": "String"
+    }, {
+        "name": "COMMAND",
+        "desc": "Command Line",
+        "type": "String"
+    }, {
+        "name": "OBJECT_TYPE",
+        "desc": "Object Type",
+        "type": "String"
+    }, {
+        "name": "APP_TYPE",
+        "desc": "Application Type",
+        "type": "String"
+    }, {
+        "name": "MGMT_IP",
+        "desc": "Managment IP",
+        "type": "String"
+    }, {
+        "name": "MGMT_PORT",
+        "desc": "Managment Port",
         "type": "int"
+    }, {
+        "name": "SERVER_NAME",
+        "desc": "Server Name",
+        "type": "String"
+    }, {
+        "name": "VERSION",
+        "desc": "Version",
+        "type": "String"
+    }, {
+        "name": "PORT",
+        "desc": "Port",
+        "type": "String"
+    }, {
+        "name": "SSL_PORT",
+        "desc": "SSL Port",
+        "type": "String"
+    }, {
+        "name": "ADMIN_PORT",
+        "desc": "Admin Port",
+        "type": "String"
+    }, {
+        "name": "ADMIN_SSL_PORT",
+        "desc": "Admin SSL Port",
+        "type": "String"
+    }, {
+        "name": "MON_PORT",
+        "desc": "Monitor Port",
+        "type": "String"
+    }, {
+        "name": "PORTS",
+        "desc": "Port List",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "VALUE",
+            "desc": "Port",
+            "type": "int"
+        }]
+    }, {
+        "name": "INSTALL_PATH",
+        "desc": "Install Path",
+        "type": "String"
+    }, {
+        "name": "CONFIG_PATH",
+        "desc": "Conf Path",
+        "type": "String"
+    }, {
+        "name": "JAVA_HOME",
+        "desc": "Java Home Dir",
+        "type": "String"
+    }, {
+        "name": "JAVA_VERSION",
+        "desc": "Java Version",
+        "type": "String"
+    }, {
+        "name": "JVM_TYPE",
+        "desc": "JVM Type",
+        "type": "String"
+    }, {
+        "name": "JVM_VERSION",
+        "desc": "JVM Version",
+        "type": "String"
+    }, {
+        "name": "MIN_HEAP_SIZE",
+        "desc": "Min Heap Size",
+        "type": "int"
+    }, {
+        "name": "MAX_HEAP_SIZE",
+        "desc": "Max Heap Size",
+        "type": "int"
+    }, {
+        "name": "JMX_PORT",
+        "desc": "JMX Port",
+        "type": "int"
+    }, {
+        "name": "JMX_SSL",
+        "desc": "JMX SSL Enabled",
+        "type": "String"
+    }, {
+        "name": "CLUSTER_NAME",
+        "desc": "Cluster Name",
+        "type": "String"
+    }, {
+        "name": "NODE_NAME",
+        "desc": "Node Name",
+        "type": "String"
+    }, {
+        "name": "CLUSTER_MEMBERS",
+        "desc": "Cluster Members",
+        "type": "String"
+    }, {
+        "name": "INITIAL_MASTER_NODES",
+        "desc": "Initial Master Nodes",
+        "type": "String"
     }]
-}, {
-    "name": "INSTALL_PATH",
-    "desc": "Install Path",
-    "type": "String"
-}, {
-    "name": "CONFIG_PATH",
-    "desc": "Conf Path",
-    "type": "String"
-}, {
-    "name": "JAVA_HOME",
-    "desc": "Java Home Dir",
-    "type": "String"
-}, {
-    "name": "JAVA_VERSION",
-    "desc": "Java Version",
-    "type": "String"
-}, {
-    "name": "JVM_TYPE",
-    "desc": "JVM Type",
-    "type": "String"
-}, {
-    "name": "JVM_VERSION",
-    "desc": "JVM Version",
-    "type": "String"
-}, {
-    "name": "MIN_HEAP_SIZE",
-    "desc": "Min Heap Size",
-    "type": "int"
-}, {
-    "name": "MAX_HEAP_SIZE",
-    "desc": "Max Heap Size",
-    "type": "int"
-}, {
-    "name": "JMX_PORT",
-    "desc": "JMX Port",
-    "type": "int"
-}, {
-    "name": "JMX_SSL",
-    "desc": "JMX SSL Enabled",
-    "type": "String"
-}, {
-    "name": "CLUSTER_NAME",
-    "desc": "Cluster Name",
-    "type": "String"
-}, {
-    "name": "NODE_NAME",
-    "desc": "Node Name",
-    "type": "String"
-}, {
-    "name": "CLUSTER_MEMBERS",
-    "desc": "Cluster Members",
-    "type": "String"
-}, {
-    "name": "INITIAL_MASTER_NODES",
-    "desc": "Initial Master Nodes",
-    "type": "String"
-}]
+}

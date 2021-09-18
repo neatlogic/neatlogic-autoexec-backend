@@ -1,199 +1,202 @@
-[{
-    "name": "OS_ID",
-    "desc": "OS ID",
-    "type": "String"
-}, {
-    "name": "OS_USER",
-    "desc": "OS用户",
-    "type": "String"
-}, {
-    "name": "EXE_PATH",
-    "desc": "执行文件路径",
-    "type": "String"
-}, {
-    "name": "COMMAND",
-    "desc": "命令行",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "归属类型",
-    "type": "String"
-}, {
-    "name": "APP_TYPE",
-    "desc": "中间件类型",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "管理IP",
-    "type": "String"
-}, {
-    "name": "MGMT_PORT",
-    "desc": "管理端口",
-    "type": "int"
-}, {
-    "name": "SERVER_NAME",
-    "desc": "服务名",
-    "type": "String"
-}, {
-    "name": "VERSION",
-    "desc": "版本",
-    "type": "String"
-}, {
-    "name": "PORT",
-    "desc": "Port",
-    "type": "String"
-}, {
-    "name": "SSL_PORT",
-    "desc": "SSL端口",
-    "type": "String"
-}, {
-    "name": "ADMIN_PORT",
-    "desc": "管理端口",
-    "type": "String"
-}, {
-    "name": "ADMIN_SSL_PORT",
-    "desc": "管理SSL端口",
-    "type": "String"
-}, {
-    "name": "MON_PORT",
-    "desc": "监控端口",
-    "type": "String"
-}, {
-    "name": "PORTS",
-    "desc": "所有端口列表",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "VALUE",
-        "desc": "端口",
-        "type": "int"
-    }]
-}, {
-    "name": "INSTALL_PATH",
-    "desc": "安装目录",
-    "type": "String"
-}, {
-    "name": "DATESTYLE",
-    "desc": "日期格式",
-    "type": "String"
-}, {
-    "name": "LISTEN_ADDRESSES",
-    "desc": "监听",
-    "type": "String"
-}, {
-    "name": "WAL_BUFFERS",
-    "desc": "WAL缓存",
-    "type": "String"
-}, {
-    "name": "MAINTENANCE_WORK_MEM",
-    "desc": "维护内存",
-    "type": "String"
-}, {
-    "name": "COMMIT_SIBLINGS",
-    "desc": "提交同胞",
-    "type": "String"
-}, {
-    "name": "HBA_FILE",
-    "desc": "HBA文件",
-    "type": "String"
-}, {
-    "name": "LC_TIME",
-    "desc": "LC_TIME",
-    "type": "String"
-}, {
-    "name": "MAX_PREPARED_TRANSACTIONS",
-    "desc": "最大预事务数",
-    "type": "String"
-}, {
-    "name": "DATA_DIRECTORY",
-    "desc": "数据字典",
-    "type": "String"
-}, {
-    "name": "MAX_LOCKS_PER_TRANSACTION",
-    "desc": "每事务最大锁数量",
-    "type": "String"
-}, {
-    "name": "CLUSTER_NAME",
-    "desc": "集群名",
-    "type": "String"
-}, {
-    "name": "DEFAULT_TEXT_SEARCH_CONFIG",
-    "desc": "默认文本检索配置",
-    "type": "String"
-}, {
-    "name": "CHECKPOINT_COMPLETION_TARGET",
-    "desc": "检查点完成目标",
-    "type": "String"
-}, {
-    "name": "CHECKPOINT_SEGMENTS",
-    "desc": "简单点分段",
-    "type": "String"
-}, {
-    "name": "TRACK_COMMIT_TIMESTAMP",
-    "desc": "跟踪提交时间戳",
-    "type": "String"
-}, {
-    "name": "SERVER_VERSION",
-    "desc": "Server版本",
-    "type": "String"
-}, {
-    "name": "MAX_CONNECTIONS",
-    "desc": "最大连接数",
-    "type": "String"
-}, {
-    "name": "WAL_LEVEL",
-    "desc": "WAL水平",
-    "type": "String"
-}, {
-    "name": "WAL_LOG_HINTS",
-    "desc": "WAL日志HINTS",
-    "type": "String"
-}, {
-    "name": "APPLICATION_NAME",
-    "desc": "应用名",
-    "type": "String"
-}, {
-    "name": "MAX_WORKER_PROCESSES",
-    "desc": "最大工作进程数",
-    "type": "String"
-}, {
-    "name": "SHARED_BUFFERS",
-    "desc": "共享缓存",
-    "type": "String"
-}, {
-    "name": "WORK_MEM",
-    "desc": "工作内存",
-    "type": "String"
-}, {
-    "name": "EFFECTIVE_CACHE_SIZE",
-    "desc": "有效缓存大小",
-    "type": "String"
-}, {
-    "name": "HOT_STANDBY",
-    "desc": "热备",
-    "type": "String"
-}, {
-    "name": "MAX_REPLICATION_SLOTS",
-    "desc": "最大同步SLOTS",
-    "type": "String"
-}, {
-    "name": "IDENT_FILE",
-    "desc": "IDENT File",
-    "type": "String"
-}, {
-    "name": "MAX_WAL_SENDERS",
-    "desc": "最大WAL发送者数量",
-    "type": "String"
-}, {
-    "name": "COMMIT_DELAY",
-    "desc": "提交延迟",
-    "type": "String"
-}, {
-    "name": "DATABASES",
-    "desc": "DB列表",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "库名",
+{
+    "name": "Postgresql",
+    "fields": [{
+        "name": "OS_ID",
+        "desc": "OS ID",
         "type": "String"
+    }, {
+        "name": "OS_USER",
+        "desc": "OS用户",
+        "type": "String"
+    }, {
+        "name": "EXE_PATH",
+        "desc": "执行文件路径",
+        "type": "String"
+    }, {
+        "name": "COMMAND",
+        "desc": "命令行",
+        "type": "String"
+    }, {
+        "name": "OBJECT_TYPE",
+        "desc": "归属类型",
+        "type": "String"
+    }, {
+        "name": "APP_TYPE",
+        "desc": "中间件类型",
+        "type": "String"
+    }, {
+        "name": "MGMT_IP",
+        "desc": "管理IP",
+        "type": "String"
+    }, {
+        "name": "MGMT_PORT",
+        "desc": "管理端口",
+        "type": "int"
+    }, {
+        "name": "SERVER_NAME",
+        "desc": "服务名",
+        "type": "String"
+    }, {
+        "name": "VERSION",
+        "desc": "版本",
+        "type": "String"
+    }, {
+        "name": "PORT",
+        "desc": "Port",
+        "type": "String"
+    }, {
+        "name": "SSL_PORT",
+        "desc": "SSL端口",
+        "type": "String"
+    }, {
+        "name": "ADMIN_PORT",
+        "desc": "管理端口",
+        "type": "String"
+    }, {
+        "name": "ADMIN_SSL_PORT",
+        "desc": "管理SSL端口",
+        "type": "String"
+    }, {
+        "name": "MON_PORT",
+        "desc": "监控端口",
+        "type": "String"
+    }, {
+        "name": "PORTS",
+        "desc": "所有端口列表",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "VALUE",
+            "desc": "端口",
+            "type": "int"
+        }]
+    }, {
+        "name": "INSTALL_PATH",
+        "desc": "安装目录",
+        "type": "String"
+    }, {
+        "name": "DATESTYLE",
+        "desc": "日期格式",
+        "type": "String"
+    }, {
+        "name": "LISTEN_ADDRESSES",
+        "desc": "监听",
+        "type": "String"
+    }, {
+        "name": "WAL_BUFFERS",
+        "desc": "WAL缓存",
+        "type": "String"
+    }, {
+        "name": "MAINTENANCE_WORK_MEM",
+        "desc": "维护内存",
+        "type": "String"
+    }, {
+        "name": "COMMIT_SIBLINGS",
+        "desc": "提交同胞",
+        "type": "String"
+    }, {
+        "name": "HBA_FILE",
+        "desc": "HBA文件",
+        "type": "String"
+    }, {
+        "name": "LC_TIME",
+        "desc": "LC_TIME",
+        "type": "String"
+    }, {
+        "name": "MAX_PREPARED_TRANSACTIONS",
+        "desc": "最大预事务数",
+        "type": "String"
+    }, {
+        "name": "DATA_DIRECTORY",
+        "desc": "数据字典",
+        "type": "String"
+    }, {
+        "name": "MAX_LOCKS_PER_TRANSACTION",
+        "desc": "每事务最大锁数量",
+        "type": "String"
+    }, {
+        "name": "CLUSTER_NAME",
+        "desc": "集群名",
+        "type": "String"
+    }, {
+        "name": "DEFAULT_TEXT_SEARCH_CONFIG",
+        "desc": "默认文本检索配置",
+        "type": "String"
+    }, {
+        "name": "CHECKPOINT_COMPLETION_TARGET",
+        "desc": "检查点完成目标",
+        "type": "String"
+    }, {
+        "name": "CHECKPOINT_SEGMENTS",
+        "desc": "简单点分段",
+        "type": "String"
+    }, {
+        "name": "TRACK_COMMIT_TIMESTAMP",
+        "desc": "跟踪提交时间戳",
+        "type": "String"
+    }, {
+        "name": "SERVER_VERSION",
+        "desc": "Server版本",
+        "type": "String"
+    }, {
+        "name": "MAX_CONNECTIONS",
+        "desc": "最大连接数",
+        "type": "String"
+    }, {
+        "name": "WAL_LEVEL",
+        "desc": "WAL水平",
+        "type": "String"
+    }, {
+        "name": "WAL_LOG_HINTS",
+        "desc": "WAL日志HINTS",
+        "type": "String"
+    }, {
+        "name": "APPLICATION_NAME",
+        "desc": "应用名",
+        "type": "String"
+    }, {
+        "name": "MAX_WORKER_PROCESSES",
+        "desc": "最大工作进程数",
+        "type": "String"
+    }, {
+        "name": "SHARED_BUFFERS",
+        "desc": "共享缓存",
+        "type": "String"
+    }, {
+        "name": "WORK_MEM",
+        "desc": "工作内存",
+        "type": "String"
+    }, {
+        "name": "EFFECTIVE_CACHE_SIZE",
+        "desc": "有效缓存大小",
+        "type": "String"
+    }, {
+        "name": "HOT_STANDBY",
+        "desc": "热备",
+        "type": "String"
+    }, {
+        "name": "MAX_REPLICATION_SLOTS",
+        "desc": "最大同步SLOTS",
+        "type": "String"
+    }, {
+        "name": "IDENT_FILE",
+        "desc": "IDENT File",
+        "type": "String"
+    }, {
+        "name": "MAX_WAL_SENDERS",
+        "desc": "最大WAL发送者数量",
+        "type": "String"
+    }, {
+        "name": "COMMIT_DELAY",
+        "desc": "提交延迟",
+        "type": "String"
+    }, {
+        "name": "DATABASES",
+        "desc": "DB列表",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "NAME",
+            "desc": "库名",
+            "type": "String"
+        }]
     }]
-}]
+}

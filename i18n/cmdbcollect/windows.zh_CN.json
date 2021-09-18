@@ -1,231 +1,234 @@
-[{
-		"name": "RESOURCE_ID",
-		"desc": "CMDB对象ID",
-		"type": "String"
-	}, {
-		"name": "SYSTEM_LOCALE",
-		"desc": "系统语言环境",
-		"type": "String"
-	}, {
-		"name": "MEM_AVAILABLE",
-		"desc": "可用内存",
-		"type": "int"
-	}, {
-		"name": "CPU_FREQUENCY",
-		"desc": "CPU频率",
-		"type": "String"
-	}, {
-		"name": "CPU_MODEL",
-		"desc": "CPU型号",
-		"type": "String"
-	}, {
-		"name": "OS_TYPE",
-		"desc": "系统类型",
-		"type": "String"
-	}, {
-		"name": "MACHINE_ID",
-		"desc": "Machine ID",
-		"type": "String"
-	}, {
-		"name": "PRODUCT_NAME",
-		"desc": "品牌",
-		"type": "String"
-	}, {
-		"name": "NET_INTERFACES",
-		"desc": "网卡",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "STATUS",
-			"desc": "端口状态",
+{
+	"name": "Windows",
+	"fields": [{
+			"name": "RESOURCE_ID",
+			"desc": "CMDB对象ID",
 			"type": "String"
 		}, {
-			"name": "NAME",
-			"desc": "名称",
+			"name": "SYSTEM_LOCALE",
+			"desc": "系统语言环境",
 			"type": "String"
 		}, {
-			"name": "MAC",
-			"desc": "MAC",
-			"type": "String"
-		}]
-	}, {
-		"name": "PATCHES_APPLIED",
-		"desc": "补丁列表",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "VALUE",
-			"desc": "补丁号",
-			"type": "String"
-		}]
-	}, {
-		"name": "PRODUCT_UUID",
-		"desc": "产品UUID",
-		"type": "String"
-	}, {
-		"name": "NTP_ENABLE",
-		"desc": "是否开启NTP服务",
-		"type": "int"
-	}, {
-		"name": "INPUT_LOCALE",
-		"desc": "输入语言",
-		"type": "String"
-	}, {
-		"name": "CPU_CORES",
-		"desc": "cpu核数",
-		"type": "int"
-	}, {
-		"name": "BIOS_VERSION",
-		"desc": "BIOS版本",
-		"type": "String"
-	}, {
-		"name": "USERS",
-		"desc": "用户",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "NAME",
-			"desc": "用户名",
-			"type": "String"
-		}]
-	}, {
-		"name": "DISKS",
-		"desc": "Disks",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "UNIT",
-			"desc": "单位",
-			"type": "String"
-		}, {
-			"name": "NAME",
-			"desc": "磁盘名",
-			"type": "String"
-		}, {
-			"name": "TYPE",
-			"desc": "类型",
-			"type": "String"
-		}, {
-			"name": "CAPACITY",
-			"desc": "容量",
+			"name": "MEM_AVAILABLE",
+			"desc": "可用内存",
 			"type": "int"
-		}]
-	}, {
-		"name": "SYMANTEC_INSTALLED",
-		"desc": "是否安装ccSvcHst",
-		"type": "int"
-	}, {
-		"name": "SYS_VENDOR",
-		"desc": "厂商",
-		"type": "String"
-	}, {
-		"name": "OS_ID",
-		"desc": "OS ID",
-		"type": "String"
-	}, {
-		"name": "NTP_SERVERS",
-		"desc": "NTP服务IP",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "VALUE",
-			"desc": "IP",
-			"type": "String"
-		}]
-	}, {
-		"name": "MGMT_IP",
-		"desc": "管理IP",
-		"type": "String"
-	}, {
-		"name": "CPU_COUNT",
-		"desc": "CPU数量",
-		"type": "int"
-	}, {
-		"name": "CPU_ARCH",
-		"desc": "CPU架构",
-		"type": "String"
-	}, {
-		"name": "MGMT_PORT",
-		"desc": "管理端口",
-		"type": "int"
-	}, {
-		"name": "CPU_BITS",
-		"desc": "CPU位数",
-		"type": "int"
-	}, {
-		"name": "IS_VIRTUAL",
-		"desc": "是否是虚拟机",
-		"type": "int"
-	}, {
-		"name": "KERNEL_VERSION",
-		"desc": "内核版本",
-		"type": "String"
-	}, {
-		"name": "NAME",
-		"desc": "系统名称",
-		"type": "String"
-	}, {
-		"name": "DNS_SERVERS",
-		"desc": "DNS服务IP",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "VALUE",
-			"desc": "IP",
-			"type": "String"
-		}]
-	}, {
-		"name": "HOSTNAME",
-		"desc": "主机名",
-		"type": "String"
-	}, {
-		"name": "MEM_TOTAL",
-		"desc": "内存大小",
-		"type": "int"
-	}, {
-		"name": "TIME_ZONE",
-		"desc": "时区",
-		"type": "String"
-	}, {
-		"name": "IP_ADDRS",
-		"desc": "IP地址列表",
-		"type": "Array"
-	}, {
-		"name": "VERSION",
-		"desc": "版本",
-		"type": "String"
-	}, {
-		"name": "DOMAIN",
-		"desc": "域名",
-		"type": "String"
-	}, {
-		"name": "OBJECT_TYPE",
-		"desc": "归属类型",
-		"type": "String"
-	},
-	{
-		"name": "VM_ID",
-		"desc": "虚拟机ID",
-		"type": "String"
-	},
-	{
-		"name": "VCENTER_IP",
-		"desc": "VCENTER管理IP",
-		"type": "String"
-	}, {
-		"name": "HBA_INTERFACES",
-		"desc": "HBA卡列表",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "NAME",
-			"desc": "名称",
+		}, {
+			"name": "CPU_FREQUENCY",
+			"desc": "CPU频率",
 			"type": "String"
 		}, {
-			"name": "WWN",
-			"desc": "WWN",
+			"name": "CPU_MODEL",
+			"desc": "CPU型号",
 			"type": "String"
 		}, {
-			"name": "STATUS",
-			"desc": "接线状态",
+			"name": "OS_TYPE",
+			"desc": "系统类型",
 			"type": "String"
 		}, {
-			"name": "SPEED",
-			"desc": "速率",
+			"name": "MACHINE_ID",
+			"desc": "Machine ID",
+			"type": "String"
+		}, {
+			"name": "PRODUCT_NAME",
+			"desc": "品牌",
+			"type": "String"
+		}, {
+			"name": "NET_INTERFACES",
+			"desc": "网卡",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "STATUS",
+				"desc": "端口状态",
+				"type": "String"
+			}, {
+				"name": "NAME",
+				"desc": "名称",
+				"type": "String"
+			}, {
+				"name": "MAC",
+				"desc": "MAC",
+				"type": "String"
+			}]
+		}, {
+			"name": "PATCHES_APPLIED",
+			"desc": "补丁列表",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "VALUE",
+				"desc": "补丁号",
+				"type": "String"
+			}]
+		}, {
+			"name": "PRODUCT_UUID",
+			"desc": "产品UUID",
+			"type": "String"
+		}, {
+			"name": "NTP_ENABLE",
+			"desc": "是否开启NTP服务",
 			"type": "int"
-		}]
-	}
-]
+		}, {
+			"name": "INPUT_LOCALE",
+			"desc": "输入语言",
+			"type": "String"
+		}, {
+			"name": "CPU_CORES",
+			"desc": "cpu核数",
+			"type": "int"
+		}, {
+			"name": "BIOS_VERSION",
+			"desc": "BIOS版本",
+			"type": "String"
+		}, {
+			"name": "USERS",
+			"desc": "用户",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "NAME",
+				"desc": "用户名",
+				"type": "String"
+			}]
+		}, {
+			"name": "DISKS",
+			"desc": "Disks",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "UNIT",
+				"desc": "单位",
+				"type": "String"
+			}, {
+				"name": "NAME",
+				"desc": "磁盘名",
+				"type": "String"
+			}, {
+				"name": "TYPE",
+				"desc": "类型",
+				"type": "String"
+			}, {
+				"name": "CAPACITY",
+				"desc": "容量",
+				"type": "int"
+			}]
+		}, {
+			"name": "SYMANTEC_INSTALLED",
+			"desc": "是否安装ccSvcHst",
+			"type": "int"
+		}, {
+			"name": "SYS_VENDOR",
+			"desc": "厂商",
+			"type": "String"
+		}, {
+			"name": "OS_ID",
+			"desc": "OS ID",
+			"type": "String"
+		}, {
+			"name": "NTP_SERVERS",
+			"desc": "NTP服务IP",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "VALUE",
+				"desc": "IP",
+				"type": "String"
+			}]
+		}, {
+			"name": "MGMT_IP",
+			"desc": "管理IP",
+			"type": "String"
+		}, {
+			"name": "CPU_COUNT",
+			"desc": "CPU数量",
+			"type": "int"
+		}, {
+			"name": "CPU_ARCH",
+			"desc": "CPU架构",
+			"type": "String"
+		}, {
+			"name": "MGMT_PORT",
+			"desc": "管理端口",
+			"type": "int"
+		}, {
+			"name": "CPU_BITS",
+			"desc": "CPU位数",
+			"type": "int"
+		}, {
+			"name": "IS_VIRTUAL",
+			"desc": "是否是虚拟机",
+			"type": "int"
+		}, {
+			"name": "KERNEL_VERSION",
+			"desc": "内核版本",
+			"type": "String"
+		}, {
+			"name": "NAME",
+			"desc": "系统名称",
+			"type": "String"
+		}, {
+			"name": "DNS_SERVERS",
+			"desc": "DNS服务IP",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "VALUE",
+				"desc": "IP",
+				"type": "String"
+			}]
+		}, {
+			"name": "HOSTNAME",
+			"desc": "主机名",
+			"type": "String"
+		}, {
+			"name": "MEM_TOTAL",
+			"desc": "内存大小",
+			"type": "int"
+		}, {
+			"name": "TIME_ZONE",
+			"desc": "时区",
+			"type": "String"
+		}, {
+			"name": "IP_ADDRS",
+			"desc": "IP地址列表",
+			"type": "Array"
+		}, {
+			"name": "VERSION",
+			"desc": "版本",
+			"type": "String"
+		}, {
+			"name": "DOMAIN",
+			"desc": "域名",
+			"type": "String"
+		}, {
+			"name": "OBJECT_TYPE",
+			"desc": "归属类型",
+			"type": "String"
+		},
+		{
+			"name": "VM_ID",
+			"desc": "虚拟机ID",
+			"type": "String"
+		},
+		{
+			"name": "VCENTER_IP",
+			"desc": "VCENTER管理IP",
+			"type": "String"
+		}, {
+			"name": "HBA_INTERFACES",
+			"desc": "HBA卡列表",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "NAME",
+				"desc": "名称",
+				"type": "String"
+			}, {
+				"name": "WWN",
+				"desc": "WWN",
+				"type": "String"
+			}, {
+				"name": "STATUS",
+				"desc": "接线状态",
+				"type": "String"
+			}, {
+				"name": "SPEED",
+				"desc": "速率",
+				"type": "int"
+			}]
+		}
+	]
+}

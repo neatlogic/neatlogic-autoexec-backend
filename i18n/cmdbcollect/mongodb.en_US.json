@@ -1,137 +1,140 @@
-[{
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
-	"name": "OS_USER",
-	"desc": "OS User",
-	"type": "String"
-}, {
-	"name": "EXE_PATH",
-	"desc": "Executable File Path",
-	"type": "String"
-}, {
-	"name": "COMMAND",
-	"desc": "Command Line",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "Object Type",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "Application Type",
-	"type": "String"
-}, {
-	"name": "MGMT_IP",
-	"desc": "Managment IP",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "Managment Port",
-	"type": "int"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "Server Name",
-	"type": "String"
-}, {
-	"name": "PORT",
-	"desc": "Port",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "SSL Port",
-	"type": "String"
-}, {
-	"name": "ADMIN_PORT",
-	"desc": "Admin Port",
-	"type": "String"
-}, {
-	"name": "ADMIN_SSL_PORT",
-	"desc": "Admin SSL Port",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "Monitor Port",
-	"type": "String"
-}, {
-	"name": "PORTS",
-	"desc": "Port List",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "VALUE",
-		"desc": "Port",
-		"type": "int"
-	}]
-}, {
-	"name": "INSTALL_PATH",
-	"desc": "Install Path",
-	"type": "String"
-}, {
-	"name": "BIN_PATH",
-	"desc": "Bin Path",
-	"type": "String"
-}, {
-	"name": "CONFIG_FILE",
-	"desc": "Config File Path",
-	"type": "String"
-}, {
-	"name": "BIND_IP",
-	"desc": "Bind IP config",
-	"type": "String"
-}, {
-	"name": "CHARACTERSET",
-	"desc": "Characterset",
-	"type": "String"
-}, {
-	"name": "DBPATH",
-	"desc": "DB Storage Directory",
-	"type": "String"
-}, {
-	"name": "LOGPATH",
-	"desc": "Log Dirctory",
-	"type": "String"
-}, {
-	"name": "IS_CLUSTER",
-	"desc": "Is Cluster",
-	"type": "int"
-}, {
-	"name": "CLUSTER_MODE",
-	"desc": "Cluster Mode",
-	"type": "String"
-}, {
-	"name": "DB_INS",
-	"desc": "DB Name List",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "name",
+{
+	"name": "Mongodb",
+	"fields": [{
+		"name": "OS_ID",
+		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"name": "USERS",
-		"desc": "users",
+		"name": "OS_USER",
+		"desc": "OS User",
+		"type": "String"
+	}, {
+		"name": "EXE_PATH",
+		"desc": "Executable File Path",
+		"type": "String"
+	}, {
+		"name": "COMMAND",
+		"desc": "Command Line",
+		"type": "String"
+	}, {
+		"name": "OBJECT_TYPE",
+		"desc": "Object Type",
+		"type": "String"
+	}, {
+		"name": "APP_TYPE",
+		"desc": "Application Type",
+		"type": "String"
+	}, {
+		"name": "MGMT_IP",
+		"desc": "Managment IP",
+		"type": "String"
+	}, {
+		"name": "MGMT_PORT",
+		"desc": "Managment Port",
+		"type": "int"
+	}, {
+		"name": "SERVER_NAME",
+		"desc": "Server Name",
+		"type": "String"
+	}, {
+		"name": "PORT",
+		"desc": "Port",
+		"type": "String"
+	}, {
+		"name": "SSL_PORT",
+		"desc": "SSL Port",
+		"type": "String"
+	}, {
+		"name": "ADMIN_PORT",
+		"desc": "Admin Port",
+		"type": "String"
+	}, {
+		"name": "ADMIN_SSL_PORT",
+		"desc": "Admin SSL Port",
+		"type": "String"
+	}, {
+		"name": "MON_PORT",
+		"desc": "Monitor Port",
+		"type": "String"
+	}, {
+		"name": "PORTS",
+		"desc": "Port List",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "Port",
+			"type": "int"
+		}]
+	}, {
+		"name": "INSTALL_PATH",
+		"desc": "Install Path",
+		"type": "String"
+	}, {
+		"name": "BIN_PATH",
+		"desc": "Bin Path",
+		"type": "String"
+	}, {
+		"name": "CONFIG_FILE",
+		"desc": "Config File Path",
+		"type": "String"
+	}, {
+		"name": "BIND_IP",
+		"desc": "Bind IP config",
+		"type": "String"
+	}, {
+		"name": "CHARACTERSET",
+		"desc": "Characterset",
+		"type": "String"
+	}, {
+		"name": "DBPATH",
+		"desc": "DB Storage Directory",
+		"type": "String"
+	}, {
+		"name": "LOGPATH",
+		"desc": "Log Dirctory",
+		"type": "String"
+	}, {
+		"name": "IS_CLUSTER",
+		"desc": "Is Cluster",
+		"type": "int"
+	}, {
+		"name": "CLUSTER_MODE",
+		"desc": "Cluster Mode",
+		"type": "String"
+	}, {
+		"name": "DB_INS",
+		"desc": "DB Name List",
 		"type": "JsonArray",
 		"subset": [{
 			"name": "NAME",
 			"desc": "name",
 			"type": "String"
+		}, {
+			"name": "USERS",
+			"desc": "users",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "NAME",
+				"desc": "name",
+				"type": "String"
+			}]
 		}]
-	}]
 
-}, {
-	"name": "CLUSTER_ROLE",
-	"desc": "Cluster Role",
-	"type": "String"
-}, {
-	"name": "FORK",
-	"desc": "Fork",
-	"type": "String"
-}, {
-	"name": "LOGAPPEND",
-	"desc": "Log Append",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "Version",
-	"type": "String"
-}]
+	}, {
+		"name": "CLUSTER_ROLE",
+		"desc": "Cluster Role",
+		"type": "String"
+	}, {
+		"name": "FORK",
+		"desc": "Fork",
+		"type": "String"
+	}, {
+		"name": "LOGAPPEND",
+		"desc": "Log Append",
+		"type": "String"
+	}, {
+		"name": "VERSION",
+		"desc": "Version",
+		"type": "String"
+	}]
+}

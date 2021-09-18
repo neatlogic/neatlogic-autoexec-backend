@@ -13,7 +13,6 @@ import time
 import binascii
 import configparser
 import pymongo
-from dateutil import parser
 
 PYTHON_VER = sys.version_info.major
 
@@ -205,8 +204,3 @@ def handleJsonstr(jsonstr):
     return jsonstr
 
 # 获取当前时间
-
-
-def getCurrentTime():
-    dateStr = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    return parser.parse(dateStr)

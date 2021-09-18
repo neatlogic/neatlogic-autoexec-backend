@@ -3,6 +3,7 @@
 
 import AutoExecUtils
 import os
+import datetime
 import argparse
 import sys
 import json
@@ -52,7 +53,7 @@ if __name__ == "__main__":
 
                 collectData = value['DATA']
                 if collectData is None:
-                    print('WARN: Plugin {} did not return any data.\n'.format(key))
+                    print('WARN: Plugin {} did not return collect data.\n'.format(key))
                     continue
 
             for data in collectData:
@@ -97,7 +98,7 @@ if __name__ == "__main__":
                 collection = db[table]
                 #record = collection.find_one(primaryKey, {'data': True})
                 try:
-                    currentTime = AutoExecUtils.getCurrentTime()
+                    currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['_renewtime'] = currentTime
                     collection.replace_one(primaryKey, data, upsert=True)

@@ -1,136 +1,139 @@
-[{
-	"name": "BIND_IP",
-	"desc": "监听IP配置",
-	"type": "String"
-}, {
-	"name": "OS_USER",
-	"desc": "OS用户",
-	"type": "String"
-}, {
-	"name": "EXE_PATH",
-	"desc": "执行文件路径",
-	"type": "String"
-}, {
-	"name": "COMMAND",
-	"desc": "命令行",
-	"type": "String"
-}, {
-	"name": "INSTALL_PATH",
-	"desc": "安装目录",
-	"type": "String"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "服务名称",
-	"type": "String"
-}, {
-	"name": "CONFIG_FILE",
-	"desc": "配置文件目录",
-	"type": "String"
-}, {
-	"name": "MGMT_IP",
-	"desc": "管理IP",
-	"type": "String"
-}, {
-	"name": "CHARACTERSET",
-	"desc": "数据库编码",
-	"type": "String"
-}, {
-	"name": "DBPATH",
-	"desc": "数据文件存储目录",
-	"type": "String"
-}, {
-	"name": "ADMIN_SSL_PORT",
-	"desc": "管理SSL端口",
-	"type": "String"
-}, {
-	"name": "IS_CLUSTER",
-	"desc": "是否是集群",
-	"type": "int"
-}, {
-	"name": "BIN_PATH",
-	"desc": "BIN目录路径",
-	"type": "String"
-}, {
-	"name": "CLUSTER_MODE",
-	"desc": "集群模式",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "管理Port",
-	"type": "int"
-}, {
-	"name": "DB_INS",
-	"desc": "数据库服务名",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "NAME",
-		"desc": "名称",
+{
+	"name": "Mongodb",
+	"fields": [{
+		"name": "BIND_IP",
+		"desc": "监听IP配置",
 		"type": "String"
 	}, {
-		"name": "USERS",
-		"desc": "用户",
+		"name": "OS_USER",
+		"desc": "OS用户",
+		"type": "String"
+	}, {
+		"name": "EXE_PATH",
+		"desc": "执行文件路径",
+		"type": "String"
+	}, {
+		"name": "COMMAND",
+		"desc": "命令行",
+		"type": "String"
+	}, {
+		"name": "INSTALL_PATH",
+		"desc": "安装目录",
+		"type": "String"
+	}, {
+		"name": "SERVER_NAME",
+		"desc": "服务名称",
+		"type": "String"
+	}, {
+		"name": "CONFIG_FILE",
+		"desc": "配置文件目录",
+		"type": "String"
+	}, {
+		"name": "MGMT_IP",
+		"desc": "管理IP",
+		"type": "String"
+	}, {
+		"name": "CHARACTERSET",
+		"desc": "数据库编码",
+		"type": "String"
+	}, {
+		"name": "DBPATH",
+		"desc": "数据文件存储目录",
+		"type": "String"
+	}, {
+		"name": "ADMIN_SSL_PORT",
+		"desc": "管理SSL端口",
+		"type": "String"
+	}, {
+		"name": "IS_CLUSTER",
+		"desc": "是否是集群",
+		"type": "int"
+	}, {
+		"name": "BIN_PATH",
+		"desc": "BIN目录路径",
+		"type": "String"
+	}, {
+		"name": "CLUSTER_MODE",
+		"desc": "集群模式",
+		"type": "String"
+	}, {
+		"name": "MGMT_PORT",
+		"desc": "管理Port",
+		"type": "int"
+	}, {
+		"name": "DB_INS",
+		"desc": "数据库服务名",
 		"type": "JsonArray",
 		"subset": [{
 			"name": "NAME",
 			"desc": "名称",
 			"type": "String"
+		}, {
+			"name": "USERS",
+			"desc": "用户",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "NAME",
+				"desc": "名称",
+				"type": "String"
+			}]
 		}]
-	}]
-}, {
-	"name": "LOGPATH",
-	"desc": "日志目录",
-	"type": "String"
-}, {
-	"name": "CLUSTER_ROLE",
-	"desc": "集群角色",
-	"type": "String"
-}, {
-	"name": "PORT",
-	"desc": "端口",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "监控端口",
-	"type": "String"
-}, {
-	"name": "PORTS",
-	"desc": "所有端口列表",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "VALUE",
+	}, {
+		"name": "LOGPATH",
+		"desc": "日志目录",
+		"type": "String"
+	}, {
+		"name": "CLUSTER_ROLE",
+		"desc": "集群角色",
+		"type": "String"
+	}, {
+		"name": "PORT",
 		"desc": "端口",
-		"type": "int"
+		"type": "String"
+	}, {
+		"name": "MON_PORT",
+		"desc": "监控端口",
+		"type": "String"
+	}, {
+		"name": "PORTS",
+		"desc": "所有端口列表",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "端口",
+			"type": "int"
+		}]
+	}, {
+		"name": "ADMIN_PORT",
+		"desc": "管理端口",
+		"type": "String"
+	}, {
+		"name": "FORK",
+		"desc": "以守护进程方式启服务",
+		"type": "String"
+	}, {
+		"name": "LOGAPPEND",
+		"desc": "日志切割方式",
+		"type": "String"
+	}, {
+		"name": "APP_TYPE",
+		"desc": "中间件类型",
+		"type": "String"
+	}, {
+		"name": "OS_ID",
+		"desc": "所在OS的CMDB ID",
+		"type": "String"
+	}, {
+		"name": "SSL_PORT",
+		"desc": "SSL端口",
+		"type": "String"
+	}, {
+		"name": "VERSION",
+		"desc": "版本",
+		"type": "String"
+	}, {
+		"name": "OBJECT_TYPE",
+		"desc": "归属类型",
+		"type": "String"
 	}]
-}, {
-	"name": "ADMIN_PORT",
-	"desc": "管理端口",
-	"type": "String"
-}, {
-	"name": "FORK",
-	"desc": "以守护进程方式启服务",
-	"type": "String"
-}, {
-	"name": "LOGAPPEND",
-	"desc": "日志切割方式",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "中间件类型",
-	"type": "String"
-}, {
-	"name": "OS_ID",
-	"desc": "所在OS的CMDB ID",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "SSL端口",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "版本",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "归属类型",
-	"type": "String"
-}]
+}

@@ -1,91 +1,56 @@
-[{
-    "name": "RESOURCE_ID",
-    "desc": "CMDB ID",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "Object Type",
-    "type": "String"
-}, {
-    "name": "APP_TYPE",
-    "desc": "Application Type",
-    "type": "String"
-}, {
-    "name": "SN",
-    "desc": "Chassis Serial",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "Managment IP",
-    "type": "String"
-}, {
-    "name": "IP",
-    "desc": "IP",
-    "type": "String"
-}, {
-    "name": "DEV_NAME",
-    "desc": "Device Name",
-    "type": "String"
-}, {
-    "name": "UPTIME",
-    "desc": "Up Time(Days)",
-    "type": "String"
-}, {
-    "name": "VENDOR",
-    "desc": "Vendor",
-    "type": "String"
-}, {
-    "name": "MODEL",
-    "desc": "Device Model",
-    "type": "String"
-}, {
-    "name": "VERSION",
-    "desc": "Version",
-    "type": "String"
-}, {
-    "name": "VIRTUAL_SERVERS",
-    "desc": "Virtual Server List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "Name",
+{
+    "name": "A10",
+    "fields": [{
+        "name": "RESOURCE_ID",
+        "desc": "CMDB ID",
+        "type": "String"
+    }, {
+        "name": "OBJECT_TYPE",
+        "desc": "Object Type",
+        "type": "String"
+    }, {
+        "name": "APP_TYPE",
+        "desc": "Application Type",
+        "type": "String"
+    }, {
+        "name": "SN",
+        "desc": "Chassis Serial",
+        "type": "String"
+    }, {
+        "name": "MGMT_IP",
+        "desc": "Managment IP",
         "type": "String"
     }, {
         "name": "IP",
         "desc": "IP",
         "type": "String"
     }, {
-        "name": "PORT",
-        "desc": "Port",
+        "name": "DEV_NAME",
+        "desc": "Device Name",
         "type": "String"
     }, {
-        "name": "POOL_NAME",
-        "desc": "Pool Name",
+        "name": "UPTIME",
+        "desc": "Up Time(Days)",
         "type": "String"
     }, {
-        "name": "POOL",
-        "desc": "POOL",
-        "type": "JsonObject",
-        "subset": [{
-            "name": "NAME",
-            "desc": "Name",
-            "type": "String"
-        }, {
-            "name": "LB_MODE",
-            "desc": "LB Mode",
-            "type": "String"
-        }]
+        "name": "VENDOR",
+        "desc": "Vendor",
+        "type": "String"
     }, {
-        "name": "MEMBERS",
-        "desc": "Member List",
+        "name": "MODEL",
+        "desc": "Device Model",
+        "type": "String"
+    }, {
+        "name": "VERSION",
+        "desc": "Version",
+        "type": "String"
+    }, {
+        "name": "VIRTUAL_SERVERS",
+        "desc": "Virtual Server List",
         "type": "JsonArray",
         "subset": [{
             "name": "NAME",
             "desc": "Name",
-            "type": "String"
-        }, {
-            "name": "POOL_NAME",
-            "desc": "Pool Name",
             "type": "String"
         }, {
             "name": "IP",
@@ -96,9 +61,47 @@
             "desc": "Port",
             "type": "String"
         }, {
-            "name": "MONITOR_RULE",
-            "desc": "Monitor Rule",
+            "name": "POOL_NAME",
+            "desc": "Pool Name",
             "type": "String"
+        }, {
+            "name": "POOL",
+            "desc": "POOL",
+            "type": "JsonObject",
+            "subset": [{
+                "name": "NAME",
+                "desc": "Name",
+                "type": "String"
+            }, {
+                "name": "LB_MODE",
+                "desc": "LB Mode",
+                "type": "String"
+            }]
+        }, {
+            "name": "MEMBERS",
+            "desc": "Member List",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "NAME",
+                "desc": "Name",
+                "type": "String"
+            }, {
+                "name": "POOL_NAME",
+                "desc": "Pool Name",
+                "type": "String"
+            }, {
+                "name": "IP",
+                "desc": "IP",
+                "type": "String"
+            }, {
+                "name": "PORT",
+                "desc": "Port",
+                "type": "String"
+            }, {
+                "name": "MONITOR_RULE",
+                "desc": "Monitor Rule",
+                "type": "String"
+            }]
         }]
     }]
-}]
+}

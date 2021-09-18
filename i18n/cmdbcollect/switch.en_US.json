@@ -1,86 +1,89 @@
-[{
-    "name": "RESOURCE_ID",
-    "desc": "CMDB ID",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "Object Type",
-    "type": "String"
-}, {
-    "name": "SN",
-    "desc": "Chassis Serial",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "Managment IP",
-    "type": "String"
-}, {
-    "name": "DEV_NAME",
-    "desc": "Device Name",
-    "type": "String"
-}, {
-    "name": "UPTIME",
-    "desc": "Up Time",
-    "type": "String"
-}, {
-    "name": "VENDOR",
-    "desc": "Vendor",
-    "type": "String"
-}, {
-    "name": "MODEL",
-    "desc": "Device Model",
-    "type": "String"
-}, {
-    "name": "IOS_INFO",
-    "desc": "IOS Information",
-    "type": "String"
-}, {
-    "name": "PORTS_COUNT",
-    "desc": "Ports Count",
-    "type": "int"
-}, {
-    "name": "BRAND",
-    "desc": "Brand",
-    "type": "String"
-}, {
-    "name": "PORTS",
-    "desc": "Port List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NO",
-        "desc": "Port No.",
+{
+    "name": "Switch",
+    "fields": [{
+        "name": "RESOURCE_ID",
+        "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "NAME",
-        "desc": "Port Name",
+        "name": "OBJECT_TYPE",
+        "desc": "Object Type",
         "type": "String"
     }, {
-        "name": "INDEX",
-        "desc": "Index",
+        "name": "SN",
+        "desc": "Chassis Serial",
         "type": "String"
     }, {
-        "name": "TYPE",
-        "desc": "Type",
+        "name": "MGMT_IP",
+        "desc": "Managment IP",
         "type": "String"
     }, {
-        "name": "MAC",
-        "desc": "MAC",
+        "name": "DEV_NAME",
+        "desc": "Device Name",
         "type": "String"
     }, {
-        "name": "ADMIN_STATUS",
-        "desc": "Admin Status",
+        "name": "UPTIME",
+        "desc": "Up Time",
         "type": "String"
     }, {
-        "name": "OPER_STATUS",
-        "desc": "Operation Status",
+        "name": "VENDOR",
+        "desc": "Vendor",
         "type": "String"
     }, {
-        "name": "SPEED",
-        "desc": "Speed",
-        "type": "float"
+        "name": "MODEL",
+        "desc": "Device Model",
+        "type": "String"
     }, {
-        "name": "MTU",
-        "desc": "MTU",
+        "name": "IOS_INFO",
+        "desc": "IOS Information",
+        "type": "String"
+    }, {
+        "name": "PORTS_COUNT",
+        "desc": "Ports Count",
         "type": "int"
+    }, {
+        "name": "BRAND",
+        "desc": "Brand",
+        "type": "String"
+    }, {
+        "name": "PORTS",
+        "desc": "Port List",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "NO",
+            "desc": "Port No.",
+            "type": "String"
+        }, {
+            "name": "NAME",
+            "desc": "Port Name",
+            "type": "String"
+        }, {
+            "name": "INDEX",
+            "desc": "Index",
+            "type": "String"
+        }, {
+            "name": "TYPE",
+            "desc": "Type",
+            "type": "String"
+        }, {
+            "name": "MAC",
+            "desc": "MAC",
+            "type": "String"
+        }, {
+            "name": "ADMIN_STATUS",
+            "desc": "Admin Status",
+            "type": "String"
+        }, {
+            "name": "OPER_STATUS",
+            "desc": "Operation Status",
+            "type": "String"
+        }, {
+            "name": "SPEED",
+            "desc": "Speed",
+            "type": "float"
+        }, {
+            "name": "MTU",
+            "desc": "MTU",
+            "type": "int"
+        }]
     }]
-}]
+}

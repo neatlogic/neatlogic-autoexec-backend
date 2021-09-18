@@ -1,120 +1,52 @@
-[{
-    "name": "RESOURCE_ID",
-    "desc": "CMDB ID",
-    "type": "String"
-}, {
-    "name": "OBJECT_TYPE",
-    "desc": "Object Type",
-    "type": "String"
-}, {
-    "name": "APP_TYPE",
-    "desc": "Application Type",
-    "type": "String"
-}, {
-    "name": "SN",
-    "desc": "Chassis Serial",
-    "type": "String"
-}, {
-    "name": "MGMT_IP",
-    "desc": "Managment IP",
-    "type": "String"
-}, {
-    "name": "DEV_NAME",
-    "desc": "Device Name",
-    "type": "String"
-}, {
-    "name": "MODEL",
-    "desc": "Device Model",
-    "type": "String"
-}, {
-    "name": "UPTIME",
-    "desc": "Up Time",
-    "type": "String"
-}, {
-    "name": "VENDOR",
-    "desc": "Vendor",
-    "type": "String"
-}, {
-    "name": "BRAND",
-    "desc": "Brand",
-    "type": "String"
-}, {
-    "name": "CAPACITY",
-    "desc": "Capacity(TB)",
-    "type": "float"
-}, {
-    "name": "LUNS",
-    "desc": "LUN List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "ID",
-        "desc": "ID",
+{
+    "name": "Storage",
+    "fields": [{
+        "name": "RESOURCE_ID",
+        "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "NAME",
-        "desc": "Name",
+        "name": "OBJECT_TYPE",
+        "desc": "Object Type",
         "type": "String"
     }, {
-        "name": "LUNID",
-        "desc": "Lun ID",
+        "name": "APP_TYPE",
+        "desc": "Application Type",
+        "type": "String"
+    }, {
+        "name": "SN",
+        "desc": "Chassis Serial",
+        "type": "String"
+    }, {
+        "name": "MGMT_IP",
+        "desc": "Managment IP",
+        "type": "String"
+    }, {
+        "name": "DEV_NAME",
+        "desc": "Device Name",
+        "type": "String"
+    }, {
+        "name": "MODEL",
+        "desc": "Device Model",
+        "type": "String"
+    }, {
+        "name": "UPTIME",
+        "desc": "Up Time",
+        "type": "String"
+    }, {
+        "name": "VENDOR",
+        "desc": "Vendor",
+        "type": "String"
+    }, {
+        "name": "BRAND",
+        "desc": "Brand",
         "type": "String"
     }, {
         "name": "CAPACITY",
-        "desc": "Capacity(GB)",
-        "type": "float"
-    }]
-}, {
-    "name": "VOLUMES",
-    "desc": "Volume List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "Name",
-        "type": "String"
-    }, {
-        "name": "CAPACITY",
-        "desc": "Capacity(GB)",
-        "type": "float"
-    }, {
-        "name": "USED",
-        "desc": "Used(GB)",
-        "type": "float"
-    }, {
-        "name": "FREE",
-        "desc": "Free(GB)",
-        "type": "float"
-    }, {
-        "name": "USED_PERCENT",
-        "desc": "Used percent(%)",
-        "type": "float"
-    }]
-}, {
-    "name": "POOLS",
-    "desc": "POOL List",
-    "type": "JsonArray",
-    "subset": [{
-        "name": "NAME",
-        "desc": "Name",
-        "type": "String"
-    }, {
-        "name": "CAPACITY",
-        "desc": "Capacity(GB)",
-        "type": "float"
-    }, {
-        "name": "USED",
-        "desc": "Used(GB)",
-        "type": "float"
-    }, {
-        "name": "FREE",
-        "desc": "Free(GB)",
-        "type": "float"
-    }, {
-        "name": "USED_PERCENT",
-        "desc": "Used Percent(%)",
+        "desc": "Capacity(TB)",
         "type": "float"
     }, {
         "name": "LUNS",
-        "desc": "LUNS In Pool",
+        "desc": "LUN List",
         "type": "JsonArray",
         "subset": [{
             "name": "ID",
@@ -133,5 +65,76 @@
             "desc": "Capacity(GB)",
             "type": "float"
         }]
+    }, {
+        "name": "VOLUMES",
+        "desc": "Volume List",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        }, {
+            "name": "CAPACITY",
+            "desc": "Capacity(GB)",
+            "type": "float"
+        }, {
+            "name": "USED",
+            "desc": "Used(GB)",
+            "type": "float"
+        }, {
+            "name": "FREE",
+            "desc": "Free(GB)",
+            "type": "float"
+        }, {
+            "name": "USED_PERCENT",
+            "desc": "Used percent(%)",
+            "type": "float"
+        }]
+    }, {
+        "name": "POOLS",
+        "desc": "POOL List",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        }, {
+            "name": "CAPACITY",
+            "desc": "Capacity(GB)",
+            "type": "float"
+        }, {
+            "name": "USED",
+            "desc": "Used(GB)",
+            "type": "float"
+        }, {
+            "name": "FREE",
+            "desc": "Free(GB)",
+            "type": "float"
+        }, {
+            "name": "USED_PERCENT",
+            "desc": "Used Percent(%)",
+            "type": "float"
+        }, {
+            "name": "LUNS",
+            "desc": "LUNS In Pool",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "ID",
+                "desc": "ID",
+                "type": "String"
+            }, {
+                "name": "NAME",
+                "desc": "Name",
+                "type": "String"
+            }, {
+                "name": "LUNID",
+                "desc": "Lun ID",
+                "type": "String"
+            }, {
+                "name": "CAPACITY",
+                "desc": "Capacity(GB)",
+                "type": "float"
+            }]
+        }]
     }]
-}]
+}

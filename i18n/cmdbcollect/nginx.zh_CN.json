@@ -1,115 +1,118 @@
-[{
-	"name": "OS_ID",
-	"desc": "OS ID",
-	"type": "String"
-}, {
-	"name": "OS_USER",
-	"desc": "OS用户",
-	"type": "String"
-}, {
-	"name": "EXE_PATH",
-	"desc": "执行文件路径",
-	"type": "String"
-}, {
-	"name": "COMMAND",
-	"desc": "命令行",
-	"type": "String"
-}, {
-	"name": "OBJECT_TYPE",
-	"desc": "归属类型",
-	"type": "String"
-}, {
-	"name": "APP_TYPE",
-	"desc": "中间件类型",
-	"type": "String"
-}, {
-	"name": "MGMT_IP",
-	"desc": "管理IP",
-	"type": "String"
-}, {
-	"name": "MGMT_PORT",
-	"desc": "管理端口",
-	"type": "int"
-}, {
-	"name": "SERVER_NAME",
-	"desc": "服务名",
-	"type": "String"
-}, {
-	"name": "VERSION",
-	"desc": "版本",
-	"type": "String"
-}, {
-	"name": "PORT",
-	"desc": "Port",
-	"type": "String"
-}, {
-	"name": "SSL_PORT",
-	"desc": "SSL端口",
-	"type": "String"
-}, {
-	"name": "ADMIN_PORT",
-	"desc": "管理端口",
-	"type": "String"
-}, {
-	"name": "ADMIN_SSL_PORT",
-	"desc": "管理SSL端口",
-	"type": "String"
-}, {
-	"name": "MON_PORT",
-	"desc": "监控端口",
-	"type": "String"
-}, {
-	"name": "PORTS",
-	"desc": "所有端口列表",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "VALUE",
-		"desc": "端口",
+{
+	"name": "Nginx",
+	"fields": [{
+		"name": "OS_ID",
+		"desc": "OS ID",
+		"type": "String"
+	}, {
+		"name": "OS_USER",
+		"desc": "OS用户",
+		"type": "String"
+	}, {
+		"name": "EXE_PATH",
+		"desc": "执行文件路径",
+		"type": "String"
+	}, {
+		"name": "COMMAND",
+		"desc": "命令行",
+		"type": "String"
+	}, {
+		"name": "OBJECT_TYPE",
+		"desc": "归属类型",
+		"type": "String"
+	}, {
+		"name": "APP_TYPE",
+		"desc": "中间件类型",
+		"type": "String"
+	}, {
+		"name": "MGMT_IP",
+		"desc": "管理IP",
+		"type": "String"
+	}, {
+		"name": "MGMT_PORT",
+		"desc": "管理端口",
 		"type": "int"
-	}]
-}, {
-	"name": "INSTALL_PATH",
-	"desc": "安装目录",
-	"type": "String"
-}, {
-	"name": "EXE_PATH",
-	"desc": "启停exe文件路径",
-	"type": "String"
-}, {
-	"name": "BIN_PATH",
-	"desc": "bin文件路径",
-	"type": "String"
-}, {
-	"name": "CONFIG_PATH",
-	"desc": "配置文件目录",
-	"type": "String"
-}, {
-	"name": "PREFIX",
-	"desc": "prefix",
-	"type": "String"
-}, {
-	"name": "SERVERS",
-	"desc": "服务",
-	"type": "JsonArray",
-	"subset": [{
-		"name": "SERVICE_TYPE",
-		"desc": "类型",
+	}, {
+		"name": "SERVER_NAME",
+		"desc": "服务名",
 		"type": "String"
 	}, {
-		"name": "SERVICE_STATUS",
-		"desc": "状态",
+		"name": "VERSION",
+		"desc": "版本",
 		"type": "String"
 	}, {
-		"name": "SERVICE_NAME",
-		"desc": "名称",
+		"name": "PORT",
+		"desc": "Port",
 		"type": "String"
 	}, {
-		"name": "SERVICE_PORT",
-		"desc": "监听端口",
+		"name": "SSL_PORT",
+		"desc": "SSL端口",
+		"type": "String"
+	}, {
+		"name": "ADMIN_PORT",
+		"desc": "管理端口",
+		"type": "String"
+	}, {
+		"name": "ADMIN_SSL_PORT",
+		"desc": "管理SSL端口",
+		"type": "String"
+	}, {
+		"name": "MON_PORT",
+		"desc": "监控端口",
+		"type": "String"
+	}, {
+		"name": "PORTS",
+		"desc": "所有端口列表",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "VALUE",
+			"desc": "端口",
+			"type": "int"
+		}]
+	}, {
+		"name": "INSTALL_PATH",
+		"desc": "安装目录",
+		"type": "String"
+	}, {
+		"name": "EXE_PATH",
+		"desc": "启停exe文件路径",
+		"type": "String"
+	}, {
+		"name": "BIN_PATH",
+		"desc": "bin文件路径",
 		"type": "String"
 	}, {
 		"name": "CONFIG_PATH",
-		"desc": "归属配置文件",
+		"desc": "配置文件目录",
 		"type": "String"
+	}, {
+		"name": "PREFIX",
+		"desc": "prefix",
+		"type": "String"
+	}, {
+		"name": "SERVERS",
+		"desc": "服务",
+		"type": "JsonArray",
+		"subset": [{
+			"name": "SERVICE_TYPE",
+			"desc": "类型",
+			"type": "String"
+		}, {
+			"name": "SERVICE_STATUS",
+			"desc": "状态",
+			"type": "String"
+		}, {
+			"name": "SERVICE_NAME",
+			"desc": "名称",
+			"type": "String"
+		}, {
+			"name": "SERVICE_PORT",
+			"desc": "监听端口",
+			"type": "String"
+		}, {
+			"name": "CONFIG_PATH",
+			"desc": "归属配置文件",
+			"type": "String"
+		}]
 	}]
-}]
+}
