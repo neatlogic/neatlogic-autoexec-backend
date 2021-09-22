@@ -68,7 +68,7 @@ sub main {
         exit(1);
     }
     my $data = $instance->collect();
-    $data->{OBJECT_TYPE} = 'FIREWALL';
+    $data->{OBJECT_TYPE} = 'FCSWITCH';
     $data->{APP_TYPE}    = $type;
     $data->{MGMT_IP}     = $nodeInfo->{host};
     $data->{PK}          = ['MGMT_IP'];
