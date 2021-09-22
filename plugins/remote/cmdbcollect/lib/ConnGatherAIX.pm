@@ -59,7 +59,7 @@ sub parseListenLines {
 
                 my $pid = $self->findSockPid($sockAddr);
 
-                if ( $ip eq '*' or $ip eq '::' or $ip eq '0.0.0.0' ) {
+                if ( $ip eq '*' or $ip eq '::' or $ip eq '[::]' or $ip eq '0.0.0.0' ) {
                     $portsMap->{$port} = $pid;
                 }
                 else {

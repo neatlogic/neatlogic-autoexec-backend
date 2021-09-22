@@ -284,11 +284,12 @@ sub main {
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
 
+            my $portsMap = {};
             my @portNumbers = ();
             my @bindAddrs   = ();
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
-                    push( @portNumbers, int($lsnPort) );
+                    $portsMap->{int($lsnPort)} = 1;
                     foreach my $ipInfo (@$ipAddrs) {
                         push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
                     }
@@ -297,10 +298,12 @@ sub main {
                     }
                 }
                 else {
-                    push( @bindAddrs, "$lsnPort" );
-                    $lsnPort =~ s/^.*://;
-                    push( @portNumbers, int($lsnPort) );
+                    push( @bindAddrs, $lsnPort );
+                    my $myPort = $lsnPort;
+                    $myPort =~ s/^.*://;
+                    $portsMap->{int($myPort)} = 1;
                 }
+                @portNumbers = keys(%$portsMap);
             }
             $connInfo->{BIND} = \@bindAddrs;
 
