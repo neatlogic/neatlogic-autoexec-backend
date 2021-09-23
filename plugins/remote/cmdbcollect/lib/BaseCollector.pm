@@ -185,9 +185,9 @@ sub getJavaAttrs {
                 $javaPath = "$workPath/$javaPath";
             }
         }
-        
-        if ( $javaPath eq 'java' ){
-            $javaPath = $self->getCmdOut('which java', $procInfo->{USER});
+
+        if ( $javaPath eq 'java' ) {
+            $javaPath = $self->getCmdOut( 'which java', $procInfo->{USER} );
         }
 
         if ( not -e $javaPath ) {

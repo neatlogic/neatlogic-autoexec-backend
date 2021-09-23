@@ -36,7 +36,7 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $cmdLine  = $procInfo->{COMMAND};
     my $appInfo  = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     $self->getJavaAttrs($appInfo);
 

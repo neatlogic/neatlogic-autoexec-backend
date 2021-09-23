@@ -92,7 +92,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $mysqlInfo = {};
-    $mysqlInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+    $mysqlInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
 
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
 

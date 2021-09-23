@@ -39,7 +39,7 @@ sub collect {
     }
     my $procInfo       = $self->{procInfo};
     my $keepalivedInfo = {};
-    $keepalivedInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $keepalivedInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
     $keepalivedInfo->{SERVER_NAME} = 'keepalived';
 
     my $exePath  = $procInfo->{EXECUTABLE_FILE};

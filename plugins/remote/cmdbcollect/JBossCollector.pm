@@ -38,7 +38,7 @@ sub collect {
     my $envMap   = $procInfo->{ENVRIONMENT};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     my $homePath;
     my $installPath;

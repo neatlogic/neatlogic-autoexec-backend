@@ -60,7 +60,7 @@ sub collect {
     my $envMap           = $procInfo->{ENVIRONMENT};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
 

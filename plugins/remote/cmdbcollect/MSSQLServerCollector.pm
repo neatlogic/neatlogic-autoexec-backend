@@ -45,7 +45,7 @@ sub collect {
 
     my $appInfo = {};
 
-    my $objType          = $CollectObjType::DB;
+    my $objType          = CollectObjType->get('DB');
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $user             = $procInfo->{USER};

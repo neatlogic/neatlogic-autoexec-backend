@@ -369,7 +369,7 @@ sub collect {
 
     my $procInfo = $self->{procInfo};
     my $appInfo  = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
 
     my $db2InstUser = $procInfo->{USER};
 

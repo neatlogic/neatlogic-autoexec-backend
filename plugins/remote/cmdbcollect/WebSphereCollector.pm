@@ -174,7 +174,7 @@ sub collect {
     $self->{OS_TYPE} = $procInfo->{OS_TYPE};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
     my $appType       = $procInfo->{APP_TYPE};

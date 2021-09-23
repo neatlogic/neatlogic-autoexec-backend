@@ -917,7 +917,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $insInfo = {};
-    $insInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+    $insInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
 
     my $envMap = $procInfo->{ENVRIONMENT};
 

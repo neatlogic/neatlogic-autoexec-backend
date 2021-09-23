@@ -10,6 +10,7 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
+use CollectObjType;
 use Data::Dumper;
 
 sub usage {
@@ -68,7 +69,7 @@ sub main {
         exit(1);
     }
     my $data = $instance->collect();
-    $data->{OBJECT_TYPE} = 'FCSWITCH';
+    $data->{OBJECT_TYPE} = CollectObjType->get('FCSWITCH');
     $data->{APP_TYPE}    = $type;
     $data->{MGMT_IP}     = $nodeInfo->{host};
     $data->{PK}          = ['MGMT_IP'];

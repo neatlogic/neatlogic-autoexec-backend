@@ -47,7 +47,7 @@ sub collect {
     my $envMap           = $procInfo->{ENVIRONMENT};
 
     my @collectSet = ();
-    my $objType    = $CollectObjType::DB;
+    my $objType    = CollectObjType->get('DB');
 
     my $homePath = $envMap->{INFORMIXDIR};
     my $confPath = "$homePath/etc";

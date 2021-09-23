@@ -168,7 +168,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     my $envMap     = $procInfo->{ENVRIONMENT};
     my $domainHome = $envMap->{DOMAIN_HOME};

@@ -35,7 +35,7 @@ sub collect {
 
     my $procInfo = $self->{procInfo};
     my $appInfo  = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     my $installPath;
 

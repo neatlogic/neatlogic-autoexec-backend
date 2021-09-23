@@ -66,7 +66,7 @@ sub main {
     my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
-        if ( $classDef ne 'OS' ){
+        if ( $classDef ne 'OS' ) {
             $ignoreOsInfo = 1;
         }
 
@@ -101,16 +101,16 @@ sub main {
         my $osGather = OSGather->new();
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($osInfo) ) {
-            $osInfo->{OBJECT_TYPE}   = $CollectObjType::OS;
-            $osInfo->{OS_TYPE}       = $osType;
-            $osInfo->{OS_ID}         = $osGather->{osId};
-            $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
-            $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $osInfo->{PK}            = ['MGMT_IP'];
-            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
+            $osInfo->{OBJECT_TYPE}  = CollectObjType->get('OS');
+            $osInfo->{OS_TYPE}      = $osType;
+            $osInfo->{OS_ID}        = $osGather->{osId};
+            $osInfo->{MGMT_IP}      = $osGather->{mgmtIp};
+            $osInfo->{MGMT_PORT}    = $osGather->{mgmtPort};
+            $osInfo->{PK}           = ['MGMT_IP'];
+            $osInfo->{INDEX_FIELDS} = ['OS_ID'];
         }
         if ( defined($hostInfo) ) {
-            $hostInfo->{OBJECT_TYPE} = $CollectObjType::HOST;
+            $hostInfo->{OBJECT_TYPE} = CollectObjType->get('HOST');
             $hostInfo->{OS_ID}       = $osGather->{osId};
             $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
@@ -227,16 +227,16 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_ID}           = $procInfo->{OS_ID};
-            $appInfo->{OS_USER}         = $procInfo->{USER};
-            $appInfo->{COMMAND}         = $procInfo->{COMMAND};
-            $appInfo->{MGMT_IP}         = $procInfo->{MGMT_IP};
-            $appInfo->{MGMT_PORT}       = $procInfo->{MGMT_PORT};
+            $appInfo->{OS_ID}     = $procInfo->{OS_ID};
+            $appInfo->{OS_USER}   = $procInfo->{USER};
+            $appInfo->{COMMAND}   = $procInfo->{COMMAND};
+            $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
             if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {
                 $appInfo->{PK} = $pkConfig->{$appType};
             }
             else {
-                $appInfo->{PK} = ['MGMT_IP', 'MGMT_PORT'];
+                $appInfo->{PK} = [ 'MGMT_IP', 'MGMT_PORT' ];
                 print("ERROR: $appType PK not defined in the collector class:$collectorClass.\n");
             }
         }
@@ -284,12 +284,12 @@ sub main {
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
 
-            my $portsMap = {};
+            my $portsMap    = {};
             my @portNumbers = ();
             my @bindAddrs   = ();
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
-                    $portsMap->{int($lsnPort)} = 1;
+                    $portsMap->{ int($lsnPort) } = 1;
                     foreach my $ipInfo (@$ipAddrs) {
                         push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
                     }
@@ -301,7 +301,7 @@ sub main {
                     push( @bindAddrs, $lsnPort );
                     my $myPort = $lsnPort;
                     $myPort =~ s/^.*://;
-                    $portsMap->{int($myPort)} = 1;
+                    $portsMap->{ int($myPort) } = 1;
                 }
                 @portNumbers = keys(%$portsMap);
             }
@@ -321,7 +321,7 @@ sub main {
     print("INFO: Begin to save collected data.\n");
 
     my @data = ();
-    if ( $ignoreOsInfo == 0 ){
+    if ( $ignoreOsInfo == 0 ) {
         if ( defined($hostInfo) ) {
             push( @data, $hostInfo );
         }
@@ -336,9 +336,9 @@ sub main {
     AutoExecUtils::saveOutput($out);
     print("INFO: All is completed.\n");
 
-    if ( $isVerbose == 1 ){
+    if ( $isVerbose == 1 ) {
         print("==================\n");
-        print(to_json($out->{DATA}, {pretty=>1}));
+        print( to_json( $out->{DATA}, { pretty => 1 } ) );
         print("==================\n");
     }
 }

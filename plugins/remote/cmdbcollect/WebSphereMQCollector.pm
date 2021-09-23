@@ -39,7 +39,7 @@ sub collect {
     my $cmdLine          = $envMap->{COMMAND};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
     #$ ps -ef | grep runmqlsr
     #mqm      17411 17191  0 May04 ?        00:00:29 /opt/mqm/bin/runmqlsr -r -m QMGR1 -t TCP -p 1428

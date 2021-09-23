@@ -9,6 +9,7 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
+use CollectObjType;
 use A10Snmp;
 
 #README
@@ -55,7 +56,7 @@ sub main {
 
     my $collector = A10Snmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
     my $data = $collector->collect();
-    $data->{OBJECT_TYPE} = 'LOADBLANCER';
+    $data->{OBJECT_TYPE} = CollectObjType->get('LOADBALANCER');
     $data->{APP_TYPE}    = 'A10';
     $data->{PK}          = ['SN'];
     $data->{RESOURCE_ID} = $node->{resourceId};

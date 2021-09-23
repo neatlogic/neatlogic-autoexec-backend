@@ -47,7 +47,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $osUser           = $procInfo->{USER};
     my $mongodbInfo      = {};
-    $mongodbInfo->{OBJECT_TYPE} = $CollectObjType::DB;
+    $mongodbInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
 
     #服务名, 要根据实际来设置
     $mongodbInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};

@@ -34,7 +34,7 @@ sub collect {
     }
     my $procInfo  = $self->{procInfo};
     my $nginxInfo = {};
-    $nginxInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $nginxInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
     $nginxInfo->{SERVER_NAME} = 'nginx';
 
     my $exePath  = $procInfo->{EXECUTABLE_FILE};

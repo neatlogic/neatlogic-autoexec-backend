@@ -66,7 +66,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
+    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
     $appInfo->{VERSION}     = $version;
 
     # Name             ID   State      Physical Path                  Bindings
