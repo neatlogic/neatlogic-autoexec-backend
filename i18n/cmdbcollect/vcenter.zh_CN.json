@@ -1,5 +1,9 @@
 {
 	"name": "VCenter",
+	"collection": "COLLECT_VIRTUALIZED",
+	"filter": {
+		"APP_TYPE": "VCenter"
+	},
 	"fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",

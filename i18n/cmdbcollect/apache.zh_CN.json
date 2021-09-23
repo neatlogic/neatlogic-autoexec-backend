@@ -1,6 +1,8 @@
 {
 	"name": "Apache",
-	"fields": [{
+	"collection": "COLLECT_INS",
+    "filter": {"APP_TYPE": "Apache"},
+    "fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"

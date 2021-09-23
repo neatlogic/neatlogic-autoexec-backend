@@ -1,5 +1,9 @@
 {
     "name": "Lighttpd",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "APP_TYPE": "Lighttpd"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

@@ -1,5 +1,9 @@
 {
     "name": "F5",
+    "collection": "COLLECT_LOADBALANCER",
+    "filter": {
+        "APP_TYPE": "F5"
+    },
     "fields": [{
         "name": "RESOURCE_ID",
         "desc": "CMDB ID",

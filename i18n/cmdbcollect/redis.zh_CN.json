@@ -1,5 +1,9 @@
 {
 	"name": "Redis",
+	"collection": "COLLECT_DB",
+	"filter": {
+		"APP_TYPE": "Redis"
+	},
 	"fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",

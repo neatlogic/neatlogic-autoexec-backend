@@ -1,5 +1,9 @@
 {
     "name": "RabbitMQ",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "APP_TYPE": "RabbitMQ"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

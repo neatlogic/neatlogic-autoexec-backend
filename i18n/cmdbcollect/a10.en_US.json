@@ -1,5 +1,9 @@
 {
     "name": "A10",
+    "collection": "COLLECT_LOADBALANCER",
+    "filter": {
+        "APP_TYPE": "A10"
+    },
     "fields": [{
         "name": "RESOURCE_ID",
         "desc": "CMDB ID",

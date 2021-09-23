@@ -1,5 +1,7 @@
 {
     "name": "交换机",
+    "collection": "COLLECT_SWITCH",
+    "filter": {},
     "fields": [{
         "name": "RESOURCE_ID",
         "desc": "CMDB ID",

@@ -1,5 +1,7 @@
 {
     "name": "Mysql",
+    "collection": "COLLECT_DB",
+    "filter": {"APP_TYPE": "Mysql"},
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

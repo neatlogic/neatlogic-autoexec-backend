@@ -1,5 +1,9 @@
 {
 	"name": "Linux",
+	"collection": "COLLECT_OS",
+	"filter": {
+		"APP_TYPE": "Linux"
+	},
 	"fields": [{
 		"name": "OS_ID",
 		"desc": "CMDB对象ID",

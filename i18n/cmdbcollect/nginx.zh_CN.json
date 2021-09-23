@@ -1,6 +1,8 @@
 {
 	"name": "Nginx",
-	"fields": [{
+	"collection": "COLLECT_INS",
+    "filter": {"APP_TYPE": "Nginx"},
+    "fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"

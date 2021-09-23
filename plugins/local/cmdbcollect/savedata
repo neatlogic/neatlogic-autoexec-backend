@@ -114,7 +114,7 @@ if __name__ == "__main__":
                 if appType is not None:
                     tableName = appType
 
-                table = "collect_" + tableName.lower()
+                table = "COLLECT_" + objType
 
                 # 根据PK的定义生成Primary Key filter
                 primaryKey = {}

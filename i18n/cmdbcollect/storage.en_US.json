@@ -1,5 +1,7 @@
 {
     "name": "Storage",
+    "collection": "COLLECT_STORAGE",
+    "filter": {},
     "fields": [{
         "name": "RESOURCE_ID",
         "desc": "CMDB ID",

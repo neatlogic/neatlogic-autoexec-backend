@@ -1,5 +1,9 @@
 {
     "name": "IIS",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "APP_TYPE": "IIS"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

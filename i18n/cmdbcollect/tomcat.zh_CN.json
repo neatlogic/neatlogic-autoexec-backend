@@ -1,5 +1,9 @@
 {
 	"name": "Tomcat",
+	"collection": "COLLECT_INS",
+	"filter": {
+		"APP_TYPE": "Tomcat"
+	},
 	"fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",

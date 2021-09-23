@@ -1,5 +1,9 @@
 {
     "name": "novmtool",
+    "collection": "COLLECT_OS",
+    "filter": {
+        "APP_TYPE": "novmtool"
+    },
     "fields": [{
         "name": "DISKS",
         "desc": "disks",

@@ -56,11 +56,23 @@ if __name__ == "__main__":
         if (info[1] == lang):
             print("INFO: Import", dfile, "start...")
             data = loadJson(path + "/" + dfile)
-            tableName = "collect_"+info[0].strip()
-            #data['type'] = tableName
-            data['collection'] = tableName
-            collection.replace_one({'collection': tableName}, data, upsert=True)
-            collection.create_index([('collection', 1)], name='idx_pk', unique=True)
-            print("INFO: Import", dfile, "success.")
+            hasError = False
+            if 'collection' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'collection'.\n")
+            if 'filter' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'filter'.\n")
+            if 'name' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'name'.\n")
+
+            if hasError == False:
+                tableName = data['collection']
+                collection.replace_one({'collection': tableName}, data, upsert=True)
+                collection.create_index([('collection', 1)], name='idx_pk', unique=True)
+                print("INFO: Import", dfile, "success.")
+            else:
+                print("ERROR: Import", dfile, "failed.")
     # 关闭连接
     dbclient.close()

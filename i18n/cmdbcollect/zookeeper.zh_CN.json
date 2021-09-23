@@ -1,5 +1,9 @@
 {
     "name": "Zookeeper",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "APP_TYPE": "Zookeeper"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

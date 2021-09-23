@@ -1,6 +1,8 @@
 {
 	"name": "Mongodb",
-	"fields": [{
+	"collection": "COLLECT_DB",
+    "filter": {"APP_TYPE": "Mongodb"},
+    "fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"

@@ -1,5 +1,7 @@
 {
 	"name": "Host",
+	"collection": "COLLECT_HOST",
+	"filter": {},
 	"fields": [{
 		"name": "BOARD_SERIAL",
 		"desc": "Board Serial",

@@ -1,5 +1,7 @@
 {
     "name": "Firewall",
+    "collection": "COLLECT_FIREWALL",
+    "filter": {},
     "fields": [{
         "name": "RESOURCE_ID",
         "desc": "CMDB ID",

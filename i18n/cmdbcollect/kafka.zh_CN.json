@@ -1,5 +1,9 @@
 {
     "name": "Kafka",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "APP_TYPE": "Kafka"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

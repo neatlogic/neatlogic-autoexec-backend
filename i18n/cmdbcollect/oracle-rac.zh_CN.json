@@ -1,5 +1,9 @@
 {
     "name": "Oracle-RAC",
+    "collection": "COLLECT_DB_CLUSTER",
+    "filter": {
+        "APP_TYPE": "Oracle-RAC"
+    },
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

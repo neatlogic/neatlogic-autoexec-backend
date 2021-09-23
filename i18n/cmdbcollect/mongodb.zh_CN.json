@@ -1,5 +1,9 @@
 {
 	"name": "Mongodb",
+	"collection": "COLLECT_DB",
+	"filter": {
+		"APP_TYPE": "Mongodb"
+	},
 	"fields": [{
 		"name": "BIND_IP",
 		"desc": "监听IP配置",

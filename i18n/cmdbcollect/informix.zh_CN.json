@@ -1,5 +1,7 @@
 {
     "name": "Informix",
+    "collection": "COLLECT_DB",
+    "filter": {"APP_TYPE": "Informix"},
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",

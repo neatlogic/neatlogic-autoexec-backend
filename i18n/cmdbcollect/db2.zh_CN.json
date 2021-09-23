@@ -1,5 +1,7 @@
 {
     "name": "DB2",
+    "collection": "COLLECT_DB",
+    "filter": {"APP_TYPE": "DB2"},
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",
