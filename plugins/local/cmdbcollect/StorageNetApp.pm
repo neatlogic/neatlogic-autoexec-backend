@@ -18,6 +18,7 @@ sub new {
     my ( $class, %args ) = @_;
     my $self = {};
 
+    my $data = {};
     $data->{VENDOR} = 'NetApp';
     $data->{BRAND}  = 'NetApp';
     $self->{DATA}   = $data;
@@ -195,7 +196,7 @@ sub getPools {
 
     my $luns = $tableData->{LUN_LIST};
     foreach my $lunInfo (@$luns) {
-        $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 ) / 100;
+        $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 / 1024 ) / 100;
         my $qtreeInfo   = $qtreesMap->{ $lunInfo->{QTREE_NAME} };
         my $lunsInQtree = $qtreeInfo->{LUNS};
         push( @$lunsInQtree, $lunInfo );
@@ -226,7 +227,7 @@ sub getPools {
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 ) / 100;
 
         if ( $dfName ne '' ) {
-            push( @$validDfVolumes, $dfVolInfo );
+            push( @validDfVolumes, $dfVolInfo );
         }
     }
 
