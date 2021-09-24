@@ -275,7 +275,7 @@ sub collectOsInfo {
         }
     }
 
-    my @disks         = {};
+    my @disks         = ();
     my $diskFieldIdxMap = {
         DeviceId     => undef,
         Name         => undef,
