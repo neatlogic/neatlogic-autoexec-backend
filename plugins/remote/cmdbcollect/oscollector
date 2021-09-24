@@ -208,8 +208,9 @@ sub main {
             my $appInfo = $appInfos[$idx];
             $isMatched = 1;
             if ( not defined( $appInfo->{OBJECT_TYPE} ) ) {
-                $appInfo->{OBJECT_TYPE} = $CollectObjType::APP;
-                print("WARN: $collectorClass did not return OBJECT_TYPE, fallback to $CollectObjType::APP.\n");
+                my $defaultObjType = CollectObjType->get('APP');
+                $appInfo->{OBJECT_TYPE} = $defaultObjType;
+                print("WARN: $collectorClass did not return OBJECT_TYPE, fallback to $defaultObjType.\n");
             }
             $appType = $appInfo->{APP_TYPE};
             if ( not defined($appType) ) {

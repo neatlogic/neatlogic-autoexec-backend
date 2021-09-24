@@ -69,6 +69,11 @@ sub collect {
     # 2021-09-22 11:32:58.67 Server      Authentication mode is MIXED.
     my $sqlServerCmd = $procInfo->{COMMAND};
     $sqlServerCmd =~ s/sqlservr.exe".*$/sqlservr.exe"/;
+    my $exePath = $sqlServerCmd;
+    $exePath =~ s/^"|"$//g;
+    $appInfo->{EXE_PATH}     = $exePath;
+    $appInfo->{INSTALL_PATH} = dirname($exePath);
+    $appInfo->{CONFIG_PATH}  = undef;
 
     my $version;
     my $authMode;
@@ -84,6 +89,15 @@ sub collect {
     }
     $appInfo->{VERSION}             = $version;
     $appInfo->{AUTHENTICATION_MODE} = $authMode;
+
+    my $insName;
+    my $insInfoLines = $self->getCmdOutLines('reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MSSQLSERVER');
+    foreach my $line (@$insInfoLines) {
+        if ( $line =~ /^\s*DisplayName\s+REG_SZ.*?\((.*?)\)/ ) {
+            $insName = $1;
+        }
+    }
+    $appInfo->{SERVER_NAME} = $insName;
 
     my $portsMap    = {};
     my @portNumbers = ();
@@ -102,6 +116,10 @@ sub collect {
     $appInfo->{PORT}     = $portNumbers[0];
     $appInfo->{MON_PORT} = $portNumbers[0];
     $appInfo->{PORTS}    = \@portNumbers;
+
+    $appInfo->{DATA_FILE} = undef;
+    $appInfo->{DATABASES} = [];
+    $appInfo->{USERS}     = [];
 
     return $appInfo;
 }
