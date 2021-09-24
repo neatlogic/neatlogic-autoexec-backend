@@ -110,7 +110,7 @@ sub collectOsInfo {
         if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
             $mountInfo->{DEVICE}      = $device;
-            $mountInfo->{MOUNT_POINT} = $mountPoint;
+            $mountInfo->{NAME} = $mountPoint;
             $mountInfo->{FS_TYPE}     = $fsType;
 
             if ( $fsType !~ /^nfs/i ) {
@@ -364,8 +364,7 @@ sub collectOsInfo {
                 }
             }
 
-            $diskInfo->{LUN} = $sn . ':' . $id;
-            $diskInfo->{ID}  = $sn . ':' . $id;
+            $diskInfo->{WWID} = $sn . ':' . $id;
         }
 
         push( @diskInfos, $diskInfo );

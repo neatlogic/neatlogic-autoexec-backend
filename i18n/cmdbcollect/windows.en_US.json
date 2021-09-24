@@ -111,6 +111,39 @@
 				"name": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
+			}, {
+				"name": "MODEL",
+				"desc": "Model",
+				"type": "String"
+			}]
+		}, {
+			"name": "MOUNT_POINTS",
+			"desc": "Mount Points",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "USED",
+				"desc": "Used",
+				"type": "float"
+			}, {
+				"name": "AVAILABLE",
+				"desc": "Available",
+				"type": "float"
+			}, {
+				"name": "NAME",
+				"desc": "Mount Point",
+				"type": "String"
+			}, {
+				"name": "USED%",
+				"desc": "Used%",
+				"type": "int"
+			}, {
+				"name": "UNIT",
+				"desc": "Unit",
+				"type": "String"
+			}, {
+				"name": "CAPACITY",
+				"desc": "Capacity",
+				"type": "int"
 			}]
 		}, {
 			"name": "SYMANTEC_INSTALLED",

@@ -146,7 +146,7 @@ sub collect {
                 $name = '';
             }
             $lunInfo->{NAME}      = $name;
-            $lunInfo->{LUN_ID}    = $lunId;
+            $lunInfo->{WWID}    = $lunId;
             $lunInfo->{CAPACITY}  = $capacity;
             $lunInfo->{POOL_NAME} = $poolName;
 

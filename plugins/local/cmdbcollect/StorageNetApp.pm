@@ -102,7 +102,7 @@ sub new {
         },
         LUN_LIST => {
             NAME       => '1.3.6.1.4.1.789.1.17.15.2.1.2',
-            LUN_ID     => '1.3.6.1.4.1.789.1.17.15.2.1.7',
+            WWID       => '1.3.6.1.4.1.789.1.17.15.2.1.7',
             CAPACITY   => '1.3.6.1.4.1.789.1.17.15.2.1.28',
             QTREE_NAME => '1.3.6.1.4.1.789.1.17.15.2.1.8'
         },
@@ -197,6 +197,11 @@ sub getPools {
     my $luns = $tableData->{LUN_LIST};
     foreach my $lunInfo (@$luns) {
         $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 / 1024 ) / 100;
+        #Netapp的WWID是一个ascii编码的字串，需要转换，还要加上NetApp的前缀：60a98000
+        my $wwId = $lunInfo->{WWID};
+        $wwId =~ s/(.)/sprintf "%02x", ord $1/seg;
+        $wwId = '60a98000' . $wwId;
+        $lunInfo->{WWID} = $wwId;
         my $qtreeInfo   = $qtreesMap->{ $lunInfo->{QTREE_NAME} };
         my $lunsInQtree = $qtreeInfo->{LUNS};
         push( @$lunsInQtree, $lunInfo );

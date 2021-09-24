@@ -109,7 +109,7 @@ sub collect {
         my $lun = {};
         $lun->{ID}       = $id;
         $lun->{NAME}     = $name;
-        $lun->{LUNID}    = $uuid;
+        $lun->{WWID}    = $uuid;
         $lun->{CAPACITY} = $size;
         push( @luns, $lun );
         $lunsMap->{$id} = $lun;

@@ -224,15 +224,15 @@ sub collectOsInfo {
     # 19005206528  C:    85897244672
     #             D:
     my @logicalDisks   = ();
-    my $ldiskInfoLines = $self->getCmdOutLines('wmic logicaldisk get Name,Size,FreeSpace');
-
-    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
-    my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
     my $ldiskFieldIdxMap = {
         Name      => undef,
         Size      => undef,
         FreeSpace => undef
     };
+    my $ldiskInfoLines = $self->getCmdOutLines('wmic logicaldisk get ' . join(',', keys(%$ldiskFieldIdxMap)));
+
+    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
+    my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
     for ( my $i = 0 ; $i <= $#ldiskHeadInfo ; $i++ ) {
         my $fieldName = $ldiskHeadInfo[$i];
         $ldiskFieldIdxMap->{$fieldName} = $i;
@@ -276,16 +276,17 @@ sub collectOsInfo {
     }
 
     my @disks         = {};
-    my $diskInfoLines = $self->getCmdOutLines('wmic diskdrive get size,serialnumber,deviceId,name');
-
-    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
-    my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
     my $diskFieldIdxMap = {
         DeviceId     => undef,
         Name         => undef,
         Size         => undef,
-        SerialNumber => undef
+        SerialNumber => undef,
+        InterfaceType => undef
     };
+    my $diskInfoLines = $self->getCmdOutLines('wmic diskdrive get ' . join(',', keys(%$diskFieldIdxMap)));
+
+    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
+    my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
     for ( my $i = 0 ; $i <= $#diskHeadInfo ; $i++ ) {
         my $fieldName = $diskHeadInfo[$i];
         $diskFieldIdxMap->{$fieldName} = $i;
@@ -308,6 +309,7 @@ sub collectOsInfo {
             $diskInfo->{CAPACITY} = $size;
             $diskInfo->{UNIT}     = 'GB';
             $diskInfo->{SN}       = $sn;
+            $diskInfo->{TYPE}     = $splits[$diskFieldIdxMap->{InterfaceType}];
             push( @disks, $diskInfo );
         }
     }

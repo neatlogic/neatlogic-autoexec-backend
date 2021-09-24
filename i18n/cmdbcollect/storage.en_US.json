@@ -59,7 +59,7 @@
             "desc": "Name",
             "type": "String"
         }, {
-            "name": "LUNID",
+            "name": "WWID",
             "desc": "Lun ID",
             "type": "String"
         }, {
@@ -129,7 +129,7 @@
                 "desc": "Name",
                 "type": "String"
             }, {
-                "name": "LUNID",
+                "name": "WWID",
                 "desc": "Lun ID",
                 "type": "String"
             }, {

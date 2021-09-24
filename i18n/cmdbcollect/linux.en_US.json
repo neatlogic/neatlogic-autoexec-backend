@@ -245,7 +245,7 @@
 			"desc": "Device",
 			"type": "String"
 		}, {
-			"name": "MOUNT_POINT",
+			"name": "NAME",
 			"desc": "Mount Point",
 			"type": "String"
 		}, {

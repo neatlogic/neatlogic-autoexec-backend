@@ -87,7 +87,7 @@ sub collect {
         $lunInfo->{ID}   = $id;
         $lunInfo->{NAME} = $splits[1];
 
-        #$lunInfo->{LUN_ID}    = undef;
+        #$lunInfo->{WWID}    = undef;
         $lunInfo->{TYPE}      = $splits[3];
         $lunInfo->{POOL_ID}   = $poolId;
         $lunInfo->{POOL_NAME} = $splits[5];
@@ -131,7 +131,7 @@ sub collect {
 
         my $lunInfo = $lunIdsMap->{$id};
         if ( defined($lunInfo) ) {
-            $lunInfo->{LUN_ID} = $lunId;
+            $lunInfo->{WWID} = $lunId;
         }
     }
 

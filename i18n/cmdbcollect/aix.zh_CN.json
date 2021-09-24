@@ -245,7 +245,7 @@
 			"desc": "设备",
 			"type": "String"
 		}, {
-			"name": "MOUNT_POINT",
+			"name": "NAME",
 			"desc": "挂载点",
 			"type": "String"
 		}, {
