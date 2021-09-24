@@ -48,12 +48,10 @@ if __name__ == "__main__":
     table = '_dictionary'
     collection = db[table]
 
-    if mode == 'truncate':
-        collection.delete_one({'type': table})
-
     for dfile in dirs:
         info = dfile.split('.')
         if (info[1] == lang):
+            className = info[0]
             print("INFO: Import", dfile, "start...")
             data = loadJson(path + "/" + dfile)
             hasError = False
@@ -69,8 +67,12 @@ if __name__ == "__main__":
 
             if hasError == False:
                 tableName = data['collection']
-                collection.replace_one({'collection': tableName}, data, upsert=True)
-                collection.create_index([('collection', 1)], name='idx_pk', unique=True)
+                if mode == 'truncate':
+                    collection.delete_one({'class_name': className})
+
+                data['class_name'] = className
+                collection.replace_one({'class_name': className}, data, upsert=True)
+                collection.create_index([('class_name', 1)], name='idx_pk', unique=True)
                 print("INFO: Import", dfile, "success.")
             else:
                 print("ERROR: Import", dfile, "failed.")

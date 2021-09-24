@@ -2,7 +2,7 @@
 	"name": "Windows",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"APP_TYPE": "Windows"
+		"OS_TYPE": "Windows"
 	},
 	"fields": [{
 			"name": "RESOURCE_ID",

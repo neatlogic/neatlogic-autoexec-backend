@@ -32,7 +32,7 @@ class OutputStore:
         if db is None:
             return
 
-        collection = db['node_output']
+        collection = db['_node_output']
         pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
         outData = {}
         outData['host'] = self.node['host']
@@ -53,7 +53,7 @@ class OutputStore:
         if db is None:
             return output
 
-        collection = db['node_output']
+        collection = db['_node_output']
 
         try:
             pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
@@ -73,7 +73,7 @@ class OutputStore:
         if db is None:
             return
 
-        collection = db['node_status']
+        collection = db['_node_status']
         pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId']}
         outData = {}
         outData['host'] = self.node['host']
@@ -97,7 +97,7 @@ class OutputStore:
         if db is None:
             return status
 
-        collection = db['node_status']
+        collection = db['_node_status']
 
         try:
             pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId']}
@@ -115,7 +115,7 @@ class OutputStore:
         if db is None:
             return
 
-        collection = db['node_status']
+        collection = db['_node_status']
 
         status = {}
         try:

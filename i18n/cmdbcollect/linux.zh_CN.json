@@ -2,7 +2,7 @@
 	"name": "Linux",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"APP_TYPE": "Linux"
+		"OS_TYPE": "Linux"
 	},
 	"fields": [{
 		"name": "OS_ID",

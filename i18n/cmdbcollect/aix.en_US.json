@@ -2,7 +2,7 @@
 	"name": "OS AIX",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"APP_TYPE": "AIX"
+		"OS_TYPE": "AIX"
 	},
 	"fields": [{
 			"name": "OS_ID",

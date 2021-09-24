@@ -107,7 +107,7 @@ class Context(VContext.VContext):
 
     def loadEnv(self):
         db = self.db
-        collection = db['autoexec_env']
+        collection = db['_autoexec_env']
 
         envs = {}
         try:
@@ -124,7 +124,7 @@ class Context(VContext.VContext):
         os.environ[name] = value
 
         db = self.db
-        collection = db['autoexec_env']
+        collection = db['_autoexec_env']
         pk = {'jobId': self.jobId, 'name': name}
         outData = {}
         outData['value'] = value
