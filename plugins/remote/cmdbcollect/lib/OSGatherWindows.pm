@@ -54,7 +54,7 @@ sub collectOsInfo {
     $machineId =~ s/^\s+|\s+$//g;
     $osInfo->{MACHINE_ID} = $machineId;
 
-    #TODO: 补充是否虚拟机的判断
+    #是否虚拟机的判断
     $osInfo->{IS_VIRTUAL} = 0;
     if ( $machineId =~ /^vmware/i or $machineId =~ /^kvm/i or $machineId =~ /Nutanix/ ) {
         $osInfo->{IS_VIRTUAL} = 1;
@@ -217,8 +217,45 @@ sub collectOsInfo {
     }
     $osInfo->{USERS} = \@users;
 
-    #TODO: 磁盘信息的采集
-    my @disks = ();
+    #磁盘信息的采集
+    # c:\tmp\autoexec\cmdbcollect>wmic logicaldisk get Name,Size,FreeSpace
+    # FreeSpace    Name  Size
+    #             A:
+    # 19005206528  C:    85897244672
+    #             D:
+    my @disks         = ();
+    my $diskInfoLines = $self->getCmdOutLines('wmic logicaldisk get Name,Size,FreeSpace');
+    my @headInfo      = split( /\s+/, $$diskInfoLines[0] );
+    my ( $nameIdx, $sizeIdx, $freeIdx );
+    for ( my $i = 0 ; $i <= $#headInfo ; $i++ ) {
+        my $fieldName = $headInfo[$i];
+        if ( $fieldName eq 'Name' ) {
+            $nameIdx = $i;
+        }
+        elsif ( $fieldName eq 'Size' ) {
+            $sizeIdx = $i;
+        }
+        elsif ( $fieldName eq 'FreeSpace' ) {
+            $freeIdx = $i;
+        }
+    }
+
+    for ( my $i = 1 ; $i < scalar(@$diskInfoLines) ; $i++ ) {
+        my @splits = split( /\s+/, $$diskInfoLines[$i] );
+        my $size = int( $splits[$sizeIdx] * 100 / 1024 / 1024 / 1024 ) / 100;
+        if ( $size > 0 ) {
+            my $diskInfo = {};
+            my $free     = int( $splits[$freeIdx] * 100 / 1024 / 1024 / 1024 ) / 100;
+            $diskInfo->{NAME}        = $splits[$nameIdx];
+            $diskInfo->{UNIT}        = 'GB';
+            $diskInfo->{CAPACITY}    = $size;
+            $diskInfo->{FREE}        = $free;
+            $diskInfo->{USED}        = $size - $free;
+            $diskInfo->{USE_PERCENT} = int( ( $size - $free ) * 10000 / $size ) / 100;
+            push( @disks, $diskInfo );
+        }
+    }
+
     $osInfo->{DISKS} = \@disks;
 
     return $osInfo;

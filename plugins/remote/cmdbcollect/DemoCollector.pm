@@ -62,7 +62,7 @@ sub collect {
     my $appInfo = {};
     $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjType->get('APP')，CollectObjType->get('DB')，CollectObjType::OS
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
 

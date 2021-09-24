@@ -52,7 +52,7 @@ sub collect {
     #服务名, 要根据实际来设置
     $mongodbInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
 
-    #设置此采集到的对象对象类型，可以是：CollectObjType::APP，CollectObjType::DB，CollectObjType::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjType->get('APP')，CollectObjType->get('DB')，CollectObjType::OS
     my $command    = $procInfo->{COMMAND};
     my $exePath    = $procInfo->{EXECUTABLE_FILE};
     my $binPath    = dirname($exePath);
