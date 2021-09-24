@@ -217,13 +217,13 @@ sub collectOsInfo {
     }
     $osInfo->{USERS} = \@users;
 
-    #磁盘信息的采集
+    #逻辑磁盘（挂在点）信息的采集
     # c:\tmp\autoexec\cmdbcollect>wmic logicaldisk get Name,Size,FreeSpace
     # FreeSpace    Name  Size
     #             A:
     # 19005206528  C:    85897244672
     #             D:
-    my @disks         = ();
+    my @logicalDisks         = ();
     my $diskInfoLines = $self->getCmdOutLines('wmic logicaldisk get Name,Size,FreeSpace');
     my @headInfo      = split( /\s+/, $$diskInfoLines[0] );
     my ( $nameIdx, $sizeIdx, $freeIdx );
@@ -249,15 +249,18 @@ sub collectOsInfo {
             $diskInfo->{NAME}        = $splits[$nameIdx];
             $diskInfo->{UNIT}        = 'GB';
             $diskInfo->{CAPACITY}    = $size;
-            $diskInfo->{FREE}        = $free;
+            $diskInfo->{AVAILABLE}   = $free;
             $diskInfo->{USED}        = $size - $free;
-            $diskInfo->{USE_PERCENT} = int( ( $size - $free ) * 10000 / $size ) / 100;
-            push( @disks, $diskInfo );
+            $diskInfo->{'USED%'}     = int( ( $size - $free ) * 10000 / $size ) / 100;
+            push( @logicalDisks, $diskInfo );
         }
     }
 
-    $osInfo->{DISKS} = \@disks;
+    $osInfo->{MOUNT_POINTS} = \@logicalDisks;
 
+    #TODO：物理磁盘信息的采集
+    $osInfo->{DISKS} = [];
+    
     return $osInfo;
 }
 
