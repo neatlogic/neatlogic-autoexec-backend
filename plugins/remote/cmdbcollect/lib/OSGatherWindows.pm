@@ -223,44 +223,96 @@ sub collectOsInfo {
     #             A:
     # 19005206528  C:    85897244672
     #             D:
-    my @logicalDisks         = ();
-    my $diskInfoLines = $self->getCmdOutLines('wmic logicaldisk get Name,Size,FreeSpace');
-    my @headInfo      = split( /\s+/, $$diskInfoLines[0] );
-    my ( $nameIdx, $sizeIdx, $freeIdx );
-    for ( my $i = 0 ; $i <= $#headInfo ; $i++ ) {
-        my $fieldName = $headInfo[$i];
-        if ( $fieldName eq 'Name' ) {
-            $nameIdx = $i;
-        }
-        elsif ( $fieldName eq 'Size' ) {
-            $sizeIdx = $i;
-        }
-        elsif ( $fieldName eq 'FreeSpace' ) {
-            $freeIdx = $i;
-        }
+    my @logicalDisks   = ();
+    my $ldiskInfoLines = $self->getCmdOutLines('wmic logicaldisk get Name,Size,FreeSpace');
+
+    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
+    my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
+    my $ldiskFieldIdxMap = {
+        Name      => undef,
+        Size      => undef,
+        FreeSpace => undef
+    };
+    for ( my $i = 0 ; $i <= $#ldiskHeadInfo ; $i++ ) {
+        my $fieldName = $ldiskHeadInfo[$i];
+        $ldiskFieldIdxMap->{$fieldName} = $i;
     }
 
-    for ( my $i = 1 ; $i < scalar(@$diskInfoLines) ; $i++ ) {
-        my @splits = split( /\s+/, $$diskInfoLines[$i] );
-        my $size = int( $splits[$sizeIdx] * 100 / 1024 / 1024 / 1024 ) / 100;
+    for ( my $i = 1 ; $i < scalar(@$ldiskInfoLines) ; $i++ ) {
+        my @splits = split( /\s+/, $$ldiskInfoLines[$i] );
+        my $size = int( $splits[ $ldiskFieldIdxMap->{Size} ] * 100 / 1024 / 1024 / 1024 ) / 100;
         if ( $size > 0 ) {
-            my $diskInfo = {};
-            my $free     = int( $splits[$freeIdx] * 100 / 1024 / 1024 / 1024 ) / 100;
-            $diskInfo->{NAME}        = $splits[$nameIdx];
-            $diskInfo->{UNIT}        = 'GB';
-            $diskInfo->{CAPACITY}    = $size;
-            $diskInfo->{AVAILABLE}   = $free;
-            $diskInfo->{USED}        = $size - $free;
-            $diskInfo->{'USED%'}     = int( ( $size - $free ) * 10000 / $size ) / 100;
-            push( @logicalDisks, $diskInfo );
+            my $ldiskInfo = {};
+            my $free      = int( $splits[ $ldiskFieldIdxMap->{FreeSpace} ] * 100 / 1024 / 1024 / 1024 ) / 100;
+            $ldiskInfo->{NAME}      = $splits[ $ldiskFieldIdxMap->{Name} ];
+            $ldiskInfo->{UNIT}      = 'GB';
+            $ldiskInfo->{CAPACITY}  = $size;
+            $ldiskInfo->{AVAILABLE} = $free;
+            $ldiskInfo->{USED}      = $size - $free;
+            $ldiskInfo->{'USED%'} = int( ( $size - $free ) * 10000 / $size ) / 100;
+            push( @logicalDisks, $ldiskInfo );
         }
     }
 
     $osInfo->{MOUNT_POINTS} = \@logicalDisks;
 
-    #TODO：物理磁盘信息的采集
-    $osInfo->{DISKS} = [];
-    
+    #TODO：物理磁盘LUN ID 的采集确认
+    # c:\tmp\autoexec\cmdbcollect>wmic diskdrive get deviceId,size,serialnumber,scsiport,scsilogicalunit,scsitargetId,name
+    # DeviceID            Name                SCSILogicalUnit  SCSIPort  SCSITargetId  SerialNumber                      Size
+    # \\.\PHYSICALDRIVE0  \\.\PHYSICALDRIVE0  0                2         0             6000c29f49a80cce2b4b8dd0710281a4  85896599040
+
+    #因为磁盘型号有空格，无法正确切分，所以单独查询，并通过序列号进行关联
+    my $diskSNModelMap     = {};
+    my $diskModelInfoLines = $self->getCmdOutLines('wmic diskdrive get serialnumber,model');
+    foreach my $line (@$diskModelInfoLines) {
+
+        #6000c29f49a80cce2b4b8dd0710281a4
+        if ( $line =~ /(\w{32})/ ) {
+            my $sn = $1;
+            $line =~ s/$sn//;
+            $line =~ s/^\s*|\s*$//g;
+            $diskSNModelMap->{$sn} = $line;
+        }
+    }
+
+    my @disks         = {};
+    my $diskInfoLines = $self->getCmdOutLines('wmic diskdrive get size,serialnumber,deviceId,name');
+
+    #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
+    my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
+    my $diskFieldIdxMap = {
+        DeviceId     => undef,
+        Name         => undef,
+        Size         => undef,
+        SerialNumber => undef
+    };
+    for ( my $i = 0 ; $i <= $#diskHeadInfo ; $i++ ) {
+        my $fieldName = $diskHeadInfo[$i];
+        $diskFieldIdxMap->{$fieldName} = $i;
+    }
+    for ( my $i = 1 ; $i < scalar(@$diskInfoLines) ; $i++ ) {
+        my @splits = split( /\s+/, $$diskInfoLines[$i] );
+        my $sizeIdx = $diskFieldIdxMap->{Size};
+        if ( not defined($sizeIdx) ) {
+            next;
+        }
+
+        my $size = int( $splits[$sizeIdx] * 100 / 1024 / 1024 / 1024 ) / 100;
+        my $sn   = $splits[ $diskFieldIdxMap->{SerialNumber} ];
+
+        if ( defined($sn) ) {
+            my $diskInfo = {};
+            $diskInfo->{ID}       = $splits[ $diskFieldIdxMap->{ID} ];
+            $diskInfo->{NAME}     = $splits[ $diskFieldIdxMap->{DeviceId} ];
+            $diskInfo->{MODEL}    = $diskSNModelMap->{$sn};
+            $diskInfo->{CAPACITY} = $size;
+            $diskInfo->{UNIT}     = 'GB';
+            $diskInfo->{SN}       = $sn;
+            push( @disks, $diskInfo );
+        }
+    }
+
+    $osInfo->{DISKS} = \@disks;
     return $osInfo;
 }
 
