@@ -54,7 +54,7 @@ sub collectOsInfo {
     $osInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr( $prtConfInfo->{'Memory Size'} );
 
     #TODO：detect if os is vios or vioc or lpart
-    #$osInfo->{IS_VIRTUAL} = 0;
+    $osInfo->{IS_VIRTUAL} = 0;
 
     my $diskMountMap = {};
     my @mountPoints  = ();
