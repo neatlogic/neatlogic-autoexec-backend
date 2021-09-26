@@ -1,0 +1,10 @@
+{
+	"opDesc": "CMDB采集关系回填插件",
+	"opType": "runner",
+	"typeName": "CMDB",
+	"riskName": "LOW",
+	"interpreter": "python",
+	"description": "对采集到的数据进行关系检索计算和回填",
+	"option": [],
+	"output": []
+}

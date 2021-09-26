@@ -1,0 +1,48 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import traceback
+import datetime
+import argparse
+import sys
+import json
+from bson.json_util import dumps, loads
+
+
+def genInsRel():
+    pass
+
+
+def genOSSwitchRel():
+    pass
+
+
+def genSwitchRel():
+    pass
+
+
+def genOSLunRel():
+    pass
+
+
+def genOSNasRel():
+    pass
+
+
+if __name__ == "__main__":
+    (dbclient, db) = AutoExecUtils.getDB()
+
+    try:
+        genOSSwitchRel()
+        genOSLunRel()
+        genOSNasRel()
+        genSwitchRel()
+        genInsRel()
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(ex))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()
