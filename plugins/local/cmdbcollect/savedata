@@ -31,12 +31,14 @@ def createIndex(collectioin, data):
             collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
 
 
+# 目的通过PEER信息搜索到应用进程
 def saveAppConnData(db, data):
     if 'CONN_INFO' in data:
         #connData = data.pop('CONN_INFO')
         connData = data['CONN_INFO']
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
+        connInfo['OBJECT_TYPE'] = data['OBJECT_TYPE']
         connInfo['MGMT_IP'] = data['MGMT_IP']
         connInfo['PORT'] = data['PORT']
 
@@ -48,13 +50,66 @@ def saveAppConnData(db, data):
         connInfo['BIND'] = connData['BIND']
         connInfo['PEER'] = connData['PEER']
 
-        primaryKey = {'MGMT_IP': connInfo['MGMT_IP'], 'BIND': connInfo['BIND']}
-        collection = db['relation_conn']
+        primaryKey = {'OS_ID': connInfo['OS_ID'], 'MGMT_IP': connInfo['MGMT_IP'], 'PORT': connInfo['PORT']}
+        collection = db['RELATION_NETCONN']
+        # BIND和PEER都是简单数组，建立索引后，可以使用$in操作符进行配合，结合$elemMatch可以过滤命中的BIND和PEER
         collection.replace_one(primaryKey, connInfo, upsert=True)
-        collection.create_index([('MGMT_IP', 1)], name='idx_mgmt_ip')
+        collection.create_index([('OS_ID', 1), ('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
         collection.create_index([('BIND', 1)], name='idx_bind')
         collection.create_index([('PEER', 1)], name='idx_peer')
         print('INFO: Save connection data success.')
+
+
+def saveSwMacTableData(db, data):
+    if 'MAC_TABLE' in data:
+        macTableInfo = {}
+        macTableInfo['MGMT_IP'] = data['MGMT_IP']
+        macTableInfo['SN'] = data['SN']
+        macTableInfo['DEV_NAME'] = data['DEV_NAME']
+        if 'RESOURCE_ID' in data:
+            macTableInfo['RESOURCE_ID'] = data['RESOURCE_ID']
+        else:
+            macTableInfo['RESOURCE_ID'] = None
+        macTableInfo['MAC_TABLE'] = data['MAC_TABLE']
+
+        primaryKey = {'MGMT_IP': macTableInfo['MGMT_IP'], 'SN': macTableInfo['SN']}
+        collection = db['RELATION_MACTABLE']
+        collection.replace_one(primaryKey, macTableInfo, upsert=True)
+        collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
+        # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
+        collection.create_index([('MAC_TABLE.MACS', 1)], name='idx_mac')
+        print('INFO: Save mac table data success.')
+
+
+def saveSwCDPData(db, data):
+    if 'NEIGHBORS' in data:
+        nbrTableInfo = {}
+        nbrTableInfo['MGMT_IP'] = data['MGMT_IP']
+        nbrTableInfo['SN'] = data['SN']
+        nbrTableInfo['DEV_NAME'] = data['DEV_NAME']
+        if 'RESOURCE_ID' in data:
+            nbrTableInfo['RESOURCE_ID'] = data['RESOURCE_ID']
+        else:
+            nbrTableInfo['RESOURCE_ID'] = None
+        nbrTableInfo['NEIGHBORS'] = data['NEIGHBORS']
+
+        primaryKey = {'MGMT_IP': nbrTableInfo['MGMT_IP'], 'SN': nbrTableInfo['SN']}
+        collection = db['RELATION_NEIGHBORS']
+        # TODO: index clarify
+        collection.replace_one(primaryKey, nbrTableInfo, upsert=True)
+        collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
+        # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
+        collection.create_index([('NEIGHBORS.LOCAL_NAME', 1)], name='idx_local_name')
+        collection.create_index([('NEIGHBORS.REMOTE_NAME', 1)], name='idx_remote_name')
+        print('INFO: Save neighbors data success.')
+
+
+def saveLunRelData(db, data):
+    pass
+
+
+def saveNasRelData(db, data):
+    pass
 
 
 if __name__ == "__main__":
@@ -138,6 +193,8 @@ if __name__ == "__main__":
                     data['_updatetime'] = currentTime
                     data['_renewtime'] = currentTime
                     saveAppConnData(db, data)
+                    saveSwMacTableData(db, data)
+                    saveSwCDPData(db, data)
                     print('INFO: Save connection information success.')
                     collection.replace_one(primaryKey, data, upsert=True)
                     print('INFO: Save data success.')
