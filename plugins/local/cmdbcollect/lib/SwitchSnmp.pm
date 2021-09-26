@@ -98,7 +98,9 @@ sub new {
 
     END {
         local $?;
-        $session->close();
+        if ( defined($session) ){
+            $session->close();
+        }
     }
 
     return $self;
@@ -262,47 +264,6 @@ sub _getPorts {
         $portNoMap->{$no}   = $portInfo;
     }
 
-    my $portStatusMap = {
-        1 => 'up',
-        2 => 'down',
-        3 => 'testing'
-    };
-
-    my $portTypeMap = {
-        1  => 'other(1)',
-        2  => 'regular1822(2)',
-        3  => 'hdh1822(3)',
-        4  => 'ddn-x25(4)',
-        5  => 'rfc877-x25(5)',
-        6  => 'ethernet-csmacd(6)',
-        7  => 'iso88023-csmacd(7)',
-        8  => 'iso88024-tokenBus(8)',
-        9  => 'iso88025-tokenRing(9)',
-        10 => 'iso88026-man(10)',
-        11 => 'starLan(11)',
-        12 => 'proteon-10Mbit(12)',
-        13 => 'proteon-80Mbit(13)',
-        14 => 'hyperchannel(14)',
-        15 => 'fddi(15)',
-        16 => 'lapb(16)',
-        17 => 'sdlc(17)',
-        18 => 'ds1(18)',
-        19 => 'e1(19)',
-        20 => 'basicISDN(20)',
-        21 => 'primaryISDN(21)',
-        22 => 'propPointToPointSerial(22)',
-        23 => 'ppp(23)',
-        24 => 'softwareLoopback(24)',
-        25 => 'eon(25)',
-        26 => 'ethernet-3Mbit(26)',
-        27 => 'nsip(27)',
-        28 => 'slip(28)',
-        29 => 'ultra(29)',
-        30 => 'ds3(30)',
-        31 => 'sip(31)',
-        32 => 'frame-relay(32)'
-    };
-
     foreach my $portInfoKey ( 'TYPE', 'NAME', 'MAC', 'ADMIN_STATUS', 'OPER_STATUS', 'SPEED', 'MTU' ) {
         my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
         $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"} );
@@ -324,13 +285,13 @@ sub _getPorts {
                     $val = $snmpHelper->hex2mac($val);
                 }
                 elsif ( $portInfoKey eq 'ADMIN_STATUS' or $portInfoKey eq 'OPER_STATUS' ) {
-                    $val = $portStatusMap->{$val};
+                    $val = $snmpHelper->getPortStatus($val);
                 }
                 elsif ( $portInfoKey eq 'TYPE' ) {
-                    $val = $portTypeMap->{$val};
+                    $val = $snmpHelper->getPortType($val);
                 }
                 elsif ( $portInfoKey eq 'SPEED' ) {
-                    $val = $val / 1000 / 1000;
+                    $val = ($val * 100 / 1000 / 1000 + 0.5) / 100;
                 }
 
                 $portInfo->{$portInfoKey} = $val;
