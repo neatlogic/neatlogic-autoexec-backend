@@ -14,23 +14,23 @@ from bson.json_util import dumps, loads
 
 
 def genInsRel(db):
-    allIns = db['COLLECT_INS']
-    insRelsSrc = db['RELATION_INS_NETCONN']
-    insRelsDest = db['RELATION_INS_NETCONN']
+    insCollection = db['COLLECT_INS']
+    relSrcCollection = db['RELATION_INS_NETCONN']
+    relDestCollection = db['RELATION_INS_NETCONN']
 
-    for ins in insRelsSrc.find({}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'PEER': 1}).batch_size(500):
+    for ins in relSrcCollection.find({}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'PEER': 1}).batch_size(500):
+        # print(dumps(ins))
         peer = ins['PEER']
         refIns = []
         refDbs = []
-        for rel in insRelsDest.find({'BIND': {'$in': peer}}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'OBJECT_TYPE': 1}).batch_size(500):
-            print(dumps(rel))
+        for rel in relDestCollection.find({'BIND': {'$in': peer}}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'OBJECT_TYPE': 1}).batch_size(500):
             if rel['OBJECT_TYPE'] == 'DB':
                 refIns.append({'OS_ID': rel['OS_ID'], 'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']})
             else:
-                refIns.append({'OS_ID': rel['OS_ID'], 'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']})
+                refDbs.append({'OS_ID': rel['OS_ID'], 'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']})
 
-        allIns.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_INS': refIns}})
-        allIns.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_DBS': refDbs}})
+        insCollection.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_INS': refIns}})
+        insCollection.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_DBS': refDbs}})
 
 
 def genOSSwitchRel(db):
