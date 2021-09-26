@@ -3,31 +3,83 @@
 
 import AutoExecUtils
 import os
+import sys
 import traceback
 import datetime
 import argparse
 import sys
 import json
+from bson import ObjectId
 from bson.json_util import dumps, loads
 
 
-def genInsRel():
+def genInsRel(db):
+    allIns = db['COLLECT_INS']
+    insRelsSrc = db['RELATION_INS_NETCONN']
+    insRelsDest = db['RELATION_INS_NETCONN']
+
+    for ins in insRelsSrc.find({}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'PEER': 1}).batch_size(500):
+        peer = ins['PEER']
+        refIns = []
+        refDbs = []
+        for rel in insRelsDest.find({'BIND': {'$in': peer}}, {'OS_ID': 1, 'MGMT_IP': 1, 'PORT': 1, 'OBJECT_TYPE': 1}).batch_size(500):
+            print(dumps(rel))
+            if rel['OBJECT_TYPE'] == 'DB':
+                refIns.append({'OS_ID': rel['OS_ID'], 'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']})
+            else:
+                refIns.append({'OS_ID': rel['OS_ID'], 'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']})
+
+        allIns.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_INS': refIns}})
+        allIns.update_one({'OS_ID': ins['OS_ID'], 'MGMT_IP': ins['MGMT_IP'], 'PORT': ins['PORT']}, {'$set': {'REF_DBS': refDbs}})
+
+
+def genOSSwitchRel(db):
+    osCollection = db['COLLECT_OS']
+    macTblCollection = db['RELATION_NET_MACTABLE']
+    osUpdCollection = db['COLLECT_OS']
+
+    for os in osCollection.find({}, {'OS_ID': 1, 'MGMT_IP': 1, 'ETH_INTERFACES.MAC': 1}).batch_size(500):
+        macs = []
+        for nic in os['ETH_INTERFACES']:
+            macs.append(nic['MAC'])
+
+        macCount = sys.maxsize
+        refSwitch = None
+        for rel in macTblCollection.find({'MAC_TABLE.MACS': {'$in': macs}}, {'MGMT_IP': 1, 'SN': 1, 'PORT': 1, 'MAC_TABLE.MAC_COUNT': 1}).batch_size(500):
+            print(dumps(rel))
+            if rel['MAC_TABLE']['MAC_COUNT'] < macCount:
+                refSwitch = rel
+                macCount = rel['MAC_TABLE']['MAC_COUNT']
+
+        refSwPort = None
+        if refSwitch is not None:
+            refSwPort = {'MGMT_IP': refSwitch['MGMT_IP'], 'SN': refSwitch['SN'], 'PORT': refSwitch['PORT']}
+        osUpdCollection.update_one({'OS_ID': os['OS_ID']}, {'$set': {'REF_SW_PORT': refSwPort}})
+
+
+def genSwitchRel(db):
+    swCollection = db['COLLECT_SWITCH']
+    cdpSrcCollection = db['RELATION_NET_NEIGHBOR']
+    cdpDestCollection = db['RELATION_NET_NEIGHBOR']
+
+    for swInfo in cdpSrcCollection.find({}, {'MGMT_IP': 1, 'SN': 1, 'NEIGHBORS': 1}).batch_size(500):
+        neighbors = swInfo['NEIGHBORS']
+        for neibr in neighbors:
+            dev = None
+            remoteCount = 0
+            for dev in cdpDestCollection.find({'DEV_NAME': neighbors['REMOTE_NAME']}, {'MGMT_IP': 1, 'SN': 1}).limit(2):
+                remoteCount = remoteCount + 1
+            if remoteCount == 1:
+                neibr['REMOTE_MGMT_IP'] = dev['MGMT_IP']
+                neibr['REMOTE_SN'] = dev['SN']
+        swCollection.update_one({'MGMT_IP': swInfo['MGMT_IP'], 'SN': swInfo['SN']}, {'$set': {'NEIGHBORS': neighbors}})
+
+
+def genOSLunRel(db):
     pass
 
 
-def genOSSwitchRel():
-    pass
-
-
-def genSwitchRel():
-    pass
-
-
-def genOSLunRel():
-    pass
-
-
-def genOSNasRel():
+def genOSNasRel(db):
     pass
 
 
@@ -35,13 +87,13 @@ if __name__ == "__main__":
     (dbclient, db) = AutoExecUtils.getDB()
 
     try:
-        genOSSwitchRel()
-        genOSLunRel()
-        genOSNasRel()
-        genSwitchRel()
-        genInsRel()
+        genOSSwitchRel(db)
+        genOSLunRel(db)
+        genOSNasRel(db)
+        genSwitchRel(db)
+        genInsRel(db)
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(ex))
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
     finally:
         if dbclient is not None:

@@ -96,7 +96,7 @@ def saveSwCDPData(db, data):
         nbrTableInfo['NEIGHBORS'] = data['NEIGHBORS']
 
         primaryKey = {'MGMT_IP': nbrTableInfo['MGMT_IP'], 'SN': nbrTableInfo['SN']}
-        collection = db['RELATION_NET_NEIGHBORS']
+        collection = db['RELATION_NET_NEIGHBOR']
         # TODO: index clarify
         collection.replace_one(primaryKey, nbrTableInfo, upsert=True)
         collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')

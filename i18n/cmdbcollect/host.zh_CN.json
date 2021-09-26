@@ -55,7 +55,7 @@
 		"desc": "产品名称",
 		"type": "String"
 	}, {
-		"name": "NET_INTERFACES",
+		"name": "ETH_INTERFACES",
 		"desc": "网卡列表",
 		"type": "JsonArray",
 		"subset": [{

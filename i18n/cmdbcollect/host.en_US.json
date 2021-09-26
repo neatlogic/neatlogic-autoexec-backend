@@ -55,7 +55,7 @@
 		"desc": "Product Name",
 		"type": "String"
 	}, {
-		"name": "NET_INTERFACES",
+		"name": "ETH_INTERFACES",
 		"desc": "NIC",
 		"type": "JsonArray",
 		"subset": [{
