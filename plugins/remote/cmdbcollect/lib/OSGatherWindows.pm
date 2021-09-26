@@ -345,11 +345,6 @@ sub collectHostInfo {
     $productName =~ s/^\s+|\s+$//g;
     $hostInfo->{PRODUCT_NAME} = $productName;
 
-    my $productInfo = $self->getCmdOutLines('wmic computersystem get model');
-    my $productName = $$productInfo[1];
-    $productName =~ s/^\s+|\s+$//g;
-    $hostInfo->{PRODUCT_NAME} = $productName;
-
     my $memSlotsInfo = $self->getCmdOutLines('wmic memphysical get memorydevices');
     my $memSlots     = $$memSlotsInfo[1];
     $memSlots =~ s/^\s+|\s+$//g;
