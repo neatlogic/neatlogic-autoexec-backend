@@ -376,7 +376,7 @@ sub collectHostInfo {
         my $line        = $$nicInfoLines[$i];
         my $nicInfo     = {};
         my @nicInfoSegs = split( /\s+/, $line );
-        $nicInfo->{MAC} = pop(@nicInfoSegs);
+        $nicInfo->{MAC} = lc(pop(@nicInfoSegs));
         my $nicName = substr( $line, 0, length($line) - length( $nicInfo->{MAC} ) );
         $nicName =~ s/^\s*|\s*$//g;
         if ( $nicName ne '' ) {

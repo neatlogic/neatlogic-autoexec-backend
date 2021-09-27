@@ -431,38 +431,100 @@ sub collectHostInfo {
         if ( $nicSegs[3] =~ /[a-f0-9]+(\.[a-f0-9]+){5}/ ) {
             my $macAddr = $nicSegs[3];
             $macAddr =~ s/\./:/g;
-            $nicInfo->{MAC} = $macAddr;
+            $nicInfo->{MAC} = lc($macAddr);
         }
     }
     my @nicInfos = values(%$nicInfosMap);
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
     #TODO: 需要确认HBA卡信息采集的正确性
+    #情况1:
+    # FIBRE CHANNEL STATISTICS REPORT: fcs0
+
+    # Device Type: FC Adapter (df1000f9)
+    # Serial Number: 1E313BB001
+    # Option ROM Version: 02C82115
+    # Firmware Version: B1F2.10A5
+    # Node WWN: 20000000C9487B04
+    # Port WWN: 10000000C9416DA4
+
+    # FC4 Types 
+    #   Supported: 0x0000010000000000000000000000000000000000000000000000000000000000
+    #   Active:    0x0000010000000000000000000000000000000000000000000000000000000000
+    # Class of Service: 4
+    # Port FC ID: 011400
+    # Port Speed (supported): 2 GBIT
+    # Port Speed (running):   1 GBIT
+    # Port Type: Fabric
+    # 。。。。。
+    #情况2:
+    # FIBRE CHANNEL STATISTICS REPORT: fcs0
+
+    # Device Type: 8Gb PCI Express Dual Port FC Adapter (df1000f114108a03) (adapter/pciex/df1000f114108a0)
+    # Serial Number: 1B03205232
+    # Option ROM Version: 02781135
+    # ZA: U2D1.10X5
+    # World Wide Node Name: 0xC050760547E90000
+    # World Wide Port Name: 0xC050760547E90000
+
+    # FC4 Types 
+    #   Supported: 0x0000012000000000000000000000000000000000000000000000000000000000
+    #   Active:    0x0000010000000000000000000000000000000000000000000000000000000000
+    # Class of Service: 3
+    # Port Speed (supported): 8 GBIT
+    # Port Speed (running):   8 GBIT
+    # Port FC ID: 0x010f00
+    # Port Type: Fabric
+    # Attention Type: Link Up
+    # 。。。。。
+
     my @hbaInfos    = ();
     my @hbaInfosMap = {};
     my $fcNames     = $self->getCmdOutLines(q{lsdev -Cc adapter | grep 'FC Adapter' | awk '{print $1}'});
     foreach my $fcName (@$fcNames) {
-        my $hbaInfo = {};
-        $fcName =~ s/^\s+|\s+$//g;
-        $hbaInfo->{'NAME'} = $fcName;
-        my $wwn = $self->getCmdOut(qq{fcstat $fcName | grep 'Port Name' | cut -d : -f 2});
-        $wwn =~ s/^\s+|\s+$//g;
-        my @wwnSegments = ( $wwn =~ m/../g );    #切分为两个字符的数组
-        $hbaInfo->{WWN} = join( ':', @wwnSegments );
+        my $hbaInfo = {NAME=>$fcName};
+        my @ports = ();
+        my @state = ();
 
-        my $speed = $self->getCmdOut(qq{fcstat $fcName| grep running | cut -d : -f 2});
-        $speed =~ s/^\s+|\s+$//g;
-        $hbaInfo->{SPEED} = $speed;
-        my $portState;
-        my $portStateInfo = $self->getCmdOut(qq{fcstat $fcName | grep 'Attention Type' | cut -d : -f 2});
-
-        if ( $portStateInfo =~ /up/i ) {
-            $portState = 'up';
+        my $fcStatLines = $self->getCmdOutLines(qq{fcstat $fcName});
+        foreach my $line (@$fcStatLines){
+            if ( $line =~ /Node\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Node\s+WWN:\s*([0-9A-F]+)/i ){
+                my $wwnn = lc($1);
+                #WWNN是HBA卡的地址编号，在存储端是通过这个WWNN来控制访问权限
+                #切分为两个字符的数组,用冒号组装
+                $wwnn = join( ':', ( $wwnn =~ m/../g ) );
+                $hbaInfo->{WWNN} = $wwnn;
+            }
+            elsif( $line =~ /Port\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Port\s+WWN:\s*([0-9A-F]+)/i ){
+                my $wwpn = lc($1);
+                #切分为两个字符的数组,用冒号组装
+                $wwpn = join( ':', ( $wwpn =~ m/../g ) );
+                my $portInfo = {};
+                $portInfo->{WWPN} = $wwpn;
+                push(@ports, $portInfo);
+            }
+            elsif ( $line =~ /Port Speed (supported):\s*(\d+.*)$/ ){
+                $hbaInfo->{SUPPORTED_SPEED} = $1;
+            }
+            elsif ( $line =~ /Port Speed (running):\s*(\d+.*)$/ ){
+                $hbaInfo->{SPEED} = $1;
+            }
+            elsif ( $line =~ /Attention Type:\s*(.*)$/ ){
+                my $state = $1;
+                if ( $state =~ /Up/i ){
+                    $state = 'up';
+                }
+                else{
+                    $state = 'down';
+                }
+                push(@state, $state);
+            }
         }
-        else {
-            $portState = 'down';
+        for(my $i=0; $i<=$#ports; $i++){
+            my $portInfo = $ports[$i];
+            $portInfo->{STATE} = $state[$i];
         }
-        $hbaInfo->{STATUS} = $portState;
+        $hbaInfo->{PORTS} = \@ports;
 
         push( @hbaInfos, $hbaInfo );
     }

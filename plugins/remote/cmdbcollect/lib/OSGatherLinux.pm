@@ -583,7 +583,7 @@ sub collectHostInfo {
 
             if ( defined($speed) and $speed ne '' ) {
                 $nicInfo->{NAME} = $ethName;
-                $nicInfo->{MAC}  = $macAddr;
+                $nicInfo->{MAC}  = lc($macAddr);
                 ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
                 $nicInfo->{LINK_STATE} = 'down';
                 if ( $linkState eq 'yes' ) {
@@ -599,13 +599,46 @@ sub collectHostInfo {
 
     my @hbaInfos = ();
     foreach my $fcHostPath ( glob('/sys/class/fc_host/*') ) {
+
+        #低版本linux可能通过/proc/scsi/qla2*/来获取，需验证
         my $hbaInfo = {};
         $hbaInfo->{NAME} = basename($fcHostPath);
 
-        my $wwn = $self->getFileContent("$fcHostPath/port_name");
-        $wwn =~ s/^\s*|\s*$//g;
-        my @wwnSegments = ( $wwn =~ m/../g );    #切分为两个字符的数组
-        $hbaInfo->{WWN} = join( ':', @wwnSegments );
+        my $wwnn = $self->getFileContent("$fcHostPath/node_name");
+        $wwnn =~ s/^\s*|\s*$//g;
+        $wwnn =~ s/^0x//i;
+        $wwnn = lc($wwnn);
+        my @wwnnSegments = ( $wwnn =~ m/../g );    #切分为两个字符的数组
+                                                   #WWNN是HBA卡的地址编号，在存储端是通过这个WWNN来控制访问权限
+        $hbaInfo->{WWNN} = join( ':', @wwnnSegments );
+
+        my @ports      = ();
+        my @wwpnLines  = split( /\n/, $self->getFileContent("$fcHostPath/port_name") );
+        my @wwpnStates = split( /\n/, $self->getFileContent("$fcHostPath/port_state") );
+        for ( my $i = 0 ; $i <= $#wwpnLines ; $i++ ) {
+            my $wwpn = $wwpnLines[$i];
+            $wwpn =~ s/^\s*|\s*$//g;
+            $wwpn =~ s/^0x//i;
+            $wwpn = lc($wwpn);
+            my @wwpnSegments = ( $wwpn =~ m/../g );    #切分为两个字符的数组
+            $wwpn = join( ':', @wwpnSegments );
+
+            my $state = $wwpnStates[$i];
+            if ( $state =~ /online/i ) {
+                $state = 'up';
+            }
+            else {
+                $state = 'down';
+            }
+
+            my $portInfo = {};
+
+            #WWPN是端口的地址编号
+            $portInfo->{WWPN}  = $wwpn;
+            $portInfo->{STATE} = $state;
+            push( @ports, $portInfo );
+        }
+        $hbaInfo->{PORTS} = \@ports;
 
         my $speed = $self->getFileContent("$fcHostPath/speed");
         $speed =~ s/^\s*|\s*$//g;
