@@ -14,7 +14,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -174,18 +174,18 @@ sub collect {
     $self->{OS_TYPE} = $procInfo->{OS_TYPE};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
-    my $appType       = $procInfo->{APP_TYPE};
+    my $objType       = $procInfo->{_OBJ_TYPE};
     my $command       = $procInfo->{COMMAND};
     my @commandFields = split( /\s+/, $command );
 
     if ( $commandFields[-1] eq 'dmgr' ) {
-        $appType = 'WebSphere-DMGR';
+        $objType = 'WebSphere-DMGR';
     }
     elsif ( $commandFields[-1] eq 'nodeagent' ) {
-        $appType = 'WebSphere-NodeAgent';
+        $objType = 'WebSphere-NodeAgent';
     }
 
     my $serverName = $commandFields[-1];
@@ -233,7 +233,7 @@ sub collect {
     my $appPkgTmpDir = File::Spec->canonpath("$serverRoot/temp/$nodeName/$serverName");
     $self->getApplications( $appInfo, $appPkgTmpDir );
 
-    $appInfo->{APP_TYPE}     = $appType;
+    $appInfo->{_OBJ_TYPE}    = $objType;
     $appInfo->{INSTALL_PATH} = $appInfo->{WAS_HOME};
     $appInfo->{CONFIG_PATH}  = $appInfo->{CONFIG_ROOT};
     return $appInfo;

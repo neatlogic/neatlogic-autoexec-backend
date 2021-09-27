@@ -2,7 +2,7 @@
 	"name": "Windows",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"OS_TYPE": "Windows"
+		"_OBJ_TYPE": "Windows"
 	},
 	"fields": [{
 			"name": "RESOURCE_ID",
@@ -25,7 +25,7 @@
 			"desc": "Cpu Model",
 			"type": "String"
 		}, {
-			"name": "OS_TYPE",
+			"name": "_OBJ_TYPE",
 			"desc": "Os Type",
 			"type": "String"
 		}, {
@@ -237,7 +237,7 @@
 			"desc": "Domain",
 			"type": "String"
 		}, {
-			"name": "OBJECT_TYPE",
+			"name": "_OBJ_CATEGORY",
 			"desc": "Object Type",
 			"type": "String"
 		},

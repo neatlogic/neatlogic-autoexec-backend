@@ -2,18 +2,18 @@
 	"name": "VCenter",
 	"collection": "COLLECT_VIRTUALIZED",
 	"filter": {
-		"APP_TYPE": "VCenter"
+		"_OBJ_TYPE": "VCenter"
 	},
 	"fields": [{
 		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"name": "OBJECT_TYPE",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {
-		"name": "APP_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "中间件类型",
 		"type": "String"
 	}, {

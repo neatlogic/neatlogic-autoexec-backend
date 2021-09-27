@@ -14,7 +14,7 @@ use JSON qw(from_json to_json);
 use ProcessFinder;
 use OSGather;
 use ConnGather;
-use CollectObjType;
+use CollectObjCat;
 
 use AutoExecUtils;
 use Data::Dumper;
@@ -101,21 +101,23 @@ sub main {
         my $osGather = OSGather->new();
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($osInfo) ) {
-            $osInfo->{OBJECT_TYPE}  = CollectObjType->get('OS');
-            $osInfo->{OS_TYPE}      = $osType;
-            $osInfo->{OS_ID}        = $osGather->{osId};
-            $osInfo->{MGMT_IP}      = $osGather->{mgmtIp};
-            $osInfo->{MGMT_PORT}    = $osGather->{mgmtPort};
-            $osInfo->{PK}           = ['MGMT_IP'];
-            $osInfo->{INDEX_FIELDS} = ['OS_ID'];
+            $osInfo->{_OBJ_CATEGORY} = CollectObjCat->get('OS');
+            $osInfo->{_OBJ_TYPE}     = $osType;
+            $osInfo->{OS_TYPE}       = $osType;
+            $osInfo->{OS_ID}         = $osGather->{osId};
+            $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $osInfo->{PK}            = ['MGMT_IP'];
+            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
         if ( defined($hostInfo) ) {
-            $hostInfo->{OBJECT_TYPE} = CollectObjType->get('HOST');
-            $hostInfo->{OS_ID}       = $osGather->{osId};
-            $hostInfo->{MGMT_IP}     = $osGather->{mgmtIp};
-            $hostInfo->{MGMT_PORT}   = $osGather->{mgmtPort};
-            $hostInfo->{PK}          = ['BOARD_SERIAL'];
-            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
+            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
+            $osInfo->{_OBJ_TYPE}       = 'HOST';
+            $hostInfo->{OS_ID}         = $osGather->{osId};
+            $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $hostInfo->{PK}            = ['BOARD_SERIAL'];
+            $osInfo->{INDEX_FIELDS}    = ['OS_ID'];
         }
 
         $ipAddrs   = $osInfo->{IP_ADDRS};
@@ -137,9 +139,9 @@ sub main {
         }
 
         my $collectClass = substr( $collectorName, 0, -3 );
-        my $appType      = substr( $collectorName, 0, -12 );
+        my $objType      = substr( $collectorName, 0, -12 );
 
-        if ( defined($collectClassMap) and not defined( $collectClassMap->{$appType} ) ) {
+        if ( defined($collectClassMap) and not defined( $collectClassMap->{$objType} ) ) {
             next;
         }
 
@@ -150,7 +152,7 @@ sub main {
                 if ( not defined( $filter->{seq} ) ) {
                     $filter->{seq} = 100;
                 }
-                $filter->{appType}   = $appType;
+                $filter->{objType}   = $objType;
                 $filter->{className} = $collectClass;
                 push( @procFilters, $filter );
             }
@@ -174,8 +176,8 @@ sub main {
 
         my $isMatched = 0;
         my $pid       = $procInfo->{PID};
-        my $appType   = $procInfo->{APP_TYPE};
-        print("INFO: Process $pid matched filter:$appType, begin to collect data...\n");
+        my $objType   = $procInfo->{_OBJ_TYPE};
+        print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
         my $connInfo;
         if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
             $connInfo = { PEER => {}, LISTEN => {} };
@@ -207,18 +209,18 @@ sub main {
         for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
             my $appInfo = $appInfos[$idx];
             $isMatched = 1;
-            if ( not defined( $appInfo->{OBJECT_TYPE} ) ) {
-                my $defaultObjType = CollectObjType->get('APP');
-                $appInfo->{OBJECT_TYPE} = $defaultObjType;
-                print("WARN: $collectorClass did not return OBJECT_TYPE, fallback to $defaultObjType.\n");
+            if ( not defined( $appInfo->{_OBJ_CATEGORY} ) ) {
+                my $defaultObjCat = CollectObjCat->get('INS');
+                $appInfo->{_OBJ_CATEGORY} = $defaultObjCat;
+                print("WARN: $collectorClass did not return _OBJ_CATEGORY, fallback to $defaultObjCat.\n");
             }
-            $appType = $appInfo->{APP_TYPE};
-            if ( not defined($appType) ) {
-                $appType = $procInfo->{APP_TYPE};
-                $appInfo->{APP_TYPE} = $appType;
-                print("INFO: $collectorClass did not return APP_TYPE, fallback to $appType.\n");
+            $objType = $appInfo->{_OBJ_TYPE};
+            if ( not defined($objType) ) {
+                $objType = $procInfo->{_OBJ_TYPE};
+                $appInfo->{_OBJ_TYPE} = $objType;
+                print("INFO: $collectorClass did not return _OBJ_TYPE, fallback to $objType.\n");
             }
-            print("INFO: Matched appType:$appType.\n");
+            print("INFO: Matched Object Type:$objType.\n");
 
             $appInfo->{PROC_INFO} = $procInfo;
             if ( $idx == 0 ) {
@@ -233,12 +235,12 @@ sub main {
             $appInfo->{COMMAND}   = $procInfo->{COMMAND};
             $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
             $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
-            if ( defined($pkConfig) and defined( $pkConfig->{$appType} ) ) {
-                $appInfo->{PK} = $pkConfig->{$appType};
+            if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
+                $appInfo->{PK} = $pkConfig->{$objType};
             }
             else {
                 $appInfo->{PK} = [ 'MGMT_IP', 'MGMT_PORT' ];
-                print("ERROR: $appType PK not defined in the collector class:$collectorClass.\n");
+                print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
             }
         }
 

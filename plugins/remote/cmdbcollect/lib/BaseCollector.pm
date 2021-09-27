@@ -7,7 +7,7 @@ package BaseCollector;
 use strict;
 use File::Basename;
 use ConnGather;
-use CollectObjType;
+use CollectObjCat;
 use CollectUtils;
 use Data::Dumper;
 
@@ -21,17 +21,17 @@ use Data::Dumper;
 sub new {
     my ( $type, $passArgs, $procInfo, $matchedProcsInfo ) = @_;
     my $self = {};
-    my $appType = substr( $type, 0, -9 );
+    my $objType = substr( $type, 0, -9 );
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
-    $self->{defaultAppType}   = $appType;
+    $self->{defaultObjType}   = $objType;
 
     my $utils = CollectUtils->new();
     $self->{ostype}       = $utils->{ostype};
     $self->{collectUtils} = $utils;
 
     if ( defined($passArgs) ) {
-        my $myDef = $passArgs->{$appType};
+        my $myDef = $passArgs->{$objType};
         if ( defined($myDef) ) {
             $self->{defaultUsername} = $myDef->{username};
             $self->{defaultPassword} = $myDef->{password};
@@ -55,11 +55,11 @@ sub getConfig {
 sub getPK {
     my ($self) = @_;
     return {
-        #默认KEY用类名去掉Collector，对应APP_TYPE属性值
+        #默认KEY用类名去掉Collector，对应_OBJ_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'OS_ID', 'MGMT_IP', 'PORT' ]
+        $self->{defaultObjType} => [ 'OS_ID', 'MGMT_IP', 'PORT' ]
 
-            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
+            #如果返回的是多种对象，需要手写_OBJ_TYPE对应的PK配置
     };
 }
 
@@ -294,7 +294,7 @@ sub getJavaAttrs {
 #                            'ELAPSED' => '02:12:33',
 #                            'HOST_NAME' => 'centos7base',
 #                            'MANAGE_IP' => '',
-#                            'APP_TYPE' => 'Apache',
+#                            '_OBJ_TYPE' => 'Apache',
 #                            'ENVRIONMENT' => {
 #                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
 #                                               'LANG' => 'C',
@@ -309,7 +309,7 @@ sub getJavaAttrs {
 #                      ],
 #           'DEFAULT_ERRORLOG' => 'logs/error_log',
 #           'HTTPD_ROOT' => '/etc/httpd',
-#           'APP_TYPE' => 'Apache',
+#           '_OBJ_TYPE' => 'Apache',
 #           'DOCUMENT_ROOT' => '/var/www/html',
 #           'VERSION' => 'Apache/2.4.6 (CentOS)',
 #           'SERVER_CONFIG_FILE' => 'conf/httpd.conf'

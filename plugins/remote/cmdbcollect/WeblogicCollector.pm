@@ -18,7 +18,7 @@ use File::Basename;
 use IO::File;
 use Data::Dumper;
 use XML::MyXML qw(xml_to_object);
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter
 sub getConfig {
@@ -168,7 +168,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     my $envMap     = $procInfo->{ENVRIONMENT};
     my $domainHome = $envMap->{DOMAIN_HOME};
@@ -197,7 +197,7 @@ sub collect {
     $self->getPatchInfo( $appInfo, $installPath, $wlHome );
 
     #！！！下面的是标准属性，必须采集并转换提供出来
-    $appInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
+    $appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
     $appInfo->{CONFIG_PATH} = $domainHome;
 
     return $appInfo;

@@ -175,7 +175,7 @@ sub collect {
         $line =~ s/^\s+|\s+$//;
         my @tmp = split( /:/, $line );
         my $lunInfo = {};
-        $lunInfo->{WWID}    = $tmp[-13];
+        $lunInfo->{WWID}     = $tmp[-13];
         $lunInfo->{NAME}     = $tmp[1];
         $lunInfo->{CAPACITY} = $tmp[7];
 

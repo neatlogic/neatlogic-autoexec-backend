@@ -11,8 +11,8 @@
 
 ## 交换机采集标准说明
 - 网络设备采集标准属性
-- OBJECT_TYPE: SWITCH
-- APP_TYPE: Cisco #交换机品牌
+- _OBJ_CATEGORY: SWITCH
+- _OBJ_TYPE: Cisco #交换机品牌
 - MGMT_IP: 采集此交换机信息使用的交换机管理IP
 - RESOURCE_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
 - SN: chassis serial number
@@ -67,7 +67,7 @@
           'IOS_INFO' => 'Huawei Versatile Routing Platform Software Version 3.10',
           'BRAND' => 'HuaWei',
           'DEV_NAME' => 'hw-sw02',
-          'APP_TYPE' => 'HuaWei',
+          '_OBJ_TYPE' => 'HuaWei',
           'MODEL' => 'S2403H-EI-0020P02',
           'VENDOR' => 'wangtc',
           'NEIGHBORS' => []
@@ -89,8 +89,8 @@
 
 ## 存储采集标准说明
 - 网络设备采集标准属性
-- OBJECT_TYPE: STORAGE
-- APP_TYPE: NetApp #交换机品牌
+- _OBJ_CATEGORY: STORAGE
+- _OBJ_TYPE: NetApp #交换机品牌
 - MGMT_IP: 采集此存储信息使用的管理IP
 - RESOURCE_ID: CMDB的ID（存储需要先在CMDB录入，然后再进行采集）
 - SN: Serial number
@@ -244,8 +244,8 @@
           ],
           'BRAND' => 'HuaWei',
           'DEV_NAME' => 'hw-st02',
-          'OBJECT_TYPE' => 'STORAGE',
-          'APP_TYPE' => 'HuaWei',
+          '_OBJ_CATEGORY' => 'STORAGE',
+          '_OBJ_TYPE' => 'HuaWei',
           'MODEL' => 'S2403H-EI-0020P02',
           'VENDOR' => 'HuaWei'
     };

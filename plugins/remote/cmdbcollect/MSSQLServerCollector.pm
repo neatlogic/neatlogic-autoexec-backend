@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 use Data::Dumper;
 
@@ -45,12 +45,12 @@ sub collect {
 
     my $appInfo = {};
 
-    my $objType          = CollectObjType->get('DB');
-    my $procInfo         = $self->{procInfo};
-    my $matchedProcsInfo = $self->{matchedProcsInfo};
-    my $user             = $procInfo->{USER};
-    my $envMap           = $procInfo->{ENVIRONMENT};
-    my $cmdLine          = $procInfo->{COMMAND};
+    my $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+    my $procInfo                 = $self->{procInfo};
+    my $matchedProcsInfo         = $self->{matchedProcsInfo};
+    my $user                     = $procInfo->{USER};
+    my $envMap                   = $procInfo->{ENVIRONMENT};
+    my $cmdLine                  = $procInfo->{COMMAND};
 
     print Dumper ($procInfo);
 

@@ -2,7 +2,7 @@
 	"name": "Linux",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"OS_TYPE": "Linux"
+		"_OBJ_TYPE": "Linux"
 	},
 	"fields": [{
 		"name": "OS_ID",
@@ -43,7 +43,7 @@
 		"desc": "Cpu Firmware Version",
 		"type": "String"
 	}, {
-		"name": "OS_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "Os Type",
 		"type": "String"
 	}, {
@@ -278,7 +278,7 @@
 		"desc": "Max Open Files",
 		"type": "int"
 	}, {
-		"name": "OBJECT_TYPE",
+		"name": "_OBJ_CATEGORY",
 		"desc": "Object Type",
 		"type": "String"
 	}, {

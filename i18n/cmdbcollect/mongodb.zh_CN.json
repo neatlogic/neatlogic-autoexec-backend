@@ -2,7 +2,7 @@
 	"name": "Mongodb",
 	"collection": "COLLECT_DB",
 	"filter": {
-		"APP_TYPE": "Mongodb"
+		"_OBJ_TYPE": "Mongodb"
 	},
 	"fields": [{
 		"name": "BIND_IP",
@@ -120,7 +120,7 @@
 		"desc": "日志切割方式",
 		"type": "String"
 	}, {
-		"name": "APP_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "中间件类型",
 		"type": "String"
 	}, {
@@ -136,7 +136,7 @@
 		"desc": "版本",
 		"type": "String"
 	}, {
-		"name": "OBJECT_TYPE",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}]

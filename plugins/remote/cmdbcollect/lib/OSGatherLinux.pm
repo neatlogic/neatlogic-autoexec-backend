@@ -105,9 +105,9 @@ sub collectOsInfo {
         }
         if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
-            $mountInfo->{DEVICE}   = $device;
-            $mountInfo->{NAME}     = $mountPoint;
-            $mountInfo->{FS_TYPE}  = $fsType;
+            $mountInfo->{DEVICE}  = $device;
+            $mountInfo->{NAME}    = $mountPoint;
+            $mountInfo->{FS_TYPE} = $fsType;
 
             if ( $fsType !~ /^nfs/i ) {
                 $diskMountMap->{$mountPoint} = $mountInfo;
@@ -445,7 +445,7 @@ sub collectOsInfo {
         my $lunInfo  = $lunInfosMap->{$diskName};
         if ( defined($lunInfo) ) {
             $diskInfo->{TYPE} = 'remote';
-            $diskInfo->{WWID}  = $lunInfo->{SN} . ':' . $lunInfo->{WWN};
+            $diskInfo->{WWID} = $lunInfo->{SN} . ':' . $lunInfo->{WWN};
         }
     }
 

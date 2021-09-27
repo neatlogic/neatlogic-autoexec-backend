@@ -2,7 +2,7 @@
 	"name": "OS AIX",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"OS_TYPE": "AIX"
+		"_OBJ_TYPE": "AIX"
 	},
 	"fields": [{
 		"name": "OS_ID",
@@ -43,7 +43,7 @@
 		"desc": "CPU微码版本",
 		"type": "String"
 	}, {
-		"name": "OS_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "OS类型",
 		"type": "String"
 	}, {
@@ -278,7 +278,7 @@
 		"desc": "最大打开文件数",
 		"type": "int"
 	}, {
-		"name": "OBJECT_TYPE",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {

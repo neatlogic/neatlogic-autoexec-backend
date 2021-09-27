@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 sub getConfig {
     return {
@@ -199,7 +199,7 @@ sub collect {
     }
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     my $confPath;
     my $instPath;

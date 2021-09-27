@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -47,7 +47,7 @@ sub collect {
     my $envMap           = $procInfo->{ENVIRONMENT};
 
     my @collectSet = ();
-    my $objType    = CollectObjType->get('DB');
+    my $objCat     = CollectObjCat->get('DB');
 
     my $homePath = $envMap->{INFORMIXDIR};
     my $confPath = "$homePath/etc";
@@ -73,11 +73,11 @@ sub collect {
             my $insName = $insSegs[0];
 
             my $insInfo = {
-                OBJECT_TYPE  => $objType,
-                SERVER_NAME  => $insName,
-                INSTALL_PATH => $homePath,
-                CONF_PATH    => $confPath,
-                VERSION      => $version
+                _OBJ_CATEGORY => $objCat,
+                SERVER_NAME   => $insName,
+                INSTALL_PATH  => $homePath,
+                CONF_PATH     => $confPath,
+                VERSION       => $version
             };
 
             $insInfo->{NAME} = $insName;

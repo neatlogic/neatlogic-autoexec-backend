@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 use Data::Dumper;
 
 sub getConfig {
@@ -34,8 +34,8 @@ sub collect {
     }
     my $procInfo  = $self->{procInfo};
     my $nginxInfo = {};
-    $nginxInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
-    $nginxInfo->{SERVER_NAME} = 'nginx';
+    $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $nginxInfo->{SERVER_NAME}   = 'nginx';
 
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);

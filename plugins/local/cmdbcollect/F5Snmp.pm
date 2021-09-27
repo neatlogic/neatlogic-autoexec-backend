@@ -192,8 +192,8 @@ sub collect {
     my ($self) = @_;
 
     my $devInfo = $self->_getScalar();
-    $devInfo->{OBJECT_TYPE} = 'LOADBLANCER';
-    $devInfo->{APP_TYPE}    = 'F5';
+    $devInfo->{_OBJ_CATEGORY} = 'LOADBLANCER';
+    $devInfo->{_OBJ_TYPE}     = 'F5';
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;

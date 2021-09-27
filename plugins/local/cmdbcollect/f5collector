@@ -9,7 +9,7 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
-use CollectObjType;
+use CollectObjCat;
 use F5Snmp;
 
 #README
@@ -56,11 +56,11 @@ sub main {
 
     my $collector = F5Snmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
     my $data = $collector->collect();
-    $data->{OBJECT_TYPE} = CollectObjType->get('LOADBALANCER');
-    $data->{APP_TYPE}    = 'F5';
-    $data->{PK}          = ['SN'];
-    $data->{RESOURCE_ID} = $node->{resourceId};
-    $data->{MGMT_IP}     = $node->{host};
+    $data->{_OBJ_CATEGORY} = CollectObjCat->get('LOADBALANCER');
+    $data->{_OBJ_TYPE}     = 'F5';
+    $data->{PK}            = ['SN'];
+    $data->{RESOURCE_ID}   = $node->{resourceId};
+    $data->{MGMT_IP}       = $node->{host};
 
     my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
     $data->{UPTIME} = $upTime;

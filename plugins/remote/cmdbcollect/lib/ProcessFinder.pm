@@ -21,7 +21,7 @@ sub new {
     my ( $type, $procFilters, %args ) = @_;
 
     #procFilters数组
-    #appType=>'Tomcat',
+    #objType=>'Tomcat',
     #className=>'TomcatCollector',
     # seq => 100,
     # regExps  => ['\borg.apache.catalina.startup.Bootstrap\s'],
@@ -29,7 +29,7 @@ sub new {
     # envAttrs => {}
 
     #Callback param map:
-    #APP_TYPE=>'tomcat',
+    #_OBJ_TYPE=>'tomcat',
     #PID=>3844,
     #COMM=>'xxxx',
     #COMMAND=>'xxxxxxxxxxxxxxxxx'
@@ -166,7 +166,7 @@ sub findProcess {
                         HOST_NAME => $self->{hostname},
                         MGMT_IP   => $self->{mgmtIp},
                         MGMT_PORT => $self->{mgmtPort},
-                        APP_TYPE  => $config->{appType}
+                        _OBJ_TYPE => $config->{objType}
                     };
 
                     for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {

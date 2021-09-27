@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -32,11 +32,11 @@ sub getConfig {
 sub getPK {
     my ($self) = @_;
     return {
-        #默认KEY用类名去掉Collector，对应APP_TYPE属性值
+        #默认KEY用类名去掉Collector，对应_OBJ_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultAppType} => [ 'OS_ID', 'MGMT_IP', 'PORT' ]
+        $self->{defaultObjType} => [ 'OS_ID', 'MGMT_IP', 'PORT' ]
 
-            #如果返回的是多种对象，需要手写APP_TYPE对应的PK配置
+            #如果返回的是多种对象，需要手写_OBJ_TYPE对应的PK配置
     };
 }
 
@@ -60,21 +60,21 @@ sub collect {
     my $envMap           = $procInfo->{ENVIRONMENT};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjType->get('APP')，CollectObjType->get('DB')，CollectObjType::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
 
-    #默认的APP_TYPE是类名去掉Collector，如果要特殊的名称则自行设置
-    #$appInfo->{APP_TYPE} = 'DemoApp';
+    #默认的_OBJ_TYPE是类名去掉Collector，如果要特殊的名称则自行设置
+    #$appInfo->{_OBJ_TYPE} = 'DemoApp';
 
     #!!!如果是Java则采集Java的标准属性，否则删除这一行
     $self->getJavaAttrs($appInfo);
 
     #!!!下面的是标准属性，必须采集并转换提供出来
     #服务名, 要根据实际来设置
-    $appInfo->{SERVER_NAME}    = $procInfo->{APP_TYPE};
+    $appInfo->{SERVER_NAME}    = $procInfo->{_OBJ_TYPE};
     $appInfo->{INSTALL_PATH}   = undef;
     $appInfo->{CONFIG_PATH}    = undef;
     $appInfo->{PORT}           = undef;

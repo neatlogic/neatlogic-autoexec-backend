@@ -11,7 +11,7 @@
 
 ## 采集标准说明
 - HOST主机硬件采集标准属性
-- OBJECT_TYPE: HOST
+- _OBJ_CATEGORY: HOST
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
@@ -71,12 +71,12 @@
         "BOARD_SERIAL": "VMware-42 21 38 14 a3 bc 23 93-76 25 fe d8 61 56 c6 c2",
         "MANUFACTURER": "6.00",
         "OS_ID": "380303927205890",
-        "OBJECT_TYPE": "HOST"
+        "_OBJ_CATEGORY": "HOST"
     }
 ```
 
 - OS采集标准属性
-- OBJECT_TYPE: OS
+- _OBJ_CATEGORY: OS
 - IS_VIRTUAL: 值是0|1，表明是否是虚拟机
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
@@ -225,13 +225,13 @@
         "MEM_FREE": 5122.984,
         "SELINUX_STATUS": "permissive",
         "MAX_OPEN_FILES": 1610558,
-        "OBJECT_TYPE": "OS"
+        "_OBJ_CATEGORY": "OS"
     }
 ```
 
 - 应用采集标准属性
-- OBJECT_TYPE: APP
-- APP_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
+- _OBJ_CATEGORY: APP
+- _OBJ_TYPE: Tomcat|Apache|Weblogic|Websphere|Oracle|Mysql|PostGresql...等
 - MGMT_IP: 连入SSH或者Agent使用的本主机的服务IP
 - MGMT_PORT: 连入SSH或者Agent使用的本主机的服务PORT
 - OS_ID: CMDB的ID（主机发现需要依赖CMDB中存在所有的主机IP和相关的登录账户信息）
@@ -291,7 +291,7 @@
             "ELAPSED": "1-05:17:01",
             "%CPU": "1.5",
             "HOST_NAME": "centos7base",
-            "APP_TYPE": "Tomcat",
+            "_OBJ_TYPE": "Tomcat",
             "ENVRIONMENT": {
                 "SSH_CLIENT": "192.168.0.123 49422 22",
                 "VAR_TEST": "abcefdfdf",
@@ -348,11 +348,11 @@
         },
         "JVM_VERSION": "1.8.0_77-b03",
         "PORTS": ["8080", "9345"],
-        "APP_TYPE": "Tomcat",
+        "_OBJ_TYPE": "Tomcat",
         "OS_ID": "380303927205890",
         "SSL_PORT": "9345",
         "VERSION": "9.0.44.0",
-        "OBJECT_TYPE": "APP"
+        "_OBJ_CATEGORY": "APP"
     }
 ```
 

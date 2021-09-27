@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -66,8 +66,8 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
-    $appInfo->{VERSION}     = $version;
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $appInfo->{VERSION}       = $version;
 
     # Name             ID   State      Physical Path                  Bindings
     # ----             --   -----      -------------                  --------

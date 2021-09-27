@@ -2,7 +2,7 @@
     "name": "novmtool",
     "collection": "COLLECT_OS",
     "filter": {
-        "APP_TYPE": "novmtool"
+        "_OBJ_TYPE": "novmtool"
     },
     "fields": [{
         "name": "DISKS",
@@ -21,7 +21,7 @@
         "desc": "vm_id",
         "type": "String"
     }, {
-        "name": "OS_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "os_type",
         "type": "String"
     }, {
@@ -61,7 +61,7 @@
         "desc": "vcenter_ip",
         "type": "String"
     }, {
-        "name": "OBJECT_TYPE",
+        "name": "_OBJ_CATEGORY",
         "desc": "object_type",
         "type": "String"
     }, {

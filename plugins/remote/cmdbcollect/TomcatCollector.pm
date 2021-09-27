@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 sub getConfig {
     return {
@@ -36,7 +36,7 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $cmdLine  = $procInfo->{COMMAND};
     my $appInfo  = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     my $confPath;
     if ( $cmdLine =~ /-Dcatalina.base=(\S+)/ ) {

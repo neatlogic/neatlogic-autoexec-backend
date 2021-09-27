@@ -197,6 +197,7 @@ sub getPools {
     my $luns = $tableData->{LUN_LIST};
     foreach my $lunInfo (@$luns) {
         $lunInfo->{CAPACITY} = int( $lunInfo->{CAPACITY} * 100 / 1024 / 1024 / 1024 + 0.5 ) / 100;
+
         #Netapp的WWID是一个ascii编码的字串，需要转换，还要加上NetApp的前缀：60a98000
         my $wwId = $lunInfo->{WWID};
         $wwId =~ s/(.)/sprintf "%02x", ord $1/seg;
@@ -228,8 +229,8 @@ sub getPools {
         }
 
         $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 + 0.5 ) / 100;
-        $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5) / 100;
-        $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5) / 100;
+        $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
+        $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
 
         if ( $dfName ne '' ) {
             push( @validDfVolumes, $dfVolInfo );

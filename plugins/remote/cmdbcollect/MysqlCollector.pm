@@ -15,7 +15,7 @@ use Socket;
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 use MysqlExec;
 
 #配置进程的filter，下面是配置例子
@@ -92,9 +92,9 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $mysqlInfo = {};
-    $mysqlInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
+    $mysqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjType->get('APP')，CollectObjType->get('DB')，CollectObjType::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
 
     my $osUser     = $procInfo->{USER};
     my $command    = $procInfo->{COMMAND};
@@ -263,7 +263,7 @@ sub collect {
     $mysqlInfo->{SYSTEM_CHARSET} = $variables->{character_set_database};
 
     #服务名, 要根据实际来设置
-    $mysqlInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
+    $mysqlInfo->{SERVER_NAME} = $procInfo->{_OBJ_TYPE};
 
     return $mysqlInfo;
 }

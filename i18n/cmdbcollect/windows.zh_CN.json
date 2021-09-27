@@ -2,7 +2,7 @@
 	"name": "Windows",
 	"collection": "COLLECT_OS",
 	"filter": {
-		"OS_TYPE": "Windows"
+		"_OBJ_TYPE": "Windows"
 	},
 	"fields": [{
 			"name": "RESOURCE_ID",
@@ -25,7 +25,7 @@
 			"desc": "CPU型号",
 			"type": "String"
 		}, {
-			"name": "OS_TYPE",
+			"name": "_OBJ_TYPE",
 			"desc": "系统类型",
 			"type": "String"
 		}, {
@@ -232,7 +232,7 @@
 			"desc": "域名",
 			"type": "String"
 		}, {
-			"name": "OBJECT_TYPE",
+			"name": "_OBJ_CATEGORY",
 			"desc": "归属类型",
 			"type": "String"
 		},

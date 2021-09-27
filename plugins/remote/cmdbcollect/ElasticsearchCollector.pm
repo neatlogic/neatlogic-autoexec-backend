@@ -15,7 +15,7 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use YAML::Tiny;
-use CollectObjType;
+use CollectObjCat;
 
 sub getConfig {
     return {
@@ -39,7 +39,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     my $pid     = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};

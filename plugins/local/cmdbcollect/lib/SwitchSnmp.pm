@@ -181,11 +181,11 @@ sub _getBrand {
     if ( not defined($brand) ) {
         print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
         $self->{DATA}->{BRAND}    = undef;
-        $self->{DATA}->{APP_TYPE} = undef;
+        $self->{DATA}->{_OBJ_TYPE} = undef;
     }
     else {
         $self->{DATA}->{BRAND}    = $brand;
-        $self->{DATA}->{APP_TYPE} = $brand;
+        $self->{DATA}->{_OBJ_TYPE} = $brand;
     }
 
     return $brand;

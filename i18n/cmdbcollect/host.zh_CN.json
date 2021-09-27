@@ -11,7 +11,7 @@
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"name": "OBJECT_TYPE",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {

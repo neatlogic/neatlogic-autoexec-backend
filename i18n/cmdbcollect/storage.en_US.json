@@ -7,11 +7,11 @@
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "OBJECT_TYPE",
+        "name": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "name": "APP_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "Application Type",
         "type": "String"
     }, {

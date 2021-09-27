@@ -33,19 +33,19 @@ def genInsRel(db):
                                           {'OS_ID': 1,
                                            'MGMT_IP': 1,
                                            'PORT': 1,
-                                           'OBJECT_TYPE': 1,
-                                           'APP_TYPE': 1}
+                                           '_OBJ_CATEGORY': 1,
+                                           '_OBJ_TYPE': 1}
                                           ).batch_size(500):
-            if rel['OBJECT_TYPE'] == 'DB':
-                refIns.append({'OBJECT_TYPE': rel['OBJECT_TYPE'],
-                               'APP_TYPE': rel['APP_TYPE'],
+            if rel['_OBJ_CATEGORY'] == 'DB':
+                refIns.append({'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
+                               '_OBJ_TYPE': rel['_OBJ_TYPE'],
                                'OS_ID': rel['OS_ID'],
                                'MGMT_IP': rel['MGMT_IP'],
                                'PORT': rel['PORT']
                                })
             else:
-                refDb.append({'OBJECT_TYPE': rel['OBJECT_TYPE'],
-                              'APP_TYPE': rel['APP_TYPE'],
+                refDb.append({'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
+                              '_OBJ_TYPE': rel['_OBJ_TYPE'],
                               'OS_ID': rel['OS_ID'],
                               'MGMT_IP': rel['MGMT_IP'],
                               'PORT': rel['PORT']
@@ -83,8 +83,8 @@ def genOSSwitchRel(db):
         refSwitch = None
         for rel in macTblCollection.find({'MAC_TABLE.MACS':
                                           {'$in': macs}},
-                                         {'OBJECT_TYPE': 1,
-                                          'APP_TYPE': 1,
+                                         {'_OBJ_CATEGORY': 1,
+                                          '_OBJ_TYPE': 1,
                                           'MGMT_IP': 1,
                                           'SN': 1,
                                           'PORT': 1,
@@ -97,8 +97,8 @@ def genOSSwitchRel(db):
 
         refSwPort = None
         if refSwitch is not None:
-            refSwPort = {'OBJECT_TYPE': refSwitch['OBJECT_TYPE'],
-                         'APP_TYPE': refSwitch['APP_TYPE'],
+            refSwPort = {'_OBJ_CATEGORY': refSwitch['_OBJ_CATEGORY'],
+                         '_OBJ_TYPE': refSwitch['_OBJ_TYPE'],
                          'MGMT_IP': refSwitch['MGMT_IP'],
                          'SN': refSwitch['SN'],
                          'PORT': refSwitch['PORT']}
@@ -123,15 +123,15 @@ def genSwitchRel(db):
             dev = None
             remoteCount = 0
             for dev in cdpDestCollection.find({'DEV_NAME': neighbors['REMOTE_NAME']},
-                                              {'OBJECT_TYPE': 1,
-                                               'APP_TYPE': 1,
+                                              {'_OBJ_CATEGORY': 1,
+                                               '_OBJ_TYPE': 1,
                                                'MGMT_IP': 1,
                                                'SN': 1}
                                               ).limit(2):
                 remoteCount = remoteCount + 1
             if remoteCount == 1:
-                neibr['OBJECT_TYPE'] = dev['OBJECT_TYPE']
-                neibr['APP_TYPE'] = dev['APP_TYPE']
+                neibr['_OBJ_CATEGORY'] = dev['_OBJ_CATEGORY']
+                neibr['_OBJ_TYPE'] = dev['_OBJ_TYPE']
                 neibr['REMOTE_MGMT_IP'] = dev['MGMT_IP']
                 neibr['REMOTE_SN'] = dev['SN']
         swCollection.update_one({'MGMT_IP': swInfo['MGMT_IP'],

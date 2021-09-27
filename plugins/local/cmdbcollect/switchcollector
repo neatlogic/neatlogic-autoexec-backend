@@ -9,7 +9,7 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
-use CollectObjType;
+use CollectObjCat;
 use SwitchSnmp;
 
 #README
@@ -57,10 +57,10 @@ sub main {
 
     my $collector = SwitchSnmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
     my $data = $collector->collect();
-    $data->{OBJECT_TYPE} = CollectObjType->get('SWITCH');
-    $data->{PK}          = ['SN'];
-    $data->{RESOURCE_ID} = $node->{resourceId};
-    $data->{MGMT_IP}     = $node->{host};
+    $data->{_OBJ_CATEGORY} = CollectObjCat->get('SWITCH');
+    $data->{PK}            = ['SN'];
+    $data->{RESOURCE_ID}   = $node->{resourceId};
+    $data->{MGMT_IP}       = $node->{host};
 
     my $out = {};
     $out->{DATA} = $data;

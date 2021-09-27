@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package CollectObjType;
+package CollectObjCat;
 
 our $TYPES = {
     SYS          => 'SYS',             #应用系统，逻辑单元
@@ -22,18 +22,18 @@ our $TYPES = {
 };
 
 sub get {
-    my ( $self, $objTypeName ) = @_;
-    my $objType = $TYPES->{$objTypeName};
-    if ( not defined($objType) ) {
-        die("OBJECT_TYPE:$objTypeName not exists.\n");
+    my ( $self, $objCatName ) = @_;
+    my $objCat = $TYPES->{$objCatName};
+    if ( not defined($objCat) ) {
+        die("_OBJ_CATEGORY:$objCatName not exists.\n");
     }
 
-    return $objType;
+    return $objCat;
 }
 
 sub validate {
-    my ( $self, $objType ) = @_;
-    if ( defined( $TYPES->{$objType} ) ) {
+    my ( $self, $objCat ) = @_;
+    if ( defined( $TYPES->{$objCat} ) ) {
         return 1;
     }
 

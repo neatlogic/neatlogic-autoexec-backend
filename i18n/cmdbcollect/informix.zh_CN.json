@@ -1,7 +1,7 @@
 {
     "name": "Informix",
     "collection": "COLLECT_DB",
-    "filter": {"APP_TYPE": "Informix"},
+    "filter": {"_OBJ_TYPE": "Informix"},
     "fields": [{
         "name": "OS_ID",
         "desc": "OS ID",
@@ -19,11 +19,11 @@
         "desc": "命令行",
         "type": "String"
     }, {
-        "name": "OBJECT_TYPE",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "APP_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {

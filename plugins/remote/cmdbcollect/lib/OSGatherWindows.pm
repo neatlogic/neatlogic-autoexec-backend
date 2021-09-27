@@ -204,7 +204,7 @@ sub collectOsInfo {
     my $cpuCores         = 0;
     my $cpuCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfCores');
     foreach my $line (@$cpuCorsInfoLines) {
-        $line =~ /^\s*|\s*$/ / g;
+        $line =~ s/^\s*|\s*$//g;
         $cpuCores = $cpuCores + int($line);
     }
     $osInfo->{CPU_CORES} = $cpuCores;

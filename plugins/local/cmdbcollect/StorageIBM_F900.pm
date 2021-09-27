@@ -72,7 +72,7 @@ sub collect {
 
         my $lunInfo = {};
         $lunInfo->{NAME}      = $name;
-        $lunInfo->{WWID}     = $lunId;
+        $lunInfo->{WWID}      = $lunId;
         $lunInfo->{POOL_NAME} = $poolName;
         $lunInfo->{CAPACITY}  = $capacity;
         push( @luns, $lunInfo );

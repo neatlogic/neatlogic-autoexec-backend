@@ -2,7 +2,7 @@
     "name": "Mysql",
     "collection": "COLLECT_DB",
     "filter": {
-        "APP_TYPE": "Mysql"
+        "_OBJ_TYPE": "Mysql"
     },
     "fields": [{
         "name": "OS_ID",
@@ -13,11 +13,11 @@
         "desc": "OS用户",
         "type": "String"
     }, {
-        "name": "OBJECT_TYPE",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "APP_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {

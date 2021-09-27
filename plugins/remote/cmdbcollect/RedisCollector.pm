@@ -17,7 +17,7 @@ use File::Basename;
 use IO::File;
 use File::Copy;
 use Sys::Hostname;
-use CollectObjType;
+use CollectObjCat;
 use RedisExec;
 use Data::Dumper;
 
@@ -46,9 +46,9 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $osUser           = $procInfo->{USER};
     my $redisInfo        = {};
-    $redisInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
+    $redisInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjType->get('APP')，CollectObjType->get('DB')，CollectObjType::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
     my $command  = $procInfo->{COMMAND};
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);
@@ -179,7 +179,7 @@ sub collect {
     }
 
     #服务名, 要根据实际来设置
-    $redisInfo->{SERVER_NAME} = $procInfo->{APP_TYPE};
+    $redisInfo->{SERVER_NAME} = $procInfo->{_OBJ_TYPE};
 
     return $redisInfo;
 }

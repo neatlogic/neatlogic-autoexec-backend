@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 use Data::Dumper;
 
 sub getConfig {
@@ -27,7 +27,7 @@ sub getConfig {
 
 sub getPK {
     my ($self) = @_;
-    return { $self->{defaultAppType} => [ 'OS_ID', 'MGMT_IP' ] };
+    return { $self->{defaultObjType} => [ 'OS_ID', 'MGMT_IP' ] };
 }
 
 sub collect {
@@ -39,8 +39,8 @@ sub collect {
     }
     my $procInfo       = $self->{procInfo};
     my $keepalivedInfo = {};
-    $keepalivedInfo->{OBJECT_TYPE} = CollectObjType->get('INS');
-    $keepalivedInfo->{SERVER_NAME} = 'keepalived';
+    $keepalivedInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $keepalivedInfo->{SERVER_NAME}   = 'keepalived';
 
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);

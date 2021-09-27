@@ -10,7 +10,7 @@ use strict;
 use JSON;
 use Getopt::Long;
 use AutoExecUtils;
-use CollectObjType;
+use CollectObjCat;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -68,11 +68,11 @@ sub main {
         exit(1);
     }
     my $data = $instance->collect();
-    $data->{OBJECT_TYPE} = CollectObjType->get('STORAGE');
-    $data->{APP_TYPE}    = $type;
-    $data->{MGMT_IP}     = $nodeInfo->{host};
-    $data->{PK}          = ['MGMT_IP'];
-    $data->{RESOURCE_ID} = $nodeInfo->{resourceId};
+    $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
+    $data->{_OBJ_TYPE}     = $type;
+    $data->{MGMT_IP}       = $nodeInfo->{host};
+    $data->{PK}            = ['MGMT_IP'];
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
 
     my $out = {};
     $out->{DATA} = $data;

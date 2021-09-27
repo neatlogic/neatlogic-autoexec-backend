@@ -13,7 +13,7 @@ our @ISA = qw(BaseCollector);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -75,7 +75,7 @@ sub collect {
     my $cmdLine          = $procInfo->{COMMAND};
 
     my @collectSet = ();
-    my $objType    = CollectObjType->get('DB');
+    my $objCat     = CollectObjCat->get('DB');
 
     my $homePath = $envMap->{SYBASE};
 
@@ -122,15 +122,15 @@ sub collect {
         my $port    = $3;
 
         my $insInfo = {
-            OBJECT_TYPE  => $objType,
-            SERVER_NAME  => $insName,
-            INSTALL_PATH => $homePath,
-            CONFIG_PATH  => $confPath,
-            ERROR_LOG    => $errorLog,
-            DATA_FILE    => $dataFile,
-            VERSION      => $version,
-            PORT         => $port,
-            SSL_PORT     => undef
+            _OBJ_CATEGORY => $objCat,
+            SERVER_NAME   => $insName,
+            INSTALL_PATH  => $homePath,
+            CONFIG_PATH   => $confPath,
+            ERROR_LOG     => $errorLog,
+            DATA_FILE     => $dataFile,
+            VERSION       => $version,
+            PORT          => $port,
+            SSL_PORT      => undef
         };
         if ( $ip =~ /\d+(\.\d+){3}/ ) {
             $insInfo->{IP} = $ip;

@@ -16,7 +16,7 @@ use Socket;
 use File::Spec;
 use File::Basename;
 use IO::File;
-use CollectObjType;
+use CollectObjCat;
 use SqlplusExec;
 
 sub getPK {
@@ -415,7 +415,7 @@ sub collectInstances {
 
     my $procInfo = $self->{procInfo};
     $insInfo->{DISK_GROUPS} = \@diskGroups;
-    $insInfo->{APP_TYPE}    = $procInfo->{APP_TYPE};
+    $insInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
 
     my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
     my @serviceNames = keys(%$servicesMap);
@@ -801,7 +801,7 @@ sub collectPDBS {
         #TODO: 根据模型设置是否需要全盘拷贝instance信息
         map { $pdb->{$_} = $insInfo->{$_} } keys(%$insInfo);
 
-        #$pdb->{APP_TYPE} = 'Oracle-PDB';
+        #$pdb->{_OBJ_TYPE} = 'Oracle-PDB';
     }
 
     return \@pdbs;
@@ -824,7 +824,7 @@ sub collectRAC {
 
     #把$insInfo的信息复制过来
     map { $racInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
-    $racInfo->{APP_TYPE} = 'Oracle-RAC';
+    $racInfo->{_OBJ_TYPE} = 'Oracle-RAC';
 
     my $version = $self->getClusterVersion($insInfo);
     $insInfo->{CLUSTER_VERSION} = $version;
@@ -917,7 +917,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $insInfo = {};
-    $insInfo->{OBJECT_TYPE} = CollectObjType->get('DB');
+    $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
 
     my $envMap = $procInfo->{ENVRIONMENT};
 
