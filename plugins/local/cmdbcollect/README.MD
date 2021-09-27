@@ -27,16 +27,22 @@
                   ],
           'MAC_TABLE' => [
                            {
-                             'REMOTE_MAC' => '00:0c:29:28:ef:ed',
-                             'PORT' => 'Ethernet0/2'
+                             'MACS' => [
+                                         '64:51:06:3c:4a:0c'
+                                       ],
+                             'MAC_COUNT' => 1,
+                             'PORT' => 'Ethernet0/9'
                            },
                            {
-                             'REMOTE_MAC' => '00:0c:29:39:e3:9e',
-                             'PORT' => 'Ethernet0/2'
-                           },
-                           {
-                             'REMOTE_MAC' => '00:0c:29:47:e2:03',
-                             'PORT' => 'Ethernet0/2'
+                             'MACS' => [
+                                         '5c:f3:fc:03:05:20',
+                                         'e4:1f:13:8e:2b:47',
+                                         '9a:91:23:08:8a:0b',
+                                         'e4:1f:13:8e:2b:46',
+                                         '00:18:82:b3:48:8d'
+                                       ],
+                             'MAC_COUNT' => 5,
+                             'PORT' => 'Ethernet0/8'
                            }
                          ],
           'PORTS_COUNT' => 28,
@@ -95,7 +101,7 @@
 - RESOURCE_ID: CMDB的ID（存储需要先在CMDB录入，然后再进行采集）
 - SN: Serial number
 
-* 交换机样例
+* 存储样例
 ```json
     {
           'SN'     => 'SDF978934',

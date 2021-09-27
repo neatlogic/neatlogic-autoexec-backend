@@ -160,14 +160,12 @@ if __name__ == "__main__":
                 # 计算mongodb的collection名称，优先使用_OBJ_TYPE作为表名，如果没有_OBJ_TYPE则使用_OBJ_CATEGORY
                 objCat = data["_OBJ_CATEGORY"]
                 objType = None
-                if 'OS_TYPE' in data:
-                    objType = data['OS_TYPE']
                 if '_OBJ_TYPE' in data:
                     objType = data['_OBJ_TYPE']
 
-                tableName = objCat
+                typeName = objCat
                 if objType is not None:
-                    tableName = objType
+                    typeName = objType
 
                 table = "COLLECT_" + objCat
 
@@ -179,16 +177,16 @@ if __name__ == "__main__":
                         pVal = data[pKey]
                         primaryKey[pKey] = data[pKey]
                         if pVal is None or pVal == '':
-                            print("WARN: {} PK attribute:{} is empty.".format(tableName, pKey))
+                            print("WARN: {} PK attribute:{} is empty.".format(typeName, pKey))
                     else:
                         primaryKey[pKey] = None
-                        print("WARN: {} not contain PK attribute:{}.".format(tableName, pKey))
+                        print("WARN: {} not contain PK attribute:{}.".format(typeName, pKey))
 
                 pkJson = json.dumps(primaryKey)
                 collection = db[table]
                 #record = collection.find_one(primaryKey, {'data': True})
                 try:
-                    print('INFO: Begin save data {}:{} ...'.format(tableName, pkJson))
+                    print('INFO: Begin save data {}:{} ...'.format(typeName, pkJson))
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['_renewtime'] = currentTime
@@ -201,9 +199,9 @@ if __name__ == "__main__":
                     print('INFO: Save data success.')
                     createPKIndex(collection, pkDef)
                     createIndex(collection, data)
-                    print('INFO: Save data success.\n'.format(tableName, pkJson))
+                    print('INFO: Save data success.\n'.format(typeName, pkJson))
                 except Exception as ex:
-                    print('ERROR: Save data for {}({}) failed, {}'.format(tableName, pkJson, ex))
+                    print('ERROR: Save data for {}({}) failed, {}'.format(typeName, pkJson, ex))
                     traceback.print_exc()
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(ex))
