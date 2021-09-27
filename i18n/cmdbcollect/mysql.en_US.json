@@ -1,133 +1,133 @@
 {
-    "name": "Mysql",
+    "label": "Mysql",
     "collection": "COLLECT_DB",
     "filter": {"_OBJ_TYPE": "Mysql"},
     "fields": [{
-        "name": "OS_ID",
+        "label": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "name": "OS_USER",
+        "label": "OS_USER",
         "desc": "OS User",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "Application Type",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "Managment IP",
         "type": "String"
     }, {
-        "name": "MGMT_PORT",
+        "label": "MGMT_PORT",
         "desc": "Managment Port",
         "type": "int"
     }, {
-        "name": "SERVER_NAME",
+        "label": "SERVER_NAME",
         "desc": "Server Name",
         "type": "String"
     }, {
-        "name": "VERSION",
+        "label": "VERSION",
         "desc": "Version",
         "type": "String"
     }, {
-        "name": "PORT",
+        "label": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "name": "SSL_PORT",
+        "label": "SSL_PORT",
         "desc": "SSL Port",
         "type": "String"
     }, {
-        "name": "ADMIN_PORT",
+        "label": "ADMIN_PORT",
         "desc": "Admin Port",
         "type": "String"
     }, {
-        "name": "ADMIN_SSL_PORT",
+        "label": "ADMIN_SSL_PORT",
         "desc": "Admin SSL Port",
         "type": "String"
     }, {
-        "name": "MON_PORT",
+        "label": "MON_PORT",
         "desc": "Monitor Port",
         "type": "String"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "Port List",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "Port",
             "type": "int"
         }]
     }, {
-        "name": "INSTALL_PATH",
+        "label": "INSTALL_PATH",
         "desc": "Install Path",
         "type": "String"
     }, {
-        "name": "CONFIG_FILE",
+        "label": "CONFIG_FILE",
         "desc": "Config File",
         "type": "String"
     }, {
-        "name": "SLAVE_IPS",
+        "label": "SLAVE_IPS",
         "desc": "Slave IP list",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "IP",
             "type": "String"
         }]
     }, {
-        "name": "MYSQL_DATADIR",
+        "label": "MYSQL_DATADIR",
         "desc": "Mysql Data directory",
         "type": "String"
     }, {
-        "name": "IS_CLUSTER",
+        "label": "IS_CLUSTER",
         "desc": "Is Cluster",
         "type": "int"
     }, {
-        "name": "CLUSTER_MODE",
+        "label": "CLUSTER_MODE",
         "desc": "Cluster Mode",
         "type": "String"
     }, {
-        "name": "SYSTEM_CHARSET",
+        "label": "SYSTEM_CHARSET",
         "desc": "System Charset",
         "type": "String"
     }, {
-        "name": "ERROR_LOG",
+        "label": "ERROR_LOG",
         "desc": "Error Log",
         "type": "String"
     }, {
-        "name": "CLUSTER_ROLE",
+        "label": "CLUSTER_ROLE",
         "desc": "Cluster Role",
         "type": "String"
     }, {
-        "name": "MYSQL_BASE",
+        "label": "MYSQL_BASE",
         "desc": "Mysql Base",
         "type": "String"
     }, {
-        "name": "SOCKET_PATH",
+        "label": "SOCKET_PATH",
         "desc": "Socket Path",
         "type": "String"
     }, {
-        "name": "DBTABASES",
+        "label": "DBTABASES",
         "desc": "Databases List",
         "type": "JsonArray",
         "subset": [{
-                "name": "NAME",
+                "label": "NAME",
                 "desc": "DB Name",
                 "type": "String"
             },
             {
-                "name": "DEFAULT_CHARACTER_SET",
+                "label": "DEFAULT_CHARACTER_SET",
                 "desc": "Default Charset",
                 "type": "String"
             },
             {
-                "name": "DEFAULT_COLLATION",
+                "label": "DEFAULT_COLLATION",
                 "desc": "Default Collation",
                 "type": "String"
             }

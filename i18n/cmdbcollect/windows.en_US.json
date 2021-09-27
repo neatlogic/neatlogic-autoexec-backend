@@ -1,273 +1,273 @@
 {
-	"name": "Windows",
+	"label": "Windows",
 	"collection": "COLLECT_OS",
 	"filter": {
 		"_OBJ_TYPE": "Windows"
 	},
 	"fields": [{
-			"name": "RESOURCE_ID",
+			"label": "RESOURCE_ID",
 			"desc": "CMDB对象ID",
 			"type": "String"
 		}, {
-			"name": "SYSTEM_LOCALE",
+			"label": "SYSTEM_LOCALE",
 			"desc": "System Locale",
 			"type": "String"
 		}, {
-			"name": "MEM_AVAILABLE",
+			"label": "MEM_AVAILABLE",
 			"desc": "Memory Available",
 			"type": "int"
 		}, {
-			"name": "CPU_FREQUENCY",
+			"label": "CPU_FREQUENCY",
 			"desc": "Cpu Frequency",
 			"type": "String"
 		}, {
-			"name": "CPU_MODEL",
+			"label": "CPU_MODEL",
 			"desc": "Cpu Model",
 			"type": "String"
 		}, {
-			"name": "_OBJ_TYPE",
+			"label": "_OBJ_TYPE",
 			"desc": "Os Type",
 			"type": "String"
 		}, {
-			"name": "MACHINE_ID",
+			"label": "MACHINE_ID",
 			"desc": "Machine Id",
 			"type": "String"
 		}, {
-			"name": "PRODUCT_NAME",
+			"label": "PRODUCT_NAME",
 			"desc": "Product Name",
 			"type": "String"
 		}, {
-			"name": "ETH_INTERFACES",
+			"label": "ETH_INTERFACES",
 			"desc": "NIC",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "STATUS",
+				"label": "STATUS",
 				"desc": "Link State",
 				"type": "String"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "Name",
 				"type": "String"
 			}, {
-				"name": "MAC",
+				"label": "MAC",
 				"desc": "MAC",
 				"type": "String"
 			}]
 		}, {
-			"name": "PATCHES_APPLIED",
+			"label": "PATCHES_APPLIED",
 			"desc": "Patches Applied",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "Patch Number",
 				"type": "String"
 			}]
 		}, {
-			"name": "PRODUCT_UUID",
+			"label": "PRODUCT_UUID",
 			"desc": "Product UUID",
 			"type": "String"
 		}, {
-			"name": "NTP_ENABLE",
+			"label": "NTP_ENABLE",
 			"desc": "NTP Enabled",
 			"type": "int"
 		}, {
-			"name": "INPUT_LOCALE",
+			"label": "INPUT_LOCALE",
 			"desc": "Input Locale",
 			"type": "String"
 		}, {
-			"name": "CPU_CORES",
+			"label": "CPU_CORES",
 			"desc": "Cpu Cores",
 			"type": "int"
 		}, {
-			"name": "BIOS_VERSION",
+			"label": "BIOS_VERSION",
 			"desc": "Bios Version",
 			"type": "String"
 		}, {
-			"name": "USERS",
+			"label": "USERS",
 			"desc": "Users",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "User Name",
 				"type": "String"
 			}]
 		}, {
-			"name": "DISKS",
+			"label": "DISKS",
 			"desc": "Disks",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "UNIT",
+				"label": "UNIT",
 				"desc": "Unit",
 				"type": "String"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "Name",
 				"type": "String"
 			}, {
-				"name": "TYPE",
+				"label": "TYPE",
 				"desc": "Type",
 				"type": "String"
 			}, {
-				"name": "CAPACITY",
+				"label": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
 			}, {
-				"name": "MODEL",
+				"label": "MODEL",
 				"desc": "Model",
 				"type": "String"
 			}]
 		}, {
-			"name": "MOUNT_POINTS",
+			"label": "MOUNT_POINTS",
 			"desc": "Mount Points",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "USED",
+				"label": "USED",
 				"desc": "Used",
 				"type": "float"
 			}, {
-				"name": "AVAILABLE",
+				"label": "AVAILABLE",
 				"desc": "Available",
 				"type": "float"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "Mount Point",
 				"type": "String"
 			}, {
-				"name": "USED%",
+				"label": "USED%",
 				"desc": "Used%",
 				"type": "int"
 			}, {
-				"name": "UNIT",
+				"label": "UNIT",
 				"desc": "Unit",
 				"type": "String"
 			}, {
-				"name": "CAPACITY",
+				"label": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
 			}]
 		}, {
-			"name": "SYMANTEC_INSTALLED",
+			"label": "SYMANTEC_INSTALLED",
 			"desc": "Symantec Installed",
 			"type": "int"
 		}, {
-			"name": "SYS_VENDOR",
+			"label": "SYS_VENDOR",
 			"desc": "Sys Vendor",
 			"type": "String"
 		}, {
-			"name": "OS_ID",
+			"label": "OS_ID",
 			"desc": "OS ID",
 			"type": "String"
 		}, {
-			"name": "NTP_SERVERS",
+			"label": "NTP_SERVERS",
 			"desc": "Ntp Servers",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		}, {
-			"name": "MGMT_IP",
+			"label": "MGMT_IP",
 			"desc": "Managment IP",
 			"type": "String"
 		}, {
-			"name": "CPU_COUNT",
+			"label": "CPU_COUNT",
 			"desc": "Cpu Count",
 			"type": "int"
 		}, {
-			"name": "CPU_ARCH",
+			"label": "CPU_ARCH",
 			"desc": "Cpu Architecture",
 			"type": "String"
 		}, {
-			"name": "MGMT_PORT",
+			"label": "MGMT_PORT",
 			"desc": "Managment Port",
 			"type": "int"
 		}, {
-			"name": "CPU_BITS",
+			"label": "CPU_BITS",
 			"desc": "Cpu Bits",
 			"type": "int"
 		}, {
-			"name": "IS_VIRTUAL",
+			"label": "IS_VIRTUAL",
 			"desc": "Is Virtual",
 			"type": "int"
 		}, {
-			"name": "KERNEL_VERSION",
+			"label": "KERNEL_VERSION",
 			"desc": "Kernel Version",
 			"type": "String"
 		}, {
-			"name": "NAME",
+			"label": "NAME",
 			"desc": "OS Name",
 			"type": "String"
 		}, {
-			"name": "DNS_SERVERS",
+			"label": "DNS_SERVERS",
 			"desc": "DNS Servers",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		}, {
-			"name": "HOSTNAME",
+			"label": "HOSTNAME",
 			"desc": "Host Name",
 			"type": "String"
 		}, {
-			"name": "MEM_TOTAL",
+			"label": "MEM_TOTAL",
 			"desc": "Total Memory",
 			"type": "int"
 		}, {
-			"name": "TIME_ZONE",
+			"label": "TIME_ZONE",
 			"desc": "Time Zone",
 			"type": "String"
 		}, {
-			"name": "IP_ADDRS",
+			"label": "IP_ADDRS",
 			"desc": "IP Addrs",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		}, {
-			"name": "VERSION",
+			"label": "VERSION",
 			"desc": "Version",
 			"type": "String"
 		}, {
-			"name": "DOMAIN",
+			"label": "DOMAIN",
 			"desc": "Domain",
 			"type": "String"
 		}, {
-			"name": "_OBJ_CATEGORY",
+			"label": "_OBJ_CATEGORY",
 			"desc": "Object Type",
 			"type": "String"
 		},
 		{
-			"name": "VM_ID",
+			"label": "VM_ID",
 			"desc": "VM Id",
 			"type": "String"
 		},
 		{
-			"name": "VCENTER_IP",
+			"label": "VCENTER_IP",
 			"desc": "Vcenter IP",
 			"type": "String"
 		}, {
-			"name": "HBA_INTERFACES",
+			"label": "HBA_INTERFACES",
 			"desc": "HBA Interfaces",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "name",
 				"type": "String"
 			}, {
-				"name": "WWN",
+				"label": "WWN",
 				"desc": "WWN",
 				"type": "String"
 			}, {
-				"name": "STATUS",
+				"label": "STATUS",
 				"desc": "Link Status",
 				"type": "String"
 			}, {
-				"name": "SPEED",
+				"label": "SPEED",
 				"desc": "Speed",
 				"type": "int"
 			}]

@@ -1,98 +1,98 @@
 {
-    "name": "交换机",
+    "label": "交换机",
     "collection": "COLLECT_SWITCH",
     "filter": {},
     "fields": [{
-        "name": "RESOURCE_ID",
+        "label": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属对象类型",
         "type": "String"
     }, {
-        "name": "SN",
+        "label": "SN",
         "desc": "序列号",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "DEV_NAME",
+        "label": "DEV_NAME",
         "desc": "设备名",
         "type": "String"
     }, {
-        "name": "BOOT_DATE",
+        "label": "BOOT_DATE",
         "desc": "启动时间",
         "type": "String"
     }, {
-        "name": "VENDOR",
+        "label": "VENDOR",
         "desc": "厂商",
         "type": "String"
     }, {
-        "name": "MODEL",
+        "label": "MODEL",
         "desc": "设备型号",
         "type": "String"
     }, {
-        "name": "FIRMWARE_VERSION",
+        "label": "FIRMWARE_VERSION",
         "desc": "固件版本",
         "type": "String"
     }, {
-        "name": "PORTS_COUNT",
+        "label": "PORTS_COUNT",
         "desc": "端口数量",
         "type": "int"
     }, {
-        "name": "BRAND",
+        "label": "BRAND",
         "desc": "品牌",
         "type": "String"
     }, {
-        "name": "ZONES",
+        "label": "ZONES",
         "desc": "Zone列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "名称",
             "type": "String"
         }, {
-            "name": "INDEX",
+            "label": "INDEX",
             "desc": "Index",
             "type": "String"
         }]
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "端口列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "端口名",
             "type": "String"
         }, {
-            "name": "INDEX",
+            "label": "INDEX",
             "desc": "端口索引号",
             "type": "String"
         }, {
-            "name": "TYPE",
+            "label": "TYPE",
             "desc": "类型",
             "type": "String"
         }, {
-            "name": "WWN",
+            "label": "WWN",
             "desc": "WWM",
             "type": "String"
         }, {
-            "name": "ADMIN_STATUS",
+            "label": "ADMIN_STATUS",
             "desc": "管理状态",
             "type": "String"
         }, {
-            "name": "OPER_STATUS",
+            "label": "OPER_STATUS",
             "desc": "操作状态",
             "type": "String"
         }, {
-            "name": "SPEED",
+            "label": "SPEED",
             "desc": "带宽",
             "type": "float"
         }, {
-            "name": "MTU",
+            "label": "MTU",
             "desc": "MTU",
             "type": "int"
         }]

@@ -1,139 +1,139 @@
 {
-    "name": "Mysql",
+    "label": "Mysql",
     "collection": "COLLECT_DB",
     "filter": {
         "_OBJ_TYPE": "Mysql"
     },
     "fields": [{
-        "name": "OS_ID",
+        "label": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "name": "OS_USER",
+        "label": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "MGMT_PORT",
+        "label": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "name": "SERVER_NAME",
+        "label": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "name": "VERSION",
+        "label": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "name": "PORT",
+        "label": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "name": "SSL_PORT",
+        "label": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "name": "ADMIN_PORT",
+        "label": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "name": "ADMIN_SSL_PORT",
+        "label": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "name": "MON_PORT",
+        "label": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "name": "INSTALL_PATH",
+        "label": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "name": "BIN_PATH",
+        "label": "BIN_PATH",
         "desc": "BIN文件路径",
         "type": "String"
     }, {
-        "name": "CONFIG_FILE",
+        "label": "CONFIG_FILE",
         "desc": "配置文件",
         "type": "String"
     }, {
-        "name": "SLAVE_IPS",
+        "label": "SLAVE_IPS",
         "desc": "IP列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "IP",
             "type": "String"
         }]
     }, {
-        "name": "MYSQL_DATADIR",
+        "label": "MYSQL_DATADIR",
         "desc": "数据目录",
         "type": "String"
     }, {
-        "name": "IS_CLUSTER",
+        "label": "IS_CLUSTER",
         "desc": "是否是集群",
         "type": "int"
     }, {
-        "name": "CLUSTER_MODE",
+        "label": "CLUSTER_MODE",
         "desc": "集群模式",
         "type": "String"
     }, {
-        "name": "SYSTEM_CHARSET",
+        "label": "SYSTEM_CHARSET",
         "desc": "系统字符集",
         "type": "String"
     }, {
-        "name": "ERROR_LOG",
+        "label": "ERROR_LOG",
         "desc": "错误日志",
         "type": "String"
     }, {
-        "name": "CLUSTER_ROLE",
+        "label": "CLUSTER_ROLE",
         "desc": "集群角色",
         "type": "String"
     }, {
-        "name": "MYSQL_BASE",
+        "label": "MYSQL_BASE",
         "desc": "Mysql Base",
         "type": "String"
     }, {
-        "name": "SOCKET_PATH",
+        "label": "SOCKET_PATH",
         "desc": "Socket文件路径",
         "type": "String"
     }, {
-        "name": "DBTABASES",
+        "label": "DBTABASES",
         "desc": "DB列表",
         "type": "JsonArray",
         "subset": [{
-                "name": "NAME",
+                "label": "NAME",
                 "desc": "DB名称",
                 "type": "String"
             },
             {
-                "name": "DEFAULT_CHARACTER_SET",
+                "label": "DEFAULT_CHARACTER_SET",
                 "desc": "默认字符集",
                 "type": "String"
             },
             {
-                "name": "DEFAULT_COLLATION",
+                "label": "DEFAULT_COLLATION",
                 "desc": "排序方法",
                 "type": "String"
             }

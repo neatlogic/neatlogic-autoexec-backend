@@ -1,132 +1,132 @@
 {
-	"name": "Nginx",
+	"label": "Nginx",
 	"collection": "COLLECT_INS",
 	"filter": {
 		"_OBJ_TYPE": "Nginx"
 	},
 	"fields": [{
-		"name": "OS_ID",
+		"label": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"name": "OS_USER",
+		"label": "OS_USER",
 		"desc": "OS User",
 		"type": "String"
 	}, {
-		"name": "EXE_PATH",
+		"label": "EXE_PATH",
 		"desc": "Executable File Path",
 		"type": "String"
 	}, {
-		"name": "COMMAND",
+		"label": "COMMAND",
 		"desc": "Command Line",
 		"type": "String"
 	}, {
-		"name": "_OBJ_CATEGORY",
+		"label": "_OBJ_CATEGORY",
 		"desc": "Object Type",
 		"type": "String"
 	}, {
-		"name": "_OBJ_TYPE",
+		"label": "_OBJ_TYPE",
 		"desc": "Application Type",
 		"type": "String"
 	}, {
-		"name": "MGMT_IP",
+		"label": "MGMT_IP",
 		"desc": "Managment IP",
 		"type": "String"
 	}, {
-		"name": "MGMT_PORT",
+		"label": "MGMT_PORT",
 		"desc": "Managment Port",
 		"type": "int"
 	}, {
-		"name": "SERVER_NAME",
+		"label": "SERVER_NAME",
 		"desc": "Server Name",
 		"type": "String"
 	}, {
-		"name": "VERSION",
+		"label": "VERSION",
 		"desc": "Version",
 		"type": "String"
 	}, {
-		"name": "PORT",
+		"label": "PORT",
 		"desc": "Port",
 		"type": "String"
 	}, {
-		"name": "SSL_PORT",
+		"label": "SSL_PORT",
 		"desc": "SSL Port",
 		"type": "String"
 	}, {
-		"name": "ADMIN_PORT",
+		"label": "ADMIN_PORT",
 		"desc": "Admin Port",
 		"type": "String"
 	}, {
-		"name": "ADMIN_SSL_PORT",
+		"label": "ADMIN_SSL_PORT",
 		"desc": "Admin SSL Port",
 		"type": "String"
 	}, {
-		"name": "MON_PORT",
+		"label": "MON_PORT",
 		"desc": "Monitor Port",
 		"type": "String"
 	}, {
-		"name": "PORTS",
+		"label": "PORTS",
 		"desc": "Port List",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "VALUE",
+			"label": "VALUE",
 			"desc": "Port",
 			"type": "int"
 		}]
 	}, {
-		"name": "INSTALL_PATH",
+		"label": "INSTALL_PATH",
 		"desc": "Install Path",
 		"type": "String"
 	}, {
-		"name": "BIN_PATH",
+		"label": "BIN_PATH",
 		"desc": "Bin Path",
 		"type": "String"
 	}, {
-		"name": "CONFIG_PATH",
+		"label": "CONFIG_PATH",
 		"desc": "Conf Path",
 		"type": "String"
 	}, {
-		"name": "CONF_FILE",
+		"label": "CONF_FILE",
 		"desc": "Conf File",
 		"type": "String"
 	}, {
-		"name": "LOG_PATH",
+		"label": "LOG_PATH",
 		"desc": "Log Path",
 		"type": "String"
 	}, {
-		"name": "SERVER_ROOT",
+		"label": "SERVER_ROOT",
 		"desc": "Server Root",
 		"type": "String"
 	}, {
-		"name": "BIN_PATH",
+		"label": "BIN_PATH",
 		"desc": "BIN Path",
 		"type": "String"
 	}, {
-		"name": "PREFIX",
+		"label": "PREFIX",
 		"desc": "Prefix",
 		"type": "String"
 	}, {
-		"name": "SERVERS",
+		"label": "SERVERS",
 		"desc": "Servers",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "SERVICE_TYPE",
+			"label": "SERVICE_TYPE",
 			"desc": "Service Type",
 			"type": "String"
 		}, {
-			"name": "SERVICE_STATUS",
+			"label": "SERVICE_STATUS",
 			"desc": "Service Status",
 			"type": "String"
 		}, {
-			"name": "SERVICE_NAME",
+			"label": "SERVICE_NAME",
 			"desc": "Service Name",
 			"type": "String"
 		}, {
-			"name": "SERVICE_PORT",
+			"label": "SERVICE_PORT",
 			"desc": "Service Port",
 			"type": "String"
 		}, {
-			"name": "CONFIG_PATH",
+			"label": "CONFIG_PATH",
 			"desc": "Config Path",
 			"type": "String"
 		}]

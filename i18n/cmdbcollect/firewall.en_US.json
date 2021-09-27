@@ -1,37 +1,37 @@
 {
-    "name": "Firewall",
+    "label": "Firewall",
     "collection": "COLLECT_FIREWALL",
     "filter": {},
     "fields": [{
-        "name": "RESOURCE_ID",
+        "label": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "name": "SN",
+        "label": "SN",
         "desc": "Chassis Serial",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "Managment IP",
         "type": "String"
     }, {
-        "name": "DEV_NAME",
+        "label": "DEV_NAME",
         "desc": "Device Name",
         "type": "String"
     }, {
-        "name": "VENDOR",
+        "label": "VENDOR",
         "desc": "Vendor",
         "type": "String"
     }, {
-        "name": "MODEL",
+        "label": "MODEL",
         "desc": "Device Model",
         "type": "String"
     }, {
-        "name": "BRAND",
+        "label": "BRAND",
         "desc": "Brand",
         "type": "String"
     }]

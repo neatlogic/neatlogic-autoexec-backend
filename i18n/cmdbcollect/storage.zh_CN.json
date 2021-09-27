@@ -1,135 +1,135 @@
 {
-    "name": "存储",
+    "label": "存储",
     "collection": "COLLECT_STORAGE",
     "filter": {},
     "fields": [{
-        "name": "RESOURCE_ID",
+        "label": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属对象类型",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "交换机品牌",
         "type": "String"
     }, {
-        "name": "SN",
+        "label": "SN",
         "desc": "序列号",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "DEV_NAME",
+        "label": "DEV_NAME",
         "desc": "设备名",
         "type": "String"
     }, {
-        "name": "MODEL",
+        "label": "MODEL",
         "desc": "设备型号",
         "type": "String"
     }, {
-        "name": "UPTIME",
+        "label": "UPTIME",
         "desc": "Up Time",
         "type": "String"
     }, {
-        "name": "VENDOR",
+        "label": "VENDOR",
         "desc": "厂商",
         "type": "String"
     }, {
-        "name": "BRAND",
+        "label": "BRAND",
         "desc": "品牌",
         "type": "String"
     }, {
-        "name": "LUNS",
+        "label": "LUNS",
         "desc": "逻辑磁盘列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "ID",
+            "label": "ID",
             "desc": "ID",
             "type": "String"
         }, {
-            "name": "NAME",
+            "label": "NAME",
             "desc": "名称",
             "type": "String"
         }, {
-            "name": "WWID",
+            "label": "WWID",
             "desc": "Lun ID",
             "type": "String"
         }, {
-            "name": "CAPACITY",
+            "label": "CAPACITY",
             "desc": "大小(GB)",
             "type": "float"
         }]
     }, {
-        "name": "VOLUMES",
+        "label": "VOLUMES",
         "desc": "卷列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "名称",
             "type": "String"
         }, {
-            "name": "CAPACITY",
+            "label": "CAPACITY",
             "desc": "大小(GB)",
             "type": "float"
         }, {
-            "name": "USED",
+            "label": "USED",
             "desc": "使用(GB)",
             "type": "float"
         }, {
-            "name": "FREE",
+            "label": "FREE",
             "desc": "空闲(GB)",
             "type": "float"
         }, {
-            "name": "USED_PERCENT",
+            "label": "USED_PERCENT",
             "desc": "使用百分比(%)",
             "type": "float"
         }]
     }, {
-        "name": "POOLS",
+        "label": "POOLS",
         "desc": "盘池列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "名称",
             "type": "String"
         }, {
-            "name": "CAPACITY",
+            "label": "CAPACITY",
             "desc": "大小(GB)",
             "type": "float"
         }, {
-            "name": "USED",
+            "label": "USED",
             "desc": "使用(GB)",
             "type": "float"
         }, {
-            "name": "FREE",
+            "label": "FREE",
             "desc": "空闲(GB)",
             "type": "float"
         }, {
-            "name": "USED_PERCENT",
+            "label": "USED_PERCENT",
             "desc": "使用百分比(%)",
             "type": "float"
         }, {
-            "name": "LUNS",
+            "label": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
             "subset": [{
-                "name": "ID",
+                "label": "ID",
                 "desc": "ID",
                 "type": "String"
             }, {
-                "name": "NAME",
+                "label": "NAME",
                 "desc": "名称",
                 "type": "String"
             }, {
-                "name": "WWID",
+                "label": "WWID",
                 "desc": "Lun ID",
                 "type": "String"
             }, {
-                "name": "CAPACITY",
+                "label": "CAPACITY",
                 "desc": "大小(GB)",
                 "type": "float"
             }]

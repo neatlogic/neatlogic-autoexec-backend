@@ -1,118 +1,118 @@
 {
-	"name": "Nginx",
+	"label": "Nginx",
 	"collection": "COLLECT_INS",
     "filter": {"_OBJ_TYPE": "Nginx"},
     "fields": [{
-		"name": "OS_ID",
+		"label": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"name": "OS_USER",
+		"label": "OS_USER",
 		"desc": "OS用户",
 		"type": "String"
 	}, {
-		"name": "EXE_PATH",
+		"label": "EXE_PATH",
 		"desc": "执行文件路径",
 		"type": "String"
 	}, {
-		"name": "COMMAND",
+		"label": "COMMAND",
 		"desc": "命令行",
 		"type": "String"
 	}, {
-		"name": "_OBJ_CATEGORY",
+		"label": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {
-		"name": "_OBJ_TYPE",
+		"label": "_OBJ_TYPE",
 		"desc": "中间件类型",
 		"type": "String"
 	}, {
-		"name": "MGMT_IP",
+		"label": "MGMT_IP",
 		"desc": "管理IP",
 		"type": "String"
 	}, {
-		"name": "MGMT_PORT",
+		"label": "MGMT_PORT",
 		"desc": "管理端口",
 		"type": "int"
 	}, {
-		"name": "SERVER_NAME",
+		"label": "SERVER_NAME",
 		"desc": "服务名",
 		"type": "String"
 	}, {
-		"name": "VERSION",
+		"label": "VERSION",
 		"desc": "版本",
 		"type": "String"
 	}, {
-		"name": "PORT",
+		"label": "PORT",
 		"desc": "Port",
 		"type": "String"
 	}, {
-		"name": "SSL_PORT",
+		"label": "SSL_PORT",
 		"desc": "SSL端口",
 		"type": "String"
 	}, {
-		"name": "ADMIN_PORT",
+		"label": "ADMIN_PORT",
 		"desc": "管理端口",
 		"type": "String"
 	}, {
-		"name": "ADMIN_SSL_PORT",
+		"label": "ADMIN_SSL_PORT",
 		"desc": "管理SSL端口",
 		"type": "String"
 	}, {
-		"name": "MON_PORT",
+		"label": "MON_PORT",
 		"desc": "监控端口",
 		"type": "String"
 	}, {
-		"name": "PORTS",
+		"label": "PORTS",
 		"desc": "所有端口列表",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "VALUE",
+			"label": "VALUE",
 			"desc": "端口",
 			"type": "int"
 		}]
 	}, {
-		"name": "INSTALL_PATH",
+		"label": "INSTALL_PATH",
 		"desc": "安装目录",
 		"type": "String"
 	}, {
-		"name": "EXE_PATH",
+		"label": "EXE_PATH",
 		"desc": "启停exe文件路径",
 		"type": "String"
 	}, {
-		"name": "BIN_PATH",
+		"label": "BIN_PATH",
 		"desc": "bin文件路径",
 		"type": "String"
 	}, {
-		"name": "CONFIG_PATH",
+		"label": "CONFIG_PATH",
 		"desc": "配置文件目录",
 		"type": "String"
 	}, {
-		"name": "PREFIX",
+		"label": "PREFIX",
 		"desc": "prefix",
 		"type": "String"
 	}, {
-		"name": "SERVERS",
+		"label": "SERVERS",
 		"desc": "服务",
 		"type": "JsonArray",
 		"subset": [{
-			"name": "SERVICE_TYPE",
+			"label": "SERVICE_TYPE",
 			"desc": "类型",
 			"type": "String"
 		}, {
-			"name": "SERVICE_STATUS",
+			"label": "SERVICE_STATUS",
 			"desc": "状态",
 			"type": "String"
 		}, {
-			"name": "SERVICE_NAME",
+			"label": "SERVICE_NAME",
 			"desc": "名称",
 			"type": "String"
 		}, {
-			"name": "SERVICE_PORT",
+			"label": "SERVICE_PORT",
 			"desc": "监听端口",
 			"type": "String"
 		}, {
-			"name": "CONFIG_PATH",
+			"label": "CONFIG_PATH",
 			"desc": "归属配置文件",
 			"type": "String"
 		}]

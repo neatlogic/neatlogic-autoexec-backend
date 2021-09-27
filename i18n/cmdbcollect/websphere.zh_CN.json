@@ -1,169 +1,169 @@
 {
-    "name": "Websphere",
+    "label": "Websphere",
     "collection": "COLLECT_INS",
     "filter": {
         "_OBJ_TYPE": "WebSphere"
     },
     "fields": [{
-        "name": "OS_ID",
+        "label": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "name": "OS_USER",
+        "label": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "name": "EXE_PATH",
+        "label": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "name": "COMMAND",
+        "label": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "MGMT_PORT",
+        "label": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "name": "SERVER_NAME",
+        "label": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "name": "VERSION",
+        "label": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "name": "PORT",
+        "label": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "name": "SSL_PORT",
+        "label": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "name": "ADMIN_PORT",
+        "label": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "name": "ADMIN_SSL_PORT",
+        "label": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "name": "MON_PORT",
+        "label": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "name": "INSTALL_PATH",
+        "label": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "name": "CONFIG_PATH",
+        "label": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "name": "JAVA_HOME",
+        "label": "JAVA_HOME",
         "desc": "Java目录",
         "type": "String"
     }, {
-        "name": "JAVA_VERSION",
+        "label": "JAVA_VERSION",
         "desc": "Java版本",
         "type": "String"
     }, {
-        "name": "JVM_TYPE",
+        "label": "JVM_TYPE",
         "desc": "JVM类型",
         "type": "String"
     }, {
-        "name": "JVM_VERSION",
+        "label": "JVM_VERSION",
         "desc": "JVM版本",
         "type": "String"
     }, {
-        "name": "MIN_HEAP_SIZE",
+        "label": "MIN_HEAP_SIZE",
         "desc": "最小Heap Size",
         "type": "int"
     }, {
-        "name": "MAX_HEAP_SIZE",
+        "label": "MAX_HEAP_SIZE",
         "desc": "最大Heap Size",
         "type": "int"
     }, {
-        "name": "JMX_PORT",
+        "label": "JMX_PORT",
         "desc": "JMX端口",
         "type": "int"
     }, {
-        "name": "JMX_SSL",
+        "label": "JMX_SSL",
         "desc": "JMX使用SSL",
         "type": "String"
     }, {
-        "name": "SOAP_PORT",
+        "label": "SOAP_PORT",
         "desc": "Soap端口",
         "type": "int"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "Port列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "Port",
             "type": "int"
         }]
     }, {
-        "name": "WAS_HOME",
+        "label": "WAS_HOME",
         "desc": "Websphere Home目录",
         "type": "String"
     }, {
-        "name": "CONFIG_ROOT",
+        "label": "CONFIG_ROOT",
         "desc": "Config目录",
         "type": "String"
     }, {
-        "name": "WAS_CELL",
+        "label": "WAS_CELL",
         "desc": "WAS Cell",
         "type": "String"
     }, {
-        "name": "WAS_NODE",
+        "label": "WAS_NODE",
         "desc": "WAS Node",
         "type": "String"
     }, {
-        "name": "OSGI_INSTALL",
+        "label": "OSGI_INSTALL",
         "desc": "OSGI Install",
         "type": "String"
     }, {
-        "name": "CLIENT_CONNECTOR_INSTALL_ROOT",
+        "label": "CLIENT_CONNECTOR_INSTALL_ROOT",
         "desc": "Client Connector Install Root",
         "type": "String"
     }, {
-        "name": "USER_INSTALL_ROOT",
+        "label": "USER_INSTALL_ROOT",
         "desc": "User Install Root",
         "type": "String"
     }, {
-        "name": "APPLICATIONS",
+        "label": "APPLICATIONS",
         "desc": "Application List",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "应用名",
             "type": "String"
         }, {
-            "name": "SOURCE_PATH",
+            "label": "SOURCE_PATH",
             "desc": "应用目录",
             "type": "String"
         }]

@@ -1,204 +1,204 @@
 {
-    "name": "Postgresql",
+    "label": "Postgresql",
     "collection": "COLLECT_DB",
     "filter": {
         "_OBJ_TYPE": "Postgresql"
     },
     "fields": [{
-        "name": "OS_ID",
+        "label": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "name": "OS_USER",
+        "label": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "name": "EXE_PATH",
+        "label": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "name": "COMMAND",
+        "label": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "MGMT_PORT",
+        "label": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "name": "SERVER_NAME",
+        "label": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "name": "VERSION",
+        "label": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "name": "PORT",
+        "label": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "name": "SSL_PORT",
+        "label": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "name": "ADMIN_PORT",
+        "label": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "name": "ADMIN_SSL_PORT",
+        "label": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "name": "MON_PORT",
+        "label": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "name": "INSTALL_PATH",
+        "label": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "name": "DATESTYLE",
+        "label": "DATESTYLE",
         "desc": "日期格式",
         "type": "String"
     }, {
-        "name": "LISTEN_ADDRESSES",
+        "label": "LISTEN_ADDRESSES",
         "desc": "监听",
         "type": "String"
     }, {
-        "name": "WAL_BUFFERS",
+        "label": "WAL_BUFFERS",
         "desc": "WAL缓存",
         "type": "String"
     }, {
-        "name": "MAINTENANCE_WORK_MEM",
+        "label": "MAINTENANCE_WORK_MEM",
         "desc": "维护内存",
         "type": "String"
     }, {
-        "name": "COMMIT_SIBLINGS",
+        "label": "COMMIT_SIBLINGS",
         "desc": "提交同胞",
         "type": "String"
     }, {
-        "name": "HBA_FILE",
+        "label": "HBA_FILE",
         "desc": "HBA文件",
         "type": "String"
     }, {
-        "name": "LC_TIME",
+        "label": "LC_TIME",
         "desc": "LC_TIME",
         "type": "String"
     }, {
-        "name": "MAX_PREPARED_TRANSACTIONS",
+        "label": "MAX_PREPARED_TRANSACTIONS",
         "desc": "最大预事务数",
         "type": "String"
     }, {
-        "name": "DATA_DIRECTORY",
+        "label": "DATA_DIRECTORY",
         "desc": "数据字典",
         "type": "String"
     }, {
-        "name": "MAX_LOCKS_PER_TRANSACTION",
+        "label": "MAX_LOCKS_PER_TRANSACTION",
         "desc": "每事务最大锁数量",
         "type": "String"
     }, {
-        "name": "CLUSTER_NAME",
+        "label": "CLUSTER_NAME",
         "desc": "集群名",
         "type": "String"
     }, {
-        "name": "DEFAULT_TEXT_SEARCH_CONFIG",
+        "label": "DEFAULT_TEXT_SEARCH_CONFIG",
         "desc": "默认文本检索配置",
         "type": "String"
     }, {
-        "name": "CHECKPOINT_COMPLETION_TARGET",
+        "label": "CHECKPOINT_COMPLETION_TARGET",
         "desc": "检查点完成目标",
         "type": "String"
     }, {
-        "name": "CHECKPOINT_SEGMENTS",
+        "label": "CHECKPOINT_SEGMENTS",
         "desc": "简单点分段",
         "type": "String"
     }, {
-        "name": "TRACK_COMMIT_TIMESTAMP",
+        "label": "TRACK_COMMIT_TIMESTAMP",
         "desc": "跟踪提交时间戳",
         "type": "String"
     }, {
-        "name": "SERVER_VERSION",
+        "label": "SERVER_VERSION",
         "desc": "Server版本",
         "type": "String"
     }, {
-        "name": "MAX_CONNECTIONS",
+        "label": "MAX_CONNECTIONS",
         "desc": "最大连接数",
         "type": "String"
     }, {
-        "name": "WAL_LEVEL",
+        "label": "WAL_LEVEL",
         "desc": "WAL水平",
         "type": "String"
     }, {
-        "name": "WAL_LOG_HINTS",
+        "label": "WAL_LOG_HINTS",
         "desc": "WAL日志HINTS",
         "type": "String"
     }, {
-        "name": "APPLICATION_NAME",
+        "label": "APPLICATION_NAME",
         "desc": "应用名",
         "type": "String"
     }, {
-        "name": "MAX_WORKER_PROCESSES",
+        "label": "MAX_WORKER_PROCESSES",
         "desc": "最大工作进程数",
         "type": "String"
     }, {
-        "name": "SHARED_BUFFERS",
+        "label": "SHARED_BUFFERS",
         "desc": "共享缓存",
         "type": "String"
     }, {
-        "name": "WORK_MEM",
+        "label": "WORK_MEM",
         "desc": "工作内存",
         "type": "String"
     }, {
-        "name": "EFFECTIVE_CACHE_SIZE",
+        "label": "EFFECTIVE_CACHE_SIZE",
         "desc": "有效缓存大小",
         "type": "String"
     }, {
-        "name": "HOT_STANDBY",
+        "label": "HOT_STANDBY",
         "desc": "热备",
         "type": "String"
     }, {
-        "name": "MAX_REPLICATION_SLOTS",
+        "label": "MAX_REPLICATION_SLOTS",
         "desc": "最大同步SLOTS",
         "type": "String"
     }, {
-        "name": "IDENT_FILE",
+        "label": "IDENT_FILE",
         "desc": "IDENT File",
         "type": "String"
     }, {
-        "name": "MAX_WAL_SENDERS",
+        "label": "MAX_WAL_SENDERS",
         "desc": "最大WAL发送者数量",
         "type": "String"
     }, {
-        "name": "COMMIT_DELAY",
+        "label": "COMMIT_DELAY",
         "desc": "提交延迟",
         "type": "String"
     }, {
-        "name": "DATABASES",
+        "label": "DATABASES",
         "desc": "DB列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "NAME",
+            "label": "NAME",
             "desc": "库名",
             "type": "String"
         }]

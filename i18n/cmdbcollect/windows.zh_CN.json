@@ -1,268 +1,268 @@
 {
-	"name": "Windows",
+	"label": "Windows",
 	"collection": "COLLECT_OS",
 	"filter": {
 		"_OBJ_TYPE": "Windows"
 	},
 	"fields": [{
-			"name": "RESOURCE_ID",
+			"label": "RESOURCE_ID",
 			"desc": "CMDB对象ID",
 			"type": "String"
 		}, {
-			"name": "SYSTEM_LOCALE",
+			"label": "SYSTEM_LOCALE",
 			"desc": "系统语言环境",
 			"type": "String"
 		}, {
-			"name": "MEM_AVAILABLE",
+			"label": "MEM_AVAILABLE",
 			"desc": "可用内存",
 			"type": "int"
 		}, {
-			"name": "CPU_FREQUENCY",
+			"label": "CPU_FREQUENCY",
 			"desc": "CPU频率",
 			"type": "String"
 		}, {
-			"name": "CPU_MODEL",
+			"label": "CPU_MODEL",
 			"desc": "CPU型号",
 			"type": "String"
 		}, {
-			"name": "_OBJ_TYPE",
+			"label": "_OBJ_TYPE",
 			"desc": "系统类型",
 			"type": "String"
 		}, {
-			"name": "MACHINE_ID",
+			"label": "MACHINE_ID",
 			"desc": "Machine ID",
 			"type": "String"
 		}, {
-			"name": "PRODUCT_NAME",
+			"label": "PRODUCT_NAME",
 			"desc": "品牌",
 			"type": "String"
 		}, {
-			"name": "ETH_INTERFACES",
+			"label": "ETH_INTERFACES",
 			"desc": "网卡",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "STATUS",
+				"label": "STATUS",
 				"desc": "端口状态",
 				"type": "String"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "名称",
 				"type": "String"
 			}, {
-				"name": "MAC",
+				"label": "MAC",
 				"desc": "MAC",
 				"type": "String"
 			}]
 		}, {
-			"name": "PATCHES_APPLIED",
+			"label": "PATCHES_APPLIED",
 			"desc": "补丁列表",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "补丁号",
 				"type": "String"
 			}]
 		}, {
-			"name": "PRODUCT_UUID",
+			"label": "PRODUCT_UUID",
 			"desc": "产品UUID",
 			"type": "String"
 		}, {
-			"name": "NTP_ENABLE",
+			"label": "NTP_ENABLE",
 			"desc": "是否开启NTP服务",
 			"type": "int"
 		}, {
-			"name": "INPUT_LOCALE",
+			"label": "INPUT_LOCALE",
 			"desc": "输入语言",
 			"type": "String"
 		}, {
-			"name": "CPU_CORES",
+			"label": "CPU_CORES",
 			"desc": "cpu核数",
 			"type": "int"
 		}, {
-			"name": "BIOS_VERSION",
+			"label": "BIOS_VERSION",
 			"desc": "BIOS版本",
 			"type": "String"
 		}, {
-			"name": "USERS",
+			"label": "USERS",
 			"desc": "用户",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "用户名",
 				"type": "String"
 			}]
 		}, {
-			"name": "DISKS",
+			"label": "DISKS",
 			"desc": "Disks",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "UNIT",
+				"label": "UNIT",
 				"desc": "单位",
 				"type": "String"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "磁盘名",
 				"type": "String"
 			}, {
-				"name": "TYPE",
+				"label": "TYPE",
 				"desc": "类型",
 				"type": "String"
 			}, {
-				"name": "CAPACITY",
+				"label": "CAPACITY",
 				"desc": "容量",
 				"type": "int"
 			}, {
-				"name": "MODEL",
+				"label": "MODEL",
 				"desc": "型号",
 				"type": "String"
 			}]
 		}, {
-			"name": "MOUNT_POINTS",
+			"label": "MOUNT_POINTS",
 			"desc": "逻辑磁盘",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "USED",
+				"label": "USED",
 				"desc": "Used",
 				"type": "float"
 			}, {
-				"name": "AVAILABLE",
+				"label": "AVAILABLE",
 				"desc": "Available",
 				"type": "float"
 			}, {
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "Mount Point",
 				"type": "String"
 			}, {
-				"name": "USED%",
+				"label": "USED%",
 				"desc": "Used%",
 				"type": "int"
 			}, {
-				"name": "UNIT",
+				"label": "UNIT",
 				"desc": "Unit",
 				"type": "String"
 			}, {
-				"name": "CAPACITY",
+				"label": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
 			}]
 		}, {
-			"name": "SYMANTEC_INSTALLED",
+			"label": "SYMANTEC_INSTALLED",
 			"desc": "是否安装ccSvcHst",
 			"type": "int"
 		}, {
-			"name": "SYS_VENDOR",
+			"label": "SYS_VENDOR",
 			"desc": "厂商",
 			"type": "String"
 		}, {
-			"name": "OS_ID",
+			"label": "OS_ID",
 			"desc": "OS ID",
 			"type": "String"
 		}, {
-			"name": "NTP_SERVERS",
+			"label": "NTP_SERVERS",
 			"desc": "NTP服务IP",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		}, {
-			"name": "MGMT_IP",
+			"label": "MGMT_IP",
 			"desc": "管理IP",
 			"type": "String"
 		}, {
-			"name": "CPU_COUNT",
+			"label": "CPU_COUNT",
 			"desc": "CPU数量",
 			"type": "int"
 		}, {
-			"name": "CPU_ARCH",
+			"label": "CPU_ARCH",
 			"desc": "CPU架构",
 			"type": "String"
 		}, {
-			"name": "MGMT_PORT",
+			"label": "MGMT_PORT",
 			"desc": "管理端口",
 			"type": "int"
 		}, {
-			"name": "CPU_BITS",
+			"label": "CPU_BITS",
 			"desc": "CPU位数",
 			"type": "int"
 		}, {
-			"name": "IS_VIRTUAL",
+			"label": "IS_VIRTUAL",
 			"desc": "是否是虚拟机",
 			"type": "int"
 		}, {
-			"name": "KERNEL_VERSION",
+			"label": "KERNEL_VERSION",
 			"desc": "内核版本",
 			"type": "String"
 		}, {
-			"name": "NAME",
+			"label": "NAME",
 			"desc": "系统名称",
 			"type": "String"
 		}, {
-			"name": "DNS_SERVERS",
+			"label": "DNS_SERVERS",
 			"desc": "DNS服务IP",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "VALUE",
+				"label": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		}, {
-			"name": "HOSTNAME",
+			"label": "HOSTNAME",
 			"desc": "主机名",
 			"type": "String"
 		}, {
-			"name": "MEM_TOTAL",
+			"label": "MEM_TOTAL",
 			"desc": "内存大小",
 			"type": "int"
 		}, {
-			"name": "TIME_ZONE",
+			"label": "TIME_ZONE",
 			"desc": "时区",
 			"type": "String"
 		}, {
-			"name": "IP_ADDRS",
+			"label": "IP_ADDRS",
 			"desc": "IP地址列表",
 			"type": "Array"
 		}, {
-			"name": "VERSION",
+			"label": "VERSION",
 			"desc": "版本",
 			"type": "String"
 		}, {
-			"name": "DOMAIN",
+			"label": "DOMAIN",
 			"desc": "域名",
 			"type": "String"
 		}, {
-			"name": "_OBJ_CATEGORY",
+			"label": "_OBJ_CATEGORY",
 			"desc": "归属类型",
 			"type": "String"
 		},
 		{
-			"name": "VM_ID",
+			"label": "VM_ID",
 			"desc": "虚拟机ID",
 			"type": "String"
 		},
 		{
-			"name": "VCENTER_IP",
+			"label": "VCENTER_IP",
 			"desc": "VCENTER管理IP",
 			"type": "String"
 		}, {
-			"name": "HBA_INTERFACES",
+			"label": "HBA_INTERFACES",
 			"desc": "HBA卡列表",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "NAME",
+				"label": "NAME",
 				"desc": "名称",
 				"type": "String"
 			}, {
-				"name": "WWN",
+				"label": "WWN",
 				"desc": "WWN",
 				"type": "String"
 			}, {
-				"name": "STATUS",
+				"label": "STATUS",
 				"desc": "接线状态",
 				"type": "String"
 			}, {
-				"name": "SPEED",
+				"label": "SPEED",
 				"desc": "速率",
 				"type": "int"
 			}]

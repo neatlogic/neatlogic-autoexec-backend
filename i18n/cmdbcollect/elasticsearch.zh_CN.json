@@ -1,132 +1,132 @@
 {
-    "name": "Elastic Search",
+    "label": "Elastic Search",
     "collection": "COLLECT_DB",
     "filter": {
         "_OBJ_TYPE": "Elasticsearch"
     },
     "fields": [{
-        "name": "OS_ID",
+        "label": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "name": "OS_USER",
+        "label": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "name": "EXE_PATH",
+        "label": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "name": "COMMAND",
+        "label": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "name": "MGMT_IP",
+        "label": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "name": "MGMT_PORT",
+        "label": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "name": "SERVER_NAME",
+        "label": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "name": "VERSION",
+        "label": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "name": "PORT",
+        "label": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "name": "SSL_PORT",
+        "label": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "name": "ADMIN_PORT",
+        "label": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "name": "ADMIN_SSL_PORT",
+        "label": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "name": "MON_PORT",
+        "label": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "name": "PORTS",
+        "label": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "name": "VALUE",
+            "label": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "name": "INSTALL_PATH",
+        "label": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "name": "CONFIG_PATH",
+        "label": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "name": "JAVA_HOME",
+        "label": "JAVA_HOME",
         "desc": "Java目录",
         "type": "String"
     }, {
-        "name": "JAVA_VERSION",
+        "label": "JAVA_VERSION",
         "desc": "Java版本",
         "type": "String"
     }, {
-        "name": "JVM_TYPE",
+        "label": "JVM_TYPE",
         "desc": "JVM类型",
         "type": "String"
     }, {
-        "name": "JVM_VERSION",
+        "label": "JVM_VERSION",
         "desc": "JVM版本",
         "type": "String"
     }, {
-        "name": "MIN_HEAP_SIZE",
+        "label": "MIN_HEAP_SIZE",
         "desc": "最小Heap Size",
         "type": "int"
     }, {
-        "name": "MAX_HEAP_SIZE",
+        "label": "MAX_HEAP_SIZE",
         "desc": "最大Heap Size",
         "type": "int"
     }, {
-        "name": "JMX_PORT",
+        "label": "JMX_PORT",
         "desc": "JMX端口",
         "type": "int"
     }, {
-        "name": "JMX_SSL",
+        "label": "JMX_SSL",
         "desc": "JMX使用SSL",
         "type": "String"
     }, {
-        "name": "CLUSTER_NAME",
+        "label": "CLUSTER_NAME",
         "desc": "集群名",
         "type": "String"
     }, {
-        "name": "NODE_NAME",
+        "label": "NODE_NAME",
         "desc": "节点名",
         "type": "String"
     }, {
-        "name": "CLUSTER_MEMBERS",
+        "label": "CLUSTER_MEMBERS",
         "desc": "集群成员",
         "type": "String"
     }, {
-        "name": "INITIAL_MASTER_NODES",
+        "label": "INITIAL_MASTER_NODES",
         "desc": "初始Mater节点",
         "type": "String"
     }]

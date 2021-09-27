@@ -1,71 +1,71 @@
 {
-    "name": "novmtool",
+    "label": "novmtool",
     "collection": "COLLECT_OS",
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },
     "fields": [{
-        "name": "DISKS",
+        "label": "DISKS",
         "desc": "disks",
         "type": "Array"
     }, {
-        "name": "NAME",
+        "label": "NAME",
         "desc": "name",
         "type": "String"
     }, {
-        "name": "IP",
+        "label": "IP",
         "desc": "ip",
         "type": "String"
     }, {
-        "name": "VM_ID",
+        "label": "VM_ID",
         "desc": "vm_id",
         "type": "String"
     }, {
-        "name": "_OBJ_TYPE",
+        "label": "_OBJ_TYPE",
         "desc": "os_type",
         "type": "String"
     }, {
-        "name": "MEM_TOTAL",
+        "label": "MEM_TOTAL",
         "desc": "mem_total",
         "type": "int"
     }, {
-        "name": "MEM_UNIT",
+        "label": "MEM_UNIT",
         "desc": "mem_unit",
         "type": "String"
     }, {
-        "name": "STATE",
+        "label": "STATE",
         "desc": "state",
         "type": "String"
     }, {
-        "name": "CPU_COUNT",
+        "label": "CPU_COUNT",
         "desc": "cpu_count",
         "type": "int"
     }, {
-        "name": "CPU_CORES",
+        "label": "CPU_CORES",
         "desc": "cpu_cores",
         "type": "int"
     }, {
-        "name": "IS_VIRTUAL",
+        "label": "IS_VIRTUAL",
         "desc": "is_virtual",
         "type": "int"
     }, {
-        "name": "MACHINE_UUID",
+        "label": "MACHINE_UUID",
         "desc": "machine_uuid",
         "type": "String"
     }, {
-        "name": "MACHINE_SN",
+        "label": "MACHINE_SN",
         "desc": "machine_sn",
         "type": "String"
     }, {
-        "name": "VCENTER_IP",
+        "label": "VCENTER_IP",
         "desc": "vcenter_ip",
         "type": "String"
     }, {
-        "name": "_OBJ_CATEGORY",
+        "label": "_OBJ_CATEGORY",
         "desc": "object_type",
         "type": "String"
     }, {
-        "name": "PK",
+        "label": "PK",
         "desc": "pk",
         "type": "Array"
     }]
