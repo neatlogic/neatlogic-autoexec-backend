@@ -6,6 +6,7 @@ package OSGather;
 
 use strict;
 use POSIX qw(uname);
+use OSGatherBase;
 
 our $_INSTANCES = {};
 
@@ -26,13 +27,8 @@ sub new {
             $instance = $gatherClass->new();
         };
         if ($@) {
-
-            #fallback to linux
-            print("WARN: Load $gatherClass.pm failed, fallback to OSGatherLinux\n");
-            $gatherClass = "OSGatherLinux";
-            require "$gatherClass.pm";
-            our @ISA = ($gatherClass);
-            $instance = $gatherClass->new();
+            print("ERROR: Load $gatherClass.pm failed, $@\n");
+            $instance = OSGatherBase->new();
         }
         $_INSTANCES->{$type} = $instance;
     }

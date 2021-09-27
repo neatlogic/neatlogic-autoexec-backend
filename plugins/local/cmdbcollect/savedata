@@ -39,6 +39,7 @@ def saveAppConnData(db, data):
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['OBJECT_TYPE'] = data['OBJECT_TYPE']
+        connInfo['APP_TYPE'] = data['APP_TYPE']
         connInfo['MGMT_IP'] = data['MGMT_IP']
         connInfo['PORT'] = data['PORT']
 
@@ -64,6 +65,8 @@ def saveAppConnData(db, data):
 def saveSwMacTableData(db, data):
     if data['OBJECT_TYPE'] == 'SWITCH' and 'MAC_TABLE' in data:
         macTableInfo = {}
+        macTableInfo['OBJECT_TYPE'] = data['OBJECT_TYPE']
+        macTableInfo['APP_TYPE'] = data['APP_TYPE']
         macTableInfo['MGMT_IP'] = data['MGMT_IP']
         macTableInfo['SN'] = data['SN']
         macTableInfo['DEV_NAME'] = data['DEV_NAME']
@@ -86,6 +89,8 @@ def saveSwMacTableData(db, data):
 def saveSwCDPData(db, data):
     if data['OBJECT_TYPE'] == 'SWITCH' and 'NEIGHBORS' in data:
         nbrTableInfo = {}
+        nbrTableInfo['OBJECT_TYPE'] = data['OBJECT_TYPE']
+        nbrTableInfo['APP_TYPE'] = data['APP_TYPE']
         nbrTableInfo['MGMT_IP'] = data['MGMT_IP']
         nbrTableInfo['SN'] = data['SN']
         nbrTableInfo['DEV_NAME'] = data['DEV_NAME']
