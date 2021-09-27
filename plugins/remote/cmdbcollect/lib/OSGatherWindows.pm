@@ -172,7 +172,6 @@ sub collectOsInfo {
     }
     $osInfo->{PATCHES_APPLIED} = \@patches;
     $osInfo->{CPU_COUNT}       = $cpuCount;
-    $osInfo->{CPU_CORES}       = $cpuCount;
     $osInfo->{CPU_MODEL}       = $cpuModel;
     $osInfo->{CPU_FREQUENCY}   = $cpuFrequency;
 
@@ -202,6 +201,14 @@ sub collectOsInfo {
     }
     $osInfo->{IP_ADDRS} = \@ipV4Addrs;
 
+    my $cpuCores         = 0;
+    my $cpuCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfCores');
+    foreach my $line (@$cpuCorsInfoLines) {
+        $line =~ /^\s*|\s*$/ / g;
+        $cpuCores = $cpuCores + int($line);
+    }
+    $osInfo->{CPU_CORES} = $cpuCores;
+
     #TODO: IPV6 address的采集
 
     my @users         = ();
@@ -223,13 +230,13 @@ sub collectOsInfo {
     #             A:
     # 19005206528  C:    85897244672
     #             D:
-    my @logicalDisks   = ();
+    my @logicalDisks     = ();
     my $ldiskFieldIdxMap = {
         Name      => undef,
         Size      => undef,
         FreeSpace => undef
     };
-    my $ldiskInfoLines = $self->getCmdOutLines('wmic logicaldisk get ' . join(',', keys(%$ldiskFieldIdxMap)));
+    my $ldiskInfoLines = $self->getCmdOutLines( 'wmic logicaldisk get ' . join( ',', keys(%$ldiskFieldIdxMap) ) );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
@@ -275,15 +282,15 @@ sub collectOsInfo {
         }
     }
 
-    my @disks         = ();
+    my @disks           = ();
     my $diskFieldIdxMap = {
-        DeviceId     => undef,
-        Name         => undef,
-        Size         => undef,
-        SerialNumber => undef,
+        DeviceId      => undef,
+        Name          => undef,
+        Size          => undef,
+        SerialNumber  => undef,
         InterfaceType => undef
     };
-    my $diskInfoLines = $self->getCmdOutLines('wmic diskdrive get ' . join(',', keys(%$diskFieldIdxMap)));
+    my $diskInfoLines = $self->getCmdOutLines( 'wmic diskdrive get ' . join( ',', keys(%$diskFieldIdxMap) ) );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
@@ -309,7 +316,7 @@ sub collectOsInfo {
             $diskInfo->{CAPACITY} = $size;
             $diskInfo->{UNIT}     = 'GB';
             $diskInfo->{SN}       = $sn;
-            $diskInfo->{TYPE}     = $splits[$diskFieldIdxMap->{InterfaceType}];
+            $diskInfo->{TYPE}     = $splits[ $diskFieldIdxMap->{InterfaceType} ];
             push( @disks, $diskInfo );
         }
     }
