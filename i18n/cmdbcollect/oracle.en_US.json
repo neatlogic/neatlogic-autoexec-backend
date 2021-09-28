@@ -3,289 +3,289 @@
     "collection": "COLLECT_DB",
     "filter": {"_OBJ_TYPE": "Oracle"},
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS User",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "Executable File Path",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "Command Line",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "Application Type",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "Managment IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "Managment Port",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "Server Name",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "Version",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL Port",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "Admin Port",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "Admin SSL Port",
         "type": "String"
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "Monitor Port",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "Port List",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "Port",
             "type": "int"
         }]
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "Install Path",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "Config Path",
         "type": "String"
     }, {
-        "label": "ORACLE_HOME",
+        "name": "ORACLE_HOME",
         "desc": "Oralce Home Dir",
         "type": "String"
     }, {
-        "label": "ORACLE_BASE",
+        "name": "ORACLE_BASE",
         "desc": "Oralce Base Dir",
         "type": "String"
     }, {
-        "label": "GRID_HOME",
+        "name": "GRID_HOME",
         "desc": "Grid Home Dir",
         "type": "String"
     }, {
-        "label": "GRID_BASE",
+        "name": "GRID_BASE",
         "desc": "Grid Base Dir",
         "type": "String"
     }, {
-        "label": "DBID",
+        "name": "DBID",
         "desc": "DBID",
         "type": "String"
     }, {
-        "label": "IS_RAC",
+        "name": "IS_RAC",
         "desc": "Is RAC",
         "type": "int"
     }, {
-        "label": "ISCDB",
+        "name": "ISCDB",
         "desc": "Is CDB",
         "type": "int"
     }, {
-        "label": "ORACLE_HOSTNAME",
+        "name": "ORACLE_HOSTNAME",
         "desc": "Oralce Host Name",
         "type": "String"
     }, {
-        "label": "ORACLE_SID",
+        "name": "ORACLE_SID",
         "desc": "Oralce SID",
         "type": "String"
     }, {
-        "label": "INSTANCE_NAME",
+        "name": "INSTANCE_NAME",
         "desc": "Instance Name",
         "type": "String"
     }, {
-        "label": "CLUSTER_NAME",
+        "name": "CLUSTER_NAME",
         "desc": "Cluster Name",
         "type": "String"
     }, {
-        "label": "CLUSTER_VERSION",
+        "name": "CLUSTER_VERSION",
         "desc": "Cluster Version",
         "type": "String"
     }, {
-        "label": "NODE_VIP",
+        "name": "NODE_VIP",
         "desc": "Node VIP",
         "type": "String"
     }, {
-        "label": "LOG_MODE",
+        "name": "LOG_MODE",
         "desc": "Log Mode",
         "type": "String"
     }, {
-        "label": "SGA_MAX_SIZE",
+        "name": "SGA_MAX_SIZE",
         "desc": "SGA Max Size(MB)",
         "type": "String"
     }, {
-        "label": "MEMORY_TARGET",
+        "name": "MEMORY_TARGET",
         "desc": "Memory Target",
         "type": "String"
     }, {
-        "label": "LOG_ARCHIVE_DEST",
+        "name": "LOG_ARCHIVE_DEST",
         "desc": "Log Archive Dest",
         "type": "String"
     }, {
-        "label": "NLS_CHARACTERSET",
+        "name": "NLS_CHARACTERSET",
         "desc": "NLS Charset",
         "type": "String"
     }, {
-        "label": "SERVICE_NAME",
+        "name": "SERVICE_NAME",
         "desc": "Service Name",
         "type": "String"
     }, {
-        "label": "SERVICE_NAMES",
+        "name": "SERVICE_NAMES",
         "desc": "Service Name List",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "Name",
             "type": "String"
         }]
     }, {
-        "label": "USERS",
+        "name": "USERS",
         "desc": "User List",
         "type": "JsonArray",
         "subset": [{
-                "label": "USERNAME",
+                "name": "USERNAME",
                 "desc": "User Name",
                 "type": "String"
             },
             {
-                "label": "DEFAULT_TABLESPACE",
+                "name": "DEFAULT_TABLESPACE",
                 "desc": "Default Table Space",
                 "type": "String"
             }
         ]
     }, {
-        "label": "TABLE_SPACESES",
+        "name": "TABLE_SPACESES",
         "desc": "Table Space List",
         "type": "JsonArray",
         "subset": [{
-                "label": "TABLESPACE_NAME",
+                "name": "TABLESPACE_NAME",
                 "desc": "Table Space Name",
                 "type": "String"
             }, {
-                "label": "TOTAL_GB",
+                "name": "TOTAL_GB",
                 "desc": "Capacity(GB)",
                 "type": "float"
             }, {
-                "label": "USED_GB",
+                "name": "USED_GB",
                 "desc": "Used(GB)",
                 "type": "float"
             }, {
-                "label": "FREE_GB",
+                "name": "FREE_GB",
                 "desc": "Free(GB)",
                 "type": "float"
             }, {
-                "label": "USED%",
+                "name": "USED%",
                 "desc": "Used%",
                 "type": "float"
             },
             {
-                "label": "DATA_FILES",
+                "name": "DATA_FILES",
                 "desc": "Data File List",
                 "type": "JsonArray",
                 "subset": [{
-                    "label": "FILE_NAME",
+                    "name": "FILE_NAME",
                     "desc": "File Name",
                     "type": "String"
                 }, {
-                    "label": "SIZE",
+                    "name": "SIZE",
                     "desc": "File Size(GB)",
                     "type": "float"
                 }, {
-                    "label": "AUTOEXTENSIBLE",
+                    "name": "AUTOEXTENSIBLE",
                     "desc": "Auto Extensible",
                     "type": "String"
                 }]
             }
         ]
     }, {
-        "label": "DISK_GROUPS",
+        "name": "DISK_GROUPS",
         "desc": "Disk Group List",
         "type": "JsonArray",
         "subset": [{
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "Name",
                 "type": "String"
             }, {
-                "label": "TYPE",
+                "name": "TYPE",
                 "desc": "Type",
                 "type": "String"
             }, {
-                "label": "TOTAL_MB",
+                "name": "TOTAL_MB",
                 "desc": "Size(MB)",
                 "type": "float"
             }, {
-                "label": "USED_MB",
+                "name": "USED_MB",
                 "desc": "Use(MB)",
                 "type": "float"
             }, {
-                "label": "FREE_MB",
+                "name": "FREE_MB",
                 "desc": "Free(MB)",
                 "type": "float"
             }, {
-                "label": "USED%",
+                "name": "USED%",
                 "desc": "Used Percent",
                 "type": "float"
             },
             {
-                "label": "DISKS",
+                "name": "DISKS",
                 "desc": "Disk List",
                 "type": "JsonArray",
                 "subset": [{
-                    "label": "NAME",
+                    "name": "NAME",
                     "desc": "Name",
                     "type": "String"
                 }, {
-                    "label": "FAIL_GROUP",
+                    "name": "FAIL_GROUP",
                     "desc": "Fail Group",
                     "type": "String"
                 }, {
-                    "label": "MOUNT_STATUS",
+                    "name": "MOUNT_STATUS",
                     "desc": "Mount Status",
                     "type": "String"
                 }, {
-                    "label": "PATH",
+                    "name": "PATH",
                     "desc": "Disk Path",
                     "type": "String"
                 }, {
-                    "label": "TOTAL_MB",
+                    "name": "TOTAL_MB",
                     "desc": "Size(MB)",
                     "type": "float"
                 }, {
-                    "label": "USED_MB",
+                    "name": "USED_MB",
                     "desc": "Use(MB)",
                     "type": "float"
                 }, {
-                    "label": "FREE_MB",
+                    "name": "FREE_MB",
                     "desc": "Free(MB)",
                     "type": "float"
                 }, {
-                    "label": "USED%",
+                    "name": "USED%",
                     "desc": "Used Percent",
                     "type": "float"
                 }]

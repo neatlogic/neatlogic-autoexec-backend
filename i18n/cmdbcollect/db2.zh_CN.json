@@ -3,181 +3,181 @@
     "collection": "COLLECT_DB",
     "filter": {"_OBJ_TYPE": "DB2"},
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "label": "DB2_HOME",
+        "name": "DB2_HOME",
         "desc": "DB2 Home目录",
         "type": "String"
     }, {
-        "label": "DB2LIB",
+        "name": "DB2LIB",
         "desc": "DB2 Lib目录",
         "type": "String"
     }, {
-        "label": "INSTANCE_NAME",
+        "name": "INSTANCE_NAME",
         "desc": "实例名",
         "type": "String"
     }, {
-        "label": "MEMORY_LIMIT",
+        "name": "MEMORY_LIMIT",
         "desc": "最大内存(MB)",
         "type": "float"
     }, {
-        "label": "MEMORY_CURRENT_USAGE",
+        "name": "MEMORY_CURRENT_USAGE",
         "desc": "使用内存(MB)",
         "type": "float"
     }, {
-        "label": "MEMORY_HWM_USAGE",
+        "name": "MEMORY_HWM_USAGE",
         "desc": "使用物理内存(MB)",
         "type": "float"
     }, {
-        "label": "CACHED_MEMORY",
+        "name": "CACHED_MEMORY",
         "desc": "缓存内存(MB)",
         "type": "float"
     }, {
-        "label": "USERS",
+        "name": "USERS",
         "desc": "用户列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "用户名",
             "type": "int"
         }]
     }, {
-        "label": "DATABASES",
+        "name": "DATABASES",
         "desc": "库列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "DB_NAME",
+            "name": "DB_NAME",
             "desc": "库名",
             "type": "int"
         }, {
-            "label": "DB_DIRECTORY",
+            "name": "DB_DIRECTORY",
             "desc": "库目录",
             "type": "int"
         }, {
-            "label": "MEM_USED",
+            "name": "MEM_USED",
             "desc": "使用内存(MB)",
             "type": "float"
         }, {
-            "label": "HWM_USED",
+            "name": "HWM_USED",
             "desc": "使用物理内存(MB)",
             "type": "float"
         }, {
-            "label": "CACHED",
+            "name": "CACHED",
             "desc": "缓存(MB)",
             "type": "float"
         }, {
-            "label": "TABLESPACES",
+            "name": "TABLESPACES",
             "desc": "表空间",
             "type": "JsonArray",
             "subset": [{
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "名称",
                 "type": "String"
             }, {
-                "label": "TABLESPACE_SIZE",
+                "name": "TABLESPACE_SIZE",
                 "desc": "大小(GB)",
                 "type": "float"
             }, {
-                "label": "AUTO_EXTEND",
+                "name": "AUTO_EXTEND",
                 "desc": "自动扩展",
                 "type": "String"
             }, {
-                "label": "TABLESPACE_USED",
+                "name": "TABLESPACE_USED",
                 "desc": "已用(GB)",
                 "type": "float"
             }, {
-                "label": "TABLESPACE_FREE",
+                "name": "TABLESPACE_FREE",
                 "desc": "空闲(GB)",
                 "type": "float"
             }, {
-                "label": "TABLESPACE_FREE_PERCENT",
+                "name": "TABLESPACE_FREE_PERCENT",
                 "desc": "空闲%",
                 "type": "float"
             }, {
-                "label": "TABLESPACE_USED_PERCENT",
+                "name": "TABLESPACE_USED_PERCENT",
                 "desc": "使用%",
                 "type": "float"
             }, {
-                "label": "DATA_FILES",
+                "name": "DATA_FILES",
                 "desc": "数据文件列表",
                 "type": "JsonArray",
                 "subset": [{
-                    "label": "DATA_FILE_PATH",
+                    "name": "DATA_FILE_PATH",
                     "desc": "路径",
                     "type": "String"
                 }, {
-                    "label": "DATA_FILE_SIZE",
+                    "name": "DATA_FILE_SIZE",
                     "desc": "大小(GB)",
                     "type": "float"
                 }]

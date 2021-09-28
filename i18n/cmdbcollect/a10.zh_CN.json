@@ -5,104 +5,104 @@
         "_OBJ_TYPE": "A10"
     },
     "fields": [{
-        "label": "RESOURCE_ID",
+        "name": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属对象类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "交换机品牌",
         "type": "String"
     }, {
-        "label": "SN",
+        "name": "SN",
         "desc": "序列号",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "IP",
+        "name": "IP",
         "desc": "IP",
         "type": "String"
     }, {
-        "label": "DEV_NAME",
+        "name": "DEV_NAME",
         "desc": "设备名",
         "type": "String"
     }, {
-        "label": "UPTIME",
+        "name": "UPTIME",
         "desc": "Up Time",
         "type": "String"
     }, {
-        "label": "VENDOR",
+        "name": "VENDOR",
         "desc": "厂商",
         "type": "String"
     }, {
-        "label": "MODEL",
+        "name": "MODEL",
         "desc": "设备型号",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "VIRTUAL_SERVERS",
+        "name": "VIRTUAL_SERVERS",
         "desc": "VS服务",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "名称",
             "type": "String"
         }, {
-            "label": "IP",
+            "name": "IP",
             "desc": "IP",
             "type": "String"
         }, {
-            "label": "PORT",
+            "name": "PORT",
             "desc": "端口",
             "type": "String"
         }, {
-            "label": "POOL_NAME",
+            "name": "POOL_NAME",
             "desc": "POOL名",
             "type": "String"
         }, {
-            "label": "POOL",
+            "name": "POOL",
             "desc": "POOL",
             "type": "JsonObject",
             "subset": [{
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "名称",
                 "type": "String"
             }, {
-                "label": "LB_MODE",
+                "name": "LB_MODE",
                 "desc": "均衡模式",
                 "type": "String"
             }]
         }, {
-            "label": "MEMBERS",
+            "name": "MEMBERS",
             "desc": "成员列表",
             "type": "JsonArray",
             "subset": [{
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "名称",
                 "type": "String"
             }, {
-                "label": "POOL_NAME",
+                "name": "POOL_NAME",
                 "desc": "POOL名称",
                 "type": "String"
             }, {
-                "label": "IP",
+                "name": "IP",
                 "desc": "IP",
                 "type": "String"
             }, {
-                "label": "PORT",
+                "name": "PORT",
                 "desc": "端口",
                 "type": "String"
             }, {
-                "label": "MONITOR_RULE",
+                "name": "MONITOR_RULE",
                 "desc": "监控规则",
                 "type": "String"
             }]

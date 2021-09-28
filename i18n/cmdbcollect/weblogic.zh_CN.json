@@ -5,157 +5,157 @@
         "_OBJ_TYPE": "Weblogic"
     },
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "label": "JAVA_HOME",
+        "name": "JAVA_HOME",
         "desc": "Java目录",
         "type": "String"
     }, {
-        "label": "JAVA_VERSION",
+        "name": "JAVA_VERSION",
         "desc": "Java版本",
         "type": "String"
     }, {
-        "label": "JVM_TYPE",
+        "name": "JVM_TYPE",
         "desc": "JVM类型",
         "type": "String"
     }, {
-        "label": "JVM_VERSION",
+        "name": "JVM_VERSION",
         "desc": "JVM版本",
         "type": "String"
     }, {
-        "label": "MIN_HEAP_SIZE",
+        "name": "MIN_HEAP_SIZE",
         "desc": "最小Heap Size",
         "type": "int"
     }, {
-        "label": "MAX_HEAP_SIZE",
+        "name": "MAX_HEAP_SIZE",
         "desc": "最大Heap Size",
         "type": "int"
     }, {
-        "label": "JMX_PORT",
+        "name": "JMX_PORT",
         "desc": "JMX端口",
         "type": "int"
     }, {
-        "label": "JMX_SSL",
+        "name": "JMX_SSL",
         "desc": "JMX使用SSL",
         "type": "String"
     }, {
-        "label": "WL_HOME",
+        "name": "WL_HOME",
         "desc": "Weblogic Home目录",
         "type": "String"
     }, {
-        "label": "DOMAIN_HOME",
+        "name": "DOMAIN_HOME",
         "desc": "Domain Home目录",
         "type": "String"
     }, {
-        "label": "DOMAIN_NAME",
+        "name": "DOMAIN_NAME",
         "desc": "Domain名称",
         "type": "String"
     }, {
-        "label": "APPLICATIONS",
+        "name": "APPLICATIONS",
         "desc": "应用包列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "应用名",
             "type": "String"
         }, {
-            "label": "TARGET",
+            "name": "TARGET",
             "desc": "应用运行目标",
             "type": "String"
         }, {
-            "label": "MODULE_TYPE",
+            "name": "MODULE_TYPE",
             "desc": "模块类型",
             "type": "String"
         }, {
-            "label": "SOURCE_PATH",
+            "name": "SOURCE_PATH",
             "desc": "源目录",
             "type": "String"
         }, {
-            "label": "STAGING_MODE",
+            "name": "STAGING_MODE",
             "desc": "Staging模式",
             "type": "String"
         }]
     }, {
-        "label": "WL_PATCHES",
+        "name": "WL_PATCHES",
         "desc": "补丁列表",
         "type": "String",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "补丁名",
             "type": "String"
         }]

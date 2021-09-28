@@ -1,126 +1,128 @@
 {
     "label": "Memcached",
     "collection": "COLLECT_INS",
-    "filter": {"_OBJ_TYPE": "Memcached"},
+    "filter": {
+        "_OBJ_TYPE": "Memcached"
+    },
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "label": "BIN_PATH",
+        "name": "BIN_PATH",
         "desc": "BIN文件路径",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "label": "UDP_PORT",
+        "name": "UDP_PORT",
         "desc": "UDP端口",
         "type": "int"
     }, {
-        "label": "SASL_ENABLED",
+        "name": "SASL_ENABLED",
         "desc": "SASL启用",
         "type": "int"
     }, {
-        "label": "MAX_CACHE_MEMORY",
+        "name": "MAX_CACHE_MEMORY",
         "desc": "最大内存",
         "type": "int"
     }, {
-        "label": "MAX_CONNECTION",
+        "name": "MAX_CONNECTION",
         "desc": "最大并发连接数",
         "type": "int"
     }, {
-        "label": "THREAD_COUNT",
+        "name": "THREAD_COUNT",
         "desc": "线程数",
         "type": "int"
     }, {
-        "label": "BACKLOG",
+        "name": "BACKLOG",
         "desc": "连接队列长度",
         "type": "int"
     }, {
-        "label": "MAX_REQ_PER_EVENT",
+        "name": "MAX_REQ_PER_EVENT",
         "desc": "每连接最大处理请求数",
         "type": "int"
     }, {
-        "label": "USE_LARGE_PAGE",
+        "name": "USE_LARGE_PAGE",
         "desc": "使用Large Page",
         "type": "int"
     }, {
-        "label": "CHUNK_GROW_FACTOR",
+        "name": "CHUNK_GROW_FACTOR",
         "desc": "内存块增长因子",
         "type": "int"
     }, {
-        "label": "MIN_SPACE_PER_RECORD",
+        "name": "MIN_SPACE_PER_RECORD",
         "desc": "最小记录内存大小（字节）",
         "type": "int"
     }]

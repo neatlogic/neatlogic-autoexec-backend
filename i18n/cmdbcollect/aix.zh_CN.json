@@ -5,300 +5,300 @@
 		"_OBJ_TYPE": "AIX"
 	},
 	"fields": [{
-		"label": "OS_ID",
+		"name": "OS_ID",
 		"desc": "CMDB对象ID",
 		"type": "String"
 	}, {
-		"label": "MGMT_IP",
+		"name": "MGMT_IP",
 		"desc": "管理IP",
 		"type": "String"
 	}, {
-		"label": "MGMT_PORT",
+		"name": "MGMT_PORT",
 		"desc": "管理端口",
 		"type": "int"
 	}, {
-		"label": "IP_ADDRS",
+		"name": "IP_ADDRS",
 		"desc": "IP地址",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "IP",
 			"type": "String"
 		}]
 	}, {
-		"label": "IPV6_ADDRS",
+		"name": "IPV6_ADDRS",
 		"desc": "IPV6地址",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "IP地址",
 			"type": "String"
 		}]
 	}, {
-		"label": "CPU_FREQUENCY",
+		"name": "CPU_FREQUENCY",
 		"desc": "CPU主频",
 		"type": "String"
 	}, {
-		"label": "CPU_FIRMWARE_VERSION",
+		"name": "CPU_FIRMWARE_VERSION",
 		"desc": "CPU微码版本",
 		"type": "String"
 	}, {
-		"label": "_OBJ_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "OS类型",
 		"type": "String"
 	}, {
-		"label": "MACHINE_ID",
+		"name": "MACHINE_ID",
 		"desc": "机器ID",
 		"type": "String"
 	}, {
-		"label": "BOARD_SERIAL",
+		"name": "BOARD_SERIAL",
 		"desc": "主板序列号",
 		"type": "String"
 	}, {
-		"label": "ETH_INTERFACES",
+		"name": "ETH_INTERFACES",
 		"desc": "网卡",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "掩码",
 			"type": "String"
 		}, {
-			"label": "STATUS",
+			"name": "STATUS",
 			"desc": "接线状态",
 			"type": "String"
 		}, {
-			"label": "SPEED",
+			"name": "SPEED",
 			"desc": "速率",
 			"type": "String"
 		}, {
-			"label": "MAC",
+			"name": "MAC",
 			"desc": "网卡地址",
 			"type": "String"
 		}]
 	}, {
-		"label": "PATCHES_APPLIED",
+		"name": "PATCHES_APPLIED",
 		"desc": "已打补丁",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "补丁",
 			"type": "String"
 		}]
 	}, {
-		"label": "NTP_ENABLE",
+		"name": "NTP_ENABLE",
 		"desc": "NTP启用",
 		"type": "int"
 	}, {
-		"label": "SWAP_FREE",
+		"name": "SWAP_FREE",
 		"desc": "SWAP空闲(GB)",
 		"type": "float"
 	}, {
-		"label": "CPU_CORES",
+		"name": "CPU_CORES",
 		"desc": "CPU核数",
 		"type": "String"
 	}, {
-		"label": "SSH_VERSION",
+		"name": "SSH_VERSION",
 		"desc": "SSH版本",
 		"type": "String"
 	}, {
-		"label": "USERS",
+		"name": "USERS",
 		"desc": "用户",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "HOME",
+			"name": "HOME",
 			"desc": "家目录",
 			"type": "String"
 		}, {
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "用户名",
 			"type": "String"
 		}, {
-			"label": "SHELL",
+			"name": "SHELL",
 			"desc": "SHELL",
 			"type": "String"
 		}, {
-			"label": "UID",
+			"name": "UID",
 			"desc": "UID",
 			"type": "String"
 		}, {
-			"label": "GID",
+			"name": "GID",
 			"desc": "GID",
 			"type": "String"
 		}]
 	}, {
-		"label": "CPU_MODE",
+		"name": "CPU_MODE",
 		"desc": "CPU模式",
 		"type": "String"
 	}, {
-		"label": "DISKS",
+		"name": "DISKS",
 		"desc": "磁盘",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "UNIT",
+			"name": "UNIT",
 			"desc": "单位",
 			"type": "String"
 		}, {
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "磁盘名",
 			"type": "String"
 		}, {
-			"label": "TYPE",
+			"name": "TYPE",
 			"desc": "类型",
 			"type": "String"
 		}, {
-			"label": "CAPACITY",
+			"name": "CAPACITY",
 			"desc": "容量",
 			"type": "int"
 		}]
 	}, {
-		"label": "SYS_VENDOR",
+		"name": "SYS_VENDOR",
 		"desc": "厂商",
 		"type": "String"
 	}, {
-		"label": "NTP_SERVERS",
+		"name": "NTP_SERVERS",
 		"desc": "NTP服务",
 		"type": "Array",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "IP",
 			"type": "String"
 		}]
 	}, {
-		"label": "NFS_MOUNTED",
+		"name": "NFS_MOUNTED",
 		"desc": "挂载的NFS",
 		"type": "int"
 	}, {
-		"label": "OPENSSL_VERSION",
+		"name": "OPENSSL_VERSION",
 		"desc": "OPENSSL版本",
 		"type": "String"
 	}, {
-		"label": "MAX_USER_PROCESS_COUNT",
+		"name": "MAX_USER_PROCESS_COUNT",
 		"desc": "最大用户进程数",
 		"type": "int"
 	}, {
-		"label": "CPU_MICROCODE",
+		"name": "CPU_MICROCODE",
 		"desc": "CPU微码",
 		"type": "String"
 	}, {
-		"label": "NIC_BOND",
+		"name": "NIC_BOND",
 		"desc": "双网卡绑定",
 		"type": "int"
 	}, {
-		"label": "CPU_ARCH",
+		"name": "CPU_ARCH",
 		"desc": "CPU架构",
 		"type": "String"
 	}, {
-		"label": "CPU_BITS",
+		"name": "CPU_BITS",
 		"desc": "CPU位数",
 		"type": "int"
 	}, {
-		"label": "SWAP_TOTAL",
+		"name": "SWAP_TOTAL",
 		"desc": "SWAP大小",
 		"type": "int"
 	}, {
-		"label": "CPU_VERSION",
+		"name": "CPU_VERSION",
 		"desc": "CPU版本",
 		"type": "String"
 	}, {
-		"label": "KERNEL_VERSION",
+		"name": "KERNEL_VERSION",
 		"desc": "内核版本",
 		"type": "String"
 	}, {
-		"label": "DNS_SERVERS",
+		"name": "DNS_SERVERS",
 		"desc": "DNS服务器",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "IP",
 			"type": "String"
 		}]
 	}, {
-		"label": "HOSTNAME",
+		"name": "HOSTNAME",
 		"desc": "主机名",
 		"type": "String"
 	}, {
-		"label": "AUTO_RESTART",
+		"name": "AUTO_RESTART",
 		"desc": "自动重启",
 		"type": "String"
 	}, {
-		"label": "CPU_MODEL_NAME",
+		"name": "CPU_MODEL_NAME",
 		"desc": "CPU型号",
 		"type": "String"
 	}, {
-		"label": "MEM_TOTAL",
+		"name": "MEM_TOTAL",
 		"desc": "总内存",
 		"type": "int"
 	}, {
-		"label": "MOUNT_POINTS",
+		"name": "MOUNT_POINTS",
 		"desc": "挂载点",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "USED",
+			"name": "USED",
 			"desc": "已使用",
 			"type": "float"
 		}, {
-			"label": "AVAILABLE",
+			"name": "AVAILABLE",
 			"desc": "可用",
 			"type": "float"
 		}, {
-			"label": "DEVICE",
+			"name": "DEVICE",
 			"desc": "设备",
 			"type": "String"
 		}, {
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "挂载点",
 			"type": "String"
 		}, {
-			"label": "USED%",
+			"name": "USED%",
 			"desc": "使用率%",
 			"type": "int"
 		}, {
-			"label": "FS_TYPE",
+			"name": "FS_TYPE",
 			"desc": "文件系统类型",
 			"type": "String"
 		}, {
-			"label": "UNIT",
+			"name": "UNIT",
 			"desc": "单位",
 			"type": "String"
 		}, {
-			"label": "INODE_USED%",
+			"name": "INODE_USED%",
 			"desc": "Inode使用率%",
 			"type": "int"
 		}, {
-			"label": "CAPACITY",
+			"name": "CAPACITY",
 			"desc": "容量",
 			"type": "int"
 		}]
 	}, {
-		"label": "VERSION",
+		"name": "VERSION",
 		"desc": "OS版本",
 		"type": "String"
 	}, {
-		"label": "MAX_OPEN_FILES",
+		"name": "MAX_OPEN_FILES",
 		"desc": "最大打开文件数",
 		"type": "int"
 	}, {
-		"label": "_OBJ_CATEGORY",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {
-		"label": "HBA_INTERFACES",
+		"name": "HBA_INTERFACES",
 		"desc": "HBA卡列表",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "名称",
 			"type": "String"
 		}, {
-			"label": "WWN",
+			"name": "WWN",
 			"desc": "WWN",
 			"type": "String"
 		}, {
-			"label": "STATUS",
+			"name": "STATUS",
 			"desc": "接线状态",
 			"type": "String"
 		}, {
-			"label": "SPEED",
+			"name": "SPEED",
 			"desc": "速率",
 			"type": "int"
 		}]

@@ -3,137 +3,137 @@
     "collection": "COLLECT_STORAGE",
     "filter": {},
     "fields": [{
-        "label": "RESOURCE_ID",
+        "name": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "Application Type",
         "type": "String"
     }, {
-        "label": "SN",
+        "name": "SN",
         "desc": "Chassis Serial",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "Managment IP",
         "type": "String"
     }, {
-        "label": "DEV_NAME",
+        "name": "DEV_NAME",
         "desc": "Device Name",
         "type": "String"
     }, {
-        "label": "MODEL",
+        "name": "MODEL",
         "desc": "Device Model",
         "type": "String"
     }, {
-        "label": "UPTIME",
+        "name": "UPTIME",
         "desc": "Up Time",
         "type": "String"
     }, {
-        "label": "VENDOR",
+        "name": "VENDOR",
         "desc": "Vendor",
         "type": "String"
     }, {
-        "label": "BRAND",
+        "name": "BRAND",
         "desc": "Brand",
         "type": "String"
     }, {
-        "label": "CAPACITY",
+        "name": "CAPACITY",
         "desc": "Capacity(TB)",
         "type": "float"
     }, {
-        "label": "LUNS",
+        "name": "LUNS",
         "desc": "LUN List",
         "type": "JsonArray",
         "subset": [{
-            "label": "ID",
+            "name": "ID",
             "desc": "ID",
             "type": "String"
         }, {
-            "label": "NAME",
+            "name": "NAME",
             "desc": "Name",
             "type": "String"
         }, {
-            "label": "WWID",
+            "name": "WWID",
             "desc": "Lun ID",
             "type": "String"
         }, {
-            "label": "CAPACITY",
+            "name": "CAPACITY",
             "desc": "Capacity(GB)",
             "type": "float"
         }]
     }, {
-        "label": "VOLUMES",
+        "name": "VOLUMES",
         "desc": "Volume List",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "Name",
             "type": "String"
         }, {
-            "label": "CAPACITY",
+            "name": "CAPACITY",
             "desc": "Capacity(GB)",
             "type": "float"
         }, {
-            "label": "USED",
+            "name": "USED",
             "desc": "Used(GB)",
             "type": "float"
         }, {
-            "label": "FREE",
+            "name": "FREE",
             "desc": "Free(GB)",
             "type": "float"
         }, {
-            "label": "USED_PERCENT",
+            "name": "USED_PERCENT",
             "desc": "Used percent(%)",
             "type": "float"
         }]
     }, {
-        "label": "POOLS",
+        "name": "POOLS",
         "desc": "POOL List",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "Name",
             "type": "String"
         }, {
-            "label": "CAPACITY",
+            "name": "CAPACITY",
             "desc": "Capacity(GB)",
             "type": "float"
         }, {
-            "label": "USED",
+            "name": "USED",
             "desc": "Used(GB)",
             "type": "float"
         }, {
-            "label": "FREE",
+            "name": "FREE",
             "desc": "Free(GB)",
             "type": "float"
         }, {
-            "label": "USED_PERCENT",
+            "name": "USED_PERCENT",
             "desc": "Used Percent(%)",
             "type": "float"
         }, {
-            "label": "LUNS",
+            "name": "LUNS",
             "desc": "LUNS In Pool",
             "type": "JsonArray",
             "subset": [{
-                "label": "ID",
+                "name": "ID",
                 "desc": "ID",
                 "type": "String"
             }, {
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "Name",
                 "type": "String"
             }, {
-                "label": "WWID",
+                "name": "WWID",
                 "desc": "Lun ID",
                 "type": "String"
             }, {
-                "label": "CAPACITY",
+                "name": "CAPACITY",
                 "desc": "Capacity(GB)",
                 "type": "float"
             }]

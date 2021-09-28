@@ -3,35 +3,35 @@
     "collection": "COLLECT_FIREWALL",
     "filter": {},
     "fields": [{
-        "label": "RESOURCE_ID",
+        "name": "RESOURCE_ID",
         "desc": "CMDB ID",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "SN",
+        "name": "SN",
         "desc": "序列号",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "DEV_NAME",
+        "name": "DEV_NAME",
         "desc": "设备名",
         "type": "String"
     }, {
-        "label": "VENDOR",
+        "name": "VENDOR",
         "desc": "厂商",
         "type": "String"
     }, {
-        "label": "MODEL",
+        "name": "MODEL",
         "desc": "设备型号",
         "type": "String"
     }, {
-        "label": "BRAND",
+        "name": "BRAND",
         "desc": "品牌",
         "type": "String"
     }]

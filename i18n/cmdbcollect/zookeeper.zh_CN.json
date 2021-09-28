@@ -5,136 +5,136 @@
         "_OBJ_TYPE": "Zookeeper"
     },
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "label": "BIN_PATH",
+        "name": "BIN_PATH",
         "desc": "BIN文件路径",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "label": "JAVA_HOME",
+        "name": "JAVA_HOME",
         "desc": "Java目录",
         "type": "String"
     }, {
-        "label": "JAVA_VERSION",
+        "name": "JAVA_VERSION",
         "desc": "Java版本",
         "type": "String"
     }, {
-        "label": "JVM_TYPE",
+        "name": "JVM_TYPE",
         "desc": "JVM类型",
         "type": "String"
     }, {
-        "label": "JVM_VERSION",
+        "name": "JVM_VERSION",
         "desc": "JVM版本",
         "type": "String"
     }, {
-        "label": "MIN_HEAP_SIZE",
+        "name": "MIN_HEAP_SIZE",
         "desc": "最小Heap Size",
         "type": "int"
     }, {
-        "label": "MAX_HEAP_SIZE",
+        "name": "MAX_HEAP_SIZE",
         "desc": "最大Heap Size",
         "type": "int"
     }, {
-        "label": "JMX_PORT",
+        "name": "JMX_PORT",
         "desc": "JMX端口",
         "type": "int"
     }, {
-        "label": "JMX_SSL",
+        "name": "JMX_SSL",
         "desc": "JMX SSL启用",
         "type": "String"
     }, {
-        "label": "MAIN_LIB",
+        "name": "MAIN_LIB",
         "desc": "Main Lib",
         "type": "String"
     }, {
-        "label": "DATA_DIR",
+        "name": "DATA_DIR",
         "desc": "数据存放目录",
         "type": "String"
     }, {
-        "label": "ADMIN_ENABLE",
+        "name": "ADMIN_ENABLE",
         "desc": "Admin启用",
         "type": "String"
     }, {
-        "label": "MEMBERS",
+        "name": "MEMBERS",
         "desc": "集群成员",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "IP",
             "type": "String"
         }]

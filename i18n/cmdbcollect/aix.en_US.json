@@ -5,305 +5,305 @@
 		"_OBJ_TYPE": "AIX"
 	},
 	"fields": [{
-			"label": "OS_ID",
+			"name": "OS_ID",
 			"desc": "CMDB对象ID",
 			"type": "String"
 		},
 		{
-			"label": "MGMT_IP",
+			"name": "MGMT_IP",
 			"desc": "Managent Ip",
 			"type": "String"
 		},
 		{
-			"label": "MGMT_PORT",
+			"name": "MGMT_PORT",
 			"desc": "Management Port",
 			"type": "int"
 		},
 		{
-			"label": "IP_ADDRS",
+			"name": "IP_ADDRS",
 			"desc": "IP Addresses",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "VALUE",
+				"name": "VALUE",
 				"desc": "name",
 				"type": "String"
 			}]
 		},
 		{
-			"label": "IPV6_ADDRS",
+			"name": "IPV6_ADDRS",
 			"desc": "IPV6 Addresses",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "VALUE",
+				"name": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}]
 		},
 		{
-			"label": "CPU_FREQUENCY",
+			"name": "CPU_FREQUENCY",
 			"desc": "Cpu Frequency",
 			"type": "String"
 		}, {
-			"label": "CPU_FIRMWARE_VERSION",
+			"name": "CPU_FIRMWARE_VERSION",
 			"desc": "Cpu Firmware Version",
 			"type": "String"
 		}, {
-			"label": "_OBJ_TYPE",
+			"name": "_OBJ_TYPE",
 			"desc": "Os Type",
 			"type": "String"
 		}, {
-			"label": "MACHINE_ID",
+			"name": "MACHINE_ID",
 			"desc": "Machine ID",
 			"type": "String"
 		}, {
-			"label": "BOARD_SERIAL",
+			"name": "BOARD_SERIAL",
 			"desc": "Main Board Serial",
 			"type": "String"
 		}, {
-			"label": "ETH_INTERFACES",
+			"name": "ETH_INTERFACES",
 			"desc": "NIC",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "Mask",
 				"type": "String"
 			}, {
-				"label": "STATUS",
+				"name": "STATUS",
 				"desc": "Link Status",
 				"type": "String"
 			}, {
-				"label": "SPEED",
+				"name": "SPEED",
 				"desc": "Speed",
 				"type": "String"
 			}, {
-				"label": "MAC",
+				"name": "MAC",
 				"desc": "Mac Address",
 				"type": "String"
 			}]
 		}, {
-			"label": "PATCHES_APPLIED",
+			"name": "PATCHES_APPLIED",
 			"desc": "Patches Applied",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "VALUE",
+				"name": "VALUE",
 				"desc": "Patch Id",
 				"type": "String"
 			}]
 		}, {
-			"label": "NTP_ENABLE",
+			"name": "NTP_ENABLE",
 			"desc": "NTP Enabled",
 			"type": "int"
 		}, {
-			"label": "SWAP_FREE",
+			"name": "SWAP_FREE",
 			"desc": "Free Swap",
 			"type": "float"
 		}, {
-			"label": "CPU_CORES",
+			"name": "CPU_CORES",
 			"desc": "Cpu Cores",
 			"type": "String"
 		}, {
-			"label": "SSH_VERSION",
+			"name": "SSH_VERSION",
 			"desc": "SSH Version",
 			"type": "String"
 		}, {
-			"label": "USERS",
+			"name": "USERS",
 			"desc": "users",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "HOME",
+				"name": "HOME",
 				"desc": "Home Directory",
 				"type": "String"
 			}, {
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "Name",
 				"type": "String"
 			}, {
-				"label": "SHELL",
+				"name": "SHELL",
 				"desc": "Shell",
 				"type": "String"
 			}, {
-				"label": "UID",
+				"name": "UID",
 				"desc": "UID",
 				"type": "String"
 			}, {
-				"label": "GID",
+				"name": "GID",
 				"desc": "GID",
 				"type": "String"
 			}]
 		}, {
-			"label": "CPU_MODE",
+			"name": "CPU_MODE",
 			"desc": "Cpu Mode",
 			"type": "String"
 		}, {
-			"label": "DISKS",
+			"name": "DISKS",
 			"desc": "Disks",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "UNIT",
+				"name": "UNIT",
 				"desc": "Unit",
 				"type": "String"
 			}, {
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "Name",
 				"type": "String"
 			}, {
-				"label": "TYPE",
+				"name": "TYPE",
 				"desc": "Type",
 				"type": "String"
 			}, {
-				"label": "CAPACITY",
+				"name": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
 			}]
 		}, {
-			"label": "SYS_VENDOR",
+			"name": "SYS_VENDOR",
 			"desc": "System Vendor",
 			"type": "String"
 		}, {
-			"label": "NTP_SERVERS",
+			"name": "NTP_SERVERS",
 			"desc": "NTP Servers",
 			"type": "Array",
 			"subset": {
-				"label": "VALUE",
+				"name": "VALUE",
 				"desc": "IP",
 				"type": "String"
 			}
 		}, {
-			"label": "NFS_MOUNTED",
+			"name": "NFS_MOUNTED",
 			"desc": "NFS Mounted",
 			"type": "int"
 		}, {
-			"label": "OPENSSL_VERSION",
+			"name": "OPENSSL_VERSION",
 			"desc": "Openssl Version",
 			"type": "String"
 		}, {
-			"label": "MAX_USER_PROCESS_COUNT",
+			"name": "MAX_USER_PROCESS_COUNT",
 			"desc": "Max User Processes Count",
 			"type": "int"
 		}, {
-			"label": "CPU_MICROCODE",
+			"name": "CPU_MICROCODE",
 			"desc": "Cpu Microcode",
 			"type": "String"
 		}, {
-			"label": "NIC_BOND",
+			"name": "NIC_BOND",
 			"desc": "NIC Bond",
 			"type": "int"
 		}, {
-			"label": "CPU_ARCH",
+			"name": "CPU_ARCH",
 			"desc": "Cpu Architechure",
 			"type": "String"
 		}, {
-			"label": "CPU_BITS",
+			"name": "CPU_BITS",
 			"desc": "Cpu Bits",
 			"type": "int"
 		}, {
-			"label": "SWAP_TOTAL",
+			"name": "SWAP_TOTAL",
 			"desc": "Swap Total",
 			"type": "int"
 		}, {
-			"label": "CPU_VERSION",
+			"name": "CPU_VERSION",
 			"desc": "Cpu Version",
 			"type": "String"
 		}, {
-			"label": "KERNEL_VERSION",
+			"name": "KERNEL_VERSION",
 			"desc": "Kernel Version",
 			"type": "String"
 		}, {
-			"label": "DNS_SERVERS",
+			"name": "DNS_SERVERS",
 			"desc": "DNS Servers",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "VALUE",
+				"name": "VALUE",
 				"desc": "name",
 				"type": "String"
 			}]
 		}, {
-			"label": "HOSTNAME",
+			"name": "HOSTNAME",
 			"desc": "Host Name",
 			"type": "String"
 		}, {
-			"label": "AUTO_RESTART",
+			"name": "AUTO_RESTART",
 			"desc": "Auto Restart",
 			"type": "String"
 		}, {
-			"label": "CPU_MODEL_NAME",
+			"name": "CPU_MODEL_NAME",
 			"desc": "Cpu Model Name",
 			"type": "String"
 		}, {
-			"label": "MEM_TOTAL",
+			"name": "MEM_TOTAL",
 			"desc": "Memory Total",
 			"type": "int"
 		}, {
-			"label": "MOUNT_POINTS",
+			"name": "MOUNT_POINTS",
 			"desc": "Mount Points",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "USED",
+				"name": "USED",
 				"desc": "Used",
 				"type": "float"
 			}, {
-				"label": "AVAILABLE",
+				"name": "AVAILABLE",
 				"desc": "Available",
 				"type": "float"
 			}, {
-				"label": "DEVICE",
+				"name": "DEVICE",
 				"desc": "Device",
 				"type": "String"
 			}, {
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "Mount Point",
 				"type": "String"
 			}, {
-				"label": "USED%",
+				"name": "USED%",
 				"desc": "Used%",
 				"type": "int"
 			}, {
-				"label": "FS_TYPE",
+				"name": "FS_TYPE",
 				"desc": "FS Type",
 				"type": "String"
 			}, {
-				"label": "UNIT",
+				"name": "UNIT",
 				"desc": "Unit",
 				"type": "String"
 			}, {
-				"label": "INODE_USED%",
+				"name": "INODE_USED%",
 				"desc": "Inode Used%",
 				"type": "int"
 			}, {
-				"label": "CAPACITY",
+				"name": "CAPACITY",
 				"desc": "Capacity",
 				"type": "int"
 			}]
 		}, {
-			"label": "VERSION",
+			"name": "VERSION",
 			"desc": "Version",
 			"type": "String"
 		}, {
-			"label": "MAX_OPEN_FILES",
+			"name": "MAX_OPEN_FILES",
 			"desc": "Max Open Files",
 			"type": "int"
 		}, {
-			"label": "_OBJ_CATEGORY",
+			"name": "_OBJ_CATEGORY",
 			"desc": "Object Type",
 			"type": "String"
 		}, {
-			"label": "HBA_INTERFACES",
+			"name": "HBA_INTERFACES",
 			"desc": "HBA Interfaces",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "name",
 				"type": "String"
 			}, {
-				"label": "WWN",
+				"name": "WWN",
 				"desc": "WWN",
 				"type": "String"
 			}, {
-				"label": "STATUS",
+				"name": "STATUS",
 				"desc": "Link Status",
 				"type": "String"
 			}, {
-				"label": "SPEED",
+				"name": "SPEED",
 				"desc": "Speed",
 				"type": "int"
 			}]

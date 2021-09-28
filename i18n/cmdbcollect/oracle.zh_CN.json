@@ -5,289 +5,289 @@
         "_OBJ_TYPE": "Oracle"
     },
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS用户",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "执行文件路径",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "命令行",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "归属类型",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "中间件类型",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "管理IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "管理端口",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "版本",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL端口",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "管理端口",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "管理SSL端口",
         "type": "String"
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "监控端口",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "所有端口列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "端口",
             "type": "int"
         }]
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "安装目录",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "配置目录",
         "type": "String"
     }, {
-        "label": "ORACLE_HOME",
+        "name": "ORACLE_HOME",
         "desc": "Oralce Home目录",
         "type": "String"
     }, {
-        "label": "ORACLE_BASE",
+        "name": "ORACLE_BASE",
         "desc": "Oralce Base目录",
         "type": "String"
     }, {
-        "label": "GRID_HOME",
+        "name": "GRID_HOME",
         "desc": "Grid Home目录",
         "type": "String"
     }, {
-        "label": "GRID_BASE",
+        "name": "GRID_BASE",
         "desc": "Grid Base目录",
         "type": "String"
     }, {
-        "label": "DBID",
+        "name": "DBID",
         "desc": "DBID",
         "type": "String"
     }, {
-        "label": "IS_RAC",
+        "name": "IS_RAC",
         "desc": "是否RAC",
         "type": "int"
     }, {
-        "label": "ISCDB",
+        "name": "ISCDB",
         "desc": "是否CDB",
         "type": "int"
     }, {
-        "label": "ORACLE_HOSTNAME",
+        "name": "ORACLE_HOSTNAME",
         "desc": "Oralce 主机名",
         "type": "String"
     }, {
-        "label": "ORACLE_SID",
+        "name": "ORACLE_SID",
         "desc": "Oralce SID",
         "type": "String"
     }, {
-        "label": "INSTANCE_NAME",
+        "name": "INSTANCE_NAME",
         "desc": "实例名",
         "type": "String"
     }, {
-        "label": "CLUSTER_NAME",
+        "name": "CLUSTER_NAME",
         "desc": "集群名",
         "type": "String"
     }, {
-        "label": "CLUSTER_VERSION",
+        "name": "CLUSTER_VERSION",
         "desc": "集群软件版本",
         "type": "String"
     }, {
-        "label": "NODE_VIP",
+        "name": "NODE_VIP",
         "desc": "节点VIP",
         "type": "String"
     }, {
-        "label": "LOG_MODE",
+        "name": "LOG_MODE",
         "desc": "日志模式",
         "type": "String"
     }, {
-        "label": "SGA_MAX_SIZE",
+        "name": "SGA_MAX_SIZE",
         "desc": "SGA最大内存(MB)",
         "type": "String"
     }, {
-        "label": "MEMORY_TARGET",
+        "name": "MEMORY_TARGET",
         "desc": "内存目标",
         "type": "String"
     }, {
-        "label": "LOG_ARCHIVE_DEST",
+        "name": "LOG_ARCHIVE_DEST",
         "desc": "Log归档目标",
         "type": "String"
     }, {
-        "label": "NLS_CHARACTERSET",
+        "name": "NLS_CHARACTERSET",
         "desc": "NLS字符集",
         "type": "String"
     }, {
-        "label": "SERVICE_NAME",
+        "name": "SERVICE_NAME",
         "desc": "服务名",
         "type": "String"
     }, {
-        "label": "SERVICE_NAMES",
+        "name": "SERVICE_NAMES",
         "desc": "服务名列表",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "名称",
             "type": "String"
         }]
     }, {
-        "label": "USERS",
+        "name": "USERS",
         "desc": "用户列表",
         "type": "JsonArray",
         "subset": [{
-                "label": "USERNAME",
+                "name": "USERNAME",
                 "desc": "用户名",
                 "type": "String"
             },
             {
-                "label": "DEFAULT_TABLESPACE",
+                "name": "DEFAULT_TABLESPACE",
                 "desc": "默认表空间",
                 "type": "String"
             }
         ]
     }, {
-        "label": "TABLE_SPACESES",
+        "name": "TABLE_SPACESES",
         "desc": "表空间列表",
         "type": "JsonArray",
         "subset": [{
-                "label": "TABLESPACE_NAME",
+                "name": "TABLESPACE_NAME",
                 "desc": "表空间名",
                 "type": "String"
             }, {
-                "label": "TOTAL_GB",
+                "name": "TOTAL_GB",
                 "desc": "容量(GB)",
                 "type": "float"
             }, {
-                "label": "USED_GB",
+                "name": "USED_GB",
                 "desc": "使用(GB)",
                 "type": "float"
             }, {
-                "label": "FREE_GB",
+                "name": "FREE_GB",
                 "desc": "空闲(GB)",
                 "type": "float"
             }, {
-                "label": "USED%",
+                "name": "USED%",
                 "desc": "使用%",
                 "type": "float"
             },
             {
-                "label": "DATA_FILES",
+                "name": "DATA_FILES",
                 "desc": "数据文件列表",
                 "type": "JsonArray",
                 "subset": [{
-                    "label": "FILE_NAME",
+                    "name": "FILE_NAME",
                     "desc": "文件名",
                     "type": "String"
                 }, {
-                    "label": "SIZE",
+                    "name": "SIZE",
                     "desc": "大小(GB)",
                     "type": "float"
                 }, {
-                    "label": "AUTOEXTENSIBLE",
+                    "name": "AUTOEXTENSIBLE",
                     "desc": "自动扩展",
                     "type": "String"
                 }]
             }
         ]
     }, {
-        "label": "DISK_GROUPS",
+        "name": "DISK_GROUPS",
         "desc": "磁盘组列表",
         "type": "JsonArray",
         "subset": [{
-                "label": "NAME",
+                "name": "NAME",
                 "desc": "名称",
                 "type": "String"
             }, {
-                "label": "TYPE",
+                "name": "TYPE",
                 "desc": "类型",
                 "type": "String"
             }, {
-                "label": "TOTAL_MB",
+                "name": "TOTAL_MB",
                 "desc": "大小(MB)",
                 "type": "float"
             }, {
-                "label": "USED_MB",
+                "name": "USED_MB",
                 "desc": "使用(MB)",
                 "type": "float"
             }, {
-                "label": "FREE_MB",
+                "name": "FREE_MB",
                 "desc": "空闲(MB)",
                 "type": "float"
             }, {
-                "label": "USED%",
+                "name": "USED%",
                 "desc": "使用(%)",
                 "type": "float"
             },
             {
-                "label": "DISKS",
+                "name": "DISKS",
                 "desc": "磁盘列表",
                 "type": "JsonArray",
                 "subset": [{
-                    "label": "NAME",
+                    "name": "NAME",
                     "desc": "名称",
                     "type": "String"
                 }, {
-                    "label": "FAIL_GROUP",
+                    "name": "FAIL_GROUP",
                     "desc": "失败组",
                     "type": "String"
                 }, {
-                    "label": "MOUNT_STATUS",
+                    "name": "MOUNT_STATUS",
                     "desc": "状态",
                     "type": "String"
                 }, {
-                    "label": "PATH",
+                    "name": "PATH",
                     "desc": "磁盘路径",
                     "type": "String"
                 }, {
-                    "label": "TOTAL_MB",
+                    "name": "TOTAL_MB",
                     "desc": "大小(MB)",
                     "type": "float"
                 }, {
-                    "label": "USED_MB",
+                    "name": "USED_MB",
                     "desc": "使用(MB)",
                     "type": "float"
                 }, {
-                    "label": "FREE_MB",
+                    "name": "FREE_MB",
                     "desc": "空闲(MB)",
                     "type": "float"
                 }, {
-                    "label": "USED%",
+                    "name": "USED%",
                     "desc": "使用(%)",
                     "type": "float"
                 }]

@@ -5,122 +5,122 @@
 		"_OBJ_TYPE": "VCenter"
 	},
 	"fields": [{
-		"label": "OS_ID",
+		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"label": "_OBJ_CATEGORY",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {
-		"label": "_OBJ_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "中间件类型",
 		"type": "String"
 	}, {
-		"label": "MGMT_IP",
+		"name": "MGMT_IP",
 		"desc": "管理IP",
 		"type": "String"
 	}, {
-		"label": "MGMT_PORT",
+		"name": "MGMT_PORT",
 		"desc": "管理端口",
 		"type": "int"
 	}, {
-		"label": "SERVER_NAME",
+		"name": "SERVER_NAME",
 		"desc": "服务名",
 		"type": "String"
 	}, {
-		"label": "VERSION",
+		"name": "VERSION",
 		"desc": "版本",
 		"type": "String"
 	}, {
-		"label": "VENDOR",
+		"name": "VENDOR",
 		"desc": "厂商",
 		"type": "String"
 	}, {
-		"label": "NAME",
+		"name": "NAME",
 		"desc": "名称",
 		"type": "String"
 	}, {
-		"label": "FULLNAME",
+		"name": "FULLNAME",
 		"desc": "全名称",
 		"type": "String"
 	}, {
-		"label": "INSTANCEUUID",
+		"name": "INSTANCEUUID",
 		"desc": "安装实例uuid",
 		"type": "String"
 	}, {
-		"label": "DATACENTER",
+		"name": "DATACENTER",
 		"desc": "数据中心",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "NAME",
+			"name": "NAME",
 			"desc": "名称",
 			"type": "String"
 		}, {
-			"label": "MOID",
+			"name": "MOID",
 			"desc": "id",
 			"type": "String"
 		}, {
-			"label": "CLUSTER",
+			"name": "CLUSTER",
 			"desc": "集群",
 			"type": "JsonArray",
 			"subset": [{
-				"label": "NAME",
+				"name": "NAME",
 				"desc": "名称",
 				"type": "String"
 			}, {
-				"label": "MOID",
+				"name": "MOID",
 				"desc": "id",
 				"type": "String"
 			}, {
-				"label": "DATASTORE",
+				"name": "DATASTORE",
 				"desc": "存储",
 				"type": "JsonArray",
 				"subset": [{
-						"label": "MOID",
+						"name": "MOID",
 						"desc": "id",
 						"type": "String"
 					}, {
-						"label": "NAME",
+						"name": "NAME",
 						"desc": "名称",
 						"type": "String"
 					}
 
 				]
 			}, {
-				"label": "NETWORK",
+				"name": "NETWORK",
 				"desc": "网络",
 				"type": "JsonArray",
 				"subset": [{
-						"label": "MOID",
+						"name": "MOID",
 						"desc": "id",
 						"type": "String"
 					}, {
-						"label": "NAME",
+						"name": "NAME",
 						"desc": "名称",
 						"type": "String"
 					}
 
 				]
 			}, {
-				"label": "CONTAIN_HOST",
+				"name": "CONTAIN_HOST",
 				"desc": "包含物理机",
 				"type": "JsonArray",
 				"subset": [{
-					"label": "UUID",
+					"name": "UUID",
 					"desc": "uuid",
 					"type": "String"
 				}]
 			}, {
-				"label": "CONTAIN_VMS",
+				"name": "CONTAIN_VMS",
 				"desc": "包含虚拟机",
 				"type": "JsonArray",
 				"subset": [{
-					"label": "MGMT_IP",
+					"name": "MGMT_IP",
 					"desc": "vcenter IP",
 					"type": "String"
 				}, {
-					"label": "VM_ID",
+					"name": "VM_ID",
 					"desc": "虚拟机ID",
 					"type": "String"
 				}]

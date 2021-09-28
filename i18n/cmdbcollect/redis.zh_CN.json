@@ -5,112 +5,112 @@
 		"_OBJ_TYPE": "Redis"
 	},
 	"fields": [{
-		"label": "OS_ID",
+		"name": "OS_ID",
 		"desc": "OS ID",
 		"type": "String"
 	}, {
-		"label": "OS_USER",
+		"name": "OS_USER",
 		"desc": "OS用户",
 		"type": "String"
 	}, {
-		"label": "EXE_PATH",
+		"name": "EXE_PATH",
 		"desc": "执行文件路径",
 		"type": "String"
 	}, {
-		"label": "COMMAND",
+		"name": "COMMAND",
 		"desc": "命令行",
 		"type": "String"
 	}, {
-		"label": "_OBJ_CATEGORY",
+		"name": "_OBJ_CATEGORY",
 		"desc": "归属类型",
 		"type": "String"
 	}, {
-		"label": "_OBJ_TYPE",
+		"name": "_OBJ_TYPE",
 		"desc": "中间件类型",
 		"type": "String"
 	}, {
-		"label": "MGMT_IP",
+		"name": "MGMT_IP",
 		"desc": "管理IP",
 		"type": "String"
 	}, {
-		"label": "MGMT_PORT",
+		"name": "MGMT_PORT",
 		"desc": "管理端口",
 		"type": "int"
 	}, {
-		"label": "SERVER_NAME",
+		"name": "SERVER_NAME",
 		"desc": "服务名",
 		"type": "String"
 	}, {
-		"label": "VERSION",
+		"name": "VERSION",
 		"desc": "版本",
 		"type": "String"
 	}, {
-		"label": "PORT",
+		"name": "PORT",
 		"desc": "Port",
 		"type": "String"
 	}, {
-		"label": "SSL_PORT",
+		"name": "SSL_PORT",
 		"desc": "SSL端口",
 		"type": "String"
 	}, {
-		"label": "ADMIN_PORT",
+		"name": "ADMIN_PORT",
 		"desc": "管理端口",
 		"type": "String"
 	}, {
-		"label": "ADMIN_SSL_PORT",
+		"name": "ADMIN_SSL_PORT",
 		"desc": "管理SSL端口",
 		"type": "String"
 	}, {
-		"label": "MON_PORT",
+		"name": "MON_PORT",
 		"desc": "监控端口",
 		"type": "String"
 	}, {
-		"label": "PORTS",
+		"name": "PORTS",
 		"desc": "所有端口列表",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "端口",
 			"type": "int"
 		}]
 	}, {
-		"label": "INSTALL_PATH",
+		"name": "INSTALL_PATH",
 		"desc": "安装目录",
 		"type": "String"
 	}, {
-		"label": "CONFIG_FILE",
+		"name": "CONFIG_FILE",
 		"desc": "配置文件",
 		"type": "String"
 	}, {
-		"label": "IS_CLUSTER",
+		"name": "IS_CLUSTER",
 		"desc": "是否是集群",
 		"type": "int"
 	}, {
-		"label": "MULTIPLEXING_API",
+		"name": "MULTIPLEXING_API",
 		"desc": "多路复用",
 		"type": "String"
 	}, {
-		"label": "EXECUTABLE",
+		"name": "EXECUTABLE",
 		"desc": "安装目录",
 		"type": "String"
 	}, {
-		"label": "CLUSTER_MODE",
+		"name": "CLUSTER_MODE",
 		"desc": "集群模式",
 		"type": "String"
 	}, {
-		"label": "CLUSTER_ROLE",
+		"name": "CLUSTER_ROLE",
 		"desc": "集群角色",
 		"type": "String"
 	}, {
-		"label": "RUN_ID",
+		"name": "RUN_ID",
 		"desc": "run id",
 		"type": "String"
 	}, {
-		"label": "SLAVE_NODES",
+		"name": "SLAVE_NODES",
 		"desc": "集群节点",
 		"type": "JsonArray",
 		"subset": [{
-			"label": "VALUE",
+			"name": "VALUE",
 			"desc": "IP端口",
 			"type": "String"
 		}]

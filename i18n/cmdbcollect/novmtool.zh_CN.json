@@ -5,67 +5,67 @@
         "_OBJ_TYPE": "novmtool"
     },
     "fields": [{
-        "label": "DISKS",
+        "name": "DISKS",
         "desc": "disks",
         "type": "Array"
     }, {
-        "label": "NAME",
+        "name": "NAME",
         "desc": "name",
         "type": "String"
     }, {
-        "label": "IP",
+        "name": "IP",
         "desc": "ip",
         "type": "String"
     }, {
-        "label": "VM_ID",
+        "name": "VM_ID",
         "desc": "vm_id",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "os_type",
         "type": "String"
     }, {
-        "label": "MEM_TOTAL",
+        "name": "MEM_TOTAL",
         "desc": "mem_total",
         "type": "int"
     }, {
-        "label": "MEM_UNIT",
+        "name": "MEM_UNIT",
         "desc": "mem_unit",
         "type": "String"
     }, {
-        "label": "STATE",
+        "name": "STATE",
         "desc": "state",
         "type": "String"
     }, {
-        "label": "CPU_COUNT",
+        "name": "CPU_COUNT",
         "desc": "cpu_count",
         "type": "int"
     }, {
-        "label": "CPU_CORES",
+        "name": "CPU_CORES",
         "desc": "cpu_cores",
         "type": "int"
     }, {
-        "label": "IS_VIRTUAL",
+        "name": "IS_VIRTUAL",
         "desc": "is_virtual",
         "type": "int"
     }, {
-        "label": "MACHINE_UUID",
+        "name": "MACHINE_UUID",
         "desc": "machine_uuid",
         "type": "String"
     }, {
-        "label": "MACHINE_SN",
+        "name": "MACHINE_SN",
         "desc": "machine_sn",
         "type": "String"
     }, {
-        "label": "VCENTER_IP",
+        "name": "VCENTER_IP",
         "desc": "vcenter_ip",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "object_type",
         "type": "String"
     }, {
-        "label": "PK",
+        "name": "PK",
         "desc": "pk",
         "type": "Array"
     }]

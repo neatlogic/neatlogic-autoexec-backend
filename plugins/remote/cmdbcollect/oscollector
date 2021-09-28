@@ -214,6 +214,12 @@ sub main {
                 $appInfo->{_OBJ_CATEGORY} = $defaultObjCat;
                 print("WARN: $collectorClass did not return _OBJ_CATEGORY, fallback to $defaultObjCat.\n");
             }
+            else{
+                if ( not CollectObjCat->validate($appInfo->{_OBJ_CATEGORY}) ){
+                    return 0;
+                }
+            }
+            
             $objType = $appInfo->{_OBJ_TYPE};
             if ( not defined($objType) ) {
                 $objType = $procInfo->{_OBJ_TYPE};

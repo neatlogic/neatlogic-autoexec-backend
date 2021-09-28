@@ -5,157 +5,157 @@
         "_OBJ_TYPE": "Weblogic"
     },
     "fields": [{
-        "label": "OS_ID",
+        "name": "OS_ID",
         "desc": "OS ID",
         "type": "String"
     }, {
-        "label": "OS_USER",
+        "name": "OS_USER",
         "desc": "OS User",
         "type": "String"
     }, {
-        "label": "EXE_PATH",
+        "name": "EXE_PATH",
         "desc": "Executable File Path",
         "type": "String"
     }, {
-        "label": "COMMAND",
+        "name": "COMMAND",
         "desc": "Command Line",
         "type": "String"
     }, {
-        "label": "_OBJ_CATEGORY",
+        "name": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
     }, {
-        "label": "_OBJ_TYPE",
+        "name": "_OBJ_TYPE",
         "desc": "Application Type",
         "type": "String"
     }, {
-        "label": "MGMT_IP",
+        "name": "MGMT_IP",
         "desc": "Managment IP",
         "type": "String"
     }, {
-        "label": "MGMT_PORT",
+        "name": "MGMT_PORT",
         "desc": "Managment Port",
         "type": "int"
     }, {
-        "label": "SERVER_NAME",
+        "name": "SERVER_NAME",
         "desc": "Server Name",
         "type": "String"
     }, {
-        "label": "VERSION",
+        "name": "VERSION",
         "desc": "Version",
         "type": "String"
     }, {
-        "label": "PORT",
+        "name": "PORT",
         "desc": "Port",
         "type": "String"
     }, {
-        "label": "SSL_PORT",
+        "name": "SSL_PORT",
         "desc": "SSL Port",
         "type": "String"
     }, {
-        "label": "ADMIN_PORT",
+        "name": "ADMIN_PORT",
         "desc": "Admin Port",
         "type": "String"
     }, {
-        "label": "ADMIN_SSL_PORT",
+        "name": "ADMIN_SSL_PORT",
         "desc": "Admin SSL Port",
         "type": "String"
     }, {
-        "label": "MON_PORT",
+        "name": "MON_PORT",
         "desc": "Monitor Port",
         "type": "String"
     }, {
-        "label": "PORTS",
+        "name": "PORTS",
         "desc": "Port List",
         "type": "JsonArray",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "Port",
             "type": "int"
         }]
     }, {
-        "label": "INSTALL_PATH",
+        "name": "INSTALL_PATH",
         "desc": "Install Path",
         "type": "String"
     }, {
-        "label": "CONFIG_PATH",
+        "name": "CONFIG_PATH",
         "desc": "Conf Path",
         "type": "String"
     }, {
-        "label": "JAVA_HOME",
+        "name": "JAVA_HOME",
         "desc": "Java Home Dir",
         "type": "String"
     }, {
-        "label": "JAVA_VERSION",
+        "name": "JAVA_VERSION",
         "desc": "Java Version",
         "type": "String"
     }, {
-        "label": "JVM_TYPE",
+        "name": "JVM_TYPE",
         "desc": "JVM Type",
         "type": "String"
     }, {
-        "label": "JVM_VERSION",
+        "name": "JVM_VERSION",
         "desc": "JVM Version",
         "type": "String"
     }, {
-        "label": "MIN_HEAP_SIZE",
+        "name": "MIN_HEAP_SIZE",
         "desc": "Min Heap Size",
         "type": "int"
     }, {
-        "label": "MAX_HEAP_SIZE",
+        "name": "MAX_HEAP_SIZE",
         "desc": "Max Heap Size",
         "type": "int"
     }, {
-        "label": "JMX_PORT",
+        "name": "JMX_PORT",
         "desc": "JMX Port",
         "type": "int"
     }, {
-        "label": "JMX_SSL",
+        "name": "JMX_SSL",
         "desc": "JMX SSL Enabled",
         "type": "String"
     }, {
-        "label": "WL_HOME",
+        "name": "WL_HOME",
         "desc": "Weblogic Home Dir",
         "type": "String"
     }, {
-        "label": "DOMAIN_HOME",
+        "name": "DOMAIN_HOME",
         "desc": "Domain Home Dir",
         "type": "String"
     }, {
-        "label": "DOMAIN_NAME",
+        "name": "DOMAIN_NAME",
         "desc": "Domain Name",
         "type": "String"
     }, {
-        "label": "APPLICATIONS",
+        "name": "APPLICATIONS",
         "desc": "Application List",
         "type": "JsonArray",
         "subset": [{
-            "label": "NAME",
+            "name": "NAME",
             "desc": "Application Name",
             "type": "String"
         }, {
-            "label": "TARGET",
+            "name": "TARGET",
             "desc": "Application Target",
             "type": "String"
         }, {
-            "label": "MODULE_TYPE",
+            "name": "MODULE_TYPE",
             "desc": "Module Type",
             "type": "String"
         }, {
-            "label": "SOURCE_PATH",
+            "name": "SOURCE_PATH",
             "desc": "Source Path",
             "type": "String"
         }, {
-            "label": "STAGING_MODE",
+            "name": "STAGING_MODE",
             "desc": "Staging Mode",
             "type": "String"
         }]
     }, {
-        "label": "WL_PATCHES",
+        "name": "WL_PATCHES",
         "desc": "Patch List",
         "type": "String",
         "subset": [{
-            "label": "VALUE",
+            "name": "VALUE",
             "desc": "Patch Name",
             "type": "String"
         }]
