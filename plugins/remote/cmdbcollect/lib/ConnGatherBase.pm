@@ -38,6 +38,7 @@ sub parseListenLines {
                     $portsMap->{$port} = 1;
                 }
                 else {
+                    $listenAddr =~ /^::ffff:(\d+\.)/$1/;
                     $portsMap->{$listenAddr} = 1;
                 }
             }
@@ -67,6 +68,9 @@ sub parseConnLines {
             my @fields     = split( /\s+/, $line );
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
+            $localAddr =~ /^::ffff:(\d+\.)/$1/;
+            $remoteAddr =~ /^::ffff:(\d+\.)/$1/;
+
             if ( $localAddr =~ /^(.*):(\d+)$/ ) {
                 my $ip   = $1;
                 my $port = $2;
