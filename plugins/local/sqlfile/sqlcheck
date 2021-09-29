@@ -34,12 +34,15 @@ sub main {
 
     my $dbVersion;
     my $dbArgs;
+    my $dbName;
     my $dbNodeJson;
     my $sqlFileJson;
 
     GetOptions(
         'help'          => \$isHelp,
         'node=s'        => \$node,
+        'dbname=s'      => \$dbName,
+        'dbargs=s'      => \$dbArgs,
         'v|verbose=i'   => \$isVerbose,
         'sqlfilejson=s' => \$sqlFileJson
     );
@@ -90,7 +93,7 @@ sub main {
         usage();
     }
 
-    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, sqlFiles => $sqlFiles );
+    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, dbName=>$dbName, dbArgs=>$dbArgs, sqlFiles => $sqlFiles );
     $sqlFileRunner->checkSqlFiles();
 }
 

@@ -60,11 +60,11 @@ sub collect {
             while ( $xml =~ /<\s*Connector\s[^>]+?\sSSLEnabled="true"\s.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
-                    $sslPort = $1;
+                    $sslPort = int($1);
                     if ( $sslPort =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
                         if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
-                            $sslPort = $1;
+                            $sslPort = int($1);
                         }
                     }
                     if ( not defined( $lsnPortsMap->{$sslPort} ) ) {
@@ -80,11 +80,11 @@ sub collect {
             while ( $xml =~ /<\s*Connector\s[^>]+?\sprotocol="HTTP\b.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
-                    $port = $1;
+                    $port = int($1);
                     if ( $port =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
                         if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
-                            $port = $1;
+                            $port = int($1);
                         }
                     }
 

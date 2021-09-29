@@ -10,9 +10,11 @@ use strict;
 
 sub new {
     my ( $type, $nodeInfo, $args ) = @_;
+    
     my $self = {
-        dbStr        => $nodeInfo->{accessEndpoint},
-        dbType       => $nodeInfo->{nodeType},
+        dbStr  => $nodeInfo->{accessEndpoint},
+        dbType => $nodeInfo->{nodeType},
+
         #dbType       => 'mysql',
         host         => $nodeInfo->{host},
         port         => $nodeInfo->{port},
@@ -36,6 +38,13 @@ sub new {
         push( @addrs, $1 );
     }
     $self->{addrs} = \@addrs;
+
+    my $dbName = $args->{dbName};
+    if ( defined($dbName) ) {
+        $self->{dbName}    = $dbName;
+        $self->{sid}       = $dbName;
+        $self->{oraWallet} = $dbName;
+    }
 
     bless( $self, $type );
     return $self;
