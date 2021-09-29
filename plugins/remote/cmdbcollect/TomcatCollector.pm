@@ -60,11 +60,11 @@ sub collect {
             while ( $xml =~ /<\s*Connector\s[^>]+?\sSSLEnabled="true"\s.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
-                    $sslPort = int($1);
+                    $sslPort = $1;
                     if ( $sslPort =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
                         if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
-                            $sslPort = int($1);
+                            $sslPort = $1;
                         }
                     }
                     if ( not defined( $lsnPortsMap->{$sslPort} ) ) {
@@ -80,11 +80,11 @@ sub collect {
             while ( $xml =~ /<\s*Connector\s[^>]+?\sprotocol="HTTP\b.*?>/sg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
-                    $port = int($1);
+                    $port = $1;
                     if ( $port =~ /\$\{(.*?)\}/ ) {
                         my $optName = $1;
                         if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
-                            $port = int($1);
+                            $port = $1;
                         }
                     }
 
@@ -97,13 +97,13 @@ sub collect {
                 }
             }
 
-            $appInfo->{PORT}     = $port;
-            $appInfo->{SSL_PORT} = $sslPort;
+            $appInfo->{PORT}     = int($port);
+            $appInfo->{SSL_PORT} = int($sslPort);
             if ( defined($port) ) {
-                push( @ports, $port );
+                push( @ports, int($port) );
             }
             if ( defined($sslPort) ) {
-                push( @ports, $sslPort );
+                push( @ports, int($sslPort) );
             }
             $appInfo->{PORTS} = \@ports;
         }
