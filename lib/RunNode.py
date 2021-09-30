@@ -167,9 +167,7 @@ class RunNode:
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
-            if op is not None and not op.failIgnore:
-                self.context.hasFailNodeInGlobal = True
-            else:
+            if not failIgnore:
                 self.context.hasFailNodeInGlobal = True
 
         self.statuses['pid'] = self.context.pid
@@ -394,7 +392,7 @@ class RunNode:
             except AutoExecError.AutoExecError as err:
                 try:
                     self.writeNodeLog("ERROR: {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
-                    self.updateNodeStatus(NodeStatus.failed, op=op)
+                    self.updateNodeStatus(NodeStatus.failed, op=op, failIgnore=op.failIgnore)
                     if op.failIgnore:
                         hasIgnoreFail = 1
                     else:
@@ -444,7 +442,7 @@ class RunNode:
 
                 timeConsume = time.time() - startTime
                 if ret != 0:
-                    self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
+                    self.updateNodeStatus(NodeStatus.failed, op=op, failIgnore=op.failIgnore, consumeTime=timeConsume)
                     pass
                 else:
                     self._loadOpOutput(op)
