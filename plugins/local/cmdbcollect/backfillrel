@@ -153,10 +153,10 @@ if __name__ == "__main__":
 
     try:
         if args.type == 'OS' or args.type is None:
+            genInsRel(db)
             genOSSwitchRel(db)
         elif args.type == 'NET' or args.type is None:
             genSwitchRel(db)
-            genInsRel(db)
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
