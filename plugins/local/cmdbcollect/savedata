@@ -86,32 +86,6 @@ def saveSwMacTableData(db, data):
         del(data['MAC_TABLE'])
 
 
-def saveSwCDPData(db, data):
-    if data['_OBJ_CATEGORY'] == 'SWITCH' and 'NEIGHBORS' in data:
-        nbrTableInfo = {}
-        nbrTableInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']
-        nbrTableInfo['_OBJ_TYPE'] = data['_OBJ_TYPE']
-        nbrTableInfo['MGMT_IP'] = data['MGMT_IP']
-        nbrTableInfo['SN'] = data['SN']
-        nbrTableInfo['DEV_NAME'] = data['DEV_NAME']
-        if 'RESOURCE_ID' in data:
-            nbrTableInfo['RESOURCE_ID'] = data['RESOURCE_ID']
-        else:
-            nbrTableInfo['RESOURCE_ID'] = None
-        nbrTableInfo['NEIGHBORS'] = data['NEIGHBORS']
-
-        primaryKey = {'MGMT_IP': nbrTableInfo['MGMT_IP'], 'SN': nbrTableInfo['SN']}
-        collection = db['RELATION_NET_NEIGHBOR']
-        # TODO: index clarify
-        collection.replace_one(primaryKey, nbrTableInfo, upsert=True)
-        collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
-        # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
-        collection.create_index([('NEIGHBORS.LOCAL_NAME', 1)], name='idx_local_name')
-        collection.create_index([('NEIGHBORS.REMOTE_NAME', 1)], name='idx_remote_name')
-        print('INFO: Save neighbors data success.')
-        del(data['NEIGHBORS'])
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--outputfile', default='', help='Output json file path for node')
@@ -193,7 +167,6 @@ if __name__ == "__main__":
                     if '_OBJ_CATEGORY' in data:
                         saveAppConnData(db, data)
                         saveSwMacTableData(db, data)
-                        saveSwCDPData(db, data)
                     print('INFO: Save connection information success.')
                     collection.replace_one(primaryKey, data, upsert=True)
                     print('INFO: Save data success.')

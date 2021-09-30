@@ -180,11 +180,11 @@ sub _getBrand {
 
     if ( not defined($brand) ) {
         print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
-        $self->{DATA}->{BRAND}    = undef;
+        $self->{DATA}->{BRAND}     = undef;
         $self->{DATA}->{_OBJ_TYPE} = undef;
     }
     else {
-        $self->{DATA}->{BRAND}    = $brand;
+        $self->{DATA}->{BRAND}     = $brand;
         $self->{DATA}->{_OBJ_TYPE} = $brand;
     }
 
@@ -252,9 +252,10 @@ sub _getPorts {
     my $snmpHelper = $self->{snmpHelper};
 
     my @ports;
-    my $portsMap   = {};
-    my $portIdxMap = {};
-    my $portNoMap  = {};
+    my $portsMap    = {};
+    my $portIdxMap  = {};
+    my $portNoMap   = {};
+    my $portNameMap = {};
 
     my $portIdxToNoMap = $self->_getPortIdx();
     while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
@@ -293,6 +294,11 @@ sub _getPorts {
                 elsif ( $portInfoKey eq 'SPEED' ) {
                     $val = ( $val * 100 / 1000 / 1000 + 0.5 ) / 100;
                 }
+                elsif ( $portInfoKey eq 'NAME' ) {
+                    $val =~ s/Eth(?=\d)/Ethernet/g;
+                    $val =~ s/Gig(?=\d)/GigabitEthernet/g;
+                    $portNameMap->{$val} = $portInfo;
+                }
 
                 $portInfo->{$portInfoKey} = $val;
             }
@@ -303,6 +309,7 @@ sub _getPorts {
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
     $self->{portNoMap}     = $portNoMap;
+    $self->{portNameMap}   = $portNameMap;
 }
 
 sub _decimalMacToHex {
@@ -440,6 +447,11 @@ sub _getLLDP {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
+    my $portNameMap = $self->{portNameMap};
+    if ( not defined($portNameMap) ) {
+        print("WARN: Can not get LLDP before get all ports.\n");
+    }
+
     #获取邻居关系的本地端口名称列表（怀疑，这里的端口的idx和port信息里是一样的，如果是这样这里就不用采了
     my $portNoToName = {};
     my $localPortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_LOCAL_PORT} );
@@ -475,25 +487,40 @@ sub _getLLDP {
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
     while ( my ( $oid, $val ) = each(%$remotePortInfo) ) {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
-            my $neighbor = {};
-            $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $neighbor->{LOCAL_PORT} = $portNoToName->{$1};
 
-            $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
+            # my $neighbor = {};
+            # $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
+            # $neighbor->{LOCAL_PORT} = $portNoToName->{$1};
+
+            # $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$1.$2"};
+            # $val =~ s/Eth(?=\d)/Ethernet/g;
+            # $val =~ s/Gig(?=\d)/GigabitEthernet/g;
+            # $neighbor->{REMOTE_PORT} = $val;
+            # push( @neighbors, $neighbor );
+            my $neighbor = {};
+            my $portName = $portNoToName->{$1};
+            $neighbor->{DEV_NAME} = $remoteSysInfoMap->{"$1.$2"};
             $val =~ s/Eth(?=\d)/Ethernet/g;
             $val =~ s/Gig(?=\d)/GigabitEthernet/g;
-            $neighbor->{REMOTE_PORT} = $val;
-            push( @neighbors, $neighbor );
+            $neighbor->{PORT} = $val;
+
+            my $portInfo = $portNameMap->{$portName};
+            $portInfo->{NEIGHBOR} = $portInfo;
         }
     }
 
-    $self->{DATA}->{NEIGHBORS} = \@neighbors;
+    #$self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub _getCDP {
     my ($self)     = @_;
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
+
+    my $portNameMap = $self->{portNameMap};
+    if ( not defined($portNameMap) ) {
+        print("WARN: Can not get LLDP before get all ports.\n");
+    }
 
     my $remoteSysInfoMap = {};
     my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_SYSNAME} );
@@ -515,19 +542,32 @@ sub _getCDP {
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
     while ( my ( $oid, $val ) = each(%$remotePortInfo) ) {
         if ( $oid =~ /(\d+)\.(\d+)$/ ) {
+
+            # my $portIdx       = $1;
+            # my $localPortInfo = $self->{portIdxMap}->{$portIdx};
+            # my $neighbor      = {};
+            # $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
+            # $neighbor->{LOCAL_PORT} = $localPortInfo->{NAME};
+
+            # $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
+            # $neighbor->{REMOTE_PORT} = $val;
+            # push( @neighbors, $neighbor );
+
             my $portIdx       = $1;
             my $localPortInfo = $self->{portIdxMap}->{$portIdx};
             my $neighbor      = {};
-            $neighbor->{LOCAL_NAME} = $self->{DATA}->{DEV_NAME};
-            $neighbor->{LOCAL_PORT} = $localPortInfo->{NAME};
+            my $portName      = $localPortInfo->{NAME};
+            $neighbor->{DEV_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
+            $val =~ s/Eth(?=\d)/Ethernet/g;
+            $val =~ s/Gig(?=\d)/GigabitEthernet/g;
+            $neighbor->{PORT} = $val;
 
-            $neighbor->{REMOTE_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
-            $neighbor->{REMOTE_PORT} = $val;
-            push( @neighbors, $neighbor );
+            my $portInfo = $portNameMap->{$portName};
+            $portInfo->{NEIGHBOR} = $portInfo;
         }
     }
 
-    $self->{DATA}->{NEIGHBORS} = \@neighbors;
+    #$self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub collect {
