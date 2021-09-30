@@ -100,7 +100,7 @@ class RunNode:
         if 'port' in node:
             self.port = node['port']
         else:
-            self.port = '0'
+            self.port = ''
         if 'protocolPort' in node:
             self.protocolPort = node['protocolPort']
         else:
@@ -167,7 +167,7 @@ class RunNode:
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
-            if op is None or op.failIgnore:
+            if op is None and not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
 
         self.statuses['pid'] = self.context.pid
@@ -760,7 +760,8 @@ class RunNode:
                     remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
                 else:
                     # os.chdir(op.remotePluginRootPath)
-                    dirStartPos = len(op.remotePluginRootPath) + 1
+                    absRoot = op.remotePluginRootPath
+                    dirStartPos = len(absRoot) + 1
                     for root, dirs, files in os.walk(op.remotePluginRootPath + '/lib', topdown=True, followlinks=True):
                         root = root[dirStartPos:]
                         try:
@@ -776,8 +777,9 @@ class RunNode:
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
+                            absFilePath = os.path.join(absRoot, filePath)
                             try:
-                                sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                                sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
                             except Exception as err:
                                 hasError = True
                                 self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
@@ -801,8 +803,9 @@ class RunNode:
                         for name in files:
                             # 遍历文件并scp到目标上
                             filePath = os.path.join(root, name)
+                            absFilePath = os.path.join(absRoot, filePath)
                             try:
-                                sftp.put(filePath, os.path.join(remoteRoot, filePath))
+                                sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
                             except Exception as err:
                                 hasError = True
                                 self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))

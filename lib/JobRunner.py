@@ -4,6 +4,7 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
 import os
+import time
 import socket
 import threading
 import json
@@ -31,10 +32,15 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         self.server = server
 
         while not self.goToStop:
-            datagram = server.recv(4096)
-            if not datagram:
-                continue
-            actionData = json.loads(datagram.decode('utf-8'))
+            try:
+                datagram = server.recv(4096)
+                if not datagram:
+                    continue
+                actionData = json.loads(datagram.decode('utf-8'))
+            except Exception as ex:
+                print('ERROR: Accept request failed, {}\n'.format(ex))
+                time.sleep(3)
+
             try:
                 if actionData['action'] == 'informNodeWaitInput':
                     nodeId = actionData['nodeId']
@@ -143,8 +149,9 @@ class JobRunner:
         print("--------------------------------------------------------------\n\n")
 
     def execute(self):
-        listenThread = ListenThread('Listen-Thread', self.context)
-        listenThread.start()
+        if not self.context.devMode:
+            listenThread = ListenThread('Listen-Thread', self.context)
+            listenThread.start()
 
         params = self.context.params
         parallelCount = 25
@@ -185,7 +192,8 @@ class JobRunner:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
         self.context.goToStop = True
-        listenThread.stop()
+        if not self.context.devMode:
+            listenThread.stop()
         return status
 
     def kill(self):

@@ -1,1 +1,13 @@
-{"nodeName":"DB实例-codedriver-勿动","protocol":"ssh","password":"techsure","resourceId":382397505658882,"port":3306,"host":"192.168.0.26","nodeType":"DBIns","nodeId":421729331372046,"protocolPort":22,"username":"root"}
+{"nodeName":"21","protocol":"ssh","password":"techsure","resourceId":462245116829698,"host":"192.168.0.21","nodeType":"Linux","nodeId":463104705880067,"protocolPort":22,"username":"root"}
+
+{"nodeName":"192.168.0.22","protocol":"ssh","password":"techsure","resourceId":462248304500738,"host":"192.168.0.22","nodeType":"Linux","nodeId":463104705880070,"protocolPort":22,"username":"root"}
+
+{"nodeName":"24","protocol":"ssh","password":"techsure","resourceId":462245292990466,"host":"192.168.0.24","nodeType":"Linux","nodeId":463104705880068,"protocolPort":22,"username":"root"}
+
+{"nodeName":"0.25","protocol":"ssh","password":"techsure","resourceId":404781155540993,"host":"192.168.0.25","nodeType":"Linux","nodeId":463104705880066,"protocolPort":22,"username":"root"}
+
+{"nodeName":"DB实例-codedriver-勿动","protocol":"ssh","password":"techsure","resourceId":382397505658882,"port":3306,"host":"192.168.0.25","nodeType":"DBIns","nodeId":463104705880065,"protocolPort":22,"username":"root"}
+
+{"nodeName":"Tomcat-codedriver-勿动","protocol":"ssh","password":"techsure","resourceId":380303927205890,"port":22,"host":"192.168.0.25","nodeType":"Tomcat","nodeId":463104705880064,"protocolPort":22,"username":"root"}
+
+{"nodeName":"192.168.0.33","protocol":"ssh","password":"techsure","resourceId":462245544648706,"host":"192.168.0.33","nodeType":"Linux","nodeId":463104705880069,"protocolPort":22,"username":"root"}
