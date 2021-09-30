@@ -16,9 +16,7 @@ our $TYPES = {
     LOADBALANCER => 'LOADBALANCER',    #负载均衡设备
     STORAGE      => 'STORAGE',         #存储
     FCSWITCH     => 'FCSWITCH',        #SAN光交
-    APP_CLUSTER  => 'APP_CLUSTER',     #应用集群
-    DB_CLUSTER   => 'DB_CLUSTER',      #DB集群
-    OS_CLUSTER   => 'OS_CLUSTER'       #操作系统集群
+    CLUSTER      => 'CLUSTER',         #集群
 };
 
 sub get {

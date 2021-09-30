@@ -5,6 +5,23 @@
 	"riskName": "LOW",
 	"interpreter": "python",
 	"description": "对采集到的数据进行关系检索计算和回填",
-	"option": [],
+	"option": [{
+		"opt": "type",
+		"name": "关系类别",
+		"help": "关系类别[OS|NET]",
+		"type": "select",
+		"isConst": "false",
+		"defaultValue": [{
+				"text": "操作系统相关",
+				"value": "OS"
+			},
+			{
+				"text": "网络相关",
+				"value": "NET"
+			}
+		],
+		"required": "true",
+		"validate": ""
+	}],
 	"output": []
 }
