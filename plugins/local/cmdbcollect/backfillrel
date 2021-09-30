@@ -89,7 +89,7 @@ def genOSSwitchRel(db):
                                                         '$elemMatch': {'MACS': nic['MAC'],
                                                                        'MAC_COUNT': 1}
                                                     },
-                                                    }).batch_size(500)
+                                                    })
 
             refSwPort = {}
             if remotePort is not None and 'MAC_TABLE' in remotePort:
