@@ -32,17 +32,17 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         self.server = server
 
         while not self.goToStop:
+            actionData = None
             try:
                 datagram = server.recv(4096)
                 if not datagram:
                     continue
                 actionData = json.loads(datagram.decode('utf-8'))
             except Exception as ex:
-                print('ERROR: Accept request failed, {}\n'.format(ex))
-                time.sleep(3)
+                pass
 
             try:
-                if actionData['action'] == 'informNodeWaitInput':
+                if actionData and actionData['action'] == 'informNodeWaitInput':
                     nodeId = actionData['nodeId']
                     for phaseStatus in self.context.phases.values():
                         if phaseStatus.executor is not None:
@@ -149,9 +149,8 @@ class JobRunner:
         print("--------------------------------------------------------------\n\n")
 
     def execute(self):
-        if not self.context.devMode:
-            listenThread = ListenThread('Listen-Thread', self.context)
-            listenThread.start()
+        listenThread = ListenThread('Listen-Thread', self.context)
+        listenThread.start()
 
         params = self.context.params
         parallelCount = 25
@@ -192,8 +191,7 @@ class JobRunner:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
         self.context.goToStop = True
-        if not self.context.devMode:
-            listenThread.stop()
+        listenThread.stop()
         return status
 
     def kill(self):

@@ -344,11 +344,6 @@ class RunNode:
         if self.context.goToStop:
             return 2
 
-        if 'PATH' not in os.environ:
-            os.environ['PATH'] = ''
-        if 'PERL5LIB' not in os.environ:
-            os.environ['PERL5LIB'] = ''
-
         try:
             # 更新节点状态为running
             self.updateNodeStatus(NodeStatus.running)
@@ -454,16 +449,17 @@ class RunNode:
                 hintKey = 'FINEST:'
                 opFinalStatus = 'success'
                 if ret != 0:
-                    opFinalStatus = 'failed'
                     if op.failIgnore:
+                        opFinalStatus = 'ignore'
                         hintKey = 'WARN:'
                         hasIgnoreFail = 1
                     else:
+                        opFinalStatus = 'failed'
                         hintKey = 'ERROR:'
                         isFail = 1
-                        break
 
                 self.writeNodeLog("{} ------END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(hintKey, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
+
                 if isFail == 1:
                     break
 

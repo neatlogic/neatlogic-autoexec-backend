@@ -11,7 +11,7 @@ use Net::SNMP qw(:snmp);
 use SnmpHelper;
 use Data::Dumper;
 
-my $BRANDS = [ 'HuaWei', 'Cisco', 'H3C', 'HillStone', 'Juniper' ];
+my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper' ];
 
 sub new {
     my ( $class, %args ) = @_;
