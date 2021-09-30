@@ -53,6 +53,9 @@ sub parseListenLines {
             my @fields     = split( /\s+/, $line );
             my $sockAddr   = $fields[$sockAddrIdx];
             my $listenAddr = $fields[$lsnFieldIdx];
+            $listenAddr =~ s/^::ffff:(\d+\.)/$1/;
+            $listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+
             if ( $listenAddr =~ /^(.*)\.(\d+)$/ ) {
                 my $ip   = $1;
                 my $port = $2;
@@ -94,6 +97,11 @@ sub parseConnLines {
             my $sockAddr   = $fields[0];
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
+            $localAddr =~ s/^::ffff:(\d+\.)/$1/;
+            $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+            $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
+            $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+
             if ( $localAddr =~ /^(.*)\.(\d+)$/ ) {
                 my $ip   = $1;
                 my $port = $2;
