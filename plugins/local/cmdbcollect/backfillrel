@@ -75,36 +75,37 @@ def genOSSwitchRel(db):
                                  'MGMT_IP': 1,
                                  'ETH_INTERFACES.MAC': 1
                                  }).batch_size(500):
-        macs = []
-        for nic in os['ETH_INTERFACES']:
-            macs.append(nic['MAC'])
+        nics = os['ETH_INTERFACES']
+        for nic in nics:
+            macCount = sys.maxsize
+            refSwitch = None
+            for rel in macTblCollection.find({'MAC_TABLE.MACS':
+                                              {'$all': [nic['MAC']]}},
+                                             {'_OBJ_CATEGORY': 1,
+                                              '_OBJ_TYPE': 1,
+                                              'MGMT_IP': 1,
+                                              'SN': 1,
+                                              'PORT': 1,
+                                              'MAC_TABLE.MAC_COUNT': 1
+                                              }).batch_size(500):
+                print(dumps(rel))
+                if rel['MAC_TABLE']['MAC_COUNT'] < macCount:
+                    refSwitch = rel
+                    macCount = rel['MAC_TABLE']['MAC_COUNT']
 
-        macCount = sys.maxsize
-        refSwitch = None
-        for rel in macTblCollection.find({'MAC_TABLE.MACS':
-                                          {'$in': macs}},
-                                         {'_OBJ_CATEGORY': 1,
-                                          '_OBJ_TYPE': 1,
-                                          'MGMT_IP': 1,
-                                          'SN': 1,
-                                          'PORT': 1,
-                                          'MAC_TABLE.MAC_COUNT': 1
-                                          }).batch_size(500):
-            print(dumps(rel))
-            if rel['MAC_TABLE']['MAC_COUNT'] < macCount:
-                refSwitch = rel
-                macCount = rel['MAC_TABLE']['MAC_COUNT']
+            refSwPort = {}
+            if refSwitch is not None:
+                refSwPort = {'_OBJ_CATEGORY': refSwitch['_OBJ_CATEGORY'],
+                             '_OBJ_TYPE': refSwitch['_OBJ_TYPE'],
+                             'MGMT_IP': refSwitch['MGMT_IP'],
+                             'SN': refSwitch['SN'],
+                             'PORT': refSwitch['PORT']}
 
-        refSwPort = None
-        if refSwitch is not None:
-            refSwPort = {'_OBJ_CATEGORY': refSwitch['_OBJ_CATEGORY'],
-                         '_OBJ_TYPE': refSwitch['_OBJ_TYPE'],
-                         'MGMT_IP': refSwitch['MGMT_IP'],
-                         'SN': refSwitch['SN'],
-                         'PORT': refSwitch['PORT']}
-        osUpdCollection.update_one({'OS_ID': os['OS_ID']},
+            nic['REF_SW_PORT'] = refSwPort
+
+        osUpdCollection.update_one({'OS_ID': os['OS_ID'], 'MGMT_IP': os['MGMT_IP']},
                                    {'$set':
-                                    {'REF_SW_PORT': refSwPort}
+                                    {'ETH_INTERFACES': nics}
                                     })
 
 
