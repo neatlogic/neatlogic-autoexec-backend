@@ -85,8 +85,8 @@ def genOSSwitchRel(db):
                                                     '_OBJ_TYPE': 1,
                                                     'MGMT_IP': 1,
                                                     'SN': 1,
-                                                    'MAC_TABLE.MACS': {
-                                                        '$elemMatch': {"MACS": nic['MAC'],
+                                                    'MAC_TABLE': {
+                                                        '$elemMatch': {'MACS': nic['MAC'],
                                                                        'MAC_COUNT': 1}
                                                     },
                                                     }).batch_size(500)
