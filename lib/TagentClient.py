@@ -474,15 +474,16 @@ class TagentClient:
                 if fileType == 'dir' or fileType == 'windir':
                     destDir = os.path.dirname(dest)
                     if os.path.exists(destDir):
-                        os.chdir(destDir)
+                        # os.chdir(destDir) #多线程环境不可以这样用
                         try:
                             if self.ostype == 'windows':
                                 p = subprocess.Popen(
                                     ["7z.exe", "x", "-aoa", "-y", "-si", "-ttar"],
+                                    cwd=destDir,
                                     stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE)
                             else:
-                                p = subprocess.Popen(["tar", "-xf-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                                p = subprocess.Popen(["tar", "-xf-"], cwd=destDir, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                         except ExecError:
                             if isVerbose == 1:
                                 print("ERROR: Launch tar command failed.\n")
@@ -528,11 +529,14 @@ class TagentClient:
         return status
 
     # 用于读取tar或者7-zip的打包输出内容，并写入网络连接中
-    def __readCmdOutToSock(self, sock, cmd, isVerbose=0):
+    def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
         status = 0
         buf_size = 4096
         try:
-            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            if cwd is None:
+                p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            else:
+                p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
         except ExecError as errMsg:
             status = -1
             if isVerbose == 1:
@@ -684,13 +688,13 @@ class TagentClient:
         elif fileType == 'dir' or fileType == 'windir':
             srcDir = os.path.dirname(src)
             src = os.path.basename(src)
-            os.chdir(srcDir)
+            # os.chdir(srcDir) #多线程环境不可以这样用
             if ostype == 'windows':
                 cmd = ["7z.exe", "a", "dummy", "-ttar", "-y", "-so", src]
             else:
                 tarOpt = "cvf" if isVerbose == 1 else "cf"
                 cmd = ["tar", "-{}-".format(tarOpt), src]
-            status = self.__readCmdOutToSock(sock, cmd, isVerbose)
+            status = self.__readCmdOutToSock(sock, cmd, isVerbose=isVerbose, cwd=srcDir)
         elif fileType == 'url':
             status = self.__readUrlToSock(sock, src, isVerbose, convertCharset)
 

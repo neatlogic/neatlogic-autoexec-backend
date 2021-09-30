@@ -100,7 +100,7 @@ class RunNode:
         if 'port' in node:
             self.port = node['port']
         else:
-            self.port = ''
+            self.port = '0'
         if 'protocolPort' in node:
             self.protocolPort = node['protocolPort']
         else:
@@ -358,10 +358,10 @@ class RunNode:
 
         # TODO：restore status and output from share object storage
         nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
-        nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+        #nodeBeginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
 
         nodeStartTime = time.time()
-        self.writeNodeLog("======<{}> [{}]{}:{} Launched======\n".format(nodeBeginDateTime, self.id, self.host, self.port))
+        self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
 
         # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
         logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
@@ -416,10 +416,10 @@ class RunNode:
                 if not os.path.exists(op.pluginPath):
                     self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
-                beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+                #beginDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
                 startTime = time.time()
 
-                self.writeNodeLog("------<{}> START-- {} operation {}[{}] to be start...\n".format(beginDateTime, op.opType, op.opName, op.opId))
+                self.writeNodeLog("------START-- {} operation {}[{}] to be start...\n".format(op.opType, op.opName, op.opId))
                 ret = 0
                 if self.host == 'local':
                     if op.opType == 'local':
@@ -449,44 +449,51 @@ class RunNode:
                     self._saveOutput()
                     self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
 
-                endDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+                #endDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
 
+                hintKey = 'FINEST:'
                 opFinalStatus = 'success'
                 if ret != 0:
                     opFinalStatus = 'failed'
                     if op.failIgnore:
+                        hintKey = 'WARN:'
                         hasIgnoreFail = 1
                     else:
+                        hintKey = 'ERROR:'
                         isFail = 1
                         break
 
-                self.writeNodeLog("------<{}> END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(endDateTime, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
+                self.writeNodeLog("{} ------END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(hintKey, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
                 if isFail == 1:
                     break
 
             except:
                 isFail = 1
-                self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
+                self.writeNodeLog("ERROR: ------Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
                 break
 
-        nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+        #nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
         nodeConsumeTime = time.time() - nodeStartTime
 
+        hintKey = 'FINEST:'
         finalStatus = NodeStatus.succeed
         if isFail == 0:
             if hasIgnoreFail == 1:
                 # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                 self.hasIgnoreFail = 1
                 finalStatus = NodeStatus.ingore
+                hintKey = 'WARN:'
             else:
                 finalStatus = NodeStatus.succeed
+                hintKey = 'FINEST:'
         else:
+            hintKey = 'ERROR:'
             if self.isKilled:
                 finalStatus = NodeStatus.aborted
             else:
                 finalStatus = NodeStatus.failed
 
-        self.writeNodeLog("======<{}> [{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(nodeEndDateTime, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
+        self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
         self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
 
         # 创建带时间戳的日志文件名
@@ -752,8 +759,10 @@ class RunNode:
 
                     remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
                 else:
-                    os.chdir(op.remotePluginRootPath)
-                    for root, dirs, files in os.walk('lib', topdown=True, followlinks=True):
+                    # os.chdir(op.remotePluginRootPath)
+                    dirStartPos = len(op.remotePluginRootPath) + 1
+                    for root, dirs, files in os.walk(op.remotePluginRootPath + '/lib', topdown=True, followlinks=True):
+                        root = root[dirStartPos:]
                         try:
                             # 创建当前目录
                             sftp.mkdir(os.path.join(remoteRoot, root))
@@ -771,12 +780,14 @@ class RunNode:
                                 sftp.put(filePath, os.path.join(remoteRoot, filePath))
                             except Exception as err:
                                 hasError = True
-                                self.writeNodeLog("ERROR: Put file {} failed:{}\n".format(filePath, err))
+                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
-                    os.chdir(op.remotePluginRootPath)
+                    # os.chdir(op.remotePluginRootPath)
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
-                    for root, dirs, files in os.walk(op.opBunddleName, topdown=True, followlinks=True):
+
+                    for root, dirs, files in os.walk(op.remotePluginRootPath + '/' + op.opBunddleName, topdown=True, followlinks=True):
+                        root = root[dirStartPos:]
                         try:
                             # 创建当前目录
                             sftp.mkdir(os.path.join(remoteRoot, root))
@@ -794,7 +805,7 @@ class RunNode:
                                 sftp.put(filePath, os.path.join(remoteRoot, filePath))
                             except Exception as err:
                                 hasError = True
-                                self.writeNodeLog("ERROR: Put file {} failed:{}\n".format(filePath, err))
+                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IXUSR)
 

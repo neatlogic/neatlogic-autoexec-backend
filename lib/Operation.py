@@ -108,7 +108,7 @@ class Operation:
         # 拼装执行的命令行
         self.pluginRootPath = '{}/plugins'.format(self.context.homePath)
         self.localLibPath = '{}/plugins/local/lib'.format(self.context.homePath)
-        self.remotePluginRootPath = self.pluginRootPath + os.path.sep + 'remote'
+        self.remotePluginRootPath = self.pluginRootPath + '/remote'
         self.remoteLibPath = '{}/plugins/remote/lib'.format(self.context.homePath)
 
         self.pluginPath = None
