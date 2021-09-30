@@ -167,7 +167,7 @@ class RunNode:
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
-            if op is None and not op.failIgnore:
+            if op is None or not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
 
         self.statuses['pid'] = self.context.pid

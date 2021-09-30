@@ -66,13 +66,15 @@ sub main {
     $data->{UPTIME} = $upTime;
 
     my $out = {};
-    $out->{DATA} = $data;
+    $out->{DATA} = [$data];
     AutoExecUtils::saveOutput($out);
     if ( $isVerbose == 1 ) {
         print("==================\n");
         print( to_json( $data, { pretty => 1 } ) );
         print("==================\n");
     }
+
+    return 0;
 }
 
 exit main();

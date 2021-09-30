@@ -79,17 +79,20 @@ def genOSSwitchRel(db):
         for nic in nics:
             macCount = sys.maxsize
             remotePort = None
-            remotePort = macTblCollection.find_one({'MAC_TABLE.MACS':
-                                                    {'$all': [nic['MAC']], 'MAC_TABLE.MAC_COUNT': 1}},
+            remotePort = macTblCollection.find_one({'MAC_TABLE.MACS': nic['MAC'],
+                                                    'MAC_TABLE.MAC_COUNT': 1},
                                                    {'_OBJ_CATEGORY': 1,
                                                     '_OBJ_TYPE': 1,
                                                     'MGMT_IP': 1,
                                                     'SN': 1,
-                                                    'MAC_TABLE.PORT': 1
+                                                    'MAC_TABLE.MACS': {
+                                                        '$elemMatch': {"MACS": nic['MAC'],
+                                                                       'MAC_COUNT': 1}
+                                                    },
                                                     }).batch_size(500)
 
             refSwPort = {}
-            if remotePort is not None:
+            if remotePort is not None and 'MAC_TABLE' in remotePort:
                 refSwPort = {'_OBJ_CATEGORY': remotePort['_OBJ_CATEGORY'],
                              '_OBJ_TYPE': remotePort['_OBJ_TYPE'],
                              'MGMT_IP': remotePort['MGMT_IP'],

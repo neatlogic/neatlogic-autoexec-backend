@@ -75,13 +75,15 @@ sub main {
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
 
     my $out = {};
-    $out->{DATA} = $data;
+    $out->{DATA} = [$data];
     AutoExecUtils::saveOutput($out);
     if ( $isVerbose == 1 ) {
         print("==================\n");
         print( to_json( $data, { pretty => 1 } ) );
         print("==================\n");
     }
+
+    return 0;
 }
 
 exit main();
