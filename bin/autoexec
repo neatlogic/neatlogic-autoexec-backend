@@ -291,7 +291,8 @@ if __name__ == "__main__":
         signal.signal(signal.SIGQUIT, threadDump)
 
         # 开始运行作业
-        print("INFO: JobId:{} start...\n".format(args.jobid))
+        if args.firstfire:
+            print("INFO: JobId:{} start...\n".format(args.jobid))
         runner = JobRunner.JobRunner(context, nodesFile=args.nodesfile)
 
         # 信号处理函数，pause runner
