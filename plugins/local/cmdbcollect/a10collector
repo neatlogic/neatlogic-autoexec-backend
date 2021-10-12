@@ -62,8 +62,36 @@ sub main {
     $data->{RESOURCE_ID}   = $node->{resourceId};
     $data->{MGMT_IP}       = $node->{host};
 
+    my @outData        = ($data);
+    my $virtualServers = $data->{VIRTUAL_SERVERS};
+    foreach my $vsInfo (@$virtualServers) {
+        my $clusterInfo = {
+            'PK'               => ['UNIQUE_NAME'],
+            'INDEX_FIELDS'     => ['BIND'],
+            '_OBJ_CATEGORY'    => 'CLUSTER',
+            '_OBJ_TYPE'        => 'F5',
+            'CLUSTER_MODE'     => 'LoadBlance',
+            'CLUSTER_SOFTWARE' => 'F5',
+            'HOST_ON'          => {
+                '_OBJ_CATEGORY' => 'LOADBALANCER',
+                '_OBJ_TYPE'     => 'F5',
+                'SN'            => $data->{SN},
+                'MGMT_IP'       => $node->{host},
+                'RESOURCE_ID'   => $node->{resourceId}
+            }
+        };
+        my $bind = $vsInfo->{IP} . ':' . $vsInfo->{PORT};
+        $clusterInfo->{NAME}        = $vsInfo->{NAME};
+        $clusterInfo->{VIP}         = $vsInfo->{IP};
+        $clusterInfo->{PORT}        = $vsInfo->{PORT};
+        $clusterInfo->{BIND}        = [$bind];
+        $clusterInfo->{UNIQUE_NAME} = $bind;
+        $clusterInfo->{MEMBERS}     = $vsInfo->{POOL}->{MEMBERS};
+        push( @outData, $clusterInfo );
+    }
+
     my $out = {};
-    $out->{DATA} = [$data];
+    $out->{DATA} = \@outData;
     AutoExecUtils::saveOutput($out);
     if ( $isVerbose == 1 ) {
         print("==================\n");

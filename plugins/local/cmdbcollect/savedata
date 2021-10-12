@@ -26,6 +26,7 @@ def createPKIndex(collection, pkDef):
 
 
 def createIndex(collectioin, data):
+    collection.create_index([('_OBJ_TYPE', 1)], name='idx_obj_type')
     if 'INDEX_FIELDS' in data:
         for idxField in data['INDEX_FIELDS']:
             collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
@@ -33,9 +34,7 @@ def createIndex(collectioin, data):
 
 # 目的通过PEER信息搜索到应用进程
 def saveAppConnData(db, data):
-    if data['_OBJ_CATEGORY'] in ('INS', 'DB') and 'CONN_INFO' in data:
-        #connData = data.pop('CONN_INFO')
-        connData = data['CONN_INFO']
+    if data['_OBJ_CATEGORY'] in ('INS', 'DB'):
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']
@@ -48,8 +47,13 @@ def saveAppConnData(db, data):
         else:
             connInfo['RESOURCE_ID'] = None
 
-        connInfo['BIND'] = connData['BIND']
-        connInfo['PEER'] = connData['PEER']
+        if 'CONN_INFO' in data:
+            connData = data['CONN_INFO']
+            connInfo['BIND'] = connData['BIND']
+            connInfo['PEER'] = connData['PEER']
+        else:
+            connInfo['BIND'] = []
+            connInfo['PEER'] = []
 
         primaryKey = {'OS_ID': connInfo['OS_ID'], 'MGMT_IP': connInfo['MGMT_IP'], 'PORT': connInfo['PORT']}
         collection = db['RELATION_INS_NETCONN']

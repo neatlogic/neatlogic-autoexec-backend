@@ -17,6 +17,7 @@ def genInsRel(db):
     insCollection = db['COLLECT_INS']
     relSrcCollection = db['RELATION_INS_NETCONN']
     relDestCollection = db['RELATION_INS_NETCONN']
+    clusterCollection = db['COLLECT_CLUSTER']
 
     for ins in relSrcCollection.find({}, {'OS_ID': 1,
                                           'MGMT_IP': 1,
@@ -26,7 +27,8 @@ def genInsRel(db):
         peer = ins['PEER']
 
         refIns = []
-        refDb = []
+        refDbs = []
+        refCls = []
         for rel in relDestCollection.find({'BIND':
                                            {'$in': peer}
                                            },
@@ -36,32 +38,48 @@ def genInsRel(db):
                                            '_OBJ_CATEGORY': 1,
                                            '_OBJ_TYPE': 1}
                                           ).batch_size(500):
+
+            refInfo = {'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
+                       '_OBJ_TYPE': rel['_OBJ_TYPE'],
+                       'OS_ID': rel['OS_ID'],
+                       'MGMT_IP': rel['MGMT_IP'],
+                       'PORT': rel['PORT']
+                       }
+
             if rel['_OBJ_CATEGORY'] == 'DB':
-                refIns.append({'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
-                               '_OBJ_TYPE': rel['_OBJ_TYPE'],
-                               'OS_ID': rel['OS_ID'],
-                               'MGMT_IP': rel['MGMT_IP'],
-                               'PORT': rel['PORT']
-                               })
+                refDbs.append(refInfo)
             else:
-                refDb.append({'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
-                              '_OBJ_TYPE': rel['_OBJ_TYPE'],
-                              'OS_ID': rel['OS_ID'],
-                              'MGMT_IP': rel['MGMT_IP'],
-                              'PORT': rel['PORT']
-                              })
+                refIns.append(refInfo)
+
+        for cluster in clusterCollection.find({'BIND':
+                                               {'$in': peer}
+                                               }, {'UNIQUE_NAME': 1,
+                                                   'VIP': 1,
+                                                   'PORT': 1,
+                                                   '_OBJ_CATEGORY': 1,
+                                                   '_OBJ_TYPE': 1,
+                                                   'CLUSTER_MODE': 1,
+                                                   'CLUSTER_SOFTWARE': 1}
+                                              ).batch_size(500):
+            refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                       '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                       'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                       'VIP': cluster['VIP'],
+                       'PORT': cluster['PORT'],
+                       'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                       'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                       }
+            refCls.append(refInfo)
 
         insCollection.update_one({'OS_ID': ins['OS_ID'],
                                   'MGMT_IP': ins['MGMT_IP'],
                                   'PORT': ins['PORT']},
                                  {'$set':
-                                  {'REF_INS': refIns}
-                                  })
-        insCollection.update_one({'OS_ID': ins['OS_ID'],
-                                  'MGMT_IP': ins['MGMT_IP'],
-                                  'PORT': ins['PORT']},
-                                 {'$set':
-                                  {'REF_DB': refDb}
+                                  {
+                                      'REF_DB': refDbs,
+                                      'REF_CLUSTER': refCls,
+                                      'REF_INS': refIns
+                                  }
                                   })
 
 
