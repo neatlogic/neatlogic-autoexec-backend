@@ -21,7 +21,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node );
+    my ($node);
 
     my $community;
     my $timeout = 10;
@@ -49,7 +49,7 @@ sub main {
     }
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = {  MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
 
     my $host = $nodeInfo->{host};
     my $port = $nodeInfo->{port};
@@ -62,7 +62,7 @@ sub main {
         );
 
         if ( defined($socket) ) {
-            $data->{CONNECTIVITY}  = 1;
+            $data->{AVAILABILITY}  = 1;
             $data->{ERROR_MESSAGE} = '';
             $socket->close();
         }
@@ -72,6 +72,7 @@ sub main {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
         $data->{'EOROR_MESSAGE'} = $errMsg;
+        $data->{AVAILABILITY} = 0;
         print("ERROR: $errMsg");
     }
     else {

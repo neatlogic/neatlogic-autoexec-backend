@@ -21,7 +21,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node );
+    my ($node);
 
     my $community;
     my $timeout = 10;
@@ -66,14 +66,15 @@ sub main {
     if ( not $ssh->error ) {
         my $out = $ssh->capture("echo HEALTH_OK");
         if ( $out =~ /HEALTH_OK/ ) {
-            $data->{CONNECTIVITY}  = 1;
+            $data->{AVAILABILITY}  = 1;
             $data->{ERROR_MESSAGE} = '';
         }
         print("FINEST: ssh logon succeed.\n");
     }
     else {
         $data->{ERROR_MESSAGE} = $ssh->error;
-        print("ERROR: ", $ssh->error, "\n");
+        $data->{AVAILABILITY}  = 0;
+        print( "ERROR: ", $ssh->error, "\n" );
     }
 
     my $out = {};

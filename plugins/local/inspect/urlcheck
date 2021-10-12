@@ -21,7 +21,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node );
+    my ($node);
 
     my $community;
     my $timeout = 10;
@@ -55,7 +55,7 @@ sub main {
     my $pass = $nodeInfo->{password};
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = {  MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
 
     my $webCtl = WebCtl->new();
     print("INFO: Begin url check...\n");
@@ -99,12 +99,13 @@ sub main {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
         $data->{'EOROR_MESSAGE'} = $errMsg;
+        $data->{AVAILABILITY} = 0;
         print("ERROR: $errMsg");
     }
     else {
         print("FINEST: Http requests all complete succeed.\n");
         $data->{ERROR_MESSAGE} = '';
-        $data->{CONNECTIVITY}  = 1;
+        $data->{AVAILABILITY}  = 1;
     }
 
     my $out = {};

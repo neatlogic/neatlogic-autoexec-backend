@@ -1,0 +1,151 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import traceback
+import datetime
+import argparse
+import sys
+import json
+from bson.json_util import dumps, loads
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --outputfile <path> ")
+    exit(1)
+
+
+def getMetricsDef(db, ciType):
+
+    pass
+
+
+def getInspectData(nodeInfo, defObjCat):
+    ip = nodeInfo['host']
+    port = None
+    if 'port' in nodeInfo:
+        port = nodeInfo['port']
+
+    availability = 1
+    errorMessage = ''
+    nodeData = {}
+    # 加载上一个cmdb收集步骤的output数据，CMDB采集可能返回多条记录，需要抽取匹配的记录
+    outputData = AutoExecUtils.loadNodeOutput()
+    if outputData is None:
+        print("WARN: Node output data is empty.")
+    else:
+        for key, value in outputData.items():
+            if key.startswith("inspect/"):
+                collectData = value['DATA']
+                if 'AVAILABILITY' in collectData:
+                    if collectData['AVAILABILITY'] == 0:
+                        availability = 0
+                        if 'ERROR_MESSAGE' in collectData:
+                            errorMessage = collectData['ERROR_MESSAGE']
+                continue
+            elif not key.startswith("cmdbcollect/"):
+                continue
+
+            collectData = value['DATA']
+            if collectData is None:
+                print('WARN: Plugin {} did not return collect data.'.format(key))
+                continue
+
+        for data in collectData:
+            isMalformData = 0
+            if 'PK' not in data:
+                isMalformData = 1
+                print('WARN: Data not defined PK.')
+            if '_OBJ_CATEGORY' not in data:
+                isMalformData = 1
+                print('WARN: Data not defined _OBJ_CATEGORY.')
+            if isMalformData == 1:
+                print(json.dumps(data))
+                continue
+
+            # 如果数据的归属类别跟定义和节点信息一致，则抽取并返回数据记录
+            if data['_OBJ_CATEGORY'].upper() == defObjCat and data['MGMT_IP'] == ip:
+                if port is not None:
+                    if 'PORT' not in data or data['PORT'] != port:
+                        continue
+
+                nodeData = data
+                break
+
+        nodeData['AVAILABILITY'] = availability
+        return nodeData
+
+
+def inspectData(nodeInfo, metricsDef):
+    collectionName = metricsDef['collection']
+    defObjCat = collectionName[7:]
+
+    rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
+               'MGMT_IP': nodeInfo['host'],
+               'PORT': nodeInfo['port']
+               }
+
+    nodeData = getInspectData(nodeInfo, defObjCat)
+    if nodeData is not None:
+        # TODO: extract metrics and construct data
+        # 根据指标定义抽取需要的指标和指标域值进行计算出告警级别
+        pass
+
+    return rptData
+
+
+def saveReport(db, rptData):
+    rptTable = 'INSPECT_REPORTS'
+    rptCollection = db[rptTable]
+    pass
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--outputfile', default='', help='Output json file path for node')
+    parser.add_argument('--node', default='', help='Execution node json')
+    args = parser.parse_args()
+    outputPath = args.outputfile
+    node = args.node
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None:
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.\n")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if outputPath is None or outputPath == '':
+            outputPath = os.getenv('NODE_OUTPUT_PATH')
+        else:
+            os.environ['NODE_OUTPUT_PATH'] = outputPath
+
+        if outputPath is None:
+            print("ERROR: Must set environment variable NODE_OUTPUT_PATH or defined option --outputfile.\n")
+            hasOptError = True
+
+        if hasOptError:
+            usage()
+
+        ciType = nodeInfo['nodeType']
+        resourceId = nodeInfo['resourceId']
+        (dbclient, db) = AutoExecUtils.getDB()
+
+        rptData = None
+        metricsDef = getMetricsDef(db, ciType)
+        if metricsDef is not None:
+            rptData = inspectData(nodeInfo, metricsDef)
+            saveReport(db, rptData)
+
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(ex))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()
