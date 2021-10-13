@@ -31,6 +31,7 @@ def setEnv():
 
 
 def getAutoexecContext():
+    global AUTOEXEC_CONTEXT
     if AUTOEXEC_CONTEXT is None:
         homePath = os.path.split(os.path.realpath(__file__))[0]
         homePath = os.path.realpath(homePath + '/../../../')

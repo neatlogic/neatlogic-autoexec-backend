@@ -93,6 +93,9 @@ def genOSSwitchRel(db):
                                  'MGMT_IP': 1,
                                  'ETH_INTERFACES.MAC': 1
                                  }).batch_size(500):
+        if 'ETH_INTERFACES' not in os:
+            continue
+
         nics = os['ETH_INTERFACES']
         for nic in nics:
             macCount = sys.maxsize
