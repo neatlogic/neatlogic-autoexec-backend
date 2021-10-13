@@ -31,6 +31,8 @@ class ServerAdapter:
             'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/codedriver/public/api/binary/public/file/download',
             'fetchScript': '/codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
+            'getInspectConf': '/codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': '/codedriver/public/api/rest/autoexec/inspect/node/status/update',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
@@ -430,3 +432,42 @@ class ServerAdapter:
         response = self.httpJSON(self.apiMap['exportJobEnv'], self.authToken, params)
 
         return
+
+    def getInspectConf(self, ciType, resourceId):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'tenent': context.tenent,
+            'ciType': ciType,
+            'resourceId': resourceId,
+            'time': time.time()
+        }
+
+        response = self.httpJSON(self.apiMap['getInspectConf'], self.authToken, params)
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise
+
+    def updateInspectStatus(self, ciType, resourceId, status):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'tenent': context.tenent,
+            'ciType': ciType,
+            'resourceId': resourceId,
+            'status': status,
+            'time': time.time()
+        }
+        response = self.httpJSON(self.apiMap['updateInspectStatus'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise

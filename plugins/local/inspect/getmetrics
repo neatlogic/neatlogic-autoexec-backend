@@ -17,9 +17,9 @@ def usage():
     exit(1)
 
 
-def getMetricsDef(db, ciType):
-
-    pass
+def getMetricsDef(db, ciType, resourceId):
+    metricsDef = AutoExecUtils.getInspectConf(ciType, resourceId)
+    return metricsDef
 
 
 def getInspectData(nodeInfo, defObjCat):
@@ -75,6 +75,7 @@ def getInspectData(nodeInfo, defObjCat):
                 break
 
         nodeData['AVAILABILITY'] = availability
+        nodeData['ERROR_MESSAGE'] = ''
         return nodeData
 
 
@@ -84,7 +85,8 @@ def inspectData(nodeInfo, metricsDef):
 
     rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                'MGMT_IP': nodeInfo['host'],
-               'PORT': nodeInfo['port']
+               'PORT': nodeInfo['port'],
+               'INSPECT_STATUS': 'Normal'
                }
 
     nodeData = getInspectData(nodeInfo, defObjCat)
@@ -96,10 +98,21 @@ def inspectData(nodeInfo, metricsDef):
     return rptData
 
 
-def saveReport(db, rptData):
+def saveReport(db, ciType, resourceId, rptData):
     rptTable = 'INSPECT_REPORTS'
     rptCollection = db[rptTable]
-    pass
+
+    currentTime = datetime.datetime.utcnow()
+    rptData['_report_time'] = currentTime
+    primaryKey = {'RESOURCE_ID': rptData['RESOURCE_ID'], '_report_time': currentTime}
+
+    rptCollection = db['INSPECT_REPORTS']
+    rptCollection.replace_one(primaryKey, rptData, upsert=True)
+    rptCollection.create_index([('RESOURCE_ID', 1), ('_report_time', 1)], name='idx_pk')
+    rptCollection.create_index([('_report_time', 1)], name='idx_ttl', expireAfterSeconds=7776000)
+    print('INFO: Save report data success.')
+    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['INSPECT_STATUS'])
+    print('INFO: Update inspect status for node success.')
 
 
 if __name__ == "__main__":
@@ -138,10 +151,10 @@ if __name__ == "__main__":
         (dbclient, db) = AutoExecUtils.getDB()
 
         rptData = None
-        metricsDef = getMetricsDef(db, ciType)
+        metricsDef = getMetricsDef(db, ciType, resourceId)
         if metricsDef is not None:
             rptData = inspectData(nodeInfo, metricsDef)
-            saveReport(db, rptData)
+            saveReport(db, ciType, resourceId, rptData)
 
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(ex))

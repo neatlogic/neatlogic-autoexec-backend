@@ -249,6 +249,7 @@ if __name__ == "__main__":
         context = Context.Context(args.jobid, paramsFile=args.paramsfile, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext)
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
+        os.environ['AUTOEXEC_TENENT'] = context.tenant
 
         # 初始化console日志文件
         logDir = context.runPath + '/log'
