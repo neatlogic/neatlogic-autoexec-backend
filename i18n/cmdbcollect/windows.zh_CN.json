@@ -53,9 +53,9 @@
 				"desc": "MAC",
 				"type": "String"
 			}, {
-				"name": "REMOTE_PORT",
+				"name": "REMOTE_PORTS",
 				"desc": "连接交换机端口",
-				"type": "JsonObject",
+				"type": "JsonArray",
 				"subset": [{
 					"name": "_OBJ_CATEGORY",
 					"desc": "归属类别",

@@ -504,12 +504,15 @@ sub _getLLDP {
             $val =~ s/Gig(?=\d)/GigabitEthernet/g;
             $neighbor->{PORT} = $val;
 
-            my $portInfo = $portNameMap->{$portName};
-            $portInfo->{NEIGHBOR} = $neighbor;
+            my $portInfo  = $portNameMap->{$portName};
+            my $neighbors = $portInfo->{NEIGHBORS};
+            if ( not defined($neighbors) ) {
+                $neighbors = [];
+                $portInfo->{NEIGHBORS} = $neighbors;
+            }
+            push( @$neighbors, $neighbor );
         }
     }
-
-    #$self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub _getCDP {
@@ -562,12 +565,15 @@ sub _getCDP {
             $val =~ s/Gig(?=\d)/GigabitEthernet/g;
             $neighbor->{PORT} = $val;
 
-            my $portInfo = $portNameMap->{$portName};
-            $portInfo->{NEIGHBOR} = $neighbor;
+            my $portInfo  = $portNameMap->{$portName};
+            my $neighbors = $portInfo->{NEIGHBORS};
+            if ( not defined($neighbors) ) {
+                $neighbors = [];
+                $portInfo->{NEIGHBORS} = $neighbors;
+            }
+            push( @$neighbors, $neighbor );
         }
     }
-
-    #$self->{DATA}->{NEIGHBORS} = \@neighbors;
 }
 
 sub collect {

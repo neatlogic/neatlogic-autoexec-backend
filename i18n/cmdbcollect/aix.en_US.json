@@ -80,9 +80,9 @@
 				"desc": "Mac Address",
 				"type": "String"
 			}, {
-				"name": "REMOTE_PORT",
+				"name": "REMOTE_PORTS",
 				"desc": "Remote Port",
-				"type": "JsonObject",
+				"type": "JsonArray",
 				"subset": [{
 					"name": "_OBJ_CATEGORY",
 					"desc": "Object Category",

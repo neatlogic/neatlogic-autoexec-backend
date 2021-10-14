@@ -112,6 +112,7 @@ def genOSSwitchRel(db):
                                                     },
                                                     })
 
+            refSwPorts = []
             refSwPort = {}
             if remotePort is not None and 'MAC_TABLE' in remotePort:
                 refSwPort = {'_OBJ_CATEGORY': remotePort['_OBJ_CATEGORY'],
@@ -119,8 +120,9 @@ def genOSSwitchRel(db):
                              'MGMT_IP': remotePort['MGMT_IP'],
                              'SN': remotePort['SN'],
                              'PORT': remotePort['MAC_TABLE']['PORT']}
+                refSwPorts.append(refSwPort)
 
-            nic['REMOTE_PORT'] = refSwPort
+            nic['REMOTE_PORTS'] = refSwPorts
 
         osUpdCollection.update_one({'OS_ID': os['OS_ID'], 'MGMT_IP': os['MGMT_IP']},
                                    {'$set':
@@ -140,25 +142,26 @@ def genSwitchRel(db):
         needUpdate = False
         ports = swInfo['PORTS']
         for port in ports:
-            if 'NEIGHBOR' not in port or 'DEV_NAME' not in port['NEIGHBOR']:
+            if 'NEIGHBORS' not in port:
                 continue
 
-            neighbor = port['NEIGHBOR']
-            if 'DEV_NAME' in neighbor:
-                remoteCount = 0
-                for dev in cdpDestCollection.find({'DEV_NAME': neighbor['DEV_NAME']},
-                                                  {'_OBJ_CATEGORY': 1,
-                                                   '_OBJ_TYPE': 1,
-                                                   'MGMT_IP': 1,
-                                                   'SN': 1}
-                                                  ).limit(2):
-                    remoteCount = remoteCount + 1
-                if remoteCount == 1:
-                    needUpdate = True
-                    neighbor['_OBJ_CATEGORY'] = dev['_OBJ_CATEGORY']
-                    neighbor['_OBJ_TYPE'] = dev['_OBJ_TYPE']
-                    neighbor['MGMT_IP'] = dev['MGMT_IP']
-                    neighbor['SN'] = dev['SN']
+            neighbors = port['NEIGHBORS']
+            for neighbor in neighbors:
+                if 'DEV_NAME' in neighbor:
+                    remoteCount = 0
+                    for dev in cdpDestCollection.find({'DEV_NAME': neighbor['DEV_NAME']},
+                                                      {'_OBJ_CATEGORY': 1,
+                                                       '_OBJ_TYPE': 1,
+                                                       'MGMT_IP': 1,
+                                                       'SN': 1}
+                                                      ).limit(2):
+                        remoteCount = remoteCount + 1
+                    if remoteCount == 1:
+                        needUpdate = True
+                        neighbor['_OBJ_CATEGORY'] = dev['_OBJ_CATEGORY']
+                        neighbor['_OBJ_TYPE'] = dev['_OBJ_TYPE']
+                        neighbor['MGMT_IP'] = dev['MGMT_IP']
+                        neighbor['SN'] = dev['SN']
 
         if needUpdate:
             cdpDestCollection.update_one({'MGMT_IP': swInfo['MGMT_IP'],

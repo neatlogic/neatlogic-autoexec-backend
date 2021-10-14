@@ -87,9 +87,9 @@
             "desc": "MTU",
             "type": "int"
         }, {
-            "name": "NEIGHBOR",
+            "name": "NEIGHBORS",
             "desc": "CDP/LLDP邻居",
-            "type": "JsonObject",
+            "type": "JsonArray",
             "subset": [{
                 "name": "_OBJ_CATEGORY",
                 "desc": "归属类别",
