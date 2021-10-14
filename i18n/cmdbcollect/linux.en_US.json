@@ -74,6 +74,31 @@
 			"name": "MAC",
 			"desc": "Mac Address",
 			"type": "String"
+		}, {
+			"name": "REMOTE_PORT",
+			"desc": "Remote Port",
+			"type": "JsonObject",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Category",
+				"type": "String"
+			}, {
+				"name": "_OBJ_TYPE",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "MGMT_IP",
+				"desc": "Management Ip",
+				"type": "String"
+			}, {
+				"name": "SN",
+				"desc": "Serial Number",
+				"type": "String"
+			}, {
+				"name": "PORT",
+				"desc": "Port Name",
+				"type": "String"
+			}]
 		}]
 	}, {
 		"name": "PATCHES_APPLIED",

@@ -86,6 +86,35 @@
             "name": "MTU",
             "desc": "MTU",
             "type": "int"
+        }, {
+            "name": "NEIGHBOR",
+            "desc": "CDP/LLDP",
+            "type": "JsonObject",
+            "subset": [{
+                "name": "_OBJ_CATEGORY",
+                "desc": "Object Catetory",
+                "type": "String"
+            }, {
+                "name": "_OBJ_TYPE",
+                "desc": "Object Type",
+                "type": "String"
+            }, {
+                "name": "DEV_NAME",
+                "desc": "Dev Name",
+                "type": "String"
+            }, {
+                "name": "PORT",
+                "desc": "Port Name",
+                "type": "String"
+            }, {
+                "name": "MGMT_IP",
+                "desc": "Managent IP",
+                "type": "String"
+            }, {
+                "name": "SN",
+                "desc": "Serial",
+                "type": "String"
+            }]
         }]
     }]
 }

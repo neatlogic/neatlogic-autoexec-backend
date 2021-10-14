@@ -39,57 +39,57 @@ if __name__ == "__main__":
     if mode == None or mode == '':
         mode = 'truncate'
 
-    insRefDescs = [{
-        "name": "REF_INS",
-        "desc": "调用的应用服务",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "_OBJ_CATEGORY",
-            "desc": "调用对象类别",
-                    "type": "String"
-        }, {
-            "name": "_OBJ_TYPE",
-            "desc": "调用对象类型",
-            "type": "String"
-        }, {
-            "name": "OS_ID",
-            "desc": "调用目标OS的ID",
-            "type": "String"
-        }, {
-            "name": "MGMT_IP",
-            "desc": "调用目标的IP",
-            "type": "String"
-        }, {
-            "name": "PORT",
-            "desc": "调用目标的端口",
-            "type": "String"
-        }]
-    }, {
-        "name": "REF_DB",
-        "desc": "调用的DB服务",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "_OBJ_CATEGORY",
-                "desc": "调用对象类别",
-                        "type": "String"
-        }, {
-            "name": "_OBJ_TYPE",
-            "desc": "调用对象类型",
-            "type": "String"
-        }, {
-            "name": "OS_ID",
-            "desc": "调用目标OS的ID",
-            "type": "String"
-        }, {
-            "name": "MGMT_IP",
-            "desc": "调用目标的IP",
-            "type": "String"
-        }, {
-            "name": "PORT",
-            "desc": "调用目标的端口",
-            "type": "String"
-        }]
-    }]
+    # insRefDescs = [{
+    #     "name": "REF_INS",
+    #     "desc": "调用的应用服务",
+    #     "type": "JsonArray",
+    #     "subset": [{
+    #             "name": "_OBJ_CATEGORY",
+    #         "desc": "调用对象类别",
+    #                 "type": "String"
+    #     }, {
+    #         "name": "_OBJ_TYPE",
+    #         "desc": "调用对象类型",
+    #         "type": "String"
+    #     }, {
+    #         "name": "OS_ID",
+    #         "desc": "调用目标OS的ID",
+    #         "type": "String"
+    #     }, {
+    #         "name": "MGMT_IP",
+    #         "desc": "调用目标的IP",
+    #         "type": "String"
+    #     }, {
+    #         "name": "PORT",
+    #         "desc": "调用目标的端口",
+    #         "type": "String"
+    #     }]
+    # }, {
+    #     "name": "REF_DB",
+    #     "desc": "调用的DB服务",
+    #     "type": "JsonArray",
+    #     "subset": [{
+    #             "name": "_OBJ_CATEGORY",
+    #             "desc": "调用对象类别",
+    #                     "type": "String"
+    #     }, {
+    #         "name": "_OBJ_TYPE",
+    #         "desc": "调用对象类型",
+    #         "type": "String"
+    #     }, {
+    #         "name": "OS_ID",
+    #         "desc": "调用目标OS的ID",
+    #         "type": "String"
+    #     }, {
+    #         "name": "MGMT_IP",
+    #         "desc": "调用目标的IP",
+    #         "type": "String"
+    #     }, {
+    #         "name": "PORT",
+    #         "desc": "调用目标的端口",
+    #         "type": "String"
+    #     }]
+    # }]
 
     (dbclient, db) = AutoExecUtils.getDB()
 
@@ -123,9 +123,6 @@ if __name__ == "__main__":
                     collection.delete_one({'name': name})
 
                 data['name'] = name
-                if data['collection'] == 'COLLECT_INS':
-                    for insDescRef in insRefDescs:
-                        data['fields'].append(insDescRef)
                 collection.replace_one({'name': name}, data, upsert=True)
                 collection.create_index([('name', 1)], name='idx_pk', unique=True)
                 print("INFO: Import", dfile, "success.")

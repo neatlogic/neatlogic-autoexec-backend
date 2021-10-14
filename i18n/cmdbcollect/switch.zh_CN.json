@@ -86,6 +86,35 @@
             "name": "MTU",
             "desc": "MTU",
             "type": "int"
+        }, {
+            "name": "NEIGHBOR",
+            "desc": "CDP/LLDP邻居",
+            "type": "JsonObject",
+            "subset": [{
+                "name": "_OBJ_CATEGORY",
+                "desc": "归属类别",
+                "type": "String"
+            }, {
+                "name": "_OBJ_TYPE",
+                "desc": "对象类型",
+                "type": "String"
+            }, {
+                "name": "DEV_NAME",
+                "desc": "设备名",
+                "type": "String"
+            }, {
+                "name": "PORT",
+                "desc": "端口名",
+                "type": "String"
+            }, {
+                "name": "MGMT_IP",
+                "desc": "管理IP",
+                "type": "String"
+            }, {
+                "name": "SN",
+                "desc": "序列号",
+                "type": "String"
+            }]
         }]
     }]
 }

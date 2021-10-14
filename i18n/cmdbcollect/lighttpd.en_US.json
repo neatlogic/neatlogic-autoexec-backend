@@ -97,5 +97,88 @@
         "name": "SERVER_ROOT",
         "desc": "Server Root",
         "type": "String"
+    }, {
+        "name": "REF_INS",
+        "desc": "Reference Instances",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Catetory",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        }, {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "Management IP",
+            "type": "String"
+        }, {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "int"
+        }]
+    }, {
+        "name": "REF_DB",
+        "desc": "Reference Databases",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Catetory",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        }, {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "Management IP",
+            "type": "String"
+        }, {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "int"
+        }]
+    }, {
+        "name": "REF_CLUSTER",
+        "desc": "Reference Clusters",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Catetory",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        }, {
+            "name": "UNIQUE_NAME",
+            "desc": "Cluster Unique Name",
+            "type": "String"
+        }, {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        }, {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        }, {
+            "name": "VIP",
+            "desc": "Virtual IP",
+            "type": "String"
+        }, {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "int"
+        }]
     }]
 }

@@ -505,7 +505,7 @@ sub _getLLDP {
             $neighbor->{PORT} = $val;
 
             my $portInfo = $portNameMap->{$portName};
-            $portInfo->{NEIGHBOR} = $portInfo;
+            $portInfo->{NEIGHBOR} = $neighbor;
         }
     }
 
@@ -563,7 +563,7 @@ sub _getCDP {
             $neighbor->{PORT} = $val;
 
             my $portInfo = $portNameMap->{$portName};
-            $portInfo->{NEIGHBOR} = $portInfo;
+            $portInfo->{NEIGHBOR} = $neighbor;
         }
     }
 

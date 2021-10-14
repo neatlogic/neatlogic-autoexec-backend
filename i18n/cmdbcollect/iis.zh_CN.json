@@ -139,5 +139,95 @@
             "desc": "启动模式",
             "type": "String"
         }]
+    }, {
+        "name": "REF_INS",
+        "desc": "调用的其他实例",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类别",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        }, {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        }, {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "int"
+        }]
+    }, {
+        "name": "REF_DB",
+        "desc": "调用的数据库",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类别",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        }, {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        }, {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "int"
+        }]
+    }, {
+        "name": "REF_CLUSTER",
+        "desc": "调用的集群",
+        "type": "JsonArray",
+        "subset": [{
+                "name": "_OBJ_CATEGORY",
+                "desc": "归属类别",
+                "type": "String"
+            },
+            {
+                "name": "_OBJ_TYPE",
+                "desc": "对象类型",
+                "type": "String"
+            },
+            {
+                "name": "UNIQUE_NAME",
+                "desc": "集群唯一标记",
+                "type": "String"
+            },
+            {
+                "name": "CLUSTER_MODE",
+                "desc": "集群模式",
+                "type": "String"
+            },
+            {
+                "name": "CLUSTER_SOFTWARE",
+                "desc": "集群软件",
+                "type": "String"
+            },
+            {
+                "name": "VIP",
+                "desc": "服务IP",
+                "type": "String"
+            },
+            {
+                "name": "PORT",
+                "desc": "端口",
+                "type": "int"
+            }
+        ]
     }]
 }
