@@ -97,9 +97,9 @@ if __name__ == "__main__":
     # 未安装vmtools工具的vms
     for vm in novmtools:
         vm['VCENTER_IP'] = ip
-        vm['_OBJ_CATEGORY'] = 'OS'
-        vm['_OBJ_TYPE'] = 'novmtool'
-        vm['OS_TYPE'] = 'novmtool'
+        vm['_OBJ_CATEGORY'] = 'NOVMTOOL'
+        vm['_OBJ_TYPE'] = 'OS'
+        vm['OS_TYPE'] = 'OS'
         vm['PK'] = ["VCENTER_IP", "VM_ID"]
         data.append(vm)
 
