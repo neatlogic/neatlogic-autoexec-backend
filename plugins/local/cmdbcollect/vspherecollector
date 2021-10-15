@@ -61,7 +61,7 @@ if __name__ == "__main__":
                     host['MGMT_IP'] = host['NAME']
                     host['MGMT_PORT'] = 22
                     host['VCENTER_IP'] = ip
-                    host['OBJECT_TYPE'] = 'HOST'
+                    host['_OBJ_CATEGORY'] = 'HOST'
                     # 保存和主机采集的PK一致
                     host['PK'] = ["BOARD_SERIAL"]
                     data.append(host)
@@ -81,7 +81,8 @@ if __name__ == "__main__":
                         vm['MGMT_IP'] = vm['IP']
                         vm['MGMT_PORT'] = 22
                         vm['VCENTER_IP'] = ip
-                        vm['OBJECT_TYPE'] = 'OS'
+                        vm['_OBJ_CATEGORY'] = 'OS'
+                        vm['_OBJ_TYPE'] = vm['OS_TYPE']
                         # 保持和主机采集的PK一致
                         vm['PK'] = ["MGMT_IP"]
                         data.append(vm)
@@ -93,15 +94,16 @@ if __name__ == "__main__":
     # 虚拟化信息
     result['MGMT_IP'] = ip
     result['MGMT_PORT'] = port
-    result['OBJECT_TYPE'] = 'VIRTUALIZED'
-    result['OS_TYPE'] = 'VCENTER'
+    result['_OBJ_CATEGORY'] = 'VIRTUALIZED'
+    result['_OBJ_TYPE'] = 'VCENTER'
     result['PK'] = ["MGMT_IP"]
     data.append(result)
 
     # 未安装vmtools工具的vms
     for vm in novmtools:
         vm['VCENTER_IP'] = ip
-        vm['OBJECT_TYPE'] = 'OS'
+        vm['_OBJ_CATEGORY'] = 'OS'
+        vm['_OBJ_TYPE'] = 'novmtool'
         vm['OS_TYPE'] = 'novmtool'
         vm['PK'] = ["VCENTER_IP", "VM_ID"]
         data.append(vm)

@@ -2,7 +2,7 @@
 	"label": "VCenter",
 	"collection": "COLLECT_VIRTUALIZED",
 	"filter": {
-		"_OBJ_TYPE": "VCenter"
+		"_OBJ_TYPE": "VCENTER"
 	},
 	"fields": [{
 		"name": "OS_ID",

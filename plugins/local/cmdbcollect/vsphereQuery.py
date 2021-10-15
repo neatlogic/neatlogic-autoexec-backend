@@ -145,7 +145,7 @@ class VsphereQuery:
         else:
             return str
 
-    def get_vm(self, host, vm):
+    def get_vm(self, host, vm, cluster):
         ins = {}
         os_id = vm._moId
         os_name = vm.name
@@ -188,9 +188,11 @@ class VsphereQuery:
         ins['CPU_CORES'] = numCoresPerSocket
         ins['IS_VIRTUAL'] = 1
 
+        serialNumber = host.hardware.systemInfo.serialNumber
         ins['MACHINE_UUID'] = host.hardware.systemInfo.uuid
-        ins['MACHINE_SN'] = host.hardware.systemInfo.serialNumber
-
+        ins['MACHINE_SN'] = serialNumber
+        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber}]
+        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId}]
         return ins
 
     def get_vmlist(self, cluster):
@@ -201,7 +203,7 @@ class VsphereQuery:
                 vm_list = host.vm
                 if vm_list != None:
                     for vm in vm_list:
-                        data_list.append(self.get_vm(host, vm))
+                        data_list.append(self.get_vm(host, vm, cluster))
         return data_list
 
     def collect(self):
