@@ -5,220 +5,243 @@
 		"_OBJ_TYPE": "Tomcat"
 	},
 	"fields": [{
-		"name": "OS_ID",
-		"desc": "OS ID",
-		"type": "String"
-	}, {
-		"name": "OS_USER",
-		"desc": "OS User",
-		"type": "String"
-	}, {
-		"name": "EXE_PATH",
-		"desc": "Executable File Path",
-		"type": "String"
-	}, {
-		"name": "COMMAND",
-		"desc": "Command Line",
-		"type": "String"
-	}, {
-		"name": "_OBJ_CATEGORY",
-		"desc": "Object Type",
-		"type": "String"
-	}, {
-		"name": "_OBJ_TYPE",
-		"desc": "Application Type",
-		"type": "String"
-	}, {
-		"name": "MGMT_IP",
-		"desc": "Managment IP",
-		"type": "String"
-	}, {
-		"name": "MGMT_PORT",
-		"desc": "Managment Port",
-		"type": "int"
-	}, {
-		"name": "SERVER_NAME",
-		"desc": "Server Name",
-		"type": "String"
-	}, {
-		"name": "VERSION",
-		"desc": "Version",
-		"type": "String"
-	}, {
-		"name": "PORT",
-		"desc": "Port",
-		"type": "String"
-	}, {
-		"name": "SSL_PORT",
-		"desc": "SSL Port",
-		"type": "String"
-	}, {
-		"name": "ADMIN_PORT",
-		"desc": "Admin Port",
-		"type": "String"
-	}, {
-		"name": "ADMIN_SSL_PORT",
-		"desc": "Admin SSL Port",
-		"type": "String"
-	}, {
-		"name": "MON_PORT",
-		"desc": "Monitor Port",
-		"type": "String"
-	}, {
-		"name": "PORTS",
-		"desc": "Port List",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "VALUE",
-			"desc": "Port",
-			"type": "int"
-		}]
-	}, {
-		"name": "INSTALL_PATH",
-		"desc": "Install Path",
-		"type": "String"
-	}, {
-		"name": "CONFIG_PATH",
-		"desc": "Conf Path",
-		"type": "String"
-	}, {
-		"name": "JAVA_HOME",
-		"desc": "Java Home Dir",
-		"type": "String"
-	}, {
-		"name": "JAVA_VERSION",
-		"desc": "Java Version",
-		"type": "String"
-	}, {
-		"name": "JVM_TYPE",
-		"desc": "JVM Type",
-		"type": "String"
-	}, {
-		"name": "JVM_VERSION",
-		"desc": "JVM Version",
-		"type": "String"
-	}, {
-		"name": "MIN_HEAP_SIZE",
-		"desc": "Min Heap Size",
-		"type": "int"
-	}, {
-		"name": "MAX_HEAP_SIZE",
-		"desc": "Max Heap Size",
-		"type": "int"
-	}, {
-		"name": "CATALINA_HOME",
-		"desc": "catalina home",
-		"type": "String"
-	}, {
-		"name": "JMX_PORT",
-		"desc": "jmx port",
-		"type": "String"
-	}, {
-		"name": "CATALINA_BASE",
-		"desc": "catalina base",
-		"type": "String"
-	}, {
-		"name": "JMX_SSL",
-		"desc": "jmx ssl",
-		"type": "String"
-	}, {
-		"name": "JAVA_VERSION",
-		"desc": "java version",
-		"type": "String"
-	}, {
-		"name": "MAX_HEAP_SIZE",
-		"desc": "max heap_size",
-		"type": "int"
-	}, {
-		"name": "MIN_HEAP_SIZE",
-		"desc": "min heap_size",
-		"type": "String"
-	}, {
-		"name": "JAVA_HOME",
-		"desc": "java home",
-		"type": "String"
-	}, {
-		"name": "REF_INS",
-		"desc": "Reference Instances",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Catetory",
-			"type": "String"
-		}, {
-			"name": "_OBJ_TYPE",
-			"desc": "Object Type",
-			"type": "String"
-		}, {
 			"name": "OS_ID",
 			"desc": "OS ID",
 			"type": "String"
 		}, {
-			"name": "MGMT_IP",
-			"desc": "Management IP",
+			"name": "OS_USER",
+			"desc": "OS User",
 			"type": "String"
 		}, {
-			"name": "PORT",
-			"desc": "Port",
-			"type": "int"
-		}]
-	}, {
-		"name": "REF_DB",
-		"desc": "Reference Databases",
-		"type": "JsonArray",
-		"subset": [{
+			"name": "EXE_PATH",
+			"desc": "Executable File Path",
+			"type": "String"
+		}, {
+			"name": "COMMAND",
+			"desc": "Command Line",
+			"type": "String"
+		}, {
 			"name": "_OBJ_CATEGORY",
-			"desc": "Object Catetory",
-			"type": "String"
-		}, {
-			"name": "_OBJ_TYPE",
 			"desc": "Object Type",
 			"type": "String"
 		}, {
-			"name": "OS_ID",
-			"desc": "OS ID",
+			"name": "_OBJ_TYPE",
+			"desc": "Application Type",
 			"type": "String"
 		}, {
 			"name": "MGMT_IP",
-			"desc": "Management IP",
+			"desc": "Managment IP",
+			"type": "String"
+		}, {
+			"name": "MGMT_PORT",
+			"desc": "Managment Port",
+			"type": "int"
+		}, {
+			"name": "SERVER_NAME",
+			"desc": "Server Name",
+			"type": "String"
+		}, {
+			"name": "VERSION",
+			"desc": "Version",
 			"type": "String"
 		}, {
 			"name": "PORT",
 			"desc": "Port",
+			"type": "String"
+		}, {
+			"name": "SSL_PORT",
+			"desc": "SSL Port",
+			"type": "String"
+		}, {
+			"name": "ADMIN_PORT",
+			"desc": "Admin Port",
+			"type": "String"
+		}, {
+			"name": "ADMIN_SSL_PORT",
+			"desc": "Admin SSL Port",
+			"type": "String"
+		}, {
+			"name": "MON_PORT",
+			"desc": "Monitor Port",
+			"type": "String"
+		}, {
+			"name": "PORTS",
+			"desc": "Port List",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "VALUE",
+				"desc": "Port",
+				"type": "int"
+			}]
+		}, {
+			"name": "INSTALL_PATH",
+			"desc": "Install Path",
+			"type": "String"
+		}, {
+			"name": "CONFIG_PATH",
+			"desc": "Conf Path",
+			"type": "String"
+		}, {
+			"name": "JAVA_HOME",
+			"desc": "Java Home Dir",
+			"type": "String"
+		}, {
+			"name": "JAVA_VERSION",
+			"desc": "Java Version",
+			"type": "String"
+		}, {
+			"name": "JVM_TYPE",
+			"desc": "JVM Type",
+			"type": "String"
+		}, {
+			"name": "JVM_VERSION",
+			"desc": "JVM Version",
+			"type": "String"
+		}, {
+			"name": "MIN_HEAP_SIZE",
+			"desc": "Min Heap Size",
 			"type": "int"
-		}]
-	}, {
-		"name": "REF_CLUSTER",
-		"desc": "Reference Clusters",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Catetory",
-			"type": "String"
 		}, {
-			"name": "_OBJ_TYPE",
-			"desc": "Object Type",
-			"type": "String"
-		}, {
-			"name": "UNIQUE_NAME",
-			"desc": "Cluster Unique Name",
-			"type": "String"
-		}, {
-			"name": "CLUSTER_MODE",
-			"desc": "Cluster Mode",
-			"type": "String"
-		}, {
-			"name": "CLUSTER_SOFTWARE",
-			"desc": "Cluster Software",
-			"type": "String"
-		}, {
-			"name": "VIP",
-			"desc": "Virtual IP",
-			"type": "String"
-		}, {
-			"name": "PORT",
-			"desc": "Port",
+			"name": "MAX_HEAP_SIZE",
+			"desc": "Max Heap Size",
 			"type": "int"
-		}]
-	}]
+		}, {
+			"name": "CATALINA_HOME",
+			"desc": "catalina home",
+			"type": "String"
+		}, {
+			"name": "JMX_PORT",
+			"desc": "jmx port",
+			"type": "String"
+		}, {
+			"name": "CATALINA_BASE",
+			"desc": "catalina base",
+			"type": "String"
+		}, {
+			"name": "JMX_SSL",
+			"desc": "jmx ssl",
+			"type": "String"
+		}, {
+			"name": "JAVA_VERSION",
+			"desc": "java version",
+			"type": "String"
+		}, {
+			"name": "MAX_HEAP_SIZE",
+			"desc": "max heap_size",
+			"type": "int"
+		}, {
+			"name": "MIN_HEAP_SIZE",
+			"desc": "min heap_size",
+			"type": "String"
+		}, {
+			"name": "JAVA_HOME",
+			"desc": "java home",
+			"type": "String"
+		}, {
+			"name": "REF_INS",
+			"desc": "Reference Instances",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Catetory",
+				"type": "String"
+			}, {
+				"name": "_OBJ_TYPE",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "OS_ID",
+				"desc": "OS ID",
+				"type": "String"
+			}, {
+				"name": "MGMT_IP",
+				"desc": "Management IP",
+				"type": "String"
+			}, {
+				"name": "PORT",
+				"desc": "Port",
+				"type": "int"
+			}]
+		}, {
+			"name": "REF_DB",
+			"desc": "Reference Databases",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Catetory",
+				"type": "String"
+			}, {
+				"name": "_OBJ_TYPE",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "OS_ID",
+				"desc": "OS ID",
+				"type": "String"
+			}, {
+				"name": "MGMT_IP",
+				"desc": "Management IP",
+				"type": "String"
+			}, {
+				"name": "PORT",
+				"desc": "Port",
+				"type": "int"
+			}]
+		}, {
+			"name": "REF_CLUSTER",
+			"desc": "Reference Clusters",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Catetory",
+				"type": "String"
+			}, {
+				"name": "_OBJ_TYPE",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "UNIQUE_NAME",
+				"desc": "Cluster Unique Name",
+				"type": "String"
+			}, {
+				"name": "CLUSTER_MODE",
+				"desc": "Cluster Mode",
+				"type": "String"
+			}, {
+				"name": "CLUSTER_SOFTWARE",
+				"desc": "Cluster Software",
+				"type": "String"
+			}, {
+				"name": "VIP",
+				"desc": "Virtual IP",
+				"type": "String"
+			}, {
+				"name": "PORT",
+				"desc": "Port",
+				"type": "int"
+			}]
+		},
+		{
+			"name": "RUN_ON",
+			"desc": "Run On Os",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Category",
+				"type": "String"
+			}, {
+				"name": "_OBJ_Type",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "OS_ID",
+				"desc": "OS CMDB ID",
+				"type": "String"
+			}, {
+				"name": "MGMT_IP",
+				"desc": "OS IP",
+				"type": "String"
+			}]
+		}
+	]
 }

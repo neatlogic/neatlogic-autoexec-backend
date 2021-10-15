@@ -134,6 +134,16 @@ sub main {
         print("INFO: Begin to collect OS information...\n");
         my $osGather = OSGather->new();
         ( $hostInfo, $osInfo ) = $osGather->collect();
+        if ( defined($hostInfo) ) {
+            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
+            $osInfo->{_OBJ_TYPE}       = 'HOST';
+            $hostInfo->{OS_ID}         = $osGather->{osId};
+            $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $hostInfo->{PK}            = ['BOARD_SERIAL'];
+            $osInfo->{INDEX_FIELDS}    = ['OS_ID'];
+        }
+
         if ( defined($osInfo) ) {
             $osInfo->{_OBJ_CATEGORY} = CollectObjCat->get('OS');
             $osInfo->{_OBJ_TYPE}     = $osType;
@@ -143,15 +153,19 @@ sub main {
             $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
             $osInfo->{PK}            = ['MGMT_IP'];
             $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
-        }
-        if ( defined($hostInfo) ) {
-            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
-            $osInfo->{_OBJ_TYPE}       = 'HOST';
-            $hostInfo->{OS_ID}         = $osGather->{osId};
-            $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
-            $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $hostInfo->{PK}            = ['BOARD_SERIAL'];
-            $osInfo->{INDEX_FIELDS}    = ['OS_ID'];
+
+            if ( defined( $hostInfo->{BOARD_SERIAL} ) ) {
+                $osInfo->{HOST_ON} = [
+                    {
+                        '_OBJ_CATEGORY' => 'HOST',
+                        '_OBJ_TYPE'     => 'HOST',
+                        'BOARD_SERIAL'  => $hostInfo->{BOARD_SERIAL}
+                    }
+                ];
+            }
+            else {
+                $osInfo->{HOST_ON} = [];
+            }
         }
 
         $ipAddrs   = $osInfo->{IP_ADDRS};
@@ -282,6 +296,14 @@ sub main {
                 $appInfo->{PK} = [ 'MGMT_IP', 'MGMT_PORT' ];
                 print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
             }
+            $appInfo->{RUN_ON} = [
+                {
+                    '_OBJ_CATEGORY' => 'OS',
+                    '_OBJ_TYPE'     => $osType,
+                    'OS_ID'         => $procInfo->{OS_ID},
+                    'MGMT_IP'       => $procInfo->{MGMT_IP}
+                }
+            ];
         }
 
         return $isMatched;

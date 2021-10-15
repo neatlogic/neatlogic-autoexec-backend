@@ -5,103 +5,126 @@
         "_OBJ_TYPE": "Sybase"
     },
     "fields": [{
-        "name": "OS_ID",
-        "desc": "OS ID",
-        "type": "String"
-    }, {
-        "name": "OS_USER",
-        "desc": "OS用户",
-        "type": "String"
-    }, {
-        "name": "EXE_PATH",
-        "desc": "执行文件路径",
-        "type": "String"
-    }, {
-        "name": "COMMAND",
-        "desc": "命令行",
-        "type": "String"
-    }, {
-        "name": "_OBJ_CATEGORY",
-        "desc": "归属类型",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "中间件类型",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "管理IP",
-        "type": "String"
-    }, {
-        "name": "MGMT_PORT",
-        "desc": "管理端口",
-        "type": "int"
-    }, {
-        "name": "SERVER_NAME",
-        "desc": "服务名",
-        "type": "String"
-    }, {
-        "name": "VERSION",
-        "desc": "版本",
-        "type": "String"
-    }, {
-        "name": "PORT",
-        "desc": "Port",
-        "type": "String"
-    }, {
-        "name": "SSL_PORT",
-        "desc": "SSL端口",
-        "type": "String"
-    }, {
-        "name": "ADMIN_PORT",
-        "desc": "管理端口",
-        "type": "String"
-    }, {
-        "name": "ADMIN_SSL_PORT",
-        "desc": "管理SSL端口",
-        "type": "String"
-    }, {
-        "name": "MON_PORT",
-        "desc": "监控端口",
-        "type": "String"
-    }, {
-        "name": "PORTS",
-        "desc": "所有端口列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "VALUE",
-            "desc": "端口",
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        }, {
+            "name": "OS_USER",
+            "desc": "OS用户",
+            "type": "String"
+        }, {
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
+            "type": "String"
+        }, {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "String"
+        }, {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        }, {
+            "name": "MGMT_PORT",
+            "desc": "管理端口",
             "type": "int"
-        }]
-    }, {
-        "name": "INSTALL_PATH",
-        "desc": "安装目录",
-        "type": "String"
-    }, {
-        "name": "CONFIG_PATH",
-        "desc": "配置目录",
-        "type": "String"
-    }, {
-        "name": "DATA_FILE",
-        "desc": "数据文件路径",
-        "type": "String"
-    }, {
-        "name": "USERS",
-        "desc": "用户列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "用户名",
+        }, {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
             "type": "String"
-        }]
-    }, {
-        "name": "DATABASES",
-        "desc": "库列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "库名",
+        }, {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
-        }]
-    }]
+        }, {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        }, {
+            "name": "SSL_PORT",
+            "desc": "SSL端口",
+            "type": "String"
+        }, {
+            "name": "ADMIN_PORT",
+            "desc": "管理端口",
+            "type": "String"
+        }, {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "管理SSL端口",
+            "type": "String"
+        }, {
+            "name": "MON_PORT",
+            "desc": "监控端口",
+            "type": "String"
+        }, {
+            "name": "PORTS",
+            "desc": "所有端口列表",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "VALUE",
+                "desc": "端口",
+                "type": "int"
+            }]
+        }, {
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
+            "type": "String"
+        }, {
+            "name": "CONFIG_PATH",
+            "desc": "配置目录",
+            "type": "String"
+        }, {
+            "name": "DATA_FILE",
+            "desc": "数据文件路径",
+            "type": "String"
+        }, {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "NAME",
+                "desc": "用户名",
+                "type": "String"
+            }]
+        }, {
+            "name": "DATABASES",
+            "desc": "库列表",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "NAME",
+                "desc": "库名",
+                "type": "String"
+            }]
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [{
+                "name": "_OBJ_CATEGORY",
+                "desc": "归属类别",
+                "type": "String"
+            }, {
+                "name": "_OBJ_Type",
+                "desc": "OS类型",
+                "type": "String"
+            }, {
+                "name": "OS_ID",
+                "desc": "OS CMDB ID",
+                "type": "String"
+            }, {
+                "name": "MGMT_IP",
+                "desc": "OS IP",
+                "type": "String"
+            }]
+        }
+    ]
 }

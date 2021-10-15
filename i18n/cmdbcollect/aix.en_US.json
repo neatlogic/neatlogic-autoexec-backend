@@ -5,8 +5,23 @@
 		"_OBJ_TYPE": "AIX"
 	},
 	"fields": [{
+			"name": "_OBJ_CATEGORY",
+			"desc": "Object Category",
+			"type": "String"
+		},
+		{
+			"name": "_OBJ_TYPE",
+			"desc": "Os Type",
+			"type": "String"
+		},
+		{
+			"name": "RESOURCE_ID",
+			"desc": "CMDB ID",
+			"type": "String"
+		},
+		{
 			"name": "OS_ID",
-			"desc": "CMDB对象ID",
+			"desc": "CMDB ID",
 			"type": "String"
 		},
 		{
@@ -46,10 +61,6 @@
 		}, {
 			"name": "CPU_FIRMWARE_VERSION",
 			"desc": "Cpu Firmware Version",
-			"type": "String"
-		}, {
-			"name": "_OBJ_TYPE",
-			"desc": "Os Type",
 			"type": "String"
 		}, {
 			"name": "MACHINE_ID",
@@ -336,11 +347,7 @@
 			"desc": "Max Open Files",
 			"type": "int"
 		},
-		{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Type",
-			"type": "String"
-		},
+
 		{
 			"name": "HBA_INTERFACES",
 			"desc": "HBA Interfaces",
@@ -361,6 +368,24 @@
 				"name": "SPEED",
 				"desc": "Speed",
 				"type": "int"
+			}]
+		},
+		{
+			"name": "HOST_ON",
+			"desc": "Run On Host",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Category",
+				"type": "String"
+			}, {
+				"name": "_OBJ_Type",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "BOARD_SERIAL",
+				"desc": "Main Board Serial",
+				"type": "String"
 			}]
 		}
 	]

@@ -5,8 +5,20 @@
 		"_OBJ_TYPE": "Windows"
 	},
 	"fields": [{
+			"name": "_OBJ_CATEGORY",
+			"desc": "Object Type",
+			"type": "String"
+		}, {
+			"name": "_OBJ_TYPE",
+			"desc": "Os Type",
+			"type": "String"
+		}, {
 			"name": "RESOURCE_ID",
 			"desc": "CMDB对象ID",
+			"type": "String"
+		}, {
+			"name": "OS_ID",
+			"desc": "OS ID",
 			"type": "String"
 		}, {
 			"name": "SYSTEM_LOCALE",
@@ -23,10 +35,6 @@
 		}, {
 			"name": "CPU_MODEL",
 			"desc": "Cpu Model",
-			"type": "String"
-		}, {
-			"name": "_OBJ_TYPE",
-			"desc": "Os Type",
 			"type": "String"
 		}, {
 			"name": "MACHINE_ID",
@@ -179,10 +187,6 @@
 			"desc": "Sys Vendor",
 			"type": "String"
 		}, {
-			"name": "OS_ID",
-			"desc": "OS ID",
-			"type": "String"
-		}, {
 			"name": "NTP_SERVERS",
 			"desc": "Ntp Servers",
 			"type": "JsonArray",
@@ -261,10 +265,6 @@
 			"name": "DOMAIN",
 			"desc": "Domain",
 			"type": "String"
-		}, {
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Type",
-			"type": "String"
 		},
 		{
 			"name": "VM_ID",
@@ -295,6 +295,24 @@
 				"name": "SPEED",
 				"desc": "Speed",
 				"type": "int"
+			}]
+		},
+		{
+			"name": "HOST_ON",
+			"desc": "Run On Host",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "_OBJ_CATEGORY",
+				"desc": "Object Category",
+				"type": "String"
+			}, {
+				"name": "_OBJ_Type",
+				"desc": "Object Type",
+				"type": "String"
+			}, {
+				"name": "BOARD_SERIAL",
+				"desc": "Main Board Serial",
+				"type": "String"
 			}]
 		}
 	]
