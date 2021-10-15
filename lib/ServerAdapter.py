@@ -31,6 +31,7 @@ class ServerAdapter:
             'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/codedriver/public/api/binary/public/file/download',
             'fetchScript': '/codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
+            'getAccount': '/codedriver/public/api/rest/autoexec/resource/getaccount',
             'getInspectConf': '/codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': '/codedriver/public/api/rest/autoexec/inspect/node/status/update',
             'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
@@ -433,6 +434,32 @@ class ServerAdapter:
 
         return
 
+    def getAccount(self, resourceId, protocol, username):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'tenent': context.tenent,
+            'resourceId': resourceId,
+            'protocol': protocol,
+            'username': username
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['getAccount'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return retObj['Return']
+                else:
+                    raise 'Get Account for {}/{} failed, {}\n'.format(resourceId, username, retObj['Message'])
+            else:
+                raise 'Get Account for {}/{} failed, status code:{}\n{}\n'.format(resourceId, username, response.status, content)
+        except:
+            raise
+
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:
             return {}
@@ -444,11 +471,18 @@ class ServerAdapter:
             'time': time.time()
         }
 
-        response = self.httpJSON(self.apiMap['getInspectConf'], self.authToken, params)
         try:
+            response = self.httpJSON(self.apiMap['getInspectConf'], self.authToken, params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset)
-            return json.loads(content)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return retObj['Return']
+                else:
+                    raise 'Get Inspect Config for {}/{} failed, {}\n'.format(ciType, resourceId, retObj['Message'])
+            else:
+                raise 'Get Inspect Config for {}/{} failed, status code:{}\n{}\n'.format(ciType, resourceId, response.status, content)
         except:
             raise
 
@@ -463,11 +497,18 @@ class ServerAdapter:
             'status': status,
             'time': time.time()
         }
-        response = self.httpJSON(self.apiMap['updateInspectStatus'], self.authToken, params)
 
         try:
+            response = self.httpJSON(self.apiMap['updateInspectStatus'], self.authToken, params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset)
-            return json.loads(content)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return retObj['Return']
+                else:
+                    raise 'Get Inspect Config for {}/{} failed, {}\n'.format(ciType, resourceId, retObj['Message'])
+            else:
+                raise 'Get Inspect Config for {}/{} failed, status code:{}\n{}\n'.format(ciType, resourceId, response.status, content)
         except:
             raise

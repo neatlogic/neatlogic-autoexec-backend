@@ -378,12 +378,12 @@ class RunNode:
                 # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
                 opStatus = self.getNodeStatus(op)
                 if not self.context.isForce and opStatus == NodeStatus.succeed:
-                    op.parseParam(self.output)
+                    op.parseParam(refMap=self.output, resourceId=self.resourceId)
                     self._loadOpOutput(op)
                     self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                     continue
 
-                op.parseParam(self.output)
+                op.parseParam(refMap=self.output, resourceId=self.resourceId)
             except AutoExecError.AutoExecError as err:
                 try:
                     self.writeNodeLog("ERROR: {}[{}] parse param failed, {}\n".format(op.opId, op.opName, err.value))
@@ -637,7 +637,7 @@ class RunNode:
             try:
                 remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
                 remotePath = remoteRoot + '/' + op.opBunddleName
-                runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword)}
+                runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword), 'HISTSIZE': '0'}
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
@@ -704,7 +704,7 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
-            remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
+            remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False

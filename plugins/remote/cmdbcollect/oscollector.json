@@ -14,14 +14,41 @@
             "defaultValue": "",
             "required": "false",
             "validate": ""
+        }, {
+            "opt": "mysqlaccount",
+            "name": "Mysql用户",
+            "help": "登录Mysql的用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "database/inspect",
+            "required": "false",
+            "validate": ""
+        }, {
+            "opt": "pgaccount",
+            "name": "PG用户",
+            "help": "登录Postgresql的用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "database/inspect",
+            "required": "false",
+            "validate": ""
+        }, {
+            "opt": "mssqlaccount",
+            "name": "MSSQL用户",
+            "help": "登录Windows SQL Server的用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "database/inspect",
+            "required": "false",
+            "validate": ""
         },
         {
             "opt": "defaultpassconf",
             "name": "默认密码设置",
-            "help": "例如：\\{\"Mysql\":\\{\"username\":\"root\",\"password\":\"xxxx\"\\},\"Postgresql\":\\{\"username\":\"pgroot\",\"password\":\"yyyy\"\\}\\}",
+            "help": "例如：Mysql:root/pass1234,Postgresql:demo/test1234",
             "type": "password",
             "isConst": "false",
-            "defaultValue": "测试1",
+            "defaultValue": "Mysql:${mysqlaccount},Postgresql:${pgaccount},MSSQLServer:${mssqlaccount}",
             "required": "false",
             "validate": ""
         },

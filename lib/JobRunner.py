@@ -106,7 +106,6 @@ class JobRunner:
                 opArgsRefMap[operation['opId']] = {}
 
             op = Operation.Operation(self.context, opArgsRefMap, operation)
-            # op.parseParam()
 
             # 如果有本地操作，则在context中进行标记
             if op.opType == 'local':
