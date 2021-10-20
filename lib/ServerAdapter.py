@@ -26,19 +26,19 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
-            'register': '/codedriver/public/api/rest/autoexec/tool/register',
-            'getParams': '/codedriver/public/api/rest/autoexec/job/create/param/get',
-            'getNodes': '/codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': '/codedriver/public/api/binary/public/file/download',
-            'fetchScript': '/codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
-            'getAccount': '/codedriver/public/api/rest/autoexec/resource/getaccount',
-            'getInspectConf': '/codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': '/codedriver/public/api/rest/autoexec/inspect/node/status/update',
-            'updateNodeStatus': '/codedriver/public/api/rest/autoexec/job/phase/node/status/update',
-            'updatePhaseStatus': '/codedriver/public/api/rest/autoexec/job/phase/status/update',
-            'fireNextPhase': '/codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'updateJobStatus': '/codedriver/public/api/rest/autoexec/job/status/update',
-            'exportJobEnv': '/codedriver/public/api/rest/autoexec/job/env/update'
+            'register': 'codedriver/public/api/rest/autoexec/tool/register',
+            'getParams': 'codedriver/public/api/rest/autoexec/job/create/param/get',
+            'getNodes': 'codedriver/public/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': 'codedriver/public/api/binary/public/file/download',
+            'fetchScript': 'codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
+            'getAccount': 'codedriver/public/api/rest/autoexec/resource/getaccount',
+            'getInspectConf': 'codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': 'codedriver/public/api/rest/autoexec/inspect/node/status/update',
+            'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
+            'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
+            'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update'
         }
 
         self.context = context
