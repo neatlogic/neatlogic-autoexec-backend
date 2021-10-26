@@ -209,6 +209,14 @@ sub collectOsInfo {
     }
     $osInfo->{CPU_CORES} = $cpuCores;
 
+    my $cpuLogicCores         = 0;
+    my $cpuLogicCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
+    foreach my $line (@$cpuLogicCorsInfoLines) {
+        $line =~ s/^\s*|\s*$//g;
+        $cpuLogicCores = $cpuLogicCores + int($line);
+    }
+    $osInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
+
     #TODO: IPV6 address的采集
 
     my @users         = ();
@@ -376,7 +384,7 @@ sub collectHostInfo {
         my $line        = $$nicInfoLines[$i];
         my $nicInfo     = {};
         my @nicInfoSegs = split( /\s+/, $line );
-        $nicInfo->{MAC} = lc(pop(@nicInfoSegs));
+        $nicInfo->{MAC} = lc( pop(@nicInfoSegs) );
         my $nicName = substr( $line, 0, length($line) - length( $nicInfo->{MAC} ) );
         $nicName =~ s/^\s*|\s*$//g;
         if ( $nicName ne '' ) {

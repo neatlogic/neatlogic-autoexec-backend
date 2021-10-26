@@ -508,9 +508,10 @@ sub collectHostInfo {
             }
         }
     }
-    $hostInfo->{CPU_COUNT}     = scalar( keys(%$pCpuMap) );
-    $hostInfo->{CPU_CORES}     = int( $cpuInfo->{processor} ) + 1;
-    $hostInfo->{CPU_MICROCODE} = $cpuInfo->{microcode};
+    $hostInfo->{CPU_COUNT}       = scalar( keys(%$pCpuMap) );
+    $hostInfo->{CPU_CORES}       = int( $cpuInfo->{processor} ) + 1;
+    $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
+    $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
     $hostInfo->{CPU_MODEL_NAME} = $modelInfo[0];
     $hostInfo->{CPU_FREQUENCY}  = $modelInfo[1];
