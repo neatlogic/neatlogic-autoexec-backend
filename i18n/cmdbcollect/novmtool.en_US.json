@@ -6,8 +6,25 @@
     },
     "fields": [{
         "name": "DISKS",
-        "desc": "disks",
-        "type": "Array"
+        "desc": "Disks",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "UNIT",
+            "desc": "Unit",
+            "type": "String"
+        }, {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        }, {
+            "name": "TYPE",
+            "desc": "Type",
+            "type": "String"
+        }, {
+            "name": "CAPACITY",
+            "desc": "Capacity",
+            "type": "int"
+        }]
     }, {
         "name": "NAME",
         "desc": "name",
@@ -64,9 +81,5 @@
         "name": "_OBJ_CATEGORY",
         "desc": "object_type",
         "type": "String"
-    }, {
-        "name": "PK",
-        "desc": "pk",
-        "type": "Array"
     }]
 }

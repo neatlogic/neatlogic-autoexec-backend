@@ -190,7 +190,7 @@
 		}, {
 			"name": "NTP_SERVERS",
 			"desc": "NTP服务",
-			"type": "Array",
+			"type": "JsonArray",
 			"subset": [{
 				"name": "VALUE",
 				"desc": "IP",

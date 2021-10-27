@@ -250,8 +250,13 @@
 			"type": "String"
 		}, {
 			"name": "IP_ADDRS",
-			"desc": "IP地址列表",
-			"type": "Array"
+			"desc": "IP地址",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "VALUE",
+				"desc": "IP",
+				"type": "String"
+			}]
 		}, {
 			"name": "VERSION",
 			"desc": "版本",

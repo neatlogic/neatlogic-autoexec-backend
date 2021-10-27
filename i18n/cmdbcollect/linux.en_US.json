@@ -190,12 +190,12 @@
 		}, {
 			"name": "NTP_SERVERS",
 			"desc": "NTP Servers",
-			"type": "Array",
-			"subset": {
+			"type": "JsonArray",
+			"subset": [{
 				"name": "VALUE",
 				"desc": "IP",
 				"type": "String"
-			}
+			}]
 		}, {
 			"name": "NFS_MOUNTED",
 			"desc": "NFS Mounted",
