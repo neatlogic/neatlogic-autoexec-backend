@@ -25,10 +25,6 @@
 			"desc": "System Locale",
 			"type": "String"
 		}, {
-			"name": "MEM_AVAILABLE",
-			"desc": "Memory Available",
-			"type": "int"
-		}, {
 			"name": "CPU_FREQUENCY",
 			"desc": "Cpu Frequency",
 			"type": "String"
@@ -243,6 +239,10 @@
 		}, {
 			"name": "MEM_TOTAL",
 			"desc": "Total Memory",
+			"type": "int"
+		}, {
+			"name": "MEM_AVAILABLE",
+			"desc": "Memory Available",
 			"type": "int"
 		}, {
 			"name": "TIME_ZONE",

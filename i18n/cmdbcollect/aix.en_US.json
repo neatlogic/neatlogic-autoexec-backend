@@ -294,6 +294,14 @@
 			"name": "MEM_TOTAL",
 			"desc": "Memory Total",
 			"type": "int"
+		}, {
+			"name": "MEM_FREE",
+			"desc": "Memory Free",
+			"type": "int"
+		}, {
+			"name": "MEM_AVAILABLE",
+			"desc": "Memory Available",
+			"type": "int"
 		},
 		{
 			"name": "MOUNT_POINTS",

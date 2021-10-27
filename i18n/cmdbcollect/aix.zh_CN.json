@@ -262,6 +262,14 @@
 			"desc": "总内存",
 			"type": "int"
 		}, {
+			"name": "MEM_FREE",
+			"desc": "空闲内存",
+			"type": "int"
+		}, {
+			"name": "MEM_AVAILABLE",
+			"desc": "可用内存",
+			"type": "int"
+		}, {
 			"name": "MOUNT_POINTS",
 			"desc": "挂载点",
 			"type": "JsonArray",

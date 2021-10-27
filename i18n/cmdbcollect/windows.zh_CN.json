@@ -25,10 +25,6 @@
 			"desc": "系统语言环境",
 			"type": "String"
 		}, {
-			"name": "MEM_AVAILABLE",
-			"desc": "可用内存",
-			"type": "int"
-		}, {
 			"name": "CPU_FREQUENCY",
 			"desc": "CPU频率",
 			"type": "String"
@@ -243,6 +239,10 @@
 		}, {
 			"name": "MEM_TOTAL",
 			"desc": "内存大小",
+			"type": "int"
+		}, {
+			"name": "MEM_AVAILABLE",
+			"desc": "可用内存",
 			"type": "int"
 		}, {
 			"name": "TIME_ZONE",

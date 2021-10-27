@@ -260,6 +260,10 @@
 			"desc": "Memory Total",
 			"type": "int"
 		}, {
+			"name": "MEM_AVAILABLE",
+			"desc": "Memory Available",
+			"type": "int"
+		}, {
 			"name": "MOUNT_POINTS",
 			"desc": "Mount Points",
 			"type": "JsonArray",
