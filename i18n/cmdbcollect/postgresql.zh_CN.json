@@ -53,14 +53,6 @@
             "desc": "SSL端口",
             "type": "String"
         }, {
-            "name": "ADMIN_PORT",
-            "desc": "管理端口",
-            "type": "String"
-        }, {
-            "name": "ADMIN_SSL_PORT",
-            "desc": "管理SSL端口",
-            "type": "String"
-        }, {
             "name": "MON_PORT",
             "desc": "监控端口",
             "type": "String"

@@ -1,8 +1,8 @@
 {
-    "label": "Sybase",
+    "label": "SyBase",
     "collection": "COLLECT_DB",
     "filter": {
-        "_OBJ_TYPE": "Sybase"
+        "_OBJ_TYPE": "SyBase"
     },
     "fields": [{
             "name": "OS_ID",

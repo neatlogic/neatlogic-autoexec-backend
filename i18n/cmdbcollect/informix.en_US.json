@@ -92,7 +92,7 @@
             }]
         }, {
             "name": "DATABASES",
-            "desc": "DataBase List",
+            "desc": "Database List",
             "type": "JsonArray",
             "subset": [{
                 "name": "NAME",

@@ -83,11 +83,11 @@
 			"type": "String"
 		}, {
 			"name": "JAVA_HOME",
-			"desc": "Java Home Dir",
+			"desc": "JAVA Home Dir",
 			"type": "String"
 		}, {
 			"name": "JAVA_VERSION",
-			"desc": "Java Version",
+			"desc": "JAVA Version",
 			"type": "String"
 		}, {
 			"name": "JVM_TYPE",
@@ -107,35 +107,19 @@
 			"type": "int"
 		}, {
 			"name": "CATALINA_HOME",
-			"desc": "catalina home",
+			"desc": "Catalina Home",
 			"type": "String"
 		}, {
 			"name": "JMX_PORT",
-			"desc": "jmx port",
-			"type": "String"
-		}, {
-			"name": "CATALINA_BASE",
-			"desc": "catalina base",
+			"desc": "JMX port",
 			"type": "String"
 		}, {
 			"name": "JMX_SSL",
-			"desc": "jmx ssl",
+			"desc": "JMX SSL",
 			"type": "String"
 		}, {
-			"name": "JAVA_VERSION",
-			"desc": "java version",
-			"type": "String"
-		}, {
-			"name": "MAX_HEAP_SIZE",
-			"desc": "max heap_size",
-			"type": "int"
-		}, {
-			"name": "MIN_HEAP_SIZE",
-			"desc": "min heap_size",
-			"type": "String"
-		}, {
-			"name": "JAVA_HOME",
-			"desc": "java home",
+			"name": "CATALINA_BASE",
+			"desc": "Catalina Base",
 			"type": "String"
 		}, {
 			"name": "REF_INS",

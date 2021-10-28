@@ -87,11 +87,11 @@
             "type": "String"
         }, {
             "name": "JAVA_HOME",
-            "desc": "Java目录",
+            "desc": "JAVA目录",
             "type": "String"
         }, {
             "name": "JAVA_VERSION",
-            "desc": "Java版本",
+            "desc": "JAVA版本",
             "type": "String"
         }, {
             "name": "JVM_TYPE",

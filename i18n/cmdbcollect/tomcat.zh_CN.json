@@ -83,11 +83,11 @@
 			"type": "String"
 		}, {
 			"name": "JAVA_HOME",
-			"desc": "Java目录",
+			"desc": "JAVA目录",
 			"type": "String"
 		}, {
 			"name": "JAVA_VERSION",
-			"desc": "Java版本",
+			"desc": "JAVA版本",
 			"type": "String"
 		}, {
 			"name": "JVM_TYPE",
@@ -107,35 +107,19 @@
 			"type": "int"
 		}, {
 			"name": "CATALINA_HOME",
-			"desc": "catalina家目录",
-			"type": "String"
-		}, {
-			"name": "JMX_PORT",
-			"desc": "jmx端口",
+			"desc": "Catalina家目录",
 			"type": "String"
 		}, {
 			"name": "CATALINA_BASE",
-			"desc": "catalina根目录",
+			"desc": "Catalina根目录",
+			"type": "String"
+		}, {
+			"name": "JMX_PORT",
+			"desc": "JMX端口",
 			"type": "String"
 		}, {
 			"name": "JMX_SSL",
-			"desc": "jmx是否开启ssl服务",
-			"type": "String"
-		}, {
-			"name": "JAVA_VERSION",
-			"desc": "java版本",
-			"type": "String"
-		}, {
-			"name": "MAX_HEAP_SIZE",
-			"desc": "最大heapsize",
-			"type": "int"
-		}, {
-			"name": "MIN_HEAP_SIZE",
-			"desc": "最小heapsize",
-			"type": "String"
-		}, {
-			"name": "JAVA_HOME",
-			"desc": "java安装目录",
+			"desc": "JMX是否开启SSL服务",
 			"type": "String"
 		}, {
 			"name": "REF_INS",

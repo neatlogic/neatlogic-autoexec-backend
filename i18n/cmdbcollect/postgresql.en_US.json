@@ -53,14 +53,6 @@
             "desc": "SSL Port",
             "type": "String"
         }, {
-            "name": "ADMIN_PORT",
-            "desc": "Admin Port",
-            "type": "String"
-        }, {
-            "name": "ADMIN_SSL_PORT",
-            "desc": "Admin SSL Port",
-            "type": "String"
-        }, {
             "name": "MON_PORT",
             "desc": "Monitor Port",
             "type": "String"
@@ -195,7 +187,7 @@
             "type": "String"
         }, {
             "name": "DATABASES",
-            "desc": "databases",
+            "desc": "dataBases",
             "type": "JsonArray",
             "subset": [{
                 "name": "NAME",

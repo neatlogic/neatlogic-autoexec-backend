@@ -83,11 +83,11 @@
             "type": "String"
         }, {
             "name": "JAVA_HOME",
-            "desc": "Java Home Dir",
+            "desc": "JAVA Home Dir",
             "type": "String"
         }, {
             "name": "JAVA_VERSION",
-            "desc": "Java Version",
+            "desc": "JAVA Version",
             "type": "String"
         }, {
             "name": "JVM_TYPE",
