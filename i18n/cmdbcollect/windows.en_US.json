@@ -45,16 +45,16 @@
 			"desc": "NIC",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "STATUS",
-				"desc": "Link State",
-				"type": "String"
-			}, {
 				"name": "NAME",
 				"desc": "Name",
 				"type": "String"
 			}, {
 				"name": "MAC",
 				"desc": "MAC",
+				"type": "String"
+			}, {
+				"name": "STATUS",
+				"desc": "Link State",
 				"type": "String"
 			}, {
 				"name": "REMOTE_PORTS",

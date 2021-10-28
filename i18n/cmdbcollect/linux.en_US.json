@@ -68,7 +68,7 @@
 			"type": "JsonArray",
 			"subset": [{
 				"name": "NAME",
-				"desc": "Mask",
+				"desc": "Name",
 				"type": "String"
 			}, {
 				"name": "STATUS",

@@ -45,16 +45,16 @@
 			"desc": "网卡",
 			"type": "JsonArray",
 			"subset": [{
-				"name": "STATUS",
-				"desc": "端口状态",
-				"type": "String"
-			}, {
 				"name": "NAME",
-				"desc": "名称",
+				"desc": "网卡名",
 				"type": "String"
 			}, {
 				"name": "MAC",
 				"desc": "MAC",
+				"type": "String"
+			}, {
+				"name": "STATUS",
+				"desc": "端口状态",
 				"type": "String"
 			}, {
 				"name": "REMOTE_PORTS",
