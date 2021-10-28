@@ -5,10 +5,6 @@
         "_OBJ_TYPE": "A10"
     },
     "fields": [{
-        "name": "RESOURCE_ID",
-        "desc": "CMDB ID",
-        "type": "String"
-    }, {
         "name": "_OBJ_CATEGORY",
         "desc": "归属对象类型",
         "type": "String"

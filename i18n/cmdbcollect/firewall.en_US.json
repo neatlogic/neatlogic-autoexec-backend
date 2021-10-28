@@ -3,10 +3,6 @@
     "collection": "COLLECT_FIREWALL",
     "filter": {},
     "fields": [{
-        "name": "RESOURCE_ID",
-        "desc": "CMDB ID",
-        "type": "String"
-    }, {
         "name": "_OBJ_CATEGORY",
         "desc": "Object Type",
         "type": "String"
