@@ -1,165 +1,208 @@
 {
-	"label": "Host",
-	"collection": "COLLECT_HOST",
-	"filter": {},
-	"fields": [{
-		"name": "BOARD_SERIAL",
-		"desc": "Board Serial",
-		"type": "String"
-	}, {
-		"name": "OS_ID",
-		"desc": "OS ID",
-		"type": "String"
-	}, {
-		"name": "_OBJ_CATEGORY",
-		"desc": "Object Type",
-		"type": "String"
-	}, {
-		"name": "STATE",
-		"desc": "Used State",
-		"type": "String"
-	}, {
-		"name": "MGMT_IP",
-		"desc": "Managment IP",
-		"type": "String"
-	}, {
-		"name": "MGMT_PORT",
-		"desc": "Management Port",
-		"type": "int"
-	}, {
-		"name": "CPU_MICROCODE",
-		"desc": "CPU Microcode",
-		"type": "String"
-	}, {
-		"name": "CPU_FREQUENCY",
-		"desc": "CPU Frequency",
-		"type": "String"
-	}, {
-		"name": "CPU_COUNT",
-		"desc": "CPU Count",
-		"type": "int"
-	}, {
-		"name": "MEM_MAXIMUM_CAPACITY",
-		"desc": "Memory Maximum Capacity",
-		"type": "int"
-	}, {
-		"name": "CPU_ARCH",
-		"desc": "CPU Architecture",
-		"type": "String"
-	}, {
-		"name": "POWER CORDS_COUNT",
-		"desc": "Power Cords Count",
-		"type": "String"
-	}, {
-		"name": "MACHINE_ID",
-		"desc": "Machine ID",
-		"type": "String"
-	}, {
-		"name": "PRODUCT_NAME",
-		"desc": "Product Name",
-		"type": "String"
-	}, {
-		"name": "ETH_INTERFACES",
-		"desc": "NIC",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "STATUS",
-			"desc": "Link Status",
-			"type": "String"
-		}, {
-			"name": "UNIT",
-			"desc": "Unit",
-			"type": "String"
-		}, {
-			"name": "NAME",
-			"desc": "Name",
-			"type": "String"
-		}, {
-			"name": "SPEED",
-			"desc": "Speed",
-			"type": "int"
-		}, {
-			"name": "MAC",
-			"desc": "MAC",
-			"type": "String"
-		}]
-	}, {
-		"name": "IS_VIRTUAL",
-		"desc": "Is Virtual",
-		"type": "int"
-	}, {
-		"name": "CPU_CORES",
-		"desc": "CPU Cores",
-		"type": "int"
-	}, {
-		"name": "BIOS_VERSION",
-		"desc": "BIOS Version",
-		"type": "String"
-	}, {
-		"name": "CPU_MODEL_NAME",
-		"desc": "CPU Model Name",
-		"type": "String"
-	}, {
-		"name": "MEM_SPEED",
-		"desc": "Memory Speed",
-		"type": "String"
-	}, {
-		"name": "MEM_SLOTS",
-		"desc": "Memory Slots",
-		"type": "int"
-	}, {
-		"name": "HBA_INTERFACES",
-		"desc": "HBA Interfaces",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "NAME",
-			"desc": "name",
-			"type": "String"
-		}, {
-			"name": "WWN",
-			"desc": "WWN",
-			"type": "String"
-		}, {
-			"name": "STATUS",
-			"desc": "Link Status",
-			"type": "String"
-		}, {
-			"name": "SPEED",
-			"desc": "Speed",
-			"type": "int"
-		}]
-	}, {
-		"name": "DISKS",
-		"desc": "Disks",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "UNIT",
-			"desc": "Unit",
-			"type": "String"
-		}, {
-			"name": "NAME",
-			"desc": "Name",
-			"type": "String"
-		}, {
-			"name": "TYPE",
-			"desc": "Type",
-			"type": "String"
-		}, {
-			"name": "CAPACITY",
-			"desc": "Capacity",
-			"type": "float"
-		}]
-	}, {
-		"name": "MANUFACTURER",
-		"desc": "Manufacturer",
-		"type": "String"
-	}, {
-		"name": "UUID",
-		"desc": "Vcenter UUID",
-		"type": "String"
-	}, {
-		"name": "ESXI_IP",
-		"desc": "Esxi IP",
-		"type": "String"
-	}]
+    "label": "Host",
+    "collection": "COLLECT_HOST",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Management Port",
+            "type": "int"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS Version",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU Architecture",
+            "type": "String"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU Cores",
+            "type": "int"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "CPU Count",
+            "type": "int"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU Frequency",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU Microcode",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL_NAME",
+            "desc": "CPU Model Name",
+            "type": "String"
+        },
+        {
+            "name": "DISKS",
+            "desc": "Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "int"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "IS_VIRTUAL",
+            "desc": "Is Virtual",
+            "type": "int"
+        },
+        {
+            "name": "MACHINE_ID",
+            "desc": "Machine ID",
+            "type": "String"
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "Manufacturer",
+            "type": "String"
+        },
+        {
+            "name": "MEM_MAXIMUM_CAPACITY",
+            "desc": "Memory Maximum Capacity",
+            "type": "int"
+        },
+        {
+            "name": "MEM_SLOTS",
+            "desc": "Memory Slots",
+            "type": "int"
+        },
+        {
+            "name": "MEM_SPEED",
+            "desc": "Memory Speed",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "POWER CORDS_COUNT",
+            "desc": "Power Cords Count",
+            "type": "String"
+        },
+        {
+            "name": "PRODUCT_NAME",
+            "desc": "Product Name",
+            "type": "String"
+        },
+        {
+            "name": "UUID",
+            "desc": "Vcenter UUID",
+            "type": "String"
+        }
+    ]
 }

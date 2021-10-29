@@ -2,115 +2,150 @@
     "label": "Switch",
     "collection": "COLLECT_SWITCH",
     "filter": {},
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "Object Type",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "Chassis Serial",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "Managment IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "Device Name",
-        "type": "String"
-    }, {
-        "name": "UPTIME",
-        "desc": "Up Time",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "Vendor",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "Device Model",
-        "type": "String"
-    }, {
-        "name": "IOS_INFO",
-        "desc": "IOS Information",
-        "type": "String"
-    }, {
-        "name": "PORTS_COUNT",
-        "desc": "Ports Count",
-        "type": "int"
-    }, {
-        "name": "BRAND",
-        "desc": "Brand",
-        "type": "String"
-    }, {
-        "name": "PORTS",
-        "desc": "Port List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NO",
-            "desc": "Port No.",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
             "type": "String"
-        }, {
-            "name": "NAME",
-            "desc": "Port Name",
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
             "type": "String"
-        }, {
-            "name": "INDEX",
-            "desc": "Index",
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
             "type": "String"
-        }, {
-            "name": "TYPE",
-            "desc": "Type",
+        },
+        {
+            "name": "BRAND",
+            "desc": "Brand",
             "type": "String"
-        }, {
-            "name": "MAC",
-            "desc": "MAC",
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
-        }, {
-            "name": "ADMIN_STATUS",
-            "desc": "Admin Status",
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
             "type": "String"
-        }, {
-            "name": "OPER_STATUS",
-            "desc": "Operation Status",
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS Information",
             "type": "String"
-        }, {
-            "name": "SPEED",
-            "desc": "Speed",
-            "type": "float"
-        }, {
-            "name": "MTU",
-            "desc": "MTU",
-            "type": "int"
-        }, {
-            "name": "NEIGHBORS",
-            "desc": "CDP/LLDP",
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
             "type": "JsonArray",
-            "subset": [{
-                "name": "_OBJ_CATEGORY",
-                "desc": "Object Catetory",
-                "type": "String"
-            }, {
-                "name": "_OBJ_TYPE",
-                "desc": "Object Type",
-                "type": "String"
-            }, {
-                "name": "DEV_NAME",
-                "desc": "Dev Name",
-                "type": "String"
-            }, {
-                "name": "PORT",
-                "desc": "Port Name",
-                "type": "String"
-            }, {
-                "name": "MGMT_IP",
-                "desc": "Managent IP",
-                "type": "String"
-            }, {
-                "name": "SN",
-                "desc": "Serial",
-                "type": "String"
-            }]
-        }]
-    }]
+            "subset": [
+                {
+                    "name": "NO",
+                    "desc": "Port No.",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operation Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "float"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "int"
+                },
+                {
+                    "name": "NEIGHBORS",
+                    "desc": "CDP/LLDP",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Dev Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "Ports Count",
+            "type": "int"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        }
+    ]
 }

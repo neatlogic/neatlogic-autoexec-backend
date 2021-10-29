@@ -1,134 +1,166 @@
 {
-	"label": "VCenter",
-	"collection": "COLLECT_VIRTUALIZED",
-	"filter": {
-		"_OBJ_TYPE": "VCENTER"
-	},
-	"fields": [{
-		"name": "OS_ID",
-		"desc": "OS ID",
-		"type": "String"
-	}, {
-		"name": "_OBJ_CATEGORY",
-		"desc": "Object Type",
-		"type": "String"
-	}, {
-		"name": "_OBJ_TYPE",
-		"desc": "Application Type",
-		"type": "String"
-	}, {
-		"name": "MGMT_IP",
-		"desc": "Managment IP",
-		"type": "String"
-	}, {
-		"name": "MGMT_PORT",
-		"desc": "Managment Port",
-		"type": "int"
-	}, {
-		"name": "SERVER_NAME",
-		"desc": "Server Name",
-		"type": "String"
-	}, {
-		"name": "VERSION",
-		"desc": "Version",
-		"type": "String"
-	}, {
-		"name": "VENDOR",
-		"desc": "Vendor",
-		"type": "String"
-	}, {
-		"name": "NAME",
-		"desc": "Name",
-		"type": "String"
-	}, {
-		"name": "_OBJ_TYPE",
-		"desc": "OS Type",
-		"type": "String"
-	}, {
-		"name": "FULLNAME",
-		"desc": "Full Name",
-		"type": "String"
-	}, {
-		"name": "INSTANCEUUID",
-		"desc": "Instance UUID",
-		"type": "String"
-	}, {
-		"name": "DATACENTER",
-		"desc": "Data Center",
-		"type": "JsonArray",
-		"subset": [{
-			"name": "NAME",
-			"desc": "Name",
-			"type": "String"
-		}, {
-			"name": "MOID",
-			"desc": "MOID",
-			"type": "String"
-		}, {
-			"name": "CLUSTER",
-			"desc": "Clusters",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "NAME",
-				"desc": "Name",
-				"type": "String"
-			}, {
-				"name": "MOID",
-				"desc": "MOID",
-				"type": "String"
-			}, {
-				"name": "DATASTORE",
-				"desc": "DataStore",
-				"type": "JsonArray",
-				"subset": [{
-						"name": "MOID",
-						"desc": "MOID",
-						"type": "String"
-					}, {
-						"name": "NAME",
-						"desc": "Name",
-						"type": "String"
-					}
-
-				]
-			}, {
-				"name": "NETWORK",
-				"desc": "Network",
-				"type": "JsonArray",
-				"subset": [{
-						"name": "MOID",
-						"desc": "MOID",
-						"type": "String"
-					}, {
-						"name": "NAME",
-						"desc": "Name",
-						"type": "String"
-					}
-
-				]
-			}, {
-				"name": "CONTAIN_HOST",
-				"desc": "Contain Host",
-				"type": "JsonArray",
-				"subset": [{
-					"name": "UUID",
-					"desc": "UUID",
-					"type": "String"
-				}]
-			}, {
-				"name": "CONTAIN_VMS",
-				"desc": "Contain Virtual System",
-				"type": "JsonArray",
-				"subset": [{
-					"name": "MGMT_IP",
-					"desc": "Vcenter IP",
-					"type": "String"
-				}, {
-					"name": "VM_ID",
-					"desc": "Virtual System ID",
-					"type": "String"
-				}]
-			}]
-		}]
-	}]
+    "label": "VCenter",
+    "collection": "COLLECT_VIRTUALIZED",
+    "filter": {
+        "_OBJ_TYPE": "VCENTER"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "OS Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "int"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "DATACENTER",
+            "desc": "Data Center",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER",
+                    "desc": "Clusters",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOID",
+                            "desc": "MOID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DATASTORE",
+                            "desc": "DataStore",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "MOID",
+                                    "desc": "MOID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "NETWORK",
+                            "desc": "Network",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "MOID",
+                                    "desc": "MOID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONTAIN_HOST",
+                            "desc": "Contain Host",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UUID",
+                                    "desc": "UUID",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONTAIN_VMS",
+                            "desc": "Contain Virtual System",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "MGMT_IP",
+                                    "desc": "Vcenter IP",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VM_ID",
+                                    "desc": "Virtual System ID",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "FULLNAME",
+            "desc": "Full Name",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCEUUID",
+            "desc": "Instance UUID",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        }
+    ]
 }

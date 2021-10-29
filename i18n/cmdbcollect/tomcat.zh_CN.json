@@ -1,238 +1,294 @@
 {
-	"label": "Tomcat",
-	"collection": "COLLECT_INS",
-	"filter": {
-		"_OBJ_TYPE": "Tomcat"
-	},
-	"fields": [{
-			"name": "OS_ID",
-			"desc": "OS ID",
-			"type": "String"
-		}, {
-			"name": "EXE_PATH",
-			"desc": "执行文件路径",
-			"type": "String"
-		}, {
-			"name": "COMMAND",
-			"desc": "命令行",
-			"type": "String"
-		}, {
-			"name": "OS_USER",
-			"desc": "OS用户",
-			"type": "String"
-		}, {
-			"name": "_OBJ_CATEGORY",
-			"desc": "归属类型",
-			"type": "String"
-		}, {
-			"name": "_OBJ_TYPE",
-			"desc": "中间件类型",
-			"type": "String"
-		}, {
-			"name": "MGMT_IP",
-			"desc": "管理IP",
-			"type": "String"
-		}, {
-			"name": "MGMT_PORT",
-			"desc": "管理端口",
-			"type": "int"
-		}, {
-			"name": "SERVER_NAME",
-			"desc": "服务名",
-			"type": "String"
-		}, {
-			"name": "VERSION",
-			"desc": "版本",
-			"type": "String"
-		}, {
-			"name": "PORT",
-			"desc": "Port",
-			"type": "String"
-		}, {
-			"name": "SSL_PORT",
-			"desc": "SSL端口",
-			"type": "String"
-		}, {
-			"name": "ADMIN_PORT",
-			"desc": "管理端口",
-			"type": "String"
-		}, {
-			"name": "ADMIN_SSL_PORT",
-			"desc": "管理SSL端口",
-			"type": "String"
-		}, {
-			"name": "MON_PORT",
-			"desc": "监控端口",
-			"type": "String"
-		}, {
-			"name": "PORTS",
-			"desc": "所有端口列表",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "VALUE",
-				"desc": "端口",
-				"type": "int"
-			}]
-		}, {
-			"name": "INSTALL_PATH",
-			"desc": "安装目录",
-			"type": "String"
-		}, {
-			"name": "CONFIG_PATH",
-			"desc": "配置目录",
-			"type": "String"
-		}, {
-			"name": "JAVA_HOME",
-			"desc": "JAVA目录",
-			"type": "String"
-		}, {
-			"name": "JAVA_VERSION",
-			"desc": "JAVA版本",
-			"type": "String"
-		}, {
-			"name": "JVM_TYPE",
-			"desc": "JVM类型",
-			"type": "String"
-		}, {
-			"name": "JVM_VERSION",
-			"desc": "JVM版本",
-			"type": "String"
-		}, {
-			"name": "MIN_HEAP_SIZE",
-			"desc": "最小Heap Size",
-			"type": "int"
-		}, {
-			"name": "MAX_HEAP_SIZE",
-			"desc": "最大Heap Size",
-			"type": "int"
-		}, {
-			"name": "CATALINA_HOME",
-			"desc": "Catalina家目录",
-			"type": "String"
-		}, {
-			"name": "CATALINA_BASE",
-			"desc": "Catalina根目录",
-			"type": "String"
-		}, {
-			"name": "JMX_PORT",
-			"desc": "JMX端口",
-			"type": "String"
-		}, {
-			"name": "JMX_SSL",
-			"desc": "JMX是否开启SSL服务",
-			"type": "String"
-		}, {
-			"name": "REF_INS",
-			"desc": "调用的其他实例",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "_OBJ_CATEGORY",
-				"desc": "归属类别",
-				"type": "String"
-			}, {
-				"name": "_OBJ_TYPE",
-				"desc": "对象类型",
-				"type": "String"
-			}, {
-				"name": "OS_ID",
-				"desc": "OS ID",
-				"type": "String"
-			}, {
-				"name": "MGMT_IP",
-				"desc": "管理IP",
-				"type": "String"
-			}, {
-				"name": "PORT",
-				"desc": "端口",
-				"type": "int"
-			}]
-		}, {
-			"name": "REF_DB",
-			"desc": "调用的数据库",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "_OBJ_CATEGORY",
-				"desc": "归属类别",
-				"type": "String"
-			}, {
-				"name": "_OBJ_TYPE",
-				"desc": "对象类型",
-				"type": "String"
-			}, {
-				"name": "OS_ID",
-				"desc": "OS ID",
-				"type": "String"
-			}, {
-				"name": "MGMT_IP",
-				"desc": "管理IP",
-				"type": "String"
-			}, {
-				"name": "PORT",
-				"desc": "端口",
-				"type": "int"
-			}]
-		}, {
-			"name": "REF_CLUSTER",
-			"desc": "调用的集群",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "_OBJ_CATEGORY",
-					"desc": "归属类别",
-					"type": "String"
-				},
-				{
-					"name": "_OBJ_TYPE",
-					"desc": "对象类型",
-					"type": "String"
-				},
-				{
-					"name": "UNIQUE_NAME",
-					"desc": "集群唯一标记",
-					"type": "String"
-				},
-				{
-					"name": "CLUSTER_MODE",
-					"desc": "集群模式",
-					"type": "String"
-				},
-				{
-					"name": "CLUSTER_SOFTWARE",
-					"desc": "集群软件",
-					"type": "String"
-				},
-				{
-					"name": "VIP",
-					"desc": "服务IP",
-					"type": "String"
-				},
-				{
-					"name": "PORT",
-					"desc": "端口",
-					"type": "int"
-				}
-			]
-		},
-		{
-			"name": "RUN_ON",
-			"desc": "所在OS",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "_OBJ_CATEGORY",
-				"desc": "归属类别",
-				"type": "String"
-			}, {
-				"name": "_OBJ_Type",
-				"desc": "OS类型",
-				"type": "String"
-			}, {
-				"name": "OS_ID",
-				"desc": "OS CMDB ID",
-				"type": "String"
-			}, {
-				"name": "MGMT_IP",
-				"desc": "OS IP",
-				"type": "String"
-			}]
-		}
-	]
+    "label": "Tomcat",
+    "collection": "COLLECT_INS",
+    "filter": {
+        "_OBJ_TYPE": "Tomcat"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "管理端口",
+            "type": "int"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "管理端口",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "管理SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "MON_PORT",
+            "desc": "监控端口",
+            "type": "String"
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "CATALINA_BASE",
+            "desc": "Catalina根目录",
+            "type": "String"
+        },
+        {
+            "name": "CATALINA_HOME",
+            "desc": "Catalina家目录",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA目录",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA版本",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX端口",
+            "type": "String"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX是否开启SSL服务",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM类型",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM版本",
+            "type": "String"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "最大Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "最小Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS用户",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "所有端口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "端口",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "REF_DB",
+            "desc": "调用的数据库",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "REF_INS",
+            "desc": "调用的其他实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_Type",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
 }

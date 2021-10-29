@@ -4,108 +4,137 @@
     "filter": {
         "_OBJ_TYPE": "F5"
     },
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "归属对象类型",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "交换机品牌",
-        "type": "String"
-    }, {
-        "name": "STATE",
-        "desc": "Used State",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "序列号",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "管理IP",
-        "type": "String"
-    }, {
-        "name": "IP",
-        "desc": "IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "设备名",
-        "type": "String"
-    }, {
-        "name": "UPTIME",
-        "desc": "Up Time",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "厂商",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "设备型号",
-        "type": "String"
-    }, {
-        "name": "VERSION",
-        "desc": "版本",
-        "type": "String"
-    }, {
-        "name": "VIRTUAL_SERVERS",
-        "desc": "VS服务",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "名称",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "交换机品牌",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "IP",
             "desc": "IP",
             "type": "String"
-        }, {
-            "name": "PORT",
-            "desc": "端口",
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
             "type": "String"
-        }, {
-            "name": "POOL_NAME",
-            "desc": "POOL名",
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
             "type": "String"
-        }, {
-            "name": "POOL",
-            "desc": "POOL",
-            "type": "JsonObject",
-            "subset": [{
-                "name": "NAME",
-                "desc": "名称",
-                "type": "String"
-            }, {
-                "name": "LB_MODE",
-                "desc": "均衡模式",
-                "type": "String"
-            }, {
-                "name": "MONITOR_RULE",
-                "desc": "监控规则",
-                "type": "String"
-            }]
-        }, {
-            "name": "MEMBERS",
-            "desc": "成员列表",
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "VIRTUAL_SERVERS",
+            "desc": "VS服务",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "名称",
-                "type": "String"
-            }, {
-                "name": "POOL_NAME",
-                "desc": "POOL名称",
-                "type": "String"
-            }, {
-                "name": "IP",
-                "desc": "IP",
-                "type": "String"
-            }, {
-                "name": "PORT",
-                "desc": "端口",
-                "type": "String"
-            }]
-        }]
-    }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "POOL名",
+                    "type": "String"
+                },
+                {
+                    "name": "POOL",
+                    "desc": "POOL",
+                    "type": "JsonObject",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "LB_MODE",
+                            "desc": "均衡模式",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MONITOR_RULE",
+                            "desc": "监控规则",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "MEMBERS",
+                    "desc": "成员列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "POOL_NAME",
+                            "desc": "POOL名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP",
+                            "desc": "IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

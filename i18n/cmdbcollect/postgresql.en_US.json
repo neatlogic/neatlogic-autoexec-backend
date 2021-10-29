@@ -4,218 +4,277 @@
     "filter": {
         "_OBJ_TYPE": "Postgresql"
     },
-    "fields": [{
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        }, {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        }, {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        }, {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "String"
-        }, {
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "int"
-        }, {
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
-        }, {
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "String"
-        }, {
-            "name": "SSL_PORT",
-            "desc": "SSL Port",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "MON_PORT",
             "desc": "Monitor Port",
             "type": "String"
-        }, {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Port",
-                "type": "int"
-            }]
-        }, {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
             "type": "String"
-        }, {
-            "name": "DATESTYLE",
-            "desc": "datestyle",
-            "type": "String"
-        }, {
-            "name": "LISTEN_ADDRESSES",
-            "desc": "listen_addresses",
-            "type": "String"
-        }, {
-            "name": "WAL_BUFFERS",
-            "desc": "wal_buffers",
-            "type": "String"
-        }, {
-            "name": "MAINTENANCE_WORK_MEM",
-            "desc": "maintenance_work_mem",
-            "type": "String"
-        }, {
-            "name": "COMMIT_SIBLINGS",
-            "desc": "commit_siblings",
-            "type": "String"
-        }, {
-            "name": "HBA_FILE",
-            "desc": "hba_file",
-            "type": "String"
-        }, {
-            "name": "LC_TIME",
-            "desc": "lc_time",
-            "type": "String"
-        }, {
-            "name": "MAX_PREPARED_TRANSACTIONS",
-            "desc": "max_prepared_transactions",
-            "type": "String"
-        }, {
-            "name": "DATA_DIRECTORY",
-            "desc": "data_directory",
-            "type": "String"
-        }, {
-            "name": "MAX_LOCKS_PER_TRANSACTION",
-            "desc": "max_locks_per_transaction",
-            "type": "String"
-        }, {
-            "name": "CLUSTER_NAME",
-            "desc": "cluster_name",
-            "type": "String"
-        }, {
-            "name": "DEFAULT_TEXT_SEARCH_CONFIG",
-            "desc": "default_text_search_config",
-            "type": "String"
-        }, {
-            "name": "CHECKPOINT_COMPLETION_TARGET",
-            "desc": "checkpoint_completion_target",
-            "type": "String"
-        }, {
-            "name": "CHECKPOINT_SEGMENTS",
-            "desc": "checkpoint_segments",
-            "type": "String"
-        }, {
-            "name": "TRACK_COMMIT_TIMESTAMP",
-            "desc": "track_commit_timestamp",
-            "type": "String"
-        }, {
-            "name": "SERVER_VERSION",
-            "desc": "server_version",
-            "type": "String"
-        }, {
-            "name": "MAX_CONNECTIONS",
-            "desc": "max_connections",
-            "type": "String"
-        }, {
-            "name": "WAL_LEVEL",
-            "desc": "wal_level",
-            "type": "String"
-        }, {
-            "name": "WAL_LOG_HINTS",
-            "desc": "wal_log_hints",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "APPLICATION_NAME",
             "desc": "application_name",
             "type": "String"
-        }, {
-            "name": "MAX_WORKER_PROCESSES",
-            "desc": "max_worker_processes",
+        },
+        {
+            "name": "CHECKPOINT_COMPLETION_TARGET",
+            "desc": "checkpoint_completion_target",
             "type": "String"
-        }, {
-            "name": "SHARED_BUFFERS",
-            "desc": "shared_buffers",
+        },
+        {
+            "name": "CHECKPOINT_SEGMENTS",
+            "desc": "checkpoint_segments",
             "type": "String"
-        }, {
-            "name": "WORK_MEM",
-            "desc": "work_mem",
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "cluster_name",
             "type": "String"
-        }, {
-            "name": "EFFECTIVE_CACHE_SIZE",
-            "desc": "effective_cache_size",
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
             "type": "String"
-        }, {
-            "name": "HOT_STANDBY",
-            "desc": "hot_standby",
-            "type": "String"
-        }, {
-            "name": "MAX_REPLICATION_SLOTS",
-            "desc": "max_replication_slots",
-            "type": "String"
-        }, {
-            "name": "IDENT_FILE",
-            "desc": "ident_file",
-            "type": "String"
-        }, {
-            "name": "MAX_WAL_SENDERS",
-            "desc": "max_wal_senders",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "COMMIT_DELAY",
             "desc": "commit_delay",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "COMMIT_SIBLINGS",
+            "desc": "commit_siblings",
+            "type": "String"
+        },
+        {
             "name": "DATABASES",
             "desc": "dataBases",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "DB Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "DB Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DATA_DIRECTORY",
+            "desc": "data_directory",
+            "type": "String"
+        },
+        {
+            "name": "DATESTYLE",
+            "desc": "datestyle",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TEXT_SEARCH_CONFIG",
+            "desc": "default_text_search_config",
+            "type": "String"
+        },
+        {
+            "name": "EFFECTIVE_CACHE_SIZE",
+            "desc": "effective_cache_size",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "HBA_FILE",
+            "desc": "hba_file",
+            "type": "String"
+        },
+        {
+            "name": "HOT_STANDBY",
+            "desc": "hot_standby",
+            "type": "String"
+        },
+        {
+            "name": "IDENT_FILE",
+            "desc": "ident_file",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "LC_TIME",
+            "desc": "lc_time",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_ADDRESSES",
+            "desc": "listen_addresses",
+            "type": "String"
+        },
+        {
+            "name": "MAINTENANCE_WORK_MEM",
+            "desc": "maintenance_work_mem",
+            "type": "String"
+        },
+        {
+            "name": "MAX_CONNECTIONS",
+            "desc": "max_connections",
+            "type": "String"
+        },
+        {
+            "name": "MAX_LOCKS_PER_TRANSACTION",
+            "desc": "max_locks_per_transaction",
+            "type": "String"
+        },
+        {
+            "name": "MAX_PREPARED_TRANSACTIONS",
+            "desc": "max_prepared_transactions",
+            "type": "String"
+        },
+        {
+            "name": "MAX_REPLICATION_SLOTS",
+            "desc": "max_replication_slots",
+            "type": "String"
+        },
+        {
+            "name": "MAX_WAL_SENDERS",
+            "desc": "max_wal_senders",
+            "type": "String"
+        },
+        {
+            "name": "MAX_WORKER_PROCESSES",
+            "desc": "max_worker_processes",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [{
-                "name": "_OBJ_CATEGORY",
-                "desc": "Object Category",
-                "type": "String"
-            }, {
-                "name": "_OBJ_Type",
-                "desc": "Object Type",
-                "type": "String"
-            }, {
-                "name": "OS_ID",
-                "desc": "OS CMDB ID",
-                "type": "String"
-            }, {
-                "name": "MGMT_IP",
-                "desc": "OS IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_Type",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SERVER_VERSION",
+            "desc": "server_version",
+            "type": "String"
+        },
+        {
+            "name": "SHARED_BUFFERS",
+            "desc": "shared_buffers",
+            "type": "String"
+        },
+        {
+            "name": "TRACK_COMMIT_TIMESTAMP",
+            "desc": "track_commit_timestamp",
+            "type": "String"
+        },
+        {
+            "name": "WAL_BUFFERS",
+            "desc": "wal_buffers",
+            "type": "String"
+        },
+        {
+            "name": "WAL_LEVEL",
+            "desc": "wal_level",
+            "type": "String"
+        },
+        {
+            "name": "WAL_LOG_HINTS",
+            "desc": "wal_log_hints",
+            "type": "String"
+        },
+        {
+            "name": "WORK_MEM",
+            "desc": "work_mem",
+            "type": "String"
         }
     ]
 }

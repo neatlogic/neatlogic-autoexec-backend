@@ -2,133 +2,174 @@
     "label": "存储",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "归属对象类型",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "交换机品牌",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "序列号",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "管理IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "设备名",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "设备型号",
-        "type": "String"
-    }, {
-        "name": "UPTIME",
-        "desc": "Up Time",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "厂商",
-        "type": "String"
-    }, {
-        "name": "BRAND",
-        "desc": "品牌",
-        "type": "String"
-    }, {
-        "name": "LUNS",
-        "desc": "逻辑磁盘列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "ID",
-            "desc": "ID",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
             "type": "String"
-        }, {
-            "name": "NAME",
-            "desc": "名称",
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "交换机品牌",
             "type": "String"
-        }, {
-            "name": "WWID",
-            "desc": "Lun ID",
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
             "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "大小(GB)",
-            "type": "float"
-        }]
-    }, {
-        "name": "VOLUMES",
-        "desc": "卷列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "名称",
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
             "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "大小(GB)",
-            "type": "float"
-        }, {
-            "name": "USED",
-            "desc": "使用(GB)",
-            "type": "float"
-        }, {
-            "name": "FREE",
-            "desc": "空闲(GB)",
-            "type": "float"
-        }, {
-            "name": "USED_PERCENT",
-            "desc": "使用百分比(%)",
-            "type": "float"
-        }]
-    }, {
-        "name": "POOLS",
-        "desc": "盘池列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "名称",
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
             "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "大小(GB)",
-            "type": "float"
-        }, {
-            "name": "USED",
-            "desc": "使用(GB)",
-            "type": "float"
-        }, {
-            "name": "FREE",
-            "desc": "空闲(GB)",
-            "type": "float"
-        }, {
-            "name": "USED_PERCENT",
-            "desc": "使用百分比(%)",
-            "type": "float"
-        }, {
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "ID",
-                "desc": "ID",
-                "type": "String"
-            }, {
-                "name": "NAME",
-                "desc": "名称",
-                "type": "String"
-            }, {
-                "name": "WWID",
-                "desc": "Lun ID",
-                "type": "String"
-            }, {
-                "name": "CAPACITY",
-                "desc": "大小(GB)",
-                "type": "float"
-            }]
-        }]
-    }]
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "WWID",
+                    "desc": "Lun ID",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "POOLS",
+            "desc": "盘池列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED_PERCENT",
+                    "desc": "使用百分比(%)",
+                    "type": "float"
+                },
+                {
+                    "name": "LUNS",
+                    "desc": "逻辑磁盘列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "ID",
+                            "desc": "ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "WWID",
+                            "desc": "Lun ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CAPACITY",
+                            "desc": "大小(GB)",
+                            "type": "float"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "VOLUMES",
+            "desc": "卷列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED_PERCENT",
+                    "desc": "使用百分比(%)",
+                    "type": "float"
+                }
+            ]
+        }
+    ]
 }

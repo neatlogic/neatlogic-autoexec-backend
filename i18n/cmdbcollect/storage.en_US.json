@@ -2,137 +2,179 @@
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "Object Type",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "Application Type",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "Chassis Serial",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "Managment IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "Device Name",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "Device Model",
-        "type": "String"
-    }, {
-        "name": "UPTIME",
-        "desc": "Up Time",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "Vendor",
-        "type": "String"
-    }, {
-        "name": "BRAND",
-        "desc": "Brand",
-        "type": "String"
-    }, {
-        "name": "CAPACITY",
-        "desc": "Capacity(TB)",
-        "type": "float"
-    }, {
-        "name": "LUNS",
-        "desc": "LUN List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "ID",
-            "desc": "ID",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
             "type": "String"
-        }, {
-            "name": "NAME",
-            "desc": "Name",
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
             "type": "String"
-        }, {
-            "name": "WWID",
-            "desc": "Lun ID",
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "Brand",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "CAPACITY",
-            "desc": "Capacity(GB)",
+            "desc": "Capacity(TB)",
             "type": "float"
-        }]
-    }, {
-        "name": "VOLUMES",
-        "desc": "Volume List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "Name",
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
             "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "Capacity(GB)",
-            "type": "float"
-        }, {
-            "name": "USED",
-            "desc": "Used(GB)",
-            "type": "float"
-        }, {
-            "name": "FREE",
-            "desc": "Free(GB)",
-            "type": "float"
-        }, {
-            "name": "USED_PERCENT",
-            "desc": "Used percent(%)",
-            "type": "float"
-        }]
-    }, {
-        "name": "POOLS",
-        "desc": "POOL List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "Name",
-            "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "Capacity(GB)",
-            "type": "float"
-        }, {
-            "name": "USED",
-            "desc": "Used(GB)",
-            "type": "float"
-        }, {
-            "name": "FREE",
-            "desc": "Free(GB)",
-            "type": "float"
-        }, {
-            "name": "USED_PERCENT",
-            "desc": "Used Percent(%)",
-            "type": "float"
-        }, {
+        },
+        {
             "name": "LUNS",
-            "desc": "LUNS In Pool",
+            "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [{
-                "name": "ID",
-                "desc": "ID",
-                "type": "String"
-            }, {
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            }, {
-                "name": "WWID",
-                "desc": "Lun ID",
-                "type": "String"
-            }, {
-                "name": "CAPACITY",
-                "desc": "Capacity(GB)",
-                "type": "float"
-            }]
-        }]
-    }]
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWID",
+                    "desc": "Lun ID",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "POOLS",
+            "desc": "POOL List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED_PERCENT",
+                    "desc": "Used Percent(%)",
+                    "type": "float"
+                },
+                {
+                    "name": "LUNS",
+                    "desc": "LUNS In Pool",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "ID",
+                            "desc": "ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "WWID",
+                            "desc": "Lun ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CAPACITY",
+                            "desc": "Capacity(GB)",
+                            "type": "float"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "VOLUMES",
+            "desc": "Volume List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED_PERCENT",
+                    "desc": "Used percent(%)",
+                    "type": "float"
+                }
+            ]
+        }
+    ]
 }

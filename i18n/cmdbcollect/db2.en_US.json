@@ -4,213 +4,268 @@
     "filter": {
         "_OBJ_TYPE": "DB2"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
             "type": "String"
-        }, {
-            "name": "STATE",
-            "desc": "Used State",
-            "type": "String"
-        }, {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        }, {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        }, {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        }, {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "int"
-        }, {
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
-        }, {
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "String"
-        }, {
-            "name": "SSL_PORT",
-            "desc": "SSL Port",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "ADMIN_PORT",
             "desc": "Admin Port",
             "type": "String"
-        }, {
+        },
+        {
             "name": "ADMIN_SSL_PORT",
             "desc": "Admin SSL Port",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MON_PORT",
             "desc": "Monitor Port",
             "type": "String"
-        }, {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Port",
-                "type": "int"
-            }]
-        }, {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
             "type": "String"
-        }, {
-            "name": "DB2_HOME",
-            "desc": "DB2 Home Dir",
-            "type": "String"
-        }, {
-            "name": "DB2LIB",
-            "desc": "DB2 Lib Dir",
-            "type": "String"
-        }, {
-            "name": "INSTANCE_NAME",
-            "desc": "Intance Name",
-            "type": "String"
-        }, {
-            "name": "MEMORY_LIMIT",
-            "desc": "Max Memory(MB)",
-            "type": "float"
-        }, {
-            "name": "MEMORY_CURRENT_USAGE",
-            "desc": "Memory Usage(MB)",
-            "type": "float"
-        }, {
-            "name": "MEMORY_HWM_USAGE",
-            "desc": "Memory HWM Usage(MB)",
-            "type": "float"
-        }, {
+        },
+        {
             "name": "CACHED_MEMORY",
             "desc": "Cached Memory(MB)",
             "type": "float"
-        }, {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "User Name",
-                "type": "int"
-            }]
-        }, {
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "String"
+        },
+        {
             "name": "DATABASES",
             "desc": "Database List",
             "type": "JsonArray",
-            "subset": [{
-                "name": "DB_NAME",
-                "desc": "DB Name",
-                "type": "int"
-            }, {
-                "name": "DB_DIRECTORY",
-                "desc": "DB Directory",
-                "type": "int"
-            }, {
-                "name": "MEM_USED",
-                "desc": "Memory Used(MB)",
-                "type": "float"
-            }, {
-                "name": "HWM_USED",
-                "desc": "HWM Used(MB)",
-                "type": "float"
-            }, {
-                "name": "CACHED",
-                "desc": "Cahced(MB)",
-                "type": "float"
-            }, {
-                "name": "TABLESPACES",
-                "desc": "Table Spaces",
-                "type": "JsonArray",
-                "subset": [{
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }, {
-                    "name": "TABLESPACE_SIZE",
-                    "desc": "Size(GB)",
+            "subset": [
+                {
+                    "name": "DB_NAME",
+                    "desc": "DB Name",
+                    "type": "int"
+                },
+                {
+                    "name": "DB_DIRECTORY",
+                    "desc": "DB Directory",
+                    "type": "int"
+                },
+                {
+                    "name": "MEM_USED",
+                    "desc": "Memory Used(MB)",
                     "type": "float"
-                }, {
-                    "name": "AUTO_EXTEND",
-                    "desc": "Auto Extend",
-                    "type": "String"
-                }, {
-                    "name": "TABLESPACE_USED",
-                    "desc": "Used(GB)",
+                },
+                {
+                    "name": "HWM_USED",
+                    "desc": "HWM Used(MB)",
                     "type": "float"
-                }, {
-                    "name": "TABLESPACE_FREE",
-                    "desc": "Free(GB)",
+                },
+                {
+                    "name": "CACHED",
+                    "desc": "Cahced(MB)",
                     "type": "float"
-                }, {
-                    "name": "TABLESPACE_FREE_PERCENT",
-                    "desc": "Free%",
-                    "type": "float"
-                }, {
-                    "name": "TABLESPACE_USED_PERCENT",
-                    "desc": "Used%",
-                    "type": "float"
-                }, {
-                    "name": "DATA_FILES",
-                    "desc": "Data File List",
+                },
+                {
+                    "name": "TABLESPACES",
+                    "desc": "Table Spaces",
                     "type": "JsonArray",
-                    "subset": [{
-                        "name": "DATA_FILE_PATH",
-                        "desc": "Path",
-                        "type": "String"
-                    }, {
-                        "name": "DATA_FILE_SIZE",
-                        "desc": "Size(GB)",
-                        "type": "float"
-                    }]
-                }]
-            }]
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TABLESPACE_SIZE",
+                            "desc": "Size(GB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "AUTO_EXTEND",
+                            "desc": "Auto Extend",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TABLESPACE_USED",
+                            "desc": "Used(GB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "TABLESPACE_FREE",
+                            "desc": "Free(GB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "TABLESPACE_FREE_PERCENT",
+                            "desc": "Free%",
+                            "type": "float"
+                        },
+                        {
+                            "name": "TABLESPACE_USED_PERCENT",
+                            "desc": "Used%",
+                            "type": "float"
+                        },
+                        {
+                            "name": "DATA_FILES",
+                            "desc": "Data File List",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "DATA_FILE_PATH",
+                                    "desc": "Path",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "DATA_FILE_SIZE",
+                                    "desc": "Size(GB)",
+                                    "type": "float"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DB2LIB",
+            "desc": "DB2 Lib Dir",
+            "type": "String"
+        },
+        {
+            "name": "DB2_HOME",
+            "desc": "DB2 Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Intance Name",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_CURRENT_USAGE",
+            "desc": "Memory Usage(MB)",
+            "type": "float"
+        },
+        {
+            "name": "MEMORY_HWM_USAGE",
+            "desc": "Memory HWM Usage(MB)",
+            "type": "float"
+        },
+        {
+            "name": "MEMORY_LIMIT",
+            "desc": "Max Memory(MB)",
+            "type": "float"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [{
-                "name": "_OBJ_CATEGORY",
-                "desc": "Object Category",
-                "type": "String"
-            }, {
-                "name": "_OBJ_Type",
-                "desc": "Object Type",
-                "type": "String"
-            }, {
-                "name": "OS_ID",
-                "desc": "OS CMDB ID",
-                "type": "String"
-            }, {
-                "name": "MGMT_IP",
-                "desc": "OS IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_Type",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "int"
+                }
+            ]
         }
     ]
 }

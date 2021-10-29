@@ -4,158 +4,202 @@
     "filter": {
         "_OBJ_TYPE": "Zookeeper"
     },
-    "fields": [{
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        }, {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        }, {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        }, {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "String"
-        }, {
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "int"
-        }, {
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
-        }, {
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "String"
-        }, {
-            "name": "SSL_PORT",
-            "desc": "SSL Port",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "ADMIN_PORT",
             "desc": "Admin Port",
             "type": "String"
-        }, {
+        },
+        {
             "name": "ADMIN_SSL_PORT",
             "desc": "Admin SSL Port",
             "type": "String"
-        }, {
+        },
+        {
             "name": "MON_PORT",
             "desc": "Monitor Port",
             "type": "String"
-        }, {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Port",
-                "type": "int"
-            }]
-        }, {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
             "type": "String"
-        }, {
-            "name": "CONFIG_PATH",
-            "desc": "Conf Path",
-            "type": "String"
-        }, {
-            "name": "JAVA_HOME",
-            "desc": "JAVA Home Dir",
-            "type": "String"
-        }, {
-            "name": "JAVA_VERSION",
-            "desc": "JAVA Version",
-            "type": "String"
-        }, {
-            "name": "JVM_TYPE",
-            "desc": "JVM Type",
-            "type": "String"
-        }, {
-            "name": "JVM_VERSION",
-            "desc": "JVM Version",
-            "type": "String"
-        }, {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "int"
-        }, {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "Max Heap Size",
-            "type": "int"
-        }, {
-            "name": "JMX_PORT",
-            "desc": "JMX Port",
-            "type": "int"
-        }, {
-            "name": "JMX_SSL",
-            "desc": "JMX SSL Enabled",
-            "type": "String"
-        }, {
-            "name": "MAIN_LIB",
-            "desc": "Main Lib",
-            "type": "String"
-        }, {
-            "name": "DATA_DIR",
-            "desc": "Data Dir",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "ADMIN_ENABLE",
             "desc": "Admin Enable",
             "type": "String"
-        }, {
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Conf Path",
+            "type": "String"
+        },
+        {
+            "name": "DATA_DIR",
+            "desc": "Data Dir",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA Version",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX Port",
+            "type": "int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX SSL Enabled",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM Type",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM Version",
+            "type": "String"
+        },
+        {
+            "name": "MAIN_LIB",
+            "desc": "Main Lib",
+            "type": "String"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "Max Heap Size",
+            "type": "int"
+        },
+        {
             "name": "MEMBERS",
             "desc": "Members",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [{
-                "name": "_OBJ_CATEGORY",
-                "desc": "Object Category",
-                "type": "String"
-            }, {
-                "name": "_OBJ_Type",
-                "desc": "Object Type",
-                "type": "String"
-            }, {
-                "name": "OS_ID",
-                "desc": "OS CMDB ID",
-                "type": "String"
-            }, {
-                "name": "MGMT_IP",
-                "desc": "OS IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_Type",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

@@ -4,357 +4,443 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },
-    "fields": [{
-        "name": "OS_ID",
-        "desc": "OS ID",
-        "type": "String"
-    }, {
-        "name": "OS_USER",
-        "desc": "OS User",
-        "type": "String"
-    }, {
-        "name": "EXE_PATH",
-        "desc": "Executable File Path",
-        "type": "String"
-    }, {
-        "name": "COMMAND",
-        "desc": "Command Line",
-        "type": "String"
-    }, {
-        "name": "_OBJ_CATEGORY",
-        "desc": "Object Type",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "Application Type",
-        "type": "String"
-    }, {
-        "name": "NAME",
-        "desc": "DB Name",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "Managment IP",
-        "type": "String"
-    }, {
-        "name": "MGMT_PORT",
-        "desc": "Managment Port",
-        "type": "int"
-    }, {
-        "name": "SERVER_NAME",
-        "desc": "Server Name",
-        "type": "String"
-    }, {
-        "name": "VERSION",
-        "desc": "Version",
-        "type": "String"
-    }, {
-        "name": "PORT",
-        "desc": "Port",
-        "type": "String"
-    }, {
-        "name": "SSL_PORT",
-        "desc": "SSL Port",
-        "type": "String"
-    }, {
-        "name": "ADMIN_PORT",
-        "desc": "Admin Port",
-        "type": "String"
-    }, {
-        "name": "ADMIN_SSL_PORT",
-        "desc": "Admin SSL Port",
-        "type": "String"
-    }, {
-        "name": "MON_PORT",
-        "desc": "Monitor Port",
-        "type": "String"
-    }, {
-        "name": "PORTS",
-        "desc": "Port List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "VALUE",
-            "desc": "Port",
-            "type": "int"
-        }]
-    }, {
-        "name": "INSTALL_PATH",
-        "desc": "Install Path",
-        "type": "String"
-    }, {
-        "name": "CONFIG_PATH",
-        "desc": "Config Path",
-        "type": "String"
-    }, {
-        "name": "ORACLE_HOME",
-        "desc": "Oralce Home Dir",
-        "type": "String"
-    }, {
-        "name": "ORACLE_BASE",
-        "desc": "Oralce Base Dir",
-        "type": "String"
-    }, {
-        "name": "GRID_HOME",
-        "desc": "Grid Home Dir",
-        "type": "String"
-    }, {
-        "name": "GRID_BASE",
-        "desc": "Grid Base Dir",
-        "type": "String"
-    }, {
-        "name": "DBID",
-        "desc": "DBID",
-        "type": "String"
-    }, {
-        "name": "IS_RAC",
-        "desc": "Is RAC",
-        "type": "int"
-    }, {
-        "name": "ISCDB",
-        "desc": "Is CDB",
-        "type": "int"
-    }, {
-        "name": "ORACLE_HOSTNAME",
-        "desc": "Oralce Host Name",
-        "type": "String"
-    }, {
-        "name": "ORACLE_SID",
-        "desc": "Oralce SID",
-        "type": "String"
-    }, {
-        "name": "INSTANCE_NAME",
-        "desc": "Instance Name",
-        "type": "String"
-    }, {
-        "name": "CLUSTER_NAME",
-        "desc": "Cluster Name",
-        "type": "String"
-    }, {
-        "name": "CLUSTER_VERSION",
-        "desc": "Cluster Version",
-        "type": "String"
-    }, {
-        "name": "NODE_VIP",
-        "desc": "Node VIP",
-        "type": "String"
-    }, {
-        "name": "LOG_MODE",
-        "desc": "Log Mode",
-        "type": "String"
-    }, {
-        "name": "SGA_MAX_SIZE",
-        "desc": "SGA最大内存(MB)",
-        "type": "String"
-    }, {
-        "name": "MEMORY_TARGET",
-        "desc": "内存目标",
-        "type": "String"
-    }, {
-        "name": "LOG_ARCHIVE_DEST",
-        "desc": "Log归档目标",
-        "type": "String"
-    }, {
-        "name": "NLS_CHARACTERSET",
-        "desc": "NLS Charset",
-        "type": "String"
-    }, {
-        "name": "SERVICE_NAME",
-        "desc": "Service Name",
-        "type": "String"
-    }, {
-        "name": "SERVICE_NAMES",
-        "desc": "Service Name List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "Name",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
             "type": "String"
-        }]
-    }, {
-        "name": "LISTEN_ADDRS",
-        "desc": "Listen Addresses",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "IP",
-                "desc": "IP",
-                "type": "String"
-            },
-            {
-                "name": "PORT",
-                "desc": "Port",
-                "type": "int"
-            }
-        ]
-    }, {
-        "name": "SERVICE_INFOS",
-        "desc": "Service List",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            },
-            {
-                "name": "INSTANCES",
-                "desc": "Instances",
-                "type": "JsonArray",
-                "subset": [{
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "int"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "Admin Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "Admin SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "MON_PORT",
+            "desc": "Monitor Port",
+            "type": "String"
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Config Path",
+            "type": "String"
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
+            "type": "String"
+        },
+        {
+            "name": "DISK_GROUPS",
+            "desc": "Disk Group List",
+            "type": "JsonArray",
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
-                }, {
-                    "name": "STATUS",
-                    "desc": "Status",
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
                     "type": "String"
-                }]
-            }
-        ]
-    }, {
-        "name": "NODES",
-        "desc": "RAC Node List",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            },
-            {
-                "name": "IP",
-                "desc": "IP",
-                "type": "String"
-            },
-            {
-                "name": "INSTANCE_NAME",
-                "desc": "Instance Name",
-                "type": "String"
-            }
-        ]
-    }, {
-        "name": "USERS",
-        "desc": "User List",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "USERNAME",
-                "desc": "User Name",
-                "type": "String"
-            },
-            {
-                "name": "DEFAULT_TABLESPACE",
-                "desc": "Default Table Space",
-                "type": "String"
-            }
-        ]
-    }, {
-        "name": "TABLE_SPACESES",
-        "desc": "Table Space List",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "TABLESPACE_NAME",
-                "desc": "Table Space Name",
-                "type": "String"
-            }, {
-                "name": "TOTAL_GB",
-                "desc": "Capacity(GB)",
-                "type": "float"
-            }, {
-                "name": "USED_GB",
-                "desc": "Used(GB)",
-                "type": "float"
-            }, {
-                "name": "FREE_GB",
-                "desc": "Free(GB)",
-                "type": "float"
-            }, {
-                "name": "USED%",
-                "desc": "Used%",
-                "type": "float"
-            },
-            {
-                "name": "DATA_FILES",
-                "desc": "Data File List",
-                "type": "JsonArray",
-                "subset": [{
-                    "name": "FILE_NAME",
-                    "desc": "File Name",
-                    "type": "String"
-                }, {
-                    "name": "SIZE",
-                    "desc": "File Size(GB)",
-                    "type": "float"
-                }, {
-                    "name": "AUTOEXTENSIBLE",
-                    "desc": "Auto Extensible",
-                    "type": "String"
-                }]
-            }
-        ]
-    }, {
-        "name": "DISK_GROUPS",
-        "desc": "Disk Group List",
-        "type": "JsonArray",
-        "subset": [{
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            }, {
-                "name": "TYPE",
-                "desc": "Type",
-                "type": "String"
-            }, {
-                "name": "TOTAL_MB",
-                "desc": "Size(MB)",
-                "type": "float"
-            }, {
-                "name": "USED_MB",
-                "desc": "Use(MB)",
-                "type": "float"
-            }, {
-                "name": "FREE_MB",
-                "desc": "Free(MB)",
-                "type": "float"
-            }, {
-                "name": "USED%",
-                "desc": "Used Percent",
-                "type": "float"
-            },
-            {
-                "name": "DISKS",
-                "desc": "Disk List",
-                "type": "JsonArray",
-                "subset": [{
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }, {
-                    "name": "FAIL_GROUP",
-                    "desc": "Fail Group",
-                    "type": "String"
-                }, {
-                    "name": "MOUNT_STATUS",
-                    "desc": "Mount Status",
-                    "type": "String"
-                }, {
-                    "name": "PATH",
-                    "desc": "Disk Path",
-                    "type": "String"
-                }, {
+                },
+                {
                     "name": "TOTAL_MB",
                     "desc": "Size(MB)",
                     "type": "float"
-                }, {
+                },
+                {
                     "name": "USED_MB",
                     "desc": "Use(MB)",
                     "type": "float"
-                }, {
+                },
+                {
                     "name": "FREE_MB",
                     "desc": "Free(MB)",
                     "type": "float"
-                }, {
+                },
+                {
                     "name": "USED%",
                     "desc": "Used Percent",
                     "type": "float"
-                }]
-            }
-        ]
-    }]
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "Disk List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "Fail Group",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "Mount Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PATH",
+                            "desc": "Disk Path",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL_MB",
+                            "desc": "Size(MB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "USED_MB",
+                            "desc": "Use(MB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "FREE_MB",
+                            "desc": "Free(MB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "USED%",
+                            "desc": "Used Percent",
+                            "type": "float"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "GRID_BASE",
+            "desc": "Grid Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "GRID_HOME",
+            "desc": "Grid Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
+            "name": "ISCDB",
+            "desc": "Is CDB",
+            "type": "int"
+        },
+        {
+            "name": "IS_RAC",
+            "desc": "Is RAC",
+            "type": "int"
+        },
+        {
+            "name": "LISTEN_ADDRS",
+            "desc": "Listen Addresses",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "LOG_ARCHIVE_DEST",
+            "desc": "Log归档目标",
+            "type": "String"
+        },
+        {
+            "name": "LOG_MODE",
+            "desc": "Log Mode",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_TARGET",
+            "desc": "内存目标",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
+            "name": "NLS_CHARACTERSET",
+            "desc": "NLS Charset",
+            "type": "String"
+        },
+        {
+            "name": "NODES",
+            "desc": "RAC Node List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "Instance Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NODE_VIP",
+            "desc": "Node VIP",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_BASE",
+            "desc": "Oralce Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_HOME",
+            "desc": "Oralce Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_HOSTNAME",
+            "desc": "Oralce Host Name",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_SID",
+            "desc": "Oralce SID",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "SERVICE_INFOS",
+            "desc": "Service List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTANCES",
+                    "desc": "Instances",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "Status",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SGA_MAX_SIZE",
+            "desc": "SGA最大内存(MB)",
+            "type": "String"
+        },
+        {
+            "name": "TABLE_SPACESES",
+            "desc": "Table Space List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TABLESPACE_NAME",
+                    "desc": "Table Space Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL_GB",
+                    "desc": "Capacity(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED_GB",
+                    "desc": "Used(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "FREE_GB",
+                    "desc": "Free(GB)",
+                    "type": "float"
+                },
+                {
+                    "name": "USED%",
+                    "desc": "Used%",
+                    "type": "float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "Data File List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "FILE_NAME",
+                            "desc": "File Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SIZE",
+                            "desc": "File Size(GB)",
+                            "type": "float"
+                        },
+                        {
+                            "name": "AUTOEXTENSIBLE",
+                            "desc": "Auto Extensible",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
 }

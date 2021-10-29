@@ -4,107 +4,130 @@
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },
-    "fields": [{
-        "name": "DISKS",
-        "desc": "磁盘",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "UNIT",
-            "desc": "单位",
-            "type": "String"
-        }, {
-            "name": "NAME",
-            "desc": "磁盘名",
-            "type": "String"
-        }, {
-            "name": "TYPE",
-            "desc": "类型",
-            "type": "String"
-        }, {
-            "name": "CAPACITY",
-            "desc": "容量",
-            "type": "int"
-        }]
-    }, {
-        "name": "NAME",
-        "desc": "name",
-        "type": "String"
-    }, {
-        "name": "IP",
-        "desc": "ip",
-        "type": "String"
-    }, {
-        "name": "VM_ID",
-        "desc": "vm_id",
-        "type": "String"
-    }, {
-        "name": "_OBJ_TYPE",
-        "desc": "os_type",
-        "type": "String"
-    }, {
-        "name": "MEM_TOTAL",
-        "desc": "mem_total",
-        "type": "int"
-    }, {
-        "name": "MEM_UNIT",
-        "desc": "mem_unit",
-        "type": "String"
-    }, {
-        "name": "STATE",
-        "desc": "state",
-        "type": "String"
-    }, {
-        "name": "CPU_COUNT",
-        "desc": "cpu_count",
-        "type": "int"
-    }, {
-        "name": "CPU_CORES",
-        "desc": "cpu_cores",
-        "type": "int"
-    }, {
-        "name": "IS_VIRTUAL",
-        "desc": "is_virtual",
-        "type": "int"
-    }, {
-        "name": "MACHINE_UUID",
-        "desc": "machine_uuid",
-        "type": "String"
-    }, {
-        "name": "MACHINE_SN",
-        "desc": "machine_sn",
-        "type": "String"
-    }, {
-        "name": "VCENTER_IP",
-        "desc": "vcenter_ip",
-        "type": "String"
-    }, {
-        "name": "_OBJ_CATEGORY",
-        "desc": "object_type",
-        "type": "String"
-    }, {
-        "name": "STATE",
-        "desc": "Used State",
-        "type": "String"
-    }, {
-        "name": "RUN_ON",
-        "desc": "所在OS",
-        "type": "JsonArray",
-        "subset": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
-            "desc": "归属类别",
+            "desc": "object_type",
             "type": "String"
-        }, {
-            "name": "_OBJ_Type",
-            "desc": "OS类型",
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "os_type",
             "type": "String"
-        }, {
-            "name": "OS_ID",
-            "desc": "OS CMDB ID",
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
-        }, {
-            "name": "MGMT_IP",
-            "desc": "OS IP",
+        },
+        {
+            "name": "IP",
+            "desc": "ip",
             "type": "String"
-        }]
-    }]
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "cpu_cores",
+            "type": "int"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "cpu_count",
+            "type": "int"
+        },
+        {
+            "name": "DISKS",
+            "desc": "磁盘",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "磁盘名",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "IS_VIRTUAL",
+            "desc": "is_virtual",
+            "type": "int"
+        },
+        {
+            "name": "MACHINE_SN",
+            "desc": "machine_sn",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_UUID",
+            "desc": "machine_uuid",
+            "type": "String"
+        },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "mem_total",
+            "type": "int"
+        },
+        {
+            "name": "MEM_UNIT",
+            "desc": "mem_unit",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "name",
+            "type": "String"
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_Type",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VCENTER_IP",
+            "desc": "vcenter_ip",
+            "type": "String"
+        },
+        {
+            "name": "VM_ID",
+            "desc": "vm_id",
+            "type": "String"
+        }
+    ]
 }

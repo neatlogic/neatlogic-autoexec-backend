@@ -2,99 +2,125 @@
     "label": "交换机",
     "collection": "COLLECT_SWITCH",
     "filter": {},
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "归属对象类型",
-        "type": "String"
-    }, {
-        "name": "STATE",
-        "desc": "Used State",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "序列号",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "管理IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "设备名",
-        "type": "String"
-    }, {
-        "name": "BOOT_DATE",
-        "desc": "启动时间",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "厂商",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "设备型号",
-        "type": "String"
-    }, {
-        "name": "FIRMWARE_VERSION",
-        "desc": "固件版本",
-        "type": "String"
-    }, {
-        "name": "PORTS_COUNT",
-        "desc": "端口数量",
-        "type": "int"
-    }, {
-        "name": "BRAND",
-        "desc": "品牌",
-        "type": "String"
-    }, {
-        "name": "ZONES",
-        "desc": "Zone列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "名称",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
             "type": "String"
-        }, {
-            "name": "INDEX",
-            "desc": "Index",
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
             "type": "String"
-        }]
-    }, {
-        "name": "PORTS",
-        "desc": "端口列表",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "端口名",
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
             "type": "String"
-        }, {
-            "name": "INDEX",
-            "desc": "端口索引号",
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
             "type": "String"
-        }, {
-            "name": "TYPE",
-            "desc": "类型",
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
-        }, {
-            "name": "WWN",
-            "desc": "WWM",
+        },
+        {
+            "name": "BOOT_DATE",
+            "desc": "启动时间",
             "type": "String"
-        }, {
-            "name": "ADMIN_STATUS",
-            "desc": "管理状态",
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
             "type": "String"
-        }, {
-            "name": "OPER_STATUS",
-            "desc": "操作状态",
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "固件版本",
             "type": "String"
-        }, {
-            "name": "SPEED",
-            "desc": "带宽",
-            "type": "float"
-        }, {
-            "name": "MTU",
-            "desc": "MTU",
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "端口索引号",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "WWM",
+                    "type": "String"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "管理状态",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "操作状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "带宽",
+                    "type": "float"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
             "type": "int"
-        }]
-    }]
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
 }

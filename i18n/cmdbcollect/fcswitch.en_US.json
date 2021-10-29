@@ -2,99 +2,125 @@
     "label": "Switch",
     "collection": "COLLECT_SWITCH",
     "filter": {},
-    "fields": [{
-        "name": "_OBJ_CATEGORY",
-        "desc": "Object Type",
-        "type": "String"
-    }, {
-        "name": "STATE",
-        "desc": "Used State",
-        "type": "String"
-    }, {
-        "name": "SN",
-        "desc": "Chassis Serial",
-        "type": "String"
-    }, {
-        "name": "MGMT_IP",
-        "desc": "Managment IP",
-        "type": "String"
-    }, {
-        "name": "DEV_NAME",
-        "desc": "Device Name",
-        "type": "String"
-    }, {
-        "name": "BOOT_DATE",
-        "desc": "Last Boot Date",
-        "type": "String"
-    }, {
-        "name": "VENDOR",
-        "desc": "Vendor",
-        "type": "String"
-    }, {
-        "name": "MODEL",
-        "desc": "Device Model",
-        "type": "String"
-    }, {
-        "name": "FIRMWARE_VERSION",
-        "desc": "Firmware version",
-        "type": "String"
-    }, {
-        "name": "PORTS_COUNT",
-        "desc": "Ports Count",
-        "type": "int"
-    }, {
-        "name": "ZONES",
-        "desc": "Zone List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NAME",
-            "desc": "Zone Name",
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
             "type": "String"
-        }, {
-            "name": "INDEX",
-            "desc": "Index",
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
             "type": "String"
-        }]
-    }, {
-        "name": "PORTS",
-        "desc": "Port List",
-        "type": "JsonArray",
-        "subset": [{
-            "name": "NO",
-            "desc": "Port No.",
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
             "type": "String"
-        }, {
-            "name": "NAME",
-            "desc": "Port Name",
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
-        }, {
-            "name": "INDEX",
-            "desc": "Index",
+        },
+        {
+            "name": "BOOT_DATE",
+            "desc": "Last Boot Date",
             "type": "String"
-        }, {
-            "name": "TYPE",
-            "desc": "Type",
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
             "type": "String"
-        }, {
-            "name": "WWN",
-            "desc": "WWN",
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "Firmware version",
             "type": "String"
-        }, {
-            "name": "ADMIN_STATUS",
-            "desc": "Admin Status",
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
             "type": "String"
-        }, {
-            "name": "OPER_STATUS",
-            "desc": "Operation Status",
-            "type": "String"
-        }, {
-            "name": "SPEED",
-            "desc": "Speed",
-            "type": "float"
-        }, {
-            "name": "MTU",
-            "desc": "MTU",
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NO",
+                    "desc": "Port No.",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operation Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "float"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "Ports Count",
             "type": "int"
-        }]
-    }]
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Zone Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
 }

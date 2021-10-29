@@ -1,0 +1,148 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import os
+import argparse
+import sys
+import json
+
+binPaths = os.path.split(os.path.realpath(__file__))
+dictPath = os.path.realpath(binPaths[0])
+homePath = os.path.realpath(binPaths[0]+'/../..')
+sys.path.append(homePath+'/lib')
+sys.path.append(homePath+'/plugins/local/lib')
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
+    print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
+    exit(1)
+
+
+def getDefaultFieldKeys():
+    defaultKeys = [
+        '_OBJ_CATEGORY',
+        '_OBJ_TYPE',
+        'MGMT_IP',
+        'MGMT_PORT',
+        'SERVER_NAME',
+        'VERSION',
+        'SN',
+        'BRAND',
+        'STATE',
+        'IP',
+        'PORT',
+        'ADMIN_PORT',
+        'ADMIN_SSL_PORT',
+        'MON_PORT',
+        'SSL_PORT'
+    ]
+    return defaultKeys
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lang', default='zh_CN', help='语言')
+    parser.add_argument('--action', default='savetodb', help='执行操作（savetodb|append|beautify）')
+    parser.add_argument('--content', default='', help='Append的Json')
+
+    args = parser.parse_args()
+    lang = args.lang
+    action = args.action
+
+    binPaths = os.path.split(os.path.realpath(__file__))
+    dictPath = os.path.abspath(binPaths[0])
+
+    dirs = os.listdir(dictPath)
+
+    dbclient = None
+    collection = None
+    if action == 'savetodb':
+        import AutoExecUtils
+        (dbclient, db) = AutoExecUtils.getDB()
+        table = '_dictionary'
+        collection = db[table]
+
+    for dfile in dirs:
+        jsonFile = dictPath + "/" + dfile
+
+        info = dfile.split('.')
+        if (len(info) == 3 and info[1] == lang):
+            name = info[0]
+            print("INFO: Try to load json file:", dfile, "...")
+            data = {}
+            with open(jsonFile, 'r', encoding="utf-8") as f:
+                data = json.load(f)
+                f.close()
+
+            hasError = False
+            if 'collection' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'collection'.\n")
+            if 'filter' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'filter'.\n")
+            if 'label' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'label'.\n")
+
+            if action == 'savetodb':
+                print("INFO: Import", dfile, "start...")
+                if hasError == False:
+                    tableName = data['collection']
+                    collection.delete_one({'name': name})
+
+                    data['name'] = name
+                    collection.replace_one({'name': name}, data, upsert=True)
+                    collection.create_index([('name', 1)], name='idx_pk', unique=True)
+                    print("INFO: Import", dfile, "success.")
+                else:
+                    print("ERROR: Import", dfile, "failed.")
+            elif action == 'append':
+                content = args.content
+                if content != '':
+                    print("INFO: Append entry to ", dfile, "start...")
+                    jsonObj = json.loads(content)
+                    if 'name' not in jsonObj:
+                        print("ERROR: Attribute name not in json:", content)
+                    if 'desc' not in jsonObj:
+                        print("ERROR: Attribute desc not in json:", content)
+                    if 'type' not in jsonObj:
+                        print("ERROR: Attribute desc not in json:", content)
+                    else:
+                        typeVal = jsonObj['type']
+                        if typeVal not in ('String', 'JsonArray', 'int'):
+                            print("ERROR: Invalid attribute type:" + typeVal, ', only support String|JsonArray|int')
+
+                    data['fields'].append(jsonObj)
+                    with open(jsonFile, 'w', encoding="utf-8") as f:
+                        json.dump(data, f, indent=4, ensure_ascii=False)
+                        f.close()
+            elif action == 'beautify':
+                print("INFO: Beautify ", dfile, "start...")
+                fields = data['fields']
+
+                fieldsMap = {}
+                for field in fields:
+                    fieldName = field['name']
+                    fieldsMap[fieldName] = field
+
+                newFields = []
+                for defaultKey in getDefaultFieldKeys():
+                    if defaultKey in fieldsMap:
+                        newFields.append(fieldsMap[defaultKey])
+                        del(fieldsMap[defaultKey])
+
+                leftKeys = sorted(fieldsMap.keys())
+                for key in leftKeys:
+                    newFields.append(fieldsMap[key])
+
+                data['fields'] = newFields
+                with open(jsonFile, 'w', encoding="utf-8") as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+                    f.close()
+                    print("INFO: Beautify ", dfile, "success.")
+    # 关闭连接
+    if dbclient is not None:
+        dbclient.close()
