@@ -119,7 +119,7 @@ def genOSSwitchRel(db):
                              '_OBJ_TYPE': remotePort['_OBJ_TYPE'],
                              'MGMT_IP': remotePort['MGMT_IP'],
                              'SN': remotePort['SN'],
-                             'PORT': remotePort['MAC_TABLE']['PORT']}
+                             'PORT': remotePort['MAC_TABLE'][0]['PORT']}
                 refSwPorts.append(refSwPort)
 
             nic['REMOTE_PORTS'] = refSwPorts
