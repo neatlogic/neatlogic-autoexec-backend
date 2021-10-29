@@ -167,6 +167,7 @@ if __name__ == "__main__":
                     print('INFO: Begin save data {}:{} ...'.format(typeName, pkJson))
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
+                    data['STATE'] = 'InUse'
                     data['_renewtime'] = currentTime
                     if '_OBJ_CATEGORY' in data:
                         saveAppConnData(db, data)

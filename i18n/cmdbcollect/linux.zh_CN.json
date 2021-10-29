@@ -30,7 +30,7 @@
 			"type": "int"
 		}, {
 			"name": "IP_ADDRS",
-			"desc": "IP地址",
+			"desc": "IP地址列表",
 			"type": "JsonArray",
 			"subset": [{
 				"name": "VALUE",

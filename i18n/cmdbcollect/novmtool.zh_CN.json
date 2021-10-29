@@ -82,6 +82,10 @@
         "desc": "object_type",
         "type": "String"
     }, {
+        "name": "STATE",
+        "desc": "Used State",
+        "type": "String"
+    }, {
         "name": "RUN_ON",
         "desc": "所在OS",
         "type": "JsonArray",

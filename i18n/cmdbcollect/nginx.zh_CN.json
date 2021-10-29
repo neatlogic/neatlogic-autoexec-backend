@@ -29,6 +29,10 @@
 			"desc": "中间件类型",
 			"type": "String"
 		}, {
+			"name": "STATE",
+			"desc": "Used State",
+			"type": "String"
+		}, {
 			"name": "MGMT_IP",
 			"desc": "管理IP",
 			"type": "String"

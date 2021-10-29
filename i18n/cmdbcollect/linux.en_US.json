@@ -13,6 +13,10 @@
 			"desc": "Os Type",
 			"type": "String"
 		}, {
+			"name": "STATE",
+			"desc": "Used State",
+			"type": "String"
+		}, {
 			"name": "RESOURCE_ID",
 			"desc": "CMDB ID",
 			"type": "String"

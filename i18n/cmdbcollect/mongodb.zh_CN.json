@@ -124,6 +124,10 @@
 			"desc": "中间件类型",
 			"type": "String"
 		}, {
+			"name": "STATE",
+			"desc": "Used State",
+			"type": "String"
+		}, {
 			"name": "OS_ID",
 			"desc": "所在OS的CMDB ID",
 			"type": "String"

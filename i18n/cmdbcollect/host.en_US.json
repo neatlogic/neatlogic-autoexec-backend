@@ -15,6 +15,10 @@
 		"desc": "Object Type",
 		"type": "String"
 	}, {
+		"name": "STATE",
+		"desc": "Used State",
+		"type": "String"
+	}, {
 		"name": "MGMT_IP",
 		"desc": "Managment IP",
 		"type": "String"

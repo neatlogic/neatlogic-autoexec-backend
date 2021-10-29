@@ -193,6 +193,10 @@
 					"name": "_OBJ_TYPE",
 					"desc": "对象类型",
 					"type": "String"
+				}, {
+					"name": "STATE",
+					"desc": "Used State",
+					"type": "String"
 				},
 				{
 					"name": "UNIQUE_NAME",

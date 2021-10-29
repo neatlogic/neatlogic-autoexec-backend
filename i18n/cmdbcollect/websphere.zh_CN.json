@@ -128,11 +128,11 @@
             }]
         }, {
             "name": "WAS_HOME",
-            "desc": "Websphere Home目录",
+            "desc": "WAS HOME目录",
             "type": "String"
         }, {
             "name": "CONFIG_ROOT",
-            "desc": "Config目录",
+            "desc": "配置根目录",
             "type": "String"
         }, {
             "name": "WAS_CELL",
@@ -156,7 +156,7 @@
             "type": "String"
         }, {
             "name": "APPLICATIONS",
-            "desc": "Application List",
+            "desc": "应用包",
             "type": "JsonArray",
             "subset": [{
                 "name": "NAME",

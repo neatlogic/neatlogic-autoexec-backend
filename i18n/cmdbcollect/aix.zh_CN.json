@@ -13,6 +13,10 @@
 			"desc": "OS类型",
 			"type": "String"
 		}, {
+			"name": "STATE",
+			"desc": "Used State",
+			"type": "String"
+		}, {
 			"name": "OS_ID",
 			"desc": "CMDB对象ID",
 			"type": "String"
@@ -30,7 +34,7 @@
 			"type": "int"
 		}, {
 			"name": "IP_ADDRS",
-			"desc": "IP地址",
+			"desc": "IP地址列表",
 			"type": "JsonArray",
 			"subset": [{
 				"name": "VALUE",

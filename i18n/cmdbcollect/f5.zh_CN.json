@@ -13,6 +13,10 @@
         "desc": "交换机品牌",
         "type": "String"
     }, {
+        "name": "STATE",
+        "desc": "Used State",
+        "type": "String"
+    }, {
         "name": "SN",
         "desc": "序列号",
         "type": "String"

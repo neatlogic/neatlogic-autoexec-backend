@@ -5,6 +5,18 @@
         "_OBJ_TYPE": "DB2"
     },
     "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        }, {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        }, {
+            "name": "STATE",
+            "desc": "Used State",
+            "type": "String"
+        }, {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -19,14 +31,6 @@
         }, {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
-        }, {
-            "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
-            "type": "String"
-        }, {
-            "name": "_OBJ_TYPE",
-            "desc": "Application Type",
             "type": "String"
         }, {
             "name": "MGMT_IP",

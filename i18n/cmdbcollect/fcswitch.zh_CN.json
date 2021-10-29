@@ -7,6 +7,10 @@
         "desc": "归属对象类型",
         "type": "String"
     }, {
+        "name": "STATE",
+        "desc": "Used State",
+        "type": "String"
+    }, {
         "name": "SN",
         "desc": "序列号",
         "type": "String"

@@ -119,11 +119,11 @@
             }]
         }, {
             "name": "WAS_HOME",
-            "desc": "Websphere Home Dir",
+            "desc": "WAS HOME Dir",
             "type": "String"
         }, {
             "name": "CONFIG_ROOT",
-            "desc": "Config Dir",
+            "desc": "Config Root",
             "type": "String"
         }, {
             "name": "WAS_CELL",
@@ -147,7 +147,7 @@
             "type": "String"
         }, {
             "name": "APPLICATIONS",
-            "desc": "Application List",
+            "desc": "Applications",
             "type": "JsonArray",
             "subset": [{
                 "name": "NAME",

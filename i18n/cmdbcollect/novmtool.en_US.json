@@ -81,5 +81,30 @@
         "name": "_OBJ_CATEGORY",
         "desc": "object_type",
         "type": "String"
+    }, {
+        "name": "STATE",
+        "desc": "Used State",
+        "type": "String"
+    }, {
+        "name": "RUN_ON",
+        "desc": "所在OS",
+        "type": "JsonArray",
+        "subset": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Catetory",
+            "type": "String"
+        }, {
+            "name": "_OBJ_Type",
+            "desc": "OS Type",
+            "type": "String"
+        }, {
+            "name": "OS_ID",
+            "desc": "OS CMDB ID",
+            "type": "String"
+        }, {
+            "name": "MGMT_IP",
+            "desc": "OS IP",
+            "type": "String"
+        }]
     }]
 }

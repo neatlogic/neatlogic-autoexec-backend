@@ -7,6 +7,10 @@
         "desc": "Object Type",
         "type": "String"
     }, {
+        "name": "STATE",
+        "desc": "Used State",
+        "type": "String"
+    }, {
         "name": "SN",
         "desc": "Chassis Serial",
         "type": "String"
