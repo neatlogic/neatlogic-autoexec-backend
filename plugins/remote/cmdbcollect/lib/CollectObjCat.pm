@@ -37,3 +37,5 @@ sub validate {
 
     return 0;
 }
+
+1;

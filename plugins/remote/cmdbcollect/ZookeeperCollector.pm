@@ -118,3 +118,5 @@ sub collect {
 
     return $appInfo;
 }
+
+1;
