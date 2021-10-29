@@ -509,7 +509,7 @@ class RunNode:
     def _localExecute(self, op):
         self.childPid = None
         self.killCmd = None
-        os.chdir(self.runPath)
+        # os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
@@ -534,7 +534,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
         if scriptFile is not None:
             fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -569,7 +569,7 @@ class RunNode:
     def _localRemoteExecute(self, op):
         self.childPid = None
         self.killCmd = None
-        os.chdir(self.runPath)
+        # os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True)
@@ -594,7 +594,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
-        child = subprocess.Popen(cmdline, env=environment, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
 
         if scriptFile is not None:
