@@ -221,10 +221,6 @@
 			"desc": "CPU位数",
 			"type": "int"
 		}, {
-			"name": "SWAP_TOTAL",
-			"desc": "SWAP大小",
-			"type": "int"
-		}, {
 			"name": "CPU_VERSION",
 			"desc": "CPU版本",
 			"type": "String"

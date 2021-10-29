@@ -221,10 +221,6 @@
 			"desc": "Cpu Bits",
 			"type": "int"
 		}, {
-			"name": "SWAP_TOTAL",
-			"desc": "Swap Total",
-			"type": "int"
-		}, {
 			"name": "CPU_VERSION",
 			"desc": "Cpu Version",
 			"type": "String"
