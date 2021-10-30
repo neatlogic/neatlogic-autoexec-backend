@@ -289,6 +289,22 @@ sub main {
             $appInfo->{COMMAND}   = $procInfo->{COMMAND};
             $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
             $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+
+            my $envMap      = $procInfo->{ENVRIONMENT};
+            my $insNamePath = $envMap->{TS_INSNAME};
+            if ( defined($insNamePath) and $insNamePath ne '' ) {
+                my @insPaths = split( '/', $insNamePath );
+                if ( scalar(@insPaths) > 1 ) {
+                    $appInfo->{BELONG_APPLICATION} = {
+                        APP_NAME       => $insPaths[0],
+                        APPMODULE_NAME => $insPaths[1],
+                    };
+                }
+                else {
+                    $appInfo->{BELONG_APPLICATION} = {};
+                }
+            }
+
             if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
                 $appInfo->{PK} = $pkConfig->{$objType};
             }
