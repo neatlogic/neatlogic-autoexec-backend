@@ -28,6 +28,7 @@ def getDefaultFieldKeys():
         'MGMT_PORT',
         'SERVER_NAME',
         'VERSION',
+        'BELONG_APPLICATION',
         'SN',
         'BRAND',
         'STATE',
@@ -45,6 +46,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--lang', default='zh_CN', help='语言')
     parser.add_argument('--action', default='savetodb', help='执行操作（savetodb|append|beautify）')
+    parser.add_argument('--filter', default='{}', help='Match filter')
     parser.add_argument('--content', default='', help='Append的Json')
 
     args = parser.parse_args()
@@ -101,9 +103,21 @@ if __name__ == "__main__":
                     print("ERROR: Import", dfile, "failed.")
             elif action == 'append':
                 content = args.content
+                matchFilter = args.filter
                 if content != '':
                     print("INFO: Append entry to ", dfile, "start...")
+                    filterObj = json.loads(matchFilter)
                     jsonObj = json.loads(content)
+
+                    filterMatched = True
+                    for filterKey in filterObj.keys():
+                        if filterKey not in data or data[filterKey] != filterObj[filterKey]:
+                            print("INFO: " + data[filterKey] + " not match filter " + matchFilter)
+                            filterMatched = False
+                            break
+                    if not filterMatched:
+                        continue
+
                     if 'name' not in jsonObj:
                         print("ERROR: Attribute name not in json:", content)
                     if 'desc' not in jsonObj:

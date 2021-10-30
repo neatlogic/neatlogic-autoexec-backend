@@ -36,6 +36,23 @@
             "type": "String"
         },
         {
+            "name": "BELONG_APPLICATION",
+            "desc": "所属应用",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APP_NAME",
+                    "desc": "应用名",
+                    "type": "String"
+                },
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
