@@ -522,7 +522,7 @@ sub collectHostInfo {
         }
         for(my $i=0; $i<=$#ports; $i++){
             my $portInfo = $ports[$i];
-            $portInfo->{STATE} = $state[$i];
+            $portInfo->{STATUS} = $state[$i];
         }
         $hbaInfo->{PORTS} = \@ports;
 

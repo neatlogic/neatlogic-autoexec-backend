@@ -72,7 +72,8 @@ sub _errCheck {
 
 sub hex2mac {
     my ( $self, $hexMac ) = @_;
-    if ( $hexMac !~ /\x00/ ) {
+    #如果字串中含有0字节（数值为0），否则不是正常的MAC地址hex字符串
+    if ( $hexMac !~ /\x00/ ) { 
         $hexMac = substr( $hexMac, 2 );
         $hexMac =~ s/..\K(?=.)/:/sg;
     }

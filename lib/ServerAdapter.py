@@ -136,17 +136,24 @@ class ServerAdapter:
             'jobId': self.context.jobId
         }
 
-        # response = self.httpPOST(self.apiMap['getParams'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getParams'], self.authToken, params)
-
         paramsFilePath = self.context.paramsFilePath
         paramsFile = open(paramsFilePath, 'w')
 
-        for line in response:
-            paramsFile.write(str(line, encoding='utf-8'))
-            paramsFile.write("\n")
+        fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+        try:
+            response = self.httpGET(self.apiMap['getParams'], self.authToken, params)
 
-        paramsFile.close()
+            content = ''
+            for line in response:
+                content = content + line
+                paramsFile.write(str(line, encoding='utf-8'))
+                paramsFile.write("\n")
+
+            params = json.loads(content)
+            return params
+        finally:
+            fcntl.lockf(paramsFile, fcntl.LOCK_UN)
+            paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None):
@@ -161,33 +168,37 @@ class ServerAdapter:
 
         lastModifiedTime = 0
         nodesFilePath = self.context.getNodesFilePath(phase)
-        if os.path.exists(nodesFilePath):
-            lastModifiedTime = os.path.getmtime(nodesFilePath)
+        nodesFile = open(nodesFilePath, 'w')
+        fcntl.lockf(nodesFile, fcntl.LOCK_EX)
 
-        params['lastModified'] = lastModifiedTime
+        try:
+            if os.path.exists(nodesFilePath):
+                lastModifiedTime = os.path.getmtime(nodesFilePath)
 
-        # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
-        response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
+            params['lastModified'] = lastModifiedTime
 
-        if response.status == 200:
-            nodesFile = open(nodesFilePath, 'w')
+            # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
+            response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
-            for line in response:
-                nodesFile.write(str(line, encoding='utf-8'))
-                nodesFile.write("\n")
+            if response.status == 200:
+                nodesFile = open(nodesFilePath, 'w')
+                for line in response:
+                    nodesFile.write(str(line, encoding='utf-8'))
+                    nodesFile.write("\n")
 
+                if phase is not None:
+                    self.context.phases[phase].nodesFilePath = nodesFilePath
+
+            elif response.status == 205:
+                # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+                pass
+            elif response.status == 204:
+                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
+                if phase is not None:
+                    self.context.phases[phase].nodesFilePath = nodesFilePath
+        finally:
+            fcntl.lockf(nodesFile, fcntl.LOCK_UN)
             nodesFile.close()
-
-            if phase is not None:
-                self.context.phases[phase].nodesFilePath = nodesFilePath
-
-        elif response.status == 205:
-            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-            pass
-        elif response.status == 204:
-            # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
-            if phase is not None:
-                self.context.phases[phase].nodesFilePath = nodesFilePath
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):

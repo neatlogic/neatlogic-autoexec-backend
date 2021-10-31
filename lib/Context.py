@@ -20,11 +20,12 @@ import Utils
 
 
 class Context(VContext.VContext):
-    def __init__(self, jobId, paramsFile=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+    def __init__(self, jobId, paramsFile=None, firstFire=False, phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
         VContext.VContext.__init__(self, jobId=jobId, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.dbclient = None
         self.db = None
+        self.firstFire = firstFire
 
         # 初始化ServerAdapter，用于调用后台的接口对接处理
         serverAdapter = ServerAdapter.ServerAdapter(self)
@@ -40,25 +41,31 @@ class Context(VContext.VContext):
             os.makedirs(self.runPath)
 
         # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载
-        if paramsFile is None or paramsFile == '':
-            serverAdapter.getParams()
-        else:
-            self.localDefinedParams = True
-
-            if not paramsFile.startswith('/'):
-                paramsFile = os.path.join(self.runPath, paramsFile)
-            # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
-            dstPath = '{}/params.json'.format(self.runPath)
-            if os.path.exists(paramsFile):
-                if dstPath != os.path.realpath(paramsFile):
-                    copyfile(paramsFile, dstPath)
+        if firstFire:
+            if paramsFile is None or paramsFile == '':
+                self.params = serverAdapter.getParams()
             else:
-                print("ERROR: Params file:{} not exists.\n".format(paramsFile))
+                self.localDefinedParams = True
 
-        # 加载运行参数文件
-        paramFile = open(self.paramsFilePath, 'r')
-        params = json.loads(paramFile.read())
-        self.params = params
+                if not paramsFile.startswith('/'):
+                    paramsFile = os.path.join(self.runPath, paramsFile)
+                # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
+                dstPath = '{}/params.json'.format(self.runPath)
+                if os.path.exists(paramsFile):
+                    if dstPath != os.path.realpath(paramsFile):
+                        copyfile(paramsFile, dstPath)
+                else:
+                    print("ERROR: Params file:{} not exists.\n".format(paramsFile))
+
+                # 加载运行参数文件
+                paramFile = open(self.paramsFilePath, 'r')
+                params = json.loads(paramFile.read())
+                self.params = params
+        else:
+            # 加载运行参数文件
+            paramFile = open(self.paramsFilePath, 'r')
+            params = json.loads(paramFile.read())
+            self.params = params
 
         if 'jobId' in params:
             jobId = params['jobId']
@@ -78,6 +85,18 @@ class Context(VContext.VContext):
 
         if 'passThroughEnv' in params:
             self.passThroughEnv = params['passThroughEnv']
+
+        self.phasesToRun = None
+        if phases != '':
+            self.phasesToRun = {}
+            for execPhase in phases.split(','):
+                self.phasesToRun[execPhase] = 1
+
+        self.nodesToRun = None
+        if nodes != '':
+            self.nodesToRun = {}
+            for execNode in nodes.split(','):
+                self.nodesToRun[int(execNode)] = 1
 
         paramFile.close()
 
@@ -155,6 +174,7 @@ class Context(VContext.VContext):
         return nodesFilePath
 
     def addPhase(self, phaseName):
-        phase = PhaseStatus.PhaseStatus(phaseName)
-        phase.nodesFilePath = self.getNodesFilePath()
-        self.phases[phaseName] = phase
+        if self.phasesToRun is None or phaseName in self.phasesToRun:
+            phase = PhaseStatus.PhaseStatus(phaseName)
+            phase.nodesFilePath = self.getNodesFilePath()
+            self.phases[phaseName] = phase

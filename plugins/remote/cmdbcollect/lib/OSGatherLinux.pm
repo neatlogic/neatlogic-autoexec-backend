@@ -586,9 +586,9 @@ sub collectHostInfo {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = lc($macAddr);
                 ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
-                $nicInfo->{LINK_STATE} = 'down';
+                $nicInfo->{STATUS} = 'down';
                 if ( $linkState eq 'yes' ) {
-                    $nicInfo->{LINK_STATE} = 'up';
+                    $nicInfo->{STATUS} = 'up';
                 }
                 push( @nicInfos, $nicInfo );
             }
@@ -636,7 +636,7 @@ sub collectHostInfo {
 
             #WWPN是端口的地址编号
             $portInfo->{WWPN}  = $wwpn;
-            $portInfo->{STATE} = $state;
+            $portInfo->{STATUS} = $state;
             push( @ports, $portInfo );
         }
         $hbaInfo->{PORTS} = \@ports;
@@ -663,7 +663,14 @@ sub collect {
 
     my $hostInfo = $self->collectHostInfo();
 
-    $osInfo->{CPU_CORES}      = $hostInfo->{CPU_CORES};
+    $osInfo->{CPU_ARCH}        = $hostInfo->{CPU_ARCH};
+    $osInfo->{CPU_COUNT}       = $hostInfo->{CPU_COUNT};
+    $osInfo->{CPU_CORES}       = $hostInfo->{CPU_CORES};
+    $osInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_LOGIC_CORES};
+    $osInfo->{CPU_MICROCODE}   = $hostInfo->{CPU_MICROCODE};
+    $osInfo->{CPU_MODEL_NAME}  = $hostInfo->{CPU_MODEL_NAME};
+    $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
+
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
     $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}        = $osInfo->{DISKS};

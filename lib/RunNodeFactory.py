@@ -39,17 +39,26 @@ class RunNodeFactory:
             self.nodesFile.close()
 
     def nextNode(self):
-        line = self.nodesFile.readline()
-
-        while line is not None and line.strip() == '':
+        nodeObj = None
+        line = None
+        # 略掉空行
+        while True:
             line = self.nodesFile.readline()
             if not line:
                 break
+            if line.strip() != '':
+                # break
+                if self.context.nodesToRun is not None:
+                    nodeObj = json.loads(line)
+                    if nodeObj['nodeId'] in self.context.nodesToRun:
+                        break
+                else:
+                    nodeObj = json.loads(line)
+                    break
 
         runNode = None
 
         if line:
-            nodeObj = json.loads(line)
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
             self.nodesFile.close()

@@ -7,6 +7,7 @@ import os
 import time
 import socket
 import threading
+import traceback
 import json
 import shutil
 
@@ -42,19 +43,26 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                 pass
 
             try:
-                if actionData and actionData['action'] == 'informNodeWaitInput':
-                    nodeId = actionData['nodeId']
-                    for phaseStatus in self.context.phases.values():
-                        if phaseStatus.executor is not None:
-                            phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
+                if actionData:
+                    if actionData['action'] == 'informNodeWaitInput':
+                        nodeId = actionData['nodeId']
+                        for phaseStatus in self.context.phases.values():
+                            if phaseStatus.executor is not None:
+                                phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
+                    elif actionData['action'] == 'exit':
+                        self.server.shutdown()
+                        break
             except Exception as ex:
                 print('ERROR: Inform node status to waitInput failed, {}\n{}\n'.format(actionData, ex))
 
     def stop(self):
         self.goToStop = True
-        self.server.close()
-        if os.path.exists(self.socketPath):
-            os.remove(self.socketPath)
+        try:
+            self.server.close()
+            if os.path.exists(self.socketPath):
+                os.remove(self.socketPath)
+        except:
+            pass
 
 
 class JobRunner:
@@ -76,17 +84,19 @@ class JobRunner:
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
-            context.serverAdapter.getNodes()
+            if context.firstFire:
+                context.serverAdapter.getNodes()
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
             self.localDefinedNodes = True
             # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
-            dstPath = '{}/nodes.json'.format(self.context.runPath)
-            if os.path.exists(nodesFile):
-                if dstPath != os.path.realpath(nodesFile):
-                    shutil.copyfile(nodesFile, dstPath)
-            else:
-                print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
+            if context.firstFire:
+                dstPath = '{}/nodes.json'.format(self.context.runPath)
+                if os.path.exists(nodesFile):
+                    if dstPath != os.path.realpath(nodesFile):
+                        shutil.copyfile(nodesFile, dstPath)
+                else:
+                    print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
 
     def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
         phaseStatus = self.context.phases[phaseName]
@@ -120,29 +130,33 @@ class JobRunner:
         return executor.execute()
 
     def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
-        self.context.addPhase(phaseName)
+        try:
+            self.context.addPhase(phaseName)
 
-        serverAdapter = self.context.serverAdapter
-        if not self.localDefinedNodes:
-            serverAdapter.getNodes(phaseName)
+            serverAdapter = self.context.serverAdapter
+            if not self.localDefinedNodes:
+                serverAdapter.getNodes(phaseName)
 
-        phaseStatus = self.context.phases[phaseName]
-        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
-        self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
-        failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
-        if failCount == 0:
-            if phaseStatus.ignoreFailNodeCount > 0:
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
+            phaseStatus = self.context.phases[phaseName]
+            print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
+            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
+            failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
+            if failCount == 0:
+                if phaseStatus.ignoreFailNodeCount > 0:
+                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
+                else:
+                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
             else:
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
-        else:
-            self.context.hasFailNodeInGlobal = True
-            failStatus = NodeStatus.failed
-            if phaseStatus.isAborting:
-                failStatus = NodeStatus.aborted
-            elif phaseStatus.isPausing:
-                failStatus = NodeStatus.paused
-            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
+                self.context.hasFailNodeInGlobal = True
+                failStatus = NodeStatus.failed
+                if phaseStatus.isAborting:
+                    failStatus = NodeStatus.aborted
+                elif phaseStatus.isPausing:
+                    failStatus = NodeStatus.paused
+                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
+        except:
+            print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName))
+            traceback.print_exc()
 
         print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------\n\n")
@@ -172,6 +186,10 @@ class JobRunner:
                         break
 
                     lastPhase = phaseName
+
+                    if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
+                        continue
+
                     if not self.context.hasFailNodeInGlobal:
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
@@ -180,6 +198,9 @@ class JobRunner:
 
                 for thread in threads:
                     thread.join()
+
+        self.stopListen()
+        listenThread.stop()
 
         status = 0
         if self.context.hasFailNodeInGlobal:
@@ -190,11 +211,20 @@ class JobRunner:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
         self.context.goToStop = True
-        listenThread.stop()
         return status
+
+    def stopListen(self):
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        try:
+            sock.connect(self.socketPath)
+            sock.sendall('{"action":"exit"}')
+            sock.close()
+        except:
+            pass
 
     def kill(self):
         self.context.goToStop = True
+        self.stopListen()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             phaseStatus.isAborting = 1
