@@ -178,13 +178,19 @@ sub collectOsInfo {
         my @lineInfo = split( /:\s*|\s+/, $line );
         $memInfo->{ $lineInfo[0] } = $lineInfo[1] . $lineInfo[2];
     }
-    $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $memInfo->{MemTotal} );
-    $osInfo->{MEM_FREE}      = $utils->getMemSizeFromStr( $memInfo->{MemFree} );
-    $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $memInfo->{MemAvailable} );
-    $osInfo->{MEM_CACHED}    = $utils->getMemSizeFromStr( $memInfo->{Cached} );
-    $osInfo->{MEM_BUFFERS}   = $utils->getMemSizeFromStr( $memInfo->{Buffers} );
-    $osInfo->{SWAP_TOTAL}    = $utils->getMemSizeFromStr( $memInfo->{SwapTotal} );
-    $osInfo->{SWAP_FREE}     = $utils->getMemSizeFromStr( $memInfo->{SwapFree} );
+    $osInfo->{MEM_TOTAL}   = $utils->getMemSizeFromStr( $memInfo->{MemTotal} );
+    $osInfo->{MEM_FREE}    = $utils->getMemSizeFromStr( $memInfo->{MemFree} );
+    $osInfo->{MEM_CACHED}  = $utils->getMemSizeFromStr( $memInfo->{Cached} );
+    $osInfo->{MEM_BUFFERS} = $utils->getMemSizeFromStr( $memInfo->{Buffers} );
+    if ( defined( $memInfo->{MemAvailable} ) ) {
+        $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $memInfo->{MemAvailable} );
+    }
+    else {
+        $osInfo->{MEM_AVAILABLE} = $osInfo->{MEM_FREE} + $osInfo->{MEM_CACHED} + $osInfo->{MEM_BUFFERS};
+    }
+
+    $osInfo->{SWAP_TOTAL} = $utils->getMemSizeFromStr( $memInfo->{SwapTotal} );
+    $osInfo->{SWAP_FREE}  = $utils->getMemSizeFromStr( $memInfo->{SwapFree} );
 
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
@@ -635,7 +641,7 @@ sub collectHostInfo {
             my $portInfo = {};
 
             #WWPN是端口的地址编号
-            $portInfo->{WWPN}  = $wwpn;
+            $portInfo->{WWPN}   = $wwpn;
             $portInfo->{STATUS} = $state;
             push( @ports, $portInfo );
         }
