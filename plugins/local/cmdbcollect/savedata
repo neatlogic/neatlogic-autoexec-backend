@@ -21,7 +21,7 @@ def createPKIndex(collection, pkDef):
     pkIdx = []
     for field in pkDef:
         pkIdx.append((field, 1))
-    collection.create_index(pkIdx, name='idx_pk')
+    collection.create_index(pkIdx, name='idx_pk', unique=True)
     collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
 
 
