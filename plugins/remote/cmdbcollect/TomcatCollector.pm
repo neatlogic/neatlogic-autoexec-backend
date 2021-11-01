@@ -57,7 +57,7 @@ sub collect {
             my @ports = ();
             my ( $port, $sslPort );
 
-            while ( $xml =~ /<\s*Connector\s[^>]+?\sSSLEnabled="true"\s.*?>/sg ) {
+            while ( $xml =~ /<\s*Connector\s[^>]*?\sSSLEnabled="true".*?>/isg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
                     $sslPort = $1;
@@ -77,7 +77,7 @@ sub collect {
             }
 
             pos($xml) = 0;    #从头开始匹配
-            while ( $xml =~ /<\s*Connector\s[^>]+?\sprotocol="HTTP\b.*?>/sg ) {
+            while ( $xml =~ /<\s*Connector\s[^>]*?\sprotocol=".*?http.*?>/isg ) {
                 my $matchContent = $&;
                 if ( $matchContent =~ /port="(.*?)"/ ) {
                     $port = $1;
@@ -97,15 +97,23 @@ sub collect {
                 }
             }
 
-            $appInfo->{PORT}     = int($port);
-            $appInfo->{SSL_PORT} = int($sslPort);
             if ( defined($port) ) {
                 push( @ports, int($port) );
+            }
+            else {
+                $port = $sslPort;
             }
             if ( defined($sslPort) ) {
                 push( @ports, int($sslPort) );
             }
             $appInfo->{PORTS} = \@ports;
+
+            if ( not defined($port) ) {
+                print("WARN: Can not find Connector for port define in $confFile, failed.\n");
+                return;
+            }
+            $appInfo->{PORT}     = int($port);
+            $appInfo->{SSL_PORT} = int($sslPort);
         }
     }
     else {
