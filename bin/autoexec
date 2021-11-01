@@ -108,12 +108,13 @@ def registerTools(serverAdapter, pluginsPath, opType):
 
 
 def findJobProcess(jobId):
+    mypid = os.getpid()
     autoexecPid = 0
     with os.scandir('/proc') as it:
         for entry in it:
             if not entry.name.startswith('.') and entry.is_dir():
                 if re.match('^\d+$', entry.name):
-                    pid = entry.name
+                    pid = int(entry.name)
                     try:
                         cf = open(entry.path + '/comm')
                         comm = cf.read()
@@ -121,8 +122,8 @@ def findJobProcess(jobId):
                         if comm == 'autoexec':
                             f = open(entry.path + '/cmdline')
                             content = f.read()
-                            if content.index(jobId) > 0:
-                                autoexecPid = int(pid)
+                            if content.index(jobId) > 0 and pid != mypid:
+                                autoexecPid = pid
                                 break
                     except:
                         pass

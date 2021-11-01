@@ -1,0 +1,26 @@
+#!/bin/bash
+GOJOB_DIR=$(dirname $(which gojob))
+AUTOEXEC_DIR=$(
+    cd $GOJOB_DIR/..
+    pwd
+)
+TASK_PATH=$(echo $1 | perl -pe 's/...\K/\//g')
+JOB_PATH="$AUTOEXEC_DIR/data/job/$TASK_PATH"
+
+if [ -e "$JOB_PATH" ]; then
+    if [ $# -gt 1 ]; then
+        export tenant=$2
+        echo "Set TENANT to $tenant"
+        echo "export tenant=$tenant"
+    else
+        echo "Set TENANT to develop"
+        echo "export tenant=develop"
+        export tenant=develop
+    fi
+    cd "$JOB_PATH"
+    if [ $? == 0 ]; then
+        echo "cd $JOB_PATH"
+    fi
+else
+    echo "ERROR: Directory $JOB_PATH not exists."
+fi
