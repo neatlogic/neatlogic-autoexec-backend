@@ -139,8 +139,8 @@ sub collect {
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
         $verCmd = qq{cmd /c "$binPath/catalina.bat" version};
     }
-    my @verOut = $self->getCmdOut($verCmd);
-    foreach my $line (@verOut) {
+    my $verOut = $self->getCmdOutLines($verCmd);
+    foreach my $line (@$verOut) {
         if ( $line =~ /Server number:\s*(.*?)\s*$/ ) {
             $appInfo->{VERSION} = $1;
         }
