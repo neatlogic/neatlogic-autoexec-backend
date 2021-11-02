@@ -200,8 +200,6 @@ class JobRunner:
         self.stopListen()
         listenThread.stop()
 
-        #print("DEBUG:lastPhase:" + lastPhase + "\n")
-
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
