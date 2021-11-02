@@ -83,7 +83,10 @@ class Context(VContext.VContext):
         #    self.arg = params['arg']
 
         if 'passThroughEnv' in params:
-            self.passThroughEnv = params['passThroughEnv']
+            passThroughInParams = params['passThroughEnv']
+            for key in self.passThroughEnv.keys():
+                passThroughInParams[key] = self.passThroughEnv[key]
+            self.passThroughEnv = passThroughInParams
 
         self.phasesToRun = None
         if phases != '':
