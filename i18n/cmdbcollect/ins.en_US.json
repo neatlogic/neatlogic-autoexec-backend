@@ -2,8 +2,7 @@
     "label": "INS",
     "collection": "COLLECT_INS",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -37,8 +36,7 @@
             "name": "BELONG_APPLICATION",
             "desc": "Applicaton",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "APP_NAME",
                     "desc": "Application Name",
                     "type": "String"
@@ -184,9 +182,110 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
+            "subset": [{
+                "name": "VALUE",
+                "desc": "Port",
+                "type": "int"
+            }]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
                 {
-                    "name": "VALUE",
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "REF_DB",
+            "desc": "Reference Databases",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Management IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "REF_INS",
+            "desc": "Reference Instances",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Management IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
                     "desc": "Port",
                     "type": "int"
                 }
@@ -196,8 +295,7 @@
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
