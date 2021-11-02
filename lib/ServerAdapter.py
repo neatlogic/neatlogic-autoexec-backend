@@ -74,9 +74,9 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
         except URLError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
         return response
 
     def httpGET(self, apiUri, authToken, params):
@@ -99,9 +99,9 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
         except URLError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
 
         return response
 
@@ -124,9 +124,9 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
         except URLError as ex:
-            raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
+            raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
 
         return response
 
@@ -151,9 +151,9 @@ class ServerAdapter:
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
                     return params
                 else:
-                    raise 'Get parameters for job {} failed, {}\n'.format(self.context.jobId, retObj['Message'])
+                    raise "Get parameters for job {} failed, {}\n".format(self.context.jobId, retObj['Message'])
             else:
-                raise 'Get parameters for job {} failed, status code:{}\n{}\n'.format(self.context.jobId, response.status, content)
+                raise "Get parameters for job {} failed, status code:{}\n{}\n".format(self.context.jobId, response.status, content)
         except:
             raise
         finally:
@@ -471,9 +471,9 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise 'Get Account for {}/{} failed, {}\n'.format(resourceId, username, retObj['Message'])
+                    raise "Get Account for {}/{} failed, {}\n".format(resourceId, username, retObj['Message'])
             else:
-                raise 'Get Account for {}/{} failed, status code:{}\n{}\n'.format(resourceId, username, response.status, content)
+                raise "Get Account for {}/{} failed, status code:{}\n{}\n".format(resourceId, username, response.status, content)
         except:
             raise
 
@@ -497,9 +497,9 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise 'Get Inspect Config for {}/{} failed, {}\n'.format(ciType, resourceId, retObj['Message'])
+                    raise "Get Inspect Config for {}/{} failed, {}\n".format(ciType, resourceId, retObj['Message'])
             else:
-                raise 'Get Inspect Config for {}/{} failed, status code:{}\n{}\n'.format(ciType, resourceId, response.status, content)
+                raise "Get Inspect Config for {}/{} failed, status code:{}\n{}\n".format(ciType, resourceId, response.status, content)
         except:
             raise
 
@@ -524,8 +524,8 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise 'Get Inspect Config for {}/{} failed, {}\n'.format(ciType, resourceId, retObj['Message'])
+                    raise "Get Inspect Config for {}/{} failed, {}\n".format(ciType, resourceId, retObj['Message'])
             else:
-                raise 'Get Inspect Config for {}/{} failed, status code:{}\n{}\n'.format(ciType, resourceId, response.status, content)
+                raise "Get Inspect Config for {}/{} failed, status code:{}\n{}\n".format(ciType, resourceId, response.status, content)
         except:
             raise
