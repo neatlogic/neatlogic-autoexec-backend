@@ -184,12 +184,11 @@ class JobRunner:
                     if self.context.goToStop == True:
                         break
 
-                    lastPhase = phaseName
-
                     if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                         continue
 
                     if not self.context.hasFailNodeInGlobal:
+                        lastPhase = phaseName
                         thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
                         thread.start()
                         thread.name = 'PhaseExecutor-' + phaseName
@@ -206,7 +205,7 @@ class JobRunner:
             status = 1
         elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-            if not self.context.noFireNext:
+            if not self.context.noFireNext and lastPhase is not None:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
         self.context.goToStop = True
