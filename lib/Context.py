@@ -41,7 +41,7 @@ class Context(VContext.VContext):
             os.makedirs(self.runPath)
 
         # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载
-        if firstFire or not os.exists(self.paramsFilePath):
+        if firstFire or not os.path.exists(self.paramsFilePath):
             if paramsFile is None or paramsFile == '':
                 self.params = serverAdapter.getParams()
             else:
