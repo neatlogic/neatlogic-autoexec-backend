@@ -74,7 +74,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
         return response
@@ -99,7 +99,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -124,7 +124,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -136,24 +136,30 @@ class ServerAdapter:
             'jobId': self.context.jobId
         }
 
-        paramsFilePath = self.context.paramsFilePath
-        paramsFile = open(paramsFilePath, 'w')
-
-        fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+        paramsFile = None
         try:
-            response = self.httpGET(self.apiMap['getParams'], self.authToken, params)
-
-            content = ''
-            for line in response:
-                content = content + line
-                paramsFile.write(str(line, encoding='utf-8'))
-                paramsFile.write("\n")
-
-            params = json.loads(content)
-            return params
+            response = self.httpJSON(self.apiMap['getParams'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    params = retObj['Return']
+                    paramsFilePath = self.context.paramsFilePath
+                    paramsFile = open(paramsFilePath, 'w')
+                    fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+                    paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
+                    return params
+                else:
+                    raise 'Get parameters for job {} failed, {}\n'.format(self.context.jobId, retObj['Message'])
+            else:
+                raise 'Get parameters for job {} failed, status code:{}\n{}\n'.format(self.context.jobId, response.status, content)
+        except:
+            raise
         finally:
-            fcntl.lockf(paramsFile, fcntl.LOCK_UN)
-            paramsFile.close()
+            if paramsFile:
+                fcntl.lockf(paramsFile, fcntl.LOCK_UN)
+                paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None):

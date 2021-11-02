@@ -68,7 +68,6 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
 class JobRunner:
     def __init__(self, context, nodesFile=None):
         self.context = context
-        self.localDefinedParams = False
         self.localDefinedNodes = False
 
         # 切换到任务的执行路径

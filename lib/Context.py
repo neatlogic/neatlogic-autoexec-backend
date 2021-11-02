@@ -41,32 +41,31 @@ class Context(VContext.VContext):
             os.makedirs(self.runPath)
 
         # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载
-        if firstFire:
+        if firstFire or not os.exists(self.paramsFilePath):
             if paramsFile is None or paramsFile == '':
                 self.params = serverAdapter.getParams()
             else:
-                self.localDefinedParams = True
-
                 if not paramsFile.startswith('/'):
                     paramsFile = os.path.join(self.runPath, paramsFile)
                 # 如果指定的参数文件存在，而且目录不是params文件最终的存放目录，则拷贝到最终的存放目录
-                dstPath = '{}/params.json'.format(self.runPath)
                 if os.path.exists(paramsFile):
-                    if dstPath != os.path.realpath(paramsFile):
-                        copyfile(paramsFile, dstPath)
+                    if self.paramsFilePath != os.path.realpath(paramsFile):
+                        copyfile(paramsFile, self.paramsFilePath)
                 else:
                     print("ERROR: Params file:{} not exists.\n".format(paramsFile))
 
                 # 加载运行参数文件
-                paramFile = open(self.paramsFilePath, 'r')
-                params = json.loads(paramFile.read())
-                self.params = params
-        else:
-            # 加载运行参数文件
-            paramFile = open(self.paramsFilePath, 'r')
-            params = json.loads(paramFile.read())
-            self.params = params
+                fd = None
+                try:
+                    fd = open(self.paramsFilePath, 'r')
+                    self.params = json.loads(fd.read())
+                except ex:
+                    print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex))
+                finally:
+                    if fd is not None:
+                        fd.close()
 
+        params = self.params
         if 'jobId' in params:
             jobId = params['jobId']
             self.jobId = '{}'.format(jobId)
@@ -97,8 +96,6 @@ class Context(VContext.VContext):
             self.nodesToRun = {}
             for execNode in nodes.split(','):
                 self.nodesToRun[int(execNode)] = 1
-
-        paramFile.close()
 
         os.chdir(self.runPath)
 
