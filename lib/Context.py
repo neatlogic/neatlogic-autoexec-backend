@@ -40,10 +40,12 @@ class Context(VContext.VContext):
         if not os.path.exists(self.runPath):
             os.makedirs(self.runPath)
 
+        paramsLoaded = False
         # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载
-        if firstFire or not os.exists(self.paramsFilePath):
+        if firstFire or not os.path.exists(self.paramsFilePath):
             if paramsFile is None or paramsFile == '':
                 self.params = serverAdapter.getParams()
+                paramsLoaded = True
             else:
                 if not paramsFile.startswith('/'):
                     paramsFile = os.path.join(self.runPath, paramsFile)
@@ -54,16 +56,17 @@ class Context(VContext.VContext):
                 else:
                     print("ERROR: Params file:{} not exists.\n".format(paramsFile))
 
-                # 加载运行参数文件
-                fd = None
-                try:
-                    fd = open(self.paramsFilePath, 'r')
-                    self.params = json.loads(fd.read())
-                except ex:
-                    print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex))
-                finally:
-                    if fd is not None:
-                        fd.close()
+        if paramsLoaded == False:
+            # 加载运行参数文件
+            fd = None
+            try:
+                fd = open(self.paramsFilePath, 'r')
+                self.params = json.loads(fd.read())
+            except ex:
+                print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex))
+            finally:
+                if fd is not None:
+                    fd.close()
 
         params = self.params
         if 'jobId' in params:
