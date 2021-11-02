@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     if args.cleanstatus:
         passThroughEnv = json.loads(args.passthroughenv)
-        vContext = VContext.VContext(args.jobid, passThroughEnv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv=passThroughEnv)
         vContext.initDB(1)
 
         outputStore = OutputStore.OutputStore(vContext, None, None)
@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         passThroughEnv = json.loads(args.passthroughenv)
-        vContext = VContext.VContext(0, passThroughEnv)
+        vContext = VContext.VContext(0, passThroughEnv=passThroughEnv)
         vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         registerTools(serverAdapter, pluginsPath, 'remote')
     elif args.pause:
         passThroughEnv = json.loads(args.passthroughenv)
-        vContext = VContext.VContext(args.jobid, passThroughEnv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv=passThroughEnv)
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         ret = 0
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         sys.exit(ret)
     elif args.abort:
         passThroughEnv = json.loads(args.passthroughenv)
-        vContext = VContext.VContext(args.jobid, passThroughEnv)
+        vContext = VContext.VContext(args.jobid, passThroughEnv=passThroughEnv)
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         ret = 0
