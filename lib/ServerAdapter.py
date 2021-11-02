@@ -74,7 +74,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
         return response
@@ -99,7 +99,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
@@ -124,7 +124,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError('Request url:{} failed, {}\n{}\n'.format(url, errMsg, ex))
+            raise AutoExecError('Request url:{} failed, {}\n'.format(url, errMsg))
         except URLError as ex:
             raise AutoExecError('Request url:{} failed, {}'.format(url, ex.reason))
 
