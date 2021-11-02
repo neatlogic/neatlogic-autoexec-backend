@@ -24,3 +24,5 @@ if [ -e "$JOB_PATH" ]; then
 else
     echo "ERROR: Directory $JOB_PATH not exists."
 fi
+
+exec bash
