@@ -90,34 +90,47 @@ sub getProcEnv {
 
     if ( not defined($pid) ) {
         print("WARN: PID is not defined, can not get process info.\n");
+        return $envMap;
     }
 
-    my $cmd     = $self->{procEnvCmd} . " $pid";
-    my $procTxt = `$cmd`;
-    my $status  = $?;
-    if ( $status != 0 ) {
-        print("WARN: Get process info for pid:$pid failed.\n");
-    }
-
-    my ( $headLine, $envLine ) = split( /\n/, $procTxt );
-
-    my $envName;
-    my $envVal;
-    while ( $envLine =~ /(\w+)=([^=]*?|[^\s]+?)\s(?=\w+=)/g ) {
-        $envName = $1;
-        $envVal  = $2;
-        if ( $envName ne 'LS_COLORS' ) {
-            $envMap->{$envName} = $envVal;
+    my $envFilePath = "/proc/$pid/environ";
+    if ( -f $envFilePath ) {
+        my $content = CollectUtils->getFileContent($envFilePath);
+        my $line;
+        foreach $line ( split( /\x0/, $content ) ) {
+            if ( $line =~ /^(.*?)=(.*)$/ ) {
+                $envMap->{$1} = $2;
+            }
         }
     }
+    else {
+        my $cmd     = $self->{procEnvCmd} . " $pid";
+        my $procTxt = `$cmd`;
+        my $status  = $?;
+        if ( $status != 0 ) {
+            print("WARN: Get process info for pid:$pid failed.\n");
+        }
 
-    my $lastEqualPos = rindex( $envLine, '=' );
-    my $lastEnvPos = rindex( $envLine, ' ', $lastEqualPos );
-    my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
-    my $lastEnvVal = substr( $envLine, $lastEqualPos + 1 );
-    chomp($lastEnvVal);
-    if ( $lastEnvVal =~ /^\w+$/ ) {
-        $envMap->{$lastEnvName} = $lastEnvVal;
+        my ( $headLine, $envLine ) = split( /\n/, $procTxt );
+
+        my $envName;
+        my $envVal;
+        while ( $envLine =~ /(\w+)=([^=]*?|[^\s]+?)\s(?=\w+=)/g ) {
+            $envName = $1;
+            $envVal  = $2;
+            if ( $envName ne 'LS_COLORS' ) {
+                $envMap->{$envName} = $envVal;
+            }
+        }
+
+        my $lastEqualPos = rindex( $envLine, '=' );
+        my $lastEnvPos = rindex( $envLine, ' ', $lastEqualPos );
+        my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
+        my $lastEnvVal = substr( $envLine, $lastEqualPos + 1 );
+        chomp($lastEnvVal);
+        if ( $lastEnvVal =~ /^\w+$/ ) {
+            $envMap->{$lastEnvName} = $lastEnvVal;
+        }
     }
 
     return $envMap;
