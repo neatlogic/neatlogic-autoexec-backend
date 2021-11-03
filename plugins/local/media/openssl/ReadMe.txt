@@ -1,4 +1,0 @@
-发布后台的脚本需要通过https连接console，依赖openssl
-用于缺少了这两个rpm包的机器，如果能够使用yum安装就使用yum安装
-否则，就直接通过rpm安装openssl的这两个包
-
