@@ -83,7 +83,10 @@ class JobRunner:
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
+            dstPath = '{}/nodes.json'.format(self.context.runPath)
             if context.firstFire:
+                context.serverAdapter.getNodes()
+            elif not os.path.exists(dstPath):
                 context.serverAdapter.getNodes()
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
