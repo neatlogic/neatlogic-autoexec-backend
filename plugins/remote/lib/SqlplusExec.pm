@@ -146,15 +146,20 @@ sub _parseOutput {
     my $pos = 0;
 
     #Skip空行
-    for ( my $pos = 0 ; $pos < $linesCount ; $pos++ ) {
+    my $hasData = 0;
+    for ( $pos = 0 ; $pos < $linesCount ; $pos++ ) {
         my $line = $lines[$pos];
-        print($line);
-        if ( $line !~ /^\s*$/ ) {
+        if ( $line =~ /^[-\s]+$/ ) {
+            $hasData = 1;
             last;
         }
     }
 
-    for ( my $i = $pos + 1 ; $i < $linesCount ; $i++ ) {
+    if ( $hasData == 1 ) {
+        $pos = $pos - 1;
+    }
+
+    for ( my $i = $pos ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
 
         #错误识别
