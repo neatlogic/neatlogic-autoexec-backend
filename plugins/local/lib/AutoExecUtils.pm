@@ -26,11 +26,31 @@ use Cwd;
 use File::Glob qw(bsd_glob);
 use JSON qw(from_json to_json);
 
-
 my $READ_TMOUT = 86400;
 my $TERM_CHARSET;
 
 sub setEnv {
+
+    #hide password in command line
+    hidePwdInCmdLine();
+}
+
+sub hidePwdInCmdLine {
+    my @args = ($0);
+    my $arg;
+    for ( my $i = 0 ; $i <= $#ARGV ; $i++ ) {
+        $arg = $ARGV[$i];
+        if ( $arg =~ /[-]+\w*pass\w*[^=]/ ) {
+            push( @args, $arg );
+            push( @args, '******' );
+            $i = $i + 1;
+        }
+        else {
+            $arg =~ s/"password":\K".*?"/"******"/ig;
+            push( @args, $arg );
+        }
+    }
+    $0 = join( ' ', @args );
 }
 
 sub saveOutput {
@@ -210,9 +230,9 @@ sub informNodeWaitInput {
     if ( -e $sockPath ) {
         eval {
             my $client = IO::Socket::UNIX->new(
-                Peer => $sockPath,
-                Type     => IO::Socket::SOCK_DGRAM,
-                Timeout  => 10
+                Peer    => $sockPath,
+                Type    => IO::Socket::SOCK_DGRAM,
+                Timeout => 10
             );
 
             my $request = {};

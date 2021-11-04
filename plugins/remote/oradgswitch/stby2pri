@@ -4,6 +4,7 @@ use lib $FindBin::Bin;
 
 use strict;
 use Getopt::Long;
+use AutoExecUtils;
 use SqlplusExec;
 
 #把备库切换为Primary
@@ -62,12 +63,15 @@ sub switchToPrimary {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $opts = {};
-    GetOptions($opts, qw{
+    GetOptions(
+        $opts, qw{
             sid=s
-    });
+            }
+    );
 
-    my $hasError = switchToPrimary($sid);
+    my $hasError = switchToPrimary( $opts->{sid} );
     return $hasError;
 }
 

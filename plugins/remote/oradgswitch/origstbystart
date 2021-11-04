@@ -4,6 +4,7 @@ use lib $FindBin::Bin;
 
 use strict;
 use Getopt::Long;
+use AutoExecUtils;
 use SqlplusExec;
 
 #原备库（现主库）启动，要优先于原主库（现备库）启动
@@ -23,11 +24,11 @@ sub usage {
 }
 
 sub start {
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
-    my $sid = $opts->{sid};
+    my $sid    = $opts->{sid};
     my $dbName = $opts->{dbname};
-    my $rac = $opts->{israc};
+    my $rac    = $opts->{israc};
 
     my $hasError = 0;
 
@@ -102,13 +103,16 @@ sub start {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $opts = {};
     $opts->{israc} = 0;
-    GetOptions($opts, qw{
+    GetOptions(
+        $opts, qw{
             sid=i
             dbname=s
             israc=s
-    });
+            }
+    );
 
     my $hasError = start($opts);
     return $hasError;

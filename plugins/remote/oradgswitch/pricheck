@@ -4,6 +4,7 @@ use lib $FindBin::Bin;
 
 use strict;
 use Getopt::Long;
+use AutoExecUtils;
 use SqlplusExec;
 
 #切换前对原主库进行检查，确认可以切换
@@ -29,12 +30,12 @@ sub usage {
 sub primaryCheck {
     my ($opts) = @_;
 
-    my $sid=$opts->{sid};
-    my $dbName=$opts->{dbname};
-    my $primaryDbUniqueName=$opts->{primaryuniquename};
-    my $standbyDbUniqueName=$opts->{standbyuniquename};
-    my $primarySequence=$opts->{primarysequence};
-    my $standbySequence=$opts->{standbysequence};
+    my $sid                 = $opts->{sid};
+    my $dbName              = $opts->{dbname};
+    my $primaryDbUniqueName = $opts->{primaryuniquename};
+    my $standbyDbUniqueName = $opts->{standbyuniquename};
+    my $primarySequence     = $opts->{primarysequence};
+    my $standbySequence     = $opts->{standbysequence};
 
     my $hasError = 0;
 
@@ -231,15 +232,18 @@ sub primaryCheck {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $opts = {};
-    GetOptions($opts, qw{
+    GetOptions(
+        $opts, qw{
             sid=s
             dbname=s
             primaryuniquename=s
-            standbyuniquename=s 
+            standbyuniquename=s
             primarysequence=s
             standbysequence=s
-    });
+            }
+    );
 
     my $errorCount = 0;
     $errorCount = primaryCheck($opts);

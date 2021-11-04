@@ -4,6 +4,7 @@ use lib $FindBin::Bin;
 
 use strict;
 use Getopt::Long;
+use AutoExecUtils;
 use SqlplusExec;
 
 #最后一个步骤，切换后在现主库，原备库执行切换后的回切验证VERIFY
@@ -17,6 +18,7 @@ use SqlplusExec;
 
 #入参声明，使用时注释掉
 my ( $sid, $primaryDbUniqueName );
+
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -25,8 +27,8 @@ sub usage {
 }
 
 sub afterSwitchCheck {
-    my $opts = @_;
-    my $sid = $opts->{sid};
+    my $opts                = @_;
+    my $sid                 = $opts->{sid};
     my $primaryDbUniqueName = $opts->{primaryuniquename};
 
     my $sqlplus = SqlplusExec->new( sid => $sid );
@@ -79,13 +81,16 @@ sub afterSwitchCheck {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $opts = {};
-    GetOptions($opts, qw{
+    GetOptions(
+        $opts, qw{
             sid=s
             primaryuniquename=s
-    });
+            }
+    );
 
-    my $hasError = afterSwitchCheck( $opts );
+    my $hasError = afterSwitchCheck($opts);
     return $hasError;
 }
 

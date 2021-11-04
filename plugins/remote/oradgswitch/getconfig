@@ -100,18 +100,21 @@ sub getConfig {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $opts = {};
-    GetOptions($opts, qw{
+    GetOptions(
+        $opts, qw{
             sid=s
-    });
+            }
+    );
 
-    my ( $dbName, $isRAC, $dbUniqueName, $dbSequence, $tempFilesCount ) = getConfig($sid);
+    my ( $dbName, $isRAC, $dbUniqueName, $dbSequence, $tempFilesCount ) = getConfig( $opts->{sid} );
     my $out = {};
-    $out->{dbName}     = $dbName;
-    $out->{isRAC} = $isRAC;
-    $out->{dbUniqueName}     = $dbUniqueName;
-    $out->{dbSequence}     =  $dbSequence;
-    $out->{tempFilesCount}      = $tempFilesCount;
+    $out->{dbName}         = $dbName;
+    $out->{isRAC}          = $isRAC;
+    $out->{dbUniqueName}   = $dbUniqueName;
+    $out->{dbSequence}     = $dbSequence;
+    $out->{tempFilesCount} = $tempFilesCount;
     AutoExecUtils::saveOutput($out);
 
     if ( defined($dbName) and defined($dbUniqueName) and defined($dbSequence) ) {

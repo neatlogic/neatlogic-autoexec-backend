@@ -83,7 +83,7 @@ sub collect {
     $redisInfo->{CONFIG_FILE}  = $configFile;
 
     #检查是否装了reds-cli
-    if ( not -e $cliFile ) {
+    if ( not -e $cliFile and -e "$FindBin::Bin/redis-cli" ) {
         copy( "$FindBin::Bin/redis-cli", $binPath );
         chmod( 0755, "$binPath/redis-cli" );
     }

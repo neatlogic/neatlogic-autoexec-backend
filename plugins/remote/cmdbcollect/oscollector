@@ -5,7 +5,9 @@ use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use Getopt::Long qw(GetOptionsFromArray);
+use Getopt::Long;
+
+#use Getopt::Long qw(GetOptionsFromArray);
 use POSIX qw(uname);
 use File::Basename;
 use JSON qw(from_json to_json);
@@ -50,6 +52,7 @@ sub collectTimeout {
 }
 
 sub main {
+    AutoExecUtils::setEnv();
     my $osInfo;
     my $osType = ( uname() )[0];
     $osType =~ s/\s.*$//;
@@ -61,12 +64,18 @@ sub main {
     my $defaultPassConf;
 
     my @myOpts = @ARGV;
-    GetOptionsFromArray(
-        \@myOpts,
+    GetOptions(
         'verbose=i'         => \$isVerbose,
         'class=s'           => \$classDef,
         'defaultpassconf=s' => \$defaultPassConf
     );
+
+    # GetOptionsFromArray(
+    #     \@myOpts,
+    #     'verbose=i'         => \$isVerbose,
+    #     'class=s'           => \$classDef,
+    #     'defaultpassconf=s' => \$defaultPassConf
+    # );
 
     #拼装账户参数
     my $accountInfo = {};
@@ -80,12 +89,6 @@ sub main {
             $accountInfo->{$optName} = $optVal;
         }
     }
-
-    # GetOptions(
-    #     'verbose=i'         => \$isVerbose,
-    #     'class=s'           => \$classDef,
-    #     'defaultpassconf=s' => \$defaultPassConf
-    # );
 
     my $ignoreOsInfo = 0;
     my $collectClassMap;
