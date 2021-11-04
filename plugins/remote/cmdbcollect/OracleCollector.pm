@@ -21,11 +21,7 @@ use SqlplusExec;
 
 sub getPK {
     my ($self) = @_;
-    return {
-        'Oracle'     => [ 'ORACLE_SID', 'DBID' ],
-        'Oracle-PDB' => [ 'DBID',       'NAME' ],
-        'Oracle-RAC' => [ 'DBID',       'NAME' ]
-    };
+    return { 'Oracle-RAC' => ['UNIQUE_NAME'] };
 }
 
 #配置进程的filter，下面是配置例子
@@ -417,7 +413,8 @@ sub collectInstances {
     $insInfo->{DISK_GROUPS} = \@diskGroups;
     $insInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
 
-    my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
+    my ( $port, $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
+    $insInfo->{PORT} = $port;
     my @serviceNames = keys(%$servicesMap);
     $insInfo->{LISTEN_ADDRS} = $listenAddrs;
     $insInfo->{SERVICE_INFO} = $servicesMap;
@@ -652,6 +649,7 @@ sub getIpInHostsByHostName {
 sub parseListenerInfo {
     my ( $self, $outLines ) = @_;
 
+    my $miniPort    = 65536;
     my @listenAddrs = ();
     my @services    = ();
     my $servicesMap = ();
@@ -674,6 +672,9 @@ sub parseListenerInfo {
                     my $ipAddr = gethostbyname($host);
                     $listenInfo->{IP}   = inet_ntoa($ipAddr);
                     $listenInfo->{PORT} = $port;
+                    if ( $port < $miniPort ) {
+                        $miniPort = $port;
+                    }
                     push( @listenAddrs, $listenInfo );
                 }
                 $i++;
@@ -712,7 +713,11 @@ sub parseListenerInfo {
         }
     }
 
-    return ( \@listenAddrs, $servicesMap );
+    if ( $miniPort < 65536 ) {
+        $miniPort = 0;
+    }
+
+    return ( $miniPort, \@listenAddrs, $servicesMap );
 }
 
 sub getListenerInfo {
@@ -824,14 +829,16 @@ sub collectRAC {
 
     #把$insInfo的信息复制过来
     map { $racInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
-    $racInfo->{_OBJ_TYPE} = 'Oracle-RAC';
+    $racInfo->{_OBJ_CATEGORY} = CollectObjCat->get('CLUSTER');
+    $racInfo->{_OBJ_TYPE}     = 'Oracle-RAC';
 
     my $version = $self->getClusterVersion($insInfo);
     $insInfo->{CLUSTER_VERSION} = $version;
 
     my $dbNames = $self->getClusterDBNames($insInfo);
 
-    my @dbInfos = ();
+    my @nodeAddrs = ();
+    my @dbInfos   = ();
     foreach my $dbName (@$dbNames) {
         my $dbInfo = {};
 
@@ -881,12 +888,13 @@ sub collectRAC {
                         if ( $nodeIp ne '0.0.0.0' and $nodeIp ne '127.0.0.1' ) {
                             $nodeInfo->{IP} = $nodeIp;
                         }
-                        push( @nodes, $nodeInfo );
+                        push( @nodeAddrs, "$nodeIp/$instanceName" );
+                        push( @nodes,     $nodeInfo );
                     }
                 }
 
                 #TODO: listener 中service name如何跟库发生联系？？
-                my ( $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
+                my ( $port, $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
                 my @serviceNames = keys(%$servicesMap);
                 $dbInfo->{LISTEN_ADDRS} = $listenAddrs;
                 my @serviceInfos = values(%$servicesMap);
@@ -901,6 +909,10 @@ sub collectRAC {
             }
         }
     }
+    my @sortNodeAddrs = sort(@nodeAddrs);
+    my $uniqueName = join( ',', @sortNodeAddrs );
+    $racInfo->{UNIQUE_NAME} = $uniqueName;
+    $racInfo->{RAC_MEMBERS} = \@dbInfos;
 }
 
 sub collect {
