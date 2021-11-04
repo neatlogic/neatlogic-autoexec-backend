@@ -7,6 +7,7 @@
 import sys
 import os
 import json
+import Utils
 import RunNode
 
 
@@ -59,6 +60,12 @@ class RunNodeFactory:
         runNode = None
 
         if line:
+            if 'password' in nodeObj:
+                password = nodeObj['password']
+                if password.startswith('{ENCRYPTED}'):
+                    password = Utils._rc4_decrypt_hex(self.context.MY_KEY, password[11:])
+                    nodeObj['password'] = password
+
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
             self.nodesFile.close()
