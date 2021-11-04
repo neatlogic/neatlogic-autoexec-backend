@@ -531,7 +531,7 @@ class TagentClient:
     # 用于读取tar或者7-zip的打包输出内容，并写入网络连接中
     def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
         status = 0
-        buf_size = 4096
+        buf_size = 4096 * 8
         try:
             if cwd is None:
                 p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -572,7 +572,7 @@ class TagentClient:
 
     # 读取文件内容，并写入网络连接中
     def __readFileToSock(self, sock, filePath, isVerbose=0, convertCharset=0):
-        buf_size = 4096
+        buf_size = 4096 * 8
         agentCharset = self.agentCharset
         charset = self.charset
         status = 0
@@ -608,7 +608,7 @@ class TagentClient:
 
     # 下载URL中的文件内容，写入网络连接中
     def __readUrlToSock(self, sock, url, isVerbose=0, convertCharset=1):
-        buf_size = 4096
+        buf_size = 4096 * 8
         agentCharset = self.agentCharset
         charset = ""
         status = 0
@@ -669,7 +669,7 @@ class TagentClient:
         sock = self.getConnection()
 
         agentCharset = self.agentCharset
-        param = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset)), bytesEncodeToHex(src.encode(agentCharset)), bytesEncodeToHex(dest.encode(agentCharset)), str(followLinks))
+        param = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset)), bytesEncodeToHex(src.encode(agentCharset)), bytesEncodeToHex(dest.encode(agentCharset)), followLinks)
 
         self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset))
 
@@ -692,8 +692,14 @@ class TagentClient:
             if ostype == 'windows':
                 cmd = ["7z.exe", "a", "dummy", "-ttar", "-y", "-so", src]
             else:
-                tarOpt = "cvf" if isVerbose == 1 else "cf"
-                cmd = ["tar", "-{}-".format(tarOpt), src]
+                tarOpt = ''
+                if isVerbose == 1:
+                    tarOpt = "v"
+                if followLinks == 1:
+                    tarOpt = tarOpt + 'h'
+                tarOpt = 'c' + tarOpt + 'f'
+
+                cmd = ["tar", "-{}".format(tarOpt), '-', src]
             status = self.__readCmdOutToSock(sock, cmd, isVerbose=isVerbose, cwd=srcDir)
         elif fileType == 'url':
             status = self.__readUrlToSock(sock, src, isVerbose, convertCharset)
