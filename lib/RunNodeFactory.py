@@ -65,6 +65,11 @@ class RunNodeFactory:
                 if password.startswith('{ENCRYPTED}'):
                     password = Utils._rc4_decrypt_hex(self.context.MY_KEY, password[11:])
                     nodeObj['password'] = password
+            else:
+                nodeObj['password'] = ''
+
+            if 'username' not in nodeObj:
+                nodeObj['username'] = 'anonymous'
 
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:

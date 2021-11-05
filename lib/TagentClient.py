@@ -87,6 +87,15 @@ class ExecError(RuntimeError):
         return repr(self.value)
 
 
+class AgentError(RuntimeError):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class TagentClient:
 
     def __init__(self, host='', port='', password='', readTimeout=0, writeTimeout=0, agentCharset='UTF-8'):
@@ -200,25 +209,22 @@ class TagentClient:
         port = self.port
         password = self.password
 
-        self.sock = None
+        sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
-        except AuthError:
-            sock = None
-        try:
             sock.connect((host, port))
             self.sock = sock
-        except AuthError:
-            sock.close()
-            sock = None
-        if sock:
-            ret = self.auth(sock, password, isVerbose)
-            if ret != 1:
-                print("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
-                sys.exit(1)
-        else:
-            print("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
-            sys.exit(1)
+            if sock:
+                ret = self.auth(sock, password, isVerbose)
+                if ret != 1:
+                    raise AuthError("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
+                    # sys.exit(1)
+            else:
+                raise AuthError("ERROR: Authenticate failed while connect to {0}:{1}.\n".format(host, port))
+                # sys.exit(1)
+        except Exception as errMsg:
+            if sock:
+                sock.close()
         return sock
 
     def auth(self, sock, authKey, isVerbose=0):
