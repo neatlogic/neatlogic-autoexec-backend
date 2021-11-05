@@ -679,6 +679,9 @@ sub parseListenerInfo {
                         my $ipAddr = gethostbyname($host);
                         $ip = inet_ntoa($ipAddr);
                     }
+                    if ( not defined($ip) ) {
+                        $ip = '*';
+                    }
 
                     $listenInfo->{IP}   = $ip;
                     $listenInfo->{PORT} = $port;
@@ -725,7 +728,7 @@ sub parseListenerInfo {
         }
     }
 
-    if ( $miniPort < 65536 ) {
+    if ( $miniPort == 65536 ) {
         $miniPort = 0;
     }
 
