@@ -312,7 +312,7 @@ sub main {
                 $appInfo->{PK} = $pkConfig->{$objType};
             }
             else {
-                $appInfo->{PK} = [ 'MGMT_IP', 'MGMT_PORT' ];
+                $appInfo->{PK} = [ 'OS_ID', 'MGMT_IP', 'PORT' ];
                 print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
             }
             $appInfo->{RUN_ON} = [

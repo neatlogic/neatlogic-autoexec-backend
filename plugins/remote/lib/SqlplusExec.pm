@@ -306,7 +306,7 @@ sub _execSql {
     my $isVerbose = $args{verbose};
     my $parseData = $args{parseData};
 
-    if ( $sql !~ /;$/ ) {
+    if ( $sql !~ /;\s*$/ ) {
         $sql = $sql . ';';
     }
 

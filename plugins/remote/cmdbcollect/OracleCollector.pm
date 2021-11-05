@@ -21,7 +21,10 @@ use SqlplusExec;
 
 sub getPK {
     my ($self) = @_;
-    return { 'Oracle-RAC' => ['UNIQUE_NAME'] };
+    return {
+        'Oracle'     => [ 'OS_ID', 'MGMT_IP', 'PORT' ],
+        'Oracle-RAC' => ['UNIQUE_NAME']
+    };
 }
 
 #配置进程的filter，下面是配置例子
@@ -168,7 +171,7 @@ sub getUserInfo {
     my ( $self, $pdbName ) = @_;
 
     my $sqlplus = $self->{sqlplus};
-    my $sql     = q{select du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX');};
+    my $sql     = q{select du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')};
     if ( defined($pdbName) and $pdbName ne '' ) {
         $sql = "alter session set container=$pdbName;\n$sql";
     }
@@ -209,8 +212,9 @@ sub getTableSpaceInfo {
                     tablespace_name
                 FROM   dba_segments
                 GROUP  BY tablespace_name) tu
-        WHERE  df.tablespace_name = tu.tablespace_name;
+        WHERE  df.tablespace_name = tu.tablespace_name
     };
+    $sql =~ s/\s+/ /g;
     if ( defined($pdbName) and $pdbName ne '' ) {
         $sql = "alter session set container=$pdbName;\n$sql";
     }
@@ -662,21 +666,29 @@ sub parseListenerInfo {
             $line = $$outLines[$i];
 
             #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
-            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=/ ) {
-                if ( $line =~ /\(HOST=(.*?)\)\(PORT=(\d+)\)/ ) {
+            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=tcp/i ) {
+                if ( $line =~ /\(PORT=(\d+)\)/ ) {
                     my $listenInfo = {};
-                    my $host       = $1;
-                    my $port       = int($2);
+                    my $port       = int($1);
 
-                    #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
-                    my $ipAddr = gethostbyname($host);
-                    $listenInfo->{IP}   = inet_ntoa($ipAddr);
+                    my $ip;
+                    if ( $line =~ /\(HOST=(.*?)\)/ ) {
+                        my $host = $1;
+
+                        #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
+                        my $ipAddr = gethostbyname($host);
+                        $ip = inet_ntoa($ipAddr);
+                    }
+
+                    $listenInfo->{IP}   = $ip;
                     $listenInfo->{PORT} = $port;
                     if ( $port < $miniPort ) {
                         $miniPort = $port;
                     }
+
                     push( @listenAddrs, $listenInfo );
                 }
+
                 $i++;
                 $line = $$outLines[$i];
             }
