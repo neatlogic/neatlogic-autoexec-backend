@@ -66,6 +66,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu逻辑核数",
+            "type": "int"
+        },
+        {
             "name": "CPU_MODEL",
             "desc": "CPU型号",
             "type": "String"

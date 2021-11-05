@@ -2,7 +2,8 @@
     "label": "INS",
     "collection": "COLLECT_INS",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -36,7 +37,8 @@
             "name": "BELONG_APPLICATION",
             "desc": "所属应用",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
@@ -117,17 +119,20 @@
             "name": "PORTS",
             "desc": "所有端口列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "端口",
-                "type": "int"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "端口",
+                    "type": "int"
+                }
+            ]
         },
         {
             "name": "REF_CLUSTER",
             "desc": "调用的集群",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -168,7 +173,8 @@
             "name": "REF_DB",
             "desc": "调用的数据库",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -199,7 +205,8 @@
             "name": "REF_INS",
             "desc": "调用的其他实例",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -230,7 +237,8 @@
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"

@@ -66,6 +66,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu Logic Cores",
+            "type": "int"
+        },
+        {
             "name": "CPU_MODEL",
             "desc": "Cpu Model",
             "type": "String"
