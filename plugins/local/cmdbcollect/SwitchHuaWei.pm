@@ -2,7 +2,6 @@
 use strict;
 
 package SwitchHuawei;
-
 use SwitchBase;
 our @ISA = qw(SwitchBase);
 

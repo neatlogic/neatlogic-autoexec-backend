@@ -71,6 +71,10 @@ class RunNodeFactory:
             if 'username' not in nodeObj:
                 nodeObj['username'] = 'anonymous'
 
+            if 'protocolPort' not in nodeObj or nodeObj['protocolPort'] == '':
+                if 'port' in nodeObj:
+                    nodeObj['protocolPort'] = nodeObj['port']
+
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
             self.nodesFile.close()

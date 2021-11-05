@@ -2,6 +2,8 @@
 use strict;
 
 package SwitchJuniper;
+use SwitchBase;
+our @ISA = qw(SwitchBase);
 
 sub before {
     my ( $self, $collector ) = @_;

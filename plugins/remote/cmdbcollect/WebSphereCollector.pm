@@ -46,26 +46,17 @@ sub getVersion {
     # Name                  IBM WebSphere SDK Java Technology Edition (Optional)
     # Version               8.0.5.6
     my $binPath = "$installPath/bin";
-    my $verCmd  = "LANG=C $binPath/versionInfo.sh";
+    my $verCmd  = qq{LANG=C "$binPath/versionInfo.sh"};
     if ( $self->{OS_TYPE} eq 'Windows' ) {
-        $verCmd = "$binPath/versionInfo.bat";
+        $verCmd = qq{"$binPath/versionInfo.bat"};
     }
 
     my $verLines = $self->getCmdOutLines($verCmd);
-    my $idx      = 0;
-    while ( $$verLines[$idx] !~ /^Name\s+IBM WebSphere Application Server/ ) {
-        $idx = $idx + 1;
-    }
-    $idx = $idx + 1;
-    if ( $$verLines[$idx] =~ /^(Version|版本)\s+(.*)$/ ) {
-        $appInfo->{VERSION} = $2;
-    }
-    while ( $$verLines[$idx] !~ /^Name\s+IBM WebSphere SDK Java Technology Edition/ ) {
-        $idx = $idx + 1;
-    }
-    $idx = $idx + 1;
-    if ( $$verLines[$idx] =~ /^(Version|版本)\s+(.*)$/ ) {
-        $appInfo->{JAVA_VERSION} = $2;
+    foreach my $line (@$verLines) {
+        if ( $line =~ /^(Version|版本)\s+(.*)$/ ) {
+            $appInfo->{VERSION} = $2;
+            last;
+        }
     }
 
     return;
@@ -193,6 +184,13 @@ sub collect {
     my $cellName   = $commandFields[-3];
     my $confRoot   = $commandFields[-4];
 
+    if ( $confRoot =~ /"$/ ) {
+        $confRoot = substr( $confRoot, 0, -1 );
+        if ( $command =~ /"([^"]*?\Q$confRoot\E)"/ ) {
+            $confRoot = $1;
+        }
+    }
+
     $appInfo->{SERVER_NAME} = $serverName;
 
     #$appInfo->{CONFIG_ROOT} = $envMap->{CONFIG_ROOT};
@@ -212,13 +210,13 @@ sub collect {
 
     #-Dwas.install.root=/opt/IBM/WebSphere/AppServer
     my $installPath;
-    if ( $command =~ /-Dwas\.install\.root=(.*?)(?=\s-D)/ ) {
+    if ( $command =~ /-Dwas\.install\.root=(.*?)(?="?\s+"?-D)/ ) {
         $installPath = $1;
         $appInfo->{INSTALL_ROOT} = $installPath;
     }
 
     #-Dserver.root=/opt/IBM/WebSphere/AppServer/profiles/Dmgr01
-    if ( $command =~ /-Dserver\.root=(.*?)(?=\s-D)/ ) {
+    if ( $command =~ /-Dserver\.root=(.*?)(?="?\s+"?-D)/ ) {
         $appInfo->{SERVER_ROOT} = $1;
         $serverRoot = $1;
     }

@@ -2,6 +2,8 @@
 use strict;
 
 package SwitchH3C;
+use SwitchBase;
+our @ISA = qw(SwitchBase);
 
 sub before {
     my ( $self, $collector ) = @_;
