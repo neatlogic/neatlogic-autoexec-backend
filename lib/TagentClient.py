@@ -301,7 +301,11 @@ class TagentClient:
                     traceback.print_exc()
                 raise
             finally:
-                sock.close()
+                try:
+                    if sock:
+                        sock.shutdown(2)
+                except:
+                    pass
         else:
             status = -1
         return status
@@ -324,7 +328,11 @@ class TagentClient:
         except BaseException:
             raise
         finally:
-            sock.close()
+            try:
+                if sock:
+                    sock.shutdown(2)
+            except:
+                pass
         return status
 
     def echo(self, user, data, isVerbose=0):
@@ -339,7 +347,11 @@ class TagentClient:
                 print(msg)
             raise
         finally:
-            sock.shutdown(2)
+            try:
+                if sock:
+                    sock.shutdown(2)
+            except:
+                pass
 
     # 执行远程命令
 
@@ -539,7 +551,11 @@ class TagentClient:
         except AgentError:
             raise
         finally:
-            sock.close()
+            try:
+                if sock:
+                    sock.shutdown(2)
+            except:
+                pass
 
     # 用于读取tar或者7-zip的打包输出内容，并写入网络连接中
     def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
