@@ -120,9 +120,8 @@ class RunNode:
         try:
             if not os.path.exists(self.hisLogDir):
                 os.mkdir(self.hisLogDir)
-
         except Exception as ex:
-            self.logger.log(logging.FATAL, "ERROR: Create log failed, {}\n".format(ex))
+            self.logger.log(logging.FATAL, "ERROR: Create log dir {} failed, {}\n".format(self.hisLogDir, ex))
             self.updateNodeStatus(NodeStatus.failed)
 
         self.output = self.context.output
@@ -200,12 +199,14 @@ class RunNode:
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
+                    self.writeNodeLog("INFO: Change node status to " + status + ".\n")
                     if 'Return' in retObj and 'hasFailNode' in retObj['Return']:
                         if retObj['Return']['hasFailNode'] == 1:
                             self.context.hasFailNodeInGlobal = True
-
+                else:
+                    self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj)))
             except Exception as ex:
-                self.writeNodeLog('ERROR: Push status:{} to Server, failed {}\n'.format(self.statusPath, ex))
+                self.writeNodeLog('ERROR: Push status:{} to server, failed {}\n'.format(self.statusPath, ex))
 
     def _loadNodeStatus(self):
         status = NodeStatus.pending
@@ -350,13 +351,17 @@ class RunNode:
         nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
         nodeStartTime = time.time()
 
+        # 第一次写入日志才会触发日志初始化，日志初始化后才能进行历史日志的生成
+        self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
+
         # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
         logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
         if not os.path.exists(logPathWithTime):
             os.link(self.logPath, logPathWithTime)
         self.logPathWithTime = logPathWithTime
 
-        self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
+        self.updateNodeStatus(NodeStatus.running)
+
         if isFail == 0:
             for op in ops:
                 if self.context.goToStop:
@@ -374,8 +379,6 @@ class RunNode:
                         self._loadOpOutput(op)
                         self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                         continue
-
-                    self.updateNodeStatus(NodeStatus.running)
 
                     startTime = time.time()
                     self.writeNodeLog("------START-- {} operation {}[{}] to be start...\n".format(op.opType, op.opName, op.opId))
@@ -468,18 +471,20 @@ class RunNode:
             else:
                 finalStatus = NodeStatus.failed
 
-        self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
         self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
+        self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
 
         # 创建带时间戳的日志文件名
         finalLogPathWithTime = logPathWithTime
         finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(finalStatus))
         if finalLogPathWithTime != logPathWithTime:
             try:
+                if self.logHandle is not None:
+                    self.logHandle.close()
+                    self.logHandle = None
                 os.rename(self.logPathWithTime, finalLogPathWithTime)
             except:
                 pass
-        # os.link(self.logPath, logPathWithTime)
 
         self.killCmd = None
         self.childPid = None
