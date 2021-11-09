@@ -65,9 +65,20 @@ sub collect {
     #配置文件
     parseConfig( $self, $configFile, $mongodbInfo );
 
-    my $port = $mongodbInfo->{'PORT'};
-    my $host = '127.0.0.1';
-
+    my $port = $mongodbInfo->{PORT};
+    if ( not defined($port) ) {
+        my $minPort     = 65535;
+        my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
+        foreach my $lsnPort ( keys(%$listenAddrs) ) {
+            if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
+                $lsnPort = ($2);
+            }
+            if ( $lsnPort < $minPort ) {
+                $minPort = $lsnPort;
+            }
+        }
+        $port = $minPort;
+    }
     $mongodbInfo->{PORT}           = $port;
     $mongodbInfo->{SSL_PORT}       = $port;
     $mongodbInfo->{MON_PORT}       = $port;
@@ -82,6 +93,7 @@ sub collect {
     $mongodbInfo->{VERSION}      = $version;
     $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVRIONMENT'}->{'LANG'};
 
+    my $host    = '127.0.0.1';
     my $mongodb = MongoDBExec->new(
         mongodbHome => $binPath,
         username    => $self->{defaultUsername},
