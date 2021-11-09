@@ -60,7 +60,7 @@ sub saveOutput {
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
-            print $fh ( to_json($outputData) );
+            print $fh ( to_json( $outputData, { utf8 => 0 } ) );
             $fh->close();
         }
         else {

@@ -65,7 +65,7 @@ def saveOutput(outputData):
     if 'OUTPUT_PATH' in os.environ:
         outputPath = os.environ['OUTPUT_PATH']
         outputFile = open(outputPath, 'w')
-        outputFile.write(json.dumps(outputData))
+        outputFile.write(json.dumps(outputData, ensure_ascii=False))
         outputFile.close()
 
 

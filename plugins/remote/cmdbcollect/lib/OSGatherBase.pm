@@ -44,16 +44,16 @@ sub new {
 
 #su运行命令，并返回输出的文本
 sub getCmdOut {
-    my ( $self, $cmd, $user ) = @_;
+    my ( $self, $cmd, $user, $charSet ) = @_;
     my $utils = $self->{collectUtils};
-    return $utils->getCmdOut( $cmd, $user );
+    return $utils->getCmdOut( $cmd, $user, $charSet );
 }
 
 #su运行命令，并返回输出的行数组
 sub getCmdOutLines {
-    my ( $self, $cmd, $user ) = @_;
+    my ( $self, $cmd, $user, $charSet ) = @_;
     my $utils = $self->{collectUtils};
-    return $utils->getCmdOutLines( $cmd, $user );
+    return $utils->getCmdOutLines( $cmd, $user, $charSet );
 }
 
 sub getFileContent {

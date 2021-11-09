@@ -7,7 +7,7 @@ use strict;
 package OSGatherWindows;
 
 use POSIX qw(uname);
-
+use Encode;
 use Win32;
 use Win32::API;
 
@@ -219,8 +219,8 @@ sub collectOsInfo {
 
     #TODO: IPV6 address的采集
 
-    my @users         = ();
-    my $userInfoLines = $self->getCmdOutLines('wmic useraccount where disabled=false get name');
+    my @users = ();
+    my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', $self->{codepage} );
     for ( my $i = 1 ; $i < scalar(@$userInfoLines) ; $i++ ) {
         my $userInfo = {};
         my $userName = $$userInfoLines[$i];
@@ -244,7 +244,7 @@ sub collectOsInfo {
         Size      => undef,
         FreeSpace => undef
     };
-    my $ldiskInfoLines = $self->getCmdOutLines( 'wmic logicaldisk get ' . join( ',', keys(%$ldiskFieldIdxMap) ) );
+    my $ldiskInfoLines = $self->getCmdOutLines( 'wmic logicaldisk get ' . join( ',', keys(%$ldiskFieldIdxMap) ), 'Administrator', $self->{codepage} );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
@@ -277,8 +277,8 @@ sub collectOsInfo {
     # \\.\PHYSICALDRIVE0  \\.\PHYSICALDRIVE0  0                2         0             6000c29f49a80cce2b4b8dd0710281a4  85896599040
 
     #因为磁盘型号有空格，无法正确切分，所以单独查询，并通过序列号进行关联
-    my $diskSNModelMap     = {};
-    my $diskModelInfoLines = $self->getCmdOutLines('wmic diskdrive get serialnumber,model');
+    my $diskSNModelMap = {};
+    my $diskModelInfoLines = $self->getCmdOutLines( 'wmic diskdrive get serialnumber,model', 'Administrator', $self->{codepage} );
     foreach my $line (@$diskModelInfoLines) {
 
         #6000c29f49a80cce2b4b8dd0710281a4
@@ -298,7 +298,7 @@ sub collectOsInfo {
         SerialNumber  => undef,
         InterfaceType => undef
     };
-    my $diskInfoLines = $self->getCmdOutLines( 'wmic diskdrive get ' . join( ',', keys(%$diskFieldIdxMap) ) );
+    my $diskInfoLines = $self->getCmdOutLines( 'wmic diskdrive get ' . join( ',', keys(%$diskFieldIdxMap) ), 'Administrator', $self->{codepage} );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
@@ -355,7 +355,7 @@ sub collectHostInfo {
     $sysVendor =~ s/^\s+|\s+$//g;
     $hostInfo->{SYS_VENDOR} = $sysVendor;
 
-    my $productInfo = $self->getCmdOutLines('wmic computersystem get model');
+    my $productInfo = $self->getCmdOutLines( 'wmic computersystem get model', 'Administrator', $self->{codepage} );
     my $productName = $$productInfo[1];
     $productName =~ s/^\s+|\s+$//g;
     $hostInfo->{PRODUCT_NAME} = $productName;
@@ -378,17 +378,20 @@ sub collectHostInfo {
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
     my @nicInfos          = ();
-    my $nicInfoLines      = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get description,macaddress');
+    my $nicInfoLines      = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get description,macaddress', 'Administrator', $self->{codepage} );
     my $nicInfoLinesCount = scalar(@$nicInfoLines);
     for ( my $i = 1 ; $i < $nicInfoLinesCount ; $i++ ) {
-        my $line        = $$nicInfoLines[$i];
-        my $nicInfo     = {};
+        my $line = $$nicInfoLines[$i];
+        $line =~ s/^\s*|\s*$//g;
+
         my @nicInfoSegs = split( /\s+/, $line );
-        $nicInfo->{MAC} = lc( pop(@nicInfoSegs) );
-        my $nicName = substr( $line, 0, length($line) - length( $nicInfo->{MAC} ) );
-        $nicName =~ s/^\s*|\s*$//g;
-        if ( $nicName ne '' ) {
+        my $nicMac      = lc( pop(@nicInfoSegs) );
+        my $nicName     = substr( $line, 0, length($line) - 17 );
+        if ( length($nicMac) == 17 and $nicName ne '' ) {
+            $nicName =~ s/^\s*|\s*$//g;
+            my $nicInfo = {};
             $nicInfo->{NAME}   = $nicName;
+            $nicInfo->{MAC}    = $nicMac;
             $nicInfo->{STATUS} = 'up';
             push( @nicInfos, $nicInfo );
         }
@@ -398,8 +401,18 @@ sub collectHostInfo {
     return $hostInfo;
 }
 
+sub getCodePage {
+    my $codepage;
+    if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+        $codepage = GetACP();
+    }
+    return $codepage;
+}
+
 sub collect {
-    my ($self)   = @_;
+    my ($self) = @_;
+    $self->{codepage} = 'cp' . $self->getCodePage();
+
     my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo();
 

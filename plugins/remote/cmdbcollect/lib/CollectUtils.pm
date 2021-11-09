@@ -5,6 +5,7 @@ use lib $FindBin::Bin;
 package CollectUtils;
 
 use strict;
+use Encode;
 use IO::File;
 use POSIX qw(uname);
 
@@ -95,8 +96,9 @@ sub getWinPSCmdOutLines {
 }
 
 #su运行命令，并返回输出的文本
+#charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOut {
-    my ( $self, $cmd, $user ) = @_;
+    my ( $self, $cmd, $user, $charSet ) = @_;
     my $out = '';
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
@@ -120,13 +122,18 @@ sub getCmdOut {
         print("WARN: execute cmd:$cmd failed.\n");
     }
 
+    if ( defined($charSet) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $charSet, $out ) );
+    }
+
     chomp($out);
     return ( $status, $out );
 }
 
 #su运行命令，并返回输出的行数组
+#charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOutLines {
-    my ( $self, $cmd, $user ) = @_;
+    my ( $self, $cmd, $user, $charSet ) = @_;
     my @out = ();
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
@@ -148,6 +155,12 @@ sub getCmdOutLines {
     my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: execute cmd:$cmd failed.\n");
+    }
+
+    if ( defined($charSet) ) {
+        for ( my $i = 0 ; $i <= $#out ; $i++ ) {
+            $out[$i] = Encode::encode( "utf-8", Encode::decode( $charSet, $out[$i] ) );
+        }
     }
 
     return ( $status, \@out );

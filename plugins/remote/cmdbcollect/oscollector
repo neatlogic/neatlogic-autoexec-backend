@@ -157,7 +157,7 @@ sub main {
             $osInfo->{PK}            = ['MGMT_IP'];
             $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
 
-            if ( defined( $hostInfo->{BOARD_SERIAL} ) ) {
+            if ( defined($hostInfo) and defined( $hostInfo->{BOARD_SERIAL} ) ) {
                 $osInfo->{HOST_ON} = [
                     {
                         '_OBJ_CATEGORY' => 'HOST',
