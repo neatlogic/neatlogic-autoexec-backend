@@ -128,6 +128,10 @@ sub collect {
         $appInfo->{INSTALL_PATH}  = $installPath;
     }
 
+    $self->getJavaAttrs($appInfo);
+    my $javaHome = $appInfo->{JAVA_HOME};
+    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
+
     #Using CATALINA_BASE:   /app/servers/balantflow
     #Using CATALINA_HOME:   /app/servers/balantflow
     #Using CATALINA_TMPDIR: /app/servers/balantflow/temp
@@ -143,8 +147,9 @@ sub collect {
     #JVM Version:    1.8.0_77-b03
     #JVM Vendor:     Oracle Corporation
     my $binPath = "$installPath/bin";
-    my $verCmd  = qq{sh "$binPath/catalina.sh" version};
+    my $verCmd  = qq{JAVA_HOME="$javaHome" sh "$binPath/catalina.sh" version};
     if ( $procInfo->{OS_TYPE} eq 'Windows' ) {
+        $ENV{JAVA_HOME} = $javaHome;
         $verCmd = qq{cmd /c "$binPath/catalina.bat" version};
     }
     my $verOut = $self->getCmdOutLines($verCmd);
@@ -153,10 +158,6 @@ sub collect {
             $appInfo->{VERSION} = $1;
         }
     }
-
-    $self->getJavaAttrs($appInfo);
-
-    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     return $appInfo;
 }

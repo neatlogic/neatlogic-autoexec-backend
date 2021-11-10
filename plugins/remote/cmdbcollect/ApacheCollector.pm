@@ -27,8 +27,8 @@ sub getConfig {
 sub getVerInfo {
     my ( $self, $cmd ) = @_;
 
-    my $versionInfo = {};
-    my @apacheInfos = $self->getCmdOut(qq{"$cmd"});
+    my $versionInfo     = {};
+    my $apacheInfoLines = $self->getCmdOutLines($cmd);
 
     #httpd -V或apachectl -V的输出
     # Server version: Apache/2.4.34 (Unix)
@@ -58,7 +58,7 @@ sub getVerInfo {
     #  -D AP_TYPES_CONFIG_FILE="/private/etc/apache2/mime.types"
     #  -D SERVER_CONFIG_FILE="/private/etc/apache2/httpd.conf"
 
-    foreach my $line (@apacheInfos) {
+    foreach my $line (@$apacheInfoLines) {
         if ( $line =~ /Server version:\s+(.*?)$/ ) {
             $versionInfo->{VERSION} = $1;
         }
@@ -205,7 +205,7 @@ sub collect {
     my $instPath;
     my $binPath;
     if ( $procInfo->{COMMAND} =~ /^\/usr\/sbin\/httpd\s+|^\/opt\/lampp\/bin\/httpd\s+/ ) {
-        $binPath  = '/usr/sbin/';
+        $binPath  = '/usr/sbin';
         $confPath = '/etc/httpd/conf';
         $instPath = '/etc/httpd';
     }
@@ -224,9 +224,9 @@ sub collect {
     $appInfo->{BIN_PATH}     = $binPath;
     $appInfo->{CONFIG_PATH}  = $confPath;
 
-    my $verInfo = $self->getVerInfo("$binPath/httpd -XV");
-    if ( not defined( $verInfo->{VERSION} ) and -x "$binPath/apachectl" ) {
-        $verInfo = $self->getVerInfo("$binPath/apachectl -XV");
+    my $verInfo = $self->getVerInfo(qq{"$binPath/httpd" -XV});
+    if ( not defined( $verInfo->{VERSION} ) and -e "$binPath/apachectl" ) {
+        $verInfo = $self->getVerInfo(qq{sh "$binPath/apachectl" -XV});
     }
     while ( my ( $k, $v ) = each(%$verInfo) ) {
         $appInfo->{$k} = $v;

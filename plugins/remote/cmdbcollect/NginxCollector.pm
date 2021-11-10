@@ -32,12 +32,18 @@ sub collect {
     if ( not $self->isMainProcess() ) {
         return undef;
     }
-    my $procInfo  = $self->{procInfo};
+    my $procInfo = $self->{procInfo};
+    my $command  = $procInfo->{COMMAND};
+
     my $nginxInfo = {};
     $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $nginxInfo->{SERVER_NAME}   = 'nginx';
 
-    my $exePath  = $procInfo->{EXECUTABLE_FILE};
+    my $exePath = $procInfo->{EXECUTABLE_FILE};
+    if ( $command =~ /^.*?(\/.*?\/nginx)(?=\s)/ or $command =~ /^.*?(\/.*?\/nginx)$/ ) {
+        $exePath = $1;
+    }
+
     my $binPath  = dirname($exePath);
     my $basePath = dirname($binPath);
     my ( $version, $prefix );
@@ -60,8 +66,17 @@ sub collect {
             }
         }
     }
-    my $configPath = File::Spec->catfile( $basePath,   "conf" );
-    my $configFile = File::Spec->catfile( $configPath, "nginx.conf" );
+
+    my $configPath;
+    my $configFile;
+    if ( $command =~ /\s-c\s+(.*?)\s+-/ or $command =~ /\s-c\s+(.*?)\s*$/ ) {
+        $configFile = $1;
+        $configPath = dirname($configFile);
+    }
+    else {
+        $configPath = File::Spec->catfile( $basePath,   "conf" );
+        $configFile = File::Spec->catfile( $configPath, "nginx.conf" );
+    }
 
     $nginxInfo->{EXE_PATH}     = $exePath;
     $nginxInfo->{BIN_PATH}     = $binPath;

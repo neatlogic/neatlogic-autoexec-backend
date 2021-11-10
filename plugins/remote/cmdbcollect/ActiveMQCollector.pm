@@ -60,17 +60,16 @@ sub collect {
     }
 
     $self->getJavaAttrs($appInfo);
+    my $javaHome = $appInfo->{JAVA_HOME};
 
     if ( not -e "$installPath/bin/activemq" ) {
         print("WARN: activemq not found in $installPath.\n");
         return undef;
     }
 
-    my ( @ports, $proto, $port );
-
     #应用的安装目录并非一定是当前目录，TODO：需要补充更好的方法，
     #譬如：如果命令行启动命令是绝对路径，直接可以作为安装的路径的计算
-    my $output = $self->getCmdOut(qq{"$installPath/bin/activemq" --version});
+    my $output = $self->getCmdOut(qq{JAVA_HOME="$javaHome" sh "$installPath/bin/activemq" --version});
     if ( $output =~ /ActiveMQ\s+(\d+\.\d+\.\d+)/ ) {
         my $version = $1;
         $appInfo->{VERSION} = $version;
@@ -88,6 +87,7 @@ sub collect {
     # -->
     #         </transportConnectors>
 
+    my ( @ports, $proto, $port );
     my $minPort  = 65535;
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     my $confFile = "$installPath/conf/activemq.xml";

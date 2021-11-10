@@ -94,11 +94,9 @@ sub _parseOutput {
         #错误识别
         if ( $line =~ /Error: Authentication failed/ ) {
             $hasError = 1;
-            print("Execute cmd failed: auth password value is error .\n");
         }
         elsif ( $line =~ /^Error:/ or $line =~ /exception:/ ) {
             $hasError = 1;
-            print( $line, "\n" );
         }
 
         if (    $line ne ''
@@ -114,12 +112,12 @@ sub _parseOutput {
         }
     }
 
-    if ( $isVerbose == 1 ) {
+    if ( $isVerbose == 1 or $hasError == 1 ) {
         print($output);
     }
 
     if ($hasError) {
-        print("ERROR: Sql execution failed.\n");
+        print("ERROR: Mongodb command script execution failed.\n");
     }
     if ( $parseOutput == 1 ) {
         return ( \@rowsArray, $hasError );

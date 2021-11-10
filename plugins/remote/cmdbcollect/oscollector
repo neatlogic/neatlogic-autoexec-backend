@@ -226,8 +226,9 @@ sub main {
         #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
 
         my $isMatched = 0;
-        my $pid       = $procInfo->{PID};
-        my $objType   = $procInfo->{_OBJ_TYPE};
+        my $objCat;
+        my $pid     = $procInfo->{PID};
+        my $objType = $procInfo->{_OBJ_TYPE};
         print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
         my $connInfo;
         if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
@@ -260,10 +261,11 @@ sub main {
         for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
             my $appInfo = $appInfos[$idx];
             $isMatched = 1;
-            if ( not defined( $appInfo->{_OBJ_CATEGORY} ) ) {
-                my $defaultObjCat = CollectObjCat->get('INS');
-                $appInfo->{_OBJ_CATEGORY} = $defaultObjCat;
-                print("WARN: $collectorClass did not return _OBJ_CATEGORY, fallback to $defaultObjCat.\n");
+
+            $objCat = $appInfo->{_OBJ_CATEGORY};
+            if ( not defined($objCat) ) {
+                $objCat = CollectObjCat->get('INS');
+                $appInfo->{_OBJ_CATEGORY} = $objCat;
             }
             else {
                 if ( not CollectObjCat->validate( $appInfo->{_OBJ_CATEGORY} ) ) {
@@ -275,9 +277,8 @@ sub main {
             if ( not defined($objType) ) {
                 $objType = $procInfo->{_OBJ_TYPE};
                 $appInfo->{_OBJ_TYPE} = $objType;
-                print("INFO: $collectorClass did not return _OBJ_TYPE, fallback to $objType.\n");
             }
-            print("INFO: Matched Object Type:$objType.\n");
+            print("INFO: Matched Object Type:$objCat/$objType.\n");
 
             $appInfo->{PROC_INFO} = $procInfo;
             if ( $idx == 0 ) {

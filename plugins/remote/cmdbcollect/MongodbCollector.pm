@@ -53,11 +53,25 @@ sub collect {
     $mongodbInfo->{SERVER_NAME} = $procInfo->{_OBJ_TYPE};
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
-    my $command    = $procInfo->{COMMAND};
-    my $exePath    = $procInfo->{EXECUTABLE_FILE};
-    my $binPath    = dirname($exePath);
-    my $basePath   = dirname($binPath);
-    my $configFile = File::Spec->catfile( $basePath, "mongodb.conf" );
+    my $configFile;
+    my $command = $procInfo->{COMMAND};
+
+    my $exePath = $procInfo->{EXECUTABLE_FILE};
+    if ( $command =~ /^(.*?\/mongod)/ ) {
+        if ( $exePath !~ /\// ) {
+            $exePath = $1;
+        }
+    }
+
+    my $binPath  = dirname($exePath);
+    my $basePath = dirname($binPath);
+    if ( $command =~ /\s(-f|--config)\s+(.*?)\s+-/ or $command =~ /\s(-f|--config)\s+(.*?)\s*$/ ) {
+        $configFile = $2;
+    }
+    else {
+        $configFile = File::Spec->catfile( $basePath, "mongodb.conf" );
+    }
+
     $mongodbInfo->{INSTALL_PATH} = $basePath;
     $mongodbInfo->{BIN_PATH}     = $binPath;
     $mongodbInfo->{CONFIG_FILE}  = $configFile;

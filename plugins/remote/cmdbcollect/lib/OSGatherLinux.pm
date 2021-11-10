@@ -201,10 +201,9 @@ sub collectOsInfo {
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
 
-    my $isSystemd = $self->getCmdOut('pidof systemd');
-    $isSystemd =~ s/^\s*|\s*$//g;
+    my ( $ret, $isSystemd ) = $self->getCmdOut('ps -p1 |grep systemd');
     my $services = {};
-    if ( $isSystemd eq '1' ) {
+    if ( $ret == 0 ) {
         my $serviceLines = $self->getCmdOutLines('systemctl list-units -a');
         foreach my $line (@$serviceLines) {
             if ( $line =~ /^(?:\xe2\x97\x8f)?\s*(\w+)\.service\s+(\w+)\s+(\w+)\s+\w+\s+(.*?)$/ ) {

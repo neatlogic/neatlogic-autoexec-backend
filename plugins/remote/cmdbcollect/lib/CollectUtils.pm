@@ -99,10 +99,12 @@ sub getWinPSCmdOutLines {
 #charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOut {
     my ( $self, $cmd, $user, $charSet ) = @_;
-    my $out = '';
+    my $out   = '';
+    my $hasSu = 0;
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
-            $out = `su - '$user' -c '$cmd'`;
+            $hasSu = 1;
+            $out   = `su - '$user' -c '$cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
 
@@ -110,7 +112,7 @@ sub getCmdOut {
             $out = `$cmd`;
         }
         else {
-            print("WARN: Can not execute cmd:$cmd by user $user.\n");
+            print("WARN: Can not execute command:$cmd by user $user.\n");
         }
     }
     else {
@@ -119,7 +121,12 @@ sub getCmdOut {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("WARN: execute cmd:$cmd failed.\n");
+        if ( $hasSu == 1 ) {
+            print("WARN: Execute Command:$cmd by $user failed.\n");
+        }
+        else {
+            print("WARN: Execute command:$cmd failed.\n");
+        }
     }
 
     if ( defined($charSet) ) {
@@ -134,10 +141,12 @@ sub getCmdOut {
 #charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOutLines {
     my ( $self, $cmd, $user, $charSet ) = @_;
-    my @out = ();
+    my @out   = ();
+    my $hasSu = 0;
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
-            @out = `su - '$user' -c '$cmd'`;
+            $hasSu = 1;
+            @out   = `su - '$user' -c '$cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
 
@@ -145,7 +154,7 @@ sub getCmdOutLines {
             @out = `$cmd`;
         }
         else {
-            print("WARN: Can not execute cmd:$cmd by user $user.\n");
+            print("WARN: Can not execute command:$cmd by user $user.\n");
         }
     }
     else {
@@ -154,7 +163,12 @@ sub getCmdOutLines {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("WARN: execute cmd:$cmd failed.\n");
+        if ( $hasSu == 1 ) {
+            print("WARN: Execute Command:$cmd by $user failed.\n");
+        }
+        else {
+            print("WARN: Execute Command:$cmd failed.\n");
+        }
     }
 
     if ( defined($charSet) ) {
