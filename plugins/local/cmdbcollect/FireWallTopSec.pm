@@ -5,7 +5,7 @@ use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 
-package FireWallHuawei;
+package FireWallTopSec;
 use strict;
 
 use JSON;

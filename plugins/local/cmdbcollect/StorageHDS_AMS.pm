@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package StorageEmcVnx;
+package StorageHDS_AMS;
 use strict;
 use FindBin;
 use Cwd qw(abs_path);
