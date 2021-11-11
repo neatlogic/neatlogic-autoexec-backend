@@ -147,6 +147,7 @@ if __name__ == "__main__":
 
                 table = "COLLECT_" + objCat
 
+                pkInvalid = False
                 # 根据PK的定义生成Primary Key filter
                 primaryKey = {}
                 pkDef = data['PK']
@@ -155,10 +156,15 @@ if __name__ == "__main__":
                         pVal = data[pKey]
                         primaryKey[pKey] = data[pKey]
                         if pVal is None or pVal == '':
+                            pkInvalid = True
                             print("WARN: {} PK attribute:{} is empty.".format(typeName, pKey))
                     else:
                         primaryKey[pKey] = None
+                        pkInvalid = True
                         print("WARN: {} not contain PK attribute:{}.".format(typeName, pKey))
+
+                if pkInvalid:
+                    continue
 
                 pkJson = json.dumps(primaryKey)
                 collection = db[table]

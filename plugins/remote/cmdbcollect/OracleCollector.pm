@@ -729,7 +729,7 @@ sub parseListenerInfo {
     }
 
     if ( $miniPort == 65536 ) {
-        $miniPort = 0;
+        undef($miniPort);
     }
 
     return ( $miniPort, \@listenAddrs, $servicesMap );
