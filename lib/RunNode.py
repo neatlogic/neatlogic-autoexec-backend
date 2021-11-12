@@ -129,11 +129,11 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, node['host'], self.port, self.resourceId)
+        self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, self.host, self.port, self.resourceId)
 
         self.outputRoot = self.runPath + '/output'
-        self.outputPathPrefix = '{}/output/{}-{}'.format(self.runPath, node['host'], self.port)
-        self.opOutputPathPrefix = '{}/output-op/{}-{}'.format(self.runPath, node['host'], self.port)
+        self.outputPathPrefix = '{}/output/{}-{}-{}'.format(self.runPath, self.host, self.port, self.resourceId)
+        self.opOutputPathPrefix = '{}/output-op/{}-{}-{}'.format(self.runPath, self.host, self.port, self.resourceId)
         self.outputPath = self.outputPathPrefix + '.json'
 
         self.status = NodeStatus.pending
