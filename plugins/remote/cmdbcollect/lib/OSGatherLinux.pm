@@ -15,14 +15,33 @@ use Cwd;
 use IO::File;
 use File::Basename;
 
+sub stripDMIComment {
+    my ( $self, $str ) = @_;
+
+    my $content = '';
+    my @lines = split( /\s*\n\s*/, $str );
+    foreach my $line (@lines) {
+        if ( $line !~ /^\s*#/ ) {
+            $content = $content . $line;
+        }
+    }
+
+    $content =~ s/^\s*|\s*$//;
+
+    return $content;
+}
+
 sub collectOsInfo {
     my ($self) = @_;
 
     my $utils  = $self->{collectUtils};
     my $osInfo = {};
 
-    my $machineId = $self->getFileContent('/etc/machine-id');
-    $machineId =~ s/^\s*|\s*$//g;
+    my $machineId;
+    if ( -e '/etc/machine-id' ) {
+        $machineId = $self->getFileContent('/etc/machine-id');
+        $machineId =~ s/^\s*|\s*$//g;
+    }
     $osInfo->{MACHINE_ID} = $machineId;
 
     my @unameInfo = uname();
@@ -34,12 +53,20 @@ sub collectOsInfo {
     my $osVer;
     if ( -e '/etc/redhat-release' ) {
         $osVer = $self->getFileContent('/etc/redhat-release');
-        chomp($osVer);
+        $osVer =~ s/^\s*|\s*$//;
     }
     elsif ( -e '/etc/SuSE-release' ) {
         my $verLines = $self->getFileLines('/etc/SuSE-release');
         $osVer = grep( 'Enterprise', @$verLines );
-        chomp($osVer);
+        $osVer =~ s/^\s*|\s*$//;
+    }
+    elsif ( -e '/etc/debian_version' ) {
+        $osVer = $self->getFileLines('/etc/debian_version');
+        $osVer =~ s/^\s*|\s*$//;
+    }
+    elsif ( -e '/etc/fedora-release' ) {
+        $osVer = $self->getFileLines('/etc/fedora-release');
+        $osVer =~ s/^\s*|\s*$//;
     }
     $osInfo->{VERSION} = $osVer;
 
@@ -150,8 +177,8 @@ sub collectOsInfo {
         $osInfo->{OPENSSL_VERSION} = undef;
     }
 
-    my $bondInfoLine = $self->getCmdOut('cat /proc/net/dev|grep bond');
-    if ($bondInfoLine) {
+    my ( $bondRet, $bondInfoLine ) = $self->getCmdOut( 'cat /proc/net/dev|grep bond', undef, { nowarn => 1 } );
+    if ( $bondRet == 0 ) {
         $osInfo->{NIC_BOND} = 1;
     }
     else {
@@ -201,9 +228,9 @@ sub collectOsInfo {
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
 
-    my ( $ret, $isSystemd ) = $self->getCmdOut('ps -p1 |grep systemd');
+    my ( $systemdRet, $isSystemd ) = $self->getCmdOut( 'ps -p1 |grep systemd', undef, { nowarn => 1 } );
     my $services = {};
-    if ( $ret == 0 ) {
+    if ( $systemdRet == 0 ) {
         my $serviceLines = $self->getCmdOutLines('systemctl list-units -a');
         foreach my $line (@$serviceLines) {
             if ( $line =~ /^(?:\xe2\x97\x8f)?\s*(\w+)\.service\s+(\w+)\s+(\w+)\s+\w+\s+(.*?)$/ ) {
@@ -386,32 +413,35 @@ sub collectOsInfo {
     }
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
-    my $lunInfosMap    = {};
-    my $arrayInfosMap  = {};
-    my $arrayInfoLines = $self->getCmdOutLines('upadmin show array');
-    if ( defined($arrayInfoLines) and scalar(@$arrayInfoLines) > 2 ) {
-        foreach my $line ( splice( @$arrayInfoLines, 2, -1 ) ) {
-            my $arrayInfo = {};
-            my @infos = split( /\s+/, $line );
-            $arrayInfo->{NAME}                     = $infos[2];
-            $arrayInfo->{SN}                       = $infos[3];
-            $arrayInfosMap->{ $arrayInfo->{NAME} } = $arrayInfo;
-        }
-    }
-
-    my $hwLunInfoLines = $self->getCmdOutLines('upadmin show vlun');
-    if ( defined($hwLunInfoLines) and @$hwLunInfoLines > 0 ) {
-        foreach my $line ( splice( @$hwLunInfoLines, 2, -1 ) ) {
-            my $lunInfo = {};
-            my @infos = split( /\s+/, $line );
-            $lunInfo->{NAME}  = '/dev/' . $infos[2];
-            $lunInfo->{WWN}   = $infos[4];
-            $lunInfo->{ARRAY} = $infos[8];
-            my $arrayInfo = $arrayInfosMap->{ $lunInfo->{ARRAY} };
-            if ( defined($arrayInfo) ) {
-                $lunInfo->{SN} = $arrayInfo->{SN};
+    my ( $upadminRet, $upadminPath ) = $self->getCmdOut( 'which upadmin >/dev/null 2>&1', undef, { nowarn => 1 } );
+    my $lunInfosMap   = {};
+    my $arrayInfosMap = {};
+    if ( $upadminRet == 0 ) {
+        my $arrayInfoLines = $self->getCmdOutLines('upadmin show array');
+        if ( defined($arrayInfoLines) and scalar(@$arrayInfoLines) > 2 ) {
+            foreach my $line ( splice( @$arrayInfoLines, 2, -1 ) ) {
+                my $arrayInfo = {};
+                my @infos = split( /\s+/, $line );
+                $arrayInfo->{NAME}                     = $infos[2];
+                $arrayInfo->{SN}                       = $infos[3];
+                $arrayInfosMap->{ $arrayInfo->{NAME} } = $arrayInfo;
             }
-            $lunInfosMap->{ $lunInfo->{NAME} } = $lunInfo;
+        }
+
+        my $hwLunInfoLines = $self->getCmdOutLines('upadmin show vlun');
+        if ( defined($hwLunInfoLines) and @$hwLunInfoLines > 0 ) {
+            foreach my $line ( splice( @$hwLunInfoLines, 2, -1 ) ) {
+                my $lunInfo = {};
+                my @infos = split( /\s+/, $line );
+                $lunInfo->{NAME}  = '/dev/' . $infos[2];
+                $lunInfo->{WWN}   = $infos[4];
+                $lunInfo->{ARRAY} = $infos[8];
+                my $arrayInfo = $arrayInfosMap->{ $lunInfo->{ARRAY} };
+                if ( defined($arrayInfo) ) {
+                    $lunInfo->{SN} = $arrayInfo->{SN};
+                }
+                $lunInfosMap->{ $lunInfo->{NAME} } = $lunInfo;
+            }
         }
     }
 
@@ -478,12 +508,33 @@ sub collectHostInfo {
     my $utils    = $self->{collectUtils};
     my $hostInfo = {};
 
-    my $machineId = $self->getFileContent('/etc/machine-id');
-    $machineId =~ s/^\s*|\s*$//g;
-    $hostInfo->{MACHINE_ID} = $machineId;
+    my $dmidecodeInstalled = 1;
+    my ($whichDmiRet) = $self->getCmdOut( 'which dmidecode >/dev/null 2>&1', undef, { nowarn => 1 } );
+    if ( $whichDmiRet != 0 ) {
+        $dmidecodeInstalled = 0;
+        print("WARN: Tools dmidecode not install, we use it to collect hardware information, please install it first.\n");
+    }
+    $hostInfo->{DMIDECODE_INSTALLED} = $dmidecodeInstalled;
 
-    my $sn = $self->getCmdOut('dmidecode -s system-serial-number');
-    $sn =~ s/^\*|\s$//g;
+    my $sn = $self->getFileContent('/sys/class/dmi/id/board_serial');
+    $sn =~ s/^\s*|\s*$//g;
+    if ( $sn eq '' or $sn eq 'None' ) {
+        undef($sn);
+        if ($dmidecodeInstalled) {
+            my $snRet;
+            ( $snRet, $sn ) = $self->getCmdOut('dmidecode -s system-serial-number');
+            if ( $snRet == 0 ) {
+                $sn = $self->stripDMIComment($sn);
+                $sn =~ s/^\s*|\s*$//g;
+                if ( $sn eq '' ) {
+                    undef($sn);
+                }
+            }
+            else {
+                undef($sn);
+            }
+        }
+    }
     $hostInfo->{BOARD_SERIAL} = $sn;
 
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
@@ -523,38 +574,41 @@ sub collectHostInfo {
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
 
-    my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
-    my $usedSlots    = 0;
-    my $memInfo      = {};
-    for ( my $i = 0 ; $i < scalar(@$memInfoLines) ; $i++ ) {
-        my $line = $$memInfoLines[$i];
-        $line =~ s/^\s*|\s*$//g;
-        if ( $line ne '' ) {
-            my @info = split( /\s*:\s*/, $line );
-            $memInfo->{ $info[0] } = $info[1];
-            if ( $info[0] eq 'Size' ) {
-                if ( $info[1] =~ /^(\d+)/ ) {
-                    $usedSlots = $usedSlots + 1;
+    if ($dmidecodeInstalled) {
+        my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
+        my $usedSlots    = 0;
+        my $memInfo      = {};
+        for ( my $i = 0 ; $i < scalar(@$memInfoLines) ; $i++ ) {
+            my $line = $$memInfoLines[$i];
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $memInfo->{ $info[0] } = $info[1];
+                if ( $info[0] eq 'Size' ) {
+                    if ( $info[1] =~ /^(\d+)/ ) {
+                        $usedSlots = $usedSlots + 1;
+                    }
                 }
             }
         }
-    }
-    $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
-    $hostInfo->{MEM_MAXIMUM_CAPACITY} = $utils->getMemSizeFromStr( $memInfo->{'Maximum Capacity'} );
-    $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
+        $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
+        $hostInfo->{MEM_MAXIMUM_CAPACITY} = $utils->getMemSizeFromStr( $memInfo->{'Maximum Capacity'} );
+        $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
 
-    my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
-    my $chassisInfo      = {};
-    foreach my $line (@$chassisInfoLines) {
-        $line =~ s/^\s*|\s*$//g;
-        if ( $line ne '' ) {
-            my @info = split( /\s*:\s*/, $line );
-            $chassisInfo->{ $info[0] } = $info[1];
+        my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
+        my $chassisInfo      = {};
+        foreach my $line (@$chassisInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $chassisInfo->{ $info[0] } = $info[1];
+            }
         }
+        $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
     }
-    $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
 
     my @nicInfos         = ();
+    my @macs             = ();
     my $nicInfoLines     = $self->getCmdOutLines('ip addr');
     my $nicInfoLineCount = scalar(@$nicInfoLines);
     for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
@@ -578,7 +632,7 @@ sub collectHostInfo {
             $line = $$nicInfoLines[$i];
             while ( $i < $nicInfoLineCount and $line !~ /^\d+:\s+(\S+):/ ) {
                 if ( $line =~ /^\s*link\/ether\s+(.*?)\s+/i ) {
-                    $macAddr = $1;
+                    $macAddr = lc($1);
                 }
                 elsif ( $line =~ /^\s*inet\s(\d+\.\d+\.\d+\.\d+)/ ) {
                     $ipAddr = $1;
@@ -589,7 +643,8 @@ sub collectHostInfo {
 
             if ( defined($speed) and $speed ne '' ) {
                 $nicInfo->{NAME} = $ethName;
-                $nicInfo->{MAC}  = lc($macAddr);
+                $nicInfo->{MAC}  = $macAddr;
+                push( @macs, $macAddr );
                 ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
                 $nicInfo->{STATUS} = 'down';
                 if ( $linkState eq 'yes' ) {
@@ -602,6 +657,11 @@ sub collectHostInfo {
         }
     }
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
+
+    if ( not defined($sn) and scalar(@macs) > 0 ) {
+        my @sortedMacs = sort { $a cmp $b } @macs;
+        $hostInfo->{BOARD_SERIAL} = $sortedMacs[0];
+    }
 
     my @hbaInfos = ();
     foreach my $fcHostPath ( glob('/sys/class/fc_host/*') ) {

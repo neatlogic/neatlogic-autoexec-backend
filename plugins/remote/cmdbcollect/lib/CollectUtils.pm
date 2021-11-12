@@ -98,7 +98,11 @@ sub getWinPSCmdOutLines {
 #su运行命令，并返回输出的文本
 #charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOut {
-    my ( $self, $cmd, $user, $charSet ) = @_;
+    my ( $self, $cmd, $user, $opts ) = @_;
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
+
     my $out   = '';
     my $hasSu = 0;
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
@@ -120,7 +124,7 @@ sub getCmdOut {
     }
 
     my $status = $?;
-    if ( $status ne 0 ) {
+    if ( $status ne 0 and not defined( $opts->{nowarn} ) ) {
         if ( $hasSu == 1 ) {
             print("WARN: Execute Command:$cmd by $user failed.\n");
         }
@@ -129,8 +133,8 @@ sub getCmdOut {
         }
     }
 
-    if ( defined($charSet) ) {
-        $out = Encode::encode( "utf-8", Encode::decode( $charSet, $out ) );
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
     }
 
     chomp($out);
@@ -140,7 +144,11 @@ sub getCmdOut {
 #su运行命令，并返回输出的行数组
 #charSet参数是用于windows的处理的，windows命令行默认是GBK
 sub getCmdOutLines {
-    my ( $self, $cmd, $user, $charSet ) = @_;
+    my ( $self, $cmd, $user, $opts ) = @_;
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
+
     my @out   = ();
     my $hasSu = 0;
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
@@ -162,7 +170,7 @@ sub getCmdOutLines {
     }
 
     my $status = $?;
-    if ( $status ne 0 ) {
+    if ( $status ne 0 and not defined( $opts->{nowarn} ) ) {
         if ( $hasSu == 1 ) {
             print("WARN: Execute Command:$cmd by $user failed.\n");
         }
@@ -171,9 +179,9 @@ sub getCmdOutLines {
         }
     }
 
-    if ( defined($charSet) ) {
+    if ( defined( $opts->{charset} ) ) {
         for ( my $i = 0 ; $i <= $#out ; $i++ ) {
-            $out[$i] = Encode::encode( "utf-8", Encode::decode( $charSet, $out[$i] ) );
+            $out[$i] = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out[$i] ) );
         }
     }
 

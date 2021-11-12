@@ -220,7 +220,7 @@ sub collectOsInfo {
     #TODO: IPV6 address的采集
 
     my @users = ();
-    my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', $self->{codepage} );
+    my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', { charset => $self->{codepage} } );
     for ( my $i = 1 ; $i < scalar(@$userInfoLines) ; $i++ ) {
         my $userInfo = {};
         my $userName = $$userInfoLines[$i];
@@ -244,7 +244,7 @@ sub collectOsInfo {
         Size      => undef,
         FreeSpace => undef
     };
-    my $ldiskInfoLines = $self->getCmdOutLines( 'wmic logicaldisk get ' . join( ',', keys(%$ldiskFieldIdxMap) ), 'Administrator', $self->{codepage} );
+    my $ldiskInfoLines = $self->getCmdOutLines( 'wmic logicaldisk get ' . join( ',', keys(%$ldiskFieldIdxMap) ), 'Administrator', { charset => $self->{codepage} } );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @ldiskHeadInfo = split( /\s+/, $$ldiskInfoLines[0] );
@@ -278,7 +278,7 @@ sub collectOsInfo {
 
     #因为磁盘型号有空格，无法正确切分，所以单独查询，并通过序列号进行关联
     my $diskSNModelMap = {};
-    my $diskModelInfoLines = $self->getCmdOutLines( 'wmic diskdrive get serialnumber,model', 'Administrator', $self->{codepage} );
+    my $diskModelInfoLines = $self->getCmdOutLines( 'wmic diskdrive get serialnumber,model', 'Administrator', { charset => $self->{codepage} } );
     foreach my $line (@$diskModelInfoLines) {
 
         #6000c29f49a80cce2b4b8dd0710281a4
@@ -298,7 +298,7 @@ sub collectOsInfo {
         SerialNumber  => undef,
         InterfaceType => undef
     };
-    my $diskInfoLines = $self->getCmdOutLines( 'wmic diskdrive get ' . join( ',', keys(%$diskFieldIdxMap) ), 'Administrator', $self->{codepage} );
+    my $diskInfoLines = $self->getCmdOutLines( 'wmic diskdrive get ' . join( ',', keys(%$diskFieldIdxMap) ), 'Administrator', { charset => $self->{codepage} } );
 
     #因为wmic获取数据的字段顺序不确定，所以要计算各个字段在哪一列
     my @diskHeadInfo = split( /\s+/, $$diskInfoLines[0] );
@@ -355,7 +355,7 @@ sub collectHostInfo {
     $sysVendor =~ s/^\s+|\s+$//g;
     $hostInfo->{SYS_VENDOR} = $sysVendor;
 
-    my $productInfo = $self->getCmdOutLines( 'wmic computersystem get model', 'Administrator', $self->{codepage} );
+    my $productInfo = $self->getCmdOutLines( 'wmic computersystem get model', 'Administrator', { charset => $self->{codepage} } );
     my $productName = $$productInfo[1];
     $productName =~ s/^\s+|\s+$//g;
     $hostInfo->{PRODUCT_NAME} = $productName;
@@ -378,7 +378,7 @@ sub collectHostInfo {
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
     my @nicInfos          = ();
-    my $nicInfoLines      = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get description,macaddress', 'Administrator', $self->{codepage} );
+    my $nicInfoLines      = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get description,macaddress', 'Administrator', { charset => $self->{codepage} } );
     my $nicInfoLinesCount = scalar(@$nicInfoLines);
     for ( my $i = 1 ; $i < $nicInfoLinesCount ; $i++ ) {
         my $line = $$nicInfoLines[$i];
