@@ -57,7 +57,7 @@ sub getPK {
     return {
         #默认KEY用类名去掉Collector，对应_OBJ_TYPE属性值
         #配置值就是作为PK的属性名
-        $self->{defaultObjType} => [ 'OS_ID', 'MGMT_IP', 'PORT' ]
+        $self->{defaultObjType} => [ 'MGMT_IP', 'PORT' ]
 
             #如果返回的是多种对象，需要手写_OBJ_TYPE对应的PK配置
     };

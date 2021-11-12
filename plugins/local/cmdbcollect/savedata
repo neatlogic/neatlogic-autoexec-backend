@@ -25,7 +25,7 @@ def createPKIndex(collection, pkDef):
     collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
 
 
-def createIndex(collectioin, data):
+def createIndex(collection, data):
     collection.create_index([('_OBJ_TYPE', 1)], name='idx_obj_type')
     if 'INDEX_FIELDS' in data:
         for idxField in data['INDEX_FIELDS']:
@@ -33,7 +33,7 @@ def createIndex(collectioin, data):
 
 
 # 目的通过PEER信息搜索到应用进程
-def saveAppConnData(db, data):
+def saveAppConnData(db, existsCollections, data):
     if data['_OBJ_CATEGORY'] in ('INS', 'DB'):
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
@@ -59,14 +59,18 @@ def saveAppConnData(db, data):
         collection = db['RELATION_INS_NETCONN']
         # BIND和PEER都是简单数组，建立索引后，可以使用$in操作符进行配合，结合$elemMatch可以过滤命中的BIND和PEER
         collection.replace_one(primaryKey, connInfo, upsert=True)
-        collection.create_index([('OS_ID', 1), ('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
-        collection.create_index([('BIND', 1)], name='idx_bind')
-        collection.create_index([('PEER', 1)], name='idx_peer')
+        if 'RELATION_INS_NETCONN' not in existsCollections:
+            collection.create_index([('OS_ID', 1), ('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
+            collection.create_index([('BIND', 1)], name='idx_bind')
+            collection.create_index([('PEER', 1)], name='idx_peer')
+            collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+            existsCollections['RELATION_INS_NETCONN'] = 1
+
         print('INFO: Save connection data success.')
         # del(data['CONN_INFO'])
 
 
-def saveSwMacTableData(db, data):
+def saveSwMacTableData(db, existsCollections, data):
     if data['_OBJ_CATEGORY'] == 'SWITCH' and 'MAC_TABLE' in data:
         macTableInfo = {}
         macTableInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']
@@ -83,11 +87,33 @@ def saveSwMacTableData(db, data):
         primaryKey = {'MGMT_IP': macTableInfo['MGMT_IP'], 'SN': macTableInfo['SN']}
         collection = db['RELATION_NET_MACTABLE']
         collection.replace_one(primaryKey, macTableInfo, upsert=True)
-        collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
-        # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
-        collection.create_index([('MAC_TABLE.MACS', 1)], name='idx_mac')
+        if 'RELATION_NET_MACTABLE' not in existsCollections:
+            collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
+            # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
+            collection.create_index([('MAC_TABLE.MACS', 1)], name='idx_mac')
+            collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+            existsCollections['RELATION_NET_MACTABLE'] = 1
+
         print('INFO: Save mac table data success.')
         del(data['MAC_TABLE'])
+
+
+def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data):
+    collection = db[table]
+    oldData = collection.find_one(primaryKey, {'_id': False})
+    if oldData is None:
+        oldData = data
+    else:
+        for key in data.keys():
+            oldData[key] = data[key]
+    collection.replace_one(primaryKey, oldData, upsert=True)
+    print('INFO: Save data success.')
+
+    if table not in existsCollections:
+        createPKIndex(collection, pkDef)
+        createIndex(collection, data)
+        collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+        existsCollections[table] = 1
 
 
 if __name__ == "__main__":
@@ -107,6 +133,13 @@ if __name__ == "__main__":
         usage()
 
     (dbclient, db) = AutoExecUtils.getDB()
+    existsCollections = {}
+    for collection in db.list_collection_names():
+        try:
+            collection.index('COLLECT_')
+            existsCollections[collection] = 1
+        except:
+            pass
 
     try:
         outputData = AutoExecUtils.loadNodeOutput()
@@ -167,22 +200,21 @@ if __name__ == "__main__":
                     continue
 
                 pkJson = json.dumps(primaryKey)
-                collection = db[table]
-                #record = collection.find_one(primaryKey, {'data': True})
+
                 try:
                     print('INFO: Begin save data {}:{} ...'.format(typeName, pkJson))
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['STATE'] = 'InUse'
                     data['_renewtime'] = currentTime
+
                     if '_OBJ_CATEGORY' in data:
-                        saveAppConnData(db, data)
-                        saveSwMacTableData(db, data)
+                        saveAppConnData(db, existsCollections, data)
+                        saveSwMacTableData(db, existsCollections, data)
                     print('INFO: Save connection information success.')
-                    collection.replace_one(primaryKey, data, upsert=True)
-                    print('INFO: Save data success.')
-                    createPKIndex(collection, pkDef)
-                    createIndex(collection, data)
+
+                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data)
+
                     print('INFO: Save data success.\n'.format(typeName, pkJson))
                 except Exception as ex:
                     print('ERROR: Save data for {}({}) failed, {}'.format(typeName, pkJson, ex))
