@@ -215,7 +215,7 @@ sub collectOsInfo {
     my $ntpInfoLines = $self->getFileLines($ntpConfFile);
     my @ntpServers   = ();
     foreach my $line (@$ntpInfoLines) {
-        if ( $line =~ /^server\s+(\d+\.\d+\.\d+\.\d+)/i ) {
+        if ( $line =~ /^server\s+(\S+)/i ) {
             push( @ntpServers, { VALUE => $1 } );
         }
     }
@@ -308,7 +308,8 @@ sub collectOsInfo {
     my @diskInfos;
     my $diskLines = $self->getCmdOutLines('LANG=C lsdev -Cc disk');
 
-    foreach my $line (@$diskLines) {
+    for ( my $i = 1 ; $i < scalar(@$diskLines) ; $i++ ) {
+        my $line     = $$diskLines[$i];
         my $diskInfo = {};
         my @diskSegs = split( /\s+/, $line );
         my $name     = $diskSegs[1];
@@ -431,6 +432,7 @@ sub collectHostInfo {
         if ( $nicSegs[3] =~ /[a-f0-9]+(\.[a-f0-9]+){5}/ ) {
             my $macAddr = $nicSegs[3];
             $macAddr =~ s/\./:/g;
+            $macAddr =~ s/:(\d)(?=\b)/:0$1/g;
             $nicInfo->{MAC} = lc($macAddr);
         }
     }
@@ -448,7 +450,7 @@ sub collectHostInfo {
     # Node WWN: 20000000C9487B04
     # Port WWN: 10000000C9416DA4
 
-    # FC4 Types 
+    # FC4 Types
     #   Supported: 0x0000010000000000000000000000000000000000000000000000000000000000
     #   Active:    0x0000010000000000000000000000000000000000000000000000000000000000
     # Class of Service: 4
@@ -467,7 +469,7 @@ sub collectHostInfo {
     # World Wide Node Name: 0xC050760547E90000
     # World Wide Port Name: 0xC050760547E90000
 
-    # FC4 Types 
+    # FC4 Types
     #   Supported: 0x0000012000000000000000000000000000000000000000000000000000000000
     #   Active:    0x0000010000000000000000000000000000000000000000000000000000000000
     # Class of Service: 3
@@ -482,45 +484,47 @@ sub collectHostInfo {
     my @hbaInfosMap = {};
     my $fcNames     = $self->getCmdOutLines(q{lsdev -Cc adapter | grep 'FC Adapter' | awk '{print $1}'});
     foreach my $fcName (@$fcNames) {
-        my $hbaInfo = {NAME=>$fcName};
-        my @ports = ();
-        my @state = ();
+        my $hbaInfo = { NAME => $fcName };
+        my @ports   = ();
+        my @state   = ();
 
         my $fcStatLines = $self->getCmdOutLines(qq{fcstat $fcName});
-        foreach my $line (@$fcStatLines){
-            if ( $line =~ /Node\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Node\s+WWN:\s*([0-9A-F]+)/i ){
+        foreach my $line (@$fcStatLines) {
+            if ( $line =~ /Node\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Node\s+WWN:\s*([0-9A-F]+)/i ) {
                 my $wwnn = lc($1);
+
                 #WWNN是HBA卡的地址编号，在存储端是通过这个WWNN来控制访问权限
                 #切分为两个字符的数组,用冒号组装
                 $wwnn = join( ':', ( $wwnn =~ m/../g ) );
                 $hbaInfo->{WWNN} = $wwnn;
             }
-            elsif( $line =~ /Port\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Port\s+WWN:\s*([0-9A-F]+)/i ){
+            elsif ( $line =~ /Port\s+Name:\s*0x([0-9A-F]+)/i or $line =~ /Port\s+WWN:\s*([0-9A-F]+)/i ) {
                 my $wwpn = lc($1);
+
                 #切分为两个字符的数组,用冒号组装
                 $wwpn = join( ':', ( $wwpn =~ m/../g ) );
                 my $portInfo = {};
                 $portInfo->{WWPN} = $wwpn;
-                push(@ports, $portInfo);
+                push( @ports, $portInfo );
             }
-            elsif ( $line =~ /Port Speed (supported):\s*(\d+.*)$/ ){
+            elsif ( $line =~ /Port Speed (supported):\s*(\d+.*)$/ ) {
                 $hbaInfo->{SUPPORTED_SPEED} = $1;
             }
-            elsif ( $line =~ /Port Speed (running):\s*(\d+.*)$/ ){
+            elsif ( $line =~ /Port Speed (running):\s*(\d+.*)$/ ) {
                 $hbaInfo->{SPEED} = $1;
             }
-            elsif ( $line =~ /Attention Type:\s*(.*)$/ ){
+            elsif ( $line =~ /Attention Type:\s*(.*)$/ ) {
                 my $state = $1;
-                if ( $state =~ /Up/i ){
+                if ( $state =~ /Up/i ) {
                     $state = 'up';
                 }
-                else{
+                else {
                     $state = 'down';
                 }
-                push(@state, $state);
+                push( @state, $state );
             }
         }
-        for(my $i=0; $i<=$#ports; $i++){
+        for ( my $i = 0 ; $i <= $#ports ; $i++ ) {
             my $portInfo = $ports[$i];
             $portInfo->{STATUS} = $state[$i];
         }

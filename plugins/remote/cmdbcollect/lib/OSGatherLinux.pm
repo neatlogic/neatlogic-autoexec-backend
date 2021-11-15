@@ -325,7 +325,7 @@ sub collectOsInfo {
     my $ntpInfoLines = $self->getFileLines($ntpConfFile);
     my @ntpServers   = ();
     foreach my $line (@$ntpInfoLines) {
-        if ( $line =~ /^server\s+(\d+\.\d+\.\d+\.\d+)/i ) {
+        if ( $line =~ /^server\s+(\S+)/i ) {
             push( @ntpServers, { VALUE => $1 } );
         }
     }
