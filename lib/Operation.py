@@ -167,7 +167,8 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        optValue = json.dumps(fileNamesJson)
+                        #optValue = json.dumps(fileNamesJson)
+                        optValue = fileNamesJson
                 self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
@@ -188,7 +189,8 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        argValue = json.dumps(fileNamesJson)
+                        #argValue = json.dumps(fileNamesJson)
+                        argValue = fileNamesJson
                 argValues.append(argValue)
             self.arguments = argValues
 
@@ -290,7 +292,10 @@ class Operation:
         if noPassword and argDesc == 'password':
             for argValue in self.arguments:
                 cmd = cmd + ' "******"'
-        elif argDesc in ('node', 'json', 'password', 'file'):
+        elif argDesc in ('node', 'json', 'file'):
+            for argValue in self.arguments:
+                cmd = cmd + " '{}'".format(json.dumps(argValue))
+        elif argDesc == 'password':
             for argValue in self.arguments:
                 cmd = cmd + " '{}'".format(argValue)
         else:
@@ -311,7 +316,9 @@ class Operation:
             if noPassword and kDesc == 'password':
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                if kDesc in ('node', 'json', 'password', 'file'):
+                if kDesc in ('node', 'json', 'file'):
+                    cmd = cmd + " --{} '{}' ".format(k, json.dumps(v))
+                elif kDesc == 'password':
                     cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
                     cmd = cmd + ' -{} "{}" '.format(k, v)
