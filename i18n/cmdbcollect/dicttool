@@ -65,6 +65,7 @@ if __name__ == "__main__":
         (dbclient, db) = AutoExecUtils.getDB()
         table = '_dictionary'
         collection = db[table]
+        inspectDef = db['_inspectdef']
 
     for dfile in dirs:
         jsonFile = dictPath + "/" + dfile
@@ -99,6 +100,33 @@ if __name__ == "__main__":
                     collection.replace_one({'name': name}, data, upsert=True)
                     collection.create_index([('name', 1)], name='idx_pk', unique=True)
                     print("INFO: Import", dfile, "success.")
+
+                    # 获取已经选择进入巡检报告定义的字段
+                    inspectObj = inspectDef.find_one({'name': name})
+                    # 如果巡检定义不存在则自动生成一个空的定义
+                    if inspectObj is None:
+                        inspectObj = {'name': name,
+                                      'label': data['label'],
+                                      'collection': data['collection'],
+                                      'fields': [],
+                                      'thresholds': []}
+
+                    # 获取已经定义的fields
+                    inspectFields = []
+                    inspectFieldsMap = {}
+                    inspectFields = inspectObj['fields']
+                    for fieldObj in inspectFields:
+                        inspectFieldsMap[fieldObj['name']] = 1
+
+                    # 如果集合定义中存在新的字段不在巡检定义里，则自动加入巡检定义中
+                    for collectFieldObj in data['fields']:
+                        if collectFieldObj['name'] not in inspectFieldsMap:
+                            inspectFields.append({'name': collectFieldObj['name'],
+                                                  'selected': 1})
+
+                    inspectDef.replace_one({'name': name}, inspectObj, upsert=True)
+                    inspectDef.create_index([('name', 1)], name='idx_pk', unique=True)
+                    print("INFO: Update inspect define for ", dfile, "success.")
                 else:
                     print("ERROR: Import", dfile, "failed.")
 
