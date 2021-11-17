@@ -284,7 +284,7 @@ class Operation:
 
         return optValue
 
-    def appendCmdArgs(self, cmd, noPassword=False):
+    def appendCmdArgs(self, cmd, noPassword=False, osType='linux'):
         argDesc = 'input'
         if 'arg' in self.param and 'type' in self.param['arg']:
             argDesc = self.param['arg']['type'].lower()
@@ -294,17 +294,28 @@ class Operation:
                 cmd = cmd + ' "******"'
         elif argDesc in ('node', 'json', 'file'):
             for argValue in self.arguments:
-                cmd = cmd + " '{}'".format(json.dumps(argValue))
+                if (osType == 'windows'):
+                    jsonStr = json.dumps(argValue)
+                    jsonStr.replace('\\', '\\\\')
+                    jsonStr.replace('"', '\\"')
+                    cmd = cmd + ' "{}"'.format(jsonStr)
+                else:
+                    jsonStr = json.dumps(argValue)
+                    jsonStr.replace("'", "'\\''")
+                    cmd = cmd + " '{}'".format(jsonStr)
         elif argDesc == 'password':
             for argValue in self.arguments:
-                cmd = cmd + " '{}'".format(argValue)
+                if osType == 'windows':
+                    cmd = cmd + ' "{}"'.format(argValue)
+                else:
+                    cmd = cmd + " '{}'".format(argValue)
         else:
             for argValue in self.arguments:
                 cmd = cmd + ' "{}"'.format(argValue)
 
         return cmd
 
-    def appendCmdOpts(self, cmd, noPassword=False):
+    def appendCmdOpts(self, cmd, noPassword=False, osType='linux'):
         for k, v in self.options.items():
             if v == "" or v is None:
                 continue
@@ -317,9 +328,20 @@ class Operation:
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
                 if kDesc in ('node', 'json', 'file'):
-                    cmd = cmd + " --{} '{}' ".format(k, json.dumps(v))
+                    if osType == 'windows':
+                        jsonStr = json.dumps(v)
+                        jsonStr.replace('\\', '\\\\')
+                        jsonStr.replace('"', '\\"')
+                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
+                    else:
+                        jsonStr = json.dumps(v)
+                        jsonStr.replace("'", "'\\''")
+                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                 elif kDesc == 'password':
-                    cmd = cmd + " --{} '{}' ".format(k, v)
+                    if osType == 'windows':
+                        cmd = cmd + ' --{} "{}" '.format(k, v)
+                    else:
+                        cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
@@ -389,12 +411,12 @@ class Operation:
 
     def getCmdLine(self, fullPath=False, remotePath=None, osType='linux'):
         cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
-        cmd = self.appendCmdOpts(cmd)
-        cmd = self.appendCmdArgs(cmd)
+        cmd = self.appendCmdOpts(cmd, osType=osType)
+        cmd = self.appendCmdArgs(cmd, osType=osType)
         return cmd
 
     def getCmdLineHidePassword(self, fullPath=False, remotePath=None, osType='linux'):
         cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
-        cmd = self.appendCmdOpts(cmd, True)
-        cmd = self.appendCmdArgs(cmd, True)
+        cmd = self.appendCmdOpts(cmd, noPassword=True, osType=osType)
+        cmd = self.appendCmdArgs(cmd, noPassword=True, osType=osType)
         return cmd
