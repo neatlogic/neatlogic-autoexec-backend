@@ -20,7 +20,6 @@ use File::Path;
 use Term::ReadKey;
 use Encode;
 use Encode::Guess;
-use CharsetDetector;
 use File::Basename;
 use Cwd;
 use File::Glob qw(bsd_glob);
