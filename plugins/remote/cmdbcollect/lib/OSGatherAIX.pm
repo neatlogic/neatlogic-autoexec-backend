@@ -53,9 +53,6 @@ sub collectOsInfo {
 
     $osInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr( $prtConfInfo->{'Memory Size'} );
 
-    #TODO：detect if os is vios or vioc or lpart
-    $osInfo->{IS_VIRTUAL} = 0;
-
     my $diskMountMap = {};
     my @mountPoints  = ();
     my $mountFilter  = {
@@ -163,7 +160,7 @@ sub collectOsInfo {
         $osInfo->{OPENSSL_VERSION} = undef;
     }
 
-    my $bondInfoLine = $self->getCmdOut('lsdev -Cc adapter|grep EtherChannel');
+    my $bondInfoLine = $self->getCmdOut( 'lsdev -Cc adapter|grep EtherChannel', undef, { nowarn => 1 } );
     if ($bondInfoLine) {
         $osInfo->{NIC_BOND} = 1;
     }
@@ -294,10 +291,13 @@ sub collectOsInfo {
 
     #打过的补丁
     my @patchs         = ();
-    my $patchInfoLines = $self->getCmdOutLines(q{instfix -i|grep ML | awk '{print $4}'});
-    foreach my $patch (@$patchInfoLines) {
-        $patch =~ s/^\s*|\s*$//g;
-        push( @patchs, { VALUE => $patch } );
+    my $patchInfoLines = $self->getCmdOutLines(q{instfix -i|grep ML});
+    foreach my $line (@$patchInfoLines) {
+        $line =~ s/^\s*//;
+        if ( $line =~ /^All filesets for/i ) {
+            my @segs = split( /\s+/, $line );
+            push( @patchs, { VALUE => $segs[3] } );
+        }
     }
     $osInfo->{PATCHES_APPLIED} = \@patchs;
 
@@ -308,20 +308,44 @@ sub collectOsInfo {
     my @diskInfos;
     my $diskLines = $self->getCmdOutLines('LANG=C lsdev -Cc disk');
 
-    for ( my $i = 1 ; $i < scalar(@$diskLines) ; $i++ ) {
+    for ( my $i = 0 ; $i < scalar(@$diskLines) ; $i++ ) {
         my $line     = $$diskLines[$i];
         my $diskInfo = {};
         my @diskSegs = split( /\s+/, $line );
-        my $name     = $diskSegs[1];
+        my $name     = $diskSegs[0];
         $diskInfo->{NAME}     = $name;
         $diskInfo->{CAPACITY} = int( $self->getCmdOut("bootinfo -s '$name'") ) / 1000;
         $diskInfo->{UNIT}     = 'GB';
 
-        if ( not $line =~ /\bMPIO\b/ ) {
+        if ( not $line =~ /\sMPIO\s/ ) {
             $diskInfo->{TYPE} = 'local';
         }
         else {
             $diskInfo->{TYPE} = 'remote';
+            # hdisk0           U9109.RMD.21309EW-V91-C678-T1-W21010002AC01CB26-L0  MPIO Other FC SCSI Disk Drive
+
+            #         Manufacturer................3PARdata
+            #         Machine Type and Model......VV              
+            #         Part Number.................
+            #         ROS Level and ID............33323233
+            #         Serial Number...............013A0001
+            #         EC Level....................
+            #         FRU Number..................
+            #         Device Specific.(Z0)........00000632A7081032
+            #         Device Specific.(Z1)........CB2600003PAR
+            #         Device Specific.(Z2)........2.2.
+            #         Device Specific.(Z3)........530
+            #         Device Specific.(Z4)........
+            #         Device Specific.(Z5)........
+            #         Device Specific.(Z6)........
+
+
+            # PLATFORM SPECIFIC
+
+            # Name:  disk
+            #     Node:  disk
+            #     Device Type:  block
+
             my $lunInfo = $self->getCmdOut("lscfg -vpl '$name'");
 
             my $sn;
@@ -403,6 +427,9 @@ sub collectHostInfo {
     # lo0   16896 127         127.0.0.1          248105     0   248105     0     0
     # lo0   16896 ::1%1                          248105     0   248105     0     0
 
+    #TODO：detect if os is vios or vioc or lpart
+    #现在使用网卡是虚拟网卡来判断
+    $hostInfo->{IS_VIRTUAL} = 0;
     my $nicInfoLines     = $self->getCmdOutLines('netstat -ni');
     my $nicInfoLineCount = scalar(@$nicInfoLines);
 
@@ -423,10 +450,22 @@ sub collectHostInfo {
             $nicInfosMap->{$ethName} = $nicInfo;
 
             #TODO: 网卡速率和接线状态确认，在高版本AIX是有问题的
-            my $status = $self->getCmdOut("entstat -d $ethName | grep 'Link Status' | cut -d : -f 2");
-            $nicInfo->{STATUS} = $status;
-            my $speed = $self->getCmdOut("entstat -d $ethName |grep  'Speed Running' | cut -d : -f 2");
-            $nicInfo->{SPEED} = $speed;
+            my $ethInfoLines = $self->getCmdOutLines("entstat -d $ethName");
+            $nicInfo->{STATUS} = 'down';
+            foreach my $line (@$ethInfoLines) {
+                if ( $line =~ /Link Status\s*:\s*(\w+)/i ) {
+                    $nicInfo->{STATUS} = lc($1);
+                }
+                elsif ( $line =~ /Speed Running\s*:\s*(.*)?\s*$/i ) {
+                    $nicInfo->{SPEED} = $1;
+                }
+                elsif ( $line =~ /Device Type: Virtual/i ) {
+                    $hostInfo->{IS_VIRTUAL} = 1;
+                }
+                elsif ( $line =~ /Driver Flags: Up Broadcast Running/i ) {
+                    $nicInfo->{STATUS} = 'up';
+                }
+            }
         }
 
         if ( $nicSegs[3] =~ /[a-f0-9]+(\.[a-f0-9]+){5}/ ) {
@@ -482,8 +521,24 @@ sub collectHostInfo {
 
     my @hbaInfos    = ();
     my @hbaInfosMap = {};
-    my $fcNames     = $self->getCmdOutLines(q{lsdev -Cc adapter | grep 'FC Adapter' | awk '{print $1}'});
-    foreach my $fcName (@$fcNames) {
+    my @fcNames     = ();
+
+    # ent0 Available       Virtual I/O Ethernet Adapter (l-lan)
+    # fcs0 Available 77-T1 Virtual Fibre Channel Client Adapter
+    # fcs1 Available 78-T1 Virtual Fibre Channel Client Adapter
+    # vsa0 Available       LPAR Virtual Serial Adapter
+    my $adapterInfoLines = $self->getCmdOutLines(q{lsdev -Cc adapter});
+    foreach my $line (@$adapterInfoLines) {
+        if ( $line =~ /FC Adapter/ or $line =~ /Fibre Channel/ ) {
+            my @segs = split( /\s+/, $line );
+            push( @fcNames, $segs[0] );
+        }
+        if ( $line =~ /Virtual/ ) {
+            $hostInfo->{IS_VIRTUAL} = 1;
+        }
+    }
+
+    foreach my $fcName (@fcNames) {
         my $hbaInfo = { NAME => $fcName };
         my @ports   = ();
         my @state   = ();
@@ -504,7 +559,8 @@ sub collectHostInfo {
                 #切分为两个字符的数组,用冒号组装
                 $wwpn = join( ':', ( $wwpn =~ m/../g ) );
                 my $portInfo = {};
-                $portInfo->{WWPN} = $wwpn;
+                $portInfo->{WWPN}   = $wwpn;
+                $portInfo->{STATUS} = 'up';
                 push( @ports, $portInfo );
             }
             elsif ( $line =~ /Port Speed (supported):\s*(\d+.*)$/ ) {
@@ -544,8 +600,8 @@ sub collect {
     my $hostInfo = $self->collectHostInfo();
 
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    $osInfo->{IS_VIRTUAL}     = $hostInfo->{IS_VIRTUAL};
 
-    $hostInfo->{IS_VIRTUAL}           = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
     $hostInfo->{BOARD_SERIAL}         = $osInfo->{BOARD_SERIAL};
     $hostInfo->{CPU_MODEL_NAME}       = $osInfo->{CPU_MODEL_NAME};

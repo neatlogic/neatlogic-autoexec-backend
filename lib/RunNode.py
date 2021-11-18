@@ -633,24 +633,27 @@ class RunNode:
                 uploadRet = 0
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
-                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                    uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
-                    if op.hasOutput:
-                        tagent.writeFile(self.username, b'', remotePath + '/output.json')
+                    try:
+                        fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                        uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
+                        fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    finally:
+                        scriptFile.close()
+                        scriptFile = None
+
+                    if uploadRet == 0:
+                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot)
 
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
-                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
-                    scriptFile.close()
-                    scriptFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot)
                         if uploadRet != 0:
                             break
-                    if op.hasOutput:
-                        tagent.writeFile(self.username, b'', remotePath + '/output.json')
-
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
+
+                if op.hasOutput:
+                    tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
                 if tagent.agentOsType == 'windows':
                     self.killCmd = ""
@@ -714,6 +717,30 @@ class RunNode:
                     hasError = True
                     self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
+                absRoot = op.remotePluginRootPath
+                dirStartPos = len(absRoot) + 1
+                for root, dirs, files in os.walk(op.remotePluginRootPath + '/lib', topdown=True, followlinks=True):
+                    root = root[dirStartPos:]
+                    try:
+                        # 创建当前目录
+                        sftp.mkdir(os.path.join(remoteRoot, root))
+                    except:
+                        pass
+                    for direntry in dirs:
+                        try:
+                            sftp.mkdir(os.path.join(remoteRoot, root, direntry))
+                        except:
+                            pass
+                    for name in files:
+                        # 遍历文件并scp到目标上
+                        filePath = os.path.join(root, name)
+                        absFilePath = os.path.join(absRoot, filePath)
+                        try:
+                            sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
+                        except Exception as err:
+                            hasError = True
+                            self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
+
                 if op.isScript == 1:
                     try:
                         sftp.stat(remotePath)
@@ -731,42 +758,10 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    # remotePath = remoteRoot
-                    if op.hasOutput:
-                        ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
-                        ofh.close()
-
                     remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
                 else:
-                    # os.chdir(op.remotePluginRootPath)
-                    absRoot = op.remotePluginRootPath
-                    dirStartPos = len(absRoot) + 1
-                    for root, dirs, files in os.walk(op.remotePluginRootPath + '/lib', topdown=True, followlinks=True):
-                        root = root[dirStartPos:]
-                        try:
-                            # 创建当前目录
-                            sftp.mkdir(os.path.join(remoteRoot, root))
-                        except:
-                            pass
-                        for direntry in dirs:
-                            try:
-                                sftp.mkdir(os.path.join(remoteRoot, root, direntry))
-                            except:
-                                pass
-                        for name in files:
-                            # 遍历文件并scp到目标上
-                            filePath = os.path.join(root, name)
-                            absFilePath = os.path.join(absRoot, filePath)
-                            try:
-                                sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
-                            except Exception as err:
-                                hasError = True
-                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
-
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
-                    # os.chdir(op.remotePluginRootPath)
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
-
                     for root, dirs, files in os.walk(op.remotePluginRootPath + '/' + op.opBunddleName, topdown=True, followlinks=True):
                         root = root[dirStartPos:]
                         try:
@@ -791,9 +786,9 @@ class RunNode:
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IXUSR)
 
-                    if op.hasOutput:
-                        ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
-                        ofh.close()
+                if op.hasOutput:
+                    ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')
+                    ofh.close()
 
                 if hasError == False:
                     uploaded = True
