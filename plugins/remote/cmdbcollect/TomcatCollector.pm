@@ -113,7 +113,9 @@ sub collect {
                 return;
             }
             $appInfo->{PORT}     = int($port);
-            $appInfo->{SSL_PORT} = int($sslPort);
+            if ( defined($sslPort) ) {
+                $appInfo->{SSL_PORT} = int($sslPort);
+            }
         }
     }
     else {

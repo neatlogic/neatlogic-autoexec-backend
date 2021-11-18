@@ -189,14 +189,14 @@ sub getJavaAttrs {
     my $jvmVersion;
     my $javaPath = $procInfo->{EXECUTABLE_FILE};
     if ( not defined($javaPath) or not -e $javaPath ) {
-        if ( $cmdLine =~ /^"?(.*?\bjava)"?\s/ ) {
+        if ( $cmdLine =~ /^"?(.*?\bjava)"?\s/ or $cmdLine =~ /^"?(.*?\bjava.exe)"?\s/) {
             $javaPath = $1;
             if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {
                 $javaPath = "$workPath/$javaPath";
             }
         }
 
-        if ( $javaPath eq 'java' ) {
+        if ( $javaPath eq 'java' and $self->{ostype} eq 'windows' ) {
             $javaPath = $self->getCmdOut( 'which java', $procInfo->{USER} );
         }
 
