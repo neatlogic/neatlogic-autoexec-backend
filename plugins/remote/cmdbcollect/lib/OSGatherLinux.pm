@@ -108,7 +108,8 @@ sub collectOsInfo {
         'securityfs'  => 1,
         'selinuxfs'   => 1,
         'sysfs'       => 1,
-        'tmpfs'       => 1
+        'tmpfs'       => 1,
+        'iso9660'     => 1
     };
     my $mountLines = $self->getFileLines('/proc/mounts');
     foreach my $line (@$mountLines) {
@@ -119,19 +120,17 @@ sub collectOsInfo {
         # The 4th column tells you if it is mounted read-only (ro) or read-write (rw).
         # The 5th and 6th columns are dummy values designed to match the format used in /etc/mtab.
         my @mountInfos = split( /\s+/, $line );
-        my $device     = shift(@mountInfos);
-        my $fsckOrder  = pop(@mountInfos);
-        my $dump       = pop(@mountInfos);
-        my $fsFlags    = pop(@mountInfos);
-        my $fsType     = pop(@mountInfos);
-        my $mountPoint = substr( $line, length($device) + 1, length($line) - length($device) - length($fsckOrder) - length($dump) - length($fsFlags) - length($fsType) - 6 );
+        my $device     = $mountInfos[0];
+        my $mountPoint = $mountInfos[1];
+        my $fsType     = $mountInfos[2];
 
         $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
             $osInfo->{NFS_MOUNTED} = 1;
         }
-        if ( not defined( $mountFilter->{$fsType} ) ) {
+        if ( not defined( $mountFilter->{$fsType} ) and $fsType !~ /^fuse/ ) {
             my $mountInfo = {};
+            $mountPoint =~ s/\\040/ /g;
             $mountInfo->{DEVICE}  = $device;
             $mountInfo->{NAME}    = $mountPoint;
             $mountInfo->{FS_TYPE} = $fsType;

@@ -61,7 +61,7 @@ sub parseCommandOpts {
     my $opts = {};
     my @items = split( /\s+--/, $command );
     $opts->{mysqldPath} = $items[0];
-    if ( $items[0] =~ /^(.*?)\/bin\/mysqld/ or $items[0] =~ /^(.*?)\/sbin\/mysqld/) {
+    if ( $items[0] =~ /^(.*?)\/bin\/mysqld/ or $items[0] =~ /^(.*?)\/sbin\/mysqld/ ) {
         $opts->{mysqlHome} = $1;
     }
 
@@ -103,11 +103,17 @@ sub collect {
     my $mysqldPath = $opts->{mysqldPath};
 
     $mysqlInfo->{INSTALL_PATH}  = $mysqlHome;
-    $mysqlInfo->{CONFIG_FILE}   = $opts->{'defaults-file'};
     $mysqlInfo->{MYSQL_BASE}    = $opts->{'basedir'};
     $mysqlInfo->{MYSQL_DATADIR} = $opts->{'datadir'};
     $mysqlInfo->{ERROR_LOG}     = $opts->{'log-error'};
     $mysqlInfo->{SOCKET_PATH}   = $opts->{'socket'};
+
+    if ( $opts->{'defaults-file'} ) {
+        $mysqlInfo->{CONFIG_FILE} = $opts->{'defaults-file'};
+    }
+    else {
+        $mysqlInfo->{CONFIG_FILE} = '/etc/my.cnf';
+    }
 
     my $port = $opts->{'port'};
     my $host = '127.0.0.1';
@@ -133,7 +139,10 @@ sub collect {
     $mysqlInfo->{ADMIN_PORT}     = $port;
     $mysqlInfo->{ADMIN_SSL_PORT} = $port;
 
-    my $verOutLines = $self->getCmdOutLines( "'$mysqldPath' --help", $osUser );
+    my ( $helpRet, $verOutLines ) = $self->getCmdOutLines( qq{"$mysqldPath" --help}, $osUser );
+    if ( $helpRet ne 0 ) {
+        $verOutLines = $self->getCmdOutLines(qq{"$mysqldPath" --help});
+    }
     my $version;
     foreach my $line (@$verOutLines) {
         if ( $line =~ /\bmysqld\s+(.*?)$/s ) {

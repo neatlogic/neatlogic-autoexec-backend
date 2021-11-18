@@ -44,6 +44,8 @@ sub collect {
         $exePath = $1;
     }
 
+    my $pid      = $procInfo->{PID};
+    my $workPath = readlink("/proc/$pid/cwd");
     my $binPath  = dirname($exePath);
     my $basePath = dirname($binPath);
     my ( $version, $prefix );
@@ -71,6 +73,9 @@ sub collect {
     my $configFile;
     if ( $command =~ /\s-c\s+(.*?)\s+-/ or $command =~ /\s-c\s+(.*?)\s*$/ ) {
         $configFile = $1;
+        if ( $configFile !~ /^\// ) {
+            $configFile = "$workPath/$configFile";
+        }
         $configPath = dirname($configFile);
     }
     else {

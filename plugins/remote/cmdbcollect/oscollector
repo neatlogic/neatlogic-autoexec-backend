@@ -52,6 +52,7 @@ sub collectTimeout {
 }
 
 sub main {
+    $ENV{LANG} = 'C';
     AutoExecUtils::setEnv();
     my $osInfo;
     my $osType = ( uname() )[0];

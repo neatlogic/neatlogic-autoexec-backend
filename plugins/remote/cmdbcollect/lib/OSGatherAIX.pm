@@ -66,13 +66,16 @@ sub collectOsInfo {
         'hugetlbfs'   => 1,
         'mqueue'      => 1,
         'proc'        => 1,
+        'procfs'      => 1,
         'pstore'      => 1,
         'rootfs'      => 1,
         'rpc_pipefs'  => 1,
         'securityfs'  => 1,
         'selinuxfs'   => 1,
         'sysfs'       => 1,
-        'tmpfs'       => 1
+        'tmpfs'       => 1,
+        'ahafs'       => 1,
+        'iso9660'     => 1
     };
 
     #   node       mounted        mounted over    vfs       date        options
@@ -176,10 +179,14 @@ sub collectOsInfo {
     # pg space     512.00        7.46
     my $memInfoLines = $self->getCmdOutLines('svmon -G -O pgsz=off,unit=MB');
     foreach my $line (@$memInfoLines) {
-        if ( $line =~ /^memory\s+(\d\.)+\s+(\d\.)+\s+(\d\.)+\s+(\d\.)+\s+(\d\.)+\s+(\d\.)+\s+/ ) {
-            $osInfo->{MEM_TOTAL}     = int($1);
-            $osInfo->{MEM_FREE}      = int($3);
-            $osInfo->{MEM_AVAILABLE} = int($6);
+        if ( $line =~ /^memory\s/ ) {
+            my @infoSegs = split(/\s+/, $line);
+            $osInfo->{MEM_TOTAL}     = 0.0 + $infoSegs[1];
+            $osInfo->{MEM_INUSE}     = 0.0 + $infoSegs[2];
+            $osInfo->{MEM_FREE}      = 0.0 + $infoSegs[3];
+            $osInfo->{MEM_PIN}       = 0.0 + $infoSegs[4];
+            $osInfo->{MEM_VIRTUAL}   = 0.0 + $infoSegs[5];
+            $osInfo->{MEM_AVAILABLE} = 0.0 + $infoSegs[6];
         }
     }
 
@@ -322,10 +329,11 @@ sub collectOsInfo {
         }
         else {
             $diskInfo->{TYPE} = 'remote';
+
             # hdisk0           U9109.RMD.21309EW-V91-C678-T1-W21010002AC01CB26-L0  MPIO Other FC SCSI Disk Drive
 
             #         Manufacturer................3PARdata
-            #         Machine Type and Model......VV              
+            #         Machine Type and Model......VV
             #         Part Number.................
             #         ROS Level and ID............33323233
             #         Serial Number...............013A0001
@@ -338,7 +346,6 @@ sub collectOsInfo {
             #         Device Specific.(Z4)........
             #         Device Specific.(Z5)........
             #         Device Specific.(Z6)........
-
 
             # PLATFORM SPECIFIC
 

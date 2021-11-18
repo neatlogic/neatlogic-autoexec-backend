@@ -103,6 +103,10 @@ sub getCmdOut {
         $opts = {};
     }
 
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd\n");
+    }
+
     my $out   = '';
     my $hasSu = 0;
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
@@ -137,6 +141,10 @@ sub getCmdOut {
         $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
     }
 
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd finished.\n");
+    }
+
     chomp($out);
     return ( $status, $out );
 }
@@ -147,6 +155,10 @@ sub getCmdOutLines {
     my ( $self, $cmd, $user, $opts ) = @_;
     if ( not defined($opts) ) {
         $opts = {};
+    }
+
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd\n");
     }
 
     my @out   = ();
@@ -183,6 +195,10 @@ sub getCmdOutLines {
         for ( my $i = 0 ; $i <= $#out ; $i++ ) {
             $out[$i] = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out[$i] ) );
         }
+    }
+
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd finished.\n");
     }
 
     return ( $status, \@out );

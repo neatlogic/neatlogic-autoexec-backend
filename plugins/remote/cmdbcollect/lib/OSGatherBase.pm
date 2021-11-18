@@ -18,6 +18,7 @@ sub new {
     my ($type) = @_;
     my $self = {};
 
+    $self->{verbose} = 0;
     my @uname  = uname();
     my $ostype = $uname[0];
     $ostype =~ s/\s.*$//;
@@ -44,16 +45,24 @@ sub new {
 
 #su运行命令，并返回输出的文本
 sub getCmdOut {
-    my ( $self, $cmd, $user, $charSet ) = @_;
+    my ( $self, $cmd, $user, $opts ) = @_;
     my $utils = $self->{collectUtils};
-    return $utils->getCmdOut( $cmd, $user, $charSet );
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
+    $opts->{verbose} = $self->{verbose};
+    return $utils->getCmdOut( $cmd, $user, $opts );
 }
 
 #su运行命令，并返回输出的行数组
 sub getCmdOutLines {
-    my ( $self, $cmd, $user, $charSet ) = @_;
+    my ( $self, $cmd, $user, $opts ) = @_;
     my $utils = $self->{collectUtils};
-    return $utils->getCmdOutLines( $cmd, $user, $charSet );
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
+    $opts->{verbose} = $self->{verbose};
+    return $utils->getCmdOutLines( $cmd, $user, $opts );
 }
 
 sub getFileContent {
