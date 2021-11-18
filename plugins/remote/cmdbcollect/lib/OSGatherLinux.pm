@@ -57,7 +57,7 @@ sub collectOsInfo {
     }
     elsif ( -e '/etc/SuSE-release' ) {
         my $verLines = $self->getFileLines('/etc/SuSE-release');
-        $osVer = grep( 'Enterprise', @$verLines );
+        ($osVer) = grep( !/=/, @$verLines );
         $osVer =~ s/^\s*|\s*$//;
     }
     elsif ( -e '/etc/debian_version' ) {
