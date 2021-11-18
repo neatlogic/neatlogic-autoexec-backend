@@ -6,6 +6,9 @@ Function getAllProcesses{
     {
         $processId = $process.id;
         $wmiObj = Get-WmiObject Win32_Process -Filter "ProcessId=$processId";
+        if ( !$wmiObj ){
+            continue;
+        }
 
         $processName = $process.ProcessName;
         $userName = $process.UserName;
