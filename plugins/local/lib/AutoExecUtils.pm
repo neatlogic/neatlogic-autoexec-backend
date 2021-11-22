@@ -39,7 +39,7 @@ sub hidePwdInCmdLine {
     my $arg;
     for ( my $i = 0 ; $i <= $#ARGV ; $i++ ) {
         $arg = $ARGV[$i];
-        if ( $arg =~ /[-]+\w*pass\w*[^=]/ ) {
+        if ( $arg =~ /[-]+\w*pass\w*[^=]/ or  $arg =~ /[-]+\w*account\w*[^=]/ ) {
             push( @args, $arg );
             push( @args, '******' );
             $i = $i + 1;
