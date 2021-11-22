@@ -18,6 +18,13 @@ use IO::File;
 use CollectObjCat;
 use MysqlExec;
 
+#权限需求：
+#CONNECT权限
+#SHOW DATABASES权限
+#replication client权限
+#mysql库只读
+#information_schema库只读
+
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
 #最终是否是需要的进程，还需要各个Collector自身进行增强性的判断，
@@ -261,7 +268,7 @@ sub collect {
     }
 
     $rows = $mysql->query(
-        sql     => 'show variables;',
+        sql     => 'show global variables;',
         verbose => $self->{isVerbose}
     );
     my $variables = {};

@@ -16,6 +16,9 @@ use IO::File;
 use CollectObjCat;
 
 use Data::Dumper;
+#需要权限：
+#sys系统表的只读权限
+#Master库的只读权限
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
