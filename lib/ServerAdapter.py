@@ -451,13 +451,15 @@ class ServerAdapter:
 
         return
 
-    def getAccount(self, resourceId, protocol, username):
+    def getAccount(self, resourceId, host, port, protocol, username):
         if self.context.devMode:
             return {}
 
         params = {
             'tenent': context.tenent,
             'resourceId': resourceId,
+            'host': host,
+            'port': port,
             'protocol': protocol,
             'username': username
         }

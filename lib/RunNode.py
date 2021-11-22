@@ -372,7 +372,7 @@ class RunNode:
             try:
                 # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
                 opStatus = self.getNodeStatus(op)
-                op.parseParam(refMap=self.output, resourceId=self.resourceId)
+                op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port)
 
                 if not self.context.isForce and opStatus == NodeStatus.succeed:
                     self._loadOpOutput(op)

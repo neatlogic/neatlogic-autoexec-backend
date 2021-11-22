@@ -137,7 +137,7 @@ class Operation:
             fd.close()
 
     # 分析操作参数进行相应处理
-    def parseParam(self, refMap=None, resourceId=None):
+    def parseParam(self, refMap=None, resourceId=None, host=None, port=None):
         opDesc = {}
         if 'desc' in self.param:
             opDesc = self.param['desc']
@@ -156,7 +156,7 @@ class Operation:
                 elif optType == 'account' and resourceId != '':
                     if optValue is not None and optValue != '':
                         accountDesc = optValue.split('/')
-                        retObj = context.serverAdapter.getAccount(resourceId, accountDesc[0], accountDesc[1])
+                        retObj = context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1])
                         if 'password' in retObj:
                             password = retObj['password']
                             optValue = retObj['username'] + '/' + Utils._rc4_decrypt_hex(self.passKey, password[5:])
