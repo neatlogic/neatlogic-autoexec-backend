@@ -64,12 +64,12 @@ sub main {
     my $classDef;
     my $defaultPassConf;
 
-    my @myOpts = @ARGV;
     GetOptions(
         'verbose=i'         => \$isVerbose,
         'class=s'           => \$classDef,
         'defaultpassconf=s' => \$defaultPassConf
     );
+    my @myOpts = @ARGV;
 
     # GetOptionsFromArray(
     #     \@myOpts,
@@ -118,7 +118,7 @@ sub main {
     # }
     my $passArgs = {};
     if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
-        $defaultPassConf =~ s/\$\{\s*(\w+)\s*\}/$accountInfo->{$1}/g;
+        $defaultPassConf =~ s/\{\s*(\w+)\s*\}/$accountInfo->{$1}/g;
         $defaultPassConf = $defaultPassConf . ',H:H/H';
 
         while ( $defaultPassConf =~ /(.*?),(?=\w+:\w+\/)/g ) {

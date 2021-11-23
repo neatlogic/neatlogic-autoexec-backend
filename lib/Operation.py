@@ -132,6 +132,8 @@ class Operation:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opSubName)
 
+        self.KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
+
     def __del__(self):
         for fd in self.lockedFDs:
             fcntl.flock(fd, fcntl.LOCK_UN)
@@ -158,9 +160,9 @@ class Operation:
             optValue = self.resolveOptValue(optValue, refMap=refMap)
             if optName in opDesc:
                 optType = opDesc[optName]
-                if optType == 'password' and optValue[0:5] == '{RC4}':
+                if optType == 'password' and optValue[0:11] == '{ENCRYPTED}':
                     try:
-                        optValue = Utils._rc4_decrypt_hex(self.passKey, optValue[5:])
+                        optValue = Utils._rc4_decrypt_hex(self.KEY, optValue[11:])
                     except:
                         self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
                 elif optType == 'account' and resourceId != '':
@@ -172,13 +174,11 @@ class Operation:
                             username = accountDesc[0]
                             accountId = accountDesc[1]
                             protocol = accountDesc[2]
-                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
+                            password = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
+                            optValue = username + '/' + Utils._rc4_decrypt_hex(self.KEY, password[11:])
                         except Exception as err:
                             self.writeLog("WARN: {}\n".format(err.value))
 
-                        if 'password' in retObj:
-                            password = retObj['password']
-                            optValue = retObj['username'] + '/' + Utils._rc4_decrypt_hex(self.passKey, password[5:])
                 elif optType == 'file':
                     matchObj = re.match(r'^\s*\$\{', '{}'.format(optValue))
                     if not matchObj:
@@ -196,9 +196,9 @@ class Operation:
             argValues = []
             for argValue in opArgs['values']:
                 argValue = self.resolveOptValue(argValue, refMap=refMap)
-                if(argType == 'password' and argValue[0:5] == '{RC4}'):
+                if(argType == 'password' and argValue[0:11] == '{ENCRYPTED}'):
                     try:
-                        argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
+                        argValue = Utils._rc4_decrypt_hex(self.KEY, argValue[11:])
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
@@ -343,7 +343,7 @@ class Operation:
             if 'desc' in self.param and k in self.param['desc']:
                 kDesc = self.param['desc'][k].lower()
 
-            if noPassword and kDesc == 'password':
+            if noPassword and (kDesc == 'password' or k.endswith('account')):
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
                 if kDesc in ('node', 'json', 'file'):
@@ -356,7 +356,7 @@ class Operation:
                         jsonStr = json.dumps(v)
                         jsonStr.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
-                elif kDesc == 'password':
+                elif kDesc == 'password' or k.endswith('account'):
                     if osType == 'windows':
                         cmd = cmd + ' --{} "{}" '.format(k, v)
                     else:

@@ -613,7 +613,9 @@ class RunNode:
 
     def _remoteExecute(self, op):
         self.childPid = None
-        remoteCmd = ''
+
+        remoteCmd = None
+        remoteCmdHidePass = None
 
         ret = -1
         if self.type == 'tagent':
@@ -630,7 +632,6 @@ class RunNode:
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op=op)
 
-                remoteCmd = None
                 uploadRet = 0
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
@@ -646,12 +647,14 @@ class RunNode:
                         uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot)
 
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot)
                         if uploadRet != 0:
                             break
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
 
                 if op.hasOutput:
                     tagent.writeFile(self.username, b'', remotePath + '/output.json')
@@ -683,15 +686,16 @@ class RunNode:
                     scriptFile.close()
 
             if ret == 0:
-                self.writeNodeLog("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmd))
+                self.writeNodeLog("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmdHidePass))
             else:
-                self.writeNodeLog("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmd))
+                self.writeNodeLog("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmdHidePass))
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
+            remoteCmdHidePass = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
@@ -760,6 +764,7 @@ class RunNode:
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
                     remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
+                    remoteCmdHidePass = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
@@ -841,9 +846,9 @@ class RunNode:
                     scp.close()
 
             if ret == 0:
-                self.writeNodeLog("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmd))
+                self.writeNodeLog("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmdHidePass))
             else:
-                self.writeNodeLog("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmd))
+                self.writeNodeLog("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmdHidePass))
 
         return ret
 
