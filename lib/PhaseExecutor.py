@@ -38,7 +38,11 @@ class PhaseWorker(threading.Thread):
 
             try:
                 # 运行完所有操作
-                localOps = copy.copy(self.operations)  # 为了让每个节点都有独立的插件参数记录，复制operation
+                localOps = []
+                # 为了让每个节点都有独立的插件参数记录，复制operation
+                for op in self.operations:
+                    localOps.append(copy.copy(op))
+
                 try:
                     ret = node.execute(localOps)
                 except Exception as ex:

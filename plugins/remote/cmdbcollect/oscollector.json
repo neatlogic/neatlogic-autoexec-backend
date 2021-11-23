@@ -49,7 +49,7 @@
             "opt": "defaultpassconf",
             "name": "默认密码设置",
             "help": "例如：Mysql:root/pass1234,Postgresql:demo/test1234",
-            "type": "password",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "Mysql:${mysqlaccount},Postgresql:${pgaccount},MSSQLServer:${mssqlaccount}",
             "required": "false",
