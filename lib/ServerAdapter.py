@@ -451,7 +451,7 @@ class ServerAdapter:
 
         return
 
-    def getAccount(self, resourceId, host, port, username, protocol, protocolPort):
+    def getAccount(self, resourceId, host, port, username, accountId):
         if self.context.devMode:
             return {}
 
@@ -459,9 +459,8 @@ class ServerAdapter:
             'resourceId': resourceId,
             'host': host,
             'port': port,
-            'protocol': protocol,
-            'protocolPort': protocolPort,
-            'username': username
+            'username': username,
+            'accountId': accountId
         }
 
         try:
@@ -473,11 +472,11 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise AutoExecError("Get Account for {} user:{}/{} failed, {}".format(protocol, resourceId, username, retObj['Message']))
+                    raise AutoExecError("Get Account for user:{} failed, {}".format(username, retObj['Message']))
             else:
-                raise AutoExecError("Get Account for {} user:{}/{} failed, status code:{} {}".format(protocol, resourceId, username, response.status, content))
+                raise AutoExecError("Get Account for user:{} failed, status code:{} {}".format(username, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Get Account for {} user:{}/{} failed, {}".format(protocol, resourceId, username, ex))
+            raise AutoExecError("Get Account for user:{} failed, {}".format(username, ex))
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:

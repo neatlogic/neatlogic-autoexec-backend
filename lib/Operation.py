@@ -164,12 +164,14 @@ class Operation:
                     except:
                         self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
                 elif optType == 'account' and resourceId != '':
-                    # format username/protocol
+                    # format username/accountId
                     if optValue is not None and optValue != '':
                         accountDesc = optValue.split('/')
                         retObj = {}
                         try:
-                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
+                            username = accountDesc[0]
+                            accountId = accountDesc[1]
+                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, username, accountId)
                         except Exception as err:
                             self.writeLog("WARN: {}\n".format(err.value))
 
