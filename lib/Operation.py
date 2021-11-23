@@ -171,7 +171,7 @@ class Operation:
                         try:
                             retObj = self.context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
                         except Exception as err:
-                            self.writeLog("WARN: {}\n".format(err))
+                            self.writeLog("WARN: {}\n".format(err.value))
 
                         if 'password' in retObj:
                             password = retObj['password']
