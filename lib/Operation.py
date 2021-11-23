@@ -169,7 +169,7 @@ class Operation:
                         accountDesc = optValue.split('/')
                         retObj = {}
                         try:
-                            retObj = context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
+                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
                         except Exception as err:
                             self.writeLog("WARN: {}\n".format(err))
 
