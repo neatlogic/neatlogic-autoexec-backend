@@ -74,7 +74,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
+            raise AutoExecError("Request failed, {}\n".format(errMsg))
         except URLError as ex:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
         return response
@@ -99,7 +99,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
+            raise AutoExecError("Request failed, {}\n".format(errMsg))
         except URLError as ex:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
 
@@ -124,7 +124,7 @@ class ServerAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            raise AutoExecError("Request url:{} failed, {}\n".format(url, errMsg))
+            raise AutoExecError("Request failed, {}\n".format(errMsg))
         except URLError as ex:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
 
@@ -476,8 +476,8 @@ class ServerAdapter:
                     raise "Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, retObj['Message'])
             else:
                 raise "Get Account for {} user {}/{} failed, status code:{}\n{}\n".format(protocol, resourceId, username, response.status, content)
-        except:
-            raise
+        except Exception as ex:
+            raise "Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, ex)
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:
