@@ -473,11 +473,11 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise "Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, retObj['Message'])
+                    raise AutoExecError("Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, retObj['Message']))
             else:
-                raise "Get Account for {} user {}/{} failed, status code:{}\n{}\n".format(protocol, resourceId, username, response.status, content)
+                raise AutoExecError("Get Account for {} user {}/{} failed, status code:{}\n{}\n".format(protocol, resourceId, username, response.status, content))
         except Exception as ex:
-            raise "Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, ex)
+            raise AutoExecError("Get Account for {} user {}/{} failed, {}\n".format(protocol, resourceId, username, ex))
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:
