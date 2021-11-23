@@ -456,7 +456,7 @@ class ServerAdapter:
             return {}
 
         params = {
-            'tenent': context.tenent,
+            'tenent': self.context.tenent,
             'resourceId': resourceId,
             'host': host,
             'port': port,

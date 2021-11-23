@@ -23,6 +23,7 @@ class Operation:
 
     def __init__(self, context, opsParam, param):
         self.context = context
+        self.node = None
         self.jobId = context.jobId
         self.opsParam = opsParam
         self.isScript = 0
@@ -136,6 +137,15 @@ class Operation:
             fcntl.flock(fd, fcntl.LOCK_UN)
             fd.close()
 
+    def setNode(self, node):
+        self.node = node
+
+    def writeLog(self, msg):
+        if self.node:
+            self.node.writeNodeLog(msg)
+        else:
+            print(msg)
+
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None, resourceId=None, host=None, port=None):
         opDesc = {}
@@ -152,7 +162,7 @@ class Operation:
                     try:
                         optValue = Utils._rc4_decrypt_hex(self.passKey, optValue[5:])
                     except:
-                        print("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
+                        self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
                 elif optType == 'account' and resourceId != '':
                     # format username/protocol
                     if optValue is not None and optValue != '':
@@ -161,7 +171,7 @@ class Operation:
                         try:
                             retObj = context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
                         except Exception as err:
-                            print("WARN: " + err)
+                            self.writeLog("WARN: {}\n".format(err))
 
                         if 'password' in retObj:
                             password = retObj['password']
@@ -187,7 +197,7 @@ class Operation:
                     try:
                         argValue = Utils._rc4_decrypt_hex(self.passKey, argValue[5:])
                     except:
-                        print("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
+                        self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
                     if not matchObj:

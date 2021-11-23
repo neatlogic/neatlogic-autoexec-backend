@@ -368,6 +368,7 @@ class RunNode:
                 self.writeNodeLog("INFO: Node running paused.\n")
                 break
 
+            op.setNode(self)
             ret = 0
             try:
                 # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
