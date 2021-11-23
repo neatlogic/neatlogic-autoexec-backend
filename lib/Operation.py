@@ -171,7 +171,8 @@ class Operation:
                         try:
                             username = accountDesc[0]
                             accountId = accountDesc[1]
-                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, username, accountId)
+                            protocol = accountDesc[2]
+                            retObj = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
                         except Exception as err:
                             self.writeLog("WARN: {}\n".format(err.value))
 

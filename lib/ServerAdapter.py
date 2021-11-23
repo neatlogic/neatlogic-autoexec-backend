@@ -451,7 +451,7 @@ class ServerAdapter:
 
         return
 
-    def getAccount(self, resourceId, host, port, username, accountId):
+    def getAccount(self, resourceId, host, port, username, protocol, accountId):
         if self.context.devMode:
             return {}
 
@@ -463,6 +463,9 @@ class ServerAdapter:
             'accountId': accountId
         }
 
+        if username is None:
+            username = 'none'
+
         try:
             response = self.httpJSON(self.apiMap['getAccount'], self.authToken, params)
             charset = response.info().get_content_charset()
@@ -472,11 +475,11 @@ class ServerAdapter:
                 if retObj['Status'] == 'OK':
                     return retObj['Return']
                 else:
-                    raise AutoExecError("Get Account for user:{} failed, {}".format(username, retObj['Message']))
+                    raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, retObj['Message']))
             else:
-                raise AutoExecError("Get Account for user:{} failed, status code:{} {}".format(username, response.status, content))
+                raise AutoExecError("Get Account for {} user:{} failed, status code:{} {}".format(protocol, username, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Get Account for user:{} failed, {}".format(username, ex))
+            raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, ex))
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:
