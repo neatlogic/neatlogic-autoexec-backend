@@ -16,6 +16,36 @@
             "validate": ""
         },
         {
+            "opt": "mysqlaccount",
+            "name": "Mysql账户",
+            "help": "例如：采集数据需要用到的Mysql的只读用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "mysqlread/database",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "pgaccount",
+            "name": "Postgresql账户",
+            "help": "例如：采集数据需要用到的Postgresql的只读用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "pgread/database",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "mssqlaccount",
+            "name": "MSSQLServer账户",
+            "help": "例如：采集数据需要用到的MSSQLServer的只读用户",
+            "type": "account",
+            "isConst": "false",
+            "defaultValue": "mssqlread/database",
+            "required": "false",
+            "validate": ""
+        },
+        {
             "opt": "defaultpassconf",
             "name": "默认密码设置",
             "help": "例如：Mysql:root/pass1234,Postgresql:demo/test1234",

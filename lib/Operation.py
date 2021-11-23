@@ -154,9 +154,15 @@ class Operation:
                     except:
                         print("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
                 elif optType == 'account' and resourceId != '':
+                    # format username/protocol
                     if optValue is not None and optValue != '':
                         accountDesc = optValue.split('/')
-                        retObj = context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1])
+                        retObj = {}
+                        try:
+                            retObj = context.serverAdapter.getAccount(resourceId, host, port, accountDesc[0], accountDesc[1], port)
+                        except Exception as err:
+                            print("WARN: " + err)
+
                         if 'password' in retObj:
                             password = retObj['password']
                             optValue = retObj['username'] + '/' + Utils._rc4_decrypt_hex(self.passKey, password[5:])
