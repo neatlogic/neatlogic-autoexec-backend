@@ -54,10 +54,10 @@ sub new {
             $mysqlCmd = "$mysqlCmd -h127.0.0.1";
         }
         if ( defined( $args{port} ) ) {
-            $mysqlCmd = "$mysqlCmd -p$args{port}";
+            $mysqlCmd = "$mysqlCmd -P$args{port}";
         }
         else {
-            $mysqlCmd = "$mysqlCmd -p3306";
+            $mysqlCmd = "$mysqlCmd -P3306";
         }
     }
 
