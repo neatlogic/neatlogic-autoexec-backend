@@ -51,7 +51,7 @@
             "help": "例如：Mysql:root/pass1234,Postgresql:demo/test1234",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "Mysql:${mysqlaccount},Postgresql:${pgaccount},MSSQLServer:${mssqlaccount}",
+            "defaultValue": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
             "required": "false",
             "validate": ""
         },

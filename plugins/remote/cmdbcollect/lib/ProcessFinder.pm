@@ -132,7 +132,7 @@ sub getProcEnv {
             $envMap->{$lastEnvName} = $lastEnvVal;
         }
     }
-
+    delete( $envMap->{LS_COLORS} );
     return $envMap;
 }
 
