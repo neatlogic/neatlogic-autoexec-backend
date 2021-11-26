@@ -9,6 +9,7 @@ import argparse
 import sys
 import json
 from bson.json_util import dumps, loads
+from DSLTools import Parser, Interpreter
 
 
 def usage():
@@ -17,12 +18,16 @@ def usage():
     exit(1)
 
 
-def getMetricsDef(db, ciType, resourceId):
-    metricsDef = AutoExecUtils.getInspectConf(ciType, resourceId)
-    return metricsDef
+def getMetricsDef(db, objCat, objType):
+    inspectDefCollection = db['_inspectDef']
+    inspectDef = inspectDefCollection.find_one({'collection': objCat,
+                                                'filter': {'$in': objType}},
+                                               {'_id': False}
+                                               )
+    return inspectDef
 
 
-def getInspectData(nodeInfo, defObjCat):
+def getInspectData(nodeInfo):
     ip = nodeInfo['host']
     port = None
     if 'port' in nodeInfo:
@@ -30,6 +35,8 @@ def getInspectData(nodeInfo, defObjCat):
 
     availability = 1
     errorMessage = ''
+    dataRecords = []
+
     nodeData = {}
     # 加载上一个cmdb收集步骤的output数据，CMDB采集可能返回多条记录，需要抽取匹配的记录
     outputData = AutoExecUtils.loadNodeOutput()
@@ -66,36 +73,82 @@ def getInspectData(nodeInfo, defObjCat):
                 continue
 
             # 如果数据的归属类别跟定义和节点信息一致，则抽取并返回数据记录
-            if data['_OBJ_CATEGORY'].upper() == defObjCat and data['MGMT_IP'] == ip:
+            if data['MGMT_IP'] == ip:
                 if port is not None:
                     if 'PORT' not in data or data['PORT'] != port:
                         continue
 
                 nodeData = data
+                nodeData['AVAILABILITY'] = availability
+                nodeData['ERROR_MESSAGE'] = ''
+                dataRecords.append(nodeData)
                 break
 
-        nodeData['AVAILABILITY'] = availability
-        nodeData['ERROR_MESSAGE'] = ''
-        return nodeData
+        return dataRecords
 
 
-def inspectData(nodeInfo, metricsDef):
-    collectionName = metricsDef['collection']
-    defObjCat = collectionName[7:]
+def inspectData(nodeInfo):
+    rptDataRecords = []
+    currentTime = datetime.datetime.utcnow()
 
-    rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
-               'MGMT_IP': nodeInfo['host'],
-               'PORT': nodeInfo['port'],
-               'INSPECT_STATUS': 'Normal'
-               }
+    inspectDefMap = {}
+    objCatRulesMap = {}
+    objCatFieldsMap = {}
+    # 获取cmdb对单个节点采集的数据
+    dataRecords = getInspectData(nodeInfo)
+    for dataCollected in dataRecords:
+        if dataCollected is not None:
+            inspectDef = {}
+            inspectRulesMap = {}
+            needFieldsMap = {}
 
-    nodeData = getInspectData(nodeInfo, defObjCat)
-    if nodeData is not None:
-        # TODO: extract metrics and construct data
-        # 根据指标定义抽取需要的指标和指标域值进行计算出告警级别
-        pass
+            objCat = dataCollected['_OBJ_CAT']
+            objType = dataCollected['_OBJ_TYPE']
+            if objCat not in inspectDefMap:
+                inspectDef = getMetricsDef(db, objCat, objType)
+                inspectDefMap[objCat] = inspectDef
 
-    return rptData
+                for inspectRule in inspectDef['thresholds']:
+                    inspectRulesMap[inspectRule['name']] = inspectRule
+                objCatRulesMap[objCat] = inspectRulesMap
+
+                for fieldDef in inspectDef['fields']:
+                    if fieldDef['selected'] == 1:
+                        needFieldsMap[fieldDef['name']] = 1
+                objCatFieldsMap[objCat] = needFieldsMap
+
+            inspectRules = inspectDef['thresholds']
+
+            matchedFields = None
+            for inspectRule in inspectRules:
+                ast = Parser(inspectRule['rule'])
+                #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+                interpreter = Interpreter(AST=ast.asList(), ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
+                alerts = interpreter.resolve()
+
+            rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
+                       'MGMT_IP': nodeInfo['host'],
+                       'PORT': nodeInfo['port'],
+                       'INSPECT_STATUS': 'Normal'
+                       }
+            if alerts:
+                alertThresHolds = {}
+                for alert in alerts:
+                    ruleName = alert['ruleName']
+                    alertThresHolds[ruleName] = inspectRulesMap[ruleName]
+                rptData['_thresholds'] = alertThresHolds
+                rptData['_alerts'] = alerts
+            else:
+                rptData['_thresholds'] = {}
+                rptData['_alerts'] = []
+
+            needFields = objCatFieldsMap[objCat]
+            for needField in needFields:
+                if needField in dataCollected:
+                    rptData[needField] = dataCollected[needField]
+
+            rptDataRecords.append(rptData)
+    return rptDataRecords
 
 
 def saveReport(db, ciType, resourceId, rptData):
@@ -104,15 +157,24 @@ def saveReport(db, ciType, resourceId, rptData):
 
     currentTime = datetime.datetime.utcnow()
     rptData['_report_time'] = currentTime
-    primaryKey = {'RESOURCE_ID': rptData['RESOURCE_ID'], '_report_time': currentTime}
+    primaryKey = {'RESOURCE_ID': rptData['RESOURCE_ID']}
 
-    rptCollection = db['INSPECT_REPORTS']
     rptCollection.replace_one(primaryKey, rptData, upsert=True)
-    rptCollection.create_index([('RESOURCE_ID', 1), ('_report_time', 1)], name='idx_pk')
-    rptCollection.create_index([('_report_time', 1)], name='idx_ttl', expireAfterSeconds=7776000)
+    rptCollection.create_index([('RESOURCE_ID', 1)], name='idx_pk')
     print('INFO: Save report data success.')
     AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['INSPECT_STATUS'])
     print('INFO: Update inspect status for node success.')
+    saveHisReport(db, ciType, resourceId, rptData)
+
+
+def saveHisReport(db, ciType, resourceId, rptData):
+    rptTable = 'INSPECT_REPORTS_HIS'
+    rptCollection = db[rptTable]
+
+    rptCollection.insert(rptData)
+    rptCollection.create_index([('RESOURCE_ID', 1), ('_report_time', 1)], name='idx_pk')
+    rptCollection.create_index([('_report_time', 1)], name='idx_ttl', expireAfterSeconds=7776000)
+    print('INFO: Save report history data success.')
 
 
 if __name__ == "__main__":
@@ -150,10 +212,8 @@ if __name__ == "__main__":
         resourceId = nodeInfo['resourceId']
         (dbclient, db) = AutoExecUtils.getDB()
 
-        rptData = None
-        metricsDef = getMetricsDef(db, ciType, resourceId)
-        if metricsDef is not None:
-            rptData = inspectData(nodeInfo, metricsDef)
+        rptDataRecords = inspectData(nodeInfo)
+        for rptData in rptDataRecords:
             saveReport(db, ciType, resourceId, rptData)
 
     except Exception as ex:
