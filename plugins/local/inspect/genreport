@@ -20,15 +20,43 @@ def usage():
 
 def getMetricsDef(db, objCat, objType):
     inspectDefCollection = db['_inspectDef']
-    inspectDef = inspectDefCollection.find_one({'collection': 'COLLECT_' + objCat.upper(),
+    collectName = 'COLLECT_' + objCat.upper()
+    inspectDef = inspectDefCollection.find_one({'collection': collectName,
                                                 'filter._OBJ_TYPE': objType},
-                                               {'_id': False}
+                                               {}
                                                )
     if inspectDef is None:
-        inspectDef = inspectDefCollection.find_one({'collection': 'COLLECT_' + objCat.upper(),
+        inspectDef = inspectDefCollection.find_one({'collection': collectName,
                                                     'filter._OBJ_TYPE': None},
-                                                   {'_id': False}
+                                                   {}
                                                    )
+
+    # 比较AST抽象语法树结构生成时间根规则修改时间，如果老了则进行AST分析并保存和更新到DB
+    ruleNeedUpdate = False
+    currentTime = datetime.datetime.utcnow()
+    for ruleDef in inspectDef['thresholds']:
+        updateTime = None
+        if updateTime in ruleDef:
+            ruleDef['_updatetime']
+        else:
+            updateTime = currentTime
+
+        astGenTime = None
+        if astGenTime in ruleDef:
+            astGenTime = ruleDef['_astgentime']
+
+        if astGenTime is None or updateTime is None or astGenTime < updateTime:
+            ruleDef['_astgentime'] = currentTime
+            ast = Parser(ruleDef['rule'])
+            ruleDef['AST'] = ast.asList()
+            #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+            ruleNeedUpdate = True
+
+    if ruleNeedUpdate:
+        _id = inspectDef['_id']
+        del(inspectDef['_id'])
+        inspectDefCollection.update_one({'_id': _id}, inspectDef)
+
     return inspectDef
 
 
@@ -126,8 +154,7 @@ def inspectData(nodeInfo):
 
             matchedFields = None
             for inspectRule in inspectRules:
-                ast = Parser(inspectRule['rule'])
-                #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+                ast = inspectRule['AST']
                 interpreter = Interpreter(AST=ast.asList(), ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
                 alerts = interpreter.resolve()
 
