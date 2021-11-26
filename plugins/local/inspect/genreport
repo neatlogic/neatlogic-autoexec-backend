@@ -20,10 +20,15 @@ def usage():
 
 def getMetricsDef(db, objCat, objType):
     inspectDefCollection = db['_inspectDef']
-    inspectDef = inspectDefCollection.find_one({'collection': objCat,
-                                                'filter': {'$in': objType}},
+    inspectDef = inspectDefCollection.find_one({'collection': 'COLLECT_' + objCat.upper(),
+                                                'filter._OBJ_TYPE': objType},
                                                {'_id': False}
                                                )
+    if inspectDef is None:
+        inspectDef = inspectDefCollection.find_one({'collection': 'COLLECT_' + objCat.upper(),
+                                                    'filter._OBJ_TYPE': None},
+                                                   {'_id': False}
+                                                   )
     return inspectDef
 
 

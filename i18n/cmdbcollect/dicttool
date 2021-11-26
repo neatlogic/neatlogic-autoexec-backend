@@ -108,6 +108,7 @@ if __name__ == "__main__":
                         inspectObj = {'name': name,
                                       'label': data['label'],
                                       'collection': data['collection'],
+                                      'filter': data['filter'],
                                       'fields': [],
                                       'thresholds': []}
 
