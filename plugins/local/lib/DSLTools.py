@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import initenv
 import warnings
 import json
 import pyparsing as pp
@@ -90,10 +89,10 @@ def Parser(ruleTxt):
     RBRACK = pp.Suppress(']')
     CURRDOC = pp.Literal('$')
 
-    fieldName = pp.pyparsing_common.identifier
     number = pp.pyparsing_common.integer | pp.pyparsing_common.real
     string = pp.QuotedString('"') | pp.QuotedString("'")
     value = number | string
+    fieldName = pp.pyparsing_common.identifier | string
 
     cmpOperator = pp.oneOf('= == != >= <= < > contains startswith')
     AND = pp.CaselessLiteral("and")
@@ -124,7 +123,7 @@ def Parser(ruleTxt):
         ret = ruleDef.parseString(ruleTxt)
         ast = ret[0]
         return ast
-    except ParseSyntaxException as ex:
+    except pp.ParseSyntaxException as ex:
         print("Syntax error: " + str(ex))
         print(ex.line)
         print(' ' * ex.loc + '^')
@@ -410,7 +409,7 @@ if __name__ == "__main__":
         data = json.load(f)
         f.close()
 
-    rule = '$.DISKS[NAME contains "/dev/"].CAPACITY > 10'
+    rule = '$.DISKS["USE%" contains "/dev/"].CAPACITY > 10'
     ast = Parser(rule)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 

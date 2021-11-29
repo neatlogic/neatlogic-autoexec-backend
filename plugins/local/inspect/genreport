@@ -78,6 +78,7 @@ def getInspectData(nodeInfo):
     else:
         for key, value in outputData.items():
             if key.startswith("inspect/"):
+                # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
                 collectData = value['DATA']
                 if 'AVAILABILITY' in collectData:
                     if collectData['AVAILABILITY'] == 0:
@@ -112,10 +113,16 @@ def getInspectData(nodeInfo):
                         continue
 
                 nodeData = data
-                nodeData['AVAILABILITY'] = availability
-                nodeData['ERROR_MESSAGE'] = ''
+                nodeData['_availability'] = availability
+                nodeData['_error_message'] = errorMessage
                 dataRecords.append(nodeData)
                 break
+
+        if not dataRecords:
+            nodeData = {}
+            nodeData['_availability'] = availability
+            nodeData['_error_message'] = errorMessage
+            dataRecords.append(nodeData)
 
         return dataRecords
 
@@ -134,6 +141,11 @@ def inspectData(nodeInfo):
             inspectDef = {}
             inspectRulesMap = {}
             needFieldsMap = {}
+
+            availability = dataCollected['_availability']
+            errorMessage = dataCollected['_error_message']
+            needFieldsMap['_availability'] = 1
+            needFieldsMap['_error_message'] = 1
 
             objCat = dataCollected['_OBJ_CAT']
             objType = dataCollected['_OBJ_TYPE']
@@ -157,23 +169,52 @@ def inspectData(nodeInfo):
                 ast = inspectRule['AST']
                 interpreter = Interpreter(AST=ast.asList(), ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
                 alerts = interpreter.resolve()
-
+                # alerts的数据结构
+                # [
+                #     {
+                #         "jsonPath": "$.DISKS[0].CAPACITY",
+                #         "ruleLevel": "WARN",
+                #         "ruleName": "测试"
+                #     },
+                #     {
+                #         "jsonPath": "$.DISKS[1].CAPACITY",
+                #         "ruleLevel": "WARN",
+                #         "ruleName": "测试"
+                #     }
+                # ]
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        'MGMT_IP': nodeInfo['host'],
                        'PORT': nodeInfo['port'],
                        'INSPECT_STATUS': 'Normal'
                        }
             if alerts:
+                # 如果存在匹配了告警规则的rule，则存放到报告中，用于匹配规则的展示
                 alertThresHolds = {}
                 for alert in alerts:
                     ruleName = alert['ruleName']
                     alertThresHolds[ruleName] = inspectRulesMap[ruleName]
                 rptData['_thresholds'] = alertThresHolds
                 rptData['_alerts'] = alerts
+                rptData['_inspect_alert'] = True
             else:
                 rptData['_thresholds'] = {}
                 rptData['_alerts'] = []
+                rptData['_inspect_alert'] = False
 
+            if availability == 0:
+                rptData['_inspect_alert'] = True
+                rptData['_alerts'].append({
+                    "jsonPath": "$._availability",
+                    "ruleLevel": "CRITICAL",
+                    'ruleName': "可用性告警"
+                })
+                rptData['_alerts'].append({
+                    "jsonPath": "$._error_message",
+                    "ruleLevel": "CRITICAL",
+                    'ruleName': "可用性告警"
+                })
+
+            # 抽取巡检定义里需要的属性字段到报告中
             needFields = objCatFieldsMap[objCat]
             for needField in needFields:
                 if needField in dataCollected:
