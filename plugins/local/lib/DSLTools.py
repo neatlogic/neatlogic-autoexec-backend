@@ -276,6 +276,7 @@ class Interpreter(object):
                     return matchedRecord + 1
             else:
                 warnings.warn("Data field not found: " + jsonPath[1:], category=Warning)
+                return matchedRecord
 
         if fieldValue is not None:
             fieldFilter = field[2]
@@ -311,11 +312,12 @@ class Interpreter(object):
                         matchedCount = self.resolveField(fieldValue, jsonPath, op, value, fields, idx + 1)
                         matchedRecord = matchedRecord + matchedCount
                 else:
-                    return 0
+                    return matchedRecord
 
             return matchedRecord
         else:
             warnings.warn("Data field not found: " + jsonPath[1:], category=Warning)
+            return matchedRecord
 
     # 计算字段属性的过滤条件，符合则返回True，否则返回False
     # record：当前属性的当前记录

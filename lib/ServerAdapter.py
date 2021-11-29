@@ -486,7 +486,7 @@ class ServerAdapter:
             return {}
 
         params = {
-            'tenent': context.tenent,
+            'tenent': self.context.tenent,
             'ciType': ciType,
             'resourceId': resourceId,
             'time': time.time()
@@ -512,7 +512,7 @@ class ServerAdapter:
             return {}
 
         params = {
-            'tenent': context.tenent,
+            'tenent': self.context.tenent,
             'ciType': ciType,
             'resourceId': resourceId,
             'status': status,

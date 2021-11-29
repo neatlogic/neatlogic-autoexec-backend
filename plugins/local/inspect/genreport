@@ -19,17 +19,18 @@ def usage():
 
 
 def getMetricsDef(db, objCat, objType):
-    inspectDefCollection = db['_inspectDef']
+    inspectDefCollection = db['_inspectdef']
     collectName = 'COLLECT_' + objCat.upper()
     inspectDef = inspectDefCollection.find_one({'collection': collectName,
-                                                'filter._OBJ_TYPE': objType},
-                                               {}
+                                                'filter._OBJ_TYPE': objType}
                                                )
     if inspectDef is None:
         inspectDef = inspectDefCollection.find_one({'collection': collectName,
-                                                    'filter._OBJ_TYPE': None},
-                                                   {}
+                                                    'filter._OBJ_TYPE': None}
                                                    )
+
+    if inspectDef is None:
+        return {}
 
     # 比较AST抽象语法树结构生成时间根规则修改时间，如果老了则进行AST分析并保存和更新到DB
     ruleNeedUpdate = False
@@ -55,7 +56,10 @@ def getMetricsDef(db, objCat, objType):
     if ruleNeedUpdate:
         _id = inspectDef['_id']
         del(inspectDef['_id'])
-        inspectDefCollection.update_one({'_id': _id}, inspectDef)
+        inspectDefCollection.update_one({'_id': _id},
+                                        {'$set':
+                                         {'thresholds': inspectDef['thresholds']}
+                                         })
 
     return inspectDef
 
@@ -167,7 +171,7 @@ def inspectData(nodeInfo):
             matchedFields = None
             for inspectRule in inspectRules:
                 ast = inspectRule['AST']
-                interpreter = Interpreter(AST=ast.asList(), ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
+                interpreter = Interpreter(AST=ast, ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
                 alerts = interpreter.resolve()
                 # alerts的数据结构
                 # [
@@ -184,9 +188,14 @@ def inspectData(nodeInfo):
                 # ]
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        'MGMT_IP': nodeInfo['host'],
-                       'PORT': nodeInfo['port'],
                        'INSPECT_STATUS': 'Normal'
                        }
+
+            if 'port' in nodeInfo:
+                rptData['PORT'] = nodeInfo['port']
+            else:
+                rptData['PORT'] = None
+
             if alerts:
                 # 如果存在匹配了告警规则的rule，则存放到报告中，用于匹配规则的展示
                 alertThresHolds = {}
@@ -290,7 +299,7 @@ if __name__ == "__main__":
             saveReport(db, ciType, resourceId, rptData)
 
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(ex))
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
     finally:
         if dbclient is not None:
