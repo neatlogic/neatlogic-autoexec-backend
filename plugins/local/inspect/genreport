@@ -147,7 +147,7 @@ def inspectData(nodeInfo):
             needFieldsMap['_availability'] = 1
             needFieldsMap['_error_message'] = 1
 
-            objCat = dataCollected['_OBJ_CAT']
+            objCat = dataCollected['_OBJ_CATEGORY']
             objType = dataCollected['_OBJ_TYPE']
             if objCat not in inspectDefMap:
                 inspectDef = getMetricsDef(db, objCat, objType)
