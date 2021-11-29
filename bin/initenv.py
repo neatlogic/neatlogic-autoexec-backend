@@ -16,4 +16,4 @@ sys.path.append(homePath + '/plugins/local/tools')
 os.environ['HISTSIZE'] = '0'
 os.environ['AUTOEXEC_HOMEPATH'] = homePath
 os.environ['PERLLIB'] = '{}/lib:{}'.format(homePath, os.getenv('PERL5LIB'))
-os.environ['PYTHONPATH'] = '{}/lib:{}'.format(homePath, os.getenv('PYTHONPATH'))
+os.environ['PYTHONPATH'] = '{}/lib:{}/plib:{}'.format(homePath, homePath, os.getenv('PYTHONPATH'))
