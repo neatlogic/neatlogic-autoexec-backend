@@ -49,10 +49,10 @@ sub main {
     }
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
-
     my $host = $nodeInfo->{host};
     my $port = $nodeInfo->{port};
+    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+
     print("INFO: Try to connect to $host:$port.\n");
     eval {
         my $socket = IO::Socket::INET->new(
