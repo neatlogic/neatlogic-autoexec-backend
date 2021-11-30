@@ -18,8 +18,20 @@ def usage():
     exit(1)
 
 
+def getLevelNo(level):
+    levelNo = 0
+    if level == 'WARN':
+        levelNo = 1
+    elif level == 'CRITICAL':
+        levelNo = 2
+    elif level == 'FATAL':
+        levelNo = 3
+    return levelNo
+
+
 def getAlertDesc(alerts):
     totalCount = 0
+    gLevel = 'NORMAL'
     alertDescMap = {}
     for alert in alerts:
         totalCount = totalCount + 1
@@ -28,7 +40,11 @@ def getAlertDesc(alerts):
             alertDescMap[level] = 1
         else:
             alertDescMap[level] = alertDescMap[level] + 1
+        if getLevelNo(gLevel) < getLevelNo(level):
+            gLevel = level
+
     alertDescMap['totalCount'] = totalCount
+    alertDescMap['alertLevel'] = gLevel
     return alertDescMap
 
 
@@ -203,7 +219,7 @@ def inspectData(nodeInfo):
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        '_name': inspectDef['name'],
                        'MGMT_IP': nodeInfo['host'],
-                       'INSPECT_STATUS': 'Normal'
+                       '_inspect_status': 'Normal'
                        }
 
             if 'port' in nodeInfo:
@@ -262,7 +278,7 @@ def saveReport(db, ciType, resourceId, rptData):
     rptCollection.create_index([('RESOURCE_ID', 1)], name='idx_pk')
     print('INFO: Save report data success.')
     saveHisReport(db, ciType, resourceId, rptData)
-    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['INSPECT_STATUS'], rptData['_alerts_desc']['totalCount'])
+    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_alerts_desc']['alertLevel'], rptData['_alerts_desc']['totalCount'])
     print('INFO: Update inspect status for node success.')
 
 
