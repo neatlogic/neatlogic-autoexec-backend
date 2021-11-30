@@ -3,6 +3,7 @@ use strict;
 
 package SnmpHelper;
 use Net::SNMP qw(:snmp);
+use JSON;
 
 my $PORT_STATUS_MAP = {
     1 => 'up',
@@ -177,8 +178,8 @@ sub getScalar {
 
             #如果某个属性定义的是多个oid，则按照顺序获取值
             foreach my $oid (@$val) {
-                my $tmpVal = $result->{$val};
-                if (    defined($oidVal)
+                my $tmpVal = $result->{$oid};
+                if (    defined($tmpVal)
                     and $tmpVal ne 'noSuchObject'
                     and $tmpVal ne 'noSuchInstance'
                     and $tmpVal ne 'endOfMibView' )

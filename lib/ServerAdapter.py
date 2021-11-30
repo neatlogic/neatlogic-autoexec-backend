@@ -516,7 +516,7 @@ class ServerAdapter:
             'ciEntityId': resourceId,
             'inspectStatus': status,
             'alertCount': alertCount,
-            'inspectTime': time.time()
+            'inspectTime': int(time.time() * 1000)
         }
 
         try:
