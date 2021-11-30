@@ -512,7 +512,6 @@ class ServerAdapter:
             return {}
 
         params = {
-            'tenent': self.context.tenent,
             'ciType': ciType,
             'ciEntityId': resourceId,
             'inspectStatus': status,
