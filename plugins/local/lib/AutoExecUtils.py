@@ -243,7 +243,7 @@ def handleJsonstr(jsonstr):
 #     return serverAdapter.getInspectConf(ciType, resourceId)
 
 
-def updateInspectStatus(ciType, resourceId, status):
+def updateInspectStatus(ciType, resourceId, status, alertCount):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
-    return serverAdapter.updateInspectStatus(ciType, resourceId, status)
+    return serverAdapter.updateInspectStatus(ciType, resourceId, status, alertCount)
