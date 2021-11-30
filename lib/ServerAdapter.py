@@ -526,7 +526,7 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
-                    return retObj['Return']
+                    return True
                 else:
                     raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
             else:
