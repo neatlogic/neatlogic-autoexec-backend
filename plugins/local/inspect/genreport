@@ -29,23 +29,24 @@ def getLevelNo(level):
     return levelNo
 
 
-def getAlertDesc(alerts):
+def getAlertSummarized(alerts):
     totalCount = 0
     gLevel = 'NORMAL'
-    alertDescMap = {}
+    alertOutline = {}
     for alert in alerts:
         totalCount = totalCount + 1
         level = alert['ruleLevel']
-        if level not in alertDescMap:
-            alertDescMap[level] = 1
+        if level not in alertOutline:
+            alertOutline[level] = 1
         else:
-            alertDescMap[level] = alertDescMap[level] + 1
+            alertOutline[level] = alertOutline[level] + 1
         if getLevelNo(gLevel) < getLevelNo(level):
             gLevel = level
 
-    alertDescMap['totalCount'] = totalCount
-    alertDescMap['alertLevel'] = gLevel
-    return alertDescMap
+    alertSummarized = {}
+    alertSummarized['totalCount'] = totalCount
+    alertSummarized['status'] = gLevel
+    return {"alertOutline": alertOutline, 'alertSummarized': alertSummarized}
 
 
 def getMetricsDef(db, objCat, objType):
@@ -100,7 +101,7 @@ def getInspectData(nodeInfo):
     if 'port' in nodeInfo:
         port = nodeInfo['port']
 
-    availability = 1
+    availability = True
     errorMessage = ''
     dataRecords = []
 
@@ -116,7 +117,7 @@ def getInspectData(nodeInfo):
                 collectData = value['DATA']
                 if 'AVAILABILITY' in collectData:
                     if collectData['AVAILABILITY'] == 0:
-                        availability = 0
+                        availability = False
                         if 'ERROR_MESSAGE' in collectData:
                             errorMessage = collectData['ERROR_MESSAGE']
                 continue
@@ -198,11 +199,13 @@ def inspectData(nodeInfo):
 
             inspectRules = inspectDef['thresholds']
 
+            alerts = []
             matchedFields = None
             for inspectRule in inspectRules:
                 ast = inspectRule['AST']
                 interpreter = Interpreter(AST=ast, ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
-                alerts = interpreter.resolve()
+                ruleAlerts = interpreter.resolve()
+                alerts.extend(ruleAlerts)
                 # alerts的数据结构
                 # [
                 #     {
@@ -216,11 +219,12 @@ def inspectData(nodeInfo):
                 #         "ruleName": "测试"
                 #     }
                 # ]
+
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
-                       '_name': inspectDef['name'],
                        'MGMT_IP': nodeInfo['host'],
-                       '_inspect_status': 'Normal'
                        }
+            inspectResult = {}
+            inspectResult['name'] = inspectDef['name']
 
             if 'port' in nodeInfo:
                 rptData['PORT'] = nodeInfo['port']
@@ -233,28 +237,33 @@ def inspectData(nodeInfo):
                 for alert in alerts:
                     ruleName = alert['ruleName']
                     alertThresHolds[ruleName] = inspectRulesMap[ruleName]
-                rptData['_thresholds'] = alertThresHolds
-                rptData['_alerts'] = alerts
-                rptData['_inspect_alert'] = True
+                inspectResult['thresholds'] = alertThresHolds
+                inspectResult['alerts'] = alerts
+                inspectResult['hasAlert'] = True
             else:
-                rptData['_thresholds'] = {}
-                rptData['_alerts'] = []
-                rptData['_inspect_alert'] = False
+                inspectResult['thresholds'] = {}
+                inspectResult['alerts'] = []
+                inspectResult['hasAlert'] = False
 
-            if availability == 0:
-                rptData['_inspect_alert'] = True
-                rptData['_alerts'].append({
+            if not availability:
+                inspectResult['hasAlert'] = True
+                inspectResult['alerts'].append({
                     "jsonPath": "$._availability",
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
-                rptData['_alerts'].append({
+                inspectResult['alerts'].append({
                     "jsonPath": "$._error_message",
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
 
-            rptData['_alerts_desc'] = getAlertDesc(rptData['_alerts'])
+            alertSum = getAlertSummarized(inspectResult['alerts'])
+            alertSummarized = alertSum['alertSummarized']
+            inspectResult['alertOutline'] = alertSum['alertOutline']
+            inspectResult['totalCount'] = alertSummarized['totalCount']
+            inspectResult['status'] = alertSummarized['status']
+            rptData['_inspect_result'] = inspectResult
 
             # 抽取巡检定义里需要的属性字段到报告中
             needFields = objCatFieldsMap[objCat]
@@ -278,7 +287,7 @@ def saveReport(db, ciType, resourceId, rptData):
     rptCollection.create_index([('RESOURCE_ID', 1)], name='idx_pk')
     print('INFO: Save report data success.')
     saveHisReport(db, ciType, resourceId, rptData)
-    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_alerts_desc']['alertLevel'], rptData['_alerts_desc']['totalCount'])
+    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
     print('INFO: Update inspect status for node success.')
 
 
