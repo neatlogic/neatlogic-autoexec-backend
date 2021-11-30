@@ -33,7 +33,7 @@ class ServerAdapter:
             'fetchScript': 'codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
             'getAccount': 'codedriver/public/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': 'codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': 'codedriver/public/api/rest/autoexec/inspect/node/status/update',
+            'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
             'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
@@ -507,16 +507,17 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
 
-    def updateInspectStatus(self, ciType, resourceId, status):
+    def updateInspectStatus(self, ciType, resourceId, status, alertCount):
         if self.context.devMode:
             return {}
 
         params = {
             'tenent': self.context.tenent,
             'ciType': ciType,
-            'resourceId': resourceId,
-            'status': status,
-            'time': time.time()
+            'ciEntityId': resourceId,
+            'inspectStatus': status,
+            'alertCount': alertCount,
+            'inspectTime': time.time()
         }
 
         try:

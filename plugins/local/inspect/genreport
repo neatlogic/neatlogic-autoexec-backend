@@ -18,6 +18,20 @@ def usage():
     exit(1)
 
 
+def getAlertDesc(alerts):
+    totalCount = 0
+    alertDescMap = {}
+    for alert in alerts:
+        totalCount = totalCount + 1
+        level = alert['ruleLevel']
+        if level not in alertDescMap:
+            alertDescMap[level] = 1
+        else:
+            alertDescMap[level] = alertDescMap[level] + 1
+    alertDescMap['totalCount'] = totalCount
+    return alertDescMap
+
+
 def getMetricsDef(db, objCat, objType):
     inspectDefCollection = db['_inspectdef']
     collectName = 'COLLECT_' + objCat.upper()
@@ -187,6 +201,7 @@ def inspectData(nodeInfo):
                 #     }
                 # ]
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
+                       '_name': inspectDef['name'],
                        'MGMT_IP': nodeInfo['host'],
                        'INSPECT_STATUS': 'Normal'
                        }
@@ -223,6 +238,8 @@ def inspectData(nodeInfo):
                     'ruleName': "可用性告警"
                 })
 
+            rptData['_alerts_desc'] = getAlertDesc(rptData['_alerts'])
+
             # 抽取巡检定义里需要的属性字段到报告中
             needFields = objCatFieldsMap[objCat]
             for needField in needFields:
@@ -244,9 +261,9 @@ def saveReport(db, ciType, resourceId, rptData):
     rptCollection.replace_one(primaryKey, rptData, upsert=True)
     rptCollection.create_index([('RESOURCE_ID', 1)], name='idx_pk')
     print('INFO: Save report data success.')
-    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['INSPECT_STATUS'])
-    print('INFO: Update inspect status for node success.')
     saveHisReport(db, ciType, resourceId, rptData)
+    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['INSPECT_STATUS'], rptData['_alerts_desc']['totalCount'])
+    print('INFO: Update inspect status for node success.')
 
 
 def saveHisReport(db, ciType, resourceId, rptData):
