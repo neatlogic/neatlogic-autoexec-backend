@@ -33,6 +33,7 @@ def getAlertSummarized(alerts):
     totalCount = 0
     gLevel = 'NORMAL'
     alertOutline = {}
+    alertFields = {}
     for alert in alerts:
         totalCount = totalCount + 1
         level = alert['ruleLevel']
@@ -43,10 +44,25 @@ def getAlertSummarized(alerts):
         if getLevelNo(gLevel) < getLevelNo(level):
             gLevel = level
 
+        jsonPath = alert['jsonPath']
+        alertField = None
+        if jsonPath not in alertFields:
+            alertFields[jsonPath] = {'alertLevel': alert['ruleLevel'], 'ruleNames': []}
+        else:
+            alertField = alertFields[jsonPath]
+            ruleLevel = alert['ruleLevel']
+            if getLevelNo(alertField['alertLevel']) < getLevelNo(ruleLevel):
+                alertField['alertLevel'] = ruleLevel
+            alertField['ruleNames'].append(alert['ruleName'])
+
+    alertFieldsArray = alertFields.keys()
     alertSummarized = {}
     alertSummarized['totalCount'] = totalCount
     alertSummarized['status'] = gLevel
-    return {"alertOutline": alertOutline, 'alertSummarized': alertSummarized}
+
+    return {"alertOutline": alertOutline,
+            'alertSummarized': alertSummarized,
+            'alertFields': alertFieldsArray}
 
 
 def getMetricsDef(db, objCat, objType):
@@ -261,6 +277,7 @@ def inspectData(nodeInfo):
             alertSum = getAlertSummarized(inspectResult['alerts'])
             alertSummarized = alertSum['alertSummarized']
             inspectResult['alertOutline'] = alertSum['alertOutline']
+            inspectResult['alertFields'] = alertSum['alertFields']
             inspectResult['totalCount'] = alertSummarized['totalCount']
             inspectResult['status'] = alertSummarized['status']
             rptData['_inspect_result'] = inspectResult
