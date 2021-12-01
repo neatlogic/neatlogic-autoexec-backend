@@ -55,7 +55,7 @@ def getAlertSummarized(alerts):
                 alertField['alertLevel'] = ruleLevel
             alertField['ruleNames'].append(alert['ruleName'])
 
-    alertFieldsArray = alertFields.keys()
+    alertFieldsArray = list(alertFields.keys())
     alertSummarized = {}
     alertSummarized['totalCount'] = totalCount
     alertSummarized['status'] = gLevel
