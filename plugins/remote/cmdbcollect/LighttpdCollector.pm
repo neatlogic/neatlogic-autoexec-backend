@@ -34,7 +34,7 @@ sub collect {
     }
 
     my $procInfo         = $self->{procInfo};
-    my $envMap           = $procInfo->{ENVRIONMENT};
+    my $envMap           = $procInfo->{ENVIRONMENT};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};

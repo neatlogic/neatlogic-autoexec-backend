@@ -395,7 +395,7 @@ sub collect {
         return;
     }
 
-    my $envMap = $procInfo->{ENVRIONMENT};
+    my $envMap = $procInfo->{ENVIRONMENT};
     $appInfo->{DB2_HOME}     = $envMap->{DB2_HOME};
     $appInfo->{INSTALL_PATH} = $envMap->{DB2_HOME};
     $appInfo->{DB2LIB}       = $envMap->{DB2LIB};

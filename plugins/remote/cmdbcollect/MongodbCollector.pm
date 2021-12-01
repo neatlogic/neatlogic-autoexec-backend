@@ -105,7 +105,7 @@ sub collect {
     $version =~ s/,//g;
     $version =~ s/"//g;
     $mongodbInfo->{VERSION}      = $version;
-    $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVRIONMENT'}->{'LANG'};
+    $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVIRONMENT'}->{'LANG'};
 
     my $host    = '127.0.0.1';
     my $mongodb = MongoDBExec->new(

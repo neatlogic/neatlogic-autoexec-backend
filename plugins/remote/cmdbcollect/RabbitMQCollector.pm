@@ -33,7 +33,7 @@ sub collect {
     }
 
     my $procInfo  = $self->{procInfo};
-    my $envMap    = $procInfo->{ENVRIONMENT};
+    my $envMap    = $procInfo->{ENVIRONMENT};
     my $listenMap = $procInfo->{CONN_INFO}->{LISTEN};
 
     my $matchedProcsInfo = $self->{matchedProcsInfo};

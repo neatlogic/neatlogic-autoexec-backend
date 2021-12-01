@@ -292,7 +292,7 @@
             "%CPU": "1.5",
             "HOST_NAME": "centos7base",
             "_OBJ_TYPE": "Tomcat",
-            "ENVRIONMENT": {
+            "ENVIRONMENT": {
                 "SSH_CLIENT": "192.168.0.123 49422 22",
                 "VAR_TEST": "abcefdfdf",
                 "LC_ALL": "",

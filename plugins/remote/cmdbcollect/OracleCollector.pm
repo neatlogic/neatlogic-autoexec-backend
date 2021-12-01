@@ -22,7 +22,7 @@ use SqlplusExec;
 sub getPK {
     my ($self) = @_;
     return {
-        'Oracle'     => [ 'OS_ID', 'MGMT_IP', 'PORT' ],
+        'Oracle'     => ['MGMT_IP', 'PORT' ],
         'Oracle-RAC' => ['UNIQUE_NAME']
     };
 }
@@ -946,7 +946,7 @@ sub collect {
     my $insInfo = {};
     $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
 
-    my $envMap = $procInfo->{ENVRIONMENT};
+    my $envMap = $procInfo->{ENVIRONMENT};
 
     my $oraUser = $procInfo->{USER};
     my $command = $procInfo->{COMMAND};

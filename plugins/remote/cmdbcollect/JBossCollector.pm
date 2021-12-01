@@ -35,7 +35,7 @@ sub collect {
 
     my $procInfo = $self->{procInfo};
     my $cmdLine  = $procInfo->{COMMAND};
-    my $envMap   = $procInfo->{ENVRIONMENT};
+    my $envMap   = $procInfo->{ENVIRONMENT};
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');

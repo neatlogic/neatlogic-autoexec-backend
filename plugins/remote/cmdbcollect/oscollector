@@ -295,7 +295,7 @@ sub main {
             $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
             $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
 
-            my $envMap      = $procInfo->{ENVRIONMENT};
+            my $envMap      = $procInfo->{ENVIRONMENT};
             my $insNamePath = $envMap->{TS_INSNAME};
             if ( defined($insNamePath) and $insNamePath ne '' ) {
                 my @insPaths = split( '/', $insNamePath );

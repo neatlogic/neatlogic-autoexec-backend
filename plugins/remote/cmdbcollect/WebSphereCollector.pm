@@ -200,7 +200,7 @@ sub collect {
     $appInfo->{WAS_CELL}    = $cellName;
     $appInfo->{WAS_NODE}    = $nodeName;
 
-    my $envMap = $procInfo->{ENVRIONMENT};
+    my $envMap = $procInfo->{ENVIRONMENT};
     $appInfo->{OSGI_INSTALL}                  = $envMap->{OSGI_INSTALL};
     $appInfo->{CLIENT_CONNECTOR_INSTALL_ROOT} = $envMap->{CLIENT_CONNECTOR_INSTALL_ROOT};
     $appInfo->{USER_INSTALL_ROOT}             = $envMap->{USER_INSTALL_ROOT};

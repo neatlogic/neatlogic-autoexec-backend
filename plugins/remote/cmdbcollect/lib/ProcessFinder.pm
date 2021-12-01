@@ -245,7 +245,7 @@ sub findProcess {
                         if ( not defined($envMap) ) {
                             $envMap = $self->getProcEnv($myPid);
                         }
-                        $matchedMap->{ENVRIONMENT} = $envMap;
+                        $matchedMap->{ENVIRONMENT} = $envMap;
 
                         my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo} );
                         if ( $matched == 1 ) {

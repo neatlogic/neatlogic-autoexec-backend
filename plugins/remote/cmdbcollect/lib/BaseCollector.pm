@@ -305,7 +305,7 @@ sub getJavaAttrs {
 #                            'HOST_NAME' => 'centos7base',
 #                            'MANAGE_IP' => '',
 #                            '_OBJ_TYPE' => 'Apache',
-#                            'ENVRIONMENT' => {
+#                            'ENVIRONMENT' => {
 #                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
 #                                               'LANG' => 'C',
 #                                               'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'

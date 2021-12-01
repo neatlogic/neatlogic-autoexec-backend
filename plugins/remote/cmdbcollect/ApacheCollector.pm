@@ -213,7 +213,7 @@ sub collect {
         if ( $procInfo->{COMMAND} =~ /^(.*?)\/httpd\s/ ) {
             $binPath = $1;
             if ( $binPath eq './' or $binPath eq '' ) {
-                $binPath = $procInfo->{ENVRIONMENT}->{PWD};
+                $binPath = $procInfo->{ENVIRONMENT}->{PWD};
             }
             $instPath = dirname($binPath);
             $confPath = "$instPath/conf";

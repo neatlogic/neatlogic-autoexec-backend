@@ -170,7 +170,7 @@ sub collect {
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
-    my $envMap     = $procInfo->{ENVRIONMENT};
+    my $envMap     = $procInfo->{ENVIRONMENT};
     my $domainHome = $envMap->{DOMAIN_HOME};
     my $confFile   = "$domainHome/config/config.xml";
     if ( not -f $confFile ) {
