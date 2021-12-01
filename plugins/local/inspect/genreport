@@ -47,7 +47,9 @@ def getAlertSummarized(alerts):
         jsonPath = alert['jsonPath']
         alertField = None
         if jsonPath not in alertFields:
-            alertField = {'alertLevel': alert['ruleLevel'], 'ruleNames': [alert['ruleName']]}
+            alertField = {'alertLevel': alert['ruleLevel'],
+                          'alertField': jsonPath,
+                          'ruleNames': [alert['ruleName']]}
             alertFields[jsonPath] = alertField
         else:
             alertField = alertFields[jsonPath]
