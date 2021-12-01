@@ -357,11 +357,12 @@ sub main {
         my $parentTopInfo;
         while ( defined($parentInfo) ) {
             $parentTopInfo             = $parentInfo;
-            $currentInfo               = $parentInfo;
-            $parentInfo                = $appsMap->{ $parentInfo->{PROC_INFO}->{PPID} };
             $parentInfo->{CPU_PERCENT} = $parentInfo->{CPU_PERCENT} + $currentInfo->{CPU_PERCENT};
             $parentInfo->{MEM_PERCENT} = $parentInfo->{MEM_PERCENT} + $currentInfo->{MEM_PERCENT};
             $parentInfo->{MEM_USED}    = $parentInfo->{MEM_USED} + $currentInfo->{MEM_USED};
+
+            $currentInfo               = $parentInfo;
+            $parentInfo                = $appsMap->{ $currentInfo->{PROC_INFO}->{PPID} };
         }
 
         if ( defined($parentTopInfo) ) {
