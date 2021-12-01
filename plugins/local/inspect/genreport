@@ -47,7 +47,8 @@ def getAlertSummarized(alerts):
         jsonPath = alert['jsonPath']
         alertField = None
         if jsonPath not in alertFields:
-            alertFields[jsonPath] = {'alertLevel': alert['ruleLevel'], 'ruleNames': []}
+            alertField = {'alertLevel': alert['ruleLevel'], 'ruleNames': [alert['ruleName']]}
+            alertFields[jsonPath] = alertField
         else:
             alertField = alertFields[jsonPath]
             ruleLevel = alert['ruleLevel']
@@ -55,7 +56,7 @@ def getAlertSummarized(alerts):
                 alertField['alertLevel'] = ruleLevel
             alertField['ruleNames'].append(alert['ruleName'])
 
-    alertFieldsArray = list(alertFields.keys())
+    alertFieldsArray = list(alertFields.values())
     alertSummarized = {}
     alertSummarized['totalCount'] = totalCount
     alertSummarized['status'] = gLevel
