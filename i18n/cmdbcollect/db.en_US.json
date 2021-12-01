@@ -79,7 +79,7 @@
             "type": "String"
         },
         {
-            "name": "DBTABASES",
+            "name": "DATABASES",
             "desc": "Databases List",
             "type": "JsonArray",
             "subset": [
