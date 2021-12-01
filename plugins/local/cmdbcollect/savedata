@@ -155,6 +155,10 @@ if __name__ == "__main__":
                     print('WARN: Plugin {} did not return collect data.'.format(key))
                     continue
 
+            if collectData is None:
+                print('ERROR: Can not find any cmdb collect data.')
+                exit(-1)
+
             for data in collectData:
                 # 检查数据，必须包含PK、_OBJ_CATEGORY
                 isMalformData = 0
@@ -220,7 +224,7 @@ if __name__ == "__main__":
                     print('ERROR: Save data for {}({}) failed, {}'.format(typeName, pkJson, ex))
                     traceback.print_exc()
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(ex))
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
     finally:
         if dbclient is not None:
