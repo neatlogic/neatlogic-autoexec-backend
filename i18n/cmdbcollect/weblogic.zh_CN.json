@@ -125,6 +125,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用百分比",
+            "type": "int"
+        },
+        {
             "name": "DOMAIN_HOME",
             "desc": "Domain Home目录",
             "type": "String"
@@ -177,6 +182,16 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "最大Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "内存使用百分比",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存大小(M)",
             "type": "int"
         },
         {

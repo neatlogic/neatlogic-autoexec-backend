@@ -98,6 +98,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "int"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
@@ -106,6 +111,16 @@
             "name": "INSTALL_PATH",
             "desc": "Install Path",
             "type": "String"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
+            "type": "int"
         },
         {
             "name": "OS_ID",

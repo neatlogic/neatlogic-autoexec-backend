@@ -289,11 +289,21 @@ sub main {
                 $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
             }
 
-            $appInfo->{OS_ID}     = $procInfo->{OS_ID};
-            $appInfo->{OS_USER}   = $procInfo->{USER};
-            $appInfo->{COMMAND}   = $procInfo->{COMMAND};
-            $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
-            $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+            $appInfo->{OS_ID}       = $procInfo->{OS_ID};
+            $appInfo->{OS_USER}     = $procInfo->{USER};
+            $appInfo->{COMMAND}     = $procInfo->{COMMAND};
+            $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT}   = $procInfo->{MGMT_PORT};
+            $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'};
+
+            if ( $osType eq 'Windows' ) {
+                $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;
+                $appInfo->{MEM_PERCENT} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
+            }
+            else {
+                $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
+                $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
+            }
 
             my $envMap      = $procInfo->{ENVIRONMENT};
             my $insNamePath = $envMap->{TS_INSNAME};
@@ -341,12 +351,17 @@ sub main {
         my $info     = $appsMap->{$pid};
         my $procInfo = $info->{PROC_INFO};
 
-        my $parentInfo = $appsMap->{ $procInfo->{PPID} };
+        my $currentInfo = $procInfo;
+        my $parentInfo  = $appsMap->{ $currentInfo->{PPID} };
 
         my $parentTopInfo;
         while ( defined($parentInfo) ) {
-            $parentTopInfo = $parentInfo;
-            $parentInfo    = $appsMap->{ $parentInfo->{PROC_INFO}->{PPID} };
+            $parentTopInfo             = $parentInfo;
+            $currentInfo               = $parentInfo;
+            $parentInfo                = $appsMap->{ $parentInfo->{PROC_INFO}->{PPID} };
+            $parentInfo->{CPU_PERCENT} = $parentInfo->{CPU_PERCENT} + $currentInfo->{CPU_PERCENT};
+            $parentInfo->{MEM_PERCENT} = $parentInfo->{MEM_PERCENT} + $currentInfo->{MEM_PERCENT};
+            $parentInfo->{MEM_USED}    = $parentInfo->{MEM_USED} + $currentInfo->{MEM_USED};
         }
 
         if ( defined($parentTopInfo) ) {

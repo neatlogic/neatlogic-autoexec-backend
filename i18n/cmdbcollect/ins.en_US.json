@@ -116,6 +116,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "int"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
@@ -158,6 +163,16 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
             "type": "int"
         },
         {

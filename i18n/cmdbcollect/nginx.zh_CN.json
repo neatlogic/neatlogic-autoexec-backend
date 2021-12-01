@@ -98,6 +98,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用百分比",
+            "type": "int"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "启停exe文件路径",
             "type": "String"
@@ -106,6 +111,16 @@
             "name": "INSTALL_PATH",
             "desc": "安装目录",
             "type": "String"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "内存使用百分比",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存大小(M)",
+            "type": "int"
         },
         {
             "name": "OS_ID",

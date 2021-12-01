@@ -98,6 +98,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "int"
+        },
+        {
             "name": "DATA_DIR",
             "desc": "Data Dir",
             "type": "String"
@@ -163,6 +168,16 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
+            "type": "int"
         },
         {
             "name": "MIN_HEAP_SIZE",

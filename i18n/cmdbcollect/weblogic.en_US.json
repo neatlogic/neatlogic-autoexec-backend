@@ -125,6 +125,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "int"
+        },
+        {
             "name": "DOMAIN_HOME",
             "desc": "Domain Home Dir",
             "type": "String"
@@ -177,6 +182,16 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
+            "type": "int"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
             "type": "int"
         },
         {
