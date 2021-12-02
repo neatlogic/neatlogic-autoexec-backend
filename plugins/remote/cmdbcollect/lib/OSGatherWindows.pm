@@ -378,6 +378,7 @@ sub collectHostInfo {
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
     my @nicInfos          = ();
+    my $macsMap           = {};
     my $nicInfoLines      = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get description,macaddress', 'Administrator', { charset => $self->{codepage} } );
     my $nicInfoLinesCount = scalar(@$nicInfoLines);
     for ( my $i = 1 ; $i < $nicInfoLinesCount ; $i++ ) {
@@ -389,14 +390,24 @@ sub collectHostInfo {
         my $nicName     = substr( $line, 0, length($line) - 17 );
         if ( length($nicMac) == 17 and $nicName ne '' ) {
             $nicName =~ s/^\s*|\s*$//g;
-            my $nicInfo = {};
-            $nicInfo->{NAME}   = $nicName;
-            $nicInfo->{MAC}    = $nicMac;
-            $nicInfo->{STATUS} = 'up';
-            push( @nicInfos, $nicInfo );
+            if ( not defined( $macsMap->{$nicName} ) ) {
+                $macsMap->{$nicName} = 1;
+                my $nicInfo = {};
+                $nicInfo->{NAME}   = $nicName;
+                $nicInfo->{MAC}    = $nicMac;
+                $nicInfo->{STATUS} = 'up';
+                push( @nicInfos, $nicInfo );
+            }
         }
     }
+    @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
+
+    if ( not defined($machineId) and scalar(@nicInfos) > 0 ) {
+        my $firstMac = $nicInfos[0]->{MAC};
+        $hostInfo->{BOARD_SERIAL} = $firstMac;
+        $hostInfo->{MACHINE_ID}   = $firstMac;
+    }
 
     return $hostInfo;
 }

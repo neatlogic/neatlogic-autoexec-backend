@@ -189,7 +189,7 @@ sub getJavaAttrs {
     my $jvmVersion;
     my $javaPath = $procInfo->{EXECUTABLE_FILE};
     if ( not defined($javaPath) or not -e $javaPath ) {
-        if ( $cmdLine =~ /^"?(.*?\bjava)"?\s/ or $cmdLine =~ /^"?(.*?\bjava.exe)"?\s/) {
+        if ( $cmdLine =~ /^"?(.*?\bjava)"?\s/ or $cmdLine =~ /^"?(.*?\bjava.exe)"?\s/ ) {
             $javaPath = $1;
             if ( $javaPath =~ /^\.{1,2}[\/\\]/ ) {
                 $javaPath = "$workPath/$javaPath";

@@ -607,7 +607,7 @@ sub collectHostInfo {
     }
 
     my @nicInfos         = ();
-    my @macs             = ();
+    my $macsMap          = {};
     my $nicInfoLines     = $self->getCmdOutLines('ip addr');
     my $nicInfoLineCount = scalar(@$nicInfoLines);
     for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
@@ -643,23 +643,28 @@ sub collectHostInfo {
             if ( defined($speed) and $speed ne '' ) {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
-                push( @macs, $macAddr );
-                ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
-                $nicInfo->{STATUS} = 'down';
-                if ( $linkState eq 'yes' ) {
-                    $nicInfo->{STATUS} = 'up';
+
+                if ( not defined( $macsMap->{$macAddr} ) ) {
+                    $macsMap->{$macAddr} = 1;
+                    ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
+                    $nicInfo->{STATUS} = 'down';
+                    if ( $linkState eq 'yes' ) {
+                        $nicInfo->{STATUS} = 'up';
+                    }
+
+                    push( @nicInfos, $nicInfo );
                 }
-                push( @nicInfos, $nicInfo );
             }
 
             $i = $i - 1;
         }
     }
+    @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
-    if ( not defined($sn) and scalar(@macs) > 0 ) {
-        my @sortedMacs = sort { $a cmp $b } @macs;
-        $hostInfo->{BOARD_SERIAL} = $sortedMacs[0];
+    if ( not defined($sn) and scalar(@nicInfos) > 0 ) {
+        my $firstMac = $nicInfos[0]->{MAC};
+        $hostInfo->{BOARD_SERIAL} = $firstMac;
     }
 
     my @hbaInfos = ();
@@ -722,10 +727,13 @@ sub collectHostInfo {
 }
 
 sub collect {
-    my ($self) = @_;
-    my $osInfo = $self->collectOsInfo();
-
+    my ($self)   = @_;
+    my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo();
+
+    if ( not defined( $osInfo->{MACHINE_ID} ) ) {
+        $osInfo->{MACHINE_ID} = $hostInfo->{BOARD_SERIAL};
+    }
 
     $osInfo->{CPU_ARCH}        = $hostInfo->{CPU_ARCH};
     $osInfo->{CPU_COUNT}       = $hostInfo->{CPU_COUNT};

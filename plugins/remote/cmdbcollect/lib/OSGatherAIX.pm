@@ -180,7 +180,7 @@ sub collectOsInfo {
     my $memInfoLines = $self->getCmdOutLines('svmon -G -O pgsz=off,unit=MB');
     foreach my $line (@$memInfoLines) {
         if ( $line =~ /^memory\s/ ) {
-            my @infoSegs = split(/\s+/, $line);
+            my @infoSegs = split( /\s+/, $line );
             $osInfo->{MEM_TOTAL}     = 0.0 + $infoSegs[1];
             $osInfo->{MEM_INUSE}     = 0.0 + $infoSegs[2];
             $osInfo->{MEM_FREE}      = 0.0 + $infoSegs[3];
@@ -483,6 +483,7 @@ sub collectHostInfo {
         }
     }
     my @nicInfos = values(%$nicInfosMap);
+    @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
     #TODO: 需要确认HBA卡信息采集的正确性
@@ -601,16 +602,23 @@ sub collectHostInfo {
 }
 
 sub collect {
-    my ($self) = @_;
-    my $osInfo = $self->collectOsInfo();
-
+    my ($self)   = @_;
+    my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo();
 
-    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    my $nicInfos = $hostInfo->{ETH_INTERFACES};
+    my $sn       = $osInfo->{BOARD_SERIAL};
+    $hostInfo->{BOARD_SERIAL} = $sn;
+    if ( not defined($sn) and scalar(@$nicInfos) > 0 ) {
+        my $firstMac = $$nicInfos[0]->{MAC};
+        $hostInfo->{BOARD_SERIAL} = $firstMac;
+        $osInfo->{BOARD_SERIAL}   = $firstMac;
+    }
+
+    $osInfo->{ETH_INTERFACES} = $nicInfos;
     $osInfo->{IS_VIRTUAL}     = $hostInfo->{IS_VIRTUAL};
 
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
-    $hostInfo->{BOARD_SERIAL}         = $osInfo->{BOARD_SERIAL};
     $hostInfo->{CPU_MODEL_NAME}       = $osInfo->{CPU_MODEL_NAME};
     $hostInfo->{CPU_CORES}            = $osInfo->{CPU_CORES};
     $hostInfo->{CPU_BITS}             = $osInfo->{CPU_BITS};

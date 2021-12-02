@@ -447,7 +447,7 @@ class RunNode:
 
             except:
                 isFail = 1
-                self.writeNodeLog("ERROR: ------Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
+                self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
                 break
 
         #nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')

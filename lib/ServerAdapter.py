@@ -339,7 +339,6 @@ class ServerAdapter:
         fileName = None
         response = None
         try:
-            cachedFileTmp = open(cachedFilePathTmp, 'ab+')
             response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -350,6 +349,7 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
+                cachedFileTmp = open(cachedFilePathTmp, 'ab+')
                 fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
                 cachedFileTmp.truncate(0)
                 CHUNK = 16 * 1024
@@ -361,7 +361,7 @@ class ServerAdapter:
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
-                os.rename(cachedFilePathTmp, cachedFilePath)
+                os.link(cachedFilePathTmp, cachedFilePath)
 
             return fileName
         except:
