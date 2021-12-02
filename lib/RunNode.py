@@ -471,8 +471,8 @@ class RunNode:
                 finalStatus = NodeStatus.aborted
                 hintKey = 'ERROR:'
             elif hasIgnoreFail == 1:
-                finalStatus = NodeStatus.ingore
                 self.hasIgnoreFail = 1
+                finalStatus = NodeStatus.ingore
                 hintKey = 'WARN:'
             else:
                 finalStatus = NodeStatus.failed

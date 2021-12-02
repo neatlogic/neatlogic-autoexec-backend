@@ -54,8 +54,12 @@ class PhaseWorker(threading.Thread):
                     ret = 3
 
                 if ret != 0:
-                    phaseStatus.incFailNodeCount()
-                    print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
+                    if node.hasIgnoreFail == 1:
+                        phaseStatus.incIgnoreFailNodeCount()
+                        print("INFO: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
+                    else:
+                        phaseStatus.incFailNodeCount()
+                        print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
                 else:
                     if node.hasIgnoreFail == 1:
                         phaseStatus.incIgnoreFailNodeCount()
@@ -124,7 +128,7 @@ class PhaseExecutor:
                 self.parallelCount = 1
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
-            execQueue = queue.Queue(self.parallelCount*2)
+            execQueue = queue.Queue(self.parallelCount)
             self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
