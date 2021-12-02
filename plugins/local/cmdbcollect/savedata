@@ -141,6 +141,7 @@ if __name__ == "__main__":
         except:
             pass
 
+    execUser = os.getenv['_execuser']
     try:
         outputData = AutoExecUtils.loadNodeOutput()
         if outputData is None:
@@ -210,7 +211,7 @@ if __name__ == "__main__":
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['STATE'] = 'InUse'
-                    data['_execuser'] = os.getenv('AUTOEXEC_USER')
+                    data['_execuser'] = execUser
                     data['_renewtime'] = currentTime
 
                     if '_OBJ_CATEGORY' in data:

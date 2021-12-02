@@ -184,7 +184,7 @@ def getInspectData(nodeInfo):
 def inspectData(nodeInfo):
     rptDataRecords = []
     currentTime = datetime.datetime.utcnow()
-
+    execUser = os.getenv['_execuser']
     inspectDefMap = {}
     objCatRulesMap = {}
     objCatFieldsMap = {}
@@ -241,7 +241,7 @@ def inspectData(nodeInfo):
 
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        'MGMT_IP': nodeInfo['host'],
-                       '_execuser': dataCollected['_execuser']
+                       '_execuser': execUser
                        }
 
             inspectResult = {}
