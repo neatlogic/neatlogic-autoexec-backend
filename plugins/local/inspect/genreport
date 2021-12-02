@@ -241,7 +241,9 @@ def inspectData(nodeInfo):
 
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        'MGMT_IP': nodeInfo['host'],
+                       '_execuser': dataCollected['_execuser']
                        }
+
             inspectResult = {}
             inspectResult['name'] = inspectDef['name']
 
