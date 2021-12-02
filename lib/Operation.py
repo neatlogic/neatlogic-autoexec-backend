@@ -309,7 +309,7 @@ class Operation:
         if noPassword and argDesc == 'password':
             for argValue in self.arguments:
                 cmd = cmd + ' "******"'
-        elif argDesc in ('node', 'json', 'file'):
+        elif argDesc in ('node', 'json', 'file', 'multiselect'):
             for argValue in self.arguments:
                 jsonStr = jsonStr.dumps(argValue)
                 if (osType == 'windows'):
@@ -348,7 +348,7 @@ class Operation:
             if noPassword and (kDesc == 'password' or k.endswith('account')):
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                if kDesc in ('node', 'json', 'file'):
+                if kDesc in ('node', 'json', 'file', 'multiselect'):
                     jsonStr = json.dumps(v)
                     if osType == 'windows':
                         jsonStr = jsonStr.replace('\\', '\\\\')
