@@ -184,7 +184,7 @@ def getInspectData(nodeInfo):
 def inspectData(nodeInfo):
     rptDataRecords = []
     currentTime = datetime.datetime.utcnow()
-    execUser = os.getenv['_execuser']
+    execUser = os.getenv('AUTOEXEC_USER')
     inspectDefMap = {}
     objCatRulesMap = {}
     objCatFieldsMap = {}

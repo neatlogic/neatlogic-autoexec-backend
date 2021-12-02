@@ -141,7 +141,7 @@ if __name__ == "__main__":
         except:
             pass
 
-    execUser = os.getenv['_execuser']
+    execUser = os.getenv('AUTOEXEC_USER')
     try:
         outputData = AutoExecUtils.loadNodeOutput()
         if outputData is None:
