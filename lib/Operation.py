@@ -225,17 +225,22 @@ class Operation:
 
                 linkPath = self.runPath + '/file/' + fileName
 
-                if os.path.exists(linkPath):
-                    if not os.path.samefile(linkPath, cacheFilePath):
-                        os.unlink(linkPath)
+                cacheFile = None
+                try:
+                    cacheFile = open(cacheFilePath, 'r')
+                    fcntl.flock(cacheFile, fcntl.LOCK_EX)
+                    if os.path.exists(linkPath):
+                        if not os.path.samefile(linkPath, cacheFilePath):
+                            os.unlink(linkPath)
+                            os.link(cacheFilePath, linkPath)
+                    else:
                         os.link(cacheFilePath, linkPath)
-                else:
-                    os.link(cacheFilePath, linkPath)
+                finally:
+                    if cacheFile is not None:
+                        fcntl.flock(cacheFile, fcntl.LOCK_UN)
+                        cacheFile.close()
 
                 fileNamesArray.append(fileName)
-                #cacheFile = open(cacheFilePath, 'r')
-                #fcntl.flock(cacheFile, fcntl.LOCK_SH)
-                # self.lockedFDs.append(cacheFile)
 
         return fileNamesArray
 
