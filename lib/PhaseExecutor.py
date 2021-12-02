@@ -43,10 +43,11 @@ class PhaseWorker(threading.Thread):
                 for op in self.operations:
                     localOps.append(copy.copy(op))
 
+                hasException = False
                 try:
                     ret = node.execute(localOps)
                 except Exception as ex:
-                    node.updateNodeStatus(NodeStatus.failed)
+                    hasException = True
                     node.writeNodeLog("ERROR: Unknow error occurred.\n")
                     node.writeNodeLog(str(ex))
                     node.writeNodeLog(traceback.format_exc())
@@ -60,6 +61,9 @@ class PhaseWorker(threading.Thread):
                     else:
                         phaseStatus.incFailNodeCount()
                         print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
+
+                        if hasException:
+                            node.updateNodeStatus(NodeStatus.failed)
                 else:
                     if node.hasIgnoreFail == 1:
                         phaseStatus.incIgnoreFailNodeCount()

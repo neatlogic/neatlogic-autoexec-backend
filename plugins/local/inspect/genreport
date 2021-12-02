@@ -130,15 +130,16 @@ def getInspectData(nodeInfo):
     if outputData is None:
         print("WARN: Node output data is empty.")
     else:
+        collectData = []
         for key, value in outputData.items():
             if key.startswith("inspect/"):
                 # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
-                collectData = value['DATA']
-                if 'AVAILABILITY' in collectData:
-                    if collectData['AVAILABILITY'] == 0:
+                inspectData = value['DATA']
+                if 'AVAILABILITY' in inspectData:
+                    if inspectData['AVAILABILITY'] == 0:
                         availability = False
-                        if 'ERROR_MESSAGE' in collectData:
-                            errorMessage = collectData['ERROR_MESSAGE']
+                        if 'ERROR_MESSAGE' in inspectData:
+                            errorMessage = inspectData['ERROR_MESSAGE']
                 continue
             elif not key.startswith("cmdbcollect/"):
                 continue
