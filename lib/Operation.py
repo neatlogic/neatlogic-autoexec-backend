@@ -186,8 +186,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #optValue = json.dumps(fileNamesJson)
-                        optValue = fileNamesJson
+                        optValue = json.dumps(fileNamesJson)
                 self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
@@ -208,8 +207,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #argValue = json.dumps(fileNamesJson)
-                        argValue = fileNamesJson
+                        argValue = json.dumps(fileNamesJson)
                 argValues.append(argValue)
             self.arguments = argValues
 
@@ -314,22 +312,25 @@ class Operation:
         elif argDesc in ('node', 'json', 'file'):
             for argValue in self.arguments:
                 if (osType == 'windows'):
-                    jsonStr = json.dumps(argValue)
-                    jsonStr.replace('\\', '\\\\')
-                    jsonStr.replace('"', '\\"')
-                    cmd = cmd + ' "{}"'.format(jsonStr)
+                    argValue = argValue.replace('\\', '\\\\')
+                    argValue = argValue.replace('"', '\\"')
+                    cmd = cmd + ' "{}"'.format(argValue)
                 else:
-                    jsonStr = json.dumps(argValue)
-                    jsonStr.replace("'", "'\\''")
-                    cmd = cmd + " '{}'".format(jsonStr)
+                    argValue = argValue.replace("'", "'\\''")
+                    cmd = cmd + " '{}'".format(argValue)
         elif argDesc == 'password':
             for argValue in self.arguments:
                 if osType == 'windows':
+                    argValue = argValue.replace('\\', '\\\\')
+                    argValue = argValue.replace('"', '\\"')
                     cmd = cmd + ' "{}"'.format(argValue)
                 else:
+                    argValue = argValue.replace("'", "'\\''")
                     cmd = cmd + " '{}'".format(argValue)
         else:
             for argValue in self.arguments:
+                argValue = argValue.replace('\\', '\\\\')
+                argValue = argValue.replace('"', '\\"')
                 cmd = cmd + ' "{}"'.format(argValue)
 
         return cmd
@@ -348,22 +349,27 @@ class Operation:
             else:
                 if kDesc in ('node', 'json', 'file'):
                     if osType == 'windows':
-                        jsonStr = json.dumps(v)
-                        jsonStr.replace('\\', '\\\\')
-                        jsonStr.replace('"', '\\"')
-                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
+                        v = v.replace('\\', '\\\\')
+                        v = v.replace('"', '\\"')
+                        cmd = cmd + " --{} '{}' ".format(k, v)
                     else:
-                        jsonStr = json.dumps(v)
-                        jsonStr.replace("'", "'\\''")
-                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
+                        v = v.replace("'", "'\\''")
+                        cmd = cmd + " --{} '{}' ".format(k, v)
                 elif kDesc == 'password' or k.endswith('account'):
                     if osType == 'windows':
+                        v = v.replace('\\', '\\\\')
+                        v = v.replace('"', '\\"')
                         cmd = cmd + ' --{} "{}" '.format(k, v)
                     else:
+                        v = v.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
+                    v = v.replace('\\', '\\\\')
+                    v = v.replace('"', '\\"')
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
+                    v = v.replace('\\', '\\\\')
+                    v = v.replace('"', '\\"')
                     cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd
 
