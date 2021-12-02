@@ -7,9 +7,9 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use Getopt::Long;
-
 use AutoExecUtils;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
 
 sub usage {
     my $pname = $FindBin::Script;

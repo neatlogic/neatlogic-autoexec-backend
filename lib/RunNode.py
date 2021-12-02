@@ -447,6 +447,8 @@ class RunNode:
 
             except:
                 isFail = 1
+                if op.failIgnore:
+                    hasIgnoreFail = 1
                 self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
                 break
 
@@ -465,11 +467,13 @@ class RunNode:
                 finalStatus = NodeStatus.succeed
                 hintKey = 'FINEST:'
         else:
-            hintKey = 'ERROR:'
-            if self.isKilled:
+            if self.isKilled or hasIgnoreFail != 1:
                 finalStatus = NodeStatus.aborted
+                hintKey = 'ERROR:'
             else:
-                finalStatus = NodeStatus.failed
+                finalStatus = NodeStatus.ingore
+                self.hasIgnoreFail = 1
+                hintKey = 'WARN:'
 
         self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
         self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
