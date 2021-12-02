@@ -186,7 +186,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        optValue = json.dumps(fileNamesJson)
+                        #optValue = json.dumps(fileNamesJson)
                 self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
@@ -207,7 +207,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        argValue = json.dumps(fileNamesJson)
+                        #argValue = json.dumps(fileNamesJson)
                 argValues.append(argValue)
             self.arguments = argValues
 
@@ -311,13 +311,14 @@ class Operation:
                 cmd = cmd + ' "******"'
         elif argDesc in ('node', 'json', 'file'):
             for argValue in self.arguments:
+                jsonStr = jsonStr.dumps(argValue)
                 if (osType == 'windows'):
-                    argValue = argValue.replace('\\', '\\\\')
-                    argValue = argValue.replace('"', '\\"')
-                    cmd = cmd + ' "{}"'.format(argValue)
+                    jsonStr = jsonStr.replace('\\', '\\\\')
+                    jsonStr = jsonStr.replace('"', '\\"')
+                    cmd = cmd + ' "{}"'.format(jsonStr)
                 else:
-                    argValue = argValue.replace("'", "'\\''")
-                    cmd = cmd + " '{}'".format(argValue)
+                    jsonStr = jsonStr.replace("'", "'\\''")
+                    cmd = cmd + " '{}'".format(jsonStr)
         elif argDesc == 'password':
             for argValue in self.arguments:
                 if osType == 'windows':
@@ -348,13 +349,14 @@ class Operation:
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
                 if kDesc in ('node', 'json', 'file'):
+                    jsonStr = json.dumps(v)
                     if osType == 'windows':
-                        v = v.replace('\\', '\\\\')
-                        v = v.replace('"', '\\"')
-                        cmd = cmd + " --{} '{}' ".format(k, v)
+                        jsonStr = jsonStr.replace('\\', '\\\\')
+                        jsonStr = jsonStr.replace('"', '\\"')
+                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                     else:
-                        v = v.replace("'", "'\\''")
-                        cmd = cmd + " --{} '{}' ".format(k, v)
+                        jsonStr = jsonStr.replace("'", "'\\''")
+                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                 elif kDesc == 'password' or k.endswith('account'):
                     if osType == 'windows':
                         v = v.replace('\\', '\\\\')
