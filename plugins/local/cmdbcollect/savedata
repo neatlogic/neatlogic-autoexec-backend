@@ -147,6 +147,7 @@ if __name__ == "__main__":
         if outputData is None:
             print("WARN: Node output data is empty.")
         else:
+            collectData = None
             for key, value in outputData.items():
                 if not key.startswith("cmdbcollect/"):
                     continue

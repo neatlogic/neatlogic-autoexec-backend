@@ -467,13 +467,16 @@ class RunNode:
                 finalStatus = NodeStatus.succeed
                 hintKey = 'FINEST:'
         else:
-            if self.isKilled or hasIgnoreFail != 1:
+            if self.isKilled:
                 finalStatus = NodeStatus.aborted
                 hintKey = 'ERROR:'
-            else:
+            elif hasIgnoreFail == 1:
                 finalStatus = NodeStatus.ingore
                 self.hasIgnoreFail = 1
                 hintKey = 'WARN:'
+            else:
+                finalStatus = NodeStatus.failed
+                hintKey = 'ERROR:'
 
         self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
         self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
