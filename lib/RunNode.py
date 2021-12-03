@@ -124,7 +124,7 @@ class RunNode:
             self.logger.log(logging.FATAL, "ERROR: Create log dir {} failed, {}\n".format(self.hisLogDir, ex))
             self.updateNodeStatus(NodeStatus.failed)
 
-        self.output = self.context.output
+        self.output = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)

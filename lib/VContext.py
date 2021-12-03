@@ -24,7 +24,7 @@ class VContext:
         self.phases = {}
         self.opt = {}
         #self.arg = []
-        self.output = {}
+        #self.output = {}
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath

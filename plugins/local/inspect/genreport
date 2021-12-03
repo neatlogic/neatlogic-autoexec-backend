@@ -166,10 +166,15 @@ def getInspectData(nodeInfo):
             # 如果数据的归属类别跟定义和节点信息一致，则抽取并返回数据记录
             if data['MGMT_IP'] == ip:
                 if port is not None:
-                    if 'PORT' not in data or data['PORT'] != port:
+                    if 'PORT' not in data:
+                        print('WARN: Data has no port.')
+                        continue
+
+                    if data['PORT'] != port:
                         print('WARN: Data not match port:{} but:.'.format(port, data['PORT']))
                         continue
 
+                print("INFO: Data matched {}:{}.".format(ip, port))
                 nodeData = data
                 nodeData['_availability'] = availability
                 nodeData['_error_message'] = errorMessage

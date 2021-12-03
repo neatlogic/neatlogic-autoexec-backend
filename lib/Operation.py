@@ -265,7 +265,7 @@ class Operation:
             return optValue
 
         if not refMap:
-            refMap = self.context.output
+            refMap = self.node.output
 
         # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
         matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', optValue)
