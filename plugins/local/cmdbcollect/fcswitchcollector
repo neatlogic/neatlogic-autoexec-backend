@@ -69,8 +69,9 @@ sub main {
         exit(1);
     }
     my $data = $instance->collect();
-    $data->{_OBJ_CATEGORY} = CollectObjCat->get('FCSWITCH');
-    $data->{_OBJ_TYPE}     = $type;
+    $data->{_OBJ_CATEGORY} = CollectObjCat->get('FCDEV');
+    $data->{_OBJ_TYPE}     = 'FCSwitch';
+    $data->{_APP_TYPE}     = $type;
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $node->{resourceId};

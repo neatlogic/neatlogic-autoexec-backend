@@ -1,11 +1,17 @@
 {
     "label": "防火墙",
-    "collection": "COLLECT_FIREWALL",
-    "filter": {},
-    "fields": [
-        {
+    "collection": "COLLECT_SECDEV",
+    "filter": {
+        "_OBJ_TYPE": "Firewall"
+    },
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
             "type": "String"
         },
         {

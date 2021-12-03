@@ -159,9 +159,8 @@ sub collect {
     elsif ( $model =~ /^Huawei/i ) {
         $vendor = 'Huawei';
     }
-    $devInfo->{_OBJ_CATEGORY} = 'FCSWITCH';
-    $devInfo->{_OBJ_TYPE}     = $vendor;
-    $devInfo->{VENDOR}        = $vendor;
+    $devInfo->{VENDOR} = $vendor;
+    $devInfo->{BRAND}  = $vendor;
 
     my $tblData = $self->_getTblData();
     while ( my ( $key, $data ) = each(%$tblData) ) {

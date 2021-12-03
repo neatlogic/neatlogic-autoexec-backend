@@ -69,7 +69,8 @@ sub main {
     }
     my $data = $instance->collect();
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
-    $data->{_OBJ_TYPE}     = $type;
+    $data->{_OBJ_TYPE}     = 'Storage';
+    $data->{_APP_TYPE}     = $type;
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};

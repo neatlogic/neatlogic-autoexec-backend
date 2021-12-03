@@ -11,11 +11,14 @@ our $TYPES = {
     OS           => 'OS',              #操作系统
     HOST         => 'HOST',            #主机（硬件）
     VIRTUALIZED  => 'VIRTUALIZED',     #虚拟化管理服务
-    SWITCH       => 'SWITCH',          #交换机
-    FIREWALL     => 'FIREWALL',        #防火墙
+    SWITCH       => 'NETDEV',          #网络设备
+    NETDEV       => 'NETDEV',          #网络设备
+    FIREWALL     => 'SECDEV',          #安全设备
+    SECDEV       => 'SECDEV',          #安全设备
     LOADBALANCER => 'LOADBALANCER',    #负载均衡设备
     STORAGE      => 'STORAGE',         #存储
-    FCSWITCH     => 'FCSWITCH',        #SAN光交
+    FCSWITCH     => 'FCDEV',           #SAN光交
+    FCDEV        => 'FCDEV',           #存储网络设备
     CLUSTER      => 'CLUSTER',         #集群
 };
 

@@ -341,161 +341,175 @@ class RunNode:
     def getNodeLogHandle(self):
         return self.logHandle
 
+    def execOneOperation(self, op):
+        ret = 0
+        try:
+            # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
+            opStatus = self.getNodeStatus(op)
+            op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port)
+
+            if not self.context.isForce and opStatus == NodeStatus.succeed:
+                self._loadOpOutput(op)
+                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                return
+
+            startTime = time.time()
+            self.writeNodeLog("------START-- {} operation {}[{}] to be start...\n".format(op.opType, op.opName, op.opId))
+
+            if op.opBunddleName == 'setenv':
+                if op.opSubName == 'export':
+                    for envName in op.arguments:
+                        self.context.exportEnv(envName)
+                else:
+                    envName = op.options['name']
+                    envValue = op.options['value']
+                    self.context.setEnv(envName, envValue)
+                return
+
+            elif not os.path.exists(op.pluginPath):
+                ret = 1
+                self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
+
+            if ret == 0:
+                if self.host == 'local':
+                    if op.opType == 'local':
+                        # 本地执行
+                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                        ret = self._localExecute(op)
+                    else:
+                        return
+
+                elif self.password == '':
+                    ret = 1
+                    self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                else:
+                    if op.opType == 'localremote':
+                        # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
+                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                        ret = self._localRemoteExecute(op)
+                    elif op.opType == 'remote':
+                        # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                        ret = self._remoteExecute(op)
+                    else:
+                        ret = 1
+                        self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
+
+            timeConsume = time.time() - startTime
+            if ret != 0:
+                self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
+            else:
+                self._loadOpOutput(op)
+                self._saveOutput()
+                self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
+        except:
+            ret = 3
+            self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
+
+        hintKey = 'FINEST:'
+        opFinalStatus = NodeStatus.succeed
+        if ret != 0:
+            if op.failIgnore:
+                hasIgnoreFail = 1
+                opFinalStatus = NodeStatus.ignored
+                hintKey = 'WARN:'
+            else:
+                hasIgnoreFail = 0
+                opFinalStatus = NodeStatus.failed
+                hintKey = 'ERROR:'
+
+        self.writeNodeLog("{} ------END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(hintKey, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
+
+        return opFinalStatus
+
     def execute(self, ops):
         if self.context.goToStop:
             return 2
 
+        finalStatus = None
         hasIgnoreFail = 0
         isFail = 0
 
-        nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
-        nodeStartTime = time.time()
+        try:
+            nodeBeginDateTimeFN = time.strftime('%Y%m%d-%H%M%S')
+            nodeStartTime = time.time()
 
-        # 第一次写入日志才会触发日志初始化，日志初始化后才能进行历史日志的生成
-        self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
+            # 第一次写入日志才会触发日志初始化，日志初始化后才能进行历史日志的生成
+            self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
 
-        # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
-        logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
-        if not os.path.exists(logPathWithTime):
-            os.link(self.logPath, logPathWithTime)
-        self.logPathWithTime = logPathWithTime
+            # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
+            logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
+            if not os.path.exists(logPathWithTime):
+                os.link(self.logPath, logPathWithTime)
+            self.logPathWithTime = logPathWithTime
 
-        self.updateNodeStatus(NodeStatus.running)
+            self.updateNodeStatus(NodeStatus.running)
 
-        for op in ops:
-            if self.context.goToStop:
-                self.updateNodeStatus(NodeStatus.paused)
-                self.writeNodeLog("INFO: Node running paused.\n")
-                break
-
-            op.setNode(self)
-            ret = 0
-            try:
-                # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
-                opStatus = self.getNodeStatus(op)
-                op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port)
-
-                if not self.context.isForce and opStatus == NodeStatus.succeed:
-                    self._loadOpOutput(op)
-                    self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                    continue
-
-                startTime = time.time()
-                self.writeNodeLog("------START-- {} operation {}[{}] to be start...\n".format(op.opType, op.opName, op.opId))
-
-                if op.opBunddleName == 'setenv':
-                    if op.opSubName == 'export':
-                        for envName in op.arguments:
-                            self.context.exportEnv(envName)
-                    else:
-                        envName = op.options['name']
-                        envValue = op.options['value']
-                        self.context.setEnv(envName, envValue)
-                    continue
-                elif not os.path.exists(op.pluginPath):
-                    ret = 1
-                    self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
-
-                if ret == 0:
-                    if self.host == 'local':
-                        if op.opType == 'local':
-                            # 本地执行
-                            # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                            ret = self._localExecute(op)
-                        else:
-                            continue
-                    elif self.password == '':
-                        ret = 1
-                        self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
-                    else:
-                        if op.opType == 'localremote':
-                            # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
-                            # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                            ret = self._localRemoteExecute(op)
-                        elif op.opType == 'remote':
-                            # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
-                            ret = self._remoteExecute(op)
-                        else:
-                            ret = 1
-                            self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
-
-                timeConsume = time.time() - startTime
-                if ret != 0:
-                    self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
-                    pass
-                else:
-                    self._loadOpOutput(op)
-                    self._saveOutput()
-                    self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
-
-                hintKey = 'FINEST:'
-                opFinalStatus = 'success'
-                if ret != 0:
-                    if op.failIgnore:
-                        opFinalStatus = 'ignore'
-                        hintKey = 'WARN:'
-                        hasIgnoreFail = 1
-                    else:
-                        opFinalStatus = 'failed'
-                        hintKey = 'ERROR:'
-                        isFail = 1
-
-                self.writeNodeLog("{} ------END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(hintKey, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
-
-                if isFail == 1:
+            for op in ops:
+                if self.context.goToStop:
+                    self.updateNodeStatus(NodeStatus.paused)
+                    self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
-            except:
-                isFail = 1
-                if op.failIgnore:
+                op.setNode(self)
+                # execute on operation
+                opStatus = self.execOneOperation(op)
+
+                if opStatus == NodeStatus.failed:
+                    isFail = 1
+                    hasIgnoreFail = 0
+                    break
+                elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
-                self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
-                break
 
-        #nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
-        nodeConsumeTime = time.time() - nodeStartTime
+            #nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+            nodeConsumeTime = time.time() - nodeStartTime
 
-        hintKey = 'FINEST:'
-        finalStatus = NodeStatus.succeed
-        if isFail == 0:
-            if hasIgnoreFail == 1:
-                # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
-                self.hasIgnoreFail = 1
-                finalStatus = NodeStatus.ingore
-                hintKey = 'WARN:'
+            hintKey = 'FINEST:'
+            if isFail == 0:
+                if hasIgnoreFail == 1:
+                    # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
+                    self.hasIgnoreFail = 1
+                    finalStatus = NodeStatus.ignored
+                    hintKey = 'WARN:'
+                else:
+                    finalStatus = NodeStatus.succeed
+                    hintKey = 'FINEST:'
             else:
-                finalStatus = NodeStatus.succeed
-                hintKey = 'FINEST:'
-        else:
-            if self.isKilled:
-                finalStatus = NodeStatus.aborted
-                hintKey = 'ERROR:'
-            elif hasIgnoreFail == 1:
-                self.hasIgnoreFail = 1
-                finalStatus = NodeStatus.ingore
-                hintKey = 'WARN:'
-            else:
-                finalStatus = NodeStatus.failed
-                hintKey = 'ERROR:'
+                if self.isKilled:
+                    finalStatus = NodeStatus.aborted
+                    hintKey = 'ERROR:'
+                else:
+                    finalStatus = NodeStatus.failed
+                    hintKey = 'ERROR:'
 
-        self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
-        self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
+            self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
+            self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
 
-        # 创建带时间戳的日志文件名
-        finalLogPathWithTime = logPathWithTime
-        finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(finalStatus))
-        if finalLogPathWithTime != logPathWithTime:
-            try:
+            # 创建带时间戳的日志文件名
+            finalLogPathWithTime = logPathWithTime
+            finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(finalStatus))
+            if finalLogPathWithTime != logPathWithTime:
                 if self.logHandle is not None:
                     self.logHandle.close()
                     self.logHandle = None
                 os.rename(self.logPathWithTime, finalLogPathWithTime)
-            except:
-                pass
+
+        except Exception as ex:
+            if finalStatus is None:
+                finalStatus = NodeStatus.failed
+
+            try:
+                self.writeNodeLog("ERROR: Unknow error occurred.\n")
+                self.writeNodeLog(str(ex))
+                self.writeNodeLog(traceback.format_exc())
+                self.writeNodeLog("\n")
+            except Exception as ex:
+                print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()))
 
         self.killCmd = None
         self.childPid = None
-        return isFail
+
+        return finalStatus
 
     def _localExecute(self, op):
         self.childPid = None

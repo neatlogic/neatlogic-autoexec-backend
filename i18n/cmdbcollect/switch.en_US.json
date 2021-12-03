@@ -1,10 +1,16 @@
 {
     "label": "Switch",
-    "collection": "COLLECT_SWITCH",
-    "filter": {},
-    "fields": [
-        {
+    "collection": "COLLECT_NETDEV",
+    "filter": {
+        "_OBJ_TYPE": "Switch"
+    },
+    "fields": [{
             "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
             "desc": "Object Type",
             "type": "String"
         },
@@ -47,8 +53,7 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NO",
                     "desc": "Port No.",
                     "type": "String"
@@ -97,8 +102,7 @@
                     "name": "NEIGHBORS",
                     "desc": "CDP/LLDP",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Catetory",
                             "type": "String"

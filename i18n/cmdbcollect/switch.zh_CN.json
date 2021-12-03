@@ -1,11 +1,17 @@
 {
     "label": "交换机",
-    "collection": "COLLECT_SWITCH",
-    "filter": {},
-    "fields": [
-        {
+    "collection": "COLLECT_NETDEV",
+    "filter": {
+        "_OBJ_TYPE": "Switch"
+    },
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
             "type": "String"
         },
         {
@@ -47,8 +53,7 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NO",
                     "desc": "端口号",
                     "type": "String"
@@ -97,8 +102,7 @@
                     "name": "NEIGHBORS",
                     "desc": "CDP/LLDP邻居",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"

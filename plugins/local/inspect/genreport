@@ -80,7 +80,9 @@ def getMetricsDef(db, objCat, objType):
                                                    )
 
     if inspectDef is None:
-        return {}
+        return {'name': 'empty',
+                'fields': [],
+                'thresholds': []}
 
     # 比较AST抽象语法树结构生成时间根规则修改时间，如果老了则进行AST分析并保存和更新到DB
     ruleNeedUpdate = False
@@ -165,6 +167,7 @@ def getInspectData(nodeInfo):
             if data['MGMT_IP'] == ip:
                 if port is not None:
                     if 'PORT' not in data or data['PORT'] != port:
+                        print('WARN: Data not match port:{} but:.'.format(port, data['PORT']))
                         continue
 
                 nodeData = data
@@ -172,9 +175,13 @@ def getInspectData(nodeInfo):
                 nodeData['_error_message'] = errorMessage
                 dataRecords.append(nodeData)
                 break
+            else:
+                print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
         if not dataRecords:
             nodeData = {}
+            nodeData['_OBJ_CATEGORY'] = 'EMPTY'
+            nodeData['_OBJ_TYPE'] = 'EMPTY'
             nodeData['_availability'] = availability
             nodeData['_error_message'] = errorMessage
             dataRecords.append(nodeData)

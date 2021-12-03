@@ -36,44 +36,29 @@ class PhaseWorker(threading.Thread):
             self.currentNode = node
             phaseStatus = self.context.phases[self.phaseName]
 
+            # 运行完所有操作
+            localOps = []
+            # 为了让每个节点都有独立的插件参数记录，复制operation
+            for op in self.operations:
+                localOps.append(copy.copy(op))
+
+            opsStatus = None
             try:
-                # 运行完所有操作
-                localOps = []
-                # 为了让每个节点都有独立的插件参数记录，复制operation
-                for op in self.operations:
-                    localOps.append(copy.copy(op))
+                opsStatus = node.execute(localOps)
+            except Exception as ex:
+                if opsStatus is None:
+                    opsStatus = NodeStatus.failed
+                print("ERROR: Unknow error occurred.{}\m{}\n".format(str(ex), traceback.format_exc))
 
-                hasException = False
-                try:
-                    ret = node.execute(localOps)
-                except Exception as ex:
-                    hasException = True
-                    node.writeNodeLog("ERROR: Unknow error occurred.\n")
-                    node.writeNodeLog(str(ex))
-                    node.writeNodeLog(traceback.format_exc())
-                    node.writeNodeLog("\n")
-                    ret = 3
-
-                if ret != 0:
-                    if node.hasIgnoreFail == 1:
-                        phaseStatus.incIgnoreFailNodeCount()
-                        print("INFO: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
-                    else:
-                        phaseStatus.incFailNodeCount()
-                        print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
-
-                        if hasException:
-                            node.updateNodeStatus(NodeStatus.failed)
-                else:
-                    if node.hasIgnoreFail == 1:
-                        phaseStatus.incIgnoreFailNodeCount()
-                        print("INFO: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
-                    else:
-                        phaseStatus.incSucNodeCount()
-                        print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port))
-            finally:
-                phaseStatus.incWarnCount()
-                self.currentNode = None
+            if opsStatus == NodeStatus.ignored:
+                phaseStatus.incIgnoreFailNodeCount()
+                print("WARN: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
+            elif opsStatus == NodeStatus.succeed:
+                phaseStatus.incSucNodeCount()
+                print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port))
+            else:
+                phaseStatus.incFailNodeCount()
+                print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
 
     def informNodeWaitInput(self, nodeId, interact=None):
         currentNode = self.currentNode

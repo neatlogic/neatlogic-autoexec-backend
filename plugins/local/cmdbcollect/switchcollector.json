@@ -26,6 +26,25 @@
             "validate": ""
         },
         {
+            "opt": "objtype",
+            "name": "设备类型",
+            "help": "设备类型，譬如：Switch | Router",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "交换机",
+                    "value": "Switch",
+                    "selected": "true"
+                },
+                {
+                    "text": "路由器",
+                    "value": "Router"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",

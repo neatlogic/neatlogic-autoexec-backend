@@ -1,9 +1,10 @@
 {
-    "label": "Switch",
-    "collection": "COLLECT_SWITCH",
-    "filter": {},
-    "fields": [
-        {
+    "label": "FCSwitch",
+    "collection": "COLLECT_FCDEV",
+    "filter": {
+        "_OBJ_TYPE": "FCSWitch"
+    },
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -47,8 +48,7 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NO",
                     "desc": "Port No.",
                     "type": "String"
@@ -109,8 +109,7 @@
             "name": "ZONES",
             "desc": "Zone List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Zone Name",
                     "type": "String"
