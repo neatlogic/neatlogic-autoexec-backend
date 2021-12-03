@@ -535,13 +535,14 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
 
-    def setResourceInspectJobId(self, resourceId, jobId):
+    def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:
             return {}
 
         params = {
             'resourceId': resourceId,
             'jobId': jobId,
+            'phaseName': phaseName,
             'inspectTime': int(time.time() * 1000)
         }
 

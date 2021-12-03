@@ -29,14 +29,18 @@ if __name__ == "__main__":
         if hasOptError:
             exit(1)
 
+        resourceId = nodeInfo['resourceId']
         jobId = os.getenv('AUTOEXEC_JOBID')
         if jobId is None:
-            print("ERROR: Can not find jobid in environment.")
+            print("ERROR: Can not find jobid in environment AUTOEXEC_JOBID.")
+            exit(1)
+        phaseName = os.getenv('AUTOEXEC_PHASE_NAME')
+        if phaseName is None:
+            print("ERROR: Can not find phase name in environment AUTOEXEC_PHASE_NAME.")
             exit(1)
 
-        resourceId = nodeInfo['resourceId']
-        AutoExecUtils.setResourceInspectJobId(resourceId, jobId)
-        print("INFO: Set current node({}) job({}) success.".format(resourceId, jobId))
+        AutoExecUtils.setResourceInspectJobId(int(resourceId), int(jobId))
+        print("INFO: Set current node({}) job({}) success.".format(resourceId, jobId, phaseName))
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
