@@ -247,3 +247,9 @@ def updateInspectStatus(ciType, resourceId, status, alertCount):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.updateInspectStatus(ciType, resourceId, status, alertCount)
+
+
+def setResourceInspectJobId(resourceId, jobId):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.setResourceInspectJobId(resourceId, jobId)

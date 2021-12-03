@@ -1,0 +1,10 @@
+{
+    "opDesc": "建立巡检目标跟作业的关联",
+    "opType": "localremote",
+    "typeName": "INSPECTION",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "description": "用于巡检界面中展示巡检目标的关联的自动化作业",
+    "option": [],
+    "output": []
+}

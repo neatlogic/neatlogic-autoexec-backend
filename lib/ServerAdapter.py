@@ -38,7 +38,8 @@ class ServerAdapter:
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
-            'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update'
+            'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
+            'setResourceInspectJobId': '/codedriver/public/api/rest/autoexec/job/resource/inspect/update'
         }
 
         self.context = context
@@ -533,3 +534,28 @@ class ServerAdapter:
                 raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
+
+    def setResourceInspectJobId(self, resourceId, jobId):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'resourceId': resourceId,
+            'jobId': jobId,
+            'inspectTime': int(time.time() * 1000)
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['setResourceInspectJobId'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return True
+                else:
+                    raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, {}".format(resourceId, jobId, retObj['Message']))
+            else:
+                raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, status code:{} {}".format(resourceId, jobId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Set resrouce({}) inspect job Id({}) failed, {}".format(resourceId, jobId, ex))
