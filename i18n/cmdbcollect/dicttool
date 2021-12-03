@@ -42,6 +42,60 @@ def getDefaultFieldKeys():
     return defaultKeys
 
 
+def getIcon(name):
+    nameToIconMap = {
+        'a10': 'tsfont-hardware',
+        'activemq': 'tsfont-hardware',
+        'aix': 'tsfont-hardware',
+        'apache': 'tsfont-hardware',
+        'db2': 'tsfont-hardware',
+        'db': 'tsfont-hardware',
+        'elasticsearch': 'tsfont-hardware',
+        'empty': 'tsfont-hardware',
+        'f5': 'tsfont-hardware',
+        'fcdev': 'tsfont-hardware',
+        'fcswitch': 'tsfont-hardware',
+        'firewall': 'tsfont-hardware',
+        'hadoop': 'tsfont-hardware',
+        'host': 'tsfont-hardware',
+        'iis': 'tsfont-hardware',
+        'informix': 'tsfont-hardware',
+        'ins': 'tsfont-hardware',
+        'java': 'tsfont-hardware',
+        'jboss': 'tsfont-hardware',
+        'jetty': 'tsfont-hardware',
+        'kafka': 'tsfont-hardware',
+        'keepalive': 'tsfont-hardware',
+        'lighttpd': 'tsfont-hardware',
+        'linux': 'tsfont-hardware',
+        'memcached': 'tsfont-hardware',
+        'mongodb': 'tsfont-hardware',
+        'mssqlserver': 'tsfont-hardware',
+        'mysql': 'tsfont-hardware',
+        'netdev': 'tsfont-hardware',
+        'nginx': 'tsfont-hardware',
+        'novmtool': 'tsfont-hardware',
+        'oracle': 'tsfont-hardware',
+        'oracle-rac': 'tsfont-hardware',
+        'os': 'tsfont-hardware',
+        'postgresql': 'tsfont-hardware',
+        'rabbitmq': 'tsfont-hardware',
+        'redis': 'tsfont-hardware',
+        'resin': 'tsfont-hardware',
+        'router': 'tsfont-hardware',
+        'secdev': 'tsfont-hardware',
+        'storage': 'tsfont-hardware',
+        'switch': 'tsfont-hardware',
+        'sybase': 'tsfont-hardware',
+        'tomcat': 'tsfont-hardware',
+        'tuxedo': 'tsfont-hardware'
+    }
+    if name in nameToIconMap:
+        return nameToIconMap[name]
+    else:
+        return None
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--lang', default='zh_CN', help='语言')
@@ -107,10 +161,13 @@ if __name__ == "__main__":
                     if inspectObj is None:
                         inspectObj = {'name': name,
                                       'label': data['label'],
+                                      'icon': getIcon(name),
                                       'collection': data['collection'],
                                       'filter': data['filter'],
                                       'fields': [],
                                       'thresholds': []}
+                    else:
+                        inspectObj['icon'] = getIcon(name)
 
                     # 获取已经定义的fields
                     inspectFields = []
