@@ -385,28 +385,32 @@ sub collectOsInfo {
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     my @diskInfos;
-    my $diskLines = $self->getCmdOutLines('LANG=C fdisk -l');
+    my ($diskStatus, $diskLines) = $self->getCmdOutLines('LANG=C parted -l 2>/dev/null');
+    if ( $diskStatus ne 0 ){
+        $diskLines = $self->getCmdOutLines('LANG=C fdisk -l');
+    }
 
     foreach my $line (@$diskLines) {
-        if ( $line =~ /^\s*Disk\s+\// ) {
+        if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\wB)/ ) {
             my $diskInfo = {};
-            my @diskSegs = split( /\s+/, $line );
-            my $name     = $diskSegs[1];
-            $name =~ s/://g;
+
+            my $name = $1;
             $diskInfo->{NAME} = $name;
-            my $size = $diskSegs[2];
-            my $unit = $diskSegs[3];
+
+            my $size = $2;
+            my $unit = $3;
             ( $diskInfo->{UNIT}, $diskInfo->{CAPACITY} ) = $utils->getDiskSizeFormStr( $size . $unit );
 
-            if ( $diskSegs[1] =~ /\/dev\/sd/ ) {
+            if ( $name =~ /\/dev\/sd/ ) {
                 $diskInfo->{TYPE} = 'local';
             }
-            elsif ( $diskSegs[1] =~ /\/dev\/mapper\// ) {
+            elsif ( $name =~ /\/dev\/mapper\// ) {
                 $diskInfo->{TYPE} = 'lvm';
             }
             else {
                 $diskInfo->{TYPE} = 'remote';
             }
+
             push( @diskInfos, $diskInfo );
         }
     }
