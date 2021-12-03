@@ -22,7 +22,7 @@ use SqlplusExec;
 sub getPK {
     my ($self) = @_;
     return {
-        'Oracle'     => ['MGMT_IP', 'PORT' ],
+        'Oracle'     => [ 'MGMT_IP', 'PORT' ],
         'Oracle-RAC' => ['UNIQUE_NAME']
     };
 }
@@ -71,7 +71,15 @@ sub getGridHome {
                 $homeDir = $items[-2];
             }
             if ( defined($homeDir) ) {
-                $gridHomeDefLines = $self->getCmdOutLines(q{cat "$homeDir/.profile" "$homeDir/.bash_profile" 2>&1});
+                $gridHomeDefLines = [];
+                if ( -e "$homeDir/.profile" ) {
+                    my $tmpLines = $self->getFileLines("$homeDir/.profile");
+                    push( @$gridHomeDefLines, @$tmpLines );
+                }
+                if ( -e "$homeDir/.bash_profile" ) {
+                    my $tmpLines = $self->getFileLines("$homeDir/.profile");
+                    push( @$gridHomeDefLines, @$tmpLines );
+                }
             }
         }
 
