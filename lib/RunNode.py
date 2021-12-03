@@ -343,6 +343,7 @@ class RunNode:
 
     def execOneOperation(self, op):
         ret = 0
+        timeConsume = None
         try:
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)
@@ -403,6 +404,7 @@ class RunNode:
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
         except:
             ret = 3
+            timeConsume = time.time() - startTime
             self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
 
         hintKey = 'FINEST:'
