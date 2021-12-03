@@ -1,0 +1,51 @@
+{
+    "label": "Security Device",
+    "collection": "COLLECT_SECDEV",
+    "filter": {},
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "Brand",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        }
+    ]
+}

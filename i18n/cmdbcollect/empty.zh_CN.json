@@ -1,0 +1,31 @@
+{
+    "label": "空对象",
+    "collection": "COLLECT_EMPTY",
+    "filter": {},
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "监听端口",
+            "type": "int"
+        },
+        {
+            "name": "_availability",
+            "desc": "可用性标记",
+            "type": "int"
+        },
+        {
+            "name": "_error_message",
+            "desc": "不可用的错误信息",
+            "type": "String"
+        }
+    ]
+}

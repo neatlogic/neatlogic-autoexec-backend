@@ -1,0 +1,51 @@
+{
+    "label": "安全设备",
+    "collection": "COLLECT_SECDEV",
+    "filter": {},
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        }
+    ]
+}
