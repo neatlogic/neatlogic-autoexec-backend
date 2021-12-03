@@ -35,7 +35,8 @@ if __name__ == "__main__":
             exit(1)
 
         resourceId = nodeInfo['resourceId']
-
+        AutoExecUtils.setResourceInspectJobId(resourceId, jobId)
+        print("INFO: Set current node({}) job({}) success.".format(resourceId, jobId))
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
