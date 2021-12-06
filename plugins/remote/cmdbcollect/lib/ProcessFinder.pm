@@ -93,6 +93,8 @@ sub getProcEnv {
         return $envMap;
     }
 
+    print("INFO: Begin to get process $pid environment.\n");
+
     my $envFilePath = "/proc/$pid/environ";
     if ( -f $envFilePath ) {
         my $content = CollectUtils->getFileContent($envFilePath);
@@ -133,12 +135,13 @@ sub getProcEnv {
         }
     }
     delete( $envMap->{LS_COLORS} );
+    print("INFO: Get process $pid environment complete.\n");
     return $envMap;
 }
 
 sub findProcess {
     my ($self) = @_;
-
+    print("INFO: Begin to find and match processes.\n");
     my $callback    = $self->{callback};
     my $matchedProc = {};
     my $pipe;
@@ -264,6 +267,10 @@ sub findProcess {
             print("ERROR: Get Process list failed.\n");
             exit(1);
         }
+        print("INFO: List all processes and find matched processes complete.\n");
+    }
+    else {
+        print("ERROR: Can not launch list process command:$self->{listProcCmd}\n");
     }
 }
 

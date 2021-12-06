@@ -18,7 +18,7 @@ sub new {
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
-
+    print("INFO: Try to connect process listen addressses.\n");
     my $cmd         = $args{cmd};
     my $lsnFieldIdx = $args{lsnFieldIdx};
 
@@ -47,6 +47,11 @@ sub parseListenLines {
         }
         close($pipe);
         $status = $?;
+        print("INFO: Collect process listen addressses complete.\n");
+    }
+    else {
+        $status = -1;
+        print("ERROR: Can not launch command:$cmd to collect process listen addressses.\n");
     }
 
     return ( $status, $portsMap );
@@ -54,7 +59,7 @@ sub parseListenLines {
 
 sub parseConnLines {
     my ( $self, %args ) = @_;
-
+    print("INFO: Try to connect process connections.\n");
     my $cmd            = $args{cmd};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
@@ -89,6 +94,11 @@ sub parseConnLines {
         }
         close($pipe);
         $status = $?;
+        print("INFO: Collect process connections complete.\n");
+    }
+    else {
+        $status = -1;
+        print("ERROR: Can not launch command: $cmd to collect process connections.\n");
     }
 
     return ( $status, $remoteAddrs );

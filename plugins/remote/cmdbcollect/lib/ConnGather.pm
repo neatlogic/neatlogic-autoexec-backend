@@ -20,6 +20,7 @@ sub new {
         my $osType = $uname[0];
         $osType =~ s/\s.*$//;
         my $gatherClass = "ConnGather$osType";
+        print("INFO: Try to use $gatherClass to collect process connection information.\n");
         eval {
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
@@ -28,8 +29,8 @@ sub new {
         if ($@) {
 
             #fallback to linux
-            print("WARN: Load $gatherClass.pm failed, fallback to ConnGatherLinux\n");
-            $gatherClass = "ConnGatherLinux";
+            print("WARN: Load $gatherClass.pm failed, fallback to ConnGatherBase\n");
+            $gatherClass = "ConnGatherBase";
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
             $instance = $gatherClass->new();
