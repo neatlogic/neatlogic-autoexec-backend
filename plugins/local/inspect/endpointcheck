@@ -1,0 +1,86 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import re
+import AutoExecUtils
+import os
+import traceback
+import datetime
+import argparse
+import sys
+import json
+
+from ping3 import ping
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    exit(1)
+
+
+def pingCheck(host):
+    second = ping3.ping(dest_addr=host, timeout=5)
+    if second:
+        print('{} is reachable, took {} second'.format(host, second))
+    else:
+        print('{} is unreachable, took {} second'.format(host, second))
+
+
+def tcpCheck(endPoint):
+    pass
+
+
+def urlCheck(endPoint):
+    pass
+
+
+def saveInspectData(data):
+    pass
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    args = parser.parse_args()
+    outputPath = args.outputfile
+    node = args.node
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None:
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.\n")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if hasOptError:
+            usage()
+
+        ip = nodeInfo['host']
+        port = nodeInfo['port']
+        resourceId = nodeInfo['resourceId']
+        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_endpoint'])
+        accessEndPoint = ciAttrs['access_endpoint']
+        if accessEndPoint is None:
+            if ip is not None:
+                if port is not None:
+                    accessEndPoint = '{}:{}'.format(ip, port)
+                else:
+                    accessEndPoint = ip
+
+        if accessEndPoint.startswith('https://') or accessEndPoint.startswith('http://'):
+            # url check
+            pass
+        elif re.match(':\d+$', accessEndPoint):
+            # ip:port tcp
+            pass
+        else:
+            # ping
+            pass
+
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)

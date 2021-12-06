@@ -107,13 +107,13 @@ sub parseConnLines {
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $remoteAddrs    = {};
-    my $status         = 3;
+    my $remoteAddrs = {};
+    my $status      = 3;
 
     if ( $status != 0 ) {
-        $cmd            = "netstat -ntudwp| grep $pid |";
-        $localFieldIdx  = 3;
-        $remoteFieldIdx = 4;
+        my $cmd            = "netstat -ntudwp| grep $pid |";
+        my $localFieldIdx  = 3;
+        my $remoteFieldIdx = 4;
         ( $status, $remoteAddrs ) = $self->parseConnLines(
             cmd            => $cmd,
             lsnPortsMap    => $lsnPortsMap,
@@ -143,18 +143,18 @@ sub getListenPorts {
     #Linux
     #ss -ntudwlp | grep pid=<pid>
     #netstat -tuwnlp |grep <pid>
-    my $portsMap    = {};
-    my $status      = 3;
+    my $portsMap = {};
+    my $status   = 3;
 
     if ( $status != 0 ) {
-        $cmd         = "netstat -ntudwlp| grep $pid |";
-        $lsnFieldIdx = 3;
+        my $cmd         = "netstat -ntudwlp| grep $pid |";
+        my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
             lsnFieldIdx => $lsnFieldIdx
         );
     }
-    
+
     if ( $status != 0 ) {
         my $cmd         = "ss -ntudwlp| grep pid=$pid |";
         my $lsnFieldIdx = 4;
