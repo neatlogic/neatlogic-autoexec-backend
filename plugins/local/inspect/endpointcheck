@@ -9,6 +9,12 @@ import datetime
 import argparse
 import sys
 import json
+import socket
+import urllib.request
+import urllib.parse
+from urllib.error import URLError
+from urllib.error import HTTPError
+import time
 
 from ping3 import ping
 
@@ -21,21 +27,71 @@ def usage():
 def pingCheck(host):
     second = ping3.ping(dest_addr=host, timeout=5)
     if second:
-        print('{} is reachable, took {} second'.format(host, second))
+        print('INFO: {} is reachable, took {} second'.format(host, second))
+        return (True, None)
     else:
-        print('{} is unreachable, took {} second'.format(host, second))
+        loopCount = 2
+        while not second and loopCount > 0:
+            second = ping3.ping(dest_addr=host, timeout=5)
+            loopCount = loopCount - 1
+        if second:
+            print('INFO: {} is reachable, took {} second'.format(host, second))
+            return (True, None)
+        else:
+            errorMsg = 'ERROR: {} is unreachable, took {} second'.format(host, second)
+            print(errorMsg)
+            return (False, errorMsg)
 
 
 def tcpCheck(endPoint):
-    pass
+    colonPos = endPoint.rindex(':')
+    if colonPos < 0:
+        errorMsg = "ERROR: Malform end point format: {}".format(endPoint)
+        print(errorMsg)
+        return (False, errorMsg)
+
+    try:
+        host = endPoint[0:colonPos]
+        port = int(endPoint[colonPos+1:])
+        sock = socket.socket()
+        sock.connect((host, port))
+    except Exception as ex:
+        errorMsg = "ERROR: Can not connect {}.".format(endPoint)
+        print(errorMsg)
+        return (False, errorMsg)
+
+    return (True, None)
 
 
 def urlCheck(endPoint):
-    pass
+    url = endPoint
+    userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+
+    #data = urllib.parse.urlencode(params)
+    #url = url + '?' + data
+    req = urllib.request.Request(url)
+    req.add_header('User-Agent', userAgent)
+
+    try:
+        response = urllib.request.urlopen(req)
+    except HTTPError as ex:
+        errMsg = ex.code
+        if ex.code > 500:
+            content = ex.read()
+        errorMsg = "ERROR: Request failed，status code{}, {}".format(ex.code, content)
+        print(errorMsg)
+        return (False, errorMsg)
+    except URLError as ex:
+        errorMsg = "ERROR: Request url:{} failed, {}".format(url, ex.reason)
+        print(errorMsg)
+        return (False, errorMsg)
+
+    return (True, None)
 
 
-def saveInspectData(data):
-    pass
+def saveInspectData(inspectData):
+    out = {'DATA': inspectData}
+    AutoExecUtils.saveOutput(out)
 
 
 if __name__ == "__main__":
@@ -59,6 +115,8 @@ if __name__ == "__main__":
         if hasOptError:
             usage()
 
+        hasError = False
+
         ip = nodeInfo['host']
         port = nodeInfo['port']
         resourceId = nodeInfo['resourceId']
@@ -71,16 +129,35 @@ if __name__ == "__main__":
                 else:
                     accessEndPoint = ip
 
+        errorMsg = None
+        startTime = time.time()
         if accessEndPoint.startswith('https://') or accessEndPoint.startswith('http://'):
             # url check
-            pass
+            (ret, errorMsg) = urlCheck(accessEndPoint)
+            if not ret:
+                hasError = True
         elif re.match(':\d+$', accessEndPoint):
             # ip:port tcp
-            pass
+            (ret, errorMsg) = tcpCheck(accessEndPoint)
+            if not ret:
+                hasError = True
         else:
             # ping
-            pass
+            (ret, errorMsg) = pingCheck(accessEndPoint)
+            if not ret:
+                hasError = True
 
+        timeConsume = time.time() - startTime
+        inspectInfo = {'_OBJ_CATEGORY': 'EMPTY',
+                       '_OBJ_TYPE': 'EMPTY'}
+        if hasError:
+            inspectInfo['_availability'] = 0
+            inspectInfo['_error_message'] = errorMsg
+            inspectInfo['_reponseTime'] = timeConsume
+        else:
+            inspectInfo['_availability'] = 1
+            inspectInfo['_error_message'] = None
+            inspectInfo['_reponseTime'] = timeConsume
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)

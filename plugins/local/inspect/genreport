@@ -142,8 +142,9 @@ def getInspectData(nodeInfo):
                         availability = False
                         if 'ERROR_MESSAGE' in inspectData:
                             errorMessage = inspectData['ERROR_MESSAGE']
-                continue
-            elif not key.startswith("cmdbcollect/"):
+                    continue
+
+            if not (key.startswith("cmdbcollect/") or key.startswith("inspect/")):
                 continue
 
             collectData = value['DATA']
