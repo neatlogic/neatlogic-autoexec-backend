@@ -39,7 +39,7 @@ if __name__ == "__main__":
             print("ERROR: Can not find phase name in environment AUTOEXEC_PHASE_NAME.")
             exit(1)
 
-        AutoExecUtils.setResourceInspectJobId(int(resourceId), int(jobId))
+        AutoExecUtils.setResourceInspectJobId(int(resourceId), int(jobId), phaseName)
         print("INFO: Set current node({}) job({}) success.".format(resourceId, jobId, phaseName))
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
