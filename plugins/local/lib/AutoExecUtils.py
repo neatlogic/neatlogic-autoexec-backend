@@ -253,3 +253,9 @@ def setResourceInspectJobId(resourceId, jobId, phaseName):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.setResourceInspectJobId(resourceId, jobId, phaseName)
+
+
+def getCmdbCiAttrs(resourceId, attrList):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getCmdbCiAttrs(resourceId, attrList)

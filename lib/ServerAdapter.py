@@ -39,7 +39,8 @@ class ServerAdapter:
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
-            'setResourceInspectJobId': '/codedriver/public/api/rest/autoexec/job/resource/inspect/update'
+            'setResourceInspectJobId': '/codedriver/public/api/rest/autoexec/job/resource/inspect/update',
+            'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get'
         }
 
         self.context = context
@@ -560,3 +561,39 @@ class ServerAdapter:
                 raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, status code:{} {}".format(resourceId, jobId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Set resrouce({}) inspect job Id({}) failed, {}".format(resourceId, jobId, ex))
+
+    def getCmdbCiAttrs(self, resourceId, attrList):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'ciEntityId': resourceId,
+            'attrList': attrList
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['getCmdbCiAttrs'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    attrData = retObj['Return']['attrEntityData']
+                    attrsMap = []
+                    for attrInfo in attrData.values():
+                        name = attrInfo['name']
+                        values = attrInfo['actualValueList']
+                        if len(values) == 0:
+                            attrsMap[name] = None
+                        elif len(values) == 1:
+                            attrsMap[name] = values[0]
+                        else:
+                            attrsMap = values
+
+                    return attrsMap
+                else:
+                    raise AutoExecError("Get attributes for resourceId:{} failed, {}".format(resourceId, retObj['Message']))
+            else:
+                raise AutoExecError("Get attributes for resourceId:{} failed, status code:{} {}".format(resourceId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get attributes for resourceId:{} failed, {}".format(resourceId, ex))

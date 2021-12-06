@@ -108,21 +108,24 @@ sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
     my $remoteAddrs    = {};
-    my $status         = 0;
-    my $cmd            = "ss -ntudwp| grep pid=$pid |";
-    my $localFieldIdx  = 4;
-    my $remoteFieldIdx = 5;
-    ( $status, $remoteAddrs ) = $self->parseConnLines(
-        cmd            => $cmd,
-        lsnPortsMap    => $lsnPortsMap,
-        localFieldIdx  => $localFieldIdx,
-        remoteFieldIdx => $remoteFieldIdx
-    );
+    my $status         = 3;
 
     if ( $status != 0 ) {
         $cmd            = "netstat -ntudwp| grep $pid |";
         $localFieldIdx  = 3;
         $remoteFieldIdx = 4;
+        ( $status, $remoteAddrs ) = $self->parseConnLines(
+            cmd            => $cmd,
+            lsnPortsMap    => $lsnPortsMap,
+            localFieldIdx  => $localFieldIdx,
+            remoteFieldIdx => $remoteFieldIdx
+        );
+    }
+
+    if ( $status != 0 ) {
+        my $cmd            = "ss -ntudwp| grep pid=$pid |";
+        my $localFieldIdx  = 4;
+        my $remoteFieldIdx = 5;
         ( $status, $remoteAddrs ) = $self->parseConnLines(
             cmd            => $cmd,
             lsnPortsMap    => $lsnPortsMap,
@@ -141,16 +144,20 @@ sub getListenPorts {
     #ss -ntudwlp | grep pid=<pid>
     #netstat -tuwnlp |grep <pid>
     my $portsMap    = {};
-    my $status      = 0;
-    my $cmd         = "ss -ntudwlp| grep pid=$pid |";
-    my $lsnFieldIdx = 4;
-    ( $status, $portsMap ) = $self->parseListenLines(
-        cmd         => $cmd,
-        lsnFieldIdx => $lsnFieldIdx
-    );
+    my $status      = 3;
+
     if ( $status != 0 ) {
         $cmd         = "netstat -ntudwlp| grep $pid |";
         $lsnFieldIdx = 3;
+        ( $status, $portsMap ) = $self->parseListenLines(
+            cmd         => $cmd,
+            lsnFieldIdx => $lsnFieldIdx
+        );
+    }
+    
+    if ( $status != 0 ) {
+        my $cmd         = "ss -ntudwlp| grep pid=$pid |";
+        my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
             lsnFieldIdx => $lsnFieldIdx

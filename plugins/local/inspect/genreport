@@ -344,6 +344,7 @@ if __name__ == "__main__":
     outputPath = args.outputfile
     node = args.node
 
+    dbclient = None
     try:
         nodeInfo = {}
         hasOptError = False
