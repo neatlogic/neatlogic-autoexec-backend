@@ -18,8 +18,9 @@ sub new {
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
-    print("INFO: Try to connect process listen addressses.\n");
+    print("INFO: Try to collect process listen addressses.\n");
     my $cmd         = $args{cmd};
+    my $pid         = $args{pid};
     my $lsnFieldIdx = $args{lsnFieldIdx};
 
     my $portsMap = {};
@@ -29,7 +30,16 @@ sub parseListenLines {
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
+            if ( rindex( $line, $pid ) < 0 ) {
+                next;
+            }
+
             my @fields = split( /\s+/, $line );
+            my $lastIdx = $#fields;
+            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
+                next;
+            }
+
             my $listenAddr = $fields[$lsnFieldIdx];
             $listenAddr =~ s/^::ffff:(\d+\.)/$1/;
             $listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
@@ -61,6 +71,7 @@ sub parseConnLines {
     my ( $self, %args ) = @_;
     print("INFO: Try to connect process connections.\n");
     my $cmd            = $args{cmd};
+    my $pid            = $args{pid};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
@@ -72,7 +83,16 @@ sub parseConnLines {
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
-            my @fields     = split( /\s+/, $line );
+            if ( rindex( $line, $pid ) < 0 ) {
+                next;
+            }
+
+            my @fields = split( /\s+/, $line );
+            my $lastIdx = $#fields;
+            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
+                next;
+            }
+
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
             $localAddr =~ s/^::ffff:(\d+\.)/$1/;
@@ -111,11 +131,12 @@ sub getRemoteAddrs {
     my $status      = 3;
 
     if ( $status != 0 ) {
-        my $cmd            = "netstat -ntudwp| grep $pid |";
+        my $cmd            = "netstat -ntudwp|";
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
         ( $status, $remoteAddrs ) = $self->parseConnLines(
             cmd            => $cmd,
+            pid            => $pid,
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
             remoteFieldIdx => $remoteFieldIdx
@@ -123,11 +144,12 @@ sub getRemoteAddrs {
     }
 
     if ( $status != 0 ) {
-        my $cmd            = "ss -ntudwp| grep pid=$pid |";
+        my $cmd            = "ss -ntudwp |";
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
         ( $status, $remoteAddrs ) = $self->parseConnLines(
             cmd            => $cmd,
+            pid            => $pid,
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
             remoteFieldIdx => $remoteFieldIdx
@@ -147,19 +169,21 @@ sub getListenPorts {
     my $status   = 3;
 
     if ( $status != 0 ) {
-        my $cmd         = "netstat -ntudwlp| grep $pid |";
+        my $cmd         = "netstat -ntudwlp |";
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
+            pid         => $pid,
             lsnFieldIdx => $lsnFieldIdx
         );
     }
 
     if ( $status != 0 ) {
-        my $cmd         = "ss -ntudwlp| grep pid=$pid |";
+        my $cmd         = "ss -ntudwlp |";
         my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
+            pid         => $pid,
             lsnFieldIdx => $lsnFieldIdx
         );
     }
