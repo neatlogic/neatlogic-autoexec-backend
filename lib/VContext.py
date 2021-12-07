@@ -13,11 +13,16 @@ import Utils
 
 
 class VContext:
-    def __init__(self, jobId=0, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+    def __init__(self, jobId=0, execUser=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
         self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
         self.pid = os.getpid()
-        self.execUser = 'anonymous'
+
+        if execUser is None:
+            self.execUser = 'system'
+        else:
+            self.execUser = execUser
+
         self.params = {}
         self.parallelCount = 25
         self.tenant = ''

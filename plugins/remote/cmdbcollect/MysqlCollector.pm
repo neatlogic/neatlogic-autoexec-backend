@@ -109,6 +109,11 @@ sub collect {
     my $mysqlHome  = $opts->{mysqlHome};
     my $mysqldPath = $opts->{mysqldPath};
 
+    if ( not -e $mysqldPath ) {
+        print("ERROR: Mysql bin $mysqldPath not found.\n");
+        return undef;
+    }
+
     $mysqlInfo->{INSTALL_PATH}  = $mysqlHome;
     $mysqlInfo->{MYSQL_BASE}    = $opts->{'basedir'};
     $mysqlInfo->{MYSQL_DATADIR} = $opts->{'datadir'};

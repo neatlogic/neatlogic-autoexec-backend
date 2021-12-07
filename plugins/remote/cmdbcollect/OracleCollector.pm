@@ -274,6 +274,77 @@ sub getTableSpaceInfo {
     return \@allTableSpaces;
 }
 
+sub getASMDiskGroup {
+    my ($self) = @_;
+
+    my @diskGroups = ();
+
+    my $sqlplus   = $self->{sqlplus};
+    my $isVerbose = $self->{isVerbose};
+
+    my $rows;
+    $rows = $sqlplus->query(
+        sql     => q{select name from v$datafile where name like '+%' and rownum < 2},
+        verbose => $isVerbose
+    );
+
+    if ( scalar(@$rows) == 0 ) {
+        print("INFO: There no ASM disk used.\n");
+        return \@diskGroups;
+    }
+
+    my $diskGroupsMap = {};
+    $rows = $sqlplus->query(
+        sql     => q{select name, type, total_mb, free_mb from v$asm_diskgroup},
+        verbose => $isVerbose
+    );
+    foreach my $row (@$rows) {
+        my $diskGroup = {};
+        my $groupName = $row->{NAME};
+        $diskGroup->{NAME}     = $groupName;
+        $diskGroup->{TYPE}     = $row->{TYPE};
+        $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB} + 0.0;
+        $diskGroup->{FREE_MB}  = $row->{FREE_MB} + 0.0;
+        $diskGroup->{USED_MB}  = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
+        $diskGroup->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $diskGroup->{DISKS} = [];
+        push( @diskGroups, $diskGroup );
+        $diskGroupsMap->{$groupName} = $diskGroup;
+    }
+    $rows = $sqlplus->query(
+        sql     => q{select ad.name, adk.name groupname, ad.failgroup, ad.mount_status, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
+        verbose => $isVerbose
+    );
+    foreach my $row (@$rows) {
+        my $groupName = $row->{GROUPNAME};
+        my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
+        my $disk      = {};
+        $disk->{NAME}         = $row->{NAME};
+        $disk->{FAIL_GROUP}   = $row->{FAILGROUP};
+        $disk->{MOUNT_STATUS} = $row->{MOUNT_STATUS};
+        $disk->{TOTAL_MB}     = $row->{TOTAL_MB} + 0.0;
+        $disk->{FREE_MB}      = $row->{FREE_MB} + 0.0;
+        $disk->{USED_MB}      = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
+        $disk->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $disk->{PATH} = $row->{PATH};
+
+        my $asmDiskId = $self->getDeviceId( $row->{PATH} );
+        $disk->{DEVICE_ID} = $asmDiskId;
+        for my $devPath ( glob("/dev/*") ) {
+            my $osDevId = $self->getDeviceId($devPath);
+            if ( $osDevId eq $asmDiskId ) {
+                my @diskStat = df($devPath);
+                $disk->{LOGIC_DISK} = $devPath;
+                last;
+            }
+        }
+
+        push( @$disks, $disk );
+    }
+
+    return \@diskGroups;
+}
+
 sub collectInstances {
     my ( $self, $insInfo ) = @_;
 
@@ -371,59 +442,10 @@ sub collectInstances {
 
     $insInfo->{TABLE_SPACESES} = $self->getTableSpaceInfo();
 
-    my @diskGroups;
-    my $diskGroupsMap = {};
-    $rows = $sqlplus->query(
-        sql     => q{select name, type, total_mb, free_mb from v$asm_diskgroup},
-        verbose => $isVerbose
-    );
-    foreach my $row (@$rows) {
-        my $diskGroup = {};
-        my $groupName = $row->{NAME};
-        $diskGroup->{NAME}     = $groupName;
-        $diskGroup->{TYPE}     = $row->{TYPE};
-        $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB} + 0.0;
-        $diskGroup->{FREE_MB}  = $row->{FREE_MB} + 0.0;
-        $diskGroup->{USED_MB}  = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
-        $diskGroup->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $diskGroup->{DISKS} = [];
-        push( @diskGroups, $diskGroup );
-        $diskGroupsMap->{$groupName} = $diskGroup;
-    }
-    $rows = $sqlplus->query(
-        sql     => q{select ad.name, adk.name groupname, ad.failgroup, ad.mount_status, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
-        verbose => $isVerbose
-    );
-    foreach my $row (@$rows) {
-        my $groupName = $row->{GROUPNAME};
-        my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
-        my $disk      = {};
-        $disk->{NAME}         = $row->{NAME};
-        $disk->{FAIL_GROUP}   = $row->{FAILGROUP};
-        $disk->{MOUNT_STATUS} = $row->{MOUNT_STATUS};
-        $disk->{TOTAL_MB}     = $row->{TOTAL_MB} + 0.0;
-        $disk->{FREE_MB}      = $row->{FREE_MB} + 0.0;
-        $disk->{USED_MB}      = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
-        $disk->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $disk->{PATH} = $row->{PATH};
-
-        my $asmDiskId = $self->getDeviceId( $row->{PATH} );
-        $disk->{DEVICE_ID} = $asmDiskId;
-        for my $devPath ( glob("/dev/*") ) {
-            my $osDevId = $self->getDeviceId($devPath);
-            if ( $osDevId eq $asmDiskId ) {
-                my @diskStat = df($devPath);
-                $disk->{LOGIC_DISK} = $devPath;
-                last;
-            }
-        }
-
-        push( @$disks, $disk );
-    }
+    $insInfo->{DISK_GROUPS} = $self->getASMDiskGroup();
 
     my $procInfo = $self->{procInfo};
-    $insInfo->{DISK_GROUPS} = \@diskGroups;
-    $insInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
+    $insInfo->{_OBJ_TYPE} = $procInfo->{_OBJ_TYPE};
 
     my ( $port, $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
     $insInfo->{PORT} = $port;
