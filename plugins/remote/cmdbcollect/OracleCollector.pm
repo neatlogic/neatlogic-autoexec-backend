@@ -125,7 +125,7 @@ sub getGridHome {
 
     if ( defined($gridHome) and not defined($gridBase) ) {
         $gridBase = dirname( dirname($gridHome) );
-        while ( not -d "$gridBase/grid" ) {
+        if ( not -d "$gridBase/grid" ) {
             $gridBase = dirname($gridBase);
         }
     }
