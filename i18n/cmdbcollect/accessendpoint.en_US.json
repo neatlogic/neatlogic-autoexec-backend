@@ -1,0 +1,57 @@
+{
+    "label": "AccessEndpoint",
+    "collection": "COLLECT_ACCESSENDPOINT",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Listen Port",
+            "type": "Int"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "Access Endpoint",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_TYPE",
+            "desc": "Access Type",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Int"
+        },
+        {
+            "name": "_availability",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "_error_message",
+            "desc": "Error Message while not availability",
+            "type": "String"
+        }
+    ]
+}
