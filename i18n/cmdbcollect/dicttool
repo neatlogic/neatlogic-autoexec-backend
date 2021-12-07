@@ -52,6 +52,7 @@ def getIcon(name):
         'db': 'tsfont-ibm',
         'elasticsearch': 'tsfont-elasticsearch',
         'empty': 'tsfont-empty',
+        'accessendpoint': 'tsfont-empty',
         'f5': 'tsfont-f5',
         'fcdev': 'tsfont-fcdev',
         'fcswitch': 'tsfont-fcswitch',

@@ -90,6 +90,10 @@ def urlCheck(endPoint, timeOut):
     return (True, None)
 
 
+def executeRemoteScript(scriptName, timeOut):
+    pass
+
+
 def saveInspectData(inspectData):
     out = {'DATA': inspectData}
     AutoExecUtils.saveOutput(out)
@@ -122,8 +126,15 @@ if __name__ == "__main__":
         ip = nodeInfo['host']
         port = nodeInfo['port']
         resourceId = nodeInfo['resourceId']
-        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_endpoint'])
-        accessEndPoint = ciAttrs['access_endpoint']
+        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_type', 'access_endpoint', 'remote_script'])
+
+        accessEndPoint = None
+        if 'access_endpoint' in ciAttrs:
+            accessEndPoint = ciAttrs['access_endpoint']
+        accessType = None
+        if 'access_type' in ciAttrs:
+            accessType = ciAttrs['access_type']
+
         if accessEndPoint is None:
             if ip is not None:
                 if port is not None:
@@ -131,18 +142,35 @@ if __name__ == "__main__":
                 else:
                     accessEndPoint = ip
 
+        if accessType is None:
+            if accessEndPoint.startswith('https://'):
+                accessType = 'HTTPS'
+            elif accessEndPoint.startswith('http://'):
+                accessType = 'HTTP'
+            elif re.match(':\d+$', accessEndPoint):
+                accessType = 'TCP'
+            else:
+                accessType = 'PING'
+
         errorMsg = None
         startTime = time.time()
-        if accessEndPoint.startswith('https://') or accessEndPoint.startswith('http://'):
+        if accessType in ('HTTP', 'HTTPS'):
             # url check
             (ret, errorMsg) = urlCheck(accessEndPoint, timeOut)
             if not ret:
                 hasError = True
-        elif re.match(':\d+$', accessEndPoint):
+        elif accessType == 'TCP':
             # ip:port tcp
             (ret, errorMsg) = tcpCheck(accessEndPoint, timeOut)
             if not ret:
                 hasError = True
+        elif accessType == 'BATCH':
+            inspectScript = None
+            if 'remote_script' in ciAttrs:
+                inspectScript = ciAttrs['remote_script']
+
+            if inspectScript is not None:
+                executeRemoteScript(inspectScript)
         else:
             # ping
             (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)
@@ -151,15 +179,17 @@ if __name__ == "__main__":
 
         timeConsume = time.time() - startTime
         inspectInfo = {'_OBJ_CATEGORY': 'EMPTY',
-                       '_OBJ_TYPE': 'EMPTY'}
+                       '_OBJ_TYPE': 'EMPTY',
+                       'ACCESS_TYPE': accessType,
+                       'ACCESS_ENDPOINT': accessEndPoint}
         if hasError:
             inspectInfo['_availability'] = 0
             inspectInfo['_error_message'] = errorMsg
-            inspectInfo['_reponseTime'] = timeConsume
+            inspectInfo['RESPONSE_TIME'] = timeConsume
         else:
             inspectInfo['_availability'] = 1
             inspectInfo['_error_message'] = None
-            inspectInfo['_reponseTime'] = timeConsume
+            inspectInfo['RESPONSE_TIME'] = timeConsume
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
