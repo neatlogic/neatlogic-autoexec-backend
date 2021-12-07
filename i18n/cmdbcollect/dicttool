@@ -168,6 +168,9 @@ if __name__ == "__main__":
                                       'thresholds': []}
                     else:
                         inspectObj['icon'] = getIcon(name)
+                        inspectObj['label'] = data['label']
+                        inspectObj['collection'] = data['collection']
+                        inspectObj['filter'] = data['filter']
 
                     # 获取已经定义的fields
                     inspectFields = []

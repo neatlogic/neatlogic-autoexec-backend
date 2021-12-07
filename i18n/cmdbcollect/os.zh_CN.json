@@ -1,9 +1,8 @@
 {
-    "label": "OS",
+    "label": "操作系统",
     "collection": "COLLECT_OS",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -92,8 +91,7 @@
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "UNIT",
                     "desc": "单位",
                     "type": "String"
@@ -119,20 +117,17 @@
             "name": "DNS_SERVERS",
             "desc": "DNS服务器",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "网卡名",
                     "type": "String"
@@ -156,8 +151,7 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接交换机端口",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -190,8 +184,7 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -222,8 +215,7 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "主机归属类别",
                     "type": "String"
@@ -244,25 +236,21 @@
             "name": "IPV6_ADDRS",
             "desc": "IPV6地址",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP地址",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP地址",
+                "type": "String"
+            }]
         },
         {
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "KERNEL_VERSION",
@@ -298,8 +286,7 @@
             "name": "MOUNT_POINTS",
             "desc": "挂载点",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USED",
                     "desc": "已使用",
                     "type": "float"
@@ -365,13 +352,11 @@
             "name": "NTP_SERVERS",
             "desc": "NTP服务",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "OPENSSL_VERSION",
@@ -387,13 +372,11 @@
             "name": "PATCHES_APPLIED",
             "desc": "已打补丁",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "补丁",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "补丁",
+                "type": "String"
+            }]
         },
         {
             "name": "RESOURCE_ID",
@@ -424,8 +407,7 @@
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "HOME",
                     "desc": "家目录",
                     "type": "String"

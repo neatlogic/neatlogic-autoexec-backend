@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Elasticsearch"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -159,20 +158,17 @@
             "name": "PORTS",
             "desc": "所有端口列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "int"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "端口",
+                "type": "int"
+            }]
         },
         {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"

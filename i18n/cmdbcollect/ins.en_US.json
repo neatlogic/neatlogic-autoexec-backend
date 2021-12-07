@@ -1,9 +1,8 @@
 {
-    "label": "INS",
+    "label": "App Instance",
     "collection": "COLLECT_INS",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -37,8 +36,7 @@
             "name": "BELONG_APPLICATION",
             "desc": "Applicaton",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "APP_NAME",
                     "desc": "Application Name",
                     "type": "String"
@@ -199,20 +197,17 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "Port",
+                "type": "int"
+            }]
         },
         {
             "name": "REF_CLUSTER",
             "desc": "Reference Clusters",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -253,8 +248,7 @@
             "name": "REF_DB",
             "desc": "Reference Databases",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -285,8 +279,7 @@
             "name": "REF_INS",
             "desc": "Reference Instances",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -317,8 +310,7 @@
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"

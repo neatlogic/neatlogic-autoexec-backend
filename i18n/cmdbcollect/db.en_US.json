@@ -2,8 +2,7 @@
     "label": "DB",
     "collection": "COLLECT_DB",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -82,13 +81,11 @@
             "name": "DATABASES",
             "desc": "Databases List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "DB Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "DB Name",
+                "type": "String"
+            }]
         },
         {
             "name": "INSTALL_PATH",
@@ -114,20 +111,17 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "Port",
+                "type": "int"
+            }]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"

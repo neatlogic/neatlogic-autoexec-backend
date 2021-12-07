@@ -1,11 +1,10 @@
 {
-    "label": "MS SQL Server",
+    "label": "SQLServer",
     "collection": "COLLECT_DB",
     "filter": {
         "_OBJ_TYPE": "MSSQLServer"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -79,13 +78,11 @@
             "name": "DATABASES",
             "desc": "Database List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "DB Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "DB Name",
+                "type": "String"
+            }]
         },
         {
             "name": "DATA_FILE",
@@ -116,20 +113,17 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "Port",
+                "type": "int"
+            }]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
@@ -155,13 +149,11 @@
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "User Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "User Name",
+                "type": "String"
+            }]
         }
     ]
 }

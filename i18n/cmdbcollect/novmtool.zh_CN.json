@@ -1,11 +1,10 @@
 {
-    "label": "novmtool",
+    "label": "未安装VMTool",
     "collection": "COLLECT_OS",
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "object_type",
             "type": "String"
@@ -39,8 +38,7 @@
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "UNIT",
                     "desc": "单位",
                     "type": "String"
@@ -96,8 +94,7 @@
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
