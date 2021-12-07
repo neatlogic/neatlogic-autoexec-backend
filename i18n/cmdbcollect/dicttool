@@ -45,6 +45,7 @@ def getDefaultFieldKeys():
 def getIcon(name):
     nameToIconMap = {
         'a10': 'tsfont-a10',
+        'accessendpoint': 'tsfont-userinfo',
         'activemq': 'tsfont-activemq',
         'aix': 'tsfont-aix',
         'apache': 'tsfont-apache',
@@ -52,7 +53,6 @@ def getIcon(name):
         'db': 'tsfont-ibm',
         'elasticsearch': 'tsfont-elasticsearch',
         'empty': 'tsfont-empty',
-        'accessendpoint': 'tsfont-empty',
         'f5': 'tsfont-f5',
         'fcdev': 'tsfont-fcdev',
         'fcswitch': 'tsfont-fcswitch',
@@ -61,7 +61,7 @@ def getIcon(name):
         'host': 'tsfont-host',
         'iis': 'tsfont-iis',
         'informix': 'tsfont-informix',
-        'ins': 'tsfont-inspur',
+        'ins': 'tsfont-instance',
         'java': 'tsfont-java',
         'jboss': 'tsfont-jboss',
         'jetty': 'tsfont-jetty',
