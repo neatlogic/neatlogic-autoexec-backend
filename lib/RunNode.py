@@ -541,6 +541,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
+        self.writeNodeLog("INFO: Begin to execute local operation...\n")
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
         if scriptFile is not None:
@@ -601,6 +602,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
+        self.writeNodeLog("INFO: Begin to execute local-remote operation...\n")
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
 
@@ -655,6 +657,7 @@ class RunNode:
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op=op)
 
+                self.writeNodeLog("INFO: Begin to upload operation...\n")
                 uploadRet = 0
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
@@ -685,6 +688,7 @@ class RunNode:
                 if tagent.agentOsType == 'windows':
                     self.killCmd = ""
                 if uploadRet == 0 and not self.context.goToStop:
+                    self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
                         outputFilePath = self._getOpOutputPath(op)
@@ -726,6 +730,7 @@ class RunNode:
             scp = None
             sftp = None
             try:
+                self.writeNodeLog("INFO: Begin to upload remote operation...\n")
                 # 建立连接
                 scp = paramiko.Transport((self.host, self.protocolPort))
                 scp.connect(username=self.username, password=self.password)
@@ -830,6 +835,7 @@ class RunNode:
                     scriptFile.close()
 
             if uploaded and not self.context.goToStop:
+                self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
                 ssh = None
                 try:
                     ssh = paramiko.SSHClient()
