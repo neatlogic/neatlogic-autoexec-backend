@@ -18,6 +18,9 @@ class VContext:
         self.jobId = jobId
         self.pid = os.getpid()
 
+        self.dbclient = None
+        self.db = None
+
         if execUser is None:
             self.execUser = 'system'
         else:

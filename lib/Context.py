@@ -21,10 +21,8 @@ import Utils
 
 class Context(VContext.VContext):
     def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
-        VContext.VContext.__init__(self, jobId=jobId, exeUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
+        VContext.VContext.__init__(self, jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
-        self.dbclient = None
-        self.db = None
         self.firstFire = firstFire
 
         # 初始化ServerAdapter，用于调用后台的接口对接处理
