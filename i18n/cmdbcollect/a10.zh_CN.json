@@ -51,6 +51,16 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "UPTIME",
             "desc": "Up Time",
             "type": "String"

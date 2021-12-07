@@ -2,7 +2,8 @@
     "label": "Storage NetDev",
     "collection": "COLLECT_FCDEV",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -45,58 +46,17 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NO",
-                    "desc": "Port No.",
-                    "type": "String"
-                },
+            "type": "Array",
+            "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Port Name",
-                    "type": "String"
-                },
-                {
-                    "name": "INDEX",
-                    "desc": "Index",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "WWN",
-                    "desc": "WWN",
-                    "type": "String"
-                },
-                {
-                    "name": "ADMIN_STATUS",
-                    "desc": "Admin Status",
-                    "type": "String"
-                },
-                {
-                    "name": "OPER_STATUS",
-                    "desc": "Operation Status",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed",
-                    "type": "float"
-                },
-                {
-                    "name": "MTU",
-                    "desc": "MTU",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
         {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VENDOR",
@@ -107,7 +67,8 @@
             "name": "ZONES",
             "desc": "Zone List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Zone Name",
                     "type": "String"

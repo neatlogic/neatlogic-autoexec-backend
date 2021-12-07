@@ -2,7 +2,8 @@
     "label": "应用实例",
     "collection": "COLLECT_INS",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -20,7 +21,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -36,7 +37,8 @@
             "name": "BELONG_APPLICATION",
             "desc": "所属应用",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
@@ -96,7 +98,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU使用百分比",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "EXE_PATH",
@@ -111,12 +113,12 @@
         {
             "name": "MEM_PERCENT",
             "desc": "内存使用百分比",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_USED",
             "desc": "使用内存大小(M)",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "OS_ID",
@@ -130,19 +132,20 @@
         },
         {
             "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "端口",
-                "type": "int"
-            }]
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "REF_CLUSTER",
             "desc": "调用的集群",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -175,7 +178,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -183,7 +186,8 @@
             "name": "REF_DB",
             "desc": "调用的数据库",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -206,7 +210,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -214,7 +218,8 @@
             "name": "REF_INS",
             "desc": "调用的其他实例",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -237,7 +242,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -245,7 +250,8 @@
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"

@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Firewall"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -43,6 +44,16 @@
             "name": "MODEL",
             "desc": "Device Model",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "VENDOR",

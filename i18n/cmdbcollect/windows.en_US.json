@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -48,17 +48,17 @@
         {
             "name": "CPU_BITS",
             "desc": "Cpu Bits",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_CORES",
             "desc": "Cpu Cores",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_COUNT",
             "desc": "Cpu Count",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -68,7 +68,7 @@
         {
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu Logic Cores",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_MODEL",
@@ -98,7 +98,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "MODEL",
@@ -201,7 +201,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -252,7 +252,7 @@
         {
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "KERNEL_VERSION",
@@ -267,12 +267,12 @@
         {
             "name": "MEM_AVAILABLE",
             "desc": "Memory Available",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "Total Memory",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MOUNT_POINTS",
@@ -297,7 +297,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "UNIT",
@@ -307,7 +307,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -319,7 +319,7 @@
         {
             "name": "NTP_ENABLE",
             "desc": "NTP Enabled",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NTP_SERVERS",
@@ -351,6 +351,16 @@
             ]
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "PRODUCT_NAME",
             "desc": "Product Name",
             "type": "String"
@@ -368,7 +378,7 @@
         {
             "name": "SYMANTEC_INSTALLED",
             "desc": "Symantec Installed",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SYSTEM_LOCALE",

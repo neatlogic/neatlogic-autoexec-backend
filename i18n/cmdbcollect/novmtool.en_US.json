@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "object_type",
             "type": "String"
@@ -27,18 +28,19 @@
         {
             "name": "CPU_CORES",
             "desc": "cpu_cores",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_COUNT",
             "desc": "cpu_count",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "UNIT",
                     "desc": "Unit",
                     "type": "String"
@@ -56,14 +58,14 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
         {
             "name": "IS_VIRTUAL",
             "desc": "is_virtual",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MACHINE_SN",
@@ -78,7 +80,7 @@
         {
             "name": "MEM_TOTAL",
             "desc": "mem_total",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_UNIT",
@@ -91,10 +93,21 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"

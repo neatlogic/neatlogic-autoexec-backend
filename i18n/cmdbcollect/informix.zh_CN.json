@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -109,13 +109,11 @@
         },
         {
             "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
+            "desc": "Port List",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },

@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -95,7 +95,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU Used percent",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "EXE_PATH",
@@ -120,7 +120,7 @@
         {
             "name": "JMX_PORT",
             "desc": "JMX Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "JMX_SSL",
@@ -145,22 +145,22 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_PERCENT",
             "desc": "Memory Used percent",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_USED",
             "desc": "Memroy used(M)",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "Min Heap Size",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "OS_ID",
@@ -175,12 +175,10 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },

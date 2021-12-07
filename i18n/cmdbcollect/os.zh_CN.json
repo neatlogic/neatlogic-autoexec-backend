@@ -2,7 +2,8 @@
     "label": "操作系统",
     "collection": "COLLECT_OS",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -20,7 +21,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -50,7 +51,7 @@
         {
             "name": "CPU_BITS",
             "desc": "CPU位数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_CORES",
@@ -91,7 +92,8 @@
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "UNIT",
                     "desc": "单位",
                     "type": "String"
@@ -109,7 +111,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -117,17 +119,20 @@
             "name": "DNS_SERVERS",
             "desc": "DNS服务器",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "网卡名",
                     "type": "String"
@@ -151,7 +156,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接交换机端口",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -184,7 +190,8 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -202,7 +209,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -215,7 +222,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "主机归属类别",
                     "type": "String"
@@ -236,21 +244,25 @@
             "name": "IPV6_ADDRS",
             "desc": "IPV6地址",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP地址",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP地址",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "KERNEL_VERSION",
@@ -265,28 +277,29 @@
         {
             "name": "MAX_OPEN_FILES",
             "desc": "最大打开文件数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "最大用户进程数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_AVAILABLE",
             "desc": "可用内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "总内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MOUNT_POINTS",
             "desc": "挂载点",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USED",
                     "desc": "已使用",
                     "type": "float"
@@ -309,7 +322,7 @@
                 {
                     "name": "USED%",
                     "desc": "使用率%",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "FS_TYPE",
@@ -324,39 +337,41 @@
                 {
                     "name": "INODE_USED%",
                     "desc": "Inode使用率%",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
         {
             "name": "NFS_MOUNTED",
             "desc": "挂载的NFS",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NIC_BOND",
             "desc": "双网卡绑定",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NTP_ENABLE",
             "desc": "NTP启用",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NTP_SERVERS",
             "desc": "NTP服务",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "OPENSSL_VERSION",
@@ -372,11 +387,23 @@
             "name": "PATCHES_APPLIED",
             "desc": "已打补丁",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "补丁",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "补丁",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "RESOURCE_ID",
@@ -396,7 +423,7 @@
         {
             "name": "SWAP_TOTAL",
             "desc": "SWAP大小",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SYS_VENDOR",
@@ -407,7 +434,8 @@
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "HOME",
                     "desc": "家目录",
                     "type": "String"

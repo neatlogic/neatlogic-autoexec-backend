@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -53,7 +53,7 @@
         {
             "name": "CPU_BITS",
             "desc": "CPU位数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_CORES",
@@ -113,7 +113,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -211,7 +211,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -279,37 +279,37 @@
         {
             "name": "MAX_OPEN_FILES",
             "desc": "最大打开文件数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "最大用户进程数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_AVAILABLE",
             "desc": "可用内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_BUFFERS",
             "desc": "BUFFER内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_CACHED",
             "desc": "CACHE内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_FREE",
             "desc": "空闲内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "总内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MOUNT_POINTS",
@@ -339,7 +339,7 @@
                 {
                     "name": "USED%",
                     "desc": "使用率%",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "FS_TYPE",
@@ -354,29 +354,29 @@
                 {
                     "name": "INODE_USED%",
                     "desc": "Inode使用率%",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
         {
             "name": "NFS_MOUNTED",
             "desc": "挂载的NFS",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NIC_BOND",
             "desc": "双网卡绑定",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NTP_ENABLE",
             "desc": "NTP启用",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NTP_SERVERS",
@@ -413,6 +413,16 @@
             ]
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "RESOURCE_ID",
             "desc": "CMDB对象ID",
             "type": "String"
@@ -425,12 +435,12 @@
         {
             "name": "SWAP_FREE",
             "desc": "SWAP空闲大小",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SWAP_TOTAL",
             "desc": "SWAP大小",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SYS_VENDOR",

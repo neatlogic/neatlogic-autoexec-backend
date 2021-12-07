@@ -16,7 +16,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Management Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "STATE",
@@ -41,12 +41,12 @@
         {
             "name": "CPU_CORES",
             "desc": "CPU Cores",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_COUNT",
             "desc": "CPU Count",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -118,7 +118,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "MAC",
@@ -150,14 +150,14 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
         {
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MACHINE_ID",
@@ -172,12 +172,12 @@
         {
             "name": "MEM_MAXIMUM_CAPACITY",
             "desc": "Memory Maximum Capacity",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_SLOTS",
             "desc": "Memory Slots",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_SPEED",
@@ -188,6 +188,16 @@
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "POWER CORDS_COUNT",

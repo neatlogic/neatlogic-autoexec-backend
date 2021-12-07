@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -85,7 +85,7 @@
         {
             "name": "BACKLOG",
             "desc": "连接队列长度",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "BIN_PATH",
@@ -95,7 +95,7 @@
         {
             "name": "CHUNK_GROW_FACTOR",
             "desc": "内存块增长因子",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "COMMAND",
@@ -110,7 +110,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU使用百分比",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "EXE_PATH",
@@ -125,32 +125,32 @@
         {
             "name": "MAX_CACHE_MEMORY",
             "desc": "最大内存",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MAX_CONNECTION",
             "desc": "最大并发连接数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MAX_REQ_PER_EVENT",
             "desc": "每连接最大处理请求数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_PERCENT",
             "desc": "内存使用百分比",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MEM_USED",
             "desc": "使用内存大小(M)",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MIN_SPACE_PER_RECORD",
             "desc": "最小记录内存大小（字节）",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "OS_ID",
@@ -164,13 +164,11 @@
         },
         {
             "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
+            "desc": "Port List",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -204,22 +202,22 @@
         {
             "name": "SASL_ENABLED",
             "desc": "SASL启用",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "THREAD_COUNT",
             "desc": "线程数",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "UDP_PORT",
             "desc": "UDP端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "USE_LARGE_PAGE",
             "desc": "使用Large Page",
-            "type": "int"
+            "type": "Int"
         }
     ]
 }

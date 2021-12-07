@@ -232,9 +232,9 @@ if __name__ == "__main__":
                         print("ERROR: Attribute desc not in json:", content)
                     else:
                         typeVal = jsonObj['type']
-                        if typeVal not in ('String', 'JsonArray', 'int'):
+                        if typeVal not in ('String', 'JsonArray', 'Int', 'Array'):
                             print("ERROR: Invalid attribute type:" + typeVal, ', only support String|JsonArray|int')
-
+                            continue
                     data['fields'].append(jsonObj)
                     with open(jsonFile, 'w', encoding="utf-8") as f:
                         json.dump(data, f, indent=4, ensure_ascii=False)

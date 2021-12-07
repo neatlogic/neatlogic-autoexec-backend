@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -83,12 +83,12 @@
                 {
                     "name": "DB_NAME",
                     "desc": "DB Name",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "DB_DIRECTORY",
                     "desc": "DB Directory",
-                    "type": "int"
+                    "type": "Int"
                 },
                 {
                     "name": "MEM_USED",
@@ -219,12 +219,10 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -263,7 +261,7 @@
                 {
                     "name": "NAME",
                     "desc": "User Name",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         }

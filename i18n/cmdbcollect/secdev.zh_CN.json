@@ -2,7 +2,8 @@
     "label": "安全设备",
     "collection": "COLLECT_SECDEV",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -41,6 +42,16 @@
             "name": "MODEL",
             "desc": "设备型号",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "VENDOR",

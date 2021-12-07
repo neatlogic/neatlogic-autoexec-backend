@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -202,12 +202,12 @@
         {
             "name": "ISCDB",
             "desc": "是否CDB",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "IS_RAC",
             "desc": "是否RAC",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "LISTEN_ADDRS",
@@ -222,7 +222,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -305,13 +305,11 @@
         },
         {
             "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
+            "desc": "Port List",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },

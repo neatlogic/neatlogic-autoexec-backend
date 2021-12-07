@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "SyBase"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -22,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -78,11 +79,13 @@
             "name": "DATABASES",
             "desc": "库列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "库名",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "库名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "DATA_FILE",
@@ -111,19 +114,20 @@
         },
         {
             "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "端口",
-                "type": "int"
-            }]
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -149,11 +153,13 @@
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "用户名",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

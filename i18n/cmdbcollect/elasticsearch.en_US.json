@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -113,7 +113,7 @@
         {
             "name": "JMX_PORT",
             "desc": "JMX Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "JMX_SSL",
@@ -133,12 +133,12 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "Min Heap Size",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "NODE_NAME",
@@ -158,12 +158,10 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
