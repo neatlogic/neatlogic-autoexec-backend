@@ -71,8 +71,11 @@ class Context(VContext.VContext):
             jobId = params['jobId']
             self.jobId = '{}'.format(jobId)
 
-        if 'execUser' in params:
-            self.execUser = params['execUser']
+        if self.execuser is None:
+            if 'execUser' in params and params['execUser'] != 'system':
+                self.execUser = params['execUser']
+            else:
+                self.execUser = 'anonymouse'
 
         if 'tenant' in params:
             self.tenant = params['tenant']

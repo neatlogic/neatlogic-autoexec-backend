@@ -21,9 +21,7 @@ class VContext:
         self.dbclient = None
         self.db = None
 
-        if execUser is None:
-            self.execUser = 'system'
-        else:
+        if execUser is not None:
             self.execUser = execUser
 
         self.params = {}
