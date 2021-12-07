@@ -18,6 +18,8 @@ sub new {
     $ostype =~ s/\s.*$//;
     $self->{ostype} = $ostype;
 
+    $self->{debug} = int( $ENV{OSCOLLECT_DEBUG} );
+
     $self->{isRoot} = 0;
     if ( $> == 0 ) {
 
@@ -63,7 +65,17 @@ sub getWinPSCmdOut {
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my $out = `PowerShell -Command "$psScript"`;
+    my $cmd = qq{PowerShell -Command "$psScript"};
+    if ( $self->{debug} ) {
+        print("DEBUG: Begin execute command: $cmd\n");
+    }
+
+    my $out = `$cmd`;
+
+    if ( $self->{debug} ) {
+        print("DEBUG: Command output==================\n");
+        print($out);
+    }
 
     my $status = $?;
     if ( $status ne 0 ) {
@@ -84,7 +96,18 @@ sub getWinPSCmdOutLines {
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my $out = `PowerShell -Command "$psScript"`;
+    my $cmd = qq{PowerShell -Command "$psScript"};
+    if ( $self->{debug} ) {
+        print("DEBUG: Begin execute command: $cmd\n");
+    }
+
+    my $out = `$cmd`;
+
+    if ( $self->{debug} ) {
+        print("DEBUG: Command output==================\n");
+        print($out);
+    }
+
     my @outLines = split( /\n/, $out );
 
     my $status = $?;
@@ -112,11 +135,18 @@ sub getCmdOut {
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             $hasSu = 1;
-            $out   = `su - '$user' -c '$cmd'`;
+
+            if ( $self->{debug} ) {
+                print("DEBUG: Begin execute command: su - '$user' -c '$cmd'\n");
+            }
+            $out = `su - '$user' -c '$cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
 
             #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
+            if ( $self->{debug} ) {
+                print("DEBUG: Begin execute command: $cmd\n");
+            }
             $out = `$cmd`;
         }
         else {
@@ -124,10 +154,19 @@ sub getCmdOut {
         }
     }
     else {
+        if ( $self->{debug} ) {
+            print("DEBUG: Begin execute command: $cmd\n");
+        }
         $out = `$cmd`;
     }
 
     my $status = $?;
+
+    if ( $self->{debug} ) {
+        print("DEBUG: Command output==================\n");
+        print($out);
+    }
+
     if ( $status ne 0 and not defined( $opts->{nowarn} ) ) {
         if ( $hasSu == 1 ) {
             print("WARN: Execute Command:$cmd by $user failed.\n");
@@ -166,9 +205,16 @@ sub getCmdOutLines {
     if ( $self->{ostype} ne 'Windows' and defined($user) ) {
         if ( $self->{isRoot} ) {
             $hasSu = 1;
-            @out   = `su - '$user' -c '$cmd'`;
+
+            if ( $self->{debug} ) {
+                print("DEBUG: Begin execute command: su - '$user' -c '$cmd'\n");
+            }
+            @out = `su - '$user' -c '$cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
+            if ( $self->{debug} ) {
+                print("DEBUG: Begin execute command: $cmd\n");
+            }
 
             #如果运行目标用户是当前用户，$>:EFFECTIVE_USER_ID
             @out = `$cmd`;
@@ -178,10 +224,20 @@ sub getCmdOutLines {
         }
     }
     else {
+        if ( $self->{debug} ) {
+            print("DEBUG: Begin execute command: $cmd\n");
+        }
         @out = `$cmd`;
     }
 
     my $status = $?;
+    if ( $self->{debug} ) {
+        print("DEBUG: Command output==================\n");
+        foreach my $line (@out) {
+            print($line);
+        }
+    }
+
     if ( $status ne 0 and not defined( $opts->{nowarn} ) ) {
         if ( $hasSu == 1 ) {
             print("WARN: Execute Command:$cmd by $user failed.\n");
@@ -206,6 +262,11 @@ sub getCmdOutLines {
 
 sub getFileContent {
     my ( $self, $filePath ) = @_;
+
+    if ( $self->{debug} ) {
+        print("DEBUG: Begin to read file:$filePath...\n");
+    }
+
     my $fh = IO::File->new( $filePath, 'r' );
     my $content;
     if ( defined($fh) ) {
@@ -214,6 +275,10 @@ sub getFileContent {
             $content = $content . $line;
         }
         $fh->close();
+
+        if ( $self->{debug} ) {
+            print("DEBUG: Read file:$filePath success.\n");
+        }
     }
     else {
         print("WARN: Can not open file:$filePath $!\n");
@@ -226,6 +291,11 @@ sub getFileContent {
 sub getFileLines {
     my ( $self, $filePath ) = @_;
     my @lines;
+
+    if ( $self->{debug} ) {
+        print("DEBUG: Begin to read file:$filePath...\n");
+    }
+
     my $fh = IO::File->new( $filePath, 'r' );
     if ( defined($fh) ) {
         my $line;
@@ -233,6 +303,10 @@ sub getFileLines {
             push( @lines, $line );
         }
         $fh->close();
+
+        if ( $self->{debug} ) {
+            print("DEBUG: Read file:$filePath success.\n");
+        }
     }
     else {
         print("WARN: Can not open file:$filePath $!\n");

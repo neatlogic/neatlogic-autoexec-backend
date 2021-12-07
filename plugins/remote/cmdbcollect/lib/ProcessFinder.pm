@@ -58,6 +58,8 @@ sub new {
         $self->{osId}     = $nodeInfo->{resourceId};
     }
 
+    my $utils = CollectUtils->new();
+    $self->{utils} = $utils;
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
     $self->{procEnvCmd} = 'ps eww';
 
@@ -67,14 +69,14 @@ sub new {
     if ( $ostype eq 'Windows' ) {
 
         #windows需要编写powershell脚本实现ps的功能，用于根据命令行过滤进程
-        $self->{listProcCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
+        $self->{listProcCmd} = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
 
         #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
         if ( $uname[4] =~ /64/ ) {
             $self->{procEnvCmd} = Cwd::abs_path("$FindBin::Bin/lib/windowspenv/getprocenv");
         }
         else {
-            $self->{procEnvCmd} = CollectUtils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
+            $self->{procEnvCmd} = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';
         }
     }
 
@@ -97,7 +99,7 @@ sub getProcEnv {
 
     my $envFilePath = "/proc/$pid/environ";
     if ( -f $envFilePath ) {
-        my $content = CollectUtils->getFileContent($envFilePath);
+        my $content = $self->{utils}->getFileContent($envFilePath);
         my $line;
         foreach $line ( split( /\x0/, $content ) ) {
             if ( $line =~ /^(.*?)=(.*)$/ ) {

@@ -83,6 +83,25 @@
             ],
             "required": "true",
             "validate": ""
+        },
+        {
+            "opt": "debug",
+            "name": "显示明细",
+            "help": "显示命令执行的详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                },
+                {
+                    "text": "是",
+                    "value": "1"
+                }
+            ],
+            "required": "true",
+            "validate": ""
         }
     ],
     "output": [{

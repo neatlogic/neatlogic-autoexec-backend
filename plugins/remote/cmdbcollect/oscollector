@@ -61,15 +61,21 @@ sub main {
     $SIG{ALRM} = \&collectTimeout;
 
     my $isVerbose = 0;
+    my $isDebug   = 0;
     my $classDef;
     my $defaultPassConf;
 
     GetOptions(
         'verbose=i'         => \$isVerbose,
+        'debug=i'           => \$isDebug,
         'class=s'           => \$classDef,
         'defaultpassconf=s' => \$defaultPassConf
     );
     my @myOpts = @ARGV;
+
+    if ($isDebug) {
+        $ENV{OSCOLLECT_DEBUG} = 1;
+    }
 
     # GetOptionsFromArray(
     #     \@myOpts,
