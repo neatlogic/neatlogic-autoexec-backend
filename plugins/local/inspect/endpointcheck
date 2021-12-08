@@ -4,6 +4,7 @@
 import re
 import AutoExecUtils
 import os
+import stat
 import traceback
 import datetime
 import argparse
@@ -15,6 +16,12 @@ import urllib.parse
 from urllib.error import URLError
 from urllib.error import HTTPError
 import time
+import logging
+import TagentClient
+import select
+import paramiko
+from paramiko.sftp import SFTPError
+from paramiko.ssh_exception import SSHException
 
 from ping3 import ping
 
@@ -68,8 +75,8 @@ def urlCheck(endPoint, timeOut):
     url = endPoint
     userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 
-    #data = urllib.parse.urlencode(params)
-    #url = url + '?' + data
+    # data = urllib.parse.urlencode(params)
+    # url = url + '?' + data
     req = urllib.request.Request(url)
     req.add_header('User-Agent', userAgent)
 
@@ -90,7 +97,147 @@ def urlCheck(endPoint, timeOut):
     return (True, None)
 
 
-def executeRemoteScript(scriptName, timeOut):
+def _remoteExecute(nodeInfo):
+    self.childPid = None
+
+    jobId = os.gentenv('AUTOEXEC_JOBID')
+    resourceId = nodeInfo['resoruceId']
+    host = nodeInfo['host']
+    protocol = nodeInfo['protocol']
+    protocolPort = nodeInfo['protocolPort']
+    username = nodeInfo['username']
+    password = nodeInfo['password']
+
+    scriptName = None
+    scriptContent = None
+    scriptFilePath = None
+    scriptCmd = None
+
+    remoteCmd = None
+    remoteCmdHidePass = None
+    killCmd = None
+
+    ret = -1
+    if protocol == 'tagent':
+        scriptFile = None
+        try:
+            jobSubDir = 'autoexec-{}-{}'.format(jobId, resourceId)
+            remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(jobId, resourceId)
+            remotePath = remoteRoot
+            runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
+            killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
+
+            tagent = TagentClient.TagentClient(host, port, password, readTimeout=360, writeTimeout=10)
+            uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
+            uploadRet = tagent.writeFile(username, scriptContent, remotePath + '/' + scriptName)
+
+            if uploadRet == 0:
+                remoteCmd = 'cd {} && {}'.format(remotePath, scriptCmd)
+
+                def getOutputLine(line):
+                    pass
+
+                ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=getOutputLine)
+
+                try:
+                    if ret == 0:
+                        if tagent.agentOsType == 'windows':
+                            tagent.execCmd(username, "rd /s /q {}".format(remoteRoot), env=runEnv)
+                        else:
+                            tagent.execCmd(username, "rm -rf {}".format(remoteRoot), env=runEnv)
+                except Exception as ex:
+                    print('ERROR: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
+        except Exception as ex:
+            print("ERROR: Execute remote script {} failed, {}\n".format(scriptName, ex))
+            raise ex
+
+        if ret == 0:
+            print("INFO: Execute remote script by agent succeed: {}\n".format(scriptCmd))
+        else:
+            print("ERROR: Execute remote script by agent failed: {}\n".format(scriptCmd))
+
+    elif protocol == 'ssh':
+        logging.getLogger("paramiko").setLevel(logging.FATAL)
+        remoteRoot = '/tmp/autoexec-{}-{}'.format(jobId, resourceId)
+        remotePath = remoteRoot
+        remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}'.format(remotePath, jobId, scriptName)
+        self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
+        scriptFile = None
+        uploaded = False
+        hasError = False
+        scp = None
+        sftp = None
+        try:
+            print("INFO: Begin to upload remote script...\n")
+            # 建立连接
+            scp = paramiko.Transport((host, protocolPort))
+            scp.connect(username=username, password=password)
+
+            # 建立一个sftp客户端对象，通过ssh transport操作远程文件
+            sftp = paramiko.SFTPClient.from_transport(scp)
+            # Copy a local file (localpath) to the SFTP server as remotepath
+            try:
+                try:
+                    sftp.stat(remoteRoot)
+                except IOError:
+                    sftp.mkdir(remoteRoot)
+            except SFTPError as err:
+                hasError = True
+                print("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
+
+                sftp.put(scriptFilePath, os.path.join(remotePath, scriptName))
+                sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
+
+                remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
+            if hasError == False:
+                uploaded = True
+
+        except Exception as err:
+            print('ERROR: Upload script:{} to remoteRoot:{} failed: {}\n'.format(scriptName, remoteRoot, err))
+
+        if uploaded:
+            print("INFO: Upload script success, begin to execute remote operation...\n")
+            ssh = None
+            try:
+                ret = 0
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(host, protocolPort, username, password)
+                channel = ssh.get_transport().open_session()
+                channel.set_combine_stderr(True)
+                channel.exec_command(remoteCmd)
+                while True:
+                    r, w, x = select.select([channel], [], [], 10)
+                    if len(r) > 0:
+                        print(channel.recv(4096))
+                    if channel.exit_status_ready():
+                        ret = channel.recv_exit_status()
+                        break
+
+                try:
+                    if ret == 0:
+                        ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
+                except Exception as ex:
+                    print("ERROR: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
+
+            except Exception as err:
+                print("ERROR: Execute remote script {} failed, {}\n".format(scriptName, err))
+            finally:
+                if ssh:
+                    ssh.close()
+
+            if scp:
+                scp.close()
+
+        if ret == 0:
+            print("INFO: Execute remote script by ssh succeed:{}\n".format(scriptCmd))
+        else:
+            print("ERROR: Execute remote script by ssh failed:{}\n".format(scriptCmd))
+
+    return ret
+
+
+def executeRemoteScript(nodeInfo, scriptName, timeOut):
     pass
 
 
@@ -170,7 +317,7 @@ if __name__ == "__main__":
                 inspectScript = ciAttrs['remote_script']
 
             if inspectScript is not None:
-                executeRemoteScript(inspectScript)
+                executeRemoteScript(nodeInfo, inspectScript, timeOut)
         else:
             # ping
             (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)

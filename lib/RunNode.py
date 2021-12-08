@@ -709,7 +709,7 @@ class RunNode:
                 raise ex
             finally:
                 if scriptFile is not None:
-                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
 
             if ret == 0:
@@ -831,13 +831,14 @@ class RunNode:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
             finally:
                 if scriptFile is not None:
-                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
 
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
                 ssh = None
                 try:
+                    ret = 0
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     ssh.connect(self.host, self.protocolPort, self.username, self.password)

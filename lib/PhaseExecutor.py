@@ -30,7 +30,13 @@ class PhaseWorker(threading.Thread):
     def run(self):
         while self.context.goToStop == False:
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
-            node = self._queue.get()
+            node = None
+            try:
+                node = self._queue.get(timeout=300)
+            except Exception as ex:
+                print("INFO: Task queue empty, all task processed.")
+                break
+
             if node is None:
                 break
             self.currentNode = node
@@ -102,13 +108,13 @@ class PhaseExecutor:
         return workers
 
     def execute(self):
-        # 删除当前阶段的waitInput标记文件
-        if os.path.exists(self.waitInputFlagFilePath):
-            os.unlink(self.waitInputFlagFilePath)
-
         phaseStatus = self.phaseStatus
         worker_threads = []
         try:
+            # 删除当前阶段的waitInput标记文件
+            if os.path.exists(self.waitInputFlagFilePath):
+                os.unlink(self.waitInputFlagFilePath)
+
             nodesFactory = RunNodeFactory.RunNodeFactory(self.context, self.phaseName)
             if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < self.parallelCount:
                 self.parallelCount = nodesFactory.nodesCount
@@ -117,7 +123,7 @@ class PhaseExecutor:
                 self.parallelCount = 1
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
-            execQueue = queue.Queue(self.parallelCount)
+            execQueue = queue.Queue(self.parallelCount * 2)
             self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
@@ -212,8 +218,9 @@ class PhaseExecutor:
                         else:
                             print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
         finally:
+            workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象
-            for worker in worker_threads:
+            for idx in range(1, workerCount*2):
                 execQueue.put(None)
 
             # 等待所有worker线程退出
