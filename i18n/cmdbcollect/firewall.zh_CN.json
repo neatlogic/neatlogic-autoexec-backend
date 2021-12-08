@@ -47,7 +47,7 @@
         },
         {
             "name": "PORTS",
-            "desc": "Port List",
+            "desc": "端口列表",
             "type": "Array",
             "subset": [
                 {
