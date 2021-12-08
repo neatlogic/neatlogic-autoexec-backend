@@ -109,7 +109,8 @@ sub collectOsInfo {
         'selinuxfs'   => 1,
         'sysfs'       => 1,
         'tmpfs'       => 1,
-        'iso9660'     => 1
+        'iso9660'     => 1,
+        'usbfs'       => 1
     };
     my $mountLines = $self->getFileLines('/proc/mounts');
     foreach my $line (@$mountLines) {
