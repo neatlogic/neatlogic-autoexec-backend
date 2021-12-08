@@ -76,7 +76,8 @@ sub collectOsInfo {
         'tmpfs'       => 1,
         'ahafs'       => 1,
         'iso9660'     => 1,
-        'usbfs'       => 1
+        'usbfs'       => 1,
+        'nfsd'        => 1
     };
 
     #   node       mounted        mounted over    vfs       date        options
