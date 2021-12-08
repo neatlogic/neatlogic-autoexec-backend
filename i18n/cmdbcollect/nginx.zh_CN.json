@@ -59,7 +59,7 @@
         },
         {
             "name": "PORT",
-            "desc": "Port",
+            "desc": "端口",
             "type": "String"
         },
         {
