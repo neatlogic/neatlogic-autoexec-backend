@@ -76,8 +76,8 @@ def getIcon(name):
         'netdev': 'tsfont-devices',
         'nginx': 'tsfont-nginx',
         'novmtool': 'tsfont-yunweishenjishebei',
-        'oracle': 'tsfont-oracle',
         'oracle-rac': 'tsfont-oracle-rac',
+        'oracle': 'tsfont-oracle',
         'os': 'tsfont-os',
         'postgresql': 'tsfont-postgresql',
         'rabbitmq': 'tsfont-rabbitmq',
@@ -89,7 +89,12 @@ def getIcon(name):
         'switch': 'tsfont-switch',
         'sybase': 'tsfont-sybase',
         'tomcat': 'tsfont-tomcat',
-        'tuxedo': 'tsfont-tuxedo'
+        'tuxedo': 'tsfont-tuxedo',
+        'vcenter': 'tsfont-vcenter',
+        'weblogic': 'tsfont-weblogic',
+        'websphere': 'tsfont-websphere',
+        'windows': 'tsfont-windows',
+        'zookeeper': 'tsfont-zookeeper'
     }
     if name in nameToIconMap:
         return nameToIconMap[name]
