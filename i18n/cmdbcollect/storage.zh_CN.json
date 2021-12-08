@@ -130,16 +130,6 @@
             ]
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "UPTIME",
             "desc": "Up Time",
             "type": "String"

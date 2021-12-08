@@ -45,7 +45,6 @@ def getDefaultFieldKeys():
 def getIcon(name):
     nameToIconMap = {
         'a10': 'tsfont-a10',
-        'accessendpoint': 'tsfont-userinfo',
         'activemq': 'tsfont-activemq',
         'aix': 'tsfont-aix',
         'apache': 'tsfont-apache',
@@ -53,6 +52,7 @@ def getIcon(name):
         'db': 'tsfont-ibm',
         'elasticsearch': 'tsfont-elasticsearch',
         'empty': 'tsfont-empty',
+        'accessendpoint': 'tsfont-empty',
         'f5': 'tsfont-f5',
         'fcdev': 'tsfont-fcdev',
         'fcswitch': 'tsfont-fcswitch',
@@ -61,7 +61,7 @@ def getIcon(name):
         'host': 'tsfont-host',
         'iis': 'tsfont-iis',
         'informix': 'tsfont-informix',
-        'ins': 'tsfont-instance',
+        'ins': 'tsfont-inspur',
         'java': 'tsfont-java',
         'jboss': 'tsfont-jboss',
         'jetty': 'tsfont-jetty',
@@ -76,8 +76,8 @@ def getIcon(name):
         'netdev': 'tsfont-devices',
         'nginx': 'tsfont-nginx',
         'novmtool': 'tsfont-yunweishenjishebei',
-        'oracle-rac': 'tsfont-oracle-rac',
         'oracle': 'tsfont-oracle',
+        'oracle-rac': 'tsfont-oracle-rac',
         'os': 'tsfont-os',
         'postgresql': 'tsfont-postgresql',
         'rabbitmq': 'tsfont-rabbitmq',
@@ -89,12 +89,7 @@ def getIcon(name):
         'switch': 'tsfont-switch',
         'sybase': 'tsfont-sybase',
         'tomcat': 'tsfont-tomcat',
-        'tuxedo': 'tsfont-tuxedo',
-        'vcenter': 'tsfont-vcenter',
-        'weblogic': 'tsfont-weblogic',
-        'websphere': 'tsfont-websphere',
-        'windows': 'tsfont-windows',
-        'zookeeper': 'tsfont-zookeeper'
+        'tuxedo': 'tsfont-tuxedo'
     }
     if name in nameToIconMap:
         return nameToIconMap[name]
@@ -198,6 +193,17 @@ if __name__ == "__main__":
                     print("ERROR: Import", dfile, "failed.")
 
             elif action == 'remove':
+                matchFilter = args.filter
+                filterObj = json.loads(matchFilter)
+                filterMatched = True
+                for filterKey in filterObj.keys():
+                    if filterKey not in data or data[filterKey] != filterObj[filterKey]:
+                        print("INFO: " + data[filterKey] + " not match filter " + matchFilter)
+                        filterMatched = False
+                        break
+                if not filterMatched:
+                    continue
+
                 removeKey = args.content
                 newFields = []
                 fields = data['fields']
@@ -214,12 +220,11 @@ if __name__ == "__main__":
 
             elif action == 'append':
                 content = args.content
-                matchFilter = args.filter
                 if content != '':
                     print("INFO: Append entry to ", dfile, "start...")
-                    filterObj = json.loads(matchFilter)
-                    jsonObj = json.loads(content)
 
+                    matchFilter = args.filter
+                    filterObj = json.loads(matchFilter)
                     filterMatched = True
                     for filterKey in filterObj.keys():
                         if filterKey not in data or data[filterKey] != filterObj[filterKey]:
@@ -229,6 +234,7 @@ if __name__ == "__main__":
                     if not filterMatched:
                         continue
 
+                    jsonObj = json.loads(content)
                     if 'name' not in jsonObj:
                         print("ERROR: Attribute name not in json:", content)
                     if 'desc' not in jsonObj:
@@ -237,9 +243,9 @@ if __name__ == "__main__":
                         print("ERROR: Attribute desc not in json:", content)
                     else:
                         typeVal = jsonObj['type']
-                        if typeVal not in ('String', 'JsonArray', 'Int', 'Array'):
+                        if typeVal not in ('String', 'JsonArray', 'int'):
                             print("ERROR: Invalid attribute type:" + typeVal, ', only support String|JsonArray|int')
-                            continue
+
                     data['fields'].append(jsonObj)
                     with open(jsonFile, 'w', encoding="utf-8") as f:
                         json.dump(data, f, indent=4, ensure_ascii=False)

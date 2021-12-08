@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SERVER_NAME",
@@ -202,12 +202,12 @@
         {
             "name": "ISCDB",
             "desc": "Is CDB",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "IS_RAC",
             "desc": "Is RAC",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "LISTEN_ADDRS",
@@ -222,7 +222,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -311,10 +311,12 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "Array",
+            "type": "JsonArray",
             "subset": [
                 {
-                    "type": "Int"
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "int"
                 }
             ]
         },

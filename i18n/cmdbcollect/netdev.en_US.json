@@ -51,17 +51,96 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "Array",
+            "type": "JsonArray",
             "subset": [
                 {
-                    "type": "Int"
+                    "name": "NO",
+                    "desc": "Port No.",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operation Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "float"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "int"
+                },
+                {
+                    "name": "NEIGHBORS",
+                    "desc": "CDP/LLDP",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Dev Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
         {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "UPTIME",

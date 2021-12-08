@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SERVER_NAME",
@@ -100,7 +100,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU使用百分比",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "EXE_PATH",
@@ -135,7 +135,7 @@
         {
             "name": "JMX_PORT",
             "desc": "JMX端口",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "JMX_SSL",
@@ -155,22 +155,22 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "最大Heap Size",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_PERCENT",
             "desc": "内存使用百分比",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_USED",
             "desc": "使用内存大小(M)",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "最小Heap Size",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "OS_ID",
@@ -230,7 +230,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -262,7 +262,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -294,7 +294,7 @@
                 {
                     "name": "PORT",
                     "desc": "端口",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },

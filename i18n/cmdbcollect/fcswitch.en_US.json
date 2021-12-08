@@ -48,17 +48,59 @@
         {
             "name": "PORTS",
             "desc": "Port List",
-            "type": "Array",
+            "type": "JsonArray",
             "subset": [
                 {
-                    "type": "Int"
+                    "name": "NO",
+                    "desc": "Port No.",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operation Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "float"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "int"
                 }
             ]
         },
         {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "VENDOR",

@@ -21,7 +21,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Management Port",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "VERSION",
@@ -51,7 +51,7 @@
         {
             "name": "CPU_BITS",
             "desc": "Cpu Bits",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "CPU_CORES",
@@ -111,7 +111,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -209,7 +209,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -277,22 +277,22 @@
         {
             "name": "MAX_OPEN_FILES",
             "desc": "Max Open Files",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "Max User Processes Count",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_AVAILABLE",
             "desc": "Memory Available",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "Memory Total",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MOUNT_POINTS",
@@ -322,7 +322,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "Int"
+                    "type": "int"
                 },
                 {
                     "name": "FS_TYPE",
@@ -337,29 +337,29 @@
                 {
                     "name": "INODE_USED%",
                     "desc": "Inode Used%",
-                    "type": "Int"
+                    "type": "int"
                 },
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
         {
             "name": "NFS_MOUNTED",
             "desc": "NFS Mounted",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "NIC_BOND",
             "desc": "NIC Bond",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "NTP_ENABLE",
             "desc": "NTP Enabled",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "NTP_SERVERS",
@@ -396,16 +396,6 @@
             ]
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "RESOURCE_ID",
             "desc": "CMDB ID",
             "type": "String"
@@ -423,7 +413,7 @@
         {
             "name": "SWAP_TOTAL",
             "desc": "Swap Total",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SYS_VENDOR",

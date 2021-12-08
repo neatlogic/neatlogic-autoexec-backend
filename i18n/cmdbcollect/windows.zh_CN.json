@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "VERSION",
@@ -48,17 +48,17 @@
         {
             "name": "CPU_BITS",
             "desc": "CPU位数",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "CPU_CORES",
             "desc": "cpu核数",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "CPU_COUNT",
             "desc": "CPU数量",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -68,7 +68,7 @@
         {
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu逻辑核数",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "CPU_MODEL",
@@ -98,7 +98,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "Int"
+                    "type": "int"
                 },
                 {
                     "name": "MODEL",
@@ -201,7 +201,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -252,7 +252,7 @@
         {
             "name": "IS_VIRTUAL",
             "desc": "是否是虚拟机",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "KERNEL_VERSION",
@@ -267,12 +267,12 @@
         {
             "name": "MEM_AVAILABLE",
             "desc": "可用内存",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "内存大小",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MOUNT_POINTS",
@@ -297,7 +297,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "Int"
+                    "type": "int"
                 },
                 {
                     "name": "UNIT",
@@ -307,7 +307,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -319,7 +319,7 @@
         {
             "name": "NTP_ENABLE",
             "desc": "是否开启NTP服务",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "NTP_SERVERS",
@@ -351,16 +351,6 @@
             ]
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "PRODUCT_NAME",
             "desc": "品牌",
             "type": "String"
@@ -378,7 +368,7 @@
         {
             "name": "SYMANTEC_INSTALLED",
             "desc": "是否安装ccSvcHst",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SYSTEM_LOCALE",

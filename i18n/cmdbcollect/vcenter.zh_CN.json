@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SERVER_NAME",
@@ -156,16 +156,6 @@
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "VENDOR",

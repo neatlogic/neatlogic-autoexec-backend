@@ -46,16 +46,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "VENDOR",
             "desc": "厂商",
             "type": "String"

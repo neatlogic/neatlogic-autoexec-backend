@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "SERVER_NAME",
@@ -122,7 +122,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU Used percent",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "EXE_PATH",
@@ -147,7 +147,7 @@
         {
             "name": "JMX_PORT",
             "desc": "JMX Port",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "JMX_SSL",
@@ -167,22 +167,22 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_PERCENT",
             "desc": "Memory Used percent",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MEM_USED",
             "desc": "Memroy used(M)",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "Min Heap Size",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "OSGI_INSTALL",
@@ -247,7 +247,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -279,7 +279,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -311,7 +311,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "Int"
+                    "type": "int"
                 }
             ]
         },
@@ -345,7 +345,7 @@
         {
             "name": "SOAP_PORT",
             "desc": "Soap Port",
-            "type": "Int"
+            "type": "int"
         },
         {
             "name": "USER_INSTALL_ROOT",
