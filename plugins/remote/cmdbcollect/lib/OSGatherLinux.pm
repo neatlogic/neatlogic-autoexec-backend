@@ -403,7 +403,7 @@ sub collectOsInfo {
             my $unit = $3;
             ( $diskInfo->{UNIT}, $diskInfo->{CAPACITY} ) = $utils->getDiskSizeFormStr( $size . $unit );
 
-            if ( $name =~ /\/dev\/sd/ ) {
+            if ( $name =~ /\/dev\/sd/ or $name =~ /\/dev\/sr/ ) {
                 $diskInfo->{TYPE} = 'local';
             }
             elsif ( $name =~ /\/dev\/mapper\// ) {
