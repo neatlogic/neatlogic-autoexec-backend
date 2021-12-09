@@ -60,7 +60,7 @@ sub main {
     my $data = $collector->collect();
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('SWITCH');
     $data->{_OBJ_TYPE}     = $objType;
-    $data->{PK}            = ['SN'];
+    $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $node->{resourceId};
     $data->{MGMT_IP}       = $node->{host};
 
