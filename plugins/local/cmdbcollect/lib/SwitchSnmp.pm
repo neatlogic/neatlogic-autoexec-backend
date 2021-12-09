@@ -624,7 +624,12 @@ sub collect {
         $switchIns->after($self);
     }
 
-    return $self->{DATA};
+    my $data = $self->{DATA};
+    if ( not defined( $data->{VENDOR} ) ) {
+        $data->{VENDOR} = $data->{BRAND};
+    }
+
+    return $data;
 }
 
 1;

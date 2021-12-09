@@ -150,7 +150,7 @@ class TagentClient:
             if chunkLen:
                 chunkLen = chunkLen[0]
             else:
-                raise ExecError("Connection reset!")
+                raise ExecError("Connection({}:{}) reset!".format(self.host, self.port))
 
             if chunkLen > 0:
                 while readLen < chunkLen:
@@ -159,7 +159,7 @@ class TagentClient:
                         chunk += buf
                         readLen = readLen + len(buf)
                     else:
-                        raise ExecError("Connection reset or closed!")
+                        raise ExecError("Connection({}:{}) reset or closed!".format(self.host, self.port))
             else:
                 while True:
                     buf = sock.recv(4096)
@@ -171,7 +171,7 @@ class TagentClient:
                             chunk = _rc4(self.password, chunk)
                         raise ExecError(chunk.decode(self.agentCharset, 'ignore'))
         else:
-            raise ExecError("Connection reset!")
+            raise ExecError("Connection({}:{}) reset!".format(self.host, self.port))
 
         if encrypt and chunk:
             chunk = _rc4(self.password, chunk)
@@ -201,7 +201,7 @@ class TagentClient:
             if chunkLen == 0:
                 sock.shutdown(1)
         except socket.error as msg:
-            raise ExecError("Connection closed:{}\n".format(str(msg)))
+            raise ExecError("Connection({}:{}) closed:{}\n".format(self.host, self.port, str(msg)))
 
     def getConnection(self, isVerbose=0):
         # 创建Agent连接，并完成验证, 返回TCP连接
