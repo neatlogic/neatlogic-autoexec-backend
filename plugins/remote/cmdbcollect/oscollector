@@ -316,13 +316,15 @@ sub main {
             if ( defined($insNamePath) and $insNamePath ne '' ) {
                 my @insPaths = split( '/', $insNamePath );
                 if ( scalar(@insPaths) > 1 ) {
-                    $appInfo->{BELONG_APPLICATION} = {
-                        APP_NAME       => $insPaths[0],
-                        APPMODULE_NAME => $insPaths[1],
-                    };
+                    $appInfo->{BELONG_APPLICATION} = [
+                        {
+                            APP_NAME       => $insPaths[0],
+                            APPMODULE_NAME => $insPaths[1],
+                        }
+                    ];
                 }
                 else {
-                    $appInfo->{BELONG_APPLICATION} = {};
+                    $appInfo->{BELONG_APPLICATION} = [];
                 }
             }
 
