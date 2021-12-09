@@ -73,7 +73,7 @@ sub main {
     );
     my @myOpts = @ARGV;
 
-    if ($isDebug) {
+    if (defined($isDebug) and $isDebug eq 1) {
         $ENV{OSCOLLECT_DEBUG} = 1;
     }
 
