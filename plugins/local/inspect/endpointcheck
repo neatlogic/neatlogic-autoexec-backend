@@ -11,8 +11,11 @@ import argparse
 import sys
 import json
 import socket
-import urllib.request
-import urllib.parse
+import re
+import requests
+from http import cookiejar
+import urllib
+from urllib import request, parse, error
 from urllib.error import URLError
 from urllib.error import HTTPError
 import time
@@ -95,6 +98,81 @@ def urlCheck(endPoint, timeOut):
         return (False, errorMsg)
 
     return (True, None)
+
+
+def execOneHttpReq(urlConf, valuesJar, timeOut):
+    url = urlConf['url']
+    method = urlConf['method']
+    data = urlConf['data']
+    proxyStr = urlConf['proxy']
+    matchKey = urlConf['matchKey']
+    extractContent = urlConf['extractConf']
+
+    dataContent = json.dumps(data, ensure_ascii=False)
+    for varName, varValue in matchKey.items():
+        dataContent.replace('\$\{' + varName + '\}', varValue)
+
+    cookie = cookiejar.CookieJar()
+    cookieHandler = request.HTTPCookieProcessor(cookie)
+    httpHandler = request.HTTPHandler()
+    httpsHandler = request.HTTPSHandler()
+    proxyHandler = None
+    if proxyStr is not None and proxyStr != '':
+        proxyInfo = proxyStr.split('://', 1)
+        proxy = {proxyInfo[0]: proxyInfo[1]}
+        proxyHandler = request.ProxyHandler(proxy)
+
+    opener = request.build_opener(httpHandler, httpsHandler, cookieHandler, proxyHandler)
+
+    req = None
+    if method == 'POST-FORM':
+        formData = parse.urlencode(data).encode()
+        req = request.Request(url, data=formData)
+        req.add_header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
+    elif method == 'POST-JSON':
+        jsonData = json.dumps(data)
+        req = request.Request(url, data=jsonData)
+        req.add_header('Content-Type', 'application/json; charset=utf-8')
+    else:
+        formData = parse.urlencode(data).encode()
+        req = request.Request(url + formData)
+
+    userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+    req.add_header('User-Agent', userAgent)
+
+    res = opener.open(req, timeout=timeOut)
+    content = res.read().decode()
+
+    ret = True
+    if matchKey is not None and matchKey != '':
+        matchObj = re.search(matchKey, content)
+        if matchObj is None:
+            ret = False
+            print("ERROR: Response content not match:" + matchKey + "\n")
+            print(content)
+
+    for line in extractContent.split("\n"):
+        kv = line.split('=', 1)
+        keyName = kv[0].strip()
+        matchObj = re.search(kv[1].strip(), content)
+        if matchObj:
+            valuesJar[keyName] = matchObj.group(1)
+
+    return ret
+
+
+def urlSeqCheck(urlSeq, timeOut):
+    hasError = False
+    for urlConf in urlSeq:
+        try:
+            ret = execOneHttpReq(urlConf, timeOut)
+            if not ret:
+                hasError = True
+                break
+        except Exception as ex:
+            hasError = True
+            print("ERROR: " + str(ex))
+            break
 
 
 def _remoteExecute(nodeInfo):
