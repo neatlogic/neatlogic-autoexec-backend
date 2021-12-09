@@ -127,7 +127,7 @@ def _remoteExecute(nodeInfo):
             runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
             killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
-            tagent = TagentClient.TagentClient(host, port, password, readTimeout=360, writeTimeout=10)
+            tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
             uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
             uploadRet = tagent.writeFile(username, scriptContent, remotePath + '/' + scriptName)
 

@@ -651,7 +651,7 @@ class RunNode:
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword), 'HISTSIZE': '0'}
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
-                tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+                tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password, readTimeout=360, writeTimeout=10)
                 self.tagent = tagent
 
                 # 更新节点状态为running

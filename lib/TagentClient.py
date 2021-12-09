@@ -213,6 +213,7 @@ class TagentClient:
         sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
+            sock.settimeout(self.readTimeout)
             sock.connect((host, port))
         except Exception as err:
             raise AgentError("ERROR: Connect to {}:{} failed, {}.".format(host, port, err))

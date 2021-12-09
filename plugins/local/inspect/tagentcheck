@@ -1,0 +1,70 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import argparse
+import os
+import traceback
+import json
+import AutoExecUtils
+import TagentClient
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print("{} --node <node> --timeout <timeout seconds> .\n".format(pname))
+    exit(-1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--tiemout', default='', help='Output json file path for node')
+
+    args = parser.parse_args()
+    tiemout = args.timeout
+    node = args.node
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None:
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.\n")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if hasOptError:
+            usage()
+            exit(1)
+
+        if timeout == '':
+            timeout = 10
+
+        errMsg = None
+        print("INFO: Try to connect to Tagent $host:$port.\n")
+
+        tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
+
+        data = {'MGMT_IP': nodeInfo['host'],
+                'PORT': nodeInfo['port'],
+                'RESOURCE_ID': nodeInfo['resourceId'],
+                'AVAILABILITY': 0
+                }
+
+        try:
+            tagent.echo(None, "Agent logon success.\n", 1)
+            data['AVAILABILITY'] = 1
+            data['ERROR_MESSAGE'] = ''
+            print("FINEST: Tagent logon succeed.\n")
+        except Exception as ex:
+            errMsg = str(ex)
+            data['AVAILABILITY'] = 0
+            data['ERROR_MESSAGE'] = errMsg
+
+        out = {'DATA': data}
+        AutoExecUtils.saveOutput(out)
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)

@@ -1,0 +1,24 @@
+{
+    "opName": "Tagent登录检查",
+    "opType": "localremote",
+    "typeName": "INSPECTION",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "检查Tagent是否可以登录",
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "10",
+        "required": "false",
+        "validate": ""
+    }],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}
