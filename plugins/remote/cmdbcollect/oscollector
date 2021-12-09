@@ -146,12 +146,12 @@ sub main {
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
             $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
-            $osInfo->{_OBJ_TYPE}       = 'HOST';
+            $hostInfo->{_OBJ_TYPE}     = 'HOST';
             $hostInfo->{OS_ID}         = $osGather->{osId};
             $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
             $hostInfo->{PK}            = ['BOARD_SERIAL'];
-            $osInfo->{INDEX_FIELDS}    = ['OS_ID'];
+            $hostInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
 
         if ( defined($osInfo) ) {

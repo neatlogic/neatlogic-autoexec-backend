@@ -14,7 +14,7 @@ use WebCtl;
 sub usage {
     my $pname = $FindBin::Script;
     print("$pname --node <node> --timeout <timeout seconds> .\n");
-    exit(0);
+    exit(-1);
 }
 
 sub main {
@@ -49,13 +49,22 @@ sub main {
         usage();
     }
 
-    my $host = $nodeInfo->{host};
-    my $port = $nodeInfo->{port};
-    my $user = $nodeInfo->{username};
-    my $pass = $nodeInfo->{password};
-
+    my $host       = $nodeInfo->{host};
+    my $port       = $nodeInfo->{port};
+    my $user       = $nodeInfo->{username};
+    my $pass       = $nodeInfo->{password};
     my $resourceId = $nodeInfo->{resourceId};
-    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+
+    if ( not defined($port) or $port eq '' or $port == 0 or $port == 65535 ) {
+        $port = $nodeInfo->{protocolPort};
+    }
+
+    my $data = {
+        MGMT_IP      => $host,
+        PORT         => $port,
+        RESOURCE_ID  => $resourceId,
+        AVAILABILITY => 0
+    };
 
     my $webCtl = WebCtl->new();
     print("INFO: Begin url check...\n");

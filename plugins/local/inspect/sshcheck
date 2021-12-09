@@ -14,7 +14,7 @@ use JSON;
 sub usage {
     my $pname = $FindBin::Script;
     print("$pname --node <node> --timeout <timeout seconds> .\n");
-    exit(0);
+    exit(-1);
 }
 
 sub main {
@@ -49,10 +49,18 @@ sub main {
     }
 
     my $resourceId = $nodeInfo->{resourceId};
-    my $host = $nodeInfo->{host};
-    my $port = $nodeInfo->{protocolPort};
+    my $host       = $nodeInfo->{host};
+    my $port       = $nodeInfo->{port};
+    if ( not defined($port) or $port eq '' or $port == 0 or $port == 65535 ) {
+        $port = $nodeInfo->{protocolPort};
+    }
 
-    my $data = { MGMT_IP => $host, PORT => $port, RESOURCE_ID => $resourceId, CONNECTIVITY => 0 };
+    my $data = {
+        MGMT_IP      => $host,
+        PORT         => $port,
+        RESOURCE_ID  => $resourceId,
+        AVAILABILITY => 0
+    };
 
     print("INFO: Try to ssh logon to $host:$port.\n");
     my $ssh = Net::OpenSSH->new(
