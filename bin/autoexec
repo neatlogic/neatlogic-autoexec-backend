@@ -27,6 +27,7 @@ import VContext
 import Context
 import ServerAdapter
 import OutputStore
+import JobPurger
 
 
 class ConsoleLog(io.TextIOWrapper):
@@ -143,6 +144,7 @@ if __name__ == "__main__":
     parser.add_argument('--pause', '-s', default=False, action='store_true', help='puase the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
     parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
+    parser.add_argument('--purgejobdata', default='0', help='Job reserve days')
     parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
     parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
     parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
@@ -247,6 +249,12 @@ if __name__ == "__main__":
             serverAdapter.jobKilled()
             print("INFO: Can not find job {} process.\n".format(args.jobid))
         sys.exit(ret)
+    elif args.purgejobdata != '0':
+        # purge expired job
+        passThroughEnv = json.loads(args.passthroughenv)
+        vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+        purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
+        purger.purge()
     else:
         # 初始化运行context
         passThroughEnv = json.loads(args.passthroughenv)
