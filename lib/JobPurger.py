@@ -6,6 +6,9 @@
 import os
 import time
 import shutil
+from pathlib import Path
+
+import traceback
 
 
 class JobPurger:
@@ -15,6 +18,15 @@ class JobPurger:
         self.reserveSeconds = reserveDays * 86400
         self.nowTime = time.time()
         self.jobDirIdx = 0
+
+    def purgeEmptyJobDir(self, jobPath):
+        startPath = Path(jobPath).parent
+        while startPath.name != 'job':
+            try:
+                os.rmdir(startPath)
+            except:
+                break
+            startPath = startPath.parent
 
     def purgeJob(self, absRoot):
         if os.path.exists(absRoot):
@@ -28,6 +40,7 @@ class JobPurger:
                         jobMtime = os.stat(paramFile).st_mtime
                         if self.nowTime - jobMtime > self.reserveSeconds:
                             shutil.rmtree(jobIdPath)
+                            self.purgeEmptyJobDir(jobIdPath)
                             print("INFO: Remove job dictory:", jobIdPath)
 
     def delExpiredLog(self, hislogRoot):
