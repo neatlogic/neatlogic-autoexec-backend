@@ -258,8 +258,9 @@ def inspectData(nodeInfo):
                        '_execuser': execUser
                        }
 
-            inspectResult = {'status': 'NORMAL'}
-            inspectResult['name'] = inspectDef['name']
+            inspectResult = {'status': 'NORMAL',
+                             'name': inspectDef['name'],
+                             'alerts': alerts}
 
             if 'port' in nodeInfo:
                 rptData['PORT'] = nodeInfo['port']
@@ -272,32 +273,30 @@ def inspectData(nodeInfo):
                 for alert in alerts:
                     ruleName = alert['ruleName']
                     alertThresHolds[ruleName] = inspectRulesMap[ruleName]
-                inspectResult['thresholds'] = alertThresHolds
-                inspectResult['alerts'] = alerts
                 inspectResult['hasAlert'] = True
             else:
-                inspectResult['thresholds'] = {}
-                inspectResult['alerts'] = []
                 inspectResult['hasAlert'] = False
 
             if not availability:
                 inspectResult['hasAlert'] = True
-                inspectResult['alerts'].append({
+                alerts.append({
                     "jsonPath": "$._availability",
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
-                inspectResult['alerts'].append({
+                alerts.append({
                     "jsonPath": "$._error_message",
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
 
                 alertThresHolds['可用性告警'] = {'name': '可用性告警',
-                                            'level': 'FATAL',
-                                            'rule': '$._availability != 1'}
+                                            'level': 'CRITICAL',
+                                            'rule': '$._availability != True'}
 
-            alertSum = getAlertSummarized(inspectResult['alerts'])
+            inspectResult['thresholds'] = alertThresHolds
+
+            alertSum = getAlertSummarized(alerts)
             alertSummarized = alertSum['alertSummarized']
             inspectResult['alertOutline'] = alertSum['alertOutline']
             inspectResult['alertFields'] = alertSum['alertFields']
