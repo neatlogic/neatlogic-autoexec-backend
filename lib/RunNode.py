@@ -379,18 +379,20 @@ class RunNode:
                         ret = self._localExecute(op)
                     else:
                         return
-
-                elif self.password == '':
-                    ret = 1
-                    self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
                 else:
                     if op.opType == 'localremote':
+                        if self.password == '':
+                            self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
                         # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
                         # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                         ret = self._localRemoteExecute(op)
                     elif op.opType == 'remote':
-                        # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
-                        ret = self._remoteExecute(op)
+                        if self.password == '':
+                            ret = 1
+                            self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                        else:
+                            # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                            ret = self._remoteExecute(op)
                     else:
                         ret = 1
                         self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
