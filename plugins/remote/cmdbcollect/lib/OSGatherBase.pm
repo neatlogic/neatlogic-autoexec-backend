@@ -15,10 +15,12 @@ use CollectUtils;
 use Data::Dumper;
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $justBaseInfo ) = @_;
+    #jusbBaseInfo: 仅仅收集进程计算需要的内存和IP地址信息
+    
     my $self = {};
-
-    $self->{verbose} = 0;
+    $self->{justBaseInfo} = $justBaseInfo;
+    $self->{verbose}      = 0;
     my @uname  = uname();
     my $ostype = $uname[0];
     $ostype =~ s/\s.*$//;

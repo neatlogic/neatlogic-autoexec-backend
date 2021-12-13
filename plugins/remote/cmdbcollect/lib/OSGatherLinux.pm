@@ -31,25 +31,8 @@ sub stripDMIComment {
     return $content;
 }
 
-sub collectOsInfo {
-    my ($self) = @_;
-
-    my $utils  = $self->{collectUtils};
-    my $osInfo = {};
-
-    my $machineId;
-    if ( -e '/etc/machine-id' ) {
-        $machineId = $self->getFileContent('/etc/machine-id');
-        $machineId =~ s/^\s*|\s*$//g;
-    }
-    $osInfo->{MACHINE_ID} = $machineId;
-
-    my @unameInfo = uname();
-    my $hostName  = $unameInfo[1];
-    $osInfo->{OS_TYPE}        = $unameInfo[0];
-    $osInfo->{HOSTNAME}       = $hostName;
-    $osInfo->{KERNEL_VERSION} = $unameInfo[2];
-
+sub getOsVersion {
+    my ( $self, $osInfo ) = @_;
     my $osVer;
     if ( -e '/etc/redhat-release' ) {
         $osVer = $self->getFileContent('/etc/redhat-release');
@@ -69,6 +52,10 @@ sub collectOsInfo {
         $osVer =~ s/^\s*|\s*$//;
     }
     $osInfo->{VERSION} = $osVer;
+}
+
+sub getVendorInfo {
+    my ( $self, $osInfo ) = @_;
 
     #cat /sys/class/dmi/id/sys_vendor #
     #cat /sys/class/dmi/id/product_name
@@ -86,6 +73,10 @@ sub collectOsInfo {
     $osInfo->{SYS_VENDOR}   = $sysVendor;
     $osInfo->{PRODUCT_NAME} = $productName;
     $osInfo->{PRODUCT_UUID} = $productUUID;
+}
+
+sub getMountPointInfo {
+    my ( $self, $osInfo ) = @_;
 
     #my ($fs_type, $fs_desc, $used, $avail, $fused, $favail) = df($dir);
     #TODO: df
@@ -166,6 +157,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
+}
+
+sub getSSHInfo {
+    my ( $self, $osInfo ) = @_;
 
     #OpenSSH_6.6.1p1, OpenSSL 1.0.1e-fips 11 Feb 2013
     my $sshInfoLine = $self->getCmdOut('ssh -V 2>&1');
@@ -177,7 +172,10 @@ sub collectOsInfo {
         $osInfo->{SSH_VERSION}     = undef;
         $osInfo->{OPENSSL_VERSION} = undef;
     }
+}
 
+sub getBondInfo {
+    my ( $self, $osInfo ) = @_;
     my ( $bondRet, $bondInfoLine ) = $self->getCmdOut( 'cat /proc/net/dev|grep bond', undef, { nowarn => 1 } );
     if ( $bondRet == 0 ) {
         $osInfo->{NIC_BOND} = 1;
@@ -185,21 +183,12 @@ sub collectOsInfo {
     else {
         $osInfo->{NIC_BOND} = 0;
     }
+}
 
-    # my $memInfoLines = $self->getCmdOutLines('free -m');
-    # foreach my $line (@$memInfoLines) {
-    #     if ( $line =~ /Swap:\s+(\d+)/ ) {
-    #         $osInfo->{SWAP_SIZE} = int($1);
-    #     }
-    # }
+sub getMemInfo {
+    my ( $self, $osInfo ) = @_;
 
-    my $cpuArch = ( POSIX::uname() )[4];
-    $osInfo->{CPU_ARCH} = $cpuArch;
-
-    # my $logicCPUCount = $self->getCmdOut('cat /proc/cpuinfo |grep processor |wc -l');
-    # chomp($logicCPUCount);
-    # $osInfo->{CPU_CORES} = $logicCPUCount;
-
+    my $utils        = $self->{collectUtils};
     my $memInfoLines = $self->getFileLines('/proc/meminfo');
     my $memInfo      = {};
     foreach my $line (@$memInfoLines) {
@@ -219,6 +208,10 @@ sub collectOsInfo {
 
     $osInfo->{SWAP_TOTAL} = $utils->getMemSizeFromStr( $memInfo->{SwapTotal} );
     $osInfo->{SWAP_FREE}  = $utils->getMemSizeFromStr( $memInfo->{SwapFree} );
+}
+
+sub getDNSInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
@@ -228,6 +221,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
+}
+
+sub getServiceInfo {
+    my ( $self, $osInfo ) = @_;
 
     my ( $systemdRet, $isSystemd ) = $self->getCmdOut( 'ps -p1 |grep systemd', undef, { nowarn => 1 } );
     my $services = {};
@@ -308,34 +305,10 @@ sub collectOsInfo {
     if ( defined($networkmanagerService) and $networkmanagerService->{ENABLE} ) {
         $osInfo->{NETWORKMANAGER_ENABLE} = 1;
     }
+}
 
-    my $selinuxConfig;
-    my $selinuxInfoLines = $self->getFileLines('/etc/selinux/config');
-    foreach my $line (@$selinuxInfoLines) {
-        if ( $line =~ /^\s*SELINUX\s*=\s*(\w+)\s*$/ ) {
-            $selinuxConfig = $1;
-            last;
-        }
-    }
-    $osInfo->{SELINUX_STATUS} = $selinuxConfig;
-
-    my $ntpConfFile = '/etc/ntp.conf';
-    if ( not -f $ntpConfFile ) {
-        $ntpConfFile = '/etc/chrony.conf';
-    }
-    my $ntpInfoLines = $self->getFileLines($ntpConfFile);
-    my @ntpServers   = ();
-    foreach my $line (@$ntpInfoLines) {
-        if ( $line =~ /^server\s+(\S+)/i ) {
-            push( @ntpServers, { VALUE => $1 } );
-        }
-    }
-    $osInfo->{NTP_SERVERS} = \@ntpServers;
-
-    my $maxOpenFiles = $self->getFileContent('/proc/sys/fs/file-max');
-    $maxOpenFiles =~ s/^\s*|\s*$//g;
-    $osInfo->{MAX_OPEN_FILES} = int($maxOpenFiles);
-
+sub getIpAddrs {
+    my ( $self, $osInfo ) = @_;
     my @ipv4;
     my @ipv6;
     my $ipInfoLines = $self->getCmdOutLines('ip addr');
@@ -356,6 +329,10 @@ sub collectOsInfo {
     }
     $osInfo->{IP_ADDRS}   = \@ipv4;
     $osInfo->{IPV6_ADDRS} = \@ipv6;
+}
+
+sub getUserInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @users;
 
@@ -384,6 +361,11 @@ sub collectOsInfo {
         }
     }
     $osInfo->{USERS} = \@users;
+}
+
+sub getDiskInfo {
+    my ( $self, $osInfo ) = @_;
+    my $utils = $self->{collectUtils};
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     my @diskInfos;
@@ -503,16 +485,81 @@ sub collectOsInfo {
     else {
         $osInfo->{DISKS} = \@diskInfos;
     }
+}
+
+sub getMiscInfo {
+    my ( $self, $osInfo ) = @_;
+    my @unameInfo = uname();
+    my $hostName  = $unameInfo[1];
+    $osInfo->{OS_TYPE}        = $unameInfo[0];
+    $osInfo->{HOSTNAME}       = $hostName;
+    $osInfo->{KERNEL_VERSION} = $unameInfo[2];
+
+    my $machineId;
+    if ( -e '/etc/machine-id' ) {
+        $machineId = $self->getFileContent('/etc/machine-id');
+        $machineId =~ s/^\s*|\s*$//g;
+    }
+    $osInfo->{MACHINE_ID} = $machineId;
+
+    my $selinuxConfig;
+    my $selinuxInfoLines = $self->getFileLines('/etc/selinux/config');
+    foreach my $line (@$selinuxInfoLines) {
+        if ( $line =~ /^\s*SELINUX\s*=\s*(\w+)\s*$/ ) {
+            $selinuxConfig = $1;
+            last;
+        }
+    }
+    $osInfo->{SELINUX_STATUS} = $selinuxConfig;
+
+    my $ntpConfFile = '/etc/ntp.conf';
+    if ( not -f $ntpConfFile ) {
+        $ntpConfFile = '/etc/chrony.conf';
+    }
+    my $ntpInfoLines = $self->getFileLines($ntpConfFile);
+    my @ntpServers   = ();
+    foreach my $line (@$ntpInfoLines) {
+        if ( $line =~ /^server\s+(\S+)/i ) {
+            push( @ntpServers, { VALUE => $1 } );
+        }
+    }
+    $osInfo->{NTP_SERVERS} = \@ntpServers;
+
+    my $maxOpenFiles = $self->getFileContent('/proc/sys/fs/file-max');
+    $maxOpenFiles =~ s/^\s*|\s*$//g;
+    $osInfo->{MAX_OPEN_FILES} = int($maxOpenFiles);
+}
+
+sub collectOsInfo {
+    my ($self) = @_;
+
+    my $osInfo = {};
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getMiscInfo($osInfo);
+        $self->getOsVersion($osInfo);
+        $self->getVendorInfo($osInfo);
+        $self->getMountPointInfo($osInfo);
+        $self->getSSHInfo($osInfo);
+        $self->getBondInfo($osInfo);
+        $self->getMemInfo($osInfo);
+        $self->getDNSInfo($osInfo);
+        $self->getServiceInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+        $self->getUserInfo($osInfo);
+        $self->getDiskInfo($osInfo);
+    }
+    else {
+        $self->getMemInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+    }
 
     return $osInfo;
 }
 
-sub collectHostInfo {
-    my ($self) = @_;
+sub getMainBoardInfo {
+    my ( $self, $hostInfo ) = @_;
 
-    my $utils    = $self->{collectUtils};
-    my $hostInfo = {};
-
+    my $utils              = $self->{collectUtils};
     my $dmidecodeInstalled = 1;
     my ($whichDmiRet) = $self->getCmdOut( 'which dmidecode >/dev/null 2>&1', undef, { nowarn => 1 } );
     if ( $whichDmiRet != 0 ) {
@@ -554,31 +601,6 @@ sub collectHostInfo {
     $biosVersion =~ s/^\*|\s$//g;
     $hostInfo->{BIOS_VERSION} = $biosVersion;
 
-    my $cpuCount     = 0;
-    my $cpuInfoLines = $self->getFileLines('/proc/cpuinfo');
-    my $pCpuMap      = {};
-    my $cpuInfo      = {};
-    for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
-        my $line = $$cpuInfoLines[$i];
-        $line =~ s/^\s*|\s*$//g;
-        if ( $line ne '' ) {
-            my @info = split( /\s*:\s*/, $line );
-            $cpuInfo->{ $info[0] } = $info[1];
-            if ( $info[0] eq 'physical id' ) {
-                $pCpuMap->{ $info[1] } = 1;
-            }
-        }
-    }
-    $hostInfo->{CPU_COUNT}       = scalar( keys(%$pCpuMap) );
-    $hostInfo->{CPU_CORES}       = int( $cpuInfo->{processor} ) + 1;
-    $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
-    $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
-    my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{CPU_MODEL_NAME} = $modelInfo[0];
-    $hostInfo->{CPU_FREQUENCY}  = $modelInfo[1];
-    my $cpuArch = ( POSIX::uname() )[4];
-    $hostInfo->{CPU_ARCH} = $cpuArch;
-
     if ($dmidecodeInstalled) {
         my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
         my $usedSlots    = 0;
@@ -611,7 +633,41 @@ sub collectHostInfo {
         }
         $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
     }
+}
 
+sub getCPUInfo {
+    my ( $self, $hostInfo ) = @_;
+
+    my $cpuCount     = 0;
+    my $cpuInfoLines = $self->getFileLines('/proc/cpuinfo');
+    my $pCpuMap      = {};
+    my $cpuInfo      = {};
+    for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
+        my $line = $$cpuInfoLines[$i];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line ne '' ) {
+            my @info = split( /\s*:\s*/, $line );
+            $cpuInfo->{ $info[0] } = $info[1];
+            if ( $info[0] eq 'physical id' ) {
+                $pCpuMap->{ $info[1] } = 1;
+            }
+        }
+    }
+    $hostInfo->{CPU_COUNT}       = scalar( keys(%$pCpuMap) );
+    $hostInfo->{CPU_CORES}       = int( $cpuInfo->{processor} ) + 1;
+    $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
+    $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
+    my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
+    $hostInfo->{CPU_MODEL_NAME} = $modelInfo[0];
+    $hostInfo->{CPU_FREQUENCY}  = $modelInfo[1];
+    my $cpuArch = ( POSIX::uname() )[4];
+    $hostInfo->{CPU_ARCH} = $cpuArch;
+}
+
+sub getNicInfo {
+    my ( $self, $hostInfo ) = @_;
+
+    my $utils            = $self->{collectUtils};
     my @nicInfos         = ();
     my $macsMap          = {};
     my $nicInfoLines     = $self->getCmdOutLines('ip addr');
@@ -668,10 +724,14 @@ sub collectHostInfo {
     @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
-    if ( not defined($sn) and scalar(@nicInfos) > 0 ) {
+    if ( not defined( $hostInfo->{BOARD_SERIAL} ) and scalar(@nicInfos) > 0 ) {
         my $firstMac = $nicInfos[0]->{MAC};
         $hostInfo->{BOARD_SERIAL} = $firstMac;
     }
+}
+
+sub getHBAInfo {
+    my ( $self, $hostInfo ) = @_;
 
     my @hbaInfos = ();
     foreach my $fcHostPath ( glob('/sys/class/fc_host/*') ) {
@@ -727,7 +787,21 @@ sub collectHostInfo {
         $hbaInfo->{STATUS} = $state;
         push( @hbaInfos, $hbaInfo );
     }
+
     $hostInfo->{HBA_INTERFACES} = \@hbaInfos;
+}
+
+sub collectHostInfo {
+    my ($self) = @_;
+
+    my $hostInfo = {};
+
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getMainBoardInfo($hostInfo);
+        $self->getCPUInfo($hostInfo);
+        $self->getNicInfo($hostInfo);
+        $self->getHBAInfo($hostInfo);
+    }
 
     return $hostInfo;
 }

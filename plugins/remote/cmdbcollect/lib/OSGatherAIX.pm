@@ -10,11 +10,8 @@ use POSIX qw(uname);
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
-sub collectOsInfo {
-    my ($self) = @_;
-
-    my $utils  = $self->{collectUtils};
-    my $osInfo = {};
+sub getMiscInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
@@ -31,6 +28,19 @@ sub collectOsInfo {
     $machineId =~ s/^\s*|\s*$//g;
     $osInfo->{MACHINE_ID} = $machineId;
 
+    my $bondInfoLine = $self->getCmdOut( 'lsdev -Cc adapter|grep EtherChannel', undef, { nowarn => 1 } );
+    if ($bondInfoLine) {
+        $osInfo->{NIC_BOND} = 1;
+    }
+    else {
+        $osInfo->{NIC_BOND} = 0;
+    }
+}
+
+sub getCPUInfo {
+    my ( $self, $osInfo ) = @_;
+
+    my $utils        = $self->{collectUtils};
     my $prtConfLines = $self->getCmdOutLines('prtconf');
     my $prtConfInfo  = {};
     foreach my $line (@$prtConfLines) {
@@ -52,6 +62,11 @@ sub collectOsInfo {
     $osInfo->{AUTO_RESTART}         = $prtConfInfo->{'Auto Restart'};
 
     $osInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr( $prtConfInfo->{'Memory Size'} );
+
+}
+
+sub getMountPointInfo {
+    my ( $self, $osInfo ) = @_;
 
     my $diskMountMap = {};
     my @mountPoints  = ();
@@ -153,6 +168,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
+}
+
+sub getSSHInfo {
+    my ( $self, $osInfo ) = @_;
 
     #OpenSSH_6.6.1p1, OpenSSL 1.0.1e-fips 11 Feb 2013
     my $sshInfoLine = $self->getCmdOut('ssh -V 2>&1');
@@ -164,14 +183,12 @@ sub collectOsInfo {
         $osInfo->{SSH_VERSION}     = undef;
         $osInfo->{OPENSSL_VERSION} = undef;
     }
+}
 
-    my $bondInfoLine = $self->getCmdOut( 'lsdev -Cc adapter|grep EtherChannel', undef, { nowarn => 1 } );
-    if ($bondInfoLine) {
-        $osInfo->{NIC_BOND} = 1;
-    }
-    else {
-        $osInfo->{NIC_BOND} = 0;
-    }
+sub getMemInfo {
+    my ( $self, $osInfo ) = @_;
+
+    my $utils = $self->{collectUtils};
 
     # # svmon -G -O pgsz=off,unit=MB
     # Unit: MB
@@ -201,6 +218,10 @@ sub collectOsInfo {
             $osInfo->{SWAP_FREE}  = $swapSize * $used / 100;
         }
     }
+}
+
+sub getDNSInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
@@ -210,6 +231,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
+}
+
+sub getNTPInfo {
+    my ( $self, $osInfo ) = @_;
 
     $osInfo->{NTP_ENABLE} = 0;
     my $ntpInfo = $self->getCmdOut('lssrc -s xntpd');
@@ -226,6 +251,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{NTP_SERVERS} = \@ntpServers;
+}
+
+sub getMaxOpenInfo {
+    my ( $self, $osInfo ) = @_;
 
     my $maxOpenFilesCount;
     my $limitInfoLines = $self->getFileLines('/etc/security/limits');
@@ -248,6 +277,10 @@ sub collectOsInfo {
 
     my $maxUserProcCount = $self->getCmdOut(q{lsattr -E -l sys0|grep maxuproc |awk '{print $2}'});
     $osInfo->{MAX_USER_PROCESS_COUNT} = int($maxUserProcCount);
+}
+
+sub getIpAddrs {
+    my ( $self, $osInfo ) = @_;
 
     my @ipv4;
     my @ipv6;
@@ -269,6 +302,10 @@ sub collectOsInfo {
     }
     $osInfo->{IP_ADDRS}   = \@ipv4;
     $osInfo->{IPV6_ADDRS} = \@ipv6;
+}
+
+sub getUserInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @users;
 
@@ -297,6 +334,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{USERS} = \@users;
+}
+
+sub getPatchInfo {
+    my ( $self, $osInfo ) = @_;
 
     #打过的补丁
     my @patchs         = ();
@@ -309,6 +350,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{PATCHES_APPLIED} = \@patchs;
+}
+
+sub getDiskInfo {
+    my ( $self, $osInfo ) = @_;
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     # lsdev -Cc disk
@@ -404,15 +449,37 @@ sub collectOsInfo {
         push( @diskInfos, $diskInfo );
     }
     $osInfo->{DISKS} = \@diskInfos;
+}
+
+sub collectOsInfo {
+    my ($self) = @_;
+
+    my $utils  = $self->{collectUtils};
+    my $osInfo = {};
+
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getMiscInfo($osInfo);
+        $self->getCPUInfo($osInfo);
+        $self->getMountPointInfo($osInfo);
+        $self->getSSHInfo($osInfo);
+        $self->getMemInfo($osInfo);
+        $self->getDNSInfo($osInfo);
+        $self->getNTPInfo($osInfo);
+        $self->getMaxOpenInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+        $self->getPatchInfo($osInfo);
+        $self->getDiskInfo($osInfo);
+    }
+    else {
+        $self->getMemInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+    }
 
     return $osInfo;
 }
 
-sub collectHostInfo {
-    my ($self) = @_;
-
-    my $utils    = $self->{collectUtils};
-    my $hostInfo = {};
+sub getHostMiscInfo {
+    my ( $self, $hostInfo ) = @_;
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
@@ -421,13 +488,22 @@ sub collectHostInfo {
     my $machineId = $self->getCmdOut('uname -m');
     $machineId =~ s/^\s*|\s*$//g;
     $hostInfo->{MACHINE_ID} = $machineId;
+}
 
+sub getHostMemInfo {
+    my ( $self, $hostInfo ) = @_;
+
+    my $utils      = $self->{collectUtils};
     my $maxMemInfo = $self->getCmdOut("lparstat -i|grep 'Maximum Memory'");
     if ( $maxMemInfo =~ /(\d+.*)\s*$/ ) {
         $hostInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr($1);
     }
     my $memSlotInfo = $self->getCmdOut('lscfg -vp |grep -i dimm|wc -l');
     $hostInfo->{MEM_SLOTS} = int($memSlotInfo);
+}
+
+sub getHostNicInfo {
+    my ( $self, $hostInfo ) = @_;
 
     # Name  Mtu   Network     Address            Ipkts Ierrs    Opkts Oerrs  Coll
     # en0   1500  link#2      9a.91.23.c6.58.b  9810797     0   350193     0     0
@@ -487,6 +563,10 @@ sub collectHostInfo {
     my @nicInfos = values(%$nicInfosMap);
     @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
+}
+
+sub getHostHBAInfo {
+    my ( $self, $hostInfo ) = @_;
 
     #TODO: 需要确认HBA卡信息采集的正确性
     #情况1:
@@ -599,6 +679,19 @@ sub collectHostInfo {
         push( @hbaInfos, $hbaInfo );
     }
     $hostInfo->{HBA_INTERFACES} = \@hbaInfos;
+
+}
+
+sub collectHostInfo {
+    my ($self) = @_;
+
+    my $hostInfo = {};
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getHostMiscInfo($hostInfo);
+        $self->getHostMemInfo($hostInfo);
+        $self->getHostNicInfo($hostInfo);
+        $self->getHostHBAInfo($hostInfo);
+    }
 
     return $hostInfo;
 }

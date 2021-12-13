@@ -8,29 +8,15 @@ package OSGatherWindows;
 
 use POSIX qw(uname);
 use Encode;
+
 use Win32;
 use Win32::API;
 
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
-sub getWinCodePage {
-    my ($self) = @_;
-    my $charSet = 'GBK';
-
-    if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
-        $charSet = GetACP();
-    }
-    return $charSet;
-}
-
-sub collectOsInfo {
-    my ($self) = @_;
-
-    my $utils  = $self->{collectUtils};
-    my $osInfo = {};
-
-    my $charSet = $self->getWinCodePage();
+sub getMiscInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @unameInfo = uname();
     my $hostName  = $unameInfo[1];
@@ -59,6 +45,10 @@ sub collectOsInfo {
     if ( $machineId =~ /^vmware/i or $machineId =~ /^kvm/i or $machineId =~ /Nutanix/ ) {
         $osInfo->{IS_VIRTUAL} = 1;
     }
+}
+
+sub getDNSInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @dnsServers = ();
     my $dnsInfo    = $self->getCmdOutLines('wmic nicconfig get DNSServerSearchOrder /value|findstr "DNSServerSearchOrder={"');
@@ -68,6 +58,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{DNS_SERVERS} = \@dnsServers;
+}
+
+sub getNTPInfo {
+    my ( $self, $osInfo ) = @_;
 
     my @ntpServers   = ();
     my $ntpInfoLines = $self->getCmdOutLines('w32tm /query /configuration');
@@ -81,12 +75,22 @@ sub collectOsInfo {
     if ( scalar(@ntpServers) > 0 ) {
         $osInfo->{NTP_ENABLE} = 1;
     }
+}
+
+sub getSymantecInfo {
+    my ( $self, $osInfo ) = @_;
 
     my $symantecProc = $self->getCmdOut('tasklist | findstr "ccSvcHst"');
     $osInfo->{SYMANTEC_INSTALLED} = 0;
     if ( $symantecProc =~ /ccSvcHst/ ) {
         $osInfo->{SYMANTEC_INSTALLED} = 1;
     }
+}
+
+sub getSystemInfo {
+    my ( $self, $osInfo ) = @_;
+
+    my $utils = $self->{collectUtils};
 
     # Active code page: 437
 
@@ -190,6 +194,10 @@ sub collectOsInfo {
 
     $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $sysInfo->{'Total Physical Memory'} );
     $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $sysInfo->{'Available Physical Memory'} );
+}
+
+sub getIpAddrs {
+    my ( $self, $osInfo ) = @_;
 
     my @ipV4Addrs = ();
     my $ipInfo    = $self->getCmdOut('wmic nicconfig where "IPEnabled = True" get ipaddress');
@@ -200,6 +208,12 @@ sub collectOsInfo {
         }
     }
     $osInfo->{IP_ADDRS} = \@ipV4Addrs;
+
+    #TODO: IPV6 address的采集
+}
+
+sub getCPUCores {
+    my ( $self, $osInfo ) = @_;
 
     my $cpuCores         = 0;
     my $cpuCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfCores');
@@ -216,8 +230,10 @@ sub collectOsInfo {
         $cpuLogicCores = $cpuLogicCores + int($line);
     }
     $osInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
+}
 
-    #TODO: IPV6 address的采集
+sub getUsers {
+    my ( $self, $osInfo ) = @_;
 
     my @users = ();
     my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', { charset => $self->{codepage} } );
@@ -231,6 +247,10 @@ sub collectOsInfo {
         }
     }
     $osInfo->{USERS} = \@users;
+}
+
+sub getMountPointInfo {
+    my ( $self, $osInfo ) = @_;
 
     #逻辑磁盘（挂在点）信息的采集
     # c:\tmp\autoexec\cmdbcollect>wmic logicaldisk get Name,Size,FreeSpace
@@ -270,6 +290,10 @@ sub collectOsInfo {
     }
 
     $osInfo->{MOUNT_POINTS} = \@logicalDisks;
+}
+
+sub getDiskInfo {
+    my ( $self, $osInfo ) = @_;
 
     #TODO：物理磁盘LUN ID 的采集确认
     # c:\tmp\autoexec\cmdbcollect>wmic diskdrive get deviceId,size,serialnumber,scsiport,scsilogicalunit,scsitargetId,name
@@ -330,14 +354,35 @@ sub collectOsInfo {
     }
 
     $osInfo->{DISKS} = \@disks;
+}
+
+sub collectOsInfo {
+    my ($self) = @_;
+
+    my $osInfo = {};
+
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getMiscInfo($osInfo);
+        $self->getDNSInfo($osInfo);
+        $self->getNTPInfo($osInfo);
+        $self->getSymantecInfo($osInfo);
+        $self->getSystemInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+        $self->getCPUCores($osInfo);
+        $self->getUsers($osInfo);
+        $self->getMountPointInfo($osInfo);
+        $self->getDiskInfo($osInfo);
+    }
+    else {
+        $self->getSystemInfo($osInfo);
+        $self->getIpAddrs($osInfo);
+    }
+
     return $osInfo;
 }
 
-sub collectHostInfo {
-    my ($self) = @_;
-
-    my $utils    = $self->{collectUtils};
-    my $hostInfo = {};
+sub getBoardInfo {
+    my ( $self, $hostInfo ) = @_;
 
     my $biosSerialInfo = $self->getCmdOutLines('wmic bios get serialnumber');
     my $machineId      = $$biosSerialInfo[1];
@@ -374,6 +419,10 @@ sub collectHostInfo {
     else {
         $hostInfo->{MEM_SPEED} = undef;
     }
+}
+
+sub getNicInfo {
+    my ( $self, $hostInfo ) = @_;
 
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
@@ -403,10 +452,20 @@ sub collectHostInfo {
     @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
     $hostInfo->{ETH_INTERFACES} = \@nicInfos;
 
-    if ( not defined($machineId) and scalar(@nicInfos) > 0 ) {
+    if ( not defined( $hostInfo->{BOARD_SERIAL} ) and scalar(@nicInfos) > 0 ) {
         my $firstMac = $nicInfos[0]->{MAC};
         $hostInfo->{BOARD_SERIAL} = $firstMac;
         $hostInfo->{MACHINE_ID}   = $firstMac;
+    }
+}
+
+sub collectHostInfo {
+    my ($self) = @_;
+
+    my $hostInfo = {};
+    if ( $self->{justBaseInfo} == 0 ) {
+        $self->getBoardInfo($hostInfo);
+        $self->getNicInfo($hostInfo);
     }
 
     return $hostInfo;
@@ -414,6 +473,7 @@ sub collectHostInfo {
 
 sub getCodePage {
     my $codepage;
+
     if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
         $codepage = GetACP();
     }

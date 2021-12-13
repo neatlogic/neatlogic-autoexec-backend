@@ -73,7 +73,7 @@ sub main {
     );
     my @myOpts = @ARGV;
 
-    if (defined($isDebug) and $isDebug eq 1) {
+    if ( defined($isDebug) and $isDebug eq 1 ) {
         $ENV{OSCOLLECT_DEBUG} = 1;
     }
 
@@ -142,7 +142,7 @@ sub main {
     my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
         print("INFO: Begin to collect OS information...\n");
-        my $osGather = OSGather->new();
+        my $osGather = OSGather->new($ignoreOsInfo);
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
             $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
