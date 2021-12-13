@@ -172,7 +172,7 @@ def getInspectData(nodeInfo):
                         continue
 
                     if data['PORT'] != port:
-                        print('WARN: Data not match port:{} but:.'.format(port, data['PORT']))
+                        print('WARN: Data not match port:{} but:{}.'.format(port, data['PORT']))
                         continue
 
                 print("INFO: Data matched {}:{}.".format(ip, port))

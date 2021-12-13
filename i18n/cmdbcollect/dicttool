@@ -45,14 +45,13 @@ def getDefaultFieldKeys():
 def getIcon(name):
     nameToIconMap = {
         'a10': 'tsfont-a10',
+        'accessendpoint': 'tsfont-accessendpoint',
         'activemq': 'tsfont-activemq',
         'aix': 'tsfont-aix',
         'apache': 'tsfont-apache',
         'db2': 'tsfont-db2',
-        'db': 'tsfont-ibm',
+        'db': 'tsfont-db',
         'elasticsearch': 'tsfont-elasticsearch',
-        'empty': 'tsfont-empty',
-        'accessendpoint': 'tsfont-empty',
         'f5': 'tsfont-f5',
         'fcdev': 'tsfont-fcdev',
         'fcswitch': 'tsfont-fcswitch',
@@ -61,7 +60,7 @@ def getIcon(name):
         'host': 'tsfont-host',
         'iis': 'tsfont-iis',
         'informix': 'tsfont-informix',
-        'ins': 'tsfont-inspur',
+        'ins': 'tsfont-instance',
         'java': 'tsfont-java',
         'jboss': 'tsfont-jboss',
         'jetty': 'tsfont-jetty',
@@ -76,8 +75,8 @@ def getIcon(name):
         'netdev': 'tsfont-devices',
         'nginx': 'tsfont-nginx',
         'novmtool': 'tsfont-yunweishenjishebei',
-        'oracle': 'tsfont-oracle',
         'oracle-rac': 'tsfont-oracle-rac',
+        'oracle': 'tsfont-oracle',
         'os': 'tsfont-os',
         'postgresql': 'tsfont-postgresql',
         'rabbitmq': 'tsfont-rabbitmq',
@@ -85,11 +84,16 @@ def getIcon(name):
         'resin': 'tsfont-resin',
         'router': 'tsfont-router',
         'secdev': 'tsfont-Webyingyongfanghuxitong',
-        'storage': 'tsfont-storage',
+        'storage': 'tsfont-storages',
         'switch': 'tsfont-switch',
         'sybase': 'tsfont-sybase',
         'tomcat': 'tsfont-tomcat',
-        'tuxedo': 'tsfont-tuxedo'
+        'tuxedo': 'tsfont-tuxedo',
+        'vcenter': 'tsfont-vcenter',
+        'weblogic': 'tsfont-weblogic',
+        'websphere': 'tsfont-websphere',
+        'windows': 'tsfont-windows',
+        'zookeeper': 'tsfont-zookeeper'
     }
     if name in nameToIconMap:
         return nameToIconMap[name]
