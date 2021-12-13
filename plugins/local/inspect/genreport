@@ -258,7 +258,7 @@ def inspectData(nodeInfo):
                        '_execuser': execUser
                        }
 
-            inspectResult = {}
+            inspectResult = {'status': 'NORMAL'}
             inspectResult['name'] = inspectDef['name']
 
             if 'port' in nodeInfo:
