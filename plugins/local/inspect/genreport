@@ -266,9 +266,9 @@ def inspectData(nodeInfo):
             else:
                 rptData['PORT'] = None
 
+            alertThresHolds = {}
             if alerts:
                 # 如果存在匹配了告警规则的rule，则存放到报告中，用于匹配规则的展示
-                alertThresHolds = {}
                 for alert in alerts:
                     ruleName = alert['ruleName']
                     alertThresHolds[ruleName] = inspectRulesMap[ruleName]
@@ -292,6 +292,10 @@ def inspectData(nodeInfo):
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
+
+                alertThresHolds['可用性告警'] = {'name': '可用性告警',
+                                            'level': 'FATAL',
+                                            'rule': '$._availability != 1'}
 
             alertSum = getAlertSummarized(inspectResult['alerts'])
             alertSummarized = alertSum['alertSummarized']
