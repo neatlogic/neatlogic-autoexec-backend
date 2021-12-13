@@ -20,11 +20,11 @@ def usage():
 
 def getLevelNo(level):
     levelNo = 0
-    if level == 'WARN':
+    if level.upper() == 'WARN':
         levelNo = 1
-    elif level == 'CRITICAL':
+    elif level.upper() == 'CRITICAL':
         levelNo = 2
-    elif level == 'FATAL':
+    elif level.upper() == 'FATAL':
         levelNo = 3
     return levelNo
 
