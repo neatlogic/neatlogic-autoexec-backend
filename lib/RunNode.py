@@ -389,7 +389,7 @@ class RunNode:
                     elif op.opType == 'remote':
                         if self.password == '':
                             ret = 1
-                            self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                            self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
                         else:
                             # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
                             ret = self._remoteExecute(op)
