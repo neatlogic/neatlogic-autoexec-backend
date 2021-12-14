@@ -1,0 +1,31 @@
+{
+    "label": "Empty Object",
+    "collection": "COLLECT_EMPTY",
+    "filter": {},
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Listen Port",
+            "type": "Int"
+        },
+        {
+            "name": "_availability",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "_error_message",
+            "desc": "Error Message while not availability",
+            "type": "String"
+        }
+    ]
+}
