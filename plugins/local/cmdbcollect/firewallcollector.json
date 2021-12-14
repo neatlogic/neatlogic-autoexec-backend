@@ -22,12 +22,19 @@
             "type": "select",
             "isConst": "false",
             "defaultValue": [{
+                    "text": "自动选择",
+                    "value": ""
+                }, {
                     "text": "华为",
                     "value": "Huawei"
                 },
                 {
                     "text": "CheckPoint",
                     "value": "CheckPoint"
+                },
+                {
+                    "text": "Juniper",
+                    "value": "Juniper"
                 },
                 {
                     "text": "山石",

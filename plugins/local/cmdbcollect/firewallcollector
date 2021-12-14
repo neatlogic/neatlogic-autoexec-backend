@@ -8,6 +8,8 @@ use lib abs_path("$FindBin::Bin/../lib");
 
 use strict;
 use JSON;
+use FireWallBase;
+use File::Basename;
 use Getopt::Long;
 use AutoExecUtils;
 use CollectObjCat;
@@ -18,6 +20,13 @@ sub usage {
     print("$pname --node <node> --type <type> .\n");
     exit(0);
 }
+
+#README
+#如果新增其他品牌交换机，OID设置有问题，可能需要修改FireWallBase.pm, 修改开头的$BRANDS的定义，增加品牌名。
+#参考：FireWallHuaWei.pm
+#从FireWallBase.pm继承重载before方法调整snmp oid的设置
+#重载after方法，进行数据的调整或者通过其他途径补充数据
+#测试：firewallcollector --node '{"host":"192.168.0.252","password":"public"}'
 
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
@@ -43,7 +52,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+    if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
@@ -54,23 +63,61 @@ sub main {
         usage();
     }
 
-    my $instance;
-    my $typeClass = "FireWall$type";
-    eval {
-        require "$typeClass.pm";
-        print("class:$typeClass\n");
-        our @ISA = ($typeClass);
-        $instance = $typeClass->new( community => $community, timeout => $timeout, node => $nodeInfo );
-    };
-    if ($@) {
-        print($@);
-        print("ERROR::not found $type plugin .\n");
-        exit(1);
+    if ( not defined($timeout) ) {
+        $timeout = 10;
     }
-    my $data = $instance->collect();
+
+    my $hostname = $nodeInfo->{host};
+    if ( not defined($community) or $community eq '' ) {
+        $community = $nodeInfo->{password};
+    }
+    if ( not defined($community) or $community eq '' ) {
+        $community = 'public';
+    }
+
+    my $brand = $type;
+    my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    if ( not defined($type) or $type eq '' ) {
+        $brand = $firewallBase->getBrand();
+    }
+
+    if ( not defined($brand) or $brand eq '' ) {
+        print("ERROR: Can not discover the firewall device brand, exit.\n");
+        eixt(1);
+    }
+
+    my $pkgFile = __FILE__;
+    my $libPath = dirname($pkgFile);
+    my $firewallIns;
+    my $firewallClass = "FireWall$brand";
+    if ( -e "$libPath/$firewallClass.pm" or -e "$FindBin::Bin/$firewallClass.pm" ) {
+        print("INFO: Has defined class $firewallClass, try to load it.\n");
+        eval {
+            require "$firewallClass.pm";
+
+            #our @ISA = ($firewallClass);
+            $firewallIns = $firewallClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+        };
+        if ($@) {
+            print("WARN: Load $firewallClass failed, $@");
+            print("WARN: Fall back to FireWallBase class.\n");
+            $firewallIns = $firewallBase;
+        }
+        else {
+            print("INFO: Class $firewallClass loaded.\n");
+        }
+    }
+
+    my $data = $firewallIns->collect();
+
+    $data->{BRAND} = $brand;
+    if ( not defined( $data->{VENDOR} ) ) {
+        $data->{VENDOR} = $data->{BRAND};
+    }
+
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('SECDEV');
     $data->{_OBJ_TYPE}     = 'FireWall';
-    $data->{_APP_TYPE}     = $type;
+    $data->{_APP_TYPE}     = $brand;
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};

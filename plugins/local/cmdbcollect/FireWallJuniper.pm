@@ -6,7 +6,7 @@ use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 
-package FireWallCheckPoint;
+package FireWallJuniper;
 
 use FireWallBase;
 our @ISA = qw(FireWallBase);
@@ -40,7 +40,7 @@ sub after {
         $ssh->login();
         $ssh->configTerminal();
 
-        my $verLine = $ssh->runCmd( 'show version', 4 );
+        my $verLine = $ssh->runCmd( 'show version', 0 );
         print("INFO: $verLine\n");
         if ( $verLine =~ /Product\s+name:\s*(\S+)\s*S\/N:\s*(\S+)/i ) {
             $data->{DEV_NAME} = $1;
@@ -52,4 +52,3 @@ sub after {
 }
 
 1;
-

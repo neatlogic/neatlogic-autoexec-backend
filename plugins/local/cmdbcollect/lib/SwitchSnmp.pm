@@ -16,7 +16,7 @@ my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper' ];
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{DATA} = { PK => ['SN'] };
+    $self->{DATA} = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -39,7 +39,7 @@ sub new {
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
     if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{host} failed, $error\n");
+        print("ERROR:Create snmp session to $args{hostname} failed, $error\n");
         exit(-1);
     }
 
@@ -587,7 +587,7 @@ sub collect {
     my $switchIns;
     my $switchClass = "Switch$brand";
     if ( -e "$libPath/$switchClass.pm" or -e "$FindBin::Bin/$switchClass.pm" ) {
-        print("INFO: Has defined class Switch$brand, try to load it.\n");
+        print("INFO: Has defined class $switchClass, try to load it.\n");
         eval {
             require "$switchClass.pm";
 
@@ -601,7 +601,7 @@ sub collect {
             print("WARN: Load $switchClass failed, $@");
         }
         else {
-            print("INFO: Class SWitch$brand loaded.\n");
+            print("INFO: Class $switchClass loaded.\n");
         }
     }
 

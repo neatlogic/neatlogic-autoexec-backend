@@ -4,6 +4,7 @@ use FindBin;
 use lib abs_path($FindBin::Bin);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
+use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 
 use strict;
 use JSON;
@@ -17,7 +18,7 @@ use SwitchSnmp;
 #参考：SwitchHuaWei.pm
 #从SwitchBase.pm继承重载before方法调整snmp oid的设置
 #重载after方法，进行数据的调整或者通过其他途径补充数据
-
+#测试：switchcollector --node '{"host":"192.168.0.252","password":"public"}'
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
@@ -56,13 +57,13 @@ sub main {
         $community = 'public';
     }
 
-    my $collector = SwitchSnmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
+    my $collector = SwitchSnmp->new( hostname => $hostname, community => $community, timeout => $timeout );
     my $data = $collector->collect();
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('SWITCH');
     $data->{_OBJ_TYPE}     = $objType;
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $node->{resourceId};
-    $data->{MGMT_IP}       = $node->{host};
+    $data->{MGMT_IP}       = $hostname;
 
     my $out = {};
     $out->{DATA} = [$data];
