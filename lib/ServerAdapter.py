@@ -39,7 +39,7 @@ class ServerAdapter:
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
-            'setResourceInspectJobId': '/codedriver/public/api/rest/autoexec/job/resource/inspect/update',
+            'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get'
         }
 
