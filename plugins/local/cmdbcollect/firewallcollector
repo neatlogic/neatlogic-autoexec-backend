@@ -85,17 +85,16 @@ sub main {
         print("ERROR: Can not discover the firewall device brand, exit.\n");
         eixt(1);
     }
+    else {
+        print("INFO: FireWall brand: $brand.\n");
+    }
 
-    my $pkgFile = __FILE__;
-    my $libPath = dirname($pkgFile);
     my $firewallIns;
     my $firewallClass = "FireWall$brand";
-    if ( -e "$libPath/$firewallClass.pm" or -e "$FindBin::Bin/$firewallClass.pm" ) {
+    if ( -e "$FindBin::Bin/$firewallClass.pm" or -e "$FindBin::Bin/lib/$firewallClass.pm" ) {
         print("INFO: Has defined class $firewallClass, try to load it.\n");
         eval {
             require "$firewallClass.pm";
-
-            #our @ISA = ($firewallClass);
             $firewallIns = $firewallClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
         };
         if ($@) {
@@ -106,6 +105,11 @@ sub main {
         else {
             print("INFO: Class $firewallClass loaded.\n");
         }
+    }
+    else {
+        print("WARN: $firewallClass not found.\n");
+        print("WARN: Fall back to FireWallBase class.\n");
+        $firewallIns = $firewallBase;
     }
 
     my $data = $firewallIns->collect();

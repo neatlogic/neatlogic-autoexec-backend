@@ -11,7 +11,7 @@ use JSON;
 use Getopt::Long;
 use AutoExecUtils;
 use CollectObjCat;
-use SwitchSnmp;
+use SwitchBase;
 
 #README
 #如果新增其他品牌交换机，OID设置有问题，可能需要修改SwitchSnmp.pm, 修改开头的$BRANDS的定义，增加品牌名。
@@ -23,46 +23,95 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node, $objType, $defaultCommunity, $timeout );
+    my ( $node, $objType, $community, $timeout );
 
     my $isVerbose = 0;
 
     GetOptions(
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
-        'community=s' => \$defaultCommunity,
+        'community=s' => \$community,
         'objtype=s'   => \$objType,
         'timeout=i'   => \$timeout
     );
 
+    if ( not defined($objType) or $objType eq '' ) {
+        $objType = 'Swtich';
+    }
+
+    my $nodeInfo  = {};
     my $hasOptErr = 0;
     if ( not defined($node) or $node eq '' ) {
         print("ERROR: option --node not defined.\n");
         $hasOptErr = 1;
     }
     else {
-        $node = from_json($node);
+        $nodeInfo = from_json($node);
     }
 
     if ( not defined($timeout) ) {
         $timeout = 10;
     }
 
-    my $hostname  = $node->{host};
-    my $community = $node->{password};
+    my $hostname = $nodeInfo->{host};
+    my $community;
     if ( not defined($community) or $community eq '' ) {
-        $community = $defaultCommunity;
+        $community = $nodeInfo->{password};
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';
     }
 
-    my $collector = SwitchSnmp->new( hostname => $hostname, community => $community, timeout => $timeout );
-    my $data = $collector->collect();
+    my $brand;
+    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    $brand = $switchBase->getBrand();
+
+    if ( not defined($brand) or $brand eq '' ) {
+        print("ERROR: Can not discover the firewall device brand, exit.\n");
+        eixt(1);
+    }
+    else {
+        print("INFO: SWitch brand: $brand.\n");
+    }
+
+    my $switchIns;
+    my $switchClass = "Switch$brand";
+    if ( -e "$FindBin::Bin/$switchClass.pm" or -e "$FindBin::Bin/lib/$switchClass.pm" ) {
+        print("INFO: Has defined class $switchClass, try to load it.\n");
+        eval {
+            require "$switchClass.pm";
+            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+        };
+        if ($@) {
+            print("WARN: Load $switchClass failed, $@");
+            print("WARN: Fall back to SwitchBase class.\n");
+            $switchIns = $switchBase;
+        }
+        else {
+            print("INFO: Class $switchClass loaded.\n");
+        }
+    }
+    else {
+        print("WARN: $switchClass not found.\n");
+        print("WARN: Fall back to SwitchBase class.\n");
+        $switchIns = $switchBase;
+    }
+
+    my $data = $switchIns->collect();
+
+    $data->{BRAND} = $brand;
+    if ( not defined( $data->{VENDOR} ) ) {
+        $data->{VENDOR} = $data->{BRAND};
+    }
+
+    #my $collector = SwitchSnmp->new( hostname => $hostname, community => $community, timeout => $timeout );
+    #my $data = $collector->collect();
+
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('SWITCH');
     $data->{_OBJ_TYPE}     = $objType;
+    $data->{_APP_TYPE}     = $brand;
     $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = $node->{resourceId};
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
     $data->{MGMT_IP}       = $hostname;
 
     my $out = {};

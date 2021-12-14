@@ -10,8 +10,9 @@ my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'CheckPoint', '
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{node} = $args{node};
-    $self->{DATA} = { PK => ['MGMT_IP'] };
+    $self->{brand} = $args{brand};
+    $self->{node}  = $args{node};
+    $self->{DATA}  = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -28,19 +29,19 @@ sub new {
 
     my $tableOidDef = {
         PORTS => {
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',                                                                                                                                                         #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',                                                                                                                                                         #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',                                                                                                                                                         #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',                                                                                                                                                         #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',                                                                                                                                                         #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',                                                                                                                                                         #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',                                                                                                                                                         #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',                                                                                                                                                         #ifMTU
+            INDEX        => '1.3.6.1.2.1.2.2.1.1',        #ifIndex
+            NAME         => '1.3.6.1.2.1.2.2.1.2',        #ifDescr
+            TYPE         => '1.3.6.1.2.1.2.2.1.3',        #ifType
+            WWN          => '1.3.6.1.2.1.2.2.1.6',        #ifPhysAddress
+            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',        #ifAdminStatus
+            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',        #ifOperStatus
+            SPEED        => '1.3.6.1.2.1.2.2.1.5',        #ifSpeed
+            MTU          => '1.3.6.1.2.1.2.2.1.4',        #ifMTU
         }
     };
 
     $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tableOidDef}    = $tableOidDef;
+    $self->{tableOidDef}  = $tableOidDef;
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -59,7 +60,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' ){
+        if ( $key ne 'node' and $key ne 'brand' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -173,9 +174,9 @@ sub _getScalar {
 }
 
 sub _getTable {
-    my ($self)     = @_;
-    my $snmp       = $self->{snmpSession};
-    my $tableOidDef  = $self->{tableOidDef};
+    my ($self)      = @_;
+    my $snmp        = $self->{snmpSession};
+    my $tableOidDef = $self->{tableOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
     my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
