@@ -597,7 +597,7 @@ class ServerAdapter:
             if response.status == 200:
                 if retObj['Status'] == 'OK':
                     attrData = retObj['Return']['attrEntityData']
-                    attrsMap = []
+                    attrsMap = {}
                     for attrInfo in attrData.values():
                         name = attrInfo['name']
                         values = attrInfo['actualValueList']

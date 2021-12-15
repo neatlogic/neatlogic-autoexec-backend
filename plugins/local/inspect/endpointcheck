@@ -67,6 +67,7 @@ def tcpCheck(endPoint, timeOut):
         sock = socket.socket()
         sock.settimeout(timeOut)
         sock.connect((host, port))
+        print('FINEST: Tcp handshake ' + endPoint + ' success.')
     except Exception as ex:
         errorMsg = "ERROR: Can not connect {}.".format(endPoint)
         print(errorMsg)
@@ -84,6 +85,7 @@ def urlCheck(endPoint, timeOut):
 
     try:
         response = urllib.request.urlopen(req, timeout=timeOut)
+        print('FINEST: Http request ' + endPoint + ' success.')
     except HTTPError as ex:
         errMsg = ex.code
         if ex.code > 500:
@@ -141,7 +143,7 @@ def execOneHttpReq(urlConf, valuesJar, timeOut):
 
     res = opener.open(req, timeout=timeOut)
     content = res.read().decode()
-
+    print('FINEST: Http request ' + url + ' success.')
     ret = True
     if matchKey is not None and matchKey != '':
         matchObj = re.search(matchKey, content)
@@ -385,7 +387,11 @@ if __name__ == "__main__":
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('--timeout', default=10, help='Timeout value')
     args = parser.parse_args()
-    timeOut = args.timeout
+
+    timeOut = int(args.timeout)
+    if timeOut == 0:
+        timeOut = 5
+
     node = args.node
 
     try:
@@ -409,19 +415,12 @@ if __name__ == "__main__":
         resourceId = nodeInfo['resourceId']
         ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_type', 'access_endpoint'])
 
-        accessEndPoint = None
+        accessEndPoint = ''
         if 'access_endpoint' in ciAttrs:
             accessEndPoint = ciAttrs['access_endpoint']
         accessType = None
         if 'access_type' in ciAttrs:
             accessType = ciAttrs['access_type']
-
-        if accessEndPoint is None:
-            if ip is not None:
-                if port is not None:
-                    accessEndPoint = '{}:{}'.format(ip, port)
-                else:
-                    accessEndPoint = ip
 
         if accessType is None:
             if accessEndPoint.startswith('https://'):
@@ -432,6 +431,18 @@ if __name__ == "__main__":
                 accessType = 'TCP'
             else:
                 accessType = 'PING'
+
+        if accessEndPoint == '':
+            if accessType in ['HTTP', 'HTTPS']:
+                if port is not None:
+                    accessEndPoint = '{}://{}:{}'.format(accessType.lower(), ip, port)
+                else:
+                    accessEndPoint = '{}://{}'.format(accessType.lower(), ip)
+            elif ip is not None:
+                if port is not None:
+                    accessEndPoint = '{}:{}'.format(ip, port)
+                else:
+                    accessEndPoint = ip
 
         errorMsg = None
         startTime = time.time()
