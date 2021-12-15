@@ -23,7 +23,7 @@
             "isConst": "false",
             "defaultValue": [{
                     "text": "自动选择",
-                    "value": ""
+                    "value": "auto"
                 }, {
                     "text": "华为",
                     "value": "Huawei"
