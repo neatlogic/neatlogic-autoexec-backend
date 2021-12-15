@@ -4,6 +4,7 @@
 import re
 import AutoExecUtils
 import os
+import tempfile
 import stat
 import traceback
 import datetime
@@ -35,14 +36,14 @@ def usage():
 
 
 def pingCheck(host, timeOut):
-    second = ping3.ping(dest_addr=host, timeout=timeOut)
+    second = ping(dest_addr=host, timeout=timeOut)
     if second:
         print('INFO: {} is reachable, took {} second'.format(host, second))
         return (True, None)
     else:
         loopCount = 2
         while not second and loopCount > 0:
-            second = ping3.ping(dest_addr=host, timeout=5)
+            second = ping(dest_addr=host, timeout=5)
             loopCount = loopCount - 1
         if second:
             print('INFO: {} is reachable, took {} second'.format(host, second))
@@ -78,8 +79,6 @@ def urlCheck(endPoint, timeOut):
     url = endPoint
     userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 
-    # data = urllib.parse.urlencode(params)
-    # url = url + '?' + data
     req = urllib.request.Request(url)
     req.add_header('User-Agent', userAgent)
 
@@ -175,7 +174,7 @@ def urlSeqCheck(urlSeq, timeOut):
             break
 
 
-def _remoteExecute(nodeInfo):
+def _remoteExecute(nodeInfo, scriptDef):
     self.childPid = None
 
     jobId = os.gentenv('AUTOEXEC_JOBID')
@@ -186,13 +185,11 @@ def _remoteExecute(nodeInfo):
     username = nodeInfo['username']
     password = nodeInfo['password']
 
-    scriptName = None
-    scriptContent = None
-    scriptFilePath = None
-    scriptCmd = None
+    scriptName = getScriptFileName(scriptDef)
+    scriptContent = scriptDef['script']
 
+    scriptCmd = None
     remoteCmd = None
-    remoteCmdHidePass = None
     killCmd = None
 
     ret = -1
@@ -210,6 +207,7 @@ def _remoteExecute(nodeInfo):
             uploadRet = tagent.writeFile(username, scriptContent, remotePath + '/' + scriptName)
 
             if uploadRet == 0:
+                scriptCmd = getScriptCmd(scriptDef, tagent.agentOsType, remotePath)
                 remoteCmd = 'cd {} && {}'.format(remotePath, scriptCmd)
 
                 def getOutputLine(line):
@@ -239,7 +237,7 @@ def _remoteExecute(nodeInfo):
         remoteRoot = '/tmp/autoexec-{}-{}'.format(jobId, resourceId)
         remotePath = remoteRoot
         remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}'.format(remotePath, jobId, scriptName)
-        self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
+        killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
         scriptFile = None
         uploaded = False
         hasError = False
@@ -263,13 +261,18 @@ def _remoteExecute(nodeInfo):
                 hasError = True
                 print("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
 
-                sftp.put(scriptFilePath, os.path.join(remotePath, scriptName))
-                sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
+            tmp = tempfile.NamedTemporaryFile(delete=True)
+            try:
+                tmp.write(scriptContent)
+                sftp.put(tmp.name, os.path.join(remotePath, scriptName))
+            finally:
+                tmp.close()
 
-                remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
+            sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
+            remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
+
             if hasError == False:
                 uploaded = True
-
         except Exception as err:
             print('ERROR: Upload script:{} to remoteRoot:{} failed: {}\n'.format(scriptName, remoteRoot, err))
 
@@ -315,8 +318,61 @@ def _remoteExecute(nodeInfo):
     return ret
 
 
+def getScriptFileName(scriptDef):
+    extNameMap = {
+        'perl': '.pl',
+        'python': '.py',
+        'ruby': '.rb',
+        'cmd': '.bat',
+        'powershell': '.ps1',
+        'vbscript': '.vbs',
+        'bash': '.sh',
+        'ksh': '.sh',
+        'csh': '.sh',
+        'sh': '.sh',
+        'javascript:': '.js'
+    }
+
+    scriptFileName = None
+    interpreter = scriptDef['config']['parser']
+    if interpreter not in extNameMap:
+        print("WARN: Can not determine script file extension name.")
+        scriptFileName = scriptDef['config']['scriptName']
+    else:
+        scriptFileName = scriptDef['config']['scriptName'] + '.' + extNameMap[interpreter]
+    return scriptFileName
+
+
+def getScriptCmd(scriptDef, osType, remotePath):
+    scriptFileName = getScriptFileName(scriptDef)
+    interpreter = scriptDef['config']['parser']
+
+    if osType == 'windows':
+        # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
+        if interpreter == 'cmd':
+            cmd = 'cmd /c {}/{}'.format(remotePath, scriptFileName)
+        elif interpreter == 'vbscript' or interpreter == 'javascript':
+            cmd = 'cscript {}/{}'.format(remotePath, scriptFileName)
+        else:
+            cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
+    else:
+        if interpreter in ('sh', 'bash', 'csh'):
+            cmd = '{} -l {}/{}'.format(interpreter, remotePath, scriptFileName)
+        else:
+            cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
+
+
 def executeRemoteScript(nodeInfo, scriptName, timeOut):
-    pass
+    resourceId = nodeInfo['resourceId']
+    endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
+    if 'config' in endPointConf:
+        scriptConf = endPointConf['config']
+        if scriptConf['type'] != 'script':
+            print("ERROR: Config error, not script, {}".format(json.dumps(endPointConf)))
+        else:
+            scriptId = scriptConf['script']
+            scriptDef = AutoExecUtils.getScript(scriptId)
+            _remoteExecute(nodeInfo, scriptDef)
 
 
 def saveInspectData(inspectData):
@@ -351,7 +407,7 @@ if __name__ == "__main__":
         ip = nodeInfo['host']
         port = nodeInfo['port']
         resourceId = nodeInfo['resourceId']
-        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_type', 'access_endpoint', 'remote_script'])
+        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['access_type', 'access_endpoint'])
 
         accessEndPoint = None
         if 'access_endpoint' in ciAttrs:
@@ -390,12 +446,7 @@ if __name__ == "__main__":
             if not ret:
                 hasError = True
         elif accessType == 'BATCH':
-            inspectScript = None
-            if 'remote_script' in ciAttrs:
-                inspectScript = ciAttrs['remote_script']
-
-            if inspectScript is not None:
-                executeRemoteScript(nodeInfo, inspectScript, timeOut)
+            executeRemoteScript(nodeInfo, timeOut)
         else:
             # ping
             (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)

@@ -177,8 +177,8 @@ def getInspectData(nodeInfo):
 
                 print("INFO: Data matched {}:{}.".format(ip, port))
                 nodeData = data
-                nodeData['_availability'] = availability
-                nodeData['_error_message'] = errorMessage
+                nodeData['AVAILABILITY'] = availability
+                nodeData['ERROR_MESSAGE'] = errorMessage
                 dataRecords.append(nodeData)
                 break
             else:
@@ -188,8 +188,8 @@ def getInspectData(nodeInfo):
             nodeData = {}
             nodeData['_OBJ_CATEGORY'] = 'EMPTY'
             nodeData['_OBJ_TYPE'] = 'EMPTY'
-            nodeData['_availability'] = availability
-            nodeData['_error_message'] = errorMessage
+            nodeData['AVAILABILITY'] = availability
+            nodeData['ERROR_MESSAGE'] = errorMessage
             dataRecords.append(nodeData)
 
         return dataRecords
@@ -210,10 +210,10 @@ def inspectData(nodeInfo):
             inspectRulesMap = {}
             needFieldsMap = {}
 
-            availability = dataCollected['_availability']
-            errorMessage = dataCollected['_error_message']
-            needFieldsMap['_availability'] = 1
-            needFieldsMap['_error_message'] = 1
+            availability = dataCollected['AVAILABILITY']
+            errorMessage = dataCollected['ERROR_MESSAGE']
+            needFieldsMap['AVAILABILITY'] = 1
+            needFieldsMap['ERROR_MESSAGE'] = 1
 
             objCat = dataCollected['_OBJ_CATEGORY']
             objType = dataCollected['_OBJ_TYPE']
@@ -280,7 +280,7 @@ def inspectData(nodeInfo):
             if not availability:
                 inspectResult['hasAlert'] = True
                 alerts.append({
-                    "jsonPath": "$._availability",
+                    "jsonPath": "$.AVAILABILITY",
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
@@ -292,7 +292,7 @@ def inspectData(nodeInfo):
 
                 alertThresHolds['可用性告警'] = {'name': '可用性告警',
                                             'level': 'CRITICAL',
-                                            'rule': '$._availability != True'}
+                                            'rule': '$.AVAILABILITY != True'}
 
             inspectResult['thresholds'] = alertThresHolds
 

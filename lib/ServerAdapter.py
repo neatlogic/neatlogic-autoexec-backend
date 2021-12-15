@@ -40,7 +40,8 @@ class ServerAdapter:
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
-            'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get'
+            'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
+            'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get'
         }
 
         self.context = context
@@ -426,6 +427,23 @@ class ServerAdapter:
 
         return cachedFilePath
 
+    def getScript(self, scriptId):
+        params = {
+            'operationId': scriptId
+        }
+
+        url = self.serverBaseUrl + self.apiMap['fetchScript']
+        try:
+            response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
+
+            if response.status == 200:
+                charset = response.info().get_content_charset()
+                content = response.read().decode(charset)
+                retObj = json.loads(content)
+                return retObj['Return']
+        except:
+            raise
+
     # 注册native工具到服务端工具库
     def registerTool(self, toolObj):
         response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
@@ -597,3 +615,27 @@ class ServerAdapter:
                 raise AutoExecError("Get attributes for resourceId:{} failed, status code:{} {}".format(resourceId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get attributes for resourceId:{} failed, {}".format(resourceId, ex))
+
+    def getAccessEndpointConf(self, resourceId):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'tenent': self.context.tenent,
+            'resourceId': resourceId
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['getAccessEndpoint'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return retObj['Return']
+                else:
+                    raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, retObj['Message']))
+            else:
+                raise AutoExecError("Get AccessEndpoint Config for {} failed, status code:{} {}".format(resourceId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, ex))

@@ -259,3 +259,15 @@ def getCmdbCiAttrs(resourceId, attrList):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.getCmdbCiAttrs(resourceId, attrList)
+
+
+def getAccessEndpointConf(resourceId):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getAccessEndpointConf(resourceId)
+
+
+def getScript(scriptId):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getScript(scriptId)

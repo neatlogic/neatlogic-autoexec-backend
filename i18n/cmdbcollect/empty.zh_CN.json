@@ -18,12 +18,12 @@
             "type": "Int"
         },
         {
-            "name": "_availability",
+            "name": "AVAILABILITY",
             "desc": "可用性标记",
             "type": "Int"
         },
         {
-            "name": "_error_message",
+            "name": "ERROR_MESSAGE",
             "desc": "不可用的错误信息",
             "type": "String"
         }

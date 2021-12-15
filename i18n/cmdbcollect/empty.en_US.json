@@ -18,12 +18,12 @@
             "type": "Int"
         },
         {
-            "name": "_availability",
+            "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
         },
         {
-            "name": "_error_message",
+            "name": "ERROR_MESSAGE",
             "desc": "Error Message while not availability",
             "type": "String"
         }

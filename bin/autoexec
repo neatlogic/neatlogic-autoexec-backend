@@ -159,6 +159,8 @@ if __name__ == "__main__":
 
     binPaths = os.path.split(os.path.realpath(__file__))
     homePath = os.path.realpath(binPaths[0]+'/..')
+    os.environ['AUTOEXEC_HOME'] = homePath
+
     progName = binPaths[1]
 
     if args.cleanstatus:
