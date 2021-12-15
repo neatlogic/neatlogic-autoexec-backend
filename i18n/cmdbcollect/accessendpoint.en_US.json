@@ -2,8 +2,7 @@
     "label": "AccessEndpoint",
     "collection": "COLLECT_ACCESSENDPOINT",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -32,11 +31,9 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "RESPONSE_TIME",
@@ -44,13 +41,13 @@
             "type": "Int"
         },
         {
-            "name": "_availability",
+            "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
         },
         {
-            "name": "_error_message",
-            "desc": "Error Message while not availability",
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
             "type": "String"
         }
     ]

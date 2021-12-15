@@ -2,8 +2,7 @@
     "label": "访问入口",
     "collection": "COLLECT_ACCESSENDPOINT",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -32,11 +31,9 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "RESPONSE_TIME",
@@ -44,13 +41,13 @@
             "type": "Int"
         },
         {
-            "name": "_availability",
-            "desc": "可用性标记",
+            "name": "AVAILABILITY",
+            "desc": "可用性",
             "type": "Int"
         },
         {
-            "name": "_error_message",
-            "desc": "不可用的错误信息",
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
             "type": "String"
         }
     ]

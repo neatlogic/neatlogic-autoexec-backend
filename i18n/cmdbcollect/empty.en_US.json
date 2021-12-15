@@ -23,6 +23,11 @@
             "type": "Int"
         },
         {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Int"
+        },
+        {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
