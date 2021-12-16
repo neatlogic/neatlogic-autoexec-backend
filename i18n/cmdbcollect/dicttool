@@ -17,6 +17,9 @@ def usage():
     pname = os.path.basename(__file__)
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
     print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
+    print("Examples:")
+    print("Remove field:")
+    print('dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION')
     exit(1)
 
 

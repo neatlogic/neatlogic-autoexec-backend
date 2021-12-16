@@ -44,11 +44,6 @@
                     "name": "APP_NAME",
                     "desc": "Application Name",
                     "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "App Module Name",
-                    "type": "String"
                 }
             ]
         },
@@ -86,6 +81,18 @@
             "name": "ACCESS_ADDR",
             "desc": "Access Addr",
             "type": "String"
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "Applicaton Module",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "Application Module Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "BROKER_ID",

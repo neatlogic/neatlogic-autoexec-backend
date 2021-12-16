@@ -1,10 +1,22 @@
 {
     "label": "Application",
-    "collection": "COLLECT_INS",
-    "filter": {},
+    "collection": "COLLECT_APPLICATION",
+    "filter": {
+        "_OBJ_TYPE": "APPLICATION"
+    },
     "fields": [{
-        "name": "APP_NAME",
-        "desc": "Application Name",
-        "type": "String"
-    }]
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "OS类型",
+            "type": "String"
+        }, {
+            "name": "APP_NAME",
+            "desc": "Application Name",
+            "type": "String"
+        }
+    ]
 }

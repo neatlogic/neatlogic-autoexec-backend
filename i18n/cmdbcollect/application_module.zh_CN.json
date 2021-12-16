@@ -1,10 +1,22 @@
 {
     "label": "Application Module",
-    "collection": "COLLECT_INS",
-    "filter": {},
+    "collection": "COLLECT_APPLICATION",
+    "filter": {
+        "_OBJ_TYPE": "APPLICATION_MODULE"
+    },
     "fields": [{
-        "name": "APPMODULE_NAME",
-        "desc": "Application Module Name",
-        "type": "String"
-    }]
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "OS类型",
+            "type": "String"
+        }, {
+            "name": "APPMODULE_NAME",
+            "desc": "Application Module Name",
+            "type": "String"
+        }
+    ]
 }

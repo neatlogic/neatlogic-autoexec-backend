@@ -2,7 +2,8 @@
     "label": "Empty Object",
     "collection": "COLLECT_EMPTY",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -23,14 +24,14 @@
             "type": "Int"
         },
         {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Int"
-        },
-        {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Int"
         }
     ]
 }

@@ -44,11 +44,6 @@
                     "name": "APP_NAME",
                     "desc": "Application Name",
                     "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "App Module Name",
-                    "type": "String"
                 }
             ]
         },
@@ -81,6 +76,18 @@
             "name": "SSL_PORT",
             "desc": "SSL Port",
             "type": "String"
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "Applicaton Module",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "Application Module Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "BIN_PATH",

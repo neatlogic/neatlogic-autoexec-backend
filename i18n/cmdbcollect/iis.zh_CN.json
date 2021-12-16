@@ -44,11 +44,6 @@
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
                 }
             ]
         },
@@ -110,6 +105,18 @@
                 {
                     "name": "START_MODE",
                     "desc": "启动模式",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
                     "type": "String"
                 }
             ]

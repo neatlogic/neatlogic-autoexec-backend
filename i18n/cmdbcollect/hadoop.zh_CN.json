@@ -44,11 +44,6 @@
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
                 }
             ]
         },
@@ -81,6 +76,18 @@
             "name": "SSL_PORT",
             "desc": "SSL端口",
             "type": "String"
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "COMMAND",

@@ -44,11 +44,6 @@
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
                 }
             ]
         },
@@ -106,6 +101,18 @@
             "name": "AMQP_PORT",
             "desc": "AMQP Port",
             "type": "int"
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "BIN_PATH",
