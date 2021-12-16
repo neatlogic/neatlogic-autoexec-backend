@@ -5,7 +5,7 @@ package FireWallBase;
 use Net::SNMP qw(:snmp);
 use SnmpHelper;
 
-my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'CheckPoint', 'TopSec' ];
+my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'CheckPoint', 'Ruijie', 'TopSec' ];
 
 sub new {
     my ( $class, %args ) = @_;
