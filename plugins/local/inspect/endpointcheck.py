@@ -502,6 +502,7 @@ if __name__ == "__main__":
             elif accessType == 'URL-SEQUENCE':
                 (ret, errorMsg) = urlSeqCheck(nodeInfo, timeOut)
             elif accessType == 'BATCH':
+                print("WARN: Use script in script store to check batch service, input or output parameters not support.")
                 (ret, errorMsg) = executeRemoteScript(nodeInfo, timeOut)
             else:
                 # ping
