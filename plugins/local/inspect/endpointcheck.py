@@ -143,27 +143,35 @@ def execOneHttpReq(urlConf, valuesJar, timeOut):
     userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
     req.add_header('User-Agent', userAgent)
 
-    res = opener.open(req, timeout=timeOut)
-    content = res.read().decode()
-    print('INFO: Http request ' + url + ' success.')
-    ret = True
-    if matchKey is not None and matchKey != '':
-        matchObj = re.search(matchKey, content)
-        if matchObj is None:
-            ret = False
-            print("ERROR: Response content not match:" + matchKey + "\n")
-            print(content)
+    ret = False
+    errorMsg = ''
 
-    for varName in extractContent:
-        pattern = extractContent[varName]
-        matchObj = re.search(pattern, content)
-        if matchObj:
-            valuesJar[varName] = matchObj.group(1)
+    try:
+        res = opener.open(req, timeout=timeOut)
+        content = res.read().decode()
+        print('INFO: Http request ' + url + ' success.')
+        ret = True
+        if matchKey is not None and matchKey != '':
+            matchObj = re.search(matchKey, content)
+            if matchObj is None:
+                ret = False
+                errorMsg = "ERROR: Response content not match:" + matchKey + "\n"
+                print(errorMsg)
+                print(content)
+                errorMsg = errorMsg + content
 
-    return ret
+        for varName in extractContent:
+            pattern = extractContent[varName]
+            matchObj = re.search(pattern, content)
+            if matchObj:
+                valuesJar[varName] = matchObj.group(1)
+    except Exception as ex:
+        errorMsg = str(ex)
+
+    return (ret, errorMsg)
 
 
-def urlSeqCheck(urlSeq, timeOut):
+def urlSeqCheck(accessEndPoint, nodeInfo, timeOut):
     # url检查序列样例
     # [
     #     {
@@ -186,17 +194,41 @@ def urlSeqCheck(urlSeq, timeOut):
     #     }
     # ]
 
-    hasError = False
-    for urlConf in urlSeq:
-        try:
-            ret = execOneHttpReq(urlConf, timeOut)
-            if not ret:
-                hasError = True
-                break
-        except Exception as ex:
-            hasError = True
-            print("ERROR: " + str(ex))
-            break
+    ret = False
+    errorMsg = ''
+
+    resourceId = nodeInfo['resourceId']
+    endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
+    if 'config' in endPointConf:
+        config = endPointConf['config']
+        confType = config['type']
+        if confType.upper() != 'URL-SEQUENCE':
+            errorMsg = "WARN: URL sequence not config, {}".format(json.dumps(endPointConf))
+            print(errorMsg)
+        else:
+            urlSeq = config[confType]
+            hasError = False
+            for urlConf in urlSeq:
+                try:
+                    (ret, errorMsg) = execOneHttpReq(urlConf, timeOut)
+                    if not ret:
+                        hasError = True
+                        break
+                except Exception as ex:
+                    hasError = True
+                    errorMsg = "ERROR: " + str(ex)
+                    print(errorMsg)
+                    break
+
+            if hasError:
+                ret = False
+            else:
+                ret = True
+    else:
+        ret = False
+        errorMsg = "ERROR: Url sequence config error."
+
+    return (ret, errorMsg)
 
 
 def _remoteExecute(nodeInfo, scriptDef):
@@ -403,7 +435,7 @@ def getScriptCmd(scriptDef, osType, remotePath):
             cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
 
 
-def executeRemoteScript(nodeInfo, scriptName, timeOut):
+def executeRemoteScript(accessEndPoint, nodeInfo, timeOut):
     ret = False
     errorMsg = ''
     resourceId = nodeInfo['resourceId']
@@ -500,10 +532,10 @@ if __name__ == "__main__":
                 # ip:port tcp
                 (ret, errorMsg) = tcpCheck(accessEndPoint, timeOut)
             elif accessType == 'URL-SEQUENCE':
-                (ret, errorMsg) = urlSeqCheck(nodeInfo, timeOut)
+                (ret, errorMsg) = urlSeqCheck(accessEndPoint, nodeInfo, timeOut)
             elif accessType == 'BATCH':
                 print("WARN: Use script in script store to check batch service, input or output parameters not support.")
-                (ret, errorMsg) = executeRemoteScript(nodeInfo, timeOut)
+                (ret, errorMsg) = executeRemoteScript(accessEndPoint, nodeInfo, timeOut)
             else:
                 # ping
                 (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)
