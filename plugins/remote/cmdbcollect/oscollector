@@ -62,6 +62,7 @@ sub main {
 
     my $isVerbose = 0;
     my $isDebug   = 0;
+    my $needPerformance = 0;
     my $classDef;
     my $defaultPassConf;
 
@@ -69,6 +70,7 @@ sub main {
         'verbose=i'         => \$isVerbose,
         'debug=i'           => \$isDebug,
         'class=s'           => \$classDef,
+        'performance=i'     => \$needPerformance,
         'defaultpassconf=s' => \$defaultPassConf
     );
     my @myOpts = @ARGV;
@@ -142,7 +144,7 @@ sub main {
     my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
         print("INFO: Begin to collect OS information...\n");
-        my $osGather = OSGather->new($ignoreOsInfo);
+        my $osGather = OSGather->new($ignoreOsInfo, $needPerformance);
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
             $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
@@ -357,7 +359,7 @@ sub main {
         return $isMatched;
     };
 
-    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb );
+    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, needPerformance=>$needPerformance );
     $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程

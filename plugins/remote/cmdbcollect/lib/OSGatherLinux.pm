@@ -530,6 +530,10 @@ sub getMiscInfo {
     $osInfo->{MAX_OPEN_FILES} = int($maxOpenFiles);
 }
 
+sub getPerformanceInfo {
+
+}
+
 sub collectOsInfo {
     my ($self) = @_;
 
@@ -551,6 +555,10 @@ sub collectOsInfo {
     else {
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+    }
+
+    if ( $self->{needPerformance} ) {
+        $self->getPerformanceInfo();
     }
 
     return $osInfo;

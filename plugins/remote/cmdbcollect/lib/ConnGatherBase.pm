@@ -69,12 +69,22 @@ sub parseListenLines {
 
 sub parseConnLines {
     my ( $self, %args ) = @_;
-    print("INFO: Try to connect process connections.\n");
+    print("INFO: Try to collect process connections.\n");
     my $cmd            = $args{cmd};
     my $pid            = $args{pid};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
+    my $recvQIdx       = $args{recvQIdx};
+    my $sendQIdx       = $args{sendQIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
+
+    my $totalCount         = 0;
+    my $inBoundCount       = 0;
+    my $outBoundCount      = 0;
+    my $recvQNoneZeroCount = 0;
+    my $sendQNoneZeroCount = 0;
+    my $totalRecvQSize     = 0;
+    my $totalSendQSize     = 0;
 
     my $remoteAddrs = {};
     my $status      = 0;
@@ -108,7 +118,22 @@ sub parseConnLines {
                     and not defined( $lsnPortsMap->{$localAddr} )
                     and not defined( $lsnPortsMap->{$port} ) )
                 {
+                    $outBoundCount = $outBoundCount + 1;
                     $remoteAddrs->{$remoteAddr} = 1;
+                }
+                else {
+                    $inBoundCount = $inBoundCount + 1;
+                }
+                $totalCount = $totalCount + 1;
+                my $recvQSize = int( $fields[$recvQIdx] );
+                my $sendQSize = int( $fields[$sendQIdx] );
+                $totalRecvQSize = $totalRecvQSize + $recvQSize;
+                $totalSendQSize = $totalSendQSize + $sendQSize;
+                if ( $recvQSize > 0 ) {
+                    $recvQNoneZeroCount = $recvQNoneZeroCount + 1;
+                }
+                if ( $sendQSize > 0 ) {
+                    $sendQNoneZeroCount = $sendQNoneZeroCount + 1;
                 }
             }
         }
@@ -121,25 +146,38 @@ sub parseConnLines {
         print("ERROR: Can not launch command: $cmd to collect process connections.\n");
     }
 
-    return ( $status, $remoteAddrs );
+    my $connStatInfo = {
+        'TOTAL_COUNT'       => $totalCount,
+        'INBOUND_COUNT'     => $inBoundCount,
+        'OUTBOUND_COUNT'    => $outBoundCount,
+        'RECV_QUEUED_COUNT' => $recvQNoneZeroCount,
+        'SEND_QUEUED_COUNT' => $sendQNoneZeroCount,
+        'RECV_QUEUED_SIZE'  => $totalRecvQSize,
+        'SEND_QUEUED_SIZE'  => $totalSendQSize
+    };
+
+    return ( $status, $remoteAddrs, $connStatInfo );
 }
 
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $remoteAddrs = {};
-    my $status      = 3;
+    my $remoteAddrs  = {};
+    my $connStatInfo = {};
+    my $status       = 3;
 
     if ( $status != 0 ) {
         my $cmd            = "netstat -ntudwp|";
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
-        ( $status, $remoteAddrs ) = $self->parseConnLines(
+        ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
             cmd            => $cmd,
             pid            => $pid,
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
-            remoteFieldIdx => $remoteFieldIdx
+            remoteFieldIdx => $remoteFieldIdx,
+            recvQIdx       => 1,
+            sendQIdx       => 2
         );
     }
 
@@ -147,16 +185,18 @@ sub getRemoteAddrs {
         my $cmd            = "ss -ntudwp |";
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
-        ( $status, $remoteAddrs ) = $self->parseConnLines(
+        ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
             cmd            => $cmd,
             pid            => $pid,
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
-            remoteFieldIdx => $remoteFieldIdx
+            remoteFieldIdx => $remoteFieldIdx,
+            recvQIdx       => 2,
+            sendQIdx       => 3
         );
     }
 
-    return $remoteAddrs;
+    return ( $remoteAddrs, $connStatInfo );
 }
 
 sub getListenPorts {
@@ -195,11 +235,12 @@ sub getListenPorts {
 sub getConnInfo {
     my ( $self, $pid ) = @_;
     my $lsnPortsMap = $self->getListenPorts($pid);
-    my $remoteAddrs = $self->getRemoteAddrs( $lsnPortsMap, $pid );
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
     $connInfo->{PEER}   = $remoteAddrs;
+    $connInfo->{STATS}  = $connStatInfo;
 
     return $connInfo;
 }

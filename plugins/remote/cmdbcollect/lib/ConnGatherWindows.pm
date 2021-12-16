@@ -65,6 +65,10 @@ sub parseConnLines {
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
 
+    my $totalCount    = 0;
+    my $inBoundCount  = 0;
+    my $outBoundCount = 0;
+
     my $remoteAddrs = {};
     my $status      = 0;
     my $pipe;
@@ -88,8 +92,13 @@ sub parseConnLines {
                     and not defined( $lsnPortsMap->{$localAddr} )
                     and not defined( $lsnPortsMap->{$port} ) )
                 {
+                    $outBoundCount = $outBoundCount + 1;
                     $remoteAddrs->{$remoteAddr} = 1;
                 }
+                else {
+                    $inBoundCount = $inBoundCount + 1;
+                }
+                $totalCount = $totalCount + 1;
             }
         }
         close($pipe);
@@ -101,7 +110,13 @@ sub parseConnLines {
         print("ERROR: Can not launch command:$cmd to collect process connections.\n");
     }
 
-    return ( $status, $remoteAddrs );
+    my $connStatInfo = {
+        'TOTAL_COUNT'    => $totalCount,
+        'INBOUND_COUNT'  => $inBoundCount,
+        'OUTBOUND_COUNT' => $outBoundCount
+    };
+
+    return ( $status, $remoteAddrs, $connStatInfo );
 }
 
 sub getRemoteAddrs {
@@ -110,14 +125,14 @@ sub getRemoteAddrs {
     my $cmd            = "netstat -ano| findstr $pid |";
     my $localFieldIdx  = 2;
     my $remoteFieldIdx = 3;
-    my ( $status, $remoteAddrs ) = $self->parseConnLines(
+    my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
         cmd            => $cmd,
         lsnPortsMap    => $lsnPortsMap,
         localFieldIdx  => $localFieldIdx,
         remoteFieldIdx => $remoteFieldIdx
     );
 
-    return $remoteAddrs;
+    return ( $remoteAddrs, $connStatInfo );
 }
 
 sub getListenPorts {
@@ -137,11 +152,12 @@ sub getListenPorts {
 sub getConnInfo {
     my ( $self, $pid ) = @_;
     my $lsnPortsMap = $self->getListenPorts($pid);
-    my $remoteAddrs = $self->getRemoteAddrs( $lsnPortsMap, $pid );
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
     $connInfo->{PEER}   = $remoteAddrs;
+    $connInfo->{STATS}  = $connStatInfo;
 
     return $connInfo;
 }

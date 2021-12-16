@@ -11,7 +11,8 @@ use OSGatherBase;
 our $_INSTANCES = {};
 
 sub new {
-    my ( $type, $justBaseInfo ) = @_;
+    my ( $type, $justBaseInfo, $needPerformance ) = @_;
+
     #jusbBaseInfo: 仅仅收集进程计算需要的内存和IP地址信息
     #实现单态
     my $instance = $_INSTANCES->{$type};
@@ -28,7 +29,7 @@ sub new {
         };
         if ($@) {
             print("ERROR: Load $gatherClass.pm failed, $@\n");
-            $instance = OSGatherBase->new($justBaseInfo);
+            $instance = OSGatherBase->new( $justBaseInfo, $needPerformance );
         }
         $_INSTANCES->{$type} = $instance;
     }

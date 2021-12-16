@@ -35,7 +35,11 @@ sub new {
     #COMMAND=>'xxxxxxxxxxxxxxxxx'
     #......
 
-    my $self = { callback => $args{callback} };
+    my $self = {
+        callback        => $args{callback},
+        needPerformance => $args{needPerformance}
+    };
+
     $self->{procFilters}      = $procFilters;
     $self->{filtersCount}     = scalar(@$procFilters);
     $self->{matchedProcsInfo} = {};

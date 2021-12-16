@@ -15,6 +15,7 @@ sub new {
     my $self = {};
     bless( $self, $type );
 
+    $self->{procConnStats} = {};
     my $lsnPortsMap = $self->getListenPorts();
     $self->{lsnPortsMap} = $lsnPortsMap;
     $self->{remoteAddrs} = $self->getRemoteAddrs($lsnPortsMap);
@@ -82,12 +83,46 @@ sub parseListenLines {
     return ( $status, $portsMap );
 }
 
+sub processConnStat {
+    my ( $self, $pid, $isInBound, $fields, $recvQIdx, $sendQIdx ) = @_;
+
+    my $myConnStats = $self->{procConnStats}->{$pid};
+    if ( not defined($myConnStats) ) {
+        $myConnStats = {};
+        $self->{procConnStats}->{$pid} = $myConnStats;
+    }
+
+    my $recvQSize = int( $$fields[$recvQIdx] );
+    my $sendQSize = int( $$fields[$sendQIdx] );
+
+    $myConnStats->{TOTAL_COUNT} = $myConnStats->{TOTAL_COUNT} + 1;
+
+    $myConnStats->{RECV_QUEUED_SIZE} = $myConnStats->{RECV_QUEUED_SIZE} + $recvQSize;
+    $myConnStats->{SEND_QUEUED_SIZE} = $myConnStats->{SEND_QUEUED_SIZE} + $sendQSize;
+
+    if ( $recvQSize > 0 ) {
+        $myConnStats->{RECV_QUEUED_COUNT} = $myConnStats->{RECV_QUEUED_COUNT} + 1;
+    }
+    if ( $sendQSize > 0 ) {
+        $myConnStats->{SEND_QUEUED_COUNT} = $myConnStats->{SEND_QUEUED_COUNT} + 1;
+    }
+
+    if ( $isInBound == 1 ) {
+        $myConnStats->{INBOUND_COUNT} = $myConnStats->{INBOUND_COUNT} + 1;
+    }
+    else {
+        $myConnStats->{OUTBOUND_COUNT} = $myConnStats->{OUTBOUND_COUNT} + 1;
+    }
+}
+
 sub parseConnLines {
     my ( $self, %args ) = @_;
     print("INFO: Begin to collect process connections.\n");
     my $cmd            = $args{cmd};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
+    my $recvQIdx       = $args{recvQIdx};
+    my $sendQIdx       = $args{sendQIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
     my $pid            = $args{pid};
 
@@ -114,13 +149,21 @@ sub parseConnLines {
                 if ( $remoteAddr =~ /^(.+)\.(\d+)$/ ) {
                     my $addr = $1;
                     my $port = $2;
-                    if (    not defined( $lsnPortsMap->{$localAddr} )
-                        and not defined( $lsnPortsMap->{$port} ) )
-                    {
+
+                    my $lsnBindPid = $lsnPortsMap->{$localAddr};
+                    if ( not defined($lsnBindPid) ) {
+                        $lsnBindPid = $lsnPortsMap->{$localAddr};
+                    }
+
+                    if ( not defined($lsnBindPid) ) {
                         my $useByPid = $self->findSockPid($sockAddr);
                         if ( not defined($pid) or $useByPid == $pid ) {
                             $remoteAddrs->{$remoteAddr} = "$addr:$port";
+                            $self->processConnStat( $useByPid, 0, \@fields, $recvQIdx, $sendQIdx );
                         }
+                    }
+                    else {
+                        $self->processConnStat( $lsnBindPid, 1, \@fields, $recvQIdx, $sendQIdx );
                     }
                 }
             }
@@ -149,7 +192,9 @@ sub getRemoteAddrs {
         cmd            => $cmd,
         lsnPortsMap    => $lsnPortsMap,
         localFieldIdx  => $localFieldIdx,
-        remoteFieldIdx => $remoteFieldIdx
+        remoteFieldIdx => $remoteFieldIdx,
+        recvQIdx       => 2,
+        sendQIdx       => 3
     );
 
     return $remoteAddrs;
@@ -175,8 +220,9 @@ sub getListenPorts {
 #获取单个进程的连出的TCP/UDP连接
 sub getConnInfo {
     my ( $self, $pid ) = @_;
-    my $lsnPortsMap = $self->{lsnPortsMap};
-    my $remoteAddrs = $self->{remoteAddrs};
+    my $lsnPortsMap   = $self->{lsnPortsMap};
+    my $remoteAddrs   = $self->{remoteAddrs};
+    my $procConnStats = $self->{procConnStats};
 
     my $connInfo    = {};
     my $lsnPortsMap = {};
@@ -195,6 +241,7 @@ sub getConnInfo {
 
     $connInfo->{LISTEN} = $lsnPortsMap;
     $connInfo->{PEER}   = $remoteAddrsMap;
+    $connInfo->{STATS}  = $procConnStats->{$pid};
 
     return $connInfo;
 }

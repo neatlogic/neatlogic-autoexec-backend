@@ -356,6 +356,10 @@ sub getDiskInfo {
     $osInfo->{DISKS} = \@disks;
 }
 
+sub getPerformanceInfo {
+
+}
+
 sub collectOsInfo {
     my ($self) = @_;
 
@@ -376,6 +380,10 @@ sub collectOsInfo {
     else {
         $self->getSystemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+    }
+
+    if ( $self->{needPerformance} ) {
+        $self->getPerformanceInfo();
     }
 
     return $osInfo;
