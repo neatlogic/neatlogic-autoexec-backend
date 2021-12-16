@@ -110,8 +110,10 @@ def execOneHttpReq(urlConf, valuesJar, timeOut):
     extractContent = urlConf['extractConf']
 
     dataContent = json.dumps(data, ensure_ascii=False)
-    for varName, varValue in matchKey.items():
-        dataContent.replace('\$\{' + varName + '\}', varValue)
+    hasReplaced = False
+    for varName, varValue in valuesJar.items():
+        dataContent = dataContent.replace('\$\{' + varName + '\}', varValue)
+    data = json.loads(dataContent)
 
     cookie = cookiejar.CookieJar()
     cookieHandler = request.HTTPCookieProcessor(cookie)
@@ -152,17 +154,38 @@ def execOneHttpReq(urlConf, valuesJar, timeOut):
             print("ERROR: Response content not match:" + matchKey + "\n")
             print(content)
 
-    for line in extractContent.split("\n"):
-        kv = line.split('=', 1)
-        keyName = kv[0].strip()
-        matchObj = re.search(kv[1].strip(), content)
+    for varName in extractContent:
+        pattern = extractContent[varName]
+        matchObj = re.search(pattern, content)
         if matchObj:
-            valuesJar[keyName] = matchObj.group(1)
+            valuesJar[varName] = matchObj.group(1)
 
     return ret
 
 
 def urlSeqCheck(urlSeq, timeOut):
+    # url检查序列样例
+    # [
+    #     {
+    #         "name": "查询1",
+    #         "url": "http://abc.com.cn",
+    #         "method": "POST-FORM|POST_JSON|GET",
+    #         "data": {"key1": "value1", "key2": "value2"},
+    #         "proxy": "http://proxy.com:8080",
+    #         "matchKey": ["(key1)|(key2)", "key3", "key4"],
+    #         "extractConf": {"varname1": "patter1n", "varname2": "pattern2"}
+    #     },
+    #     {
+    #         "name": "查询2",
+    #         "url": "http://abc.com.cn",
+    #         "method": "POST-FORM|POST_JSON|GET",
+    #         "data": {"key1": "value1", "key2": "${varname1}"},
+    #         "proxy": "http://proxy.com:8080",
+    #         "matchKey": ["(key1)|(key2)", "key3", "key4"],
+    #         "extractConf": {"varname1": "patter1n", "varname2": "pattern2"}
+    #     }
+    # ]
+
     hasError = False
     for urlConf in urlSeq:
         try:
@@ -190,6 +213,7 @@ def _remoteExecute(nodeInfo, scriptDef):
     scriptName = getScriptFileName(scriptDef)
     scriptContent = scriptDef['script']
 
+    output = ''
     scriptCmd = None
     remoteCmd = None
     killCmd = None
@@ -213,7 +237,11 @@ def _remoteExecute(nodeInfo, scriptDef):
                 remoteCmd = 'cd {} && {}'.format(remotePath, scriptCmd)
 
                 def getOutputLine(line):
-                    pass
+                    print(line)
+                    output = output + line
+                    outLen = len(output)
+                    if (outLen > 1024):
+                        output = output[outLen-1024:]
 
                 ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=getOutputLine)
 
@@ -292,7 +320,12 @@ def _remoteExecute(nodeInfo, scriptDef):
                 while True:
                     r, w, x = select.select([channel], [], [], 10)
                     if len(r) > 0:
-                        print(channel.recv(4096))
+                        out = channel.recv(4096)
+                        print(out)
+                        output = output + out
+                        outLen = len(output)
+                        if (outLen > 1024):
+                            output = output[outLen-1024:]
                     if channel.exit_status_ready():
                         ret = channel.recv_exit_status()
                         break
@@ -317,7 +350,13 @@ def _remoteExecute(nodeInfo, scriptDef):
         else:
             print("ERROR: Execute remote script by ssh failed:{}\n".format(scriptCmd))
 
-    return ret
+    result = False
+    errorMsg = ''
+    if ret == 0:
+        result = True
+    else:
+        errorMsg = output
+    return (result, errorMsg)
 
 
 def getScriptFileName(scriptDef):
@@ -365,16 +404,22 @@ def getScriptCmd(scriptDef, osType, remotePath):
 
 
 def executeRemoteScript(nodeInfo, scriptName, timeOut):
+    ret = False
+    errorMsg = ''
     resourceId = nodeInfo['resourceId']
     endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
     if 'config' in endPointConf:
         scriptConf = endPointConf['config']
         if scriptConf['type'] != 'script':
-            print("ERROR: Config error, not script, {}".format(json.dumps(endPointConf)))
+            errorMsg = "ERROR: Config error, not script, {}".format(json.dumps(endPointConf))
+            print(errorMsg)
         else:
             scriptId = scriptConf['script']
             scriptDef = AutoExecUtils.getScript(scriptId)
-            _remoteExecute(nodeInfo, scriptDef)
+            (ret, errorMsg) = _remoteExecute(nodeInfo, scriptDef)
+    else:
+        errorMsg = "ERROR: Script config error."
+    return (ret, errorMsg)
 
 
 def saveInspectData(inspectData):
@@ -444,39 +489,46 @@ if __name__ == "__main__":
                 else:
                     accessEndPoint = ip
 
-        errorMsg = None
-        startTime = time.time()
-        if accessType in ('HTTP', 'HTTPS'):
-            # url check
-            (ret, errorMsg) = urlCheck(accessEndPoint, timeOut)
-            if not ret:
-                hasError = True
-        elif accessType == 'TCP':
-            # ip:port tcp
-            (ret, errorMsg) = tcpCheck(accessEndPoint, timeOut)
-            if not ret:
-                hasError = True
-        elif accessType == 'BATCH':
-            executeRemoteScript(nodeInfo, timeOut)
-        else:
-            # ping
-            (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)
+        try:
+            ret = False
+            errorMsg = None
+            startTime = time.time()
+            if accessType in ('HTTP', 'HTTPS'):
+                # url check
+                (ret, errorMsg) = urlCheck(accessEndPoint, timeOut)
+            elif accessType == 'TCP':
+                # ip:port tcp
+                (ret, errorMsg) = tcpCheck(accessEndPoint, timeOut)
+            elif accessType == 'URL-SEQUENCE':
+                (ret, errorMsg) = urlSeqCheck(nodeInfo, timeOut)
+            elif accessType == 'BATCH':
+                (ret, errorMsg) = executeRemoteScript(nodeInfo, timeOut)
+            else:
+                # ping
+                (ret, errorMsg) = pingCheck(accessEndPoint, timeOut)
+
             if not ret:
                 hasError = True
 
-        timeConsume = time.time() - startTime
-        inspectInfo = {'_OBJ_CATEGORY': 'EMPTY',
-                       '_OBJ_TYPE': 'EMPTY',
-                       'ACCESS_TYPE': accessType,
-                       'ACCESS_ENDPOINT': accessEndPoint}
-        if hasError:
+            timeConsume = time.time() - startTime
+            inspectInfo = {'_OBJ_CATEGORY': 'EMPTY',
+                           '_OBJ_TYPE': 'EMPTY',
+                           'ACCESS_TYPE': accessType,
+                           'ACCESS_ENDPOINT': accessEndPoint}
+            if hasError:
+                inspectInfo['AVAILABILITY'] = 0
+                inspectInfo['ERROR_MESSAGE'] = errorMsg
+                inspectInfo['RESPONSE_TIME'] = timeConsume
+            else:
+                inspectInfo['AVAILABILITY'] = 1
+                inspectInfo['ERROR_MESSAGE'] = None
+                inspectInfo['RESPONSE_TIME'] = timeConsume
+
+            saveInspectData(inspectInfo)
+        except Exception as ex:
             inspectInfo['AVAILABILITY'] = 0
-            inspectInfo['ERROR_MESSAGE'] = errorMsg
-            inspectInfo['RESPONSE_TIME'] = timeConsume
-        else:
-            inspectInfo['AVAILABILITY'] = 1
-            inspectInfo['ERROR_MESSAGE'] = None
-            inspectInfo['RESPONSE_TIME'] = timeConsume
+            inspectInfo['ERROR_MESSAGE'] = str(ex)
+            saveInspectData(inspectInfo)
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)

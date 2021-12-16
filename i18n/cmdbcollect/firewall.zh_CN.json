@@ -2,10 +2,9 @@
     "label": "防火墙",
     "collection": "COLLECT_SECDEV",
     "filter": {
-        "_OBJ_TYPE": "Firewall"
+        "_OBJ_TYPE": "FireWall"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"

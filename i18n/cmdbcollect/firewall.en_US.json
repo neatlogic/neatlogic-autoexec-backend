@@ -2,10 +2,9 @@
     "label": "Firewall",
     "collection": "COLLECT_SECDEV",
     "filter": {
-        "_OBJ_TYPE": "Firewall"
+        "_OBJ_TYPE": "FireWall"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
