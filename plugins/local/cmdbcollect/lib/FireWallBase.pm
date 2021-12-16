@@ -77,7 +77,9 @@ sub new {
 
     END {
         local $?;
-        $session->close();
+        if ( defined($session) ) {
+            $session->close();
+        }
     }
 
     return $self;
