@@ -126,15 +126,6 @@ sub addTableOid {
     }
 }
 
-sub setCommonOid {
-    my ( $self, %args ) = @_;
-    my $commonOidDef = $self->{commOidDef};
-
-    foreach my $key ( keys(%args) ) {
-        $commonOidDef->{$key} = $args{$key};
-    }
-}
-
 sub _errCheck {
     my ( $self, $queryResult, $oid ) = @_;
     my $hasError = 0;
@@ -227,10 +218,16 @@ sub collect {
     $self->_getScalar();
     $self->_getTable();
 
+    my $data = $self->{DATA};
+    if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' ) {
+        $data->{VENDOR} = $self->{brand};
+    }
+    if ( not defined( $data->{BRAND} ) or $data->{BRAND} eq '' ) {
+        $data->{BRAND} = $self->{brand};
+    }
+
     #调用对应品牌的pm进行采集后的数据处理，用户补充数据或者调整数据
     $self->after();
-
-    my $data = $self->{DATA};
 
     return $data;
 }

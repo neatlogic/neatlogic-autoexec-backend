@@ -107,8 +107,8 @@ sub main {
         }
     }
     else {
-        print("WARN: $firewallClass not found.\n");
-        print("WARN: Fall back to FireWallBase class.\n");
+        print("INFO: $firewallClass not found.\n");
+        print("INFO: Fall back to FireWallBase class.\n");
         $firewallIns = $firewallBase;
     }
 

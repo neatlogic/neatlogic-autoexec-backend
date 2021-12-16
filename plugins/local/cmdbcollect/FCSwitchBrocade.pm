@@ -1,173 +1,179 @@
 #!/usr/bin/perl
-use FindBin;
-use lib $FindBin::Bin;
-
-package FCSwitchBrocade;
-
 use strict;
-use File::Basename;
-use JSON;
-use Net::SNMP qw(:snmp);
-use SnmpHelper;
-use Data::Dumper;
+use FindBin;
+use Cwd qw(abs_path);
+use lib abs_path("$FindBin::Bin/lib");
+use lib abs_path("$FindBin::Bin/../lib");
+use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
 
-sub new {
-    my ( $class, %args ) = @_;
-    my $self = {};
-    bless( $self, $class );
+package FCSwitchHillStone;
 
-    $self->{snmpHelper} = SnmpHelper->new();
+use FCSwitchBase;
+our @ISA = qw(FCSwitchBase);
 
-    my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5',                                                                                                                                                                     #sysName
-        SN       => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
-        MODEL    => [ '1.3.6.1.2.1.47.1.1.1.1.2.1', '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ],
-        FIRMWARE_VERSION => [ '1.3.6.1.4.1.1588.2.1.1.1.1.6', '1.3.6.1.2.1.47.1.1.1.1.8.22' ],                                                                                                             #sysProductVersion
-        BOOT_DATE        => '1.3.6.1.4.1.1588.2.1.1.1.1.2',
-        DOMAIN_ID        => '1.3.6.1.4.1.1588.2.1.1.1.2.1.0', #uptime
-        PORTS_COUNT      => '1.3.6.1.2.1.2.1.0'
-    };
+use Net::OpenSSH;
 
-    my $tblOidDef = {
-        PORTS => {
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',                                                                                                                                                         #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',                                                                                                                                                         #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',                                                                                                                                                         #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',                                                                                                                                                         #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',                                                                                                                                                         #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',                                                                                                                                                         #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',                                                                                                                                                         #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',                                                                                                                                                         #ifMTU
-        },
-        ZONES => {
-            INDEX => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.1',
-            NAME  => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.2'
-        }
-    };
+sub before {
+    my ($self) = @_;
 
-    $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tblOidDef}    = $tblOidDef;
-
-    my $version = $args{version};
-    if ( not defined($version) or $version eq '' ) {
-        $version = 'snmpv2';
-        $args{version} = $version;
-    }
-    if ( not defined( $args{retries} ) ) {
-        $args{retries} = 2;
-    }
-
-    my $options = {};
-    foreach my $key ( keys(%args) ) {
-        $options->{"-$key"} = $args{$key};
-    }
-    $options->{'-maxmsgsize'} = 65535;
-
-    my ( $session, $error ) = Net::SNMP->session(%$options);
-
-    if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{host} failed, $error\n");
-        exit(-1);
-    }
-
-    $self->{snmpSession} = $session;
-
-    END {
-        local $?;
-        $session->close();
-    }
-
-    return $self;
+    #SN可能要调整，如果有多个可能，就在数组里添加
+    #$self->addScalarOid( SN => [ '1.3.6.1.4.1.9.3.6.3.0', '1.3.6.1.4.1.9.5.1.2.19.0', '1.3.6.1.2.1.47.1.1.1.1.11.1001', '1.3.6.1.2.1.47.1.1.1.1.11.2001', '1.3.6.1.4.1.9.9.92.1.1.1.2.0' ] );
 }
 
-sub _errCheck {
-    my ( $self, $queryResult, $oid ) = @_;
-    my $hasError = 0;
-    my $snmp     = $self->{snmpSession};
-    if ( not defined($queryResult) ) {
-        $hasError = 1;
-        my $error = $snmp->error();
-        if ( $error =~ /^No response/i ) {
-            print("ERROR: $error, snmp failed, exit.\n");
+sub after {
+    my ($self) = @_;
+
+    my $data     = $self->{DATA};
+    my $nodeInfo = $self->{node};
+
+    if ( not defined( $data->{DEV_NAME} ) and defined( $nodeInfo->{username} ) and lc( $nodeInfo->{username} ) ne 'snmp' ) {
+        print("INFO: Can not find DEV_NAME by snmp, try ssh.\n");
+
+        my $ssh = Net::OpenSSH->new(
+            $nodeInfo->{host},
+            port        => $nodeInfo->{protocolPort},
+            user        => $nodeInfo->{username},
+            password    => $nodeInfo->{password},
+            timeout     => $self->{timeout},
+            master_opts => [ -o => "StrictHostKeyChecking=no" ]
+        );
+
+        if ( $ssh->error ) {
+            print( "ERROR: Can not establish ssh connection for $nodeInfo->{host}:$nodeInfo->{protocolPort}, " . $ssh->error . "\n" );
             exit(-1);
         }
-        else {
-            print("WARN: $error, $oid\n");
+
+        my @firmWareInfoLines = $ssh->capture('firmwareshow');
+        my $fmVerInfo         = $firmWareInfoLines[-1];
+        $fmVerInfo =~ s/^\s+|\s+$//g;
+        $data->{FIRMWARE_VERSION} = $fmVerInfo;
+
+        my $sn;
+        my $chassisLine = $ssh->capture('chassisshow');
+        if ( $chassisLine =~ /.*Serial\s+Num:\s*(\S+)/ ) {
+            $sn = $1;
+            $sn =~ s/^\s+|\s+$//g;
+            $data->{SN} = $sn;
         }
+
+        my $domainId;
+        my @showInfoLines = $ssh->capture('switchshow');
+        foreach my $line (@showInfoLines) {
+            if ( $line =~ /switchDomain/ ) {
+                $domainId = ( split( /:/, $line ) )[1];
+                $domainId =~ s/^\s+|\s+$//g;
+            }
+        }
+        $data->{DOMAIN_ID} = $domainId;
+
+        # alias:	DD4200_A0port1
+        #         50:02:18:81:36:61:11:0b
+        # alias:	DS8100_io233
+        #         50:05:07:63:09:13:c2:a5
+        # alias:	DS8100_io303
+        #         50:05:07:63:09:18:c2:a5
+        my @portList;
+        my ( $portIdx, $speedIdx );
+        foreach my $line (@showInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line =~ /speed/i and $line =~ /port/i ) {
+                my @title = split( /\s+/, $line );
+                while ( my ( $index, $element ) = each(@title) ) {
+                    if ( $element =~ /port/i ) {
+                        $portIdx = $index;
+                    }
+                    if ( $element =~ /speed/i ) {
+                        $speedIdx = $index;
+                    }
+                }
+            }
+
+            if ( $line =~ /\s+F-Port\s+/ ) {
+
+                # 1    1    1   010100   id    N8	   No_Light    FC
+                # 2    1    2   010200   id    N8	   Online      FC  F-Port  50:00:09:79:f0:02:79:80
+                # 3    1    3   010300   id    N8	   Online      FC  F-Port  50:00:09:79:f0:02:79:81
+                my @portSplit = split( /\s+/, $line );
+                my $port      = $portSplit[$portIdx];
+                my $portDesc  = $domainId . ',' . $port;
+                my $portSpeed = $portSplit[$speedIdx];
+                my $portWWN;
+                if ( $portSplit[-1] !~ /\w+:\w+/ ) {
+                    my $showPortInfo = $ssh->capture("portshow $port");
+                    if ( $showPortInfo =~ /portWwn:\s*(.+)\s+/ ) {
+                        $portWWN = $1;
+                    }
+                }
+                else {
+                    $portWWN = $portSplit[-1];
+                }
+
+                my $portInfo = {};
+                $portInfo->{NAME}  = $portDesc;
+                $portInfo->{SPEED} = $portSpeed;
+                $portInfo->{WWN}   = $portWWN;
+
+                push( @portList, $portInfo );
+            }
+        }
+
+        # zone:	DD4200_A0port1_pzhqzpt1_fcs1
+        #         50:02:18:81:36:61:11:0b
+        #         10:00:00:90:fa:38:ba:25
+        # zone:	DS8700_DS8100
+        #         50:05:07:63:09:13:c2:a5
+        #         50:05:07:63:09:18:c2:a5
+        #         50:05:07:63:09:18:86:87
+        #         50:05:07:63:09:13:06:87
+        my @zones;
+        my $cfgInfo = $ssh->capture('cfgshow');
+
+        #my @data = $cfgInfo =~ /alias:.*?Effective\s*configuration/si;
+        if ( $cfgInfo =~ /(zone:.*?)alias/s ) {
+            my $zonesCfgInfo = $1;
+
+            my @zoneCfgInfo = split( /zone:\s*.*?\s*/, $zonesCfgInfo );
+            foreach my $line (@zoneCfgInfo) {
+                $line =~ s/^\s*|\s*$//g;
+                $line =~ s/;/\n/g;
+                my @splits = split( /\s+/, $line );
+                my $zoneName = $splits[0];
+                if ( defined $zoneName and $zoneName ne '' ) {
+                    my @zoneAliases = ();
+                    while ( my ( $index, $element ) = each(@splits) ) {
+                        my $zoneAlias = $element;
+                        $zoneAlias =~ s/^\s*|\s*$//g;
+                        if ( $index != 0 ) {
+                            push( @zoneAliases, { VALUE => $zoneAlias } );
+                        }
+                    }
+                    my $zoneInfo = {};
+                    $zoneInfo->{NAME}    = $zoneName;
+                    $zoneInfo->{ALIASES} = \@zoneAliases;
+                    push( @zones, $zoneInfo );
+                }
+            }
+        }
+
+        my $cfgName;
+        if ( $cfgInfo =~ /cfg:\s+(\S+)\s+\n/ ) {
+            $cfgName = $1;
+        }
+
+        my @cfglist;
+        my $cfgInfo = {};
+        $cfgInfo->{NAME}  = $cfgName;
+        $cfgInfo->{ZONES} = \@zones;
+        push( @cfglist, $cfgInfo );
+
+        $data->{PORTS}   = \@portList;
+        $data->{CONFIGS} = \@cfglist;
+
+        $ssh->disconnect();
     }
-
-    return $hasError;
-}
-
-#get simple oid value
-sub _getScalar {
-    my ($self)       = @_;
-    my $snmp         = $self->{snmpSession};
-    my $scalarOidDef = $self->{scalarOidDef};
-
-    my $snmpHelper = $self->{snmpHelper};
-    my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
-
-    #IP格式转换，从0x0A064156转换为可读格式
-    #$scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
-
-    return $scalarData;
-}
-
-sub _getTblData {
-    my ($self)     = @_;
-    my $snmp       = $self->{snmpSession};
-    my $tblOidDef  = $self->{tblOidDef};
-    my $snmpHelper = $self->{snmpHelper};
-
-    my $data = {};
-
-    my $tableData = $snmpHelper->getTable( $snmp, $tblOidDef );
-    my $portsData = $tableData->{PORTS};
-    foreach my $portInfo (@$portsData) {
-        $portInfo->{WWN}          = $snmpHelper->hex2mac( $portInfo->{WWN} );
-        $portInfo->{ADMIN_STATUS} = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{TYPE}         = $snmpHelper->getPortType( $portInfo->{TYPE} );
-        $portInfo->{SPEED}        = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
-    }
-    $data->{PORTS} = $portsData;
-
-    $data->{ZONES} = $tableData->{ZONES};
 
     return $data;
 }
 
-sub collect {
-    my ($self) = @_;
-
-    my $devInfo = $self->_getScalar();
-    my $vendor;
-    my $model = $devInfo->{MODEL};
-    if ( $model =~ /^Brocade/i ) {
-        $vendor = 'Brocade';
-    }
-    elsif ( $model =~ /^DS-C9/i ) {
-        $vendor = 'Cisco';
-    }
-    elsif ( $model =~ /^IBM/i ) {
-        $vendor = 'IBM';
-    }
-    elsif ( $model =~ /^HP/i ) {
-        $vendor = 'HP';
-    }
-    elsif ( $model =~ /^Huawei/i ) {
-        $vendor = 'Huawei';
-    }
-    $devInfo->{VENDOR} = $vendor;
-    $devInfo->{BRAND}  = $vendor;
-
-    my $tblData = $self->_getTblData();
-    while ( my ( $key, $data ) = each(%$tblData) ) {
-        $devInfo->{$key} = $data;
-    }
-
-    return $devInfo;
-}
-
 1;
+

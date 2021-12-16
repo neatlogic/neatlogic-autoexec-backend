@@ -11,6 +11,7 @@ use JSON;
 use Getopt::Long;
 use AutoExecUtils;
 use CollectObjCat;
+use FCSwitchBase;
 use Data::Dumper;
 
 sub usage {
@@ -55,26 +56,67 @@ sub main {
         usage();
     }
 
-    my $instance;
-    my $typeClass = "FCSwitch$type";
-    eval {
-        require "$typeClass.pm";
-        print("class:$typeClass\n");
-        our @ISA = ($typeClass);
-        $instance = $typeClass->new( community => $community, timeout => $timeout, node => $nodeInfo );
-    };
-    if ($@) {
-        print($@);
-        print("ERROR::not found $type plugin .\n");
-        exit(1);
+    if ( not defined($timeout) ) {
+        $timeout = 10;
     }
-    my $data = $instance->collect();
+
+    my $hostname = $nodeInfo->{host};
+    if ( not defined($community) or $community eq '' ) {
+        $community = $nodeInfo->{password};
+    }
+    if ( not defined($community) or $community eq '' ) {
+        $community = 'public';
+    }
+
+    my $brand = $type;
+    my $fcswitchBase = FCSwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
+        $brand = $fcswitchBase->getBrand();
+    }
+
+    if ( not defined($brand) or $brand eq '' ) {
+        print("ERROR: Can not discover the fcswitch device brand, exit.\n");
+        eixt(1);
+    }
+    else {
+        print("INFO: FCSwitch brand: $brand.\n");
+    }
+
+    my $fcswitchIns;
+    my $fcswitchClass = "FCSwitch$brand";
+    if ( -e "$FindBin::Bin/$fcswitchClass.pm" or -e "$FindBin::Bin/lib/$fcswitchClass.pm" ) {
+        print("INFO: Has defined class $fcswitchClass, try to load it.\n");
+        eval {
+            require "$fcswitchClass.pm";
+            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+        };
+        if ($@) {
+            print("WARN: Load $fcswitchClass failed, $@");
+            print("WARN: Fall back to FCSwitchBase class.\n");
+            $fcswitchIns = $fcswitchBase;
+        }
+        else {
+            print("INFO: Class $fcswitchClass loaded.\n");
+        }
+    }
+    else {
+        print("INFO: $fcswitchClass not found.\n");
+        print("INFO: Fall back to FCSwitchBase class.\n");
+        $fcswitchIns = $fcswitchBase;
+    }
+
+    my $data = $fcswitchIns->collect();
+    $data->{BRAND} = $brand;
+    if ( not defined( $data->{VENDOR} ) ) {
+        $data->{VENDOR} = $data->{BRAND};
+    }
+
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('FCDEV');
     $data->{_OBJ_TYPE}     = 'FCSwitch';
-    $data->{_APP_TYPE}     = $type;
+    $data->{_APP_TYPE}     = $brand;
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = $node->{resourceId};
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
 
     my $out = {};
     $out->{DATA} = $data;
