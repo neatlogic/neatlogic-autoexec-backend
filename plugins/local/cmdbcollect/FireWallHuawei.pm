@@ -47,6 +47,21 @@ sub after {
         }
     }
 
+    my $iosInfo = $data->{IOS_INFO};
+    if ( defined($iosInfo) and $iosInfo ne '' ) {
+        my @iosInfoLines = split( /\n/, $iosInfo );
+        $iosInfo = $iosInfoLines[0];
+        $iosInfo =~ s/^\s*|\s*$//g;
+        $data->{IOS_INFO} = $iosInfo;
+    }
+
+    my $model = $data->{MODEL};
+    if ( defined($model) ) {
+        if ( $model =~ /Product Version (.*?)\s*\n/s ) {
+            $data->{MODEL} = $1;
+        }
+    }
+    
     return $data;
 }
 

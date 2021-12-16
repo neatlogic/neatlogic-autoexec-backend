@@ -142,7 +142,12 @@ sub _errCheck {
             exit(-1);
         }
         else {
-            print("WARN: $error, $oid\n");
+            if ( ref($oid) eq 'ARRAY' ) {
+                print( "WARN: $error, oids:", join( ', ', @$oid ), "\n" );
+            }
+            else {
+                print("WARN: $error, $oid\n");
+            }
         }
     }
 
@@ -168,7 +173,7 @@ sub _getScalar {
     return $data;
 }
 
-sub _getTblData {
+sub _getTable {
     my ($self)      = @_;
     my $snmp        = $self->{snmpSession};
     my $tableOidDef = $self->{tableOidDef};
@@ -208,26 +213,30 @@ sub getBrand {
 
     my $snmp = $self->{snmpSession};
 
-    my $sysDescrOid = $self->{scalarOidDef}->{MODEL};
+    my $sysDescrOid = [ '1.3.6.1.2.1.47.1.1.1.1.2.1', '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ];
 
     my $sysDescr;
     my $brand;
-    my $result = $snmp->get_request( -varbindlist => [$sysDescrOid] );
+    my $result = $snmp->get_request( -varbindlist => $sysDescrOid );
     if ( $self->_errCheck( $result, $sysDescrOid ) ) {
         die("ERROR: Snmp request failed.\n");
     }
     else {
-        $sysDescr = $result->{$sysDescrOid};
-        foreach my $pattern ( keys(%$BRANDS_MAP) ) {
-            if ( $sysDescr =~ /$pattern/is ) {
-                $brand = $BRANDS_MAP->{$pattern};
+        for my $oid (@$sysDescrOid) {
+            $sysDescr = $result->{$oid};
+            foreach my $pattern ( keys(%$BRANDS_MAP) ) {
+                if ( $sysDescr =~ /$pattern/is ) {
+                    $brand = $BRANDS_MAP->{$pattern};
+                    last;
+                }
+            }
+            if ( defined($brand) ) {
                 last;
             }
         }
-    }
-
-    if ( not defined($brand) ) {
-        print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
+        if ( not defined($brand) ) {
+            print("WARN: Can not get brand from sysdescr.\n");
+        }
     }
 
     return $brand;

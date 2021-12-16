@@ -67,11 +67,10 @@ sub main {
     $brand = $switchBase->getBrand();
 
     if ( not defined($brand) or $brand eq '' ) {
-        print("ERROR: Can not discover the firewall device brand, exit.\n");
-        eixt(1);
+        print("ERROR: Can not discover the firewall device brand.\n");
     }
     else {
-        print("INFO: SWitch brand: $brand.\n");
+        print("INFO: Switch brand: $brand.\n");
     }
 
     my $switchIns;

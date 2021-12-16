@@ -45,7 +45,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+    if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
@@ -75,8 +75,7 @@ sub main {
     }
 
     if ( not defined($brand) or $brand eq '' ) {
-        print("ERROR: Can not discover the fcswitch device brand, exit.\n");
-        eixt(1);
+        print("ERROR: Can not discover the fcswitch device brand.\n");
     }
     else {
         print("INFO: FCSwitch brand: $brand.\n");

@@ -173,7 +173,12 @@ sub _errCheck {
             exit(-1);
         }
         else {
-            print("WARN: $error, $oid\n");
+            if ( ref($oid) eq 'ARRAY' ) {
+                print( "WARN: $error, oids:", join( ', ', @$oid ), "\n" );
+            }
+            else {
+                print("WARN: $error, $oid\n");
+            }
         }
     }
 
@@ -185,25 +190,31 @@ sub getBrand {
     my ($self) = @_;
     my $snmp = $self->{snmpSession};
 
-    my $sysDescrOid = '1.3.6.1.2.1.1.1.0';
+    my $sysDescrOids = ['1.3.6.1.2.1.1.1.0'];
 
     my $sysDescr;
     my $brand;
-    my $result = $snmp->get_request( -varbindlist => [$sysDescrOid] );
-    if ( $self->_errCheck( $result, $sysDescrOid ) ) {
+    my $result = $snmp->get_request( -varbindlist => $sysDescrOids );
+    if ( $self->_errCheck( $result, $sysDescrOids ) ) {
         die("ERROR: Snmp request failed.\n");
     }
     else {
-        $sysDescr = $result->{$sysDescrOid};
-        foreach my $aBrand (@$BRANDS) {
-            if ( $sysDescr =~ /$aBrand/is ) {
-                $brand = $aBrand;
+        foreach my $oid (@$sysDescrOids) {
+            $sysDescr = $result->{$oid};
+            foreach my $aBrand (@$BRANDS) {
+                if ( $sysDescr =~ /$aBrand/is ) {
+                    $brand = $aBrand;
+                    last;
+                }
+            }
+            if ( defined($brand) ) {
+                last;
             }
         }
-    }
 
-    if ( not defined($brand) ) {
-        print("WARN: Can not get predefined brand from sysdescr:\n$sysDescr\n");
+        if ( not defined($brand) ) {
+            print("WARN: Can not get brand from sysdescr.\n");
+        }
     }
 
     return $brand;
@@ -598,7 +609,6 @@ sub collect {
     my ($self) = @_;
 
     my $brand = $self->{brand};
-    print("INFO: SWitch brand: $brand.\n");
 
     #调用对应品牌的pm进行采集前的oid的设置
     $self->before();
