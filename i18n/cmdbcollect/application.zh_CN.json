@@ -1,0 +1,10 @@
+{
+    "label": "Application",
+    "collection": "COLLECT_INS",
+    "filter": {},
+    "fields": [{
+        "name": "APP_NAME",
+        "desc": "Application Name",
+        "type": "String"
+    }]
+}

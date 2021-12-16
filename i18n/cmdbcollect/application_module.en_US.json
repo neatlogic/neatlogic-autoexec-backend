@@ -1,0 +1,10 @@
+{
+    "label": "应用模块",
+    "collection": "COLLECT_INS",
+    "filter": {},
+    "fields": [{
+        "name": "APPMODULE_NAME",
+        "desc": "应用模块名",
+        "type": "String"
+    }]
+}

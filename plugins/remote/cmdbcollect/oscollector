@@ -318,13 +318,22 @@ sub main {
                 if ( scalar(@insPaths) > 1 ) {
                     $appInfo->{BELONG_APPLICATION} = [
                         {
-                            APP_NAME       => $insPaths[0],
+                            _OBJ_CATEGORY => 'INS',
+                            _OBJ_TYPE     => 'APPLICATION',
+                            APP_NAME      => $insPaths[0],
+                        }
+                    ];
+                    $appInfo->{BELONG_APPLICATION_MODULE} = [
+                        {
+                            _OBJ_CATEGORY  => 'INS',
+                            _OBJ_TYPE      => 'APPLICATION_MODULE',
                             APPMODULE_NAME => $insPaths[1],
                         }
                     ];
                 }
                 else {
-                    $appInfo->{BELONG_APPLICATION} = [];
+                    $appInfo->{BELONG_APPLICATION}        = [];
+                    $appInfo->{BELONG_APPLICATION_MODULE} = [];
                 }
             }
 
