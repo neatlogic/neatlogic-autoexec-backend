@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "ActiveMQ"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -39,13 +38,11 @@
             "name": "BELONG_APPLICATION",
             "desc": "Applicaton",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APP_NAME",
-                    "desc": "Application Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "APP_NAME",
+                "desc": "Application Name",
+                "type": "String"
+            }]
         },
         {
             "name": "STATE",
@@ -106,13 +103,11 @@
             "name": "BELONG_APPLICATION_MODULE",
             "desc": "Applicaton Module",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "Application Module Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "APPMODULE_NAME",
+                "desc": "Application Module Name",
+                "type": "String"
+            }]
         },
         {
             "name": "COMMAND",
@@ -213,18 +208,15 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"

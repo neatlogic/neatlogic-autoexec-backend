@@ -480,6 +480,16 @@ sub main {
                 }
             }
 
+            #重新整理连接统计数据，从CONN_INFO中抽离出来CONN_STATS和CONN_OUTBOUND_STATS
+            my @outBoundStats = ();
+            while ( my ( $remoteAddr, $outBoundStat ) = each( %{$connStats->{OUTBOUND_STATS}} ) ) {
+                $outBoundStat->{REMOTE_ADDR} = $remoteAddr;
+                push(@outBoundStats, $outBoundStat);
+            }
+            $appInfo->{CONN_OUTBOUND_STATS} = \@outBoundStats;
+            delete($connStats->{OUTBOUND_STATS});
+            $appInfo->{CONN_STATS} = delete($connInfo->{STATS});
+
             $appInfo->{CONN_INFO} = $connInfo;
             if ( not defined( $appInfo->{PORTS} ) ) {
                 $appInfo->{PORTS} = \@portNumbers;
