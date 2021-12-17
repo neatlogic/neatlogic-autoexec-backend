@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "AIX"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -99,8 +98,7 @@
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "UNIT",
                     "desc": "单位",
                     "type": "String"
@@ -126,20 +124,17 @@
             "name": "DNS_SERVERS",
             "desc": "DNS服务器",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "网卡名",
                     "type": "String"
@@ -163,8 +158,7 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接交换机端口",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -197,8 +191,7 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -229,8 +222,7 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "主机归属类别",
                     "type": "String"
@@ -256,25 +248,21 @@
             "name": "IPV6_ADDRS",
             "desc": "IPV6地址",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP地址",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP地址",
+                "type": "String"
+            }]
         },
         {
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "KERNEL_VERSION",
@@ -320,8 +308,7 @@
             "name": "MOUNT_POINTS",
             "desc": "挂载点",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USED",
                     "desc": "已使用",
                     "type": "float"
@@ -387,13 +374,11 @@
             "name": "NTP_SERVERS",
             "desc": "NTP服务",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "IP",
+                "type": "String"
+            }]
         },
         {
             "name": "OPENSSL_VERSION",
@@ -409,13 +394,11 @@
             "name": "PATCHES_APPLIED",
             "desc": "已打补丁",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "补丁",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "补丁",
+                "type": "String"
+            }]
         },
         {
             "name": "RESOURCE_ID",
@@ -446,8 +429,7 @@
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "HOME",
                     "desc": "家目录",
                     "type": "String"
@@ -470,6 +452,138 @@
                 {
                     "name": "GID",
                     "desc": "GID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TOP_CPU_RPOCESSES",
+            "desc": "消耗CPU进程TOP",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "USER",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "PID",
+                    "desc": "进程号",
+                    "type": "Int"
+                },
+                {
+                    "name": "PPID",
+                    "desc": "父进程号",
+                    "type": "Int"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "%CPU",
+                    "type": "Int"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "消耗CPU时间",
+                    "type": "String"
+                },
+                {
+                    "name": "PRI",
+                    "desc": "优先级",
+                    "type": "Int"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice值",
+                    "type": "Int"
+                },
+                {
+                    "name": "DATA_RES",
+                    "desc": "数据区内存",
+                    "type": "Int"
+                },
+                {
+                    "name": "TEXT_RES",
+                    "desc": "代码区内存",
+                    "type": "Int"
+                },
+                {
+                    "name": "PAGE_SPACE",
+                    "desc": "虚拟页数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PGFAULTS_IO",
+                    "desc": "IO缺页中断数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PGFAULTS_OTH",
+                    "desc": "其他缺页中断数",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "命令",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TOP_MEM_PROCESSES",
+            "desc": "消耗内存进程TOP",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "USER",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "PID",
+                    "desc": "进程号",
+                    "type": "Int"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "%CPU",
+                    "type": "Int"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "%MEM",
+                    "type": "Int"
+                },
+                {
+                    "name": "SZ",
+                    "desc": "程序大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "RSS",
+                    "desc": "物理内存",
+                    "type": "Int"
+                },
+                {
+                    "name": "TTY",
+                    "desc": "TTY",
+                    "type": "String"
+                },
+                {
+                    "name": "STAT",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "STIME",
+                    "desc": "启动时间",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "消耗CPU时间",
+                    "type": "String"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "命令",
                     "type": "String"
                 }
             ]

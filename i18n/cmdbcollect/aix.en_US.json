@@ -455,6 +455,138 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "TOP_CPU_RPOCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "PPID",
+                    "desc": "Parent PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "PRI",
+                    "desc": "Priority",
+                    "type": "Int"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice Value",
+                    "type": "Int"
+                },
+                {
+                    "name": "DATA_RES",
+                    "desc": "Data Res",
+                    "type": "Int"
+                },
+                {
+                    "name": "TEXT_RES",
+                    "desc": "Text Res",
+                    "type": "Int"
+                },
+                {
+                    "name": "PAGE_SPACE",
+                    "desc": "Page Space",
+                    "type": "Int"
+                },
+                {
+                    "name": "PGFAULTS_IO",
+                    "desc": "IO PgFaults",
+                    "type": "Int"
+                },
+                {
+                    "name": "PGFAULTS_OTH",
+                    "desc": "Other PgFaults",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TOP_MEM_PROCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "Mem Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "SZ",
+                    "desc": "Image Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "RSS",
+                    "desc": "Real Memory",
+                    "type": "Int"
+                },
+                {
+                    "name": "TTY",
+                    "desc": "TTY",
+                    "type": "String"
+                },
+                {
+                    "name": "STAT",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "STIME",
+                    "desc": "Start Time",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

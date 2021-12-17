@@ -465,6 +465,138 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "TOP_CPU_RPOCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "Mem Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "VIRT",
+                    "desc": "Virutal Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "RES",
+                    "desc": "Real Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "SHR",
+                    "desc": "Share Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "S",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME+",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "PR",
+                    "desc": "Priority",
+                    "type": "Int"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice Value",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TOP_MEM_PROCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "Mem Usage",
+                    "type": "Int"
+                },
+                {
+                    "name": "VIRT",
+                    "desc": "Virutal Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "RES",
+                    "desc": "Real Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "SHR",
+                    "desc": "Share Mem",
+                    "type": "Int"
+                },
+                {
+                    "name": "S",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME+",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "PR",
+                    "desc": "Priority",
+                    "type": "Int"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice Value",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

@@ -469,6 +469,21 @@ sub getPerformanceInfo {
             $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
             $line =~ s/\e\[.*$//g;
             @fieldNames = split( /\s+/, $line );
+            if ($fieldNames[5] eq 'RES' and $fieldNames[6] eq 'RES'){
+                $fieldNames[5] = 'DATA_RES';
+                $fieldNames[6] = 'TEXT_RES';
+            }
+            for(my $l=0; $l<=$#fieldNames; $l++){
+                if ($fieldNames[$l] eq 'SPACE'){
+                    $fieldNames[$l] = 'PAGE_SPACE';
+                }
+                elsif ($fieldNames[$l] eq 'I/O'){
+                    $fieldNames[$l] = 'PGFAULTS_IO';
+                }
+                elsif ($fieldNames[$l] eq 'OTH'){
+                    $fieldNames[$l] = 'PGFAULTS_OTH';
+                }
+            }
         }
         if ( $line =~ /^\w+\s+\d\d+\s+\d\d+/ ) {
             last;
