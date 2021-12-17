@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "ActiveMQ"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -38,11 +39,13 @@
             "name": "BELONG_APPLICATION",
             "desc": "Applicaton",
             "type": "JsonArray",
-            "subset": [{
-                "name": "APP_NAME",
-                "desc": "Application Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "APP_NAME",
+                    "desc": "Application Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "STATE",
@@ -103,11 +106,13 @@
             "name": "BELONG_APPLICATION_MODULE",
             "desc": "Applicaton Module",
             "type": "JsonArray",
-            "subset": [{
-                "name": "APPMODULE_NAME",
-                "desc": "Application Module Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "Application Module Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "COMMAND",
@@ -118,6 +123,105 @@
             "name": "CONFIG_PATH",
             "desc": "Conf Path",
             "type": "String"
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "OutBound Conn Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "Remote Addr",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "Connection Stats",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "Total Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "InBound Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "OutBound Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "Recv Queued Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "Recv Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "Recv Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "Recv Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "CPU_PERCENT",
@@ -208,15 +312,18 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [{
-                "type": "Int"
-            }]
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
