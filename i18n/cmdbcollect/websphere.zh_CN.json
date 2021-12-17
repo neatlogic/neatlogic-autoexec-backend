@@ -373,6 +373,11 @@
             "name": "WAS_NODE",
             "desc": "WAS Node",
             "type": "String"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "打开文件数",
+            "type": "int"
         }
     ]
 }

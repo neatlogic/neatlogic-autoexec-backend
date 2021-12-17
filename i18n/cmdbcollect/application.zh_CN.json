@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "APPLICATION"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -13,7 +14,8 @@
             "name": "_OBJ_TYPE",
             "desc": "OS类型",
             "type": "String"
-        }, {
+        },
+        {
             "name": "APP_NAME",
             "desc": "Application Name",
             "type": "String"

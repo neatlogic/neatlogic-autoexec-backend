@@ -86,6 +86,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用率",
+            "type": "int"
+        },
+        {
             "name": "CPU_VERSION",
             "desc": "CPU版本",
             "type": "String"
@@ -243,6 +248,11 @@
             ]
         },
         {
+            "name": "IOWAIT_PERCENT",
+            "desc": "Cpu iowait",
+            "type": "int"
+        },
+        {
             "name": "IPV6_ADDRS",
             "desc": "IPV6地址",
             "type": "JsonArray",
@@ -299,6 +309,11 @@
         {
             "name": "MEM_TOTAL",
             "desc": "总内存",
+            "type": "int"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "内存使用率",
             "type": "int"
         },
         {

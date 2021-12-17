@@ -194,6 +194,7 @@ sub getSystemInfo {
 
     $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $sysInfo->{'Total Physical Memory'} );
     $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $sysInfo->{'Available Physical Memory'} );
+    $osInfo->{MEM_USAGE}     = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
 }
 
 sub getIpAddrs {
@@ -357,7 +358,10 @@ sub getDiskInfo {
 }
 
 sub getPerformanceInfo {
+    my ( $self, $osInfo ) = @_;
 
+    my $cpuPercent = $self->getCmdOut('wmic cpu get loadpercentage');
+    $osInfo->{CPU_PERCENT} = $cpuPercent + 0.0;
 }
 
 sub collectOsInfo {
@@ -382,9 +386,7 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
-    if ( $self->{needPerformance} ) {
-        $self->getPerformanceInfo();
-    }
+    $self->getPerformanceInfo($osInfo);
 
     return $osInfo;
 }

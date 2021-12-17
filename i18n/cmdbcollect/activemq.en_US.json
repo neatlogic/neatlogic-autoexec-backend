@@ -250,6 +250,11 @@
             "name": "WS_PORT",
             "desc": "WS Port",
             "type": "int"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "int"
         }
     ]
 }

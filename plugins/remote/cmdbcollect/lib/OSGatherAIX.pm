@@ -206,6 +206,7 @@ sub getMemInfo {
             $osInfo->{MEM_PIN}       = 0.0 + $infoSegs[4];
             $osInfo->{MEM_VIRTUAL}   = 0.0 + $infoSegs[5];
             $osInfo->{MEM_AVAILABLE} = 0.0 + $infoSegs[6];
+            $osInfo->{MEM_USAGE}     = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
         }
     }
 
@@ -452,7 +453,107 @@ sub getDiskInfo {
 }
 
 sub getPerformanceInfo {
+    my ( $self, $osInfo ) = @_;
 
+    my $hasCpuSum = 0;
+
+    my $headerStr = '';
+    my @fieldNames;
+    my $topLines  = $self->getCmdOutLines('LANG=C TERM=vt100 COLUMNS=300 topas -P | head -22');
+    my $lineCount = scalar(@$topLines);
+    my $k         = 0;
+    for ( $k = 0 ; $k < $lineCount ; $k++ ) {
+        my $line = $$topLines[$k];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line =~ /PPID/ ) {
+            $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
+            $line =~ s/\e\[.*$//g;
+            @fieldNames = split( /\s+/, $line );
+        }
+        if ( $line =~ /^\w+\s+\d\d+\s+\d\d+/ ) {
+            last;
+        }
+    }
+
+    #my @fieldNames = split(/\s+/, 'USER PID PPID PRI NI RES RES SPACE TIME CPU% I/O OTH COMMAND' );
+    my @cpuTopProc = ();
+    for ( my $j = $k ; $j < $k + 10 and $j < $lineCount ; $j++ ) {
+        my $line = $$topLines[$j];
+        $line =~ s/^\s*|\s*$//g;
+        my @fields = split( /\s+/, $line );
+        my $procInfo = {};
+        for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
+            if ( $fields[$i] =~ /^\d+$/ ) {
+                $fields[$i] = int( $fields[$i] );
+            }
+            elsif ( $fields[$i] =~ /^[\d\.]+$/ ) {
+                $fields[$i] = 0.0 + $fields[$i];
+            }
+            $procInfo->{ $fieldNames[$i] } = $fields[$i];
+        }
+        if ( $procInfo->{'CPU%'} > 10 ) {
+            $procInfo->{'%CPU'} = delete( $procInfo->{'CPU%'} );
+            push( @cpuTopProc, $procInfo );
+        }
+    }
+
+    my $psLines = $self->getCmdOutLines('ps aux');
+    for ( $k = 0 ; $k < $lineCount ; $k++ ) {
+        my $line = $$psLines[$k];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line =~ /PID\s/ and $line =~ /USER\s/ ) {
+            @fieldNames = split( /\s+/, $line );
+            $k++;
+            last;
+        }
+    }
+
+    #Get top mem used process by ps
+    my @memTopProc = ();
+    my @psProcs    = ();
+    for ( my $j = $k ; $j < $k + 5 and $j < $lineCount ; $j++ ) {
+        my $line = $$psLines[$j];
+        $line =~ s/^\s*|\s*$//g;
+        my @fields = split( /\s+/, $line );
+        my $procInfo = {};
+        for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
+            if ( $fields[$i] =~ /^\d+$/ ) {
+                $fields[$i] = int( $fields[$i] );
+            }
+            elsif ( $fields[$i] =~ /^[\d\.]+$/ ) {
+                $fields[$i] = 0.0 + $fields[$i];
+            }
+            $procInfo->{ $fieldNames[$i] } = $fields[$i];
+        }
+
+        if ( $procInfo->{'%MEM'} > 10 ) {
+            push( @psProcs, $procInfo );
+        }
+    }
+    if ( $#psProcs > 0 ) {
+        my @psProcsSorted = sort { $a->{'%MEM'} <=> $b->{'%MEM'} } @psProcs;
+        @memTopProc = splice( @psProcsSorted, 0, 5 );
+    }
+
+    #Get cpu usage by sar
+    my $userCpu       = 0.0;
+    my $sysCpu        = 0.0;
+    my $iowait        = 0.0;
+    my $sarLines      = $self->getCmdOutLines("sar 1 1");
+    my $sarLinesCount = scalar(@$sarLines);
+    if ( $sarLinesCount > 2 ) {
+        my $sarLine = $$sarLines[ $sarLinesCount - 1 ];
+        $sarLine =~ s/^\s*|\s*$//g;
+        my @sarFields = split( /\s+/, $sarLine );
+        $userCpu = $userCpu + $sarFields[1];
+        $sysCpu  = $sysCpu + $sarFields[2];
+        $iowait  = $iowait + $sarFields[3];
+    }
+
+    $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
+    $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
+    $osInfo->{CPU_PERCENT}       = $userCpu + $sysCpu;
+    $osInfo->{IOWAIT_PERCENT}    = $iowait;
 }
 
 sub collectOsInfo {
@@ -479,8 +580,8 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
-    if ( $self->{needPerformance} ) {
-        $self->getPerformanceInfo();
+    if ( $self->{needPerformance} == 1 ) {
+        $self->getPerformanceInfo($osInfo);
     }
 
     return $osInfo;

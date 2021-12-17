@@ -336,6 +336,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "int"
         }
     ]
 }

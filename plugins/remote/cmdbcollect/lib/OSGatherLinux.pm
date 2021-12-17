@@ -205,6 +205,7 @@ sub getMemInfo {
     else {
         $osInfo->{MEM_AVAILABLE} = $osInfo->{MEM_FREE} + $osInfo->{MEM_CACHED} + $osInfo->{MEM_BUFFERS};
     }
+    $osInfo->{MEM_USAGE} = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
 
     $osInfo->{SWAP_TOTAL} = $utils->getMemSizeFromStr( $memInfo->{SwapTotal} );
     $osInfo->{SWAP_FREE}  = $utils->getMemSizeFromStr( $memInfo->{SwapFree} );
@@ -531,7 +532,108 @@ sub getMiscInfo {
 }
 
 sub getPerformanceInfo {
+    my ( $self, $osInfo ) = @_;
 
+    my $hasCpuSum = 0;
+    my $userCpu   = 0.0;
+    my $sysCpu    = 0.0;
+    my $iowait    = 0.0;
+
+    my @fieldNames;
+    my $topLines  = $self->getCmdOutLines('top -bn1 -o %CPU | head -22');
+    my $lineCount = scalar(@$topLines);
+    my $k         = 0;
+    for ( $k = 0 ; $k < $lineCount ; $k++ ) {
+        my $line = $$topLines[$k];
+        if ( $line =~ /^%?Cpu\(s\)/ ) {
+
+            #%Cpu(s):  0.6 us,  0.6 sy,  0.0 ni, 98.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+            #Cpu(s):  1.2%us,  0.5%sy,  0.0%ni, 98.3%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+            if ( $line =~ /([\d\.])+[\s\%]+us/ ) {
+                $userCpu = $userCpu + $1;
+                $hasCpuSum++;
+            }
+
+            if ( $line =~ /([\d\.])+[\s\%]+sy/ ) {
+                $sysCpu = $sysCpu + $1;
+                $hasCpuSum++;
+            }
+
+            if ( $line =~ /([\d\.])+[\s\%]+wa/ ) {
+                $iowait = $iowait + $1;
+            }
+        }
+        elsif ( $line =~ /^\s*PID/ ) {
+            $line =~ s/^\s*|\s*$//g;
+            @fieldNames = split( /\s+/, $line );
+            $k++;
+            last;
+        }
+    }
+
+    if ( $hasCpuSum < 2 ) {
+        print("WARN: Can not find os cpu usage.\n");
+    }
+
+    my @cpuTopProc = ();
+    for ( my $j = $k ; $j < $k + 10 and $j < $lineCount ; $j++ ) {
+        my $line = $$topLines[$j];
+        $line =~ s/^\s*|\s*$//g;
+        my @fields = split( /\s+/, $line );
+        my $procInfo = {};
+        for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
+            if ( $fields[$i] =~ /^\d+$/ ) {
+                $fields[$i] = int( $fields[$i] );
+            }
+            elsif ( $fields[$i] =~ /^[\d\.]+$/ ) {
+                $fields[$i] = 0.0 + $fields[$i];
+            }
+            $procInfo->{ $fieldNames[$i] } = $fields[$i];
+        }
+        if ( $procInfo->{'%CPU'} > 10 ) {
+            my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
+            $command =~ s/\x0/ /g;
+            $procInfo->{COMMAND} = $command;
+            push( @cpuTopProc, $procInfo );
+        }
+    }
+
+    $topLines = $self->getCmdOutLines('top -bn1 -o %MEM | head -17');
+    for ( $k = 0 ; $k < $lineCount ; $k++ ) {
+        my $line = $$topLines[$k];
+        if ( $line =~ /^\s*PID/ ) {
+            $k++;
+            last;
+        }
+    }
+    my @memTopProc = ();
+    for ( my $j = $k ; $j < $k + 5 and $j < $lineCount ; $j++ ) {
+        my $line = $$topLines[$j];
+        $line =~ s/^\s*|\s*$//g;
+        my @fields = split( /\s+/, $line );
+        my $procInfo = {};
+        for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
+            if ( $fields[$i] =~ /^\d+$/ ) {
+                $fields[$i] = int( $fields[$i] );
+            }
+            elsif ( $fields[$i] =~ /^[\d\.]+$/ ) {
+                $fields[$i] = 0.0 + $fields[$i];
+            }
+            $procInfo->{ $fieldNames[$i] } = $fields[$i];
+        }
+
+        if ( $procInfo->{'%MEM'} > 10 ) {
+            my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
+            $command =~ s/\x0/ /g;
+            $procInfo->{COMMAND} = $command;
+            push( @memTopProc, $procInfo );
+        }
+    }
+
+    $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
+    $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
+    $osInfo->{CPU_PERCENT}       = $userCpu + $sysCpu;
+    $osInfo->{IOWAIT_PERCENT}    = $iowait;
 }
 
 sub collectOsInfo {
@@ -557,8 +659,8 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
-    if ( $self->{needPerformance} ) {
-        $self->getPerformanceInfo();
+    if ( $self->{needPerformance} == 1 ) {
+        $self->getPerformanceInfo($osInfo);
     }
 
     return $osInfo;

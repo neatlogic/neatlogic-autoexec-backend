@@ -225,6 +225,11 @@
             "name": "USE_LARGE_PAGE",
             "desc": "使用Large Page",
             "type": "int"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "打开文件数",
+            "type": "int"
         }
     ]
 }

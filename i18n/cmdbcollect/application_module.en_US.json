@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "APPLICATION_MODULE"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -13,7 +14,8 @@
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
             "type": "String"
-        }, {
+        },
+        {
             "name": "APPMODULE_NAME",
             "desc": "应用模块名",
             "type": "String"

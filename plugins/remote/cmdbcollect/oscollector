@@ -381,9 +381,10 @@ sub main {
         }
 
         if ( defined($parentTopInfo) ) {
-            $parentTopInfo->{CPU_PERCENT} = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
-            $parentTopInfo->{MEM_PERCENT} = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
-            $parentTopInfo->{MEM_USED}    = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+            $parentTopInfo->{CPU_PERCENT}      = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
+            $parentTopInfo->{MEM_PERCENT}      = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
+            $parentTopInfo->{MEM_USED}         = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+            $parentTopInfo->{OPEN_FILES_COUNT} = $parentTopInfo->{OPEN_FILES_COUNT} + $pFinder->getProcOpenFilesCount($pid);
 
             my $parentConnInfo  = $parentTopInfo->{PROC_INFO}->{CONN_INFO};
             my $currentConnInfo = $procInfo->{CONN_INFO};
@@ -418,6 +419,10 @@ sub main {
                 }
             }
             $pidToDel->{$pid} = 1;
+
+        }
+        else {
+            $info->{OPEN_FILES_COUNT} = $pFinder->getProcOpenFilesCount($pid);
         }
     }
     print("INFO: Connection information merged.\n");

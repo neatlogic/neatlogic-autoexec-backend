@@ -220,6 +220,11 @@
             "name": "USE_LARGE_PAGE",
             "desc": "Use Large Page",
             "type": "int"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "int"
         }
     ]
 }

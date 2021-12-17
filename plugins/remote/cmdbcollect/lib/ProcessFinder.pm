@@ -146,6 +146,30 @@ sub getProcEnv {
     return $envMap;
 }
 
+#获取单个进程的打开文件数量
+sub getProcOpenFilesCount {
+    my ( $self, $pid ) = @_;
+    my $fdDir = "/proc/$pid/fd";
+
+    if ( not -e $fdDir ) {
+        return undef;
+    }
+
+    my $count = 0;
+    my $dh;
+    opendir( $dh, $fdDir );
+    if ( defined($dh) ) {
+        while ( my $de = readdir($dh) ) {
+            next if $de =~ /^\./;
+            $count++;
+        }
+        closedir($dh);
+        return $count;
+    }
+
+    return undef;
+}
+
 sub findProcess {
     my ($self) = @_;
     print("INFO: Begin to find and match processes.\n");

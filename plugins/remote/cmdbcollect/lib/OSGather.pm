@@ -25,7 +25,7 @@ sub new {
         eval {
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
-            $instance = $gatherClass->new();
+            $instance = $gatherClass->new( $justBaseInfo, $needPerformance );
         };
         if ($@) {
             print("ERROR: Load $gatherClass.pm failed, $@\n");

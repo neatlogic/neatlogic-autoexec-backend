@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "A10"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -64,8 +63,7 @@
             "name": "VIRTUAL_SERVERS",
             "desc": "VS服务",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -88,9 +86,8 @@
                 {
                     "name": "POOL",
                     "desc": "POOL",
-                    "type": "JsonObject",
-                    "subset": [
-                        {
+                    "type": "JsonArray",
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -106,8 +103,7 @@
                     "name": "MEMBERS",
                     "desc": "成员列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"

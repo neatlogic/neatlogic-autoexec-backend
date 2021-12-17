@@ -296,6 +296,11 @@
             "name": "SERVER_ROOT",
             "desc": "Server Root",
             "type": "String"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "int"
         }
     ]
 }

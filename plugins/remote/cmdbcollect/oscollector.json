@@ -64,6 +64,24 @@
             "defaultValue": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount},Mongodb:#{mongoaccount}",
             "required": "false",
             "validate": ""
+        }, {
+            "opt": "performance",
+            "name": "采集性能数据",
+            "help": "采集更详细的性能数据",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "不采集",
+                    "value": "0",
+                    "selected": "true"
+                },
+                {
+                    "text": "采集",
+                    "value": "1"
+                }
+            ],
+            "required": "true",
+            "validate": ""
         },
         {
             "opt": "verbose",

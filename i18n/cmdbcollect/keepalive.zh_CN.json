@@ -190,6 +190,11 @@
             "name": "VRRP_SCRIPT",
             "desc": "VRRP Script",
             "type": "String"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "打开文件数",
+            "type": "int"
         }
     ]
 }
