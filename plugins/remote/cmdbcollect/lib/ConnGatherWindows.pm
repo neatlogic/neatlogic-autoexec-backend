@@ -11,8 +11,9 @@ use ConnGatherBase;
 our @ISA = qw(ConnGatherBase);
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $needPerformance ) = @_;
     my $self = {};
+    $self->{needPerformance} = $needPerformance;
     bless( $self, $type );
     return $self;
 }
@@ -68,6 +69,7 @@ sub parseConnLines {
     my $totalCount    = 0;
     my $inBoundCount  = 0;
     my $outBoundCount = 0;
+    my $outBoundStats = {};
 
     my $remoteAddrs = {};
     my $status      = 0;
@@ -94,6 +96,15 @@ sub parseConnLines {
                 {
                     $outBoundCount = $outBoundCount + 1;
                     $remoteAddrs->{$remoteAddr} = 1;
+
+                    if ( $self->{needPerformance} == 1 ) {
+                        my $outBoundStat = $outBoundStats->{$remoteAddr};
+                        if ( not defined($outBoundStat) ) {
+                            $outBoundStat = {};
+                            $outBoundStats->{$remoteAddr} = $outBoundStat;
+                        }
+                        $outBoundStat->{OUTBOUND_COUNT} = $outBoundStat->{OUTBOUND_COUNT} + 1;
+                    }
                 }
                 else {
                     $inBoundCount = $inBoundCount + 1;

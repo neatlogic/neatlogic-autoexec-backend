@@ -60,8 +60,8 @@ sub main {
 
     $SIG{ALRM} = \&collectTimeout;
 
-    my $isVerbose = 0;
-    my $isDebug   = 0;
+    my $isVerbose       = 0;
+    my $isDebug         = 0;
     my $needPerformance = 0;
     my $classDef;
     my $defaultPassConf;
@@ -144,7 +144,7 @@ sub main {
     my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
         print("INFO: Begin to collect OS information...\n");
-        my $osGather = OSGather->new($ignoreOsInfo, $needPerformance);
+        my $osGather = OSGather->new( $ignoreOsInfo, $needPerformance );
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
             $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
@@ -188,7 +188,7 @@ sub main {
     my $appsMap = {};
 
     #获取收集网络信息的实现类
-    my $connGather = ConnGather->new();
+    my $connGather = ConnGather->new($needPerformance);
 
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my @procFilters;
@@ -359,7 +359,7 @@ sub main {
         return $isMatched;
     };
 
-    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, needPerformance=>$needPerformance );
+    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, needPerformance => $needPerformance );
     $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
@@ -375,24 +375,48 @@ sub main {
 
         my $parentTopInfo;
         while ( defined($parentInfo) ) {
-            $parentTopInfo             = $parentInfo;
-            $parentInfo->{CPU_PERCENT} = $parentInfo->{CPU_PERCENT} + $currentInfo->{CPU_PERCENT};
-            $parentInfo->{MEM_PERCENT} = $parentInfo->{MEM_PERCENT} + $currentInfo->{MEM_PERCENT};
-            $parentInfo->{MEM_USED}    = $parentInfo->{MEM_USED} + $currentInfo->{MEM_USED};
-
-            $currentInfo = $parentInfo;
-            $parentInfo  = $appsMap->{ $currentInfo->{PROC_INFO}->{PPID} };
+            $parentTopInfo = $parentInfo;
+            $currentInfo   = $parentInfo;
+            $parentInfo    = $appsMap->{ $currentInfo->{PROC_INFO}->{PPID} };
         }
 
         if ( defined($parentTopInfo) ) {
-            my $parentProc = $parentTopInfo->{PROC_INFO};
+            $parentTopInfo->{CPU_PERCENT} = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
+            $parentTopInfo->{MEM_PERCENT} = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
+            $parentTopInfo->{MEM_USED}    = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
 
-            my $parentLsnInfo = $parentProc->{CONN_INFO}->{LISTEN};
-            map { $parentLsnInfo->{$_} = 1 } keys( %{ $procInfo->{CONN_INFO}->{LISTEN} } );
+            my $parentConnInfo  = $parentTopInfo->{PROC_INFO}->{CONN_INFO};
+            my $currentConnInfo = $procInfo->{CONN_INFO};
 
-            my $parentPeerInfo = $parentProc->{CONN_INFO}->{PEER};
-            map { $parentPeerInfo->{$_} = 1 } keys( %{ $procInfo->{CONN_INFO}->{PEER} } );
+            my $parentLsnInfo = $parentConnInfo->{LISTEN};
+            map { $parentLsnInfo->{$_} = 1 } keys( %{ $currentConnInfo->{LISTEN} } );
 
+            my $parentPeerInfo = $parentConnInfo->{PEER};
+            map { $parentPeerInfo->{$_} = 1 } keys( %{ $currentConnInfo->{PEER} } );
+
+            #连接统计数据的合并
+            my $parentConnStats  = $parentConnInfo->{STATS};
+            my $currentConnStats = $currentConnInfo->{STATS};
+
+            $parentConnStats->{TOTAL_COUNT}       = $parentConnStats->{TOTAL_COUNT} + $currentConnStats->{TOTAL_COUNT};
+            $parentConnStats->{INBOUND_COUNT}     = $parentConnStats->{INBOUND_COUNT} + $currentConnStats->{INBOUND_COUNT};
+            $parentConnStats->{OUTBOUND_COUNT}    = $parentConnStats->{OUTBOUND_COUNT} + $currentConnStats->{OUTBOUND_COUNT};
+            $parentConnStats->{RECV_QUEUED_COUNT} = $parentConnStats->{RECV_QUEUED_COUNT} + $currentConnStats->{RECV_QUEUED_COUNT};
+            $parentConnStats->{SEND_QUEUED_COUNT} = $parentConnStats->{SEND_QUEUED_COUNT} + $currentConnStats->{SEND_QUEUED_COUNT};
+            $parentConnStats->{RECV_QUEUED_SIZE}  = $parentConnStats->{RECV_QUEUED_SIZE} + $currentConnStats->{RECV_QUEUED_SIZE};
+            $parentConnStats->{SEND_QUEUED_SIZE}  = $parentConnStats->{SEND_QUEUED_SIZE} + $currentConnStats->{SEND_QUEUED_SIZE};
+
+            if ( $needPerformance == 1 ) {
+
+                #基于调用OutBound（目标）的统计信息合并
+                my $parentOutBoundStats  = $parentConnStats->{OUTBOUND_STATS};
+                my $currentOutBoundStats = $currentConnStats->{OUTBOUND_STATS};
+                while ( my ( $remoteAddr, $outBoundStat ) = each(%$currentOutBoundStats) ) {
+                    my $parentOutBoundStat = $parentOutBoundStats->{$remoteAddr};
+                    $parentOutBoundStat->{OUTBOUND_COUNT}   = $parentOutBoundStat->{OUTBOUND_COUNT} + $outBoundStat->{OUTBOUND_COUNT};
+                    $parentOutBoundStat->{SEND_QUEUED_SIZE} = $parentOutBoundStat->{SEND_QUEUED_SIZE} + $outBoundStat->{SEND_QUEUED_SIZE};
+                }
+            }
             $pidToDel->{$pid} = 1;
         }
     }
@@ -431,6 +455,26 @@ sub main {
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
             $connInfo->{PEER} = \@remoteAddrs;
             delete( $appInfo->{PROC_INFO}->{CONN_INFO} );
+
+            #TCP连接统计信息中的比率指标统计
+            my $connStats = $connInfo->{STATS};
+            if ( $connStats->{TOTAL_COUNT} > 0 ) {
+                $connStats->{RECV_QUEUED_RATE}     = int( $connStats->{RECV_QUEUED_COUNT} * 10000 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{SEND_QUEUED_RATE}     = int( $connStats->{SEND_QUEUED_COUNT} * 10000 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{RECV_QUEUED_SIZE_AVG} = int( $connStats->{RECV_QUEUED_SIZE} * 100 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{SEND_QUEUED_SIZE_AVG} = int( $connStats->{SEND_QUEUED_SIZE} * 100 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+            }
+
+            #TCP OutBound连接的比率指标统计
+            if ( $needPerformance == 1 ) {
+                while ( my ( $remoteAddr, $outBoundStat ) = each( %{ $connStats->{OUTBOUND_STATS} } ) ) {
+                    if ( $outBoundStat->{OUTBOUND_COUNT} > 0 ) {
+                        $outBoundStat->{SEND_QUEUED_RATE}     = int( $outBoundStat->{SEND_QUEUED_RATE} * 10000 / $outBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
+                        $outBoundStat->{SEND_QUEUED_SIZE_AVG} = int( $outBoundStat->{SEND_QUEUED_SIZE} * 100 / $outBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
+                    }
+                }
+            }
+
             $appInfo->{CONN_INFO} = $connInfo;
             if ( not defined( $appInfo->{PORTS} ) ) {
                 $appInfo->{PORTS} = \@portNumbers;

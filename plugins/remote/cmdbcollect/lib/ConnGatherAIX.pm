@@ -11,8 +11,9 @@ use ConnGatherBase;
 our @ISA = qw(ConnGatherBase);
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $needPerformance ) = @_;
     my $self = {};
+    $self->{needPerformance} = $needPerformance;
     bless( $self, $type );
 
     $self->{procConnStats} = {};
@@ -84,11 +85,20 @@ sub parseListenLines {
 }
 
 sub processConnStat {
-    my ( $self, $pid, $isInBound, $fields, $recvQIdx, $sendQIdx ) = @_;
+    my ( $self, $pid, $isInBound, $fields, $recvQIdx, $sendQIdx, $remoteAddr ) = @_;
 
     my $myConnStats = $self->{procConnStats}->{$pid};
     if ( not defined($myConnStats) ) {
-        $myConnStats = {};
+        $myConnStats = {
+            'TOTAL_COUNT'       => 0,
+            'INBOUND_COUNT'     => 0,
+            'OUTBOUND_COUNT'    => 0,
+            'RECV_QUEUED_COUNT' => 0,
+            'SEND_QUEUED_COUNT' => 0,
+            'RECV_QUEUED_SIZE'  => 0,
+            'SEND_QUEUED_SIZE'  => 0,
+            'OUTBOUND_STATS'    => {}
+        };
         $self->{procConnStats}->{$pid} = $myConnStats;
     }
 
@@ -112,6 +122,20 @@ sub processConnStat {
     }
     else {
         $myConnStats->{OUTBOUND_COUNT} = $myConnStats->{OUTBOUND_COUNT} + 1;
+        if ( $self->{needPerformance} == 1 ) {
+            my $outBoundStats = $myConnStats->{OUTBOUND_STATS};
+            my $outBoundStat  = $outBoundStats->{$remoteAddr};
+            if ( not defined($outBoundStat) ) {
+                $outBoundStat = {};
+                $outBoundStats->{$remoteAddr} = $outBoundStat;
+            }
+
+            if ( $sendQSize > 0 ) {
+                $outBoundStat->{SEND_QUEUED_COUNT} = $outBoundStat->{SEND_QUEUED_COUNT} + 1;
+            }
+            $outBoundStat->{OUTBOUND_COUNT}   = $outBoundStat->{OUTBOUND_COUNT} + 1;
+            $outBoundStat->{SEND_QUEUED_SIZE} = $outBoundStat->{SEND_QUEUED_SIZE} + $sendQSize;
+        }
     }
 }
 
@@ -158,8 +182,11 @@ sub parseConnLines {
                     if ( not defined($lsnBindPid) ) {
                         my $useByPid = $self->findSockPid($sockAddr);
                         if ( not defined($pid) or $useByPid == $pid ) {
-                            $remoteAddrs->{$remoteAddr} = "$addr:$port";
-                            $self->processConnStat( $useByPid, 0, \@fields, $recvQIdx, $sendQIdx );
+                            my $realRemoteAddr = "$addr:$port";
+
+                            #$remoteAddrs->{$remoteAddr} = "$addr:$port";
+                            $remoteAddrs->{$realRemoteAddr} = 1;
+                            $self->processConnStat( $useByPid, 0, \@fields, $recvQIdx, $sendQIdx, $realRemoteAddr );
                         }
                     }
                     else {

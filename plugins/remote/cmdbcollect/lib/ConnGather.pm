@@ -10,7 +10,7 @@ use POSIX qw(uname);
 our $_INSTANCES = {};
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $needPerformance ) = @_;
 
     #实现单态
     my $instance = $_INSTANCES->{$type};
@@ -24,7 +24,7 @@ sub new {
         eval {
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
-            $instance = $gatherClass->new();
+            $instance = $gatherClass->new($needPerformance);
         };
         if ($@) {
 
@@ -33,7 +33,7 @@ sub new {
             $gatherClass = "ConnGatherBase";
             require "$gatherClass.pm";
             our @ISA = ($gatherClass);
-            $instance = $gatherClass->new();
+            $instance = $gatherClass->new($needPerformance);
         }
         $_INSTANCES->{$type} = $instance;
     }

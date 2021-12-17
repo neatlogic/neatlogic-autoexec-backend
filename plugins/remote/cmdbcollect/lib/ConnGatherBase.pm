@@ -10,8 +10,9 @@ use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use Data::Dumper;
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $needPerformance ) = @_;
     my $self = {};
+    $self->{needPerformance} = $needPerformance;
     bless( $self, $type );
     return $self;
 }
@@ -85,6 +86,7 @@ sub parseConnLines {
     my $sendQNoneZeroCount = 0;
     my $totalRecvQSize     = 0;
     my $totalSendQSize     = 0;
+    my $outBoundStats      = {};
 
     my $remoteAddrs = {};
     my $status      = 0;
@@ -111,8 +113,10 @@ sub parseConnLines {
             $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
             if ( $localAddr =~ /^(.*):(\d+)$/ ) {
-                my $ip   = $1;
-                my $port = $2;
+                my $ip        = $1;
+                my $port      = $2;
+                my $recvQSize = int( $fields[$recvQIdx] );
+                my $sendQSize = int( $fields[$sendQIdx] );
 
                 if (    $remoteAddr =~ /:\d+$/
                     and not defined( $lsnPortsMap->{$localAddr} )
@@ -120,13 +124,26 @@ sub parseConnLines {
                 {
                     $outBoundCount = $outBoundCount + 1;
                     $remoteAddrs->{$remoteAddr} = 1;
+
+                    if ( $self->{needPerformance} == 1 ) {
+                        my $outBoundStat = $outBoundStats->{$remoteAddr};
+                        if ( not defined($outBoundStat) ) {
+                            $outBoundStat = {};
+                            $outBoundStats->{$remoteAddr} = $outBoundStat;
+                        }
+
+                        if ( $sendQSize > 0 ) {
+                            $outBoundStat->{SEND_QUEUED_COUNT} = $outBoundStat->{SEND_QUEUED_COUNT} + 1;
+                        }
+                        $outBoundStat->{OUTBOUND_COUNT}   = $outBoundStat->{OUTBOUND_COUNT} + 1;
+                        $outBoundStat->{SEND_QUEUED_SIZE} = $outBoundStat->{SEND_QUEUED_SIZE} + $sendQSize;
+                    }
                 }
                 else {
                     $inBoundCount = $inBoundCount + 1;
                 }
-                $totalCount = $totalCount + 1;
-                my $recvQSize = int( $fields[$recvQIdx] );
-                my $sendQSize = int( $fields[$sendQIdx] );
+
+                $totalCount     = $totalCount + 1;
                 $totalRecvQSize = $totalRecvQSize + $recvQSize;
                 $totalSendQSize = $totalSendQSize + $sendQSize;
                 if ( $recvQSize > 0 ) {
@@ -153,7 +170,8 @@ sub parseConnLines {
         'RECV_QUEUED_COUNT' => $recvQNoneZeroCount,
         'SEND_QUEUED_COUNT' => $sendQNoneZeroCount,
         'RECV_QUEUED_SIZE'  => $totalRecvQSize,
-        'SEND_QUEUED_SIZE'  => $totalSendQSize
+        'SEND_QUEUED_SIZE'  => $totalSendQSize,
+        'OUTBOUND_STATS'    => $outBoundStats
     };
 
     return ( $status, $remoteAddrs, $connStatInfo );
