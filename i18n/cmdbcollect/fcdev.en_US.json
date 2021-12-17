@@ -14,16 +14,6 @@
             "type": "String"
         },
         {
-            "name": "VENDOR",
-            "desc": "Vendor",
-            "type": "String"
-        },
-        {
-            "name": "SN",
-            "desc": "Chassis Serial",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -79,6 +69,16 @@
                     "type": "Float"
                 }
             ]
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
         },
         {
             "name": "BOOT_DATE",

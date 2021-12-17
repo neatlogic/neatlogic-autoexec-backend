@@ -21,11 +21,6 @@
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -36,6 +31,16 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "VENDOR",
             "desc": "Vendor",
             "type": "String"
@@ -43,11 +48,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "使用状态",
             "type": "String"
         },
         {

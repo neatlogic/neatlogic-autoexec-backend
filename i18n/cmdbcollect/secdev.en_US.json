@@ -19,6 +19,11 @@
             "type": "String"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "BRAND",
             "desc": "Brand",
             "type": "String"
@@ -31,11 +36,6 @@
         {
             "name": "SN",
             "desc": "Chassis Serial",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "使用状态",
             "type": "String"
         },
         {

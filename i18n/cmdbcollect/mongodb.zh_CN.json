@@ -21,11 +21,6 @@
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "所在OS的CMDB ID",
-            "type": "String"
-        },
-        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -36,13 +31,13 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "OS_ID",
+            "desc": "所在OS的CMDB ID",
             "type": "String"
         },
         {
@@ -78,6 +73,11 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {

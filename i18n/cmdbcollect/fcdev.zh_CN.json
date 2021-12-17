@@ -16,21 +16,6 @@
             "type": "String"
         },
         {
-            "name": "BRAND",
-            "desc": "品牌",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "厂商",
-            "type": "String"
-        },
-        {
-            "name": "SN",
-            "desc": "序列号",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -81,6 +66,21 @@
                     "type": "Float"
                 }
             ]
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
         },
         {
             "name": "BOOT_DATE",

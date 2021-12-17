@@ -21,13 +21,18 @@
             "type": "String"
         },
         {
-            "name": "VENDOR",
-            "desc": "Vendor",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
+            "name": "IP",
+            "desc": "IP",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
             "type": "String"
         },
         {
@@ -36,13 +41,8 @@
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "IP",
-            "desc": "IP",
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {

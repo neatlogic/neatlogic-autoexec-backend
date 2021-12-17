@@ -16,23 +16,8 @@
             "type": "String"
         },
         {
-            "name": "RESOURCE_ID",
-            "desc": "CMDB对象ID",
-            "type": "String"
-        },
-        {
             "name": "HOSTNAME",
             "desc": "Host Name",
-            "type": "String"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
-            "name": "MACHINE_ID",
-            "desc": "Machine Id",
             "type": "String"
         },
         {
@@ -46,18 +31,23 @@
             "type": "Int"
         },
         {
-            "name": "SYS_VENDOR",
-            "desc": "Sys Vendor",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "RESOURCE_ID",
+            "desc": "CMDB对象ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_ID",
+            "desc": "Machine Id",
             "type": "String"
         },
         {
@@ -71,6 +61,16 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "SYS_VENDOR",
+            "desc": "Sys Vendor",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
         },
         {
             "name": "KERNEL_VERSION",
