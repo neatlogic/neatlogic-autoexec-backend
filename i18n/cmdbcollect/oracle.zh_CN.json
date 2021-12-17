@@ -108,22 +108,22 @@
                 {
                     "name": "TOTAL_MB",
                     "desc": "大小(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_MB",
                     "desc": "使用(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE_MB",
                     "desc": "空闲(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED%",
                     "desc": "使用(%)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DISKS",
@@ -153,22 +153,22 @@
                         {
                             "name": "TOTAL_MB",
                             "desc": "大小(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "USED_MB",
                             "desc": "使用(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "FREE_MB",
                             "desc": "空闲(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "USED%",
                             "desc": "使用(%)",
-                            "type": "float"
+                            "type": "Float"
                         }
                     ]
                 }
@@ -336,22 +336,22 @@
                 {
                     "name": "TOTAL_GB",
                     "desc": "容量(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_GB",
                     "desc": "使用(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE_GB",
                     "desc": "空闲(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED%",
                     "desc": "使用%",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DATA_FILES",
@@ -366,7 +366,7 @@
                         {
                             "name": "SIZE",
                             "desc": "大小(GB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "AUTOEXTENSIBLE",

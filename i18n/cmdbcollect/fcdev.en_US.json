@@ -86,7 +86,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "MTU",

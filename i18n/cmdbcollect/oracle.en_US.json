@@ -108,22 +108,22 @@
                 {
                     "name": "TOTAL_MB",
                     "desc": "Size(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_MB",
                     "desc": "Use(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE_MB",
                     "desc": "Free(MB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED%",
                     "desc": "Used Percent",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DISKS",
@@ -153,22 +153,22 @@
                         {
                             "name": "TOTAL_MB",
                             "desc": "Size(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "USED_MB",
                             "desc": "Use(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "FREE_MB",
                             "desc": "Free(MB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "USED%",
                             "desc": "Used Percent",
-                            "type": "float"
+                            "type": "Float"
                         }
                     ]
                 }
@@ -336,22 +336,22 @@
                 {
                     "name": "TOTAL_GB",
                     "desc": "Capacity(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_GB",
                     "desc": "Used(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE_GB",
                     "desc": "Free(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DATA_FILES",
@@ -366,7 +366,7 @@
                         {
                             "name": "SIZE",
                             "desc": "File Size(GB)",
-                            "type": "float"
+                            "type": "Float"
                         },
                         {
                             "name": "AUTOEXTENSIBLE",

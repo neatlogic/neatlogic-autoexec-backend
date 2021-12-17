@@ -61,7 +61,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "大小(GB)",
-                    "type": "float"
+                    "type": "Float"
                 }
             ]
         },
@@ -83,22 +83,22 @@
                 {
                     "name": "CAPACITY",
                     "desc": "大小(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED",
                     "desc": "使用(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE",
                     "desc": "空闲(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_PERCENT",
                     "desc": "使用百分比(%)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "LUNS",
@@ -123,7 +123,7 @@
                         {
                             "name": "CAPACITY",
                             "desc": "大小(GB)",
-                            "type": "float"
+                            "type": "Float"
                         }
                     ]
                 }
@@ -152,22 +152,22 @@
                 {
                     "name": "CAPACITY",
                     "desc": "大小(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED",
                     "desc": "使用(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "FREE",
                     "desc": "空闲(GB)",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "USED_PERCENT",
                     "desc": "使用百分比(%)",
-                    "type": "float"
+                    "type": "Float"
                 }
             ]
         }

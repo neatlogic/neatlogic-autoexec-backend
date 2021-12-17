@@ -61,6 +61,7 @@ def correctTypeDef(fieldDef):
             fieldType = 'JsonArray'
         elif fieldType == 'jsonobject':
             fieldType = 'JsonObject'
+        fieldDef['type'] = fieldType
 
         if 'name' in fieldDef:
             fieldName = fieldDef['name']

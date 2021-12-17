@@ -91,7 +91,7 @@
                 {
                     "name": "SPEED",
                     "desc": "带宽",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "MTU",

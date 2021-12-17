@@ -86,7 +86,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "float"
+                    "type": "Float"
                 }
             ]
         },

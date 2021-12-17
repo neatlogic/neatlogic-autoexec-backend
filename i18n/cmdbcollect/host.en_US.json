@@ -86,7 +86,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "float"
+                    "type": "Float"
                 }
             ]
         },

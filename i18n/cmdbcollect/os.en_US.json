@@ -317,12 +317,12 @@
                 {
                     "name": "USED",
                     "desc": "Used",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "AVAILABLE",
                     "desc": "Available",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DEVICE",
@@ -423,7 +423,7 @@
         {
             "name": "SWAP_FREE",
             "desc": "Free Swap",
-            "type": "float"
+            "type": "Float"
         },
         {
             "name": "SWAP_TOTAL",

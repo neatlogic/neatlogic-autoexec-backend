@@ -334,12 +334,12 @@
                 {
                     "name": "USED",
                     "desc": "已使用",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "AVAILABLE",
                     "desc": "可用",
-                    "type": "float"
+                    "type": "Float"
                 },
                 {
                     "name": "DEVICE",
