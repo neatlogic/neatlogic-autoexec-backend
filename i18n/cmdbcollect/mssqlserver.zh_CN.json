@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -100,11 +105,6 @@
         {
             "name": "INSTALL_PATH",
             "desc": "安装目录",
-            "type": "String"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
             "type": "String"
         },
         {

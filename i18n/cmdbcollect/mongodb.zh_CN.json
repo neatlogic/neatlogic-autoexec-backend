@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "所在OS的CMDB ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -157,11 +162,6 @@
         {
             "name": "LOGPATH",
             "desc": "日志目录",
-            "type": "String"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "所在OS的CMDB ID",
             "type": "String"
         },
         {

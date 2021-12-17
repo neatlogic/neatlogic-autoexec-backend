@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -298,11 +303,6 @@
         {
             "name": "OSGI_INSTALL",
             "desc": "OSGI Install",
-            "type": "String"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
             "type": "String"
         },
         {

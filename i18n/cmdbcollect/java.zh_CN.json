@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -272,11 +277,6 @@
             "name": "OPEN_FILES_COUNT",
             "desc": "打开文件数",
             "type": "Float"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
         },
         {
             "name": "OS_USER",

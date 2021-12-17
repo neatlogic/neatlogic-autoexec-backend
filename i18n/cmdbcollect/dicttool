@@ -25,6 +25,8 @@ def usage():
 
 def getDefaultFieldKeys():
     defaultKeys = [
+        'RESOURCE_ID',
+        'OS_ID',
         '_OBJ_CATEGORY',
         '_OBJ_TYPE',
         'MGMT_IP',

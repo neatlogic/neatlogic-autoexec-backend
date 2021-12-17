@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -205,11 +210,6 @@
             "name": "MEMORY_LIMIT",
             "desc": "最大内存(MB)",
             "type": "Float"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
         },
         {
             "name": "OS_USER",

@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -143,11 +148,6 @@
         {
             "name": "NODE_NAME",
             "desc": "节点名",
-            "type": "String"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
             "type": "String"
         },
         {

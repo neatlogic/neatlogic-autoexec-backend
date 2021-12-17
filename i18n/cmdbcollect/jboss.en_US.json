@@ -6,6 +6,11 @@
     },
     "fields": [
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -282,11 +287,6 @@
             "name": "OPEN_FILES_COUNT",
             "desc": "Open Files Count",
             "type": "Float"
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
         },
         {
             "name": "OS_USER",

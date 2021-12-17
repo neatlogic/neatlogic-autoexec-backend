@@ -6,6 +6,16 @@
     },
     "fields": [
         {
+            "name": "RESOURCE_ID",
+            "desc": "CMDB对象ID",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -411,11 +421,6 @@
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "CMDB对象ID",
-            "type": "String"
-        },
-        {
             "name": "PATCHES_APPLIED",
             "desc": "已打补丁",
             "type": "JsonArray",
@@ -426,11 +431,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "RESOURCE_ID",
-            "desc": "CMDB对象ID",
-            "type": "String"
         },
         {
             "name": "SSH_VERSION",
@@ -454,7 +454,7 @@
         },
         {
             "name": "TOP_CPU_RPOCESSES",
-            "desc": "消耗CPU进程TOP",
+            "desc": "消耗CPU进程",
             "type": "JsonArray",
             "subset": [
                 {
@@ -521,7 +521,7 @@
         },
         {
             "name": "TOP_MEM_PROCESSES",
-            "desc": "消耗内存进程TOP",
+            "desc": "消耗内存进程",
             "type": "JsonArray",
             "subset": [
                 {
