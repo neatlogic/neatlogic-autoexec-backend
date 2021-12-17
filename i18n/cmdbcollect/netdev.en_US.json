@@ -19,33 +19,23 @@
             "type": "String"
         },
         {
-            "name": "SN",
-            "desc": "Chassis Serial",
-            "type": "String"
-        },
-        {
             "name": "BRAND",
             "desc": "Brand",
             "type": "String"
         },
         {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
-            "type": "String"
-        },
-        {
-            "name": "IOS_INFO",
-            "desc": "IOS Information",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "Device Model",
             "type": "String"
         },
         {
@@ -138,6 +128,21 @@
             ]
         },
         {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS Information",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
@@ -145,11 +150,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "Vendor",
             "type": "String"
         }
     ]

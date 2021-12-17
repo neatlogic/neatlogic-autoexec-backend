@@ -19,6 +19,16 @@
             "type": "Int"
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "ACCESS_ENDPOINT",
             "desc": "Access Endpoint",
             "type": "String"
@@ -37,16 +47,6 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "RESPONSE_TIME",

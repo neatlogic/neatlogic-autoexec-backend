@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "版本",
             "type": "String"
@@ -53,11 +58,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "厂商",
             "type": "String"
         },
         {

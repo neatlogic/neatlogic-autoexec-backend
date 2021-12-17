@@ -14,6 +14,11 @@
             "type": "String"
         },
         {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
             "name": "SN",
             "desc": "Chassis Serial",
             "type": "String"
@@ -21,26 +26,6 @@
         {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "BOOT_DATE",
-            "desc": "Last Boot Date",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
-            "type": "String"
-        },
-        {
-            "name": "FIRMWARE_VERSION",
-            "desc": "Firmware version",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "Device Model",
             "type": "String"
         },
         {
@@ -96,14 +81,29 @@
             ]
         },
         {
+            "name": "BOOT_DATE",
+            "desc": "Last Boot Date",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "Firmware version",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "Vendor",
-            "type": "String"
         },
         {
             "name": "ZONES",

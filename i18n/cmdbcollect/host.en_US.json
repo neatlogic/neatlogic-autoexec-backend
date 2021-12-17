@@ -4,13 +4,18 @@
     "filter": {},
     "fields": [
         {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
         },
         {
-            "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "name": "MACHINE_ID",
+            "desc": "Machine ID",
             "type": "String"
         },
         {
@@ -29,28 +34,8 @@
             "type": "String"
         },
         {
-            "name": "BIOS_VERSION",
-            "desc": "BIOS Version",
-            "type": "String"
-        },
-        {
-            "name": "BOARD_SERIAL",
-            "desc": "Board Serial",
-            "type": "String"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU Architecture",
-            "type": "String"
-        },
-        {
             "name": "CPU_CORES",
             "desc": "CPU Cores",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_COUNT",
-            "desc": "CPU Count",
             "type": "Float"
         },
         {
@@ -59,13 +44,18 @@
             "type": "String"
         },
         {
-            "name": "CPU_MICROCODE",
-            "desc": "CPU Microcode",
+            "name": "CPU_MODEL_NAME",
+            "desc": "CPU Model Name",
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
-            "desc": "CPU Model Name",
+            "name": "CPU_ARCH",
+            "desc": "CPU Architecture",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU Microcode",
             "type": "String"
         },
         {
@@ -94,11 +84,6 @@
                     "type": "Float"
                 }
             ]
-        },
-        {
-            "name": "ESXI_IP",
-            "desc": "Esxi IP",
-            "type": "String"
         },
         {
             "name": "ETH_INTERFACES",
@@ -133,6 +118,26 @@
             ]
         },
         {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS Version",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "CPU Count",
+            "type": "Float"
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
@@ -163,11 +168,6 @@
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
             "type": "Int"
-        },
-        {
-            "name": "MACHINE_ID",
-            "desc": "Machine ID",
-            "type": "String"
         },
         {
             "name": "MANUFACTURER",

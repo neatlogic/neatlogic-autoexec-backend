@@ -19,13 +19,18 @@
             "type": "String"
         },
         {
-            "name": "SN",
-            "desc": "Chassis Serial",
+            "name": "BRAND",
+            "desc": "Brand",
             "type": "String"
         },
         {
-            "name": "BRAND",
-            "desc": "Brand",
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
             "type": "String"
         },
         {
@@ -137,11 +142,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "Vendor",
             "type": "String"
         },
         {

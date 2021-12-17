@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -51,6 +51,16 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "MON_PORT",
             "desc": "Monitor Port",
             "type": "String"
@@ -58,6 +68,21 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
             "type": "String"
         },
         {
@@ -128,11 +153,6 @@
             "type": "String"
         },
         {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        },
-        {
             "name": "HBA_FILE",
             "desc": "hba_file",
             "type": "String"
@@ -145,11 +165,6 @@
         {
             "name": "IDENT_FILE",
             "desc": "ident_file",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
             "type": "String"
         },
         {
@@ -196,21 +211,6 @@
             "name": "MAX_WORKER_PROCESSES",
             "desc": "max_worker_processes",
             "type": "String"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "RUN_ON",

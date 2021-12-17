@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
@@ -53,11 +58,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "Vendor",
             "type": "String"
         },
         {

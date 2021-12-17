@@ -4,13 +4,18 @@
     "filter": {},
     "fields": [
         {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
         },
         {
-            "name": "_OBJ_CATEGORY",
-            "desc": "归属类型",
+            "name": "MACHINE_ID",
+            "desc": "机器ID",
             "type": "String"
         },
         {
@@ -29,28 +34,8 @@
             "type": "String"
         },
         {
-            "name": "BIOS_VERSION",
-            "desc": "BIOS版本",
-            "type": "String"
-        },
-        {
-            "name": "BOARD_SERIAL",
-            "desc": "主板序列号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU架构",
-            "type": "String"
-        },
-        {
             "name": "CPU_CORES",
             "desc": "CPU核数",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_COUNT",
-            "desc": "CPU数量",
             "type": "Float"
         },
         {
@@ -59,13 +44,18 @@
             "type": "String"
         },
         {
-            "name": "CPU_MICROCODE",
-            "desc": "CPU微码",
+            "name": "CPU_MODEL_NAME",
+            "desc": "CPU型号",
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
-            "desc": "CPU型号",
+            "name": "CPU_ARCH",
+            "desc": "CPU架构",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU微码",
             "type": "String"
         },
         {
@@ -94,11 +84,6 @@
                     "type": "Float"
                 }
             ]
-        },
-        {
-            "name": "ESXI_IP",
-            "desc": "Esxi IP",
-            "type": "String"
         },
         {
             "name": "ETH_INTERFACES",
@@ -133,6 +118,26 @@
             ]
         },
         {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS版本",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "主板序列号",
+            "type": "String"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "CPU数量",
+            "type": "Float"
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -158,11 +163,6 @@
                     "type": "Float"
                 }
             ]
-        },
-        {
-            "name": "MACHINE_ID",
-            "desc": "机器ID",
-            "type": "String"
         },
         {
             "name": "MANUFACTURER",

@@ -19,13 +19,18 @@
             "type": "String"
         },
         {
-            "name": "SN",
-            "desc": "序列号",
+            "name": "BRAND",
+            "desc": "品牌",
             "type": "String"
         },
         {
-            "name": "BRAND",
-            "desc": "品牌",
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
             "type": "String"
         },
         {
@@ -132,11 +137,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "厂商",
             "type": "String"
         },
         {

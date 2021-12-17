@@ -31,8 +31,13 @@
             "type": "Float"
         },
         {
-            "name": "CPU_COUNT",
-            "desc": "cpu_count",
+            "name": "IOWAIT_PERCENT",
+            "desc": "IOWait百分比",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "mem_total",
             "type": "Float"
         },
         {
@@ -63,6 +68,11 @@
             ]
         },
         {
+            "name": "CPU_COUNT",
+            "desc": "cpu_count",
+            "type": "Float"
+        },
+        {
             "name": "IS_VIRTUAL",
             "desc": "is_virtual",
             "type": "Int"
@@ -76,11 +86,6 @@
             "name": "MACHINE_UUID",
             "desc": "machine_uuid",
             "type": "String"
-        },
-        {
-            "name": "MEM_TOTAL",
-            "desc": "mem_total",
-            "type": "Float"
         },
         {
             "name": "MEM_UNIT",

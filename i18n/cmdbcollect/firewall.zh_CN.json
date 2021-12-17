@@ -21,13 +21,18 @@
             "type": "String"
         },
         {
-            "name": "SN",
-            "desc": "序列号",
+            "name": "BRAND",
+            "desc": "品牌",
             "type": "String"
         },
         {
-            "name": "BRAND",
-            "desc": "品牌",
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
             "type": "String"
         },
         {
@@ -43,11 +48,6 @@
         {
             "name": "MODEL",
             "desc": "设备型号",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "厂商",
             "type": "String"
         }
     ]

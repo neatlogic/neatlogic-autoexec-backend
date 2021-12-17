@@ -21,33 +21,23 @@
             "type": "String"
         },
         {
-            "name": "SN",
-            "desc": "序列号",
-            "type": "String"
-        },
-        {
             "name": "BRAND",
             "desc": "品牌",
             "type": "String"
         },
         {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "设备名",
-            "type": "String"
-        },
-        {
-            "name": "IOS_INFO",
-            "desc": "IOS信息",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "设备型号",
             "type": "String"
         },
         {
@@ -140,6 +130,21 @@
             ]
         },
         {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS信息",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
             "name": "PORTS_COUNT",
             "desc": "端口数量",
             "type": "Int"
@@ -147,11 +152,6 @@
         {
             "name": "UPTIME",
             "desc": "Up Time",
-            "type": "String"
-        },
-        {
-            "name": "VENDOR",
-            "desc": "厂商",
             "type": "String"
         }
     ]

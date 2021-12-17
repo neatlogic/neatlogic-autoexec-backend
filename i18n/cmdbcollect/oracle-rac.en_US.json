@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -49,6 +49,18 @@
             "name": "PORT",
             "desc": "Port",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "ADMIN_PORT",
@@ -71,6 +83,43 @@
             "type": "String"
         },
         {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Config Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CLUSTER_NAME",
             "desc": "Cluster Name",
             "type": "String"
@@ -83,11 +132,6 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
-        },
-        {
-            "name": "CONFIG_PATH",
-            "desc": "Config Path",
             "type": "String"
         },
         {
@@ -180,11 +224,6 @@
             ]
         },
         {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        },
-        {
             "name": "GRID_BASE",
             "desc": "Grid Base Dir",
             "type": "String"
@@ -192,11 +231,6 @@
         {
             "name": "GRID_HOME",
             "desc": "Grid Home Dir",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
             "type": "String"
         },
         {
@@ -304,23 +338,6 @@
             "type": "String"
         },
         {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "SERVICE_INFOS",
             "desc": "Service List",
             "type": "JsonArray",
@@ -422,23 +439,6 @@
                             "type": "String"
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "Default Table Space",
-                    "type": "String"
                 }
             ]
         }

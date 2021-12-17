@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -49,6 +49,16 @@
             "name": "PORT",
             "desc": "Port",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "ADMIN_PORT",
@@ -68,6 +78,21 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
             "type": "String"
         },
         {
@@ -96,16 +121,6 @@
             "type": "String"
         },
         {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
-            "type": "String"
-        },
-        {
             "name": "IS_CLUSTER",
             "desc": "Is Cluster",
             "type": "Int"
@@ -114,21 +129,6 @@
             "name": "MULTIPLEXING_API",
             "desc": "Multiplexing API",
             "type": "String"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "RUN_ID",

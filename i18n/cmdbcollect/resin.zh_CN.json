@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "管理端口",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "服务名",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -63,6 +63,16 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "ADMIN_PORT",
             "desc": "管理端口",
             "type": "String"
@@ -83,25 +93,18 @@
             "type": "String"
         },
         {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
-                }
-            ]
+            "name": "OPEN_FILES_COUNT",
+            "desc": "打开文件数",
+            "type": "Float"
         },
         {
-            "name": "BIN_PATH",
-            "desc": "BIN文件路径",
+            "name": "OS_USER",
+            "desc": "OS用户",
             "type": "String"
         },
         {
-            "name": "COMMAND",
-            "desc": "命令行",
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
             "type": "String"
         },
         {
@@ -110,45 +113,63 @@
             "type": "String"
         },
         {
-            "name": "CONN_OUTBOUND_STATS",
-            "desc": "出方向连接统计",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "REMOTE_ADDR",
-                    "desc": "远程地址",
-                    "type": "String"
-                },
-                {
-                    "name": "OUTBOUND_COUNT",
-                    "desc": "总数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_COUNT",
-                    "desc": "发送积压数量",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE",
-                    "desc": "发送积压字节数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE_AVG",
-                    "desc": "发送积压平均",
-                    "type": "Float"
-                },
-                {
-                    "name": "SEND_QUEUED_RATE",
-                    "desc": "发送积压比例",
-                    "type": "Float"
-                }
-            ]
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM类型",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM版本",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA目录",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA版本",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX端口",
+            "type": "Int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX SSL启用",
+            "type": "String"
+        },
+        {
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用百分比",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "最大Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "内存使用百分比",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存大小(M)",
+            "type": "Float"
         },
         {
             "name": "CONN_STATS",
-            "desc": "Connection Stats",
+            "desc": "连接统计",
             "type": "JsonObject",
             "subset": [
                 {
@@ -209,89 +230,68 @@
             ]
         },
         {
-            "name": "CPU_PERCENT",
-            "desc": "CPU使用百分比",
-            "type": "Float"
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "出方向连接统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "远程地址",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送积压平均",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                }
+            ]
         },
         {
-            "name": "EXE_PATH",
-            "desc": "执行文件路径",
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "BIN文件路径",
             "type": "String"
         },
         {
-            "name": "INSTALL_PATH",
-            "desc": "安装目录",
+            "name": "COMMAND",
+            "desc": "命令行",
             "type": "String"
-        },
-        {
-            "name": "JAVA_HOME",
-            "desc": "JAVA目录",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_VERSION",
-            "desc": "JAVA版本",
-            "type": "String"
-        },
-        {
-            "name": "JMX_PORT",
-            "desc": "JMX端口",
-            "type": "Int"
-        },
-        {
-            "name": "JMX_SSL",
-            "desc": "JMX SSL启用",
-            "type": "String"
-        },
-        {
-            "name": "JVM_TYPE",
-            "desc": "JVM类型",
-            "type": "String"
-        },
-        {
-            "name": "JVM_VERSION",
-            "desc": "JVM版本",
-            "type": "String"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "最大Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_PERCENT",
-            "desc": "内存使用百分比",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USED",
-            "desc": "使用内存大小(M)",
-            "type": "Float"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "最小Heap Size",
             "type": "Float"
-        },
-        {
-            "name": "OPEN_FILES_COUNT",
-            "desc": "打开文件数",
-            "type": "Float"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS用户",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "REF_CLUSTER",

@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "管理端口",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "服务名",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -51,6 +51,16 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "MON_PORT",
             "desc": "监控端口",
             "type": "String"
@@ -58,6 +68,21 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS用户",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
             "type": "String"
         },
         {
@@ -128,11 +153,6 @@
             "type": "String"
         },
         {
-            "name": "EXE_PATH",
-            "desc": "执行文件路径",
-            "type": "String"
-        },
-        {
             "name": "HBA_FILE",
             "desc": "HBA文件",
             "type": "String"
@@ -145,11 +165,6 @@
         {
             "name": "IDENT_FILE",
             "desc": "IDENT File",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "安装目录",
             "type": "String"
         },
         {
@@ -196,21 +211,6 @@
             "name": "MAX_WORKER_PROCESSES",
             "desc": "最大工作进程数",
             "type": "String"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS用户",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "RUN_ON",

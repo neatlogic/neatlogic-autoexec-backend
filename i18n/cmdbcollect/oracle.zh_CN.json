@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "管理端口",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "服务名",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -49,6 +49,16 @@
             "name": "PORT",
             "desc": "端口",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "ADMIN_PORT",
@@ -71,6 +81,43 @@
             "type": "String"
         },
         {
+            "name": "OS_USER",
+            "desc": "OS用户",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
+            "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "默认表空间",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CLUSTER_NAME",
             "desc": "集群名",
             "type": "String"
@@ -83,11 +130,6 @@
         {
             "name": "COMMAND",
             "desc": "命令行",
-            "type": "String"
-        },
-        {
-            "name": "CONFIG_PATH",
-            "desc": "配置目录",
             "type": "String"
         },
         {
@@ -180,11 +222,6 @@
             ]
         },
         {
-            "name": "EXE_PATH",
-            "desc": "执行文件路径",
-            "type": "String"
-        },
-        {
             "name": "GRID_BASE",
             "desc": "Grid Base目录",
             "type": "String"
@@ -192,11 +229,6 @@
         {
             "name": "GRID_HOME",
             "desc": "Grid Home目录",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "安装目录",
             "type": "String"
         },
         {
@@ -258,21 +290,6 @@
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS用户",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "RUN_ON",
@@ -374,23 +391,6 @@
                             "type": "String"
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "name": "USERS",
-            "desc": "用户列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "默认表空间",
-                    "type": "String"
                 }
             ]
         }

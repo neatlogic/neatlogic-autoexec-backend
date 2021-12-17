@@ -6,11 +6,6 @@
     },
     "fields": [
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -18,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
             "type": "String"
         },
         {
@@ -29,11 +34,6 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
         },
         {
             "name": "VERSION",
@@ -68,6 +68,16 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "ADMIN_PORT",
             "desc": "Admin Port",
             "type": "String"
@@ -88,20 +98,18 @@
             "type": "String"
         },
         {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "Applicaton Module",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "Application Module Name",
-                    "type": "String"
-                }
-            ]
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "Float"
         },
         {
-            "name": "COMMAND",
-            "desc": "Command Line",
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
             "type": "String"
         },
         {
@@ -110,41 +118,59 @@
             "type": "String"
         },
         {
-            "name": "CONN_OUTBOUND_STATS",
-            "desc": "OutBound Conn Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "REMOTE_ADDR",
-                    "desc": "Remote Addr",
-                    "type": "String"
-                },
-                {
-                    "name": "OUTBOUND_COUNT",
-                    "desc": "Count",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_COUNT",
-                    "desc": "Send Queued Count",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE",
-                    "desc": "Send Queued Size",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE_AVG",
-                    "desc": "Send Queued Size Avg",
-                    "type": "Float"
-                },
-                {
-                    "name": "SEND_QUEUED_RATE",
-                    "desc": "Send Queued Rate",
-                    "type": "Float"
-                }
-            ]
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM Type",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM Version",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA Version",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX Port",
+            "type": "Int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX SSL Enabled",
+            "type": "String"
+        },
+        {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "Max Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
+            "type": "Float"
         },
         {
             "name": "CONN_STATS",
@@ -209,28 +235,57 @@
             ]
         },
         {
-            "name": "CPU_PERCENT",
-            "desc": "CPU Used percent",
-            "type": "Float"
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "OutBound Conn Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "Remote Addr",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                }
+            ]
         },
         {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "Applicaton Module",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "Application Module Name",
+                    "type": "String"
+                }
+            ]
         },
         {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_HOME",
-            "desc": "JAVA Home Dir",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_VERSION",
-            "desc": "JAVA Version",
+            "name": "COMMAND",
+            "desc": "Command Line",
             "type": "String"
         },
         {
@@ -244,64 +299,9 @@
             "type": "String"
         },
         {
-            "name": "JMX_PORT",
-            "desc": "JMX Port",
-            "type": "Int"
-        },
-        {
-            "name": "JMX_SSL",
-            "desc": "JMX SSL Enabled",
-            "type": "String"
-        },
-        {
-            "name": "JVM_TYPE",
-            "desc": "JVM Type",
-            "type": "String"
-        },
-        {
-            "name": "JVM_VERSION",
-            "desc": "JVM Version",
-            "type": "String"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "Max Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_PERCENT",
-            "desc": "Memory Used percent",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USED",
-            "desc": "Memroy used(M)",
-            "type": "Float"
-        },
-        {
             "name": "MIN_HEAP_SIZE",
             "desc": "Min Heap Size",
             "type": "Float"
-        },
-        {
-            "name": "OPEN_FILES_COUNT",
-            "desc": "Open Files Count",
-            "type": "Float"
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
         },
         {
             "name": "REF_CLUSTER",
