@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -48,17 +48,17 @@
         {
             "name": "CPU_BITS",
             "desc": "CPU位数",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_CORES",
             "desc": "cpu核数",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_COUNT",
             "desc": "CPU数量",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -68,7 +68,7 @@
         {
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu逻辑核数",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_MODEL",
@@ -78,7 +78,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU使用率",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "DISKS",
@@ -103,7 +103,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "MODEL",
@@ -206,7 +206,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -245,7 +245,7 @@
         {
             "name": "IOWAIT_PERCENT",
             "desc": "Cpu iowait",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "IP_ADDRS",
@@ -262,7 +262,7 @@
         {
             "name": "IS_VIRTUAL",
             "desc": "是否是虚拟机",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "KERNEL_VERSION",
@@ -277,17 +277,17 @@
         {
             "name": "MEM_AVAILABLE",
             "desc": "可用内存",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "内存大小",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_USAGE",
             "desc": "内存使用率",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MOUNT_POINTS",
@@ -312,7 +312,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "UNIT",
@@ -322,7 +322,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -334,7 +334,7 @@
         {
             "name": "NTP_ENABLE",
             "desc": "是否开启NTP服务",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "NTP_SERVERS",
@@ -383,7 +383,7 @@
         {
             "name": "SYMANTEC_INSTALLED",
             "desc": "是否安装ccSvcHst",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "SYSTEM_LOCALE",

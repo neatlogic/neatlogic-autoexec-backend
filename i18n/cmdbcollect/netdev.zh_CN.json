@@ -96,7 +96,7 @@
                 {
                     "name": "MTU",
                     "desc": "MTU",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "NEIGHBORS",
@@ -140,7 +140,7 @@
         {
             "name": "PORTS_COUNT",
             "desc": "端口数量",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "UPTIME",

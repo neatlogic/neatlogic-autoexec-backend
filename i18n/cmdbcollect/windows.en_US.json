@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Windows"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -22,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -47,17 +48,17 @@
         {
             "name": "CPU_BITS",
             "desc": "Cpu Bits",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_CORES",
             "desc": "Cpu Cores",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_COUNT",
             "desc": "Cpu Count",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -67,7 +68,7 @@
         {
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu Logic Cores",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_MODEL",
@@ -77,13 +78,14 @@
         {
             "name": "CPU_PERCENT",
             "desc": "Cpu Usage",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "UNIT",
                     "desc": "Unit",
                     "type": "String"
@@ -101,7 +103,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "MODEL",
@@ -114,11 +116,13 @@
             "name": "DNS_SERVERS",
             "desc": "DNS Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "DOMAIN",
@@ -129,7 +133,8 @@
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -148,7 +153,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "Remote Port",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Category",
                             "type": "String"
@@ -181,7 +187,8 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "name",
                     "type": "String"
@@ -199,7 +206,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -212,7 +219,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
@@ -237,22 +245,24 @@
         {
             "name": "IOWAIT_PERCENT",
             "desc": "Cpu IOwait",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "IP_ADDRS",
             "desc": "IP Addrs",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "KERNEL_VERSION",
@@ -267,23 +277,24 @@
         {
             "name": "MEM_AVAILABLE",
             "desc": "Memory Available",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "Total Memory",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_USAGE",
             "desc": "Memory Usage",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MOUNT_POINTS",
             "desc": "Mount Points",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USED",
                     "desc": "Used",
                     "type": "float"
@@ -301,7 +312,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "UNIT",
@@ -311,7 +322,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -323,17 +334,19 @@
         {
             "name": "NTP_ENABLE",
             "desc": "NTP Enabled",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "NTP_SERVERS",
             "desc": "Ntp Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "OS_ID",
@@ -344,11 +357,13 @@
             "name": "PATCHES_APPLIED",
             "desc": "Patches Applied",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Patch Number",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Number",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PRODUCT_NAME",
@@ -368,7 +383,7 @@
         {
             "name": "SYMANTEC_INSTALLED",
             "desc": "Symantec Installed",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "SYSTEM_LOCALE",
@@ -389,11 +404,13 @@
             "name": "USERS",
             "desc": "Users",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "User Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "VCENTER_IP",

@@ -93,14 +93,14 @@
                 {
                     "name": "MTU",
                     "desc": "MTU",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
         {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VENDOR",

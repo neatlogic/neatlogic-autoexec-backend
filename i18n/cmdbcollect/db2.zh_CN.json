@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -83,12 +83,12 @@
                 {
                     "name": "DB_NAME",
                     "desc": "库名",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "DB_DIRECTORY",
                     "desc": "库目录",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "MEM_USED",
@@ -261,7 +261,7 @@
                 {
                     "name": "NAME",
                     "desc": "用户名",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         }

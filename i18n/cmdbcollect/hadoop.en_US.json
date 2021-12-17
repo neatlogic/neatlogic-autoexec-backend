@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -102,7 +102,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU Used percent",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "EXE_PATH",
@@ -127,7 +127,7 @@
         {
             "name": "JMX_PORT",
             "desc": "JMX Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "JMX_SSL",
@@ -152,22 +152,27 @@
         {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_PERCENT",
             "desc": "Memory Used percent",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_USED",
             "desc": "Memroy used(M)",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MIN_HEAP_SIZE",
             "desc": "Min Heap Size",
-            "type": "int"
+            "type": "Float"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "Float"
         },
         {
             "name": "OS_ID",
@@ -215,11 +220,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "OPEN_FILES_COUNT",
-            "desc": "Open Files Count",
-            "type": "int"
         }
     ]
 }

@@ -16,7 +16,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "STATE",
@@ -41,12 +41,12 @@
         {
             "name": "CPU_CORES",
             "desc": "CPU核数",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_COUNT",
             "desc": "CPU数量",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_FREQUENCY",
@@ -118,7 +118,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "MAC",
@@ -150,7 +150,7 @@
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -167,12 +167,12 @@
         {
             "name": "MEM_MAXIMUM_CAPACITY",
             "desc": "可安装内存",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_SLOTS",
             "desc": "内存槽量",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_SPEED",

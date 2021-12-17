@@ -31,7 +31,7 @@
         {
             "name": "RESPONSE_TIME",
             "desc": "Response Time",
-            "type": "Int"
+            "type": "Float"
         }
     ]
 }

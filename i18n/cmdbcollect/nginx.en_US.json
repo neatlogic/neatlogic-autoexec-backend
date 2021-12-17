@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -112,7 +112,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "CPU Used percent",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "EXE_PATH",
@@ -132,12 +132,17 @@
         {
             "name": "MEM_PERCENT",
             "desc": "Memory Used percent",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_USED",
             "desc": "Memroy used(M)",
-            "type": "int"
+            "type": "Float"
+        },
+        {
+            "name": "OPEN_FILES_COUNT",
+            "desc": "Open Files Count",
+            "type": "Float"
         },
         {
             "name": "OS_ID",
@@ -202,7 +207,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -234,7 +239,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -266,7 +271,7 @@
                 {
                     "name": "PORT",
                     "desc": "Port",
-                    "type": "int"
+                    "type": "Int"
                 }
             ]
         },
@@ -333,11 +338,6 @@
             "name": "SERVER_ROOT",
             "desc": "Server Root",
             "type": "String"
-        },
-        {
-            "name": "OPEN_FILES_COUNT",
-            "desc": "Open Files Count",
-            "type": "int"
         }
     ]
 }

@@ -45,6 +45,36 @@ def getDefaultFieldKeys():
     return defaultKeys
 
 
+def correctTypeDef(fieldDef):
+    if 'subset' in fieldDef:
+        for subFieldDef in fieldDef['subset']:
+            correctTypeDef(subFieldDef)
+    else:
+        fieldType = fieldDef['type'].lower()
+        if fieldType == 'string':
+            fieldType = 'String'
+        elif fieldType == 'int':
+            fieldType = 'Int'
+        elif fieldType == 'float':
+            fieldType = 'Float'
+        elif fieldType == 'jsonarray':
+            fieldType = 'JsonArray'
+        elif fieldType == 'jsonobject':
+            fieldType = 'JsonObject'
+
+        if 'name' in fieldDef:
+            fieldName = fieldDef['name']
+            if fieldName == 'AVAILABILITY':
+                fieldDef['type'] = 'Int'
+            elif fieldType == 'Float' and ('PID' in fieldName or 'PORT' in fieldName):
+                fieldDef['type'] = 'Int'
+            elif 'IS_' in fieldName:
+                fieldDef['type'] = 'Int'
+        else:
+            if fieldType == 'Float':
+                fieldDef['type'] = 'Int'
+
+
 def getIcon(name):
     nameToIconMap = {
         'a10': 'tsfont-a10',
@@ -270,11 +300,13 @@ if __name__ == "__main__":
                 newFields = []
                 for defaultKey in getDefaultFieldKeys():
                     if defaultKey in fieldsMap:
+                        correctTypeDef(fieldsMap[defaultKey])
                         newFields.append(fieldsMap[defaultKey])
                         del(fieldsMap[defaultKey])
 
                 leftKeys = sorted(fieldsMap.keys())
                 for key in leftKeys:
+                    correctTypeDef(fieldsMap[key])
                     newFields.append(fieldsMap[key])
 
                 data['fields'] = newFields

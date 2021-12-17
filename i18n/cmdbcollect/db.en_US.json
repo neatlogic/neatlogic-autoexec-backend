@@ -21,7 +21,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Managment Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -98,7 +98,7 @@
         {
             "name": "IS_CLUSTER",
             "desc": "Is Cluster",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "OS_ID",

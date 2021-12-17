@@ -23,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "管理端口",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "SERVER_NAME",
@@ -103,7 +103,7 @@
         {
             "name": "IS_CLUSTER",
             "desc": "是否是集群",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MULTIPLEXING_API",

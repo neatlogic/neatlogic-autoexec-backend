@@ -28,12 +28,12 @@
         {
             "name": "CPU_CORES",
             "desc": "cpu_cores",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_COUNT",
             "desc": "cpu_count",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "DISKS",
@@ -58,14 +58,14 @@
                 {
                     "name": "CAPACITY",
                     "desc": "容量",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
         {
             "name": "IS_VIRTUAL",
             "desc": "is_virtual",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "MACHINE_SN",
@@ -80,7 +80,7 @@
         {
             "name": "MEM_TOTAL",
             "desc": "mem_total",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_UNIT",

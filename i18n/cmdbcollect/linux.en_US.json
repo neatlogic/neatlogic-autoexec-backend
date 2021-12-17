@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Linux"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -22,7 +23,7 @@
         {
             "name": "MGMT_PORT",
             "desc": "Management Port",
-            "type": "int"
+            "type": "Int"
         },
         {
             "name": "VERSION",
@@ -52,7 +53,7 @@
         {
             "name": "CPU_BITS",
             "desc": "Cpu Bits",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_CORES",
@@ -87,7 +88,7 @@
         {
             "name": "CPU_PERCENT",
             "desc": "Cpu Usage",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "CPU_VERSION",
@@ -98,7 +99,8 @@
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "UNIT",
                     "desc": "Unit",
                     "type": "String"
@@ -116,7 +118,7 @@
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -124,17 +126,20 @@
             "name": "DNS_SERVERS",
             "desc": "DNS Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -158,7 +163,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "Remote Port",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Category",
                             "type": "String"
@@ -191,7 +197,8 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "name",
                     "type": "String"
@@ -209,7 +216,7 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
@@ -222,7 +229,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
@@ -242,27 +250,31 @@
         {
             "name": "IOWAIT_PERCENT",
             "desc": "Cpu IOwait",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "IPV6_ADDRS",
             "desc": "IPV6 Addresses",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "KERNEL_VERSION",
@@ -277,48 +289,49 @@
         {
             "name": "MAX_OPEN_FILES",
             "desc": "Max Open Files",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "Max User Processes Count",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_AVAILABLE",
             "desc": "Memory Available",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_BUFFERS",
             "desc": "Memory Buffers",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_CACHED",
             "desc": "Memory Cached",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_FREE",
             "desc": "Memory Free",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
             "desc": "Memory Total",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MEM_USAGE",
             "desc": "Memory Usage",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "MOUNT_POINTS",
             "desc": "Mount Points",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USED",
                     "desc": "Used",
                     "type": "float"
@@ -341,7 +354,7 @@
                 {
                     "name": "USED%",
                     "desc": "Used%",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "FS_TYPE",
@@ -356,39 +369,41 @@
                 {
                     "name": "INODE_USED%",
                     "desc": "Inode Used%",
-                    "type": "int"
+                    "type": "Float"
                 },
                 {
                     "name": "CAPACITY",
                     "desc": "Capacity",
-                    "type": "int"
+                    "type": "Float"
                 }
             ]
         },
         {
             "name": "NFS_MOUNTED",
             "desc": "NFS Mounted",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "NIC_BOND",
             "desc": "NIC Bond",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "NTP_ENABLE",
             "desc": "NTP Enabled",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "NTP_SERVERS",
             "desc": "NTP Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "OPENSSL_VERSION",
@@ -404,11 +419,13 @@
             "name": "PATCHES_APPLIED",
             "desc": "Patches Applied",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Patch Id",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Id",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "RESOURCE_ID",
@@ -423,12 +440,12 @@
         {
             "name": "SWAP_FREE",
             "desc": "Swap Free",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "SWAP_TOTAL",
             "desc": "Swap Total",
-            "type": "int"
+            "type": "Float"
         },
         {
             "name": "SYS_VENDOR",
@@ -436,10 +453,145 @@
             "type": "String"
         },
         {
+            "name": "TOP_CPU_RPOCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Float"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "Mem Usage",
+                    "type": "Float"
+                },
+                {
+                    "name": "VIRT",
+                    "desc": "Virutal Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "RES",
+                    "desc": "Real Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "SHR",
+                    "desc": "Share Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "S",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME+",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "PR",
+                    "desc": "Priority",
+                    "type": "Float"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice Value",
+                    "type": "Float"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TOP_MEM_PROCESSES",
+            "desc": "Top Cpu Usage Process",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "Int"
+                },
+                {
+                    "name": "USER",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "%CPU",
+                    "desc": "Cpu Usage",
+                    "type": "Float"
+                },
+                {
+                    "name": "%MEM",
+                    "desc": "Mem Usage",
+                    "type": "Float"
+                },
+                {
+                    "name": "VIRT",
+                    "desc": "Virutal Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "RES",
+                    "desc": "Real Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "SHR",
+                    "desc": "Share Mem",
+                    "type": "Float"
+                },
+                {
+                    "name": "S",
+                    "desc": "STATE",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME+",
+                    "desc": "Cpu Used Time",
+                    "type": "String"
+                },
+                {
+                    "name": "PR",
+                    "desc": "Priority",
+                    "type": "Float"
+                },
+                {
+                    "name": "NI",
+                    "desc": "Nice Value",
+                    "type": "Float"
+                },
+                {
+                    "name": "COMMAND",
+                    "desc": "Command",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "USERS",
             "desc": "users",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "HOME",
                     "desc": "Home Directory",
                     "type": "String"
@@ -462,138 +614,6 @@
                 {
                     "name": "GID",
                     "desc": "GID",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "TOP_CPU_RPOCESSES",
-            "desc": "Top Cpu Usage Process",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "PID",
-                    "desc": "PID",
-                    "type": "Int"
-                },
-                {
-                    "name": "USER",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "%CPU",
-                    "desc": "Cpu Usage",
-                    "type": "Int"
-                },
-                {
-                    "name": "%MEM",
-                    "desc": "Mem Usage",
-                    "type": "Int"
-                },
-                {
-                    "name": "VIRT",
-                    "desc": "Virutal Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "RES",
-                    "desc": "Real Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "SHR",
-                    "desc": "Share Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "S",
-                    "desc": "STATE",
-                    "type": "String"
-                },
-                {
-                    "name": "TIME+",
-                    "desc": "Cpu Used Time",
-                    "type": "String"
-                },
-                {
-                    "name": "PR",
-                    "desc": "Priority",
-                    "type": "Int"
-                },
-                {
-                    "name": "NI",
-                    "desc": "Nice Value",
-                    "type": "Int"
-                },
-                {
-                    "name": "COMMAND",
-                    "desc": "Command",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "TOP_MEM_PROCESSES",
-            "desc": "Top Cpu Usage Process",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "PID",
-                    "desc": "PID",
-                    "type": "Int"
-                },
-                {
-                    "name": "USER",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "%CPU",
-                    "desc": "Cpu Usage",
-                    "type": "Int"
-                },
-                {
-                    "name": "%MEM",
-                    "desc": "Mem Usage",
-                    "type": "Int"
-                },
-                {
-                    "name": "VIRT",
-                    "desc": "Virutal Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "RES",
-                    "desc": "Real Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "SHR",
-                    "desc": "Share Mem",
-                    "type": "Int"
-                },
-                {
-                    "name": "S",
-                    "desc": "STATE",
-                    "type": "String"
-                },
-                {
-                    "name": "TIME+",
-                    "desc": "Cpu Used Time",
-                    "type": "String"
-                },
-                {
-                    "name": "PR",
-                    "desc": "Priority",
-                    "type": "Int"
-                },
-                {
-                    "name": "NI",
-                    "desc": "Nice Value",
-                    "type": "Int"
-                },
-                {
-                    "name": "COMMAND",
-                    "desc": "Command",
                     "type": "String"
                 }
             ]
