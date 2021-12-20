@@ -472,6 +472,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
                     "name": "STATUS",
                     "desc": "Link Status",
                     "type": "String"
@@ -479,11 +484,6 @@
                 {
                     "name": "SPEED",
                     "desc": "Speed",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "Mac Address",
                     "type": "String"
                 },
                 {
@@ -526,18 +526,8 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "HOME",
-                    "desc": "Home Directory",
-                    "type": "String"
-                },
-                {
                     "name": "NAME",
                     "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "Shell",
                     "type": "String"
                 },
                 {
@@ -548,6 +538,16 @@
                 {
                     "name": "GID",
                     "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "Home Directory",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "Shell",
                     "type": "String"
                 }
             ]

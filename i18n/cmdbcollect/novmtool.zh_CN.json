@@ -135,6 +135,97 @@
             "type": "Float"
         },
         {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "用户",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CPU_COUNT",
             "desc": "cpu_count",
             "type": "Float"

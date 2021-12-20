@@ -472,18 +472,18 @@
                     "type": "String"
                 },
                 {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
                     "name": "STATUS",
-                    "desc": "接线状态",
+                    "desc": "状态",
                     "type": "String"
                 },
                 {
                     "name": "SPEED",
                     "desc": "速率",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "网卡地址",
                     "type": "String"
                 },
                 {
@@ -526,18 +526,8 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "HOME",
-                    "desc": "家目录",
-                    "type": "String"
-                },
-                {
                     "name": "NAME",
                     "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "SHELL",
                     "type": "String"
                 },
                 {
@@ -548,6 +538,16 @@
                 {
                     "name": "GID",
                     "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
                     "type": "String"
                 }
             ]
