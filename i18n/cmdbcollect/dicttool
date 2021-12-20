@@ -35,6 +35,7 @@ def getDefaultFieldKeys():
         'STATE',
         'IP',
         'BELONG_APPLICATION',
+        'BELONG_APPLICATION_MODULE',
         'RESOURCE_ID',
         'OS_ID',
         'MACHINE_ID',

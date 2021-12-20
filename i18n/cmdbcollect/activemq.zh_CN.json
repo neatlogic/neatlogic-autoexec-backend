@@ -48,6 +48,18 @@
             ]
         },
         {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -290,18 +302,6 @@
             "name": "AMQP_PORT",
             "desc": "AMQP Port",
             "type": "Int"
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "BIN_PATH",

@@ -48,6 +48,18 @@
             ]
         },
         {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -279,18 +291,6 @@
                 {
                     "name": "SOURCE_PATH",
                     "desc": "应用目录",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
                     "type": "String"
                 }
             ]

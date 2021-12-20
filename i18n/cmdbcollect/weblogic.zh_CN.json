@@ -48,6 +48,18 @@
             ]
         },
         {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -294,18 +306,6 @@
                 {
                     "name": "STAGING_MODE",
                     "desc": "Staging模式",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
                     "type": "String"
                 }
             ]

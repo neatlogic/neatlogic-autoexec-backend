@@ -48,6 +48,18 @@
             ]
         },
         {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -263,18 +275,6 @@
                     "name": "SEND_QUEUED_RATE",
                     "desc": "发送积压比例",
                     "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
                 }
             ]
         },
