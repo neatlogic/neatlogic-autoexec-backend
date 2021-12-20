@@ -158,6 +158,19 @@ sub getMountPointInfo {
                 }
             }
         }
+
+        $dfLines = $self->getCmdOutLines( "LANG=C df -i '" . join( "' '", @diskMountPoints ) . "'" );
+        foreach my $line (@$dfLines) {
+            if ( $line =~ /\d+\s+\d+\s+\d+\s+(\d+%)\s+(.*)$/ ) {
+                my $inodeUtility = $1;
+                my $mountPoint   = $2;
+                chomp($mountPoint);
+                my $mountInfo = $diskMountMap->{$mountPoint};
+                if ( defined($mountInfo) ) {
+                    $mountInfo->{'INODE_USED%'} = $inodeUtility + 0.0;
+                }
+            }
+        }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
 

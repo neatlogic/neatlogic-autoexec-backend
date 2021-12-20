@@ -188,8 +188,23 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "USED",
-                    "desc": "已使用",
+                    "name": "NAME",
+                    "desc": "挂载点",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "设备",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "文件系统类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量",
                     "type": "Float"
                 },
                 {
@@ -198,14 +213,9 @@
                     "type": "Float"
                 },
                 {
-                    "name": "DEVICE",
-                    "desc": "设备",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "挂载点",
-                    "type": "String"
+                    "name": "USED",
+                    "desc": "已使用",
+                    "type": "Float"
                 },
                 {
                     "name": "USED%",
@@ -213,24 +223,14 @@
                     "type": "Float"
                 },
                 {
-                    "name": "FS_TYPE",
-                    "desc": "文件系统类型",
-                    "type": "String"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "单位",
-                    "type": "String"
-                },
-                {
                     "name": "INODE_USED%",
                     "desc": "Inode使用率%",
                     "type": "Float"
                 },
                 {
-                    "name": "CAPACITY",
-                    "desc": "容量",
-                    "type": "Float"
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
                 }
             ]
         },

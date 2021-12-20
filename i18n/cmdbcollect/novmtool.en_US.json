@@ -41,6 +41,58 @@
             "type": "Float"
         },
         {
+            "name": "MOUNT_POINTS",
+            "desc": "Mount Points",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Mount Point",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "Device",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "FS Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "Available",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED%",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "INODE_USED%",
+                    "desc": "Inode Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",

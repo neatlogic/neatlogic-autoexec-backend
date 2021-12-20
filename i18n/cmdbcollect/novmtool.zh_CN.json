@@ -46,6 +46,58 @@
             "type": "Float"
         },
         {
+            "name": "MOUNT_POINTS",
+            "desc": "挂载点",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "挂载点",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "设备",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "文件系统类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已使用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED%",
+                    "desc": "使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "INODE_USED%",
+                    "desc": "Inode使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",

@@ -129,38 +129,53 @@
         },
         {
             "name": "MOUNT_POINTS",
-            "desc": "逻辑磁盘",
+            "desc": "挂载点",
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "USED",
-                    "desc": "Used",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "Available",
-                    "type": "Float"
-                },
-                {
                     "name": "NAME",
-                    "desc": "Mount Point",
+                    "desc": "挂载点",
                     "type": "String"
                 },
                 {
-                    "name": "USED%",
-                    "desc": "Used%",
-                    "type": "Float"
+                    "name": "DEVICE",
+                    "desc": "设备",
+                    "type": "String"
                 },
                 {
-                    "name": "UNIT",
-                    "desc": "Unit",
+                    "name": "FS_TYPE",
+                    "desc": "文件系统类型",
                     "type": "String"
                 },
                 {
                     "name": "CAPACITY",
-                    "desc": "Capacity",
+                    "desc": "容量",
                     "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已使用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED%",
+                    "desc": "使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "INODE_USED%",
+                    "desc": "Inode使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
                 }
             ]
         },

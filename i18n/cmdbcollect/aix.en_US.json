@@ -329,6 +329,26 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "NAME",
+                    "desc": "Mount Point",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "Device",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "FS Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "Float"
+                },
+                {
                     "name": "USED",
                     "desc": "Used",
                     "type": "Float"
@@ -339,29 +359,9 @@
                     "type": "Float"
                 },
                 {
-                    "name": "DEVICE",
-                    "desc": "Device",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Mount Point",
-                    "type": "String"
-                },
-                {
                     "name": "USED%",
                     "desc": "Used%",
                     "type": "Float"
-                },
-                {
-                    "name": "FS_TYPE",
-                    "desc": "FS Type",
-                    "type": "String"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "Unit",
-                    "type": "String"
                 },
                 {
                     "name": "INODE_USED%",
@@ -369,9 +369,9 @@
                     "type": "Float"
                 },
                 {
-                    "name": "CAPACITY",
-                    "desc": "Capacity",
-                    "type": "Float"
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
                 }
             ]
         },
