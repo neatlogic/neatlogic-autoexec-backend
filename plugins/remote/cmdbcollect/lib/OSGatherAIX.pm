@@ -68,9 +68,10 @@ sub getCPUInfo {
 sub getMountPointInfo {
     my ( $self, $osInfo ) = @_;
 
-    my $diskMountMap = {};
-    my @mountPoints  = ();
-    my $mountFilter  = {
+    my $mountedDevicesMap = {};
+    my $diskMountMap      = {};
+    my @mountPoints       = ();
+    my $mountFilter       = {
         'autofs'      => 1,
         'binfmt_misc' => 1,
         'cgroup'      => 1,
@@ -120,6 +121,8 @@ sub getMountPointInfo {
             $mountPoint = $1;
         }
 
+        $mountedDevicesMap->{$device} = 1;
+
         $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
             $osInfo->{NFS_MOUNTED} = 1;
@@ -168,6 +171,7 @@ sub getMountPointInfo {
         }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
+    return $mountedDevicesMap;
 }
 
 sub getSSHInfo {
@@ -354,7 +358,7 @@ sub getPatchInfo {
 }
 
 sub getDiskInfo {
-    my ( $self, $osInfo ) = @_;
+    my ( $self, $osInfo, $mountedDevicesMap ) = @_;
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     # lsdev -Cc disk
@@ -447,6 +451,13 @@ sub getDiskInfo {
             $diskInfo->{WWID} = $sn . ':' . $id;
         }
 
+        if ( not defined($mountedDevicesMap) ) {
+            $diskInfo->{NOT_MOUNTED} = 1;
+        }
+        else {
+            $diskInfo->{NOT_MOUNTED} = 0;
+        }
+
         push( @diskInfos, $diskInfo );
     }
     $osInfo->{DISKS} = \@diskInfos;
@@ -469,18 +480,18 @@ sub getPerformanceInfo {
             $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
             $line =~ s/\e\[.*$//g;
             @fieldNames = split( /\s+/, $line );
-            if ($fieldNames[5] eq 'RES' and $fieldNames[6] eq 'RES'){
+            if ( $fieldNames[5] eq 'RES' and $fieldNames[6] eq 'RES' ) {
                 $fieldNames[5] = 'DATA_RES';
                 $fieldNames[6] = 'TEXT_RES';
             }
-            for(my $l=0; $l<=$#fieldNames; $l++){
-                if ($fieldNames[$l] eq 'SPACE'){
+            for ( my $l = 0 ; $l <= $#fieldNames ; $l++ ) {
+                if ( $fieldNames[$l] eq 'SPACE' ) {
                     $fieldNames[$l] = 'PAGE_SPACE';
                 }
-                elsif ($fieldNames[$l] eq 'I/O'){
+                elsif ( $fieldNames[$l] eq 'I/O' ) {
                     $fieldNames[$l] = 'PGFAULTS_IO';
                 }
-                elsif ($fieldNames[$l] eq 'OTH'){
+                elsif ( $fieldNames[$l] eq 'OTH' ) {
                     $fieldNames[$l] = 'PGFAULTS_OTH';
                 }
             }
@@ -571,6 +582,30 @@ sub getPerformanceInfo {
     $osInfo->{IOWAIT_PERCENT}    = $iowait;
 }
 
+sub getInspectMisc {
+    my ( $self, $osInfo ) = @_;
+    my $defuncStr = $self->getCmdOut('ps -ef | grep defunct | grep -v grep | wc -l');
+    $osInfo->{DEFUNC_PROCESSES_COUNT} = int($defuncStr);
+
+    my $ntpOffset = 0;
+    my ( $ntpStatus, $ntpOffsetStr ) = $self->getCmdOut('chronyc tracking | grep "Last offset"');
+    if ( $ntpStatus == 0 and $ntpOffset =~ /([\d\.]+)/ ) {
+        $ntpOffset = 0.0 + $1;
+    }
+    else {
+        my ( $ntpStatus, $ntpOffset ) = $self->getCmdOut('ntpq -p | grep ^*');
+        if ( $ntpStatus == 0 ) {
+            my @ntpStatusInfo = split( /\s+/, $ntpOffset );
+            $ntpOffset = 0.0 + $ntpStatusInfo[8];
+        }
+    }
+    $osInfo->{NTP_OFFSET_SECS} = $ntpOffset;
+}
+
+sub getSecurityInfo {
+    my ( $self, $osInfo ) = @_;
+}
+
 sub collectOsInfo {
     my ($self) = @_;
 
@@ -580,7 +615,8 @@ sub collectOsInfo {
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getMiscInfo($osInfo);
         $self->getCPUInfo($osInfo);
-        $self->getMountPointInfo($osInfo);
+        my $mountedDevicesMap = $self->getMountPointInfo($osInfo);
+        $self->getDiskInfo( $osInfo, $mountedDevicesMap );
         $self->getSSHInfo($osInfo);
         $self->getMemInfo($osInfo);
         $self->getDNSInfo($osInfo);
@@ -588,15 +624,16 @@ sub collectOsInfo {
         $self->getMaxOpenInfo($osInfo);
         $self->getIpAddrs($osInfo);
         $self->getPatchInfo($osInfo);
-        $self->getDiskInfo($osInfo);
     }
     else {
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
 
-    if ( $self->{needPerformance} == 1 ) {
+    if ( $self->{inspect} == 1 ) {
         $self->getPerformanceInfo($osInfo);
+        $self->getInspectMisc($osInfo);
+        $self->getSecurityInfo($osInfo);
     }
 
     return $osInfo;

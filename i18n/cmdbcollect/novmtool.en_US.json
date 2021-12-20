@@ -31,6 +31,11 @@
             "type": "Float"
         },
         {
+            "name": "DEFUNC_PROCESSES_COUNT",
+            "desc": "Defunc Process Count",
+            "type": "Int"
+        },
+        {
             "name": "MEM_TOTAL",
             "desc": "mem_total",
             "type": "Float"
@@ -40,11 +45,6 @@
             "desc": "Disks",
             "type": "JsonArray",
             "subset": [
-                {
-                    "name": "UNIT",
-                    "desc": "Unit",
-                    "type": "String"
-                },
                 {
                     "name": "NAME",
                     "desc": "Name",
@@ -59,8 +59,23 @@
                     "name": "CAPACITY",
                     "desc": "Capacity",
                     "type": "Float"
+                },
+                {
+                    "name": "NOT_MOUNTED",
+                    "desc": "Not Mounted",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
                 }
             ]
+        },
+        {
+            "name": "NTP_OFFSET_SECS",
+            "desc": "Ntp Offset Seconds",
+            "type": "Float"
         },
         {
             "name": "CPU_COUNT",

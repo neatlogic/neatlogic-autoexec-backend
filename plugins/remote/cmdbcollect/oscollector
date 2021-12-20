@@ -62,7 +62,7 @@ sub main {
 
     my $isVerbose       = 0;
     my $isDebug         = 0;
-    my $needPerformance = 0;
+    my $inspect = 0;
     my $classDef;
     my $defaultPassConf;
 
@@ -70,7 +70,7 @@ sub main {
         'verbose=i'         => \$isVerbose,
         'debug=i'           => \$isDebug,
         'class=s'           => \$classDef,
-        'performance=i'     => \$needPerformance,
+        'inspect=i'         => \$inspect,
         'defaultpassconf=s' => \$defaultPassConf
     );
     my @myOpts = @ARGV;
@@ -144,7 +144,7 @@ sub main {
     my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
         print("INFO: Begin to collect OS information...\n");
-        my $osGather = OSGather->new( $ignoreOsInfo, $needPerformance );
+        my $osGather = OSGather->new( $ignoreOsInfo, $inspect );
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
             $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
@@ -188,7 +188,7 @@ sub main {
     my $appsMap = {};
 
     #获取收集网络信息的实现类
-    my $connGather = ConnGather->new($needPerformance);
+    my $connGather = ConnGather->new($inspect);
 
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my @procFilters;
@@ -359,7 +359,7 @@ sub main {
         return $isMatched;
     };
 
-    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, needPerformance => $needPerformance );
+    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, inspect => $inspect );
     $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
@@ -407,7 +407,7 @@ sub main {
             $parentConnStats->{RECV_QUEUED_SIZE}  = $parentConnStats->{RECV_QUEUED_SIZE} + $currentConnStats->{RECV_QUEUED_SIZE};
             $parentConnStats->{SEND_QUEUED_SIZE}  = $parentConnStats->{SEND_QUEUED_SIZE} + $currentConnStats->{SEND_QUEUED_SIZE};
 
-            if ( $needPerformance == 1 ) {
+            if ( $inspect == 1 ) {
 
                 #基于调用OutBound（目标）的统计信息合并
                 my $parentOutBoundStats  = $parentConnStats->{OUTBOUND_STATS};
@@ -471,7 +471,7 @@ sub main {
             }
 
             #TCP OutBound连接的比率指标统计
-            if ( $needPerformance == 1 ) {
+            if ( $inspect == 1 ) {
                 while ( my ( $remoteAddr, $outBoundStat ) = each( %{ $connStats->{OUTBOUND_STATS} } ) ) {
                     if ( $outBoundStat->{OUTBOUND_COUNT} > 0 ) {
                         $outBoundStat->{SEND_QUEUED_RATE}     = int( $outBoundStat->{SEND_QUEUED_RATE} * 10000 / $outBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;

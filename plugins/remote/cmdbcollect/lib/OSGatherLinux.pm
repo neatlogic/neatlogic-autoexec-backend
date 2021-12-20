@@ -80,9 +80,10 @@ sub getMountPointInfo {
 
     #my ($fs_type, $fs_desc, $used, $avail, $fused, $favail) = df($dir);
     #TODO: df
-    my $diskMountMap = {};
-    my @mountPoints  = ();
-    my $mountFilter  = {
+    my $mountedDevicesMap = {};
+    my $diskMountMap      = {};
+    my @mountPoints       = ();
+    my $mountFilter       = {
         'autofs'      => 1,
         'binfmt_misc' => 1,
         'cgroup'      => 1,
@@ -116,6 +117,8 @@ sub getMountPointInfo {
         my $device     = $mountInfos[0];
         my $mountPoint = $mountInfos[1];
         my $fsType     = $mountInfos[2];
+
+        $mountedDevicesMap->{$device} = 1;
 
         $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
@@ -157,6 +160,8 @@ sub getMountPointInfo {
         }
     }
     $osInfo->{MOUNT_POINTS} = \@mountPoints;
+
+    return $mountedDevicesMap;
 }
 
 sub getSSHInfo {
@@ -365,11 +370,11 @@ sub getUserInfo {
 }
 
 sub getDiskInfo {
-    my ( $self, $osInfo ) = @_;
+    my ( $self, $osInfo, $mountedDevicesMap ) = @_;
     my $utils = $self->{collectUtils};
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
-    my @diskInfos;
+    my @diskInfos = ();
     my ( $diskStatus, $diskLines ) = $self->getCmdOutLines('LANG=C parted -l 2>/dev/null');
     if ( $diskStatus ne 0 ) {
         $diskLines = $self->getCmdOutLines('LANG=C fdisk -l');
@@ -396,7 +401,15 @@ sub getDiskInfo {
                 $diskInfo->{TYPE} = 'remote';
             }
 
+            if ( not defined($mountedDevicesMap) ) {
+                $diskInfo->{NOT_MOUNTED} = 1;
+            }
+            else {
+                $diskInfo->{NOT_MOUNTED} = 0;
+            }
+
             push( @diskInfos, $diskInfo );
+
         }
     }
 
@@ -636,6 +649,30 @@ sub getPerformanceInfo {
     $osInfo->{IOWAIT_PERCENT}    = $iowait;
 }
 
+sub getInspectMisc {
+    my ( $self, $osInfo ) = @_;
+    my $defuncStr = $self->getCmdOut('ps -ef | grep defunct | grep -v grep | wc -l');
+    $osInfo->{DEFUNC_PROCESSES_COUNT} = int($defuncStr);
+
+    my $ntpOffset = 0;
+    my ( $ntpStatus, $ntpOffsetStr ) = $self->getCmdOut('chronyc tracking | grep "Last offset"');
+    if ( $ntpStatus == 0 and $ntpOffset =~ /([\d\.]+)/ ) {
+        $ntpOffset = 0.0 + $1;
+    }
+    else {
+        my ( $ntpStatus, $ntpOffset ) = $self->getCmdOut('ntpq -p | grep ^*');
+        if ( $ntpStatus == 0 ) {
+            my @ntpStatusInfo = split( /\s+/, $ntpOffset );
+            $ntpOffset = 0.0 + $ntpStatusInfo[8];
+        }
+    }
+    $osInfo->{NTP_OFFSET_SECS} = $ntpOffset;
+}
+
+sub getSecurityInfo {
+    my ( $self, $osInfo ) = @_;
+}
+
 sub collectOsInfo {
     my ($self) = @_;
 
@@ -644,7 +681,10 @@ sub collectOsInfo {
         $self->getMiscInfo($osInfo);
         $self->getOsVersion($osInfo);
         $self->getVendorInfo($osInfo);
-        $self->getMountPointInfo($osInfo);
+
+        my $mountedDevicesMap = $self->getMountPointInfo($osInfo);
+        $self->getDiskInfo( $osInfo, $mountedDevicesMap );
+
         $self->getSSHInfo($osInfo);
         $self->getBondInfo($osInfo);
         $self->getMemInfo($osInfo);
@@ -652,15 +692,16 @@ sub collectOsInfo {
         $self->getServiceInfo($osInfo);
         $self->getIpAddrs($osInfo);
         $self->getUserInfo($osInfo);
-        $self->getDiskInfo($osInfo);
     }
     else {
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
 
-    if ( $self->{needPerformance} == 1 ) {
+    if ( $self->{inspect} == 1 ) {
         $self->getPerformanceInfo($osInfo);
+        $self->getInspectMisc($osInfo);
+        $self->getSecurityInfo($osInfo);
     }
 
     return $osInfo;

@@ -222,6 +222,11 @@
             ]
         },
         {
+            "name": "DEFUNC_PROCESSES_COUNT",
+            "desc": "僵尸进程数",
+            "type": "Int"
+        },
+        {
             "name": "MEM_AVAILABLE",
             "desc": "可用内存",
             "type": "Float"
@@ -391,11 +396,6 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "UNIT",
-                    "desc": "单位",
-                    "type": "String"
-                },
-                {
                     "name": "NAME",
                     "desc": "磁盘名",
                     "type": "String"
@@ -409,6 +409,16 @@
                     "name": "CAPACITY",
                     "desc": "容量",
                     "type": "Float"
+                },
+                {
+                    "name": "NOT_MOUNTED",
+                    "desc": "是否没挂载",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
                 }
             ]
         },
@@ -440,6 +450,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "NTP_OFFSET_SECS",
+            "desc": "NTP偏移秒数",
+            "type": "Float"
         },
         {
             "name": "SSH_VERSION",

@@ -65,9 +65,9 @@
             "required": "false",
             "validate": ""
         }, {
-            "opt": "performance",
-            "name": "采集性能数据",
-            "help": "采集更详细的性能数据",
+            "opt": "inspect",
+            "name": "巡检检查",
+            "help": "采集更详细的巡检数据",
             "type": "select",
             "isConst": "false",
             "defaultValue": [{

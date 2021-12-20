@@ -11,9 +11,9 @@ use ConnGatherBase;
 our @ISA = qw(ConnGatherBase);
 
 sub new {
-    my ( $type, $needPerformance ) = @_;
+    my ( $type, $inspect ) = @_;
     my $self = {};
-    $self->{needPerformance} = $needPerformance;
+    $self->{inspect} = $inspect;
     bless( $self, $type );
 
     $self->{procConnStats} = {};
@@ -122,7 +122,7 @@ sub processConnStat {
     }
     else {
         $myConnStats->{OUTBOUND_COUNT} = $myConnStats->{OUTBOUND_COUNT} + 1;
-        if ( $self->{needPerformance} == 1 ) {
+        if ( $self->{inspect} == 1 ) {
             my $outBoundStats = $myConnStats->{OUTBOUND_STATS};
             my $outBoundStat  = $outBoundStats->{$remoteAddr};
             if ( not defined($outBoundStat) ) {

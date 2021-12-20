@@ -36,8 +36,8 @@ sub new {
     #......
 
     my $self = {
-        callback        => $args{callback},
-        needPerformance => $args{needPerformance}
+        callback => $args{callback},
+        inspect  => $args{inspect}
     };
 
     $self->{procFilters}      = $procFilters;
