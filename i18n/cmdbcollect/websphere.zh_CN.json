@@ -457,7 +457,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "_OBJ_Type",
+                    "name": "_OBJ_TYPE",
                     "desc": "OS类型",
                     "type": "String"
                 },

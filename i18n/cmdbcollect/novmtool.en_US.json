@@ -261,7 +261,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "_OBJ_Type",
+                    "name": "_OBJ_TYPE",
                     "desc": "OS Type",
                     "type": "String"
                 },
