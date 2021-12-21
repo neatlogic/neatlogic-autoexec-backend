@@ -66,6 +66,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "APP_NAME",
                     "desc": "应用名",
                     "type": "String"
@@ -77,6 +87,16 @@
             "desc": "所属应用模块",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
                 {
                     "name": "APPMODULE_NAME",
                     "desc": "应用模块名",

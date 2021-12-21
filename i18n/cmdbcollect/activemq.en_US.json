@@ -61,6 +61,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "APP_NAME",
                     "desc": "Application Name",
                     "type": "String"
@@ -72,6 +82,16 @@
             "desc": "Applicaton Module",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
                 {
                     "name": "APPMODULE_NAME",
                     "desc": "Application Module Name",
