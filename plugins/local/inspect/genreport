@@ -136,6 +136,7 @@ def getInspectData(nodeInfo):
                 # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
                 aInspectData = value['DATA']
                 inspectData.update(aInspectData)
+                continue
             elif not key.startswith("cmdbcollect/"):
                 continue
 
@@ -149,6 +150,8 @@ def getInspectData(nodeInfo):
                 inspectData['AVAILABILITY'] = False
             else:
                 inspectData['AVAILABILITY'] = True
+        else:
+            inspectData['AVAILABILITY'] = False
 
         for data in collectData:
             isMalformData = 0
