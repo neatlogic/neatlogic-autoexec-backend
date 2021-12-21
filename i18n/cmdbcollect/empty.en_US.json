@@ -24,14 +24,14 @@
             "type": "Int"
         },
         {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
-        },
-        {
             "name": "RESPONSE_TIME",
             "desc": "Response Time",
             "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
         }
     ]
 }

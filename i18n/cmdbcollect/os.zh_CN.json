@@ -29,6 +29,11 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "OS版本",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -78,11 +83,6 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "OS版本",
-            "type": "String"
-        },
-        {
             "name": "KERNEL_VERSION",
             "desc": "内核版本",
             "type": "String"
@@ -104,7 +104,7 @@
         },
         {
             "name": "CPU_PERCENT",
-            "desc": "CPU使用率",
+            "desc": "CPU使用率%",
             "type": "Float"
         },
         {
@@ -159,22 +159,22 @@
         },
         {
             "name": "MEM_AVAILABLE",
-            "desc": "可用内存",
+            "desc": "可用内存(M)",
             "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
-            "desc": "总内存",
+            "desc": "总内存(M)",
             "type": "Float"
         },
         {
             "name": "MEM_USAGE",
-            "desc": "内存使用率",
+            "desc": "内存使用率%",
             "type": "Float"
         },
         {
             "name": "SWAP_TOTAL",
-            "desc": "SWAP大小",
+            "desc": "SWAP大小(M)",
             "type": "Float"
         },
         {
@@ -342,7 +342,7 @@
                 },
                 {
                     "name": "SPEED",
-                    "desc": "速率",
+                    "desc": "速率(Mbps)",
                     "type": "String"
                 },
                 {

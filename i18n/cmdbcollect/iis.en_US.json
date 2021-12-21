@@ -31,9 +31,29 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "BELONG_APPLICATION",
@@ -65,21 +85,6 @@
             "type": "String"
         },
         {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "ADMIN_PORT",
             "desc": "Admin Port",
             "type": "String"
@@ -97,11 +102,6 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL Port",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {
@@ -296,6 +296,16 @@
                     "type": "String"
                 },
                 {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
                     "name": "UNIQUE_NAME",
                     "desc": "Cluster Unique Name",
                     "type": "String"
@@ -309,16 +319,6 @@
                     "name": "CLUSTER_SOFTWARE",
                     "desc": "Cluster Software",
                     "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
                 }
             ]
         },
@@ -338,11 +338,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                },
-                {
                     "name": "MGMT_IP",
                     "desc": "Management IP",
                     "type": "String"
@@ -351,6 +346,11 @@
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
                 }
             ]
         },
@@ -370,11 +370,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                },
-                {
                     "name": "MGMT_IP",
                     "desc": "Management IP",
                     "type": "String"
@@ -383,6 +378,11 @@
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
                 }
             ]
         },
@@ -402,13 +402,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
                     "type": "String"
                 },
                 {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
                     "type": "String"
                 }
             ]

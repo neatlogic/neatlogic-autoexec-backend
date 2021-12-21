@@ -31,13 +31,13 @@
             "type": "Int"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -58,6 +58,11 @@
             ]
         },
         {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
             "name": "ADMIN_PORT",
             "desc": "Admin Port",
             "type": "String"
@@ -75,11 +80,6 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL Port",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {

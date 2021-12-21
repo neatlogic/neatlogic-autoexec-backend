@@ -31,13 +31,13 @@
             "type": "Int"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -54,6 +54,11 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
         },
         {
             "name": "ADMIN_PORT",
@@ -76,11 +81,6 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
-        },
-        {
             "name": "OS_USER",
             "desc": "OS用户",
             "type": "String"
@@ -99,6 +99,115 @@
             "name": "EXE_PATH",
             "desc": "执行文件路径",
             "type": "String"
+        },
+        {
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用率%",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "内存使用率%",
+            "type": "Float"
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "连接统计",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "连接总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "入方向数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "出方向数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "接收积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "接收积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "接收积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "接收平均积压",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送平均积压",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "出方向连接统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "远程地址",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送积压平均",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "USERS",
@@ -150,13 +259,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
                     "type": "String"
                 },
                 {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
                     "type": "String"
                 }
             ]

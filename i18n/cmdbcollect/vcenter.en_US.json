@@ -31,6 +31,11 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -43,11 +48,6 @@
         {
             "name": "VENDOR",
             "desc": "Vendor",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {

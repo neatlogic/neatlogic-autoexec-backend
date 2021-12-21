@@ -31,13 +31,13 @@
             "type": "Int"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
-            "name": "OS_ID",
-            "desc": "OS ID",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -54,6 +54,11 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
         },
         {
             "name": "ADMIN_PORT",
@@ -76,11 +81,6 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "OS_USER",
             "desc": "OS User",
             "type": "String"
@@ -94,6 +94,115 @@
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "CPU_PERCENT",
+            "desc": "CPU Used percent",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_PERCENT",
+            "desc": "Memory Used percent",
+            "type": "Float"
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "Connection Stats",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "Total Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "InBound Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "OutBound Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "Recv Queued Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued Conn Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "Recv Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "Recv Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "Recv Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "OutBound Conn Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "Remote Addr",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "BIND_IP",
@@ -195,13 +304,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
                     "type": "String"
                 },
                 {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
                     "type": "String"
                 }
             ]

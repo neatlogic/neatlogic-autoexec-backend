@@ -29,6 +29,11 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -75,11 +80,6 @@
         {
             "name": "SYS_VENDOR",
             "desc": "System Vendor",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {
@@ -342,7 +342,7 @@
                 },
                 {
                     "name": "SPEED",
-                    "desc": "Speed",
+                    "desc": "Speed(Mbps)",
                     "type": "String"
                 },
                 {

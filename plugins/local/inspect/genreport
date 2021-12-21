@@ -102,7 +102,7 @@ def getMetricsDef(db, objCat, objType):
             ruleDef['_astgentime'] = currentTime
             ast = Parser(ruleDef['rule'])
             ruleDef['AST'] = ast.asList()
-            #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+            # print(json.dumps(ast.asList(), sort_keys=True, indent=4))
             ruleNeedUpdate = True
 
     if ruleNeedUpdate:
@@ -122,10 +122,8 @@ def getInspectData(nodeInfo):
     if 'port' in nodeInfo:
         port = nodeInfo['port']
 
-    availability = True
-    errorMessage = ''
     dataRecords = []
-
+    inspectData = {}
     nodeData = {}
     # 加载上一个cmdb收集步骤的output数据，CMDB采集可能返回多条记录，需要抽取匹配的记录
     outputData = AutoExecUtils.loadNodeOutput()
@@ -136,21 +134,21 @@ def getInspectData(nodeInfo):
         for key, value in outputData.items():
             if key.startswith("inspect/"):
                 # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
-                inspectData = value['DATA']
-                if 'AVAILABILITY' in inspectData:
-                    if inspectData['AVAILABILITY'] == 0:
-                        availability = False
-                        if 'ERROR_MESSAGE' in inspectData:
-                            errorMessage = inspectData['ERROR_MESSAGE']
-                    continue
-
-            if not (key.startswith("cmdbcollect/") or key.startswith("inspect/")):
+                aInspectData = value['DATA']
+                inspectData.update(aInspectData)
+            elif not key.startswith("cmdbcollect/"):
                 continue
 
             collectData = value['DATA']
             if collectData is None:
                 print('WARN: Plugin {} did not return collect data.'.format(key))
                 continue
+
+        if 'AVAILABILITY' in inspectData:
+            if inspectData['AVAILABILITY'] == 0:
+                inspectData['AVAILABILITY'] = False
+            else:
+                inspectData['AVAILABILITY'] = True
 
         for data in collectData:
             isMalformData = 0
@@ -171,25 +169,22 @@ def getInspectData(nodeInfo):
                         print('WARN: Data has no port.')
                         continue
 
-                    if data['PORT'] != port:
+                    if int(data['PORT']) != port:
                         print('WARN: Data not match port:{} but:{}.'.format(port, data['PORT']))
                         continue
 
                 print("INFO: Data matched {}:{}.".format(ip, port))
                 nodeData = data
-                nodeData['AVAILABILITY'] = availability
-                nodeData['ERROR_MESSAGE'] = errorMessage
+                nodeData.update(inspectData)
                 dataRecords.append(nodeData)
                 break
             else:
                 print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
         if not dataRecords:
-            nodeData = {}
+            nodeData = inspectData
             nodeData['_OBJ_CATEGORY'] = 'EMPTY'
             nodeData['_OBJ_TYPE'] = 'EMPTY'
-            nodeData['AVAILABILITY'] = availability
-            nodeData['ERROR_MESSAGE'] = errorMessage
             dataRecords.append(nodeData)
 
         return dataRecords
@@ -211,7 +206,6 @@ def inspectData(nodeInfo):
             needFieldsMap = {}
 
             availability = dataCollected['AVAILABILITY']
-            errorMessage = dataCollected['ERROR_MESSAGE']
             needFieldsMap['AVAILABILITY'] = 1
             needFieldsMap['ERROR_MESSAGE'] = 1
 

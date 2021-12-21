@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -38,11 +43,6 @@
         {
             "name": "SN",
             "desc": "Chassis Serial",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {

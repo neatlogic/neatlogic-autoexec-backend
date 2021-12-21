@@ -29,9 +29,29 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "BELONG_APPLICATION",
@@ -63,21 +83,6 @@
             "type": "String"
         },
         {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "ADMIN_PORT",
             "desc": "管理端口",
             "type": "String"
@@ -95,11 +100,6 @@
         {
             "name": "SSL_PORT",
             "desc": "SSL端口",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "版本",
             "type": "String"
         },
         {
@@ -129,17 +129,17 @@
         },
         {
             "name": "CPU_PERCENT",
-            "desc": "CPU使用百分比",
+            "desc": "CPU使用率%",
             "type": "Float"
         },
         {
             "name": "MEM_PERCENT",
-            "desc": "内存使用百分比",
+            "desc": "内存使用率%",
             "type": "Float"
         },
         {
             "name": "MEM_USED",
-            "desc": "使用内存大小(M)",
+            "desc": "使用内存(M)",
             "type": "Float"
         },
         {
@@ -267,6 +267,16 @@
                     "type": "String"
                 },
                 {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
                     "name": "UNIQUE_NAME",
                     "desc": "集群唯一标记",
                     "type": "String"
@@ -280,16 +290,6 @@
                     "name": "CLUSTER_SOFTWARE",
                     "desc": "集群软件",
                     "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
                 }
             ]
         },
@@ -309,11 +309,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                },
-                {
                     "name": "MGMT_IP",
                     "desc": "管理IP",
                     "type": "String"
@@ -322,6 +317,11 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
                 }
             ]
         },
@@ -341,11 +341,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                },
-                {
                     "name": "MGMT_IP",
                     "desc": "管理IP",
                     "type": "String"
@@ -354,6 +349,11 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
                 }
             ]
         },
@@ -373,13 +373,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
                     "type": "String"
                 },
                 {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
                     "type": "String"
                 }
             ]

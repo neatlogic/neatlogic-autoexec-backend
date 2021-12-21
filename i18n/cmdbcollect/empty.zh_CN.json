@@ -24,14 +24,14 @@
             "type": "Int"
         },
         {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
-        },
-        {
             "name": "RESPONSE_TIME",
             "desc": "响应时间",
             "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
         }
     ]
 }
