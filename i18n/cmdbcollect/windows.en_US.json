@@ -84,12 +84,12 @@
         },
         {
             "name": "CPU_PERCENT",
-            "desc": "Cpu Usage",
+            "desc": "CPU%",
             "type": "Float"
         },
         {
             "name": "IOWAIT_PERCENT",
-            "desc": "Cpu IOwait",
+            "desc": "Iowait%",
             "type": "Float"
         },
         {
@@ -114,7 +114,7 @@
         },
         {
             "name": "MEM_AVAILABLE",
-            "desc": "Memory Available",
+            "desc": "Memory Available(M)",
             "type": "Float"
         },
         {
@@ -124,7 +124,7 @@
         },
         {
             "name": "MEM_USAGE",
-            "desc": "Memory Usage",
+            "desc": "Memory%",
             "type": "Float"
         },
         {

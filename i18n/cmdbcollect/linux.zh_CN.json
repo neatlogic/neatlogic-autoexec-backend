@@ -181,17 +181,17 @@
                 },
                 {
                     "name": "VIRT",
-                    "desc": "虚拟内存",
+                    "desc": "虚拟内存(M)",
                     "type": "Float"
                 },
                 {
                     "name": "RES",
-                    "desc": "物理内存",
+                    "desc": "物理内存(M)",
                     "type": "Float"
                 },
                 {
                     "name": "SHR",
-                    "desc": "共享区内存",
+                    "desc": "共享区内存(M)",
                     "type": "Float"
                 },
                 {
@@ -293,17 +293,17 @@
                 },
                 {
                     "name": "VIRT",
-                    "desc": "虚拟内存",
+                    "desc": "虚拟内存(M)",
                     "type": "Float"
                 },
                 {
                     "name": "RES",
-                    "desc": "物理内存",
+                    "desc": "物理内存(M)",
                     "type": "Float"
                 },
                 {
                     "name": "SHR",
-                    "desc": "共享区内存",
+                    "desc": "共享区内存(M)",
                     "type": "Float"
                 },
                 {

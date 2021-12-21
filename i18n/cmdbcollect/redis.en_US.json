@@ -97,12 +97,12 @@
         },
         {
             "name": "CPU_PERCENT",
-            "desc": "CPU Used percent",
+            "desc": "CPU%",
             "type": "Float"
         },
         {
             "name": "MEM_PERCENT",
-            "desc": "Memory Used percent",
+            "desc": "Memory%",
             "type": "Float"
         },
         {

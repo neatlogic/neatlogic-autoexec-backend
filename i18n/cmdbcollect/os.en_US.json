@@ -104,12 +104,12 @@
         },
         {
             "name": "CPU_PERCENT",
-            "desc": "Cpu Usage",
+            "desc": "CPU%",
             "type": "Float"
         },
         {
             "name": "IOWAIT_PERCENT",
-            "desc": "Cpu IOwait",
+            "desc": "Iowait%",
             "type": "Float"
         },
         {
@@ -159,27 +159,27 @@
         },
         {
             "name": "MEM_AVAILABLE",
-            "desc": "Memory Available",
+            "desc": "Memory Available(M)",
             "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
-            "desc": "Memory Total",
+            "desc": "Memory Total(M)",
             "type": "Float"
         },
         {
             "name": "MEM_USAGE",
-            "desc": "Memory Usage",
+            "desc": "Memory%",
             "type": "Float"
         },
         {
             "name": "SWAP_TOTAL",
-            "desc": "Swap Total",
+            "desc": "Swap Total(M)",
             "type": "Float"
         },
         {
             "name": "SWAP_FREE",
-            "desc": "Free Swap",
+            "desc": "Swap Free(M)(M)",
             "type": "Float"
         },
         {

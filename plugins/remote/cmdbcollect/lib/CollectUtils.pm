@@ -354,9 +354,14 @@ sub getDiskSizeFormStr {
 #转换带不确定单位的内存空间字串为数值，对应标准单位MB
 #譬如：10240 KB：转换为：10、 10 GB：转换为10240
 sub getMemSizeFromStr {
-    my ( $self, $sizeStr ) = @_;
+    my ( $self, $sizeStr, $defaultUnit ) = @_;
     chomp($sizeStr);
     $sizeStr =~ s/,//g;
+
+    if ( defined($defaultUnit) and $sizeStr =~ /\d$/ ){
+        $sizeStr = $sizeStr . $defaultUnit;
+    }
+
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -375,7 +380,6 @@ sub getMemSizeFromStr {
         $size = ( $sizeStr + 0.0 ) * 1024 * 1024 * 1024;
     }
     elsif ( $sizeStr =~ /\d$/i ) {
-
         #默认是MB
         $size = $sizeStr + 0.0;
     }

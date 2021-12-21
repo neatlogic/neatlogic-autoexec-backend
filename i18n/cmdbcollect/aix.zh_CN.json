@@ -293,7 +293,7 @@
                 },
                 {
                     "name": "RSS",
-                    "desc": "物理内存",
+                    "desc": "物理内存(M)",
                     "type": "Float"
                 },
                 {
