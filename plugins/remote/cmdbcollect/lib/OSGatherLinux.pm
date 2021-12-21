@@ -620,9 +620,9 @@ sub getPerformanceInfo {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
             $procInfo->{COMMAND} = $command;
-            $procInfo->{VIRT} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
-            $procInfo->{RES} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
-            $procInfo->{SHR} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
+            $procInfo->{VIRT}    = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
             push( @cpuTopProc, $procInfo );
         }
     }
@@ -655,9 +655,9 @@ sub getPerformanceInfo {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
             $procInfo->{COMMAND} = $command;
-            $procInfo->{VIRT} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
-            $procInfo->{RES} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
-            $procInfo->{SHR} = $utils->getMemSizeFromStr($procInfo->{VIRT}, 'K');
+            $procInfo->{VIRT}    = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
             push( @memTopProc, $procInfo );
         }
     }

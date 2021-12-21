@@ -145,7 +145,7 @@ sub collect {
         $port = $minPort;
     }
 
-    $port = int($port);
+    $port                        = int($port);
     $mysqlInfo->{PORT}           = $port;
     $mysqlInfo->{SSL_PORT}       = $port;
     $mysqlInfo->{MON_PORT}       = $port;

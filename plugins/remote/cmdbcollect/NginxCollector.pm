@@ -96,10 +96,10 @@ sub collect {
     my @ports       = ();
     foreach my $lsnPort ( keys(%$lsnPortsMap) ) {
         if ( $lsnPort =~ /:(\d+)$/ ) {
-            push( @ports, { VALUE => int($1) } );
+            push( @ports, int($1) );
         }
         elsif ( $lsnPort < $minPort ) {
-            push( @ports, { VALUE => $lsnPort } );
+            push( @ports, $lsnPort );
             $minPort = $lsnPort;
         }
     }

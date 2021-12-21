@@ -87,7 +87,7 @@ sub getPorts {
                 if ( index( $portDef, '"WC_defaulthost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $port = int($1);
-                        push( @ports, { VALUE => $port } );
+                        push( @ports, $port );
                     }
                 }
                 elsif ( index( $portDef, '"WC_defaulthost_secure"' ) > 0 ) {
@@ -99,13 +99,13 @@ sub getPorts {
                 elsif ( index( $portDef, '"WC_adminhost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $adminPort = int($1);
-                        push( @ports, { VALUE => $adminPort } );
+                        push( @ports, $adminPort );
                     }
                 }
                 elsif ( index( $portDef, '"WC_adminhost_secure"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $adminSslPort = int($1);
-                        push( @ports, { VALUE => $adminSslPort } );
+                        push( @ports, $adminSslPort );
                     }
                 }
 

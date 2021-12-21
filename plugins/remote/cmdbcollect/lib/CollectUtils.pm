@@ -358,7 +358,7 @@ sub getMemSizeFromStr {
     chomp($sizeStr);
     $sizeStr =~ s/,//g;
 
-    if ( defined($defaultUnit) and $sizeStr =~ /\d$/ ){
+    if ( defined($defaultUnit) and $sizeStr =~ /\d$/ ) {
         $sizeStr = $sizeStr . $defaultUnit;
     }
 
@@ -380,6 +380,7 @@ sub getMemSizeFromStr {
         $size = ( $sizeStr + 0.0 ) * 1024 * 1024 * 1024;
     }
     elsif ( $sizeStr =~ /\d$/i ) {
+
         #默认是MB
         $size = $sizeStr + 0.0;
     }

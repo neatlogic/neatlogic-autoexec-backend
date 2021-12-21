@@ -105,7 +105,7 @@ sub collect {
                     $port  = int($2);
                     if ( defined( $lsnPorts->{$port} ) ) {
                         $appInfo->{ uc("${proto}_PORT") } = $port;
-                        push( @ports, { VALUE => $port } );
+                        push( @ports, $port );
 
                         if ( $port < $minPort ) {
                             $minPort = $port;

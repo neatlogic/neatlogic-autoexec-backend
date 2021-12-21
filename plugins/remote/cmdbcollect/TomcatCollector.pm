@@ -112,7 +112,7 @@ sub collect {
                 print("WARN: Can not find Connector for port define in $confFile, failed.\n");
                 return;
             }
-            $appInfo->{PORT}     = int($port);
+            $appInfo->{PORT} = int($port);
             if ( defined($sslPort) ) {
                 $appInfo->{SSL_PORT} = int($sslPort);
             }

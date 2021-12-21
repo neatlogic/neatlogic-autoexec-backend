@@ -16,6 +16,7 @@ use IO::File;
 use CollectObjCat;
 
 use Data::Dumper;
+
 #需要权限：
 #sys系统表的只读权限
 #Master库的只读权限
