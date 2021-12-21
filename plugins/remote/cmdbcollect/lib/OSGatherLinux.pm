@@ -559,6 +559,7 @@ sub getMiscInfo {
 
 sub getPerformanceInfo {
     my ( $self, $osInfo ) = @_;
+    my $utils = $self->{collectUtils};
 
     my $hasCpuSum = 0;
     my $userCpu   = 0.0;

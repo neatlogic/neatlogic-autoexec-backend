@@ -288,7 +288,7 @@ sub getASMDiskGroup {
         verbose => $isVerbose
     );
 
-    if ( scalar(@$rows) == 0 ) {
+    if ( not defined($rows) or scalar(@$rows) == 0 ) {
         print("INFO: There no ASM disk used.\n");
         return \@diskGroups;
     }
