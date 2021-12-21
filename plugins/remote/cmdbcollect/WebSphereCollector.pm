@@ -113,7 +113,7 @@ sub getPorts {
                 elsif ( index( $portDef, '"SOAP_CONNECTOR_ADDRESS"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $soapPort = int($1);
-                        push( @ports, { VALUE => $soapPort } );
+                        push( @ports, $soapPort );
                     }
                 }
             }
