@@ -1,11 +1,10 @@
 {
-    "label": "应用模块",
+    "label": "Application Module",
     "collection": "COLLECT_APPLICATION",
     "filter": {
         "_OBJ_TYPE": "APPLICATION_MODULE"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -17,7 +16,7 @@
         },
         {
             "name": "APPMODULE_NAME",
-            "desc": "应用模块名",
+            "desc": "Application Module Name",
             "type": "String"
         }
     ]

@@ -1,11 +1,10 @@
 {
-    "label": "Application",
+    "label": "应用",
     "collection": "COLLECT_APPLICATION",
     "filter": {
         "_OBJ_TYPE": "APPLICATION"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -17,7 +16,7 @@
         },
         {
             "name": "APP_NAME",
-            "desc": "Application Name",
+            "desc": "应用简称",
             "type": "String"
         }
     ]
