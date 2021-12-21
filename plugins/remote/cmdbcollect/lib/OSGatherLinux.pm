@@ -566,8 +566,9 @@ sub getPerformanceInfo {
     my $sysCpu    = 0.0;
     my $iowait    = 0.0;
 
+    my $status = 0;
     my @fieldNames;
-    my $topLines  = $self->getCmdOutLines('top -bn1 -o %CPU | head -22');
+    my $topLines  = $self->getCmdOutLines('top -bn1 | head -22');
     my $lineCount = scalar(@$topLines);
     my $k         = 0;
     for ( $k = 0 ; $k < $lineCount ; $k++ ) {
@@ -628,7 +629,11 @@ sub getPerformanceInfo {
         }
     }
 
-    $topLines = $self->getCmdOutLines('top -bn1 -o %MEM | head -17');
+    ( $status, $topLines ) = $self->getCmdOutLines( 'top -bn1 -o %MEM | head -17', undef, { nowarn => 1 } );
+    if ( $status != 0 ) {
+        $topLines = $self->getCmdOutLines('top -bn1 -a | head -17');
+    }
+
     for ( $k = 0 ; $k < $lineCount ; $k++ ) {
         my $line = $$topLines[$k];
         if ( $line =~ /^\s*PID/ ) {
