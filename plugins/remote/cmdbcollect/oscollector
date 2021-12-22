@@ -51,147 +51,11 @@ sub collectTimeout {
     }
 }
 
-sub main {
-    $ENV{LANG} = 'C';
-    AutoExecUtils::setEnv();
-    my $osInfo;
-    my $osType = ( uname() )[0];
-    $osType =~ s/\s.*$//;
+#加载各个Collector，调用getConfig方法获取Process的filter配置
+sub getProcessFilters {
+    my ($collectClassMap) = @_;
 
-    $SIG{ALRM} = \&collectTimeout;
-
-    my $isVerbose = 0;
-    my $isDebug   = 0;
-    my $inspect   = 0;
-    my $classDef;
-    my $defaultPassConf;
-
-    GetOptions(
-        'verbose=i'         => \$isVerbose,
-        'debug=i'           => \$isDebug,
-        'class=s'           => \$classDef,
-        'inspect=i'         => \$inspect,
-        'defaultpassconf=s' => \$defaultPassConf
-    );
-    my @myOpts = @ARGV;
-
-    if ( defined($isDebug) and $isDebug eq 1 ) {
-        $ENV{OSCOLLECT_DEBUG} = 1;
-    }
-
-    # GetOptionsFromArray(
-    #     \@myOpts,
-    #     'verbose=i'         => \$isVerbose,
-    #     'class=s'           => \$classDef,
-    #     'defaultpassconf=s' => \$defaultPassConf
-    # );
-
-    #拼装账户参数
-    my $accountInfo = {};
-    for ( my $i = 0 ; $i < $#myOpts ; $i++ ) {
-        my $item = $myOpts[$i];
-        if ( substr( $item, 0, 1 ) eq '-' ) {
-            $item =~ s/^--?//;
-            my $optName = $item;
-            my $optVal  = $myOpts[ $i + 1 ];
-            $i = $i + 1;
-            $accountInfo->{$optName} = $optVal;
-        }
-    }
-
-    my $ignoreOsInfo = 0;
-    my $collectClassMap;
-    if ( defined($classDef) and $classDef ne '' ) {
-        if ( $classDef ne 'OS' ) {
-            $ignoreOsInfo = 1;
-        }
-
-        $collectClassMap = { OS => 1 };
-        map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
-    }
-
-    # Example:
-    #Mysql:${mysqlaccount},Postgresql:${pgaccount}
-    #Mysql:root/pass1234,Postgresql:demo/test1234
-    # 转换为:
-    # {
-    #     "Mysql":{
-    #         "username":"root",
-    #         "password":"mypassword"
-    #     },
-    #     "Postgresql":{
-    #         "username":"pgroot",
-    #         "password":"pgpassword"
-    #     }
-    # }
-    my $passArgs = {};
-    if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
-        $defaultPassConf =~ s/#\{\s*(\w+)\s*\}/$accountInfo->{$1}/g;
-        $defaultPassConf = $defaultPassConf . ',H:H/H';
-
-        while ( $defaultPassConf =~ /(.*?),(?=\w+:\w+\/)/g ) {
-            my $part = $1;
-            if ( $part =~ /^(\w+):(\w+)\/(.*)$/ ) {
-                my $account = {};
-                $account->{username} = $2;
-                $account->{password} = $3;
-                $passArgs->{$1}      = $account;
-            }
-        }
-    }
-
-    #收集OS和硬件信息
-    my ( $hostInfo, $osInfo, $ipAddrs, $ipv6Addrs );
-    if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
-        print("INFO: Begin to collect OS information...\n");
-        my $osGather = OSGather->new( $ignoreOsInfo, $inspect );
-        ( $hostInfo, $osInfo ) = $osGather->collect();
-        if ( defined($hostInfo) ) {
-            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
-            $hostInfo->{_OBJ_TYPE}     = 'HOST';
-            $hostInfo->{OS_ID}         = $osGather->{osId};
-            $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
-            $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $hostInfo->{PK}            = ['BOARD_SERIAL'];
-            $hostInfo->{INDEX_FIELDS}  = ['OS_ID'];
-        }
-
-        if ( defined($osInfo) ) {
-            $osInfo->{_OBJ_CATEGORY} = CollectObjCat->get('OS');
-            $osInfo->{_OBJ_TYPE}     = $osType;
-            $osInfo->{OS_TYPE}       = $osType;
-            $osInfo->{OS_ID}         = $osGather->{osId};
-            $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
-            $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $osInfo->{PK}            = ['MGMT_IP'];
-            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
-
-            if ( defined($hostInfo) and defined( $hostInfo->{BOARD_SERIAL} ) ) {
-                $osInfo->{HOST_ON} = [
-                    {
-                        '_OBJ_CATEGORY' => 'HOST',
-                        '_OBJ_TYPE'     => 'HOST',
-                        'BOARD_SERIAL'  => $hostInfo->{BOARD_SERIAL}
-                    }
-                ];
-            }
-            else {
-                $osInfo->{HOST_ON} = [];
-            }
-        }
-
-        $ipAddrs   = $osInfo->{IP_ADDRS};
-        $ipv6Addrs = $osInfo->{IPV6_ADDRS};
-        print("INFO: OS information collected.\n");
-    }
-
-    my $appsMap = {};
-
-    #获取收集网络信息的实现类
-    my $connGather = ConnGather->new($inspect);
-
-    #加载各个Collector，调用getConfig方法获取Process的filter配置
-    my @procFilters;
+    my @procFilters = ();
     for my $collectorPmPath ( glob("$FindBin::Bin/*Collector.pm") ) {
         my $collectorName = basename($collectorPmPath);
         if ( $collectorName eq 'DemoCollector.pm' or $collectorName eq 'BaseCollector.pm' ) {
@@ -225,144 +89,68 @@ sub main {
     #使用filter的seq值进行排序，控制先后匹配的次序，用于standalone应用的匹配
     @procFilters = sort { $a->{seq} <=> $b->{seq} } @procFilters;
 
-    #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
-    #此回调函数会初始化Collector类并调用其collect方法
-    my $cb = sub {
-        my ( $collectorClass, $procInfo, $matchedProcsInfo ) = @_;
+    return \@procFilters;
+}
 
-        #collectorClass: 收集器类名
-        #procInfo；ps的进程信息
-        #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
+#收集OS和硬件信息
+sub collectHostOSInfo {
+    my ( $osType, $collectClassMap, $ignoreOsInfo, $inspect ) = @_;
 
-        my $isMatched = 0;
-        my $objCat;
-        my $pid     = $procInfo->{PID};
-        my $objType = $procInfo->{_OBJ_TYPE};
-        print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
-        my $connInfo;
-        if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
-            $connInfo = { PEER => {}, LISTEN => {} };
+    my ( $hostInfo, $osInfo );
+    if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
+        print("INFO: Begin to collect OS information...\n");
+        my $osGather = OSGather->new( $ignoreOsInfo, $inspect );
+        ( $hostInfo, $osInfo ) = $osGather->collect();
+        if ( defined($hostInfo) ) {
+            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
+            $hostInfo->{_OBJ_TYPE}     = 'HOST';
+            $hostInfo->{OS_ID}         = $osGather->{osId};
+            $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $hostInfo->{PK}            = ['BOARD_SERIAL'];
+            $hostInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
         else {
-            $connInfo = $connGather->getConnInfo($pid);
-            $procInfo->{CONN_INFO} = $connInfo;
-        }
-        print("INFO: Process connection infomation collected.\n");
-
-        my $collector;
-        my @appInfos;
-        my $pkConfig;
-
-        alarm($SINGLE_TIMEOUT);
-        eval {
-            $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
-            @appInfos  = $collector->collect($procInfo);
-            $pkConfig  = $collector->getPK();
-        };
-        alarm(0);
-
-        if ($@) {
-            print("ERROR: $collectorClass return failed, $@\n");
-            return 0;
+            $hostInfo = {};
         }
 
-        my $idx = 0;
-        for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
-            my $appInfo = $appInfos[$idx];
-            $isMatched = 1;
+        if ( defined($osInfo) ) {
+            $osInfo->{_OBJ_CATEGORY} = CollectObjCat->get('OS');
+            $osInfo->{_OBJ_TYPE}     = $osType;
+            $osInfo->{OS_TYPE}       = $osType;
+            $osInfo->{OS_ID}         = $osGather->{osId};
+            $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
+            $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
+            $osInfo->{PK}            = ['MGMT_IP'];
+            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
 
-            $objCat = $appInfo->{_OBJ_CATEGORY};
-            if ( not defined($objCat) ) {
-                $objCat = CollectObjCat->get('INS');
-                $appInfo->{_OBJ_CATEGORY} = $objCat;
+            if ( defined($hostInfo) and defined( $hostInfo->{BOARD_SERIAL} ) ) {
+                $osInfo->{HOST_ON} = [
+                    {
+                        '_OBJ_CATEGORY' => 'HOST',
+                        '_OBJ_TYPE'     => 'HOST',
+                        'BOARD_SERIAL'  => $hostInfo->{BOARD_SERIAL}
+                    }
+                ];
             }
             else {
-                if ( not CollectObjCat->validate( $appInfo->{_OBJ_CATEGORY} ) ) {
-                    return 0;
-                }
+                $osInfo->{HOST_ON} = [];
             }
-
-            $objType = $appInfo->{_OBJ_TYPE};
-            if ( not defined($objType) ) {
-                $objType = $procInfo->{_OBJ_TYPE};
-                $appInfo->{_OBJ_TYPE} = $objType;
-            }
-            print("INFO: Matched Object Type:$objCat/$objType.\n");
-
-            $appInfo->{PROC_INFO} = $procInfo;
-            if ( $idx == 0 ) {
-                $appsMap->{ $procInfo->{PID} } = $appInfo;
-            }
-            else {
-                $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
-            }
-
-            $appInfo->{OS_ID}       = $procInfo->{OS_ID};
-            $appInfo->{OS_USER}     = $procInfo->{USER};
-            $appInfo->{COMMAND}     = $procInfo->{COMMAND};
-            $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
-            $appInfo->{MGMT_PORT}   = $procInfo->{MGMT_PORT};
-            $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'};
-
-            if ( $osType eq 'Windows' ) {
-                $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;
-                $appInfo->{MEM_PERCENT} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
-            }
-            else {
-                $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
-                $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
-            }
-
-            my $envMap      = $procInfo->{ENVIRONMENT};
-            my $insNamePath = $envMap->{TS_INSNAME};
-            if ( defined($insNamePath) and $insNamePath ne '' ) {
-                my @insPaths = split( '/', $insNamePath );
-                if ( scalar(@insPaths) > 1 ) {
-                    $appInfo->{BELONG_APPLICATION} = [
-                        {
-                            _OBJ_CATEGORY => 'APPLICATION',
-                            _OBJ_TYPE     => 'APPLICATION',
-                            APP_NAME      => $insPaths[0],
-                        }
-                    ];
-                    $appInfo->{BELONG_APPLICATION_MODULE} = [
-                        {
-                            _OBJ_CATEGORY  => 'APPLICATION',
-                            _OBJ_TYPE      => 'APPLICATION_MODULE',
-                            APPMODULE_NAME => $insPaths[1],
-                        }
-                    ];
-                }
-                else {
-                    $appInfo->{BELONG_APPLICATION}        = [];
-                    $appInfo->{BELONG_APPLICATION_MODULE} = [];
-                }
-            }
-
-            if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
-                $appInfo->{PK} = $pkConfig->{$objType};
-            }
-            else {
-                $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
-                print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
-            }
-            $appInfo->{RUN_ON} = [
-                {
-                    '_OBJ_CATEGORY' => 'OS',
-                    '_OBJ_TYPE'     => $osType,
-                    'OS_ID'         => $procInfo->{OS_ID},
-                    'MGMT_IP'       => $procInfo->{MGMT_IP}
-                }
-            ];
+        }
+        else {
+            $osInfo = {};
         }
 
-        return $isMatched;
-    };
+        print("INFO: OS information collected.\n");
+    }
 
-    my $pFinder = ProcessFinder->new( \@procFilters, callback => $cb, inspect => $inspect );
-    $pFinder->findProcess();
+    return ( $osInfo, $hostInfo );
+}
 
-    #处理存在父子关系的进程的连接信息，并合并到父进程
+#处理存在父子关系的进程的连接信息，并合并到父进程
+sub mergeMultiProcs {
+    my ( $pFinder, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
+
     my $pidToDel = ();
     my @apps     = ();
     print("INFO: Begin to merge connection information with parent processes...\n");
@@ -498,18 +286,262 @@ sub main {
         }
     }
 
-    print("INFO: Begin to save collected data.\n");
+    return \@apps;
+}
 
+#提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
+#此回调函数会初始化Collector类并调用其collect方法
+sub doDetailCollect {
+    my ( $collectorClass, $procInfo, $matchedProcsInfo, $appsMap, $osType, $passArgs, $osInfo, $connGather ) = @_;
+
+    #collectorClass: 收集器类名
+    #procInfo；ps的进程信息
+    #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
+    print("DEBUG: osType:$osType\n");
+
+    my $isMatched = 0;
+    my $objCat;
+    my $pid     = $procInfo->{PID};
+    my $objType = $procInfo->{_OBJ_TYPE};
+    print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
+    my $connInfo;
+    if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
+        $connInfo = { PEER => {}, LISTEN => {} };
+    }
+    else {
+        $connInfo = $connGather->getConnInfo($pid);
+        $procInfo->{CONN_INFO} = $connInfo;
+    }
+    print("INFO: Process connection infomation collected.\n");
+
+    my $collector;
+    my @appInfos;
+    my $pkConfig;
+
+    alarm($SINGLE_TIMEOUT);
+    eval {
+        $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
+        @appInfos  = $collector->collect($procInfo);
+        $pkConfig  = $collector->getPK();
+    };
+    alarm(0);
+
+    if ($@) {
+        print("ERROR: $collectorClass return failed, $@\n");
+        return 0;
+    }
+
+    my $idx = 0;
+    for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
+        my $appInfo = $appInfos[$idx];
+        $isMatched = 1;
+
+        $objCat = $appInfo->{_OBJ_CATEGORY};
+        if ( not defined($objCat) ) {
+            $objCat = CollectObjCat->get('INS');
+            $appInfo->{_OBJ_CATEGORY} = $objCat;
+        }
+        else {
+            if ( not CollectObjCat->validate( $appInfo->{_OBJ_CATEGORY} ) ) {
+                return 0;
+            }
+        }
+
+        $objType = $appInfo->{_OBJ_TYPE};
+        if ( not defined($objType) ) {
+            $objType = $procInfo->{_OBJ_TYPE};
+            $appInfo->{_OBJ_TYPE} = $objType;
+        }
+        print("INFO: Matched Object Type:$objCat/$objType.\n");
+
+        $appInfo->{PROC_INFO} = $procInfo;
+        if ( $idx == 0 ) {
+            $appsMap->{ $procInfo->{PID} } = $appInfo;
+        }
+        else {
+            $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
+        }
+
+        $appInfo->{OS_ID}       = $procInfo->{OS_ID};
+        $appInfo->{OS_USER}     = $procInfo->{USER};
+        $appInfo->{COMMAND}     = $procInfo->{COMMAND};
+        $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
+        $appInfo->{MGMT_PORT}   = $procInfo->{MGMT_PORT};
+        $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'};
+
+        if ( $osType eq 'Windows' ) {
+            $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;
+            $appInfo->{MEM_PERCENT} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
+        }
+        else {
+            $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
+            $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
+        }
+
+        my $envMap      = $procInfo->{ENVIRONMENT};
+        my $insNamePath = $envMap->{TS_INSNAME};
+        if ( defined($insNamePath) and $insNamePath ne '' ) {
+            my @insPaths = split( '/', $insNamePath );
+            if ( scalar(@insPaths) > 1 ) {
+                $appInfo->{BELONG_APPLICATION} = [
+                    {
+                        _OBJ_CATEGORY => 'APPLICATION',
+                        _OBJ_TYPE     => 'APPLICATION',
+                        APP_NAME      => $insPaths[0],
+                    }
+                ];
+                $appInfo->{BELONG_APPLICATION_MODULE} = [
+                    {
+                        _OBJ_CATEGORY  => 'APPLICATION',
+                        _OBJ_TYPE      => 'APPLICATION_MODULE',
+                        APPMODULE_NAME => $insPaths[1],
+                    }
+                ];
+            }
+            else {
+                $appInfo->{BELONG_APPLICATION}        = [];
+                $appInfo->{BELONG_APPLICATION_MODULE} = [];
+            }
+        }
+
+        if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
+            $appInfo->{PK} = $pkConfig->{$objType};
+        }
+        else {
+            $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
+            print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
+        }
+        $appInfo->{RUN_ON} = [
+            {
+                '_OBJ_CATEGORY' => 'OS',
+                '_OBJ_TYPE'     => $osType,
+                'OS_ID'         => $procInfo->{OS_ID},
+                'MGMT_IP'       => $procInfo->{MGMT_IP}
+            }
+        ];
+    }
+
+    return $isMatched;
+}
+
+sub main {
+    $ENV{LANG} = 'C';
+    AutoExecUtils::setEnv();
+    my $osInfo;
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
+
+    $SIG{ALRM} = \&collectTimeout;
+
+    my $isVerbose = 0;
+    my $isDebug   = 0;
+    my $inspect   = 0;
+    my $classDef;
+    my $defaultPassConf;
+
+    GetOptions(
+        'verbose=i'         => \$isVerbose,
+        'debug=i'           => \$isDebug,
+        'class=s'           => \$classDef,
+        'inspect=i'         => \$inspect,
+        'defaultpassconf=s' => \$defaultPassConf
+    );
+    my @myOpts = @ARGV;
+
+    if ( defined($isDebug) and $isDebug eq 1 ) {
+        $ENV{OSCOLLECT_DEBUG} = 1;
+    }
+
+    # GetOptionsFromArray(
+    #     \@myOpts,
+    #     'verbose=i'         => \$isVerbose,
+    #     'class=s'           => \$classDef,
+    #     'defaultpassconf=s' => \$defaultPassConf
+    # );
+
+    #拼装账户参数
+    my $accountInfo = {};
+    for ( my $i = 0 ; $i < $#myOpts ; $i++ ) {
+        my $item = $myOpts[$i];
+        if ( substr( $item, 0, 1 ) eq '-' ) {
+            $item =~ s/^--?//;
+            my $optName = $item;
+            my $optVal  = $myOpts[ $i + 1 ];
+            $i = $i + 1;
+            $accountInfo->{$optName} = $optVal;
+        }
+    }
+
+    my $ignoreOsInfo = 0;
+    my $collectClassMap;
+    if ( defined($classDef) and $classDef ne '' ) {
+        if ( $classDef ne 'OS' ) {
+            $ignoreOsInfo = 1;
+        }
+
+        $collectClassMap = { OS => 1 };
+        map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
+    }
+
+    # Example:
+    #Mysql:${mysqlaccount},Postgresql:${pgaccount}
+    #Mysql:root/pass1234,Postgresql:demo/test1234
+    # 转换为:
+    # {
+    #     "Mysql":{
+    #         "username":"root",
+    #         "password":"mypassword"
+    #     },
+    #     "Postgresql":{
+    #         "username":"pgroot",
+    #         "password":"pgpassword"
+    #     }
+    # }
+    my $passArgs = {};
+    if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
+        $defaultPassConf =~ s/#\{\s*(\w+)\s*\}/$accountInfo->{$1}/g;
+        $defaultPassConf = $defaultPassConf . ',H:H/H';
+
+        while ( $defaultPassConf =~ /(.*?),(?=\w+:\w+\/)/g ) {
+            my $part = $1;
+            if ( $part =~ /^(\w+):(\w+)\/(.*)$/ ) {
+                my $account = {};
+                $account->{username} = $2;
+                $account->{password} = $3;
+                $passArgs->{$1}      = $account;
+            }
+        }
+    }
+
+    #收集OS和硬件信息
+    my ( $osInfo, $hostInfo ) = collectHostOSInfo( $osType, $collectClassMap, $ignoreOsInfo, $inspect );
+    my $ipAddrs   = $osInfo->{IP_ADDRS};
+    my $ipv6Addrs = $osInfo->{IPV6_ADDRS};
+
+    #获取收集网络信息的实现类
+    my $connGather = ConnGather->new($inspect);
+
+    #加载各个Collector，调用getConfig方法获取Process的filter配置
+    my $procFilters = getProcessFilters($collectClassMap);
+
+    my $pFinder = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect );
+    my $appsMap = $pFinder->findProcess();
+
+    #处理存在父子关系的进程的连接信息，并合并到父进程
+    my $apps = mergeMultiProcs( $pFinder, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
+
+    #保存数据到output
+    print("INFO: Begin to save collected data.\n");
     my @data = ();
     if ( $ignoreOsInfo == 0 ) {
-        if ( defined($hostInfo) ) {
+        if (%$hostInfo) {
             push( @data, $hostInfo );
         }
-        if ( defined($osInfo) ) {
+        if (%$osInfo) {
             push( @data, $osInfo );
         }
     }
-    push( @data, @apps );
+    push( @data, @$apps );
 
     my $out = {};
     $out->{DATA} = \@data;

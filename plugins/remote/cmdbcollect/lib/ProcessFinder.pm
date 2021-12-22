@@ -36,8 +36,12 @@ sub new {
     #......
 
     my $self = {
-        callback => $args{callback},
-        inspect  => $args{inspect}
+        callback   => $args{callback},
+        inspect    => $args{inspect},
+        connGather => $args{connGather},
+        appsMap    => {},
+        osInfo     => $args{osInfo},
+        passArgs   => $args{passArgs}
     };
 
     $self->{procFilters}      = $procFilters;
@@ -280,8 +284,7 @@ sub findProcess {
                             $envMap = $self->getProcEnv($myPid);
                         }
                         $matchedMap->{ENVIRONMENT} = $envMap;
-
-                        my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo} );
+                        my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo}, $self->{appsMap}, $self->{ostype}, $self->{passArgs}, $self->{osInfo}, $self->{connGather} );
                         if ( $matched == 1 ) {
                             $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                         }
@@ -303,6 +306,8 @@ sub findProcess {
     else {
         print("ERROR: Can not launch list process command:$self->{listProcCmd}\n");
     }
+
+    return $self->{appsMap};
 }
 
 1;
