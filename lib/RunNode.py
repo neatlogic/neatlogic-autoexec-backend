@@ -849,7 +849,8 @@ class RunNode:
                     channel.exec_command(remoteCmd)
                     while True:
                         r, w, x = select.select([channel], [], [], 10)
-                        if len(r) > 0:
+                        # if len(r) > 0:
+                        while channel.recv_ready():
                             self.writeNodeLog(channel.recv(4096))
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
