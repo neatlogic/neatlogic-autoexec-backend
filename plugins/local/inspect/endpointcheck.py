@@ -559,8 +559,8 @@ if __name__ == "__main__":
 
             saveInspectData(inspectInfo)
         except Exception as ex:
-            inspectInfo['AVAILABILITY'] = 0
-            inspectInfo['ERROR_MESSAGE'] = str(ex)
+            inspectInfo = {'AVAILABILITY': 0,
+                           'ERROR_MESSAGE': str(ex)}
             saveInspectData(inspectInfo)
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))

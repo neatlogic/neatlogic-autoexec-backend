@@ -621,7 +621,7 @@ class ServerAdapter:
             return {}
 
         params = {
-            'tenent': self.context.tenent,
+            'tenant': self.context.tenant,
             'resourceId': resourceId
         }
 
