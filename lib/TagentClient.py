@@ -734,7 +734,9 @@ class TagentClient:
             if isVerbose == 1:
                 print("INFO: Write file {} begin...".format(dest))
 
-            self.__writeChunk(sock, content)
+            if (len(content) > 0):
+                self.__writeChunk(sock, content)
+
             self.__writeChunk(sock)
             self.__readChunk(sock)
 
