@@ -29,6 +29,8 @@ from paramiko.ssh_exception import SSHException
 
 from ping3 import ping
 
+IS_FAIELD = False
+
 
 def usage():
     pname = os.path.basename(__file__)
@@ -69,6 +71,7 @@ def tcpCheck(endPoint, timeOut):
         sock.connect((host, port))
         print('INFO: Tcp handshake ' + endPoint + ' success.')
     except Exception as ex:
+        IS_FAIELD = True
         errorMsg = "ERROR: Can not connect {}.".format(endPoint)
         print(errorMsg)
         return (False, errorMsg)
@@ -87,6 +90,7 @@ def urlCheck(endPoint, timeOut):
         response = urllib.request.urlopen(req, timeout=timeOut)
         print('INFO: Http request ' + endPoint + ' success.')
     except HTTPError as ex:
+        IS_FAIELD = True
         errMsg = ex.code
         if ex.code > 500:
             content = ex.read()
@@ -94,6 +98,7 @@ def urlCheck(endPoint, timeOut):
         print(errorMsg)
         return (False, errorMsg)
     except URLError as ex:
+        IS_FAIELD = True
         errorMsg = "ERROR: Request url:{} failed, {}".format(url, ex.reason)
         print(errorMsg)
         return (False, errorMsg)
@@ -166,6 +171,7 @@ def execOneHttpReq(urlConf, valuesJar, timeOut):
             if matchObj:
                 valuesJar[varName] = matchObj.group(1)
     except Exception as ex:
+        IS_FAIELD = True
         errorMsg = str(ex)
 
     return (ret, errorMsg)
@@ -215,6 +221,7 @@ def urlSeqCheck(accessEndPoint, nodeInfo, timeOut):
                         hasError = True
                         break
                 except Exception as ex:
+                    IS_FAIELD = True
                     hasError = True
                     errorMsg = "ERROR: " + str(ex)
                     print(errorMsg)
@@ -232,10 +239,8 @@ def urlSeqCheck(accessEndPoint, nodeInfo, timeOut):
 
 
 def _remoteExecute(nodeInfo, scriptDef):
-    self.childPid = None
-
-    jobId = os.gentenv('AUTOEXEC_JOBID')
-    resourceId = nodeInfo['resoruceId']
+    jobId = os.getenv('AUTOEXEC_JOBID')
+    resourceId = nodeInfo['resourceId']
     host = nodeInfo['host']
     protocol = nodeInfo['protocol']
     protocolPort = nodeInfo['protocolPort']
@@ -262,7 +267,7 @@ def _remoteExecute(nodeInfo, scriptDef):
 
             tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
             uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
-            uploadRet = tagent.writeFile(username, scriptContent, remotePath + '/' + scriptName)
+            uploadRet = tagent.writeFile(username, scriptContent.encode(), remotePath + '/' + scriptName, isVerbose=1, convertCharset=1)
 
             if uploadRet == 0:
                 scriptCmd = getScriptCmd(scriptDef, tagent.agentOsType, remotePath)
@@ -275,24 +280,29 @@ def _remoteExecute(nodeInfo, scriptDef):
                     if (outLen > 1024):
                         output = output[outLen-1024:]
 
+                print('--------------------------------------------------------------------')
                 ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=getOutputLine)
-
+                print('--------------------------------------------------------------------')
                 try:
+                    print('INFO: Try to execute script command:{}'.format(scriptCmd))
                     if ret == 0:
                         if tagent.agentOsType == 'windows':
                             tagent.execCmd(username, "rd /s /q {}".format(remoteRoot), env=runEnv)
                         else:
                             tagent.execCmd(username, "rm -rf {}".format(remoteRoot), env=runEnv)
                 except Exception as ex:
-                    print('ERROR: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
+                    IS_FAIELD = True
+                    print('ERROR: Remote remove directory {} failed {}'.format(remoteRoot, ex))
+                    print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         except Exception as ex:
-            print("ERROR: Execute remote script {} failed, {}\n".format(scriptName, ex))
+            IS_FAIELD = True
+            print("ERROR: Execute remote script {} failed, {}".format(scriptName, ex))
             raise ex
 
         if ret == 0:
-            print("INFO: Execute remote script by agent succeed: {}\n".format(scriptCmd))
+            print("INFO: Execute remote script by agent succeed: {}".format(scriptCmd))
         else:
-            print("ERROR: Execute remote script by agent failed: {}\n".format(scriptCmd))
+            print("ERROR: Execute remote script by agent failed: {}".format(scriptCmd))
 
     elif protocol == 'ssh':
         logging.getLogger("paramiko").setLevel(logging.FATAL)
@@ -306,7 +316,7 @@ def _remoteExecute(nodeInfo, scriptDef):
         scp = None
         sftp = None
         try:
-            print("INFO: Begin to upload remote script...\n")
+            print("INFO: Begin to upload remote script...")
             # 建立连接
             scp = paramiko.Transport((host, protocolPort))
             scp.connect(username=username, password=password)
@@ -320,26 +330,31 @@ def _remoteExecute(nodeInfo, scriptDef):
                 except IOError:
                     sftp.mkdir(remoteRoot)
             except SFTPError as err:
+                IS_FAIELD = True
                 hasError = True
-                print("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
+                print("ERROR: mkdir {} failed: {}".format(remoteRoot, err))
 
-            tmp = tempfile.NamedTemporaryFile(delete=True)
+            tmp = tempfile.NamedTemporaryFile(delete=False)
             try:
-                tmp.write(scriptContent)
+                #print("WARN:DEBUG:" + tmp.name + ":" + scriptContent)
+                tmp.write(scriptContent.encode())
+                tmp.close()
                 sftp.put(tmp.name, os.path.join(remotePath, scriptName))
             finally:
-                tmp.close()
+                os.unlink(tmp.name)
 
             sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
+            scriptCmd = getScriptCmd(scriptDef, 'Linux', remotePath)
             remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
 
             if hasError == False:
                 uploaded = True
         except Exception as err:
-            print('ERROR: Upload script:{} to remoteRoot:{} failed: {}\n'.format(scriptName, remoteRoot, err))
-
+            IS_FAIELD = True
+            print('ERROR: Upload script:{} to remoteRoot:{} failed, {}'.format(scriptName, remoteRoot, err))
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         if uploaded:
-            print("INFO: Upload script success, begin to execute remote operation...\n")
+            print("INFO: Upload script success, begin to execute remote operation...")
             ssh = None
             try:
                 ret = 0
@@ -348,11 +363,13 @@ def _remoteExecute(nodeInfo, scriptDef):
                 ssh.connect(host, protocolPort, username, password)
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
+                print('INFO: Try to execute script command:{}'.format(scriptCmd))
+                print('--------------------------------------------------------------------')
                 channel.exec_command(remoteCmd)
                 while True:
                     r, w, x = select.select([channel], [], [], 10)
                     if len(r) > 0:
-                        out = channel.recv(4096)
+                        out = channel.recv(4096).decode()
                         print(out)
                         output = output + out
                         outLen = len(output)
@@ -366,10 +383,13 @@ def _remoteExecute(nodeInfo, scriptDef):
                     if ret == 0:
                         ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
                 except Exception as ex:
-                    print("ERROR: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
-
+                    IS_FAIELD = True
+                    print("ERROR: Remove remote directory {} failed {}".format(remoteRoot, ex))
+                    print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             except Exception as err:
-                print("ERROR: Execute remote script {} failed, {}\n".format(scriptName, err))
+                IS_FAIELD = True
+                print("ERROR: Execute remote script {} failed, {}".format(scriptName, err))
+                print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             finally:
                 if ssh:
                     ssh.close()
@@ -378,9 +398,9 @@ def _remoteExecute(nodeInfo, scriptDef):
                 scp.close()
 
         if ret == 0:
-            print("INFO: Execute remote script by ssh succeed:{}\n".format(scriptCmd))
+            print("INFO: Execute remote script by ssh succeed:{}".format(scriptCmd))
         else:
-            print("ERROR: Execute remote script by ssh failed:{}\n".format(scriptCmd))
+            print("ERROR: Execute remote script by ssh failed:{}".format(scriptCmd))
 
     result = False
     errorMsg = ''
@@ -412,7 +432,7 @@ def getScriptFileName(scriptDef):
         print("WARN: Can not determine script file extension name.")
         scriptFileName = scriptDef['config']['scriptName']
     else:
-        scriptFileName = scriptDef['config']['scriptName'] + '.' + extNameMap[interpreter]
+        scriptFileName = scriptDef['config']['scriptName'] + extNameMap[interpreter]
     return scriptFileName
 
 
@@ -434,6 +454,8 @@ def getScriptCmd(scriptDef, osType, remotePath):
         else:
             cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
 
+    return cmd
+
 
 def executeRemoteScript(accessEndPoint, nodeInfo, timeOut):
     ret = False
@@ -448,6 +470,7 @@ def executeRemoteScript(accessEndPoint, nodeInfo, timeOut):
         else:
             scriptId = scriptConf['script']
             scriptDef = AutoExecUtils.getScript(scriptId)
+            #print(json.dumps(scriptDef, ensure_ascii=False, sort_keys=True, indent=4))
             (ret, errorMsg) = _remoteExecute(nodeInfo, scriptDef)
     else:
         errorMsg = "ERROR: Script config error."
@@ -477,7 +500,7 @@ if __name__ == "__main__":
         if node is None:
             node = os.getenv('AUTOEXEC_NODE')
         if node is None or node == '':
-            print("ERROR: Can not find node definition.\n")
+            print("ERROR: Can not find node definition.")
             hasOptError = True
         else:
             nodeInfo = json.loads(node)
@@ -558,10 +581,16 @@ if __name__ == "__main__":
                 inspectInfo['RESPONSE_TIME'] = timeConsume
 
             saveInspectData(inspectInfo)
+            if (IS_FAIELD):
+                exit(1)
         except Exception as ex:
+            IS_FAIELD = True
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             inspectInfo = {'AVAILABILITY': 0,
                            'ERROR_MESSAGE': str(ex)}
             saveInspectData(inspectInfo)
+            exit(2)
     except Exception as ex:
+        IS_FAIELD = True
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)

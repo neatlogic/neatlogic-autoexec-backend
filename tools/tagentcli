@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose',  '-v', action='store_true', default=False, help='Verbose output')
     parser.add_argument('--binary',   '-b', action='store_true', default=False, help='Echange datq as binary')
-    parser.add_argument('--host',      default='127.0.0.1',  help='Host')
+    parser.add_argument('--host',     default='127.0.0.1',  help='Host')
     parser.add_argument('--port',     '-p', default='3939',  help='Port')
     parser.add_argument('--password', '-P', default='',  help='Password')
     parser.add_argument('--user',     '-u', default='root',  help='User name')
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             print("ERROR: writefile must has only two argument.\n")
             print("Example: /home/app/test 'the file content'\n")
             exit(-1)
-        status = tagent.writeFile(user, restArgs[1], restArgs[0], isVerbose, convertCharset)
+        status = tagent.writeFile(user, restArgs[1].encode(), restArgs[0], isVerbose, convertCharset)
     elif action == 'reload':
         status = tagent.reload()
 

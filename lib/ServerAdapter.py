@@ -31,6 +31,7 @@ class ServerAdapter:
             'getNodes': 'codedriver/public/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': 'codedriver/public/api/binary/public/file/download',
             'fetchScript': 'codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
+            'getScript': 'codedriver/public/api/rest/autoexec/script/active/version/get',
             'getAccount': 'codedriver/public/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': 'codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
@@ -432,9 +433,9 @@ class ServerAdapter:
             'operationId': scriptId
         }
 
-        url = self.serverBaseUrl + self.apiMap['fetchScript']
+        url = self.serverBaseUrl + self.apiMap['getScript']
         try:
-            response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
+            response = self.httpGET(self.apiMap['getScript'], self.authToken, params)
 
             if response.status == 200:
                 charset = response.info().get_content_charset()
