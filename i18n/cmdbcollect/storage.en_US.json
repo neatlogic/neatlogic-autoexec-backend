@@ -2,8 +2,7 @@
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -52,8 +51,7 @@
             "name": "LUNS",
             "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -84,8 +82,7 @@
             "name": "POOLS",
             "desc": "POOL List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -114,8 +111,7 @@
                     "name": "LUNS",
                     "desc": "LUNS In Pool",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "ID",
                             "desc": "ID",
                             "type": "String"
@@ -141,15 +137,14 @@
         },
         {
             "name": "UPTIME",
-            "desc": "Up Time",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
             "name": "VOLUMES",
             "desc": "Volume List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"

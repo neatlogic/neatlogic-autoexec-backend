@@ -19,41 +19,41 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5',                     #sysName
-        SN       => '1.3.6.1.4.1.3375.2.1.3.3.3.0',        #sysGeneralChassisSerialNum
-        IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',    #sysAdminIpAddr
-        MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2.0',        #sysPlatformInfoMarketingName
-                                                           #MODEL   => '1.3.6.1.4.1.3375.2.1.3.5.1', #sysPlatformInfoName
-        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',          #sysProductName
-        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2.0',          #sysProductVersion
-        UPTIME   => '1.3.6.1.4.1.3375.1.1.50'              #uptime
+        DEV_NAME => '1.3.6.1.2.1.1.5',                                    #sysName
+        SN       => '1.3.6.1.4.1.3375.2.1.3.3.3.0',                       #sysGeneralChassisSerialNum
+        IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',                   #sysAdminIpAddr
+        MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2.0',                       #sysPlatformInfoMarketingName
+                                                                          #MODEL   => '1.3.6.1.4.1.3375.2.1.3.5.1', #sysPlatformInfoName
+        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',                         #sysProductName
+        VERSION  => '1.3.6.1.4.1.3375.2.1.4.2.0',                         #sysProductVersion
+        UPTIME   => [ '1.3.6.1.2.1.1.3.0', '1.3.6.1.4.1.3375.1.1.50' ]    #uptime
     };
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',    #ltmVirtualServName
-            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',    #ltmVirtualServAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',    #ltmVirtualServPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'    #ltmVirtualServDefaultPool
+            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',               #ltmVirtualServName
+            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',               #ltmVirtualServAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',               #ltmVirtualServPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'               #ltmVirtualServDefaultPool
         },
 
         POOL => {
-            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',     #ltmPoolName
-            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',    #ltmPoolMonitorRule
-            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'      #ltmPoolLbMode
+            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',             #ltmPoolName
+            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',            #ltmPoolMonitorRule
+            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'              #ltmPoolLbMode
         },
 
         MEMBER => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',       #ltmPoolMemberNodeName
-            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',        #ltmPoolMemberAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',        #ltmPoolMemberPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'         #ltmPoolMemberPoolName
+            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',               #ltmPoolMemberNodeName
+            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',                #ltmPoolMemberAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',                #ltmPoolMemberPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'                 #ltmPoolMemberPoolName
         }
     };
 
     my $snatOidDef = {
         SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                #ltmTransAddrAddr
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                        #ltmTransAddrAddr
             }
 
             #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName

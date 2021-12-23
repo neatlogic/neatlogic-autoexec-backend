@@ -62,7 +62,8 @@ sub main {
     $data->{RESOURCE_ID}   = $node->{resourceId};
     $data->{MGMT_IP}       = $node->{host};
 
-    my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
+    #my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
+    my $upTime = int( $data->{UPTIME} );
     $data->{UPTIME} = $upTime;
 
     my @outData        = ($data);

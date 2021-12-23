@@ -62,6 +62,9 @@ sub main {
     $data->{RESOURCE_ID}   = $node->{resourceId};
     $data->{MGMT_IP}       = $node->{host};
 
+    my $upTime = int( $data->{UPTIME} );
+    $data->{UPTIME} = $upTime;
+
     my @outData        = ($data);
     my $virtualServers = $data->{VIRTUAL_SERVERS};
     foreach my $vsInfo (@$virtualServers) {

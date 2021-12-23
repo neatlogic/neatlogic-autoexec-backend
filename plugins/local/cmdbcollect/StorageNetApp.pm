@@ -14,6 +14,11 @@ use SnmpHelper;
 use CollectUtils;
 use Data::Dumper;
 
+#前提是NetApp开启snmp服务
+#ssh登录机头使用命令启用snmp
+#snmp ? 查看帮助
+#snmp init 1
+#snmp community add ro <community value>
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
@@ -69,10 +74,12 @@ sub new {
 
     #单值定义
     my $scalarOidDef = {
+        IOS_INFO                  => '1.3.6.1.2.1.1.1.0',            #sysDescr
         DEV_NAME                  => '1.3.6.1.2.1.1.5.0',            #sysName
-        UPTIME                    => '1.3.6.1.4.1.789.1.2.1.1.0',    #cpuUpTime (in hundredths of a second)
+        SYS_LOCATION              => '1.3.6.1.2.1.1.6.0',            #sysLocation
+        UPTIME                    => '1.3.6.1.2.1.1.3.0',            #cpuUpTime (in hundredths of a second)
         CPU_USAGE                 => '1.3.6.1.4.1.789.1.2.1.3.0',    #cpuBusyTimePerCent
-        VENDOR                    => '1.3.6.1.4.1.789.1.1.4.0',      #productVendor
+                                                                     #VENDOR                    => '1.3.6.1.4.1.789.1.1.4.0',      #productVendor
         MODEL                     => '1.3.6.1.4.1.789.1.1.5.0',      #productModel
         SN                        => ['1.3.6.1.4.1.789.1.1.9.0'],    #productSerialNum
         PRODUCT_TYPE              => '1.3.6.1.4.1.789.1.1.1.0',      #productType
@@ -108,7 +115,8 @@ sub new {
         },
         HBA_LIST   => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
         DF_VOLUMES => {
-            NAME               => '1.3.6.1.4.1.789.1.5.4.1.10',
+            NAME               => '1.3.6.1.4.1.789.1.5.4.1.2',
+            MOUNT_ON           => '1.3.6.1.4.1.789.1.5.4.1.10',
             CAPACITY           => '1.3.6.1.4.1.789.1.5.4.1.29',
             USED               => '1.3.6.1.4.1.789.1.5.4.1.30',
             FREE               => '1.3.6.1.4.1.789.1.5.4.1.31',
@@ -119,7 +127,8 @@ sub new {
         }
     };
 
-    $self->{tableOidDef} = $tableOidDef;
+    $self->{scalarOidDef} = $scalarOidDef;
+    $self->{tableOidDef}  = $tableOidDef;
 
     $self->{snmpSession} = $session;
 
@@ -137,15 +146,28 @@ sub getScalar {
     my $snmp         = $self->{snmpSession};
     my $scalarOidDef = $self->{scalarOidDef};
 
+    # 'UPTIME' => '246 days, 12:16:27.24',
+    # 'CPU_USAGE' => 4,
+    # 'PRODUCT_VERSION' => 'NetApp Release 8.2.3P3 7-Mode: Tue Apr 28 14:48:22 PDT 2015',
+    # 'SN' => '451640000063',
+    # 'FAILED_POWER_SUPPLY_COUNT' => 0,
+    # 'DEV_NAME' => 'corenas01.nas-02.prd.bsz.com',
+    # 'PRODUCT_TYPE' => 2,
+    # 'FAILED_FAN_COUNT' => 0,
+    # 'OVER_TEMPERATURE' => 'no',
+    # 'MODEL' => 'FAS8040',
+    # 'VENDOR' => 1,
+    # 'GLOBAL_STATUS' => 3
     my $snmpHelper = $self->{snmpHelper};
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
-    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} / 86400 + 0.5 ) / 100;
+    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} );
 
     my $overTemperatureMap = { 1 => 'no', 2 => 'yes' };
     $scalarData->{OVER_TEMPERATURE} = $overTemperatureMap->{ $scalarData->{OVER_TEMPERATURE} };
 
-    #my $globalStatusMap = {1=>'other', 2=>'unknown', 3=>'ok', 4=>'nonCritical', 5=>'critical', 6=>'nonRecoverable'};
+    my $globalStatusMap = { 1 => 'other', 2 => 'unknown', 3 => 'ok', 4 => 'nonCritical', 5 => 'critical', 6 => 'nonRecoverable' };
+    $scalarData->{GLOBAL_STATUS} = $globalStatusMap->{ $scalarData->{GLOBAL_STATUS} };
 
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$scalarData) ) {
@@ -232,7 +254,7 @@ sub getPools {
         $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
 
-        if ( $dfName ne '' ) {
+        if ( $dfName ne '' and $dfName =~ /\/vol\// ) {
             push( @validDfVolumes, $dfVolInfo );
         }
     }
@@ -247,12 +269,15 @@ sub getPools {
 
 sub collect {
     my ($self) = @_;
-    print("INFO: Try to grap NetApp by snmp.\n");
+    print("INFO: Try to collect NetApp information by snmp.\n");
 
     $self->getScalar();
     $self->getPools();
 
-    return $self->{DATA};
+    my $data = $self->{DATA};
+    $data->{VENDOR} = 'NetApp';
+
+    return $data;
 }
 
 1;

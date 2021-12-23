@@ -109,7 +109,7 @@
         },
         {
             "name": "UPTIME",
-            "desc": "Up Time",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {

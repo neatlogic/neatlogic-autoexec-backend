@@ -70,8 +70,10 @@ sub new {
     #单值定义
     #TODO: 需要确认这些OID最后是否需要加上“.0”，大部分简单值的OID后面都是有.0
     my $scalarOidDef = {
+        IOS_INFO      => '1.3.6.1.2.1.1.1.0',              #sysDescr
         SN            => ['1.3.6.1.4.1.34774.4.1.1.1'],    #deviceId
         VERSION       => '1.3.6.1.4.1.34774.4.1.1.6',      #Version
+        UPTIME        => '1.3.6.1.2.1.1.3.0',              #cpuUpTime (in hundredths of a second)
         DEV_NAME      => '1.3.6.1.2.1.1.5.0',              #sysName
         GLOBAL_STATUS => '1.3.6.1.4.1.34774.4.1.1.3',      #status
         CPU_USAGE     => '1.3.6.1.4.1.789.1.2.1.3.0',      #cpuBusyTimePerCent
@@ -110,7 +112,8 @@ sub new {
         }
     };
 
-    $self->{tableOidDef} = $tableOidDef;
+    $self->{scalarOidDef} = $scalarOidDef;
+    $self->{tableOidDef}  = $tableOidDef;
 
     $self->{snmpSession} = $session;
 
@@ -131,8 +134,8 @@ sub getScalar {
     my $snmpHelper = $self->{snmpHelper};
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
-    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} / 86400 + 0.5 ) / 100;
-
+    #$scalarData->{UPTIME} = int( $scalarData->{UPTIME} / 86400 + 0.5 ) / 100;
+    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} );
     my $overTemperatureMap = { 1 => 'no', 2 => 'yes' };
     $scalarData->{OVER_TEMPERATURE} = $overTemperatureMap->{ $scalarData->{OVER_TEMPERATURE} };
 
