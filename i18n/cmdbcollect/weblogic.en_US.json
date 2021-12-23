@@ -185,6 +185,11 @@
             "type": "Float"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
             "type": "Float"
@@ -344,11 +349,6 @@
             "name": "DOMAIN_NAME",
             "desc": "Domain Name",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
         },
         {
             "name": "REF_CLUSTER",

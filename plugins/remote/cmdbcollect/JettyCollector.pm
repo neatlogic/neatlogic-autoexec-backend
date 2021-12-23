@@ -97,7 +97,7 @@ sub collect {
         if ( $lsnPortInfo =~ /:(\d+)$/ or $lsnPortInfo =~ /^(\d+)$/ ) {
             my $lsnPort = int($1);
             if ( $jmxPort ne $lsnPort and $lsnPort < $minPort ) {
-                $minPort = $lsnPort;
+                $minPort = int($lsnPort);
             }
             push( @ports, $lsnPort );
         }

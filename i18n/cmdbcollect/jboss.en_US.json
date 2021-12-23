@@ -190,6 +190,11 @@
             "type": "Float"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
             "type": "Float"
@@ -317,11 +322,6 @@
             "name": "JBOSS_HOME",
             "desc": "JBoss Home Dir",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
         },
         {
             "name": "REF_CLUSTER",

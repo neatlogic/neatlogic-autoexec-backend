@@ -136,6 +136,11 @@
             "type": "Float"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "最小Heap Size",
+            "type": "Float"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "最大Heap(M)",
             "type": "Float"
@@ -263,11 +268,6 @@
             "name": "INITIAL_MASTER_NODES",
             "desc": "初始Mater节点",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "最小Heap Size",
-            "type": "Float"
         },
         {
             "name": "NODE_NAME",

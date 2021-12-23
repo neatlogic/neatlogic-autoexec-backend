@@ -185,6 +185,11 @@
             "type": "Float"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "最小Heap Size",
+            "type": "Float"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "最大Heap(M)",
             "type": "Float"
@@ -317,11 +322,6 @@
             "name": "JETTY_HOME",
             "desc": "Jetty Home目录",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "最小Heap Size",
-            "type": "Float"
         },
         {
             "name": "REF_CLUSTER",

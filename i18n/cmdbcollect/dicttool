@@ -85,6 +85,7 @@ def getDefaultFieldKeys():
         'CPU_MICROCODE',
         'TOP_CPU_RPOCESSES',
         'DEFUNC_PROCESSES_COUNT',
+        'MIN_HEAP_SIZE',
         'MAX_HEAP_SIZE',
         'MEM_AVAILABLE',
         'MEM_TOTAL',
@@ -207,10 +208,10 @@ def getIcon(name):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--lang', default='zh_CN', help='语言')
-    parser.add_argument('--action', default='savetodb', help='执行操作（savetodb|append|remove|beautify）')
+    parser.add_argument('--lang', default='zh_CN', help='Language')
+    parser.add_argument('--action', default='savetodb', help='Actions:（savetodb|append|remove|beautify）')
     parser.add_argument('--filter', default='{}', help='Match filter')
-    parser.add_argument('--content', default='', help='Append的Json')
+    parser.add_argument('--content', default='', help='Append Json')
 
     args = parser.parse_args()
     lang = args.lang

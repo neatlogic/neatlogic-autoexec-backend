@@ -1,8 +1,8 @@
 {
-    "label": "Zookeeper",
+    "label": "Java",
     "collection": "COLLECT_INS",
     "filter": {
-        "_OBJ_TYPE": "Zookeeper"
+        "_OBJ_TYPE": "Java"
     },
     "fields": [
         {
@@ -150,48 +150,8 @@
             "type": "String"
         },
         {
-            "name": "JVM_TYPE",
-            "desc": "JVM类型",
-            "type": "String"
-        },
-        {
-            "name": "JVM_VERSION",
-            "desc": "JVM版本",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_HOME",
-            "desc": "JAVA目录",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_VERSION",
-            "desc": "JAVA版本",
-            "type": "String"
-        },
-        {
-            "name": "JMX_PORT",
-            "desc": "JMX端口",
-            "type": "Int"
-        },
-        {
-            "name": "JMX_SSL",
-            "desc": "JMX SSL启用",
-            "type": "String"
-        },
-        {
             "name": "CPU_PERCENT",
             "desc": "CPU使用率%",
-            "type": "Float"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "最小Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "最大Heap(M)",
             "type": "Float"
         },
         {
@@ -304,11 +264,6 @@
             ]
         },
         {
-            "name": "ADMIN_ENABLE",
-            "desc": "Admin启用",
-            "type": "String"
-        },
-        {
             "name": "BIN_PATH",
             "desc": "BIN文件路径",
             "type": "String"
@@ -319,26 +274,9 @@
             "type": "String"
         },
         {
-            "name": "DATA_DIR",
-            "desc": "数据存放目录",
+            "name": "ENGINE_VERSION",
+            "desc": "引擎版本",
             "type": "String"
-        },
-        {
-            "name": "MAIN_LIB",
-            "desc": "Main Lib",
-            "type": "String"
-        },
-        {
-            "name": "MEMBERS",
-            "desc": "集群成员",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "REF_CLUSTER",

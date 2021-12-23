@@ -24,6 +24,22 @@ sub getConfig {
     };
 }
 
+sub getServerName {
+    my ( $self, $appInfo ) = @_;
+    my $procInfo = $self->{procInfo};
+    my $cmdLine  = $procInfo->{COMMAND};
+    if ( $cmdLine =~ /\s-jar\s+(.*?)\./ ) {
+        my $jarName = basename($1);
+        $jarName =~ s/[-\d\._]*$//;
+        $appInfo->{SERVER_NAME} = $jarName;
+    }
+    elsif ( $cmdLine =~ /(\w[-\w]+)\s*$/ or $cmdLine =~ /(\w[-\w]+)\.class\s*$/ ) {
+        my $className = $1;
+        $className =~ s/.*[\/\.]//;
+        $appInfo->{SERVER_NAME} = $className;
+    }
+}
+
 sub collect {
     my ($self) = @_;
     my $utils = $self->{collectUtils};
@@ -49,12 +65,14 @@ sub collect {
     foreach my $lsnPort ( keys(%$lsnPorts) ) {
         $lsnPort =~ s/^.*://;
         if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $minPort ) {
-            $minPort = $lsnPort;
+            $minPort = int($lsnPort);
         }
         push( @ports, $lsnPort );
     }
     $appInfo->{PORT}  = $minPort;
     $appInfo->{PORTS} = \@ports;
+
+    $self->getServerName();
 
     return $appInfo;
 }

@@ -185,6 +185,11 @@
             "type": "Float"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
             "type": "Float"
@@ -329,11 +334,6 @@
             "name": "CONFIG_ROOT",
             "desc": "Config Root",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
         },
         {
             "name": "OSGI_INSTALL",

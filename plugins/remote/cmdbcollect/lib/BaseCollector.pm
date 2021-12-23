@@ -196,7 +196,7 @@ sub getJavaAttrs {
             }
         }
 
-        if ( $javaPath eq 'java' and $self->{ostype} eq 'windows' ) {
+        if ( $javaPath eq 'java' and $self->{ostype} ne 'windows' ) {
             $javaPath = $self->getCmdOut( 'which java', $procInfo->{USER} );
         }
 

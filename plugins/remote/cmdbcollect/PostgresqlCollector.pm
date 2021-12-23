@@ -122,7 +122,7 @@ sub collect {
                 $lsnPort = ($2);
             }
             if ( $lsnPort < $minPort ) {
-                $minPort = $lsnPort;
+                $minPort = int($lsnPort);
             }
         }
         $port = $minPort;

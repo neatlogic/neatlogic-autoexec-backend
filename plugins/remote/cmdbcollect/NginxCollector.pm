@@ -100,7 +100,7 @@ sub collect {
         }
         elsif ( $lsnPort < $minPort ) {
             push( @ports, $lsnPort );
-            $minPort = $lsnPort;
+            $minPort = int($lsnPort);
         }
     }
 
