@@ -108,6 +108,11 @@
             "type": "Int"
         },
         {
+            "name": "UPTIME",
+            "desc": "Up Time",
+            "type": "String"
+        },
+        {
             "name": "ZONES",
             "desc": "Zone列表",
             "type": "JsonArray",

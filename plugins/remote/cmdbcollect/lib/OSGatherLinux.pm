@@ -105,6 +105,8 @@ sub getMountPointInfo {
         'usbfs'       => 1,
         'nfsd'        => 1
     };
+    
+    $osInfo->{NFS_MOUNTED} = 0;
     my $mountLines = $self->getFileLines('/proc/mounts');
     foreach my $line (@$mountLines) {
 
@@ -120,7 +122,6 @@ sub getMountPointInfo {
 
         $mountedDevicesMap->{$device} = 1;
 
-        $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
             $osInfo->{NFS_MOUNTED} = 1;
         }

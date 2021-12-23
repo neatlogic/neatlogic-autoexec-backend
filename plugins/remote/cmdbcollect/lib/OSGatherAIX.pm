@@ -102,6 +102,7 @@ sub getMountPointInfo {
     #          /dev/hd2         /usr             jfs2   Jul 20 04:37 rw,log=/dev/hd8
     #          /dev/hd9var      /var             jfs2   Jul 20 04:37 rw,log=/dev/hd8
     #          /dev/hd3         /tmp             jfs2   Jul 20 04:37 rw,log=/dev/hd8
+    $osInfo->{NFS_MOUNTED} = 0;
     my $mountLines = $self->getCmdOutLines('LANG=C mount');
     for ( my $i = 2 ; $i < scalar(@$mountLines) ; $i++ ) {
         my $line = $$mountLines[$i];
@@ -123,7 +124,6 @@ sub getMountPointInfo {
 
         $mountedDevicesMap->{$device} = 1;
 
-        $osInfo->{NFS_MOUNTED} = 0;
         if ( $fsType =~ /^nfs/i ) {
             $osInfo->{NFS_MOUNTED} = 1;
         }

@@ -1,8 +1,8 @@
 {
-    "label": "Java",
+    "label": "PHP",
     "collection": "COLLECT_INS",
     "filter": {
-        "_OBJ_TYPE": "Java"
+        "_OBJ_TYPE": "PHP"
     },
     "fields": [
         {
