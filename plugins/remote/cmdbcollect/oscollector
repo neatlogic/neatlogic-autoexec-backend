@@ -241,8 +241,8 @@ sub mergeMultiProcs {
                     $myPort =~ s/^.*://;
                     $portsMap->{ int($myPort) } = 1;
                 }
-                @portNumbers = keys(%$portsMap);
             }
+            @portNumbers = keys(%$portsMap);
             $connInfo->{BIND} = \@bindAddrs;
 
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );

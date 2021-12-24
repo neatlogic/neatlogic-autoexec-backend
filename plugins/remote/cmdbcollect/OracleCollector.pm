@@ -444,7 +444,6 @@ sub collectInstances {
 
     $insInfo->{DISK_GROUPS} = $self->getASMDiskGroup();
 
-    my $procInfo = $self->{procInfo};
     $insInfo->{_OBJ_TYPE} = $procInfo->{_OBJ_TYPE};
 
     my ( $port, $listenAddrs, $servicesMap ) = $self->getListenerInfo($insInfo);
@@ -683,6 +682,9 @@ sub getIpInHostsByHostName {
 sub parseListenerInfo {
     my ( $self, $outLines ) = @_;
 
+    my $connInfo    = $self->{PROC_INFO}->{CONN_INFO};
+    my $lsnPortsMap = $connInfo->{LISTEN};
+
     my $miniPort    = 65536;
     my @listenAddrs = ();
     my @services    = ();
@@ -720,6 +722,8 @@ sub parseListenerInfo {
                     }
 
                     push( @listenAddrs, $listenInfo );
+                    $lsnPortsMap->{"$ip:$port"} = 1;
+                    $lsnPortsMap->{$port} = 1;
                 }
 
                 $i++;
@@ -859,7 +863,7 @@ sub collectPDBS {
 
 sub collectRAC {
     my ( $self, $insInfo ) = @_;
-    my ( $self, $insInfo ) = @_;
+
     my $gridHome = $insInfo->{GRID_HOME};
     my $gridBin  = "$gridHome/bin";
 
