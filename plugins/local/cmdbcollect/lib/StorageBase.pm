@@ -2,6 +2,7 @@
 use strict;
 
 package StorageBase;
+use Net::OpenSSH;
 use Net::SNMP qw(:snmp);
 use SnmpHelper;
 

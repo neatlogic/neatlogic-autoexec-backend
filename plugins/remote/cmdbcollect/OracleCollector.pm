@@ -682,8 +682,8 @@ sub getIpInHostsByHostName {
 sub parseListenerInfo {
     my ( $self, $outLines ) = @_;
 
-    my $connInfo    = $self->{PROC_INFO}->{CONN_INFO};
-    my $lsnPortsMap = $connInfo->{LISTEN};
+    my $procInfo    = $self->{procInfo};
+    my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
 
     my $miniPort    = 65536;
     my @listenAddrs = ();
@@ -722,7 +722,9 @@ sub parseListenerInfo {
                     }
 
                     push( @listenAddrs, $listenInfo );
-                    $lsnPortsMap->{"$ip:$port"} = 1;
+                    if ( $ip ne '*' and $ip ne '0' and $ip ne '::' ) {
+                        $lsnPortsMap->{"$ip:$port"} = 1;
+                    }
                     $lsnPortsMap->{$port} = 1;
                 }
 
