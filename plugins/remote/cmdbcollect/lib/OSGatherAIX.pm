@@ -405,7 +405,7 @@ sub getDiskInfo {
             #     Node:  disk
             #     Device Type:  block
 
-            my $lunInfo = $self->getCmdOut("lscfg -vpl '$name'");
+            my $lunInfo = $self->getCmdOut("lscfg -vp -l '$name'");
 
             my $sn;
             my $id;
@@ -447,8 +447,10 @@ sub getDiskInfo {
                     $sn = substr( $sn_id, 0, -4 );
                 }
             }
-
-            $diskInfo->{WWID} = $sn . ':' . $id;
+            
+            if ( defined($sn) ){
+                $diskInfo->{WWID} = $sn . ':' . $id;
+            }
         }
 
         if ( not defined($mountedDevicesMap) ) {
