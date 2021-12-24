@@ -2,10 +2,9 @@
     "label": "光纤交换机",
     "collection": "COLLECT_FCDEV",
     "filter": {
-        "_OBJ_TYPE": "FCSWitch"
+        "_OBJ_TYPE": "FCSwitch"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -24,8 +23,7 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "端口名",
                     "type": "String"
@@ -116,8 +114,7 @@
             "name": "ZONES",
             "desc": "Zone列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"

@@ -43,7 +43,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '' or not defined($type) or $type eq '' ) {
+    if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
@@ -54,23 +54,64 @@ sub main {
         usage();
     }
 
-    my $instance;
-    my $typeClass = "Storage$type";
-    eval {
-        require "$typeClass.pm";
-        print("INFO: Try to load class:$typeClass\n");
-        our @ISA = ($typeClass);
-        $instance = $typeClass->new( community => $community, timeout => $timeout, node => $nodeInfo );
-    };
-    if ($@) {
-        print($@);
-        print("ERROR::not found $type plugin .\n");
-        exit(1);
+    if ( not defined($timeout) ) {
+        $timeout = 10;
     }
-    my $data = $instance->collect();
+
+    my $hostname = $nodeInfo->{host};
+    if ( not defined($community) or $community eq '' ) {
+        $community = $nodeInfo->{password};
+    }
+    if ( not defined($community) or $community eq '' ) {
+        $community = 'public';
+    }
+
+    my $isFailed = 0;
+
+    my $brand = $type;
+    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
+        $brand = $storageBase->getBrand();
+    }
+
+    if ( not defined($brand) or $brand eq '' ) {
+        $isFailed = 1;
+        print("ERROR: Can not discover the storage device brand.\n");
+    }
+    else {
+        print("INFO: Storage brand: $brand.\n");
+    }
+
+    my $storageIns;
+    my $storageClass = "Storage$brand";
+    if ( -e "$FindBin::Bin/$storageClass.pm" or -e "$FindBin::Bin/lib/$storageClass.pm" ) {
+        print("INFO: Has defined class $storageClass, try to load it.\n");
+        eval {
+            require "$storageClass.pm";
+            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+        };
+        if ($@) {
+            $isFailed = 1;
+            print("WARN: Load $storageClass failed, $@");
+            print("WARN: Fall back to StorageBase class.\n");
+            $storageIns = $storageBase;
+        }
+        else {
+            print("INFO: Class $storageClass loaded.\n");
+        }
+    }
+    else {
+        $isFailed = 1;
+        print("INFO: $storageClass not found.\n");
+        print("INFO: Fall back to StorageBase class.\n");
+        $storageIns = $storageBase;
+    }
+
+    my $data = $storageIns->collect();
+
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
     $data->{_OBJ_TYPE}     = 'Storage';
-    $data->{_APP_TYPE}     = $type;
+    $data->{_APP_TYPE}     = $brand;
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
@@ -84,7 +125,7 @@ sub main {
         print("==================\n");
     }
 
-    return 0;
+    return $isFailed;
 }
 
 exit main();

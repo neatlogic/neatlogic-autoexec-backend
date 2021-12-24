@@ -75,6 +75,8 @@ sub main {
         $community = 'public';
     }
 
+    my $isFailed = 0;
+
     my $brand = $type;
     my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
@@ -82,6 +84,7 @@ sub main {
     }
 
     if ( not defined($brand) or $brand eq '' ) {
+        $isFailed = 1;
         print("ERROR: Can not discover the firewall device brand.\n");
     }
     else {
@@ -97,6 +100,7 @@ sub main {
             $firewallIns = $firewallClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
         };
         if ($@) {
+            $isFailed = 1;
             print("WARN: Load $firewallClass failed, $@");
             print("WARN: Fall back to FireWallBase class.\n");
             $firewallIns = $firewallBase;
@@ -106,6 +110,7 @@ sub main {
         }
     }
     else {
+        $isFailed = 1;
         print("INFO: $firewallClass not found.\n");
         print("INFO: Fall back to FireWallBase class.\n");
         $firewallIns = $firewallBase;
@@ -134,7 +139,7 @@ sub main {
         print("==================\n");
     }
 
-    return 0;
+    return $isFailed;
 }
 
 exit main();

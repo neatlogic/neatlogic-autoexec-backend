@@ -1,85 +1,22 @@
 #!/usr/bin/perl
+use strict;
 use FindBin;
 use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 
 package StorageNetApp;
-use strict;
 
-use File::Basename;
+use StorageBase;
+our @ISA = qw(StorageBase);
+
 use JSON;
-use Net::SNMP qw(:snmp);
-use SnmpHelper;
-use CollectUtils;
 use Data::Dumper;
 
-#前提是NetApp开启snmp服务
-#ssh登录机头使用命令启用snmp
-#snmp ? 查看帮助
-#snmp init 1
-#snmp community add ro <community value>
-sub new {
-    my ( $class, %args ) = @_;
-    my $self = {};
-
-    my $data = {};
-    $data->{VENDOR} = 'NetApp';
-    $data->{BRAND}  = 'NetApp';
-    $self->{DATA}   = $data;
-
-    my $node = $args{node};
-    $self->{node} = $node;
-
-    my $timeout = $args{timeout};
-    if ( not defined($timeout) or $timeout eq '0' ) {
-        $timeout = 10;
-    }
-    $self->{timeout} = $timeout;
-
-    $self->{collectUtils} = CollectUtils->new();
-    $self->{snmpHelper}   = SnmpHelper->new();
-
-    bless( $self, $class );
-
-    my $version = $args{version};
-    if ( not defined($version) or $version eq '' ) {
-        $version = 'snmpv2';
-        $args{version} = $version;
-    }
-    if ( not defined( $args{retries} ) ) {
-        $args{retries} = 2;
-    }
-
-    my $options = {};
-    $options->{'-hostname'}   = $node->{host};
-    $options->{'-timeout'}    = $timeout;
-    $options->{'-version'}    = $args{version};
-    $options->{'-retries'}    = $args{retries};
-    $options->{'-maxmsgsize'} = 65535;
-
-    if ( defined( $args{community} ) ) {
-        $options->{'-community'} = $args{community};
-    }
-    else {
-        $options->{'-community'} = $node->{password};
-    }
-    $self->{snmpOptions} = $options;
-
-    my ( $session, $error ) = Net::SNMP->session(%$options);
-    if ( !defined $session ) {
-        print("ERROR:Create snmp session to $node->{host} failed, $error\n");
-        exit(-1);
-    }
-
-    #单值定义
-    my $scalarOidDef = {
-        IOS_INFO                  => '1.3.6.1.2.1.1.1.0',            #sysDescr
-        DEV_NAME                  => '1.3.6.1.2.1.1.5.0',            #sysName
-        SYS_LOCATION              => '1.3.6.1.2.1.1.6.0',            #sysLocation
-        UPTIME                    => '1.3.6.1.2.1.1.3.0',            #cpuUpTime (in hundredths of a second)
+sub before {
+    my ($self) = @_;
+    $self->addScalarOid(
         CPU_USAGE                 => '1.3.6.1.4.1.789.1.2.1.3.0',    #cpuBusyTimePerCent
-                                                                     #VENDOR                    => '1.3.6.1.4.1.789.1.1.4.0',      #productVendor
         MODEL                     => '1.3.6.1.4.1.789.1.1.5.0',      #productModel
         SN                        => ['1.3.6.1.4.1.789.1.1.9.0'],    #productSerialNum
         PRODUCT_TYPE              => '1.3.6.1.4.1.789.1.1.1.0',      #productType
@@ -88,11 +25,9 @@ sub new {
         FAILED_FAN_COUNT          => '1.3.6.1.4.1.789.1.2.4.2.0',    #envFailedFanCount
         FAILED_POWER_SUPPLY_COUNT => '1.3.6.1.4.1.789.1.2.4.4.0',    #envFailedPowerSupplyCount
         GLOBAL_STATUS             => '1.3.6.1.4.1.789.1.2.2.4.0'     #miscGlobalStatus other(1),unknown(2),ok(3),nonCritical(4),critical(5),nonRecoverable(6)
+    );
 
-    };
-
-    #列表值定义
-    my $tableOidDef = {
+    $self->addTableOid(
         AGGR_LIST => {
             NAME      => '1.3.6.1.4.1.789.1.5.11.1.2',
             RAID_TYPE => '1.3.6.1.4.1.789.1.5.11.1.11'
@@ -125,67 +60,25 @@ sub new {
             INODE_FREE         => '1.3.6.1.4.1.789.1.5.4.1.8',
             USED_INODE_PERCENT => '1.3.6.1.4.1.789.1.5.4.1.9'
         }
-    };
-
-    $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tableOidDef}  = $tableOidDef;
-
-    $self->{snmpSession} = $session;
-
-    END {
-        local $?;
-        $session->close();
-    }
-
-    return $self;
+    );
 }
 
-#get simple oid value
-sub getScalar {
-    my ($self)       = @_;
-    my $snmp         = $self->{snmpSession};
-    my $scalarOidDef = $self->{scalarOidDef};
+sub after {
+    my ($self) = @_;
 
-    # 'UPTIME' => '246 days, 12:16:27.24',
-    # 'CPU_USAGE' => 4,
-    # 'PRODUCT_VERSION' => 'NetApp Release 8.2.3P3 7-Mode: Tue Apr 28 14:48:22 PDT 2015',
-    # 'SN' => '451640000063',
-    # 'FAILED_POWER_SUPPLY_COUNT' => 0,
-    # 'DEV_NAME' => 'corenas01.nas-02.prd.bsz.com',
-    # 'PRODUCT_TYPE' => 2,
-    # 'FAILED_FAN_COUNT' => 0,
-    # 'OVER_TEMPERATURE' => 'no',
-    # 'MODEL' => 'FAS8040',
-    # 'VENDOR' => 1,
-    # 'GLOBAL_STATUS' => 3
-    my $snmpHelper = $self->{snmpHelper};
-    my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
-
-    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} );
-
-    my $overTemperatureMap = { 1 => 'no', 2 => 'yes' };
-    $scalarData->{OVER_TEMPERATURE} = $overTemperatureMap->{ $scalarData->{OVER_TEMPERATURE} };
-
-    my $globalStatusMap = { 1 => 'other', 2 => 'unknown', 3 => 'ok', 4 => 'nonCritical', 5 => 'critical', 6 => 'nonRecoverable' };
-    $scalarData->{GLOBAL_STATUS} = $globalStatusMap->{ $scalarData->{GLOBAL_STATUS} };
+    $self->getPools();
 
     my $data = $self->{DATA};
-    while ( my ( $key, $val ) = each(%$scalarData) ) {
-        $data->{$key} = $val;
-    }
-
+    $data->{VENDOR} = 'NetApp';
+    $data->{BRAND}  = 'NetApp';
+    
     return;
 }
 
 #get table values from 1 or more than table oid
 sub getPools {
-    my ($self)      = @_;
-    my $snmp        = $self->{snmpSession};
-    my $tableOidDef = $self->{tableOidDef};
-
-    my $snmpHelper = $self->{snmpHelper};
-
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my ($self) = @_;
+    my $tableData = $self->{DATA};
 
     my $aggrs    = $tableData->{AGGR_LIST};
     my $aggrsMap = {};
@@ -258,26 +151,18 @@ sub getPools {
             push( @validDfVolumes, $dfVolInfo );
         }
     }
-
     my $data = $self->{DATA};
+    
+    foreach my $oldKey ( 'AGGR_LIST', 'VOL_LIST', 'QTREE_LIST', 'LUN_LIST', 'HBA_LIST', 'DF_VOLUMES' ) {
+        delete( $data->{$oldKey} );
+    }
+
     $data->{STORAGE_AGGRS} = $aggrs;
     $data->{LUNS}          = $luns;
     $data->{VOLUMES}       = $vols;
     $data->{DF_VOLUMES}    = \@validDfVolumes;
+
     return;
-}
-
-sub collect {
-    my ($self) = @_;
-    print("INFO: Try to collect NetApp information by snmp.\n");
-
-    $self->getScalar();
-    $self->getPools();
-
-    my $data = $self->{DATA};
-    $data->{VENDOR} = 'NetApp';
-
-    return $data;
 }
 
 1;

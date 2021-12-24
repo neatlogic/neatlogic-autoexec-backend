@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package FCSwitchBase;
+package StorageBase;
 use Net::SNMP qw(:snmp);
 use SnmpHelper;
 
@@ -16,32 +16,14 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5.0',                                                                                                                                                                   #sysName
-        SN       => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
-        MODEL    => [ '1.3.6.1.2.1.47.1.1.1.1.2.1', '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ],
-        FIRMWARE_VERSION => [ '1.3.6.1.4.1.1588.2.1.1.1.1.6.0', '1.3.6.1.2.1.47.1.1.1.1.8.22' ],                                                                                                           #sysProductVersion
-        BOOT_DATE        => '1.3.6.1.4.1.1588.2.1.1.1.1.2.0',
-        UPTIME           => '1.3.6.1.2.1.1.3.0',
-        DOMAIN_ID        => '1.3.6.1.4.1.1588.2.1.1.1.2.1.0',
-        PORTS_COUNT      => '1.3.6.1.2.1.2.1.0'
+        IOS_INFO     => '1.3.6.1.2.1.1.1.0',            #sysDescr
+        DEV_NAME     => '1.3.6.1.2.1.1.5.0',            #sysName
+        SYS_LOCATION => '1.3.6.1.2.1.1.6.0',            #sysLocation
+        UPTIME       => '1.3.6.1.2.1.1.3.0',            #cpuUpTime (in hundredths of a second)
+        CPU_USAGE    => '1.3.6.1.4.1.789.1.2.1.3.0',    #cpuBusyTimePerCent
     };
 
-    my $tableOidDef = {
-        PORTS => {
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',                                                                                                                                                         #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',                                                                                                                                                         #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',                                                                                                                                                         #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',                                                                                                                                                         #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',                                                                                                                                                         #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',                                                                                                                                                         #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',                                                                                                                                                         #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',                                                                                                                                                         #ifMTU
-        },
-        ZONES => {
-            INDEX => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.1',
-            NAME  => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.2'
-        }
-    };
+    my $tableOidDef = {};
 
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{tableOidDef}  = $tableOidDef;
@@ -90,7 +72,7 @@ sub new {
 
 #重载此方法，调整snmp oid的设置
 sub before {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #$self->addScalarOid( SN => '1.3.6.1.2.1.47.1.1.1.1.11.1' );
     #$self->addTableOid( PORTS_TABLE_FOR_TEST => [ { NAME => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ] );
@@ -99,7 +81,7 @@ sub before {
 
 #重载此方法，进行数据调整，或者补充其他非SNMP数据
 sub after {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #my $data = $self->{DATA};
     #my $model = $data->{MODEL};
@@ -164,8 +146,14 @@ sub _getScalar {
     my $snmpHelper = $self->{snmpHelper};
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
-    #IP格式转换，从0x0A064156转换为可读格式
-    #$scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
+    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} );
+
+    my $overTemperatureMap = { 1 => 'no', 2 => 'yes' };
+    $scalarData->{OVER_TEMPERATURE} = $overTemperatureMap->{ $scalarData->{OVER_TEMPERATURE} };
+
+    my $globalStatusMap = { 1 => 'other', 2 => 'unknown', 3 => 'ok', 4 => 'nonCritical', 5 => 'critical', 6 => 'nonRecoverable' };
+    $scalarData->{GLOBAL_STATUS} = $globalStatusMap->{ $scalarData->{GLOBAL_STATUS} };
+
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$scalarData) ) {
         $data->{$key} = $val;
@@ -181,21 +169,11 @@ sub _getTable {
     my $snmpHelper  = $self->{snmpHelper};
 
     my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
-    my $portsData = $tableData->{PORTS};
-    foreach my $portInfo (@$portsData) {
-        $portInfo->{WWN}          = $snmpHelper->hex2mac( $portInfo->{WWN} );
-        $portInfo->{ADMIN_STATUS} = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{TYPE}         = $snmpHelper->getPortType( $portInfo->{TYPE} );
-        $portInfo->{SPEED}        = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
-    }
 
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$tableData) ) {
         $data->{$key} = $val;
     }
-    $data->{PORTS} = $portsData;
-    $data->{ZONES} = $tableData->{ZONES};
 
     return $data;
 }
@@ -205,6 +183,7 @@ sub getBrand {
     my ($self) = @_;
 
     my $BRANDS_MAP = {
+        'HP_3PAR'    => 'HP_3PAR',
         'Brocade'    => 'Brocade',
         'DS-C9'      => 'IBM',
         'IBM'        => 'IBM',
@@ -216,7 +195,7 @@ sub getBrand {
 
     my $snmp = $self->{snmpSession};
 
-    my $sysDescrOid = [ '1.3.6.1.2.1.1.1.0', '1.3.6.1.2.1.47.1.1.1.1.2.1', '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ];
+    my $sysDescrOid = [ '1.3.6.1.2.1.1.1.0', '1.3.6.1.2.1.1.5.0' ];
 
     my $sysDescr;
     my $brand;

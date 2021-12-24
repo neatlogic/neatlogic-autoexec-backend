@@ -1,87 +1,27 @@
 #!/usr/bin/perl
+use strict;
 use FindBin;
 use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 
 package StorageHuawei;
-use strict;
 
-use File::Basename;
+use StorageBase;
+our @ISA = qw(StorageBase);
+
 use JSON;
-use Net::SNMP qw(:snmp);
-use SnmpHelper;
-use CollectUtils;
 use Data::Dumper;
 
-sub new {
-    my ( $class, %args ) = @_;
-    my $self = {};
-
-    my $data = {};
-    $data->{VENDOR} = 'Huawei';
-    $data->{BRAND}  = 'Huawei';
-    $self->{DATA}   = $data;
-
-    my $node = $args{node};
-    $self->{node} = $node;
-
-    my $timeout = $args{timeout};
-    if ( not defined($timeout) or $timeout eq '0' ) {
-        $timeout = 10;
-    }
-    $self->{timeout} = $timeout;
-
-    $self->{collectUtils} = CollectUtils->new();
-    $self->{snmpHelper}   = SnmpHelper->new();
-
-    bless( $self, $class );
-
-    my $version = $args{version};
-    if ( not defined($version) or $version eq '' ) {
-        $version = 'snmpv2';
-        $args{version} = $version;
-    }
-    if ( not defined( $args{retries} ) ) {
-        $args{retries} = 2;
-    }
-
-    my $options = {};
-    $options->{'-hostname'}   = $node->{host};
-    $options->{'-timeout'}    = $timeout;
-    $options->{'-version'}    = $args{version};
-    $options->{'-retries'}    = $args{retries};
-    $options->{'-maxmsgsize'} = 65535;
-
-    if ( defined( $args{community} ) ) {
-        $options->{'-community'} = $args{community};
-    }
-    else {
-        $options->{'-community'} = $node->{password};
-    }
-    $self->{snmpOptions} = $options;
-
-    my ( $session, $error ) = Net::SNMP->session(%$options);
-    if ( !defined $session ) {
-        print("ERROR:Create snmp session to $node->{host} failed, $error\n");
-        exit(-1);
-    }
-
-    #单值定义
-    #TODO: 需要确认这些OID最后是否需要加上“.0”，大部分简单值的OID后面都是有.0
-    my $scalarOidDef = {
-        IOS_INFO      => '1.3.6.1.2.1.1.1.0',              #sysDescr
+sub before {
+    my ($self) = @_;
+    $self->addScalarOid(
         SN            => ['1.3.6.1.4.1.34774.4.1.1.1'],    #deviceId
         VERSION       => '1.3.6.1.4.1.34774.4.1.1.6',      #Version
-        UPTIME        => '1.3.6.1.2.1.1.3.0',              #cpuUpTime (in hundredths of a second)
-        DEV_NAME      => '1.3.6.1.2.1.1.5.0',              #sysName
-        GLOBAL_STATUS => '1.3.6.1.4.1.34774.4.1.1.3',      #status
-        CPU_USAGE     => '1.3.6.1.4.1.789.1.2.1.3.0',      #cpuBusyTimePerCent
-        VENDOR        => '1.3.6.1.4.1.789.1.1.4.0'         #productVendor
-    };
+        GLOBAL_STATUS => '1.3.6.1.4.1.34774.4.1.1.3'       #status
+    );
 
-    #列表值定义
-    my $tableOidDef = {
+    $self->addTableOid(
         CTRL_LIST => {
             NAME    => '1.3.6.1.4.1.34774.4.1.23.5.2.1.5',
             VERSION => '1.3.6.1.4.1.34774.4.1.23.5.2.1.11'
@@ -110,53 +50,25 @@ sub new {
             MAC  => '1.3.6.1.4.1.34774.4.1.23.5.8.1.12',
             IP   => '1.3.6.1.4.1.34774.4.1.23.5.8.1.6'
         }
-    };
-
-    $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tableOidDef}  = $tableOidDef;
-
-    $self->{snmpSession} = $session;
-
-    END {
-        local $?;
-        $session->close();
-    }
-
-    return $self;
+    );
 }
 
-#get simple oid value
-sub getScalar {
-    my ($self)       = @_;
-    my $snmp         = $self->{snmpSession};
-    my $scalarOidDef = $self->{scalarOidDef};
+sub after {
+    my ($self) = @_;
 
-    my $snmpHelper = $self->{snmpHelper};
-    my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
-
-    #$scalarData->{UPTIME} = int( $scalarData->{UPTIME} / 86400 + 0.5 ) / 100;
-    $scalarData->{UPTIME} = int( $scalarData->{UPTIME} );
-    my $overTemperatureMap = { 1 => 'no', 2 => 'yes' };
-    $scalarData->{OVER_TEMPERATURE} = $overTemperatureMap->{ $scalarData->{OVER_TEMPERATURE} };
-
-    #my $globalStatusMap = {1=>'other', 2=>'unknown', 3=>'ok', 4=>'nonCritical', 5=>'critical', 6=>'nonRecoverable'};
+    $self->getPools();
 
     my $data = $self->{DATA};
-    while ( my ( $key, $val ) = each(%$scalarData) ) {
-        $data->{$key} = $val;
-    }
+    $data->{VENDOR} = 'Huawei';
+    $data->{BRAND}  = 'Huawei';
 
     return;
 }
 
 #get table values from 1 or more than table oid
 sub getPools {
-    my ($self)      = @_;
-    my $snmp        = $self->{snmpSession};
-    my $tableOidDef = $self->{tableOidDef};
-
-    my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my ($self) = @_;
+    my $tableData = $self->{DATA};
 
     my $pools    = $tableData->{POOL_LIST};
     my $poolsMap = {};
@@ -238,23 +150,22 @@ sub getPools {
     }
 
     my $data = $self->{DATA};
+
+    foreach my $oldKey ( 'POOL_LIST', 'LUN_LIST' ) {
+        delete( $tableData->{$oldKey} );
+    }
+
     $data->{POOLS}          = $pools;
     $data->{LUNS}           = $luns;
     $data->{CONTROLLERS}    = $tableData->{CTRL_LIST};
     $data->{HBA_INTERFACES} = $tableData->{HBA_LIST};
     $data->{ETH_INTERFACES} = $tableData->{ETH_LIST};
 
+    foreach my $oldKey ( 'CTRL_LIST', 'HBA_LIST', 'ETH_LIST' ) {
+        delete( $data->{$oldKey} );
+    }
+
     return;
-}
-
-sub collect {
-    my ($self) = @_;
-    print("INFO: Try to grap NetApp by snmp.\n");
-
-    $self->getScalar();
-    $self->getPools();
-
-    return $self->{DATA};
 }
 
 1;
