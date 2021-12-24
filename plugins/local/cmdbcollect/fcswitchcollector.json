@@ -22,7 +22,11 @@
             "type": "select",
             "isConst": "false",
             "defaultValue": [{
-                    "text": "博科",
+                    "text": "自动选择",
+                    "value": "auto",
+                    "selected": "true"
+                }, {
+                    "text": "Brocade",
                     "value": "Brocade"
                 },
                 {
@@ -31,6 +35,14 @@
                 },
                 {
                     "text": "EMC",
+                    "value": "Brocade"
+                },
+                {
+                    "text": "HP",
+                    "value": "Brocade"
+                },
+                {
+                    "text": "Huawei",
                     "value": "Brocade"
                 }
             ],

@@ -58,7 +58,7 @@ sub main {
     my $typeClass = "Storage$type";
     eval {
         require "$typeClass.pm";
-        print("class:$typeClass\n");
+        print("INFO: Try to load class:$typeClass\n");
         our @ISA = ($typeClass);
         $instance = $typeClass->new( community => $community, timeout => $timeout, node => $nodeInfo );
     };
