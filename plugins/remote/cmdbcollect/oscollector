@@ -222,27 +222,30 @@ sub mergeMultiProcs {
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
 
-            my $portsMap    = {};
-            my @portNumbers = ();
-            my @bindAddrs   = ();
+            my $portsMap     = {};
+            my @portNumbers  = ();
+            my $bindAddrsMap = {};
+            my @bindAddrs    = ();
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
                     $portsMap->{ int($lsnPort) } = 1;
                     foreach my $ipInfo (@$ipAddrs) {
-                        push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
+                        $bindAddrsMap->{"$ipInfo->{VALUE}:$lsnPort"} = 1;
                     }
                     foreach my $ipInfo (@$ipv6Addrs) {
-                        push( @bindAddrs, "$ipInfo->{VALUE}:$lsnPort" );
+                        $bindAddrsMap->{"$ipInfo->{VALUE}:$lsnPort"} = 1;
                     }
                 }
                 else {
+                    $bindAddrsMap->{$lsnPort} = 1;
                     push( @bindAddrs, $lsnPort );
                     my $myPort = $lsnPort;
                     $myPort =~ s/^.*://;
                     $portsMap->{ int($myPort) } = 1;
                 }
             }
-            @portNumbers = keys(%$portsMap);
+            @portNumbers      = keys(%$portsMap);
+            @bindAddrs        = keys(%$bindAddrsMap);
             $connInfo->{BIND} = \@bindAddrs;
 
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
