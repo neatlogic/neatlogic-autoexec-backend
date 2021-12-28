@@ -207,6 +207,48 @@ def getIcon(name):
     else:
         return None
 
+def getDefaultThreshold(dictPath, name , obj_type):
+    threshold = [] 
+    jsonFile = dictPath + "/inspect_default_threshold.json"
+    if(os.path.isfile(jsonFile)):
+        data = {}
+        with open(jsonFile, 'r', encoding="utf-8") as f:
+            data = json.load(f)
+            f.close()
+        if name in data:
+            threshold = data[name]
+        else :
+            if obj_type in data:
+                threshold = data[obj_type]
+    else :
+        print("ERROR: Not found json file: inspect_default_threshold.json .")
+    return threshold 
+
+def checkThresholdExist(threshold , dbThresholds) : 
+    #"$.MOUNT_POINTS[NAME startswith \"/\"].\"USED%\" > 10"
+    #"$.MOUNT_POINTS.\"USED%\" >= 90"
+    exist = False 
+    localRule = threshold['rule']
+    localKey = ''
+    if '[' in localRule :
+        localKey = localRule[2:localRule.index('[')]
+    else : 
+        localKey = localRule.split('.')
+        localKey = localKey[1]
+
+    for dbThreshold in dbThresholds : 
+        dbRule = dbThreshold['rule']
+        dbKey = ''
+        if '[' in dbRule :
+            dbKey = dbRule[2:dbRule.index('[')]
+        else : 
+            dbKey = dbRule.split('.')
+            dbKey = dbKey[1]
+
+        if localKey == dbKey : 
+            exist = True 
+            break 
+    return  exist 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -267,6 +309,9 @@ if __name__ == "__main__":
                     collection.create_index([('name', 1)], name='idx_pk', unique=True)
                     print("INFO: Import", dfile, "success.")
 
+		    #巡检文件内定义的默认阀值
+                    defaultThreshold = getDefaultThreshold(dictPath , data['label'] , tableName)
+                    print("INFO: {} inspect plugin default threshold {} ." .format(name, defaultThreshold))
                     # 获取已经选择进入巡检报告定义的字段
                     inspectObj = inspectDef.find_one({'name': name})
                     # 如果巡检定义不存在则自动生成一个空的定义
@@ -277,12 +322,22 @@ if __name__ == "__main__":
                                       'collection': data['collection'],
                                       'filter': data['filter'],
                                       'fields': [],
-                                      'thresholds': []}
+                                      'thresholds': defaultThreshold}
                     else:
                         inspectObj['icon'] = getIcon(name)
                         inspectObj['label'] = data['label']
                         inspectObj['collection'] = data['collection']
                         inspectObj['filter'] = data['filter']
+			#合并已存在阀值和文件定义默认阀值
+                        dbThreshold = inspectObj['thresholds']
+                        if len(dbThreshold) == 0 : 
+                            inspectObj['thresholds'] = defaultThreshold
+                        else:
+                            newThreshold = dbThreshold.copy()
+                            for threshold in defaultThreshold :
+                                if checkThresholdExist(threshold , dbThreshold) == False :
+                                    newThreshold.append(threshold)
+                            inspectObj['thresholds'] = newThreshold
 
                     # 获取已经定义的fields
                     inspectFields = []
