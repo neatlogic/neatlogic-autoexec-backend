@@ -1,6 +1,23 @@
 #!/usr/bin/python
 from pyparsing import *
+import re
 from JsonDataFilter import Filter
+
+
+def parseSizeStr(sizeStr):
+    size = sizeStr
+    matchObj = re.match(r'(\d+)([MGTP]?)', sizeStr, re.IGNORECASE)
+    if matchObj:
+        size = float(matchObj.group(1))
+        unit = matchObj.group(2).upper()
+        if unit == 'M':
+            size = round(size / 1000, 2)
+        elif unit == 'T':
+            size = size * 1000
+        elif unit == 'P':
+            size = size * 1000 * 1000
+    return size
+
 
 if __name__ == "__main__":
     print("Test...")
@@ -40,3 +57,5 @@ if __name__ == "__main__":
     print(result['shape'])
     print("========================")
     print(result.asDict())
+
+    print(parseSizeStr('3T'))

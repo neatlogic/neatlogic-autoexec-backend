@@ -138,6 +138,20 @@ class VplexCollector:
 
         return initiatorsMap
 
+    def parseSizeStr(self, sizeStr):
+        size = sizeStr
+        matchObj = re.match(r'(\d+)([MGTP]?)', sizeStr, re.IGNORECASE)
+        if matchObj:
+            size = float(matchObj.group(1))
+            unit = matchObj.group(2).upper()
+            if unit == 'M':
+                size = round(size / 1000, 2)
+            elif unit == 'T':
+                size = size * 1000
+            elif unit == 'P':
+                size = size * 1000 * 1000
+        return size
+
     def getVolumeByStorageViews(self, clusterNames):
         initiatorsMap = self.getInitiators(clusterNames)
 
@@ -162,12 +176,14 @@ class VplexCollector:
                 volAttrs = volsLine[1:-1].split(',')
                 volName = volAttrs[1]
                 volInfo = volsMap.get(volName)
+                volSize = self.parseSizeStr(volAttrs[3])
+
                 if volInfo is None:
                     volInfo = {
                         'NAME': volName,
                         'ID': volAttrs[0],
                         'UUID': volAttrs[2],
-                        'CAPACITY': volAttrs[3],
+                        'CAPACITY': volSize,
                         'VISABLE_GROUPS': [],
                         'VISABLE_INITIATORS': []
                     }
