@@ -1,0 +1,186 @@
+{
+	"COLLECT_OS": [{
+			"name": "内存使用率超过80%",
+			"level": "WARN",
+			"rule": "$.MEM_USAGE >= 80"
+		},
+		{
+			"name": "内存使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.MEM_USAGE >= 90"
+		},
+		{
+			"name": "内存使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.MEM_USAGE >= 95"
+		},
+		{
+			"name": "CPU使用率超过80%",
+			"level": "WARN",
+			"rule": "$.CPU_PERCENT >= 80"
+		},
+		{
+			"name": "CPU使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.CPU_PERCENT >= 90"
+		},
+		{
+			"name": "CPU使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.CPU_PERCENT >= 95"
+		},
+		{
+			"name": "磁盘空间使用率超过80%",
+			"level": "WARN",
+			"rule": "$.MOUNT_POINTS.\"USED%\" >= 80"
+		},
+		{
+			"name": "磁盘空间使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.MOUNT_POINTS.\"USED%\" >= 90"
+		},
+		{
+			"name": "磁盘空间使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.MOUNT_POINTS.\"USED%\" >= 95"
+		},
+		{
+			"name": "进程资源消耗超过80%",
+			"level": "WARN",
+			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 80 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 80"
+		},
+		{
+			"name": "进程资源消耗超过90%",
+			"level": "CRITICAL",
+			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 90 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 90"
+		},
+		{
+			"name": "进程资源消耗超过95%",
+			"level": "FATAL",
+			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 95 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 95"
+		}
+	],
+	"COLLECT_DB": [{
+			"name": "CPU使用率超过80%",
+			"level": "WARN",
+			"rule": "$.CPU_PERCENT >= 80"
+		},
+		{
+			"name": "CPU使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.CPU_PERCENT >= 90"
+		},
+		{
+			"name": "CPU使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.CPU_PERCENT >= 95"
+		},
+		{
+			"name": "内存使用率超过80%",
+			"level": "WARN",
+			"rule": "$.MEM_PERCENT >= 80"
+		},
+		{
+			"name": "内存使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.MEM_PERCENT >= 90"
+		},
+		{
+			"name": "内存使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.MEM_PERCENT >= 95"
+		}
+	],
+	"Oracle": [{
+			"name": "CPU使用率超过80%",
+			"level": "WARN",
+			"rule": "$.CPU_PERCENT >= 80"
+		},
+		{
+			"name": "CPU使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.CPU_PERCENT >= 90"
+		},
+		{
+			"name": "CPU使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.CPU_PERCENT >= 95"
+		},
+		{
+			"name": "内存使用率超过80%",
+			"level": "WARN",
+			"rule": "$.MEM_PERCENT >= 80"
+		},
+		{
+			"name": "内存使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.MEM_PERCENT >= 90"
+		},
+		{
+			"name": "内存使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.MEM_PERCENT >= 95"
+		},
+		{
+			"name": "磁盘组使用率超过80%",
+			"level": "WARN",
+			"rule": "$.DISK_GROUPS.\"USED%\"  >= 80"
+		},
+		{
+			"name": "磁盘组使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.DISK_GROUPS.\"USED%\"  >= 90"
+		},
+		{
+			"name": "磁盘组使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.DISK_GROUPS.\"USED%\"  >= 95"
+		},
+		{
+			"name": "表空间使用率超过80%",
+			"level": "WARN",
+			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 80"
+		},
+		{
+			"name": "表空间使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 90"
+		},
+		{
+			"name": "表空间使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 95"
+		}
+	],
+	"COLLECT_INS": [{
+			"name": "CPU使用率超过80%",
+			"level": "WARN",
+			"rule": "$.CPU_PERCENT >= 80"
+		},
+		{
+			"name": "CPU使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.CPU_PERCENT >= 90"
+		},
+		{
+			"name": "CPU使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.CPU_PERCENT >= 95"
+		},
+		{
+			"name": "内存使用率超过80%",
+			"level": "WARN",
+			"rule": "$.MEM_PERCENT >= 80"
+		},
+		{
+			"name": "内存使用率超过90%",
+			"level": "CRITICAL",
+			"rule": "$.MEM_PERCENT >= 90"
+		},
+		{
+			"name": "内存使用率超过95%",
+			"level": "FATAL",
+			"rule": "$.MEM_PERCENT >= 95"
+		}
+	]
+}
