@@ -281,7 +281,7 @@ if __name__ == "__main__":
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, args.timeout, args.inspect)
         data = vplexCollector.collect()
-        data['RESOURCE_ID'] = nodeInfo['resourceId']
+        data['RESOURCE_ID'] = nodeInfo.get('resourceId')
         out = {'DATA': [data]}
         AutoExecUtils.saveOutput(out)
         print(json.dumps(data, ensure_ascii=True, indent=4))
