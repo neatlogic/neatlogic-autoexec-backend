@@ -1,5 +1,5 @@
 {
-    "label": "存储",
+    "label": "虚拟存储",
     "collection": "COLLECT_STORAGE",
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"

@@ -1,5 +1,5 @@
 {
-    "label": "Storage",
+    "label": "Virtual Storage",
     "collection": "COLLECT_STORAGE",
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
