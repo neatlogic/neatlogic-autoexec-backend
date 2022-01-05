@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -49,13 +48,11 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "Float"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "Port",
+                "type": "Float"
+            }]
         },
         {
             "name": "OS_ID",
@@ -106,8 +103,7 @@
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USERNAME",
                     "desc": "User Name",
                     "type": "String"
@@ -143,8 +139,7 @@
             "name": "DISK_GROUPS",
             "desc": "Disk Group List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -178,8 +173,7 @@
                     "name": "DISKS",
                     "desc": "Disk List",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -239,7 +233,7 @@
             "type": "String"
         },
         {
-            "name": "ISCDB",
+            "name": "IS_CDB",
             "desc": "Is CDB",
             "type": "Float"
         },
@@ -252,8 +246,7 @@
             "name": "LISTEN_ADDRS",
             "desc": "Listen Addresses",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -294,8 +287,7 @@
             "name": "NODES",
             "desc": "RAC Node List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -341,8 +333,7 @@
             "name": "SERVICE_INFOS",
             "desc": "Service List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -351,8 +342,7 @@
                     "name": "INSTANCES",
                     "desc": "Instances",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -375,13 +365,11 @@
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "Name",
+                "type": "String"
+            }]
         },
         {
             "name": "SGA_MAX_SIZE",
@@ -392,8 +380,7 @@
             "name": "TABLE_SPACESES",
             "desc": "Table Space List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TABLESPACE_NAME",
                     "desc": "Table Space Name",
                     "type": "String"
@@ -422,8 +409,7 @@
                     "name": "DATA_FILES",
                     "desc": "Data File List",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "FILE_NAME",
                             "desc": "File Name",
                             "type": "String"

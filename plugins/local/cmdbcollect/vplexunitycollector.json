@@ -1,0 +1,24 @@
+{
+    "opName": "Vplex/UnityCMDB采集",
+    "opType": "localremote",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "description": "采集EMC虚拟存储网关vplex的基础信息",
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "10",
+        "required": "false",
+        "validate": ""
+    }],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

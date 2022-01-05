@@ -1,0 +1,115 @@
+{
+    "label": "存储",
+    "collection": "COLLECT_STORAGE",
+    "filter": {
+        "_OBJ_TYPE": "Virtual_Storage"
+    },
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "交换机品牌",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "LUNS",
+            "desc": "逻辑磁盘列表",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "UUID",
+                    "desc": "Lun ID",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "可见HBA启动器组",
+                    "type": "Array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "可见主机HBA启动器",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NODE_WWN",
+                            "desc": "Node WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT_WWN",
+                            "desc": "Port WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        }
+    ]
+}

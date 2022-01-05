@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -49,13 +48,11 @@
             "name": "PORTS",
             "desc": "所有端口列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "Float"
-                }
-            ]
+            "subset": [{
+                "name": "VALUE",
+                "desc": "端口",
+                "type": "Float"
+            }]
         },
         {
             "name": "OS_ID",
@@ -106,8 +103,7 @@
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USERNAME",
                     "desc": "用户名",
                     "type": "String"
@@ -143,8 +139,7 @@
             "name": "DISK_GROUPS",
             "desc": "磁盘组列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -178,8 +173,7 @@
                     "name": "DISKS",
                     "desc": "磁盘列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -239,7 +233,7 @@
             "type": "String"
         },
         {
-            "name": "ISCDB",
+            "name": "IS_CDB",
             "desc": "是否CDB",
             "type": "Float"
         },
@@ -252,8 +246,7 @@
             "name": "LISTEN_ADDRS",
             "desc": "监听地址",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -289,8 +282,7 @@
             "name": "NODES",
             "desc": "RAC节点List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -336,8 +328,7 @@
             "name": "SERVICE_INFOS",
             "desc": "服务列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -346,8 +337,7 @@
                     "name": "INSTANCES",
                     "desc": "实例列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -370,13 +360,11 @@
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "Name",
+                "type": "String"
+            }]
         },
         {
             "name": "SGA_MAX_SIZE",
@@ -387,8 +375,7 @@
             "name": "TABLE_SPACESES",
             "desc": "表空间列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TABLESPACE_NAME",
                     "desc": "表空间名",
                     "type": "String"
@@ -417,8 +404,7 @@
                     "name": "DATA_FILES",
                     "desc": "数据文件列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "FILE_NAME",
                             "desc": "文件名",
                             "type": "String"

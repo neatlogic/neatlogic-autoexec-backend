@@ -104,7 +104,7 @@ class EndPointCheck:
 
         return (True, None)
 
-    def execOneHttpReq(self, urlConf, valuesJar, timeOut):
+    def execOneHttpReq(self, urlConf, cookie, valuesJar, timeOut):
         url = urlConf['url']
         method = urlConf['method']
         data = urlConf['data']
@@ -118,7 +118,6 @@ class EndPointCheck:
             dataContent = dataContent.replace('\$\{' + varName + '\}', varValue)
         data = json.loads(dataContent)
 
-        cookie = cookiejar.CookieJar()
         cookieHandler = request.HTTPCookieProcessor(cookie)
         httpHandler = request.HTTPHandler()
         httpsHandler = request.HTTPSHandler()
@@ -210,9 +209,11 @@ class EndPointCheck:
             else:
                 urlSeq = config[confType]
                 hasError = False
+                cookie = cookiejar.CookieJar()
+                valuesJar = {}
                 for urlConf in urlSeq:
                     try:
-                        (ret, errorMsg) = self.execOneHttpReq(urlConf, timeOut)
+                        (ret, errorMsg) = self.execOneHttpReq(urlConf, cookie, valuesJar, timeOut)
                         if not ret:
                             hasError = True
                             break
@@ -489,7 +490,7 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None:
+        if node is None or node == '':
             node = os.getenv('AUTOEXEC_NODE')
         if node is None or node == '':
             print("ERROR: Can not find node definition.")

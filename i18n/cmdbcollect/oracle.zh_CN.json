@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Oracle"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -49,11 +48,9 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "OS_ID",
@@ -114,8 +111,7 @@
             "name": "CONN_STATS",
             "desc": "连接统计",
             "type": "JsonObject",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TOTAL_COUNT",
                     "desc": "连接总数",
                     "type": "Int"
@@ -176,8 +172,7 @@
             "name": "CONN_OUTBOUND_STATS",
             "desc": "出方向连接统计",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "REMOTE_ADDR",
                     "desc": "远程地址",
                     "type": "String"
@@ -213,8 +208,7 @@
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USERNAME",
                     "desc": "用户名",
                     "type": "String"
@@ -250,8 +244,7 @@
             "name": "DISK_GROUPS",
             "desc": "磁盘组列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -285,8 +278,7 @@
                     "name": "DISKS",
                     "desc": "磁盘列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -346,7 +338,7 @@
             "type": "String"
         },
         {
-            "name": "ISCDB",
+            "name": "IS_CDB",
             "desc": "是否CDB",
             "type": "Float"
         },
@@ -404,8 +396,7 @@
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"
@@ -436,13 +427,11 @@
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "名称",
+                "type": "String"
+            }]
         },
         {
             "name": "SGA_MAX_SIZE",
@@ -453,8 +442,7 @@
             "name": "TABLE_SPACESES",
             "desc": "表空间列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TABLESPACE_NAME",
                     "desc": "表空间名",
                     "type": "String"
@@ -483,8 +471,7 @@
                     "name": "DATA_FILES",
                     "desc": "数据文件列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "FILE_NAME",
                             "desc": "文件名",
                             "type": "String"

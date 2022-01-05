@@ -11,3 +11,5 @@ pip3 install bigsuds -t $AUTOEXEC_HOME/plib
 pip3 install pyparsing -t $AUTOEXEC_HOME/plib
 pip3 install ping3 -t $AUTOEXEC_HOME/plib
 pip3 install requests -t $AUTOEXEC_HOME/plib
+pip3 install pywbem -t $AUTOEXEC_HOME/plib
+pip3 install pywbemtools -t $AUTOEXEC_HOME/plib
