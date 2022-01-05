@@ -2,7 +2,8 @@
     "label": "存储",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -38,6 +39,16 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "DEV_NAME",
             "desc": "设备名",
             "type": "String"
@@ -46,7 +57,8 @@
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -69,15 +81,11 @@
             ]
         },
         {
-            "name": "MODEL",
-            "desc": "设备型号",
-            "type": "String"
-        },
-        {
             "name": "POOLS",
             "desc": "盘池列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -106,7 +114,8 @@
                     "name": "LUNS",
                     "desc": "逻辑磁盘列表",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "ID",
                             "desc": "ID",
                             "type": "String"
@@ -131,15 +140,11 @@
             ]
         },
         {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
             "name": "VOLUMES",
             "desc": "卷列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"

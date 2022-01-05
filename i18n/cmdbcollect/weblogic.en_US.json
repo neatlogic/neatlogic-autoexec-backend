@@ -338,7 +338,7 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "DOMAIN_HOME",

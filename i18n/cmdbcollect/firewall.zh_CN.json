@@ -41,13 +41,13 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "设备名",
+            "name": "MODEL",
+            "desc": "设备型号",
             "type": "String"
         },
         {
-            "name": "MODEL",
-            "desc": "设备型号",
+            "name": "DEV_NAME",
+            "desc": "设备名",
             "type": "String"
         }
     ]

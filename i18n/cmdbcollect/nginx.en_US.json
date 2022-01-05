@@ -271,7 +271,7 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "CONF_FILE",

@@ -58,6 +58,8 @@ def getDefaultFieldKeys():
         'SYS_VENDOR',
         'VENDOR',
         'SN',
+        'MODEL',
+        'UPTIME',
         'KERNEL_VERSION',
         'OPEN_FILES_COUNT',
         'MAX_OPEN_FILES',
@@ -124,6 +126,8 @@ def correctTypeDef(fieldDef):
         fieldType = fieldDef['type'].lower()
         if fieldType == 'string':
             fieldType = 'String'
+        if fieldType == 'text':
+            fieldType = 'Text'
         elif fieldType == 'int':
             fieldType = 'Int'
         elif fieldType == 'float':
@@ -138,6 +142,8 @@ def correctTypeDef(fieldDef):
             fieldName = fieldDef['name']
             if fieldName == 'AVAILABILITY':
                 fieldDef['type'] = 'Int'
+            elif fieldName in ('COMMAND', 'HEALTH_CHECK'):
+                fieldDef['type'] = 'Text'
             elif fieldType == 'Float' and ('PID' in fieldName or 'PORT' in fieldName):
                 fieldDef['type'] = 'Int'
             elif 'IS_' in fieldName:
@@ -207,8 +213,9 @@ def getIcon(name):
     else:
         return None
 
-def getDefaultThreshold(dictPath, name , obj_type):
-    threshold = [] 
+
+def getDefaultThreshold(dictPath, name, obj_type):
+    threshold = []
     jsonFile = dictPath + "/inspect_default_threshold.json"
     if(os.path.isfile(jsonFile)):
         data = {}
@@ -217,38 +224,40 @@ def getDefaultThreshold(dictPath, name , obj_type):
             f.close()
         if name in data:
             threshold = data[name]
-        else :
+        else:
             if obj_type in data:
                 threshold = data[obj_type]
-    else :
+    else:
         print("ERROR: Not found json file: inspect_default_threshold.json .")
-    return threshold 
+    return threshold
 
-def checkThresholdExist(threshold , dbThresholds) : 
+
+def checkThresholdExist(threshold, dbThresholds):
     #"$.MOUNT_POINTS[NAME startswith \"/\"].\"USED%\" > 10"
     #"$.MOUNT_POINTS.\"USED%\" >= 90"
-    exist = False 
+    exist = False
     localRule = threshold['rule']
     localKey = ''
-    if '[' in localRule :
+    if '[' in localRule:
         localKey = localRule[2:localRule.index('[')]
-    else : 
+    else:
         localKey = localRule.split('.')
         localKey = localKey[1]
 
-    for dbThreshold in dbThresholds : 
+    for dbThreshold in dbThresholds:
         dbRule = dbThreshold['rule']
         dbKey = ''
-        if '[' in dbRule :
+        if '[' in dbRule:
             dbKey = dbRule[2:dbRule.index('[')]
-        else : 
+        else:
             dbKey = dbRule.split('.')
             dbKey = dbKey[1]
 
-        if localKey == dbKey : 
-            exist = True 
-            break 
-    return  exist 
+        if localKey == dbKey:
+            exist = True
+            break
+    return exist
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -309,8 +318,8 @@ if __name__ == "__main__":
                     collection.create_index([('name', 1)], name='idx_pk', unique=True)
                     print("INFO: Import", dfile, "success.")
 
-		    #巡检文件内定义的默认阀值
-                    defaultThreshold = getDefaultThreshold(dictPath , data['label'] , tableName)
+                    # 巡检文件内定义的默认阀值
+                    defaultThreshold = getDefaultThreshold(dictPath, data['label'], tableName)
                     print("INFO: {} inspect plugin default threshold {} ." .format(name, defaultThreshold))
                     # 获取已经选择进入巡检报告定义的字段
                     inspectObj = inspectDef.find_one({'name': name})
@@ -328,14 +337,14 @@ if __name__ == "__main__":
                         inspectObj['label'] = data['label']
                         inspectObj['collection'] = data['collection']
                         inspectObj['filter'] = data['filter']
-			#合并已存在阀值和文件定义默认阀值
+                        # 合并已存在阀值和文件定义默认阀值
                         dbThreshold = inspectObj['thresholds']
-                        if len(dbThreshold) == 0 : 
+                        if len(dbThreshold) == 0:
                             inspectObj['thresholds'] = defaultThreshold
                         else:
                             newThreshold = dbThreshold.copy()
-                            for threshold in defaultThreshold :
-                                if checkThresholdExist(threshold , dbThreshold) == False :
+                            for threshold in defaultThreshold:
+                                if checkThresholdExist(threshold, dbThreshold) == False:
                                     newThreshold.append(threshold)
                             inspectObj['thresholds'] = newThreshold
 

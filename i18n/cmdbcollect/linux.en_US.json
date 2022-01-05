@@ -217,7 +217,7 @@
                 {
                     "name": "COMMAND",
                     "desc": "Command",
-                    "type": "String"
+                    "type": "Text"
                 }
             ]
         },
@@ -329,7 +329,7 @@
                 {
                     "name": "COMMAND",
                     "desc": "Command",
-                    "type": "String"
+                    "type": "Text"
                 }
             ]
         },

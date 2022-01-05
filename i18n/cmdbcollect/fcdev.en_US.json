@@ -81,6 +81,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
             "name": "BOOT_DATE",
             "desc": "Last Boot Date",
             "type": "String"
@@ -93,11 +98,6 @@
         {
             "name": "FIRMWARE_VERSION",
             "desc": "Firmware version",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "Device Model",
             "type": "String"
         },
         {

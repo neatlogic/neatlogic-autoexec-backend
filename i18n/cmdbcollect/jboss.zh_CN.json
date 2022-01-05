@@ -316,7 +316,7 @@
         {
             "name": "COMMAND",
             "desc": "命令行",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "JBOSS_BASE",

@@ -41,13 +41,13 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
+            "name": "MODEL",
+            "desc": "Device Model",
             "type": "String"
         },
         {
-            "name": "MODEL",
-            "desc": "Device Model",
+            "name": "DEV_NAME",
+            "desc": "Device Name",
             "type": "String"
         }
     ]

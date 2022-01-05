@@ -128,6 +128,16 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "DEV_NAME",
             "desc": "Device Name",
             "type": "String"
@@ -138,19 +148,9 @@
             "type": "String"
         },
         {
-            "name": "MODEL",
-            "desc": "Device Model",
-            "type": "String"
-        },
-        {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
         }
     ]
 }

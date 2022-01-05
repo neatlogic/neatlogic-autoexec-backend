@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -40,6 +41,16 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "CAPACITY",
             "desc": "Capacity(TB)",
             "type": "Float"
@@ -50,10 +61,16 @@
             "type": "String"
         },
         {
+            "name": "HEALTH_CHECK",
+            "desc": "健康检查报告",
+            "type": "Text"
+        },
+        {
             "name": "LUNS",
             "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -76,13 +93,14 @@
                 {
                     "name": "VISABLE_GROUPS",
                     "desc": "Visable Initiator Group",
-                    "type": "Array"
+                    "type": "array"
                 },
                 {
                     "name": "VISABLE_INITIATORS",
                     "desc": "Visable Initiator",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -105,16 +123,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "MODEL",
-            "desc": "Device Model",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
         }
     ]
 }

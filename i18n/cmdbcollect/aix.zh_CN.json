@@ -222,7 +222,7 @@
                 {
                     "name": "COMMAND",
                     "desc": "命令",
-                    "type": "String"
+                    "type": "Text"
                 }
             ]
         },
@@ -319,7 +319,7 @@
                 {
                     "name": "COMMAND",
                     "desc": "命令",
-                    "type": "String"
+                    "type": "Text"
                 }
             ]
         },

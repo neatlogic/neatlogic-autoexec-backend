@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -23,7 +24,8 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NO",
                     "desc": "Port No.",
                     "type": "String"
@@ -81,6 +83,16 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "BOOT_DATE",
             "desc": "Last Boot Date",
             "type": "String"
@@ -96,25 +108,16 @@
             "type": "String"
         },
         {
-            "name": "MODEL",
-            "desc": "Device Model",
-            "type": "String"
-        },
-        {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
         },
         {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
             "name": "ZONES",
             "desc": "Zone List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Zone Name",
                     "type": "String"

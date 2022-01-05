@@ -2,7 +2,8 @@
     "label": "存储网络设备",
     "collection": "COLLECT_FCDEV",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -21,7 +22,8 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "端口名",
                     "type": "String"
@@ -79,6 +81,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
             "name": "BOOT_DATE",
             "desc": "启动时间",
             "type": "String"
@@ -94,11 +101,6 @@
             "type": "String"
         },
         {
-            "name": "MODEL",
-            "desc": "设备型号",
-            "type": "String"
-        },
-        {
             "name": "PORTS_COUNT",
             "desc": "端口数量",
             "type": "Int"
@@ -107,7 +109,8 @@
             "name": "ZONES",
             "desc": "Zone列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"

@@ -262,7 +262,7 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "INITIAL_MASTER_NODES",

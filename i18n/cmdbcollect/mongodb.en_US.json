@@ -232,7 +232,7 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "CONFIG_FILE",

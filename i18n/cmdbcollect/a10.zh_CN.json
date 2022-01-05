@@ -46,11 +46,6 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "设备名",
-            "type": "String"
-        },
-        {
             "name": "MODEL",
             "desc": "设备型号",
             "type": "String"
@@ -58,6 +53,11 @@
         {
             "name": "UPTIME",
             "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
             "type": "String"
         },
         {

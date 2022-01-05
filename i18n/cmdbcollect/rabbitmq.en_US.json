@@ -266,7 +266,7 @@
         {
             "name": "COMMAND",
             "desc": "Command Line",
-            "type": "String"
+            "type": "Text"
         },
         {
             "name": "REF_CLUSTER",
