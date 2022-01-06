@@ -243,7 +243,7 @@ class VplexCollector:
         self.getVolumeByStorageViews(clusterNames)
         self.getStorageArrays(clusterNames)
 
-        if self.inspect:
+        if self.inspect == 1:
             self.healthCheck()
         self.data['_OBJ_CATEGORY'] = 'STORAGE'
         self.data['_OBJ_TYPE'] = 'Virtual_Storage'
@@ -264,9 +264,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('--timeout', default=10, help='Timeout value')
-    parser.add_argument('--inspect', default=False, action='store_true', help='Health check')
+    parser.add_argument('--inspect', default=0, help='Health check')
     args = parser.parse_args()
 
+    inspect = int(args.inspect)
     timeOut = int(args.timeout)
     if timeOut == 0:
         timeOut = 5
@@ -295,7 +296,7 @@ if __name__ == "__main__":
         password = nodeInfo['password']
 
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, args.timeout, args.inspect)
+        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, args.timeout, inspect)
         data = vplexCollector.collect()
         data['RESOURCE_ID'] = nodeInfo.get('resourceId')
         out = {'DATA': [data]}
