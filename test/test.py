@@ -19,6 +19,85 @@ def parseSizeStr(sizeStr):
     return size
 
 
+def parseTableHeader(headerLines, fieldLenArray):
+    head = []
+    for fieldLen in fieldLenArray:
+        head.append('')
+
+    for line in headerLines:
+        if line == '':
+            continue
+        pos = 0
+        for k in range(0, len(fieldLenArray)):
+            fieldLen = fieldLenArray[k]
+            head[k] = head[k] + line[pos:pos+fieldLen].strip() + ' '
+            pos = pos + fieldLen
+
+    for k in range(0, len(head)):
+        head[k] = head[k].strip()
+
+    return head
+
+
+def parseTableBody(bodyLines, fieldLenArray):
+    body = []
+    for line in bodyLines:
+        if line == '':
+            continue
+
+        record = []
+        pos = 0
+        for k in range(0, len(fieldLenArray)):
+            fieldLen = fieldLenArray[k]
+            record.append(line[pos:pos+fieldLen].strip())
+            pos = pos + fieldLen
+
+        body.append(record)
+
+    return body
+
+
+def parseTable(tableTxt):
+    lines = tableTxt.split('\n')
+    lineCount = len(lines)
+
+    fieldLenArray = []
+    headerLines = []
+    idx = 0
+    for idx in range(0, lineCount):
+        line = lines[idx]
+        headerLines.append(line)
+        if re.match(r'^[- ]+$', line):
+            for placeholder in line.split('  '):
+                fieldLenArray.append(len(placeholder) + 2)
+            headerLines.pop()
+            break
+
+    head = parseTableHeader(headerLines, fieldLenArray)
+    body = parseTableBody(lines[idx+1:], fieldLenArray)
+
+    return (head, body)
+
+
+def testParse():
+    summaryTxt = '''Cluster    Volume                               Volume          Oper   Health  Active  
+Name       Name                                 Type            State  State           
+---------  -----------------------------------  --------------  -----  ------  ------  
+cluster-1  vplex1_meta_backup_2022Jan03_000013  meta-volume     ok     ok      False   
+cluster-1  vplex1_log                           logging-volume  ok     ok      -       
+cluster-1  vplex1_meta_backup_2022Jan04_000017  meta-volume     ok     ok      False   
+cluster-1  vplex1_meta                          meta-volume     ok     ok      True    
+cluster-2  vplex2_log                           logging-volume  ok     ok      -       
+cluster-2  vplex2_meta_backup_2022Jan04_000015  meta-volume     ok     ok      False   
+cluster-2  vplex2_meta                          meta-volume     ok     ok      True    
+cluster-2  vplex2_meta_backup_2022Jan03_000020  meta-volume     ok     ok      False   
+
+'''
+    (head, body) = parseTable(summaryTxt)
+    print(head)
+    print(body)
+
+
 if __name__ == "__main__":
     print("Test...")
     x = Filter({"eq": ("foo", 1)})
@@ -58,4 +137,4 @@ if __name__ == "__main__":
     print("========================")
     print(result.asDict())
 
-    print(parseSizeStr('3T'))
+    testParse()

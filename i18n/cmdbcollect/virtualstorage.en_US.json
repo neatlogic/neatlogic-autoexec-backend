@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -69,8 +68,7 @@
             "name": "LUNS",
             "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -99,8 +97,7 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "Visable Initiator",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -121,6 +118,89 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUME_SUMMARY",
+            "desc": "Storage Vol Summary",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "CLUSTER_NAME",
+                    "desc": "Cluster Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "String"
+                },
+                {
+                    "name": "STORAGE-VOLUMES",
+                    "desc": "Vols Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "VENDOR",
+                    "desc": "Vendor Storage",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "NAME",
+                            "desc": "Vendor",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VOLUME_COUNT",
+                            "desc": "Count",
+                            "type": "Int"
+                        }
+                    ]
+                },
+                {
+                    "name": "OUT-OF-DATE",
+                    "desc": "Out of Date",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNHEALTHY",
+                    "desc": "Unhealth",
+                    "type": "Int"
+                },
+                {
+                    "name": "META-DATA",
+                    "desc": "Meta Data",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUMES_UNHEALTH",
+            "desc": "Storage Vol Unhealth",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IO_STATUS",
+                    "desc": "IO Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Oper Status",
+                    "type": "String"
+                },
+                {
+                    "name": "HEALTH_STATE",
+                    "desc": "Health State",
+                    "type": "String"
                 }
             ]
         }

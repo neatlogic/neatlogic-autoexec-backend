@@ -34,6 +34,62 @@ class VplexCollector:
                         'username': userName,
                         'password': password}
 
+    def parseTableHeader(self, headerLines, fieldLenArray):
+        head = []
+        for fieldLen in fieldLenArray:
+            head.append('')
+
+        for line in headerLines:
+            if line == '':
+                continue
+            pos = 0
+            for k in range(0, len(fieldLenArray)):
+                fieldLen = fieldLenArray[k]
+                head[k] = head[k] + line[pos:pos+fieldLen].strip() + ' '
+                pos = pos + fieldLen
+
+        for k in range(0, len(head)):
+            head[k] = head[k].strip()
+
+        return head
+
+    def parseTableBody(self, bodyLines, fieldLenArray):
+        body = []
+        for line in bodyLines:
+            if line == '':
+                continue
+
+            record = []
+            pos = 0
+            for k in range(0, len(fieldLenArray)):
+                fieldLen = fieldLenArray[k]
+                record.append(line[pos:pos+fieldLen].strip())
+                pos = pos + fieldLen
+
+            body.append(record)
+
+        return body
+
+    def parseTable(self, lines):
+        lineCount = len(lines)
+
+        fieldLenArray = []
+        headerLines = []
+        idx = 0
+        for idx in range(0, lineCount):
+            line = lines[idx]
+            headerLines.append(line)
+            if re.match(r'^[- ]+$', line):
+                for placeholder in line.split('  '):
+                    fieldLenArray.append(len(placeholder) + 2)
+                headerLines.pop()
+                break
+
+        head = self.parseTableHeader(headerLines, fieldLenArray)
+        body = self.parseTableBody(lines[idx+1:], fieldLenArray)
+
+        return (head, body)
+
     def getContext(self, contextDir):
         url = self.baseUrl + '/' + contextDir
         try:
@@ -210,6 +266,57 @@ class VplexCollector:
 
         return volsMap
 
+    def getStorageVolumeSummary(self, clusterNames):
+        unhealthVols = []
+        summarys = []
+
+        for clusterName in clusterNames:
+            storVolSummaryRes = self.execCommand('storage-volume summary', {'args': '--clusters ' + clusterName})
+            cmdOut = storVolSummaryRes['response']['custom-data']
+            outLines = cmdOut.split('\n')
+            idx = 0
+            for idx in range(0, len(outLines)):
+                line = outLines[idx]
+                if re.match(r'Storage-Volume Summary', line):
+                    break
+            if idx > 0:
+                (head, body) = self.parseTable(outLines[0:idx])
+                for record in body:
+                    unhealthVolInfo = {}
+                    for k in range(0, len(head)):
+                        if head[k] == 'StorageVolume Name':
+                            unhealthVolInfo['NAME'] = record[k]
+                        elif head[k] == 'IO Status':
+                            unhealthVolInfo['IO_STATUS'] = record[k]
+                        elif head[k] == 'Operational Status':
+                            unhealthVolInfo['OPER_STATUS'] = record[k]
+                        elif head[k] == 'Health State':
+                            unhealthVolInfo['HEALTH_STATE'] = record[k]
+                    unhealthVols.append(unhealthVolInfo)
+
+            (head, body) = self.parseTable(outLines[idx:])
+            summaryInfo = {}
+            summaryInfo['CLUSTER_NAME'] = clusterName
+            vendorInfos = []
+            summaryInfo['VENDOR'] = vendorInfos
+            preFType = None
+            for record in body:
+                fType = record[0]
+                subSegs = re.split('\s+', record[1])
+                if fType == '':
+                    fType = preFType
+                if fType == 'Vendor':
+                    vendorInfos.append({'NAME': subSegs[0], 'VOLUME_COUNT': int(subSegs[1])})
+                elif fType == 'Capacity':
+                    summaryInfo['CAPACITY'] = subSegs[1]
+                else:
+                    summaryInfo[subSegs[0].upper()] = int(subSegs[1])
+
+            summarys.append(summaryInfo)
+
+        self.data['STORAGE_VOLUMES_UNHEALTH'] = unhealthVols
+        self.data['STORAGE_VOLUME_SUMMARY'] = summarys
+
     def getStorageArrays(self, clusterNames):
         storArrayInfos = []
         for clusterName in clusterNames:
@@ -242,6 +349,7 @@ class VplexCollector:
         clusterNames = self.getClusterNames()
         self.getVolumeByStorageViews(clusterNames)
         self.getStorageArrays(clusterNames)
+        self.getStorageVolumeSummary(clusterNames)
 
         if self.inspect == 1:
             self.healthCheck()
@@ -291,7 +399,7 @@ if __name__ == "__main__":
         hasError = False
 
         ip = nodeInfo['host']
-        port = nodeInfo['protocolPort']
+        #port = nodeInfo['protocolPort']
         username = nodeInfo['username']
         password = nodeInfo['password']
 
