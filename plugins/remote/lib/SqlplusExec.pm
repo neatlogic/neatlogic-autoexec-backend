@@ -36,9 +36,31 @@ sub new {
         $isRoot = 1;
     }
 
+    bless( $self, $type );
+    $self->evalProfile();
+    if ( defined( $self->{sid} ) and $self->{sid} ne '' ) {
+        $ENV{ORACLE_SID} = $self->{sid};
+        print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
+    }
+    if ( defined( $self->{oraHome} and $self->{oraHome} ne '' ) ) {
+        $ENV{ORACLE_HOME} = $self->{oraHome};
+        my $path     = $ENV{PATH};
+        my $oraBin   = File::Spec->canonpath("$oraHome/bin");
+        my $patchBin = File::Spec->canonpath("$oraHome/OPatch");
+        if ( $path !~ /$oraBin/ or $path !~ /$patchBin/ ) {
+            if ( $self->{osType} eq 'Windows' ) {
+                $ENV{PATH} = "$oraBin;$patchBin;$path";
+            }
+            else {
+                $ENV{PATH} = "$oraBin:$patchBin:$path";
+            }
+        }
+    }
+
+    my $oraSid     = $ENV{ORACLE_SID};
     my $sqlplusCmd = 'sqlplus -s -R 1 -L / as sysdba';
     if ( $isRoot and defined( $args{osUser} ) ) {
-        $sqlplusCmd = qq{su - $osUser -c "sqlplus -s -R 1 -L / as sysdba"};
+        $sqlplusCmd = qq{su - $osUser -c "ORACLE_SID=$oraSid sqlplus -s -R 1 -L / as sysdba"};
     }
     if (    defined( $args{username} )
         and defined( $args{password} ) )
@@ -61,33 +83,12 @@ sub new {
         if ( defined( $args{dbname} ) ) {
             $sqlplusCmd = qq(sqlplus -s -R 1 -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
             if ( $isRoot and defined( $args{osUser} ) ) {
-                $sqlplusCmd = qq(su - $osUser -c "sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                $sqlplusCmd = qq(su - $osUser -c "ORACLE_SID=$oraSid sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
             }
         }
     }
 
     $self->{sqlplusCmd} = $sqlplusCmd;
-
-    bless( $self, $type );
-    $self->evalProfile();
-    if ( defined( $self->{sid} ) and $self->{sid} ne '' ) {
-        $ENV{ORACLE_SID} = $self->{sid};
-        print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
-    }
-    if ( defined( $self->{oraHome} and $self->{oraHome} ne '' ) ) {
-        $ENV{ORACLE_HOME} = $self->{oraHome};
-        my $path     = $ENV{PATH};
-        my $oraBin   = File::Spec->canonpath("$oraHome/bin");
-        my $patchBin = File::Spec->canonpath("$oraHome/OPatch");
-        if ( $path !~ /$oraBin/ or $path !~ /$patchBin/ ) {
-            if ( $self->{osType} eq 'Windows' ) {
-                $ENV{PATH} = "$oraBin;$patchBin;$path";
-            }
-            else {
-                $ENV{PATH} = "$oraBin:$patchBin:$path";
-            }
-        }
-    }
 
     return $self;
 }

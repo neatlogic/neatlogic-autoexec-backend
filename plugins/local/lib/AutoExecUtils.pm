@@ -66,6 +66,9 @@ sub saveOutput {
             die("ERROR: Can not open output file:$outputPath to write.\n");
         }
     }
+    else{
+        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n");
+    }
 }
 
 sub getMyNode {

@@ -67,6 +67,8 @@ def saveOutput(outputData):
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, ensure_ascii=False))
         outputFile.close()
+    else:
+        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n")
 
 
 def getOutput(output_path):

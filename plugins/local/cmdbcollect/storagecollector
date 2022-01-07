@@ -11,6 +11,7 @@ use JSON;
 use Getopt::Long;
 use AutoExecUtils;
 use CollectObjCat;
+use StorageBase;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -28,11 +29,13 @@ sub main {
     my $isVerbose = 0;
     my $community;
     my $timeout = 10;
+    my $inspect = 0;
 
     GetOptions(
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'type=s'      => \$type,
+        'inspect=i'   => \$inspect,
         'community=s' => \$community,
         'timeout=i'   => \$timeout
     );
@@ -69,7 +72,7 @@ sub main {
     my $isFailed = 0;
 
     my $brand = $type;
-    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect=>$inspect );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
         $brand = $storageBase->getBrand();
     }
@@ -88,7 +91,7 @@ sub main {
         print("INFO: Has defined class $storageClass, try to load it.\n");
         eval {
             require "$storageClass.pm";
-            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect=>$inspect );
         };
         if ($@) {
             $isFailed = 1;

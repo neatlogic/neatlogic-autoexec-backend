@@ -11,6 +11,7 @@ sub new {
     my $self = {};
     $self->{brand} = $args{brand};
     $self->{node}  = $args{node};
+    $self->{inspect} = $args{inspect};
     $self->{DATA}  = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
