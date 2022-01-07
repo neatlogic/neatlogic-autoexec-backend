@@ -102,7 +102,7 @@ sub getDeviceInfo {
     my $hostName = $ssh->runCmd($cmd);
     $hostName =~ s/^\s*|\s*$//g;
     $data->{DEV_NAME} = $hostName;
-    
+
     $cmd = 'system controller show -fields node,model,part-number,revision,serial-number,controller-type,status,chassis-id';
     my @controllerLines = split( "\n", $ssh->runCmd($cmd) );
     ( $header, $records ) = $self->parseCmdOut( \@controllerLines );

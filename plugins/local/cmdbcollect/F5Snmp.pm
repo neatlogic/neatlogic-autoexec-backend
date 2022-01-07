@@ -19,9 +19,9 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5',                                    #sysName
+        DEV_NAME => '1.3.6.1.2.1.1.5.0',                                  #sysName
         SN       => '1.3.6.1.4.1.3375.2.1.3.3.3.0',                       #sysGeneralChassisSerialNum
-        IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',                   #sysAdminIpAddr
+                                                                          #IP       => '1.3.6.1.4.1.3375.2.1.2.1.1.2.1.2',                   #sysAdminIpAddr
         MODEL    => '1.3.6.1.4.1.3375.2.1.3.5.2.0',                       #sysPlatformInfoMarketingName
                                                                           #MODEL   => '1.3.6.1.4.1.3375.2.1.3.5.1', #sysPlatformInfoName
         VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',                         #sysProductName
@@ -126,7 +126,7 @@ sub _getScalar {
 
     #IP格式转换，从0x0A064156转换为可读格式
     $scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
-
+    $scalarData->{SN} =~ s/^\s*|\s*$//g;
     return $scalarData;
 }
 
@@ -149,7 +149,8 @@ sub _getVS {
     }
 
     foreach my $memberInfo (@$memberData) {
-        my $poolInfo = $memberInfo->{POOL_NAME};
+        my $poolName = $memberInfo->{POOL_NAME};
+        my $poolInfo = $poolMap->{$poolName};
         my $members  = $poolInfo->{MEMBERS};
         if ( not defined($members) ) {
             $members = [];

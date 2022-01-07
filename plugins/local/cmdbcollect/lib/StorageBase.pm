@@ -9,10 +9,10 @@ use SnmpHelper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{brand} = $args{brand};
-    $self->{node}  = $args{node};
+    $self->{brand}   = $args{brand};
+    $self->{node}    = $args{node};
     $self->{inspect} = $args{inspect};
-    $self->{DATA}  = { PK => ['MGMT_IP'] };
+    $self->{DATA}    = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
