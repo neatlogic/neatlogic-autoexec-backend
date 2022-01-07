@@ -85,6 +85,13 @@ sub main {
         print("INFO: Storage brand: $brand.\n");
     }
 
+    if ( $brand eq 'Vplex' ){
+        exec(qq{$FindBin::Bin/vplexunitycollector --node '$node' --inspect $inspect --timeout $timeout --verbose $isVerbose});
+    }
+    elsif( $brand eq 'HP_3PAR' ){
+        exec(qq{$FindBin::Bin/hp3parcollector --node '$node' --inspect $inspect --timeout $timeout --verbose $isVerbose});
+    }
+
     my $storageIns;
     my $storageClass = "Storage$brand";
     if ( -e "$FindBin::Bin/$storageClass.pm" or -e "$FindBin::Bin/lib/$storageClass.pm" ) {

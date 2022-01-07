@@ -34,6 +34,10 @@ class VplexCollector:
                         'username': userName,
                         'password': password}
 
+    def wwnAddColon(self, wwn):
+        pattern = re.compile('.{2}')
+        return ':'.join(pattern.findall(wwn))
+
     def parseTableHeader(self, headerLines, fieldLenArray):
         head = []
         for fieldLen in fieldLenArray:
@@ -253,8 +257,8 @@ class VplexCollector:
                         volInfo['VISABLE_INITIATORS'].append(
                             {
                                 'NAME': hbaInfo['name'],
-                                'NODE_WWN': hbaInfo['node-wwn'][2:],
-                                'PORT_WWN': hbaInfo['port-wwn'][2:],
+                                'WWNN': self.wwnAddColon(hbaInfo['node-wwn'][2:]),
+                                'WWPN': self.wwnAddColon(hbaInfo['port-wwn'][2:]),
                                 'TYPE': hbaInfo['type']
                             }
                         )
@@ -371,12 +375,17 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--verbose', default=0, help='Verbose')
     parser.add_argument('--timeout', default=10, help='Timeout value')
     parser.add_argument('--inspect', default=0, help='Health check')
+    parser.add_argument('otherthings', nargs=argparse.REMAINDER)
+
     args = parser.parse_args()
 
     inspect = int(args.inspect)
     timeOut = int(args.timeout)
+    verbose = int(args.verbose)
+
     if timeOut == 0:
         timeOut = 5
 
@@ -404,12 +413,13 @@ if __name__ == "__main__":
         password = nodeInfo['password']
 
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, args.timeout, inspect)
+        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, timeOut, inspect)
         data = vplexCollector.collect()
         data['RESOURCE_ID'] = nodeInfo.get('resourceId')
         out = {'DATA': [data]}
         AutoExecUtils.saveOutput(out)
-        print(json.dumps(data, ensure_ascii=True, indent=4))
+        if verbose == 1:
+            print(json.dumps(data, ensure_ascii=True, indent=4))
     except Exception as ex:
         errorMsg = str(ex)
         print("ERROR:", errorMsg)

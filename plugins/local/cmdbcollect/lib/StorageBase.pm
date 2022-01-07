@@ -47,7 +47,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' ) {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -56,7 +56,7 @@ sub new {
     my ( $session, $error ) = Net::SNMP->session(%$options);
 
     if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{host} failed, $error\n");
+        print("ERROR:Create snmp session to $args{hostname} failed, $error\n");
         exit(-1);
     }
 
@@ -191,6 +191,8 @@ sub getBrand {
         'IBM'        => 'IBM',
         'HP'         => 'HP',
         'Huawei'     => 'Huawei',
+        'Vplex'      => 'Vplex',
+        'Unity'      => 'Vplex',
         'EMC'        => 'EMC',
         'Connectrix' => 'EMC'
     };
