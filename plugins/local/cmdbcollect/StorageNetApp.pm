@@ -98,6 +98,11 @@ sub getDeviceInfo {
     my $header;
     my $records;
 
+    $cmd = 'hostname';
+    my $hostName = $ssh->runCmd($cmd);
+    $hostName =~ s/^\s*|\s*$//g;
+    $data->{DEV_NAME} = $hostName;
+    
     $cmd = 'system controller show -fields node,model,part-number,revision,serial-number,controller-type,status,chassis-id';
     my @controllerLines = split( "\n", $ssh->runCmd($cmd) );
     ( $header, $records ) = $self->parseCmdOut( \@controllerLines );
@@ -113,6 +118,7 @@ sub getDeviceInfo {
             STATUS          => $record->{'status'},
             CHASSIS_ID      => $record->{'chassis-id'}
         };
+        $data->{SN} = $record->{'chassis-id'};
         $controllersMap->{$name} = $controllerInfo;
     }
 
