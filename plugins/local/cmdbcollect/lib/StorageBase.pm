@@ -191,9 +191,9 @@ sub getBrand {
         'IBM'        => 'IBM',
         'HP'         => 'HP',
         'Huawei'     => 'Huawei',
-        'Vplex'      => 'Vplex',
-        'Unity'      => 'Vplex',
-        'RPA'        => 'RPA',
+        'Vplex'      => 'EMC_Vplex',
+        'Unity'      => 'EMC_Vplex',
+        'RPA'        => 'EMC_RPA',
         'EMC'        => 'EMC',
         'Connectrix' => 'EMC'
     };
