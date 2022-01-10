@@ -133,6 +133,7 @@ sub parseRpaInfo{
 sub getDeviceInfo{
     my ($self) = @_;
     my $data = $self->{data};
+    my $nodeInfo = $self->{node};
     my $ssh    = $self->{ssh};
 
     my $cmd;
@@ -173,7 +174,7 @@ sub getDeviceInfo{
             push(@$rpas, $rpaInfo);
             my $nics = $rpaInfo->{ETH_INTERFACES};
             foreach my $nic (@$nics){
-                if ( $nic->{IP} eq '10.0.255.11' ){
+                if ( $nic->{IP} eq $nodeInfo->{host} ){
                     $currentRpa = $rpaInfo;
                     $currentClusterName = $clusterName;
                 }
