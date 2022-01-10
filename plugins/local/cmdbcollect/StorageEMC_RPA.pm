@@ -5,7 +5,7 @@ use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
 
-package StorageRPA;
+package StorageEMC_RPA;
 
 use SSHExpect;
 use XML::MyXML qw(xml_to_object);

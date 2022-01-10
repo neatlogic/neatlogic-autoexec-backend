@@ -36,6 +36,18 @@
                     "value": "EMC_Vnx"
                 },
                 {
+                    "text": "EMC_Vplex",
+                    "value": "EMC_Vplex"
+                },
+                {
+                    "text": "EMC_RPA",
+                    "value": "EMC_RPA"
+                },
+                {
+                    "text": "HP_3PAR",
+                    "value": "HP_3PAR"
+                },
+                {
                     "text": "HDS_AMS",
                     "value": "HDS_AMS"
                 },

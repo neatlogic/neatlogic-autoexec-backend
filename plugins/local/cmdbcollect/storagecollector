@@ -85,7 +85,7 @@ sub main {
         print("INFO: Storage brand: $brand.\n");
     }
 
-    if ( $brand eq 'Vplex' ){
+    if ( $brand eq 'EMC_Vplex' ){
         exec(qq{$FindBin::Bin/vplexunitycollector --node '$node' --inspect $inspect --timeout $timeout --verbose $isVerbose});
     }
     elsif( $brand eq 'HP_3PAR' ){

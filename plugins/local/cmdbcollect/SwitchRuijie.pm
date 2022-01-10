@@ -9,25 +9,16 @@ sub before {
     my ($self) = @_;
 
     #SN可能要调整，如果有多个可能，就在数组里添加
-    $self->addScalarOid( SN => [ '1.3.6.1.4.1.9.3.6.3.0', '1.3.6.1.4.1.9.5.1.2.19.0', '1.3.6.1.2.1.47.1.1.1.1.11.1001', '1.3.6.1.2.1.47.1.1.1.1.11.2001', '1.3.6.1.4.1.9.9.92.1.1.1.2.0' ] );
+    $self->addScalarOid(
+        SN       => [ '1.3.6.1.4.1.4881.1.1.10.2.21.1.2.1.10.1', '1.3.6.1.4.1.4881.1.1.10.2.1.1.24.0' ],
+        IOS_INFO => '1.3.6.1.4.1.4881.1.1.10.2.21.1.2.1.8.1',
+        MODEL    => '1.3.6.1.4.1.4881.1.1.10.2.21.1.2.1.2.1'
+    );
 }
 
 sub after {
     my ($self) = @_;
     my $data = $self->{DATA};
-
-    my $iosInfo = $data->{IOS_INFO};
-    if ( defined($iosInfo) and $iosInfo ne '' ) {
-        $iosInfo =~ s/Switch\s*\(.*$/Switch/is;
-        $data->{IOS_INFO} = $iosInfo;
-    }
-
-    my $model = $data->{MODEL};
-    if ( defined($model) ) {
-        if ( $model =~ /Switch\s*\((.*?)\)/is ) {
-            $data->{MODEL} = $1;
-        }
-    }
 }
 
 1;
