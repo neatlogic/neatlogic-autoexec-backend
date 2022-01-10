@@ -48,6 +48,10 @@ sub collect {
         timeout     => $self->{timeout},
         master_opts => [ -o => "StrictHostKeyChecking=no" ]
     );
+    if ( $ssh->error ){
+        print("ERROR: Cound not connect to $nodeInfo->{host}, " . $ssh->error);
+        exit(-1);
+    }
 
     my $sysInfo = $ssh->capture('show storage-system-name');
     if ( $sysInfo =~ /Name\s*\[(.*?)\]\s+/ ) {

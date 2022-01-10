@@ -14,6 +14,10 @@ sub new {
     if ( defined( $attr{PROMPT} ) ) {
         $PROMPT = $attr{PROMPT};
     }
+    $self->{exitCmd} = 'exit';
+    if ( defined( $attr{exitCmd} ) ) {
+        $self->{exitCmd} = $attr{exitCmd};
+    }
 
     $self->{PROMPT} = $PROMPT;
 
@@ -50,8 +54,15 @@ sub login {
     $spawn->spawn($sshCmd);
     $spawn->slave->stty(qw(raw -echo));
 
-    $spawn->expect( 3, '-re', "password:" );
-    $spawn->send("$password\n");
+    $spawn->expect(
+        3,
+        [
+            qr/password:/i => sub {
+                $spawn->send("$password\n");
+            }
+        ]
+    );
+
     $spawn->expect(
         5,
         [
@@ -60,7 +71,7 @@ sub login {
             }
         ],
         [
-            qr/password:/ => sub {
+            qr/password:/i => sub {
                 print( $spawn->before() );
                 print("ERROR: login $username\@$host:$port failed.\n");
                 $spawn->hard_close();
@@ -79,7 +90,7 @@ sub login {
     END {
         local $?;
         if ( defined($spawn) ) {
-            $spawn->send("exit\n");
+            $spawn->send( $self->{exitCmd} . "\n" );
             $spawn->soft_close();
         }
     }

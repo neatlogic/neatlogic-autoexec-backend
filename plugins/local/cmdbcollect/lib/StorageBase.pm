@@ -193,6 +193,7 @@ sub getBrand {
         'Huawei'     => 'Huawei',
         'Vplex'      => 'Vplex',
         'Unity'      => 'Vplex',
+        'RPA'        => 'RPA',
         'EMC'        => 'EMC',
         'Connectrix' => 'EMC'
     };

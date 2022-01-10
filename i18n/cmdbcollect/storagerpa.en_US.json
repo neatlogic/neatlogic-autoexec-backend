@@ -1,0 +1,308 @@
+{
+    "label": "EMC RPA",
+    "collection": "COLLECT_STORAGE",
+    "filter": {
+        "_OBJ_TYPE": "RPA"
+    },
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "Int"
+        },
+        {
+            "name": "STATE",
+            "desc": "State",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "Brand",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Dev Serial",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "Health Status",
+            "type": "String"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU Cores",
+            "type": "Int"
+        }, {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
+        }, {
+            "name": "REPOSITORY_VOL_STATUS",
+            "desc": "Repository Vol Status",
+            "type": "String"
+        }, {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP Address",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Gbps)",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "WWPN",
+                    "desc": "WWPN",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Link TPYE",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Gbps)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTERS",
+            "desc": "Clusters Config",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "COPIES",
+                    "desc": "Copies",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CLUSTER_NAME",
+                            "desc": "Cluster Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL_SIZE",
+                            "desc": "Journal Total Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_SIZE",
+                            "desc": "Journal Used Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "JOURNAL_LAG",
+                            "desc": "Journal Lag(M)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "LATEST_SNAPSHOT",
+                            "desc": "Latest Snapshot",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STORAGE_SNAPSHOT",
+                            "desc": "Storage Snapshot",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORTECTION_WINDOW",
+                            "desc": "Protection Window(days)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "PREDICT_PORTECTION_WINDOW",
+                            "desc": "Predict Protection Window(days)",
+                            "type": "Float"
+                        }
+                    ]
+                },
+                {
+                    "name": "LINKS",
+                    "desc": "Links",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CLUSTER_NAME",
+                            "desc": "Cluster Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "THROUGHPUT",
+                            "desc": "Throughput(M)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AVG_THROUGHPUT",
+                            "desc": "Avg Throughput(M)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "WRITE_IOPS",
+                            "desc": "Write IOPS",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "AVG_WRITE_IOPS",
+                            "desc": "Avg Write IOPS",
+                            "type": "Int"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CONSISTENCY_GROUPS",
+            "desc": "Consistency Groups",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "RPAS",
+                    "desc": "Rpas in Cluster",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Dev Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "Health Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEM_SIZE",
+                            "desc": "Memory Size(M)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "REPOSITORY_VOL_STATUS",
+                            "desc": "Repository Vol Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VERSION",
+                            "desc": "Version",
+                            "type": "String"
+                        }, {
+                            "name": "ETH_INTERFACES",
+                            "desc": "NIC",
+                            "type": "JsonArray",
+                            "subset": [{
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "IP",
+                                    "desc": "IP Address",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "Link Status",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SPEED",
+                                    "desc": "Speed(Mbps)",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "HBA_INTERFACES",
+                            "desc": "HBA Interfaces",
+                            "type": "JsonArray",
+                            "subset": [{
+                                    "name": "WWPN",
+                                    "desc": "WWPN",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "TYPE",
+                                    "desc": "Link TPYE",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SPEED",
+                                    "desc": "Speed",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

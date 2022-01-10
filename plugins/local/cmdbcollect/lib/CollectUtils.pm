@@ -321,6 +321,8 @@ sub getDiskSizeFormStr {
     my ( $self, $sizeStr ) = @_;
     chomp($sizeStr);
     $sizeStr =~ s/,//g;
+    $sizeStr =~ s/\s//g;
+
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
@@ -357,6 +359,7 @@ sub getMemSizeFromStr {
     my ( $self, $sizeStr, $defaultUnit ) = @_;
     chomp($sizeStr);
     $sizeStr =~ s/,//g;
+    $sizeStr =~ s/\s//g;
 
     if ( defined($defaultUnit) and $sizeStr =~ /\d$/ ) {
         $sizeStr = $sizeStr . $defaultUnit;
@@ -398,6 +401,9 @@ sub getNicSpeedFromStr {
     my ( $self, $speedStr ) = @_;
     chomp($speedStr);
     $speedStr =~ s/,//g;
+    $sizeStr =~ s/\s//g;
+    $peedStr =~ s/\/s$//g;
+
     my $speed;
     my $unit = 'Mb/s';
     if ( $speedStr =~ /K|Kb/i ) {

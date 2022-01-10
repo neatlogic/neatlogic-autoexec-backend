@@ -120,8 +120,13 @@ sub main {
     my $data = $storageIns->collect();
 
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
-    $data->{_OBJ_TYPE}     = 'Storage';
-    $data->{_APP_TYPE}     = $brand;
+    if ( not defined($data->{_OBJ_TYPE}) ){
+        $data->{_OBJ_TYPE}     = 'Storage';
+    }
+    if ( not defined($data->{_APP_TYPE}) ){
+        $data->{_APP_TYPE}     = $brand;
+    }
+    
     $data->{MGMT_IP}       = $nodeInfo->{host};
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
