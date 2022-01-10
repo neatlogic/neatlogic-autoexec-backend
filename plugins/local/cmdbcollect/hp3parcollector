@@ -131,7 +131,7 @@ class HP3parCollector:
 
     def getLunInfo(self):
         iGroupMap = self.getInitiators()
-        print(json.dumps(iGroupMap, indent=4, ensure_ascii=True))
+        #print(json.dumps(iGroupMap, indent=4, ensure_ascii=True))
         lunsMap = {}
         instances = self.getCIMClassInstances('TPD_StorageVolume')
         for ins in instances:
@@ -163,7 +163,7 @@ class HP3parCollector:
             members = {}
             for wwnInfo in iGroup['MEMBERS']:
                 members[wwnInfo['WWN']] = 1
-            for wwn in members.values():
+            for wwn in members.keys():
                 lunInfo['VISABLE_INITIATORS'].append(wwn)
 
         self.data['LUNS'] = list(lunsMap.values())
