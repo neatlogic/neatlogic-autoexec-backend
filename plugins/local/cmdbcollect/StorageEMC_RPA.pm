@@ -29,6 +29,7 @@ sub new {
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
 
+    $ENV{TERM} = 'xterm';
     my $ssh = SSHExpect->new(
         host     => $node->{host},
         port     => $node->{protocolPort},

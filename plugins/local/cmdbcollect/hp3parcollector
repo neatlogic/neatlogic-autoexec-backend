@@ -48,10 +48,10 @@ class HP3parCollector:
 
     def getDeviceInfo(self):
         instances = self.getCIMClassInstances('TPD_StorageSystem')
-        sysProps = instances[0].properties
-        self.data['DEV_NAME'] = sysProps['ElementName'].value
-        self.data['MACHINE_ID'] = sysProps['Name'].value
-        descs = sysProps['Description'].value.split(',')
+        sysIns = instances[0]
+        self.data['DEV_NAME'] = sysIns.get('ElementName')
+        self.data['MACHINE_ID'] = sysIns.get('Name')
+        descs = sysIns.get('Description').split(',')
         self.data['MODEL'] = descs[0]
         for desc in descs:
             matchObj = re.match(r'Serial\s+number:\s*(\S*?)$', desc, re.IGNORECASE)
@@ -63,29 +63,46 @@ class HP3parCollector:
                 self.data['IOS_VERSION'] = matchObj.group(1)
                 continue
 
+        nodesMap = {}
         nodes = []
         instances = self.getCIMClassInstances('TPD_NodeSystem')
         for ins in instances:
+            uuid = ins.get('Name')
+            eleName = ins.get('ElementName')
             nodeInfo = {
-                'NAME': ins.properties['ElementName'].value,
-                'DESC': ins.properties['Description'].value,
-                'SN': ins.properties['Name'].value,
-                'VERSION': ins.properties['KernelVersion'].value
+                'NAME': eleName,
+                'UUID': uuid,
+                'DESC': ins.get('Description'),
+                'SN': ins.get('Name'),
+                'VERSION': ins.get('KernelVersion'),
+                'HBA_INTERFACES': []
             }
-            if ins.properties['IsOnline'].value:
+            if ins.get('IsOnline'):
                 nodeInfo['STATUS'] = 'online'
             else:
                 nodeInfo['STATUS'] = 'offline'
             nodes.append(nodeInfo)
+            nodesMap[uuid] = nodeInfo
         self.data['CONTROLLERS'] = nodes
+        return nodesMap
+
+    def getControlerFCPortMap(self):
+        controllerFcPortMap = {}
+        # CIM类CIM_SystemFCPort是Controller节点和FC口的关系类，关系类通过value中的keybindings属性来关联
+        instances = self.getCIMClassInstances('TPD_SystemFCPort')
+        for ins in instances:
+            controllerName = ins.get('GroupComponent').get('Name')
+            fcDevId = ins.get('PartComponent').get('DeviceID')
+            controllerFcPortMap[fcDevId] = controllerName
+        return controllerFcPortMap
 
     def getInitiators(self):
         iGroupMap = {}
         initiatorsMap = {}
-        instances = self.getCIMClassInstances('TPD_SCSIController')
+        instances = self.getCIMClassInstances('CIM_SCSIProtocolController')
         for ins in instances:
-            iGroupName = ins.properties['ElementName'].value
-            devId = ins.properties['DeviceID'].value
+            iGroupName = ins.get('ElementName')
+            devId = ins.get('DeviceID')
             iGroup = {
                 'NAME': iGroupName,
                 'ID': devId,
@@ -96,8 +113,8 @@ class HP3parCollector:
 
         instances = self.getCIMClassInstances('TPD_MemberOfStorageHardwareIDCollection')
         for ins in instances:
-            iGroupName = ins.properties['Collection'].value.keybindings['InstanceID'].split(':')[1]
-            member = ins.properties['Member'].value.keybindings['InstanceID'].split(':')[1]
+            iGroupName = ins.get('Collection').get('InstanceID').split(':')[1]
+            member = ins.get('Member').get('InstanceID').split(':')[1]
             (memType, memAddr) = member.split('-')
 
             iGroup = initiatorsMap.get(iGroupName)
@@ -110,36 +127,79 @@ class HP3parCollector:
 
         return iGroupMap
 
+    def getAllocatedMap(self):
+        allocatedMap = {}
+        for mapClass in ['CIM_AllocatedFromStoragePool']:
+            instances = self.getCIMClassInstances(mapClass)
+            for ins in instances:
+                poolInstanceId = ins.get('Antecedent').get('InstanceID')
+                depInsName = ins.get('Dependent')
+                uuid = depInsName.get('DeviceID')
+                if not uuid:
+                    uuid = depInsName.get('InstanceId')
+                allocatedMap[uuid] = poolInstanceId
+        return allocatedMap
+
     def getPoolInfo(self):
+        poolMapByInsId = {}
         pools = []
-        instances = self.getCIMClassInstances('TPD_StoragePool')
-        for ins in instances:
-            name = ins.properties['ElementName'].value
-            capacity = round(ins.properties['TotalManagedSpace'].value / 1000 / 1000 / 1000, 2)
-            available = round(ins.properties['RemainingManagedSpace'].value/1000/1000/1000, 2)
-            used = capacity - available
+        for poolClass in ['CIM_StoragePool']:
+            instances = self.getCIMClassInstances(poolClass)
+            for ins in instances:
+                name = ins.get('ElementName')
+                instanceId = ins.get('InstanceID')
 
-            poolInfo = {
-                'NAME': name,
-                'CAPACITY': capacity,
-                'AVAILABLE': available,
-                'USED': used,
-                'USED%': round(used * 100/capacity, 2)
-            }
-            pools.append(poolInfo)
+                poolType = 'Concrete'
+                thinProvision = ins.get('ThinProvisionMetaDataSpace')
+                totalManagedSize = ins.get('TotalManagedSpace')
+                spaceLimitDetermination = ins.get('SpaceLimitDetermination')
+
+                if thinProvision is None:
+                    if totalManagedSize == 0:
+                        poolType = 'Empty'
+                    else:
+                        poolType = 'Dynamic'
+
+                capacity = round(totalManagedSize / 1000 / 1000 / 1000, 2)
+                spaceLimit = round(ins.get('SpaceLimit') / 1000 / 1000 / 1000, 2)
+                if capacity == 0:
+                    capacity = spaceLimit
+
+                available = round(ins.get('RemainingManagedSpace')/1000/1000/1000, 2)
+                used = capacity - available
+
+                poolInfo = {
+                    'NAME': name,
+                    'TYPE': poolType,
+                    'CAPACITY': capacity,
+                    'AVAILABLE': available,
+                    'USED': used,
+                    'LUNS': []
+                }
+                if spaceLimitDetermination == 2:
+                    poolInfo['USED%'] = round(used * 100/capacity, 2)
+
+                pools.append(poolInfo)
+                poolMapByInsId[instanceId] = poolInfo
         self.data['POOLS'] = pools
+        return poolMapByInsId
 
-    def getLunInfo(self):
+    def getLunInfo(self, poolMapByInsId):
+        lunInPoolMap = self.getAllocatedMap()
         iGroupMap = self.getInitiators()
         #print(json.dumps(iGroupMap, indent=4, ensure_ascii=True))
         lunsMap = {}
-        instances = self.getCIMClassInstances('TPD_StorageVolume')
+        instances = self.getCIMClassInstances('CIM_StorageVolume')
         for ins in instances:
-            name = ins.properties['ElementName'].value
-            uuid = ins.properties['Name'].value
-            blockSize = ins.properties['BlockSize'].value
-            numberOfBlocks = ins.properties['NumberOfBlocks'].value
-            consumableBlocks = ins.properties['ConsumableBlocks'].value
+            uuid = ins.get('DeviceID')
+
+            poolInsId = lunInPoolMap[uuid]
+            poolInfo = poolMapByInsId[poolInsId]
+
+            name = ins.get('ElementName')
+            blockSize = ins.get('BlockSize')
+            numberOfBlocks = ins.get('NumberOfBlocks')
+            consumableBlocks = ins.get('ConsumableBlocks')
             capacity = round(numberOfBlocks * blockSize / 1000 / 1000 / 1000, 2)
             used = round(consumableBlocks * blockSize / 1000 / 1000 / 1000, 2)
             lunInfo = {
@@ -148,15 +208,17 @@ class HP3parCollector:
                 'CAPACITY': capacity,
                 'USED': used,
                 'USED%': round(used * 100 / capacity, 2),
+                'POOL_NAME': poolInfo['NAME'],
                 'VISABLE_GROUPS': [],
                 'VISABLE_INITIATORS': []
             }
             lunsMap[uuid] = lunInfo
+            # poolInfo['LUNS'].append(lunInfo)
 
         instances = self.getCIMClassInstances('CIM_ProtocolControllerForUnit')
         for ins in instances:
-            lunUUID = ins.properties['Dependent'].value.keybindings['DeviceID']
-            iGroupId = ins.properties['Antecedent'].value.keybindings['DeviceID']
+            lunUUID = ins.get('Dependent').get('DeviceID')
+            iGroupId = ins.get('Antecedent').get('DeviceID')
             iGroup = iGroupMap[iGroupId]
             lunInfo = lunsMap[lunUUID]
             lunInfo['VISABLE_GROUPS'].append(iGroup['NAME'])
@@ -175,52 +237,65 @@ class HP3parCollector:
         instances = self.getCIMClassInstances('CIM_AlertIndication')
         for ins in instances:
             if 'IndicationTime' in ins.properties:
-                indicationTime = str(ins.properties['IndicationTime'].value)
+                indicationTime = str(ins.get('IndicationTime'))
                 content = content + indicationTime + "\t"
             if 'PerceivedSeverity' in ins.properties:
-                severity = servities[ins.properties['PerceivedSeverity'].value]
+                severity = servities[ins.get('PerceivedSeverity')]
                 content = content + severity + "\t"
             if 'IndicationIdentifier' in ins.properties:
-                indentifier = str(ins.properties['IndicationIdentifier'].value)
+                indentifier = str(ins.get('IndicationIdentifier'))
                 content = content + indentifier + "\t"
             if 'Message' in ins.properties:
-                message = str(ins.properties['Message'].value)
+                message = str(ins.get('Message'))
                 content = content + message + "\t"
             content = content + "\n"
         self.data['HEALTH_CHECK'] = content
 
-    def getEthInfo(self):
+    def getEthInfo(self, controllersMap):
         pass
 
-    def getFcInfo(self):
+    def getFcInfo(self, controllersMap):
+        fcControllerMap = self.getControlerFCPortMap()
+
         hbas = []
-        instances = self.getCIMClassInstances('TPD_FCPort')
+        instances = self.getCIMClassInstances('CIM_FCPort')
         for ins in instances:
             connectTo = []
-            connectToStr = ins.properties['ConnectedTo'].value
+            connectToStr = ins.get('ConnectedTo')
             if connectToStr is not None:
                 connectTo = connectToStr.split(';')
 
+            deviceId = ins.get('DeviceID')
             hbaInfo = {
-                'NAME': ins.properties['ElementName'].value,
-                'WWNN': self.wwnAddColon(hex(ins.properties['NodeWWN'].value)[2:]),
-                'WWPN': self.wwnAddColon(ins.properties['PermanentAddress'].value),
-                'SPEED': int(ins.properties['MaxSpeed'].value/1000/1000/1000),
+                'NAME': ins.get('ElementName'),
+                'WWNN': self.wwnAddColon(hex(ins.get('NodeWWN'))[2:]),
+                'WWPN': self.wwnAddColon(ins.get('PermanentAddress')),
+                'SPEED': int(ins.get('MaxSpeed')/1000/1000/1000),
                 'CONNECT_TO': connectTo
             }
             hbas.append(hbaInfo)
+            controllerName = fcControllerMap[deviceId]
+            controllerInfo = controllersMap[controllerName]
+            controllerInfo['HBA_INTERFACES'].append(hbaInfo)
         self.data['HBA_INTERFACES'] = hbas
 
     def getIPAddrs(self):
         pass
 
-    def collect(self):
-        self.getDeviceInfo()
+    def getFanInfo(self):
+        pass
 
-        self.getPoolInfo()
-        self.getLunInfo()
-        self.getEthInfo()
-        self.getFcInfo()
+    def getPowerInfo(self):
+        pass
+
+    def collect(self):
+        controllersMap = self.getDeviceInfo()
+        self.getFcInfo(controllersMap)
+        self.getEthInfo(controllersMap)
+
+        poolMapByInsId = self.getPoolInfo()
+        self.getLunInfo(poolMapByInsId)
+
         self.getIPAddrs()
 
         if self.inspect == 1:
