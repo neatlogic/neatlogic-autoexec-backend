@@ -46,6 +46,18 @@ class HP3parCollector:
         instances = conn.EnumerateInstances(className)
         return instances
 
+    def getHealthStateDesc(self, healthCode):
+        code2Txt = {
+            30: "Non-recoverable Error",
+            25: "Critical Failure",
+            20: "Major Failure",
+            15: "Minor Failure",
+            10: "Degraded/Warning",
+            5: "OK",
+            0: "Unknown"
+        }
+        return code2Txt.get(healthCode)
+
     def getDeviceInfo(self):
         instances = self.getCIMClassInstances('TPD_StorageSystem')
         sysIns = instances[0]
@@ -75,12 +87,10 @@ class HP3parCollector:
                 'DESC': ins.get('Description'),
                 'SN': ins.get('Name'),
                 'VERSION': ins.get('KernelVersion'),
-                'HBA_INTERFACES': []
+                'STATUS': self.getHealthStateDesc(ins.get('HealthState')),
+                'HBA_INTERFACES': [],
+                'ETH_INTERFACES': []
             }
-            if ins.get('IsOnline'):
-                nodeInfo['STATUS'] = 'online'
-            else:
-                nodeInfo['STATUS'] = 'offline'
             nodes.append(nodeInfo)
             nodesMap[uuid] = nodeInfo
         self.data['CONTROLLERS'] = nodes
@@ -148,6 +158,7 @@ class HP3parCollector:
             for ins in instances:
                 name = ins.get('ElementName')
                 instanceId = ins.get('InstanceID')
+                status = self.getHealthStateDesc(ins.get('HealthState'))
 
                 poolType = 'Concrete'
                 thinProvision = ins.get('ThinProvisionMetaDataSpace')
@@ -167,6 +178,8 @@ class HP3parCollector:
 
                 available = round(ins.get('RemainingManagedSpace')/1000/1000/1000, 2)
                 used = capacity - available
+                if used < 0:
+                    used = capacity
 
                 poolInfo = {
                     'NAME': name,
@@ -174,6 +187,7 @@ class HP3parCollector:
                     'CAPACITY': capacity,
                     'AVAILABLE': available,
                     'USED': used,
+                    'STATUS': status,
                     'LUNS': []
                 }
                 if spaceLimitDetermination == 2:
@@ -197,6 +211,8 @@ class HP3parCollector:
             poolInfo = poolMapByInsId[poolInsId]
 
             name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+
             blockSize = ins.get('BlockSize')
             numberOfBlocks = ins.get('NumberOfBlocks')
             consumableBlocks = ins.get('ConsumableBlocks')
@@ -209,6 +225,7 @@ class HP3parCollector:
                 'USED': used,
                 'USED%': round(used * 100 / capacity, 2),
                 'POOL_NAME': poolInfo['NAME'],
+                'STATUS': status,
                 'VISABLE_GROUPS': [],
                 'VISABLE_INITIATORS': []
             }
@@ -271,6 +288,7 @@ class HP3parCollector:
                 'WWNN': self.wwnAddColon(hex(ins.get('NodeWWN'))[2:]),
                 'WWPN': self.wwnAddColon(ins.get('PermanentAddress')),
                 'SPEED': int(ins.get('MaxSpeed')/1000/1000/1000),
+                'STATUS': self.getHealthStateDesc(ins.get('HealthState')),
                 'CONNECT_TO': connectTo
             }
             hbas.append(hbaInfo)
@@ -359,6 +377,7 @@ if __name__ == "__main__":
         hp3parCollector = HP3parCollector(ip, username, password, timeOut, inspect)
         data = hp3parCollector.collect()
         data['RESOURCE_ID'] = nodeInfo.get('resourceId')
+        data['MGMT_IP'] = nodeInfo.get('host')
         out = {'DATA': [data]}
         AutoExecUtils.saveOutput(out)
         if verbose == 1:

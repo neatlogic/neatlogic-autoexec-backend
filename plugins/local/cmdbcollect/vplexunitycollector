@@ -348,15 +348,25 @@ class VplexCollector:
 
     def collect(self):
         # self.getVersion()
+        print("INFO: Try to collect engine information.\n")
         self.getEnginesInfo()
 
+        print("INFO: Try to collect cluster config information.\n")
         clusterNames = self.getClusterNames()
+
+        print("INFO: Try to collect volumes information.\n")
         self.getVolumeByStorageViews(clusterNames)
+
+        print("INFO: Try to collect storage arrays information.\n")
         self.getStorageArrays(clusterNames)
+
+        print("INFO: Try to collect volumes summary information.\n")
         self.getStorageVolumeSummary(clusterNames)
 
         if self.inspect == 1:
+            print("INFO: Try to do health check.\n")
             self.healthCheck()
+
         self.data['_OBJ_CATEGORY'] = 'STORAGE'
         self.data['_OBJ_TYPE'] = 'Virtual_Storage'
         self.data['BRAND'] = 'EMC'
@@ -365,6 +375,7 @@ class VplexCollector:
         self.data['APP_TYPE'] = 'VPLEX'
         self.data['PK'] = ['MGMT_IP']
 
+        print("INFO: Information collcted.\n")
         return self.data
 
 
@@ -416,6 +427,7 @@ if __name__ == "__main__":
         vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, timeOut, inspect)
         data = vplexCollector.collect()
         data['RESOURCE_ID'] = nodeInfo.get('resourceId')
+        data['MGMT_IP'] = nodeInfo.get('host')
         out = {'DATA': [data]}
         AutoExecUtils.saveOutput(out)
         if verbose == 1:

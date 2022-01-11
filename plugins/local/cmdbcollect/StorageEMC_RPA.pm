@@ -330,9 +330,11 @@ sub collect {
     $data->{VENDOR}    = 'EMC';
     $data->{BRAND}     = 'RPA';
 
+    print("INFO: Try to collect device information.\n");
     $self->getDeviceInfo();
+    print("INFO: Try to collect conssitance groups information.\n");
     $self->getGroupInfo();
-
+    print("INFO: Information collected.\n");
     return $data;
 }
 
