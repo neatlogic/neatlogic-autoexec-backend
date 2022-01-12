@@ -416,19 +416,27 @@ class HP3parCollector:
         self.data['BATTERIES'] = batteries
 
     def collect(self):
+        print("INFO: Try to colelct device information.")
         self.getDeviceInfo()
+        print("INFO: Try to colelct fc information.")
         self.getFcInfo()
+        print("INFO: Try to colelct ethernet information.")
         self.getEthInfo()
+        print("INFO: Try to colelct power information.")
         self.getPowerInfo()
+        print("INFO: Try to colelct battery information.")
         self.getBatteryInfo()
+        print("INFO: Try to colelct fan information.")
         self.getFanInfo()
-
+        print("INFO: Try to colelct pool information.")
         self.getPoolInfo()
+        print("INFO: Try to colelct lun information.")
         self.getLunInfo()
-
+        print("INFO: Try to colelct ip address information.")
         self.getIPAddrs()
 
         if self.inspect == 1:
+            print("INFO: Try to do health check.")
             self.healthCheck()
 
         self.data['_OBJ_CATEGORY'] = 'STORAGE'
@@ -438,7 +446,7 @@ class HP3parCollector:
         self.data['MODEL'] = 'HP-3Par'
         self.data['APP_TYPE'] = 'HP-3Par'
         self.data['PK'] = ['MGMT_IP']
-
+        print("INFO: Information collected.")
         return self.data
 
 
