@@ -117,7 +117,14 @@ class Operation:
         self.scriptFileName = None
 
         if self.isScript == 1:
-            scriptFileName = self.opName.split('_')[-1] + self.extNameMap[self.interpreter]
+            scriptIdName = None
+            if self.opName.isascii():
+                scriptIdName = self.opName
+            else:
+                scriptIdName = self.opName.split('_')[-1]
+                self.opBunddleName = scriptIdName
+
+            scriptFileName = scriptIdName + self.extNameMap[self.interpreter]
             self.scriptFileName = scriptFileName
             self.pluginParentPath = '{}/script/{}'.format(self.context.runPath, self.opBunddleName)
             if not os.path.exists(self.pluginParentPath):
