@@ -23,7 +23,11 @@ class HP3parCollector:
             self.timeout = timeout
         self.inspect = inspect
 
-        self.initiatorsMap = {}
+        self.iGroupMap = None
+        self.dev2GroupMap = None
+        self.devId2NodeMap = None
+        self.devName2NodeMap = None
+        self.poolMapByInsId = None
 
         try:
             conn = pywbem.WBEMConnection('https://' + host, (userName, password), default_namespace='root/tpd', no_verification=True)
@@ -43,7 +47,12 @@ class HP3parCollector:
         # 所有属性都在CIMInstance的properties dict集合元素是 pywbem.CIMProperty
         # 如果查询的是关联对象的CIMInstance，则里面的Property会表示两个对象的关联，关联使用的对象是
         # CIMInstanceName来进行关联，CIMInstanceName表示CIMInsntace的唯一路径
-        instances = conn.EnumerateInstances(className)
+        instances = []
+        try:
+            instances = conn.EnumerateInstances(className)
+        except ex as Exception:
+            print('WARN: Enumerate instance for class ' + className + ' Failed, ' + str(ex))
+
         return instances
 
     def getHealthStateDesc(self, healthCode):
@@ -57,6 +66,20 @@ class HP3parCollector:
             0: "Unknown"
         }
         return code2Txt.get(healthCode)
+
+    def getDev2GroupMap(self):
+        if self.dev2GroupMap is not None:
+            return self.dev2GroupMap
+
+        dev2GroupMap = {}
+        instances = self.getCIMClassInstances('CIM_SystemDevice')
+        for ins in instances:
+            groupComponent = ins.get('GroupComponent').get('Name')
+            partComponent = ins.get('PartComponent').get('DeviceID')
+            dev2GroupMap[partComponent] = groupComponent
+
+        self.dev2GroupMap = dev2GroupMap
+        return dev2GroupMap
 
     def getDeviceInfo(self):
         instances = self.getCIMClassInstances('TPD_StorageSystem')
@@ -75,26 +98,33 @@ class HP3parCollector:
                 self.data['IOS_VERSION'] = matchObj.group(1)
                 continue
 
-        nodesMap = {}
+    def getControllerNameMap(self):
+        self.getControllersMap()
+        return self.devName2NodeMap
+
+    def getControllersMap(self):
+        if self.devName2NodeMap is not None:
+            return self.devName2NodeMap
+
+        devName2NodeMap = {}
         nodes = []
         instances = self.getCIMClassInstances('TPD_NodeSystem')
         for ins in instances:
-            uuid = ins.get('Name')
+            name = ins.get('Name')
             eleName = ins.get('ElementName')
             nodeInfo = {
                 'NAME': eleName,
-                'UUID': uuid,
                 'DESC': ins.get('Description'),
                 'SN': ins.get('Name'),
                 'VERSION': ins.get('KernelVersion'),
-                'STATUS': self.getHealthStateDesc(ins.get('HealthState')),
-                'HBA_INTERFACES': [],
-                'ETH_INTERFACES': []
+                'STATUS': self.getHealthStateDesc(ins.get('HealthState'))
             }
             nodes.append(nodeInfo)
-            nodesMap[uuid] = nodeInfo
+            devName2NodeMap[name] = nodeInfo
         self.data['CONTROLLERS'] = nodes
-        return nodesMap
+        self.devName2NodeMap = devName2NodeMap
+
+        return devName2NodeMap
 
     def getControlerFCPortMap(self):
         controllerFcPortMap = {}
@@ -107,6 +137,9 @@ class HP3parCollector:
         return controllerFcPortMap
 
     def getInitiators(self):
+        if self.iGroupMap is not None:
+            return self.iGroupMap
+
         iGroupMap = {}
         initiatorsMap = {}
         instances = self.getCIMClassInstances('CIM_SCSIProtocolController')
@@ -115,7 +148,7 @@ class HP3parCollector:
             devId = ins.get('DeviceID')
             iGroup = {
                 'NAME': iGroupName,
-                'ID': devId,
+                'DEVICE_ID': devId,
                 'MEMBERS': []
             }
             initiatorsMap[iGroupName] = iGroup
@@ -151,6 +184,9 @@ class HP3parCollector:
         return allocatedMap
 
     def getPoolInfo(self):
+        if self.poolMapByInsId is not None:
+            return self.poolMapByInsId
+
         poolMapByInsId = {}
         pools = []
         for poolClass in ['CIM_StoragePool']:
@@ -187,8 +223,7 @@ class HP3parCollector:
                     'CAPACITY': capacity,
                     'AVAILABLE': available,
                     'USED': used,
-                    'STATUS': status,
-                    'LUNS': []
+                    'STATUS': status
                 }
                 if spaceLimitDetermination == 2:
                     poolInfo['USED%'] = round(used * 100/capacity, 2)
@@ -196,9 +231,12 @@ class HP3parCollector:
                 pools.append(poolInfo)
                 poolMapByInsId[instanceId] = poolInfo
         self.data['POOLS'] = pools
+        self.poolMapByInsId = poolMapByInsId
+
         return poolMapByInsId
 
-    def getLunInfo(self, poolMapByInsId):
+    def getLunInfo(self):
+        poolMapByInsId = self.getPoolInfo()
         lunInPoolMap = self.getAllocatedMap()
         iGroupMap = self.getInitiators()
         #print(json.dumps(iGroupMap, indent=4, ensure_ascii=True))
@@ -268,11 +306,12 @@ class HP3parCollector:
             content = content + "\n"
         self.data['HEALTH_CHECK'] = content
 
-    def getEthInfo(self, controllersMap):
+    def getEthInfo(self):
         pass
 
-    def getFcInfo(self, controllersMap):
-        fcControllerMap = self.getControlerFCPortMap()
+    def getFcInfo(self):
+        controllersMap = self.getControllerNameMap()
+        fcControllerMap = self.getDev2GroupMap()
 
         hbas = []
         instances = self.getCIMClassInstances('CIM_FCPort')
@@ -283,8 +322,11 @@ class HP3parCollector:
                 connectTo = connectToStr.split(';')
 
             deviceId = ins.get('DeviceID')
+            controllerName = fcControllerMap[deviceId]
+
             hbaInfo = {
                 'NAME': ins.get('ElementName'),
+                'CONTROLLER': controllersMap.get(controllerName).get('DESC'),
                 'WWNN': self.wwnAddColon(hex(ins.get('NodeWWN'))[2:]),
                 'WWPN': self.wwnAddColon(ins.get('PermanentAddress')),
                 'SPEED': int(ins.get('MaxSpeed')/1000/1000/1000),
@@ -292,27 +334,97 @@ class HP3parCollector:
                 'CONNECT_TO': connectTo
             }
             hbas.append(hbaInfo)
-            controllerName = fcControllerMap[deviceId]
-            controllerInfo = controllersMap[controllerName]
-            controllerInfo['HBA_INTERFACES'].append(hbaInfo)
+
         self.data['HBA_INTERFACES'] = hbas
 
     def getIPAddrs(self):
         pass
 
+    def getFanPowSupplyMap(self):
+        fanPowSupplyMap = {}
+        instances = self.getCIMClassInstances('CIM_AssociatedCooling')
+        for ins in instances:
+            fanDevId = ins.get('Antecedent').get('DeviceID')
+            powSupplyDevId = ins.get('Dependent').get('DeviceID')
+            fanPowSupplyMap[fanDevId] = powSupplyDevId
+        return fanPowSupplyMap
+
     def getFanInfo(self):
-        pass
+        fans = []
+        fanPowSupplyMap = self.getFanPowSupplyMap()
+        instances = self.getCIMClassInstances('CIM_Fan')
+        for ins in instances:
+            name = ins.get('ElementName')
+            devId = ins.get('DeviceID')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            speed = ins.get('VariableSpeed')
+            powSupplyDevId = fanPowSupplyMap.get(devId)
+            fanInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'SPEED': speed,
+                'POWERSUPPLY': powSupplyDevId,
+                'STATUS': status
+            }
+            fans.append(fanInfo)
+        self.data['FANS'] = fans
 
     def getPowerInfo(self):
-        pass
+        controllersMap = self.getControllersMap()
+        powSupplies = []
+        instances = self.getCIMClassInstances('CIM_PowerSupply')
+        for ins in instances:
+            devId = ins.get('DeviceID')
+            name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            sysNodeDevId = self.getDev2GroupMap().get(devId)
+            powSupplyInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'STATUS': status
+            }
+            sysNodeDevInfo = controllersMap.get(sysNodeDevId)
+            if sysNodeDevInfo is not None:
+                powSupplyInfo['CONTROLLER'] = sysNodeDevInfo.get('DESC')
+            else:
+                powSupplyInfo['CONTROLLER'] = None
+
+            powSupplies.append(powSupplyInfo)
+        self.data['POWER_SUPPLIES'] = powSupplies
+
+    def getBatteryInfo(self):
+        controllersMap = self.getControllersMap()
+        batteries = []
+        instances = self.getCIMClassInstances('CIM_Battery')
+        for ins in instances:
+            devId = ins.get('DeviceID')
+            name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            sysNodeDevId = self.getDev2GroupMap().get(devId)
+            batteryInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'STATUS': status
+            }
+            sysNodeDevInfo = controllersMap.get(sysNodeDevId)
+            if sysNodeDevInfo is not None:
+                batteryInfo['CONTROLLER'] = sysNodeDevInfo.get('DESC')
+            else:
+                batteryInfo['CONTROLLER'] = None
+
+            batteries.append(batteryInfo)
+        self.data['BATTERIES'] = batteries
 
     def collect(self):
-        controllersMap = self.getDeviceInfo()
-        self.getFcInfo(controllersMap)
-        self.getEthInfo(controllersMap)
+        self.getDeviceInfo()
+        self.getFcInfo()
+        self.getEthInfo()
+        self.getPowerInfo()
+        self.getBatteryInfo()
+        self.getFanInfo()
 
-        poolMapByInsId = self.getPoolInfo()
-        self.getLunInfo(poolMapByInsId)
+        self.getPoolInfo()
+        self.getLunInfo()
 
         self.getIPAddrs()
 

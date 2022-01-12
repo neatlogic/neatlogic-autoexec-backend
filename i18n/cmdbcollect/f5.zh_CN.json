@@ -4,15 +4,14 @@
     "filter": {
         "_OBJ_TYPE": "F5"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "交换机品牌",
+            "desc": "对象类型",
             "type": "String"
         },
         {
@@ -64,8 +63,7 @@
             "name": "VIRTUAL_SERVERS",
             "desc": "VS服务",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -89,8 +87,7 @@
                     "name": "POOL",
                     "desc": "POOL",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -111,8 +108,7 @@
                     "name": "MEMBERS",
                     "desc": "成员列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"

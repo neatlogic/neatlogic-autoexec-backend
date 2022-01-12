@@ -4,15 +4,14 @@
     "filter": {
         "_OBJ_TYPE": "F5"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "Application Type",
+            "desc": "Object Type",
             "type": "String"
         },
         {
@@ -64,8 +63,7 @@
             "name": "VIRTUAL_SERVERS",
             "desc": "Virtual Server List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -89,8 +87,7 @@
                     "name": "POOL",
                     "desc": "POOL",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -111,8 +108,7 @@
                     "name": "MEMBERS",
                     "desc": "Member List",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
