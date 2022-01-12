@@ -333,7 +333,7 @@ sub getASMDiskGroup {
         for my $devPath ( glob("/dev/*") ) {
             my $osDevId = $self->getDeviceId($devPath);
             if ( $osDevId eq $asmDiskId ) {
-                my @diskStat = df($devPath);
+                #my @diskStat = df($devPath);
                 $disk->{LOGIC_DISK} = $devPath;
                 last;
             }

@@ -300,7 +300,7 @@ sub doDetailCollect {
     #collectorClass: 收集器类名
     #procInfo；ps的进程信息
     #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
-    print("DEBUG: osType:$osType\n");
+    print("INFO: os type:$osType\n");
 
     my $isMatched = 0;
     my $objCat;

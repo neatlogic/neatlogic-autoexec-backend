@@ -148,6 +148,11 @@ class TagentClient:
 
         chunk = bytes()
         chunkHead = sock.recv(2)
+
+        while chunkHead and len(chunkHead) < 2:
+            h = sock.recv(2-len(chunkHead))
+            chunkHead = chunkHead + h
+
         if chunkHead:
             chunkLen = struct.unpack('>H', chunkHead)
             if chunkLen:
@@ -392,7 +397,7 @@ class TagentClient:
                     status = int(line)
                 else:
                     if isVerbose == 1:
-                        print(line)
+                        print(line.strip())
                     if callback:
                         callback(line, *cbparams)
         finally:
