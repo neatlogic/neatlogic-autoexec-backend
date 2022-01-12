@@ -409,18 +409,26 @@ sub collect {
     $data->{VENDOR} = 'NetApp';
     $data->{BRAND}  = 'NetApp';
 
+    print("INFO: Try to collect device information.\n");
     $self->getDeviceInfo();
+    print("INFO: Try to collect pool information.\n");
     $self->getPoolInfo();
+    print("INFO: Try to collect volume information.\n");
     $self->getVolumeInfo();
+    print("INFO: Try to collect lun information.\n");
     $self->getLunInfo();
+    print("INFO: Try to collect ethernet information.\n");
     $self->getEthInfo();
+    print("INFO: Try to collect fc information.\n");
     $self->getFcInfo();
+    print("INFO: Try to collect ip address information.\n");
     $self->getIPAddrs();
 
     if ( $self->{inspect} == 1 ) {
+        print("INFO: Try to do health check.\n");
         $self->getHealthInfo();
     }
-
+    print("INFO: Information collected.\n");
     return $data;
 }
 

@@ -401,8 +401,8 @@ sub getNicSpeedFromStr {
     my ( $self, $speedStr ) = @_;
     chomp($speedStr);
     $speedStr =~ s/,//g;
-    $sizeStr =~ s/\s//g;
-    $peedStr =~ s/\/s$//g;
+    $speedStr =~ s/\s//g;
+    $speedStr =~ s/\/s$//g;
 
     my $speed;
     my $unit = 'Mb/s';

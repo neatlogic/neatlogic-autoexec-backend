@@ -93,7 +93,7 @@ sub main {
         $clusterInfo->{MEMBERS}     = $vsInfo->{POOL}->{MEMBERS};
         push( @outData, $clusterInfo );
     }
-
+    print("INFO: Information collected.\n");
     my $out = {};
     $out->{DATA} = \@outData;
     AutoExecUtils::saveOutput($out);
