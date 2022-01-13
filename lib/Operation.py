@@ -117,14 +117,13 @@ class Operation:
         self.scriptFileName = None
 
         if self.isScript == 1:
-            scriptIdName = None
-            if self.opName.isascii():
-                scriptIdName = self.opName
-            else:
-                scriptIdName = self.opName.split('_')[-1]
-                self.opBunddleName = scriptIdName
+            scriptName = self.opName
+            if not self.opName.isascii():
+                # 如果脚本名不是ascii的，则只使用其id来作为脚本名
+                scriptName = self.opId.split('_')[-1]
+                self.opBunddleName = scriptName
 
-            scriptFileName = scriptIdName + self.extNameMap[self.interpreter]
+            scriptFileName = scriptName + self.extNameMap[self.interpreter]
             self.scriptFileName = scriptFileName
             self.pluginParentPath = '{}/script/{}'.format(self.context.runPath, self.opBunddleName)
             if not os.path.exists(self.pluginParentPath):

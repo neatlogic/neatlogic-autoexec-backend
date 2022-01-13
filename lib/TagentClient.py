@@ -46,7 +46,7 @@ def _rc4(key: str, data: bytes):
 
 
 # def strEncodeToHex(data):
-#    hexStr = binascii.hexlify(data.encode('latin-1')).decode()
+#    hexStr = binascii.hexlify(data.encode('latin-1', 'replace')).decode()
 #    return hexStr
 
 
@@ -260,6 +260,7 @@ class TagentClient:
         self.agentOsType = agentOsType
         if agentCharset:
             self.agentCharset = agentCharset
+
         # 挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
         plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode('latin-1')
         if ',' not in plainChlg:
@@ -276,8 +277,8 @@ class TagentClient:
         if str(factor1).isdigit() == False or str(factor2).isdigit() == False:
             return 0
         reverseChlg = str(int(factor1) * int(factor2)) + ',' + serverTime
-        encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg.encode("latin-1"))
-        self.__writeChunk(sock, encryptChlg.encode(encoding="utf-8"))
+        encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg.encode('latin-1', 'replace'))
+        self.__writeChunk(sock, encryptChlg.encode(encoding='utf-8'))
         authResult = self.__readChunk(sock).decode()
         # 如果返回内容中不出现auth succeed，则验证失败
         if authResult != "auth succeed":
@@ -322,7 +323,7 @@ class TagentClient:
     def reload(self, isVerbose=0):
         sock = self.getConnection()
         agentCharset = self.agentCharset
-        self.__writeChunk(sock, "none|reload|{}".format(agentCharset).encode(agentCharset))
+        self.__writeChunk(sock, "none|reload|{}".format(agentCharset).encode(agentCharset, 'replace'))
         try:
             buf = self.__readChunk(sock).decode()
             if buf.startswith("Status:200"):
@@ -347,7 +348,7 @@ class TagentClient:
     def echo(self, user, data, isVerbose=0):
         sock = self.getConnection()
         agentCharset = self.agentCharset
-        self.__writeChunk(sock, "none|echo|{}|{}".format(agentCharset, bytesEncodeToHex(data.encode())).encode(agentCharset))
+        self.__writeChunk(sock, "none|echo|{}|{}".format(agentCharset, bytesEncodeToHex(data.encode())).encode(agentCharset, 'replace'))
         try:
             buf = self.__readChunk(sock).decode()
             print(buf)
@@ -374,7 +375,7 @@ class TagentClient:
             envJson = json.dumps(env)
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset)), bytesEncodeToHex(eofStr.encode(agentCharset)), bytesEncodeToHex(envJson.encode(agentCharset))).encode(agentCharset))
+        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
         status = 0
         try:
             while True:
@@ -434,8 +435,8 @@ class TagentClient:
             envJson = json.dumps(env)
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        #sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset))))
-        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset)), '', bytesEncodeToHex(envJson.encode(agentCharset))).encode(agentCharset))
+        #sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
+        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
         try:
             statusLine = self.__readChunk(sock).decode()
             if statusLine:
@@ -481,7 +482,7 @@ class TagentClient:
         agentCharset = self.agentCharset
 
         try:
-            self.__writeChunk(sock, "{}|download|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(param.encode(agentCharset)), followLinks).encode(agentCharset))
+            self.__writeChunk(sock, "{}|download|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))
             statusLine = self.__readChunk(sock).decode()
             status = 0
             fileType = 'file'
@@ -607,7 +608,7 @@ class TagentClient:
                     if not buf:
                         break
                     if convertCharset == 1:
-                        buf = buf.decode(charset).encode(agentCharset)
+                        buf = buf.decode(charset).encode(agentCharset, 'replace')
                     self.__writeChunk(sock, buf)
 
             if status == 0:
@@ -638,7 +639,7 @@ class TagentClient:
                         if tmp and tmp[0]:
                             charset = tmp
                     if charset:
-                        buf = buf.decode(charset).encode(agentCharset)
+                        buf = buf.decode(charset).encode(agentCharset, 'replace')
                 self.__writeChunk(sock, buf)
         else:
             status = 3
@@ -669,9 +670,9 @@ class TagentClient:
 
         try:
             agentCharset = self.agentCharset
-            param = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset)), bytesEncodeToHex(src.encode(agentCharset)), bytesEncodeToHex(dest.encode(agentCharset)), followLinks)
+            param = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset, 'replace')), bytesEncodeToHex(src.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), followLinks)
 
-            self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset))
+            self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset, 'replace'))
 
             preStatus = self.__readChunk(sock).decode(agentCharset)
             if not preStatus.lstrip().startswith('Status:200'):
@@ -728,10 +729,10 @@ class TagentClient:
             charset = self.charset
             if agentCharset != charset:
                 if convertCharset == 1:
-                    content = content.decode(charset).encode(agentCharset)
+                    content = content.decode(charset).encode(agentCharset, 'replace')
 
-            param = "{}|{}|{}|{}".format(bytesEncodeToHex(b'file'), bytesEncodeToHex(destName.encode(agentCharset)), bytesEncodeToHex(dest.encode(agentCharset)), '00')
-            self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset))
+            param = "{}|{}|{}|{}".format(bytesEncodeToHex(b'file'), bytesEncodeToHex(destName.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), '00')
+            self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset, 'replace'))
 
             preStatus = self.__readChunk(sock).decode()
             if not preStatus.lstrip().startswith("Status:200"):
