@@ -318,7 +318,7 @@ sub doDetailCollect {
     print("INFO: Process connection infomation collected.\n");
 
     my $collector;
-    my @appInfos;
+    my @appInfos = ();
     my $pkConfig;
 
     alarm($SINGLE_TIMEOUT);
@@ -337,7 +337,7 @@ sub doDetailCollect {
     my $idx = 0;
     for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
         my $appInfo = $appInfos[$idx];
-        if ( not defined($appInfo) ){
+        if ( not defined($appInfo) or ref($appInfo) ne 'HASH'){
             next;
         }
 
