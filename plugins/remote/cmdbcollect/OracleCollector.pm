@@ -333,6 +333,7 @@ sub getASMDiskGroup {
         for my $devPath ( glob("/dev/*") ) {
             my $osDevId = $self->getDeviceId($devPath);
             if ( $osDevId eq $asmDiskId ) {
+
                 #my @diskStat = df($devPath);
                 $disk->{LOGIC_DISK} = $devPath;
                 last;
@@ -698,7 +699,8 @@ sub parseListenerInfo {
             $line = $$outLines[$i];
 
             #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
-            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=tcp/i ) {
+            while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=/i ) {
+                print("DEBUG:line:$line\n");
                 if ( $line =~ /\(PORT=(\d+)\)/ ) {
                     my $listenInfo = {};
                     my $port       = int($1);
@@ -706,10 +708,15 @@ sub parseListenerInfo {
                     my $ip;
                     if ( $line =~ /\(HOST=(.*?)\)/ ) {
                         my $host = $1;
+                        if ( $host !~ /^[\d\.]+$/ ) {
 
-                        #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
-                        my $ipAddr = gethostbyname($host);
-                        $ip = inet_ntoa($ipAddr);
+                            #TODO；getbyhostname调用其实是会返回多个IP的，譬如：一个域名对应多个IP
+                            my $ipAddr = gethostbyname($host);
+                            $ip = inet_ntoa($ipAddr);
+                        }
+                        else {
+                            $ip = $host;
+                        }
                     }
                     if ( not defined($ip) ) {
                         $ip = '*';
