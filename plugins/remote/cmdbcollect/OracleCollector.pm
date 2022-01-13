@@ -22,7 +22,7 @@ use SqlplusExec;
 sub getPK {
     my ($self) = @_;
     return {
-        'Oracle'     => [ 'MGMT_IP', 'PORT' ],
+        'Oracle'     => [ 'MGMT_IP', 'PORT', 'ORACLE_SID' ],
         'Oracle-RAC' => ['UNIQUE_NAME']
     };
 }
@@ -980,6 +980,7 @@ sub collect {
 
     #如果不是主进程，则不match，则返回null
     if ( not $self->isMainProcess() ) {
+        print("WARN: It is not oracle main process.\n");
         return undef;
     }
 
@@ -996,13 +997,15 @@ sub collect {
     my $command = $procInfo->{COMMAND};
     my $oraSid  = $envMap->{ORACLE_SID};
 
-    if ( $command =~ /^ora_pmon_(.*)$/ and ( $comm eq 'oracle' or $comm eq $command ) ) {
+    if ( ( $comm eq 'oracle' or $command =~ /^\Q$comm\E/ ) and $command =~ /^ora_pmon_(.*)$/ ) {
         $oraSid = $1;
     }
     else {
         #不是Oracle进程
+        print("WARN: It is not oracle pmon process.\n");
         return undef;
     }
+    print("INFO: Oracle SID: $oraSid.\n");
 
     my $oraHome     = $envMap->{ORACLE_HOME};
     my $oraBase     = $envMap->{ORACLE_BASE};

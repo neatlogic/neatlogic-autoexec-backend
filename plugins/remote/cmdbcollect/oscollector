@@ -337,6 +337,10 @@ sub doDetailCollect {
     my $idx = 0;
     for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
         my $appInfo = $appInfos[$idx];
+        if ( not defined($appInfo) ){
+            next;
+        }
+
         $isMatched = 1;
 
         $objCat = $appInfo->{_OBJ_CATEGORY};
