@@ -18,6 +18,7 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 use SqlplusExec;
+use Data::Dumper;
 
 sub getPK {
     my ($self) = @_;
@@ -59,11 +60,12 @@ sub getGridHome {
     my $gridHome;
 
     if ( not defined($gridHome) ) {
+
         #64936 grid     /u01/app/grid/product/19.0.0/gridhome_1/bin/gpnpd.bin
         my $gridPsLines = $self->getCmdOutLines('ps -eo pid,user,args |grep /bin/gpnpd.bin');
-        foreach my $line (@$gridPsLines){
+        foreach my $line (@$gridPsLines) {
             if ( $line !~ /grep \/bin\/gpnpd.bin/ and $line =~ /^\s*(\d+)\s+(\S+)\s+(.+?)\/bin\/gpnpd.bin\s*$/ ) {
-                my $pid = $1;
+                my $pid      = $1;
                 my $gridUser = $2;
                 $self->{gridUser} = $gridUser;
                 $gridHome = $3;
@@ -971,6 +973,20 @@ sub collect {
 
     $self->collectInstances($insInfo);
 
+    #把Oracle的listener的监听地址转换为进程的CONN_INFO
+    my $lsnMap   = {};
+    my $lsnAddrs = $insInfo->{LISTEN_ADDRS};
+    foreach my $lsnInfo (@$lsnAddrs) {
+        if ( defined( $lsnInfo->{IP} ) ) {
+            $lsnMap->{ $lsnInfo->{IP} . ':' . $lsnInfo->{PORT} } = 1;
+        }
+        else {
+            $lsnMap->{ $lsnInfo->{PORT} } = 1;
+        }
+    }
+    my $connInfo = $procInfo->{CONN_INFO};
+    $connInfo->{LISTEN} = $lsnMap;
+    
     #ORACLE实例信息采集完成
 
     my @collectSet = ();
@@ -986,6 +1002,7 @@ sub collect {
     }
 
     push( @collectSet, $insInfo );
+
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息
     if ( $insInfo->{IS_RAC} == 1 ) {
         my $racInfo = $self->collectRAC($insInfo);
