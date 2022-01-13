@@ -59,80 +59,20 @@ sub getGridHome {
     my $gridHome;
 
     if ( not defined($gridHome) ) {
-        my $gridHomeDefLines;
-        if ( $self->{isRoot} ) {
-            $gridHomeDefLines = $self->getCmdOutLines( 'env', $self->{gridUser} );
-        }
-        else {
-            my $homeDir;
-            my $homeDirDef = $self->getCmdOut('cat /etc/passwd |grep ^grid:');
-            if ( defined($homeDirDef) and $homeDirDef ne '' ) {
-                my @items = split( /:/, $homeDirDef );
-                $homeDir = $items[-2];
-            }
-            if ( defined($homeDir) ) {
-                $gridHomeDefLines = [];
-                if ( -e "$homeDir/.profile" ) {
-                    my $tmpLines = $self->getFileLines("$homeDir/.profile");
-                    push( @$gridHomeDefLines, @$tmpLines );
-                }
-                if ( -e "$homeDir/.bash_profile" ) {
-                    my $tmpLines = $self->getFileLines("$homeDir/.profile");
-                    push( @$gridHomeDefLines, @$tmpLines );
-                }
-            }
-        }
-
-        foreach my $line (@$gridHomeDefLines) {
-            if ( $line =~ /ORACLE_HOME=(.*)$/ ) {
-                $gridHome = $1;
-            }
-            elsif ( $line =~ /ORACLE_BASE=(.*)$/ ) {
-                $gridBase = $1;
+        #64936 grid     /u01/app/grid/product/19.0.0/gridhome_1/bin/gpnpd.bin
+        my $gridPsLines = $self->getCmdOutLines('ps -eo pid,user,args |grep /bin/gpnpd.bin');
+        foreach my $line (@$gridPsLines){
+            if ( $line !~ /grep \/bin\/gpnpd.bin/ and $line =~ /^\s*(\d+)\s+(\S+)\s+(.+?)\/bin\/gpnpd.bin\s*$/ ) {
+                my $pid = $1;
+                my $gridUser = $2;
+                $self->{gridUser} = $gridUser;
+                $gridHome = $3;
+                last;
             }
         }
     }
 
-    if ( not defined($gridHome) ) {
-
-        #oracle   1515      1   0   Mar 30 ?         173:36 /u01/app/11.2.0.3/grid/bin/evmd.bin
-        my $gridHomeDef = $self->getCmdOut('ps -ef |grep "/grid/bin/" | head -n1');
-        if ( $gridHomeDef =~ /\s(.*?\/grid)\/bin\// ) {
-            $gridHome = $1;
-        }
-    }
-
-    if ( not defined($gridHome) ) {
-        my $oraTabFile = '/etc/oratab';
-        if ( not -e $oraTabFile ) {
-            $oraTabFile = '/var/opt/oracle/oratab';
-        }
-        if ( -e $oraTabFile ) {
-            my $fh = IO::File->new( $oraTabFile, 'r' );
-            if ( defined($fh) ) {
-                my $fSize = -s $oraTabFile;
-                my $content;
-                $fh->read( $content, $fSize );
-                $fh->close();
-
-                #:/u01/app/11.2.0.3/grid:
-                if ( $content =~ /:(\/.*?\/grid):/s ) {
-                    $gridHome = $1;
-                }
-            }
-        }
-    }
-
-    if ( defined($gridHome) and not defined($gridBase) ) {
-        $gridBase = dirname( dirname($gridHome) );
-        if ( not -d "$gridBase/grid" ) {
-            $gridBase = dirname($gridBase);
-        }
-    }
-    if ( not defined($gridBase) ) {
-        $gridBase = dirname($gridHome);
-    }
-
+    print("INFO: GRID_HOME:$gridHome.\n");
     return ( $gridBase, $gridHome );
 }
 
@@ -475,7 +415,7 @@ sub getClusterDBNames {
     my $dbNamesLines = $self->getCmdOutLines( "$gridBin/srvctl config database", $self->{gridUser} );
     my @dbNames;
     foreach my $dbName (@$dbNamesLines) {
-        $dbName =~ s/^\s*|\*$//g;
+        $dbName =~ s/^\s*|\s*$//g;
         if ( $dbName ne '' ) {
             push( @dbNames, $dbName );
         }
@@ -700,7 +640,6 @@ sub parseListenerInfo {
 
             #   (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=LISTENER_SCAN2)))
             while ( $line =~ /^\s*\(DESCRIPTION=\(ADDRESS=\(PROTOCOL=/i ) {
-                print("DEBUG:line:$line\n");
                 if ( $line =~ /\(PORT=(\d+)\)/ ) {
                     my $listenInfo = {};
                     my $port       = int($1);
@@ -971,6 +910,8 @@ sub collectRAC {
     my $uniqueName = join( ',', @sortNodeAddrs );
     $racInfo->{UNIQUE_NAME} = $uniqueName;
     $racInfo->{RAC_MEMBERS} = \@dbInfos;
+
+    return $racInfo;
 }
 
 sub collect {
@@ -1034,8 +975,6 @@ sub collect {
 
     my @collectSet = ();
 
-    push( @collectSet, $insInfo );
-
     #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
     if ( $insInfo->{IS_CDB} == 1 ) {
         my $PDBS = $self->collectPDBS($insInfo);
@@ -1046,9 +985,10 @@ sub collect {
         $insInfo->{PDBS} = $PDBS;
     }
 
+    push( @collectSet, $insInfo );
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息
     if ( $insInfo->{IS_RAC} == 1 ) {
-        my $racInfo = $self->collectRAC();
+        my $racInfo = $self->collectRAC($insInfo);
         if ( defined($racInfo) ) {
             push( @collectSet, $racInfo );
         }
