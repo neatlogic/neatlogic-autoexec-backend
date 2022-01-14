@@ -191,7 +191,7 @@ class Interpreter(object):
                 operandsVal.append(operand)
                 continue
 
-            if operand[0] == 'OPERATE':
+            if operand[0] == 'OPERATOR':
                 nextOperateStr = operand[1]
                 if operand[2][0] == 'QUERY':
                     # 如果是查询，则拼装参数调用resolveQuery
@@ -200,7 +200,7 @@ class Interpreter(object):
                     if len(operand) >= 4:
                         value = operand[3]
                     operandsVal.append(self.resolveQuery(fields, nextOperateStr, value))
-                elif operand[2][0] == 'OPERATE':
+                elif operand[2][0] == 'OPERATOR':
                     # 如果是嵌套的操作，则拼装参数调用resolveQueryOper
                     subOperands = [operand[2]]
                     if nextOperateStr not in ('not', '!'):
