@@ -73,7 +73,7 @@ sub getGridHome {
             }
         }
     }
-
+    $gridBase = dirname($gridHome);
     print("INFO: GRID_HOME:$gridHome.\n");
     return ( $gridBase, $gridHome );
 }
@@ -476,7 +476,7 @@ sub getClusterNodes {
     # node3
     # node4
     my $dbNodesLines = $self->getCmdOutLines( "$gridBin/olsnodes", $self->{gridUser} );
-    my @dbNodes;
+    my @dbNodes = ();
     foreach my $dbNode (@$dbNodesLines) {
         $dbNode =~ s/^\s*|\*$//g;
         if ( $dbNode ne '' ) {
@@ -508,7 +508,15 @@ sub getScanInfo {
             $scanInfo->{NETMASK} = $3;
             $scanInfo->{NIC}     = $4;
         }
-        elsif ( $line =~ /VIP.*?(\d+\.\d+\.\d+\.\d+)/ ) {
+        elsif ( $line =~ /^SCAN name:\s*(.*?),\s*Network:/ ) {
+            $scanInfo->{NAME}    = $1;
+        }
+        elsif ( $line =~ /^Subnet IPv[46]:\s*([\.\d:a-f]+)\/([\.\d:a-f]+)\/(.*?),/i ) {
+            $scanInfo->{NET}     = $1;
+            $scanInfo->{NETMASK} = $2;
+            $scanInfo->{NIC}     = $3;
+        }
+        elsif ( $line =~ /VIP.*?([\.\d:a-f]+)/i ) {
             push( @scanIps, $1 );
         }
     }
@@ -528,12 +536,26 @@ sub getLocalNodeVip {
     # [oracle@node-rac1 ~]$ srvctl config nodeapps -n node-rac2
     # VIP exists.: /node-vip2/192.168.12.240/255.255.255.0/eth0
     # GSD exists.
-    my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config nodeapps -n $localNode", $self->{gridUser} );
+    #############################
+    # VIP exists: network number 1, hosting node edbassb1p
+    # VIP Name: edbassb1p-vip
+    # VIP IPv4 Address: 10.0.13.122
+    # VIP IPv6 Address: 
+    # VIP is enabled.
+    # VIP is individually enabled on nodes: 
+    # VIP is individually disabled on nodes:
+    my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config vip -node $localNode", $self->{gridUser} );
     foreach my $line (@$nodeVipInfoLines) {
-        if ( $line =~ qr{/.*?/(.*?)/.*?/.*?/.*?, hosting node (.*)} ) {
+        if ( $line =~ /VIP\s+IPv4\s+Address:\s*([\d\.]+)/ ){
             $nodeVip = $1;
         }
-        elsif ( $line =~ qr{VIP exists\.:\s*/.*?/(.*?)/.*?/.*?} ) {
+        elsif( $line =~ /VIP\s+IPv6\s+Address:\s*([:a-fA-f0-9]+)/ ){
+            $nodeVip = $1;
+        }
+        elsif ( $line =~ qr{/.*?/([\.:a-fA-f0-9]+)/.*?/.*?/.*?, hosting node (.*)} ) {
+            $nodeVip = $1;
+        }
+        elsif ( $line =~ qr{VIP exists\.:\s*/.*?/([\.:a-fA-f0-9]+)/.*?/.*?} ) {
             $nodeVip = $1;
         }
     }
@@ -847,7 +869,7 @@ sub collectRAC {
         my ( $status, $outLines ) = $self->getCmdOutLines( "$gridBin/srvctl status database -d '$dbName' -f", $self->{gridUser} );
         if ( $status == 0 and defined($outLines) ) {
             foreach my $line (@$outLines) {
-                if ( $line =~ /Instance\s+(.*)\s+is\s+.*?running\s+on\s+node\s+(.*)$/ ) {
+                if ( $line =~ /Instance\s+(.*?)\s+is\s+.*?running\s+on\s+node\s+(.*?)$/ ) {
                     my $instanceName = $1;
                     my $nodeName     = $2;
                     $nodeToInsMap->{$nodeName} = $instanceName;
