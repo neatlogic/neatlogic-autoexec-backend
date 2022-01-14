@@ -22,6 +22,7 @@ sub parseListenLines {
     my ( $self, %args ) = @_;
     print("INFO: Begin to collect process listen addresses.\n");
     my $cmd         = $args{cmd};
+    my $pid         = $args{pid};
     my $lsnFieldIdx = $args{lsnFieldIdx};
 
     my $portsMap = {};
@@ -32,6 +33,11 @@ sub parseListenLines {
         my $line;
         while ( $line = <$pipe> ) {
             my @fields = split( /\s+/, $line );
+            my $lastIdx = $#fields;
+            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
+                next;
+            }
+
             my $listenAddr = $fields[$lsnFieldIdx];
             $listenAddr =~ s/^::ffff:(\d+\.)/$1/;
             +$listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
@@ -62,6 +68,7 @@ sub parseConnLines {
     my ( $self, %args ) = @_;
     print("INFO: Begin to collect process connections.\n");
     my $cmd            = $args{cmd};
+    my $pid            = $args{pid};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
@@ -81,14 +88,22 @@ sub parseConnLines {
             my @fields     = split( /\s+/, $line );
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
-            $localAddr =~ s/^::ffff:(\d+\.)/$1/;
-            $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
-            $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
-            $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
             if ( $localAddr =~ /^(.*):(\d+)$/ ) {
                 my $ip   = $1;
                 my $port = $2;
+
+                my $lastIdx = $#fields;
+                if ( index( $fields[$lastIdx], $pid ) < 0
+                    and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
+                {
+                    next;
+                }
+
+                $localAddr =~ s/^::ffff:(\d+\.)/$1/;
+                $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+                $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
+                $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
                 if (    $remoteAddr =~ /:\d+$/
                     and not defined( $lsnPortsMap->{$localAddr} )
@@ -133,11 +148,12 @@ sub parseConnLines {
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $cmd            = "netstat -ano| findstr $pid |";
+    my $cmd            = "netstat -ano|";
     my $localFieldIdx  = 2;
     my $remoteFieldIdx = 3;
     my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
         cmd            => $cmd,
+        pid            => $pid,
         lsnPortsMap    => $lsnPortsMap,
         localFieldIdx  => $localFieldIdx,
         remoteFieldIdx => $remoteFieldIdx
@@ -149,10 +165,11 @@ sub getRemoteAddrs {
 sub getListenPorts {
     my ( $self, $pid ) = @_;
 
-    my $cmd         = "netstat -ano| findstr $pid | findstr LISTENING |";
+    my $cmd         = "netstat -ano| findstr LISTENING |";
     my $lsnFieldIdx = 2;
     my ( $status, $portsMap ) = $self->parseListenLines(
         cmd         => $cmd,
+        pid         => $pid,
         lsnFieldIdx => $lsnFieldIdx
     );
 
@@ -160,8 +177,18 @@ sub getListenPorts {
 }
 
 #获取单个进程的连出的TCP/UDP连接
-sub getConnInfo {
+sub getListenInfo {
     my ( $self, $pid ) = @_;
+    my $lsnPortsMap = $self->getListenPorts($pid);
+
+    my $connInfo = {};
+    $connInfo->{LISTEN} = $lsnPortsMap;
+
+    return $connInfo;
+}
+
+sub getStatInfo {
+    my ( $self, $pid, $lsnPortsMap ) = @_;
     my $lsnPortsMap = $self->getListenPorts($pid);
     my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 

@@ -185,7 +185,7 @@ sub getTableSpaceInfo {
         $tableSpaces->{$tableSpaceName} = $tableSpaceInfo;
     }
 
-    $sql = q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) GIGA, autoextensible AUTOEX from dba_data_files};
+    $sql = q{select tablespace_name, file_name, round(bytes/1024/1024/1024, 2) G, autoextensible AEX from dba_data_files};
     if ( defined($pdbName) and $pdbName ne '' ) {
         $sql = "alter session set container=$pdbName;\n$sql";
     }
@@ -199,8 +199,8 @@ sub getTableSpaceInfo {
         my $tableSpaceName = $row->{TABLESPACE_NAME};
 
         $dataFileInfo->{FILE_NAME}      = $row->{FILE_NAME};
-        $dataFileInfo->{SIZE}           = $row->{GIGA} + 0.0;
-        $dataFileInfo->{AUTOEXTENSIBLE} = $row->{AUTOEX};
+        $dataFileInfo->{SIZE}           = $row->{G} + 0.0;
+        $dataFileInfo->{AUTOEXTENSIBLE} = $row->{AEX};
 
         my $tableSpace = $tableSpaces->{$tableSpaceName};
         if ( not defined($tableSpace) ) {
@@ -254,16 +254,16 @@ sub getASMDiskGroup {
         $diskGroupsMap->{$groupName} = $diskGroup;
     }
     $rows = $sqlplus->query(
-        sql     => q{select ad.name, adk.name groupname, ad.failgroup, ad.mount_status, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
+        sql     => q{select ad.name, adk.name gname, ad.failgroup fgroup, ad.mount_status mnt_sts, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
         verbose => $isVerbose
     );
     foreach my $row (@$rows) {
-        my $groupName = $row->{GROUPNAME};
+        my $groupName = $row->{GNAME};
         my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
         my $disk      = {};
         $disk->{NAME}         = $row->{NAME};
-        $disk->{FAIL_GROUP}   = $row->{FAILGROUP};
-        $disk->{MOUNT_STATUS} = $row->{MOUNT_STATUS};
+        $disk->{FAIL_GROUP}   = $row->{FGROUP};
+        $disk->{MOUNT_STATUS} = $row->{MNT_STS};
         $disk->{TOTAL_MB}     = $row->{TOTAL_MB} + 0.0;
         $disk->{FREE_MB}      = $row->{FREE_MB} + 0.0;
         $disk->{USED_MB}      = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
@@ -435,8 +435,10 @@ sub getClusterVersion {
     # $ crsctl query crs activeversion -f
     # Oracle Clusterware active version on the cluster is [12.1.0.0.2]. The cluster
     # upgrade state is [NORMAL]. The cluster active patch level is [456789126].
+    ################
+    #Oracle Clusterware active version on the cluster is [19.0.0.0.0]. The cluster upgrade state is [NORMAL]. The cluster active patch level is [3331580692].
     my $verDef = $self->getCmdOut( "$gridBin/crsctl query crs activeversion -f", $self->{gridUser} );
-    if ( $verDef =~ /\[[\d\.]+\]/s ) {
+    if ( $verDef =~ /\[([\d\.]+)\]/s ) {
         $version = $1;
     }
     return $version;
@@ -478,7 +480,7 @@ sub getClusterNodes {
     my $dbNodesLines = $self->getCmdOutLines( "$gridBin/olsnodes", $self->{gridUser} );
     my @dbNodes = ();
     foreach my $dbNode (@$dbNodesLines) {
-        $dbNode =~ s/^\s*|\*$//g;
+        $dbNode =~ s/^\s*|\s*$//g;
         if ( $dbNode ne '' ) {
             push( @dbNodes, $dbNode );
         }
@@ -509,7 +511,7 @@ sub getScanInfo {
             $scanInfo->{NIC}     = $4;
         }
         elsif ( $line =~ /^SCAN name:\s*(.*?),\s*Network:/ ) {
-            $scanInfo->{NAME}    = $1;
+            $scanInfo->{NAME} = $1;
         }
         elsif ( $line =~ /^Subnet IPv[46]:\s*([\.\d:a-f]+)\/([\.\d:a-f]+)\/(.*?),/i ) {
             $scanInfo->{NET}     = $1;
@@ -540,16 +542,16 @@ sub getLocalNodeVip {
     # VIP exists: network number 1, hosting node edbassb1p
     # VIP Name: edbassb1p-vip
     # VIP IPv4 Address: 10.0.13.122
-    # VIP IPv6 Address: 
+    # VIP IPv6 Address:
     # VIP is enabled.
-    # VIP is individually enabled on nodes: 
+    # VIP is individually enabled on nodes:
     # VIP is individually disabled on nodes:
     my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config vip -node $localNode", $self->{gridUser} );
     foreach my $line (@$nodeVipInfoLines) {
-        if ( $line =~ /VIP\s+IPv4\s+Address:\s*([\d\.]+)/ ){
+        if ( $line =~ /VIP\s+IPv4\s+Address:\s*([\d\.]+)/ ) {
             $nodeVip = $1;
         }
-        elsif( $line =~ /VIP\s+IPv6\s+Address:\s*([:a-fA-f0-9]+)/ ){
+        elsif ( $line =~ /VIP\s+IPv6\s+Address:\s*([:a-fA-f0-9]+)/ ) {
             $nodeVip = $1;
         }
         elsif ( $line =~ qr{/.*?/([\.:a-fA-f0-9]+)/.*?/.*?/.*?, hosting node (.*)} ) {
@@ -972,17 +974,19 @@ sub collect {
     }
     print("INFO: Oracle SID: $oraSid.\n");
 
-    my $oraHome     = $envMap->{ORACLE_HOME};
-    my $oraBase     = $envMap->{ORACLE_BASE};
-    my $oraHostname = $envMap->{ORACLE_HOSTNAME};
+    my $oraHome = $envMap->{ORACLE_HOME};
+    my $oraBase = $envMap->{ORACLE_BASE};
 
-    $insInfo->{ORACLE_HOME}     = $oraHome;
-    $insInfo->{ORACLE_BASE}     = $oraBase;
-    $insInfo->{ORACLE_HOSTNAME} = $oraHostname;
-    $insInfo->{ORACLE_SID}      = $oraSid;
-    $insInfo->{INSTANCE_NAME}   = $oraSid;
-    $insInfo->{INSTALL_PATH}    = $oraBase;
-    $insInfo->{CONFIG_PATH}     = $oraHome;
+    if ( not defined($oraBase) or $oraBase eq '' ) {
+        $oraBase = dirname($oraHome);
+    }
+
+    $insInfo->{ORACLE_HOME}   = $oraHome;
+    $insInfo->{ORACLE_BASE}   = $oraBase;
+    $insInfo->{ORACLE_SID}    = $oraSid;
+    $insInfo->{INSTANCE_NAME} = $oraSid;
+    $insInfo->{INSTALL_PATH}  = $oraBase;
+    $insInfo->{CONFIG_PATH}   = $oraHome;
 
     my $sqlplus = SqlplusExec->new(
         sid     => $oraSid,
@@ -1008,7 +1012,7 @@ sub collect {
     }
     my $connInfo = $procInfo->{CONN_INFO};
     $connInfo->{LISTEN} = $lsnMap;
-    
+
     #ORACLE实例信息采集完成
 
     my @collectSet = ();

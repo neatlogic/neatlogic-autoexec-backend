@@ -95,26 +95,26 @@ sub parseConnLines {
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
-            if ( rindex( $line, $pid ) < 0 ) {
-                next;
-            }
-
-            my @fields = split( /\s+/, $line );
-            my $lastIdx = $#fields;
-            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
-                next;
-            }
-
+            my @fields     = split( /\s+/, $line );
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
-            $localAddr =~ s/^::ffff:(\d+\.)/$1/;
-            $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
-            $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
-            $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
             if ( $localAddr =~ /^(.*):(\d+)$/ ) {
-                my $ip        = $1;
-                my $port      = $2;
+                my $ip   = $1;
+                my $port = $2;
+
+                my $lastIdx = $#fields;
+                if ( index( $fields[$lastIdx], $pid ) < 0
+                    and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
+                {
+                    next;
+                }
+
+                $localAddr =~ s/^::ffff:(\d+\.)/$1/;
+                $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+                $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
+                $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+
                 my $recvQSize = int( $fields[$recvQIdx] );
                 my $sendQSize = int( $fields[$sendQIdx] );
 
@@ -227,7 +227,7 @@ sub getListenPorts {
     my $status   = 3;
 
     if ( $status != 0 ) {
-        my $cmd         = "netstat -ntudwlp |";
+        my $cmd         = "netstat -ntudwlp | grep LISTEN";
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
@@ -237,7 +237,7 @@ sub getListenPorts {
     }
 
     if ( $status != 0 ) {
-        my $cmd         = "ss -ntudwlp |";
+        my $cmd         = "ss -ntudwlp | grep LISTEN";
         my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
@@ -250,17 +250,24 @@ sub getListenPorts {
 }
 
 #获取单个进程的连出的TCP/UDP连接
-sub getConnInfo {
+sub getListenInfo {
     my ( $self, $pid ) = @_;
     my $lsnPortsMap = $self->getListenPorts($pid);
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
-    $connInfo->{PEER}   = $remoteAddrs;
-    $connInfo->{STATS}  = $connStatInfo;
 
     return $connInfo;
 }
 
+sub getStatInfo {
+    my ( $self, $pid, $lsnPortsMap ) = @_;
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
+
+    my $connInfo = {};
+    $connInfo->{PEER}  = $remoteAddrs;
+    $connInfo->{STATS} = $connStatInfo;
+
+    return $connInfo;
+}
 1;

@@ -312,7 +312,7 @@ sub doDetailCollect {
         $connInfo = { PEER => {}, LISTEN => {} };
     }
     else {
-        $connInfo = $connGather->getConnInfo($pid);
+        $connInfo = $connGather->getListenInfo($pid);
         $procInfo->{CONN_INFO} = $connInfo;
     }
     print("INFO: Process connection infomation collected.\n");
@@ -324,8 +324,31 @@ sub doDetailCollect {
     alarm($SINGLE_TIMEOUT);
     eval {
         $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
-        @appInfos  = $collector->collect($procInfo);
-        $pkConfig  = $collector->getPK();
+        my @appInfosTmp = $collector->collect($procInfo);
+        $pkConfig = $collector->getPK();
+
+        foreach my $appInfo (@appInfosTmp) {
+            if ( defined($appInfo) and ref($appInfo) eq 'HASH' ) {
+                push( @appInfos, $appInfo );
+            }
+        }
+        if ( scalar(@appInfos) > 0 ) {
+            $connInfo = $procInfo->{CONN_INFO};
+
+            #有些进程match并不是监听进程，可以通过设置procInfo的属性LISTENER_PID指定监听进程
+            my $statInfo = {};
+            my $lsnPid   = $procInfo->{LISTENER_PID};
+            if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
+                my $lsnInfo = $connGather->getListenInfo($pid);
+                map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
+
+                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN} );
+            }
+            else {
+                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+            }
+            map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
+        }
     };
     alarm(0);
 
@@ -337,10 +360,6 @@ sub doDetailCollect {
     my $idx = 0;
     for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
         my $appInfo = $appInfos[$idx];
-        if ( not defined($appInfo) or ref($appInfo) ne 'HASH'){
-            next;
-        }
-
         $isMatched = 1;
 
         $objCat = $appInfo->{_OBJ_CATEGORY};
@@ -374,7 +393,7 @@ sub doDetailCollect {
         $appInfo->{COMMAND}     = $procInfo->{COMMAND};
         $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
         $appInfo->{MGMT_PORT}   = $procInfo->{MGMT_PORT};
-        $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'};
+        $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'} + 0.0;
 
         if ( $osType eq 'Windows' ) {
             $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;

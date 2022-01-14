@@ -266,14 +266,17 @@ class Interpreter(object):
         if idx >= fieldsCount - 1:
             # 最后一个属性字段，取出值返回
             if fieldValue is not None:
-                if op(fieldValue, value):
-                    matchedField = {
-                        'jsonPath': jsonPath[1:],
-                        'ruleName': self.ruleName,
-                        'ruleLevel': self.ruleLevel
-                    }
-                    self.matchedFields.append(matchedField)
-                    return matchedRecord + 1
+                try:
+                    if op(fieldValue, value):
+                        matchedField = {
+                            'jsonPath': jsonPath[1:],
+                            'ruleName': self.ruleName,
+                            'ruleLevel': self.ruleLevel
+                        }
+                        self.matchedFields.append(matchedField)
+                        return matchedRecord + 1
+                except Exception as ex:
+                    warnings.warn(str(ex) + ", invalid field value type for " + jsonPath[1:], category=Warning)
             else:
                 warnings.warn("Data field not found: " + jsonPath[1:], category=Warning)
                 return matchedRecord

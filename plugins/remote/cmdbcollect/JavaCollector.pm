@@ -50,8 +50,16 @@ sub collect {
     }
 
     my $procInfo = $self->{procInfo};
-    my $cmdLine  = $procInfo->{COMMAND};
-    my $appInfo  = {};
+    my $envMap   = $procInfo->{ENVIRONMENT};
+
+    if ( not defined( $envMap->{TS_INSNAME} ) or $envMap->{TS_INSNAME} eq '' ) {
+
+        #没有标记的Java进程，忽略
+        return undef;
+    }
+
+    my $cmdLine = $procInfo->{COMMAND};
+    my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     $self->getJavaAttrs($appInfo);
