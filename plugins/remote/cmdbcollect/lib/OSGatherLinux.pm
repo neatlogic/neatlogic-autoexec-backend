@@ -630,7 +630,7 @@ sub getPerformanceInfo {
         }
     }
 
-    ( $status, $topLines ) = $self->getCmdOutLines( 'top -bn1 -o %MEM | head -17', undef, { nowarn => 1 } );
+    ( $status, $topLines ) = $self->getCmdOutLines( 'top -bn1 -o %MEM 2>/dev/null | head -17', undef, { nowarn => 1 } );
     if ( $status != 0 ) {
         $topLines = $self->getCmdOutLines('top -bn1 -a | head -17');
     }
