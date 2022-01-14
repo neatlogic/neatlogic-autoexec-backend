@@ -385,7 +385,7 @@ class Interpreter(object):
                 # 嵌套操作符号
                 operands = [AST[2]]
                 if operate not in ('not', '!'):
-                    operands.append[AST[3]]
+                    operands.append(AST[3])
                 result = self.resolveQueryOper(operate, operands)
         else:
             raise DSLError("Invalid AST node type {} in: {}".format(AST[0], json.dumps(AST)))
