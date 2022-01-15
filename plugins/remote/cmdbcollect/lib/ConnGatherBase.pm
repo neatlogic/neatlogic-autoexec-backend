@@ -227,7 +227,7 @@ sub getListenPorts {
     my $status   = 3;
 
     if ( $status != 0 ) {
-        my $cmd         = "netstat -ntudwlp | grep LISTEN";
+        my $cmd         = "netstat -ntudwlp |";
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
@@ -237,7 +237,7 @@ sub getListenPorts {
     }
 
     if ( $status != 0 ) {
-        my $cmd         = "ss -ntudwlp | grep LISTEN";
+        my $cmd         = "ss -ntudwlp |";
         my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,

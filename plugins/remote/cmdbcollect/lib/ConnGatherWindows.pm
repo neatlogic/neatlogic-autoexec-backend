@@ -148,7 +148,7 @@ sub parseConnLines {
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $cmd            = "netstat -ano|";
+    my $cmd            = "netstat -ano |";
     my $localFieldIdx  = 2;
     my $remoteFieldIdx = 3;
     my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
