@@ -163,11 +163,16 @@ if __name__ == "__main__":
 
             for data in collectData:
                 # 检查数据，必须包含PK、_OBJ_CATEGORY
+                objCat = data.get('_OBJ_CATEGORY')
+                objType = data.get('_OBJ_TYPE')
+                pkDef = data.get('PK')
+
+                print('INFO: Try to validate data PID:{} OBJ_TYPE:{} IP:{} PORT:{} ...'.format(data.get('PID'), objType, data.get('MGMT_IP'), data.get('PORT')))
                 isMalformData = 0
-                if 'PK' not in data:
+                if pkDef is None:
                     isMalformData = 1
                     print('WARN: Data not defined PK.')
-                if '_OBJ_CATEGORY' not in data:
+                if objCat is None:
                     isMalformData = 1
                     print('WARN: Data not defined _OBJ_CATEGORY.')
                 if isMalformData == 1:
@@ -175,11 +180,6 @@ if __name__ == "__main__":
                     continue
 
                 # 计算mongodb的collection名称，优先使用_OBJ_TYPE作为表名，如果没有_OBJ_TYPE则使用_OBJ_CATEGORY
-                objCat = data["_OBJ_CATEGORY"]
-                objType = None
-                if '_OBJ_TYPE' in data:
-                    objType = data['_OBJ_TYPE']
-
                 typeName = objCat
                 if objType is not None:
                     typeName = objType
@@ -189,7 +189,6 @@ if __name__ == "__main__":
                 pkInvalid = False
                 # 根据PK的定义生成Primary Key filter
                 primaryKey = {}
-                pkDef = data['PK']
                 for pKey in pkDef:
                     if pKey in data:
                         pVal = data[pKey]
