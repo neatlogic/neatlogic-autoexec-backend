@@ -117,6 +117,9 @@ sub collect {
                 $appInfo->{SSL_PORT} = int($sslPort);
             }
         }
+        else{
+            print("WARN: Can not use file $confFile to detect listen port: $!\n");
+        }
     }
     else {
         print("WARN: Can not fand catalina.base in command:$cmdLine, failed.\n");
