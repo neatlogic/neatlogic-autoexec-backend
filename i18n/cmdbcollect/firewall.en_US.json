@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "FireWall"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -48,6 +47,11 @@
         {
             "name": "DEV_NAME",
             "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS Info",
             "type": "String"
         }
     ]

@@ -116,7 +116,7 @@ class HP3parCollector:
                 'NAME': eleName,
                 'DESC': ins.get('Description'),
                 'SN': ins.get('Name'),
-                'VERSION': ins.get('KernelVersion'),
+                'IOS_VERSION': ins.get('KernelVersion'),
                 'STATUS': self.getHealthStateDesc(ins.get('HealthState'))
             }
             nodes.append(nodeInfo)
@@ -326,7 +326,7 @@ class HP3parCollector:
 
             hbaInfo = {
                 'NAME': ins.get('ElementName'),
-                'CONTROLLER': controllersMap.get(controllerName).get('DESC'),
+                'CONTROLLER_NAME': controllersMap.get(controllerName).get('DESC'),
                 'WWNN': self.wwnAddColon(hex(ins.get('NodeWWN'))[2:]),
                 'WWPN': self.wwnAddColon(ins.get('PermanentAddress')),
                 'SPEED': int(ins.get('MaxSpeed')/1000/1000/1000),
@@ -363,7 +363,7 @@ class HP3parCollector:
                 'NAME': name,
                 'DEVICE_ID': devId,
                 'SPEED': speed,
-                'POWERSUPPLY': powSupplyDevId,
+                'POWERSUPPLY_NAME': powSupplyDevId,
                 'STATUS': status
             }
             fans.append(fanInfo)
@@ -385,9 +385,9 @@ class HP3parCollector:
             }
             sysNodeDevInfo = controllersMap.get(sysNodeDevId)
             if sysNodeDevInfo is not None:
-                powSupplyInfo['CONTROLLER'] = sysNodeDevInfo.get('DESC')
+                powSupplyInfo['CONTROLLER_NAME'] = sysNodeDevInfo.get('DESC')
             else:
-                powSupplyInfo['CONTROLLER'] = None
+                powSupplyInfo['CONTROLLER_NAME'] = None
 
             powSupplies.append(powSupplyInfo)
         self.data['POWER_SUPPLIES'] = powSupplies
@@ -408,9 +408,9 @@ class HP3parCollector:
             }
             sysNodeDevInfo = controllersMap.get(sysNodeDevId)
             if sysNodeDevInfo is not None:
-                batteryInfo['CONTROLLER'] = sysNodeDevInfo.get('DESC')
+                batteryInfo['CONTROLLER_NAME'] = sysNodeDevInfo.get('DESC')
             else:
-                batteryInfo['CONTROLLER'] = None
+                batteryInfo['CONTROLLER_NAME'] = None
 
             batteries.append(batteryInfo)
         self.data['BATTERIES'] = batteries

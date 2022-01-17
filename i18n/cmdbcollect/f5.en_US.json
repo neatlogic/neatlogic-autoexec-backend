@@ -20,8 +20,13 @@
             "type": "String"
         },
         {
+            "name": "IOS_INFO",
+            "desc": "IOS Info",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
-            "desc": "Version",
+            "desc": "IOS Version",
             "type": "String"
         },
         {

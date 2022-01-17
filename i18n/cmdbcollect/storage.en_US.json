@@ -2,8 +2,7 @@
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -60,10 +59,9 @@
         },
         {
             "name": "LUNS",
-            "desc": "LUN List",
+            "desc": "Logical Disks",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -74,7 +72,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWID",
+                    "name": "UUID",
                     "desc": "Lun ID",
                     "type": "String"
                 },
@@ -82,17 +80,51 @@
                     "name": "CAPACITY",
                     "desc": "Capacity(GB)",
                     "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED%",
+                    "desc": "Used(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "Status"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "Belong Pool",
+                    "type": "String"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "Visable Groups",
+                    "type": "Array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "Visable Initiators",
+                    "type": "Array"
                 }
             ]
         },
         {
             "name": "POOLS",
-            "desc": "POOL List",
+            "desc": "Storage Pools",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
                     "type": "String"
                 },
                 {
@@ -101,55 +133,32 @@
                     "type": "Float"
                 },
                 {
+                    "name": "AVAILABLE",
+                    "desc": "Available(GB)",
+                    "type": "Float"
+                },
+                {
                     "name": "USED",
                     "desc": "Used(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "FREE",
-                    "desc": "Free(GB)",
+                    "name": "STATUS",
+                    "desc": "Status",
                     "type": "Float"
                 },
                 {
-                    "name": "USED_PERCENT",
-                    "desc": "Used Percent(%)",
+                    "name": "USED%",
+                    "desc": "Used(%)",
                     "type": "Float"
-                },
-                {
-                    "name": "LUNS",
-                    "desc": "LUNS In Pool",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "ID",
-                            "desc": "ID",
-                            "type": "String"
-                        },
-                        {
-                            "name": "NAME",
-                            "desc": "Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "WWID",
-                            "desc": "Lun ID",
-                            "type": "String"
-                        },
-                        {
-                            "name": "CAPACITY",
-                            "desc": "Capacity(GB)",
-                            "type": "Float"
-                        }
-                    ]
                 }
             ]
         },
         {
             "name": "VOLUMES",
-            "desc": "Volume List",
+            "desc": "Volumes(NFS)",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -165,16 +174,206 @@
                     "type": "Float"
                 },
                 {
-                    "name": "FREE",
-                    "desc": "Free(GB)",
+                    "name": "AVAILABLE",
+                    "desc": "Available(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "USED_PERCENT",
-                    "desc": "Used percent(%)",
+                    "name": "USED%",
+                    "desc": "Used(%)",
                     "type": "Float"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "Pool Name",
+                    "type": "String"
                 }
             ]
+        },
+        {
+            "name": "CONTROLLERS",
+            "desc": "Controllers",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DESC",
+                    "desc": "Description",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Serial No.",
+                    "type": "String"
+                },
+                {
+                    "name": "IOS_VERSION",
+                    "desc": "IOS Version",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "FC Ports",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "Controller",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "WWNN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "WWPN",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECT_TO",
+                    "desc": "Connect To",
+                    "type": "Array"
+                }
+            ]
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "Eth Interfaces",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "Controller",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac",
+                    "type": "String"
+                } {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "POWER_SUPPLIES",
+            "desc": "Power Supplies",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "Device ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "Controller",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "FANS",
+            "desc": "Fans",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "Device ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "POWERSUPPLY_NAME",
+                    "desc": "PowerSupply",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BATTERIES",
+            "desc": "Batteries",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "Device ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HEALTH_CHECK",
+            "desc": "Health Report",
+            "type": "Text"
         }
     ]
 }

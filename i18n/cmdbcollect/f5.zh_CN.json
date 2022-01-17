@@ -20,8 +20,13 @@
             "type": "String"
         },
         {
+            "name": "IOS_INFO",
+            "desc": "IOS信息",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
-            "desc": "版本",
+            "desc": "IOS版本",
             "type": "String"
         },
         {
