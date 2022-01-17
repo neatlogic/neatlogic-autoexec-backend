@@ -275,7 +275,8 @@
                     "name": "MAC",
                     "desc": "Mac",
                     "type": "String"
-                } {
+                },
+                {
                     "name": "SPEED",
                     "desc": "速率",
                     "type": "Float"
