@@ -511,7 +511,7 @@ sub main {
     }
 
     # Example:
-    #Mysql:${mysqlaccount},Postgresql:${pgaccount}
+    #Mysql:#{mysqlaccount},Postgresql:#{pgaccount}
     #Mysql:root/pass1234,Postgresql:demo/test1234
     # 转换为:
     # {

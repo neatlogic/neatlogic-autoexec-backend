@@ -56,6 +56,7 @@ sub saveOutput {
     my ($outputData) = @_;
     my $outputPath = $ENV{OUTPUT_PATH};
 
+    print("INFO: Try to save output to $outputData.\n");
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {

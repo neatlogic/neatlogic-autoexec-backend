@@ -62,8 +62,9 @@ def getAutoexecContext():
 
 
 def saveOutput(outputData):
-    if 'OUTPUT_PATH' in os.environ:
-        outputPath = os.environ['OUTPUT_PATH']
+    outputPath = os.gentenv('OUTPUT_PATH')
+    print("INFO: Try save output to {}.\n".format(outputPath))
+    if outputPath is not None and outputPath != '':
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, ensure_ascii=False))
         outputFile.close()
