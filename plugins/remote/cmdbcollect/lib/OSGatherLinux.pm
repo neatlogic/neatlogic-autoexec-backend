@@ -336,31 +336,31 @@ sub getIpAddrs {
         my $ip;
         my $maskBit;
         if ( $line =~ /^\s*inet\s+(.*?)\/(\d+)/ ) {
-            $ip = $1;
+            $ip      = $1;
             $maskBit = $2;
             if ( $ip !~ /^127\./ ) {
                 my $block = Net::Netmask->safe_new("$ip/$maskBit");
                 my $netmask;
-                if (defined($block)){
+                if ( defined($block) ) {
                     $netmask = $block->mask();
                 }
-                else{
-                    print("WARN: Invalid CIDR $ip/$maskBit");
+                else {
+                    print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
                 push( @ipv4, { IP => $ip, NETMASK => $netmask } );
             }
         }
-        elsif ( $line =~ /^\s*inet6\s+(.*?)\/\d+/ ) {
-            $ip = $1;
+        elsif ( $line =~ /^\s*inet6\s+(.*?)\/(\d+)/ ) {
+            $ip      = $1;
             $maskBit = $2;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
                 my $block = Net::Netmask->safe_new("$ip/$maskBit");
                 my $netmask;
-                if (defined($block)){
+                if ( defined($block) ) {
                     $netmask = $block->mask();
                 }
-                else{
-                    print("WARN: Invalid CIDR $ip/$maskBit");
+                else {
+                    print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
                 push( @ipv6, { IP => $ip, NETMASK => $netmask } );
             }
