@@ -4,8 +4,7 @@
     "filter": {
         "_OBJ_TYPE": "Switch"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -21,6 +20,22 @@
             "type": "String"
         },
         {
+            "name": "IP_ADDRS",
+            "desc": "IP Addresses",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "Net Mask",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -29,8 +44,7 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NO",
                     "desc": "Port No.",
                     "type": "String"
@@ -79,8 +93,7 @@
                     "name": "NEIGHBORS",
                     "desc": "CDP/LLDP",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Catetory",
                             "type": "String"

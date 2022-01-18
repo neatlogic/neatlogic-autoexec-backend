@@ -37,6 +37,10 @@ sub new {
             OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',        #ifOperStatus
             SPEED        => '1.3.6.1.2.1.2.2.1.5',        #ifSpeed
             MTU          => '1.3.6.1.2.1.2.2.1.4',        #ifMTU
+        },
+        IP_ADDRS => {
+            IP      => '1.3.6.1.2.1.4.20.1.1',
+            NETMASK => '1.3.6.1.2.1.4.20.1.3'
         }
     };
 
@@ -87,7 +91,7 @@ sub new {
 
 #重载此方法，调整snmp oid的设置
 sub before {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #$self->addScalarOid( SN => '1.3.6.1.2.1.47.1.1.1.1.11.1' );
     #$self->addTableOid( PORTS_TABLE_FOR_TEST => [ { NAME => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ] );
@@ -96,7 +100,7 @@ sub before {
 
 #重载此方法，进行数据调整，或者补充其他非SNMP数据
 sub after {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #my $data = $self->{DATA};
     #my $model = $data->{MODEL};

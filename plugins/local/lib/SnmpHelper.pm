@@ -228,8 +228,8 @@ sub getTable {
             my $table = $snmp->get_table( -baseoid => $oid );
             $self->_errCheck( $snmp, $table, $oid );
 
-            while ( my ( $oid, $val ) = each(%$table) ) {
-                $oid =~ /\.(\d+)$/;
+            while ( my ( $realOid, $val ) = each(%$table) ) {
+                $realOid =~ /^\.?\Q$oid\E\.(.*)$/;
                 my $idx       = $1;
                 my $entryInfo = $idx2AttrMap->{$idx};
                 my $oidInfo   = $idx2OIDMap->{$idx};
@@ -241,7 +241,7 @@ sub getTable {
                     $idx2OIDMap->{$idx} = $oidInfo;
                 }
                 $entryInfo->{$name} = $val;
-                $oidInfo->{$name}   = $oid;
+                $oidInfo->{$name}   = $realOid;
             }
         }
 

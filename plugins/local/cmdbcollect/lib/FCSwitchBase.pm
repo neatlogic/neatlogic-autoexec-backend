@@ -40,6 +40,10 @@ sub new {
         ZONES => {
             INDEX => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.1',
             NAME  => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.2'
+        },
+        IP_ADDRS => {
+            IP      => '1.3.6.1.2.1.4.20.1.1',
+            NETMASK => '1.3.6.1.2.1.4.20.1.3'
         }
     };
 
@@ -63,7 +67,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect') {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -90,7 +94,7 @@ sub new {
 
 #重载此方法，调整snmp oid的设置
 sub before {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #$self->addScalarOid( SN => '1.3.6.1.2.1.47.1.1.1.1.11.1' );
     #$self->addTableOid( PORTS_TABLE_FOR_TEST => [ { NAME => '1.3.6.1.2.1.2.2.1.2' }, { MAC => '1.3.6.1.2.1.2.2.1.6' } ] );
@@ -99,7 +103,7 @@ sub before {
 
 #重载此方法，进行数据调整，或者补充其他非SNMP数据
 sub after {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     #my $data = $self->{DATA};
     #my $model = $data->{MODEL};

@@ -292,16 +292,20 @@ sub getIpAddrs {
     my $ipInfoLines = $self->getCmdOutLines('ifconfig -a');
     foreach my $line (@$ipInfoLines) {
         my $ip;
-        if ( $line =~ /^\s*inet\s+([\d\.]+)\s+netmask\s+/ ) {
+        if ( $line =~ /^\s*inet\s+([\d\.]+)\s+netmask\s+(\S+)/ ) {
             $ip = $1;
+            my $mask = $2;
             if ( $ip !~ /^127\./ ) {
-                push( @ipv4, { VALUE => $ip } );
+                my $netmask = join( '.', unpack( "C4", pack( "N", hex($mask) ) ) );
+                push( @ipv4, { IP => $ip, NETMASK => $netmask } );
             }
         }
-        elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/\d+/ ) {
+        elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/(\d+)/ ) {
             $ip = $1;
+            my $maskBit = $2;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                push( @ipv6, { VALUE => $ip } );
+                my $block = Net::Netmask->safe_new("$ip:$maskBit");
+                push( @ipv6, { IP => $ip, NETMASK => $block->mask() } );
             }
         }
     }
@@ -447,8 +451,8 @@ sub getDiskInfo {
                     $sn = substr( $sn_id, 0, -4 );
                 }
             }
-            
-            if ( defined($sn) ){
+
+            if ( defined($sn) ) {
                 $diskInfo->{WWID} = $sn . ':' . $id;
             }
         }

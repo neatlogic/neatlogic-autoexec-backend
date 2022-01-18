@@ -13,6 +13,7 @@ our @ISA = qw(OSGatherBase);
 use POSIX;
 use Cwd;
 use IO::File;
+use Net::NetMask;
 use File::Basename;
 
 sub stripDMIComment {
@@ -105,7 +106,7 @@ sub getMountPointInfo {
         'usbfs'       => 1,
         'nfsd'        => 1
     };
-    
+
     $osInfo->{NFS_MOUNTED} = 0;
     my $mountLines = $self->getFileLines('/proc/mounts');
     foreach my $line (@$mountLines) {
@@ -334,16 +335,19 @@ sub getIpAddrs {
     my $ipInfoLines = $self->getCmdOutLines('ip addr');
     foreach my $line (@$ipInfoLines) {
         my $ip;
-        if ( $line =~ /^\s*inet\s+(.*?)\/\d+/ ) {
+        my $maskBit;
+        if ( $line =~ /^\s*inet\s+(.*?)\/(\d+)/ ) {
             $ip = $1;
             if ( $ip !~ /^127\./ ) {
-                push( @ipv4, { VALUE => $ip } );
+                my $block = Net::Netmask->safe_new("$ip:$maskBit");
+                push( @ipv4, { IP => $ip, NETMASK => $block->mask() } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/\d+/ ) {
             $ip = $1;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                push( @ipv6, { VALUE => $ip } );
+                my $block = Net::Netmask->safe_new("$ip:$maskBit");
+                push( @ipv6, { IP => $ip, NETMASK => $block->mask() } );
             }
         }
     }
