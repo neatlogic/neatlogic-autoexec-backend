@@ -10,7 +10,7 @@
 			"_OBJ_TYPE": "Switch",
 			"_OBJ_CATEGORY": "NETDEV",
 			"PK": ["MGMT_IP"],
-			"UPTIME": "450 days, 06:14:06.90",
+			"UPTIME": "450 days, 06:47:47.36",
 			"PORTS_COUNT": "32",
 			"MAC_TABLE": [{
 				"MACS": ["00:a3:8e:0b:84:8b", "e4:c7:22:03:b5:42", "e4:c7:22:03:41:c2", "00:00:0c:07:ac:34", "6c:20:56:58:6b:8b", "00:00:0c:9f:f0:32"],

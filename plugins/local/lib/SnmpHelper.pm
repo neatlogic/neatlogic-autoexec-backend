@@ -54,7 +54,7 @@ sub new {
 }
 
 sub _errCheck {
-    my ( $self, $snmp, $queryResult, $oid ) = @_;
+    my ( $self, $snmp, $queryResult, $oid, $name ) = @_;
     my $hasError = 0;
     if ( not defined($queryResult) ) {
         $hasError = 1;
@@ -64,7 +64,7 @@ sub _errCheck {
             exit(-1);
         }
         else {
-            print("WARN: $error, $oid\n");
+            print("WARN: $error, $name oid:$oid\n");
         }
     }
 
@@ -73,8 +73,9 @@ sub _errCheck {
 
 sub hex2mac {
     my ( $self, $hexMac ) = @_;
+
     #如果字串中含有0字节（数值为0），否则不是正常的MAC地址hex字符串
-    if ( $hexMac !~ /\x00/ ) { 
+    if ( $hexMac !~ /\x00/ ) {
         $hexMac = substr( $hexMac, 2 );
         $hexMac =~ s/..\K(?=.)/:/sg;
     }
@@ -195,7 +196,7 @@ sub getScalar {
         }
         else {
             $data->{$attr} = undef;
-            print("WARN: Can not find value for attr $attr(oid:$oidDesc).\n");
+            print("WARN: Can not find value for attr $attr oid:$oidDesc\n");
         }
     }
 
@@ -226,7 +227,7 @@ sub getTable {
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
             my $table = $snmp->get_table( -baseoid => $oid );
-            $self->_errCheck( $snmp, $table, $oid );
+            $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" );
 
             while ( my ( $realOid, $val ) = each(%$table) ) {
                 $realOid =~ /^\.?\Q$oid\E\.(.*)$/;
@@ -268,7 +269,7 @@ sub getTableByOrder {
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
             my $table = $snmp->get_table( -baseoid => $oid );
-            $self->_errCheck( $snmp, $table, $oid );
+            $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" );
 
             my @sortedOids = oid_lex_sort( keys(%$table) );
             for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {

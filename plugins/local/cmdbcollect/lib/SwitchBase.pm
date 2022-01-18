@@ -166,7 +166,7 @@ sub setCommonOid {
 }
 
 sub _errCheck {
-    my ( $self, $queryResult, $oid ) = @_;
+    my ( $self, $queryResult, $oid, $name ) = @_;
     my $hasError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
@@ -178,10 +178,10 @@ sub _errCheck {
         }
         else {
             if ( ref($oid) eq 'ARRAY' ) {
-                print( "WARN: $error, oids:", join( ', ', @$oid ), "\n" );
+                print( "WARN: $error, $name oids:", join( ', ', @$oid ), "\n" );
             }
             else {
-                print("WARN: $error, $oid\n");
+                print("WARN: $error, $name oid:$oid\n");
             }
         }
     }
@@ -199,7 +199,7 @@ sub getBrand {
     my $sysDescr;
     my $brand;
     my $result = $snmp->get_request( -varbindlist => $sysDescrOids );
-    if ( $self->_errCheck( $result, $sysDescrOids ) ) {
+    if ( $self->_errCheck( $result, $sysDescrOids, 'sysDescr(Brand)' ) ) {
         die("ERROR: Snmp request failed.\n");
     }
     else {
@@ -265,7 +265,7 @@ sub _getPortIdx {
 
     my $portIdxToNoMap = {};                                                       #序号到数字索引号的映射
     my $portIdxInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
-    $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
+    $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX}, 'PORT_INDEX' );
 
     #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
     my @sortedOids = oid_lex_sort( keys(%$portIdxInfo) );
@@ -300,7 +300,7 @@ sub _getPorts {
 
     foreach my $portInfoKey ( 'TYPE', 'NAME', 'MAC', 'ADMIN_STATUS', 'OPER_STATUS', 'SPEED', 'MTU' ) {
         my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
-        $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"} );
+        $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"}, "PORT_$portInfoKey" );
 
         #.1.3.6.1.2.1.2.2.1.6.514 => 0x000fe255d930
         #.1.3.6.1.2.1.2.2.1.2.770 = STRING: Ethernet0/3
@@ -431,7 +431,7 @@ sub _getMacTableWithVlan {
 
         my $portNoToIdxMap = {};                                                           #序号到数字索引号的映射
         my $portIdxInfo = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
-        $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX} );
+        $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX}, 'PORT_INDEX' );
 
         #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
         while ( my ( $oid, $val ) = each(%$portIdxInfo) ) {
@@ -488,7 +488,7 @@ sub _getLLDP {
     #获取邻居关系的本地端口名称列表（怀疑，这里的端口的idx和port信息里是一样的，如果是这样这里就不用采了
     my $portNoToName = {};
     my $localPortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_LOCAL_PORT} );
-    $self->_errCheck( $localPortInfo, $commOidDef->{LLDP_LOCAL_PORT} );
+    $self->_errCheck( $localPortInfo, $commOidDef->{LLDP_LOCAL_PORT}, 'LLDP_LOCAL_PORT' );
 
     #iso.0.8802.1.1.2.1.3.7.1.3.47=STRING:"Ten-GigabitEthernet1/0/47"
     #iso.0.8802.1.1.2.1.3.7.1.3.48=STRING:"Ten-GigabitEthernet1/0/48"
@@ -502,7 +502,7 @@ sub _getLLDP {
 
     my $remoteSysInfoMap = {};
     my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_REMOTE_SYSNAME} );
-    $self->_errCheck( $remoteSysNameInfo, $commOidDef->{LLDP_REMOTE_SYSNAME} );
+    $self->_errCheck( $remoteSysNameInfo, $commOidDef->{LLDP_REMOTE_SYSNAME}, 'LLDP_REMOTE_SYSNAME' );
 
     #iso.0.8802.1.1.2.1,4.1.1.9.569467705.48.1=STRING:"DCA_MAN_CSW_9850_02"
     #iso.0.8802.1.1.2.1.4.1.1.9.1987299041.47.1-STRING:"DCA_MAN_CSW_9850_01"
@@ -514,7 +514,7 @@ sub _getLLDP {
 
     my @neighbors;
     my $remotePortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_REMOTE_PORT} );
-    $self->_errCheck( $remotePortInfo, $commOidDef->{LLDP_REMOTE_PORT} );
+    $self->_errCheck( $remotePortInfo, $commOidDef->{LLDP_REMOTE_PORT}, 'LLDP_REMOTE_PORT' );
 
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.47.1-STRING:"Ten-GigabitEtheznet1/1/6"
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"
@@ -572,7 +572,7 @@ sub _getCDP {
 
     my @neighbors;
     my $remotePortInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_PORT} );
-    $self->_errCheck( $remotePortInfo, $commOidDef->{CDP_REMOTE_PORT} );
+    $self->_errCheck( $remotePortInfo, $commOidDef->{CDP_REMOTE_PORT}, 'CDP_REMOTE_PORT' );
 
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.47.1-STRING:"Ten-GigabitEtheznet1/1/6"
     #iso.0.8802.1.1.2.1.4.1.1.7.569467705.48.1-STRING:"Ten-GigabitEtheznet1/1/6"

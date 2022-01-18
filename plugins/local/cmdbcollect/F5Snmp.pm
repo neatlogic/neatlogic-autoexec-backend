@@ -101,7 +101,7 @@ sub new {
 }
 
 sub _errCheck {
-    my ( $self, $queryResult, $oid ) = @_;
+    my ( $self, $queryResult, $oid, $name ) = @_;
     my $hasError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
@@ -112,7 +112,7 @@ sub _errCheck {
             exit(-1);
         }
         else {
-            print("WARN: $error, $oid\n");
+            print("WARN: $error, $name oid:$oid\n");
         }
     }
 

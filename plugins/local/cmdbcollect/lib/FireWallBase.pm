@@ -133,7 +133,7 @@ sub addTableOid {
 }
 
 sub _errCheck {
-    my ( $self, $queryResult, $oid ) = @_;
+    my ( $self, $queryResult, $oid, $name ) = @_;
     my $hasError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
@@ -145,10 +145,10 @@ sub _errCheck {
         }
         else {
             if ( ref($oid) eq 'ARRAY' ) {
-                print( "WARN: $error, oids:", join( ', ', @$oid ), "\n" );
+                print( "WARN: $error, $name oids:", join( ', ', @$oid ), "\n" );
             }
             else {
-                print("WARN: $error, $oid\n");
+                print("WARN: $error, $name oid:$oid\n");
             }
         }
     }
@@ -201,7 +201,7 @@ sub getBrand {
     my $sysDescr;
     my $brand;
     my $result = $snmp->get_request( -varbindlist => $sysDescrOids );
-    if ( $self->_errCheck( $result, $sysDescrOids ) ) {
+    if ( $self->_errCheck( $result, $sysDescrOids, 'sysDscr(Brand)' ) ) {
         die("ERROR: Snmp request failed.\n");
     }
     else {
