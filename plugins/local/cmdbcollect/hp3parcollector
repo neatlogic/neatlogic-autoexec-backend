@@ -415,6 +415,9 @@ class HP3parCollector:
             batteries.append(batteryInfo)
         self.data['BATTERIES'] = batteries
 
+    def healthCheck(self):
+        pass
+
     def collect(self):
         print("INFO: Try to colelct device information.")
         self.getDeviceInfo()
