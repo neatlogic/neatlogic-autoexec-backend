@@ -13,7 +13,6 @@ our @ISA = qw(OSGatherBase);
 use POSIX;
 use Cwd;
 use IO::File;
-use Net::NetMask;
 use File::Basename;
 
 sub stripDMIComment {
@@ -338,16 +337,32 @@ sub getIpAddrs {
         my $maskBit;
         if ( $line =~ /^\s*inet\s+(.*?)\/(\d+)/ ) {
             $ip = $1;
+            $maskBit = $2;
             if ( $ip !~ /^127\./ ) {
-                my $block = Net::Netmask->safe_new("$ip:$maskBit");
-                push( @ipv4, { IP => $ip, NETMASK => $block->mask() } );
+                my $block = Net::Netmask->safe_new("$ip/$maskBit");
+                my $netmask;
+                if (defined($block)){
+                    $netmask = $block->mask();
+                }
+                else{
+                    print("WARN: Invalid CIDR $ip/$maskBit");
+                }
+                push( @ipv4, { IP => $ip, NETMASK => $netmask } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/\d+/ ) {
             $ip = $1;
+            $maskBit = $2;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                my $block = Net::Netmask->safe_new("$ip:$maskBit");
-                push( @ipv6, { IP => $ip, NETMASK => $block->mask() } );
+                my $block = Net::Netmask->safe_new("$ip/$maskBit");
+                my $netmask;
+                if (defined($block)){
+                    $netmask = $block->mask();
+                }
+                else{
+                    print("WARN: Invalid CIDR $ip/$maskBit");
+                }
+                push( @ipv6, { IP => $ip, NETMASK => $netmask } );
             }
         }
     }

@@ -1030,12 +1030,12 @@ sub collect {
     push( @collectSet, $insInfo );
 
     #如果当前实例是RAC，则采集RAC信息，ORACLE集群信息
-    if ( $insInfo->{IS_RAC} == 1 ) {
-        my $racInfo = $self->collectRAC($insInfo);
-        if ( defined($racInfo) ) {
-            push( @collectSet, $racInfo );
-        }
-    }
+    # if ( $insInfo->{IS_RAC} == 1 ) {
+    #     my $racInfo = $self->collectRAC($insInfo);
+    #     if ( defined($racInfo) ) {
+    #         push( @collectSet, $racInfo );
+    #     }
+    # }
 
     return @collectSet;
 }

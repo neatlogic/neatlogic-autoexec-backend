@@ -304,8 +304,15 @@ sub getIpAddrs {
             $ip = $1;
             my $maskBit = $2;
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
-                my $block = Net::Netmask->safe_new("$ip:$maskBit");
-                push( @ipv6, { IP => $ip, NETMASK => $block->mask() } );
+                my $block = Net::Netmask->safe_new("$ip/$maskBit");
+                my $netmask;
+                if (defined($block)){
+                    $netmask = $block->mask();
+                }
+                else{
+                    print("WARN: Invalid CIDR $ip/$maskBit");
+                }
+                push( @ipv6, { IP => $ip, NETMASK => $netmask } );
             }
         }
     }
