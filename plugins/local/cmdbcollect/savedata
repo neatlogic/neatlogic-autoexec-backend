@@ -17,6 +17,16 @@ def usage():
     exit(1)
 
 
+def getObjCatPkDef(objCat, customPkDef):
+    pkDefs = {
+        'DB': ['MGMT_IP', 'PORT', 'INSTANCE_ID']
+    }
+    fixPkDef = pkDefs.get(objCat)
+    if fixPkDef is not None:
+        return fixPkDef
+    return customPkDef
+
+
 def createPKIndex(collection, pkDef):
     pkIdx = []
     for field in pkDef:
@@ -217,6 +227,7 @@ if __name__ == "__main__":
                     if '_OBJ_CATEGORY' in data:
                         saveAppConnData(db, existsCollections, data)
                         saveSwMacTableData(db, existsCollections, data)
+                        pkDef = getObjCatPkDef(objCat, pkDef)
                     print('INFO: Save connection information success.')
 
                     mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data)
