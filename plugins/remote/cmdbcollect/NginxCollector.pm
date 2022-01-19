@@ -18,7 +18,7 @@ use CollectObjCat;
 sub getConfig {
     return {
         seq      => 80,
-        regExps  => ['\bmaster process\s'],
+        regExps  => ['\b(master|worker) process\s'],
         psAttrs  => { COMM => 'nginx' },
         envAttrs => {}
     };
@@ -107,13 +107,11 @@ sub collect {
         }
     }
 
-    if ( $minPort == 65535 ) {
-        return undef;
+    if ( $minPort < 65535 ) {
+        $nginxInfo->{PORT}     = $minPort;
+        $nginxInfo->{MON_PORT} = $minPort;
+        $nginxInfo->{PORTS}    = \@ports;
     }
-
-    $nginxInfo->{PORT}     = $minPort;
-    $nginxInfo->{MON_PORT} = $minPort;
-    $nginxInfo->{PORTS}    = \@ports;
     return $nginxInfo;
 }
 

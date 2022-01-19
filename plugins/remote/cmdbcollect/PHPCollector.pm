@@ -108,12 +108,10 @@ sub collect {
         }
     }
 
-    if ( $minPort == 65535 ) {
-        return undef;
+    if ( $minPort < 65535 ) {
+        $appInfo->{PORT}  = $minPort;
+        $appInfo->{PORTS} = \@ports;
     }
-
-    $appInfo->{PORT}  = $minPort;
-    $appInfo->{PORTS} = \@ports;
 
     $self->getServerName();
     $self->getVersion();

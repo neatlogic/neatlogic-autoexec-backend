@@ -93,6 +93,7 @@ sub collect {
         }
         $port = $minPort;
     }
+
     $mongodbInfo->{PORT}           = $port;
     $mongodbInfo->{SSL_PORT}       = $port;
     $mongodbInfo->{MON_PORT}       = $port;

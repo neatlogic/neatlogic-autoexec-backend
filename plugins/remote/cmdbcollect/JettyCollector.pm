@@ -102,10 +102,12 @@ sub collect {
             push( @ports, $lsnPort );
         }
     }
-    $appInfo->{PORTS}      = \@ports;
-    $appInfo->{PORT}       = $minPort;
-    $appInfo->{ADMIN_PORT} = undef;
+    if ( $minPort < 65535 ) {
+        $appInfo->{PORTS} = \@ports;
+        $appInfo->{PORT}  = $minPort;
+    }
 
+    $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $jmxPort;

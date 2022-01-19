@@ -221,13 +221,18 @@ sub mergeMultiProcs {
             my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
             $connInfo->{LISTEN} = \@lsnPorts;
 
+            my $minPort      = 65535;
             my $portsMap     = {};
             my @portNumbers  = ();
             my $bindAddrsMap = {};
             my @bindAddrs    = ();
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
-                    $portsMap->{ int($lsnPort) } = 1;
+                    $lsnPort = int($lsnPort);
+                    if ( $lsnPort < $minPort ) {
+                        $minPort = $lsnPort;
+                    }
+                    $portsMap->{$lsnPort} = 1;
                     foreach my $ipInfo (@$ipAddrs) {
                         $bindAddrsMap->{"$ipInfo->{VALUE}:$lsnPort"} = 1;
                     }
@@ -240,7 +245,11 @@ sub mergeMultiProcs {
                     push( @bindAddrs, $lsnPort );
                     my $myPort = $lsnPort;
                     $myPort =~ s/^.*://;
-                    $portsMap->{ int($myPort) } = 1;
+                    $myPort = int($myPort);
+                    if ( $myPort < $minPort ) {
+                        $minPort = $myPort;
+                    }
+                    $portsMap->{$myPort} = 1;
                 }
             }
             @portNumbers      = keys(%$portsMap);
@@ -283,6 +292,12 @@ sub mergeMultiProcs {
             $appInfo->{CONN_INFO} = $connInfo;
             if ( not defined( $appInfo->{PORTS} ) ) {
                 $appInfo->{PORTS} = \@portNumbers;
+            }
+            if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
+                $appInfo->{PORT} = $minPort;
+            }
+            if ( not defined( $appInfo->{MON_PORT} ) ) {
+                $appInfo->{MON_PORT} = $appInfo->{PORT};
             }
             push( @apps, $appInfo );
         }

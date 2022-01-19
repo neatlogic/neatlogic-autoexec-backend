@@ -78,8 +78,11 @@ sub collect {
         }
         push( @ports, $lsnPort );
     }
-    $appInfo->{PORT}  = $minPort;
-    $appInfo->{PORTS} = \@ports;
+
+    if ( $minPort < 65535 ) {
+        $appInfo->{PORT}  = $minPort;
+        $appInfo->{PORTS} = \@ports;
+    }
 
     $self->getServerName();
 

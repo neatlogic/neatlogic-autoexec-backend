@@ -133,7 +133,7 @@ sub collect {
         $port = $minPort;
     }
 
-    $postgresqlInfo->{PORT}     = int($port);
+    $postgresqlInfo->{PORT}     = $port;
     $postgresqlInfo->{SSL_PORT} = $port;
     $postgresqlInfo->{MON_PORT} = $port;
     $postgresqlInfo->{PORTS}    = \@ports;
