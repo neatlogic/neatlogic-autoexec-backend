@@ -26,7 +26,7 @@ sub stripDMIComment {
         }
     }
 
-    $content =~ s/^\s*|\s*$//;
+    $content =~ s/^\s*|\s*$//g;
 
     return $content;
 }
@@ -36,20 +36,20 @@ sub getOsVersion {
     my $osVer;
     if ( -e '/etc/redhat-release' ) {
         $osVer = $self->getFileContent('/etc/redhat-release');
-        $osVer =~ s/^\s*|\s*$//;
+        $osVer =~ s/^\s*|\s*$//g;
     }
     elsif ( -e '/etc/SuSE-release' ) {
         my $verLines = $self->getFileLines('/etc/SuSE-release');
         ($osVer) = grep( !/=/, @$verLines );
-        $osVer =~ s/^\s*|\s*$//;
+        $osVer =~ s/^\s*|\s*$//g;
     }
     elsif ( -e '/etc/debian_version' ) {
         $osVer = $self->getFileLines('/etc/debian_version');
-        $osVer =~ s/^\s*|\s*$//;
+        $osVer =~ s/^\s*|\s*$//g;
     }
     elsif ( -e '/etc/fedora-release' ) {
         $osVer = $self->getFileLines('/etc/fedora-release');
-        $osVer =~ s/^\s*|\s*$//;
+        $osVer =~ s/^\s*|\s*$//g;
     }
     $osInfo->{VERSION} = $osVer;
 }
