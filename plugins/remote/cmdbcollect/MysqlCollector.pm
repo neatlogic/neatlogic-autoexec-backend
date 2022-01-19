@@ -127,8 +127,9 @@ sub collect {
         $mysqlInfo->{CONFIG_FILE} = '/etc/my.cnf';
     }
 
-    my $port = $opts->{'port'};
-    my $host = '127.0.0.1';
+    my @ports = ();
+    my $port  = $opts->{'port'};
+    my $host  = '127.0.0.1';
 
     if ( not defined($port) ) {
         my $minPort     = 65535;
@@ -136,21 +137,26 @@ sub collect {
         foreach my $lsnPort ( keys(%$listenAddrs) ) {
             if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
                 $host    = $1;
-                $lsnPort = ($2);
+                $lsnPort = int($2);
             }
+            else {
+                $lsnPort = int($lsnPort);
+            }
+
             if ( $lsnPort < $minPort ) {
-                $minPort = int($lsnPort);
+                $minPort = $lsnPort;
             }
+            push( @ports, $lsnPort );
         }
         $port = $minPort;
     }
 
-    $port                        = int($port);
     $mysqlInfo->{PORT}           = $port;
     $mysqlInfo->{SSL_PORT}       = $port;
     $mysqlInfo->{MON_PORT}       = $port;
     $mysqlInfo->{ADMIN_PORT}     = $port;
     $mysqlInfo->{ADMIN_SSL_PORT} = $port;
+    $mysqlInfo->{PORTS}          = \@ports;
 
     my ( $helpRet, $verOutLines ) = $self->getCmdOutLines( qq{"$mysqldPath" --help}, $osUser );
     if ( $helpRet ne 0 ) {

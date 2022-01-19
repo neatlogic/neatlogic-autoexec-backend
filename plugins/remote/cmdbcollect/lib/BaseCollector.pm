@@ -9,7 +9,6 @@ use File::Basename;
 use ConnGather;
 use CollectObjCat;
 use CollectUtils;
-use Data::Dumper;
 
 #参数：
 #procInfo：进程的基本信息，就是ps输出的各种字段

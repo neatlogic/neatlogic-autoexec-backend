@@ -15,8 +15,6 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 
-use Data::Dumper;
-
 #需要权限：
 #sys系统表的只读权限
 #Master库的只读权限
@@ -55,8 +53,6 @@ sub collect {
     my $user                     = $procInfo->{USER};
     my $envMap                   = $procInfo->{ENVIRONMENT};
     my $cmdLine                  = $procInfo->{COMMAND};
-
-    print Dumper ($procInfo);
 
     # c:\tmp\autoexec\cmdbcollect>"C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\Binn\sqlservr.exe"
     # 2021-09-22 11:32:58.67 Server      Logging to event log is disabled. Startup option '-v' is supplied, either from th

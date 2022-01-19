@@ -72,6 +72,7 @@ sub collect {
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     foreach my $lsnPort ( keys(%$lsnPorts) ) {
         $lsnPort =~ s/^.*://;
+        $lsnPort = int($lsnPort);
         if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $minPort ) {
             $minPort = int($lsnPort);
         }

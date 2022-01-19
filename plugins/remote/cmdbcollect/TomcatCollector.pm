@@ -117,7 +117,7 @@ sub collect {
                 $appInfo->{SSL_PORT} = int($sslPort);
             }
         }
-        else{
+        else {
             print("WARN: Can not use file $confFile to detect listen port: $!\n");
         }
     }

@@ -19,7 +19,6 @@ use File::Copy;
 use Sys::Hostname;
 use CollectObjCat;
 use RedisExec;
-use Data::Dumper;
 
 sub getConfig {
     return {

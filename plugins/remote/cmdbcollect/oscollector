@@ -19,7 +19,6 @@ use ConnGather;
 use CollectObjCat;
 
 use AutoExecUtils;
-use Data::Dumper;
 
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");

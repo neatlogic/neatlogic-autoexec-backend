@@ -20,7 +20,6 @@ use File::Copy;
 use Sys::Hostname;
 use CollectObjCat;
 use MongoDBExec;
-use Data::Dumper;
 
 sub getConfig {
     return {
@@ -79,17 +78,18 @@ sub collect {
     #配置文件
     parseConfig( $self, $configFile, $mongodbInfo );
 
-    my $port = $mongodbInfo->{PORT};
+    my @ports = ();
+    my $port  = $mongodbInfo->{PORT};
     if ( not defined($port) ) {
         my $minPort     = 65535;
         my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
         foreach my $lsnPort ( keys(%$listenAddrs) ) {
-            if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
-                $lsnPort = ($2);
-            }
+            $lsnPort =~ s/^.*://;
+            $lsnPort = int($lsnPort);
             if ( $lsnPort < $minPort ) {
                 $minPort = int($lsnPort);
             }
+            push( @ports, $lsnPort );
         }
         $port = $minPort;
     }
@@ -98,6 +98,7 @@ sub collect {
     $mongodbInfo->{MON_PORT}       = $port;
     $mongodbInfo->{ADMIN_PORT}     = $port;
     $mongodbInfo->{ADMIN_SSL_PORT} = $port;
+    $mongodbInfo->{PORTS}          = \@ports;
 
     my $version = $self->getCmdOut("$exePath --version");
     $version =~ /\"version\": (\S+)\s+/;

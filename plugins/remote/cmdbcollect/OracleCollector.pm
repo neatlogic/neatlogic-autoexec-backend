@@ -18,7 +18,6 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 use SqlplusExec;
-use Data::Dumper;
 
 sub getPK {
     my ($self) = @_;

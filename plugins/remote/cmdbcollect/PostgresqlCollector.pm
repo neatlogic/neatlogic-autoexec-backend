@@ -17,7 +17,6 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 use PostgresqlExec;
-use Data::Dumper;
 
 #需要权限：
 #CONNECT 权限
@@ -110,8 +109,9 @@ sub collect {
 
     $postgresqlInfo->{INSTALL_PATH} = $postgresqlHome;
 
-    my $port = $opts->{'p'};
-    my $host = '';
+    my @ports = ();
+    my $port  = $opts->{'p'};
+    my $host  = '';
 
     if ( not defined($port) ) {
         my $minPort     = 65535;
@@ -119,18 +119,24 @@ sub collect {
         foreach my $lsnPort ( keys(%$listenAddrs) ) {
             if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
                 $host    = $1;
-                $lsnPort = ($2);
+                $lsnPort = int($2);
             }
+            else {
+                $lsnPort = int($lsnPort);
+            }
+
             if ( $lsnPort < $minPort ) {
-                $minPort = int($lsnPort);
+                $minPort = $lsnPort;
             }
+            push( @ports, $lsnPort );
         }
         $port = $minPort;
     }
 
-    $postgresqlInfo->{PORT}     = $port;
+    $postgresqlInfo->{PORT}     = int($port);
     $postgresqlInfo->{SSL_PORT} = $port;
     $postgresqlInfo->{MON_PORT} = $port;
+    $postgresqlInfo->{PORTS}    = \@ports;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;

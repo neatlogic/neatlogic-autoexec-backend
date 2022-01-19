@@ -7,7 +7,6 @@ package ConnGatherBase;
 use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
-use Data::Dumper;
 
 sub new {
     my ( $type, $inspect ) = @_;

@@ -14,9 +14,6 @@ use JSON qw(from_json to_json);
 
 use CollectUtils;
 
-#use JSON qw(from_json to_json);
-#use Data::Dumper;
-
 sub new {
     my ( $type, $procFilters, %args ) = @_;
 

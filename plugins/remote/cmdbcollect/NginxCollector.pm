@@ -14,7 +14,6 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use CollectObjCat;
-use Data::Dumper;
 
 sub getConfig {
     return {
@@ -95,13 +94,21 @@ sub collect {
     my $minPort     = 65535;
     my @ports       = ();
     foreach my $lsnPort ( keys(%$lsnPortsMap) ) {
+        my $port = 65535;
         if ( $lsnPort =~ /:(\d+)$/ ) {
-            push( @ports, int($1) );
+            $port = int($1);
         }
-        elsif ( $lsnPort < $minPort ) {
-            push( @ports, $lsnPort );
-            $minPort = int($lsnPort);
+        else {
+            $port = int($lsnPort);
         }
+        push( @ports, $port );
+        if ( $port < $minPort ) {
+            $minPort = $port;
+        }
+    }
+
+    if ( $minPort == 65535 ) {
+        return undef;
     }
 
     $nginxInfo->{PORT}     = $minPort;

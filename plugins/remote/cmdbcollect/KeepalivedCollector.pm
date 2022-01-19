@@ -14,7 +14,6 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use CollectObjCat;
-use Data::Dumper;
 
 sub getConfig {
     return {

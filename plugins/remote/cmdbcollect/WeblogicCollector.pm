@@ -16,7 +16,6 @@ use POSIX qw(uname);
 use File::Spec;
 use File::Basename;
 use IO::File;
-use Data::Dumper;
 use XML::MyXML qw(xml_to_object);
 use CollectObjCat;
 

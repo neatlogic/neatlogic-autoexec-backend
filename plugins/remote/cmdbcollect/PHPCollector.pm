@@ -101,8 +101,11 @@ sub collect {
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     foreach my $lsnPort ( keys(%$lsnPorts) ) {
         $lsnPort =~ s/^.*://;
-        $minPort = int($lsnPort);
+        $lsnPort = int($lsnPort);
         push( @ports, $lsnPort );
+        if ( $minPort < $lsnPort ) {
+            $minPort = $lsnPort;
+        }
     }
 
     if ( $minPort == 65535 ) {
