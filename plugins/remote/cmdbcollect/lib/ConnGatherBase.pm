@@ -35,8 +35,14 @@ sub parseListenLines {
             }
 
             my @fields = split( /\s+/, $line );
-            my $lastIdx = $#fields;
-            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
+
+            my $pidMatched = 0;
+            for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
+                if ( index( $fields[$i], $pid ) >= 0 ) {
+                    $pidMatched = 1;
+                }
+            }
+            if ( $pidMatched == 0 ) {
                 next;
             }
 
@@ -102,8 +108,14 @@ sub parseConnLines {
                 my $ip   = $1;
                 my $port = $2;
 
-                my $lastIdx = $#fields;
-                if ( index( $fields[$lastIdx], $pid ) < 0
+                my $pidMatched = 0;
+                for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
+                    if ( index( $fields[$i], $pid ) >= 0 ) {
+                        $pidMatched = 1;
+                    }
+                }
+
+                if ( $pidMatched == 0
                     and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
                 {
                     next;
