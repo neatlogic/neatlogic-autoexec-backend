@@ -145,7 +145,7 @@ sub parseConnLines {
                     if ( $self->{inspect} == 1 ) {
                         my $outBoundStat = $outBoundStats->{$remoteAddr};
                         if ( not defined($outBoundStat) ) {
-                            $outBoundStat = { SEND_QUEUED_COUNT => 0 };
+                            $outBoundStat = { SEND_QUEUED_COUNT => 0, SYN_SENT_COUNT => 0 };
                             $outBoundStats->{$remoteAddr} = $outBoundStat;
                         }
 

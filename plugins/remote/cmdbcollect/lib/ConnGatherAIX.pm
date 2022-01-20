@@ -141,7 +141,7 @@ sub processConnStat {
             my $outBoundStats = $myConnStats->{OUTBOUND_STATS};
             my $outBoundStat  = $outBoundStats->{$remoteAddr};
             if ( not defined($outBoundStat) ) {
-                $outBoundStat = { SEND_QUEUED_COUNT => 0 };
+                $outBoundStat = { SEND_QUEUED_COUNT => 0, SYN_SENT_COUNT => 0 };
                 $outBoundStats->{$remoteAddr} = $outBoundStat;
             }
 
