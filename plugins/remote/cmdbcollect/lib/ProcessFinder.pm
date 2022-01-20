@@ -204,91 +204,100 @@ sub findProcess {
                     }
                 }
 
-                if ( $isMatched == 1 ) {
-                    $line =~ s/^\s*|\s*$//g;
-                    my @vars = split( /\s+/, $line );
+                if ( $isMatched == 0 ) {
+                    next;
+                }
 
-                    my $matchedMap = {
-                        OS_ID     => $self->{osId},
-                        OS_TYPE   => $self->{ostype},
-                        HOST_NAME => $self->{hostname},
-                        MGMT_IP   => $self->{mgmtIp},
-                        MGMT_PORT => $self->{mgmtPort},
-                        _OBJ_TYPE => $config->{objType}
-                    };
+                $line =~ s/^\s*|\s*$//g;
+                my @vars = split( /\s+/, $line );
 
-                    for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
-                        if ( $fields[$i] eq 'COMMAND' ) {
-                            $matchedMap->{COMM} = shift(@vars);
-                        }
-                        else {
-                            $matchedMap->{ $fields[$i] } = shift(@vars);
+                my $matchedMap = {
+                    OS_ID     => $self->{osId},
+                    OS_TYPE   => $self->{ostype},
+                    HOST_NAME => $self->{hostname},
+                    MGMT_IP   => $self->{mgmtIp},
+                    MGMT_PORT => $self->{mgmtPort},
+                    _OBJ_TYPE => $config->{objType}
+                };
+
+                for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
+                    if ( $fields[$i] eq 'COMMAND' ) {
+                        $matchedMap->{COMM} = shift(@vars);
+                    }
+                    else {
+                        $matchedMap->{ $fields[$i] } = shift(@vars);
+                    }
+                }
+                $matchedMap->{COMMAND} = join( ' ', @vars );
+                my $envMap;
+
+                if ( defined($psAttrs) ) {
+                    my $psAttrVal;
+                    foreach my $attr ( keys(%$psAttrs) ) {
+                        my $attrVal = $psAttrs->{$attr};
+                        $psAttrVal = $matchedMap->{$attr};
+                        if ( $attrVal ne $psAttrVal ) {
+                            $isMatched = 0;
+                            last;
                         }
                     }
-                    $matchedMap->{COMMAND} = join( ' ', @vars );
-                    my $envMap;
+                }
 
-                    if ( defined($psAttrs) ) {
-                        my $psAttrVal;
-                        foreach my $attr ( keys(%$psAttrs) ) {
-                            my $attrVal = $psAttrs->{$attr};
-                            $psAttrVal = $matchedMap->{$attr};
-                            if ( $attrVal ne $psAttrVal ) {
-                                $isMatched = 0;
-                                last;
-                            }
-                        }
-                    }
-                    my $myPid = $matchedMap->{PID};
+                if ( $isMatched == 0 ) {
+                    next;
+                }
 
-                    if ( defined($envAttrs) ) {
-                        my $envAttrVal;
-                        foreach my $attr ( keys(%$envAttrs) ) {
-                            my $attrVal = $envAttrs->{$attr};
-                            if ( not defined($envMap) ) {
-                                $envMap = $self->getProcEnv($myPid);
-                            }
+                my $myPid = $matchedMap->{PID};
 
-                            $envAttrVal = $envMap->{$attr};
-
-                            if ( not defined($envAttrVal) ) {
-                                $isMatched = 0;
-                                last;
-                            }
-
-                            if ( not defined($attrVal) or $attrVal eq '' ) {
-                                if ( defined($envAttrVal) ) {
-                                    next;
-                                }
-                                else {
-                                    $isMatched = 0;
-                                    last;
-                                }
-                            }
-
-                            if ( $envAttrVal !~ /$attrVal/ ) {
-                                $isMatched = 0;
-                                last;
-                            }
-                        }
-                    }
-
-                    if ( $isMatched == 1 ) {
-                        if ( -e "/proc/$myPid/exe" ) {
-                            $matchedMap->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
-                        }
+                if ( defined($envAttrs) ) {
+                    my $envAttrVal;
+                    foreach my $attr ( keys(%$envAttrs) ) {
+                        my $attrVal = $envAttrs->{$attr};
                         if ( not defined($envMap) ) {
                             $envMap = $self->getProcEnv($myPid);
                         }
-                        $matchedMap->{ENVIRONMENT} = $envMap;
-                        my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo}, $self->{appsMap}, $self->{ostype}, $self->{passArgs}, $self->{osInfo}, $self->{connGather} );
-                        if ( $matched == 1 ) {
-                            $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+
+                        $envAttrVal = $envMap->{$attr};
+
+                        if ( not defined($envAttrVal) ) {
+                            $isMatched = 0;
+                            last;
+                        }
+
+                        if ( not defined($attrVal) or $attrVal eq '' ) {
+                            if ( defined($envAttrVal) ) {
+                                next;
+                            }
+                            else {
+                                $isMatched = 0;
+                                last;
+                            }
+                        }
+
+                        if ( $envAttrVal !~ /$attrVal/ ) {
+                            $isMatched = 0;
+                            last;
                         }
                     }
-
-                    last;
                 }
+
+                if ( $isMatched == 0 ) {
+                    next;
+                }
+
+                if ( -e "/proc/$myPid/exe" ) {
+                    $matchedMap->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
+                }
+                if ( not defined($envMap) ) {
+                    $envMap = $self->getProcEnv($myPid);
+                }
+                $matchedMap->{ENVIRONMENT} = $envMap;
+                my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo}, $self->{appsMap}, $self->{ostype}, $self->{passArgs}, $self->{osInfo}, $self->{connGather} );
+                if ( $matched == 1 ) {
+                    $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                }
+
+                last;
             }
         }
 
