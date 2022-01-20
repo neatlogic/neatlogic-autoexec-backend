@@ -103,6 +103,7 @@ def getDefaultFieldKeys():
         'MOUNT_POINTS',
         'NFS_MOUNTED',
         'DISKS',
+        'LISTEN_STATS',
         'CONN_STATS',
         'CONN_OUTBOUND_STATS',
         'DNS_SERVERS',
