@@ -19,6 +19,20 @@ our $TYPES = {
     CLUSTER      => 'CLUSTER',         #集群
 };
 
+our $PK_CONFIG = {
+    INS => [ 'MGMT_IP', 'PORT' ],
+    DB  => [ 'MGMT_IP', 'PORT', 'INSTANCE_NAME' ],
+    OS           => ['MGMT_IP'],
+    HOST         => ['BOARD_SERIAL'],
+    VIRTUALIZED  => ['MGMT_IP'],
+    SWITCH       => ['MGMT_IP'],
+    FIREWALL     => ['MGMT_IP'],
+    LOADBALANCER => ['MGMT_IP'],
+    STORAGE      => ['MGMT_IP'],
+    FCSWITCH     => ['MGMT_IP'],
+    CLUSTER      => ['UNIQUE_NAME']
+};
+
 sub get {
     my ( $self, $objCatName ) = @_;
     my $objCat = $TYPES->{$objCatName};
@@ -27,6 +41,11 @@ sub get {
     }
 
     return $objCat;
+}
+
+sub getPK {
+    my ( $self, $objCat ) = @_;
+    return $PK_CONFIG->{$objCat};
 }
 
 sub validate {

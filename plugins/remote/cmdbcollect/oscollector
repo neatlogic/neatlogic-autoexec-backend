@@ -101,12 +101,13 @@ sub collectHostOSInfo {
         my $osGather = OSGather->new( $ignoreOsInfo, $inspect );
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {
-            $hostInfo->{_OBJ_CATEGORY} = CollectObjCat->get('HOST');
+            my $hostObjCat = CollectObjCat->get('HOST');
+            $hostInfo->{_OBJ_CATEGORY} = $hostObjCat;
             $hostInfo->{_OBJ_TYPE}     = 'HOST';
             $hostInfo->{OS_ID}         = $osGather->{osId};
             $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $hostInfo->{PK}            = ['BOARD_SERIAL'];
+            $hostInfo->{PK}            = CollectObjCat->getPK($hostObjCat);
             $hostInfo->{INDEX_FIELDS}  = ['OS_ID'];
         }
         else {
@@ -114,13 +115,14 @@ sub collectHostOSInfo {
         }
 
         if ( defined($osInfo) ) {
-            $osInfo->{_OBJ_CATEGORY} = CollectObjCat->get('OS');
+            my $osObjCat = CollectObjCat->get('OS');
+            $osInfo->{_OBJ_CATEGORY} = $osObjCat;
             $osInfo->{_OBJ_TYPE}     = $osType;
             $osInfo->{OS_TYPE}       = $osType;
             $osInfo->{OS_ID}         = $osGather->{osId};
             $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
-            $osInfo->{PK}            = ['MGMT_IP'];
+            $osInfo->{PK}            = CollectObjCat->getPK($osObjCat);
             $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
 
             if ( defined($hostInfo) and defined( $hostInfo->{BOARD_SERIAL} ) ) {
@@ -342,13 +344,11 @@ sub doDetailCollect {
 
     my $collector;
     my @appInfos = ();
-    my $pkConfig;
 
     alarm($SINGLE_TIMEOUT);
     eval {
         $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
         my @appInfosTmp = $collector->collect($procInfo);
-        $pkConfig = $collector->getPK();
 
         foreach my $appInfo (@appInfosTmp) {
             if ( defined($appInfo) and ref($appInfo) eq 'HASH' ) {
@@ -454,18 +454,17 @@ sub doDetailCollect {
             }
         }
 
-        if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
-            if ( $appInfo->{_OBJ_CATEGORY} eq 'DB' ){
-                $appInfo->{PK} = [ 'MGMT_IP', 'PORT', 'INSTANCE_NAME' ];
+        if ( not defined( $appInfo->{PK} ) ) {
+            my $pkConfig = CollectObjCat->getPK($objCat);
+            if ( defined($pkConfig) ) {
+                $appInfo->{PK} = $pkConfig;
             }
-            else{
-                $appInfo->{PK} = $pkConfig->{$objType};
+            else {
+                $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
+                print("ERROR: $objType PK not defined for obj catetory:$objCat.\n");
             }
         }
-        else {
-            $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
-            print("ERROR: $objType PK not defined in the collector class:$collectorClass.\n");
-        }
+
         $appInfo->{RUN_ON} = [
             {
                 '_OBJ_CATEGORY' => 'OS',

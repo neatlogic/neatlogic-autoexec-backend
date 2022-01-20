@@ -24,11 +24,6 @@ sub getConfig {
     };
 }
 
-sub getPK {
-    my ($self) = @_;
-    return { $self->{defaultObjType} => [ 'OS_ID', 'MGMT_IP' ] };
-}
-
 sub collect {
     my ($self) = @_;
 
@@ -75,6 +70,7 @@ sub collect {
     $keepalivedInfo->{CONFIG_PATH}   = $configPath;
     $keepalivedInfo->{VRRP_SCRIPT}   = $self->parseConfig( $configFile, 'vrrp_script' );
     $keepalivedInfo->{VRRP_INSTANCE} = $self->parseConfig( $configFile, 'vrrp_instance' );
+    $keepalivedInfo->{PORT}          = undef;
     $keepalivedInfo->{MON_PORT}      = undef;
     return $keepalivedInfo;
 }
