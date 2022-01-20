@@ -71,12 +71,15 @@ sub parseConnLines {
     my $pid            = $args{pid};
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
+    my $statusIdx      = $args{statusIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
 
-    my $totalCount    = 0;
-    my $inBoundCount  = 0;
-    my $outBoundCount = 0;
-    my $outBoundStats = {};
+    my $totalCount     = 0;
+    my $inBoundCount   = 0;
+    my $synRecvCount   = 0;
+    my $closeWaitCount = 0;
+    my $outBoundCount  = 0;
+    my $outBoundStats  = {};
 
     my $remoteAddrs = {};
     my $status      = 0;
@@ -88,6 +91,7 @@ sub parseConnLines {
             my @fields     = split( /\s+/, $line );
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
+            my $connStatus = $fields[$statusIdx];
 
             if ( $localAddr =~ /^(.*):(\d+)$/ ) {
                 my $ip   = $1;
@@ -119,10 +123,19 @@ sub parseConnLines {
                             $outBoundStats->{$remoteAddr} = $outBoundStat;
                         }
                         $outBoundStat->{OUTBOUND_COUNT} = $outBoundStat->{OUTBOUND_COUNT} + 1;
+                        if ( $connStatus eq 'SYN_SENT' ) {
+                            $outBoundStat->{SYN_SENT_COUNT} = $outBoundStat->{SYN_SENT_COUNT} + 1;
+                        }
                     }
                 }
                 else {
                     $inBoundCount = $inBoundCount + 1;
+                    if ( $connStatus eq 'SYN_RECV' ) {
+                        $synRecvCount = $synRecvCount + 1;
+                    }
+                    elsif ( $connStatus eq 'CLOSE_WAIT' ) {
+                        $closeWaitCount = $closeWaitCount + 1;
+                    }
                 }
                 $totalCount = $totalCount + 1;
             }
@@ -137,9 +150,11 @@ sub parseConnLines {
     }
 
     my $connStatInfo = {
-        'TOTAL_COUNT'    => $totalCount,
-        'INBOUND_COUNT'  => $inBoundCount,
-        'OUTBOUND_COUNT' => $outBoundCount
+        'TOTAL_COUNT'      => $totalCount,
+        'INBOUND_COUNT'    => $inBoundCount,
+        'OUTBOUND_COUNT'   => $outBoundCount,
+        'SYN_RECV_COUNT'   => $synRecvCount,
+        'CLOSE_WAIT_COUNT' => $closeWaitCount
     };
 
     return ( $status, $remoteAddrs, $connStatInfo );
@@ -148,15 +163,14 @@ sub parseConnLines {
 sub getRemoteAddrs {
     my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $cmd            = "netstat -ano |";
-    my $localFieldIdx  = 2;
-    my $remoteFieldIdx = 3;
+    my $cmd = "netstat -ano |";
     my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
         cmd            => $cmd,
         pid            => $pid,
         lsnPortsMap    => $lsnPortsMap,
-        localFieldIdx  => $localFieldIdx,
-        remoteFieldIdx => $remoteFieldIdx
+        localFieldIdx  => 2,
+        remoteFieldIdx => 3,
+        statusIdx      => 4
     );
 
     return ( $remoteAddrs, $connStatInfo );
@@ -165,12 +179,12 @@ sub getRemoteAddrs {
 sub getListenPorts {
     my ( $self, $pid ) = @_;
 
-    my $cmd         = "netstat -ano| findstr LISTENING |";
-    my $lsnFieldIdx = 2;
+    my $cmd = "netstat -ano| findstr LISTENING |";
     my ( $status, $portsMap ) = $self->parseListenLines(
         cmd         => $cmd,
         pid         => $pid,
-        lsnFieldIdx => $lsnFieldIdx
+        lsnFieldIdx => 2,
+        statusIdx   => 4
     );
 
     return $portsMap;

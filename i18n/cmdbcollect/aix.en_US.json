@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "AIX"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -58,7 +59,8 @@
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -74,7 +76,8 @@
             "name": "IPV6_ADDRS",
             "desc": "IPV6 Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -165,7 +168,8 @@
             "name": "TOP_CPU_RPOCESSES",
             "desc": "Top Cpu Usage Process",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USER",
                     "desc": "User Name",
                     "type": "String"
@@ -271,7 +275,8 @@
             "name": "TOP_MEM_PROCESSES",
             "desc": "Top Cpu Usage Process",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USER",
                     "desc": "User Name",
                     "type": "String"
@@ -332,7 +337,8 @@
             "name": "MOUNT_POINTS",
             "desc": "Mount Points",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Mount Point",
                     "type": "String"
@@ -388,7 +394,8 @@
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -419,11 +426,13 @@
             "name": "DNS_SERVERS",
             "desc": "DNS Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_ENABLE",
@@ -434,11 +443,13 @@
             "name": "NTP_SERVERS",
             "desc": "NTP Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_OFFSET_SECS",
@@ -464,7 +475,8 @@
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -488,7 +500,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "Remote Port",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Category",
                             "type": "String"
@@ -521,7 +534,8 @@
             "name": "USERS",
             "desc": "users",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -562,7 +576,8 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "name",
                     "type": "String"
@@ -588,7 +603,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
@@ -609,11 +625,13 @@
             "name": "PATCHES_APPLIED",
             "desc": "Patches Applied",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Patch Id",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Id",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

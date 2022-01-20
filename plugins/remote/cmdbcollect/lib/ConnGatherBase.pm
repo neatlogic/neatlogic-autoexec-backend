@@ -22,6 +22,7 @@ sub parseListenLines {
     my $cmd         = $args{cmd};
     my $pid         = $args{pid};
     my $lsnFieldIdx = $args{lsnFieldIdx};
+    my $recvQIdx    = $args{recvQIdx};
 
     my $portsMap = {};
     my $status   = 0;
@@ -46,6 +47,7 @@ sub parseListenLines {
                 next;
             }
 
+            my $backlogQ   = int( $fields[$recvQIdx] );
             my $listenAddr = $fields[$lsnFieldIdx];
             $listenAddr =~ s/^::ffff:(\d+\.)/$1/;
             $listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
@@ -54,10 +56,10 @@ sub parseListenLines {
                 my $ip   = $1;
                 my $port = $2;
                 if ( $ip eq '*' or $ip eq '::' or $ip eq '[::]' or $ip eq '0.0.0.0' ) {
-                    $portsMap->{$port} = 1;
+                    $portsMap->{$port} = $backlogQ;
                 }
                 else {
-                    $portsMap->{$listenAddr} = 1;
+                    $portsMap->{$listenAddr} = $backlogQ;
                 }
             }
         }
@@ -82,11 +84,14 @@ sub parseConnLines {
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $recvQIdx       = $args{recvQIdx};
     my $sendQIdx       = $args{sendQIdx};
+    my $statusIdx      = $args{statusIdx};
     my $lsnPortsMap    = $args{lsnPortsMap};
 
     my $totalCount         = 0;
     my $inBoundCount       = 0;
     my $outBoundCount      = 0;
+    my $syncRecvCount      = 0;
+    my $closeWaitCount     = 0;
     my $recvQNoneZeroCount = 0;
     my $sendQNoneZeroCount = 0;
     my $totalRecvQSize     = 0;
@@ -126,8 +131,9 @@ sub parseConnLines {
                 $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
                 $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
-                my $recvQSize = int( $fields[$recvQIdx] );
-                my $sendQSize = int( $fields[$sendQIdx] );
+                my $connStatus = $fields[$statusIdx];
+                my $recvQSize  = int( $fields[$recvQIdx] );
+                my $sendQSize  = int( $fields[$sendQIdx] );
 
                 if (    $remoteAddr =~ /:\d+$/
                     and not defined( $lsnPortsMap->{$localAddr} )
@@ -148,6 +154,9 @@ sub parseConnLines {
                         }
                         $outBoundStat->{OUTBOUND_COUNT}   = $outBoundStat->{OUTBOUND_COUNT} + 1;
                         $outBoundStat->{SEND_QUEUED_SIZE} = $outBoundStat->{SEND_QUEUED_SIZE} + $sendQSize;
+                        if ( $connStatus eq 'SYN_SENT' ) {
+                            $outBoundStat->{SYN_SENT_COUNT} = $outBoundStat->{SYN_SENT_COUNT} + 1;
+                        }
                     }
                 }
                 else {
@@ -163,6 +172,13 @@ sub parseConnLines {
                 if ( $sendQSize > 0 ) {
                     $sendQNoneZeroCount = $sendQNoneZeroCount + 1;
                 }
+
+                if ( $connStatus eq 'SYN_RECV' ) {
+                    $syncRecvCount = $syncRecvCount + 1;
+                }
+                elsif ( $connStatus eq 'CLOSE_WAIT' ) {
+                    $closeWaitCount = $closeWaitCount + 1;
+                }
             }
         }
         close($pipe);
@@ -177,6 +193,8 @@ sub parseConnLines {
     my $connStatInfo = {
         'TOTAL_COUNT'       => $totalCount,
         'INBOUND_COUNT'     => $inBoundCount,
+        'SYNC_RECV_COUNT'   => $syncRecvCount,
+        'CLOSE_WAIT_COUNT'  => $closeWaitCount,
         'OUTBOUND_COUNT'    => $outBoundCount,
         'RECV_QUEUED_COUNT' => $recvQNoneZeroCount,
         'SEND_QUEUED_COUNT' => $sendQNoneZeroCount,
@@ -205,6 +223,7 @@ sub getRemoteAddrs {
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
             remoteFieldIdx => $remoteFieldIdx,
+            statusIdx      => 5,
             recvQIdx       => 1,
             sendQIdx       => 2
         );
@@ -220,6 +239,7 @@ sub getRemoteAddrs {
             lsnPortsMap    => $lsnPortsMap,
             localFieldIdx  => $localFieldIdx,
             remoteFieldIdx => $remoteFieldIdx,
+            statusIdx      => 1,
             recvQIdx       => 2,
             sendQIdx       => 3
         );
@@ -243,7 +263,10 @@ sub getListenPorts {
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
             pid         => $pid,
-            lsnFieldIdx => $lsnFieldIdx
+            lsnFieldIdx => $lsnFieldIdx,
+            statusIdx   => 5,
+            recvQIdx    => 1,
+            sendQIdx    => 2
         );
     }
 
@@ -253,7 +276,10 @@ sub getListenPorts {
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
             pid         => $pid,
-            lsnFieldIdx => $lsnFieldIdx
+            lsnFieldIdx => $lsnFieldIdx,
+            statusIdx   => 1,
+            recvQIdx    => 2,
+            sendQIdx    => 3
         );
     }
 

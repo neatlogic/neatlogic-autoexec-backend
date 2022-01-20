@@ -221,27 +221,37 @@
             "subset": [
                 {
                     "name": "TOTAL_COUNT",
-                    "desc": "Total Conn Count",
+                    "desc": "Total",
                     "type": "Int"
                 },
                 {
                     "name": "INBOUND_COUNT",
-                    "desc": "InBound Conn Count",
+                    "desc": "InBound",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "Syn Recv",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "Close Wait",
                     "type": "Int"
                 },
                 {
                     "name": "OUTBOUND_COUNT",
-                    "desc": "OutBound Conn Count",
+                    "desc": "OutBound",
                     "type": "Int"
                 },
                 {
                     "name": "RECV_QUEUED_COUNT",
-                    "desc": "Recv Queued Conn Count",
+                    "desc": "Recv Queued",
                     "type": "Int"
                 },
                 {
                     "name": "SEND_QUEUED_COUNT",
-                    "desc": "Send Queued Conn Count",
+                    "desc": "Send Queued",
                     "type": "Int"
                 },
                 {
@@ -292,8 +302,13 @@
                     "type": "Int"
                 },
                 {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "Syn Sent",
+                    "type": "Int"
+                },
+                {
                     "name": "SEND_QUEUED_COUNT",
-                    "desc": "Send Queued Count",
+                    "desc": "Send Queued",
                     "type": "Int"
                 },
                 {

@@ -218,7 +218,10 @@ sub mergeMultiProcs {
     while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
         if ( not defined( $pidToDel->{$pid} ) ) {
             my $connInfo = $appInfo->{PROC_INFO}->{CONN_INFO};
-            my @lsnPorts = keys( %{ $connInfo->{LISTEN} } );
+            my @lsnPorts = ();
+            while ( my ( $lsnAddr, $backlogQ ) = each( %{ $connInfo->{LISTEN} } ) ) {
+                push( @lsnPorts, { 'ADDR' => $lsnAddr, "QUEUED" => $backlogQ } );
+            }
             $connInfo->{LISTEN} = \@lsnPorts;
 
             my $minPort      = 65535;
@@ -234,10 +237,10 @@ sub mergeMultiProcs {
                     }
                     $portsMap->{$lsnPort} = 1;
                     foreach my $ipInfo (@$ipAddrs) {
-                        $bindAddrsMap->{"$ipInfo->{VALUE}:$lsnPort"} = 1;
+                        $bindAddrsMap->{"$ipInfo->{IP}:$lsnPort"} = 1;
                     }
                     foreach my $ipInfo (@$ipv6Addrs) {
-                        $bindAddrsMap->{"$ipInfo->{VALUE}:$lsnPort"} = 1;
+                        $bindAddrsMap->{"$ipInfo->{IP}:$lsnPort"} = 1;
                     }
                 }
                 else {
@@ -288,6 +291,7 @@ sub mergeMultiProcs {
             $appInfo->{CONN_OUTBOUND_STATS} = \@outBoundStats;
             delete( $connStats->{OUTBOUND_STATS} );
             $appInfo->{CONN_STATS} = delete( $connInfo->{STATS} );
+            $appInfo->{LISTEN_STATS} = $connInfo->{LISTEN};
 
             $appInfo->{CONN_INFO} = $connInfo;
             if ( not defined( $appInfo->{PORTS} ) ) {

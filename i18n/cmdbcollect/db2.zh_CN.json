@@ -112,37 +112,47 @@
             "subset": [
                 {
                     "name": "TOTAL_COUNT",
-                    "desc": "连接总数",
+                    "desc": "总数",
                     "type": "Int"
                 },
                 {
                     "name": "INBOUND_COUNT",
-                    "desc": "入方向数量",
+                    "desc": "入方向",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "半打开",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "待关闭",
                     "type": "Int"
                 },
                 {
                     "name": "OUTBOUND_COUNT",
-                    "desc": "出方向数量",
+                    "desc": "出方向",
                     "type": "Int"
                 },
                 {
                     "name": "RECV_QUEUED_COUNT",
-                    "desc": "接收积压数量",
+                    "desc": "接收积压",
                     "type": "Int"
                 },
                 {
                     "name": "SEND_QUEUED_COUNT",
-                    "desc": "发送积压数量",
+                    "desc": "发送积压",
                     "type": "Int"
                 },
                 {
                     "name": "RECV_QUEUED_SIZE",
-                    "desc": "接收积压字节数",
+                    "desc": "接收积压字节",
                     "type": "Int"
                 },
                 {
                     "name": "SEND_QUEUED_SIZE",
-                    "desc": "发送积压字节数",
+                    "desc": "发送积压字节",
                     "type": "Int"
                 },
                 {
@@ -180,6 +190,11 @@
                 {
                     "name": "OUTBOUND_COUNT",
                     "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "半连接数量",
                     "type": "Int"
                 },
                 {

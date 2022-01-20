@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Windows"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -58,7 +59,8 @@
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -134,7 +136,8 @@
             "name": "MOUNT_POINTS",
             "desc": "挂载点",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "挂载点",
                     "type": "String"
@@ -185,7 +188,8 @@
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "磁盘名",
                     "type": "String"
@@ -216,11 +220,13 @@
             "name": "DNS_SERVERS",
             "desc": "DNS服务IP",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_ENABLE",
@@ -231,11 +237,13 @@
             "name": "NTP_SERVERS",
             "desc": "NTP服务IP",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_OFFSET_SECS",
@@ -246,7 +254,8 @@
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "网卡名",
                     "type": "String"
@@ -270,7 +279,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接交换机端口",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -303,7 +313,8 @@
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "用户名",
                     "type": "String"
@@ -359,7 +370,8 @@
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -385,7 +397,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "主机归属类别",
                     "type": "String"
@@ -421,11 +434,13 @@
             "name": "PATCHES_APPLIED",
             "desc": "补丁列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "补丁号",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "补丁号",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PRODUCT_NAME",

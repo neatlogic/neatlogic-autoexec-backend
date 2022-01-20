@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "RPA"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -23,6 +24,11 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
         },
         {
             "name": "STATE",
@@ -45,32 +51,16 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
-            "type": "String"
-        },
-        {
-            "name": "STATUS",
-            "desc": "Health Status",
-            "type": "String"
-        },
-        {
             "name": "CPU_CORES",
             "desc": "CPU Cores",
             "type": "Int"
-        }, {
-            "name": "VERSION",
-            "desc": "IOS Version",
-            "type": "String"
-        }, {
-            "name": "REPOSITORY_VOL_STATUS",
-            "desc": "Repository Vol Status",
-            "type": "String"
-        }, {
+        },
+        {
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -93,31 +83,11 @@
             ]
         },
         {
-            "name": "HBA_INTERFACES",
-            "desc": "HBA Interfaces",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "WWPN",
-                    "desc": "WWPN",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Link TPYE",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed(Gbps)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "CLUSTERS",
             "desc": "Clusters Config",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -126,7 +96,8 @@
                     "name": "COPIES",
                     "desc": "Copies",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -164,12 +135,12 @@
                         {
                             "name": "PORTECTION_WINDOW",
                             "desc": "Protection Window(days)",
-                            "type": "Float"
+                            "type": "Int"
                         },
                         {
                             "name": "PREDICT_PORTECTION_WINDOW",
                             "desc": "Predict Protection Window(days)",
-                            "type": "Float"
+                            "type": "Int"
                         }
                     ]
                 },
@@ -177,7 +148,8 @@
                     "name": "LINKS",
                     "desc": "Links",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -215,7 +187,8 @@
             "name": "CONSISTENCY_GROUPS",
             "desc": "Consistency Groups",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -224,7 +197,8 @@
                     "name": "RPAS",
                     "desc": "Rpas in Cluster",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -253,11 +227,13 @@
                             "name": "VERSION",
                             "desc": "Version",
                             "type": "String"
-                        }, {
+                        },
+                        {
                             "name": "ETH_INTERFACES",
                             "desc": "NIC",
                             "type": "JsonArray",
-                            "subset": [{
+                            "subset": [
+                                {
                                     "name": "NAME",
                                     "desc": "Name",
                                     "type": "String"
@@ -283,7 +259,8 @@
                             "name": "HBA_INTERFACES",
                             "desc": "HBA Interfaces",
                             "type": "JsonArray",
-                            "subset": [{
+                            "subset": [
+                                {
                                     "name": "WWPN",
                                     "desc": "WWPN",
                                     "type": "String"
@@ -303,6 +280,43 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "WWPN",
+                    "desc": "WWPN",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Link TPYE",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Gbps)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "REPOSITORY_VOL_STATUS",
+            "desc": "Repository Vol Status",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "Health Status",
+            "type": "String"
         }
     ]
 }

@@ -17,9 +17,10 @@ sub new {
     bless( $self, $type );
 
     $self->{procConnStats} = {};
-    my $lsnPortsMap = $self->getListenPorts();
-    $self->{lsnPortsMap} = $lsnPortsMap;
-    $self->{remoteAddrs} = $self->getRemoteAddrs($lsnPortsMap);
+    my ( $lsnBackLogMap, $lsnPortsMap ) = $self->getListenPorts();
+    $self->{lsnPortsMap}   = $lsnPortsMap;
+    $self->{lsnBackLogMap} = $lsnBackLogMap;
+    $self->{remoteAddrs}   = $self->getRemoteAddrs($lsnPortsMap);
 
     return $self;
 }
@@ -43,10 +44,12 @@ sub parseListenLines {
     print("INFO: Begin to collect process listen addresses.\n");
     my $cmd         = $args{cmd};
     my $lsnFieldIdx = $args{lsnFieldIdx};
+    my $recvQIdx    = $args{recvQIdx};
     my $sockAddrIdx = 0;
 
-    my $portsMap = {};
-    my $status   = 0;
+    my $portsMap      = {};
+    my $lsnBackLogMap = {};
+    my $status        = 0;
     my $pipe;
     my $pipePid = open( $pipe, $cmd );
     if ( defined($pipe) ) {
@@ -66,10 +69,12 @@ sub parseListenLines {
                 my $pid = $self->findSockPid($sockAddr);
 
                 if ( $ip eq '*' or $ip eq '::' or $ip eq '[::]' or $ip eq '0.0.0.0' ) {
-                    $portsMap->{$port} = $pid;
+                    $portsMap->{$port}      = $pid;
+                    $lsnBackLogMap->{$port} = int( $fields[$recvQIdx] );
                 }
                 else {
-                    $portsMap->{$listenAddr} = $pid;
+                    $portsMap->{$listenAddr}      = $pid;
+                    $lsnBackLogMap->{$listenAddr} = int( $fields[$recvQIdx] );
                 }
             }
         }
@@ -82,17 +87,19 @@ sub parseListenLines {
         print("ERROR: Can not launch command:$cmd to collection listen addresses.\n");
     }
 
-    return ( $status, $portsMap );
+    return ( $status, $portsMap, $lsnBackLogMap );
 }
 
 sub processConnStat {
-    my ( $self, $pid, $isInBound, $fields, $recvQIdx, $sendQIdx, $remoteAddr ) = @_;
+    my ( $self, $pid, $isInBound, $fields, $recvQIdx, $sendQIdx, $statusIdx, $remoteAddr ) = @_;
 
     my $myConnStats = $self->{procConnStats}->{$pid};
     if ( not defined($myConnStats) ) {
         $myConnStats = {
             'TOTAL_COUNT'       => 0,
             'INBOUND_COUNT'     => 0,
+            'SYN_RECV_COUNT'    => 0,
+            'CLOSE_WAIT_COUNT'  => 0,
             'OUTBOUND_COUNT'    => 0,
             'RECV_QUEUED_COUNT' => 0,
             'SEND_QUEUED_COUNT' => 0,
@@ -103,8 +110,9 @@ sub processConnStat {
         $self->{procConnStats}->{$pid} = $myConnStats;
     }
 
-    my $recvQSize = int( $$fields[$recvQIdx] );
-    my $sendQSize = int( $$fields[$sendQIdx] );
+    my $recvQSize  = int( $$fields[$recvQIdx] );
+    my $sendQSize  = int( $$fields[$sendQIdx] );
+    my $connStatus = $$fields[$statusIdx];
 
     $myConnStats->{TOTAL_COUNT} = $myConnStats->{TOTAL_COUNT} + 1;
 
@@ -120,6 +128,12 @@ sub processConnStat {
 
     if ( $isInBound == 1 ) {
         $myConnStats->{INBOUND_COUNT} = $myConnStats->{INBOUND_COUNT} + 1;
+        if ( $connStatus eq 'SYN_RECV' ) {
+            $myConnStats->{SYN_RECV_COUNT} = $myConnStats->{SYN_RECV_COUNT} + 1;
+        }
+        elsif ( $connStatus eq 'CLOSE_WAIT' ) {
+            $myConnStats->{CLOSE_WAIT_COUNT} = $myConnStats->{CLOSE_WAIT_COUNT} + 1;
+        }
     }
     else {
         $myConnStats->{OUTBOUND_COUNT} = $myConnStats->{OUTBOUND_COUNT} + 1;
@@ -136,6 +150,9 @@ sub processConnStat {
             }
             $outBoundStat->{OUTBOUND_COUNT}   = $outBoundStat->{OUTBOUND_COUNT} + 1;
             $outBoundStat->{SEND_QUEUED_SIZE} = $outBoundStat->{SEND_QUEUED_SIZE} + $sendQSize;
+            if ( $connStatus eq 'SYN_SENT' ) {
+                $outBoundStat->{SYN_SENT_COUNT} = $outBoundStat->{SYN_SENT_COUNT} + 1;
+            }
         }
     }
 }
@@ -146,6 +163,7 @@ sub parseConnLines {
     my $cmd             = $args{cmd};
     my $localFieldIdx   = $args{localFieldIdx};
     my $remoteFieldIdx  = $args{remoteFieldIdx};
+    my $statusIdx       = $args{statusIdx};
     my $recvQIdx        = $args{recvQIdx};
     my $sendQIdx        = $args{sendQIdx};
     my $lsnPortsMap     = $args{lsnPortsMap};
@@ -184,7 +202,7 @@ sub parseConnLines {
                     }
 
                     if ( $isListenerParse == 1 ) {
-                        $self->processConnStat( $lsnBindPid, 1, \@fields, $recvQIdx, $sendQIdx );
+                        $self->processConnStat( $lsnBindPid, 1, \@fields, $recvQIdx, $sendQIdx, $statusIdx );
                     }
                     else {
                         my $useByPid;
@@ -200,7 +218,7 @@ sub parseConnLines {
 
                             #$remoteAddrs->{$remoteAddr} = "$addr:$port";
                             $remoteAddrs->{$realRemoteAddr} = 1;
-                            $self->processConnStat( $useByPid, 0, \@fields, $recvQIdx, $sendQIdx, $realRemoteAddr );
+                            $self->processConnStat( $useByPid, 0, \@fields, $recvQIdx, $sendQIdx, $statusIdx, $realRemoteAddr );
                         }
                     }
                 }
@@ -232,6 +250,7 @@ sub getRemoteAddrs {
         lsnPortsMap     => $lsnPortsMap,
         localFieldIdx   => $localFieldIdx,
         remoteFieldIdx  => $remoteFieldIdx,
+        statusIdx       => 6,
         recvQIdx        => 2,
         sendQIdx        => 3
     );
@@ -244,29 +263,34 @@ sub getListenPorts {
 
     #AIX
     #netstat -Aan | grep LISTEN |
-    my $portsMap    = {};
-    my $status      = 0;
-    my $cmd         = "netstat -Aan | grep LISTEN |";
-    my $lsnFieldIdx = 4;
-    ( $status, $portsMap ) = $self->parseListenLines(
+    my $portsMap      = {};
+    my $lsnBackLogMap = {};
+    my $status        = 0;
+    my $cmd           = "netstat -Aan | grep LISTEN |";
+    my $lsnFieldIdx   = 4;
+    ( $status, $portsMap, $lsnBackLogMap ) = $self->parseListenLines(
         cmd             => $cmd,
         isListenerParse => 1,
-        lsnFieldIdx     => $lsnFieldIdx
+        lsnFieldIdx     => $lsnFieldIdx,
+        statusIdx       => 6,
+        recvQIdx        => 2,
+        sendQIdx        => 3
     );
 
-    return $portsMap;
+    return ( $lsnBackLogMap, $portsMap );
 }
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
     my ( $self, $pid ) = @_;
-    my $lsnPortsMap = $self->{lsnPortsMap};
+    my $lsnPortsMap   = $self->{lsnPortsMap};
+    my $lsnBackLogMap = $self->{lsnBackLogMap};
 
     my $connInfo    = {};
     my $lsnPortsMap = {};
     while ( my ( $lsnPort, $useByPid ) = each(%$lsnPortsMap) ) {
         if ( $useByPid == $pid ) {
-            $lsnPortsMap->{$lsnPort} = 1;
+            $lsnPortsMap->{$lsnPort} = $lsnBackLogMap->{$lsnPort};
         }
     }
 

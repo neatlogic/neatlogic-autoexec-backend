@@ -2,7 +2,8 @@
     "label": "存储",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -48,15 +49,181 @@
             "type": "String"
         },
         {
+            "name": "ETH_INTERFACES",
+            "desc": "以太口信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "所属控制器",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BATTERIES",
+            "desc": "电池",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTROLLERS",
+            "desc": "机头节点",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DESC",
+                    "desc": "描述",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "序列号",
+                    "type": "String"
+                },
+                {
+                    "name": "IOS_VERSION",
+                    "desc": "IOS版本",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DEV_NAME",
             "desc": "设备名",
             "type": "String"
         },
         {
+            "name": "FANS",
+            "desc": "风扇",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "转速",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "POWERSUPPLY_NAME",
+                    "desc": "所属电源",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "光口信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "所属控制器",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "WWNN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "WWPN",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECT_TO",
+                    "desc": "连接目标",
+                    "type": "array"
+                }
+            ]
+        },
+        {
+            "name": "HEALTH_CHECK",
+            "desc": "健康报告",
+            "type": "Text"
+        },
+        {
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -89,7 +256,7 @@
                 {
                     "name": "STATUS",
                     "desc": "状态",
-                    "type": "Status"
+                    "type": "status"
                 },
                 {
                     "name": "POOL_NAME",
@@ -99,12 +266,12 @@
                 {
                     "name": "VISABLE_GROUPS",
                     "desc": "可见组",
-                    "type": "Array"
+                    "type": "array"
                 },
                 {
                     "name": "VISABLE_INITIATORS",
                     "desc": "可见组",
-                    "type": "Array"
+                    "type": "array"
                 }
             ]
         },
@@ -112,7 +279,8 @@
             "name": "POOLS",
             "desc": "盘池列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -150,10 +318,38 @@
             ]
         },
         {
+            "name": "POWER_SUPPLIES",
+            "desc": "电源",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "所属控制器",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "VOLUMES",
             "desc": "NFS卷列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -184,192 +380,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "CONTROLLERS",
-            "desc": "机头节点",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "DESC",
-                    "desc": "描述",
-                    "type": "String"
-                },
-                {
-                    "name": "SN",
-                    "desc": "序列号",
-                    "type": "String"
-                },
-                {
-                    "name": "IOS_VERSION",
-                    "desc": "IOS版本",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "HBA_INTERFACES",
-            "desc": "光口信息",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "CONTROLLER_NAME",
-                    "desc": "所属控制器",
-                    "type": "String"
-                },
-                {
-                    "name": "WWNN",
-                    "desc": "WWNN",
-                    "type": "String"
-                },
-                {
-                    "name": "WWPN",
-                    "desc": "WWPN",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "速率",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECT_TO",
-                    "desc": "连接目标",
-                    "type": "Array"
-                }
-            ]
-        },
-        {
-            "name": "ETH_INTERFACES",
-            "desc": "以太口信息",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "CONTROLLER_NAME",
-                    "desc": "所属控制器",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "Mac",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "速率",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "POWER_SUPPLIES",
-            "desc": "电源",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "DEVICE_ID",
-                    "desc": "设备ID",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "CONTROLLER_NAME",
-                    "desc": "所属控制器",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "FANS",
-            "desc": "风扇",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "DEVICE_ID",
-                    "desc": "设备ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "转速",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "POWERSUPPLY_NAME",
-                    "desc": "所属电源",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BATTERIES",
-            "desc": "电池",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "DEVICE_ID",
-                    "desc": "设备ID",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "HEALTH_CHECK",
-            "desc": "健康报告",
-            "type": "Text"
         }
     ]
 }
