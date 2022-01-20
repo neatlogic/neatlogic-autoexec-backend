@@ -75,7 +75,7 @@ sub collect {
         if ( $line =~ /\d+?:\d+?:\d+?:(\S+?):(\S+?):\d+?:\S+?:(\S+?):\S+?:(\S+?):(\S+)/ ) {
             if ( ( $1 eq 'fc' ) && ( $4 eq 'active' ) && ( $5 eq 'switch' ) ) {
                 my $fcInfo = {};
-                $fcInfo->{WWN}   = $3;
+                $fcInfo->{WWPN}  = $3;
                 $fcInfo->{SPEED} = $2;
                 push( @fcPorts, $fcInfo );
             }
@@ -175,7 +175,7 @@ sub collect {
         $line =~ s/^\s+|\s+$//;
         my @tmp = split( /:/, $line );
         my $lunInfo = {};
-        $lunInfo->{WWID}     = $tmp[-13];
+        $lunInfo->{WWN}      = $tmp[-13];
         $lunInfo->{NAME}     = $tmp[1];
         $lunInfo->{CAPACITY} = $tmp[7];
 

@@ -242,7 +242,7 @@ class VplexCollector:
                     volInfo = {
                         'NAME': volName,
                         'ID': volAttrs[0],
-                        'UUID': volAttrs[2],
+                        'WWN': volAttrs[2],
                         'CAPACITY': volSize,
                         'VISABLE_GROUPS': [],
                         'VISABLE_INITIATORS': []

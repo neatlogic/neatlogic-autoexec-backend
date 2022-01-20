@@ -91,7 +91,7 @@ sub collect {
     foreach my $line (@lunInfoLines) {
         $line =~ s/^\s+|\s+$//g;
 
-        my ( $name, $uuid, $size, $id );
+        my ( $name, $wwn, $size, $id );
         if ( $line =~ /^(\d+)\s+/ ) {
             $id = $1;
         }
@@ -99,7 +99,7 @@ sub collect {
             $name = $1;
         }
         elsif ( $line =~ /UID:\s*(\S+)\s*/ ) {
-            $uuid = $1;
+            $wwn = $1;
         }
         elsif ( $line =~ /LUN\s*Capacity\(Megabytes\):\s*(\d+)\s*/ ) {
             $size = $1;
@@ -109,7 +109,7 @@ sub collect {
         my $lun = {};
         $lun->{ID}       = $id;
         $lun->{NAME}     = $name;
-        $lun->{WWID}     = $uuid;
+        $lun->{WWN}      = $wwn;
         $lun->{CAPACITY} = $size;
         push( @luns, $lun );
         $lunsMap->{$id} = $lun;
@@ -142,17 +142,23 @@ sub collect {
         if ( $line =~ /List of luns:\s*(.*?)\s*/ ) {
             my $lunId = $1;
             if ( defined( $lunsMap->{$lunId} ) ) {
-                push( @lunsInPool, $lunsMap->{$lunId} );
+
+                #push( @lunsInPool, $lunsMap->{$lunId} );
+                my $lunInfo = $lunsMap->{$lunId};
+                if ( defined($lunInfo) ) {
+                    $lunInfo->{POOL_NAME} = $name;
+                }
             }
         }
 
         my $pool = {};
-        $pool->{NAME}         = $name;
-        $pool->{CAPACITY}     = $size;
-        $pool->{USED}         = $size - $free;
-        $pool->{FREE}         = $free;
-        $pool->{USED_PERCENT} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
-        $pool->{LUNS}         = \@lunsInPool;
+        $pool->{NAME}      = $name;
+        $pool->{CAPACITY}  = $size;
+        $pool->{USED}      = $size - $free;
+        $pool->{AVAILABLE} = $free;
+        $pool->{'USED%'} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+
+        #$pool->{LUNS}         = \@lunsInPool;
 
         push( @pools, $pool );
     }

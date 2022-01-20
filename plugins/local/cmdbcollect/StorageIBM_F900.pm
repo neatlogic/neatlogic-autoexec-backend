@@ -72,7 +72,7 @@ sub collect {
 
         my $lunInfo = {};
         $lunInfo->{NAME}      = $name;
-        $lunInfo->{WWID}      = $lunId;
+        $lunInfo->{WWN}       = $lunId;
         $lunInfo->{POOL_NAME} = $poolName;
         $lunInfo->{CAPACITY}  = $capacity;
         push( @luns, $lunInfo );
@@ -130,14 +130,14 @@ sub collect {
         my @splits = split( /:/, $line );
         my $speed  = $splits[4];
         my $name   = $splits[0] . ':' . $splits[1] . ':' . $splits[2];
-        my $wwn    = $splits[7];
-        $wwn =~ s/..\K(?=.)/:/sg;
+        my $wwpn   = $splits[7];
+        $wwpn =~ s/..\K(?=.)/:/sg;
         my $ctrlName = $splits[6];
 
         my $hbaInfo = {};
         $hbaInfo->{NAME}  = $name;
         $hbaInfo->{SPEED} = $speed;
-        $hbaInfo->{WWN}   = $wwn;
+        $hbaInfo->{WWPN}  = $wwpn;
 
         push( @hbas, $hbaInfo );
 

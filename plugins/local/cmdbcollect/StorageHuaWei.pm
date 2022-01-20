@@ -36,14 +36,14 @@ sub before {
         # },
         LUN_LIST => {
             NAME      => '1.3.6.1.4.1.34774.4.1.23.4.8.1.2',
-            WWID      => '1.3.6.1.4.1.34774.4.1.23.4.8.1.13',
+            WWN       => '1.3.6.1.4.1.34774.4.1.23.4.8.1.13',
             CAPACITY  => '1.3.6.1.4.1.34774.4.1.23.4.8.1.5',
             TYPE      => '1.3.6.1.4.1.34774.4.1.23.4.8.1.11',
             POOL_NAME => '1.3.6.1.4.1.34774.4.1.23.4.8.1.4'
         },
         HBA_LIST => {
             NAME => '1.3.6.1.4.1.34774.4.1.23.5.9.1.2',
-            WWN  => '1.3.6.1.4.1.34774.4.1.23.5.9.1.8'
+            WWPN  => '1.3.6.1.4.1.34774.4.1.23.5.9.1.8'
         },
         ETH_LIST => {
             NAME => '1.3.6.1.4.1.34774.4.1.23.5.8.1.2',
@@ -94,9 +94,9 @@ sub getPools {
     my $hbas = $tableData->{HBA_LIST};
     foreach my $hbaInfo (@$hbas) {
         my $hbaName = $hbaInfo->{NAME};
-        my $wwn     = $hbaInfo->{WWN};
-        $wwn =~ s/..\K(?=.)/:/sg;
-        $hbaInfo->{WWN} = $wwn;
+        my $wwpn     = $hbaInfo->{WWPN};
+        $wwpn =~ s/..\K(?=.)/:/sg;
+        $hbaInfo->{WWPN} = $wwpn;
 
         foreach my $ctrlName (@ctrlNames) {
             if ( $hbaName =~ /\Q$ctrlName\E/ ) {

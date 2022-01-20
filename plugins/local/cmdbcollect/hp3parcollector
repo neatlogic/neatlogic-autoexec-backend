@@ -243,9 +243,9 @@ class HP3parCollector:
         lunsMap = {}
         instances = self.getCIMClassInstances('CIM_StorageVolume')
         for ins in instances:
-            uuid = ins.get('DeviceID')
+            wwn = ins.get('DeviceID')
 
-            poolInsId = lunInPoolMap[uuid]
+            poolInsId = lunInPoolMap[wwn]
             poolInfo = poolMapByInsId[poolInsId]
 
             name = ins.get('ElementName')
@@ -258,7 +258,7 @@ class HP3parCollector:
             used = round(consumableBlocks * blockSize / 1000 / 1000 / 1000, 2)
             lunInfo = {
                 'NAME': name,
-                'UUID': uuid,
+                'WWN': wwn,
                 'CAPACITY': capacity,
                 'USED': used,
                 'USED%': round(used * 100 / capacity, 2),
@@ -267,15 +267,15 @@ class HP3parCollector:
                 'VISABLE_GROUPS': [],
                 'VISABLE_INITIATORS': []
             }
-            lunsMap[uuid] = lunInfo
+            lunsMap[wwn] = lunInfo
             # poolInfo['LUNS'].append(lunInfo)
 
         instances = self.getCIMClassInstances('CIM_ProtocolControllerForUnit')
         for ins in instances:
-            lunUUID = ins.get('Dependent').get('DeviceID')
+            lunWWN = ins.get('Dependent').get('DeviceID')
             iGroupId = ins.get('Antecedent').get('DeviceID')
             iGroup = iGroupMap[iGroupId]
-            lunInfo = lunsMap[lunUUID]
+            lunInfo = lunsMap[lunWWN]
             lunInfo['VISABLE_GROUPS'].append(iGroup['NAME'])
             members = {}
             for wwnInfo in iGroup['MEMBERS']:

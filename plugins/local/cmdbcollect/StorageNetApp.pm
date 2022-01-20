@@ -174,20 +174,23 @@ sub getPoolInfo {
     # aggr0_VMcDot1_01|VMcDot1-01|VMcDot1-01|17GB|95%|368GB|online|350GB|
     # aggr0_VMcDot1_02|VMcDot1-02|VMcDot1-02|17GB|95%|368GB|online|350GB|
 
-    my $cmd = 'aggr show -fields aggregate,node,availsize,size,state,usedsize,percent-used';
+    my $cmd = 'aggr show -fields aggregate,node,availsize,size,state,usedsize,percent-used,raidtype,volcount';
     my @aggrs = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@aggrs );
 
     my @pools = ();
     foreach my $record (@$records) {
         my $poolInfo = {
-            NAME      => $record->{'aggregate'},
-            NODE      => $record->{'node'},
-            CAPACITY  => $self->getDiskSizeFormStr( $record->{'size'} ),
-            AVAILABLE => $self->getDiskSizeFormStr( $record->{'availsize'} ),
-            USED      => $self->getDiskSizeFormStr( $record->{'usedsize'} ),
-            'USED%'   => int( $record->{'percent-used'} ),
-            STATE     => $record->{'state'}
+            NAME            => $record->{'aggregate'},
+            TYPE            => undef,
+            CONTROLLER_NAME => $record->{'node'},
+            CAPACITY        => $self->getDiskSizeFormStr( $record->{'size'} ),
+            AVAILABLE       => $self->getDiskSizeFormStr( $record->{'availsize'} ),
+            USED            => $self->getDiskSizeFormStr( $record->{'usedsize'} ),
+            'USED%'         => int( $record->{'percent-used'} ),
+            RAID_TYPE       => $record->{'raidtype'},
+            VOL_COUNT       => $record->{'volcount'},
+            STATUS          => $record->{'state'}
         };
         push( @pools, $poolInfo );
     }
@@ -214,14 +217,14 @@ sub getVolumeInfo {
     my @volumes = ();
     foreach my $record (@$records) {
         my $volInfo = {
-            NAME      => $record->{'volume'},
-            POOL_NAME => $record->{'aggregate'},
-            NODE      => $record->{'nodes'},
-            CAPACITY  => $self->getDiskSizeFormStr( $record->{'total'} ),
-            AVAILABLE => $self->getDiskSizeFormStr( $record->{'available'} ),
-            USED      => $self->getDiskSizeFormStr( $record->{'used'} ),
-            'USED%'   => int( $record->{'percent-used'} ),
-            STATE     => $record->{'state'}
+            NAME            => $record->{'volume'},
+            POOL_NAME       => $record->{'aggregate'},
+            CONTROLLER_NAME => $record->{'nodes'},
+            CAPACITY        => $self->getDiskSizeFormStr( $record->{'total'} ),
+            AVAILABLE       => $self->getDiskSizeFormStr( $record->{'available'} ),
+            USED            => $self->getDiskSizeFormStr( $record->{'used'} ),
+            'USED%'         => int( $record->{'percent-used'} ),
+            STATUS          => $record->{'state'}
         };
         push( @volumes, $volInfo );
     }
@@ -252,12 +255,12 @@ sub getLunInfo {
         my $lunInfo = {
             NAME               => $record->{'lun'},
             PATH               => $record->{'path'},
-            UUID               => $record->{'serial-hex'},
+            WWN                => lc( $record->{'serial-hex'} ),
             POOL_NAME          => $record->{'aggregate'},
-            NODE               => $record->{'node'},
+            CONTROLLER_NAME    => $record->{'node'},
             CAPACITY           => $self->getDiskSizeFormStr( $record->{'size'} ),
             USED               => $self->getDiskSizeFormStr( $record->{'size-used'} ),
-            STATE              => $record->{'state'},
+            STATUS             => $record->{'state'},
             VISABLE_GROUPS     => [],
             VISABLE_INITIATORS => []
         };
@@ -324,11 +327,11 @@ sub getEthInfo {
     my @eths = ();
     foreach my $record (@$records) {
         my $ethInfo = {
-            NAME   => $record->{'port'},
-            MAC    => $record->{'mac'},
-            SPEED  => $self->getNicSpeedFromStr( $record->{'speed-oper'} ),
-            STATUS => $record->{'health-status'},
-            NODE   => $record->{'node'}
+            NAME            => $record->{'port'},
+            MAC             => $record->{'mac'},
+            SPEED           => $self->getNicSpeedFromStr( $record->{'speed-oper'} ),
+            STATUS          => $record->{'health-status'},
+            CONTROLLER_NAME => $record->{'node'}
         };
         push( @eths, $ethInfo );
     }
@@ -354,12 +357,12 @@ sub getFcInfo {
     my @hbas = ();
     foreach my $record (@$records) {
         my $hbaInfo = {
-            NAME   => $record->{'adapter'},
-            WWNN   => $record->{'fc-wwnn'},
-            WWPN   => $record->{'fc-wwpn'},
-            SPEED  => $self->getNicSpeedFromStr( $record->{'speed'} ),
-            STATUS => $record->{'status'},
-            NODE   => $record->{'node'}
+            NAME            => $record->{'adapter'},
+            WWNN            => $record->{'fc-wwnn'},
+            WWPN            => $record->{'fc-wwpn'},
+            SPEED           => $self->getNicSpeedFromStr( $record->{'speed'} ),
+            STATUS          => $record->{'status'},
+            CONTROLLER_NAME => $record->{'node'}
         };
         push( @hbas, $hbaInfo );
     }
@@ -378,7 +381,7 @@ sub getIPAddrs {
     # Vserver Name|Vserver Name|Logical Interface Name|Logical Interface Name|Network Address|
     # Cluster|Cluster|VMcDot1-01_clus1|VMcDot1-01_clus1|169.254.96.23|
     # Cluster|Cluster|VMcDot1-01_clus2|VMcDot1-01_clus2|169.254.252.58|
-    my $cmd = 'network interface show -fields server,address,lif';
+    my $cmd = 'network interface show -fields server,address,netmask,lif';
     my @ethLines = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@ethLines );
 
@@ -386,9 +389,10 @@ sub getIPAddrs {
     foreach my $record (@$records) {
         if ( $record->{'address'} ne '-' ) {
             my $ipInfo = {
-                VALUE  => $record->{'address'},
-                DESC   => $record->{'lif'},
-                SERVER => $record->{'server'}
+                IP      => $record->{'address'},
+                NETMASK => $record->{'netmask'},
+                DESC    => $record->{'lif'},
+                SERVER  => $record->{'server'}
             };
             push( @ipAddrs, $ipInfo );
         }

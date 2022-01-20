@@ -146,14 +146,15 @@ sub collect {
                 $name = '';
             }
             $lunInfo->{NAME}      = $name;
-            $lunInfo->{WWID}      = $lunId;
+            $lunInfo->{WWN}       = $lunId;
             $lunInfo->{CAPACITY}  = $capacity;
             $lunInfo->{POOL_NAME} = $poolName;
 
             push( @lunsInPool, $lunInfo );
             push( @luns,       $lunInfo );
         }
-        $poolInfo->{LUNS} = \@lunsInPool;
+
+        #$poolInfo->{LUNS} = \@lunsInPool;
         push( @pools, $poolInfo );
     }
 

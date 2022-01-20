@@ -109,7 +109,7 @@ sub collect {
 
                 my $lunInfo = {};
                 $lunInfo->{NAME}     = $lunName;
-                $lunInfo->{WWID}     = $lunId;
+                $lunInfo->{WWN}      = $lunId;
                 $lunInfo->{CAPACITY} = $lunCapacity;
                 push( @lunsInPool, $lunInfo );
                 push( @luns,       $lunInfo );
@@ -130,8 +130,8 @@ sub collect {
         my $line   = $$hbaInfoLines[$i];
         my @splits = split( /\s+/, $line );
         my $name   = $splits[0];
-        my $wwn    = $splits[1];
-        $wwn =~ s/..\K(?=.)/:/sg;
+        my $wwpn   = $splits[1];
+        $wwpn =~ s/..\K(?=.)/:/sg;
         my $status;
         if ( $line =~ /established/ ) {
             $status = 'UP';
@@ -141,7 +141,7 @@ sub collect {
         }
         my $hbaInfo = {};
         $hbaInfo->{NAME}   = $name;
-        $hbaInfo->{WWN}    = $wwn;
+        $hbaInfo->{WWPN}   = $wwpn;
         $hbaInfo->{STATUS} = $status;
         push( @hbas, $hbaInfo );
     }

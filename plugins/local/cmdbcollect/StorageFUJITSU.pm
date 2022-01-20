@@ -48,8 +48,8 @@ sub collect {
         timeout     => $self->{timeout},
         master_opts => [ -o => "StrictHostKeyChecking=no" ]
     );
-    if ( $ssh->error ){
-        print("ERROR: Cound not connect to $nodeInfo->{host}, " . $ssh->error);
+    if ( $ssh->error ) {
+        print( "ERROR: Cound not connect to $nodeInfo->{host}, " . $ssh->error );
         exit(-1);
     }
 
@@ -135,7 +135,7 @@ sub collect {
 
         my $lunInfo = $lunIdsMap->{$id};
         if ( defined($lunInfo) ) {
-            $lunInfo->{WWID} = $lunId;
+            $lunInfo->{WWN} = $lunId;
         }
     }
 
@@ -156,15 +156,16 @@ sub collect {
         my $free = ( $splits[6] * 100 / 1024 + 0.5 ) / 100;
 
         my $rgInfo = {};
-        $rgInfo->{ID}           = $rgNo;
-        $rgInfo->{NAME}         = $splits[1];
-        $rgInfo->{LEVEL}        = $splits[2];
-        $rgInfo->{STATUS}       = $splits[4];
-        $rgInfo->{CAPACITY}     = $size;
-        $rgInfo->{FREE}         = $free;
-        $rgInfo->{USED}         = $size - $free;
-        $rgInfo->{USED_PERCENT} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
-        $rgInfo->{LUNS}         = $poolLunsMap->{$rgNo};
+        $rgInfo->{ID}        = $rgNo;
+        $rgInfo->{NAME}      = $splits[1];
+        $rgInfo->{LEVEL}     = $splits[2];
+        $rgInfo->{STATUS}    = $splits[4];
+        $rgInfo->{CAPACITY}  = $size;
+        $rgInfo->{AVAILABLE} = $free;
+        $rgInfo->{USED}      = $size - $free;
+        $rgInfo->{'USED%'} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+
+        #$rgInfo->{LUNS}         = $poolLunsMap->{$rgNo};
 
         push( @raidGroups, $rgInfo );
     }
@@ -195,8 +196,8 @@ sub collect {
         $poolInfo->{STATUS}               = $splits[2];
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{FREE}                 = $poolInfo->{CAPACITY} - $poolInfo->{USED};
-        $poolInfo->{USED_PERCENT}         = $splits[6] + 0;
+        $poolInfo->{AVAILABLE}            = $poolInfo->{CAPACITY} - $poolInfo->{USED};
+        $poolInfo->{'USED%'}              = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
@@ -223,11 +224,12 @@ sub collect {
         $poolInfo->{STATUS}               = $splits[2];
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{FREE}                 = $poolInfo->{CAPACITY} - $poolInfo->{USED};
-        $poolInfo->{USED_PERCENT}         = $splits[6] + 0;
+        $poolInfo->{AVAILABLE}            = $poolInfo->{CAPACITY} - $poolInfo->{USED};
+        $poolInfo->{'USED%'}              = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
+
+        #$poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
 
         push( @pools, $poolInfo );
     }

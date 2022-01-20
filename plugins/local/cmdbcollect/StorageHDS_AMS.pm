@@ -144,9 +144,13 @@ sub collect {
         $poolname = $lineInfo[5];
 
         my $lun = {};
-        $lun->{NAME}     = $name;
-        $lun->{CAPACITY} = $capacity;
-        $lun->{TYPE}     = $type;
+        $lun->{NAME} = $name;
+
+        #TODO: WWN获取
+        $lun->{WWN}       = undef;
+        $lun->{POOL_NAME} = $poolname;
+        $lun->{CAPACITY}  = $capacity;
+        $lun->{TYPE}      = $type;
 
         push( @luns, $lun );
 
@@ -182,7 +186,8 @@ sub collect {
         $pool->{NAME}     = $pool;
         $pool->{LEVEL}    = $level;
         $pool->{CAPACITY} = $total;
-        $pool->{LUNS}     = $lunsMap->{$pool};
+
+        #$pool->{LUNS}     = $lunsMap->{$pool};
 
         push( @pools, $pool );
     }
