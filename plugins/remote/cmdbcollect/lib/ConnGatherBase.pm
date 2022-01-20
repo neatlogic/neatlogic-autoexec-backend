@@ -90,7 +90,7 @@ sub parseConnLines {
     my $totalCount         = 0;
     my $inBoundCount       = 0;
     my $outBoundCount      = 0;
-    my $syncRecvCount      = 0;
+    my $synRecvCount       = 0;
     my $closeWaitCount     = 0;
     my $recvQNoneZeroCount = 0;
     my $sendQNoneZeroCount = 0;
@@ -174,7 +174,7 @@ sub parseConnLines {
                 }
 
                 if ( $connStatus eq 'SYN_RECV' ) {
-                    $syncRecvCount = $syncRecvCount + 1;
+                    $synRecvCount = $synRecvCount + 1;
                 }
                 elsif ( $connStatus eq 'CLOSE_WAIT' ) {
                     $closeWaitCount = $closeWaitCount + 1;
@@ -193,7 +193,7 @@ sub parseConnLines {
     my $connStatInfo = {
         'TOTAL_COUNT'       => $totalCount,
         'INBOUND_COUNT'     => $inBoundCount,
-        'SYNC_RECV_COUNT'   => $syncRecvCount,
+        'SYN_RECV_COUNT'    => $synRecvCount,
         'CLOSE_WAIT_COUNT'  => $closeWaitCount,
         'OUTBOUND_COUNT'    => $outBoundCount,
         'RECV_QUEUED_COUNT' => $recvQNoneZeroCount,
