@@ -16,6 +16,15 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 
+sub getPK {
+    my ($self) = @_;
+    return {
+        'WebSphere'           => [ 'MGMT_IP', 'PORT' ],
+        'WebSphere-DMGR'      => [ 'MGMT_IP', 'PORT' ],
+        'WebSphere-NodeAgent' => [ 'MGMT_IP', 'PORT' ]
+    };
+}
+
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
 #最终是否是需要的进程，还需要各个Collector自身进行增强性的判断，
@@ -73,6 +82,9 @@ sub getPorts {
             $fh->read( $portConfXml, $fileSize );
         }
     }
+    else {
+        print("WARN: Open file $portConfPath failed, $!\n");
+    }
 
     my $serverName = $appInfo->{SERVER_NAME};
     my @ports;
@@ -128,6 +140,12 @@ sub getPorts {
     $appInfo->{MON_PORT}       = $soapPort;
     $appInfo->{PORTS}          = \@ports;
 
+    my $objType = $appInfo->{_OBJ_TYPE};
+    if ( $objType eq 'WebSphere-DMGR' ) {
+        $appInfo->{PORT}     = $adminPort;
+        $appInfo->{SSL_PORT} = $adminSslPort;
+    }
+
     return;
 }
 
@@ -178,6 +196,7 @@ sub collect {
     elsif ( $commandFields[-1] eq 'nodeagent' ) {
         $objType = 'WebSphere-NodeAgent';
     }
+    $appInfo->{_OBJ_TYPE} = $objType;
 
     my $serverName = $commandFields[-1];
     my $nodeName   = $commandFields[-2];
@@ -231,7 +250,6 @@ sub collect {
     my $appPkgTmpDir = File::Spec->canonpath("$serverRoot/temp/$nodeName/$serverName");
     $self->getApplications( $appInfo, $appPkgTmpDir );
 
-    $appInfo->{_OBJ_TYPE}    = $objType;
     $appInfo->{INSTALL_PATH} = $appInfo->{WAS_HOME};
     $appInfo->{CONFIG_PATH}  = $appInfo->{CONFIG_ROOT};
     return $appInfo;
