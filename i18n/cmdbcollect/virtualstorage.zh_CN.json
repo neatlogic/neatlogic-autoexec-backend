@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -63,7 +64,8 @@
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -92,7 +94,8 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "可见主机HBA启动器",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -120,7 +123,8 @@
             "name": "STORAGE_VOLUMES_UNHEALTH",
             "desc": "不健康的后端卷",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -146,7 +150,8 @@
             "name": "STORAGE_VOLUME_SUMMARY",
             "desc": "后端实体存储卷总概",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "CLUSTER_NAME",
                     "desc": "集群名称",
                     "type": "String"
@@ -165,7 +170,8 @@
                     "name": "VENDOR",
                     "desc": "后端品牌分布",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "厂商",
                             "type": "String"

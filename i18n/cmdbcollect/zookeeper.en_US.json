@@ -205,6 +205,23 @@
             "type": "Float"
         },
         {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CONN_STATS",
             "desc": "Connection Stats",
             "type": "JsonObject",
@@ -480,23 +497,6 @@
                     "name": "OS_ID",
                     "desc": "OS CMDB ID",
                     "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "LISTEN_STATS",
-            "desc": "Listen Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "Listen Addr",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "Queued Count",
-                    "type": "Int"
                 }
             ]
         }

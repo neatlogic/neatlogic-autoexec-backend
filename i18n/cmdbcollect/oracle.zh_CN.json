@@ -17,7 +17,12 @@
         },
         {
             "name": "SERVER_NAME",
-            "desc": "服务名",
+            "desc": "服务器名",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "实例名",
             "type": "String"
         },
         {
@@ -370,11 +375,6 @@
         {
             "name": "GRID_HOME",
             "desc": "Grid Home目录",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "实例名",
             "type": "String"
         },
         {

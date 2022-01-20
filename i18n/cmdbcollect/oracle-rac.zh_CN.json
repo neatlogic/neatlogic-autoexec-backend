@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "实例名",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -231,11 +236,6 @@
         {
             "name": "GRID_HOME",
             "desc": "Grid Home目录",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "实例名",
             "type": "String"
         },
         {

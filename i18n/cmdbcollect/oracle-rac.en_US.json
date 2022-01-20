@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -231,11 +236,6 @@
         {
             "name": "GRID_HOME",
             "desc": "Grid Home Dir",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
             "type": "String"
         },
         {

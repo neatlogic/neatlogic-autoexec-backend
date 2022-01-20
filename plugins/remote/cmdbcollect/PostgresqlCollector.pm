@@ -216,7 +216,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $postgresqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
-    $postgresqlInfo->{INSTANCE_NAME} = '';
+    $postgresqlInfo->{INSTANCE_NAME} = '-';
 
     return $postgresqlInfo;
 }

@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -68,7 +69,8 @@
             "name": "LUNS",
             "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -97,7 +99,8 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "Visable Initiator",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -125,7 +128,8 @@
             "name": "STORAGE_VOLUMES_UNHEALTH",
             "desc": "Storage Vol Unhealth",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -151,7 +155,8 @@
             "name": "STORAGE_VOLUME_SUMMARY",
             "desc": "Storage Vol Summary",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "CLUSTER_NAME",
                     "desc": "Cluster Name",
                     "type": "String"
@@ -170,7 +175,8 @@
                     "name": "VENDOR",
                     "desc": "Vendor Storage",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Vendor",
                             "type": "String"

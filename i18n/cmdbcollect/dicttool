@@ -29,6 +29,7 @@ def getDefaultFieldKeys():
         '_OBJ_TYPE',
         'HOSTNAME',
         'SERVER_NAME',
+        'INSTANCE_NAME',
         'UNIQUE_NAME',
         'MGMT_IP',
         'MGMT_PORT',

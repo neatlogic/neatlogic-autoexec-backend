@@ -292,7 +292,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $mysqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
-    $mysqlInfo->{INSTANCE_NAME} = '';
+    $mysqlInfo->{INSTANCE_NAME} = '-';
 
     return $mysqlInfo;
 }

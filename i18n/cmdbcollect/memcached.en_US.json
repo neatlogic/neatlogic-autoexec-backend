@@ -165,6 +165,23 @@
             "type": "Float"
         },
         {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CONN_STATS",
             "desc": "Connection Stats",
             "type": "JsonObject",
@@ -465,23 +482,6 @@
             "name": "USE_LARGE_PAGE",
             "desc": "Use Large Page",
             "type": "Float"
-        },
-        {
-            "name": "LISTEN_STATS",
-            "desc": "Listen Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "Listen Addr",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "Queued Count",
-                    "type": "Int"
-                }
-            ]
         }
     ]
 }

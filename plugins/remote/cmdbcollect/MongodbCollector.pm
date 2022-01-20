@@ -50,7 +50,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $mongodbInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
-    $mongodbInfo->{INSTANCE_NAME} = '';
+    $mongodbInfo->{INSTANCE_NAME} = '-';
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
     my $configFile;

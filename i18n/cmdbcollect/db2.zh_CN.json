@@ -17,7 +17,12 @@
         },
         {
             "name": "SERVER_NAME",
-            "desc": "服务名",
+            "desc": "服务器名",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "实例名",
             "type": "String"
         },
         {
@@ -357,11 +362,6 @@
         {
             "name": "DB2_HOME",
             "desc": "DB2 Home目录",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "实例名",
             "type": "String"
         },
         {

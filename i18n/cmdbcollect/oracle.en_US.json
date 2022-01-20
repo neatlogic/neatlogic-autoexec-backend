@@ -21,6 +21,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -109,6 +114,23 @@
             "name": "MEM_PERCENT",
             "desc": "Memory%",
             "type": "Float"
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "CONN_STATS",
@@ -356,11 +378,6 @@
             "type": "String"
         },
         {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
-            "type": "String"
-        },
-        {
             "name": "IS_CDB",
             "desc": "Is CDB",
             "type": "Int"
@@ -515,23 +532,6 @@
                             "type": "String"
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "name": "LISTEN_STATS",
-            "desc": "Listen Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "Listen Addr",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "Queued Count",
-                    "type": "Int"
                 }
             ]
         }

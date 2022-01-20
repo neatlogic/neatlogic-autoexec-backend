@@ -2,7 +2,8 @@
     "label": "存储",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -51,7 +52,8 @@
             "name": "ETH_INTERFACES",
             "desc": "以太口信息",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -82,7 +84,8 @@
             "name": "BATTERIES",
             "desc": "电池",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -103,7 +106,8 @@
             "name": "CONTROLLERS",
             "desc": "机头节点",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -139,7 +143,8 @@
             "name": "FANS",
             "desc": "风扇",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -170,7 +175,8 @@
             "name": "HBA_INTERFACES",
             "desc": "光口信息",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -216,7 +222,8 @@
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -272,7 +279,8 @@
             "name": "POOLS",
             "desc": "盘池列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -313,7 +321,8 @@
             "name": "POWER_SUPPLIES",
             "desc": "电源",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -339,7 +348,8 @@
             "name": "VOLUMES",
             "desc": "NFS卷列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"

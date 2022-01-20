@@ -2,7 +2,8 @@
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -51,7 +52,8 @@
             "name": "ETH_INTERFACES",
             "desc": "Eth Interfaces",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -82,7 +84,8 @@
             "name": "BATTERIES",
             "desc": "Batteries",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -108,7 +111,8 @@
             "name": "CONTROLLERS",
             "desc": "Controllers",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -144,7 +148,8 @@
             "name": "FANS",
             "desc": "Fans",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -175,7 +180,8 @@
             "name": "HBA_INTERFACES",
             "desc": "FC Ports",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -221,7 +227,8 @@
             "name": "LUNS",
             "desc": "Logical Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -277,7 +284,8 @@
             "name": "POOLS",
             "desc": "Storage Pools",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -318,7 +326,8 @@
             "name": "POWER_SUPPLIES",
             "desc": "Power Supplies",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -344,7 +353,8 @@
             "name": "VOLUMES",
             "desc": "Volumes(NFS)",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
