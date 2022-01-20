@@ -291,7 +291,8 @@ sub collect {
     $mysqlInfo->{SYSTEM_CHARSET} = $variables->{character_set_database};
 
     #服务名, 要根据实际来设置
-    $mysqlInfo->{SERVER_NAME} = $procInfo->{_OBJ_TYPE};
+    $mysqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
+    $mysqlInfo->{INSTANCE_NAME} = '';
 
     return $mysqlInfo;
 }

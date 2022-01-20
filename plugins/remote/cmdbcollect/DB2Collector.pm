@@ -400,6 +400,7 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $envMap->{DB2_HOME};
     $appInfo->{DB2LIB}       = $envMap->{DB2LIB};
 
+    $appInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
     $appInfo->{INSTANCE_NAME} = $user;
     $appInfo->{OS_USER}       = $user;
 

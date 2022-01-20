@@ -97,7 +97,8 @@ sub collect {
             $insName = $1;
         }
     }
-    $appInfo->{SERVER_NAME} = $insName;
+    $appInfo->{SERVER_NAME}   = $insName;
+    $appInfo->{INSTANCE_NAME} = $insName;
 
     my $portsMap    = {};
     my @portNumbers = ();

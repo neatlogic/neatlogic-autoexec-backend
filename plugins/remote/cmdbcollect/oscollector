@@ -455,7 +455,12 @@ sub doDetailCollect {
         }
 
         if ( defined($pkConfig) and defined( $pkConfig->{$objType} ) ) {
-            $appInfo->{PK} = $pkConfig->{$objType};
+            if ( $appInfo->{_OBJ_CATEGORY} eq 'DB' ){
+                $appInfo->{PK} = [ 'MGMT_IP', 'PORT', 'INSTANCE_NAME' ];
+            }
+            else{
+                $appInfo->{PK} = $pkConfig->{$objType};
+            }
         }
         else {
             $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];

@@ -22,7 +22,7 @@ use SqlplusExec;
 sub getPK {
     my ($self) = @_;
     return {
-        'Oracle'     => [ 'MGMT_IP', 'PORT', 'ORACLE_SID' ],
+        'Oracle'     => [ 'MGMT_IP', 'PORT', 'INSTANCE_NAME' ],
         'Oracle-RAC' => ['UNIQUE_NAME']
     };
 }
@@ -983,6 +983,7 @@ sub collect {
     $insInfo->{ORACLE_HOME}   = $oraHome;
     $insInfo->{ORACLE_BASE}   = $oraBase;
     $insInfo->{ORACLE_SID}    = $oraSid;
+    $insInfo->{INSTANCE_NAME} = $oraSid;
     $insInfo->{INSTANCE_NAME} = $oraSid;
     $insInfo->{INSTALL_PATH}  = $oraBase;
     $insInfo->{CONFIG_PATH}   = $oraHome;

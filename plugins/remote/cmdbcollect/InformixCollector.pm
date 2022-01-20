@@ -75,6 +75,7 @@ sub collect {
             my $insInfo = {
                 _OBJ_CATEGORY => $objCat,
                 SERVER_NAME   => $insName,
+                INSTANCE_NAME => $insName,
                 INSTALL_PATH  => $homePath,
                 CONF_PATH     => $confPath,
                 VERSION       => $version
