@@ -317,6 +317,7 @@ def saveReport(db, ciType, resourceId, rptData):
 
     currentTime = datetime.datetime.utcnow()
     rptData['_report_time'] = currentTime
+    rptData['_jobid'] = os.getenv('AUTOEXEC_JOBID')
     primaryKey = {'RESOURCE_ID': rptData['RESOURCE_ID']}
 
     rptCollection.replace_one(primaryKey, rptData, upsert=True)
