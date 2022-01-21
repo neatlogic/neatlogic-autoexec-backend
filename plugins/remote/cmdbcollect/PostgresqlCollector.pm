@@ -66,7 +66,7 @@ sub parseCommandOpts {
     my $opts = {};
     my @items = split( /\s+-/, $command );
     $opts->{postgresqlPath} = $items[0];
-    if ( $items[0] =~ /^(.*?)\/bin\/postgres/ ) {
+    if ( $items[0] =~ /^(.*?)\/bin\/(postgres|postmaster)/ ) {
         $opts->{postgresqlHome} = $1;
     }
 
@@ -111,7 +111,7 @@ sub collect {
 
     my @ports = ();
     my $port  = $opts->{'p'};
-    my $host  = '';
+    my $host  = '127.0.0.1';
 
     if ( not defined($port) ) {
         my $minPort     = 65535;
@@ -140,7 +140,7 @@ sub collect {
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;
-    if ( $verOut =~ /\(postgres\s+(.*?)\)/s ) {
+    if ( $verOut =~ /([\d\.]+)/s ) {
         $version = $1;
     }
     $postgresqlInfo->{VERSION} = $version;
