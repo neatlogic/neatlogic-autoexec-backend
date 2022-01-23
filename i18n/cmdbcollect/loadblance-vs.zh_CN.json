@@ -2,7 +2,7 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "filter": {
-        "_OBJ_TYPE": "A10-VS"
+        "_OBJ_TYPE": "LoadBlancer-VS"
     },
     "fields": [
         {

@@ -73,7 +73,7 @@ sub main {
             'PK'               => ['UNIQUE_NAME'],
             'INDEX_FIELDS'     => ['BIND'],
             '_OBJ_CATEGORY'    => 'CLUSTER',
-            '_OBJ_TYPE'        => 'F5-VS',
+            '_OBJ_TYPE'        => 'LoadBlancer-VS',
             'CLUSTER_MODE'     => 'LoadBlance',
             'CLUSTER_SOFTWARE' => 'F5',
             'CLUSTER_VERSION'  => $data->{VERSION},
