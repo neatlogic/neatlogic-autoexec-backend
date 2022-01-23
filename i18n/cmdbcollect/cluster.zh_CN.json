@@ -18,8 +18,8 @@
             "type": "String"
         },
         {
-            "name": "MGMT_IP",
-            "desc": "管理IP",
+            "name": "VIP",
+            "desc": "VIP",
             "type": "String"
         },
         {
@@ -57,7 +57,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "MGMT_IP",
+                    "name": "IP",
                     "desc": "IP",
                     "type": "String"
                 },

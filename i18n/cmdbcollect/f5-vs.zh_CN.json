@@ -2,21 +2,21 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "filter": {
-        "_OBJ_TYPE": "ZookeeperCluster"
+        "_OBJ_TYPE": "F5-VS"
     },
     "fields": [{
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Category",
+            "desc": "归属类型",
             "type": "String"
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "Cluster Type",
+            "desc": "中间件类型",
             "type": "String"
         },
         {
-            "name": "UNIQUE_NAME",
-            "desc": "Unique Name",
+            "name": "SERVER_NAME",
+            "desc": "服务名",
             "type": "String"
         },
         {
@@ -25,42 +25,37 @@
             "type": "String"
         },
         {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "ACCESS_ENDPOINT",
-            "desc": "Access Endpoint",
+            "desc": "访问地址",
             "type": "String"
         },
         {
             "name": "CLUSTER_MODE",
-            "desc": "Cluster Mode",
+            "desc": "集群模式",
             "type": "String"
         },
         {
             "name": "CLUSTER_SOFTWARE",
-            "desc": "Cluster Software",
+            "desc": "集群软件",
             "type": "String"
         },
         {
             "name": "CLUSTER_VERSION",
-            "desc": "Cluster Version",
+            "desc": "Cluster版本",
             "type": "String"
         },
         {
             "name": "MEMBERS",
-            "desc": "Members",
+            "desc": "成员",
             "type": "JsonArray",
             "subset": [{
                     "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
+                    "desc": "归属类型",
                     "type": "String"
                 },
                 {
                     "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
+                    "desc": "中间件类型",
                     "type": "String"
                 },
                 {
@@ -70,19 +65,19 @@
                 },
                 {
                     "name": "PORT",
-                    "desc": "Port",
+                    "desc": "端口",
                     "type": "Int"
                 },
                 {
                     "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
+                    "desc": "实例名",
                     "type": "String"
                 }
             ]
         },
         {
             "name": "MEMBER_PEER",
-            "desc": "Members Addrs",
+            "desc": "关联成员地址",
             "type": "Array"
         }
     ]

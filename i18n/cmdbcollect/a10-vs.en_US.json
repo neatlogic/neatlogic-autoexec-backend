@@ -2,7 +2,7 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "filter": {
-        "_OBJ_TYPE": "ZookeeperCluster"
+        "_OBJ_TYPE": "A10-VS"
     },
     "fields": [{
             "name": "_OBJ_CATEGORY",

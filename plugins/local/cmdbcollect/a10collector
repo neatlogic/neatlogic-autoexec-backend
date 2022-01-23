@@ -72,9 +72,10 @@ sub main {
             'PK'               => ['UNIQUE_NAME'],
             'INDEX_FIELDS'     => ['BIND'],
             '_OBJ_CATEGORY'    => 'CLUSTER',
-            '_OBJ_TYPE'        => 'F5',
+            '_OBJ_TYPE'        => 'A10-VS',
             'CLUSTER_MODE'     => 'LoadBlance',
-            'CLUSTER_SOFTWARE' => 'F5',
+            'CLUSTER_SOFTWARE' => 'A10',
+            'CLUSTER_VERSION'  => $data->{VERSION},
             'HOST_ON'          => {
                 '_OBJ_CATEGORY' => 'LOADBALANCER',
                 '_OBJ_TYPE'     => 'F5',
@@ -89,7 +90,15 @@ sub main {
         $clusterInfo->{PORT}        = $vsInfo->{PORT};
         $clusterInfo->{BIND}        = [$bind];
         $clusterInfo->{UNIQUE_NAME} = $bind;
-        $clusterInfo->{MEMBERS}     = $vsInfo->{POOL}->{MEMBERS};
+        
+        my @memberPeer = ();
+        my $members = $vsInfo->{POOL}->{MEMBERS};
+        foreach my $memberInfo (@$members){
+            push(@memberPeer, $memberInfo->{IP} . ':' . $memberInfo->{PORT})
+        }
+
+        $clusterInfo->{MEMBER_PEER}     = \@memberPeer;
+
         push( @outData, $clusterInfo );
     }
 
