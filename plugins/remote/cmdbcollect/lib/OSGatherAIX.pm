@@ -231,7 +231,7 @@ sub getDNSInfo {
     my @dnsServers;
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
-        if ( $line =~ /\s*nameserver\s+(.*)\s*$/i ) {
+        if ( $line =~ /\s*nameserver\s+(\S+)\s*$/i ) {
             push( @dnsServers, { VALUE => $1 } );
         }
     }
