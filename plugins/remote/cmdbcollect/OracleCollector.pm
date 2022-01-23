@@ -843,8 +843,10 @@ sub collectRAC {
 
     #把$insInfo的信息复制过来
     map { $racInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
-    $racInfo->{_OBJ_CATEGORY} = CollectObjCat->get('CLUSTER');
-    $racInfo->{_OBJ_TYPE}     = 'Oracle-RAC';
+    $racInfo->{_OBJ_CATEGORY}    = CollectObjCat->get('CLUSTER');
+    $racInfo->{_OBJ_TYPE}        = 'OracleCluster';
+    $racInfo->{CLUSTER_MODE}     = 'RAC';
+    $racInfo->{CLUSTER_SOFTWARE} = 'Oracle Grid';
 
     my $version = $self->getClusterVersion($insInfo);
     $insInfo->{CLUSTER_VERSION} = $version;
@@ -881,6 +883,7 @@ sub collectRAC {
                 }
             }
 
+            #my $memberPeers = [];
             if ( defined($oraHome) or defined($oraUser) ) {
                 my @nodes = ();
                 foreach my $node (@$clusterNodes) {
@@ -903,7 +906,17 @@ sub collectRAC {
                             $nodeInfo->{IP} = $nodeIp;
                         }
                         push( @nodeAddrs, "$nodeIp/$instanceName" );
-                        push( @nodes,     $nodeInfo );
+                        # push(
+                        #     @$memberPeers,
+                        #     {
+                        #         _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        #         _OBJ_TYPE     => 'Oracle',
+                        #         MGMT_IP       => $nodeIp,
+                        #         PORT          => undef,
+                        #         INSTANCE_NAME => $instanceName
+                        #     }
+                        # );
+                        push( @nodes, $nodeInfo );
                     }
                 }
 

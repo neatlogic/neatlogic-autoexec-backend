@@ -108,7 +108,6 @@ sub collect {
     $self->getJavaAttrs($appInfo);
 
     my $clusterMembers = [];
-    my $clusterConnInfo = { PEER => $clusterMembers };
     my @members;
     my $confMap   = {};
     my $confLines = $self->getFileLines($confPath);
@@ -146,7 +145,10 @@ sub collect {
             _OBJ_TYPE     => 'ZookeeperCluster'
         };
         $clusterInfo->{UNIQUE_NAME} = join( ',', @members );
-        $clusterInfo->{CONN_INFO}   = $clusterConnInfo;
+        $clusterInfo->{CLUSTER_MODE} = 'Cluster';
+        $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
+        $clusterInfo->{CLUSTER_VERSION} = $version;
+        $clusterInfo->{MEMBERS_PEER}   = $clusterMembers;
         $clusterInfo->{MEMBERS}     = [];
     }
 

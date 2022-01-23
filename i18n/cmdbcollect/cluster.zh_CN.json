@@ -1,0 +1,82 @@
+{
+    "label": "Cluster",
+    "collection": "COLLECT_CLUSTER",
+    "filter": {},
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "访问地址",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "集群软件",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster版本",
+            "type": "String"
+        },
+        {
+            "name": "MEMBERS",
+            "desc": "成员",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MEMBER_PEER",
+            "desc": "关联成员地址",
+            "type": "Array"
+        }
+    ]
+}
