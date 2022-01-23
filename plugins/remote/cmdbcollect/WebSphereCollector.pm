@@ -51,9 +51,14 @@ sub getVersion {
         $verCmd = qq{"$binPath/versionInfo.bat"};
     }
 
-    my $verLines = $self->getCmdOutLines($verCmd);
-    foreach my $line (@$verLines) {
-        if ( $line =~ /^(Version|版本)\s+(.*)$/ ) {
+    my $verLines  = $self->getCmdOutLines($verCmd);
+    my $lineCount = scalar(@$verLines);
+    for ( my $i = 0 ; $i < $lineCount ; $i++ ) {
+        my $line = $$verLines[$i];
+        if ( $line !~ /^(Name|名称)\s+IBM WebSphere (Application|应用)/ ) {
+            next;
+        }
+        if ( $$verLines[ $i + 1 ] =~ /^(Version|版本)\s+(\d.*)$/ ) {
             $appInfo->{VERSION} = $2;
             last;
         }
