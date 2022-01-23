@@ -83,6 +83,8 @@ sub collect {
 
     #检查是否装了reds-cli
     if ( not -e $cliFile and -e "$FindBin::Bin/redis-cli" ) {
+
+        #需要改为自动到介质中心下载
         copy( "$FindBin::Bin/redis-cli", $binPath );
         chmod( 0755, "$binPath/redis-cli" );
     }
@@ -90,12 +92,39 @@ sub collect {
     #配置文件
     $self->parseConfig( $configFile, $redisInfo );
 
-    my $port = $redisInfo->{PORT};
+    my $port = int( $redisInfo->{PORT} );
     if ( $command =~ /:(\d+)$/ or $command =~ /--port\s+(\d+)/ ) {
-        $port = $1;
+        $port = int($1);
     }
 
-    my $host = '127.0.0.1';
+    my @ports    = ();
+    my $minPort  = 65535;
+    my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
+    foreach my $lsnPort ( keys(%$lsnPorts) ) {
+        $lsnPort =~ s/^.*://;
+        $lsnPort = int($lsnPort);
+        if ( $lsnPort < $minPort ) {
+            $minPort = int($lsnPort);
+        }
+        push( @ports, $lsnPort );
+    }
+    if ( $port == 0 ) {
+        $port = $minPort;
+    }
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine the redis server listen port.\n");
+        return undef;
+    }
+
+    $redisInfo->{PORT}           = $port;
+    $redisInfo->{PORTS}          = \@ports;
+    $redisInfo->{SSL_PORT}       = $port;
+    $redisInfo->{MON_PORT}       = $port;
+    $redisInfo->{ADMIN_PORT}     = $port;
+    $redisInfo->{ADMIN_SSL_PORT} = $port;
+
+    #如果redis存在哨兵进程，则通过哨兵端口进行连接
     my $cliPort;
     my $sentinelLsnInfo = $self->getCmdOut(qq{netstat -nap |grep $port|grep redis-sentine|grep LISTEN | awk '{print \$4}'});
     if ( $sentinelLsnInfo =~ /:(\d+)\b/ ) {
@@ -116,12 +145,7 @@ sub collect {
         }
     }
 
-    $redisInfo->{PORT}           = $port;
-    $redisInfo->{SSL_PORT}       = $port;
-    $redisInfo->{MON_PORT}       = $port;
-    $redisInfo->{ADMIN_PORT}     = $port;
-    $redisInfo->{ADMIN_SSL_PORT} = $port;
-
+    my $host  = '127.0.0.1';
     my $redis = RedisExec->new(
         redisHome => $binPath,
         auth      => $auth,
