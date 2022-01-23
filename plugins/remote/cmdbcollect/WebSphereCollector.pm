@@ -79,7 +79,7 @@ sub getPorts {
 
     my $serverName = $appInfo->{SERVER_NAME};
     my @ports;
-    my ( $port, $sslPort, $adminPort, $adminSslPort, $soapPort );
+    my ( $port, $sslPort, $adminPort, $adminSslPort, $soapPort, $bootstrapPort );
     if ( defined($portConfXml) ) {
 
         #<serverEntries xmi:id="ServerEntry_1183122129640" serverName="server1" serverType="APPLICATION_SERVER">
@@ -119,6 +119,11 @@ sub getPorts {
                         push( @ports, $soapPort );
                     }
                 }
+                elsif ( index( $portDef, '"BOOTSTRAP_ADDRESS"' ) > 0 ) {
+                    if ( $portDef =~ /\sport="(\d+)"/ ) {
+                        $bootstrapPort = int($1);
+                    }
+                }
             }
         }
     }
@@ -135,6 +140,9 @@ sub getPorts {
     if ( $objType eq 'WebSphere-DMGR' ) {
         $appInfo->{PORT}     = $adminPort;
         $appInfo->{SSL_PORT} = $adminSslPort;
+    }
+    elsif ( $objType eq 'WebSphere-NodeAgent' ) {
+        $appInfo->{PORT} = $bootstrapPort;
     }
 
     return;
