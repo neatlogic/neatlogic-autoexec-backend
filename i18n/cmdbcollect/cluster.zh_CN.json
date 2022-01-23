@@ -2,7 +2,8 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -15,11 +16,6 @@
         {
             "name": "SERVER_NAME",
             "desc": "服务名",
-            "type": "String"
-        },
-        {
-            "name": "VIP",
-            "desc": "VIP",
             "type": "String"
         },
         {
@@ -46,7 +42,8 @@
             "name": "MEMBERS",
             "desc": "成员",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类型",
                     "type": "String"
@@ -76,7 +73,12 @@
         {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
-            "type": "Array"
+            "type": "array"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
         }
     ]
 }
