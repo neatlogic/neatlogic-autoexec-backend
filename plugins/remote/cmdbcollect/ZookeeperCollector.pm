@@ -107,6 +107,8 @@ sub collect {
 
     $self->getJavaAttrs($appInfo);
 
+    my $clusterMembers = [];
+    my $clusterConnInfo = { PEER => $clusterMembers };
     my @members;
     my $confMap   = {};
     my $confLines = $self->getFileLines($confPath);
@@ -117,10 +119,14 @@ sub collect {
             $confMap->{$key} = $val;
             if ( $key =~ /server\.\d+/ ) {
                 push( @members, { NAME => $key, VALUE => $val } );
+                my @ipInfos = split( ':', $val );
+                push( @$clusterMembers, "$ipInfos[0]:$ipInfos[1]" );
+                push( @$clusterMembers, "$ipInfos[0]:$ipInfos[2]" );
             }
         }
     }
 
+    @members                 = sort(@members);
     $appInfo->{DATA_DIR}     = $confMap->{dataDir};
     $appInfo->{PORT}         = $confMap->{clientPort};
     $appInfo->{ADMIN_PORT}   = $confMap->{'admin.serverPort'};
@@ -133,7 +139,18 @@ sub collect {
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 
-    return $appInfo;
+    my $clusterInfo = undef;
+    if ( scalar(@$$clusterMembers) > 1 ) {
+        my $clusterInfo = {
+            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+            _OBJ_TYPE     => 'ZookeeperCluster'
+        };
+        $clusterInfo->{UNIQUE_NAME} = join( ',', @members );
+        $clusterInfo->{CONN_INFO}   = $clusterConnInfo;
+        $clusterInfo->{MEMBERS}     = [];
+    }
+
+    return ( $appInfo, $clusterInfo );
 }
 
 1;
