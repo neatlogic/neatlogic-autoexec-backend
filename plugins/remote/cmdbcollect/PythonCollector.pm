@@ -88,22 +88,16 @@ sub collect {
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $appInfo->{_OBJ_TYPE}     = 'Python';
 
-    my @ports = ();
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
-    my $minPort  = 65535;
-    my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort ( keys(%$lsnPorts) ) {
-        $lsnPort =~ s/^.*://;
-        $lsnPort = int($lsnPort);
-        if ( $minPort < $lsnPort ) {
-            $minPort = $lsnPort;
-        }
-        push( @ports, $lsnPort );
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Python listen port.\n");
+        return undef;
     }
 
-    if ( $minPort < 65535 ) {
-        $appInfo->{PORT}  = $minPort;
-        $appInfo->{PORTS} = \@ports;
+    if ( $port < 65535 ) {
+        $appInfo->{PORT}  = $port;
+        $appInfo->{PORTS} = $ports;
     }
 
     $self->getServerName();

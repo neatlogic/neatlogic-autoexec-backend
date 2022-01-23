@@ -77,30 +77,24 @@ sub collect {
     $mongodbInfo->{CONFIG_FILE}  = $configFile;
 
     #配置文件
-    parseConfig( $self, $configFile, $mongodbInfo );
+    $self->parseConfig( $configFile, $mongodbInfo );
 
-    my @ports = ();
-    my $port  = $mongodbInfo->{PORT};
-    if ( not defined($port) ) {
-        my $minPort     = 65535;
-        my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        foreach my $lsnPort ( keys(%$listenAddrs) ) {
-            $lsnPort =~ s/^.*://;
-            $lsnPort = int($lsnPort);
-            if ( $lsnPort < $minPort ) {
-                $minPort = int($lsnPort);
-            }
-            push( @ports, $lsnPort );
-        }
-        $port = $minPort;
+    my ( $ports, $port ) = $self->getPortFromProcInfo($mongodbInfo);
+    if ( defined( $mongodbInfo->{PORT} ) ) {
+        $port = int( $mongodbInfo->{PORT} );
+    }
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Mongodb listen port.\n");
+        return undef;
     }
 
     $mongodbInfo->{PORT}           = $port;
-    $mongodbInfo->{SSL_PORT}       = $port;
+    $mongodbInfo->{SSL_PORT}       = undef;
     $mongodbInfo->{MON_PORT}       = $port;
     $mongodbInfo->{ADMIN_PORT}     = $port;
-    $mongodbInfo->{ADMIN_SSL_PORT} = $port;
-    $mongodbInfo->{PORTS}          = \@ports;
+    $mongodbInfo->{ADMIN_SSL_PORT} = undef;
+    $mongodbInfo->{PORTS}          = $ports;
 
     my $version = $self->getCmdOut("$exePath --version");
     $version =~ /\"version\": (\S+)\s+/;

@@ -75,12 +75,33 @@ sub collect {
 
     my $pos = rindex( $cmdLine, 'kafka.Kafka' ) + 12;
     my $confPath = substr( $cmdLine, $pos );
+    $confPath =~ s/^\s*|\s*$//g;
+
+    my $realConfPath;
     if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
-        $confPath = Cwd::abs_path("$homePath/bin/$confPath");
+        if ( -e "/proc/$pid/cwd" ) {
+            my $workPath = readlink("/proc/$pid/cwd");
+            $realConfPath = Cwd::abs_path("$workPath/$confPath");
+        }
+        if ( not -e $realConfPath ) {
+            $realConfPath = Cwd::abs_path("$homePath/$confPath");
+        }
+        if ( not -e $realConfPath ) {
+            $realConfPath = Cwd::abs_path("$homePath/bin/$confPath");
+        }
     }
-    $appInfo->{CONFIG_PATH} = $confPath;
+    else {
+        $realConfPath = Cwd::abs_path($confPath);
+    }
+
+    if ( defined($realConfPath) ) {
+        $realConfPath = dirname($realConfPath);
+    }
+
+    $appInfo->{CONFIG_PATH} = $realConfPath;
 
     $self->getJavaAttrs($appInfo);
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
     my @members;
     my $confMap   = {};
@@ -96,8 +117,16 @@ sub collect {
     my $lsnAddr = $confMap->{'advertised.listeners'};
     $appInfo->{ACCESS_ADDR} = $lsnAddr;
     if ( $lsnAddr =~ /:(\d+)$/ ) {
-        $appInfo->{PORT} = $1;
+        $port = int($1);
     }
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Kafaka listen port.\n");
+        return undef;
+    }
+
+    $appInfo->{PORT}  = $port;
+    $appInfo->{PORTS} = $ports;
 
     my @logDirs = ();
     foreach my $logDir ( split( ',', $confMap->{'log.dirs'} ) ) {

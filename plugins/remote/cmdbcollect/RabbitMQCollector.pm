@@ -61,28 +61,34 @@ sub collect {
     $homePath = dirname($homePath);
     $appInfo->{INSTALL_PATH} = $homePath;
 
-    #TODO：下面获取版本和端口的方法缺少环境测试，需要优化
-    my $rbctlPath = "$homePath/sbin/rabbitmqctl";
-    my $verInfo = $self->getCmdOut( "'$rbctlPath' status | grep {rabbit,", $procInfo->{USER} );
-    if ( $verInfo =~ /(\d+\.\d+\.\d+)/ ) {
-        $appInfo->{VERSION} = $1;
-    }
-    else {
-        $appInfo->{VERSION} = undef;
-    }
+    my $version;
+    my $userHome = ( getpwnam( $procInfo->{USER} ) )[7];
 
-    my $port;
-    my $portInfo = $self->getCmdOut( "'$rbctlPath' status | grep listeners", $procInfo->{USER} );
-    my $lsnPort;
-    while ( $portInfo =~ /(\d+)/sg ) {
-        $lsnPort = $1;
-        if ( $listenMap->{$lsnPort} ) {
-            $port = $lsnPort;
-            last;
+    #TODO：下面获取版本和端口的方法缺少环境测试，需要优化
+    my $rbctlPath   = "$homePath/sbin/rabbitmqctl";
+    my $statusLines = $self->getCmdOutLines("HOME='$userHome' LANG=C '$rbctlPath' status");
+    foreach my $line (@$statusLines) {
+        if ( $line =~ /RabbitMQ\s+version:\s+([\d\.]+)/ ) {
+            $version = $1;
+        }
+        elsif ( $line =~ /\{rabbit.*?([\d\.]+)/ ) {
+            $version = $1;
         }
     }
+    $appInfo->{VERSION} = $version;
 
-    $appInfo->{PORT}           = $port;
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine RabbitMQ listen port.\n");
+        return undef;
+    }
+
+    if ( $port < 65535 ) {
+        $appInfo->{PORT}  = $port;
+        $appInfo->{PORTS} = $ports;
+    }
+
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;

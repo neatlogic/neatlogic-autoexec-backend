@@ -74,13 +74,15 @@ sub collect {
     $appInfo->{CHUNK_GROW_FACTOR}    = undef;
     $appInfo->{MIN_SPACE_PER_RECORD} = undef;
 
-    my $port;
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+    $appInfo->{PORTS} = $ports;
+
     if ( defined($homePath) or $homePath ne '' ) {
         if ( $cmdLine =~ /\s-S\s/ ) {
             $appInfo->{SASL_ENABLED} = 1;
         }
 
-        while ( $cmdLine =~ /(?<=\s)-(\w+)\s+([^-]+?)/g ) {
+        while ( $cmdLine =~ /(?<=\s)-(\w+)\s+([^-]+)/g ) {
             my $opt    = $1;
             my $optVal = $2;
             if ( $opt eq 'p' ) {
@@ -88,7 +90,7 @@ sub collect {
             }
             elsif ( $opt eq 'U' ) {
                 if ( not defined($port) ) {
-                    $port = $optVal;
+                    $port = int($optVal);
                 }
                 $appInfo->{UDP_PORT} = int($optVal);
             }
@@ -121,6 +123,12 @@ sub collect {
             }
         }
     }
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Memcached listen port.\n");
+        return undef;
+    }
+
     $appInfo->{PORT} = $port;
 
     my $version;

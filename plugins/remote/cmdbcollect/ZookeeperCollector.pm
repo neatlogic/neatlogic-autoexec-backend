@@ -83,10 +83,27 @@ sub collect {
 
     my $pos = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
     my $confPath = substr( $cmdLine, $pos );
+
+    my $realConfPath = $confPath;
     if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
-        $confPath = "$homePath/bin/$confPath";
+        if ( -e "/proc/$pid/cwd" ) {
+            my $workPath = readlink("/proc/$pid/cwd");
+            $realConfPath = Cwd::abs_path("$workPath/$confPath");
+        }
+        if ( not -e $realConfPath ) {
+            $realConfPath = Cwd::abs_path("$homePath/$confPath");
+        }
+        if ( not -e $realConfPath ) {
+            $realConfPath = Cwd::abs_path("$homePath/bin/$confPath");
+        }
     }
-    $appInfo->{CONFIG_PATH} = Cwd::abs_path($confPath);
+    else {
+        $realConfPath = Cwd::abs_path($confPath);
+    }
+    if ( defined($realConfPath) ) {
+        $confPath = $realConfPath;
+        $appInfo->{CONFIG_PATH} = dirname($realConfPath);
+    }
 
     $self->getJavaAttrs($appInfo);
 
@@ -99,7 +116,7 @@ sub collect {
             my ( $key, $val ) = split( /\s*=\s*/, $line );
             $confMap->{$key} = $val;
             if ( $key =~ /server\.\d+/ ) {
-                push( @members, { VALUE => $val } );
+                push( @members, { NAME => $key, VALUE => $val } );
             }
         }
     }

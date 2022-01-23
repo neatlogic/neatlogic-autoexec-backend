@@ -109,34 +109,21 @@ sub collect {
 
     $postgresqlInfo->{INSTALL_PATH} = $postgresqlHome;
 
-    my @ports = ();
-    my $port  = $opts->{'p'};
-    my $host  = '127.0.0.1';
+    my ( $ports, $port ) = $self->getPortFromProcInfo($postgresqlInfo);
 
-    if ( not defined($port) ) {
-        my $minPort     = 65535;
-        my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        foreach my $lsnPort ( keys(%$listenAddrs) ) {
-            if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
-                $host    = $1;
-                $lsnPort = int($2);
-            }
-            else {
-                $lsnPort = int($lsnPort);
-            }
+    if ( defined( $opts->{'p'} ) ) {
+        $port = int( $opts->{'p'} );
+    }
 
-            if ( $lsnPort < $minPort ) {
-                $minPort = $lsnPort;
-            }
-            push( @ports, $lsnPort );
-        }
-        $port = $minPort;
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Postgresql listen port.\n");
+        return undef;
     }
 
     $postgresqlInfo->{PORT}     = $port;
-    $postgresqlInfo->{SSL_PORT} = $port;
+    $postgresqlInfo->{SSL_PORT} = undef;
     $postgresqlInfo->{MON_PORT} = $port;
-    $postgresqlInfo->{PORTS}    = \@ports;
+    $postgresqlInfo->{PORTS}    = $ports;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;
@@ -145,6 +132,7 @@ sub collect {
     }
     $postgresqlInfo->{VERSION} = $version;
 
+    my $host       = '127.0.0.1';
     my $postgresql = PostgresqlExec->new(
         psqlHome => $postgresqlHome,
         osUser   => $osUser,

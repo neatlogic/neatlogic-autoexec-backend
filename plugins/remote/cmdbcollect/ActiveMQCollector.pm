@@ -50,7 +50,7 @@ sub collect {
         elsif ( $cmdOpt =~ /^-Dactivemq.base=(\S+)/ ) {
             $appInfo->{ACTIVEMQ_BASE} = $1;
         }
-        elsif ( $cmdOpt =~ /^-Dactivemq.conf(\S+)/ ) {
+        elsif ( $cmdOpt =~ /^-Dactivemq.conf=(\S+)/ ) {
             $appInfo->{ACTIVEMQ_CONF} = $1;
             $appInfo->{CONFIG_PATH}   = $1;
         }
@@ -87,7 +87,9 @@ sub collect {
     # -->
     #         </transportConnectors>
 
-    my ( @ports, $proto, $port );
+    my $ports = [];
+    my $port;
+    my $proto;
     my $minPort  = 65535;
     my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
     my $confFile = "$installPath/conf/activemq.xml";
@@ -105,7 +107,7 @@ sub collect {
                     $port  = int($2);
                     if ( defined( $lsnPorts->{$port} ) ) {
                         $appInfo->{ uc("${proto}_PORT") } = $port;
-                        push( @ports, $port );
+                        push( @$ports, $port );
 
                         if ( $port < $minPort ) {
                             $minPort = $port;
@@ -114,6 +116,17 @@ sub collect {
                 }
             }
         }
+    }
+    if ( $minPort < 65535 ) {
+        $port = $minPort;
+    }
+    else {
+        ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+    }
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine ActiveMQ listen port.\n");
+        return undef;
     }
 
     my $mngtPort;
@@ -135,13 +148,14 @@ sub collect {
             }
         }
     }
+
     $appInfo->{ADMIN_PORT}     = $mngtPort;
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $mngtPort;
 
-    $appInfo->{PORTS}    = \@ports;
-    $appInfo->{PORT}     = $minPort;
-    $appInfo->{SSL_PORT} = $minPort;
+    $appInfo->{PORTS}    = $ports;
+    $appInfo->{PORT}     = $port;
+    $appInfo->{SSL_PORT} = undef;
 
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 

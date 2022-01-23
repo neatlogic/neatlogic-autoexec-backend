@@ -64,25 +64,15 @@ sub collect {
 
     $self->getJavaAttrs($appInfo);
 
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Java listen port.\n");
+    }
+
+    $appInfo->{PORT}     = $port;
+    $appInfo->{PORTS}    = $ports;
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
-
-    my @ports = ();
-
-    my $minPort  = 65535;
-    my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort ( keys(%$lsnPorts) ) {
-        $lsnPort =~ s/^.*://;
-        $lsnPort = int($lsnPort);
-        if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $minPort ) {
-            $minPort = int($lsnPort);
-        }
-        push( @ports, $lsnPort );
-    }
-
-    if ( $minPort < 65535 ) {
-        $appInfo->{PORT}  = $minPort;
-        $appInfo->{PORTS} = \@ports;
-    }
 
     $self->getServerName($appInfo);
 

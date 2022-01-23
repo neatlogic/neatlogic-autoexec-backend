@@ -90,22 +90,15 @@ sub collect {
     $version =~ s/^\s*|\s*$//g;
     $appInfo->{VERSION} = $version;
 
-    my @ports       = ();
-    my $minPort     = 65535;
-    my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPortInfo ( keys(%$lsnPortsMap) ) {
-        if ( $lsnPortInfo =~ /:(\d+)$/ or $lsnPortInfo =~ /^(\d+)$/ ) {
-            my $lsnPort = int($1);
-            if ( $jmxPort ne $lsnPort and $lsnPort < $minPort ) {
-                $minPort = int($lsnPort);
-            }
-            push( @ports, $lsnPort );
-        }
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Jetty listen port.\n");
+        return undef;
     }
-    if ( $minPort < 65535 ) {
-        $appInfo->{PORTS} = \@ports;
-        $appInfo->{PORT}  = $minPort;
-    }
+
+    $appInfo->{PORTS} = $ports;
+    $appInfo->{PORT}  = $port;
 
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{SSL_PORT}       = undef;

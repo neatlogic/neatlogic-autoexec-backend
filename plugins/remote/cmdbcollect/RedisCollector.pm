@@ -89,27 +89,17 @@ sub collect {
         chmod( 0755, "$binPath/redis-cli" );
     }
 
+    my ( $ports, $port ) = $self->getPortFromProcInfo($redisInfo);
+
     #配置文件
     $self->parseConfig( $configFile, $redisInfo );
 
-    my $port = int( $redisInfo->{PORT} );
-    if ( $command =~ /:(\d+)$/ or $command =~ /--port\s+(\d+)/ ) {
-        $port = int($1);
+    if ( defined( $redisInfo->{PORT} ) ) {
+        $port = int( $redisInfo->{PORT} );
     }
 
-    my @ports    = ();
-    my $minPort  = 65535;
-    my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort ( keys(%$lsnPorts) ) {
-        $lsnPort =~ s/^.*://;
-        $lsnPort = int($lsnPort);
-        if ( $lsnPort < $minPort ) {
-            $minPort = int($lsnPort);
-        }
-        push( @ports, $lsnPort );
-    }
-    if ( $port == 0 ) {
-        $port = $minPort;
+    if ( $command =~ /:(\d+)$/ or $command =~ /--port\s+(\d+)/ ) {
+        $port = int($1);
     }
 
     if ( $port == 65535 ) {
@@ -118,7 +108,7 @@ sub collect {
     }
 
     $redisInfo->{PORT}           = $port;
-    $redisInfo->{PORTS}          = \@ports;
+    $redisInfo->{PORTS}          = $ports;
     $redisInfo->{SSL_PORT}       = $port;
     $redisInfo->{MON_PORT}       = $port;
     $redisInfo->{ADMIN_PORT}     = $port;

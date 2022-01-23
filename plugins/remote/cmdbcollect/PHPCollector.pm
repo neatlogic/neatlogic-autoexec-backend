@@ -95,22 +95,17 @@ sub collect {
     my $appInfo  = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $appInfo->{_OBJ_TYPE}     = 'PHP';
-    my @ports = ();
 
-    my $minPort  = 65535;
-    my $lsnPorts = $procInfo->{CONN_INFO}->{LISTEN};
-    foreach my $lsnPort ( keys(%$lsnPorts) ) {
-        $lsnPort =~ s/^.*://;
-        $lsnPort = int($lsnPort);
-        push( @ports, $lsnPort );
-        if ( $minPort < $lsnPort ) {
-            $minPort = $lsnPort;
-        }
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine PHP listen port.\n");
+        return undef;
     }
 
-    if ( $minPort < 65535 ) {
-        $appInfo->{PORT}  = $minPort;
-        $appInfo->{PORTS} = \@ports;
+    if ( $port < 65535 ) {
+        $appInfo->{PORT}  = $port;
+        $appInfo->{PORTS} = $ports;
     }
 
     $self->getServerName();

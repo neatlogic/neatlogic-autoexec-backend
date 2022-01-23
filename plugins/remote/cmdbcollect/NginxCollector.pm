@@ -90,27 +90,30 @@ sub collect {
     $nginxInfo->{CONFIG_PATH}  = $configPath;
     $nginxInfo->{SERVERS}      = parseConfig( $self, $configFile );
 
-    my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};
-    my $minPort     = 65535;
-    my @ports       = ();
-    foreach my $lsnPort ( keys(%$lsnPortsMap) ) {
-        my $port = 65535;
-        if ( $lsnPort =~ /:(\d+)$/ ) {
-            $port = int($1);
-        }
-        else {
-            $port = int($lsnPort);
-        }
-        push( @ports, $port );
-        if ( $port < $minPort ) {
-            $minPort = $port;
+    my ( $ports, $port ) = $self->getPortFromProcInfo($nginxInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Nginx listen port.\n");
+        return undef;
+    }
+
+    #优先使用80端口
+    if ( $port != 80 and $port != 8080 ) {
+        foreach my $myPort (@$ports) {
+            if ( $port != 80 and $myPort == 80 ) {
+                $port = 80;
+                last;
+            }
+            elsif ( $port != 80 and $myPort == 8080 ) {
+                $port = 8080;
+            }
         }
     }
 
-    if ( $minPort < 65535 ) {
-        $nginxInfo->{PORT}     = $minPort;
-        $nginxInfo->{MON_PORT} = $minPort;
-        $nginxInfo->{PORTS}    = \@ports;
+    if ( $port < 65535 ) {
+        $nginxInfo->{PORT}     = $port;
+        $nginxInfo->{MON_PORT} = $port;
+        $nginxInfo->{PORTS}    = $ports;
     }
     return $nginxInfo;
 }

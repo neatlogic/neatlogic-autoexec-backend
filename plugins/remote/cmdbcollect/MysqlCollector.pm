@@ -127,36 +127,22 @@ sub collect {
         $mysqlInfo->{CONFIG_FILE} = '/etc/my.cnf';
     }
 
-    my @ports = ();
-    my $port  = $opts->{'port'};
-    my $host  = '127.0.0.1';
+    my ( $ports, $port ) = $self->getPortFromProcInfo($mysqlInfo);
+    if ( defined( $opts->{'port'} ) ) {
+        $port = int( $opts->{'port'} );
+    }
 
-    if ( not defined($port) ) {
-        my $minPort     = 65535;
-        my $listenAddrs = $procInfo->{CONN_INFO}->{LISTEN};
-        foreach my $lsnPort ( keys(%$listenAddrs) ) {
-            if ( $lsnPort =~ /^(.*?):(\d+)$/ ) {
-                $host    = $1;
-                $lsnPort = int($2);
-            }
-            else {
-                $lsnPort = int($lsnPort);
-            }
-
-            if ( $lsnPort < $minPort ) {
-                $minPort = $lsnPort;
-            }
-            push( @ports, $lsnPort );
-        }
-        $port = $minPort;
+    if ( $port == 65535 or $port == 0 ) {
+        print("WARN: Can not determine Mysql listen port.\n");
+        return undef;
     }
 
     $mysqlInfo->{PORT}           = $port;
-    $mysqlInfo->{SSL_PORT}       = $port;
+    $mysqlInfo->{SSL_PORT}       = undef;
     $mysqlInfo->{MON_PORT}       = $port;
     $mysqlInfo->{ADMIN_PORT}     = $port;
-    $mysqlInfo->{ADMIN_SSL_PORT} = $port;
-    $mysqlInfo->{PORTS}          = \@ports;
+    $mysqlInfo->{ADMIN_SSL_PORT} = undef;
+    $mysqlInfo->{PORTS}          = $ports;
 
     my ( $helpRet, $verOutLines ) = $self->getCmdOutLines( qq{"$mysqldPath" --help}, $osUser );
     if ( $helpRet ne 0 ) {
@@ -171,6 +157,7 @@ sub collect {
     }
     $mysqlInfo->{VERSION} = $version;
 
+    my $host  = '127.0.0.1';
     my $mysql = MysqlExec->new(
         mysqlHome => $mysqlHome,
         username  => $self->{defaultUsername},

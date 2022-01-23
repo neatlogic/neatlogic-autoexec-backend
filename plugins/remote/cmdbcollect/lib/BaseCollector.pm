@@ -137,7 +137,7 @@ sub isMainProcess {
 }
 
 sub getPortFromProcInfo {
-    my ($self) = @_;
+    my ( $self, $appInfo ) = @_;
 
     my $listenAddrs = $self->{procInfo}->{CONN_INFO}->{LISTEN};
     my $refType     = ref($listenAddrs);
@@ -149,25 +149,18 @@ sub getPortFromProcInfo {
         @lsnAddrs = @$listenAddrs;
     }
 
-    my $port;
-
-    if ( scalar(@lsnAddrs) > 1 ) {
-        foreach my $lsnAddr (@lsnAddrs) {
-            if ( $lsnAddr =~ /^\d+$/ ) {
-                $port = $lsnAddr;
-                last;
-            }
+    my @ports = ();
+    my $port  = 65535;
+    foreach my $lsnPort (@lsnAddrs) {
+        $lsnPort =~ s/^.*://;
+        $lsnPort = int($lsnPort);
+        if ( $lsnPort ne $appInfo->{JMX_PORT} and $lsnPort < $port ) {
+            $port = int($lsnPort);
         }
-
-        if ( not defined($port) ) {
-            $port = $$listenAddrs[0];
-            if ( $port =~ /^(.*?):(\d+)$/ ) {
-                $port = $2;
-            }
-        }
+        push( @ports, $lsnPort );
     }
 
-    return $port;
+    return ( \@ports, $port );
 }
 
 #获取Java相关的属性，包括：JAVA_HOME, JAVA_VERSION, MIN_HEAP_SIZE, MAX_HEAP_SIZE, JMX_PORT, JMX_SSL
