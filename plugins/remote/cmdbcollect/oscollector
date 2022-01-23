@@ -428,7 +428,7 @@ sub doDetailCollect {
             $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
         }
 
-        my $envMap      = $procInfo->{ENVIRONMENT};
+        my $envMap      = delete($procInfo->{ENVIRONMENT});
         my $insNamePath = $envMap->{TS_INSNAME};
         if ( defined($insNamePath) and $insNamePath ne '' ) {
             my @insPaths = split( '/', $insNamePath );
@@ -464,6 +464,12 @@ sub doDetailCollect {
                 print("ERROR: $objType PK not defined for obj catetory:$objCat.\n");
             }
         }
+
+        my @envEntries = ();
+        while ( my ( $envName, $envVal ) = each(%$envMap) ) {
+            push(@envEntries, {NAME=>$envName, VALUE=>$envVal});
+        }
+        $appInfo->{MAIN_ENV} = \@envEntries;
 
         $appInfo->{RUN_ON} = [
             {

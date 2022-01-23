@@ -344,6 +344,23 @@
             ]
         },
         {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "ACTIVEMQ_BASE",
             "desc": "Conf Path",
             "type": "String"

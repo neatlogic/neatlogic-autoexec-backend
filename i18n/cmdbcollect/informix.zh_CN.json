@@ -259,6 +259,23 @@
             ]
         },
         {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "COMMAND",
             "desc": "命令行",
             "type": "Text"

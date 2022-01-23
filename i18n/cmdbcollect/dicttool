@@ -115,7 +115,8 @@ def getDefaultFieldKeys():
         'OPENSSL_VERSION',
         'NIC_BOND',
         'ETH_INTERFACES',
-        'USERS'
+        'USERS',
+        'MAIN_ENV'
     ]
     return defaultKeys
 

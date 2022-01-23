@@ -254,6 +254,23 @@
             ]
         },
         {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CACHED_MEMORY",
             "desc": "缓存内存(MB)",
             "type": "Float"

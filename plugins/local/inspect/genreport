@@ -322,6 +322,7 @@ def saveReport(db, ciType, resourceId, rptData):
 
     rptCollection.replace_one(primaryKey, rptData, upsert=True)
     rptCollection.create_index([('RESOURCE_ID', 1)], name='idx_pk')
+    rptCollection.create_index([('_jobid', 1)], name='idx_jobid')
     print('INFO: Save report data success.')
     saveHisReport(db, ciType, resourceId, rptData)
     AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
@@ -334,6 +335,7 @@ def saveHisReport(db, ciType, resourceId, rptData):
 
     rptCollection.insert_one(rptData)
     rptCollection.create_index([('RESOURCE_ID', 1), ('_report_time', 1)], name='idx_pk')
+    #rptCollection.create_index([('_jobid', 1), ('_report_time', 1)], name='idx_jobid')
     rptCollection.create_index([('_report_time', 1)], name='idx_ttl', expireAfterSeconds=7776000)
     print('INFO: Save report history data success.')
 
