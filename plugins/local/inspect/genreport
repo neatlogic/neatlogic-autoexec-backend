@@ -152,6 +152,8 @@ def getInspectData(nodeInfo):
                 inspectData['AVAILABILITY'] = True
         else:
             inspectData['AVAILABILITY'] = False
+            errMsg = 'AVAILABILITY flag not found in :' + json.dumps(outputData)
+            inspectData['ERROR_MESSAGE'] = errMsg
 
         for data in collectData:
             isMalformData = 0
@@ -206,11 +208,8 @@ def inspectData(nodeInfo):
         if dataCollected is not None:
             inspectDef = {}
             inspectRulesMap = {}
-            needFieldsMap = {}
 
             availability = dataCollected['AVAILABILITY']
-            needFieldsMap['AVAILABILITY'] = 1
-            needFieldsMap['ERROR_MESSAGE'] = 1
 
             objCat = dataCollected['_OBJ_CATEGORY']
             objType = dataCollected['_OBJ_TYPE']
@@ -222,13 +221,27 @@ def inspectData(nodeInfo):
                     inspectRulesMap[inspectRule['name']] = inspectRule
                 objCatRulesMap[objCat] = inspectRulesMap
 
+                needFieldsMap = {
+                    'AVAILABILITY': 1,
+                    'ERROR_MESSAGE': 1
+                }
+                objCatFieldsMap[objCat] = needFieldsMap
                 for fieldDef in inspectDef['fields']:
                     if fieldDef['selected'] == 1:
                         needFieldsMap[fieldDef['name']] = 1
-                objCatFieldsMap[objCat] = needFieldsMap
+
+            rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
+                       'MGMT_IP': nodeInfo['host'],
+                       '_execuser': execUser
+                       }
+
+            # 抽取巡检定义里需要的属性字段到报告中
+            needFields = objCatFieldsMap[objCat]
+            for needField in needFields:
+                if needField in dataCollected:
+                    rptData[needField] = dataCollected[needField]
 
             inspectRules = inspectDef['thresholds']
-
             alerts = []
             matchedFields = None
             for inspectRule in inspectRules:
@@ -249,11 +262,6 @@ def inspectData(nodeInfo):
                 #         "ruleName": "测试"
                 #     }
                 # ]
-
-            rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
-                       'MGMT_IP': nodeInfo['host'],
-                       '_execuser': execUser
-                       }
 
             inspectResult = {'status': 'NORMAL',
                              'name': inspectDef['name'],
@@ -281,15 +289,19 @@ def inspectData(nodeInfo):
                     "ruleLevel": "CRITICAL",
                     'ruleName': "可用性告警"
                 })
-                alerts.append({
-                    "jsonPath": "$._error_message",
-                    "ruleLevel": "CRITICAL",
-                    'ruleName': "可用性告警"
-                })
-
                 alertThresHolds['可用性告警'] = {'name': '可用性告警',
                                             'level': 'CRITICAL',
                                             'rule': '$.AVAILABILITY != True'}
+
+                if rptData.get('ERROR_MESSAGE'):
+                    alerts.append({
+                        "jsonPath": "$.ERROR_MESSAGE",
+                        "ruleLevel": "CRITICAL",
+                        'ruleName': "错误信息非空"
+                    })
+                    alertThresHolds['错误信息非空'] = {'name': '错误信息非空',
+                                                 'level': 'CRITICAL',
+                                                 'rule': '$.ERROR_MESSAGE != ""'}
 
             inspectResult['thresholds'] = alertThresHolds
 
@@ -300,12 +312,6 @@ def inspectData(nodeInfo):
             inspectResult['totalCount'] = alertSummarized['totalCount']
             inspectResult['status'] = alertSummarized['status']
             rptData['_inspect_result'] = inspectResult
-
-            # 抽取巡检定义里需要的属性字段到报告中
-            needFields = objCatFieldsMap[objCat]
-            for needField in needFields:
-                if needField in dataCollected:
-                    rptData[needField] = dataCollected[needField]
 
             rptDataRecords.append(rptData)
     return rptDataRecords

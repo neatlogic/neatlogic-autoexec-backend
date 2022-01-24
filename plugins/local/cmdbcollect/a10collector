@@ -70,7 +70,7 @@ sub main {
     foreach my $vsInfo (@$virtualServers) {
         my $clusterInfo = {
             'PK'               => ['UNIQUE_NAME'],
-            'INDEX_FIELDS'     => ['BIND'],
+            'INDEX_FIELDS'     => ['MEMBER_PEER'],
             '_OBJ_CATEGORY'    => 'CLUSTER',
             '_OBJ_TYPE'        => 'LoadBlancer-VS',
             'CLUSTER_MODE'     => 'LoadBlance',

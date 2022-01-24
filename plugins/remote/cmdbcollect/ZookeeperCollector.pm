@@ -142,14 +142,15 @@ sub collect {
     if ( scalar(@$$clusterMembers) > 1 ) {
         my $clusterInfo = {
             _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-            _OBJ_TYPE     => 'ZookeeperCluster'
+            _OBJ_TYPE     => 'ZookeeperCluster',
+            INDEX_FIELDS  => ['MEMBER_PEER'],
+            MEMBERS       => []
         };
         $clusterInfo->{UNIQUE_NAME} = join( ',', @members );
         $clusterInfo->{CLUSTER_MODE} = 'Cluster';
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
         $clusterInfo->{CLUSTER_VERSION} = $version;
         $clusterInfo->{MEMBERS_PEER}   = $clusterMembers;
-        $clusterInfo->{MEMBERS}     = [];
     }
 
     return ( $appInfo, $clusterInfo );

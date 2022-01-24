@@ -14,6 +14,7 @@ from bson.json_util import dumps, loads
 
 
 def genInsRel(db):
+    # 生成应用实例调用应用实例和DB实例的关系数据，存放于REF_INS和REF_DB下
     insCollection = db['COLLECT_INS']
     relSrcCollection = db['RELATION_INS_NETCONN']
     relDestCollection = db['RELATION_INS_NETCONN']
@@ -51,7 +52,7 @@ def genInsRel(db):
             else:
                 refIns.append(refInfo)
 
-        for cluster in clusterCollection.find({'BIND':
+        for cluster in clusterCollection.find({'MEMBER_PEER':
                                                {'$in': peer}
                                                }, {'UNIQUE_NAME': 1,
                                                    'VIP': 1,
@@ -83,7 +84,52 @@ def genInsRel(db):
                                   })
 
 
+def genDBInsRel(db):
+    # 生成DB的集群关系数据，存放在DB实例的REF_CLUSTER下
+    dbCollection = db['COLLECT_DB']
+    relSrcCollection = db['RELATION_INS_NETCONN']
+    clusterCollection = db['COLLECT_CLUSTER']
+
+    for db in relSrcCollection.find({}, {'OS_ID': 1,
+                                         'MGMT_IP': 1,
+                                         'PORT': 1,
+                                         'PEER': 1}).batch_size(500):
+        # print(dumps(ins))
+        peer = db['PEER']
+
+        refCls = []
+        for cluster in clusterCollection.find({'MEMBER_PEER':
+                                               {'$in': peer}
+                                               }, {'UNIQUE_NAME': 1,
+                                                   'VIP': 1,
+                                                   'PORT': 1,
+                                                   '_OBJ_CATEGORY': 1,
+                                                   '_OBJ_TYPE': 1,
+                                                   'CLUSTER_MODE': 1,
+                                                   'CLUSTER_SOFTWARE': 1}
+                                              ).batch_size(500):
+            refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                       '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                       'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                       'VIP': cluster['VIP'],
+                       'PORT': cluster['PORT'],
+                       'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                       'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                       }
+            refCls.append(refInfo)
+
+        dbCollection.update_one({'OS_ID': db['OS_ID'],
+                                 'MGMT_IP': db['MGMT_IP'],
+                                 'PORT': db['PORT']},
+                                {'$set':
+                                 {
+                                     'REF_CLUSTER': refCls
+                                 }
+                                 })
+
+
 def genOSSwitchRel(db):
+    # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
     osCollection = db['COLLECT_OS']
     macTblCollection = db['RELATION_NET_MACTABLE']
     osUpdCollection = db['COLLECT_OS']
@@ -131,6 +177,7 @@ def genOSSwitchRel(db):
 
 
 def genSwitchRel(db):
+    # 生成交换机和交换机的关系数据，存放于PORTS.NEIGHBORS下
     cdpSrcCollection = db['COLLECT_SWITCH']
     cdpDestCollection = db['COLLECT_SWITCH']
 
@@ -181,6 +228,7 @@ if __name__ == "__main__":
     try:
         if args.type == 'OS' or args.type is None:
             genInsRel(db)
+            genDBInsRel(db)
             genOSSwitchRel(db)
         elif args.type == 'NET' or args.type is None:
             genSwitchRel(db)

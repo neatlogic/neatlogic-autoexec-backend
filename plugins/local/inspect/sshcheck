@@ -50,9 +50,9 @@ sub main {
 
     my $resourceId = $nodeInfo->{resourceId};
     my $host       = $nodeInfo->{host};
-    my $port       = $nodeInfo->{port};
-    if ( not defined($port) or $port eq '' or $port == 0 or $port == 65535 ) {
-        $port = $nodeInfo->{protocolPort};
+    my $port       = int($nodeInfo->{port});
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int($nodeInfo->{protocolPort});
     }
 
     my $data = {

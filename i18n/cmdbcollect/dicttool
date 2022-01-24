@@ -35,6 +35,7 @@ def getDefaultFieldKeys():
         'MGMT_PORT',
         'VERSION',
         'STATE',
+        'VIP',
         'IP',
         'PORT',
         'SOCKET_PATH',

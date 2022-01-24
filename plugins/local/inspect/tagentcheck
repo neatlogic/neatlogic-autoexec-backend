@@ -48,7 +48,7 @@ if __name__ == "__main__":
         tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
 
         data = {'MGMT_IP': nodeInfo['host'],
-                'PORT': nodeInfo['port'],
+                'PORT': int(nodeInfo['port']),
                 'RESOURCE_ID': nodeInfo['resourceId'],
                 'AVAILABILITY': 0
                 }

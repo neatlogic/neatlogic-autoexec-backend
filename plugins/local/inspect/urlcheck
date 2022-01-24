@@ -50,13 +50,13 @@ sub main {
     }
 
     my $host       = $nodeInfo->{host};
-    my $port       = $nodeInfo->{port};
+    my $port       = int($nodeInfo->{port});
     my $user       = $nodeInfo->{username};
     my $pass       = $nodeInfo->{password};
     my $resourceId = $nodeInfo->{resourceId};
 
-    if ( not defined($port) or $port eq '' or $port == 0 or $port == 65535 ) {
-        $port = $nodeInfo->{protocolPort};
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int($nodeInfo->{protocolPort});
     }
 
     my $data = {
@@ -107,7 +107,7 @@ sub main {
     if ($@) {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
-        $data->{'EOROR_MESSAGE'} = $errMsg;
+        $data->{'ERROR_MESSAGE'} = $errMsg;
         $data->{AVAILABILITY} = 0;
         print("ERROR: $errMsg");
     }
