@@ -175,19 +175,29 @@ sub getProcOpenFilesCount {
 #获取进程最大打开文件数
 sub getProcMaxOpenFilesCount {
     my ( $self, $pid ) = @_;
-    my $limitPath = "/proc/$pid/limits";
-
-    if ( not -f $limitPath ){
-        return undef;
-    }
-
     my $maxCount;
-    my $fh = IO::File->new("<$limitPath");
-    if ( defined($fh) ){
-        while(my $line = $fh->getline() ){
-            if ( $line =~ /^Max open files\s+\d+\s+(\d+)/ ){
-                $maxCount = $1;
+
+    my $ostype = $self->{ostype};
+
+    if ( $ostype eq 'Linux' ) {
+        my $limitPath = "/proc/$pid/limits";
+        if ( not -f $limitPath ) {
+            return undef;
+        }
+
+        my $fh = IO::File->new("<$limitPath");
+        if ( defined($fh) ) {
+            while ( my $line = $fh->getline() ) {
+                if ( $line =~ /^Max open files\s+\d+\s+(\d+)/ ) {
+                    $maxCount = int($1);
+                }
             }
+        }
+    }
+    elsif ( $ostype eq 'AIX' ) {
+        my $procLimitInfo = `procfiles $pid`;
+        if ( $procLimitInfo =~ /rlimit:\s*(\d+)/ ) {
+            $maxCount = int($1);
         }
     }
 

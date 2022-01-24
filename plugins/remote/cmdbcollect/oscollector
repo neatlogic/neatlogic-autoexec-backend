@@ -177,7 +177,7 @@ sub mergeMultiProcs {
             my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
             my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
             my $openFilesRate     = 0;
-            if ( $maxOpenFilesCount > 0 ) {
+            if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
                 $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
             }
             my $openFilesInfo = $info->{OPEN_FILES_INFO};
@@ -231,7 +231,7 @@ sub mergeMultiProcs {
             my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
             my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
             my $openFilesRate     = 0;
-            if ( $maxOpenFilesCount > 0 ) {
+            if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
                 $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
             }
             $info->{OPEN_FILES_INFO} = [ { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } ];
