@@ -28,7 +28,7 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None:
+        if node is None or node == '':
             node = os.getenv('AUTOEXEC_NODE')
         if node is None or node == '':
             print("ERROR: Can not find node definition.\n")

@@ -402,7 +402,7 @@
         },
         {
             "name": "NFS_MOUNTED",
-            "desc": "挂载的NFS",
+            "desc": "挂载了NFS",
             "type": "Float"
         },
         {

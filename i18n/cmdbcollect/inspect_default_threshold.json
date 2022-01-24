@@ -37,27 +37,42 @@
 		{
 			"name": "磁盘空间使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.MOUNT_POINTS.\"USED%\" >= 90"
-		},
-		{
-			"name": "磁盘空间使用率超过95%",
-			"level": "FATAL",
 			"rule": "$.MOUNT_POINTS.\"USED%\" >= 95"
 		},
 		{
-			"name": "进程资源消耗超过80%",
-			"level": "WARN",
-			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 80 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 80"
-		},
-		{
-			"name": "进程资源消耗超过90%",
-			"level": "CRITICAL",
-			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 90 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 90"
-		},
-		{
 			"name": "进程资源消耗超过95%",
-			"level": "FATAL",
+			"level": "WARN",
 			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 95 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 95"
+		},
+		{
+			"name": "IOWAIT超过20%",
+			"level": "WARN",
+			"rule": "$.IOWAIT_PERCENT > 20"
+		},
+		{
+			"name": "存在僵尸进程",
+			"level": "WARN",
+			"rule": "$.DEFUNC_PROCESSES_COUNT > 0"
+		},
+		{
+			"name": "存在僵尸进程",
+			"level": "WARN",
+			"rule": "$.DEFUNC_PROCESSES_COUNT > 0"
+		},
+		{
+			"name": "僵尸进程数量超过15",
+			"level": "WARN",
+			"rule": "$.DEFUNC_PROCESSES_COUNT > 15"
+		},
+		{
+			"name": "NTP偏移超过5分钟",
+			"level": "WARN",
+			"rule": "$.NTP_OFFSET_SECS > 300"
+		},
+		{
+			"name": "NTP偏移超过30分钟",
+			"level": "CRITICAL",
+			"rule": "$.NTP_OFFSET_SECS > 1800"
 		}
 	],
 	"COLLECT_DB": [{
