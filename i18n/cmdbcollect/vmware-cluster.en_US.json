@@ -1,0 +1,28 @@
+{
+    "label": "Vmware-Cluster",
+    "collection": "COLLECT_VIRTUALIZED",
+    "filter": {
+        "_OBJ_TYPE": "VMWARE-CLUSTER"
+    },
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "DESCRIPTION",
+            "desc": "Description",
+            "type": "String"
+        }
+    ]
+}

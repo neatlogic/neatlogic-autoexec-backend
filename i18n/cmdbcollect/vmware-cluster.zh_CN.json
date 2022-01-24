@@ -1,0 +1,28 @@
+{
+    "label": "Vmware-Cluster",
+    "collection": "COLLECT_VIRTUALIZED",
+    "filter": {
+        "_OBJ_TYPE": "VMWARE-CLUSTER"
+    },
+    "fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "DESCRIPTION",
+            "desc": "描述",
+            "type": "String"
+        }
+    ]
+}
