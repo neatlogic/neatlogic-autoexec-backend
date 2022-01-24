@@ -91,6 +91,21 @@
 			"rule": "$.MEM_PERCENT >= 95"
 		},
 		{
+			"name": "打开文件使用率超70%",
+			"level": "WARN",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 70"
+		},
+		{
+			"name": "打开文件使用率超80%",
+			"level": "CRITICAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 80"
+		},
+		{
+			"name": "打开文件使用率超90%",
+			"level": "FATAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 90"
+		},
+		{
 			"name": "监听BackLog超25",
 			"level": "WARN",
 			"rule": "$.LISTEN_STATS.QUEUED >= 25"
@@ -98,32 +113,32 @@
 		{
 			"name": "监听BackLog超25,服务响应不足",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.SYN_RECV_COUNT >= 0"
+			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT >= 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT >= 16 and $.CONN_STATS.RECV_QUEUED_RATE >= 50"
+			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
 		},
 		{
 			"name": "下游应用失去响应，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT >= 4"
+			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
 		},
 		{
 			"name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT >= 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE >= 50"
+			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
 		}
 	],
 	"Oracle": [{
@@ -187,6 +202,21 @@
 			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 95"
 		},
 		{
+			"name": "打开文件使用率超70%",
+			"level": "WARN",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 70"
+		},
+		{
+			"name": "打开文件使用率超80%",
+			"level": "CRITICAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 80"
+		},
+		{
+			"name": "打开文件使用率超90%",
+			"level": "FATAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 90"
+		},
+		{
 			"name": "监听BackLog超25",
 			"level": "WARN",
 			"rule": "$.LISTEN_STATS.QUEUED >= 25"
@@ -194,32 +224,32 @@
 		{
 			"name": "监听BackLog超25,服务响应不足",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.SYN_RECV_COUNT >= 0"
+			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT >= 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT >= 16 and $.CONN_STATS.RECV_QUEUED_RATE >= 50"
+			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
 		},
 		{
 			"name": "下游应用失去响应，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT >= 4"
+			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
 		},
 		{
 			"name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT >= 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE >= 50"
+			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
 		}
 	],
 	"COLLECT_INS": [{
@@ -275,32 +305,32 @@
 		{
 			"name": "监听BackLog超25,服务响应不足",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.SYN_RECV_COUNT >= 0"
+			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT >= 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
 			"level": "CRITICAL",
-			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT >= 16 and $.CONN_STATS.RECV_QUEUED_RATE >= 50"
+			"rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
 		},
 		{
 			"name": "下游应用失去响应，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT >= 4"
+			"rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
 		},
 		{
 			"name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
 			"level": "WARN",
-			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT >= 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE >= 50"
+			"rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
 		}
 	]
 }
