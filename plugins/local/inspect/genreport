@@ -223,7 +223,8 @@ def inspectData(nodeInfo):
 
                 needFieldsMap = {
                     'AVAILABILITY': 1,
-                    'ERROR_MESSAGE': 1
+                    'ERROR_MESSAGE': 1,
+                    'RESPONSE_TIME': 1
                 }
                 objCatFieldsMap[objCat] = needFieldsMap
                 for fieldDef in inspectDef['fields']:

@@ -68,6 +68,7 @@ def getDefaultFieldKeys():
         'KERNEL_VERSION',
         'OPEN_FILES_COUNT',
         'MAX_OPEN_FILES',
+        'OPEN_FILES_INFO',
         'MAX_USER_PROCESS_COUNT',
         'OS_USER',
         'INSTALL_PATH',

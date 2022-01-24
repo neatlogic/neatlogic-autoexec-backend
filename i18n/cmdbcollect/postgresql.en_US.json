@@ -91,6 +91,33 @@
             "type": "String"
         },
         {
+            "name": "OPEN_FILES_INFO",
+            "desc": "Open Files",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "String"
+                },
+                {
+                    "name": "OPEN",
+                    "desc": "Open Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "Max Limit",
+                    "type": "Int"
+                },
+                {
+                    "name": "RATE",
+                    "desc": "Used%",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
             "name": "OS_USER",
             "desc": "OS User",
             "type": "String"

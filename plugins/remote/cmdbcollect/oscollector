@@ -170,9 +170,23 @@ sub mergeMultiProcs {
         }
 
         if ( defined($parentTopInfo) ) {
-            $parentTopInfo->{CPU_PERCENT}      = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
-            $parentTopInfo->{MEM_PERCENT}      = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
-            $parentTopInfo->{MEM_USED}         = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+            $parentTopInfo->{CPU_PERCENT} = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
+            $parentTopInfo->{MEM_PERCENT} = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
+            $parentTopInfo->{MEM_USED}    = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+
+            my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
+            my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
+            my $openFilesRate     = 0;
+            if ( $maxOpenFilesCount > 0 ) {
+                $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+            }
+            my $openFilesInfo = $info->{OPEN_FILES_INFO};
+            if ( not defined($openFilesInfo) ) {
+                $openFilesInfo = [];
+                $info->{OPEN_FILES_INFO} = $openFilesInfo;
+            }
+            push( @$openFilesInfo, { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } );
+
             $parentTopInfo->{OPEN_FILES_COUNT} = $parentTopInfo->{OPEN_FILES_COUNT} + $pFinder->getProcOpenFilesCount($pid);
 
             my $parentConnInfo  = $parentTopInfo->{PROC_INFO}->{CONN_INFO};
@@ -214,7 +228,13 @@ sub mergeMultiProcs {
 
         }
         else {
-            $info->{OPEN_FILES_COUNT} = $pFinder->getProcOpenFilesCount($pid);
+            my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
+            my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
+            my $openFilesRate     = 0;
+            if ( $maxOpenFilesCount > 0 ) {
+                $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+            }
+            $info->{OPEN_FILES_INFO} = [ { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } ];
         }
     }
     print("INFO: Connection information merged.\n");
@@ -428,7 +448,7 @@ sub doDetailCollect {
             $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
         }
 
-        my $envMap      = delete($procInfo->{ENVIRONMENT});
+        my $envMap      = delete( $procInfo->{ENVIRONMENT} );
         my $insNamePath = $envMap->{TS_INSNAME};
         if ( defined($insNamePath) and $insNamePath ne '' ) {
             my @insPaths = split( '/', $insNamePath );
@@ -467,7 +487,7 @@ sub doDetailCollect {
 
         my @envEntries = ();
         while ( my ( $envName, $envVal ) = each(%$envMap) ) {
-            push(@envEntries, {NAME=>$envName, VALUE=>$envVal});
+            push( @envEntries, { NAME => $envName, VALUE => $envVal } );
         }
         $appInfo->{MAIN_ENV} = \@envEntries;
 

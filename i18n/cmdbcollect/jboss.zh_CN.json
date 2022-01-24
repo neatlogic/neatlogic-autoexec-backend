@@ -145,9 +145,31 @@
             "type": "String"
         },
         {
-            "name": "OPEN_FILES_COUNT",
+            "name": "OPEN_FILES_INFO",
             "desc": "打开文件数",
-            "type": "Float"
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "进程号",
+                    "type": "String"
+                },
+                {
+                    "name": "OPEN",
+                    "desc": "打开数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "最大值",
+                    "type": "Int"
+                },
+                {
+                    "name": "RATE",
+                    "desc": "使用率%",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "OS_USER",
