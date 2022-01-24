@@ -63,6 +63,7 @@ sub main {
     };
 
     print("INFO: Try to ssh logon to $host:$port.\n");
+    my $startTime = time();
     my $ssh = Net::OpenSSH->new(
         $host,
         port        => $port,
@@ -71,6 +72,10 @@ sub main {
         timeout     => 10,
         master_opts => [ -o => "StrictHostKeyChecking=no" ]
     );
+
+    my $responseTime = time() - $startTime;
+    $data->{RESPONSE_TIME} = $responseTime;
+    
     if ( not $ssh->error ) {
         my $out = $ssh->capture("echo HEALTH_OK");
         if ( $out =~ /HEALTH_OK/ ) {

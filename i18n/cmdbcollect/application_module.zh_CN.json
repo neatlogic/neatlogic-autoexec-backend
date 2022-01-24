@@ -16,6 +16,21 @@
             "type": "String"
         },
         {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
             "name": "APPMODULE_NAME",
             "desc": "应用模块简称",
             "type": "String"

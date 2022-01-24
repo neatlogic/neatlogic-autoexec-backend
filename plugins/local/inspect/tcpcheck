@@ -63,12 +63,16 @@ sub main {
     };
 
     print("INFO: Try to connect to $host:$port.\n");
+    my $startTime = time();
     eval {
         my $socket = IO::Socket::INET->new(
             PeerHost => $host,
             PeerPort => $port,
             Timeout  => $timeout
         );
+
+        my $responseTime = time() - $startTime;
+        $data->{RESPONSE_TIME} = $responseTime;
 
         if ( defined($socket) ) {
             $data->{AVAILABILITY}  = 1;
@@ -84,6 +88,9 @@ sub main {
         }
     };
     if ($@) {
+        my $responseTime = time() - $startTime;
+        $data->{RESPONSE_TIME} = $responseTime;
+        
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
         $data->{'ERROR_MESSAGE'} = $errMsg;

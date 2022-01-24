@@ -21,9 +21,29 @@
             "type": "String"
         },
         {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
         },
         {
             "name": "ACCESS_ENDPOINT",
@@ -81,11 +101,6 @@
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
             "type": "array"
-        },
-        {
-            "name": "VIP",
-            "desc": "VIP",
-            "type": "String"
         }
     ]
 }

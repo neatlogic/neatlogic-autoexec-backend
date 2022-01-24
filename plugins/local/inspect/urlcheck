@@ -68,6 +68,7 @@ sub main {
 
     my $webCtl = WebCtl->new();
     print("INFO: Begin url check...\n");
+    my $startTime = time();
     eval {
         foreach my $req (@requests) {
             my @reqInfo = split( /\s*,\s*/, $req );
@@ -104,6 +105,9 @@ sub main {
             print("INFO: Http request succeed.\n");
         }
     };
+    my $responseTime = time() - $startTime;
+    $data->{RESPONSE_TIME} = $responseTime;
+    
     if ($@) {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;

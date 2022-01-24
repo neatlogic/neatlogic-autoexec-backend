@@ -19,16 +19,6 @@
             "type": "Int"
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -42,6 +32,16 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "端口列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "ACCESS_ENDPOINT",

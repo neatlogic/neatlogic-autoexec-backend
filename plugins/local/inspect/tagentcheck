@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import time
 import traceback
 import json
 import AutoExecUtils
@@ -44,7 +45,7 @@ if __name__ == "__main__":
 
         errMsg = None
         print("INFO: Try to connect to Tagent $host:$port.\n")
-
+        startTime = time.time()
         tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
 
         data = {'MGMT_IP': nodeInfo['host'],
@@ -55,13 +56,17 @@ if __name__ == "__main__":
 
         try:
             tagent.echo(None, "Agent logon success.\n", 1)
+            timeConsume = round(time.time() - startTime, 4)
             data['AVAILABILITY'] = 1
             data['ERROR_MESSAGE'] = ''
+            data['RESPONSE_TIME'] = timeConsume
             print("FINEST: Tagent logon succeed.\n")
         except Exception as ex:
+            timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
             data['AVAILABILITY'] = 0
             data['ERROR_MESSAGE'] = errMsg
+            data['RESPONSE_TIME'] = timeConsume
 
         out = {'DATA': data}
         AutoExecUtils.saveOutput(out)

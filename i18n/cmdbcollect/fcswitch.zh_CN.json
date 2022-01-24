@@ -21,6 +21,21 @@
             "type": "String"
         },
         {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
             "name": "PORTS",
             "desc": "端口列表",
             "type": "JsonArray",
