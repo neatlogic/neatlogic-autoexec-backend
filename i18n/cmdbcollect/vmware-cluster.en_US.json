@@ -1,6 +1,7 @@
 {
     "label": "Vmware-Cluster",
     "collection": "COLLECT_VIRTUALIZED",
+    "docroot": "DATACENTER.CLUSTER",
     "filter": {
         "_OBJ_TYPE": "VMWARE-CLUSTER"
     },

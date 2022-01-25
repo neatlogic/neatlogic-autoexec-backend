@@ -1,6 +1,7 @@
 {
     "label": "Linux",
     "collection": "COLLECT_OS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Linux"
     },

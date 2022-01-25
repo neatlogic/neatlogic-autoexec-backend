@@ -1,6 +1,7 @@
 {
     "label": "OS",
     "collection": "COLLECT_OS",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

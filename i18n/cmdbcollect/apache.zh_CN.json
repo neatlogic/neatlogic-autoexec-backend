@@ -1,6 +1,7 @@
 {
     "label": "Apache",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Apache"
     },

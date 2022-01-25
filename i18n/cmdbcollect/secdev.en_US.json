@@ -1,6 +1,7 @@
 {
     "label": "Security Device",
     "collection": "COLLECT_SECDEV",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

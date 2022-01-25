@@ -1,6 +1,7 @@
 {
     "label": "未安装VMTool",
     "collection": "COLLECT_OS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },

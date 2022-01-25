@@ -1,6 +1,7 @@
 {
     "label": "Firewall",
     "collection": "COLLECT_SECDEV",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "FireWall"
     },

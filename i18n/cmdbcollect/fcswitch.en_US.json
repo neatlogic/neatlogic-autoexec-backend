@@ -1,6 +1,7 @@
 {
     "label": "FCSwitch",
     "collection": "COLLECT_FCDEV",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },

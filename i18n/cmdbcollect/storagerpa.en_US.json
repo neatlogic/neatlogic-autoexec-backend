@@ -1,6 +1,7 @@
 {
     "label": "EMC RPA",
     "collection": "COLLECT_STORAGE",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "RPA"
     },

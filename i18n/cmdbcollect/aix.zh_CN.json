@@ -1,6 +1,7 @@
 {
     "label": "AIX",
     "collection": "COLLECT_OS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "AIX"
     },

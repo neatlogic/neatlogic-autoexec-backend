@@ -1,6 +1,7 @@
 {
     "label": "Host",
     "collection": "COLLECT_HOST",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

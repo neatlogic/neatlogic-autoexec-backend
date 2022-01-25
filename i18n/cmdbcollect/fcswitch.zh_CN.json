@@ -1,6 +1,7 @@
 {
     "label": "光纤交换机",
     "collection": "COLLECT_FCDEV",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },

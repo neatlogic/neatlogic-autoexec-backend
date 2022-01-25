@@ -1,6 +1,7 @@
 {
     "label": "安全设备",
     "collection": "COLLECT_SECDEV",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

@@ -1,6 +1,7 @@
 {
     "label": "Switch",
     "collection": "COLLECT_NETDEV",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Switch"
     },

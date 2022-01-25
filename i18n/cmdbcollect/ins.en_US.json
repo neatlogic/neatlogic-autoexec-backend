@@ -1,6 +1,7 @@
 {
     "label": "App Instance",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

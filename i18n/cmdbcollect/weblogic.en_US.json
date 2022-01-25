@@ -1,6 +1,7 @@
 {
     "label": "Weblogic",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Weblogic"
     },

@@ -1,6 +1,7 @@
 {
     "label": "应用实例",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

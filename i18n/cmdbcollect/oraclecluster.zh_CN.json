@@ -1,6 +1,7 @@
 {
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "OracleCluster"
     },

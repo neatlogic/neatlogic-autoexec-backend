@@ -1,6 +1,7 @@
 {
     "label": "DB",
     "collection": "COLLECT_DB",
+    "docroot": null,
     "filter": {},
     "fields": [
         {
