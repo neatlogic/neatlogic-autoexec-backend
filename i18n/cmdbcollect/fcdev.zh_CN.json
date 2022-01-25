@@ -1,6 +1,7 @@
 {
     "label": "存储网络设备",
     "collection": "COLLECT_FCDEV",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

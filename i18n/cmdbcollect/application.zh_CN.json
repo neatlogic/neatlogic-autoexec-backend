@@ -1,6 +1,7 @@
 {
     "label": "应用",
     "collection": "COLLECT_APPLICATION",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "APPLICATION"
     },

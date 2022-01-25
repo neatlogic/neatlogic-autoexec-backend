@@ -1,6 +1,7 @@
 {
     "label": "防火墙",
     "collection": "COLLECT_SECDEV",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "FireWall"
     },

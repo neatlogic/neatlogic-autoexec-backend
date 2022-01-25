@@ -1,6 +1,7 @@
 {
     "label": "访问入口",
     "collection": "COLLECT_ACCESSENDPOINT",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

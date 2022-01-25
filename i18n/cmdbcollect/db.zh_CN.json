@@ -1,6 +1,7 @@
 {
     "label": "数据库",
     "collection": "COLLECT_DB",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

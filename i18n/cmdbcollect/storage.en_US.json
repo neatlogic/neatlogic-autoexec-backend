@@ -1,6 +1,7 @@
 {
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

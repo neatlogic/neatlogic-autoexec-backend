@@ -1,6 +1,7 @@
 {
     "label": "空对象",
     "collection": "COLLECT_EMPTY",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

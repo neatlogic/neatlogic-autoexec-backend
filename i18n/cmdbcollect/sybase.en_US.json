@@ -1,6 +1,7 @@
 {
     "label": "SyBase",
     "collection": "COLLECT_DB",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "SyBase"
     },

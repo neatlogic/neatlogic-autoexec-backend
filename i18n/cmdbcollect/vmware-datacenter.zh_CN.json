@@ -5,7 +5,8 @@
     "filter": {
         "_OBJ_TYPE": "VMWARE-DATACENTER"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"

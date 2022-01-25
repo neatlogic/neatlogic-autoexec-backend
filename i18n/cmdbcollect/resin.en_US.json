@@ -1,6 +1,7 @@
 {
     "label": "Resin",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Resin"
     },

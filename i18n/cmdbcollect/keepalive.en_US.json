@@ -1,6 +1,7 @@
 {
     "label": "Keepalived",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Keepalived"
     },

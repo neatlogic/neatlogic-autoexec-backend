@@ -1,6 +1,7 @@
 {
     "label": "Application Module",
     "collection": "COLLECT_APPLICATION",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "APPLICATION_MODULE"
     },

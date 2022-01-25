@@ -1,6 +1,7 @@
 {
     "label": "A10",
     "collection": "COLLECT_LOADBALANCER",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "A10"
     },

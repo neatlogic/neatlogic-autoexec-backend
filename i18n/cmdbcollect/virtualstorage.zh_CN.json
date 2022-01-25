@@ -1,6 +1,7 @@
 {
     "label": "虚拟存储",
     "collection": "COLLECT_STORAGE",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },

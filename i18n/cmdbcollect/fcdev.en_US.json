@@ -1,6 +1,7 @@
 {
     "label": "Storage NetDev",
     "collection": "COLLECT_FCDEV",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

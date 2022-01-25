@@ -1,6 +1,7 @@
 {
     "label": "RabbitMQ",
     "collection": "COLLECT_INS",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "RabbitMQ"
     },

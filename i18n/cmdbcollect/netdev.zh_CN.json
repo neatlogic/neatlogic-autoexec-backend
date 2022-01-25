@@ -1,6 +1,7 @@
 {
     "label": "网络设备",
     "collection": "COLLECT_NETDEV",
+    "docroot": null,
     "filter": {},
     "fields": [
         {

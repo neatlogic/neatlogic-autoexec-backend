@@ -1,6 +1,7 @@
 {
     "label": "Mysql",
     "collection": "COLLECT_DB",
+    "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Mysql"
     },
