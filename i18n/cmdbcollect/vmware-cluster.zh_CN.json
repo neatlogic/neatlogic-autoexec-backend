@@ -24,6 +24,74 @@
             "name": "NAME",
             "desc": "名称",
             "type": "String"
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        },
+        {
+            "name": "DATASTORE",
+            "desc": "存储",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NETWORK",
+            "desc": "网络",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_HOST",
+            "desc": "包含物理机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UUID",
+                    "desc": "uuid",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_VMS",
+            "desc": "包含虚拟机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MGMT_IP",
+                    "desc": "vcenter IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VM_ID",
+                    "desc": "虚拟机ID",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }
