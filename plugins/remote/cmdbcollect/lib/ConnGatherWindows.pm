@@ -26,7 +26,7 @@ sub getCPULogicCoreCount {
 
     my $utils                 = $self->{collectUtils};
     my $cpuLogicCores         = 0;
-    my $cpuLogicCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
+    my $cpuLogicCorsInfoLines = $utils->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
     foreach my $line (@$cpuLogicCorsInfoLines) {
         $line =~ s/^\s*|\s*$//g;
         $cpuLogicCores = $cpuLogicCores + int($line);
