@@ -204,7 +204,7 @@ sub getIpAddrs {
     # {"192.168.0.35"}  {"255.255.255.0"}
     my @ipV4Addrs   = ();
     my $ipInfoLines = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet');
-    foreach my $line (@ipInfoLines) {
+    foreach my $line (@$ipInfoLines) {
         if ( $line =~ /\{"(.*?)"\}\s+\{"(.*?)"\}/ ) {
             my $ip      = $1;
             my $netmask = $2;

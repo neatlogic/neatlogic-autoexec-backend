@@ -1,11 +1,11 @@
 {
     "label": "Vmware-Cluster",
     "collection": "COLLECT_VIRTUALIZED",
+    "docroot": "DATACENTER.CLUSTER",
     "filter": {
         "_OBJ_TYPE": "VMWARE-CLUSTER"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
