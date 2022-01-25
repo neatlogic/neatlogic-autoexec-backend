@@ -51,7 +51,7 @@ sub getCPUInfo {
 
     $osInfo->{BOARD_SERIAL}         = $prtConfInfo->{'Machine Serial Number'};
     $osInfo->{CPU_MODEL_NAME}       = $prtConfInfo->{'System Model'};
-    $osInfo->{CPU_CORES}            = $prtConfInfo->{'Number Of Processors'};
+    $osInfo->{CPU_CORES}            = int($prtConfInfo->{'Number Of Processors'});
     $osInfo->{CPU_BITS}             = int( $prtConfInfo->{'CPU Type'} );
     $osInfo->{CPU_ARCH}             = $prtConfInfo->{'Processor Type'};
     $osInfo->{CPU_VERSION}          = $prtConfInfo->{'Processor Version'};

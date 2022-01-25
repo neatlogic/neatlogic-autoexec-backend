@@ -183,6 +183,11 @@
             "type": "Float"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "CPU逻辑核数",
+            "type": "String"
+        },
+        {
             "name": "MIN_HEAP_SIZE",
             "desc": "最小Heap Size",
             "type": "Float"

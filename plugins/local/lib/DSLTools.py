@@ -94,7 +94,7 @@ def Parser(ruleTxt):
     value = number | string
     fieldName = pp.pyparsing_common.identifier | string
 
-    cmpOperator = pp.oneOf('= == != >= <= < > contains startswith')
+    cmpOperator = pp.oneOf('= == != >= <= < > + - * / contains startswith')
     AND = pp.CaselessLiteral("and")
     OR = pp.CaselessLiteral("or")
     NOT = pp.CaselessLiteral("not")
@@ -167,6 +167,10 @@ class Interpreter(object):
             '<=': operator.le,
             '<': operator.lt,
             '>': operator.gt,
+            '+': operator.add,
+            '-': operator.sub,
+            '*': operator.mul,
+            '/': operator.truediv,
             'contains': operator.contains,
             'startswith': _startswith,
             'and': _and,
@@ -344,7 +348,9 @@ class Interpreter(object):
 
         recordFieldName = operands[0]
         recordFieldVal = None
-        if not isinstance(recordFieldName, bool):
+        # 如果字段选择规则的左操作数是字符串，则判断为字段名
+        # 因为计算最终只能产生数值或者bool类型的结果
+        if isinstance(recordFieldName, str):
             recordFieldVal = self.resolveValue(record, recordFieldName)
         else:
             recordFieldVal = recordFieldName

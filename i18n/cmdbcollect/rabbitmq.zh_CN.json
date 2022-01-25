@@ -192,6 +192,11 @@
             "type": "Float"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "CPU逻辑核数",
+            "type": "String"
+        },
+        {
             "name": "MEM_PERCENT",
             "desc": "内存使用率%",
             "type": "Float"

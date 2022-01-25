@@ -62,7 +62,7 @@ def getAutoexecContext():
 
 
 def saveOutput(outputData):
-    outputPath = os.gentenv('OUTPUT_PATH')
+    outputPath = os.getenv('OUTPUT_PATH')
     print("INFO: Try save output to {}.\n".format(outputPath))
     if outputPath is not None and outputPath != '':
         outputFile = open(outputPath, 'w')

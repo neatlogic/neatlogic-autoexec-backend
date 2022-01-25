@@ -98,13 +98,18 @@
             "type": "String"
         },
         {
-            "name": "CPU_CORES",
-            "desc": "cpu核数",
+            "name": "CPU_PERCENT",
+            "desc": "CPU使用率%",
             "type": "Float"
         },
         {
-            "name": "CPU_PERCENT",
-            "desc": "CPU使用率%",
+            "name": "CPU_CORES",
+            "desc": "CPU核数",
+            "type": "Int"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu逻辑核数",
             "type": "Float"
         },
         {
@@ -364,11 +369,6 @@
         {
             "name": "CPU_COUNT",
             "desc": "CPU数量",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_LOGIC_CORES",
-            "desc": "Cpu逻辑核数",
             "type": "Float"
         },
         {

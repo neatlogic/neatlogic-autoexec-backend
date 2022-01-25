@@ -9,13 +9,30 @@ package ConnGatherWindows;
 #use parent 'ConnGatherBase';    #继承BASECollector
 use ConnGatherBase;
 our @ISA = qw(ConnGatherBase);
+use CollectUtils;
 
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
-    $self->{inspect} = $inspect;
+    $self->{inspect}      = $inspect;
+    $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
+    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     return $self;
+}
+
+sub getCPULogicCoreCount {
+    my ($self) = @_;
+
+    my $utils                 = $self->{collectUtils};
+    my $cpuLogicCores         = 0;
+    my $cpuLogicCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
+    foreach my $line (@$cpuLogicCorsInfoLines) {
+        $line =~ s/^\s*|\s*$//g;
+        $cpuLogicCores = $cpuLogicCores + int($line);
+    }
+
+    return $cpuLogicCores;
 }
 
 sub parseListenLines {

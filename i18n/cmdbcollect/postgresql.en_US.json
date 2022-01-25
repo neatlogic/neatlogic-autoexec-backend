@@ -138,6 +138,11 @@
             "type": "Float"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu Logic Cores",
+            "type": "String"
+        },
+        {
             "name": "MEM_PERCENT",
             "desc": "Memory%",
             "type": "Float"

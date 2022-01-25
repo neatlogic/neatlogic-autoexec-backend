@@ -125,14 +125,14 @@
             "type": "Float"
         },
         {
-            "name": "CPU_CORES",
-            "desc": "CPU核数",
-            "type": "String"
-        },
-        {
             "name": "CPU_PERCENT",
             "desc": "CPU使用率%",
             "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU核数",
+            "type": "Int"
         },
         {
             "name": "IOWAIT_PERCENT",

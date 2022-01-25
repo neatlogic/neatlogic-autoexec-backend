@@ -7,13 +7,43 @@ package ConnGatherBase;
 use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
+use CollectUtils;
 
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
-    $self->{inspect} = $inspect;
+    $self->{inspect}      = $inspect;
+    $self->{collectUtils} = CollectUtils->new();
+
     bless( $self, $type );
+    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     return $self;
+}
+
+sub getCPULogicCoreCount {
+    my ($self) = @_;
+
+    my $utils = $self->{collectUtils};
+
+    my $cpuCount     = 0;
+    my $cpuInfoLines = $utils->getFileLines('/proc/cpuinfo');
+    my $pCpuMap      = {};
+    my $cpuInfo      = {};
+    for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
+        my $line = $$cpuInfoLines[$i];
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line ne '' ) {
+            my @info = split( /\s*:\s*/, $line );
+            $cpuInfo->{ $info[0] } = $info[1];
+            if ( $info[0] eq 'physical id' ) {
+                $pCpuMap->{ $info[1] } = 1;
+            }
+        }
+    }
+    my $cpuCount      = scalar( keys(%$pCpuMap) );
+    my $cpuLogicCores = $cpuCount * $cpuInfo->{siblings};
+
+    return $cpuLogicCores;
 }
 
 sub parseListenLines {

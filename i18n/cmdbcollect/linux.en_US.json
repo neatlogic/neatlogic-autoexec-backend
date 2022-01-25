@@ -125,14 +125,19 @@
             "type": "Float"
         },
         {
-            "name": "CPU_CORES",
-            "desc": "Cpu Cores",
-            "type": "String"
-        },
-        {
             "name": "CPU_PERCENT",
             "desc": "CPU%",
             "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "Cpu Cores",
+            "type": "Int"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu Logic Cores",
+            "type": "Int"
         },
         {
             "name": "IOWAIT_PERCENT",

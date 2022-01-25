@@ -9,20 +9,41 @@ package ConnGatherAIX;
 #use parent 'ConnGatherBase';    #继承BASECollector
 use ConnGatherBase;
 our @ISA = qw(ConnGatherBase);
+use CollectUtils;
 
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
-    $self->{inspect} = $inspect;
+    $self->{inspect}      = $inspect;
+    $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
 
-    $self->{procConnStats} = {};
+    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
+    $self->{procConnStats}   = {};
     my ( $lsnBackLogMap, $lsnPortsMap ) = $self->getListenPorts();
     $self->{lsnPortsMap}   = $lsnPortsMap;
     $self->{lsnBackLogMap} = $lsnBackLogMap;
     $self->{remoteAddrs}   = $self->getRemoteAddrs($lsnPortsMap);
 
     return $self;
+}
+
+sub getCPULogicCoreCount {
+    my ($self) = @_;
+
+    my $cpuLogicCores = 0;
+    my $utils         = $self->{collectUtils};
+    my $prtConfLines  = $utils->getCmdOutLines('prtconf');
+    foreach my $line (@$prtConfLines) {
+        if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
+            if ( $1 eq 'Number Of Processors' ) {
+                $cpuLogicCores = int($2);
+                last;
+            }
+        }
+    }
+
+    return $cpuLogicCores;
 }
 
 sub findSockPid {

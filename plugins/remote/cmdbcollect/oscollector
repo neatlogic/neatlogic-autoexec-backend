@@ -150,7 +150,7 @@ sub collectHostOSInfo {
 
 #处理存在父子关系的进程的连接信息，并合并到父进程
 sub mergeMultiProcs {
-    my ( $pFinder, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
+    my ( $pFinder, $osInfo, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
 
     my $pidToDel = ();
     my @apps     = ();
@@ -330,6 +330,7 @@ sub mergeMultiProcs {
             if ( not defined( $appInfo->{MON_PORT} ) ) {
                 $appInfo->{MON_PORT} = $appInfo->{PORT};
             }
+
             push( @apps, $appInfo );
         }
     }
@@ -431,13 +432,21 @@ sub doDetailCollect {
             $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
         }
 
-        $appInfo->{PID}         = $procInfo->{PID};
-        $appInfo->{OS_ID}       = $procInfo->{OS_ID};
-        $appInfo->{OS_USER}     = $procInfo->{USER};
-        $appInfo->{COMMAND}     = $procInfo->{COMMAND};
-        $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
-        $appInfo->{MGMT_PORT}   = $procInfo->{MGMT_PORT};
-        $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'} + 0.0;
+        $appInfo->{PID}       = $procInfo->{PID};
+        $appInfo->{OS_ID}     = $procInfo->{OS_ID};
+        $appInfo->{OS_USER}   = $procInfo->{USER};
+        $appInfo->{COMMAND}   = $procInfo->{COMMAND};
+        $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
+        $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+
+        my $cpuLogicCores = $connGather->{CPU_LOGIC_CORES};
+        $appInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
+        if ( $cpuLogicCores > 0 ) {
+            $appInfo->{CPU_PERCENT} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
+        }
+        else {
+            $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'} + 0.0;
+        }
 
         if ( $osType eq 'Windows' ) {
             $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;
@@ -608,7 +617,7 @@ sub main {
     my $appsMap = $pFinder->findProcess();
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
-    my $apps = mergeMultiProcs( $pFinder, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
+    my $apps = mergeMultiProcs( $pFinder, $osInfo, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
 
     #保存数据到output
     print("INFO: Begin to save collected data.\n");

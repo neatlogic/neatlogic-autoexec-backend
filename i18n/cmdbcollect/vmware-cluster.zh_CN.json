@@ -4,7 +4,8 @@
     "filter": {
         "_OBJ_TYPE": "VMWARE-CLUSTER"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -15,13 +16,13 @@
             "type": "String"
         },
         {
-            "name": "NAME",
-            "desc": "名称",
+            "name": "DESCRIPTION",
+            "desc": "描述",
             "type": "String"
         },
         {
-            "name": "DESCRIPTION",
-            "desc": "描述",
+            "name": "NAME",
+            "desc": "名称",
             "type": "String"
         }
     ]

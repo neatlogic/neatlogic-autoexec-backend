@@ -192,6 +192,11 @@
             "type": "Float"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu Logic Cores",
+            "type": "String"
+        },
+        {
             "name": "MAX_HEAP_SIZE",
             "desc": "Max Heap Size",
             "type": "Float"
