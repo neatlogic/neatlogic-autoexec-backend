@@ -25,6 +25,74 @@
             "name": "NAME",
             "desc": "Name",
             "type": "String"
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        },
+        {
+            "name": "DATASTORE",
+            "desc": "DataStore",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NETWORK",
+            "desc": "Network",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_HOST",
+            "desc": "Contain Host",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UUID",
+                    "desc": "UUID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_VMS",
+            "desc": "Contain Virtual System",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Vcenter IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VM_ID",
+                    "desc": "Virtual System ID",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }
