@@ -140,8 +140,17 @@ class ServerAdapter:
             'jobId': self.context.jobId
         }
 
+        lastModifiedTime = 0
+        paramsFilePath = self.context.paramsFilePath
+        if os.path.exists(paramsFilePath):
+            lastModifiedTime = os.path.getmtime(paramsFilePath)
+        params['lastModified'] = lastModifiedTime
+
         paramsFile = None
         try:
+            paramsFile = open(paramsFilePath, 'a+')
+            fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+
             response = self.httpJSON(self.apiMap['getParams'], self.authToken, params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset)
@@ -149,9 +158,7 @@ class ServerAdapter:
             if response.status == 200:
                 if retObj['Status'] == 'OK':
                     params = retObj['Return']
-                    paramsFilePath = self.context.paramsFilePath
-                    paramsFile = open(paramsFilePath, 'w')
-                    fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+                    paramsFile.truncate(0)
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
                     return params
                 else:
@@ -178,20 +185,20 @@ class ServerAdapter:
 
         lastModifiedTime = 0
         nodesFilePath = self.context.getNodesFilePath(phase)
-        nodesFile = open(nodesFilePath, 'w')
-        fcntl.lockf(nodesFile, fcntl.LOCK_EX)
+        if os.path.exists(nodesFilePath):
+            lastModifiedTime = os.path.getmtime(nodesFilePath)
+        params['lastModified'] = lastModifiedTime
 
+        nodesFile = None
         try:
-            if os.path.exists(nodesFilePath):
-                lastModifiedTime = os.path.getmtime(nodesFilePath)
-
-            params['lastModified'] = lastModifiedTime
+            nodesFile = open(nodesFilePath, 'a+')
+            fcntl.lockf(nodesFile, fcntl.LOCK_EX)
 
             # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
             response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
             if response.status == 200:
-                nodesFile = open(nodesFilePath, 'w')
+                nodesFile.truncate(0)
                 for line in response:
                     nodesFile.write(str(line, encoding='utf-8'))
                     nodesFile.write("\n")
@@ -207,8 +214,9 @@ class ServerAdapter:
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
         finally:
-            fcntl.lockf(nodesFile, fcntl.LOCK_UN)
-            nodesFile.close()
+            if nodesFile:
+                fcntl.lockf(nodesFile, fcntl.LOCK_UN)
+                nodesFile.close()
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
@@ -343,6 +351,9 @@ class ServerAdapter:
         fileName = None
         response = None
         try:
+            cachedFileTmp = open(cachedFilePathTmp, 'ab+')
+            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+
             response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
@@ -353,8 +364,6 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
-                cachedFileTmp = open(cachedFilePathTmp, 'ab+')
-                fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
                 cachedFileTmp.truncate(0)
                 CHUNK = 16 * 1024
                 while True:
@@ -399,6 +408,9 @@ class ServerAdapter:
         cachedFile = None
         response = None
         try:
+            cachedFileTmp = open(cachedFilePathTmp, 'a+')
+            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+
             response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
 
             if response.status == 200:
@@ -406,9 +418,6 @@ class ServerAdapter:
                 content = response.read().decode(charset)
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
-
-                cachedFileTmp = open(cachedFilePathTmp, 'a+')
-                fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
                 cachedFileTmp.truncate(0)
                 cachedFileTmp.write(scriptContent)
 
