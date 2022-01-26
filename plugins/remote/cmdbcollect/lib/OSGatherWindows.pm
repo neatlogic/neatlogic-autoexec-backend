@@ -202,20 +202,43 @@ sub getIpAddrs {
 
     # IPAddress         IPSubnet
     # {"192.168.0.35"}  {"255.255.255.0"}
+    # IPAddress                                     IPSubnet
+    # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}
     my @ipV4Addrs   = ();
+    my @ipV6Addrs   = ();
     my $ipInfoLines = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet');
     foreach my $line (@$ipInfoLines) {
-        if ( $line =~ /\{"(.*?)"\}\s+\{"(.*?)"\}/ ) {
-            my $ip      = $1;
-            my $netmask = $2;
-            if ( $ip ne '127.0.0.1' ) {
-                push( @ipV4Addrs, { IP => $ip, NETMASK => $netmask } );
+        if ( $line =~ /\{(.*?)\}\s+\{(.*?)\}/ ) {
+            my @ips      = split( /\s*,\s*/, $1 );
+            my @netmasks = split( /\s*,\s*/, $2 );
+
+            my $ipCount = scalar(@ips);
+            for ( my $i = 0 ; $i < $ipCount ; $i++ ) {
+                my $ip = $ips[$i];
+                $ip =~ s/"//g;
+                my $netmask = $netmasks[$i];
+                $netmask =~ s/"//g;
+
+                if ( $ip !~ /^127\./ and $ip ne '::1' ) {
+                    if ( index( $ip, ':' ) > 0 ) {
+                        my $block = Net::Netmask->safe_new("$ip/$netmask");
+                        if ( defined($block) ) {
+                            $netmask = $block->mask();
+                        }
+                        else {
+                            print("WARN: Invalid CIDR $ip/$netmask\n");
+                        }
+                        push( @ipV6Addrs, { IP => $ip, NETMASK => $netmask } );
+                    }
+                    else {
+                        push( @ipV4Addrs, { IP => $ip, NETMASK => $netmask } );
+                    }
+                }
             }
         }
     }
-    $osInfo->{IP_ADDRS} = \@ipV4Addrs;
-
-    #TODO: IPV6 address的采集
+    $osInfo->{IP_ADDRS}   = \@ipV4Addrs;
+    $osInfo->{IPV6_ADDRS} = \@ipV6Addrs;
 }
 
 sub getCPUCores {
@@ -365,8 +388,17 @@ sub getDiskInfo {
 sub getPerformanceInfo {
     my ( $self, $osInfo ) = @_;
 
-    my $cpuPercent = $self->getCmdOut('wmic cpu get loadpercentage');
-    $osInfo->{CPU_PERCENT} = $cpuPercent + 0.0;
+    my $cpuPercentInfo = $self->getCmdOutLines('wmic cpu get loadpercentage');
+
+    my $cpuCount = 0;
+    my $cpuLoad  = 0.0;
+    for my $line (@$cpuPercentInfo) {
+        if ( $line =~ /^[\s\d\.]+$/ ) {
+            $cpuCount = $cpuCount + 1;
+            $cpuLoad  = $cpuLoad + $line;
+        }
+    }
+    $osInfo->{CPU_PERCENT} = int( $cpuLoad * 100 / $cpuCount ) / 100;
 }
 
 sub collectOsInfo {
