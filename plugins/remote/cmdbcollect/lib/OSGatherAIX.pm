@@ -160,12 +160,12 @@ sub getMountPointInfo {
                 my $mountInfo = $diskMountMap->{$mountPoint};
 
                 if ( defined($mountInfo) ) {
-                    $mountInfo->{CAPACITY}      = int( $totalSize * 1000 / 1024 + 0.5 ) / 1000;
-                    $mountInfo->{USED}          = int( $usedSize * 1000 / 1024 + 0.5 ) / 1000;
-                    $mountInfo->{AVAILABLE}     = int( $availSize * 1000 / 1024 + 0.5 ) / 1000;
-                    $mountInfo->{UNIT}          = 'GB';
-                    $mountInfo->{'INODE_USED%'} = $inodeUtility + 0.0;
-                    $mountInfo->{'USED%'}       = $utility + 0.0;
+                    $mountInfo->{CAPACITY}       = int( $totalSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{USED}           = int( $usedSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{AVAILABLE}      = int( $availSize * 1000 / 1024 + 0.5 ) / 1000;
+                    $mountInfo->{UNIT}           = 'GB';
+                    $mountInfo->{INODE_USED_PCT} = $inodeUtility + 0.0;
+                    $mountInfo->{USED_PCT}       = $utility + 0.0;
                 }
             }
         }
@@ -531,7 +531,7 @@ sub getPerformanceInfo {
             $procInfo->{ $fieldNames[$i] } = $fields[$i];
         }
         if ( $procInfo->{'CPU%'} > 10 ) {
-            $procInfo->{'%CPU'} = delete( $procInfo->{'CPU%'} );
+            $procInfo->{CPU_USAGE} = delete( $procInfo->{'CPU%'} );
             push( @cpuTopProc, $procInfo );
         }
     }
@@ -566,11 +566,13 @@ sub getPerformanceInfo {
         }
 
         if ( $procInfo->{'%MEM'} > 10 ) {
+            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
+            $procInfo->{MEM_USAGE} = delete( $procInfo->{'%MEM'} );
             push( @psProcs, $procInfo );
         }
     }
     if ( $#psProcs > 0 ) {
-        my @psProcsSorted = sort { $a->{'%MEM'} <=> $b->{'%MEM'} } @psProcs;
+        my @psProcsSorted = sort { $a->{MEM_USAGE} <=> $b->{MEM_USAGE} } @psProcs;
         @memTopProc = splice( @psProcsSorted, 0, 5 );
     }
 
@@ -591,8 +593,8 @@ sub getPerformanceInfo {
 
     $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
     $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
-    $osInfo->{CPU_PERCENT}       = $userCpu + $sysCpu;
-    $osInfo->{IOWAIT_PERCENT}    = $iowait;
+    $osInfo->{CPU_USAGE}         = $userCpu + $sysCpu;
+    $osInfo->{IOWAIT_PCT}        = $iowait;
 }
 
 sub getInspectMisc {

@@ -124,7 +124,7 @@
             "type": "Float"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU使用率%",
             "type": "Float"
         },
@@ -134,7 +134,7 @@
             "type": "Int"
         },
         {
-            "name": "IOWAIT_PERCENT",
+            "name": "IOWAIT_PCT",
             "desc": "IOWait百分比",
             "type": "Float"
         },
@@ -146,6 +146,11 @@
         {
             "name": "CPU_MODE",
             "desc": "CPU模式",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
             "type": "String"
         },
         {
@@ -239,12 +244,12 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "使用率%",
                     "type": "Float"
                 },
                 {
-                    "name": "INODE_USED%",
+                    "name": "INODE_USED_PCT",
                     "desc": "Inode使用率%",
                     "type": "Float"
                 },
@@ -440,11 +445,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "主板序列号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
             "type": "String"
         },
         {

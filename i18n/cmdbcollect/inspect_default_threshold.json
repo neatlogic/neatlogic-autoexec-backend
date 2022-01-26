@@ -10,44 +10,44 @@
 			"rule": "$.MEM_USAGE >= 90"
 		},
 		{
-			"name": "内存使用率超过95%",
+			"name": "内存使用率超过98%",
 			"level": "FATAL",
-			"rule": "$.MEM_USAGE >= 95"
+			"rule": "$.MEM_USAGE >= 98"
 		},
 		{
 			"name": "CPU使用率超过80%",
 			"level": "WARN",
-			"rule": "$.CPU_PERCENT >= 80"
+			"rule": "$.CPU_USAGE >= 80"
 		},
 		{
 			"name": "CPU使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.CPU_PERCENT >= 90"
+			"rule": "$.CPU_USAGE >= 90"
 		},
 		{
-			"name": "CPU使用率超过95%",
+			"name": "CPU使用率超过98%",
 			"level": "FATAL",
-			"rule": "$.CPU_PERCENT >= 95"
+			"rule": "$.CPU_USAGE >= 98"
 		},
 		{
 			"name": "磁盘空间使用率超过80%",
 			"level": "WARN",
-			"rule": "$.MOUNT_POINTS.\"USED%\" >= 80"
+			"rule": "$.MOUNT_POINTS.USED_PCT >= 80"
 		},
 		{
-			"name": "磁盘空间使用率超过90%",
+			"name": "磁盘空间使用率超过95%",
 			"level": "CRITICAL",
-			"rule": "$.MOUNT_POINTS.\"USED%\" >= 95"
+			"rule": "$.MOUNT_POINTS.USED_PCT >= 95"
 		},
 		{
 			"name": "进程资源消耗超过95%",
 			"level": "WARN",
-			"rule": "$.TOP_MEM_PROCESSES.\"MEM%\" >= 95 or $.TOP_CPU_RPOCESSES.\"CPU%\" >= 95"
+			"rule": "$.TOP_MEM_PROCESSES.MEM_USAGE >= 95 or $.TOP_CPU_RPOCESSES.CPU_USAGE >= 95"
 		},
 		{
 			"name": "IOWAIT超过20%",
 			"level": "WARN",
-			"rule": "$.IOWAIT_PERCENT > 20"
+			"rule": "$.IOWAIT_PCT > 20"
 		},
 		{
 			"name": "存在僵尸进程",
@@ -55,14 +55,9 @@
 			"rule": "$.DEFUNC_PROCESSES_COUNT > 0"
 		},
 		{
-			"name": "存在僵尸进程",
-			"level": "WARN",
-			"rule": "$.DEFUNC_PROCESSES_COUNT > 0"
-		},
-		{
-			"name": "僵尸进程数量超过15",
-			"level": "WARN",
-			"rule": "$.DEFUNC_PROCESSES_COUNT > 15"
+			"name": "僵尸进程数量超过25",
+			"level": "CIRTICAL",
+			"rule": "$.DEFUNC_PROCESSES_COUNT > 25"
 		},
 		{
 			"name": "NTP偏移超过5分钟",
@@ -78,67 +73,67 @@
 	"COLLECT_DB": [{
 			"name": "CPU使用率超过80%",
 			"level": "WARN",
-			"rule": "$.CPU_PERCENT >= 80"
+			"rule": "$.CPU_USAGE >= 80"
 		},
 		{
 			"name": "CPU使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.CPU_PERCENT >= 90"
+			"rule": "$.CPU_USAGE >= 90"
 		},
 		{
 			"name": "CPU使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.CPU_PERCENT >= 95"
+			"rule": "$.CPU_USAGE >= 95"
 		},
 		{
 			"name": "内存使用率超过80%",
 			"level": "WARN",
-			"rule": "$.MEM_PERCENT >= 80"
+			"rule": "$.MEM_USAGE >= 80"
 		},
 		{
 			"name": "内存使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.MEM_PERCENT >= 90"
+			"rule": "$.MEM_USAGE >= 90"
 		},
 		{
 			"name": "内存使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.MEM_PERCENT >= 95"
-		},
-		{
-			"name": "打开文件使用率超70%",
-			"level": "WARN",
-			"rule": "$.OPEN_FILES_INFO.RATE >= 70"
+			"rule": "$.MEM_USAGE >= 95"
 		},
 		{
 			"name": "打开文件使用率超80%",
-			"level": "CRITICAL",
+			"level": "WARN",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 80"
 		},
 		{
 			"name": "打开文件使用率超90%",
-			"level": "FATAL",
+			"level": "CRITICAL",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 90"
 		},
 		{
-			"name": "监听BackLog超25",
+			"name": "打开文件使用率超99%",
+			"level": "FATAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 99"
+		},
+		{
+			"name": "监听BackLog大于0,服务响应不及时",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 0"
 		},
 		{
 			"name": "监听BackLog超25,服务响应不足",
-			"level": "WARN",
+			"level": "CRITICAL",
 			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
-			"level": "CRITICAL",
+			"level": "FATAL",
 			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
@@ -159,97 +154,97 @@
 	"Oracle": [{
 			"name": "CPU使用率超过80%",
 			"level": "WARN",
-			"rule": "$.CPU_PERCENT >= 80"
+			"rule": "$.CPU_USAGE >= 80"
 		},
 		{
 			"name": "CPU使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.CPU_PERCENT >= 90"
+			"rule": "$.CPU_USAGE >= 90"
 		},
 		{
 			"name": "CPU使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.CPU_PERCENT >= 95"
+			"rule": "$.CPU_USAGE >= 95"
 		},
 		{
 			"name": "内存使用率超过80%",
 			"level": "WARN",
-			"rule": "$.MEM_PERCENT >= 80"
+			"rule": "$.MEM_USAGE >= 80"
 		},
 		{
 			"name": "内存使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.MEM_PERCENT >= 90"
+			"rule": "$.MEM_USAGE >= 90"
 		},
 		{
 			"name": "内存使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.MEM_PERCENT >= 95"
+			"rule": "$.MEM_USAGE >= 95"
 		},
 		{
 			"name": "磁盘组使用率超过80%",
 			"level": "WARN",
-			"rule": "$.DISK_GROUPS.\"USED%\"  >= 80"
+			"rule": "$.DISK_GROUPS.USED_PCT  >= 80"
 		},
 		{
 			"name": "磁盘组使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.DISK_GROUPS.\"USED%\"  >= 90"
+			"rule": "$.DISK_GROUPS.USED_PCT  >= 90"
 		},
 		{
 			"name": "磁盘组使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.DISK_GROUPS.\"USED%\"  >= 95"
+			"rule": "$.DISK_GROUPS.USED_PCT  >= 95"
 		},
 		{
 			"name": "表空间使用率超过80%",
 			"level": "WARN",
-			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 80"
+			"rule": "$.TABLE_SPACESES.USED_PCT  >= 80"
 		},
 		{
 			"name": "表空间使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 90"
+			"rule": "$.TABLE_SPACESES.USED_PCT  >= 90"
 		},
 		{
 			"name": "表空间使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.TABLE_SPACESES.\"USED%\"  >= 95"
-		},
-		{
-			"name": "打开文件使用率超70%",
-			"level": "WARN",
-			"rule": "$.OPEN_FILES_INFO.RATE >= 70"
+			"rule": "$.TABLE_SPACESES.USED_PCT  >= 95"
 		},
 		{
 			"name": "打开文件使用率超80%",
-			"level": "CRITICAL",
+			"level": "WARN",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 80"
 		},
 		{
 			"name": "打开文件使用率超90%",
-			"level": "FATAL",
+			"level": "CRITICAL",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 90"
 		},
 		{
-			"name": "监听BackLog超25",
+			"name": "打开文件使用率超99%",
+			"level": "FATAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 99"
+		},
+		{
+			"name": "监听BackLog大于0,服务响应不及时",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 0"
 		},
 		{
 			"name": "监听BackLog超25,服务响应不足",
-			"level": "WARN",
+			"level": "CRITICAL",
 			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
-			"level": "CRITICAL",
+			"level": "FATAL",
 			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
@@ -270,67 +265,67 @@
 	"COLLECT_INS": [{
 			"name": "CPU使用率超过80%",
 			"level": "WARN",
-			"rule": "$.CPU_PERCENT >= 80"
+			"rule": "$.CPU_USAGE >= 80"
 		},
 		{
 			"name": "CPU使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.CPU_PERCENT >= 90"
+			"rule": "$.CPU_USAGE >= 90"
 		},
 		{
 			"name": "CPU使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.CPU_PERCENT >= 95"
+			"rule": "$.CPU_USAGE >= 95"
 		},
 		{
 			"name": "内存使用率超过80%",
 			"level": "WARN",
-			"rule": "$.MEM_PERCENT >= 80"
+			"rule": "$.MEM_USAGE >= 80"
 		},
 		{
 			"name": "内存使用率超过90%",
 			"level": "CRITICAL",
-			"rule": "$.MEM_PERCENT >= 90"
+			"rule": "$.MEM_USAGE >= 90"
 		},
 		{
 			"name": "内存使用率超过95%",
 			"level": "FATAL",
-			"rule": "$.MEM_PERCENT >= 95"
-		},
-		{
-			"name": "打开文件使用率超70%",
-			"level": "WARN",
-			"rule": "$.OPEN_FILES_INFO.RATE >= 70"
+			"rule": "$.MEM_USAGE >= 95"
 		},
 		{
 			"name": "打开文件使用率超80%",
-			"level": "CRITICAL",
+			"level": "WARN",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 80"
 		},
 		{
 			"name": "打开文件使用率超90%",
-			"level": "FATAL",
+			"level": "CRITICAL",
 			"rule": "$.OPEN_FILES_INFO.RATE >= 90"
 		},
 		{
-			"name": "监听BackLog超25",
+			"name": "打开文件使用率超99%",
+			"level": "FATAL",
+			"rule": "$.OPEN_FILES_INFO.RATE >= 99"
+		},
+		{
+			"name": "监听BackLog大于0,服务响应不及时",
 			"level": "WARN",
-			"rule": "$.LISTEN_STATS.QUEUED >= 25"
+			"rule": "$.LISTEN_STATS.QUEUED > 0"
 		},
 		{
 			"name": "监听BackLog超25,服务响应不足",
-			"level": "WARN",
+			"level": "CRITICAL",
 			"rule": "$.LISTEN_STATS.QUEUED > 25"
 		},
 		{
 			"name": "监听BackLog已满，服务失去响应",
-			"level": "CRITICAL",
+			"level": "FATAL",
 			"rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
 		},
 		{
 			"name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
 			"level": "WARN",
-			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 8"
+			"rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
 		},
 		{
 			"name": "服务响应变慢，超过50%服务请求积压，未能及时响应",

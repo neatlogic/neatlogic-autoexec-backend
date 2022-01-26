@@ -146,6 +146,11 @@
             "type": "String"
         },
         {
+            "name": "PRODUCT_UUID",
+            "desc": "产品UUID",
+            "type": "String"
+        },
+        {
             "name": "KERNEL_VERSION",
             "desc": "内核版本",
             "type": "String"
@@ -156,7 +161,7 @@
             "type": "Float"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU使用率%",
             "type": "Float"
         },
@@ -171,13 +176,18 @@
             "type": "Float"
         },
         {
-            "name": "IOWAIT_PERCENT",
+            "name": "IOWAIT_PCT",
             "desc": "IOWait百分比",
             "type": "Float"
         },
         {
             "name": "CPU_FREQUENCY",
             "desc": "CPU频率",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
             "type": "String"
         },
         {
@@ -251,7 +261,7 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "使用率%",
                     "type": "Float"
                 },
@@ -420,11 +430,6 @@
             ]
         },
         {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
-            "type": "String"
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -484,11 +489,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "PRODUCT_UUID",
-            "desc": "产品UUID",
-            "type": "String"
         },
         {
             "name": "SYMANTEC_INSTALLED",

@@ -313,7 +313,7 @@ sub getMountPointInfo {
             $ldiskInfo->{CAPACITY}  = $size;
             $ldiskInfo->{AVAILABLE} = $free;
             $ldiskInfo->{USED}      = $size - $free;
-            $ldiskInfo->{'USED%'} = int( ( $size - $free ) * 10000 / $size ) / 100;
+            $ldiskInfo->{USED_PCT}  = int( ( $size - $free ) * 10000 / $size ) / 100;
             push( @logicalDisks, $ldiskInfo );
         }
     }
@@ -398,7 +398,7 @@ sub getPerformanceInfo {
             $cpuLoad  = $cpuLoad + $line;
         }
     }
-    $osInfo->{CPU_PERCENT} = int( $cpuLoad * 100 / $cpuCount ) / 100;
+    $osInfo->{CPU_USAGE} = int( $cpuLoad * 100 / $cpuCount ) / 100;
 }
 
 sub collectOsInfo {

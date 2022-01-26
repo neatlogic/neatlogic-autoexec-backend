@@ -15,11 +15,9 @@ use Data::Dumper;
 
 sub before {
     my ($self) = @_;
-    $self->addScalarOid(
-    );
+    $self->addScalarOid();
 
-    $self->addTableOid(
-    );
+    $self->addTableOid();
 }
 
 sub after {
@@ -28,21 +26,22 @@ sub after {
     $self->getPools();
 
     my $data = $self->{DATA};
+
     #HP_3PAR 8200, ID: 111000, Serial number: 6CU628VY46, InForm OS version: 3.2.2 (MU2)
     my $iosInfo = $data->{IOS_INFO};
-    if ( $iosInfo =~ /^(HP_3PAR\s.*?),/ ){
+    if ( $iosInfo =~ /^(HP_3PAR\s.*?),/ ) {
         $data->{MODEL} = $1;
     }
-    if ( $iosInfo =~ /Serial\s+number:\s+(.*?),/ ){
+    if ( $iosInfo =~ /Serial\s+number:\s+(.*?),/ ) {
         $data->{SN} = $1;
     }
-    if ( $iosInfo =~ /OS\s+version:\s+(.*?)$/ or  $iosInfo =~ /OS\s+version:\s+(.*?),/){
+    if ( $iosInfo =~ /OS\s+version:\s+(.*?)$/ or $iosInfo =~ /OS\s+version:\s+(.*?),/ ) {
         $data->{VERSION} = $1;
     }
-    
+
     $data->{VENDOR} = 'HP_3PAR';
     $data->{BRAND}  = 'HP_3PAR';
-    
+
     return;
 }
 

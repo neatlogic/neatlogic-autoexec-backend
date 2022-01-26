@@ -156,7 +156,7 @@ sub collect {
         $pool->{CAPACITY}  = $size;
         $pool->{USED}      = $size - $free;
         $pool->{AVAILABLE} = $free;
-        $pool->{'USED%'} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+        $pool->{USED_PCT}  = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
 
         #$pool->{LUNS}         = \@lunsInPool;
 

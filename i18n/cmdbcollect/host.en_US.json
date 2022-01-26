@@ -75,6 +75,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_MODEL",
+            "desc": "CPU Model Name",
+            "type": "String"
+        },
+        {
             "name": "CPU_ARCH",
             "desc": "CPU Architecture",
             "type": "String"
@@ -151,11 +156,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "Board Serial",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU Model Name",
             "type": "String"
         },
         {

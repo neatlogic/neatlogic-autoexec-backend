@@ -196,7 +196,7 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used Percent",
                     "type": "Float"
                 },
@@ -241,7 +241,7 @@
                             "type": "Float"
                         },
                         {
-                            "name": "USED%",
+                            "name": "USED_PCT",
                             "desc": "Used Percent",
                             "type": "Float"
                         }
@@ -430,7 +430,7 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used%",
                     "type": "Float"
                 },

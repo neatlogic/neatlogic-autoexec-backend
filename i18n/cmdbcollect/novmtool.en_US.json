@@ -107,12 +107,12 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used%",
                     "type": "Float"
                 },
                 {
-                    "name": "INODE_USED%",
+                    "name": "INODE_USED_PCT",
                     "desc": "Inode Used%",
                     "type": "Float"
                 },

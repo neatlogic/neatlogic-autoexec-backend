@@ -70,6 +70,11 @@
             "type": "String"
         },
         {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
+            "type": "String"
+        },
+        {
             "name": "CPU_ARCH",
             "desc": "CPU架构",
             "type": "String"
@@ -146,11 +151,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "主板序列号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
             "type": "String"
         },
         {

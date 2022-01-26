@@ -226,7 +226,7 @@
             "type": "String"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU%",
             "type": "Float"
         },
@@ -246,7 +246,7 @@
             "type": "Float"
         },
         {
-            "name": "MEM_PERCENT",
+            "name": "MEM_USAGE",
             "desc": "Memory%",
             "type": "Float"
         },

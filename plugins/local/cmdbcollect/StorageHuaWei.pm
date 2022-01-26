@@ -43,7 +43,7 @@ sub before {
         },
         HBA_LIST => {
             NAME => '1.3.6.1.4.1.34774.4.1.23.5.9.1.2',
-            WWPN  => '1.3.6.1.4.1.34774.4.1.23.5.9.1.8'
+            WWPN => '1.3.6.1.4.1.34774.4.1.23.5.9.1.8'
         },
         ETH_LIST => {
             NAME => '1.3.6.1.4.1.34774.4.1.23.5.8.1.2',
@@ -94,7 +94,7 @@ sub getPools {
     my $hbas = $tableData->{HBA_LIST};
     foreach my $hbaInfo (@$hbas) {
         my $hbaName = $hbaInfo->{NAME};
-        my $wwpn     = $hbaInfo->{WWPN};
+        my $wwpn    = $hbaInfo->{WWPN};
         $wwpn =~ s/..\K(?=.)/:/sg;
         $hbaInfo->{WWPN} = $wwpn;
 

@@ -226,7 +226,7 @@ class HP3parCollector:
                     'STATUS': status
                 }
                 if spaceLimitDetermination == 2:
-                    poolInfo['USED%'] = round(used * 100/capacity, 2)
+                    poolInfo['USED_PCT'] = round(used * 100/capacity, 2)
 
                 pools.append(poolInfo)
                 poolMapByInsId[instanceId] = poolInfo
@@ -261,7 +261,7 @@ class HP3parCollector:
                 'WWN': wwn,
                 'CAPACITY': capacity,
                 'USED': used,
-                'USED%': round(used * 100 / capacity, 2),
+                'USED_PCT': round(used * 100 / capacity, 2),
                 'POOL_NAME': poolInfo['NAME'],
                 'STATUS': status,
                 'VISABLE_GROUPS': [],

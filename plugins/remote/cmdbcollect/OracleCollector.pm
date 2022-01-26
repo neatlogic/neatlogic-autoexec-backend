@@ -171,7 +171,7 @@ sub getTableSpaceInfo {
         $tableSpaceInfo->{TOTAL_GB}        = $row->{TOTAL_MB} / 1024;
         $tableSpaceInfo->{USED_GB}         = $row->{USED_MB} / 1024;
         $tableSpaceInfo->{FREE_GB}         = $row->{FREE_MB} / 1024;
-        $tableSpaceInfo->{'USED%'}         = $row->{PCT_USE} + 0.0;
+        $tableSpaceInfo->{USED_PCT}        = $row->{PCT_USE} + 0.0;
 
         $tableSpaces->{$tableSpaceName} = $tableSpaceInfo;
     }
@@ -239,8 +239,8 @@ sub getASMDiskGroup {
         $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB} + 0.0;
         $diskGroup->{FREE_MB}  = $row->{FREE_MB} + 0.0;
         $diskGroup->{USED_MB}  = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
-        $diskGroup->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $diskGroup->{DISKS} = [];
+        $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $diskGroup->{DISKS}    = [];
         push( @diskGroups, $diskGroup );
         $diskGroupsMap->{$groupName} = $diskGroup;
     }
@@ -258,8 +258,8 @@ sub getASMDiskGroup {
         $disk->{TOTAL_MB}     = $row->{TOTAL_MB} + 0.0;
         $disk->{FREE_MB}      = $row->{FREE_MB} + 0.0;
         $disk->{USED_MB}      = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
-        $disk->{'USED%'} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $disk->{PATH} = $row->{PATH};
+        $disk->{USED_PCT}     = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+        $disk->{PATH}         = $row->{PATH};
 
         my $asmDiskId = $self->getDeviceId( $row->{PATH} );
         $disk->{DEVICE_ID} = $asmDiskId;
@@ -906,6 +906,7 @@ sub collectRAC {
                             $nodeInfo->{IP} = $nodeIp;
                         }
                         push( @nodeAddrs, "$nodeIp/$instanceName" );
+
                         # push(
                         #     @$memberPeers,
                         #     {

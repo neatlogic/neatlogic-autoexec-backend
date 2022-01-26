@@ -69,6 +69,7 @@ def getDefaultFieldKeys():
         'BRAND',
         'SYS_VENDOR',
         'VENDOR',
+        'PRODUCT_UUID',
         'SN',
         'MODEL',
         'UPTIME',
@@ -88,13 +89,13 @@ def getDefaultFieldKeys():
         'JMX_PORT',
         'JMX_SSL',
         'CPU_COUNT',
-        'CPU_PERCENT',
+        'CPU_USAGE',
         'CPU_CORES',
         'CPU_LOGIC_CORES',
-        'IOWAIT_PERCENT',
+        'IOWAIT_PCT',
         'CPU_FREQUENCY',
         'CPU_MODE',
-        'CPU_MODEL'
+        'CPU_MODEL',
         'CPU_BITS',
         'CPU_ARCH',
         'CPU_VERSION',
@@ -107,7 +108,6 @@ def getDefaultFieldKeys():
         'MAX_HEAP_SIZE',
         'MEM_AVAILABLE',
         'MEM_TOTAL',
-        'MEM_PERCENT',
         'MEM_USAGE',
         'MEM_USED',
         'MEM_FREE',
@@ -308,22 +308,24 @@ if __name__ == "__main__":
         info = dfile.split('.')
         if (len(info) == 3 and info[1] == lang):
             name = info[0]
-            print("INFO: Try to load json file:", dfile, "...")
-            data = {}
-            with open(jsonFile, 'r', encoding="utf-8") as f:
-                data = json.load(f)
-                f.close()
-
             hasError = False
-            if 'collection' not in data:
-                hasError = True
-                print("ERROR: Object decription data does not defined attribue 'collection'.\n")
-            if 'filter' not in data:
-                hasError = True
-                print("ERROR: Object decription data does not defined attribue 'filter'.\n")
-            if 'label' not in data:
-                hasError = True
-                print("ERROR: Object decription data does not defined attribue 'label'.\n")
+            data = {}
+
+            if action not in ('dropcollection', 'clearcollection'):
+                print("INFO: Try to load json file:", dfile, "...")
+                with open(jsonFile, 'r', encoding="utf-8") as f:
+                    data = json.load(f)
+                    f.close()
+
+                if 'collection' not in data:
+                    hasError = True
+                    print("ERROR: Object decription data does not defined attribue 'collection'.\n")
+                if 'filter' not in data:
+                    hasError = True
+                    print("ERROR: Object decription data does not defined attribue 'filter'.\n")
+                if 'label' not in data:
+                    hasError = True
+                    print("ERROR: Object decription data does not defined attribue 'label'.\n")
 
             if action == 'savetodb':
                 print("INFO: Import", dfile, "start...")
@@ -338,7 +340,7 @@ if __name__ == "__main__":
 
                     # 巡检文件内定义的默认阀值
                     defaultThreshold = getDefaultThreshold(dictPath, data['label'], tableName)
-                    print("INFO: {} inspect plugin default threshold {} ." .format(name, defaultThreshold))
+                    print("INFO: {} inspect plugin default threshold Loaded." .format(name))
                     # 获取已经选择进入巡检报告定义的字段
                     inspectObj = inspectDef.find_one({'name': name})
                     # 如果巡检定义不存在则自动生成一个空的定义
@@ -470,6 +472,18 @@ if __name__ == "__main__":
                     json.dump(data, f, indent=4, ensure_ascii=False)
                     f.close()
                     print("INFO: Beautify ", dfile, "success.")
+            elif action == 'dropcollection':
+                import AutoExecUtils
+                (dbclient, db) = AutoExecUtils.getDB()
+                colName = args.content
+                col = db[colName]
+                col.drop()
+            elif action == 'clearcollection':
+                import AutoExecUtils
+                (dbclient, db) = AutoExecUtils.getDB()
+                colName = args.content
+                col = db[colName]
+                col.delete_many({})
             else:
                 print("ERROR: Action " + action + "not supported.")
     # 关闭连接

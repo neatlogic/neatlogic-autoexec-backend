@@ -155,7 +155,7 @@ sub getMountPointInfo {
                     $mountInfo->{USED}      = int( $usedSize * 1000 / 1024 + 0.5 ) / 1000;
                     $mountInfo->{AVAILABLE} = int( $availSize * 1000 / 1024 + 0.5 ) / 1000;
                     $mountInfo->{UNIT}      = 'GB';
-                    $mountInfo->{'USED%'}   = $utility + 0.0;
+                    $mountInfo->{USED_PCT}  = $utility + 0.0;
                 }
             }
         }
@@ -168,7 +168,7 @@ sub getMountPointInfo {
                 chomp($mountPoint);
                 my $mountInfo = $diskMountMap->{$mountPoint};
                 if ( defined($mountInfo) ) {
-                    $mountInfo->{'INODE_USED%'} = $inodeUtility + 0.0;
+                    $mountInfo->{INODE_USED_PCT} = $inodeUtility + 0.0;
                 }
             }
         }
@@ -641,10 +641,12 @@ sub getPerformanceInfo {
         if ( $procInfo->{'%CPU'} > 10 ) {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
-            $procInfo->{COMMAND} = $command;
-            $procInfo->{VIRT}    = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{RES}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{SHR}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{COMMAND}   = $command;
+            $procInfo->{VIRT}      = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
+            $procInfo->{MEM_USAGE} = delete( $procInfo->{'%MEM'} );
             push( @cpuTopProc, $procInfo );
         }
     }
@@ -680,18 +682,20 @@ sub getPerformanceInfo {
         if ( $procInfo->{'%MEM'} > 10 ) {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
-            $procInfo->{COMMAND} = $command;
-            $procInfo->{VIRT}    = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{RES}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{SHR}     = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{COMMAND}   = $command;
+            $procInfo->{VIRT}      = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
+            $procInfo->{MEM_USAGE} = delete( $procInfo->{'%MEM'} );
             push( @memTopProc, $procInfo );
         }
     }
 
     $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
     $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
-    $osInfo->{CPU_PERCENT}       = $userCpu + $sysCpu;
-    $osInfo->{IOWAIT_PERCENT}    = $iowait;
+    $osInfo->{CPU_USAGE}         = $userCpu + $sysCpu;
+    $osInfo->{IOWAIT_PCT}        = $iowait;
 }
 
 sub getInspectMisc {

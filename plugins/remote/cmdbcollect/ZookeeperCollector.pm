@@ -146,11 +146,11 @@ sub collect {
             INDEX_FIELDS  => ['MEMBER_PEER'],
             MEMBERS       => []
         };
-        $clusterInfo->{UNIQUE_NAME} = join( ',', @members );
-        $clusterInfo->{CLUSTER_MODE} = 'Cluster';
+        $clusterInfo->{UNIQUE_NAME}      = join( ',', @members );
+        $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
-        $clusterInfo->{CLUSTER_VERSION} = $version;
-        $clusterInfo->{MEMBERS_PEER}   = $clusterMembers;
+        $clusterInfo->{CLUSTER_VERSION}  = $version;
+        $clusterInfo->{MEMBERS_PEER}     = $clusterMembers;
     }
 
     return ( $appInfo, $clusterInfo );

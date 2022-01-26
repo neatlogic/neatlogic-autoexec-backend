@@ -62,7 +62,7 @@
             "type": "Float"
         },
         {
-            "name": "IOWAIT_PERCENT",
+            "name": "IOWAIT_PCT",
             "desc": "IOWait百分比",
             "type": "Float"
         },
@@ -112,12 +112,12 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "使用率%",
                     "type": "Float"
                 },
                 {
-                    "name": "INODE_USED%",
+                    "name": "INODE_USED_PCT",
                     "desc": "Inode使用率%",
                     "type": "Float"
                 },

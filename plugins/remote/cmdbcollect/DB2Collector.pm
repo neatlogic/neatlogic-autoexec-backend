@@ -301,8 +301,8 @@ sub getDBInfos {
                     $spcInfo->{TABLESPACE_USED} = sprintf( '%.4f', $usedPages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
                     $spcInfo->{TABLESPACE_FREE} = sprintf( '%.4f', $freePages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
 
-                    $spcInfo->{TABLESPACE_FREE_PERCENT} = sprintf( '%.2f', $freePages / $useablePages * 100 ) + 0.0;
-                    $spcInfo->{TABLESPACE_USED_PERCENT} = sprintf( '%.2f', $usedPages / $useablePages * 100 ) + 0.0;
+                    $spcInfo->{TABLESPACE_FREE_PCT} = sprintf( '%.2f', $freePages / $useablePages * 100 ) + 0.0;
+                    $spcInfo->{TABLESPACE_USED_PCT} = sprintf( '%.2f', $usedPages / $useablePages * 100 ) + 0.0;
                 }
                 $idx++;
                 $line = $$infoLines[$idx];

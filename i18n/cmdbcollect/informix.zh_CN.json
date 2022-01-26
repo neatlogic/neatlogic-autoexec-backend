@@ -149,7 +149,7 @@
             "type": "String"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU使用率%",
             "type": "Float"
         },
@@ -159,7 +159,7 @@
             "type": "String"
         },
         {
-            "name": "MEM_PERCENT",
+            "name": "MEM_USAGE",
             "desc": "内存使用率%",
             "type": "Float"
         },

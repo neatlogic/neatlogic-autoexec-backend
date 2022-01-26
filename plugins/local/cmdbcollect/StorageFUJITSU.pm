@@ -163,7 +163,7 @@ sub collect {
         $rgInfo->{CAPACITY}  = $size;
         $rgInfo->{AVAILABLE} = $free;
         $rgInfo->{USED}      = $size - $free;
-        $rgInfo->{'USED%'} = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
+        $rgInfo->{USED_PCT}  = int( ( $size - $free ) * 10000 / $size * 0.5 ) / 100;
 
         #$rgInfo->{LUNS}         = $poolLunsMap->{$rgNo};
 
@@ -197,9 +197,9 @@ sub collect {
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{AVAILABLE}            = $poolInfo->{CAPACITY} - $poolInfo->{USED};
-        $poolInfo->{'USED%'}              = $splits[6] + 0;
+        $poolInfo->{USED_PCT}             = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{PROVISIONED_PCT}      = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
 
         push( @pools, $poolInfo );
@@ -225,9 +225,9 @@ sub collect {
         $poolInfo->{CAPACITY}             = ( $splits[4] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{USED}                 = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
         $poolInfo->{AVAILABLE}            = $poolInfo->{CAPACITY} - $poolInfo->{USED};
-        $poolInfo->{'USED%'}              = $splits[6] + 0;
+        $poolInfo->{USED_PCT}             = $splits[6] + 0;
         $poolInfo->{PROVISIONED_CAPACITY} = ( $splits[7] * 100 / 1024 + 0.5 ) / 100;
-        $poolInfo->{PROVISIONED_PERCENT}  = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
+        $poolInfo->{PROVISIONED_PCT}      = ( $splits[8] * 100 / 1024 + 0.5 ) / 100;
 
         #$poolInfo->{LUNS}                 = $poolLunsMap->{$poolNo};
 

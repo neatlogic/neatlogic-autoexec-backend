@@ -187,7 +187,7 @@ sub getPoolInfo {
             CAPACITY        => $self->getDiskSizeFormStr( $record->{'size'} ),
             AVAILABLE       => $self->getDiskSizeFormStr( $record->{'availsize'} ),
             USED            => $self->getDiskSizeFormStr( $record->{'usedsize'} ),
-            'USED%'         => int( $record->{'percent-used'} ),
+            USED_PCT        => int( $record->{'percent-used'} ),
             RAID_TYPE       => $record->{'raidtype'},
             VOL_COUNT       => $record->{'volcount'},
             STATUS          => $record->{'state'}
@@ -223,7 +223,7 @@ sub getVolumeInfo {
             CAPACITY        => $self->getDiskSizeFormStr( $record->{'total'} ),
             AVAILABLE       => $self->getDiskSizeFormStr( $record->{'available'} ),
             USED            => $self->getDiskSizeFormStr( $record->{'used'} ),
-            'USED%'         => int( $record->{'percent-used'} ),
+            USED_PCT        => int( $record->{'percent-used'} ),
             STATUS          => $record->{'state'}
         };
         push( @volumes, $volInfo );

@@ -126,7 +126,7 @@
             "type": "Float"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU%",
             "type": "Float"
         },
@@ -141,7 +141,7 @@
             "type": "Int"
         },
         {
-            "name": "IOWAIT_PERCENT",
+            "name": "IOWAIT_PCT",
             "desc": "Iowait%",
             "type": "Float"
         },
@@ -153,6 +153,11 @@
         {
             "name": "CPU_MODE",
             "desc": "Cpu Mode",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "Cpu Model Name",
             "type": "String"
         },
         {
@@ -196,12 +201,12 @@
                     "type": "String"
                 },
                 {
-                    "name": "%CPU",
+                    "name": "CPU_USAGE",
                     "desc": "CPU%",
                     "type": "Float"
                 },
                 {
-                    "name": "%MEM",
+                    "name": "MEM_USAGE",
                     "desc": "MEM%",
                     "type": "Float"
                 },
@@ -308,12 +313,12 @@
                     "type": "String"
                 },
                 {
-                    "name": "%CPU",
+                    "name": "CPU_USAGE",
                     "desc": "CPU%",
                     "type": "Float"
                 },
                 {
-                    "name": "%MEM",
+                    "name": "MEM_USAGE",
                     "desc": "MEM%",
                     "type": "Float"
                 },
@@ -395,12 +400,12 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used%",
                     "type": "Float"
                 },
                 {
-                    "name": "INODE_USED%",
+                    "name": "INODE_USED_PCT",
                     "desc": "Inode Used%",
                     "type": "Float"
                 },
@@ -596,11 +601,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "Main Board Serial",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "Cpu Model Name",
             "type": "String"
         },
         {

@@ -50,15 +50,15 @@ sub before {
         },
         HBA_LIST   => { WWN => '1.3.6.1.4.1.789.1.17.16.2.1.3' },
         DF_VOLUMES => {
-            NAME               => '1.3.6.1.4.1.789.1.5.4.1.2',
-            MOUNT_ON           => '1.3.6.1.4.1.789.1.5.4.1.10',
-            CAPACITY           => '1.3.6.1.4.1.789.1.5.4.1.29',
-            USED               => '1.3.6.1.4.1.789.1.5.4.1.30',
-            FREE               => '1.3.6.1.4.1.789.1.5.4.1.31',
-            USED_PERCENT       => '1.3.6.1.4.1.789.1.5.4.1.6',
-            INODE_USED         => '1.3.6.1.4.1.789.1.5.4.1.7',
-            INODE_FREE         => '1.3.6.1.4.1.789.1.5.4.1.8',
-            USED_INODE_PERCENT => '1.3.6.1.4.1.789.1.5.4.1.9'
+            NAME           => '1.3.6.1.4.1.789.1.5.4.1.2',
+            MOUNT_ON       => '1.3.6.1.4.1.789.1.5.4.1.10',
+            CAPACITY       => '1.3.6.1.4.1.789.1.5.4.1.29',
+            USED           => '1.3.6.1.4.1.789.1.5.4.1.30',
+            FREE           => '1.3.6.1.4.1.789.1.5.4.1.31',
+            USED_PCT       => '1.3.6.1.4.1.789.1.5.4.1.6',
+            INODE_USED     => '1.3.6.1.4.1.789.1.5.4.1.7',
+            INODE_FREE     => '1.3.6.1.4.1.789.1.5.4.1.8',
+            INODE_USED_PCT => '1.3.6.1.4.1.789.1.5.4.1.9'
         }
     );
 }
@@ -71,7 +71,7 @@ sub after {
     my $data = $self->{DATA};
     $data->{VENDOR} = 'NetApp';
     $data->{BRAND}  = 'NetApp';
-    
+
     return;
 }
 
@@ -152,7 +152,7 @@ sub getPools {
         }
     }
     my $data = $self->{DATA};
-    
+
     foreach my $oldKey ( 'AGGR_LIST', 'VOL_LIST', 'QTREE_LIST', 'LUN_LIST', 'HBA_LIST', 'DF_VOLUMES' ) {
         delete( $data->{$oldKey} );
     }

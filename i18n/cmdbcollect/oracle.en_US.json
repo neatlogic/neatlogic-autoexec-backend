@@ -149,7 +149,7 @@
             "type": "String"
         },
         {
-            "name": "CPU_PERCENT",
+            "name": "CPU_USAGE",
             "desc": "CPU%",
             "type": "Float"
         },
@@ -159,7 +159,7 @@
             "type": "String"
         },
         {
-            "name": "MEM_PERCENT",
+            "name": "MEM_USAGE",
             "desc": "Memory%",
             "type": "Float"
         },
@@ -379,7 +379,7 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used Percent",
                     "type": "Float"
                 },
@@ -424,7 +424,7 @@
                             "type": "Float"
                         },
                         {
-                            "name": "USED%",
+                            "name": "USED_PCT",
                             "desc": "Used Percent",
                             "type": "Float"
                         }
@@ -572,7 +572,7 @@
                     "type": "Float"
                 },
                 {
-                    "name": "USED%",
+                    "name": "USED_PCT",
                     "desc": "Used%",
                     "type": "Float"
                 },

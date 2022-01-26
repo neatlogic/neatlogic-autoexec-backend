@@ -209,7 +209,7 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
             "AVAILABLE": 32.248,
             "DEVICE": "/dev/mapper/cl-root",
             "MOUNT_POINT": "/",
-            "USED%": 79,
+            "USED_PCT": 79,
             "FS_TYPE": "xfs",
             "UNIT": "GB",
             "CAPACITY": 146.979
@@ -218,7 +218,7 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
             "AVAILABLE": 0.855,
             "DEVICE": "/dev/sdb1",
             "MOUNT_POINT": "/boot",
-            "USED%": 14,
+            "USED_PCT": 14,
             "FS_TYPE": "xfs",
             "UNIT": "GB",
             "CAPACITY": 0.99

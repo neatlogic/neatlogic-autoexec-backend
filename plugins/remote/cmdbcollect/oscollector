@@ -170,9 +170,9 @@ sub mergeMultiProcs {
         }
 
         if ( defined($parentTopInfo) ) {
-            $parentTopInfo->{CPU_PERCENT} = $parentTopInfo->{CPU_PERCENT} + $procInfo->{CPU_PERCENT};
-            $parentTopInfo->{MEM_PERCENT} = $parentTopInfo->{MEM_PERCENT} + $procInfo->{MEM_PERCENT};
-            $parentTopInfo->{MEM_USED}    = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+            $parentTopInfo->{CPU_USAGE} = $parentTopInfo->{CPU_USAGE} + $procInfo->{CPU_USAGE};
+            $parentTopInfo->{MEM_USAGE} = $parentTopInfo->{MEM_USAGE} + $procInfo->{MEM_USAGE};
+            $parentTopInfo->{MEM_USED}  = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
 
             my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
             my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
@@ -442,19 +442,19 @@ sub doDetailCollect {
         my $cpuLogicCores = $connGather->{CPU_LOGIC_CORES};
         $appInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
         if ( $cpuLogicCores > 0 ) {
-            $appInfo->{CPU_PERCENT} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
+            $appInfo->{CPU_USAGE} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
         }
         else {
-            $appInfo->{CPU_PERCENT} = $procInfo->{'%CPU'} + 0.0;
+            $appInfo->{CPU_USAGE} = $procInfo->{'%CPU'} + 0.0;
         }
 
         if ( $osType eq 'Windows' ) {
-            $appInfo->{MEM_USED}    = $procInfo->{MEMSIZE} + 0.0;
-            $appInfo->{MEM_PERCENT} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
+            $appInfo->{MEM_USED}  = $procInfo->{MEMSIZE} + 0.0;
+            $appInfo->{MEM_USAGE} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
         }
         else {
             $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
-            $appInfo->{MEM_PERCENT} = $procInfo->{'%MEM'} + 0.0;
+            $appInfo->{MEM_USAGE} = $procInfo->{'%MEM'} + 0.0;
         }
 
         my $envMap      = delete( $procInfo->{ENVIRONMENT} );
