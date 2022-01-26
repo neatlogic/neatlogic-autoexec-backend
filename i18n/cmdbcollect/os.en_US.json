@@ -443,7 +443,7 @@
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
+            "name": "CPU_MODEL",
             "desc": "Cpu Model Name",
             "type": "String"
         },

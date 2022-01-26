@@ -854,8 +854,8 @@ sub getCPUInfo {
     $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
     $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{CPU_MODEL_NAME} = $modelInfo[0];
-    $hostInfo->{CPU_FREQUENCY}  = $modelInfo[1];
+    $hostInfo->{CPU_MODEL}     = $modelInfo[0];
+    $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
 }
@@ -1016,7 +1016,7 @@ sub collect {
     $osInfo->{CPU_CORES}       = $hostInfo->{CPU_CORES};
     $osInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_LOGIC_CORES};
     $osInfo->{CPU_MICROCODE}   = $hostInfo->{CPU_MICROCODE};
-    $osInfo->{CPU_MODEL_NAME}  = $hostInfo->{CPU_MODEL_NAME};
+    $osInfo->{CPU_MODEL}       = $hostInfo->{CPU_MODEL};
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
 
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};

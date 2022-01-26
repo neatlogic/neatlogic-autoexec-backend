@@ -154,7 +154,7 @@
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
+            "name": "CPU_MODEL",
             "desc": "CPU Model Name",
             "type": "String"
         },

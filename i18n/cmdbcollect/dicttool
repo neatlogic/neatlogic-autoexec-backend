@@ -95,7 +95,6 @@ def getDefaultFieldKeys():
         'CPU_FREQUENCY',
         'CPU_MODE',
         'CPU_MODEL'
-        'CPU_MODEL_NAME',
         'CPU_BITS',
         'CPU_ARCH',
         'CPU_VERSION',
