@@ -17,18 +17,8 @@
             "type": "String"
         },
         {
-            "name": "DESCRIPTION",
-            "desc": "Description",
-            "type": "String"
-        },
-        {
             "name": "NAME",
             "desc": "Name",
-            "type": "String"
-        },
-        {
-            "name": "MOID",
-            "desc": "id",
             "type": "String"
         },
         {
@@ -127,6 +117,16 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "DESCRIPTION",
+            "desc": "Description",
+            "type": "String"
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
         }
     ]
 }

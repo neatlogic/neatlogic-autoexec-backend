@@ -151,11 +151,6 @@
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
-            "desc": "Cpu Model Name",
-            "type": "String"
-        },
-        {
             "name": "CPU_BITS",
             "desc": "Cpu Bits",
             "type": "Float"
@@ -586,6 +581,11 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "Main Board Serial",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL_NAME",
+            "desc": "Cpu Model Name",
             "type": "String"
         },
         {

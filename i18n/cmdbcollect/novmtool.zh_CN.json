@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "name",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -25,6 +30,11 @@
             "name": "IP",
             "desc": "ip",
             "type": "String"
+        },
+        {
+            "name": "IS_VIRTUAL",
+            "desc": "is_virtual",
+            "type": "Int"
         },
         {
             "name": "AVAILABILITY",
@@ -40,6 +50,11 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "cpu_count",
+            "type": "Float"
         },
         {
             "name": "CPU_CORES",
@@ -242,16 +257,6 @@
             ]
         },
         {
-            "name": "CPU_COUNT",
-            "desc": "cpu_count",
-            "type": "Float"
-        },
-        {
-            "name": "IS_VIRTUAL",
-            "desc": "is_virtual",
-            "type": "Int"
-        },
-        {
             "name": "MACHINE_SN",
             "desc": "machine_sn",
             "type": "String"
@@ -264,11 +269,6 @@
         {
             "name": "MEM_UNIT",
             "desc": "mem_unit",
-            "type": "String"
-        },
-        {
-            "name": "NAME",
-            "desc": "name",
             "type": "String"
         },
         {

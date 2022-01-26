@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
@@ -294,11 +299,6 @@
         {
             "name": "MEMORY_TARGET",
             "desc": "内存目标",
-            "type": "String"
-        },
-        {
-            "name": "NAME",
-            "desc": "DB Name",
             "type": "String"
         },
         {

@@ -5,7 +5,8 @@
     "filter": {
         "_OBJ_TYPE": "Windows"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -18,6 +19,16 @@
         {
             "name": "HOSTNAME",
             "desc": "Host Name",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "OS Name",
+            "type": "String"
+        },
+        {
+            "name": "PRODUCT_NAME",
+            "desc": "Product Name",
             "type": "String"
         },
         {
@@ -38,6 +49,31 @@
         {
             "name": "STATE",
             "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "IS_VIRTUAL",
+            "desc": "Is Virtual",
+            "type": "Int"
+        },
+        {
+            "name": "DOMAIN",
+            "desc": "Domain",
+            "type": "String"
+        },
+        {
+            "name": "SYSTEM_LOCALE",
+            "desc": "System Locale",
+            "type": "String"
+        },
+        {
+            "name": "TIME_ZONE",
+            "desc": "Time Zone",
+            "type": "String"
+        },
+        {
+            "name": "INPUT_LOCALE",
+            "desc": "Input Locale",
             "type": "String"
         },
         {
@@ -74,7 +110,8 @@
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -90,7 +127,8 @@
             "name": "IPV6_ADDRS",
             "desc": "IPV6 Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -111,6 +149,11 @@
             "name": "KERNEL_VERSION",
             "desc": "Kernel Version",
             "type": "String"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "Cpu Count",
+            "type": "Float"
         },
         {
             "name": "CPU_PERCENT",
@@ -148,6 +191,11 @@
             "type": "String"
         },
         {
+            "name": "BIOS_VERSION",
+            "desc": "Bios Version",
+            "type": "String"
+        },
+        {
             "name": "DEFUNC_PROCESSES_COUNT",
             "desc": "Defunc Process Count",
             "type": "Int"
@@ -171,7 +219,8 @@
             "name": "MOUNT_POINTS",
             "desc": "Mount Points",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Mount Point",
                     "type": "String"
@@ -207,11 +256,6 @@
                     "type": "Float"
                 },
                 {
-                    "name": "INODE_USED%",
-                    "desc": "Inode Used%",
-                    "type": "Float"
-                },
-                {
                     "name": "UNIT",
                     "desc": "Unit",
                     "type": "String"
@@ -222,7 +266,8 @@
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -253,11 +298,13 @@
             "name": "DNS_SERVERS",
             "desc": "DNS Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_ENABLE",
@@ -268,11 +315,13 @@
             "name": "NTP_SERVERS",
             "desc": "Ntp Servers",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "IP",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "NTP_OFFSET_SECS",
@@ -283,7 +332,8 @@
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -307,7 +357,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "Remote Port",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Category",
                             "type": "String"
@@ -340,7 +391,8 @@
             "name": "USERS",
             "desc": "users",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -368,30 +420,16 @@
             ]
         },
         {
-            "name": "BIOS_VERSION",
-            "desc": "Bios Version",
-            "type": "String"
-        },
-        {
-            "name": "CPU_COUNT",
-            "desc": "Cpu Count",
-            "type": "Float"
-        },
-        {
             "name": "CPU_MODEL",
             "desc": "Cpu Model",
-            "type": "String"
-        },
-        {
-            "name": "DOMAIN",
-            "desc": "Domain",
             "type": "String"
         },
         {
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "name",
                     "type": "String"
@@ -417,7 +455,8 @@
             "name": "HOST_ON",
             "desc": "Run On Host",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
@@ -435,34 +474,16 @@
             ]
         },
         {
-            "name": "INPUT_LOCALE",
-            "desc": "Input Locale",
-            "type": "String"
-        },
-        {
-            "name": "IS_VIRTUAL",
-            "desc": "Is Virtual",
-            "type": "Int"
-        },
-        {
-            "name": "NAME",
-            "desc": "OS Name",
-            "type": "String"
-        },
-        {
             "name": "PATCHES_APPLIED",
             "desc": "Patches Applied",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Patch Number",
-                "type": "String"
-            }]
-        },
-        {
-            "name": "PRODUCT_NAME",
-            "desc": "Product Name",
-            "type": "String"
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Number",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PRODUCT_UUID",
@@ -473,16 +494,6 @@
             "name": "SYMANTEC_INSTALLED",
             "desc": "Symantec Installed",
             "type": "Float"
-        },
-        {
-            "name": "SYSTEM_LOCALE",
-            "desc": "System Locale",
-            "type": "String"
-        },
-        {
-            "name": "TIME_ZONE",
-            "desc": "Time Zone",
-            "type": "String"
         },
         {
             "name": "VCENTER_IP",

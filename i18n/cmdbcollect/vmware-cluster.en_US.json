@@ -17,53 +17,9 @@
             "type": "String"
         },
         {
-            "name": "DESCRIPTION",
-            "desc": "Description",
-            "type": "String"
-        },
-        {
             "name": "NAME",
             "desc": "Name",
             "type": "String"
-        },
-        {
-            "name": "MOID",
-            "desc": "id",
-            "type": "String"
-        },
-        {
-            "name": "DATASTORE",
-            "desc": "DataStore",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "MOID",
-                    "desc": "MOID",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NETWORK",
-            "desc": "Network",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "MOID",
-                    "desc": "MOID",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "CONTAIN_HOST",
@@ -90,6 +46,50 @@
                 {
                     "name": "VM_ID",
                     "desc": "Virtual System ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DATASTORE",
+            "desc": "DataStore",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DESCRIPTION",
+            "desc": "Description",
+            "type": "String"
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        },
+        {
+            "name": "NETWORK",
+            "desc": "Network",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
                     "type": "String"
                 }
             ]

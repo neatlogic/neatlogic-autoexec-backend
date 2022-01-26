@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
@@ -171,11 +176,6 @@
         {
             "name": "INSTANCEUUID",
             "desc": "Instance UUID",
-            "type": "String"
-        },
-        {
-            "name": "NAME",
-            "desc": "Name",
             "type": "String"
         }
     ]

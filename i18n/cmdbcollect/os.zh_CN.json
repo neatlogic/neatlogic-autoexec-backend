@@ -149,11 +149,6 @@
             "type": "String"
         },
         {
-            "name": "CPU_MODEL_NAME",
-            "desc": "CPU型号",
-            "type": "String"
-        },
-        {
             "name": "CPU_BITS",
             "desc": "CPU位数",
             "type": "Float"
@@ -445,6 +440,11 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "主板序列号",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL_NAME",
+            "desc": "CPU型号",
             "type": "String"
         },
         {

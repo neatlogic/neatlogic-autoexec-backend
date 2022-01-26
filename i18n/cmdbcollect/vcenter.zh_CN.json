@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "服务名",
             "type": "String"
@@ -171,11 +176,6 @@
         {
             "name": "INSTANCEUUID",
             "desc": "安装实例uuid",
-            "type": "String"
-        },
-        {
-            "name": "NAME",
-            "desc": "名称",
             "type": "String"
         }
     ]
