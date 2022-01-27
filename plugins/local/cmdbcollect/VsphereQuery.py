@@ -192,7 +192,7 @@ class VsphereQuery:
         ins['MACHINE_UUID'] = host.hardware.systemInfo.uuid
         ins['MACHINE_SN'] = serialNumber
         ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST'}]
-        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGIT_IP':self.ip}]
+        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGMT_IP':self.ip}]
         return ins
 
     def get_vmlist(self, cluster):
