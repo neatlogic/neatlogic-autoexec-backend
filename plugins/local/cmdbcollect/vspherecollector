@@ -35,7 +35,6 @@ if __name__ == "__main__":
         usage()
 
     if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
-        node = json.loads(node)
         ip = node['host']
         port = node['port']
         if port is None or port == '' : 
