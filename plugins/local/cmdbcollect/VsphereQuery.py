@@ -187,11 +187,13 @@ class VsphereQuery:
         ins['CPU_COUNT'] = numCPU
         ins['CPU_CORES'] = numCoresPerSocket
         ins['IS_VIRTUAL'] = 1
-
         serialNumber = host.hardware.systemInfo.serialNumber
-        ins['MACHINE_UUID'] = host.hardware.systemInfo.uuid
+        host_uuid = host.hardware.systemInfo.uuid
+        if serialNumber is None :
+            serialNumber = ''
+        ins['MACHINE_UUID'] = host_uuid
         ins['MACHINE_SN'] = serialNumber
-        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST'}]
+        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','ESXI_IP':host.name,'UUID':host_uuid}]
         ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGMT_IP':self.ip}]
         return ins
 

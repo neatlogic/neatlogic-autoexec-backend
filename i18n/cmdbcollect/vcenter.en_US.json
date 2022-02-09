@@ -142,7 +142,17 @@
                             "subset": [
                                 {
                                     "name": "UUID",
-                                    "desc": "UUID",
+                                    "desc": "uuid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "BOARD_SERIAL",
+                                    "desc": "Board Serial",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "ESXI_IP",
+                                    "desc": "ESXI IP",
                                     "type": "String"
                                 }
                             ]
@@ -154,13 +164,34 @@
                             "subset": [
                                 {
                                     "name": "MGMT_IP",
-                                    "desc": "Vcenter IP",
+                                    "desc": "Vm IP",
                                     "type": "String"
                                 },
                                 {
                                     "name": "VM_ID",
                                     "desc": "Virtual System ID",
                                     "type": "String"
+                                },{
+                                    "name": "HOST_ON",
+                                    "desc": "Run Host",
+                                    "type": "JsonArray",
+                                    "subset": [
+                                        {
+                                            "name": "UUID",
+                                            "desc": "uuid",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "BOARD_SERIAL",
+                                            "desc": "Board Serial",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "ESXI_IP",
+                                            "desc": "ESXI IP",
+                                            "type": "String"
+                                        }
+                                    ]
                                 }
                             ]
                         }

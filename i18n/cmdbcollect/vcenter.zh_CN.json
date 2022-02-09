@@ -144,6 +144,16 @@
                                     "name": "UUID",
                                     "desc": "uuid",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "BOARD_SERIAL",
+                                    "desc": "主板序列号",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "ESXI_IP",
+                                    "desc": "ESXI IP",
+                                    "type": "String"
                                 }
                             ]
                         },
@@ -154,13 +164,35 @@
                             "subset": [
                                 {
                                     "name": "MGMT_IP",
-                                    "desc": "vcenter IP",
+                                    "desc": "VM IP",
                                     "type": "String"
                                 },
                                 {
                                     "name": "VM_ID",
                                     "desc": "虚拟机ID",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "HOST_ON",
+                                    "desc": "所在物理机",
+                                    "type": "JsonArray",
+                                    "subset": [
+                                        {
+                                            "name": "UUID",
+                                            "desc": "uuid",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "BOARD_SERIAL",
+                                            "desc": "主板序列号",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "ESXI_IP",
+                                            "desc": "ESXI IP",
+                                            "type": "String"
+                                        }
+                                    ]
                                 }
                             ]
                         }
