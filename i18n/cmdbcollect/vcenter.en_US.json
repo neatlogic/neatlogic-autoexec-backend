@@ -115,6 +115,41 @@
                                     "name": "NAME",
                                     "desc": "Name",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "CAPACITY",
+                                    "desc": "Capacity(GB)",
+                                    "type": "Float"
+                                },
+                                {
+                                    "name": "AVAILABLE",
+                                    "desc": "Available(GB)",
+                                    "type": "Float"
+                                },
+                                {
+                                    "name": "USED",
+                                    "desc": "Used(GB)",
+                                    "type": "Float"
+                                },{
+                                    "name": "USED_PCT",
+                                    "desc": "Used pct%",
+                                    "type": "Float"
+                                },{
+                                    "name": "STATUS",
+                                    "desc": "Status",
+                                    "type": "String"
+                                },{
+                                    "name": "TYPE",
+                                    "desc": "Type",
+                                    "type": "String"
+                                },{
+                                    "name": "PATH",
+                                    "desc": "URL",
+                                    "type": "String"
+                                },{
+                                    "name": "UNIT",
+                                    "desc": "Unit",
+                                    "type": "String"
                                 }
                             ]
                         },
@@ -131,6 +166,11 @@
                                 {
                                     "name": "NAME",
                                     "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "Status",
                                     "type": "String"
                                 }
                             ]
@@ -208,6 +248,39 @@
             "name": "INSTANCEUUID",
             "desc": "Instance UUID",
             "type": "String"
+        },{
+            "name": "ALARMS",
+            "desc": "Alarm Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY",
+                    "desc": "Entity",
+                    "type": "String"
+                },{
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },{
+                    "name": "TIME",
+                    "desc": "Time",
+                    "type": "String"
+                },{
+                    "name": "MESSAGE",
+                    "desc": "Message",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

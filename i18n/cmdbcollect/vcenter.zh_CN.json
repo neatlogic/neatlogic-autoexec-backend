@@ -115,6 +115,41 @@
                                     "name": "NAME",
                                     "desc": "名称",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "CAPACITY",
+                                    "desc": "容量(GB)",
+                                    "type": "Float"
+                                },
+                                {
+                                    "name": "AVAILABLE",
+                                    "desc": "可用容量(GB)",
+                                    "type": "Float"
+                                },
+                                {
+                                    "name": "USED",
+                                    "desc": "已用容量(GB)",
+                                    "type": "Float"
+                                },{
+                                    "name": "USED_PCT",
+                                    "desc": "使用率%",
+                                    "type": "Float"
+                                },{
+                                    "name": "STATUS",
+                                    "desc": "状态",
+                                    "type": "String"
+                                },{
+                                    "name": "TYPE",
+                                    "desc": "类型",
+                                    "type": "String"
+                                },{
+                                    "name": "PATH",
+                                    "desc": "URL",
+                                    "type": "String"
+                                },{
+                                    "name": "UNIT",
+                                    "desc": "单位",
+                                    "type": "String"
                                 }
                             ]
                         },
@@ -131,6 +166,11 @@
                                 {
                                     "name": "NAME",
                                     "desc": "名称",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "状态",
                                     "type": "String"
                                 }
                             ]
@@ -209,6 +249,39 @@
             "name": "INSTANCEUUID",
             "desc": "安装实例uuid",
             "type": "String"
+        },{
+            "name": "ALARMS",
+            "desc": "告警信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY",
+                    "desc": "对象",
+                    "type": "String"
+                },{
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },{
+                    "name": "TIME",
+                    "desc": "时间",
+                    "type": "String"
+                },{
+                    "name": "MESSAGE",
+                    "desc": "内容",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

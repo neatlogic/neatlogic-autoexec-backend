@@ -17,38 +17,14 @@
             "type": "String"
         },
         {
-            "name": "NAME",
-            "desc": "名称",
+            "name": "MOID",
+            "desc": "id",
             "type": "String"
         },
         {
-            "name": "CONTAIN_HOST",
-            "desc": "包含物理机",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "UUID",
-                    "desc": "uuid",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CONTAIN_VMS",
-            "desc": "包含虚拟机",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "MGMT_IP",
-                    "desc": "vcenter IP",
-                    "type": "String"
-                },
-                {
-                    "name": "VM_ID",
-                    "desc": "虚拟机ID",
-                    "type": "String"
-                }
-            ]
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
         },
         {
             "name": "DATASTORE",
@@ -64,18 +40,43 @@
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用容量(GB)",
+                    "type": "Float"
+                },{
+                    "name": "USED_PCT",
+                    "desc": "使用率%",
+                    "type": "Float"
+                },{
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },{
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },{
+                    "name": "PATH",
+                    "desc": "URL",
+                    "type": "String"
+                },{
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
                 }
             ]
-        },
-        {
-            "name": "DESCRIPTION",
-            "desc": "描述",
-            "type": "String"
-        },
-        {
-            "name": "MOID",
-            "desc": "id",
-            "type": "String"
         },
         {
             "name": "NETWORK",
@@ -91,6 +92,72 @@
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_HOST",
+            "desc": "包含物理机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UUID",
+                    "desc": "uuid",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "主板序列号",
+                    "type": "String"
+                },
+                {
+                    "name": "ESXI_IP",
+                    "desc": "ESXI IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_VMS",
+            "desc": "包含虚拟机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MGMT_IP",
+                    "desc": "VM IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VM_ID",
+                    "desc": "虚拟机ID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOST_ON",
+                    "desc": "所在物理机",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UUID",
+                            "desc": "uuid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "BOARD_SERIAL",
+                            "desc": "主板序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "ESXI_IP",
+                            "desc": "ESXI IP",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         }
