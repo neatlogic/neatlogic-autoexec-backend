@@ -2,6 +2,7 @@
     "label": "Oracle",
     "collection": "COLLECT_DB",
     "docroot": null,
+    "collection_label" :"database",
     "filter": {
         "_OBJ_TYPE": "Oracle"
     },

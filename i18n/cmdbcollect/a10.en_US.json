@@ -2,6 +2,7 @@
     "label": "A10",
     "collection": "COLLECT_LOADBALANCER",
     "docroot": null,
+    "collection_label" :"loadbalancer",
     "filter": {
         "_OBJ_TYPE": "A10"
     },

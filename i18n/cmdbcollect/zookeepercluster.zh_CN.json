@@ -2,6 +2,7 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
+    "collection_label" :"集群",
     "filter": {
         "_OBJ_TYPE": "ZookeeperCluster"
     },

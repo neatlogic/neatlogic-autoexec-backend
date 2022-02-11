@@ -2,6 +2,7 @@
     "label": "Tuxedo",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"middleware",
     "filter": {
         "_OBJ_TYPE": "Tuxedo"
     },

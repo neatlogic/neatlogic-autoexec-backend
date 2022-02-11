@@ -2,6 +2,7 @@
     "label": "IIS",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"middleware",
     "filter": {
         "_OBJ_TYPE": "IIS"
     },

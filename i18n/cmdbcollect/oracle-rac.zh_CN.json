@@ -2,6 +2,7 @@
     "label": "Oracle-RAC",
     "collection": "COLLECT_DB_CLUSTER",
     "docroot": null,
+    "collection_label" :"数据库",
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },

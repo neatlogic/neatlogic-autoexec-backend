@@ -1,6 +1,7 @@
 {
     "label": "Apache",
     "collection": "COLLECT_INS",
+    "collection_label" :"中间件",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Apache"

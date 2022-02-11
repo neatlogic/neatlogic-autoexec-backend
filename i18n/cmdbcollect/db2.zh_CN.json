@@ -1,6 +1,7 @@
 {
     "label": "DB2",
     "collection": "COLLECT_DB",
+    "collection_label" :"数据库",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "DB2"

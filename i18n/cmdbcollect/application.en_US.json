@@ -2,6 +2,7 @@
     "label": "Application",
     "collection": "COLLECT_APPLICATION",
     "docroot": null,
+    "collection_label" :"application",
     "filter": {
         "_OBJ_TYPE": "APPLICATION"
     },

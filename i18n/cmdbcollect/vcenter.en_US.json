@@ -2,6 +2,7 @@
     "label": "VCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
+    "collection_label" :"virtualized",
     "filter": {
         "_OBJ_TYPE": "VCENTER"
     },

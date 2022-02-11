@@ -2,6 +2,7 @@
     "label": "Storage NetDev",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
+    "collection_label" :"Storage network device",
     "filter": {},
     "fields": [
         {

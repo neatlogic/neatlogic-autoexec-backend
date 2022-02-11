@@ -2,6 +2,7 @@
     "label": "访问入口",
     "collection": "COLLECT_ACCESSENDPOINT",
     "docroot": null,
+    "collection_label" :"接入点",
     "filter": {},
     "fields": [
         {

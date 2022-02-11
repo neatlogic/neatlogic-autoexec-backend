@@ -2,6 +2,7 @@
     "label": "Vmware-DataCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": "DATACENTER",
+    "collection_label" :"虚拟化",
     "filter": {
         "_OBJ_TYPE": "VMWARE-DATACENTER"
     },

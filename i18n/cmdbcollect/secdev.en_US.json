@@ -2,6 +2,7 @@
     "label": "Security Device",
     "collection": "COLLECT_SECDEV",
     "docroot": null,
+    "collection_label" :"network device",
     "filter": {},
     "fields": [
         {

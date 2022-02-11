@@ -2,6 +2,7 @@
     "label": "Java",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"中间件",
     "filter": {
         "_OBJ_TYPE": "Java"
     },

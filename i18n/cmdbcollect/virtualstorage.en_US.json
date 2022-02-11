@@ -2,6 +2,7 @@
     "label": "Virtual Storage",
     "collection": "COLLECT_STORAGE",
     "docroot": null,
+    "collection_label" :"storage device",
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },

@@ -2,6 +2,7 @@
     "label": "F5",
     "collection": "COLLECT_LOADBALANCER",
     "docroot": null,
+    "collection_label" :"负载均衡",
     "filter": {
         "_OBJ_TYPE": "F5"
     },
