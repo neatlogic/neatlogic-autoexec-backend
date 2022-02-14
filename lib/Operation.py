@@ -192,7 +192,8 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #optValue = json.dumps(fileNamesJson)
+                        #optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                        optValue = fileNamesJson
                 self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
@@ -213,7 +214,8 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #argValue = json.dumps(fileNamesJson)
+                        #argValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                        argValue = fileNamesJson
                 argValues.append(argValue)
             self.arguments = argValues
 
@@ -224,6 +226,9 @@ class Operation:
 
         fileNamesArray = []
         for fileId in fileIds:
+            if isinstance(fileId, str):
+                continue
+
             fileName = serverAdapter.fetchFile(cachePath, fileId)
 
             if fileName is not None:
