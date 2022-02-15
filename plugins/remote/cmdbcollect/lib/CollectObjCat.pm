@@ -39,6 +39,12 @@ our $PK_CONFIG = {
     FCSWITCH     => ['MGMT_IP', 'SN']
 };
 
+our $INDEX_FIELDS = {
+    DBINS => ['IP', 'VIP'],
+    HOST => ['OS_ID'],
+    OS => ['OS_ID'],
+};
+
 sub get {
     my ( $self, $objCatName ) = @_;
     my $objCat = $TYPES->{$objCatName};
@@ -52,6 +58,15 @@ sub get {
 sub getPK {
     my ( $self, $objCat ) = @_;
     return $PK_CONFIG->{$objCat};
+}
+
+sub getIndexFields {
+    my ( $self, $objCat ) = @_;
+    my $indexFields = $INDEX_FIELDS->{$objCat};
+    if ( not defined($indexFields) ){
+        $indexFields = [];
+    }
+    return $indexFields;
 }
 
 sub validate {

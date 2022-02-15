@@ -2,6 +2,7 @@
     "label": "光纤交换机",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
+    "collection_label" :"存储网络设备",
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },

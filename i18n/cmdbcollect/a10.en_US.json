@@ -2,6 +2,7 @@
     "label": "A10",
     "collection": "COLLECT_LOADBALANCER",
     "docroot": null,
+    "collection_label" :"Loadbalancer",
     "filter": {
         "_OBJ_TYPE": "A10"
     },
@@ -28,7 +29,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

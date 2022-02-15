@@ -2,11 +2,11 @@
     "label": "Application",
     "collection": "COLLECT_APPLICATION",
     "docroot": null,
+    "collection_label": "Application",
     "filter": {
         "_OBJ_TYPE": "APPLICATION"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"

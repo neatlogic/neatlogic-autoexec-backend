@@ -2,6 +2,7 @@
     "label": "Zookeeper",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"应用实例",
     "filter": {
         "_OBJ_TYPE": "Zookeeper"
     },

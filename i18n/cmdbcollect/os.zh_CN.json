@@ -2,6 +2,7 @@
     "label": "操作系统",
     "collection": "COLLECT_OS",
     "docroot": null,
+    "collection_label" :"操作系统",
     "filter": {},
     "fields": [
         {

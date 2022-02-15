@@ -2,6 +2,7 @@
     "label": "Host",
     "collection": "COLLECT_HOST",
     "docroot": null,
+    "collection_label" :"Host",
     "filter": {},
     "fields": [
         {
@@ -26,7 +27,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

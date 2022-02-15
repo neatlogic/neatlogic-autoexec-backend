@@ -2,6 +2,7 @@
     "label": "App Instance",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"App Instance",
     "filter": {},
     "fields": [
         {
@@ -36,7 +37,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

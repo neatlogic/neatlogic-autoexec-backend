@@ -1,13 +1,10 @@
 {
-    "label": "Jetty",
-    "collection": "COLLECT_INS",
+    "label": "DB Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label" :"App Instance",
-    "filter": {
-        "_OBJ_TYPE": "Jetty"
-    },
-    "fields": [
-        {
+    "collection_label": "Database Instance",
+    "filter": {},
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -20,6 +17,11 @@
         {
             "name": "SERVER_NAME",
             "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
             "type": "String"
         },
         {
@@ -66,55 +68,9 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION",
-            "desc": "Applicaton",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "APP_NAME",
-                    "desc": "Application Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "Applicaton Module",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "Application Module Name",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "OS_ID",
@@ -145,8 +101,7 @@
             "name": "OPEN_FILES_INFO",
             "desc": "Open Files",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "PID",
                     "desc": "PID",
                     "type": "String"
@@ -179,46 +134,6 @@
             "type": "String"
         },
         {
-            "name": "CONFIG_PATH",
-            "desc": "Conf Path",
-            "type": "String"
-        },
-        {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
-        },
-        {
-            "name": "JVM_TYPE",
-            "desc": "JVM Type",
-            "type": "String"
-        },
-        {
-            "name": "JVM_VERSION",
-            "desc": "JVM Version",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_HOME",
-            "desc": "JAVA Home Dir",
-            "type": "String"
-        },
-        {
-            "name": "JAVA_VERSION",
-            "desc": "JAVA Version",
-            "type": "String"
-        },
-        {
-            "name": "JMX_PORT",
-            "desc": "JMX Port",
-            "type": "Int"
-        },
-        {
-            "name": "JMX_SSL",
-            "desc": "JMX SSL Enabled",
-            "type": "String"
-        },
-        {
             "name": "CPU_USAGE",
             "desc": "CPU%",
             "type": "Float"
@@ -229,31 +144,15 @@
             "type": "String"
         },
         {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "Max Heap Size",
-            "type": "Float"
-        },
-        {
             "name": "MEM_USAGE",
             "desc": "Memory%",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USED",
-            "desc": "Memroy used(M)",
             "type": "Float"
         },
         {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "Listen Addr",
                     "type": "Int"
@@ -269,8 +168,7 @@
             "name": "CONN_STATS",
             "desc": "Connection Stats",
             "type": "JsonObject",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TOTAL_COUNT",
                     "desc": "Total",
                     "type": "Int"
@@ -341,8 +239,7 @@
             "name": "CONN_OUTBOUND_STATS",
             "desc": "OutBound Conn Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "REMOTE_ADDR",
                     "desc": "Remote Addr",
                     "type": "String"
@@ -383,8 +280,7 @@
             "name": "MAIN_ENV",
             "desc": "Main Process Environment",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -397,132 +293,40 @@
             ]
         },
         {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "JETTY_BASE",
-            "desc": "Jetty Base Dir",
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
             "type": "String"
         },
         {
-            "name": "JETTY_HOME",
-            "desc": "Jetty Home Dir",
+            "name": "CLUSTER_ROLE",
+            "desc": "Cluster Role",
             "type": "String"
         },
         {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
+            "name": "CONFIG_FILE",
+            "desc": "Config File",
+            "type": "String"
         },
         {
-            "name": "REF_DB",
-            "desc": "Reference Databases",
+            "name": "DATABASES",
+            "desc": "Databases List",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "Management IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "DB Name",
+                "type": "String"
+            }]
         },
         {
-            "name": "REF_INS",
-            "desc": "Reference Instances",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "Management IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
+            "name": "IS_CLUSTER",
+            "desc": "Is Cluster",
+            "type": "Int"
         },
         {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"

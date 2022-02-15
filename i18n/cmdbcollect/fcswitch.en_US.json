@@ -2,6 +2,7 @@
     "label": "FCSwitch",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
+    "collection_label" :"Storage Net Device",
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
@@ -18,7 +19,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

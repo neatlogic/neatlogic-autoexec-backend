@@ -19,7 +19,7 @@ def usage():
 
 def getObjCatPkDef(objCat, customPkDef):
     pkDefs = {
-        'DB': ['MGMT_IP', 'PORT', 'INSTANCE_ID']
+        'DBINS': ['MGMT_IP', 'PORT', 'INSTANCE_ID']
     }
     fixPkDef = pkDefs.get(objCat)
     if fixPkDef is not None:
@@ -44,7 +44,7 @@ def createIndex(collection, data):
 
 # 目的通过PEER信息搜索到应用进程
 def saveAppConnData(db, existsCollections, data):
-    if data['_OBJ_CATEGORY'] in ('INS', 'DB'):
+    if data['_OBJ_CATEGORY'] in ('INS', 'DBINS'):
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']

@@ -2,6 +2,7 @@
     "label": "VMTool not installed",
     "collection": "COLLECT_OS",
     "docroot": null,
+    "collection_label" :"OS",
     "filter": {
         "_OBJ_TYPE": "novmtool"
     },
@@ -23,7 +24,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

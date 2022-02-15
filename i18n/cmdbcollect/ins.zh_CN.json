@@ -2,6 +2,7 @@
     "label": "应用实例",
     "collection": "COLLECT_INS",
     "docroot": null,
+    "collection_label" :"应用实例",
     "filter": {},
     "fields": [
         {

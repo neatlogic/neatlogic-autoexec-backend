@@ -2,9 +2,9 @@
     "label": "安全设备",
     "collection": "COLLECT_SECDEV",
     "docroot": null,
+    "collection_label": "安全设备",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"

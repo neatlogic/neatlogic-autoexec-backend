@@ -2,9 +2,9 @@
     "label": "Security Device",
     "collection": "COLLECT_SECDEV",
     "docroot": null,
+    "collection_label": "Security Device",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -21,7 +21,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

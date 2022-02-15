@@ -2,6 +2,7 @@
     "label": "OS",
     "collection": "COLLECT_OS",
     "docroot": null,
+    "collection_label" :"OS",
     "filter": {},
     "fields": [
         {
@@ -36,7 +37,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

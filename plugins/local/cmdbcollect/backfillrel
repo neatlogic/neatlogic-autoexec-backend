@@ -47,7 +47,7 @@ def genInsRel(db):
                        'PORT': rel['PORT']
                        }
 
-            if rel['_OBJ_CATEGORY'] == 'DB':
+            if rel['_OBJ_CATEGORY'] == 'DBINS':
                 refDbs.append(refInfo)
             else:
                 refIns.append(refInfo)
@@ -86,7 +86,7 @@ def genInsRel(db):
 
 def genDBInsRel(db):
     # 生成DB的集群关系数据，存放在DB实例的REF_CLUSTER下
-    dbCollection = db['COLLECT_DB']
+    dbCollection = db['COLLECT_DBINS']
     relSrcCollection = db['RELATION_INS_NETCONN']
     clusterCollection = db['COLLECT_CLUSTER']
 

@@ -1,6 +1,7 @@
 {
     "label": "AIX",
     "collection": "COLLECT_OS",
+    "collection_label" :"OS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "AIX"
@@ -38,7 +39,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

@@ -2,6 +2,7 @@
     "label": "Linux",
     "collection": "COLLECT_OS",
     "docroot": null,
+    "collection_label" :"OS",
     "filter": {
         "_OBJ_TYPE": "Linux"
     },
@@ -38,7 +39,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

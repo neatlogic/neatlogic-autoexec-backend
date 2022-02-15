@@ -108,7 +108,7 @@ sub collectHostOSInfo {
             $hostInfo->{MGMT_IP}       = $osGather->{mgmtIp};
             $hostInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
             $hostInfo->{PK}            = CollectObjCat->getPK($hostObjCat);
-            $hostInfo->{INDEX_FIELDS}  = ['OS_ID'];
+            $hostInfo->{INDEX_FIELDS}  = CollectObjCat->getIndexFields($hostObjCat);
         }
         else {
             $hostInfo = {};
@@ -123,7 +123,7 @@ sub collectHostOSInfo {
             $osInfo->{MGMT_IP}       = $osGather->{mgmtIp};
             $osInfo->{MGMT_PORT}     = $osGather->{mgmtPort};
             $osInfo->{PK}            = CollectObjCat->getPK($osObjCat);
-            $osInfo->{INDEX_FIELDS}  = ['OS_ID'];
+            $osInfo->{INDEX_FIELDS}  = CollectObjCat->getIndexFields($osObjCat);
 
             if ( defined($hostInfo) and defined( $hostInfo->{BOARD_SERIAL} ) ) {
                 $osInfo->{HOST_ON} = [
@@ -546,6 +546,9 @@ sub doDetailCollect {
                 $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
                 print("ERROR: $objType PK not defined for obj catetory:$objCat.\n");
             }
+        }
+        if ( not defined( $appInfo->{INDEX_FIELDS}) ){
+            $appInfo->{INDEX_FIELDS} = CollectObjCat->getIndexFields($objCat);
         }
 
         my @envEntries = ();

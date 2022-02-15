@@ -215,7 +215,7 @@ sub execOneSqlFile {
     print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
     print("#***************************************\n\n");
 
-    my $charSet = $elf->{charSet};
+    my $charSet = $self->{charSet};
     if ( not defined($charSet) ) {
         $charSet = Utils::guessEncoding($sqlFilePath);
         if ( defined($charSet) ) {

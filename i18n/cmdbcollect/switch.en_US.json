@@ -2,6 +2,7 @@
     "label": "Switch",
     "collection": "COLLECT_NETDEV",
     "docroot": null,
+    "collection_label" :"Net Device",
     "filter": {
         "_OBJ_TYPE": "Switch"
     },
@@ -23,7 +24,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

@@ -2,6 +2,7 @@
     "label": "DB2 Instance",
     "collection": "COLLECT_DBINS",
     "docroot": null,
+    "collection_label" :"Database Instance",
     "filter": {
         "_OBJ_TYPE": "DB2"
     },
@@ -43,7 +44,7 @@
         },
         {
             "name": "STATE",
-            "desc": "使用状态",
+            "desc": "Use State",
             "type": "String"
         },
         {

@@ -5,6 +5,7 @@
 """
 
 from pyVim import connect
+from pyVim.connect import SmartConnect, Disconnect, SmartConnection
 import traceback
 import atexit
 import ssl
@@ -25,6 +26,7 @@ class VsphereQuery:
             raise SystemExit("Unable to connect to host with supplied info.")
         #content = service_instance.RetrieveContent()
         vcontent = service_instance.content
+        self.service_instance = service_instance
         self.vcontent = vcontent
         self.ip = ip
         self.user = user
@@ -43,8 +45,13 @@ class VsphereQuery:
                 ins['MOID'] = moid
                 available = round(summary.freeSpace/1024/1204/1024, 2)
                 capacity = round(summary.capacity/1024/1024/1024, 2)
+                used = capacity - available
+                used_pct = round((used/capacity)*100)
                 ins['AVAILABLE'] = available
                 ins['CAPACITY'] = capacity
+                ins['USED'] = used
+                ins['USED_PCT'] = used_pct
+                ins['STATUS'] = dst.overallStatus
                 ins['TYPE'] = summary.type
                 ins['UNIT'] = 'GB'
                 ins['PATH'] = summary.url
@@ -61,6 +68,7 @@ class VsphereQuery:
                 moid = nt._moId
                 ins['NAME'] = name
                 ins['MOID'] = moid
+                ins['STATUS'] = nt.overallStatus
                 data_list.append(ins)
         return data_list
 
@@ -187,12 +195,14 @@ class VsphereQuery:
         ins['CPU_COUNT'] = numCPU
         ins['CPU_CORES'] = numCoresPerSocket
         ins['IS_VIRTUAL'] = 1
-
         serialNumber = host.hardware.systemInfo.serialNumber
-        ins['MACHINE_UUID'] = host.hardware.systemInfo.uuid
+        host_uuid = host.hardware.systemInfo.uuid
+        if serialNumber is None :
+            serialNumber = ''
+        ins['MACHINE_UUID'] = host_uuid
         ins['MACHINE_SN'] = serialNumber
-        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST'}]
-        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGIT_IP':self.ip}]
+        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','ESXI_IP':host.name,'UUID':host_uuid}]
+        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGMT_IP':self.ip}]
         return ins
 
     def get_vmlist(self, cluster):
@@ -206,6 +216,22 @@ class VsphereQuery:
                         for vm in vm_list:
                             data_list.append(self.get_vm(host, vm, cluster))
         return data_list
+
+    def disconnect(self):
+        Disconnect(self.service_instance)
+  
+    def get_alarms(self):
+        alarms =[]
+        for trigger in self.vcontent.rootFolder.triggeredAlarmState:
+            alarm = {}
+            alarm['KEY'] = trigger.key
+            alarm['NAME'] = trigger.alarm.info.name
+            alarm['ENTITY'] = trigger.entity.name
+            alarm['STATUS'] = trigger.overallStatus
+            alarm['TIME'] = str(trigger.time)
+            alarm['MESSAGE'] = trigger.alarm.info.description
+            alarms.append(alarm)
+        return alarms
 
     def collect(self):
         vsphere = {}
@@ -247,4 +273,8 @@ class VsphereQuery:
             datacenter_list.append(datacenter_ins)
 
         vsphere['DATACENTER'] = datacenter_list
+        #告警
+        vsphere['ALARMS']=self.get_alarms()
+        #关闭会话
+        self.disconnect()
         return vsphere

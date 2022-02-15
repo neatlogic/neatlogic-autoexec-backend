@@ -1,13 +1,10 @@
 {
-    "label": "PHP",
-    "collection": "COLLECT_INS",
+    "label": "数据库实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label" :"应用实例",
-    "filter": {
-        "_OBJ_TYPE": "PHP"
-    },
-    "fields": [
-        {
+    "collection_label": "数据库实例",
+    "filter": {},
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -19,7 +16,12 @@
         },
         {
             "name": "SERVER_NAME",
-            "desc": "服务名",
+            "desc": "服务器名",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "实例名",
             "type": "String"
         },
         {
@@ -66,55 +68,9 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION",
-            "desc": "所属应用",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "APP_NAME",
-                    "desc": "应用名",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "所属应用模块",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "应用模块名",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "OS_ID",
@@ -145,8 +101,7 @@
             "name": "OPEN_FILES_INFO",
             "desc": "打开文件数",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "PID",
                     "desc": "进程号",
                     "type": "String"
@@ -179,16 +134,6 @@
             "type": "String"
         },
         {
-            "name": "CONFIG_PATH",
-            "desc": "配置目录",
-            "type": "String"
-        },
-        {
-            "name": "EXE_PATH",
-            "desc": "执行文件路径",
-            "type": "String"
-        },
-        {
             "name": "CPU_USAGE",
             "desc": "CPU使用率%",
             "type": "Float"
@@ -204,16 +149,10 @@
             "type": "Float"
         },
         {
-            "name": "MEM_USED",
-            "desc": "使用内存(M)",
-            "type": "Float"
-        },
-        {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "监听地址",
                     "type": "Int"
@@ -229,8 +168,7 @@
             "name": "CONN_STATS",
             "desc": "连接统计",
             "type": "JsonObject",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TOTAL_COUNT",
                     "desc": "总数",
                     "type": "Int"
@@ -301,8 +239,7 @@
             "name": "CONN_OUTBOUND_STATS",
             "desc": "出方向连接统计",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "REMOTE_ADDR",
                     "desc": "远程地址",
                     "type": "String"
@@ -343,8 +280,7 @@
             "name": "MAIN_ENV",
             "desc": "主进程环境变量",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "变量名",
                     "type": "String"
@@ -357,132 +293,40 @@
             ]
         },
         {
-            "name": "BIN_PATH",
-            "desc": "BIN文件路径",
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
             "type": "String"
         },
         {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
-        },
-        {
-            "name": "ENGINE_VERSION",
-            "desc": "引擎版本",
+            "name": "CLUSTER_ROLE",
+            "desc": "集群角色",
             "type": "String"
         },
         {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
+            "name": "CONFIG_FILE",
+            "desc": "配置文件",
+            "type": "String"
         },
         {
-            "name": "REF_DB",
-            "desc": "调用的数据库",
+            "name": "DATABASES",
+            "desc": "DB列表",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "管理IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
+            "subset": [{
+                "name": "NAME",
+                "desc": "DB名称",
+                "type": "String"
+            }]
         },
         {
-            "name": "REF_INS",
-            "desc": "调用的其他实例",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "管理IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
+            "name": "IS_CLUSTER",
+            "desc": "是否是集群",
+            "type": "Int"
         },
         {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类别",
                     "type": "String"

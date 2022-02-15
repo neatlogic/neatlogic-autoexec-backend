@@ -2,6 +2,7 @@
     "label": "DB Instance",
     "collection": "COLLECT_DB",
     "docroot": null,
+    "collection_label": "Database",
     "filter": {},
     "fields": [{
             "name": "_OBJ_CATEGORY",
@@ -10,17 +11,22 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "Application Type",
+            "desc": "Object Type",
             "type": "String"
         },
         {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
             "type": "String"
         },
         {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
+            "name": "NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -30,23 +36,86 @@
         },
         {
             "name": "MGMT_PORT",
-            "desc": "Managment Port",
-            "type": "Int"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
+            "desc": "Managment PORT",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "Service IP",
             "type": "String"
         },
         {
             "name": "PORT",
             "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [{
+                "type": "Int"
+            }]
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "Service Address",
             "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCES",
+            "desc": "DB Instances",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                }, {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "Name",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NODE_NAME",
+                    "desc": "Node Name in Cluster",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "Service Addr",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "AVAILABILITY",
@@ -64,90 +133,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [{
-                "type": "Int"
-            }]
-        },
-        {
-            "name": "OS_ID",
-            "desc": "OS ID",
-            "type": "String"
-        },
-        {
-            "name": "ADMIN_PORT",
-            "desc": "Admin Port",
-            "type": "String"
-        },
-        {
-            "name": "ADMIN_SSL_PORT",
-            "desc": "Admin SSL Port",
-            "type": "String"
-        },
-        {
-            "name": "MON_PORT",
-            "desc": "Monitor Port",
-            "type": "String"
-        },
-        {
-            "name": "SSL_PORT",
-            "desc": "SSL Port",
-            "type": "String"
-        },
-        {
-            "name": "OPEN_FILES_INFO",
-            "desc": "Open Files",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "PID",
-                    "desc": "PID",
-                    "type": "String"
-                },
-                {
-                    "name": "OPEN",
-                    "desc": "Open Count",
-                    "type": "Int"
-                },
-                {
-                    "name": "MAX",
-                    "desc": "Max Limit",
-                    "type": "Int"
-                },
-                {
-                    "name": "RATE",
-                    "desc": "Used%",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "OS_USER",
-            "desc": "OS User",
-            "type": "String"
-        },
-        {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
-            "type": "String"
-        },
-        {
-            "name": "CPU_USAGE",
-            "desc": "CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_LOGIC_CORES",
-            "desc": "Cpu Logic Cores",
-            "type": "String"
-        },
-        {
-            "name": "MEM_USAGE",
-            "desc": "Memory%",
-            "type": "Float"
-        },
-        {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
@@ -160,118 +145,6 @@
                     "name": "QUEUED",
                     "desc": "Queued Count",
                     "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "CONN_STATS",
-            "desc": "Connection Stats",
-            "type": "JsonObject",
-            "subset": [{
-                    "name": "TOTAL_COUNT",
-                    "desc": "Total",
-                    "type": "Int"
-                },
-                {
-                    "name": "INBOUND_COUNT",
-                    "desc": "InBound",
-                    "type": "Int"
-                },
-                {
-                    "name": "SYN_RECV_COUNT",
-                    "desc": "Syn Recv",
-                    "type": "Int"
-                },
-                {
-                    "name": "CLOSE_WAIT_COUNT",
-                    "desc": "Close Wait",
-                    "type": "Int"
-                },
-                {
-                    "name": "OUTBOUND_COUNT",
-                    "desc": "OutBound",
-                    "type": "Int"
-                },
-                {
-                    "name": "RECV_QUEUED_COUNT",
-                    "desc": "Recv Queued",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_COUNT",
-                    "desc": "Send Queued",
-                    "type": "Int"
-                },
-                {
-                    "name": "RECV_QUEUED_SIZE",
-                    "desc": "Recv Queued Size",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE",
-                    "desc": "Send Queued Size",
-                    "type": "Int"
-                },
-                {
-                    "name": "RECV_QUEUED_RATE",
-                    "desc": "Recv Queued Rate",
-                    "type": "Float"
-                },
-                {
-                    "name": "SEND_QUEUED_RATE",
-                    "desc": "Send Queued Rate",
-                    "type": "Float"
-                },
-                {
-                    "name": "RECV_QUEUED_SIZE_AVG",
-                    "desc": "Recv Queued Size Avg",
-                    "type": "Float"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE_AVG",
-                    "desc": "Send Queued Size Avg",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "CONN_OUTBOUND_STATS",
-            "desc": "OutBound Conn Stats",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "REMOTE_ADDR",
-                    "desc": "Remote Addr",
-                    "type": "String"
-                },
-                {
-                    "name": "OUTBOUND_COUNT",
-                    "desc": "Count",
-                    "type": "Int"
-                },
-                {
-                    "name": "SYN_SENT_COUNT",
-                    "desc": "Syn Sent",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_COUNT",
-                    "desc": "Send Queued",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE",
-                    "desc": "Send Queued Size",
-                    "type": "Int"
-                },
-                {
-                    "name": "SEND_QUEUED_SIZE_AVG",
-                    "desc": "Send Queued Size Avg",
-                    "type": "Float"
-                },
-                {
-                    "name": "SEND_QUEUED_RATE",
-                    "desc": "Send Queued Rate",
-                    "type": "Float"
                 }
             ]
         },
@@ -295,57 +168,6 @@
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
             "type": "String"
-        },
-        {
-            "name": "CLUSTER_ROLE",
-            "desc": "Cluster Role",
-            "type": "String"
-        },
-        {
-            "name": "CONFIG_FILE",
-            "desc": "Config File",
-            "type": "String"
-        },
-        {
-            "name": "DATABASES",
-            "desc": "Databases List",
-            "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "DB Name",
-                "type": "String"
-            }]
-        },
-        {
-            "name": "IS_CLUSTER",
-            "desc": "Is Cluster",
-            "type": "Int"
-        },
-        {
-            "name": "RUN_ON",
-            "desc": "Run On Os",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
-                    "type": "String"
-                }
-            ]
         }
     ]
 }

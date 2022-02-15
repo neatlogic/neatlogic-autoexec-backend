@@ -2,6 +2,7 @@
     "label": "Mongodb实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
+    "collection_label" :"数据库",
     "filter": {
         "_OBJ_TYPE": "Mongodb"
     },
