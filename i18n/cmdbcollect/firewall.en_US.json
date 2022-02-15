@@ -2,7 +2,7 @@
     "label": "Firewall",
     "collection": "COLLECT_SECDEV",
     "docroot": null,
-    "collection_label" :"Security Device",
+    "collection_label": "Security Device",
     "filter": {
         "_OBJ_TYPE": "FireWall"
     },

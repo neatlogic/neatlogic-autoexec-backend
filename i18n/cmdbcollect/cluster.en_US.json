@@ -2,7 +2,7 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
-    "collection_label" :"Cluster",
+    "collection_label": "Cluster",
     "filter": {},
     "fields": [
         {

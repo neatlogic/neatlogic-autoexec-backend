@@ -215,7 +215,7 @@ sub getParams {
     $insInfo->{IS_RAC} = $isRAC;
 
     $insInfo->{DB_NAME}          = $param->{db_name};
-    $insInfo->{SGA_MAX_SIZE}     = $param->{sga_max_size};
+    $insInfo->{SGA_MAX_SIZE}     = $param->{sga_max_size} + 0.0;
     $insInfo->{MEMORY_TARGET}    = $param->{memory_target};
     $insInfo->{LOG_ARCHIVE_DEST} = $param->{log_archive_dest_1};
     if ( not defined( $insInfo->{LOG_ARCHIVE_DEST} ) ) {
@@ -346,7 +346,7 @@ sub collectIns {
     $insInfo->{ORACLE_SID}    = $oraSid;
     $insInfo->{INSTANCE_NAME} = $oraSid;
     $insInfo->{INSTALL_PATH}  = $oraBase;
-    $insInfo->{CONFIG_PATH}   = $oraHome;
+    $insInfo->{CONFIG_PATH}   = $oraBase;
 
     #把sqlplus存到self属性里面，后续的方法会从self里获取sqlplus对象
     $self->{sqlplus} = SqlplusExec->new(
@@ -437,19 +437,21 @@ sub collectCDB {
         }
 
         my $svcAddr = join( ',', sort(@svcAddrs) );
-        $dbInfo->{SERVICE_ADDR} = $svcAddr;
-        $dbInfo->{PRIMARY_IP}   = $primaryIp;
-        $dbInfo->{VIP}          = $primaryIp;
+        $dbInfo->{SERVICE_ADDR}  = $svcAddr;
+        $dbInfo->{PRIMARY_IP}    = $primaryIp;
+        $dbInfo->{VIP}           = $primaryIp;
+        $dbInfo->{DATABASE_ROLE} = $insInfo->{DATABASE_ROLE};
     }
     else {
-        $dbInfo->{PRIMARY_IP} = $insInfo->{MGMT_IP};
-        $dbInfo->{VIP}        = $dbInfo->{PRIMARY_IP};
+        $dbInfo->{PRIMARY_IP}    = $insInfo->{MGMT_IP};
+        $dbInfo->{VIP}           = $dbInfo->{PRIMARY_IP};
+        $dbInfo->{DATABASE_ROLE} = $insInfo->{DATABASE_ROLE};
 
         $dbInfo->{INSTANCES} = [
             {
                 _OBJ_CATEGORY => 'DBINS',
                 _OBJ_TYPE     => 'Oracle',
-                NAME          => $insInfo->{INSTANCE_NAME},
+                INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
                 IP            => $insInfo->{IP},
                 VIP           => $insInfo->{VIP},
                 PORT          => $insInfo->{PORT},
@@ -489,7 +491,7 @@ sub collectPDB {
                 {
                     _OBJ_CATEGORY => 'DBINS',
                     _OBJ_TYPE     => 'Oracle',
-                    NAME          => $insInfo->{INSTANCE_NAME},
+                    INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
                     IP            => $insInfo->{IP},
                     VIP           => $insInfo->{VIP},
                     PORT          => $insInfo->{PORT},
@@ -508,7 +510,7 @@ sub collectPDB {
         $pdb->{CON_ID} = $row->{CON_ID};
 
         $pdb->{_OBJ_CATEGORY} = 'DB';
-        $pdb->{_OBJ_TYPE}     = 'Oracle-PDB';
+        $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
         $pdb->{_APP_TYPE}     = 'PDB';
         $pdb->{CDB}           = $dbName;
 
@@ -622,9 +624,9 @@ sub getASMDiskGroup {
         my $groupName = $row->{NAME};
         $diskGroup->{NAME}     = $groupName;
         $diskGroup->{TYPE}     = $row->{TYPE};
-        $diskGroup->{TOTAL_MB} = $row->{TOTAL_MB} + 0.0;
-        $diskGroup->{FREE_MB}  = $row->{FREE_MB} + 0.0;
-        $diskGroup->{USED_MB}  = 0.0 + $row->{TOTAL_MB} - $row->{FREE_MB};
+        $diskGroup->{TOTAL}    = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
+        $diskGroup->{FREE}     = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
+        $diskGroup->{USED}     = $diskGroup->{TOTAL} - $diskGroup->{FREE};
         $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
         $diskGroup->{DISKS}    = [];
         push( @diskGroups, $diskGroup );
@@ -641,9 +643,9 @@ sub getASMDiskGroup {
         $disk->{NAME}         = $row->{NAME};
         $disk->{FAIL_GROUP}   = $row->{FGROUP};
         $disk->{MOUNT_STATUS} = $row->{MNT_STS};
-        $disk->{CAPACITY}     = int( $row->{TOTAL_MB} * 100 / 1024 + 0.5 ) / 100 + 0.0;
-        $disk->{FREE}         = int( $row->{FREE_MB} * 100 / 1024 + 0.5 ) / 100 + 0.0;
-        $disk->{USED}         = 0.0 + int( ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / 1024 + 0.5 ) / 100;
+        $disk->{CAPACITY}     = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+        $disk->{FREE}         = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+        $disk->{USED}         = $disk->{CAPACITY} - $disk->{FREE};
         $disk->{USED_PCT}     = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
         $disk->{DEV_PATH}     = $row->{PATH};
 
@@ -713,7 +715,7 @@ sub getClusterDB {
             print("WARN: Can not find listen port for db:$dbName.\n");
             next;
         }
-
+        $dbInfo->{PORT}                = $miniPort;
         $dbInfo->{LISTEN_ADDRS}        = \@listenAddrs;
         $dbInfo->{DB_LISTEN_PORTS_MAP} = $listenMap;
 
@@ -853,7 +855,7 @@ sub getClusterNodes {
             my $nodeInfo  = { _OBJ_CATEGORY => 'OS', _OBJ_TYPE => $self->{ostype}, NAME => $dbNode, IP => $nodePubIp };
             $self->getNodeVip( $racInfo, $nodeInfo );
             $self->getNodePrivNet( $racInfo, $nodeInfo );
-            $nodeInfo->{HOST_ON} = { _OBJ_TYPE => $self->{ostype}, HOST => $nodePubIp };
+            $nodeInfo->{HOST_ON} = { _OBJ_TYPE => $self->{ostype}, HOST => $nodePubIp, MGMT_IP => $nodePubIp };
             push( @nodePubIps, $nodePubIp );
             push( @dbNodes,    $nodeInfo );
             $dbNodesMap->{$dbNode} = $nodeInfo;
@@ -1454,17 +1456,44 @@ sub collect {
         #ORACLE实例信息采集完成
         push( @collectSet, $insInfo );
 
-        my $CDBS = $self->collectCDB($insInfo);
+        my @databases = ();
+        my $CDBS      = $self->collectCDB($insInfo);
         if ( defined($CDBS) and scalar(@$CDBS) > 0 ) {
-            push( @collectSet, @$CDBS );
+            foreach my $CDB (@$CDBS) {
+                push( @collectSet, $CDB );
+                push(
+                    @databases,
+                    {
+                        _OBJ_CATEGORY => $CDB->{_OBJ_CATEGORY},
+                        _OBJ_TYPE     => $CDB->{_OBJ_TYPE},
+                        _APP_TYPE     => $CDB->{_APP_TYPE},
+                        NAME          => $CDB->{NAME},
+                        PRIMARY_IP    => $CDB->{PRIMARY_IP},
+                        PORT          => $CDB->{PORT},
+                    }
+                );
+            }
         }
 
         #如果当前实例运行在CDB模式下，则采集CDB中的所有PDB
         if ( $insInfo->{IS_CDB} == 1 ) {
             my $PDBS = $self->collectPDB($insInfo);
 
-            if ( defined($PDBS) and scalar(@$PDBS) > 0 ) {
-                push( @collectSet, @$PDBS );
+            if ( defined($PDBS) ) {
+                foreach my $PDB (@$PDBS) {
+                    push( @collectSet, $PDB );
+                    push(
+                        @databases,
+                        {
+                            _OBJ_CATEGORY => $PDB->{_OBJ_CATEGORY},
+                            _OBJ_TYPE     => $PDB->{_OBJ_TYPE},
+                            _APP_TYPE     => $PDB->{_APP_TYPE},
+                            NAME          => $PDB->{NAME},
+                            PRIMARY_IP    => $PDB->{PRIMARY_IP},
+                            PORT          => $PDB->{PORT},
+                        }
+                    );
+                }
             }
         }
     }

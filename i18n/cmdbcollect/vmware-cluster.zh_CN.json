@@ -2,7 +2,7 @@
     "label": "Vmware-Cluster",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": "DATACENTER.CLUSTER",
-    "collection_label" :"虚拟化",
+    "collection_label": "虚拟化",
     "filter": {
         "_OBJ_TYPE": "VMWARE-CLUSTER"
     },
@@ -18,88 +18,9 @@
             "type": "String"
         },
         {
-            "name": "MOID",
-            "desc": "id",
-            "type": "String"
-        },
-        {
             "name": "NAME",
             "desc": "名称",
             "type": "String"
-        },
-        {
-            "name": "DATASTORE",
-            "desc": "存储",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "MOID",
-                    "desc": "id",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "容量(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "可用容量(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "已用容量(GB)",
-                    "type": "Float"
-                },{
-                    "name": "USED_PCT",
-                    "desc": "使用率%",
-                    "type": "Float"
-                },{
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },{
-                    "name": "TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },{
-                    "name": "PATH",
-                    "desc": "URL",
-                    "type": "String"
-                },{
-                    "name": "UNIT",
-                    "desc": "单位",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NETWORK",
-            "desc": "网络",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "MOID",
-                    "desc": "id",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "CONTAIN_HOST",
@@ -159,6 +80,90 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "DATASTORE",
+            "desc": "存储",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "PATH",
+                    "desc": "URL",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        },
+        {
+            "name": "NETWORK",
+            "desc": "网络",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MOID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
                 }
             ]
         }

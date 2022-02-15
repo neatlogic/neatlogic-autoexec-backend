@@ -2,7 +2,7 @@
     "label": "Host",
     "collection": "COLLECT_HOST",
     "docroot": null,
-    "collection_label" :"Host",
+    "collection_label": "Host",
     "filter": {},
     "fields": [
         {

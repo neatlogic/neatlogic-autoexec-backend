@@ -1,7 +1,7 @@
 {
     "label": "Apache",
     "collection": "COLLECT_INS",
-    "collection_label" :"应用实例",
+    "collection_label": "应用实例",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Apache"

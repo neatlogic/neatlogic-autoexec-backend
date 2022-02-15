@@ -4,7 +4,8 @@
     "docroot": null,
     "collection_label": "Empty Obj",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"

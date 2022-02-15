@@ -2,7 +2,7 @@
     "label": "AccessEndpoint",
     "collection": "COLLECT_ACCESSENDPOINT",
     "docroot": null,
-    "collection_label" :"AccessendPoint",
+    "collection_label": "AccessendPoint",
     "filter": {},
     "fields": [
         {

@@ -2,7 +2,7 @@
     "label": "Oracle 实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label" :"数据库",
+    "collection_label": "数据库",
     "filter": {
         "_OBJ_TYPE": "Oracle"
     },
@@ -345,93 +345,14 @@
             "type": "Text"
         },
         {
-            "name": "DBID",
-            "desc": "DBID",
+            "name": "DATABASE_ROLE",
+            "desc": "库角色",
             "type": "String"
         },
         {
-            "name": "DISK_GROUPS",
-            "desc": "磁盘组列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "TOTAL_MB",
-                    "desc": "大小(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_MB",
-                    "desc": "使用(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "FREE_MB",
-                    "desc": "空闲(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "使用(%)",
-                    "type": "Float"
-                },
-                {
-                    "name": "DISKS",
-                    "desc": "磁盘列表",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "NAME",
-                            "desc": "名称",
-                            "type": "String"
-                        },
-                        {
-                            "name": "FAIL_GROUP",
-                            "desc": "失败组",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MOUNT_STATUS",
-                            "desc": "状态",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PATH",
-                            "desc": "磁盘路径",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TOTAL_MB",
-                            "desc": "大小(MB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "USED_MB",
-                            "desc": "使用(MB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "FREE_MB",
-                            "desc": "空闲(MB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "USED_PCT",
-                            "desc": "使用(%)",
-                            "type": "Float"
-                        }
-                    ]
-                }
-            ]
+            "name": "DBID",
+            "desc": "DBID",
+            "type": "String"
         },
         {
             "name": "GRID_BASE",
@@ -452,6 +373,38 @@
             "name": "IS_RAC",
             "desc": "是否RAC",
             "type": "Int"
+        },
+        {
+            "name": "LISTENERS",
+            "desc": "TNS监听",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_NAMES",
+                    "desc": "监听地址",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_ADDRS",
+                    "desc": "监听地址",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_PORTS",
+                    "desc": "监听地址",
+                    "type": "array"
+                }
+            ]
         },
         {
             "name": "LOG_ARCHIVE_DEST",
@@ -486,11 +439,6 @@
         {
             "name": "ORACLE_HOME",
             "desc": "Oralce Home目录",
-            "type": "String"
-        },
-        {
-            "name": "ORACLE_HOSTNAME",
-            "desc": "Oralce 主机名",
             "type": "String"
         },
         {
@@ -545,7 +493,7 @@
         {
             "name": "SGA_MAX_SIZE",
             "desc": "SGA最大内存(MB)",
-            "type": "String"
+            "type": "Int"
         },
         {
             "name": "TABLE_SPACESES",
@@ -553,22 +501,27 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "TABLESPACE_NAME",
+                    "name": "NAME",
                     "desc": "表空间名",
                     "type": "String"
                 },
                 {
-                    "name": "TOTAL_GB",
+                    "name": "AUTOEXTENSIBLE",
+                    "desc": "自动扩展",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
                     "desc": "容量(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "USED_GB",
+                    "name": "USED",
                     "desc": "使用(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "FREE_GB",
+                    "name": "FREE",
                     "desc": "空闲(GB)",
                     "type": "Float"
                 },

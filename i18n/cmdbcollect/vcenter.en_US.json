@@ -2,7 +2,7 @@
     "label": "VCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
-    "collection_label" :"Virtualized",
+    "collection_label": "Virtualized",
     "filter": {
         "_OBJ_TYPE": "VCENTER"
     },
@@ -73,6 +73,43 @@
             "type": "String"
         },
         {
+            "name": "ALARMS",
+            "desc": "Alarm Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY",
+                    "desc": "Entity",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "Time",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "Message",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DATACENTER",
             "desc": "Data Center",
             "type": "JsonArray",
@@ -131,23 +168,28 @@
                                     "name": "USED",
                                     "desc": "Used(GB)",
                                     "type": "Float"
-                                },{
+                                },
+                                {
                                     "name": "USED_PCT",
                                     "desc": "Used pct%",
                                     "type": "Float"
-                                },{
+                                },
+                                {
                                     "name": "STATUS",
                                     "desc": "Status",
                                     "type": "String"
-                                },{
+                                },
+                                {
                                     "name": "TYPE",
                                     "desc": "Type",
                                     "type": "String"
-                                },{
+                                },
+                                {
                                     "name": "PATH",
                                     "desc": "URL",
                                     "type": "String"
-                                },{
+                                },
+                                {
                                     "name": "UNIT",
                                     "desc": "Unit",
                                     "type": "String"
@@ -212,7 +254,8 @@
                                     "name": "VM_ID",
                                     "desc": "Virtual System ID",
                                     "type": "String"
-                                },{
+                                },
+                                {
                                     "name": "HOST_ON",
                                     "desc": "Run Host",
                                     "type": "JsonArray",
@@ -249,39 +292,6 @@
             "name": "INSTANCEUUID",
             "desc": "Instance UUID",
             "type": "String"
-        },{
-            "name": "ALARMS",
-            "desc": "Alarm Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "KEY",
-                    "desc": "id",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY",
-                    "desc": "Entity",
-                    "type": "String"
-                },{
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                },{
-                    "name": "TIME",
-                    "desc": "Time",
-                    "type": "String"
-                },{
-                    "name": "MESSAGE",
-                    "desc": "Message",
-                    "type": "String"
-                }
-            ]
         }
     ]
 }

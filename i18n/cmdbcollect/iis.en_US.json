@@ -2,7 +2,7 @@
     "label": "IIS",
     "collection": "COLLECT_INS",
     "docroot": null,
-    "collection_label" :"App Instance",
+    "collection_label": "App Instance",
     "filter": {
         "_OBJ_TYPE": "IIS"
     },

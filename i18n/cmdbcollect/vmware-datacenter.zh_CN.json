@@ -2,7 +2,7 @@
     "label": "Vmware-DataCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": "DATACENTER",
-    "collection_label" :"虚拟化",
+    "collection_label": "虚拟化",
     "filter": {
         "_OBJ_TYPE": "VMWARE-DATACENTER"
     },
@@ -15,11 +15,6 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "中间件类型",
-            "type": "String"
-        },
-        {
-            "name": "MOID",
-            "desc": "id",
             "type": "String"
         },
         {
@@ -71,23 +66,28 @@
                             "name": "USED",
                             "desc": "已用容量(GB)",
                             "type": "Float"
-                        },{
+                        },
+                        {
                             "name": "USED_PCT",
                             "desc": "使用率%",
                             "type": "Float"
-                        },{
+                        },
+                        {
                             "name": "STATUS",
                             "desc": "状态",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "TYPE",
                             "desc": "类型",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "PATH",
                             "desc": "URL",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "UNIT",
                             "desc": "单位",
                             "type": "String"
@@ -178,6 +178,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
         }
     ]
 }

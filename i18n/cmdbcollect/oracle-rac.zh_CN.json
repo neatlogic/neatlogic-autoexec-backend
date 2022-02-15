@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -14,11 +15,6 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "中间件类型",
-            "type": "String"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "服务名",
             "type": "String"
         },
         {
@@ -70,11 +66,13 @@
             "name": "PORTS",
             "desc": "所有端口列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "端口",
-                "type": "Float"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "端口",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "OS_ID",
@@ -125,7 +123,8 @@
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USERNAME",
                     "desc": "用户名",
                     "type": "String"
@@ -143,6 +142,11 @@
             "type": "String"
         },
         {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "集群软件",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_VERSION",
             "desc": "集群软件版本",
             "type": "String"
@@ -153,6 +157,38 @@
             "type": "Text"
         },
         {
+            "name": "DATABASES",
+            "desc": "DB列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "服务地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DBID",
             "desc": "DBID",
             "type": "String"
@@ -161,7 +197,8 @@
             "name": "DISK_GROUPS",
             "desc": "磁盘组列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -172,18 +209,18 @@
                     "type": "String"
                 },
                 {
-                    "name": "TOTAL_MB",
-                    "desc": "大小(MB)",
+                    "name": "TOTAL",
+                    "desc": "大小(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "USED_MB",
-                    "desc": "使用(MB)",
+                    "name": "USED",
+                    "desc": "使用(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "FREE_MB",
-                    "desc": "空闲(MB)",
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
                     "type": "Float"
                 },
                 {
@@ -195,7 +232,8 @@
                     "name": "DISKS",
                     "desc": "磁盘列表",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -211,23 +249,23 @@
                             "type": "String"
                         },
                         {
-                            "name": "PATH",
+                            "name": "DEV_PATH",
                             "desc": "磁盘路径",
                             "type": "String"
                         },
                         {
-                            "name": "TOTAL_MB",
-                            "desc": "大小(MB)",
+                            "name": "TOTAL",
+                            "desc": "大小(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "USED_MB",
-                            "desc": "使用(MB)",
+                            "name": "USED",
+                            "desc": "使用(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "FREE_MB",
-                            "desc": "空闲(MB)",
+                            "name": "FREE",
+                            "desc": "空闲(GB)",
                             "type": "Float"
                         },
                         {
@@ -250,20 +288,11 @@
             "type": "String"
         },
         {
-            "name": "IS_CDB",
-            "desc": "是否CDB",
-            "type": "Int"
-        },
-        {
-            "name": "IS_RAC",
-            "desc": "是否RAC",
-            "type": "Int"
-        },
-        {
             "name": "LISTEN_ADDRS",
             "desc": "监听地址",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -274,6 +303,21 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "LOCAL_NODE",
+            "desc": "节点名",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_PUB_IP",
+            "desc": "节点公共IP",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_VIP",
+            "desc": "节点VIP",
+            "type": "String"
         },
         {
             "name": "LOG_ARCHIVE_DEST",
@@ -297,9 +341,20 @@
         },
         {
             "name": "NODES",
-            "desc": "RAC节点List",
+            "desc": "集群节点",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -310,16 +365,43 @@
                     "type": "String"
                 },
                 {
-                    "name": "INSTANCE_NAME",
-                    "desc": "实例名称",
+                    "name": "VIP_NAME",
+                    "desc": "VIP名称",
                     "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIV_NET",
+                    "desc": "私网",
+                    "type": "String"
+                },
+                {
+                    "name": "HOST_ON",
+                    "desc": "运行OS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "中间件类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Host管理IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOST",
+                            "desc": "Host IP",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
-        },
-        {
-            "name": "NODE_VIP",
-            "desc": "节点VIP",
-            "type": "String"
         },
         {
             "name": "ORACLE_BASE",
@@ -332,41 +414,61 @@
             "type": "String"
         },
         {
-            "name": "ORACLE_HOSTNAME",
-            "desc": "Oralce 主机名",
-            "type": "String"
-        },
-        {
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
         },
         {
-            "name": "SERVICE_INFOS",
-            "desc": "服务列表",
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_IPS",
+            "desc": "Scan Ip列表",
+            "type": "array"
+        },
+        {
+            "name": "SCAN_LISTENERS",
+            "desc": "Scan TNS监听",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
                 },
                 {
-                    "name": "INSTANCES",
-                    "desc": "实例列表",
-                    "type": "JsonArray",
-                    "subset": [{
-                            "name": "NAME",
-                            "desc": "名称",
-                            "type": "String"
-                        },
-                        {
-                            "name": "STATUS",
-                            "desc": "状态",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_NAMES",
+                    "desc": "服务名",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_PORTS",
+                    "desc": "监听端口列表",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_ADDRS",
+                    "desc": "监听地址",
+                    "type": "array"
                 }
             ]
+        },
+        {
+            "name": "SCAN_NAME",
+            "desc": "Scan名",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_PORT",
+            "desc": "Scan端口",
+            "type": "Int"
         },
         {
             "name": "SERVICE_NAME",
@@ -377,11 +479,13 @@
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SGA_MAX_SIZE",
@@ -389,10 +493,16 @@
             "type": "String"
         },
         {
+            "name": "SLAVE_IPS",
+            "desc": "其他IP",
+            "type": "array"
+        },
+        {
             "name": "TABLE_SPACESES",
             "desc": "表空间列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "TABLESPACE_NAME",
                     "desc": "表空间名",
                     "type": "String"
@@ -421,7 +531,8 @@
                     "name": "DATA_FILES",
                     "desc": "数据文件列表",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "FILE_NAME",
                             "desc": "文件名",
                             "type": "String"

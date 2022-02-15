@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-RAC"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -75,11 +76,13 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "JsonArray",
-            "subset": [{
-                "name": "VALUE",
-                "desc": "Port",
-                "type": "Float"
-            }]
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Port",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "OS_ID",
@@ -130,7 +133,8 @@
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "USERNAME",
                     "desc": "User Name",
                     "type": "String"
@@ -148,6 +152,11 @@
             "type": "String"
         },
         {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_VERSION",
             "desc": "Cluster Version",
             "type": "String"
@@ -158,6 +167,38 @@
             "type": "Text"
         },
         {
+            "name": "DATABASES",
+            "desc": "DB List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "Service Addr",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DBID",
             "desc": "DBID",
             "type": "String"
@@ -166,7 +207,8 @@
             "name": "DISK_GROUPS",
             "desc": "Disk Group List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -177,18 +219,18 @@
                     "type": "String"
                 },
                 {
-                    "name": "TOTAL_MB",
-                    "desc": "Size(MB)",
+                    "name": "TOTAL",
+                    "desc": "Size(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "USED_MB",
-                    "desc": "Use(MB)",
+                    "name": "USED",
+                    "desc": "Use(GB)",
                     "type": "Float"
                 },
                 {
-                    "name": "FREE_MB",
-                    "desc": "Free(MB)",
+                    "name": "FREE",
+                    "desc": "Free(GB)",
                     "type": "Float"
                 },
                 {
@@ -200,7 +242,8 @@
                     "name": "DISKS",
                     "desc": "Disk List",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -216,23 +259,23 @@
                             "type": "String"
                         },
                         {
-                            "name": "PATH",
+                            "name": "DEV_PATH",
                             "desc": "Disk Path",
                             "type": "String"
                         },
                         {
-                            "name": "TOTAL_MB",
-                            "desc": "Size(MB)",
+                            "name": "TOTAL",
+                            "desc": "Size(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "USED_MB",
-                            "desc": "Use(MB)",
+                            "name": "USED",
+                            "desc": "Use(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "FREE_MB",
-                            "desc": "Free(MB)",
+                            "name": "FREE",
+                            "desc": "Free(GB)",
                             "type": "Float"
                         },
                         {
@@ -255,20 +298,11 @@
             "type": "String"
         },
         {
-            "name": "IS_CDB",
-            "desc": "Is CDB",
-            "type": "Int"
-        },
-        {
-            "name": "IS_RAC",
-            "desc": "Is RAC",
-            "type": "Int"
-        },
-        {
             "name": "LISTEN_ADDRS",
             "desc": "Listen Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -279,6 +313,21 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "LOCAL_NODE",
+            "desc": "Node Name",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_PUB_IP",
+            "desc": "Local Node Pub IP",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_VIP",
+            "desc": "Local Node VIP",
+            "type": "String"
         },
         {
             "name": "LOG_ARCHIVE_DEST",
@@ -302,9 +351,20 @@
         },
         {
             "name": "NODES",
-            "desc": "RAC Node List",
+            "desc": "Cluster Nodes",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -315,16 +375,43 @@
                     "type": "String"
                 },
                 {
-                    "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
+                    "name": "VIP_NAME",
+                    "desc": "VIP Name",
                     "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Vip",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIV_NET",
+                    "desc": "Private Net",
+                    "type": "String"
+                },
+                {
+                    "name": "HOST_ON",
+                    "desc": "Host On",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Host Management IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOST",
+                            "desc": "Host IP",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
-        },
-        {
-            "name": "NODE_VIP",
-            "desc": "Node VIP",
-            "type": "String"
         },
         {
             "name": "ORACLE_BASE",
@@ -337,41 +424,61 @@
             "type": "String"
         },
         {
-            "name": "ORACLE_HOSTNAME",
-            "desc": "Oralce Host Name",
-            "type": "String"
-        },
-        {
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
         },
         {
-            "name": "SERVICE_INFOS",
-            "desc": "Service List",
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_IPS",
+            "desc": "Scan Ip Addrs",
+            "type": "array"
+        },
+        {
+            "name": "SCAN_LISTENERS",
+            "desc": "Scan Listeners",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
                 },
                 {
-                    "name": "INSTANCES",
-                    "desc": "Instances",
-                    "type": "JsonArray",
-                    "subset": [{
-                            "name": "NAME",
-                            "desc": "Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "STATUS",
-                            "desc": "Status",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_NAMES",
+                    "desc": "Service Names",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_PORTS",
+                    "desc": "Listen Ports",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_ADDRS",
+                    "desc": "Listen Addrs",
+                    "type": "array"
                 }
             ]
+        },
+        {
+            "name": "SCAN_NAME",
+            "desc": "Scan Name",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_PORT",
+            "desc": "Port",
+            "type": "Int"
         },
         {
             "name": "SERVICE_NAME",
@@ -382,22 +489,30 @@
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
             "type": "JsonArray",
-            "subset": [{
-                "name": "NAME",
-                "desc": "Name",
-                "type": "String"
-            }]
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SGA_MAX_SIZE",
-            "desc": "SGA最大内存(MB)",
+            "desc": "SGA Max Size(MB)",
             "type": "String"
+        },
+        {
+            "name": "SLAVE_IPS",
+            "desc": "Slave IP Addrs",
+            "type": "array"
         },
         {
             "name": "TABLE_SPACESES",
             "desc": "Table Space List",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "TABLESPACE_NAME",
                     "desc": "Table Space Name",
                     "type": "String"
@@ -426,7 +541,8 @@
                     "name": "DATA_FILES",
                     "desc": "Data File List",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "FILE_NAME",
                             "desc": "File Name",
                             "type": "String"

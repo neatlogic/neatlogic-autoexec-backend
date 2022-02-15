@@ -2,7 +2,7 @@
     "label": "Vmware-DataCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": "DATACENTER",
-    "collection_label" :"Virtualized",
+    "collection_label": "Virtualized",
     "filter": {
         "_OBJ_TYPE": "VMWARE-DATACENTER"
     },
@@ -15,11 +15,6 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
-            "type": "String"
-        },
-        {
-            "name": "MOID",
-            "desc": "id",
             "type": "String"
         },
         {
@@ -71,23 +66,28 @@
                             "name": "USED",
                             "desc": "Used(GB)",
                             "type": "Float"
-                        },{
+                        },
+                        {
                             "name": "USED_PCT",
                             "desc": "Used pct%",
                             "type": "Float"
-                        },{
+                        },
+                        {
                             "name": "STATUS",
                             "desc": "Status",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "TYPE",
                             "desc": "Type",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "PATH",
                             "desc": "URL",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "UNIT",
                             "desc": "Unit",
                             "type": "String"
@@ -152,7 +152,8 @@
                             "name": "VM_ID",
                             "desc": "Virtual System ID",
                             "type": "String"
-                        },{
+                        },
+                        {
                             "name": "HOST_ON",
                             "desc": "Run Host",
                             "type": "JsonArray",
@@ -177,6 +178,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
         }
     ]
 }

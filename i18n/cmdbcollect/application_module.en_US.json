@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "APPLICATION_MODULE"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"

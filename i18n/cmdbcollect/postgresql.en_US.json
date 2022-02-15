@@ -2,7 +2,7 @@
     "label": "Postgresql Instance",
     "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label" :"Database Instance",
+    "collection_label": "Database Instance",
     "filter": {
         "_OBJ_TYPE": "Postgresql"
     },

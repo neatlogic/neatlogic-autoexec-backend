@@ -1,0 +1,170 @@
+{
+    "label": "DB Instance",
+    "collection": "COLLECT_DB",
+    "docroot": null,
+    "collection_label": "Database",
+    "filter": {
+        "_OBJ_TYPE": "MSSQLServer-DB"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment PORT",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "Service IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Port List",
+            "type": "Array",
+            "subset": [
+                {
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CAN_IP_FLOAT",
+            "desc": "Primary IP FLoating",
+            "type": "Int"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCES",
+            "desc": "DB Instances",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "Name",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NODE_NAME",
+                    "desc": "Node Name in Cluster",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "Service Addr",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "Service Address",
+            "type": "String"
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        }
+    ]
+}

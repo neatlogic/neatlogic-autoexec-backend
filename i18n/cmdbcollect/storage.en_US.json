@@ -2,7 +2,7 @@
     "label": "Storage",
     "collection": "COLLECT_STORAGE",
     "docroot": null,
-    "collection_label" :"Storage Device",
+    "collection_label": "Storage Device",
     "filter": {},
     "fields": [
         {

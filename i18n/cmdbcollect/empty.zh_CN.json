@@ -4,7 +4,8 @@
     "docroot": null,
     "collection_label": "空对象",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"

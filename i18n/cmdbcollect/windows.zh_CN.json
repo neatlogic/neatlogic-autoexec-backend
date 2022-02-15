@@ -2,7 +2,7 @@
     "label": "Windows",
     "collection": "COLLECT_OS",
     "docroot": null,
-    "collection_label" :"操作系统",
+    "collection_label": "操作系统",
     "filter": {
         "_OBJ_TYPE": "Windows"
     },

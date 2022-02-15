@@ -2,7 +2,7 @@
     "label": "Linux",
     "collection": "COLLECT_OS",
     "docroot": null,
-    "collection_label" :"OS",
+    "collection_label": "OS",
     "filter": {
         "_OBJ_TYPE": "Linux"
     },

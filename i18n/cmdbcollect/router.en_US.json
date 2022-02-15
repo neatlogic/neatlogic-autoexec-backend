@@ -2,7 +2,7 @@
     "label": "Router",
     "collection": "COLLECT_NETDEV",
     "docroot": null,
-    "collection_label" :"Net Device",
+    "collection_label": "Net Device",
     "filter": {
         "_OBJ_TYPE": "Router"
     },
