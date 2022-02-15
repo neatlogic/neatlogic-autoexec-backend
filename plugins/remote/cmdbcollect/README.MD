@@ -363,9 +363,12 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
 - oscollect会完成对OS、HOST、应用的自动发现和信息收集
 - 支持通过json参数输入密码设置
 - 支持只对某一类别的对象进行发现和收集
-譬如只收集Mysql
+譬如只收集Mysql,Postgresql
 ```
-oscollector  --class Mysql,Postgresql --defaultpassconf '{"Mysql":{"username":"root","password":"xxxxxx"},"Postgresql":{"username":"postgres","password":"xxxxxx"}}'
+oscollector  --class Mysql,Postgresql --defaultpassconf 'Mysql:#{mysqlaccount},Postgresql:#{pgaccount}'
+```
+```
+oscollector  --class Mysql,Postgresql --defaultpassconf 'Mysql:rouser/pass123,Postgresql:rouser/pass123'
 ```
 譬如收集Apache、Tomcat、Mysql
 ```

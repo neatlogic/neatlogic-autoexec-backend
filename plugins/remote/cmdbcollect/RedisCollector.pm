@@ -45,9 +45,9 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $osUser           = $procInfo->{USER};
     my $redisInfo        = {};
-    $redisInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+    $redisInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
     my $command  = $procInfo->{COMMAND};
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
     my $binPath  = dirname($exePath);

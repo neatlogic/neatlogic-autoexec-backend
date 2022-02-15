@@ -47,7 +47,7 @@ sub collect {
 
     my $appInfo = {};
 
-    my $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+    my $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
     my $procInfo                 = $self->{procInfo};
     my $matchedProcsInfo         = $self->{matchedProcsInfo};
     my $user                     = $procInfo->{USER};

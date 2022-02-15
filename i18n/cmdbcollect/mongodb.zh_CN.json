@@ -1,6 +1,6 @@
 {
-    "label": "Mongodb",
-    "collection": "COLLECT_DB",
+    "label": "Mongodb实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Mongodb"

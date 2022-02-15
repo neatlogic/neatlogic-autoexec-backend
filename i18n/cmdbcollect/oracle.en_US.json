@@ -1,6 +1,6 @@
 {
-    "label": "Oracle",
-    "collection": "COLLECT_DB",
+    "label": "Oracle Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Oracle"

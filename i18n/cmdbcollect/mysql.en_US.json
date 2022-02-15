@@ -1,6 +1,6 @@
 {
-    "label": "Mysql",
-    "collection": "COLLECT_DB",
+    "label": "Mysql Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Mysql"

@@ -71,7 +71,7 @@ sub getProcessFilters {
         eval {
             require($collectorName);
             my $filter = $collectClass->getConfig();
-            if ( defined( $filter->{regExps} ) ) {
+            if ( defined( $filter->{regExps} ) and ( not defined( $filter->{enabled} ) or $filter->{enabled} == 1 ) ) {
                 if ( not defined( $filter->{seq} ) ) {
                     $filter->{seq} = 100;
                 }
@@ -150,7 +150,7 @@ sub collectHostOSInfo {
 
 #处理存在父子关系的进程的连接信息，并合并到父进程
 sub mergeMultiProcs {
-    my ( $pFinder, $osInfo, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
+    my ( $pFinder, $osInfo, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
 
     my $pidToDel = ();
     my @apps     = ();
@@ -180,12 +180,15 @@ sub mergeMultiProcs {
             if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
                 $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
             }
-            my $openFilesInfo = $info->{OPEN_FILES_INFO};
-            if ( not defined($openFilesInfo) ) {
-                $openFilesInfo = [];
-                $info->{OPEN_FILES_INFO} = $openFilesInfo;
+
+            if ( index( $pid, '-' ) < 0 ) {
+                my $openFilesInfo = $info->{OPEN_FILES_INFO};
+                if ( not defined($openFilesInfo) ) {
+                    $openFilesInfo = [];
+                    $info->{OPEN_FILES_INFO} = $openFilesInfo;
+                }
+                push( @$openFilesInfo, { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } );
             }
-            push( @$openFilesInfo, { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } );
 
             $parentTopInfo->{OPEN_FILES_COUNT} = $parentTopInfo->{OPEN_FILES_COUNT} + $pFinder->getProcOpenFilesCount($pid);
 
@@ -227,7 +230,7 @@ sub mergeMultiProcs {
             $pidToDel->{$pid} = 1;
 
         }
-        else {
+        elsif ( index( $pid, '-' ) < 0 ) {
             my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
             my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
             my $openFilesRate     = 0;
@@ -240,9 +243,16 @@ sub mergeMultiProcs {
     print("INFO: Connection information merged.\n");
 
     #抽取所有的top层的进程，并对CONN_INFO信息进行整理，转换为数组的格式
-    while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
+    #while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
+    foreach my $appInfo (@$appsArray) {
+        my $pid = $appInfo->{PROC_INFO}->{PID};
         if ( not defined( $pidToDel->{$pid} ) ) {
-            my $connInfo = $appInfo->{PROC_INFO}->{CONN_INFO};
+            my $procInfo = $appInfo->{PROC_INFO};
+            my $connInfo = {};
+            if ( defined($procInfo) ) {
+                $connInfo = $procInfo->{CONN_INFO};
+            }
+
             my @lsnStats = ();
             my @lsnPorts = ();
             while ( my ( $lsnAddr, $backlogQ ) = each( %{ $connInfo->{LISTEN} } ) ) {
@@ -288,7 +298,7 @@ sub mergeMultiProcs {
 
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
             $connInfo->{PEER} = \@remoteAddrs;
-            delete( $appInfo->{PROC_INFO}->{CONN_INFO} );
+            delete( $procInfo->{CONN_INFO} );
 
             #TCP连接统计信息中的比率指标统计
             my $connStats = $connInfo->{STATS};
@@ -315,23 +325,38 @@ sub mergeMultiProcs {
                 $outBoundStat->{REMOTE_ADDR} = $remoteAddr;
                 push( @outBoundStats, $outBoundStat );
             }
-            $appInfo->{CONN_OUTBOUND_STATS} = \@outBoundStats;
             delete( $connStats->{OUTBOUND_STATS} );
-            $appInfo->{CONN_STATS}   = delete( $connInfo->{STATS} );
-            $appInfo->{LISTEN_STATS} = \@lsnStats;
 
-            $appInfo->{CONN_INFO} = $connInfo;
-            if ( not defined( $appInfo->{PORTS} ) ) {
-                $appInfo->{PORTS} = \@portNumbers;
-            }
-            if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
-                $appInfo->{PORT} = $minPort;
-            }
-            if ( not defined( $appInfo->{MON_PORT} ) ) {
-                $appInfo->{MON_PORT} = $appInfo->{PORT};
+            if ( scalar(@bindAddrs) > 0 ) {
+                $appInfo->{CONN_OUTBOUND_STATS} = \@outBoundStats;
+                my $inBoundStats = delete( $connInfo->{STATS} );
+                if ( defined($inBoundStats) ) {
+                    $appInfo->{CONN_STATS} = $inBoundStats;
+                }
+                else {
+                    $appInfo->{CONN_STATS} = [];
+                }
+
+                $appInfo->{LISTEN_STATS} = \@lsnStats;
+
+                $appInfo->{CONN_INFO} = $connInfo;
+                if ( not defined( $appInfo->{PORTS} ) ) {
+                    $appInfo->{PORTS} = \@portNumbers;
+                }
+                if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
+                    $appInfo->{PORT} = $minPort;
+                }
+                if ( not defined( $appInfo->{MON_PORT} ) ) {
+                    $appInfo->{MON_PORT} = $appInfo->{PORT};
+                }
             }
 
             push( @apps, $appInfo );
+        }
+
+        #如果是非进程类别的信息采集信息，则清除PROC_INFO
+        if ( delete( $appInfo->{NOT_PROCESS} ) ) {
+            delete( $appInfo->{PROC_INFO} );
         }
     }
 
@@ -341,11 +366,20 @@ sub mergeMultiProcs {
 #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
 #此回调函数会初始化Collector类并调用其collect方法
 sub doDetailCollect {
-    my ( $collectorClass, $procInfo, $matchedProcsInfo, $appsMap, $osType, $passArgs, $osInfo, $connGather ) = @_;
+    my ( $collectorClass, $procInfo, $pFinder ) = @_;
 
     #collectorClass: 收集器类名
     #procInfo；ps的进程信息
+
     #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
+    my $matchedProcsInfo = $pFinder->{matchedProcsInfo};
+    my $appsMap          = $pFinder->{appsMap};
+    my $appsArray        = $pFinder->{appsArray};
+    my $osType           = $pFinder->{ostype};
+    my $passArgs         = $pFinder->{passArgs};
+    my $osInfo           = $pFinder->{osInfo};
+    my $connGather       = $pFinder->{connGather};
+
     print("INFO: os type:$osType\n");
 
     my $isMatched = 0;
@@ -355,6 +389,8 @@ sub doDetailCollect {
     print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
     my $connInfo;
     if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
+
+        #Windows System进程没有lisnten信息
         $connInfo = { PEER => {}, LISTEN => {} };
     }
     else {
@@ -368,7 +404,7 @@ sub doDetailCollect {
 
     alarm($SINGLE_TIMEOUT);
     eval {
-        $collector = $collectorClass->new( $passArgs, $procInfo, $matchedProcsInfo );
+        $collector = $collectorClass->new( $passArgs, $pFinder, $procInfo, $matchedProcsInfo );
         my @appInfosTmp = $collector->collect($procInfo);
 
         foreach my $appInfo (@appInfosTmp) {
@@ -413,6 +449,7 @@ sub doDetailCollect {
         }
         else {
             if ( not CollectObjCat->validate( $appInfo->{_OBJ_CATEGORY} ) ) {
+                print("WARN: Invalid object category: $appInfo->{_OBJ_CATEGORY}.\n");
                 return 0;
             }
         }
@@ -424,37 +461,54 @@ sub doDetailCollect {
         }
         print("INFO: Matched Object Type:$objCat/$objType.\n");
 
-        $appInfo->{PROC_INFO} = $procInfo;
+        $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
+        $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+        $appInfo->{OS_ID}     = $procInfo->{OS_ID};
+        $appInfo->{OS_USER}   = $procInfo->{USER};
+
+        push( @$appsArray, $appInfo );
+
         if ( $idx == 0 ) {
             $appsMap->{ $procInfo->{PID} } = $appInfo;
         }
         else {
-            $appsMap->{ $procInfo->{PID} . '-' . $idx } = $appInfo;
+            #如果出现多个appInfo同一个进程号的情况，则是但进程多对象的情况，需要处理PID为不一样的PID
+            if ( defined( $appsMap->{ $procInfo->{PID} } ) ) {
+                $procInfo->{PID}  = $procInfo->{PID} . '-' . $idx;
+                $procInfo->{PPID} = $procInfo->{PPID} . '-' . $idx;
+            }
+            $appsMap->{ $procInfo->{PID} } = $appInfo;
         }
 
-        $appInfo->{PID}       = $procInfo->{PID};
-        $appInfo->{OS_ID}     = $procInfo->{OS_ID};
-        $appInfo->{OS_USER}   = $procInfo->{USER};
-        $appInfo->{COMMAND}   = $procInfo->{COMMAND};
-        $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
-        $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
+        my $notProcess = $appInfo->{NOT_PROCESS};
+        if ( not defined($notProcess) ) {
+            if ( not defined( $appInfo->{PROC_INFO} ) ) {
+                $appInfo->{PROC_INFO} = $procInfo;
+            }
+            else {
+                $procInfo = $appInfo->{PROC_INFO};
+            }
 
-        my $cpuLogicCores = $connGather->{CPU_LOGIC_CORES};
-        $appInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
-        if ( $cpuLogicCores > 0 ) {
-            $appInfo->{CPU_USAGE} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
-        }
-        else {
-            $appInfo->{CPU_USAGE} = $procInfo->{'%CPU'} + 0.0;
-        }
+            $appInfo->{PID}     = $procInfo->{PID};
+            $appInfo->{COMMAND} = $procInfo->{COMMAND};
 
-        if ( $osType eq 'Windows' ) {
-            $appInfo->{MEM_USED}  = $procInfo->{MEMSIZE} + 0.0;
-            $appInfo->{MEM_USAGE} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
-        }
-        else {
-            $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
-            $appInfo->{MEM_USAGE} = $procInfo->{'%MEM'} + 0.0;
+            my $cpuLogicCores = $connGather->{CPU_LOGIC_CORES};
+            $appInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
+            if ( $cpuLogicCores > 0 ) {
+                $appInfo->{CPU_USAGE} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
+            }
+            else {
+                $appInfo->{CPU_USAGE} = $procInfo->{'%CPU'} + 0.0;
+            }
+
+            if ( $osType eq 'Windows' ) {
+                $appInfo->{MEM_USED}  = $procInfo->{MEMSIZE} + 0.0;
+                $appInfo->{MEM_USAGE} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
+            }
+            else {
+                $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
+                $appInfo->{MEM_USAGE} = $procInfo->{'%MEM'} + 0.0;
+            }
         }
 
         my $envMap      = delete( $procInfo->{ENVIRONMENT} );
@@ -498,16 +552,27 @@ sub doDetailCollect {
         while ( my ( $envName, $envVal ) = each(%$envMap) ) {
             push( @envEntries, { NAME => $envName, VALUE => $envVal } );
         }
-        $appInfo->{MAIN_ENV} = \@envEntries;
+        if ( scalar(@envEntries) > 0 ) {
+            $appInfo->{MAIN_ENV} = \@envEntries;
+        }
 
-        $appInfo->{RUN_ON} = [
-            {
-                '_OBJ_CATEGORY' => 'OS',
-                '_OBJ_TYPE'     => $osType,
-                'OS_ID'         => $procInfo->{OS_ID},
-                'MGMT_IP'       => $procInfo->{MGMT_IP}
-            }
-        ];
+        #如果采集器自身未定义RUN_ON则自动添加
+        my $collectedRunOn = $appInfo->{RUN_ON};
+        if ( not defined($collectedRunOn) ) {
+            $appInfo->{RUN_ON} = [
+                {
+                    '_OBJ_CATEGORY' => 'OS',
+                    '_OBJ_TYPE'     => $osType,
+                    'OS_ID'         => $procInfo->{OS_ID},
+                    'MGMT_IP'       => $procInfo->{MGMT_IP}
+                }
+            ];
+        }
+        elsif ( scalar(@$collectedRunOn) == 0 ) {
+
+            #如果采集器定义了空的RUN_ON，代表不需要RUN_ON，可能是集群相关的采集，RUN_ON在多个OS上，无法全部采集
+            delete( $appInfo->{RUN_ON} );
+        }
     }
 
     return $isMatched;
@@ -613,11 +678,12 @@ sub main {
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my $procFilters = getProcessFilters($collectClassMap);
 
-    my $pFinder = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect );
-    my $appsMap = $pFinder->findProcess();
+    my $pFinder   = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect );
+    my $appsMap   = $pFinder->findProcess();
+    my $appsArray = $pFinder->{appsArray};
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
-    my $apps = mergeMultiProcs( $pFinder, $osInfo, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
+    my $apps = mergeMultiProcs( $pFinder, $osInfo, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
 
     #保存数据到output
     print("INFO: Begin to save collected data.\n");

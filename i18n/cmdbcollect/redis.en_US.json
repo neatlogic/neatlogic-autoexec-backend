@@ -1,6 +1,6 @@
 {
-    "label": "Redis",
-    "collection": "COLLECT_DB",
+    "label": "Redis Insntace",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Redis"

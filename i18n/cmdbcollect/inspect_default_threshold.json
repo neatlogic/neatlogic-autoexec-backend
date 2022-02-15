@@ -70,7 +70,7 @@
 			"rule": "$.NTP_OFFSET_SECS > 1800"
 		}
 	],
-	"COLLECT_DB": [{
+	"COLLECT_DBINS": [{
 			"name": "CPU使用率超过80%",
 			"level": "WARN",
 			"rule": "$.CPU_USAGE >= 80"

@@ -75,7 +75,7 @@ sub collect {
     my $cmdLine          = $procInfo->{COMMAND};
 
     my @collectSet = ();
-    my $objCat     = CollectObjCat->get('DB');
+    my $objCat     = CollectObjCat->get('DBINS');
 
     my $homePath = $envMap->{SYBASE};
 

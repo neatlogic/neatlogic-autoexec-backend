@@ -1,6 +1,6 @@
 {
-    "label": "DB2",
-    "collection": "COLLECT_DB",
+    "label": "DB2实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "DB2"
@@ -369,7 +369,7 @@
                             "type": "String"
                         },
                         {
-                            "name": "TABLESPACE_SIZE",
+                            "name": "TOTAL",
                             "desc": "大小(GB)",
                             "type": "Float"
                         },
@@ -379,22 +379,22 @@
                             "type": "String"
                         },
                         {
-                            "name": "TABLESPACE_USED",
+                            "name": "USED",
                             "desc": "已用(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "TABLESPACE_FREE",
+                            "name": "FREE",
                             "desc": "空闲(GB)",
                             "type": "Float"
                         },
                         {
-                            "name": "TABLESPACE_FREE_PCT",
+                            "name": "FREE_PCT",
                             "desc": "空闲%",
                             "type": "Float"
                         },
                         {
-                            "name": "TABLESPACE_USED_PCT",
+                            "name": "USED_PCT",
                             "desc": "使用%",
                             "type": "Float"
                         },

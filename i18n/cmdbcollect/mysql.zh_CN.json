@@ -1,6 +1,6 @@
 {
-    "label": "Mysql",
-    "collection": "COLLECT_DB",
+    "label": "Mysql 实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Mysql"

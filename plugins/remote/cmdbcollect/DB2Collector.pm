@@ -25,7 +25,7 @@ sub getConfig {
 }
 
 sub getMemInfo {
-    my ( $self, $appInfo ) = @_;
+    my ( $self, $insInfo ) = @_;
     my $utils = $self->{collectUtils};
 
     # [db2inst1@sit-asm-123 tmp]$ db2pd -dbptnmem
@@ -47,22 +47,22 @@ sub getMemInfo {
     # DBMS-db2inst1           106240        106240        7680
     # FMP_RESOURCES            22528         22528           0
     # PRIVATE                  12032         12544           0
-    my $memLines   = $self->getCmdOutLines( 'db2pd -dbptnmem', $appInfo->{OS_USER} );
+    my $memLines   = $self->getCmdOutLines( 'db2pd -dbptnmem', $insInfo->{OS_USER} );
     my $linesCount = scalar(@$memLines);
     my $idx        = 0;
     for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
         my $line = $$memLines[$idx];
         if ( $line =~ /Memory Limit:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_LIMIT} = $utils->getMemSizeFromStr("$1$2");
+            $insInfo->{MEMORY_LIMIT} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /Current usage:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_CURRENT_USAGE} = $utils->getMemSizeFromStr("$1$2");
+            $insInfo->{MEMORY_CURRENT_USAGE} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /HWM usage:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{MEMORY_HWM_USAGE} = $utils->getMemSizeFromStr("$1$2");
+            $insInfo->{MEMORY_HWM_USAGE} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /Cached memory:\s*(\d+)\s*(KB)/ ) {
-            $appInfo->{CACHED_MEMORY} = $utils->getMemSizeFromStr("$1$2");
+            $insInfo->{CACHED_MEMORY} = $utils->getMemSizeFromStr("$1$2");
         }
         elsif ( $line =~ /=====================/ ) {
             last;
@@ -87,34 +87,34 @@ sub getMemInfo {
 }
 
 sub getConnManInfo {
-    my ( $self, $appInfo ) = @_;
+    my ( $self, $insInfo ) = @_;
 
     #db2 get dbm cfg
     #这里包含了DB2的大部分设置属性
-    my $dbmLines = $self->getCmdOutLines( 'db2 get dbm cfg', $appInfo->{OS_USER} );
+    my $dbmLines = $self->getCmdOutLines( 'db2 get dbm cfg', $insInfo->{OS_USER} );
     my $linesCount = scalar(@$dbmLines);
     for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
         my $line = $$dbmLines[$idx];
         if ( $line =~ /\((\w+)\)\s=\s(.*?)$/ ) {
-            $appInfo->{ uc($1) } = $2;
+            $insInfo->{ uc($1) } = $2;
         }
     }
 }
 
 sub getTablespaceInfo {
-    my ( $self, $appInfo, $dbName ) = @_;
+    my ( $self, $insInfo, $dbName ) = @_;
 
     #db2 connect to test2 && db2pd -tablespace -db test2
 }
 
 sub getTCPInfo {
-    my ( $self, $appInfo ) = @_;
+    my ( $self, $insInfo ) = @_;
 
     #TCP/IP Service name                          (SVCENAME) = DB2_db2inst1
     #SSL service name                         (SSL_SVCENAME) =
     my $svcName;
     my $sslSvcName;
-    my $svcDef = $self->getCmdOutLines( 'db2 get dbm cfg|grep SVCENAME', $appInfo->{OS_USER} );
+    my $svcDef = $self->getCmdOutLines( 'db2 get dbm cfg|grep SVCENAME', $insInfo->{OS_USER} );
     foreach my $line (@$svcDef) {
         if ( $line =~ /\(SVCENAME\)\s+=\s+(.*)\s*$/ ) {
             $svcName = $1;
@@ -161,18 +161,18 @@ sub getTCPInfo {
         push( @ports, $port );
     }
 
-    $appInfo->{PORT}           = $port;
-    $appInfo->{SSL_PORT}       = $sslPort;
-    $appInfo->{MON_PORT}       = $port;
-    $appInfo->{ADMIN_PORT}     = $port;
-    $appInfo->{ADMIN_SSL_PORT} = $sslPort;
-    $appInfo->{PORTS}          = \@ports;
+    $insInfo->{PORT}           = $port;
+    $insInfo->{SSL_PORT}       = $sslPort;
+    $insInfo->{MON_PORT}       = $port;
+    $insInfo->{ADMIN_PORT}     = $port;
+    $insInfo->{ADMIN_SSL_PORT} = $sslPort;
+    $insInfo->{PORTS}          = \@ports;
 }
 
 sub getDBInfos {
-    my ( $self, $appInfo, $dbMemory ) = @_;
+    my ( $self, $insInfo, $dbMemory ) = @_;
 
-    my $user  = $appInfo->{OS_USER};
+    my $user  = $insInfo->{OS_USER};
     my $utils = $self->{collectUtils};
 
     # Database 1 entry:
@@ -207,12 +207,14 @@ sub getDBInfos {
         my $dbType = $dbTypes[$i];
         if ( $dbType !~ /remote/i ) {
             my $dbInfo = $dbMemory->{ $dbNames[$i] };
+            $dbInfo->{NAME}         = $dbNames[$i];
             $dbInfo->{DB_NAME}      = $dbNames[$i];
+            $dbInfo->{PRIMARY_IP}   = $insInfo->{MGMT_IP};
             $dbInfo->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
             push( @localDbs, $dbInfo );
         }
     }
-    $appInfo->{DATABASES} = \@localDbs;
+    $insInfo->{DATABASES} = \@localDbs;
 
     #获取所有子DB的关联用户
     my @allDbUsers = ();
@@ -249,7 +251,7 @@ sub getDBInfos {
                 push( @allDbUsers, { NAME => $line } );
             }
         }
-        $appInfo->{USERS} = \@allDbUsers;
+        $insInfo->{USERS} = \@allDbUsers;
 
         #获取所有子DB的Table space信息
         my $tblspaceCmd = qq{db2 connect to "$dbName" && db2pd -d "$dbName" -tablespace && db2 disconnect current};
@@ -275,8 +277,9 @@ sub getDBInfos {
                 my @fields = split( /\s+/, $line );
                 if ( scalar(@fields) == 16 ) {
                     $tableSpaceConf->{ $fields[1] } = {
-                        NAME      => $fields[-1],
-                        PAGE_SIZE => int( $fields[4] )
+                        NAME       => $fields[-1],
+                        PAGE_SIZE  => int( $fields[4] ),
+                        DATA_FILES => []
                     };
                 }
                 $idx++;
@@ -297,12 +300,12 @@ sub getDBInfos {
                     my $freePages    = int( $fields[6] );
                     my $pageSize     = $spcInfo->{PAGE_SIZE};
 
-                    $spcInfo->{TABLESPACE_SIZE} = sprintf( '%.4f', $totalPages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
-                    $spcInfo->{TABLESPACE_USED} = sprintf( '%.4f', $usedPages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
-                    $spcInfo->{TABLESPACE_FREE} = sprintf( '%.4f', $freePages * $pageSize / 1024 / 1024 / 1024 ) + 0.0;
+                    $spcInfo->{TOTAL} = sprintf( '%.4f', $totalPages * $pageSize / 1024 / 1024 / 1024 + 0.00005 ) + 0.0;
+                    $spcInfo->{USED}  = sprintf( '%.4f', $usedPages * $pageSize / 1024 / 1024 / 1024 + 0.00005 ) + 0.0;
+                    $spcInfo->{FREE}  = sprintf( '%.4f', $freePages * $pageSize / 1024 / 1024 / 1024 + 0.00005 ) + 0.0;
 
-                    $spcInfo->{TABLESPACE_FREE_PCT} = sprintf( '%.2f', $freePages / $useablePages * 100 ) + 0.0;
-                    $spcInfo->{TABLESPACE_USED_PCT} = sprintf( '%.2f', $usedPages / $useablePages * 100 ) + 0.0;
+                    $spcInfo->{FREE_PCT} = sprintf( '%.2f', $freePages / $useablePages * 100 + 0.005 ) + 0.0;
+                    $spcInfo->{USED_PCT} = sprintf( '%.2f', $usedPages / $useablePages * 100 + 0.005 ) + 0.0;
                 }
                 $idx++;
                 $line = $$infoLines[$idx];
@@ -315,7 +318,7 @@ sub getDBInfos {
                 my @fields = split( /\s+/, $line );
                 if ( scalar(@fields) == 10 ) {
                     my $spcInfo = $tableSpaceConf->{ $fields[1] };
-                    $spcInfo->{AUTO_EXTEND} = $fields[3];
+                    $spcInfo->{AUTOEXTENSIBLE} = $fields[3];
                 }
                 $idx++;
                 $line = $$infoLines[$idx];
@@ -340,12 +343,13 @@ sub getDBInfos {
                     my $fileSize = -s $filePath;
                     $fileSize = int( $fileSize * 100 / 1024 / 1024 / 1024 ) / 100;
                     my $dataFileInfo = {};
-                    $dataFileInfo->{DATA_FILE_PATH} = $filePath;
-                    $dataFileInfo->{DATA_FILE_SIZE} = $fileSize;
+                    $dataFileInfo->{FILE_NAME} = $filePath;
+                    $dataFileInfo->{SIZE}      = $fileSize;
                     my $dataFiles = $spcInfo->{DATA_FILES};
 
                     if ( not defined($dataFiles) ) {
                         $dataFiles = [];
+                        $spcInfo->{DATA_FILES} = @$dataFiles;
                     }
                     push( @$dataFiles, $dataFileInfo );
                 }
@@ -354,7 +358,7 @@ sub getDBInfos {
             }
 
             my @tableSpaces = values(%$tableSpaceConf);
-            $db->{TABLESPACES} = \@tableSpaces;
+            $db->{TABLE_SPACESES} = \@tableSpaces;
         }
     }
 }
@@ -368,8 +372,8 @@ sub collect {
     }
 
     my $procInfo = $self->{procInfo};
-    my $appInfo  = {};
-    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+    my $insInfo  = {};
+    $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
 
     my $db2InstUser = $procInfo->{USER};
 
@@ -386,9 +390,9 @@ sub collect {
     my $verInfo = $self->getCmdOut( 'db2level', $user );
     if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
         $version = $1;
-        $appInfo->{VERSION} = $version;
+        $insInfo->{VERSION} = $version;
 
-        #$appInfo->{DB_ID}   = $version;    #TODO：原来的，为什么DB_ID是version？
+        #$insInfo->{DB_ID}   = $version;    #TODO：原来的，为什么DB_ID是version？
     }
     else {
         print("WARN: No db2 instance found, can not execute command:db2level.\n");
@@ -396,21 +400,21 @@ sub collect {
     }
 
     my $envMap = $procInfo->{ENVIRONMENT};
-    $appInfo->{DB2_HOME}     = $envMap->{DB2_HOME};
-    $appInfo->{INSTALL_PATH} = $envMap->{DB2_HOME};
-    $appInfo->{DB2LIB}       = $envMap->{DB2LIB};
+    $insInfo->{DB2_HOME}     = $envMap->{DB2_HOME};
+    $insInfo->{INSTALL_PATH} = $envMap->{DB2_HOME};
+    $insInfo->{DB2LIB}       = $envMap->{DB2LIB};
 
-    $appInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
-    $appInfo->{INSTANCE_NAME} = $user;
-    $appInfo->{OS_USER}       = $user;
+    $insInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
+    $insInfo->{INSTANCE_NAME} = $user;
+    $insInfo->{OS_USER}       = $user;
 
-    $self->getTCPInfo($appInfo);
+    $self->getTCPInfo($insInfo);
 
-    #$self->getConnManInfo($appInfo);
-    my $dbMemory = $self->getMemInfo($appInfo);
-    $self->getDBInfos( $appInfo, $dbMemory );
+    #$self->getConnManInfo($insInfo);
+    my $dbMemory = $self->getMemInfo($insInfo);
+    $self->getDBInfos( $insInfo, $dbMemory );
 
-    return $appInfo;
+    return $insInfo;
 }
 
 1;

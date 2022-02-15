@@ -1,6 +1,6 @@
 {
-    "label": "Mongodb",
-    "collection": "COLLECT_DB",
+    "label": "Mongodb Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Mongodb"

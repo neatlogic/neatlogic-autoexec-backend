@@ -49,7 +49,7 @@ sub collect {
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
 

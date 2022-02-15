@@ -1,6 +1,6 @@
 {
-    "label": "Postgresql",
-    "collection": "COLLECT_DB",
+    "label": "Postgresql Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Postgresql"

@@ -38,6 +38,7 @@ sub new {
         inspect    => $args{inspect},
         connGather => $args{connGather},
         appsMap    => {},
+        appsArray  => [],
         osInfo     => $args{osInfo},
         passArgs   => $args{passArgs}
     };
@@ -71,12 +72,14 @@ sub new {
     $self->{procEnvCmd} = 'ps eww';
 
     #列出所有进程的命令，包括环境变量，用于定位查找进程，命令行和环境变量放最后列，因为命令行有空格
-    $self->{listProcCmd} = 'ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args';
+    $self->{listProcCmd}      = 'ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args';
+    $self->{listProcCmdByPid} = 'ps -o pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args -p';
 
     if ( $ostype eq 'Windows' ) {
 
         #windows需要编写powershell脚本实现ps的功能，用于根据命令行过滤进程
-        $self->{listProcCmd} = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
+        $self->{listProcCmd}      = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
+        $self->{listProcCmdByPid} = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowspsbypid.ps1") . ' getProcess';
 
         #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
         if ( $uname[4] =~ /64/ ) {
@@ -325,7 +328,7 @@ sub findProcess {
                     $envMap = $self->getProcEnv($myPid);
                 }
                 $matchedMap->{ENVIRONMENT} = $envMap;
-                my $matched = &$callback( $config->{className}, $matchedMap, $self->{matchedProcsInfo}, $self->{appsMap}, $self->{ostype}, $self->{passArgs}, $self->{osInfo}, $self->{connGather} );
+                my $matched = &$callback( $config->{className}, $matchedMap, $self );
                 if ( $matched == 1 ) {
                     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                 }
@@ -347,6 +350,67 @@ sub findProcess {
     }
 
     return $self->{appsMap};
+}
+
+sub getProcess {
+    my ( $self, $pid ) = @_;
+
+    my $procInfo = {
+        OS_ID     => $self->{osId},
+        OS_TYPE   => $self->{ostype},
+        HOST_NAME => $self->{hostname},
+        MGMT_IP   => $self->{mgmtIp},
+        MGMT_PORT => $self->{mgmtPort}
+    };
+
+    my $pipe;
+    my $pipePid = open( $pipe, "$self->{listProcCmdByPid} $pid|" );
+    if ( defined($pipe) ) {
+
+        my $headLine = <$pipe>;
+        $headLine =~ s/^\s*|\s*$//g;
+        $headLine =~ s/^.*?PID/PID/g;
+        my $cmdPos = rindex( $headLine, ' ' );
+        my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
+        my $fieldsCount = scalar(@fields);
+
+        my $line;
+        while ( $line = <$pipe> ) {
+            $line =~ s/^\s*|\s*$//g;
+            my @vars = split( /\s+/, $line );
+
+            for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
+                if ( $fields[$i] eq 'COMMAND' ) {
+                    $procInfo->{COMM} = shift(@vars);
+                }
+                else {
+                    $procInfo->{ $fields[$i] } = shift(@vars);
+                }
+            }
+            $procInfo->{COMMAND} = join( ' ', @vars );
+            my $myPid = $procInfo->{PID};
+
+            if ( -e "/proc/$myPid/exe" ) {
+                $procInfo->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
+            }
+
+            my $envMap = $self->getProcEnv($myPid);
+            $procInfo->{ENVIRONMENT} = $envMap;
+        }
+
+        close($pipe);
+        my $status = $?;
+        if ( $status != 0 ) {
+            print("WARN: Get Process $pid information failed.\n");
+            return undef;
+        }
+    }
+    else {
+        print("ERROR: Can not launch list process command:$self->{listProcCmdByPid}\n");
+        return undef;
+    }
+
+    return $procInfo;
 }
 
 1;

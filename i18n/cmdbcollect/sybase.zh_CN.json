@@ -1,6 +1,6 @@
 {
-    "label": "SyBase",
-    "collection": "COLLECT_DB",
+    "label": "SyBase实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "SyBase"

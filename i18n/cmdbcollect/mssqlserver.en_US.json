@@ -1,6 +1,6 @@
 {
-    "label": "SQLServer",
-    "collection": "COLLECT_DB",
+    "label": "SQLServer Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "MSSQLServer"

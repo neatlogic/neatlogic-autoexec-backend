@@ -1,6 +1,6 @@
 {
-    "label": "Informix",
-    "collection": "COLLECT_DB",
+    "label": "Informix Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Informix"

@@ -99,9 +99,9 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $mysqlInfo = {};
-    $mysqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+    $mysqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
 
-    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DB')，CollectObjCat::OS
+    #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
 
     my $osUser     = $procInfo->{USER};
     my $command    = $procInfo->{COMMAND};

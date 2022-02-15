@@ -1,6 +1,6 @@
 {
-    "label": "Elastic Search",
-    "collection": "COLLECT_DB",
+    "label": "Elastic Search实例",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "Elasticsearch"

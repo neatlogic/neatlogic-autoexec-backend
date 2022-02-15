@@ -18,11 +18,12 @@ use CollectUtils;
 #matchedProcsInfo: 前面的处理过程中已经找到的matched的进程信息的HashMap，以进程的pid作为key
 #                  当遇到多进程应用时需要通过其父进程或者group进程进行判断是否是主进程时需要用到
 sub new {
-    my ( $type, $passArgs, $procInfo, $matchedProcsInfo ) = @_;
+    my ( $type, $passArgs, $pFinder, $procInfo, $matchedProcsInfo ) = @_;
     my $self = {};
 
     $self->{verbose} = 0;
     my $objType = substr( $type, 0, -9 );
+    $self->{pFinder}          = $pFinder;
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultObjType}   = $objType;

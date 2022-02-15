@@ -5,7 +5,8 @@ package SqlplusExec;
 
 use POSIX qw(uname);
 use Carp;
-use Data::Dumper;
+
+#use Data::Dumper;
 
 #sqlplus的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
 
@@ -16,6 +17,7 @@ sub new {
         port     => $args{port},
         username => $args{username},
         password => $args{password},
+        sysasm   => $args{sysasm},
         dbname   => $args{dbname},
         sid      => $args{sid},
         osUser   => $args{osUser},
@@ -37,7 +39,17 @@ sub new {
     }
 
     bless( $self, $type );
-    $self->evalProfile();
+
+    my $oraEnv = $self->getOraEnv($osUser);
+
+    for my $envName ( 'ORACLE_BASE', 'ORACLE_HOME', 'ORACLE_SID', 'PATH', 'LD_LIBRARY_PATH' ) {
+        my $envVal = $oraEnv->{$envName};
+        if ( defined($envVal) and $envVal ne '' ) {
+            $ENV{$envName} = $envVal;
+        }
+    }
+
+    #$self->evalProfile();
     if ( defined( $self->{sid} ) and $self->{sid} ne '' ) {
         $ENV{ORACLE_SID} = $self->{sid};
         print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
@@ -59,9 +71,14 @@ sub new {
 
     my $oraSid     = $ENV{ORACLE_SID};
     my $sqlplusCmd = 'sqlplus -s -R 1 -L / as sysdba';
-    if ( $isRoot and defined( $args{osUser} ) ) {
-        $sqlplusCmd = qq{su - $osUser -c "ORACLE_SID=$oraSid sqlplus -s -R 1 -L / as sysdba"};
+    if ( defined( $args{sysasm} ) ) {
+        $sqlplusCmd = 'sqlplus -s -R 1 -L / as sysasm';
     }
+
+    if ( $isRoot and defined( $args{osUser} ) ) {
+        $sqlplusCmd = qq{su - $osUser -c "ORACLE_SID=$oraSid $sqlplusCmd"};
+    }
+
     if (    defined( $args{username} )
         and defined( $args{password} ) )
     {
@@ -93,8 +110,53 @@ sub new {
     return $self;
 }
 
+sub getOraEnv {
+    my ( $self, $osUser ) = @_;
+
+    my $oraEnv = {};
+    if ( $self->{osType} eq 'Windows' ) {
+        return;
+    }
+
+    my $evalCmd  = 'env';
+    my $homePath = $ENV{HOME};
+    if ( -f "$homePath/.profile" ) {
+        $evalCmd = '. ~/.profile;env';
+    }
+    elsif ( -f "$homePath/.bash_profile" ) {
+        $evalCmd = '. ~/.bash_profile;env';
+    }
+
+    if ( defined($osUser) and $osUser ne '' ) {
+        $evalCmd = "su - $osUser -c env";
+    }
+
+    $SIG{ALRM} = sub { die "eval user profile failed" };
+    alarm(10);
+    my $evalOutput = `$evalCmd`;
+    my @envLines = split( /\n/, $evalOutput );
+    alarm(0);
+
+    foreach my $line (@envLines) {
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line =~ /^(\w+)=(.*)$/ ) {
+            my $envName = $1;
+            my $envVal  = $2;
+            if ( $envName ne 'PWD' ) {
+                if ( $envName =~ /^ORACLE/ or $envName eq 'LD_LIBRARY_PATH' or $envName eq 'PATH' ) {
+                    print("$envName=$envVal\n");
+                }
+
+                $oraEnv->{$envName} = $envVal;
+            }
+        }
+    }
+
+    return $oraEnv;
+}
+
 sub evalProfile {
-    my ($self) = @_;
+    my ( $self, $osUser ) = @_;
 
     if ( $self->{osType} eq 'Windows' ) {
         return;
@@ -136,13 +198,13 @@ sub _parseOutput {
     my @lines = split( /\n/, $output );
     my $linesCount = scalar(@lines);
 
-    my $hasError     = 0;
-    my @fieldNames   = ();
-    my $fieldLenDesc = {};
-    my @rowsArray    = ();
-    my $lineCount    = 0;
-    my @lineDescs    = ();
-    my $state        = 'heading';
+    my $hasError        = 0;
+    my @fieldNames      = ();
+    my $fieldLenDesc    = {};
+    my @rowsArray       = ();
+    my $recordLineCount = 0;
+    my @recordLineDescs = ();
+    my $state           = 'heading';
 
     my $pos = 0;
 
@@ -213,8 +275,8 @@ sub _parseOutput {
 
                     $linePos = $linePos + $fieldLen + 1;
                 }
-                push( @lineDescs, \@fieldDescs );
-                $lineCount++;
+                push( @recordLineDescs, \@fieldDescs );
+                $recordLineCount++;
                 $i++;
             }
             else {
@@ -231,10 +293,11 @@ sub _parseOutput {
 
             #一个数据记录sqlplus根据字段的长度进行多行显示，跟行头的多行显示一致，根据行头分析的多行字段描述抽取字段值数据
             my $lineLen = length($line);
-            for ( my $k = 0 ; $k < $lineCount ; $k++ ) {
+            for ( my $k = 0 ; $k < $recordLineCount ; $k++ ) {
+                $line = $lines[ $i + $k ];
 
                 #获取当前行对应的字段描述
-                my $fieldDescs = $lineDescs[$k];
+                my $fieldDescs = $recordLineDescs[$k];
 
                 foreach my $fieldDesc (@$fieldDescs) {
 
@@ -256,10 +319,11 @@ sub _parseOutput {
                         $fieldLenDesc->{$fieldName} = $valLen;
                     }
                 }
+            }
 
-                #获取下一行继续按行抽取字段值数据
-                $i++;
-                $line = $lines[$i];
+            #下标更新到下一条记录
+            if ( $recordLineCount > 1 ) {
+                $i = $i + $recordLineCount;
             }
 
             #完成一条记录的抽取，保存到行数组，进入下一条记录的处理
@@ -268,17 +332,31 @@ sub _parseOutput {
     }
 
     if ( $isVerbose == 1 ) {
+        my $fieldCount = scalar(@fieldNames);
+        my $rowCount = scalar(@rowsArray);
 
         #print head
-        foreach my $field (@fieldNames) {
-            printf( "%-$fieldLenDesc->{$field}s ", $field );
-        }
-        print("\n");
         foreach my $field (@fieldNames) {
             printf( '-' x $fieldLenDesc->{$field} );
             print(' ');
         }
-        print("\n");
+        if ( $fieldCount > 0 ) {
+            print("\n");
+        }
+        foreach my $field (@fieldNames) {
+            printf( "%-$fieldLenDesc->{$field}s ", $field );
+        }
+        if ( $fieldCount > 0 ) {
+            print("\n");
+        }
+
+        foreach my $field (@fieldNames) {
+            printf( '-' x $fieldLenDesc->{$field} );
+            print(' ');
+        }
+        if ( $fieldCount > 0 ) {
+            print("\n");
+        }
 
         #print row
         foreach my $row (@rowsArray) {
@@ -286,6 +364,19 @@ sub _parseOutput {
                 printf( "%-$fieldLenDesc->{$field}s ", $row->{$field} );
             }
             print("\n");
+        }
+
+        if ( $rowCount > 0 ) {
+            foreach my $field (@fieldNames) {
+                printf( '-' x $fieldLenDesc->{$field} );
+                print(' ');
+            }
+            print("\n\n");
+        }
+        else {
+            print("----------------\n");
+            print("no rows selected\n");
+            print("----------------\n\n");
         }
     }
 
@@ -321,10 +412,10 @@ sub _execSql {
     $cmd =~ s/^\s*//mg;
 
     if ($isVerbose) {
-        print("\nINFO: Execute sql:\n");
-        print( $sql, "\n" );
-        my $len = length($sql);
-        print( '=' x $len, "\n" );
+        print("INFO: Execute sql:\n");
+        print( $sql, "\n\n" );
+        #my $len = length($sql);
+        #print( '=' x $len, "\n" );
     }
 
     my $output = `$cmd`;
