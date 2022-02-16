@@ -94,6 +94,7 @@ sub collect {
     }
 
     my $procInfo         = $self->{procInfo};
+    my $connInfo         = $procInfo->{CONN_INFO};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $postgresqlInfo = {};
@@ -120,10 +121,16 @@ sub collect {
         return undef;
     }
 
-    $postgresqlInfo->{PORT}     = $port;
-    $postgresqlInfo->{SSL_PORT} = undef;
-    $postgresqlInfo->{MON_PORT} = $port;
-    $postgresqlInfo->{PORTS}    = $ports;
+    my $pFinder = $self->{pFinder};
+    my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $port );
+
+    $postgresqlInfo->{PRIMARY_IP}   = $bizIp;
+    $postgresqlInfo->{VIP}          = $vip;
+    $postgresqlInfo->{PORT}         = $port;
+    $postgresqlInfo->{SERVICE_ADDR} = "$vip:$port";
+    $postgresqlInfo->{SSL_PORT}     = undef;
+    $postgresqlInfo->{MON_PORT}     = $port;
+    $postgresqlInfo->{PORTS}        = $ports;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;
@@ -152,7 +159,19 @@ sub collect {
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{datname};
-        push( @dbNames, { NAME => $dbName } );
+        push(
+            @dbNames,
+            {
+                _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                _OBJ_TYPE     => 'Postgresql-DB',
+                NAME          => $dbName,
+                PRIMARY_IP    => $bizIp,
+                VIP           => $vip,
+                PORT          => $port,
+                SSL_PORT      => undef,
+                SERVICE_ADDR  => "$vip:$port"
+            }
+        );
     }
     $postgresqlInfo->{DATABASES} = \@dbNames;
 

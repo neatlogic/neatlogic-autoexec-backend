@@ -96,6 +96,7 @@ sub collect {
     }
 
     my $procInfo         = $self->{procInfo};
+    my $connInfo         = $procInfo->{CONN_INFO};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $mysqlInfo = {};
@@ -137,7 +138,13 @@ sub collect {
         return undef;
     }
 
+    my $pFinder = $self->{pFinder};
+    my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $port );
+
+    $mysqlInfo->{PRIMARY_IP}     = $bizIp;
+    $mysqlInfo->{VIP}            = $vip;
     $mysqlInfo->{PORT}           = $port;
+    $mysqlInfo->{SERVICE_ADDR}   = "$vip:$port";
     $mysqlInfo->{SSL_PORT}       = undef;
     $mysqlInfo->{MON_PORT}       = $port;
     $mysqlInfo->{ADMIN_PORT}     = $port;
@@ -202,9 +209,16 @@ sub collect {
     my $dbCharsetInfo = {};
     foreach my $row (@$rows) {
         my $dbInfo = {};
+        $dbInfo->{_OBJ_CATEGORY}                = CollectObjCat->get('DB');
+        $dbInfo->{_OBJ_TYPE}                    = 'Mysql-DB';
         $dbInfo->{NAME}                         = $row->{SCHEMA_NAME};
         $dbInfo->{DEFAULT_CHARACTER_SET}        = $row->{DEFAULT_CHARACTER_SET_NAME};
         $dbInfo->{DEFAULT_COLLATION}            = $row->{DEFAULT_COLLATION_NAME};
+        $dbInfo->{PRIMARY_IP}                   = $bizIp;
+        $dbInfo->{VIP}                          = $vip;
+        $dbInfo->{PORT}                         = $port;
+        $dbInfo->{SSL_PORT}                         = undef;
+        $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
         $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
     }
 

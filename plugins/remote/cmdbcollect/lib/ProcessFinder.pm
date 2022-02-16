@@ -12,7 +12,6 @@ use Cwd;
 use POSIX qw(uname);
 use Sys::Hostname;
 use JSON qw(from_json to_json);
-
 use CollectUtils;
 
 sub new {
@@ -40,7 +39,10 @@ sub new {
         appsMap    => {},
         appsArray  => [],
         osInfo     => $args{osInfo},
-        passArgs   => $args{passArgs}
+        passArgs   => $args{passArgs},
+        bizIp      => $args{bizIp},
+        ipAddrs    => $args{ipAddrs},
+        ipv6Addrs  => $args{ipv6Addrs}
     };
 
     $self->{procFilters}      = $procFilters;
@@ -330,6 +332,8 @@ sub findProcess {
                 $matchedMap->{ENVIRONMENT} = $envMap;
                 my $matched = &$callback( $config->{className}, $matchedMap, $self );
                 if ( $matched == 1 ) {
+                    $matchedMap->{IP_ADDRS}             = $self->{ipAddrs};
+                    $matchedMap->{IPV6_ADDRS}           = $self->{ipv6Addrs};
                     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                 }
 
@@ -353,14 +357,19 @@ sub findProcess {
 }
 
 sub getProcess {
-    my ( $self, $pid ) = @_;
+    my ( $self, $pid, %args ) = @_;
+
+    my $parseListen   = $args{parseListen};
+    my $parseConnStat = $args{parseConnStat};
 
     my $procInfo = {
-        OS_ID     => $self->{osId},
-        OS_TYPE   => $self->{ostype},
-        HOST_NAME => $self->{hostname},
-        MGMT_IP   => $self->{mgmtIp},
-        MGMT_PORT => $self->{mgmtPort}
+        OS_ID      => $self->{osId},
+        OS_TYPE    => $self->{ostype},
+        HOST_NAME  => $self->{hostname},
+        MGMT_IP    => $self->{mgmtIp},
+        MGMT_PORT  => $self->{mgmtPort},
+        IP_ADDRS   => $self->{ipAddrs},
+        IPV6_ADDRS => $self->{ipv6Addrs}
     };
 
     my $pipe;
@@ -404,6 +413,22 @@ sub getProcess {
             print("WARN: Get Process $pid information failed.\n");
             return undef;
         }
+
+        my $connGather = $self->{connGather};
+        if ($parseListen) {
+            my $connInfo    = $connGather->getListenInfo($pid);
+            my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
+            $connInfo->{PORT_BIND} = $portInfoMap;
+            $procInfo->{CONN_INFO} = $connInfo;
+        }
+
+        if ($parseConnStat) {
+            my $connInfo = $procInfo->{CONN_INFO};
+            if ( defined($connInfo) ) {
+                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+                map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
+            }
+        }
     }
     else {
         print("ERROR: Can not launch list process command:$self->{listProcCmdByPid}\n");
@@ -411,6 +436,131 @@ sub getProcess {
     }
 
     return $procInfo;
+}
+
+sub getListenPortInfo {
+
+    #根据监听地址计算出显式绑定的IP和隐式绑定的IP，IP分开IPV6和非IPV6IP
+    my ( $self, $lsnAddrMap ) = @_;
+
+    my $ipAddrs   = $self->{ipAddrs};
+    my $ipv6Addrs = $self->{ipv6Addrs};
+
+    my $portInfoMap = {};
+
+    foreach my $lsnAddr ( keys(%$lsnAddrMap) ) {
+        my $port;
+        my $portInfo;
+        if ( $lsnAddr =~ /^(\d+)$/ ) {
+            $port     = int($1);
+            $portInfo = $portInfoMap->{$port};
+
+            if ( not defined($portInfo) ) {
+                $portInfo = {
+                    EXPLICIT_IP   => {},
+                    IMPLICIT_IP   => {},
+                    EXPLICIT_IPV6 => {},
+                    IMPLICIT_IPV6 => {}
+                };
+                $portInfoMap->{$port} = $portInfo;
+            }
+            my $implicitIpMap   = $portInfo->{IMPLICIT_IP};
+            my $implicitIpV6Map = $portInfo->{IMPLICIT_IPV6};
+            map { $implicitIpMap->{ $_->{IP} }   = 1 } (@$ipAddrs);
+            map { $implicitIpV6Map->{ $_->{IP} } = 1 } (@$ipv6Addrs);
+        }
+        elsif ( $lsnAddr =~ /^(.*):(\d+)$/ ) {
+            my $ip = $1;
+            $port = int($2);
+            if ( $ip =~ /^127\./ or $ip eq '::1' ) {
+
+                #去掉lookback地址
+                next;
+            }
+
+            $portInfo = $portInfoMap->{$port};
+            if ( not defined($portInfo) ) {
+                $portInfo = {
+                    EXPLICIT_IP   => {},
+                    IMPLICIT_IP   => {},
+                    EXPLICIT_IPV6 => {},
+                    IMPLICIT_IPV6 => {}
+                };
+                $portInfoMap->{$port} = $portInfo;
+            }
+
+            my $explicitIpMap   = $portInfo->{EXPLICIT_IP};
+            my $explicitIpV6Map = $portInfo->{IMPLICIT_IPV6};
+
+            if ( $ip =~ /^[\d\.]+$/ ) {
+                $explicitIpMap->{$ip} = 1;
+            }
+            else {
+                $explicitIpV6Map->{$ip} = 1;
+            }
+        }
+    }
+
+    return ($portInfoMap);
+}
+
+sub predictBizIp {
+    my ( $self, $connInfo, $port ) = @_;
+
+    my $vip;
+    my $bizIp;
+
+    my $portInfoMap = $connInfo->{PORT_BIND};
+    my $mgmtIp      = $self->{mgmtIp};
+
+    if ( not defined($portInfoMap) ) {
+        return ( $mgmtIp, $mgmtIp );
+    }
+
+    my $portInfo = $portInfoMap->{"$port"};
+    if ( not defined($portInfo) ) {
+        return ( $mgmtIp, $mgmtIp );
+    }
+
+    my @explicitIps   = sort( keys( %{ $portInfo->{EXPLICIT_IP} } ) );
+    my @explicitIpV6s = sort( keys( %{ $portInfo->{EXPLICIT_IPV6} } ) );
+    my @implicitIps   = sort( keys( %{ $portInfo->{IMPLICIT_IP} } ) );
+    my @implicitIpV6s = sort( keys( %{ $portInfo->{IMPLICIT_IPV6} } ) );
+
+    if ( scalar(@explicitIpV6s) > 0 ) {
+        $vip   = $explicitIpV6s[-1];
+        $bizIp = $explicitIpV6s[0];
+    }
+    elsif ( scalar(@explicitIps) > 0 ) {
+        $vip   = $explicitIps[-1];
+        $bizIp = $explicitIps[0];
+    }
+
+    if ( not defined($bizIp) ) {
+        if ( scalar(@implicitIps) == 1 ) {
+            $bizIp = $implicitIps[0];
+        }
+        elsif ( scalar(@implicitIpV6s) == 1 ) {
+            $bizIp = $implicitIpV6s[0];
+        }
+        else {
+            $bizIp = $mgmtIp;
+        }
+    }
+    
+    if ( not defined($vip) ) {
+        if ( scalar(@implicitIps) == 1 ) {
+            $vip = $implicitIps[0];
+        }
+        elsif ( scalar(@implicitIpV6s) == 1 ) {
+            $vip = $implicitIpV6s[0];
+        }
+        else {
+            $vip = $mgmtIp;
+        }
+    }
+
+    return ( $bizIp, $vip );
 }
 
 1;

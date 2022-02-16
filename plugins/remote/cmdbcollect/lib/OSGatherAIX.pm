@@ -316,6 +316,8 @@ sub getIpAddrs {
             }
         }
     }
+
+    $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipv4, \@ipv6 );
     $osInfo->{IP_ADDRS}   = \@ipv4;
     $osInfo->{IPV6_ADDRS} = \@ipv6;
 }

@@ -110,6 +110,9 @@ sub getTablespaceInfo {
 sub getTCPInfo {
     my ( $self, $insInfo ) = @_;
 
+    my $procInfo = $self->{procInfo};
+    my $connInfo = $procInfo->{CONN_INFO};
+
     #TCP/IP Service name                          (SVCENAME) = DB2_db2inst1
     #SSL service name                         (SSL_SVCENAME) =
     my $svcName;
@@ -161,7 +164,13 @@ sub getTCPInfo {
         push( @ports, $port );
     }
 
+    my $pFinder = $self->{pFinder};
+    my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $port );
+
+    $insInfo->{PRIMARY_IP}     = $bizIp;
+    $insInfo->{VIP}            = $vip;
     $insInfo->{PORT}           = $port;
+    $insInfo->{SERVICE_ADDR}   = "$vip:$port";
     $insInfo->{SSL_PORT}       = $sslPort;
     $insInfo->{MON_PORT}       = $port;
     $insInfo->{ADMIN_PORT}     = $port;
@@ -207,10 +216,17 @@ sub getDBInfos {
         my $dbType = $dbTypes[$i];
         if ( $dbType !~ /remote/i ) {
             my $dbInfo = $dbMemory->{ $dbNames[$i] };
-            $dbInfo->{NAME}         = $dbNames[$i];
-            $dbInfo->{DB_NAME}      = $dbNames[$i];
-            $dbInfo->{PRIMARY_IP}   = $insInfo->{MGMT_IP};
-            $dbInfo->{DB_DIRECTORY} = $dbDirs[$i];    #TODO: 需确认这个属性的意义
+            $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+            $dbInfo->{_OBJ_TYPE}     = 'DB2-DB';
+            $dbInfo->{NAME}          = $dbNames[$i];
+            $dbInfo->{DB_NAME}       = $dbNames[$i];
+            $dbInfo->{PRIMARY_IP}    = $insInfo->{MGMT_IP};
+            $dbInfo->{DB_DIRECTORY}  = $dbDirs[$i];                                #TODO: 需确认这个属性的意义
+            $dbInfo->{PRIMARY_IP}    = $insInfo->{PRIMARY_IP};
+            $dbInfo->{VIP}           = $insInfo->{VIP};
+            $dbInfo->{PORT}          = $insInfo->{PORT};
+            $dbInfo->{SSL_PORT}      = $insInfo->{SSL_PORT};
+            $dbInfo->{SERVICE_ADDR}  = $insInfo->{VIP} . ':' . $insInfo->{PORT};
             push( @localDbs, $dbInfo );
         }
     }

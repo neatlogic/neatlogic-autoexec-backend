@@ -140,6 +140,9 @@ sub collect {
             my $ipAddr = gethostbyname($ip);
             $insInfo->{IP} = inet_ntoa($ipAddr);
         }
+        $insInfo->{PRIMARY_IP}   = $ip;
+        $insInfo->{VIP}          = $ip;
+        $insInfo->{SERVICE_ADDR} = "$ip:$port";
 
         #get all dbs
         my $dbQuery = q{
@@ -151,7 +154,19 @@ sub collect {
 
         my @dbNameArray = ();
         foreach my $dbName (@dbNames) {
-            push( @dbNameArray, { NAME => $dbName } );
+            push(
+                @dbNameArray,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE     => 'Sybase-DB',
+                    NAME          => $dbName,
+                    PRIMARY_IP    => $ip,
+                    VIP           => $ip,
+                    PORT          => $port,
+                    SSL_PORT      => undef,
+                    SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                }
+            );
         }
 
         $insInfo->{DATABASES} = \@dbNameArray;

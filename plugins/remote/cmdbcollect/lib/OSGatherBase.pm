@@ -82,6 +82,13 @@ sub getFileLines {
     return $utils->getFileLines($filePath);
 }
 
+sub getBizIp {
+    my ( $self, $ipAddrs, $ipv6Addrs ) = @_;
+
+    #预留用于计算管理IP和业务IP不一致的情况的主机IP
+    return $self->{mgmtIp};
+}
+
 sub collect {
     my ($self) = @_;
 

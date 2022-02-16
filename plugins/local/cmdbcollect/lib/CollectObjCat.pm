@@ -23,26 +23,26 @@ our $TYPES = {
 };
 
 our $PK_CONFIG = {
-    INS     => [ 'MGMT_IP', 'PORT' ],
-    DB      => [ 'NAME',    'PRIMARY_IP', 'PORT' ],
-    CLUSTER => [ 'NAME',    'PRIMARY_IP' ],
-    DBINS   => [ 'NAME',    'MGMT_IP', 'PORT' ],
+    INS     => [ 'MGMT_IP',       'PORT' ],
+    DB      => [ 'NAME',          'PRIMARY_IP', 'PORT' ],
+    CLUSTER => [ 'NAME',          'PRIMARY_IP' ],
+    DBINS   => [ 'INSTANCE_NAME', 'MGMT_IP', 'PORT' ],
     OS           => ['MGMT_IP'],
     HOST         => [ 'MGMT_IP', 'BOARD_SERIAL' ],
     NETDEV       => [ 'MGMT_IP', 'SN' ],
     SECDEV       => [ 'MGMT_IP', 'SN' ],
     VIRTUALIZED  => ['MGMT_IP'],
-    SWITCH       => ['MGMT_IP', 'SN'],
-    FIREWALL     => ['MGMT_IP', 'SN'],
-    LOADBALANCER => ['MGMT_IP', 'SN'],
-    STORAGE      => ['MGMT_IP', 'SN'],
-    FCSWITCH     => ['MGMT_IP', 'SN']
+    SWITCH       => [ 'MGMT_IP', 'SN' ],
+    FIREWALL     => [ 'MGMT_IP', 'SN' ],
+    LOADBALANCER => [ 'MGMT_IP', 'SN' ],
+    STORAGE      => [ 'MGMT_IP', 'SN' ],
+    FCSWITCH     => [ 'MGMT_IP', 'SN' ]
 };
 
 our $INDEX_FIELDS = {
-    DBINS => ['IP', 'VIP'],
-    HOST => ['OS_ID'],
-    OS => ['OS_ID'],
+    DBINS => [ 'IP', 'VIP' ],
+    HOST  => ['OS_ID'],
+    OS    => ['OS_ID'],
 };
 
 sub get {
@@ -63,7 +63,7 @@ sub getPK {
 sub getIndexFields {
     my ( $self, $objCat ) = @_;
     my $indexFields = $INDEX_FIELDS->{$objCat};
-    if ( not defined($indexFields) ){
+    if ( not defined($indexFields) ) {
         $indexFields = [];
     }
     return $indexFields;

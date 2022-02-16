@@ -49,6 +49,7 @@ sub collect {
 
     my $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
     my $procInfo                 = $self->{procInfo};
+    my $connInfo                 = $procInfo->{CONN_INFO};
     my $matchedProcsInfo         = $self->{matchedProcsInfo};
     my $user                     = $procInfo->{USER};
     my $envMap                   = $procInfo->{ENVIRONMENT};
@@ -114,9 +115,16 @@ sub collect {
         }
         @portNumbers = sort( keys(%$portsMap) );
     }
-    $appInfo->{PORT}     = $portNumbers[0];
-    $appInfo->{MON_PORT} = $portNumbers[0];
-    $appInfo->{PORTS}    = \@portNumbers;
+    my $port = $portNumbers[0];
+
+    my $pFinder = $self->{pFinder};
+    my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $port );
+
+    $appInfo->{PRIMARY_IP} = $bizIp;
+    $appInfo->{VIP}        = $vip;
+    $appInfo->{PORT}       = $port;
+    $appInfo->{SSL_PORT}   = undef, $appInfo->{MON_PORT} = $port;
+    $appInfo->{PORTS}      = \@portNumbers;
 
     $appInfo->{DATA_FILE} = undef;
     $appInfo->{DATABASES} = [];

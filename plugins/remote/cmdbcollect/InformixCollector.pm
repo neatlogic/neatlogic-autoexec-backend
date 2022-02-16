@@ -89,15 +89,31 @@ sub collect {
                 my $ipAddr = gethostbyname( $insSegs[2] );
                 $insInfo->{IP} = inet_ntoa($ipAddr);
             }
-            $insInfo->{PORT}     = $insSegs[3];
-            $insInfo->{SSL_PORT} = undef;
+            my $port = $insSegs[3];
+            $insInfo->{PRIMARY_IP}   = $insInfo->{IP};
+            $insInfo->{VIP}          = $insInfo->{VIP};
+            $insInfo->{PORT}         = $port;
+            $insInfo->{SERVICE_ADDR} = $insInfo->{VIP} . ':' . $port;
+            $insInfo->{SSL_PORT}     = undef;
 
             my $dbNameInfo = $self->getCmdOut( "echo 'select * from sysdatabases'|dbaccess -e sysmaster\@$insName", $user );
             my @dbNames    = ();
             my @users      = ();
             while ( $dbNameInfo =~ /name\s+(\S+)/sg ) {
                 my $dbName = $1;
-                push( @dbNames, { NAME => $dbName } );
+                push(
+                    @dbNames,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'Informix-DB',
+                        NAME          => $dbName,
+                        PRIMARY_IP    => $insInfo->{IP},
+                        VIP           => $insInfo->{VIP},
+                        PORT          => $port,
+                        SSL_PORT      => undef,
+                        SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                    }
+                );
 
                 my $userInfo = $self->getCmdOut( "echo 'select * from sysusers'|dbaccess $dbName\@$insName", $user );
                 while ( $userInfo =~ /username\s+(\S+)/g ) {
