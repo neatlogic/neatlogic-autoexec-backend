@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -119,11 +124,6 @@
         {
             "name": "MODEL",
             "desc": "设备型号",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {

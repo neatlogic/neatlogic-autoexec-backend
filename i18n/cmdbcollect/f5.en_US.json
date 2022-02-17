@@ -38,6 +38,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -65,11 +70,6 @@
         {
             "name": "MODEL",
             "desc": "Device Model",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {

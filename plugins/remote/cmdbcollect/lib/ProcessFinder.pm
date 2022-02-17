@@ -96,6 +96,23 @@ sub new {
     return $self;
 }
 
+sub convertEplapsed {
+    my ( $self, $timeStr ) = @_;
+
+    my $uptimeSeconds;
+
+    if ( $self->{ostype} eq 'Windows' ) {
+        $uptimeSeconds = int($uptimeSeconds);
+    }
+    else {
+        if ( $timeStr =~ /(\d+)-(\d+):(\d+):(\d+)/ ) {
+            $uptimeSeconds = 86400 * $1 + 3600 * $2 + 60 * $3 + $4;
+        }
+    }
+
+    return $uptimeSeconds;
+}
+
 #获取单个进程的环境变量信息
 sub getProcEnv {
     my ( $self, $pid ) = @_;
@@ -332,8 +349,11 @@ sub findProcess {
                 $matchedMap->{ENVIRONMENT} = $envMap;
                 my $matched = &$callback( $config->{className}, $matchedMap, $self );
                 if ( $matched == 1 ) {
-                    $matchedMap->{IP_ADDRS}             = $self->{ipAddrs};
-                    $matchedMap->{IPV6_ADDRS}           = $self->{ipv6Addrs};
+                    $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
+                    $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
+                    if ( defined( $matchedMap->{ELAPSED} ) ) {
+                        $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                    }
                     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                 }
 
@@ -547,7 +567,7 @@ sub predictBizIp {
             $bizIp = $mgmtIp;
         }
     }
-    
+
     if ( not defined($vip) ) {
         if ( scalar(@implicitIps) == 1 ) {
             $vip = $implicitIps[0];

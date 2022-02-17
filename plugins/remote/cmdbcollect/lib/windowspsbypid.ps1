@@ -1,7 +1,7 @@
 [Console]::OutputEncoding = [Text.Encoding]::UTF8;
 [Console]::InputEncoding = [Text.Encoding]::UTF8;
 Function getProcess($PID){
-    Write-Output("PID PPID PGID USER %CPU MEMSIZE COMMAND COMMAND");
+    Write-Output("PID PPID PGID USER %CPU MEMSIZE ELAPSED COMMAND COMMAND");
     foreach($process in Get-Process -Id $PID)
     {
         $processId = $process.id;
@@ -22,8 +22,9 @@ Function getProcess($PID){
         $parentPid = $wmiObj.ParentProcessId;
         $pgid = $wmiObj.SessionId;
         $cmdLine = $wmiObj.CommandLine;
+        $elapsed = (New-TimeSpan -Start $process.StartTime).TotalSeconds;
 
-        [Console]::Write("$processId $parentPid $pgid $user $pcpu $memSize $processName $cmdLine");
+        [Console]::Write("$processId $parentPid $pgid $user $pcpu $memSize $processName $elapsed $cmdLine");
         Write-Output("")
     }
 }

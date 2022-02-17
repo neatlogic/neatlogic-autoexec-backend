@@ -371,12 +371,14 @@ sub mergeMultiProcs {
                     $appInfo->{VIP} = $vip;
                 }
             }
-            #delete($connInfo->{PORT_BIND});
             
+            $appInfo->{UPTIME} = $procInfo->{ELAPSED};
             #如果是非进程类别的信息采集信息，则清除PROC_INFO
             if ( delete( $appInfo->{NOT_PROCESS} ) ) {
                 delete( $appInfo->{PROC_INFO} );
             }
+            delete($connInfo->{PORT_BIND});
+            
             push( @apps, $appInfo );
         }
     }

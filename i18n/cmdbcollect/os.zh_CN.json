@@ -41,6 +41,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "运行时间（秒）",
+            "type": "Int"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"

@@ -10,6 +10,19 @@ use POSIX qw(uname);
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
+sub getUpTime {
+    my ( $self, $osInfo ) = @_;
+    my $cmd = 'LC_ALL=POSIX ps -o etime= -p 1';
+
+    my $uptimeStr = $self->getCmdOut('LC_ALL=POSIX ps -o etime= -p 1');
+
+    #62-21:43:01
+    if ( $uptimeStr =~ /(\d+)-(\d+):(\d+):(\d+)/ ) {
+        my $uptimeSeconds = 86400 * $1 + 3600 * $2 + 60 * $3 + $4;
+        $osInfo->{UPTIME} = $uptimeSeconds;
+    }
+}
+
 sub getMiscInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -630,6 +643,7 @@ sub collectOsInfo {
     my $osInfo = {};
 
     if ( $self->{justBaseInfo} == 0 ) {
+        $self->getUpTime($osInfo);
         $self->getMiscInfo($osInfo);
         $self->getCPUInfo($osInfo);
         my $mountedDevicesMap = $self->getMountPointInfo($osInfo);

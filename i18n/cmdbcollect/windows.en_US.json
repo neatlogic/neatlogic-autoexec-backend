@@ -53,6 +53,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "Up Time(Seconds)",
+            "type": "Int"
+        },
+        {
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
             "type": "Int"

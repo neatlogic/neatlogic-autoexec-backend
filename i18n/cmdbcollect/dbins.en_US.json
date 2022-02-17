@@ -51,6 +51,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "Up Time(Seconds)",
+            "type": "Int"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"

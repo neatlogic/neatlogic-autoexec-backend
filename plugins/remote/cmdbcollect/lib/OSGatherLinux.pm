@@ -31,6 +31,15 @@ sub stripDMIComment {
     return $content;
 }
 
+sub getUpTime {
+    my ( $self, $osInfo ) = @_;
+
+    my $uptimeStr = $self->getFileContent('/proc/uptime');
+    my $uptime = ( split( /\s+/, $uptimeStr ) )[0];
+
+    $osInfo->{UPTIME} = int($uptime);
+}
+
 sub getOsVersion {
     my ( $self, $osInfo ) = @_;
     my $osVer;

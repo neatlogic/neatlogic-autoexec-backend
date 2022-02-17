@@ -53,6 +53,11 @@
             "type": "String"
         },
         {
+            "name": "UPTIME",
+            "desc": "运行时间（秒）",
+            "type": "Int"
+        },
+        {
             "name": "IS_VIRTUAL",
             "desc": "是否是虚拟机",
             "type": "Int"
