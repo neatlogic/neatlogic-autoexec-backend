@@ -1140,7 +1140,7 @@ sub getScanListenerInfo {
         my $portsMap  = $procInfo->{CONN_INFO}->{LISTEN};
 
         my $tnsLsnrBaclogMap = $self->{tnsLsnrBaclogMap};
-        foreach my $lsnrPort ( keys(@$lsnrPorts) ) {
+        foreach my $lsnrPort ( @$lsnrPorts ) {
             $portsMap->{$lsnrPort} = $tnsLsnrBaclogMap->{$lsnrPort};
         }
     }
