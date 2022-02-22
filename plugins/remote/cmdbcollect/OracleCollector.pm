@@ -51,7 +51,7 @@ sub isCDB {
 }
 
 sub getInsVersion {
-    my ($self) = @_;
+    my ($self, $insInfo) = @_;
 
     my $version = '';
     my $sqlplus = $self->{sqlplus};
@@ -63,9 +63,17 @@ sub getInsVersion {
         verbose => $self->{isVerbose}
     );
 
-    if ( scalar(@$rows) > 0 ) {
+    if ( not defined($rows) ){
+        $sql = q{select banner VERSION from v$version where rownum <=1;};
+        $rows = $sqlplus->query(
+            sql     => $sql,
+            verbose => $self->{isVerbose}
+        );
+    }
+
+    if ( defined($rows) and scalar(@$rows) > 0 ) {
         $version = $$rows[0]->{VERSION};
-        if ( $version =~ /\bVersion\s+([\d\.]+)/ ) {
+        if ( $version =~ /\bVersion\s+([\d\.]+)/ or $version =~ /\bRelease\s+([\d\.]+)/ ) {
             $version = $1;
         }
     }
@@ -87,11 +95,14 @@ sub getUserInfo {
         sql     => $sql,
         verbose => $self->{isVerbose}
     );
-    foreach my $row (@$rows) {
-        my $userInfo = {};
-        $userInfo->{USERNAME}           = $row->{USERNAME};
-        $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
-        push( @userInfos, $userInfo );
+
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $userInfo = {};
+            $userInfo->{USERNAME}           = $row->{USERNAME};
+            $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
+            push( @userInfos, $userInfo );
+        }
     }
 
     return \@userInfos;
@@ -128,18 +139,21 @@ sub getTableSpaceInfo {
         sql     => $sql,
         verbose => $self->{isVerbose}
     );
-    foreach my $row (@$rows) {
-        my $tableSpaceName = $row->{NAME};
 
-        my $tableSpaceInfo = {};
-        $tableSpaceInfo->{NAME}       = $tableSpaceName;
-        $tableSpaceInfo->{TOTAL}      = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
-        $tableSpaceInfo->{USED}       = int( $row->{USED_MB} * 1000 / 1024 + 0.5 ) / 1000;
-        $tableSpaceInfo->{FREE}       = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
-        $tableSpaceInfo->{USED_PCT}   = $row->{USED_PCT} + 0.0;
-        $tableSpaceInfo->{DATA_FILES} = [];
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $tableSpaceName = $row->{NAME};
 
-        $tableSpaces->{$tableSpaceName} = $tableSpaceInfo;
+            my $tableSpaceInfo = {};
+            $tableSpaceInfo->{NAME}       = $tableSpaceName;
+            $tableSpaceInfo->{TOTAL}      = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $tableSpaceInfo->{USED}       = int( $row->{USED_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $tableSpaceInfo->{FREE}       = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $tableSpaceInfo->{USED_PCT}   = $row->{USED_PCT} + 0.0;
+            $tableSpaceInfo->{DATA_FILES} = [];
+
+            $tableSpaces->{$tableSpaceName} = $tableSpaceInfo;
+        }
     }
 
     $sql = q{select tablespace_name TPN, file_name FN, round(bytes/1024/1024/1024, 3) G, autoextensible AEX from dba_data_files};
@@ -151,27 +165,30 @@ sub getTableSpaceInfo {
         sql     => $sql,
         verbose => $self->{isVerbose}
     );
-    foreach my $row (@$rows) {
-        my $dataFileInfo   = {};
-        my $tableSpaceName = $row->{TPN};
 
-        $dataFileInfo->{FILE_NAME} = $row->{FN};
-        $dataFileInfo->{SIZE}      = $row->{G} + 0.0;
-        my $isAutoExtended = $row->{AEX};
-        $dataFileInfo->{AUTOEXTENSIBLE} = $isAutoExtended;
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $dataFileInfo   = {};
+            my $tableSpaceName = $row->{TPN};
 
-        my $tableSpace = $tableSpaces->{$tableSpaceName};
-        if ( not defined($tableSpace) ) {
-            $tableSpace = { NAME => $tableSpaceName, DATA_FILES => [] };
-            $tableSpaces->{$tableSpaceName} = $tableSpace;
-            $tableSpace->{AUTOEXTENSIBLE} = 'NO';
+            $dataFileInfo->{FILE_NAME} = $row->{FN};
+            $dataFileInfo->{SIZE}      = $row->{G} + 0.0;
+            my $isAutoExtended = $row->{AEX};
+            $dataFileInfo->{AUTOEXTENSIBLE} = $isAutoExtended;
+
+            my $tableSpace = $tableSpaces->{$tableSpaceName};
+            if ( not defined($tableSpace) ) {
+                $tableSpace = { NAME => $tableSpaceName, DATA_FILES => [] };
+                $tableSpaces->{$tableSpaceName} = $tableSpace;
+                $tableSpace->{AUTOEXTENSIBLE} = 'NO';
+            }
+            if ( $isAutoExtended eq 'YES' ) {
+                $tableSpace->{AUTOEXTENSIBLE} = 'YES';
+            }
+
+            my $dataFiles = $tableSpace->{DATA_FILES};
+            push( @$dataFiles, $dataFileInfo );
         }
-        if ( $isAutoExtended eq 'YES' ) {
-            $tableSpace->{AUTOEXTENSIBLE} = 'YES';
-        }
-
-        my $dataFiles = $tableSpace->{DATA_FILES};
-        push( @$dataFiles, $dataFileInfo );
     }
 
     my @allTableSpaces = values(%$tableSpaces);
@@ -205,8 +222,10 @@ sub getParams {
         verbose => $isVerbose
     );
     my $param = {};
-    foreach my $row (@$rows) {
-        $param->{ $row->{NAME} } = $row->{VALUE};
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            $param->{ $row->{NAME} } = $row->{VALUE};
+        }
     }
     my $isRAC = 0;
     if ( $param->{cluster_database} eq 'TRUE' ) {
@@ -367,7 +386,7 @@ sub collectIns {
         return undef;
     }
 
-    my $version = $self->getInsVersion();
+    my $version = $self->getInsVersion($insInfo);
     $insInfo->{VERSION} = $version;
 
     #获取CDB（pluggable database的标记）
@@ -478,46 +497,49 @@ sub collectPDB {
         sql     => $sql,
         verbose => $self->{isVerbose}
     );
-    foreach my $row (@$rows) {
-        my $pdb = {};
 
-        my $dbInRacInfo = $dbNameToDBInfo->{$dbName};
-        if ( defined($dbInRacInfo) ) {
-            map { $pdb->{$_} = $dbInRacInfo->{$_} } keys(%$dbInRacInfo);
-            $pdb->{PORT} = $racInfo->{SCAN_PORT};
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $pdb = {};
+
+            my $dbInRacInfo = $dbNameToDBInfo->{$dbName};
+            if ( defined($dbInRacInfo) ) {
+                map { $pdb->{$_} = $dbInRacInfo->{$_} } keys(%$dbInRacInfo);
+                $pdb->{PORT} = $racInfo->{SCAN_PORT};
+            }
+            else {
+                $pdb->{INSTANCES} = [
+                    {
+                        _OBJ_CATEGORY => 'DBINS',
+                        _OBJ_TYPE     => 'Oracle',
+                        INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
+                        IP            => $insInfo->{IP},
+                        VIP           => $insInfo->{VIP},
+                        PORT          => $insInfo->{PORT},
+                        SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                    }
+                ];
+                $pdb->{PORT} = $insInfo->{PORT};
+            }
+
+            $pdb->{ORACLE_SID}  = $insInfo->{ORACLE_SID};
+            $pdb->{ORACLE_HOME} = $insInfo->{ORACLE_HOME};
+            $pdb->{ORACLE_BASE} = $insInfo->{ORACLE_BASE};
+
+            $pdb->{NAME}   = $row->{NAME};
+            $pdb->{DBID}   = $row->{DBID};
+            $pdb->{CON_ID} = $row->{CON_ID};
+
+            $pdb->{_OBJ_CATEGORY} = 'DB';
+            $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
+            $pdb->{_APP_TYPE}     = 'PDB';
+            $pdb->{CDB}           = $dbName;
+
+            $pdb->{NOT_PROCESS} = 1;
+            $pdb->{RUN_ON}      = [];
+
+            push( @pdbs, $pdb );
         }
-        else {
-            $pdb->{INSTANCES} = [
-                {
-                    _OBJ_CATEGORY => 'DBINS',
-                    _OBJ_TYPE     => 'Oracle',
-                    INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
-                    IP            => $insInfo->{IP},
-                    VIP           => $insInfo->{VIP},
-                    PORT          => $insInfo->{PORT},
-                    SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
-                }
-            ];
-            $pdb->{PORT} = $insInfo->{PORT};
-        }
-
-        $pdb->{ORACLE_SID}  = $insInfo->{ORACLE_SID};
-        $pdb->{ORACLE_HOME} = $insInfo->{ORACLE_HOME};
-        $pdb->{ORACLE_BASE} = $insInfo->{ORACLE_BASE};
-
-        $pdb->{NAME}   = $row->{NAME};
-        $pdb->{DBID}   = $row->{DBID};
-        $pdb->{CON_ID} = $row->{CON_ID};
-
-        $pdb->{_OBJ_CATEGORY} = 'DB';
-        $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
-        $pdb->{_APP_TYPE}     = 'PDB';
-        $pdb->{CDB}           = $dbName;
-
-        $pdb->{NOT_PROCESS} = 1;
-        $pdb->{RUN_ON}      = [];
-
-        push( @pdbs, $pdb );
     }
 
     #获取PDB的service names
@@ -529,8 +551,10 @@ sub collectPDB {
             verbose => $self->{isVerbose}
         );
         my @serviceNames = ();
-        foreach my $row (@$rows) {
-            push( @serviceNames, $row->{NAME} );
+        if ( defined($rows) ) {
+            foreach my $row (@$rows) {
+                push( @serviceNames, $row->{NAME} );
+            }
         }
         $pdb->{SERVICE_NAMES} = \@serviceNames;
         $pdb->{SERVICE_NAME}  = $serviceNames[0];
@@ -619,37 +643,41 @@ sub getASMDiskGroup {
         sql     => q{select name, type, total_mb, free_mb from v$asm_diskgroup},
         verbose => $isVerbose
     );
-    foreach my $row (@$rows) {
-        my $diskGroup = {};
-        my $groupName = $row->{NAME};
-        $diskGroup->{NAME}     = $groupName;
-        $diskGroup->{TYPE}     = $row->{TYPE};
-        $diskGroup->{TOTAL}    = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
-        $diskGroup->{FREE}     = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
-        $diskGroup->{USED}     = $diskGroup->{TOTAL} - $diskGroup->{FREE};
-        $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $diskGroup->{DISKS}    = [];
-        push( @diskGroups, $diskGroup );
-        $diskGroupsMap->{$groupName} = $diskGroup;
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $diskGroup = {};
+            my $groupName = $row->{NAME};
+            $diskGroup->{NAME}     = $groupName;
+            $diskGroup->{TYPE}     = $row->{TYPE};
+            $diskGroup->{TOTAL}    = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{FREE}     = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{USED}     = $diskGroup->{TOTAL} - $diskGroup->{FREE};
+            $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $diskGroup->{DISKS}    = [];
+            push( @diskGroups, $diskGroup );
+            $diskGroupsMap->{$groupName} = $diskGroup;
+        }
     }
     $rows = $sqlplus->query(
         sql     => q{select ad.name, adk.name gname, ad.failgroup fgroup, ad.mount_status mnt_sts, ad.total_mb, ad.free_mb, ad.path from v$asm_disk ad,v$asm_diskgroup adk where ad.GROUP_NUMBER=adk.GROUP_NUMBER order by path},
         verbose => $isVerbose
     );
-    foreach my $row (@$rows) {
-        my $groupName = $row->{GNAME};
-        my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
-        my $disk      = {};
-        $disk->{NAME}         = $row->{NAME};
-        $disk->{FAIL_GROUP}   = $row->{FGROUP};
-        $disk->{MOUNT_STATUS} = $row->{MNT_STS};
-        $disk->{CAPACITY}     = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
-        $disk->{FREE}         = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
-        $disk->{USED}         = $disk->{CAPACITY} - $disk->{FREE};
-        $disk->{USED_PCT}     = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-        $disk->{DEV_PATH}     = $row->{PATH};
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $groupName = $row->{GNAME};
+            my $disks     = $diskGroupsMap->{$groupName}->{DISKS};
+            my $disk      = {};
+            $disk->{NAME}         = $row->{NAME};
+            $disk->{FAIL_GROUP}   = $row->{FGROUP};
+            $disk->{MOUNT_STATUS} = $row->{MNT_STS};
+            $disk->{CAPACITY}     = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $disk->{FREE}         = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $disk->{USED}         = $disk->{CAPACITY} - $disk->{FREE};
+            $disk->{USED_PCT}     = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $disk->{DEV_PATH}     = $row->{PATH};
 
-        push( @$disks, $disk );
+            push( @$disks, $disk );
+        }
     }
 
     $racInfo->{DISK_GROUPS} = \@diskGroups;
@@ -1021,7 +1049,7 @@ sub parseListenerInfo {
                     if ( $line =~ /\(HOST=(.*?)\)/ ) {
                         my $host = $1;
                         if ( $host !~ /^[\d\.]+$/ ) {
-                            foreach my $ipAddr ( gethostbyname($host) ) {
+                            foreach my $ipAddr ( ( gethostbyname($host) )[4] ) {
                                 push( @ips, inet_ntoa($ipAddr) );
                             }
                         }
@@ -1140,7 +1168,7 @@ sub getScanListenerInfo {
         my $portsMap  = $procInfo->{CONN_INFO}->{LISTEN};
 
         my $tnsLsnrBaclogMap = $self->{tnsLsnrBaclogMap};
-        foreach my $lsnrPort ( @$lsnrPorts ) {
+        foreach my $lsnrPort (@$lsnrPorts) {
             $portsMap->{$lsnrPort} = $tnsLsnrBaclogMap->{$lsnrPort};
         }
     }
@@ -1168,16 +1196,11 @@ sub getListenerInfo {
 
     #获取其中一个Listener，通过lsnrctl获取service names信息
     my $lsnrNamesMap = {};
-    my ( $listener, $enableListener, $activeListener );
-    my $scanStatusLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/srvctl status listener", $osUser );
-    foreach my $line (@$scanStatusLines) {
-        if ( $line =~ /^Listener (.*?) is running/i ) {
-            $activeListener = $1;
-            $lsnrNamesMap->{$activeListener} = 1;
-        }
-        elsif ( $line =~ /^Listener (.*?) is enabled/i ) {
-            $enableListener = $1;
-            $lsnrNamesMap->{$enableListener} = 1;
+    my $listener;
+    my $tnslsnrLines = $self->getCmdOutLines("ps -u $osUser -o args |grep tnslsnr");
+    foreach my $line (@$tnslsnrLines) {
+        if ( $line =~ /\btnslsnr\s+(\S+)\s+/ ) {
+            $lsnrNamesMap->{$1} = 1;
         }
     }
     my @lsnrNames = keys(%$lsnrNamesMap);

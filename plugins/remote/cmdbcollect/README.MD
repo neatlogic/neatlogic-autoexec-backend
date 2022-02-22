@@ -359,7 +359,7 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
     }
 ```
 
-## oscollect执行说明
+## oscollector执行说明
 - oscollect会完成对OS、HOST、应用的自动发现和信息收集
 - 支持通过json参数输入密码设置
 - 支持只对某一类别的对象进行发现和收集
@@ -373,4 +373,14 @@ oscollector  --class Mysql,Postgresql --defaultpassconf 'Mysql:rouser/pass123,Po
 譬如收集Apache、Tomcat、Mysql
 ```
 oscollector  --class Apache,Tomcat,Mysql
+```
+## oscollector测试
+```
+scp -r ${project.base}/plugins/remote/cmdbcollect root@testhost:/tmp/
+scp -r ${project.base}/plugins/remote/lib root@testhost:/tmp/cmdbcollect/
+ssh root@testhost
+cd /tmp/cmdbcollect
+执行：
+./oscollector
+./oscollector --verbose 1 --class Oracle
 ```
