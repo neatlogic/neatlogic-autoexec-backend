@@ -430,6 +430,21 @@ sub getDiskInfo {
             # Name:  disk
             #     Node:  disk
             #     Device Type:  block
+            # AIX的磁盘的序列号和NNA号获取不同驱动不一样，需要组合lscfg和lsattr列出的属性进行计算和组合才能计算出来磁盘的LUN NNA号或者Serial number
+            # 譬如：lscfg列出的NetApp的信息是下面这样，但是Serial number需要吧每个字母toHex后才是Lun NNA号的值：3830456A6E3F4C71，Z1 toHex：5A696C4
+            # NetApp LUN 序列号必须使用序列号和设备专用（ Z1 ）（即 80Ejn ？ LqZilO ）进行计算
+            # 加上NetApp的厂商前缀（根据不同的NetApp存储系列，有三种前缀）：60a98000后才是完整的Lun NNA：60a98000 3830456A6E3F4C71 5A696C4
+            # 后面的Z0——Z4。。不同驱动的意义也不一样，所以AIX要完成fc disk到存储的mapping情况非常多
+            # Manufacturer................NETAPP
+            # Machine Type and Model......LUN C-Mode
+            # ROS Level and ID............39353030
+            # Serial Number...............80Ejn?Lq
+            # Device Specific.(Z0)........0000043270181002
+            # Device Specific.(Z1)........ZilO
+            # Device Specific.(Z2)........S262
+            # Device Specific.(Z3)........0
+            # Device Specific.(Z4)........
+
 
             my $lunInfo = $self->getCmdOut("lscfg -vp -l '$name'");
 
@@ -739,7 +754,7 @@ sub getHostNicInfo {
                 elsif ( $line =~ /Device Type: Virtual/i ) {
                     $hostInfo->{IS_VIRTUAL} = 1;
                 }
-                elsif ( $line =~ /Driver Flags: Up Broadcast Running/i ) {
+                elsif ( $line =~ /Driver Flags: Up/i ) {
                     $nicInfo->{STATUS} = 'up';
                 }
             }
@@ -881,8 +896,10 @@ sub collectHostInfo {
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getHostMiscInfo($hostInfo);
         $self->getHostMemInfo($hostInfo);
-        $self->getHostNicInfo($hostInfo);
         $self->getHostHBAInfo($hostInfo);
+    }
+    else{
+        $self->getHostNicInfo($hostInfo);
     }
 
     return $hostInfo;
