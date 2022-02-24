@@ -445,7 +445,6 @@ sub getDiskInfo {
             # Device Specific.(Z3)........0
             # Device Specific.(Z4)........
 
-
             my $lunInfo = $self->getCmdOut("lscfg -vp -l '$name'");
 
             my $sn;
@@ -506,6 +505,51 @@ sub getDiskInfo {
     $osInfo->{DISKS} = \@diskInfos;
 }
 
+sub getTopasOut {
+    my ( $self, $cmd ) = @_;
+    my @lines = ();
+    my ( $fromParent, $toChild );
+    my ( $fromChild,  $toParent );
+    pipe( $fromParent, $toChild );
+    pipe( $fromChild,  $toParent );
+    $toChild->autoflush(1);
+    $toParent->autoflush(1);
+
+    my $pid;
+    if ( $pid = fork() ) {
+        close($fromParent);
+        close($toParent);
+        my $line;
+        my $count = 22;
+        while ( $line = <$fromChild> ) {
+            push( @lines, $line );
+            $count--;
+            if ( $count <= 0 ) {
+                last;
+            }
+        }
+        print $toChild ("q\n");
+        close($fromChild);
+        close($toChild);
+        waitpid( $pid, 0 );
+        return \@lines;
+    }
+    else {
+        if ( not defined($pid) ) {
+            print("WARN: Cannot fork process to execute topas: $!");    # unless defined $pid;
+        }
+        close($toChild);
+        close($fromChild);
+        $ENV{LANG}    = 'C';
+        $ENV{TERM}    = 'vt100';
+        $ENV{COLUMNS} = '300';
+        open( STDIN,  "<&", $fromParent );
+        open( STDOUT, ">&", $toParent );
+        exec($cmd);
+        exit(0);
+    }
+}
+
 sub getPerformanceInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -513,7 +557,7 @@ sub getPerformanceInfo {
 
     my $headerStr = '';
     my @fieldNames;
-    my $topLines  = $self->getCmdOutLines('LANG=C TERM=vt100 COLUMNS=300 topas -P | head -22');
+    my $topLines  = $self->getTopasOut('LANG=C TERM=vt100 COLUMNS=300 topas -P');
     my $lineCount = scalar(@$topLines);
     my $k         = 0;
     for ( $k = 0 ; $k < $lineCount ; $k++ ) {
@@ -539,6 +583,7 @@ sub getPerformanceInfo {
                 }
             }
         }
+
         if ( $line =~ /^\w+\s+\d\d+\s+\d\d+/ ) {
             last;
         }
@@ -898,7 +943,7 @@ sub collectHostInfo {
         $self->getHostMemInfo($hostInfo);
         $self->getHostHBAInfo($hostInfo);
     }
-    else{
+    else {
         $self->getHostNicInfo($hostInfo);
     }
 

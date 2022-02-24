@@ -365,6 +365,7 @@ class RunNode:
                     envName = op.options['name']
                     envValue = op.options['value']
                     self.context.setEnv(envName, envValue)
+                    self.context.exportEnv(envName)
                 return
 
             elif not os.path.exists(op.pluginPath):
