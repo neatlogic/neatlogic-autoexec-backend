@@ -1,5 +1,6 @@
 *.pyc
 logs/*
+test/*
 data/*
 tmp/*
 plib/*
