@@ -48,7 +48,7 @@ sub main {
         'help'          => \$isHelp,
         'node=s'        => \$node,
         'v|verbose=i'   => \$isVerbose,
-        'force'         => \$isForce,
+        'force=i'         => \$isForce,
         'dryrun'        => \$isDryRun,
         'parallel=i'    => \$parallelCount,
         'autocommit'    => \$isAutoCommit,
@@ -112,7 +112,6 @@ sub main {
         istty      => 0
     );
     my $rc = 0;
-
     $rc = $sqlFileRunner->checkSqlFiles();
 
     if ( $rc == 0 ) {

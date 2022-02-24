@@ -35,22 +35,18 @@ sub new {
     my $dbInfo    = $self->{dbInfo};
     my $statusDir = "$self->{jobPath}/status/$self->{phaseName}/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
     if ( not -e $statusDir ) {
-        if ( not mkdir($statusDir) ) {
+        if ( not mkpath($statusDir) ) {
             die("ERROR: Create directory $statusDir failed $!\n");
         }
     }
 
     $self->{sqlPath}    = "$self->{jobPath}/sqlfile/$self->{phaseName}/$sqlFile";
     $self->{statusPath} = "$statusDir/$sqlFile.txt";
-    my $sqlDir = dirname( $self->{statusPath} );
-    if ( not -e $sqlDir ) {
-        mkpath($sqlDir);
-    }
 
     bless( $self, $type );
 
     my $newSqlFile = 1;
-    if ( -f $self->{statusPath} ) {
+    if ( -e $self->{statusPath} ) {
         $newSqlFile = 0;
     }
 

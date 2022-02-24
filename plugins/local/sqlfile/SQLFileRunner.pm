@@ -8,6 +8,7 @@ use FindBin;
 package SQLFileRunner;
 
 use strict;
+use Encode;
 use POSIX qw(strftime);
 use IO::File;
 use Cwd;
@@ -127,27 +128,11 @@ sub _initDir {
 sub execOneSqlFile {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
 
-    Utils::sigHandler(
-        'TERM', 'INT', 'HUP', 'ABRT',
-        sub {
-            $sqlFileStatus->_loadStatus();
-            my $status = $sqlFileStatus->{status};
-            if ( $status->{status} eq 'waitInput' ) {
-                my $interact = $status->{interact};
-                if ( $interact and $interact->{pipeFile} and -e $interact->{pipeFile} ) {
-                    unlink( $interact->{pipeFile} );
-                }
-            }
-            $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
-            return -1;
-        }
-    );
-
-    my $hasError = 0;
-
     my $dbNode    = $self->{dbNode};
     my $phaseName = $self->{phaseName};
     my $dbInfo    = $self->{dbInfo};
+
+    my $hasError = 0;
 
     my $logFileDir = $self->{logFileDir};
     my $sqlDir     = dirname($sqlFile);
@@ -158,6 +143,7 @@ sub execOneSqlFile {
     my $logFileDir = $self->{logFileDir};
     if ( not -e $logFileDir ) {
         if ( not mkdir($logFileDir) ) {
+            $hasError = 1;
             print("ERROR: Create log directory $logFileDir failed $!\n");
         }
     }
@@ -173,49 +159,23 @@ sub execOneSqlFile {
     my $dateTimeStr    = strftime( "%Y%m%d-%H%M%S", localtime() );
     my $hisLogName     = "$dateTimeStr-running-$ENV{AUTOEXEC_USER}.txt";
     my $hisLogFilePath = "$hisLogDir/$hisLogName";
-    my $logFH          = IO::File->new(">$logFilePath");
+
+    if ( -e $logFilePath ) {
+        if ( not unlink($logFilePath) ) {
+            $hasError = 1;
+            print("ERROR: Switch log file $logFilePath failed, $!\n");
+        }
+    }
+
+    my $logFH = IO::File->new(">$logFilePath");
     $logFH->autoflush(1);
-    link( $logFilePath, $hisLogFilePath );
-
-    END {
-        if ( defined($sqlFileStatus) ) {
-            my $endStatus     = $sqlFileStatus->getStatusValue('status');
-            my $newHisLogName = $hisLogName;
-            $newHisLogName =~ s/-running-/-$endStatus-/;
-            my $newHisLogPath = "$hisLogDir/$newHisLogName";
-            rename( $hisLogFilePath, $newHisLogPath );
-        }
-        if ( defined($logFH) ) {
-            $logFH->close();
-        }
+    if ( not link( $logFilePath, $hisLogFilePath ) ) {
+        $hasError = 1;
+        print("ERROR: Create log file path failed, $!\n");
     }
-
-    #redirect stdout and rotate log file to his log
-    if ( not $self->{istty} ) {
-        open( STDOUT, sprintf( ">&=%d", $logFH->fileno() ) );
-        open( STDERR, sprintf( ">&=%d", $logFH->fileno() ) );
-    }
-    select(STDERR);
-    $| = 1;
-    select(STDOUT);
-    $| = 1;
-
-    my $dbType = uc( $dbInfo->{dbType} );
-    my $dbName = $dbInfo->{dbName};
-
-    my $handlerName = uc($dbType) . 'SQLRunner';
-    my $requireName = $handlerName . '.pm';
 
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
-
-    print("#***************************************\n");
-    print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
-    print("# FILE=$sqlFile\n");
-    print("# MD5=$sqlFileStatus->{status}->{md5}\n");
-    print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
-    print("#***************************************\n\n");
-
-    my $charSet = $self->{charSet};
+    my $charSet     = $self->{charSet};
     if ( not defined($charSet) ) {
         $charSet = Utils::guessEncoding($sqlFilePath);
         if ( defined($charSet) ) {
@@ -223,91 +183,201 @@ sub execOneSqlFile {
         }
         else {
             print("ERROR: Can not detect $sqlFilePath charset.\n");
-            return 1;
+            $hasError = 1;
         }
     }
     else {
         print("INFO: Use charset: $charSet\n");
     }
 
-    my $startTime = time();
-    my $spawn;
-
-    if ( $self->{isDryRun} == 1 ) {
-        print("INFO: Dry run sql $sqlFilePath.\n");
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
-    }
-    else {
-        my $handler;
-        eval {
-            print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
-            require $requireName;
-
-            $handler = $handlerName->new( $dbInfo, $sqlFilePath, $charSet, $logFilePath );
-        };
-        if ($@) {
-            $hasError = 1;
-            print("ERROR: $@\n");
-        }
-
-        if ( defined($handler) ) {
-            $spawn = $handler->{spawn};
-        }
-
-        if ( defined($spawn) ) {
-            $spawn->log_stdout(0);
-            $spawn->log_file(
-                sub {
-                    if ( $handler->{hasLogon} == 1 ) {
-                        my $content = shift;
-                        $content =~ s/\x0D//g;
-                        print($content);
-                    }
-                }
-            );
-        }
-
-        $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
-        eval { $hasError = $handler->run(); };
-        if ($@) {
-            print("ERROR: Unknow error ocurred.\n$@\n");
-            $hasError = 1;
-        }
+    if ( $hasError == 1 ) {
+        return $hasError;
     }
 
-    if ( $hasError == 0 ) {
-        if ( defined($spawn) ) {
-            if ( defined( $spawn->exitstatus() ) and $spawn->exitstatus() == 0 ) {
-                print("\nFINEST:execute sql:$sqlFile success.\n");
+    pipe( my $fromParent, my $toChild );
+    pipe( my $fromChild,  my $toParent );
+    $toParent->binmode();
+    $toParent->autoflush(1);
+
+    my $pid = fork();
+    if ( $pid > 0 ) {
+        close($fromParent);
+        close($toParent);
+        close($toChild);
+
+        END {
+            if ( defined($sqlFileStatus) ) {
+                my $endStatus     = $sqlFileStatus->getStatusValue('status');
+                my $newHisLogName = $hisLogName;
+                $newHisLogName =~ s/-running-/-$endStatus-/;
+                my $newHisLogPath = "$hisLogDir/$newHisLogName";
+                rename( $hisLogFilePath, $newHisLogPath );
+            }
+            if ( defined($logFH) ) {
+                $logFH->close();
+            }
+        }
+
+        my $timeStr;
+        my @nowTime;
+        while ( my $line = <$fromChild> ) {
+            @nowTime = localtime();
+            $timeStr = sprintf( "%02d:%02d:%02d", $nowTime[2], $nowTime[1], $nowTime[0] );
+            if ( $charSet ne 'UTF-8' ) {
+                $line = Encode::encode( 'utf-8', Encode::decode( $charSet, $line ) );
+            }
+            if ( not $self->{istty} ) {
+                print $logFH ( $timeStr, ' ', $line );
             }
             else {
-                print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
-                $hasError = 1;
+                print( $timeStr, ' ', $line );
+            }
+        }
+
+        close($fromChild);
+        waitpid( $pid, 0 );
+        my $rc = $?;
+
+        my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
+
+        if ( $rc > 255 ) {
+            $hasError = 1;
+            $rc       = $rc >> 8;
+        }
+        elsif ( $rc > 0 ) {
+            $hasError = 1;
+            if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
+                $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
             }
         }
         else {
-            print("\nFINEST:execute sql:$sqlFile success.\n");
+            if ( defined($sqlStatus) and ( $sqlStatus eq 'failed' or $sqlStatus eq 'aborted' ) ) {
+                $hasError = 1;
+            }
         }
+
+        return $hasError;
     }
     else {
-        print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
-        $hasError = 1;
-    }
+        if ( not defined($pid) ) {
+            print("ERROR: Cannot fork process to execute sqlfile: $!");
+        }
+        close($toChild);
+        close($fromChild);
+        close($fromParent);
+        open( STDOUT, '>&', $toParent );
+        open( STDERR, '>&', $toParent );
+        binmode( STDOUT, 'encoding(UTF-8)' );
+        binmode( STDERR, 'encoding(UTF-8)' );
 
-    if ( $hasError == 0 ) {
-        $sqlFileStatus->updateStatus( status => 'succeed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
-    }
-    else {
-        $sqlFileStatus->updateStatus( status => 'failed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
-    }
+        Utils::sigHandler(
+            'TERM', 'INT', 'HUP', 'ABRT',
+            sub {
+                $sqlFileStatus->_loadStatus();
+                my $status = $sqlFileStatus->{status};
+                if ( $status->{status} eq 'waitInput' ) {
+                    my $interact = $status->{interact};
+                    if ( $interact and $interact->{pipeFile} and -e $interact->{pipeFile} ) {
+                        unlink( $interact->{pipeFile} );
+                    }
+                }
+                $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+                return -1;
+            }
+        );
 
-    my $consumeTime = time() - $startTime;
-    print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-    print( "= End\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
-    print("= Elapsed time: $consumeTime seconds.\n");
-    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+        my $dbType = uc( $dbInfo->{dbType} );
+        my $dbName = $dbInfo->{dbName};
 
-    return $hasError;
+        my $handlerName = uc($dbType) . 'SQLRunner';
+        my $requireName = $handlerName . '.pm';
+
+        print("#***************************************\n");
+        print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
+        print("# FILE=$sqlFile\n");
+        print("# MD5=$sqlFileStatus->{status}->{md5}\n");
+        print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
+        print("#***************************************\n\n");
+
+        my $startTime = time();
+        my $spawn;
+
+        if ( $self->{isDryRun} == 1 ) {
+            print("INFO: Dry run sql $sqlFilePath.\n");
+            $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
+        }
+        else {
+            my $handler;
+            eval {
+                print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
+                require $requireName;
+
+                $handler = $handlerName->new( $dbInfo, $sqlFilePath, $charSet, $logFilePath );
+            };
+            if ($@) {
+                $hasError = 1;
+                print("ERROR: $@\n");
+            }
+
+            if ( defined($handler) ) {
+                $spawn = $handler->{spawn};
+            }
+
+            if ( defined($spawn) ) {
+                $spawn->log_stdout(0);
+                $spawn->log_file(
+                    sub {
+                        if ( $handler->{hasLogon} == 1 ) {
+                            my $content = shift;
+                            $content =~ s/\x0D//g;
+                            print($content);
+                        }
+                    }
+                );
+            }
+
+            $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
+            eval { $hasError = $handler->run(); };
+            if ($@) {
+                print("ERROR: Unknow error ocurred.\n$@\n");
+                $hasError = 1;
+            }
+        }
+
+        if ( $hasError == 0 ) {
+            if ( defined($spawn) ) {
+                if ( defined( $spawn->exitstatus() ) and $spawn->exitstatus() == 0 ) {
+                    print("\nFINEST:execute sql:$sqlFile success.\n");
+                }
+                else {
+                    print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
+                    $hasError = 1;
+                }
+            }
+            else {
+                print("\nFINEST:execute sql:$sqlFile success.\n");
+            }
+        }
+        else {
+            print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
+            $hasError = 1;
+        }
+
+        if ( $hasError == 0 ) {
+            $sqlFileStatus->updateStatus( status => 'succeed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+        }
+        else {
+            $sqlFileStatus->updateStatus( status => 'failed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+        }
+
+        my $consumeTime = time() - $startTime;
+        print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+        print( "= End\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
+        print("= Elapsed time: $consumeTime seconds.\n");
+        print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+
+        exit($hasError);
+    }
 }
 
 sub _checkAndDelBom {
