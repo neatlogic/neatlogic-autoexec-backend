@@ -522,6 +522,9 @@ sub getTopasOut {
         my $line;
         my $count = 22;
         while ( $line = <$fromChild> ) {
+            $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
+            $line =~ s/\e\[.*$//g;
+            $line =~ s/^\s*|\s*$//g;
             push( @lines, $line );
             $count--;
             if ( $count <= 0 ) {
@@ -562,10 +565,7 @@ sub getPerformanceInfo {
     my $k         = 0;
     for ( $k = 0 ; $k < $lineCount ; $k++ ) {
         my $line = $$topLines[$k];
-        $line =~ s/^\s*|\s*$//g;
         if ( $line =~ /PPID/ ) {
-            $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
-            $line =~ s/\e\[.*$//g;
             @fieldNames = split( /\s+/, $line );
             if ( $fieldNames[5] eq 'RES' and $fieldNames[6] eq 'RES' ) {
                 $fieldNames[5] = 'DATA_RES';
@@ -601,7 +601,7 @@ sub getPerformanceInfo {
                 $fields[$i] = int( $fields[$i] );
             }
             elsif ( $fields[$i] =~ /^[\d\.]+$/ ) {
-                $fields[$i] = 0.0 + $fields[$i];
+                $fields[$i] = int( 0.0 + $fields[$i] * 100 ) / 100;
             }
             $procInfo->{ $fieldNames[$i] } = $fields[$i];
         }
