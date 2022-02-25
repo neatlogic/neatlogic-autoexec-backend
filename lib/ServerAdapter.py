@@ -486,6 +486,7 @@ class ServerAdapter:
             return {}
 
         params = {
+            'jobId': self.context.jobId,
             'resourceId': resourceId,
             'host': host,
             'port': port,
@@ -517,6 +518,7 @@ class ServerAdapter:
 
         params = {
             'tenent': self.context.tenent,
+            'jobId': self.context.jobId,
             'ciType': ciType,
             'resourceId': resourceId,
             'time': time.time()
@@ -542,6 +544,7 @@ class ServerAdapter:
             return {}
 
         params = {
+            'jobId': self.context.jobId,
             'ciType': ciType,
             'ciEntityId': resourceId,
             'inspectStatus': status,
@@ -595,6 +598,7 @@ class ServerAdapter:
             return {}
 
         params = {
+            'jobId': self.context.jobId,
             'ciEntityId': resourceId,
             'attrList': attrList
         }
@@ -631,6 +635,7 @@ class ServerAdapter:
             return {}
 
         params = {
+            'jobId': self.context.jobId,
             'tenant': self.context.tenant,
             'resourceId': resourceId
         }
