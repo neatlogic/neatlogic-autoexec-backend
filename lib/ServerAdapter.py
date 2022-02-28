@@ -269,6 +269,14 @@ class ServerAdapter:
             content = response.read().decode(charset)
             return json.loads(content)
         except:
+            # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
+            # 促使下次运行主动更新节点文件
+            nodesFilePath = self.context.getNodesFilePath()
+            phaseNodesFilePath = context.getNodesFilePath(phaseName)
+            if (os.path.exists(nodesFilePath)):
+                os.utime(nodesFilePath, (0, 0))
+            if (os.path.exists(phaseNodesFilePath)):
+                os.utime(phaseNodesFilePath, (0, 0))
             raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
