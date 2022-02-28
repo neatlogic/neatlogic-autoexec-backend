@@ -163,8 +163,8 @@ if __name__ == "__main__":
 
     passThroughEnv = {}
     passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
-    if args.passThroughenv:
-        passThroughEnvJson = args.passThroughenv
+    if args.passthroughenv:
+        passThroughEnvJson = args.passthroughenv
     if passThroughEnvJson:
         passThroughEnv = json.loads(passThroughEnvJson)
 
