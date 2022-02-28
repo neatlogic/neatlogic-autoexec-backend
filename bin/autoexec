@@ -162,11 +162,12 @@ if __name__ == "__main__":
     os.environ['AUTOEXEC_HOME'] = homePath
 
     passThroughEnv = {}
-    passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
-    if args.passthroughenv:
-        passThroughEnvJson = args.passthroughenv
-    if passThroughEnvJson:
-        passThroughEnv = json.loads(passThroughEnvJson)
+    if args.passthroughenv != '{}':
+        passThroughEnv = json.loads(args.passthroughenv)
+    else:
+        passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
+        if passThroughEnvJson:
+            passThroughEnv = json.loads(passThroughEnvJson)
 
     progName = binPaths[1]
 
