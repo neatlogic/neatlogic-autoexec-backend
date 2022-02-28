@@ -272,7 +272,7 @@ class ServerAdapter:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
             # 促使下次运行主动更新节点文件
             nodesFilePath = self.context.getNodesFilePath()
-            phaseNodesFilePath = context.getNodesFilePath(phaseName)
+            phaseNodesFilePath = self.context.getNodesFilePath(phaseName)
             if (os.path.exists(nodesFilePath)):
                 os.utime(nodesFilePath, (0, 0))
             if (os.path.exists(phaseNodesFilePath)):
