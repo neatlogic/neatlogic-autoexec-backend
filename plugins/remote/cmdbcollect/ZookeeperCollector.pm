@@ -139,7 +139,7 @@ sub collect {
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 
     my $clusterInfo = undef;
-    if ( scalar(@$$clusterMembers) > 1 ) {
+    if ( scalar(@$clusterMembers) > 1 ) {
         my $clusterInfo = {
             _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
             _OBJ_TYPE     => 'ZookeeperCluster',
