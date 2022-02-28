@@ -24,6 +24,7 @@ class Context:
         self.devMode = False
         self.tenant = tenent
         self.config = config
+        self.jobId = os.getenv('AUTOEXEC_JOBID')
 
 
 def setEnv():

@@ -21,7 +21,7 @@ import Utils
 
 class Context(VContext.VContext):
     def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
-        VContext.VContext.__init__(self, jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
+        super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.firstFire = firstFire
 
