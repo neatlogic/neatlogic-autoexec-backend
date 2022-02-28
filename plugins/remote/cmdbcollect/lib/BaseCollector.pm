@@ -120,13 +120,22 @@ sub isMainProcess {
             if ( $parentProcInfo->{COMMAND} eq $procInfo->{COMMAND} ) {
                 $isMainProcess = 0;
 
-                my $connGather = ConnGather->new();
-                my $connInfo   = $connGather->getConnInfo( $procInfo->{PID} );
-
+                my $connInfo      = $procInfo->{CONN_INFO};
                 my $parentLsnInfo = $parentProcInfo->{CONN_INFO}->{LISTEN};
                 map { $parentLsnInfo->{$_} = 1 } keys( %{ $connInfo->{LISTEN} } );
+                my $parentPortBindInfo = $parentProcInfo->{CONN_INFO}->{PORT_BIND};
+                map { $parentPortBindInfo->{$_} = 1 } keys( %{ $connInfo->{PORT_BIND} } );
+
+                #Conn stat info是匹配后采集的，这里补充采集这部分信息
+                my $connGather = ConnGather->new();
+                my $statInfo = $connGather->getStatInfo( $procInfo->{PID}, $connInfo->{LISTEN} );
+                map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
                 my $parentPeerInfo = $parentProcInfo->{CONN_INFO}->{PEER};
+                if ( not defined($parentPeerInfo) ) {
+                    $parentPeerInfo = {};
+                    $parentProcInfo->{CONN_INFO}->{PEER} = $parentPeerInfo;
+                }
                 map { $parentPeerInfo->{$_} = 1 } keys( %{ $connInfo->{PEER} } );
 
                 last;
