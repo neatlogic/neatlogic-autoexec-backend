@@ -36,6 +36,10 @@ optional arguments:
 ## 使用
 ### 开发调试模式
 - 运行调试
+```shell
+#设置tenant
+export tenent=develop
+```
 
 ```shell
 $ python3 bin/autoexec --devmode --paramsfile test/params.json --n test/nodes.json

@@ -262,9 +262,9 @@ class ServerAdapter:
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
 
         try:
+            response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
