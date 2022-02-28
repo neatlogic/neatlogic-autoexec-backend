@@ -45,8 +45,9 @@ class VContext:
         homePath = os.path.realpath(homePath + '/..')
         self.homePath = homePath
 
-        if 'tenant' in os.environ:
-            self.tenant = os.environ['tenant']
+        self.tenant = os.getenv('tenant')
+        if not self.tenant or self.tenant == '':
+            self.tenant = os.getenv('TENANT')
 
         # 存放执行数据以及日志的根目录
         if (dataPath == None):

@@ -161,10 +161,16 @@ if __name__ == "__main__":
     homePath = os.path.realpath(binPaths[0]+'/..')
     os.environ['AUTOEXEC_HOME'] = homePath
 
+    passThroughEnv = {}
+    passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
+    if args.passThroughenv:
+        passThroughEnvJson = args.passThroughenv
+    if passThroughEnvJson:
+        passThroughEnv = json.loads(passThroughEnvJson)
+
     progName = binPaths[1]
 
     if args.cleanstatus:
-        passThroughEnv = json.loads(args.passthroughenv)
         vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
         vContext.initDB(1)
 
@@ -181,7 +187,6 @@ if __name__ == "__main__":
         pluginsPath = homePath + '/plugins'
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
-        passThroughEnv = json.loads(args.passthroughenv)
         vContext = VContext.VContext(0, execUser=execUser, passThroughEnv=passThroughEnv)
         vContext.tenant = args.register
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
@@ -189,7 +194,6 @@ if __name__ == "__main__":
         registerTools(serverAdapter, pluginsPath, 'local')
         registerTools(serverAdapter, pluginsPath, 'remote')
     elif args.pause:
-        passThroughEnv = json.loads(args.passthroughenv)
         vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
@@ -221,7 +225,6 @@ if __name__ == "__main__":
             print("INFO: Can not find job {} process.\n".format(args.jobid))
         sys.exit(ret)
     elif args.abort:
-        passThroughEnv = json.loads(args.passthroughenv)
         vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
@@ -255,13 +258,11 @@ if __name__ == "__main__":
         sys.exit(ret)
     elif args.purgejobdata != '0':
         # purge expired job
-        passThroughEnv = json.loads(args.passthroughenv)
         vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
         purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
         purger.purge()
     else:
         # 初始化运行context
-        passThroughEnv = json.loads(args.passthroughenv)
         dataPath = homePath + '/data'
         context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phases=args.phases, nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
         os.environ['AUTOEXEC_JOBID'] = context.jobId

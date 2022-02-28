@@ -37,11 +37,19 @@ optional arguments:
 ### 开发调试模式
 - 运行调试
 ```shell
-#设置tenant
-export tenent=develop
+#设置环境变量
+#设置租户环境变量tenant，以测试租户develop为例
+export TENANT=develop
+#设置Passthrough的json，runnerId属性是必须的，通过页面的runner管理查询当前runner对应的ID
+export PASSTHROUGH_ENV='{"runnerId":1}'
+#设置Python的lib目录
+export AUTOEXEC_HOME=/app/autoexec
+export PYTHONPATH=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/lib:$AUTOEXEC_HOME/plib
+export PERL5LIB=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/plugins/local/lib/perl-lib/lib/perl5
 ```
 
 ```shell
+#使用devmode则不会回调服务端更新或者获取数据，仅仅使用作业目录下的nodes.json，params.json文件里的信息执行作业
 $ python3 bin/autoexec --devmode --paramsfile test/params.json --n test/nodes.json
 
 $ python3 bin/autoexec --devmode --jobid 97867868 --n test/nodes.json
