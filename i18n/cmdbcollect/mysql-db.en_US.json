@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Mysql-DB"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -48,6 +47,16 @@
             "type": "Int"
         },
         {
+            "name": "DEFAULT_CHARACTER_SET",
+            "desc": "Default Charset",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_COLLATION",
+            "desc": "Default Collation",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -66,18 +75,15 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "Listen Addr",
                     "type": "Int"
@@ -108,8 +114,7 @@
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Type",
                     "type": "String"

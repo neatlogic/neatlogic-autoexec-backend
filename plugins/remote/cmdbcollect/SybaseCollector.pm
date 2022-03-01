@@ -185,6 +185,7 @@ sub collect {
         $insInfo->{USERS} = \@userArray;
 
         push( @collectSet, $insInfo );
+        push( @collectSet, @{ $insInfo->{DATABASES} } );
     }
 
     return @collectSet;

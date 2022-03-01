@@ -217,7 +217,7 @@ sub collect {
         $dbInfo->{PRIMARY_IP}                   = $bizIp;
         $dbInfo->{VIP}                          = $vip;
         $dbInfo->{PORT}                         = $port;
-        $dbInfo->{SSL_PORT}                         = undef;
+        $dbInfo->{SSL_PORT}                     = undef;
         $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
         $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
     }
@@ -295,7 +295,10 @@ sub collect {
     $mysqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
     $mysqlInfo->{INSTANCE_NAME} = '-';
 
-    return $mysqlInfo;
+    my @collectSet = ();
+    push( @collectSet, $mysqlInfo );
+    push( @collectSet, @{ $mysqlInfo->{DATABASES} } );
+    return \@collectSet;
 }
 
 1;

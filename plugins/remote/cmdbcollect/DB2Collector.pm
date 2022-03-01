@@ -430,7 +430,11 @@ sub collect {
     my $dbMemory = $self->getMemInfo($insInfo);
     $self->getDBInfos( $insInfo, $dbMemory );
 
-    return $insInfo;
+    my @collectSet = ();
+    push( @collectSet, $insInfo );
+    push( @collectSet, @{ $insInfo->{DATABASES} } );
+
+    return \@collectSet;
 }
 
 1;

@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Mysql-DB"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -48,6 +47,16 @@
             "type": "Int"
         },
         {
+            "name": "DEFAULT_CHARACTER_SET",
+            "desc": "默认字符集",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_COLLATION",
+            "desc": "排序方法",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -66,18 +75,15 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "监听地址",
                     "type": "Int"
@@ -108,8 +114,7 @@
             "name": "INSTANCES",
             "desc": "关联实例",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类型",
                     "type": "String"

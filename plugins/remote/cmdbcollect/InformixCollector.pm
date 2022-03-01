@@ -124,6 +124,7 @@ sub collect {
             $insInfo->{DATABASES} = \@dbNames;
             $insInfo->{USERS}     = \@users;
             push( @collectSet, $insInfo );
+            push( @collectSet, @{ $insInfo->{DATABASES} } );
         }
     }
 
