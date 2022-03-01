@@ -22,6 +22,7 @@ our $TYPES = {
     CLUSTER      => 'CLUSTER',         #集群， _OBJ_TYPE:DBCluster|INSCluster|OSCluster
 };
 
+#Deprecated，废弃，改为在local/cmdbcollect/savedata里声明每个类别的主键定义
 our $PK_CONFIG = {
     INS     => [ 'MGMT_IP',       'PORT' ],
     DB      => [ 'NAME',          'PRIMARY_IP', 'PORT' ],
