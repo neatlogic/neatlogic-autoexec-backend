@@ -111,6 +111,7 @@ sub isMainProcess {
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
+    my $pid  = $procInfo->{PID};
     my $ppid = $procInfo->{PPID};
     my $pgid = $procInfo->{PGID};
 
@@ -128,7 +129,7 @@ sub isMainProcess {
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();
-                my $statInfo = $connGather->getStatInfo( $procInfo->{PID}, $connInfo->{LISTEN} );
+                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
                 my $parentPeerInfo = $parentProcInfo->{CONN_INFO}->{PEER};
@@ -137,6 +138,21 @@ sub isMainProcess {
                     $parentProcInfo->{CONN_INFO}->{PEER} = $parentPeerInfo;
                 }
                 map { $parentPeerInfo->{$_} = 1 } keys( %{ $connInfo->{PEER} } );
+
+                my $pFinder           = $self->{pFinder};
+                my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
+                my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
+                my $openFilesRate     = 0;
+                if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
+                    $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+                }
+
+                my $openFilesInfo = $parentProcInfo->{OPEN_FILES_INFO};
+                if ( not defined($openFilesInfo) ) {
+                    $openFilesInfo = [];
+                    $parentProcInfo->{OPEN_FILES_INFO} = $openFilesInfo;
+                }
+                push( @$openFilesInfo, { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } );
 
                 last;
             }

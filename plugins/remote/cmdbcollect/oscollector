@@ -174,14 +174,14 @@ sub mergeMultiProcs {
             $parentTopInfo->{MEM_USAGE} = $parentTopInfo->{MEM_USAGE} + $procInfo->{MEM_USAGE};
             $parentTopInfo->{MEM_USED}  = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
 
-            my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
-            my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
-            my $openFilesRate     = 0;
-            if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
-                $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
-            }
-
             if ( index( $pid, '-' ) < 0 ) {
+                my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
+                my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
+                my $openFilesRate     = 0;
+                if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
+                    $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+                }
+
                 my $openFilesInfo = $info->{OPEN_FILES_INFO};
                 if ( not defined($openFilesInfo) ) {
                     $openFilesInfo = [];
@@ -199,17 +199,18 @@ sub mergeMultiProcs {
             map { $parentLsnInfo->{$_} = 1 } keys( %{ $currentConnInfo->{LISTEN} } );
 
             #把基于端口统计的显式、隐式监听IP合并到父进程
-            my $portInfoMap = $currentConnInfo->{PORT_BIND};
+            my $portInfoMap       = $currentConnInfo->{PORT_BIND};
             my $parentPortInfoMap = $parentConnInfo->{PORT_BIND};
             while ( my ( $port, $portInfo ) = each(%$portInfoMap) ) {
                 my $parentPortInfo = $parentPortInfoMap->{$port};
-                while( my ( $key, $ipMap ) = each(%$portInfo) ){
-                    map{ $parentPortInfo->{$key}->{$_} = 1 } keys(%$ipMap);
+                while ( my ( $key, $ipMap ) = each(%$portInfo) ) {
+                    map { $parentPortInfo->{$key}->{$_} = 1 } keys(%$ipMap);
                 }
             }
-            
+
             my $parentPeerInfo = $parentConnInfo->{PEER};
             map { $parentPeerInfo->{$_} = 1 } keys( %{ $currentConnInfo->{PEER} } );
+
             #连接统计数据的合并
             my $parentConnStats  = $parentConnInfo->{STATS};
             my $currentConnStats = $currentConnInfo->{STATS};
@@ -362,23 +363,24 @@ sub mergeMultiProcs {
 
             #估算主业务IP和VIP，如果有特殊情况
             #需要定制修改ProcessFinder的方法predictBizIp（应用的VIP和主业务IP）, OSGatherBase的方法getBizIp（主机业务IP）
-            if ( not defined($appInfo->{PRIMARY_IP}) or not defined($appInfo->{VIP}) ){
-                my ($bizIp, $vip) = $pFinder->predictBizIp($connInfo, $minPort);
-                if (not defined($appInfo->{PRIMARY_IP})){
+            if ( not defined( $appInfo->{PRIMARY_IP} ) or not defined( $appInfo->{VIP} ) ) {
+                my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $minPort );
+                if ( not defined( $appInfo->{PRIMARY_IP} ) ) {
                     $appInfo->{PRIMARY_IP} = $bizIp;
                 }
-                if( not defined($appInfo->{VIP}) ){
+                if ( not defined( $appInfo->{VIP} ) ) {
                     $appInfo->{VIP} = $vip;
                 }
             }
-            
+
             $appInfo->{UPTIME} = $procInfo->{ELAPSED};
+
             #如果是非进程类别的信息采集信息，则清除PROC_INFO
             if ( delete( $appInfo->{NOT_PROCESS} ) ) {
                 delete( $appInfo->{PROC_INFO} );
             }
-            delete($connInfo->{PORT_BIND});
-            
+            delete( $connInfo->{PORT_BIND} );
+
             push( @apps, $appInfo );
         }
     }
@@ -418,7 +420,7 @@ sub doDetailCollect {
     }
     else {
         $connInfo = $connGather->getListenInfo($pid);
-        my $portInfoMap = $pFinder->getListenPortInfo($connInfo->{LISTEN});
+        my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
         $connInfo->{PORT_BIND} = $portInfoMap;
         $procInfo->{CONN_INFO} = $connInfo;
     }
@@ -446,7 +448,7 @@ sub doDetailCollect {
             if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
                 my $lsnInfo = $connGather->getListenInfo($pid);
                 map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
-                my $portInfoMap = $pFinder->getListenPortInfo($connInfo->{LISTEN});
+                my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
                 $connInfo->{PORT_BIND} = $portInfoMap;
 
                 $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN} );
@@ -574,7 +576,7 @@ sub doDetailCollect {
                 print("ERROR: $objType PK not defined for obj catetory:$objCat.\n");
             }
         }
-        if ( not defined( $appInfo->{INDEX_FIELDS}) ){
+        if ( not defined( $appInfo->{INDEX_FIELDS} ) ) {
             $appInfo->{INDEX_FIELDS} = CollectObjCat->getIndexFields($objCat);
         }
 
@@ -708,7 +710,7 @@ sub main {
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my $procFilters = getProcessFilters($collectClassMap);
 
-    my $pFinder   = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipAddrs=>$ipAddrs, ipv6Addrs=>$ipv6Addrs );
+    my $pFinder   = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipAddrs => $ipAddrs, ipv6Addrs => $ipv6Addrs );
     my $appsMap   = $pFinder->findProcess();
     my $appsArray = $pFinder->{appsArray};
 
