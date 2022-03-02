@@ -2,9 +2,9 @@
     "label": "SQLServer实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label": "数据库",
+    "collection_label": "DB实例",
     "filter": {
-        "_OBJ_TYPE": "SyBase"
+        "_OBJ_TYPE": "MSSQLServer"
     },
     "fields": [
         {

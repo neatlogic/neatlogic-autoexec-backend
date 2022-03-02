@@ -1,8 +1,8 @@
 {
-    "label": "Oracle 实例",
+    "label": "Oracle实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label": "数据库",
+    "collection_label": "DB实例",
     "filter": {
         "_OBJ_TYPE": "Oracle"
     },

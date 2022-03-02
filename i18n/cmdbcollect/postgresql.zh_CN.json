@@ -1,8 +1,8 @@
 {
-    "label": "Postgresql 实例",
+    "label": "Postgresql实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label": "数据库",
+    "collection_label": "DB实例",
     "filter": {
         "_OBJ_TYPE": "Postgresql"
     },

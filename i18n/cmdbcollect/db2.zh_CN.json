@@ -1,7 +1,7 @@
 {
     "label": "DB2实例",
     "collection": "COLLECT_DBINS",
-    "collection_label": "数据库实例",
+    "collection_label": "DB实例",
     "docroot": null,
     "filter": {
         "_OBJ_TYPE": "DB2"
