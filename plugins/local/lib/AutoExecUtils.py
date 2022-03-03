@@ -112,9 +112,15 @@ def getDB():
     dbpwd = cfg.get('autoexec', 'db.password')
 
     # 初始化创建connect
-    dbclient = pymongo.MongoClient(dburl)
+    #pymongo 3.x
+    #dbclient = pymongo.MongoClient(dburl)
+    #mydb = dbclient[dbname]
+    #mydb.authenticate(dbuser, dbpwd)
+
+    #pymongo 4.x
+    dbclient = pymongo.MongoClient(dburl, username=dbuser, password=dbpwd)
     mydb = dbclient[dbname]
-    mydb.authenticate(dbuser, dbpwd)
+
     return (dbclient, mydb)
 
 

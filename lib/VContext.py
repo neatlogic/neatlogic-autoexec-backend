@@ -126,8 +126,14 @@ class VContext:
         dbUsername = self.config.get('autoexec', 'db.username')
         dbPassword = self.config.get('autoexec', 'db.password')
         if dbUrl is not None:
-            mongoClient = pymongo.MongoClient(dbUrl, maxPoolSize=parallelCount)
+            #pymongo3.x
+            #mongoClient = pymongo.MongoClient(dbUrl, maxPoolSize=parallelCount)
+            #autoexecDB = mongoClient[dbName]
+            #autoexecDB.authenticate(dbUsername, dbPassword)
+
+            #pymongo4.x
+            mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=parallelCount)
             autoexecDB = mongoClient[dbName]
-            autoexecDB.authenticate(dbUsername, dbPassword)
+
             self.dbclient = mongoClient
             self.db = autoexecDB
