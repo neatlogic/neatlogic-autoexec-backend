@@ -141,12 +141,12 @@ sub getPorts {
     $appInfo->{MON_PORT}       = $soapPort;
     $appInfo->{PORTS}          = \@ports;
 
-    my $objType = $appInfo->{_OBJ_TYPE};
-    if ( $objType eq 'WebSphere-DMGR' ) {
+    my $wasType = $appInfo->{wasType};
+    if ( $wasType eq 'DMGR' ) {
         $appInfo->{PORT}     = $adminPort;
         $appInfo->{SSL_PORT} = $adminSslPort;
     }
-    elsif ( $objType eq 'WebSphere-NodeAgent' ) {
+    elsif ( $wasType eq 'NodeAgent' ) {
         $appInfo->{PORT} = $bootstrapPort;
     }
 
@@ -190,17 +190,17 @@ sub collect {
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     #TODO：读取命令行输出或者读取配置文件，写入数据到hash map $appInfo
-    my $objType       = $procInfo->{_OBJ_TYPE};
+    my $wasType       = 'Server';
     my $command       = $procInfo->{COMMAND};
     my @commandFields = split( /\s+/, $command );
 
     if ( $commandFields[-1] eq 'dmgr' ) {
-        $objType = 'WebSphere-DMGR';
+        $wasType = 'DMGR';
     }
     elsif ( $commandFields[-1] eq 'nodeagent' ) {
-        $objType = 'WebSphere-NodeAgent';
+        $wasType = 'NodeAgent';
     }
-    $appInfo->{_OBJ_TYPE} = $objType;
+    $appInfo->{WAS_TYPE} = $wasType;
 
     my $serverName = $commandFields[-1];
     my $nodeName   = $commandFields[-2];
