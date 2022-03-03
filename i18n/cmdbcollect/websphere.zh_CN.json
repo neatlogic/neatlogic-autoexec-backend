@@ -595,6 +595,11 @@
             "name": "WAS_NODE",
             "desc": "WAS Node",
             "type": "String"
+        },
+        {
+            "name": "WAS_TYPE",
+            "desc": "WAS类型(Server|DMGR|NodeAgent)",
+            "type": "String"
         }
     ]
 }

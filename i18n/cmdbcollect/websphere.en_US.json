@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "WebSphere"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -15,6 +14,11 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "WAS_TYPE",
+            "desc": "WAS Type(Server|DMGR|NodeAgent)",
             "type": "String"
         },
         {
@@ -71,18 +75,15 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "BELONG_APPLICATION",
             "desc": "Applicaton",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -103,8 +104,7 @@
             "name": "BELONG_APPLICATION_MODULE",
             "desc": "Applicaton Module",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -150,8 +150,7 @@
             "name": "OPEN_FILES_INFO",
             "desc": "Open Files",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "PID",
                     "desc": "PID",
                     "type": "String"
@@ -257,8 +256,7 @@
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "Listen Addr",
                     "type": "Int"
@@ -274,8 +272,7 @@
             "name": "CONN_STATS",
             "desc": "Connection Stats",
             "type": "JsonObject",
-            "subset": [
-                {
+            "subset": [{
                     "name": "TOTAL_COUNT",
                     "desc": "Total",
                     "type": "Int"
@@ -346,8 +343,7 @@
             "name": "CONN_OUTBOUND_STATS",
             "desc": "OutBound Conn Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "REMOTE_ADDR",
                     "desc": "Remote Addr",
                     "type": "String"
@@ -388,8 +384,7 @@
             "name": "MAIN_ENV",
             "desc": "Main Process Environment",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -405,8 +400,7 @@
             "name": "APPLICATIONS",
             "desc": "Applications",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Application Name",
                     "type": "String"
@@ -442,8 +436,7 @@
             "name": "REF_CLUSTER",
             "desc": "Reference Clusters",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -484,8 +477,7 @@
             "name": "REF_DB",
             "desc": "Reference Databases",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -516,8 +508,7 @@
             "name": "REF_INS",
             "desc": "Reference Instances",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Catetory",
                     "type": "String"
@@ -548,8 +539,7 @@
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
