@@ -27,6 +27,7 @@ def getDefaultFieldKeys():
     defaultKeys = [
         '_OBJ_CATEGORY',
         '_OBJ_TYPE',
+        'WAS_TYPE',
         'HOSTNAME',
         'NAME',
         'SERVER_NAME',
