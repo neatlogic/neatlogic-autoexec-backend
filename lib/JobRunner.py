@@ -176,9 +176,14 @@ class JobRunner:
         opArgsRefMap = {}
         lastPhase = None
         if 'runFlow' in params:
+            groupId = 1
             for phaseGroup in params['runFlow']:
                 if self.context.goToStop == True:
                     break
+                
+                if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
+                    continue
+                groupId = groupId + 1
 
                 # runFlow是一个数组，每个元素是一个phaseGroup
                 threads = []

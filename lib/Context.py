@@ -20,7 +20,7 @@ import Utils
 
 
 class Context(VContext.VContext):
-    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phaseGroups='', phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
         super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.firstFire = firstFire
@@ -91,6 +91,12 @@ class Context(VContext.VContext):
             for key in self.passThroughEnv.keys():
                 passThroughInParams[key] = self.passThroughEnv[key]
             self.passThroughEnv = passThroughInParams
+
+        self.phaseGroupsToRun = None
+        if phaseGroups != '':
+            self.phaseGroupsToRun = {}
+            for groupId in phaseGroups.split(','):
+                self.phaseGroupsToRun[int(groupId)] = 1
 
         self.phasesToRun = None
         if phases != '':
