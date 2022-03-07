@@ -108,9 +108,9 @@ def registerTools(serverAdapter, pluginsPath, opType):
                             print("ERROR: Register tool:{} {} failed, {}\n".format(opType, opName, ex))
 
 
-def findJobProcess(jobId):
+def findJobProcesses(jobId):
     mypid = os.getpid()
-    autoexecPid = 0
+    autoexecPids = []
     with os.scandir('/proc') as it:
         for entry in it:
             if not entry.name.startswith('.') and entry.is_dir():
@@ -124,11 +124,19 @@ def findJobProcess(jobId):
                             f = open(entry.path + '/cmdline')
                             content = f.read()
                             if content.index(jobId) > 0 and pid != mypid:
-                                autoexecPid = pid
-                                break
+                                autoexecPids.append(pid)
                     except:
                         pass
-    return autoexecPid
+    return autoexecPids
+
+
+def killProcesses(pids, sig):
+    for pid in pids:
+        try:
+            os.kill(pid, sig)
+        except:
+            pids.remove(pid)
+            print("INFO: Process {} killed.\n".format(pid))
 
 
 if __name__ == "__main__":
@@ -201,25 +209,25 @@ if __name__ == "__main__":
         ret = 0
         print("INFO: try to pause job:{}\n".format(args.jobid))
         autoexecIsPaused = False
-        autoexecPid = findJobProcess(args.jobid)
+        autoexecPids = findJobProcesses(args.jobid)
 
-        if autoexecPid != 0:
-            try:
-                print("INFO: Try to pause process {}...\n".format(autoexecPid))
-                os.kill(autoexecPid, signal.SIGUSR1)
+        if len(autoexecPids) > 0:
+            pidsStr = ','.join(autoexecPids)
+            print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
+            killProcesses(autoexecPids, signal.SIGUSR1)
 
-                for i in range(1800):
-                    os.kill(autoexecPid, 0)
-                    time.sleep(3)
-                    os.kill(autoexecPid, signal.SIGUSR1)
-            except:
-                autoexecIsPaused = True
+            # for i in range(1800):
+            while len(autoexecPids) > 0:
+                killProcesses(autoexecPids, 0)
+                time.sleep(3)
+                killProcesses(autoexecPids, signal.SIGUSR1)
+
+            if len(autoexecPids) == 0:
                 serverAdapter.jobPaused()
-                print("INFO: Process {} puased.\n".format(autoexecPid))
-
-            if not autoexecIsPaused:
+                print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
+            else:
                 ret = 1
-                print("WARN: Kill process {} failed.\n".format(autoexecPid))
+                print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
         else:
             ret = 2
             serverAdapter.jobPaused()
@@ -232,26 +240,23 @@ if __name__ == "__main__":
         ret = 0
         print("INFO: try to kill job:{}\n".format(args.jobid))
         autoexecIsKilled = False
-        autoexecPid = findJobProcess(args.jobid)
-
-        if autoexecPid != 0:
-            try:
-                print("INFO: Try to stop process {}...\n".format(autoexecPid))
-                for i in range(10):
-                    os.kill(autoexecPid, signal.SIGTERM)
-                    time.sleep(1)
-
-                os.kill(autoexecPid, signal.SIGKILL)
+        autoexecPids = findJobProcesses(args.jobid)
+        if len(autoexecPids) > 0:
+            pidsStr = ','.join(autoexecPids)
+            print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
+            for i in range(10):
+                killProcesses(autoexecPids, signal.SIGTERM)
                 time.sleep(1)
-                os.kill(autoexecPid, 0)
-            except:
-                autoexecIsKilled = True
-                serverAdapter.jobKilled()
-                print("INFO: Process {} killed.\n".format(autoexecPid))
 
-            if not autoexecIsKilled:
+            killProcesses(autoexecPids, signal.SIGKILL)
+            time.sleep(1)
+
+            killProcesses(autoexecPids, 0)
+            if len(autoexecPids) == 0:
+                serverAdapter.jobKilled()
+            else:
                 ret = 1
-                print("WARN: Kill process {} failed.\n".format(autoexecPid))
+                print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
         else:
             ret = 2
             serverAdapter.jobKilled()
