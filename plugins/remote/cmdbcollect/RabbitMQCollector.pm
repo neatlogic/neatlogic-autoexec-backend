@@ -48,6 +48,7 @@ sub collect {
     my $homePath;
     if ( $cmdLine =~ /-pa\s(\S+)/ ) {
         $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
         if ( $homePath =~ /^\.{1,2}[\/\\]/ ) {
             $homePath = Cwd::abs_path("$workPath/$homePath");
         }

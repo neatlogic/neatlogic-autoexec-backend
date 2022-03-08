@@ -18,13 +18,13 @@ our @ISA = qw(OSGatherBase);
 sub getUptime {
     my ( $self, $osInfo ) = @_;
 
-    my $epochSeconds;
+    my $uptimeSeconds;
     my $uptimeStr = $self->getCmdOut('wmic path Win32_OperatingSystem get LastBootUpTime');
     if ( $uptimeStr =~ /([\d\.]+)([\+|\-]{1}\d+)/ ) {
         my $epochSeconds = int($1);
         $uptimeSeconds = time() - $epochSeconds;
     }
-    $osInfo->{UPTIME} = $epochSeconds;
+    $osInfo->{UPTIME} = $uptimeSeconds;
 }
 
 sub getMiscInfo {

@@ -30,6 +30,7 @@ sub getServerName {
     my $cmdLine  = $procInfo->{COMMAND};
     if ( $cmdLine =~ /(\w[-\w]+)\s*$/ or $cmdLine =~ /(\w[-\w]+)\.\w+\s*$/ ) {
         my $prgName = $1;
+        $prgName =~ s/^["']|["']$//g;
         $appInfo->{SERVER_NAME} = $prgName;
     }
 }
@@ -48,6 +49,7 @@ sub getVersion {
     if ( not defined($pythonPath) or not -e $pythonPath ) {
         if ( $cmdLine =~ /^"?(.*?\bpython[\d\.]*)"?\s/ or $cmdLine =~ /^"?(.*?\bpython[\d\.]*.exe)"?\s/ ) {
             $pythonPath = $1;
+            $pythonPath =~ s/^["']|["']$//g;
             if ( $pythonPath =~ /^\.{1,2}[\/\\]/ ) {
                 $pythonPath = "$workPath/$pythonPath";
             }

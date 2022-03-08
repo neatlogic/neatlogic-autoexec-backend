@@ -43,7 +43,8 @@ sub collect {
     my $homePath;
     my $installPath;
     if ( $cmdLine =~ /-Djboss\.home\.dir=(\S+)\s+/ ) {
-        $homePath    = $1;
+        $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
         $installPath = $homePath;
     }
     elsif ( defined( $envMap->{JBOSS_HOME} ) ) {
@@ -58,9 +59,11 @@ sub collect {
     my $ip;
     if ( $cmdLine =~ /-Djboss\.bind\.address=(\d+\.\d+\.\d+\.\d+)/ ) {
         $ip = $1;
+        $ip =~ s/^["']|["']$//g;
     }
     elsif ( $cmdLine =~ /-b\s(\d+\.\d+\.\d+\.\d+)/ ) {
         $ip = $1;
+        $ip =~ s/^["']|["']$//g;
     }
     if ( defined($ip) ) {
         $appInfo->{IP} = $ip;
@@ -113,7 +116,8 @@ sub collect {
 
     my $confPath;
     if ( $cmdLine =~ /-Djboss\.server\.base\.dir=(\S+)\s+/ ) {
-        $confPath               = $1;
+        $confPath = $1;
+        $confPath =~ s/^["']|["']$//g;
         $appInfo->{JBOSS_BASE}  = $confPath;
         $appInfo->{CONFIG_PATH} = $confPath;
         $appInfo->{SERVER_NAME} = basename($confPath);
@@ -131,6 +135,7 @@ sub collect {
             my $hostConf;
             if ( $cmdLine =~ /-Djboss\.host\.default\.config=(\S+)/ ) {
                 $hostConf = $1;
+                $hostConf =~ s/^["']|["']$//g;
             }
             else {
                 $hostConf = 'host.xml';
@@ -140,6 +145,7 @@ sub collect {
             my $domainConf;
             if ( $cmdLine =~ /-Djboss\.domain\.default\.config=(\S+)/ ) {
                 $domainConf = $1;
+                $domainConf =~ s/^["']|["']$//g;
             }
             else {
                 $domainConf = "domain.xml";
@@ -170,9 +176,11 @@ sub collect {
             my $hostConf;
             if ( $cmdLine =~ /-Djboss.server.default.config=(\S+)/ ) {
                 $hostConf = $1;
+                $hostConf =~ s/^["']|["']$//g;
             }
             elsif ( $cmdLine =~ /--server-config=(\S+)/ ) {
                 $hostConf = $1;
+                $hostConf =~ s/^["']|["']$//g;
             }
             else {
                 $hostConf = 'standalone.xml';
@@ -198,6 +206,7 @@ sub collect {
         else {
             if ( $cmdLine =~ /-c\s+(\S+)/ ) {
                 $runMode = $1;
+                $runMode =~ s/^["']|["']$//g;
             }
             else {
                 $runMode = 'default';

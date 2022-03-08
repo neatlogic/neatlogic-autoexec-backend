@@ -53,6 +53,7 @@ sub collect {
 
     if ( $cmdLine =~ /\s-Des.path.home=(.*?)\s+-/ ) {
         $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
         if ( $homePath =~ /^\.{1,2}[\/\\]/ ) {
             $homePath = "$workPath/$homePath";
         }
@@ -75,6 +76,7 @@ sub collect {
 
     if ( $cmdLine =~ /\s-Des.path.conf=(.*?)\s+-/ ) {
         $confPath = $1;
+        $confPath =~ s/^["']|["']$//g;
         if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
             $confPath = "$workPath/$confPath";
         }

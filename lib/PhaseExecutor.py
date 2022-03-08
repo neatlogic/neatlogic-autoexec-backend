@@ -13,7 +13,6 @@ import subprocess
 import queue
 import copy
 import json
-import RunNodeFactory
 import RunNode
 import NodeStatus
 
@@ -41,6 +40,26 @@ class PhaseWorker(threading.Thread):
                 break
             self.currentNode = node
             phaseStatus = self.context.phases[self.phaseName]
+
+            nodeStatus = node.getNodeStatus()
+            if nodeStatus == NodeStatus.succeed:
+                # 如果是成功状态，回写服务端，防止状态不一致
+                phaseStatus.incSkipNodeCount()
+                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                try:
+                    self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
+                except Exception as ex:
+                    logging.error("RePush node status to server failed, {}\n".format(ex))
+                continue
+            elif nodeStatus == NodeStatus.running:
+                if node.ensureNodeIsRunning():
+                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                    phaseStatus.incFailNodeCount()
+                    continue
+                elif self.context.goToStop == False:
+                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port))
+            elif self.context.goToStop == False:
+                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port))
 
             # 运行完所有操作
             localOps = []
@@ -86,11 +105,12 @@ class PhaseWorker(threading.Thread):
 
 
 class PhaseExecutor:
-    def __init__(self, context, phaseName, operations, parallelCount=25):
+    def __init__(self, context, phaseName, operations, nodesFactory, parallelCount=25):
         self.phaseName = phaseName
         self.phaseStatus = context.phases[self.phaseName]
         self.context = context
         self.operations = operations
+        self.nodesFactory = nodesFactory
         self.workers = []
         self.parallelCount = parallelCount
         self.execQueue = None
@@ -115,9 +135,7 @@ class PhaseExecutor:
             if os.path.exists(self.waitInputFlagFilePath):
                 os.unlink(self.waitInputFlagFilePath)
 
-            nodesFactory = RunNodeFactory.RunNodeFactory(self.context, self.phaseName)
-            if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < self.parallelCount:
-                self.parallelCount = nodesFactory.nodesCount
+            nodesFactory = self.nodesFactory
 
             if not phaseStatus.hasRemote:
                 self.parallelCount = 1
@@ -136,25 +154,9 @@ class PhaseExecutor:
                     localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
                     localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
 
-                    if self.context.isForce and self.context.goToStop == False:
+                    if self.context.goToStop == False:
                         # 需要执行的节点实例加入等待执行队列
                         execQueue.put(localRunNode)
-                    else:
-                        nodeStatus = localRunNode.getNodeStatus()
-                        if nodeStatus == NodeStatus.succeed:
-                            print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(localRunNode.resourceId, nodeStatus, localRunNode.host, localRunNode.port))
-                            phaseStatus.incSkipNodeCount()
-                        elif nodeStatus == NodeStatus.running:
-                            if localRunNode.ensureNodeIsRunning():
-                                print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(localRunNode.resourceId, nodeStatus, localRunNode.host, localRunNode.port))
-                                phaseStatus.incFailNodeCount()
-                            elif self.context.goToStop == False:
-                                print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(localRunNode.resourceId, nodeStatus, localRunNode.host, localRunNode.port))
-                                execQueue.put(localRunNode)
-                        elif self.context.goToStop == False:
-                            # 需要执行的节点实例加入等待执行队列
-                            print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(localRunNode.resourceId, nodeStatus, localRunNode.host, localRunNode.port))
-                            execQueue.put(localRunNode)
                 except Exception as ex:
                     phaseStatus.incFailNodeCount()
                     if localRunNode is not None:
@@ -178,45 +180,23 @@ class PhaseExecutor:
                         if node is None:
                             break
 
-                        if self.context.isForce and self.context.goToStop == False:
+                        if self.context.goToStop == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
-                        else:
-                            nodeStatus = node.getNodeStatus()
-                            if nodeStatus == NodeStatus.succeed:
-                                # 如果是成功状态，回写服务端，防止状态不一致
-                                phaseStatus.incSkipNodeCount()
-                                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port))
-                                try:
-                                    self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
-                                except Exception as ex:
-                                    logging.error("RePush node status to server failed, {}\n".format(ex))
-                            elif nodeStatus == NodeStatus.running:
-                                if node.ensureNodeIsRunning():
-                                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port))
-                                    phaseStatus.incFailNodeCount()
-                                elif self.context.goToStop == False:
-                                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port))
-                                    execQueue.put(node)
-                            elif self.context.goToStop == False:
-                                # 需要执行的节点实例加入等待执行队列
-                                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port))
-                                execQueue.put(node)
-
-                        if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
-                            try:
-                                while True:
-                                    execQueue.get_nowait()
-                            except Exception as ex:
-                                pass
-
-                            break
                     except Exception as ex:
                         phaseStatus.incFailNodeCount()
                         if node is not None:
                             node.writeNodeLog("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
                         else:
                             print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+
+                    if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                        try:
+                            while True:
+                                execQueue.get_nowait()
+                        except Exception as ex:
+                            pass
+                        break
         finally:
             workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象

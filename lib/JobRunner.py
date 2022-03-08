@@ -11,6 +11,7 @@ import traceback
 import json
 import shutil
 
+import RunNodeFactory
 import Operation
 import PhaseExecutor
 import NodeStatus
@@ -100,7 +101,7 @@ class JobRunner:
                 else:
                     print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
 
-    def execOperations(self, phaseName, opsParams, opArgsRefMap, parallelCount):
+    def execOperations(self, phaseName, opsParams, opArgsRefMap, nodesFactory, parallelCount):
         phaseStatus = self.context.phases[phaseName]
         phaseStatus.hasLocal = False
         phaseStatus.hasRemote = False
@@ -127,11 +128,11 @@ class JobRunner:
 
             operations.append(op)
 
-        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, parallelCount)
+        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, nodesFactory, parallelCount)
         phaseStatus.executor = executor
         return executor.execute()
 
-    def execPhase(self, phaseName, phaseConfig, parallelCount, opArgsRefMap):
+    def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         try:
             self.context.addPhase(phaseName)
 
@@ -141,8 +142,9 @@ class JobRunner:
 
             phaseStatus = self.context.phases[phaseName]
             print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
+
             self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
-            failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, parallelCount)
+            failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
                 if phaseStatus.ignoreFailNodeCount > 0:
                     self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
@@ -191,8 +193,13 @@ class JobRunner:
                         continue
 
                     if not self.context.hasFailNodeInGlobal:
+                        # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
+                        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName)
+                        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
+                            parallelCount = nodesFactory.nodesCount
+
                         lastPhase = phaseName
-                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, parallelCount, opArgsRefMap))
+                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
                         thread.start()
                         thread.name = 'PhaseExecutor-' + phaseName
                         threads.append(thread)

@@ -48,6 +48,7 @@ sub collect {
     my $binPath;
     if ( $cmdLine =~ /^(.*?lighttpd)\s+-/ ) {
         $binPath = $1;
+        $binPath =~ s/^["']|["']$//g;
         if ( $binPath =~ /^\.{1,2}[\/\\]/ ) {
             $binPath = "$workPath/$binPath";
         }
@@ -65,6 +66,7 @@ sub collect {
     if ( defined($homePath) or $homePath ne '' ) {
         if ( $cmdLine =~ /(\s-f\s+.+\s+-.*|\s-f\s+.+)$/ ) {
             $confFile = $1;
+            $confFile =~ s/^["']|["']$//g;
             $confFile =~ s/^\s*-f\s*//;
             if ( $confFile =~ /^\.{1,2}[\/\\]/ ) {
                 $confFile = "$workPath/$confFile";

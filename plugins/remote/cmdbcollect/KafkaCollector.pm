@@ -43,21 +43,20 @@ sub collect {
     my $pid     = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};
 
-    my $zooLibPath;
     my $homePath;
     my $version;
 
-    my $zooLibPath;
+    my $kafkaLibPath;
     if ( $cmdLine =~ /-cp\s+.*[:;]([\/\\].*[\/\\]kafka.*?.jar)/ ) {
-        $zooLibPath = Cwd::abs_path( dirname($1) );
+        $kafkaLibPath = Cwd::abs_path( dirname($1) );
     }
     elsif ( $envMap->{CLASSPATH} =~ /.*[:;]([\/\\].*[\/\\]kafka.*?.jar)/ ) {
-        $zooLibPath = Cwd::abs_path( dirname($1) );
+        $kafkaLibPath = Cwd::abs_path( dirname($1) );
     }
 
-    if ( defined($zooLibPath) ) {
-        $homePath = dirname($zooLibPath);
-        foreach my $lib ( glob("$zooLibPath/kafka_*.jar") ) {
+    if ( defined($kafkaLibPath) ) {
+        $homePath = dirname($kafkaLibPath);
+        foreach my $lib ( glob("$kafkaLibPath/kafka_*.jar") ) {
             if ( $lib =~ /kafka_([\d\.]+).*?\.jar/ ) {
                 $version = $1;
                 $appInfo->{MAIN_LIB} = $lib;
