@@ -165,6 +165,38 @@ class JobRunner:
         print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------\n\n")
 
+    def execOneShotGroup(self, phaseGroup, parallelCount, opArgsRefMap):
+        lastPhase = None
+        # runFlow是一个数组，每个元素是一个phaseGroup
+        threads = []
+        # 每个group有多个phase，使用线程并发执行
+        for phaseName, phaseConfig in phaseGroup.items():
+            if self.context.goToStop == True:
+                break
+
+            if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
+                continue
+
+            if not self.context.hasFailNodeInGlobal:
+                # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName)
+                if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
+                    parallelCount = nodesFactory.nodesCount
+
+                lastPhase = phaseName
+                thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
+                thread.name = 'PhaseExecutor-' + phaseName
+                threads.append(thread)
+                thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        return lastPhase
+
+    def execGrayscaleGroup(self, phaseGroup, parallelCount, opArgsRefMap):
+        pass
+
     def execute(self):
         listenThread = ListenThread('Listen-Thread', self.context)
         listenThread.start()
@@ -182,30 +214,9 @@ class JobRunner:
                 if self.context.goToStop == True:
                     break
 
-                # runFlow是一个数组，每个元素是一个phaseGroup
-                threads = []
-                # 每个group有多个phase，使用线程并发执行
-                for phaseName, phaseConfig in phaseGroup.items():
-                    if self.context.goToStop == True:
-                        break
-
-                    if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
-                        continue
-
-                    if not self.context.hasFailNodeInGlobal:
-                        # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName)
-                        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
-                            parallelCount = nodesFactory.nodesCount
-
-                        lastPhase = phaseName
-                        thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
-                        thread.start()
-                        thread.name = 'PhaseExecutor-' + phaseName
-                        threads.append(thread)
-
-                for thread in threads:
-                    thread.join()
+                groupLastPhase = self.execOneShotGroup(phaseGroup, parallelCount, opArgsRefMap)
+                if groupLastPhase is not None:
+                    lastPhase = groupLastPhase
 
         self.stopListen()
         listenThread.stop()
