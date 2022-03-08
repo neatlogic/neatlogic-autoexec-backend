@@ -48,7 +48,9 @@ sub collect {
     my $version;
 
     if ( $cmdLine =~ /-Dresin.home=(.*?)\s+-/ ) {
-        $homePath = Cwd::abs_path($1);
+        $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
+        $homePath = Cwd::abs_path($homePath);
     }
 
     if ( not defined($homePath) or $homePath eq '' ) {
@@ -62,6 +64,7 @@ sub collect {
     my $confFile;
     if ( $cmdLine =~ /-conf\s+(.*?)\s+-/ ) {
         $confFile = $1;
+        $confFile =~ s/^["']|["']$//g;
     }
 
     my $lsnMap = $procInfo->{CONN_INFO}->{LISTEN};

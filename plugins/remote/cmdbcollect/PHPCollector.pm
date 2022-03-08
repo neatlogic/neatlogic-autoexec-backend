@@ -30,6 +30,7 @@ sub getServerName {
     my $cmdLine  = $procInfo->{COMMAND};
     if ( $cmdLine =~ /(\w[-\w]+)\s*$/ or $cmdLine =~ /(\w[-\w]+)\.\w+\s*$/ ) {
         my $prgName = $1;
+        $prgName =~ s/^["']|["']$//g;
         $appInfo->{SERVER_NAME} = $prgName;
     }
 }
@@ -47,6 +48,7 @@ sub getVersion {
     if ( not defined($phpPath) or not -e $phpPath ) {
         if ( $cmdLine =~ /^"?(.*?\bphp[\d\.]*)"?\s/ or $cmdLine =~ /^"?(.*?\bphp[\d\.]*.exe)"?\s/ ) {
             $phpPath = $1;
+            $phpPath =~ s/^["']|["']$//g;
             if ( $phpPath =~ /^\.{1,2}[\/\\]/ ) {
                 $phpPath = "$workPath/$phpPath";
             }

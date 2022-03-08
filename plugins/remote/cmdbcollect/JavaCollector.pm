@@ -29,12 +29,15 @@ sub getServerName {
     my $procInfo = $self->{procInfo};
     my $cmdLine  = $procInfo->{COMMAND};
     if ( $cmdLine =~ /\s+-jar\s+(.*?)\.jar\b/i ) {
-        my $jarName = basename($1);
+        my $jarName = $1;
+        $jarName =~ s/^["']|["']$//g;
+        my $jarName = basename($jarName);
         $jarName =~ s/[\-\d\.\_]+$//;
         $appInfo->{SERVER_NAME} = $jarName;
     }
     elsif ( $cmdLine =~ /(\w[-\w]+)\s*$/ or $cmdLine =~ /(\w[-\w]+)\s*$/ ) {
         my $className = $1;
+        $className =~ s/^["']|["']$//g;
         $className =~ s/.*[\/\.]//;
         $appInfo->{SERVER_NAME} = $className;
     }

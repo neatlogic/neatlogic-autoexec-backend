@@ -40,7 +40,8 @@ sub collect {
 
     my $confPath;
     if ( $cmdLine =~ /-Dcatalina.base=(\S+)/ ) {
-        $confPath                 = $1;
+        $confPath = $1;
+        $confPath =~ s/^["']|["']$//g;
         $appInfo->{CATALINA_BASE} = $confPath;
         $appInfo->{CONFIG_PATH}   = $confPath;
         $appInfo->{SERVER_NAME}   = basename($confPath);
@@ -128,7 +129,8 @@ sub collect {
 
     my $installPath;
     if ( $cmdLine =~ /-Dcatalina.home=(\S+)\s+/ ) {
-        $installPath              = $1;
+        $installPath = $1;
+        $installPath =~ s/^["']|["']$//g;
         $appInfo->{CATALINA_HOME} = $installPath;
         $appInfo->{INSTALL_PATH}  = $installPath;
     }

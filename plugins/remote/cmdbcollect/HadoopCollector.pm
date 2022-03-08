@@ -51,6 +51,7 @@ sub collect {
 
     if ( $cmdLine =~ /-Dhadoop.home.dir=(.*?)\s+-D/ ) {
         $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
         if ( defined($workPath) and $homePath =~ /^\.{1,2}[\/\\]/ ) {
             $homePath = "$workPath/$homePath";
         }
@@ -65,6 +66,7 @@ sub collect {
 
     if ( $cmdLine =~ /-DDhadoop.log.dir=(.*?)\s+-D/ ) {
         $logPath = $1;
+        $logPath =~ s/^["']|["']$//g;
         if ( defined($workPath) and $logPath =~ /^\.{1,2}[\/\\]/ ) {
             $logPath = "$workPath/$logPath";
         }

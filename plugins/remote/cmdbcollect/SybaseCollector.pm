@@ -83,22 +83,27 @@ sub collect {
     my $binPath;
     if ( $cmdLine =~ /^\s*(.*\bdataserver)\s/ ) {
         $binPath = $1;
+        $binPath =~ s/^["']|["']$//g;
     }
     my $confFile;
     if ( $cmdLine =~ /\s-c\s{0,1}(\S+)/ ) {
         $confFile = $1;
+        $confFile =~ s/^["']|["']$//g;
     }
     my $dataFile;
     if ( $cmdLine =~ /\s-d\s{0,1}(\S+)/ ) {
         $dataFile = $1;
+        $dataFile =~ s/^["']|["']$//g;
     }
     my $errorLog;
     if ( $cmdLine =~ /\s-e\s{0,1}(\S+)/ ) {
         $errorLog = $1;
+        $errorLog =~ s/^["']|["']$//g;
     }
     my $serverName;
     if ( $cmdLine =~ /\s-s\s{0,1}(\S+)/ ) {
         $serverName = $1;
+        $serverName =~ s/^["']|["']$//g;
     }
 
     my $confPath = dirname($confFile);

@@ -49,7 +49,9 @@ sub collect {
     $homePath = $envMap->{JETTY_HOME};
     if ( not defined($homePath) or $homePath eq '' ) {
         if ( $cmdLine =~ /-Djetty.home=(.*?)\s+-/ ) {
-            $homePath = Cwd::abs_path($1);
+            $homePath = $1;
+            $homePath =~ s/^["']|["']$//g;
+            $homePath = Cwd::abs_path($homePath);
         }
     }
 
@@ -63,7 +65,9 @@ sub collect {
     $basePath = $envMap->{JETTY_BASE};
     if ( not defined($basePath) or $basePath eq '' ) {
         if ( $cmdLine =~ /-Djetty.base=(.*?)\s+-/ ) {
-            $basePath = Cwd::abs_path($1);
+            $basePath = $1;
+            $basePath =~ s/^["']|["']$//g;
+            $basePath = Cwd::abs_path($basePath);
         }
     }
     if ( not defined($basePath) or $basePath eq '' ) {

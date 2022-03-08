@@ -48,6 +48,7 @@ sub collect {
     my $binPath;
     if ( $cmdLine =~ /^(.*?memcached)\s+-/ ) {
         $binPath = $1;
+        $binPath =~ s/^["']|["']$//g;
         if ( $binPath =~ /^\.{1,2}[\/\\]/ ) {
             $binPath = "$workPath/$binPath";
         }
@@ -85,6 +86,7 @@ sub collect {
         while ( $cmdLine =~ /(?<=\s)-(\w+)\s+([^-]+)/g ) {
             my $opt    = $1;
             my $optVal = $2;
+            $optVal =~ s/^["']|["']$//g;
             if ( $opt eq 'p' ) {
                 $port = int($optVal);
             }

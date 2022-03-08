@@ -46,14 +46,18 @@ sub collect {
     my $homePath;
     if ( $cmdLine =~ /^(.*?)\/bin\/runmqlsr/ ) {
         $homePath = $1;
+        $homePath =~ s/^["']|["']$//g;
     }
     my $mqmName;
     if ( $cmdLine =~ /-m\s+(\S+)/ ) {
         $mqmName = $1;
+        $mqmName =~ s/^["']|["']$//g;
     }
     my $port;
     if ( $cmdLine =~ /-p\s+(\S+)/ ) {
         $port = $1;
+        $port =~ s/^["']|["']$//g;
+        $port = int($port);
     }
 
     my ( $status, $verInfo ) = $self->getCmdOut( 'dspmqver | grep Version', $user );
