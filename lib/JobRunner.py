@@ -12,6 +12,7 @@ import json
 import shutil
 
 import RunNodeFactory
+import PhaseNodeFactory
 import Operation
 import PhaseExecutor
 import NodeStatus
@@ -195,7 +196,19 @@ class JobRunner:
         return lastPhase
 
     def execGrayscaleGroup(self, phaseGroup, parallelCount, opArgsRefMap):
-        pass
+        nodesFactory = RunNodeFactory.RunNodeFactory(self.context)
+        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
+            parallelCount = nodesFactory.nodesCount
+
+        # runFlow是一个数组，每个元素是一个phaseGroup
+        # 启动所有的phase运行的线程，然后分批进行灰度
+        threads = []
+        for phaseName, phaseConfig in phaseGroup.items():
+            phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(parallelCount)
+            thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
+            thread.start()
+            thread.name = 'PhaseExecutor-' + phaseName
+            threads.append(thread)
 
     def execute(self):
         listenThread = ListenThread('Listen-Thread', self.context)
@@ -214,7 +227,7 @@ class JobRunner:
             for phaseGroup in params['runFlow']:
                 if self.context.goToStop == True:
                     break
-                
+
                 if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
                     continue
                 groupId = groupId + 1

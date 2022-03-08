@@ -11,7 +11,7 @@ import json
 import Utils
 
 
-class PhaseRunNodeFactory:
+class PhaseNodeFactory:
 
     def __init__(self, context, parallelCount):
         self.context = context
