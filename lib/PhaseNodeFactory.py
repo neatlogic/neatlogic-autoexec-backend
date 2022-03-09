@@ -31,5 +31,5 @@ class PhaseNodeFactory:
 
         return node
 
-    def addNode(self, runNode):
+    def putNode(self, runNode):
         self.nodeQueue.put(runNode)

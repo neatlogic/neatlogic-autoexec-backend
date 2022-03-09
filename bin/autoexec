@@ -3,7 +3,6 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-from email.policy import default
 import os
 import sys
 import traceback
@@ -272,7 +271,8 @@ if __name__ == "__main__":
     else:
         # 初始化运行context
         dataPath = homePath + '/data'
-        context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases, nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
+        context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases,
+                                  nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
         os.environ['AUTOEXEC_TENENT'] = context.tenant

@@ -171,7 +171,8 @@ class JobRunner:
         # runFlow是一个数组，每个元素是一个phaseGroup
         threads = []
         # 每个group有多个phase，使用线程并发执行
-        for phaseName, phaseConfig in phaseGroup.items():
+        for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
             if self.context.goToStop == True:
                 break
 
@@ -196,19 +197,59 @@ class JobRunner:
         return lastPhase
 
     def execGrayscaleGroup(self, phaseGroup, parallelCount, opArgsRefMap):
+        # runFlow是一个数组，每个元素是一个phaseGroup
+        # 启动所有的phase运行的线程，然后分批进行灰度
+        phaseNodeFactorys = {}
+        threads = []
+        for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
+            phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
+            phaseNodeFactorys[phaseName] = phaseNodeFactory
+            thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
+            thread.start()
+            thread.name = 'PhaseExecutor-' + phaseName
+            threads.append(thread)
+
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context)
         if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
             parallelCount = nodesFactory.nodesCount
 
-        # runFlow是一个数组，每个元素是一个phaseGroup
-        # 启动所有的phase运行的线程，然后分批进行灰度
-        threads = []
-        for phaseName, phaseConfig in phaseGroup.items():
-            phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(parallelCount)
-            thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
-            thread.start()
-            thread.name = 'PhaseExecutor-' + phaseName
-            threads.append(thread)
+        lastPhase = None
+        for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
+            phaseStatus = self.context.phases[phaseName]
+            phaseNodeFactory = phaseNodeFactorys[phaseName]
+
+            for k in range(parallelCount):
+                try:
+                    if self.context.goToStop == True:
+                        phaseNodeFactory.putNode(None)
+                        break
+
+                    node = None
+
+                    node = nodesFactory.nextNode()
+                    phaseNodeFactory.putNode(node)
+
+                    if node is None:
+                        break
+                except Exception as ex:
+                    self.context.hasFailNodeInGlobal = True
+                    phaseStatus.incFailNodeCount()
+                    phaseNodeFactory.putNode(None)
+                    if node is not None:
+                        node.writeNodeLog("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                    else:
+                        print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                    break
+
+            if self.context.hasFailNodeInGlobal:
+                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
+                break
+
+        if not self.context.hasFailNodeInGlobal:
+            lastPhase = phaseGroup['phases'][-1]
+        return lastPhase
 
     def execute(self):
         listenThread = ListenThread('Listen-Thread', self.context)
@@ -223,14 +264,15 @@ class JobRunner:
         opArgsRefMap = {}
         lastPhase = None
         if 'runFlow' in params:
-            groupId = 1
+            #groupId = 1
             for phaseGroup in params['runFlow']:
+                groupId = phaseGroup['groupId']
                 if self.context.goToStop == True:
                     break
 
                 if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
                     continue
-                groupId = groupId + 1
+                #groupId = groupId + 1
 
                 groupLastPhase = self.execOneShotGroup(phaseGroup, parallelCount, opArgsRefMap)
                 if groupLastPhase is not None:
