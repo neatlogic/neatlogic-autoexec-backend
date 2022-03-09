@@ -134,11 +134,7 @@ class JobRunner:
 
     def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         try:
-            self.context.addPhase(phaseName)
-
             serverAdapter = self.context.serverAdapter
-            if not self.localDefinedNodes:
-                serverAdapter.getNodes(phaseName)
 
             phaseStatus = self.context.phases[phaseName]
             print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
@@ -178,6 +174,12 @@ class JobRunner:
                 continue
 
             if not self.context.hasFailNodeInGlobal:
+                # 初始化phase的节点信息
+                self.context.addPhase(phaseName)
+                serverAdapter = self.context.serverAdapter
+                if not self.localDefinedNodes:
+                    serverAdapter.getNodes(phaseName)
+
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName)
                 if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
