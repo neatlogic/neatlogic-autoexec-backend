@@ -848,6 +848,7 @@ sub getClusterName {
     my $clusterName = $self->getCmdOut( "$gridBin/olsnodes -c", $self->{gridUser} );
     $clusterName =~ s/^\s*|\s*$//g;
     $racInfo->{CLUSTER_NAME} = $clusterName;
+    $racInfo->{NAME}         = $clusterName;
 }
 
 sub getClusterLocalNode {
