@@ -16,7 +16,8 @@ sys.path.append(homePath+'/plugins/local/lib')
 def usage():
     pname = os.path.basename(__file__)
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
-    print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
+    print("         --mode <mode> eg : truncate or append ,default value truncate.\n")
+    print(" --action [beautify|remove|append|savetodb|dropcollection] \n")
     print("Examples:")
     print("Remove field:")
     print('dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION')
@@ -289,7 +290,7 @@ def checkThresholdExist(threshold, dbThresholds):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--lang', default='zh_CN', help='Language')
-    parser.add_argument('--action', default='savetodb', help='Actions:（savetodb|append|remove|beautify）')
+    parser.add_argument('--action', default='savetodb', help='Actions:（savetodb|append|remove|beautify|dropcollection）')
     parser.add_argument('--filter', default='{}', help='Match filter')
     parser.add_argument('--content', default='', help='Append Json')
 

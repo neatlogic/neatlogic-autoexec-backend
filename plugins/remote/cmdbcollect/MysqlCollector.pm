@@ -298,7 +298,7 @@ sub collect {
     my @collectSet = ();
     push( @collectSet, $mysqlInfo );
     push( @collectSet, @{ $mysqlInfo->{DATABASES} } );
-    return \@collectSet;
+    return @collectSet;
 }
 
 1;

@@ -228,7 +228,7 @@ sub collect {
     my @collectSet = ();
     push( @collectSet, $postgresqlInfo );
     push( @collectSet, @{ $postgresqlInfo->{DATABASES} } );
-    return \@collectSet;
+    return @collectSet;
 }
 
 1;

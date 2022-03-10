@@ -206,6 +206,7 @@ sub getClusterDB {
                             _OBJ_CATEGORY => 'DBINS',
                             _OBJ_TYPE     => 'Oracle',
                             NAME          => $instanceName,
+                            INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
                             IP            => $nodeInfo->{IP},
                             VIP           => $nodeInfo->{VIP},
@@ -277,6 +278,7 @@ sub getClusterName {
     my $clusterName = $self->getCmdOut( "$gridBin/olsnodes -c", $self->{gridUser} );
     $clusterName =~ s/^\s*|\s*$//g;
     $racInfo->{CLUSTER_NAME} = $clusterName;
+    $racInfo->{NAME}         = $clusterName;
 }
 
 sub getClusterLocalNode {
