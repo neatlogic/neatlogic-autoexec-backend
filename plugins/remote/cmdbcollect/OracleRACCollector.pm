@@ -206,6 +206,7 @@ sub getClusterDB {
                             _OBJ_CATEGORY => 'DBINS',
                             _OBJ_TYPE     => 'Oracle',
                             NAME          => $instanceName,
+                            INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
                             IP            => $nodeInfo->{IP},
                             VIP           => $nodeInfo->{VIP},
