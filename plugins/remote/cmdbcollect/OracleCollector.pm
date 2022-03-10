@@ -51,7 +51,7 @@ sub isCDB {
 }
 
 sub getInsVersion {
-    my ($self, $insInfo) = @_;
+    my ( $self, $insInfo ) = @_;
 
     my $version = '';
     my $sqlplus = $self->{sqlplus};
@@ -63,8 +63,8 @@ sub getInsVersion {
         verbose => $self->{isVerbose}
     );
 
-    if ( not defined($rows) ){
-        $sql = q{select banner VERSION from v$version where rownum <=1;};
+    if ( not defined($rows) ) {
+        $sql  = q{select banner VERSION from v$version where rownum <=1;};
         $rows = $sqlplus->query(
             sql     => $sql,
             verbose => $self->{isVerbose}
@@ -1368,7 +1368,7 @@ sub collectRAC {
     push( @collectSet, @collectDatabases );
     push( @collectSet, @collectInstances );
 
-    return \@collectSet;
+    return @collectSet;
 }
 
 sub getGridProc {

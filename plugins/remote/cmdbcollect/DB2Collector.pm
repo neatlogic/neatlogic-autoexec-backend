@@ -434,7 +434,7 @@ sub collect {
     push( @collectSet, $insInfo );
     push( @collectSet, @{ $insInfo->{DATABASES} } );
 
-    return \@collectSet;
+    return @collectSet;
 }
 
 1;
