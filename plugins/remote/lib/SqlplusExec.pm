@@ -54,17 +54,28 @@ sub new {
         $ENV{ORACLE_SID} = $self->{sid};
         print( "INFO: Reset ORACLE_SID to " . $self->{sid} . "\n" );
     }
-    if ( defined( $self->{oraHome} and $self->{oraHome} ne '' ) ) {
-        $ENV{ORACLE_HOME} = $self->{oraHome};
+    if ( defined($oraHome) and $oraHome ne '' ) {
+        $ENV{ORACLE_HOME} = $oraHome;
         my $path     = $ENV{PATH};
         my $oraBin   = File::Spec->canonpath("$oraHome/bin");
         my $patchBin = File::Spec->canonpath("$oraHome/OPatch");
-        if ( $path !~ /$oraBin/ or $path !~ /$patchBin/ ) {
+
+        if ( $path !~ /\Q$patchBin\E/ ) {
             if ( $self->{osType} eq 'Windows' ) {
-                $ENV{PATH} = "$oraBin;$patchBin;$path";
+                $ENV{PATH} = "$patchBin;$path";
             }
             else {
-                $ENV{PATH} = "$oraBin:$patchBin:$path";
+                $ENV{PATH} = "$patchBin:$path";
+            }
+        }
+
+        $path = $ENV{PATH};
+        if ( $path !~ /\Q$oraBin\E/ ) {
+            if ( $self->{osType} eq 'Windows' ) {
+                $ENV{PATH} = "$oraBin;$path";
+            }
+            else {
+                $ENV{PATH} = "$oraBin:$path";
             }
         }
     }
@@ -333,7 +344,7 @@ sub _parseOutput {
 
     if ( $isVerbose == 1 ) {
         my $fieldCount = scalar(@fieldNames);
-        my $rowCount = scalar(@rowsArray);
+        my $rowCount   = scalar(@rowsArray);
 
         #print head
         foreach my $field (@fieldNames) {
@@ -414,6 +425,7 @@ sub _execSql {
     if ($isVerbose) {
         print("INFO: Execute sql:\n");
         print( $sql, "\n\n" );
+
         #my $len = length($sql);
         #print( '=' x $len, "\n" );
     }
