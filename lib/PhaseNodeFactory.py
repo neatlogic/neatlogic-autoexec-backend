@@ -33,3 +33,6 @@ class PhaseNodeFactory:
 
     def putNode(self, runNode):
         self.nodeQueue.put(runNode)
+
+    def localNode(self):
+        self.nextNode()

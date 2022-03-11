@@ -80,3 +80,8 @@ class RunNodeFactory:
             self.nodesFile.close()
 
         return runNode
+
+    def localNode(self):
+        localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+        localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+        return localNode

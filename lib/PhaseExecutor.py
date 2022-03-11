@@ -147,20 +147,19 @@ class PhaseExecutor:
             worker_threads = self._buildWorkerPool(execQueue)
 
             # 如果有本地执行的插件（不是每个节点调用一次的插件）则虚构一个local的节点，直接执行
-            if phaseStatus.hasLocal:
-                localRunNode = None
+            if phaseStatus.hasLocal and phaseStatus.execLocal:
+                node = None
                 try:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                    localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
-                    localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+                    node = nodesFactory.localNode()
 
                     if self.context.goToStop == False:
                         # 需要执行的节点实例加入等待执行队列
-                        execQueue.put(localRunNode)
+                        execQueue.put(node)
                 except Exception as ex:
                     phaseStatus.incFailNodeCount()
-                    if localRunNode is not None:
-                        localRunNode.writeNodeLog("ERROR: Unknown error occurred\n{}\n" + traceback.format_exc())
+                    if node is not None:
+                        node.writeNodeLog("ERROR: Unknown error occurred\n{}\n" + traceback.format_exc())
                     else:
                         print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
 

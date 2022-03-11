@@ -213,46 +213,78 @@ class JobRunner:
             threads.append(thread)
 
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context)
-        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
+        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount <= parallelCount:
             parallelCount = nodesFactory.nodesCount
 
-        oneRoundNodes = []
-        count = 0
-        while count < parallelCount:
-            node = nodesFactory.nextNode()
-            if node is None:
-                break
-            oneRoundNodes.append(node)
-            count = count + 1
+        maxRoundNo = int(nodesFactory.nodesCount / parallelCount)
+        lastRoundCount = nodesFactory.nodesCount % parallelCount
+        if lastRoundCount < parallelCount:
+            maxRoundNo = maxRoundNo + 1
 
-        lastPhase = None
-        for phaseConfig in phaseGroup['phases']:
-            phaseName = phaseConfig['phaseName']
-            phaseStatus = self.context.phases[phaseName]
-            phaseNodeFactory = phaseNodeFactorys[phaseName]
+        firstRound = True
+        midRound = False
+        lastRound = False
 
-            # for k in range(parallelCount):
-            for node in oneRoundNodes:
-                try:
-                    if self.context.goToStop == True:
+        for roundNo in range(1..maxRoundNo):
+            if roundNo >= maxRoundNo / 2:
+                midRound = True
+            if roundNo == maxRoundNo:
+                lastRound = True
+
+            oneRoundNodes = []
+            for k in range(1, parallelCount):
+                node = nodesFactory.nextNode()
+                if node is None:
+                    break
+                oneRoundNodes.append(node)
+
+            lastPhase = None
+            for phaseConfig in phaseGroup['phases']:
+                phaseName = phaseConfig['phaseName']
+                phaseStatus = self.context.phases[phaseName]
+
+                execRound = 'first'
+                if 'execRound' in phaseConfig:
+                    execRound = phaseConfig['execRound']
+
+                if phaseStatus.hasLocal:
+                    needExecute = False
+                    if firstRound and execRound == 'first':
+                        needExecute = True
+                    if midRound and execRound == 'middle':
+                        needExecute = True
+                    if lastRound and execRound == 'last':
+                        needExecute = True
+
+                    if needExecute:
+                        # Local执行的phase，直接把localNode put到队列
+                        phaseStatus.initRoundCounter(1)
+                        phaseNodeFactory = phaseNodeFactorys[phaseName]
+                        if not self.context.goToStop == True:
+                            phaseNodeFactory.putNode(nodesFactory.localNode())
+                else:
+                    phaseStatus.initRoundCounter(len(oneRoundNodes))
+
+                    phaseNodeFactory = phaseNodeFactorys[phaseName]
+                    for node in oneRoundNodes:
+                        if self.context.goToStop == True:
+                            phaseNodeFactory.putNode(None)
+                            break
+                        phaseNodeFactory.putNode(node)
+
+                    # 最后一个批次，往队列中put None通知PhaseExecutor节点执行结束
+                    if lastRound:
                         phaseNodeFactory.putNode(None)
-                        break
 
-                    phaseNodeFactory.putNode(node)
-
-                except Exception as ex:
-                    self.context.hasFailNodeInGlobal = True
-                    phaseStatus.incFailNodeCount()
-                    phaseNodeFactory.putNode(None)
-                    if node is not None:
-                        node.writeNodeLog("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
-                    else:
-                        print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                phaseStatus.waitRoundFin()
+                if self.context.hasFailNodeInGlobal:
+                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
                     break
 
-            if self.context.hasFailNodeInGlobal:
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
+            if lastRound or self.context.hasFailNodeInGlobal:
                 break
+            firstRound = False
+            midRound = False
 
         if not self.context.hasFailNodeInGlobal:
             lastPhase = phaseGroup['phases'][-1]
