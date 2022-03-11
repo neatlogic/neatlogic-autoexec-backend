@@ -1,8 +1,8 @@
 {
-    "label": "DB Instance",
+    "label": "DB库",
     "collection": "COLLECT_DB",
     "docroot": null,
-    "collection_label": "Database",
+    "collection_label": "DB库",
     "filter": {},
     "fields": [
         {

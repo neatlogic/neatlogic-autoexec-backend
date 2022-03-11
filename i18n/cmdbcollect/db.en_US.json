@@ -1,5 +1,5 @@
 {
-    "label": "DB Instance",
+    "label": "Database",
     "collection": "COLLECT_DB",
     "docroot": null,
     "collection_label": "Database",
