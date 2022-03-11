@@ -352,35 +352,49 @@ sub getNodeVip {
     my $vipName;
     my $nodeVip;
 
-    # [oracle@node-rac1 ~]$ srvctl config nodeapps -n node-rac2
-    # VIP exists.: /node-vip2/192.168.12.240/255.255.255.0/eth0
-    # GSD exists.
-    #############################
-    # VIP exists: network number 1, hosting node edbassb1p
-    # VIP Name: edbassb1p-vip
-    # VIP IPv4 Address: 10.0.13.122
-    # VIP IPv6 Address:
-    # VIP is enabled.
-    # VIP is individually enabled on nodes:
-    # VIP is individually disabled on nodes:
-    my $nodeVipInfoLines = $self->getCmdOutLines( "$gridBin/srvctl config vip -node $nodeName", $self->{gridUser} );
-    foreach my $line (@$nodeVipInfoLines) {
-        if ( $line =~ /VIP Name:\s*(\S+)$/ ) {
-            $vipName = $1;
-        }
-        elsif ( $line =~ /VIP\s+IPv4\s+Address:\s*([\d\.]+)/ ) {
-            $nodeVip = $1;
-        }
-        elsif ( $line =~ /VIP\s+IPv6\s+Address:\s*([:a-fA-f0-9]+)/ ) {
-            $nodeVip = $1;
-        }
-        elsif ( $line =~ qr{/.*?/([\.:a-fA-f0-9]+)/.*?/.*?/.*?, hosting node (.*)} ) {
-            $nodeVip = $1;
-        }
-        elsif ( $line =~ qr{VIP exists\.:\s*/.*?/([\.:a-fA-f0-9]+)/.*?/.*?} ) {
-            $nodeVip = $1;
+    my ( $status, $nodeVipInfoLines ) = $self->getCmdOutLines( "$gridBin/srvctl config vip -node $nodeName", $self->{gridUser} );
+    if ( $status == 0 ) {
+
+        # RAC 12 ############################
+        #$ srvctl config vip -node edbassb1p
+        # VIP exists: network number 1, hosting node edbassb1p
+        # VIP Name: edbassb1p-vip
+        # VIP IPv4 Address: 10.0.13.122
+        # VIP IPv6 Address:
+        # VIP is enabled.
+        # VIP is individually enabled on nodes:
+        # VIP is individually disabled on nodes:
+        foreach my $line (@$nodeVipInfoLines) {
+            if ( $line =~ /VIP Name:\s*(\S+)$/ ) {
+                $vipName = $1;
+            }
+            elsif ( $line =~ /VIP\s+IPv4\s+Address:\s*([\d\.]+)/ ) {
+                $nodeVip = $1;
+            }
+            elsif ( $line =~ /VIP\s+IPv6\s+Address:\s*([:a-fA-f0-9]+)/ ) {
+                $nodeVip = $1;
+            }
+            elsif ( $line =~ qr{/.*?/([\.:a-fA-f0-9]+)/.*?/.*?/.*?, hosting node (.*)} ) {
+                $nodeVip = $1;
+            }
+            elsif ( $line =~ qr{VIP exists\.:\s*/.*?/([\.:a-fA-f0-9]+)/.*?/.*?} ) {
+                $nodeVip = $1;
+            }
         }
     }
+    else {
+        #Oracle Rac 11
+        #$ tagentexec /u01/app/11.2.0/grid/bin/srvctl config vip -n tyzfdb3p
+        #VIP exists: /tyzfdb3p-vip/10.0.12.172/10.0.12.0/255.255.255.0/en6, hosting node tyzfdb3p
+        ( $status, $nodeVipInfoLines ) = $self->getCmdOutLines( "$gridBin/srvctl config vip -n $nodeName", $self->{gridUser} );
+        foreach my $line (@$nodeVipInfoLines) {
+            if ( $line =~ /^\s*VIP exists:\s+\/([^\/]+)\/([\d\.]+)\// ) {
+                $vipName = $1;
+                $nodeVip = $2;
+            }
+        }
+    }
+
     $nodeInfo->{VIP_NAME} = $vipName;
     $nodeInfo->{VIP}      = $nodeVip;
 
