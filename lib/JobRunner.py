@@ -216,25 +216,30 @@ class JobRunner:
         if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
             parallelCount = nodesFactory.nodesCount
 
+        oneRoundNodes = []
+        count = 0
+        while count < parallelCount:
+            node = nodesFactory.nextNode()
+            if node is None:
+                break
+            oneRoundNodes.append(node)
+            count = count + 1
+
         lastPhase = None
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
             phaseStatus = self.context.phases[phaseName]
             phaseNodeFactory = phaseNodeFactorys[phaseName]
 
-            for k in range(parallelCount):
+            # for k in range(parallelCount):
+            for node in oneRoundNodes:
                 try:
                     if self.context.goToStop == True:
                         phaseNodeFactory.putNode(None)
                         break
 
-                    node = None
-
-                    node = nodesFactory.nextNode()
                     phaseNodeFactory.putNode(node)
 
-                    if node is None:
-                        break
                 except Exception as ex:
                     self.context.hasFailNodeInGlobal = True
                     phaseStatus.incFailNodeCount()
@@ -275,8 +280,11 @@ class JobRunner:
                 if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
                     continue
                 #groupId = groupId + 1
+                if 'execStrategy' in phaseGroup and phaseGroup['execStrategy'] == 'grayScale':
+                    groupLastPhase = self.execGrayscaleGroup(phaseGroup, parallelCount, opArgsRefMap)
+                else:
+                    groupLastPhase = self.execOneShotGroup(phaseGroup, parallelCount, opArgsRefMap)
 
-                groupLastPhase = self.execOneShotGroup(phaseGroup, parallelCount, opArgsRefMap)
                 if groupLastPhase is not None:
                     lastPhase = groupLastPhase
 

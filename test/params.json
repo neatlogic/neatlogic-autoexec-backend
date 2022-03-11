@@ -4,6 +4,7 @@
         "parallel": 64,
         "runFlow": [{
                         "groupId": 1,
+                        "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "收集信息",
                                 "operations": [{
@@ -53,6 +54,7 @@
                 },
                 {
                         "groupId": 2,
+                        "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "关系计算",
                                 "operations": [{
