@@ -338,6 +338,12 @@ class RunNode:
                 if opOutputFile:
                     opOutputFile.close()
 
+    def _removeOpOutput(self, op):
+        opOutputFile = None
+        opOutPutPath = self._getOpOutputPath(op)
+        if os.path.exists(opOutPutPath):
+            os.remove(opOutPutPath)
+
     def getNodeLogHandle(self):
         return self.logHandle
 
@@ -373,6 +379,8 @@ class RunNode:
                 self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
             if ret == 0:
+                self._removeOpOutput()
+
                 if self.host == 'local':
                     if op.opType == 'local':
                         # 本地执行

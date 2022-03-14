@@ -258,47 +258,79 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap ) = @_;
+    my ( $self, $lsnPortsMap, $pid ) = @_;
 
-    my $remoteAddrs    = {};
-    my $status         = 0;
-    my $cmd            = "netstat -Aan | grep -v LISTEN |";
-    my $localFieldIdx  = 4;
-    my $remoteFieldIdx = 5;
-    ( $status, $remoteAddrs ) = $self->parseConnLines(
-        cmd             => $cmd,
-        isListenerParse => 0,
-        lsnPortsMap     => $lsnPortsMap,
-        localFieldIdx   => $localFieldIdx,
-        remoteFieldIdx  => $remoteFieldIdx,
-        statusIdx       => 6,
-        recvQIdx        => 2,
-        sendQIdx        => 3
-    );
+    if ( not defined($pid) ) {
+        my $remoteAddrs    = {};
+        my $status         = 0;
+        my $cmd            = "netstat -Aan | grep -v LISTEN |";
+        my $localFieldIdx  = 4;
+        my $remoteFieldIdx = 5;
+        ( $status, $remoteAddrs ) = $self->parseConnLines(
+            cmd             => $cmd,
+            isListenerParse => 0,
+            lsnPortsMap     => $lsnPortsMap,
+            localFieldIdx   => $localFieldIdx,
+            remoteFieldIdx  => $remoteFieldIdx,
+            statusIdx       => 6,
+            recvQIdx        => 2,
+            sendQIdx        => 3
+        );
+        return $remoteAddrs;
+    }
+    else {
+        my $remoteAddrs   = $self->{remoteAddrs};
+        my $procConnStats = $self->{procConnStats};
 
-    return $remoteAddrs;
+        my $connInfo = {};
+
+        my $remoteAddrsMap = {};
+        while ( my ( $remoteAddr, $useByPid ) = each(%$remoteAddrs) ) {
+            if ( $useByPid == $pid ) {
+                $remoteAddrsMap->{$remoteAddr} = 1;
+            }
+        }
+        return ( $remoteAddrsMap, $procConnStats->{$pid} );
+    }
 }
 
 sub getListenPorts {
-    my ($self) = @_;
+    my ( $self, $pid ) = @_;
 
-    #AIX
-    #netstat -Aan | grep LISTEN |
-    my $portsMap      = {};
-    my $lsnBackLogMap = {};
-    my $status        = 0;
-    my $cmd           = "netstat -Aan | grep LISTEN |";
-    my $lsnFieldIdx   = 4;
-    ( $status, $portsMap, $lsnBackLogMap ) = $self->parseListenLines(
-        cmd             => $cmd,
-        isListenerParse => 1,
-        lsnFieldIdx     => $lsnFieldIdx,
-        statusIdx       => 6,
-        recvQIdx        => 2,
-        sendQIdx        => 3
-    );
+    if ( not defined($pid) ) {
 
-    return ( $lsnBackLogMap, $portsMap );
+        #AIX
+        #netstat -Aan | grep LISTEN |
+        my $portsMap      = {};
+        my $lsnBackLogMap = {};
+        my $status        = 0;
+        my $cmd           = "netstat -Aan | grep LISTEN |";
+        my $lsnFieldIdx   = 4;
+        ( $status, $portsMap, $lsnBackLogMap ) = $self->parseListenLines(
+            cmd             => $cmd,
+            isListenerParse => 1,
+            lsnFieldIdx     => $lsnFieldIdx,
+            statusIdx       => 6,
+            recvQIdx        => 2,
+            sendQIdx        => 3
+        );
+
+        return ( $lsnBackLogMap, $portsMap );
+    }
+    else {
+        my $lsnPortsMap   = $self->{lsnPortsMap};
+        my $lsnBackLogMap = $self->{lsnBackLogMap};
+
+        my $connInfo = {};
+        my $portsMap = {};
+        while ( my ( $lsnPort, $useByPid ) = each(%$lsnPortsMap) ) {
+            if ( $useByPid == $pid ) {
+                $portsMap->{$lsnPort} = $lsnBackLogMap->{$lsnPort};
+            }
+        }
+
+        return $portsMap;
+    }
 }
 
 #获取单个进程的连出的TCP/UDP连接
@@ -307,15 +339,15 @@ sub getListenInfo {
     my $lsnPortsMap   = $self->{lsnPortsMap};
     my $lsnBackLogMap = $self->{lsnBackLogMap};
 
-    my $connInfo    = {};
-    my $lsnPortsMap = {};
+    my $connInfo = {};
+    my $portsMap = {};
     while ( my ( $lsnPort, $useByPid ) = each(%$lsnPortsMap) ) {
         if ( $useByPid == $pid ) {
-            $lsnPortsMap->{$lsnPort} = $lsnBackLogMap->{$lsnPort};
+            $portsMap->{$lsnPort} = $lsnBackLogMap->{$lsnPort};
         }
     }
 
-    $connInfo->{LISTEN} = $lsnPortsMap;
+    $connInfo->{LISTEN} = $portsMap;
 
     return $connInfo;
 }
