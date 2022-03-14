@@ -175,7 +175,7 @@ class PhaseExecutor:
                 while self.context.goToStop == False:
                     node = None
                     try:
-                        node = nodesFactory.nextNode()
+                        node = nodesFactory.nextRunNode()
                         if node is None:
                             break
 

@@ -11,6 +11,7 @@ import traceback
 import json
 import shutil
 
+import RunNode
 import RunNodeFactory
 import PhaseNodeFactory
 import Operation
@@ -134,12 +135,11 @@ class JobRunner:
         return executor.execute()
 
     def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
+        serverAdapter = self.context.serverAdapter
+        phaseStatus = self.context.phases[phaseName]
+        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
+
         try:
-            serverAdapter = self.context.serverAdapter
-
-            phaseStatus = self.context.phases[phaseName]
-            print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
-
             self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
@@ -261,20 +261,23 @@ class JobRunner:
                         phaseStatus.initRoundCounter(1)
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
-                            phaseNodeFactory.putNode(nodesFactory.localNode())
+                            localNode = nodesFactory.localNode()
+                            localRunNode = RunNode.RunNode(self.context, phaseName, localNode)
+                            phaseNodeFactory.putRunNode(localRunNode)
                 else:
                     phaseStatus.initRoundCounter(len(oneRoundNodes))
 
                     phaseNodeFactory = phaseNodeFactorys[phaseName]
                     for node in oneRoundNodes:
                         if self.context.goToStop == True:
-                            phaseNodeFactory.putNode(None)
+                            phaseNodeFactory.putRunNode(None)
                             break
-                        phaseNodeFactory.putNode(node)
+                        runNode = RunNode.RunNode(self.context, phaseName, node)
+                        phaseNodeFactory.putRunNode(runNode)
 
                     # 最后一个批次，往队列中put None通知PhaseExecutor节点执行结束
                     if lastRound:
-                        phaseNodeFactory.putNode(None)
+                        phaseNodeFactory.putRunNode(None)
 
                 phaseStatus.waitRoundFin()
                 if self.context.hasFailNodeInGlobal:

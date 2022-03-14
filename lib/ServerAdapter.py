@@ -173,7 +173,7 @@ class ServerAdapter:
                 paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
-    def getNodes(self, phase=None):
+    def getNodes(self, phase=None, phaseGroup=None):
         params = {
             'jobId': self.context.jobId,
             'passThroughEnv': self.context.passThroughEnv,
@@ -183,8 +183,11 @@ class ServerAdapter:
         if phase is not None:
             params['phase'] = phase
 
+        if phaseGroup is not None:
+            params['phaseGroup'] = phaseGroup
+
         lastModifiedTime = 0
-        nodesFilePath = self.context.getNodesFilePath(phase)
+        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, phaseGroup=phaseGroup)
         if os.path.exists(nodesFilePath):
             lastModifiedTime = os.path.getmtime(nodesFilePath)
         params['lastModified'] = lastModifiedTime
@@ -271,7 +274,7 @@ class ServerAdapter:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
             # 促使下次运行主动更新节点文件
             nodesFilePath = self.context.getNodesFilePath()
-            phaseNodesFilePath = self.context.getNodesFilePath(phaseName)
+            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName)
             if (os.path.exists(nodesFilePath)):
                 os.utime(nodesFilePath, (0, 0))
             if (os.path.exists(phaseNodesFilePath)):

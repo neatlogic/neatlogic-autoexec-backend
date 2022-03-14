@@ -13,17 +13,17 @@ import RunNode
 
 class RunNodeFactory:
 
-    def __init__(self, context, phaseName):
+    def __init__(self, context, phaseName=None, phaseGroup=None):
         self.context = context
         self.phaseName = phaseName
         self.nodesFile = None
 
-        nodesFilePath = context.getNodesFilePath(phaseName)
-        if os.path.isfile(nodesFilePath):
-            self.nodesFile = open(nodesFilePath)
-        else:
-            nodesFilePath = context.getNodesFilePath()
-            self.nodesFile = open(nodesFilePath)
+        nodesFilePath = context.getNodesFilePath(phaseName=phaseName)
+        if not os.path.isfile(nodesFilePath):
+            nodesFilePath = context.getNodesFilePath(phaseGroup=phaseGroup)
+            if not os.path.isfile(nodesFilePath):
+                nodesFilePath = context.getNodesFilePath()
+        self.nodesFile = open(nodesFilePath)
 
         line = self.nodesFile.readline()
         self.nodesFile.seek(0)
@@ -38,6 +38,22 @@ class RunNodeFactory:
     def __del__(self):
         if self.nodesFile is not None:
             self.nodesFile.close()
+
+    def localRunNode(self):
+        localNode = self.localNode()
+        localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+        return localNode
+
+    def nextRunNode(self):
+        runNode = None
+        nodeObj = self.nextNode()
+        if nodeObj is not None:
+            runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
+        return runNode
+
+    def localNode(self):
+        localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+        return localNode
 
     def nextNode(self):
         nodeObj = None
@@ -57,8 +73,6 @@ class RunNodeFactory:
                     nodeObj = json.loads(line)
                     break
 
-        runNode = None
-
         if line:
             if 'password' in nodeObj:
                 password = nodeObj['password']
@@ -74,14 +88,7 @@ class RunNodeFactory:
             if 'protocolPort' not in nodeObj or nodeObj['protocolPort'] == '':
                 if 'port' in nodeObj:
                     nodeObj['protocolPort'] = nodeObj['port']
-
-            runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
             self.nodesFile.close()
 
-        return runNode
-
-    def localNode(self):
-        localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
-        localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
-        return localNode
+        return nodeObj

@@ -19,7 +19,7 @@ class PhaseNodeFactory:
         nodeQueue = queue.Queue(parallelCount + 1)
         self.nodeQueue = nodeQueue
 
-    def nextNode(self):
+    def nextRunNode(self):
         node = None
         while self.context.goToStop == False:
             try:
@@ -31,8 +31,8 @@ class PhaseNodeFactory:
 
         return node
 
-    def putNode(self, runNode):
+    def putRunNode(self, runNode):
         self.nodeQueue.put(runNode)
 
-    def localNode(self):
+    def localRunNode(self):
         self.nextNode()

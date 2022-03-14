@@ -175,10 +175,12 @@ class Context(VContext.VContext):
             value = os.environ[name]
         self.serverAdapter.exportEnv(name, value)
 
-    def getNodesFilePath(self, phaseName=None):
+    def getNodesFilePath(self, phaseName=None, phaseGroup=None):
         nodesFilePath = None
         if phaseName is not None:
-            nodesFilePath = '{}/nodes-{}.json'.format(self.runPath, phaseName)
+            nodesFilePath = '{}/nodes-ph-{}.json'.format(self.runPath, phaseName)
+        elif phaseGroup is not None:
+            nodesFilePath = '{}/nodes-gp-{}.json'.format(self.runPath, phaseGroup)
         else:
             nodesFilePath = '{}/nodes.json'.format(self.runPath)
         return nodesFilePath
