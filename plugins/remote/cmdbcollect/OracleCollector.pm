@@ -347,6 +347,7 @@ sub collectIns {
     my $racInfo = $self->{RAC_INFO};
 
     $insInfo->{OS_USER} = $osUser;
+    $insInfo->{MGMT_IP} = $procInfo->{MGMT_IP};
 
     my $envMap = $procInfo->{ENVIRONMENT};
 
@@ -471,10 +472,12 @@ sub collectCDB {
                 _OBJ_CATEGORY => 'DBINS',
                 _OBJ_TYPE     => 'Oracle',
                 INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
-                IP            => $insInfo->{IP},
-                VIP           => $insInfo->{VIP},
-                PORT          => $insInfo->{PORT},
-                SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                MGMT_IP       => $insInfo->{MGMT_IP},
+
+                #IP            => $insInfo->{IP},
+                VIP          => $insInfo->{VIP},
+                PORT         => $insInfo->{PORT},
+                SERVICE_ADDR => $insInfo->{SERVICE_ADDR}
             }
         ];
     }
@@ -513,10 +516,12 @@ sub collectPDB {
                         _OBJ_CATEGORY => 'DBINS',
                         _OBJ_TYPE     => 'Oracle',
                         INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
-                        IP            => $insInfo->{IP},
-                        VIP           => $insInfo->{VIP},
-                        PORT          => $insInfo->{PORT},
-                        SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                        MGMT_IP       => $insInfo->{MGMT_IP},
+
+                        #IP            => $insInfo->{IP},
+                        VIP          => $insInfo->{VIP},
+                        PORT         => $insInfo->{PORT},
+                        SERVICE_ADDR => $insInfo->{SERVICE_ADDR}
                     }
                 ];
                 $pdb->{PORT} = $insInfo->{PORT};
@@ -686,6 +691,7 @@ sub getASMDiskGroup {
 
 sub getClusterDB {
     my ( $self, $racInfo, $dbNodesMap, $svcNameToScanLsnrMap, $svcNameToLsnrMap ) = @_;
+    my $procInfo = $racInfo->{PROC_INFO};
     my $gridHome = $racInfo->{GRID_HOME};
     my $gridBin  = "$gridHome/bin";
 
@@ -773,14 +779,16 @@ sub getClusterDB {
                     push(
                         @instances,
                         {
-                            _OBJ_CATEGORY => 'DBINS',
+                            _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                             _OBJ_TYPE     => 'Oracle',
-                            NAME          => $instanceName,
+                            INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
-                            IP            => $nodeInfo->{IP},
-                            VIP           => $nodeInfo->{VIP},
-                            PORT          => $miniPort,
-                            SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort
+
+                            #MGMT_IP       => $procInfo->{MGMT_IP},
+                            MGMT_IP      => $nodeInfo->{IP},
+                            VIP          => $nodeInfo->{VIP},
+                            PORT         => $miniPort,
+                            SERVICE_ADDR => $nodeInfo->{IP} . ':' . $miniPort
                         }
                     );
                 }

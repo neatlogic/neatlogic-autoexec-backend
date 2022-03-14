@@ -169,7 +169,16 @@ sub collect {
                     VIP           => $ip,
                     PORT          => $port,
                     SSL_PORT      => undef,
-                    SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                    SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
+                    INSTANCES     => [
+                        {
+                            _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                            _OBJ_TYPE     => 'Sybase',
+                            INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
+                            MGMT_IP       => $procInfo->{MGMT_IP},
+                            PORT          => $port
+                        }
+                    ]
                 }
             );
         }

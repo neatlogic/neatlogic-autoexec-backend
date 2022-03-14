@@ -193,7 +193,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $redisInfo->{INSTANCE_NAME} = $procInfo->{HOST_NAME};
-    $redisInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
+    $redisInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
 
     return $redisInfo;
 }

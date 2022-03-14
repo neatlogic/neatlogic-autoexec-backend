@@ -74,6 +74,7 @@ sub collect {
 
             my $insInfo = {
                 _OBJ_CATEGORY => $objCat,
+                MGMT_IP       => $procInfo->{MGMT_IP},
                 SERVER_NAME   => $insName,
                 INSTANCE_NAME => $insName,
                 INSTALL_PATH  => $homePath,
@@ -111,7 +112,16 @@ sub collect {
                         VIP           => $insInfo->{VIP},
                         PORT          => $port,
                         SSL_PORT      => undef,
-                        SERVICE_ADDR  => $insInfo->{SERVICE_ADDR}
+                        SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
+                        INSTANCES     => [
+                            {
+                                _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                                _OBJ_TYPE     => 'Informix',
+                                INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
+                                MGMT_IP       => $insInfo->{MGMT_IP},
+                                PORT          => $port
+                            }
+                        ]
                     }
                 );
 

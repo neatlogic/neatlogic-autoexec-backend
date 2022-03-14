@@ -105,6 +105,21 @@
             "type": "String"
         },
         {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "Service Address",
+            "type": "String"
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",
@@ -120,8 +135,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "Name",
-                    "desc": "Name",
+                    "name": "INSTANCE_NAME",
+                    "desc": "Instance Name",
                     "type": "String"
                 },
                 {
@@ -130,13 +145,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
+                    "name": "MGMT_IP",
+                    "desc": "Mgmt IP",
                     "type": "String"
                 },
                 {
@@ -145,26 +155,16 @@
                     "type": "Int"
                 },
                 {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
                     "name": "SERVICE_ADDR",
                     "desc": "Service Addr",
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_ADDR",
-            "desc": "Service Address",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
-            "type": "String"
         }
     ]
 }

@@ -100,6 +100,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $mysqlInfo = {};
+    $mysqlInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
     $mysqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
@@ -220,6 +221,15 @@ sub collect {
         $dbInfo->{SSL_PORT}                     = undef;
         $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
         $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
+        $dbInfo->{INSTANCES}                    = [
+            {
+                _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                _OBJ_TYPE     => 'Mysql',
+                INSTANCE_NAME => '-',
+                MGMT_IP       => $mysqlInfo->{MGMT_IP},
+                PORT          => $port
+            }
+        ];
     }
 
     my @dbInfos = ();

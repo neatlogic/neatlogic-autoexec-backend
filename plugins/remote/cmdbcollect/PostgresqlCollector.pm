@@ -98,6 +98,7 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $postgresqlInfo = {};
+    $postgresqlInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
     $postgresqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
@@ -169,7 +170,16 @@ sub collect {
                 VIP           => $vip,
                 PORT          => $port,
                 SSL_PORT      => undef,
-                SERVICE_ADDR  => "$vip:$port"
+                SERVICE_ADDR  => "$vip:$port",
+                INSTANCES     => [
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                        _OBJ_TYPE     => 'Postgresql',
+                        INSTANCE_NAME => $postgresqlInfo->{INSTANCE_NAME},
+                        MGMT_IP       => $postgresqlInfo->{MGMT_IP},
+                        PORT          => $postgresqlInfo->{PORT}
+                    }
+                ]
             }
         );
     }
