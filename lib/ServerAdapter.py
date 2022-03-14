@@ -201,7 +201,6 @@ class ServerAdapter:
                 nodesFile.truncate(0)
                 for line in response:
                     nodesFile.write(str(line, encoding='utf-8'))
-                    nodesFile.write("\n")
 
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
