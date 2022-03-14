@@ -208,7 +208,7 @@ sub getClusterDB {
                             NAME          => $instanceName,
                             INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
-                            IP            => $nodeInfo->{IP},
+                            MGMT_IP       => $nodeInfo->{IP},
                             VIP           => $nodeInfo->{VIP},
                             PORT          => $miniPort,
                             SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort

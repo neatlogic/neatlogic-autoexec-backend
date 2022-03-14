@@ -227,6 +227,15 @@ sub getDBInfos {
             $dbInfo->{PORT}          = $insInfo->{PORT};
             $dbInfo->{SSL_PORT}      = $insInfo->{SSL_PORT};
             $dbInfo->{SERVICE_ADDR}  = $insInfo->{VIP} . ':' . $insInfo->{PORT};
+            $dbInfo->{INSTANCES}     = [
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                    _OBJ_TYPE     => 'DB2',
+                    INSTANCE_NAME => $insInfo->{INSTANCE_NAME},
+                    MGMT_IP       => $insInfo->{MGMT_IP},
+                    PORT          => $insInfo->{PORT}
+                }
+            ];
             push( @localDbs, $dbInfo );
         }
     }
@@ -390,6 +399,7 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $insInfo  = {};
     $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $insInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
 
     my $db2InstUser = $procInfo->{USER};
 
