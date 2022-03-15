@@ -299,7 +299,7 @@ class RunNode:
                     outputFile.close()
         else:
             # 如果本地output文件不存在则从mongodb加载
-            output = self.outputStore.loadOutput()
+            self.output = self.outputStore.loadOutput()
 
         # 加载local节点的output
         localOutput = self._getLocalOutput()
@@ -343,6 +343,7 @@ class RunNode:
         opOutPutPath = self._getOpOutputPath(op)
         if os.path.exists(opOutPutPath):
             os.remove(opOutPutPath)
+        self.output.pop(op.opId, None)
 
     def getNodeLogHandle(self):
         return self.logHandle
