@@ -16,8 +16,7 @@ class PhaseNodeFactory:
     def __init__(self, context, parallelCount):
         self.context = context
         self.parallelCount = parallelCount
-        nodeQueue = queue.Queue(parallelCount + 1)
-        self.nodeQueue = nodeQueue
+        self.nodeQueue = queue.Queue(parallelCount + 1)
 
     def nextRunNode(self):
         node = None
@@ -35,4 +34,4 @@ class PhaseNodeFactory:
         self.nodeQueue.put(runNode)
 
     def localRunNode(self):
-        self.nextNode()
+        self.nextRunNode()

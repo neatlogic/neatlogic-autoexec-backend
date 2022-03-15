@@ -103,7 +103,7 @@ class JobRunner:
                 else:
                     print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile))
 
-    def execOperations(self, phaseName, opsParams, opArgsRefMap, nodesFactory, parallelCount):
+    def execOperations(self, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
         phaseStatus = self.context.phases[phaseName]
         phaseStatus.hasLocal = False
         phaseStatus.hasRemote = False
@@ -114,7 +114,7 @@ class JobRunner:
         operations = []
         # 遍历参数文件中定义的操作，逐个初始化，包括参数处理和准备，以及文件参数相关的文件下载
 
-        for operation in opsParams:
+        for operation in phaseConfig['operations']:
             if 'opt' in operation:
                 opArgsRefMap[operation['opId']] = operation['opt']
             else:
@@ -158,17 +158,21 @@ class JobRunner:
         except:
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName))
             traceback.print_exc()
+            print("\n")
 
         print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
         print("--------------------------------------------------------------\n\n")
 
     def execOneShotGroup(self, phaseGroup, parallelCount, opArgsRefMap):
+        groupId = phaseGroup['groupId']
         lastPhase = None
         # runFlow是一个数组，每个元素是一个phaseGroup
         threads = []
         # 每个group有多个phase，使用线程并发执行
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
+            groupId = phaseConfig['groupId']
+
             if self.context.goToStop == True:
                 break
 
@@ -183,7 +187,7 @@ class JobRunner:
                     serverAdapter.getNodes(phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName)
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName, phaseGroup=groupId)
                 if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount < parallelCount:
                     parallelCount = nodesFactory.nodesCount
 
@@ -201,10 +205,22 @@ class JobRunner:
     def execGrayscaleGroup(self, phaseGroup, parallelCount, opArgsRefMap):
         # runFlow是一个数组，每个元素是一个phaseGroup
         # 启动所有的phase运行的线程，然后分批进行灰度
+        groupId = phaseGroup['groupId']
         phaseNodeFactorys = {}
+
+        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupId)
+        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount <= parallelCount:
+            parallelCount = nodesFactory.nodesCount
+
         threads = []
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
+            # 初始化phase的节点信息
+            self.context.addPhase(phaseName)
+            serverAdapter = self.context.serverAdapter
+            if not self.localDefinedNodes:
+                serverAdapter.getNodes(phaseName=phaseName, phaseGroup=groupId)
+
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
             thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
@@ -212,27 +228,23 @@ class JobRunner:
             thread.name = 'PhaseExecutor-' + phaseName
             threads.append(thread)
 
-        nodesFactory = RunNodeFactory.RunNodeFactory(self.context)
-        if nodesFactory.nodesCount > 0 and nodesFactory.nodesCount <= parallelCount:
-            parallelCount = nodesFactory.nodesCount
-
         maxRoundNo = int(nodesFactory.nodesCount / parallelCount)
         lastRoundCount = nodesFactory.nodesCount % parallelCount
-        if lastRoundCount < parallelCount:
+        if lastRoundCount != 0 and lastRoundCount < parallelCount:
             maxRoundNo = maxRoundNo + 1
 
         firstRound = True
         midRound = False
         lastRound = False
 
-        for roundNo in range(1..maxRoundNo):
+        for roundNo in range(1, maxRoundNo + 1):
             if roundNo >= maxRoundNo / 2:
                 midRound = True
             if roundNo == maxRoundNo:
                 lastRound = True
 
             oneRoundNodes = []
-            for k in range(1, parallelCount):
+            for k in range(1, parallelCount + 1):
                 node = nodesFactory.nextNode()
                 if node is None:
                     break
@@ -288,6 +300,9 @@ class JobRunner:
                 break
             firstRound = False
             midRound = False
+
+        for thread in threads:
+            thread.join()
 
         if not self.context.hasFailNodeInGlobal:
             lastPhase = phaseGroup['phases'][-1]

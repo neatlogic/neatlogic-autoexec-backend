@@ -58,7 +58,7 @@
                         "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "关系计算",
-                                "execRound": "first",
+                                "execRound": "last",
                                 "operations": [{
                                         "output": {},
                                         "opt": {

@@ -18,11 +18,11 @@ import NodeStatus
 
 
 class PhaseWorker(threading.Thread):
-    def __init__(self, context, phaseName, operations, queue):
+    def __init__(self, context, phaseName, operations, execQueue):
         threading.Thread.__init__(self)
         self.phaseName = phaseName
         self.context = context
-        self._queue = queue
+        self._queue = execQueue
         self.operations = operations
         self.currentNode = None
 
@@ -116,10 +116,10 @@ class PhaseExecutor:
         self.execQueue = None
         self.waitInputFlagFilePath = self.context.runPath + '/log/' + self.phaseName + '.waitInput'
 
-    def _buildWorkerPool(self, queue):
+    def _buildWorkerPool(self, execQueue):
         workers = []
         for i in range(self.parallelCount):
-            worker = PhaseWorker(self.context, self.phaseName, self.operations, queue)
+            worker = PhaseWorker(self.context, self.phaseName, self.operations, execQueue)
             worker.start()
             worker.setName('Worker-{}'.format(i))
             workers.append(worker)
@@ -151,7 +151,7 @@ class PhaseExecutor:
                 node = None
                 try:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                    node = nodesFactory.localNode()
+                    node = nodesFactory.localRunNode()
 
                     if self.context.goToStop == False:
                         # 需要执行的节点实例加入等待执行队列

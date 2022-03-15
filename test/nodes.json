@@ -12,4 +12,3 @@
 {"nodeName":"Elasticsearch1","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544689672244,"host":"192.168.0.66","nodeType":"Linux","nodeId":578922995310649,"protocolPort":22,"username":"root"}
 {"nodeName":"prd-gitlab-runner","protocol":"ssh","resourceId":516341538545669,"host":"192.168.0.83","nodeType":"Linux","nodeId":578922995310653,"protocolPort":22,"username":"root"}
 {"nodeName":"dev-env-140","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544723226624,"host":"192.168.1.140","nodeType":"Linux","nodeId":578922995310651,"protocolPort":22,"username":"root"}
-
