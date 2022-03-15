@@ -379,7 +379,7 @@ class RunNode:
                 self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
             if ret == 0:
-                self._removeOpOutput()
+                self._removeOpOutput(op)
 
                 if self.host == 'local':
                     if op.opType == 'local':
