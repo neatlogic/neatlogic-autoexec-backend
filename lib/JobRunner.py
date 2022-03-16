@@ -134,7 +134,7 @@ class JobRunner:
     def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         serverAdapter = self.context.serverAdapter
         phaseStatus = self.context.phases[phaseName]
-        print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
+        #print("INFO: Begin to execute phase:{} operations...\n".format(phaseName))
 
         try:
             self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
@@ -157,8 +157,8 @@ class JobRunner:
             traceback.print_exc()
             print("\n")
 
-        print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-        print("--------------------------------------------------------------\n\n")
+        #print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
+        # print("--------------------------------------------------------------\n\n")
 
     def execOneShotGroup(self, phaseGroup, parallelCount, opArgsRefMap):
         groupId = phaseGroup['groupId']
@@ -196,6 +196,12 @@ class JobRunner:
         for thread in threads:
             thread.join()
 
+        for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
+            phaseStatus = self.context.phases[phaseName]
+            print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
+            print("--------------------------------------------------------------\n\n")
+
         return lastPhase
 
     def execGrayscaleGroup(self, phaseGroup, parallelCount, opArgsRefMap):
@@ -215,13 +221,19 @@ class JobRunner:
             self.context.addPhase(phaseName)
 
             phaseStatus = self.context.phases[phaseName]
-            for operation in phaseConfig['operations']:
-                # 如果有本地操作，则在context中进行标记
-                opType = operation['opType']
-                if opType in ('local', 'runner'):
+            if 'phaseType' in phaseConfig:
+                if phaseConfig['phaseType'] in ('local', 'runner'):
                     phaseStatus.hasLocal = True
                 else:
                     phaseStatus.hasRemote = True
+            else:
+                for operation in phaseConfig['operations']:
+                    # 如果有本地操作，则在context中进行标记
+                    opType = operation['opType']
+                    if opType in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
 
             serverAdapter = self.context.serverAdapter
             if not self.localDefinedNodes:
@@ -266,6 +278,7 @@ class JobRunner:
 
                 phaseName = phaseConfig['phaseName']
                 phaseStatus = self.context.phases[phaseName]
+                phaseStatus.clearFinEvent()
 
                 execRound = 'first'
                 if 'execRound' in phaseConfig:
@@ -303,6 +316,9 @@ class JobRunner:
 
                 while not self.context.goToStop:
                     if phaseStatus.waitRoundFin(3):
+                        if lastRound:
+                            print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
+                            print("--------------------------------------------------------------\n\n")
                         break
 
                 if self.context.hasFailNodeInGlobal:

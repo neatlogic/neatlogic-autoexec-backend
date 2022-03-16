@@ -116,6 +116,7 @@ class PhaseExecutor:
         self.workers = []
         self.parallelCount = parallelCount
         self.execQueue = None
+        self.isRunning = False
         self.waitInputFlagFilePath = self.context.runPath + '/log/' + self.phaseName + '.waitInput'
 
     def _buildWorkerPool(self, execQueue):
@@ -156,6 +157,10 @@ class PhaseExecutor:
                     node = nodesFactory.localRunNode()
 
                     if self.context.goToStop == False:
+                        if not self.isRunning:
+                            self.isRunning = True
+                            print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName))
+
                         # 需要执行的节点实例加入等待执行队列
                         execQueue.put(node)
                 except Exception as ex:
@@ -182,6 +187,10 @@ class PhaseExecutor:
                             break
 
                         if self.context.goToStop == False:
+                            if not self.isRunning:
+                                self.isRunning = True
+                                print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName))
+
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
                     except Exception as ex:
@@ -205,16 +214,12 @@ class PhaseExecutor:
                 execQueue.put(None)
 
             # 等待所有worker线程退出
-            # for worker in worker_threads:
-            #    worker.join()
             while len(worker_threads) > 0:
                 worker = worker_threads[-1]
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
 
-            # if phaseStatus.hasRemote:
-            #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
         return phaseStatus.failNodeCount
 
     def informNodeWaitInput(self, nodeId, interact=None):

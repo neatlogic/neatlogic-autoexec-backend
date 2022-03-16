@@ -41,6 +41,9 @@ class PhaseStatus:
     def setFinEvent(self):
         self.nodeFinEvent.set()
 
+    def clearFinEvent(self):
+        self.nodeFinEvent.clear()
+
     def waitRoundFin(self, timeOut=86400):
         execNodeCount = 0
         with self.couterLock:

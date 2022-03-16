@@ -6,52 +6,72 @@
                         "groupId": 1,
                         "execStrategy": "oneShot",
                         "phases": [{
-                                "phaseName": "收集信息",
-                                "execRound": "first",
-                                "operations": [{
+                                        "phaseName": "收集信息",
+                                        "execRound": "first",
+                                        "operations": [{
+                                                        "output": {},
+                                                        "opt": {
+                                                                "mssqlaccount": "",
+                                                                "mongoaccount": "",
+                                                                "debug": "0",
+                                                                "defaultpassconf": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
+                                                                "inspect": "0",
+                                                                "mysqlaccount": "",
+                                                                "pgaccount": "",
+                                                                "class": "",
+                                                                "verbose": "0"
+                                                        },
+                                                        "opName": "cmdbcollect/oscollector",
+                                                        "opType": "target",
+                                                        "isScript": 0,
+                                                        "opId": "cmdbcollect/oscollector_575071089123392",
+                                                        "interpreter": "perl",
+                                                        "failIgnore": 1,
+                                                        "desc": {
+                                                                "mssqlaccount": "account",
+                                                                "mongoaccount": "account",
+                                                                "debug": "select",
+                                                                "defaultpassconf": "text",
+                                                                "inspect": "select",
+                                                                "mysqlaccount": "account",
+                                                                "pgaccount": "account",
+                                                                "class": "text",
+                                                                "verbose": "select"
+                                                        }
+                                                },
+                                                {
+                                                        "output": {},
+                                                        "opt": {},
+                                                        "opName": "cmdbcollect/savedata",
+                                                        "opType": "runner_target",
+                                                        "isScript": 0,
+                                                        "opId": "cmdbcollect/savedata_575071089123393",
+                                                        "interpreter": "python",
+                                                        "failIgnore": 1,
+                                                        "desc": {}
+                                                }
+                                        ]
+                                },
+                                {
+                                        "phaseName": "关系计算0",
+                                        "execRound": "last",
+                                        "operations": [{
                                                 "output": {},
                                                 "opt": {
-                                                        "mssqlaccount": "",
-                                                        "mongoaccount": "",
-                                                        "debug": "0",
-                                                        "defaultpassconf": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
-                                                        "inspect": "0",
-                                                        "mysqlaccount": "",
-                                                        "pgaccount": "",
-                                                        "class": "",
-                                                        "verbose": "0"
+                                                        "type": "OS"
                                                 },
-                                                "opName": "cmdbcollect/oscollector",
-                                                "opType": "target",
+                                                "opName": "cmdbcollect/backfillrel",
+                                                "opType": "runner",
                                                 "isScript": 0,
-                                                "opId": "cmdbcollect/oscollector_575071089123392",
-                                                "interpreter": "perl",
-                                                "failIgnore": 1,
-                                                "desc": {
-                                                        "mssqlaccount": "account",
-                                                        "mongoaccount": "account",
-                                                        "debug": "select",
-                                                        "defaultpassconf": "text",
-                                                        "inspect": "select",
-                                                        "mysqlaccount": "account",
-                                                        "pgaccount": "account",
-                                                        "class": "text",
-                                                        "verbose": "select"
-                                                }
-                                        },
-                                        {
-                                                "output": {},
-                                                "opt": {},
-                                                "opName": "cmdbcollect/savedata",
-                                                "opType": "runner_target",
-                                                "isScript": 0,
-                                                "opId": "cmdbcollect/savedata_575071089123393",
+                                                "opId": "cmdbcollect/backfillrel_575071089123396",
                                                 "interpreter": "python",
                                                 "failIgnore": 1,
-                                                "desc": {}
-                                        }
-                                ]
-                        }]
+                                                "desc": {
+                                                        "type": "select"
+                                                }
+                                        }]
+                                }
+                        ]
                 },
                 {
                         "groupId": 2,
@@ -69,7 +89,7 @@
                                         "isScript": 0,
                                         "opId": "cmdbcollect/backfillrel_575071089123396",
                                         "interpreter": "python",
-                                        "failIgnore": 0,
+                                        "failIgnore": 1,
                                         "desc": {
                                                 "type": "select"
                                         }
