@@ -848,6 +848,10 @@ class RunNode:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
+                if scp is not None:
+                    scp.close()
+                if sftp is not None:
+                    sftp.close()
 
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")

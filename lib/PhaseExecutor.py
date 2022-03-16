@@ -36,10 +36,12 @@ class PhaseWorker(threading.Thread):
                 print("WARN: Task last for 24 hours, it's too long, exit.\n")
                 break
 
+            phaseStatus = self.context.phases[self.phaseName]
             if node is None:
+                phaseStatus.setFinEvent()
+
                 break
             self.currentNode = node
-            phaseStatus = self.context.phases[self.phaseName]
 
             nodeStatus = node.getNodeStatus()
             if nodeStatus == NodeStatus.succeed:

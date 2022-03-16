@@ -190,3 +190,7 @@ class Context(VContext.VContext):
             phase = PhaseStatus.PhaseStatus(phaseName)
             phase.nodesFilePath = self.getNodesFilePath()
             self.phases[phaseName] = phase
+
+    def close(self):
+        if self.dbclient:
+            self.dbclient.close()

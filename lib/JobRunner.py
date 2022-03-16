@@ -105,9 +105,6 @@ class JobRunner:
 
     def execOperations(self, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
         phaseStatus = self.context.phases[phaseName]
-        phaseStatus.hasLocal = False
-        phaseStatus.hasRemote = False
-
         self.context.initDB(parallelCount)
         self.context.loadEnv()
 
@@ -171,7 +168,6 @@ class JobRunner:
         # 每个group有多个phase，使用线程并发执行
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
-            groupId = phaseConfig['groupId']
 
             if self.context.goToStop == True:
                 break
@@ -217,6 +213,16 @@ class JobRunner:
             phaseName = phaseConfig['phaseName']
             # 初始化phase的节点信息
             self.context.addPhase(phaseName)
+
+            phaseStatus = self.context.phases[phaseName]
+            for operation in phaseConfig['operations']:
+                # 如果有本地操作，则在context中进行标记
+                opType = operation['opType']
+                if opType in ('local', 'runner'):
+                    phaseStatus.hasLocal = True
+                else:
+                    phaseStatus.hasRemote = True
+
             serverAdapter = self.context.serverAdapter
             if not self.localDefinedNodes:
                 serverAdapter.getNodes(phaseName=phaseName, phaseGroup=groupId)
@@ -238,6 +244,9 @@ class JobRunner:
         lastRound = False
 
         for roundNo in range(1, maxRoundNo + 1):
+            if self.context.goToStop:
+                break
+
             if roundNo >= maxRoundNo / 2:
                 midRound = True
             if roundNo == maxRoundNo:
@@ -252,6 +261,9 @@ class JobRunner:
 
             lastPhase = None
             for phaseConfig in phaseGroup['phases']:
+                if self.context.goToStop:
+                    break
+
                 phaseName = phaseConfig['phaseName']
                 phaseStatus = self.context.phases[phaseName]
 
@@ -270,14 +282,16 @@ class JobRunner:
 
                     if needExecute:
                         # Local执行的phase，直接把localNode put到队列
-                        phaseStatus.initRoundCounter(1)
+                        phaseStatus.incRoundCounter(1)
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
                             localRunNode = RunNode.RunNode(self.context, phaseName, localNode)
-                            phaseNodeFactory.putRunNode(localRunNode)
-                else:
-                    phaseStatus.initRoundCounter(len(oneRoundNodes))
+                            phaseNodeFactory.putLocalRunNode(localRunNode)
+                            phaseNodeFactory.putLocalRunNode(None)
+
+                elif phaseStatus.hasRemote:
+                    phaseStatus.incRoundCounter(len(oneRoundNodes))
 
                     phaseNodeFactory = phaseNodeFactorys[phaseName]
                     for node in oneRoundNodes:
@@ -287,11 +301,10 @@ class JobRunner:
                         runNode = RunNode.RunNode(self.context, phaseName, node)
                         phaseNodeFactory.putRunNode(runNode)
 
-                    # 最后一个批次，往队列中put None通知PhaseExecutor节点执行结束
-                    if lastRound:
-                        phaseNodeFactory.putRunNode(None)
+                while not self.context.goToStop:
+                    if phaseStatus.waitRoundFin(3):
+                        break
 
-                phaseStatus.waitRoundFin()
                 if self.context.hasFailNodeInGlobal:
                     self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
                     break
@@ -300,6 +313,12 @@ class JobRunner:
                 break
             firstRound = False
             midRound = False
+
+        # 给各个phase的node factory发送None节点，通知线程任务完成
+        for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
+            phaseNodeFactory = phaseNodeFactorys[phaseName]
+            phaseNodeFactory.putRunNode(None)
 
         for thread in threads:
             thread.join()
@@ -321,7 +340,7 @@ class JobRunner:
         opArgsRefMap = {}
         lastPhase = None
         if 'runFlow' in params:
-            #groupId = 1
+            # groupId = 1
             for phaseGroup in params['runFlow']:
                 groupId = phaseGroup['groupId']
                 if self.context.goToStop == True:
@@ -329,7 +348,7 @@ class JobRunner:
 
                 if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
                     continue
-                #groupId = groupId + 1
+                # groupId = groupId + 1
                 if 'execStrategy' in phaseGroup and phaseGroup['execStrategy'] == 'grayScale':
                     groupLastPhase = self.execGrayscaleGroup(phaseGroup, parallelCount, opArgsRefMap)
                 else:
@@ -350,6 +369,7 @@ class JobRunner:
                 self.context.serverAdapter.fireNextPhase(lastPhase)
 
         self.context.goToStop = True
+        self.context.close()
         return status
 
     def stopListen(self):
@@ -364,6 +384,7 @@ class JobRunner:
     def kill(self):
         self.context.goToStop = True
         self.stopListen()
+        self.context.close()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             phaseStatus.isAborting = 1

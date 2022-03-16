@@ -42,7 +42,7 @@ class RunNodeFactory:
     def localRunNode(self):
         localNode = self.localNode()
         localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
-        return localNode
+        return localRunNode
 
     def nextRunNode(self):
         runNode = None
