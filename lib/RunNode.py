@@ -380,8 +380,6 @@ class RunNode:
                 self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
             if ret == 0:
-                self._removeOpOutput(op)
-
                 if self.host == 'local':
                     if op.opType == 'local':
                         # 本地执行
@@ -409,6 +407,7 @@ class RunNode:
 
             timeConsume = time.time() - startTime
             if ret != 0:
+                self._removeOpOutput(op)
                 self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
             else:
                 self._loadOpOutput(op)
