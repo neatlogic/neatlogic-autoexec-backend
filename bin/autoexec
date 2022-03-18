@@ -42,9 +42,9 @@ class ConsoleLog(io.TextIOWrapper):
 
         for line in text.splitlines(True):
             if isTTY:
-                sys.__stdout__.write(line + "\n")
+                sys.__stdout__.write(line)
 
-            super().write(Utils.getTimeStr() + line + "\n")
+            super().write(Utils.getTimeStr() + line)
             super().flush()
 
 
