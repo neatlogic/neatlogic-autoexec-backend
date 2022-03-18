@@ -341,6 +341,7 @@ class JobRunner:
 
         if not self.context.hasFailNodeInGlobal:
             lastPhase = phaseGroup['phases'][-1]
+
         return lastPhase
 
     def execute(self):
@@ -355,8 +356,8 @@ class JobRunner:
 
         opArgsRefMap = {}
         lastPhase = None
+        groupLastPhase = None
         if 'runFlow' in params:
-            # groupId = 1
             for phaseGroup in params['runFlow']:
                 groupId = phaseGroup['groupId']
                 if self.context.goToStop == True:
@@ -364,7 +365,8 @@ class JobRunner:
 
                 if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
                     continue
-                # groupId = groupId + 1
+
+                groupLastPhase = None
                 if 'execStrategy' in phaseGroup and phaseGroup['execStrategy'] == 'grayScale':
                     groupLastPhase = self.execGrayscaleGroup(phaseGroup, parallelCount, opArgsRefMap)
                 else:
