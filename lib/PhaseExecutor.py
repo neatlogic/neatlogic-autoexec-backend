@@ -33,7 +33,7 @@ class PhaseWorker(threading.Thread):
             try:
                 node = self._queue.get(timeout=86400)
             except Exception as ex:
-                print("WARN: Task last for 24 hours, it's too long, exit.\n")
+                print("WARN: Task last for 24 hours, it's too long, exit.")
                 break
 
             phaseStatus = self.context.phases[self.phaseName]
@@ -47,7 +47,7 @@ class PhaseWorker(threading.Thread):
             if nodeStatus == NodeStatus.succeed:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
-                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.".format(node.resourceId, nodeStatus, node.host, node.port))
                 try:
                     self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
                 except Exception as ex:
@@ -55,13 +55,13 @@ class PhaseWorker(threading.Thread):
                 continue
             elif nodeStatus == NodeStatus.running:
                 if node.ensureNodeIsRunning():
-                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.".format(node.resourceId, nodeStatus, node.host, node.port))
                     phaseStatus.incFailNodeCount()
                     continue
                 elif self.context.goToStop == False:
-                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                    print("INFO: Node({}) status:{} {}:{} try to execute again...".format(node.resourceId, nodeStatus, node.host, node.port))
             elif self.context.goToStop == False:
-                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                print("INFO: Node({}) status:{} {}:{} execute begin...".format(node.resourceId, nodeStatus, node.host, node.port))
 
             # 运行完所有操作
             localOps = []
@@ -75,17 +75,17 @@ class PhaseWorker(threading.Thread):
             except Exception as ex:
                 if opsStatus is None:
                     opsStatus = NodeStatus.failed
-                print("ERROR: Unknow error occurred.{}\m{}\n".format(str(ex), traceback.format_exc))
+                print("ERROR: Unknow error occurred.{}\n{}\n".format(str(ex), traceback.format_exc))
 
             if opsStatus == NodeStatus.ignored:
                 phaseStatus.incIgnoreFailNodeCount()
-                print("WARN: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
+                print("WARN: Node({}) {}:{} execute failed, ignore.".format(node.resourceId, node.host, node.port))
             elif opsStatus == NodeStatus.succeed:
                 phaseStatus.incSucNodeCount()
-                print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port))
+                print("INFO: Node({}) {}:{} execute succeed.".format(node.resourceId, node.host, node.port))
             else:
                 phaseStatus.incFailNodeCount()
-                print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
+                print("ERROR: Node({}) {}:{} execute failed.".format(node.resourceId, node.host, node.port))
 
     def informNodeWaitInput(self, nodeId, interact=None):
         currentNode = self.currentNode
@@ -159,7 +159,7 @@ class PhaseExecutor:
                     if self.context.goToStop == False:
                         if not self.isRunning:
                             self.isRunning = True
-                            print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName))
+                            print("INFO: Begin to execute phase:{} operations...".format(self.phaseName))
 
                         # 需要执行的节点实例加入等待执行队列
                         execQueue.put(node)
@@ -189,7 +189,7 @@ class PhaseExecutor:
                         if self.context.goToStop == False:
                             if not self.isRunning:
                                 self.isRunning = True
-                                print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName))
+                                print("INFO: Begin to execute phase:{} operations...".format(self.phaseName))
 
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
@@ -229,7 +229,7 @@ class PhaseExecutor:
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-            print("INFO: Update runner node status to waitInput succeed.\n")
+            print("INFO: Update runner node status to waitInput succeed.")
 
     def pause(self):
         self.context.goToStop = True
@@ -250,12 +250,12 @@ class PhaseExecutor:
                 pauseWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to pause woker\n")
+                print("ERROR: unable to start thread to pause woker.")
 
         for t in pauseWorkers:
             t.join()
 
-        print("INFO: Try to pause job complete.\n")
+        print("INFO: Try to pause job complete.")
 
     def kill(self):
         self.context.goToStop = True
@@ -276,9 +276,9 @@ class PhaseExecutor:
                 killWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to kill woker\n")
+                print("ERROR: unable to start thread to kill woker.")
 
         for t in killWorkers:
             t.join()
 
-        print("INFO: Try to kill job complete.\n")
+        print("INFO: Try to kill job complete.")

@@ -52,7 +52,7 @@ class Context(VContext.VContext):
                     if self.paramsFilePath != os.path.realpath(paramsFile):
                         copyfile(paramsFile, self.paramsFilePath)
                 else:
-                    print("ERROR: Params file:{} not exists.\n".format(paramsFile))
+                    print("ERROR: Params file:{} not exists.".format(paramsFile))
 
         if paramsLoaded == False:
             # 加载运行参数文件
@@ -61,7 +61,7 @@ class Context(VContext.VContext):
                 fd = open(self.paramsFilePath, 'r')
                 self.params = json.loads(fd.read())
             except ex:
-                print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex))
+                print('ERROR: Load params from file {} failed.\n{}'.format(self.paramsFilePath, ex))
             finally:
                 if fd is not None:
                     fd.close()
