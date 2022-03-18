@@ -198,6 +198,9 @@ class JobRunner:
 
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
+            if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
+                continue
+
             phaseStatus = self.context.phases[phaseName]
             print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
             print("--------------------------------------------------------------\n\n")

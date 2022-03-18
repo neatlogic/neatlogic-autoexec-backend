@@ -36,6 +36,7 @@ class ConsoleLog(io.TextIOWrapper):
             text = text.decode(encoding)
 
         if text == "\n":
+            super().write(Utils.getTimeStr() + "\n")
             return
 
         isTTY = sys.__stdout__.isatty()
