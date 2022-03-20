@@ -31,12 +31,16 @@ import JobPurger
 
 
 class ConsoleLog(io.TextIOWrapper):
+    def __init__(self, consoleLogFile):
+        super().__init__(consoleLogFile)
+        self.preLineEnded = True
+
     def write(self, text, encoding=sys.getdefaultencoding()):
         if isinstance(text, bytes):
             text = text.decode(encoding)
 
-        if text == "\n":
-            return
+        # if text == "\n":
+        #    return
 
         isTTY = sys.__stdout__.isatty()
 
@@ -44,8 +48,14 @@ class ConsoleLog(io.TextIOWrapper):
             if isTTY:
                 sys.__stdout__.write(line)
 
-            super().write(Utils.getTimeStr() + line)
+            if self.preLineEnded:
+                super().write(Utils.getTimeStr() + line)
+            else:
+                super().write(line)
+
             super().flush()
+
+            self.preLineEnded = line.endswith("\n")
 
 
 def threadDump(signum, frame):

@@ -9,7 +9,7 @@ import threading
 
 class PhaseStatus:
     def __init__(self, phaseName):
-        super().__init__()
+        # super().__init__()
         self.phaseName = phaseName
         # 用于标记当前phase是否有local或remote的工具
         self.hasLocal = False
