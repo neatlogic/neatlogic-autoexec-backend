@@ -2,12 +2,11 @@
     "label": "Cluster",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
-    "collection_label": "Cluster",
+    "collection_label": "App Cluster",
     "filter": {
         "_OBJ_TYPE": "LoadBlancer-VS"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -71,8 +70,7 @@
             "name": "MEMBERS",
             "desc": "Members",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
