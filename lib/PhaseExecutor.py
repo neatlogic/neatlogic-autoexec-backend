@@ -157,8 +157,10 @@ class PhaseExecutor:
                     node = nodesFactory.localRunNode()
 
                     # 如果node是None，代表local的操作不是在当前runner执行
-                    if node is not None and self.context.goToStop == False:
-                        if not self.isRunning:
+                    if self.context.goToStop == False:
+                        if node is None:
+                            print("INFO: Local phase:{} is no need to execute in current runner.\n".format(self.phaseName))
+                        elif not self.isRunning:
                             self.isRunning = True
                             print("INFO: Begin to execute phase:{} operations...".format(self.phaseName))
 

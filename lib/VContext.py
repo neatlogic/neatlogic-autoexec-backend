@@ -25,13 +25,15 @@ class VContext:
             self.execUser = execUser
 
         self.params = {}
-        self.parallelCount = 25
+        #self.roundCount = 0
+        #self.parallelCount = 25
         self.runnerId = 1
         self.tenant = ''
         self.phases = {}
         self.opt = {}
         #self.arg = []
         #self.output = {}
+        self.maxExecSecs = 86400
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath
@@ -68,6 +70,10 @@ class VContext:
         cfgPath = homePath + '/conf/config.ini'
         cfg = configparser.ConfigParser()
         cfg.read(cfgPath)
+
+        maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
+        if maxExecSecs:
+            self.maxExecSecs = maxExecSecs
 
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')

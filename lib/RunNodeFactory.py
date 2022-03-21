@@ -30,11 +30,14 @@ class RunNodeFactory:
         # self.nodesFile.seek(0)
         self.nodesCount = 0
         self.localRunnerId = 1
+        self.jobRunnerIds = []
+        self.jobRunnerCount = 0
         try:
             nodesDescObj = json.loads(line)
-            if 'totalCount' in nodesDescObj:
-                self.nodesCount = int(nodesDescObj['totalCount'])
-                self.localRunnerId = nodesDescObj['localRunnerId']
+            self.nodesCount = int(nodesDescObj['totalCount'])
+            self.localRunnerId = nodesDescObj['localRunnerId']
+            self.jobRunnerIds = nodesDescObj['jobRunnerIds']
+            self.jobRunnerCount = len(self.jobRunnerIds)
         except:
             pass
 
@@ -44,24 +47,26 @@ class RunNodeFactory:
 
     def localRunNode(self):
         localRunNode = None
-        if self.context.runnerId == self.localRunnerId:
-            # 如果当前runner是指定运行local阶段的runner
-            localNode = self.localNode()
+        localNode = self.localNode()
+        if localNode is not None:
             localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
         return localRunNode
 
     def nextRunNode(self):
         runNode = None
-        nodeObj = self.nextNode()
+        nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         return runNode
 
     def localNode(self):
-        localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+        localNode = None
+        if self.context.runnerId == self.localRunnerId:
+            # 如果当前runner是指定运行local阶段的runner
+            localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
         return localNode
 
-    def nextNode(self):
+    def nextNode(self, runnerId=None):
         nodeObj = None
         line = None
         # 略掉空行
@@ -77,7 +82,8 @@ class RunNodeFactory:
                         break
                 else:
                     nodeObj = json.loads(line)
-                    break
+                    if runnerId is not None and nodeObj['runnerId'] == runnerId:
+                        break
 
         if line:
             if 'password' in nodeObj:
