@@ -156,7 +156,8 @@ class PhaseExecutor:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
                     node = nodesFactory.localRunNode()
 
-                    if self.context.goToStop == False:
+                    # 如果node是None，代表local的操作不是在当前runner执行
+                    if node is not None and self.context.goToStop == False:
                         if not self.isRunning:
                             self.isRunning = True
                             print("INFO: Begin to execute phase:{} operations...".format(self.phaseName))

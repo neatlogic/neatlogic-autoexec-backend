@@ -52,6 +52,9 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                         for phaseStatus in self.context.phases.values():
                             if phaseStatus.executor is not None:
                                 phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
+                    elif actionData['action'] == 'roundContinue':
+                        # TODO: notify job round wait
+                        pass
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
                         break

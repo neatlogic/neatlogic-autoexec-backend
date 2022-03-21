@@ -25,13 +25,16 @@ class RunNodeFactory:
                 nodesFilePath = context.getNodesFilePath()
         self.nodesFile = open(nodesFilePath)
 
+        # 第一行是节点运行描述信息，包括节点总数，local运行节点ID等信息
         line = self.nodesFile.readline()
-        self.nodesFile.seek(0)
+        # self.nodesFile.seek(0)
         self.nodesCount = 0
+        self.localRunnerId = 1
         try:
             nodesDescObj = json.loads(line)
             if 'totalCount' in nodesDescObj:
                 self.nodesCount = int(nodesDescObj['totalCount'])
+                self.localRunnerId = nodesDescObj['localRunnerId']
         except:
             pass
 
@@ -40,8 +43,11 @@ class RunNodeFactory:
             self.nodesFile.close()
 
     def localRunNode(self):
-        localNode = self.localNode()
-        localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+        localRunNode = None
+        if self.context.runnerId == self.localRunnerId:
+            # 如果当前runner是指定运行local阶段的runner
+            localNode = self.localNode()
+            localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
         return localRunNode
 
     def nextRunNode(self):

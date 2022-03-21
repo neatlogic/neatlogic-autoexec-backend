@@ -26,6 +26,7 @@ class VContext:
 
         self.params = {}
         self.parallelCount = 25
+        self.runnerId = 1
         self.tenant = ''
         self.phases = {}
         self.opt = {}
@@ -45,9 +46,17 @@ class VContext:
         homePath = os.path.realpath(homePath + '/..')
         self.homePath = homePath
 
-        self.tenant = os.getenv('tenant')
-        if not self.tenant or self.tenant == '':
-            self.tenant = os.getenv('TENANT')
+        if 'tenant' in passThroughEnv:
+            self.tenant = passThroughEnv['tenant']
+        else:
+            self.tenant = os.getenv('tenant')
+            if not self.tenant or self.tenant == '':
+                self.tenant = os.getenv('TENANT')
+
+        if 'runnerId' in passThroughEnv:
+            self.runnerId = passThroughEnv['runnerId']
+        else:
+            self.runnerId = os.getenv('RUNNER_ID')
 
         # 存放执行数据以及日志的根目录
         if (dataPath == None):
