@@ -1,10 +1,10 @@
 {
         "jobId": 575071089123340,
         "opt": {},
-        "parallel": 1,
+        "roundCount": 2,
         "runFlow": [{
                         "groupId": 1,
-                        "execStrategy": "oneShot",
+                        "execStrategy": "grayScale",
                         "phases": [{
                                         "phaseName": "收集信息",
                                         "execRound": "first",
@@ -75,7 +75,7 @@
                 },
                 {
                         "groupId": 2,
-                        "execStrategy": "oneShot",
+                        "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "关系计算",
                                 "execRound": "last",

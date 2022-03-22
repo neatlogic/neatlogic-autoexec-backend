@@ -56,9 +56,9 @@ class VContext:
                 self.tenant = os.getenv('TENANT')
 
         if 'runnerId' in passThroughEnv:
-            self.runnerId = passThroughEnv['runnerId']
+            self.runnerId = int(passThroughEnv['runnerId'])
         else:
-            self.runnerId = os.getenv('RUNNER_ID')
+            self.runnerId = int(os.getenv('RUNNER_ID'))
 
         # 存放执行数据以及日志的根目录
         if (dataPath == None):
@@ -73,7 +73,7 @@ class VContext:
 
         maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
         if maxExecSecs:
-            self.maxExecSecs = maxExecSecs
+            self.maxExecSecs = int(maxExecSecs)
 
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')

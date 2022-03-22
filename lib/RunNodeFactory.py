@@ -70,20 +70,26 @@ class RunNodeFactory:
         nodeObj = None
         line = None
         # 略掉空行
-        while True:
+        while self.nodesFile is not None:
             line = self.nodesFile.readline()
             if not line:
                 break
             if line.strip() != '':
-                # break
-                if self.context.nodesToRun is not None:
+                if runnerId is None:
                     nodeObj = json.loads(line)
-                    if nodeObj['nodeId'] in self.context.nodesToRun:
+                    if self.context.nodesToRun is not None:
+                        if nodeObj['nodeId'] in self.context.nodesToRun:
+                            break
+                    else:
                         break
                 else:
                     nodeObj = json.loads(line)
-                    if runnerId is not None and nodeObj['runnerId'] == runnerId:
-                        break
+                    if nodeObj['runnerId'] == runnerId:
+                        if self.context.nodesToRun is not None:
+                            if nodeObj['nodeId'] in self.context.nodesToRun:
+                                break
+                        else:
+                            break
 
         if line:
             if 'password' in nodeObj:
@@ -101,6 +107,8 @@ class RunNodeFactory:
                 if 'port' in nodeObj:
                     nodeObj['protocolPort'] = nodeObj['port']
         else:
-            self.nodesFile.close()
+            if self.nodesFile is not None:
+                self.nodesFile.close()
+            self.nodesFile = None
 
         return nodeObj

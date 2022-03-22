@@ -38,6 +38,7 @@ class ServerAdapter:
             'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/round/nextphase/fire',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
@@ -293,6 +294,29 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise
+
+    # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def informRoundEnded(self, groupNo, phaseName, roundNo):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
+            'groupNo': groupNo,
+            'phase': phaseName,
+            'roundNo': roundNo,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['informRoundEnded'], self.authToken, params)
 
         try:
             charset = response.info().get_content_charset()
