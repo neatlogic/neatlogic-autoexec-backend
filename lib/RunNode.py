@@ -517,7 +517,7 @@ class RunNode:
                 self.writeNodeLog(traceback.format_exc())
                 self.writeNodeLog("\n")
             except Exception as ex:
-                print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()))
+                print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()), end='')
 
         self.killCmd = None
         self.childPid = None

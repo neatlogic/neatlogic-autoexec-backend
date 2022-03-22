@@ -41,7 +41,7 @@ class JobPurger:
                         if self.nowTime - jobMtime > self.reserveSeconds:
                             shutil.rmtree(jobIdPath)
                             self.purgeEmptyJobDir(jobIdPath)
-                            print("INFO: Remove job dictory:", jobIdPath)
+                            print("INFO: Remove job dictory:" + jobIdPath + "\n", end='')
 
     def delExpiredLog(self, hislogRoot):
         for item in os.scandir(hislogRoot):
@@ -49,7 +49,7 @@ class JobPurger:
                 fileMtime = os.stat(item.path).st_mtime
                 if self.nowTime - fileMtime > self.reserveSeconds:
                     os.unlink(item.path)
-                    print("INFO: Remove expired history log:", item.path)
+                    print("INFO: Remove expired history log:" + item.path + "\n", end='')
 
     def purgeHisLog(self, absRoot):
         for item in os.scandir(absRoot):

@@ -152,7 +152,7 @@ class Operation:
         if self.node:
             self.node.writeNodeLog(msg)
         else:
-            print(msg)
+            print(msg, end='')
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None, resourceId=None, host=None, port=None):

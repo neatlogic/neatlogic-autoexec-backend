@@ -59,7 +59,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                         self.server.shutdown()
                         break
             except Exception as ex:
-                print('ERROR: Inform node status to waitInput failed, {}\n{}'.format(actionData, ex))
+                print('ERROR: Inform node status to waitInput failed, {}\n{}\n'.format(actionData, ex), end='')
 
     def stop(self):
         self.goToStop = True
@@ -104,7 +104,7 @@ class JobRunner:
                     if dstPath != os.path.realpath(nodesFile):
                         shutil.copyfile(nodesFile, dstPath)
                 else:
-                    print("ERROR: Nodes file directory:{} not exists.".format(nodesFile))
+                    print("ERROR: Nodes file directory:{} not exists.\n".format(nodesFile), end='')
 
     def getParallelCount(self, totalNodeCount, roundCount):
         if roundCount <= 0:
@@ -169,7 +169,6 @@ class JobRunner:
     def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         serverAdapter = self.context.serverAdapter
         phaseStatus = self.context.phases[phaseName]
-        #print("INFO: Begin to execute phase:{} operations...".format(phaseName))
 
         try:
             self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
@@ -188,12 +187,9 @@ class JobRunner:
                     failStatus = NodeStatus.paused
                 self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
         except:
-            print("ERROR: Execute phase:{} with unexpected exception.".format(phaseName))
+            print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end='')
             traceback.print_exc()
-            print("\n")
-
-        #print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-        # print("--------------------------------------------------------------\n")
+            print("\n", end='')
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
         groupId = phaseGroup['groupId']
@@ -236,8 +232,8 @@ class JobRunner:
                 continue
 
             phaseStatus = self.context.phases[phaseName]
-            print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-            print("--------------------------------------------------------------\n")
+            print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
+            print("--------------------------------------------------------------\n\n", end='')
 
         return lastPhase
 
@@ -358,10 +354,10 @@ class JobRunner:
 
                 if loopCount <= 0:
                     self.context.hasFailNodeInGlobal = True
-                    print("ERROR: Job last more than max execute seconds:{}, exit.".format(self.context.maxExecSecs))
+                    print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end='')
                     break
                 elif lastRound:
-                    print("INFO: Execute phase:{} in current runner finished, wait other runner...".format(phaseName))
+                    print("INFO: Execute phase:{} in current runner finished, wait other runner...\n".format(phaseName), end='')
 
                 if self.context.hasFailNodeInGlobal:
                     self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
@@ -377,12 +373,12 @@ class JobRunner:
 
                     if loopCount <= 0:
                         self.context.hasFailNodeInGlobal = True
-                        print("ERROR: Job last more than max execute seconds:{}, exit.".format(self.context.maxExecSecs))
+                        print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end='')
                         break
 
                 if lastRound:
-                    print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount))
-                    print("--------------------------------------------------------------\n")
+                    print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
+                    print("--------------------------------------------------------------\n\n")
 
             if lastRound or self.context.hasFailNodeInGlobal:
                 break

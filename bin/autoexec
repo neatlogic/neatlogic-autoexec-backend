@@ -39,9 +39,6 @@ class ConsoleLog(io.TextIOWrapper):
         if isinstance(text, bytes):
             text = text.decode(encoding)
 
-        # if text == "\n":
-        #    return
-
         isTTY = sys.__stdout__.isatty()
 
         for line in text.splitlines(True):
