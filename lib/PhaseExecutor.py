@@ -31,7 +31,7 @@ class PhaseWorker(threading.Thread):
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
             node = None
             try:
-                node = self._queue.get(timeout=86400)
+                node = self._queue.get(timeout=self.context.maxExecSecs)
             except Exception as ex:
                 print("WARN: Task last for 24 hours, it's too long, exit.\n", end='')
                 break

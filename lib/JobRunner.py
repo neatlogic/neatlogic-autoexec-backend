@@ -52,7 +52,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                         for phaseStatus in self.context.phases.values():
                             if phaseStatus.executor is not None:
                                 phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
-                    elif actionData['action'] == 'roundContinue':
+                    elif actionData['action'] == 'informRoundContinue':
                         for phaseName, phaseStatus in self.context.phases.items():
                             phaseStatus.setGlobalRoundFinEvent()
                     elif actionData['action'] == 'exit':
