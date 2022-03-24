@@ -284,14 +284,14 @@ class ServerAdapter:
             raise
 
     # 通知后端进行下一个组的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
-    def fireNextGroup(self, nextGroupNo, lastPhase):
+    def fireNextGroup(self, groupNo):
         if self.context.devMode:
             return {}
 
         params = {
             'jobId': self.context.jobId,
-            'nextGroupNo': nextGroupNo,
-            'lastPhase': lastPhase,
+            'runnerId': self.context.runnerId,
+            'groupNo': groupNo,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
@@ -311,6 +311,7 @@ class ServerAdapter:
 
         params = {
             'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
             'lastPhase': lastPhase,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv

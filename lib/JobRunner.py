@@ -444,7 +444,7 @@ class JobRunner:
         elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             if not self.context.noFireNext and lastPhase is not None:
-                self.context.serverAdapter.fireNextGroup(lastGroupNo+1, lastPhase)
+                self.context.serverAdapter.fireNextGroup(lastGroupNo)
 
         self.context.goToStop = True
         self.context.close()
