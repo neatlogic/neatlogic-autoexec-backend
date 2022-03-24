@@ -275,7 +275,8 @@ class Interpreter(object):
                         matchedField = {
                             'jsonPath': jsonPath[1:],
                             'ruleName': self.ruleName,
-                            'ruleLevel': self.ruleLevel
+                            'ruleLevel': self.ruleLevel,
+                            'fieldValue': fieldValue
                         }
                         self.matchedFields.append(matchedField)
                         return matchedRecord + 1
