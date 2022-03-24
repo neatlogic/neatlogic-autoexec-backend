@@ -255,12 +255,14 @@ def inspectData(nodeInfo):
                 #     {
                 #         "jsonPath": "$.DISKS[0].CAPACITY",
                 #         "ruleLevel": "WARN",
-                #         "ruleName": "测试"
+                #         "ruleName": "测试",
+                #         "fieldValue": 92
                 #     },
                 #     {
                 #         "jsonPath": "$.DISKS[1].CAPACITY",
                 #         "ruleLevel": "WARN",
-                #         "ruleName": "测试"
+                #         "ruleName": "测试",
+                #         "fieldValue": 92
                 #     }
                 # ]
 
@@ -288,7 +290,8 @@ def inspectData(nodeInfo):
                 alerts.append({
                     "jsonPath": "$.AVAILABILITY",
                     "ruleLevel": "CRITICAL",
-                    'ruleName': "可用性告警"
+                    'ruleName': "可用性告警",
+                    'fieldValue': availability
                 })
                 alertThresHolds['可用性告警'] = {'name': '可用性告警',
                                             'level': 'CRITICAL',
@@ -298,7 +301,8 @@ def inspectData(nodeInfo):
                     alerts.append({
                         "jsonPath": "$.ERROR_MESSAGE",
                         "ruleLevel": "CRITICAL",
-                        'ruleName': "错误信息非空"
+                        'ruleName': "错误信息非空",
+                        'fieldValue': rptData.get('ERROR_MESSAGE')
                     })
                     alertThresHolds['错误信息非空'] = {'name': '错误信息非空',
                                                  'level': 'CRITICAL',
