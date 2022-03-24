@@ -37,6 +37,7 @@ class ServerAdapter:
             'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
             'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': 'codedriver/public/api/rest/autoexec/job/next/group/fire',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
             'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/round/nextphase/fire',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
@@ -280,6 +281,27 @@ class ServerAdapter:
                 os.utime(nodesFilePath, (0, 0))
             if (os.path.exists(phaseNodesFilePath)):
                 os.utime(phaseNodesFilePath, (0, 0))
+            raise
+
+    # 通知后端进行下一个组的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def fireNextGroup(self, nextGroupNo, lastPhase):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'nextGroupNo': nextGroupNo,
+            'lastPhase': lastPhase,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['fireNextGroup'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
             raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段

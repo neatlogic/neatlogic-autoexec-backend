@@ -3,7 +3,7 @@
         "opt": {},
         "roundCount": 2,
         "runFlow": [{
-                        "groupId": 1,
+                        "groupNo": 1,
                         "execStrategy": "grayScale",
                         "phases": [{
                                         "phaseName": "收集信息",
@@ -74,7 +74,7 @@
                         ]
                 },
                 {
-                        "groupId": 2,
+                        "groupNo": 2,
                         "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "关系计算",

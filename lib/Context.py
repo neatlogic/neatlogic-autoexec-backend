@@ -95,8 +95,8 @@ class Context(VContext.VContext):
         self.phaseGroupsToRun = None
         if phaseGroups != '':
             self.phaseGroupsToRun = {}
-            for groupId in phaseGroups.split(','):
-                self.phaseGroupsToRun[int(groupId)] = 1
+            for groupNo in phaseGroups.split(','):
+                self.phaseGroupsToRun[int(groupNo)] = 1
 
         self.phasesToRun = None
         if phases != '':

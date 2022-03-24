@@ -53,8 +53,11 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                             if phaseStatus.executor is not None:
                                 phaseStatus.executor.informNodeWaitInput(nodeId, interact=actionData['interact'])
                     elif actionData['action'] == 'informRoundContinue':
-                        for phaseName, phaseStatus in self.context.phases.items():
-                            phaseStatus.setGlobalRoundFinEvent()
+                        if 'phaseName' in actionData:
+                            phaseName = actionData['phaseName']
+                            if phaseName in self.context.phases:
+                                phaseStatus = self.context.phases[phaseName]
+                                phaseStatus.setGlobalRoundFinEvent()
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
                         break
@@ -192,7 +195,7 @@ class JobRunner:
             print("\n", end='')
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
-        groupId = phaseGroup['groupId']
+        groupNo = phaseGroup['groupNo']
         lastPhase = None
         # runFlow是一个数组，每个元素是一个phaseGroup
         threads = []
@@ -214,7 +217,7 @@ class JobRunner:
                     serverAdapter.getNodes(phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName, phaseGroup=groupId)
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName, phaseGroup=groupNo)
                 parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
 
                 lastPhase = phaseName
@@ -240,10 +243,10 @@ class JobRunner:
     def execGrayscaleGroup(self, phaseGroup, roundCount, opArgsRefMap):
         # runFlow是一个数组，每个元素是一个phaseGroup
         # 启动所有的phase运行的线程，然后分批进行灰度
-        groupId = phaseGroup['groupId']
+        groupNo = phaseGroup['groupNo']
         phaseNodeFactorys = {}
 
-        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupId)
+        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupNo)
         # 获取分组运行的最大的并行线程数
         parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
 
@@ -270,7 +273,7 @@ class JobRunner:
 
             serverAdapter = self.context.serverAdapter
             if not self.localDefinedNodes:
-                serverAdapter.getNodes(phaseName=phaseName, phaseGroup=groupId)
+                serverAdapter.getNodes(phaseName=phaseName, phaseGroup=groupNo)
 
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
@@ -367,7 +370,7 @@ class JobRunner:
                     loopCount = self.context.maxExecSecs / 10
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
-                        self.context.serverAdapter.informRoundEnded(groupId, phaseName, roundNo)
+                        self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
                         if phaseStatus.waitGlobalRoundFin(10):
                             break
 
@@ -410,15 +413,16 @@ class JobRunner:
             roundCount = int(params['roundCount'])
 
         opArgsRefMap = {}
+        lastGroupNo = None
         lastPhase = None
         groupLastPhase = None
         if 'runFlow' in params:
             for phaseGroup in params['runFlow']:
-                groupId = phaseGroup['groupId']
+                groupNo = phaseGroup['groupNo']
                 if self.context.goToStop == True:
                     break
 
-                if self.context.phaseGroupsToRun is not None and groupId not in self.context.phaseGroupsToRun:
+                if self.context.phaseGroupsToRun is not None and groupNo not in self.context.phaseGroupsToRun:
                     continue
 
                 groupLastPhase = None
@@ -427,6 +431,7 @@ class JobRunner:
                 else:
                     groupLastPhase = self.execOneShotGroup(phaseGroup, roundCount, opArgsRefMap)
 
+                lastGroupNo = groupNo
                 if groupLastPhase is not None:
                     lastPhase = groupLastPhase
 
@@ -439,7 +444,7 @@ class JobRunner:
         elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             if not self.context.noFireNext and lastPhase is not None:
-                self.context.serverAdapter.fireNextPhase(lastPhase)
+                self.context.serverAdapter.fireNextGroup(lastGroupNo+1, lastPhase)
 
         self.context.goToStop = True
         self.context.close()
