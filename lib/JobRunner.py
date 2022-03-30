@@ -273,7 +273,7 @@ class JobRunner:
 
             serverAdapter = self.context.serverAdapter
             if not self.localDefinedNodes:
-                serverAdapter.getNodes(phaseName=phaseName, phaseGroup=groupNo)
+                serverAdapter.getNodes(phase=phaseName, phaseGroup=groupNo)
 
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
