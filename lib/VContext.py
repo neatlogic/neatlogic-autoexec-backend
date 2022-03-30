@@ -136,6 +136,9 @@ class VContext:
 
     def initDB(self, parallelCount):
         # 初始化创建mongodb connect
+        if if self.dbclient:
+            self.dbclient.close()
+
         dbUrl = self.config.get('autoexec', 'db.url')
         dbName = self.config.get('autoexec', 'db.name')
         dbUsername = self.config.get('autoexec', 'db.username')
