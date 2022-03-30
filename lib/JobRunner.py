@@ -407,6 +407,10 @@ class JobRunner:
         listenThread.start()
 
         params = self.context.params
+        if 'enviroment' in params:
+            for k, v in params.items():
+                os.environ[k] = v
+
         parallelCount = 0
         roundCount = 0
         if 'roundCount' in params:

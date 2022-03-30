@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+use FindBin;
+
+use strict;
+use Getopt::Long;
+use File::Copy;
+use File::Path;
+use Cwd;
+
+use DeployUtils;
+use BuildLock;
+use VerGet;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
+    print("              [--version VERSION]\n");
+    print("\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --lang\toptionnal, LANG\n");
+    print("  --version\toptionnal, Version number\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'lang=s'      => \$lang,
+        'version=s'   => \$version
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( defined($lang) ) {
+        $ENV{LANG}   = $lang;
+        $ENV{LC_ALL} = $lang;
+    }
+
+    my $buildEnv = DeployUtils::deployInit( $envPath, $version );
+
+    my $version  = $buildEnv->{VERSION};
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $verInfo = ServerAdapter->getVer($buildEnv);
+
+    if ( not defined($verInfo) ) {
+        print("ERROR: Can not find application $namePath version:$version.\n");
+    }
+
+    my $ret        = 0;
+    my $verGet     = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+    my $getSuccess = $verGet->mergeToBaseLine();
+
+    my $desc = "Get version for $namePath version:$version";
+    if ( $getSuccess eq 1 ) {
+        print("FINEST: $desc success.\n");
+    }
+    else {
+        $ret = 1;
+        print("ERROR: $desc failed.\n");
+    }
+
+    return $ret;
+}
+
+exit main();
+

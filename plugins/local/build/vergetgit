@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath]  [--lang LANG] --repo REPO \n");
+    print("              --trunk TRUNK [--branch BRANCH] [--tag TAG]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --repo\tGIT repo address\n");
+    print("  --trunk\tGIT master branch\n");
+    print("  --branch\tcheckout branch\n");
+    print("  --tag\tGIT tag or SVN tag address");
+
+    exit(1);
+}
+
+sub main() {
+    my ( $isHelp, $isVerbose, $envPath, $lang );
+    my ( $repo,   $trunk,     $branch,  $tag );
+    my ( $userName, $password );
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'lang=s'      => \$lang,
+        'envpath=s'   => \$envPath,
+        'repo=s'      => \$repo,
+        'trunk=s'     => \$trunk,
+        'branch=s'    => \$branch,
+        'tag=s'       => \$tag,
+        'username=s'  => \$userName,
+        'password=s'  => \$password
+    );
+    usage() if ( defined($isHelp) );
+
+    my $toolDir = $FindBin::Bin;
+    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype GIT --repo '$repo' --trunk '$trunk' --branch '$branch' --tag '$tag'});
+}
+
+exit main();

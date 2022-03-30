@@ -1,0 +1,260 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use DeployUtils;
+use Logger;
+use RUNLock;
+use BuildMVN;
+use BuildANT;
+use BuildNPM;
+use BuildGradle;
+use ExecAuth;
+use ENVInfo;
+use ServerAdapter;
+use File::Path;
+use Cwd;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-v|--verbose] [-U|--update] --subsyspath <subsys path> --type <ant|mvn|gradle> --jdk <jdk version> --startpath <start path> --lang <output charset> --args <build arguments> <version>\n");
+    print("       subsyspath:   sub system path\n");
+    print("       jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
+    print("       startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       lang:         LANGUAGE, default: en_US.UTF8\n");
+    print("       type:         build type: mvn|ant|gradle, default is auto detect.\n");
+    print("       maketoolver:  make tool(maven, ant, gradle, npm)  version number\n");
+    print("       args:         arguments for ant|mvn|gradle, default is blank.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $ishelp, $subSysPath, $startPath, $lang, $version, $jdk, $nodejs, $buildType, $args, $isVerbose, $isUpdate );
+    my $pname = $FindBin::Script;
+
+    Utils::setEnv();
+
+    my $makeToolVer = '';
+
+    GetOptions(
+        'h|help'       => \$ishelp,
+        'v|verbose'    => \$isVerbose,
+        'U|update'     => \$isUpdate,
+        'subsyspath:s' => \$subSysPath,
+        'startpath:s'  => \$startPath,
+        'lang:s'       => \$lang,
+        'jdk:s'        => \$jdk,
+        'nodejs:s'     => \$nodejs,
+        'type:s'       => \$buildType,
+        'args=s'       => \$args,
+        '<>'           => sub { my $item = shift(@_); $version = $item; }
+    );
+
+    usage() if ( not defined($subSysPath) or not defined($version) );
+
+    my $subSysInfo = SubSysInfo::parse( $subSysPath, $version );
+    my $namePath = "$subSysInfo->{sysname}/$subSysInfo->{subsysname}";
+
+    #my $dataPath = ServerAdapter::getSysConf('system.data.path');
+    #my $sysRoot  = ServerAdapter::getSysConf('system.root');
+    my $sysRoot       = $ENV{TECHSURE_HOME};
+    my $deploysysHome = Cwd::fast_abs_path("$FindBin::Bin/..");
+    my $dataPath      = "$deploysysHome/data";
+
+    if ( defined $jdk ) {
+        if ( -d "$sysRoot/serverware/jdk$jdk" ) {
+            $jdk = "$sysRoot/serverware/jdk$jdk";
+        }
+        elsif ( -d "$sysRoot/serverware/$jdk" ) {
+            $jdk = "$sysRoot/serverware/$jdk";
+        }
+        else {
+            print("jdk $jdk is not supported\n");
+            exit(-1);
+        }
+    }
+    else {
+        $jdk = "$sysRoot/serverware/jdk1.8";
+    }
+
+    if ( defined($lang) ) {
+        $ENV{LANG}   = $lang;
+        $ENV{LC_ALL} = $lang;
+    }
+    $ENV{CLASSPATH} = '';
+
+    my $versionsDir = $subSysInfo->{versdir};
+    my $verDir      = $subSysInfo->{verdir};
+    my $subSysDir   = $subSysInfo->{subsysrealpath};
+    my $appbuildDir = $subSysInfo->{buildsrc};
+    my $prjDir      = $subSysInfo->{prjsrc};
+
+    my $opUser = $ENV{OPUSER};
+    if ( ExecAuth::auth( $subSysDir, 'build' ) eq 0 ) {
+        print("ERROR:user $opUser has no permission to build $subSysDir.\n");
+        exit(-1);
+    }
+
+    my $codePath = $prjDir;
+
+    if ( defined($startPath) and $startPath ne '' ) {
+        $codePath = "$codePath/$startPath";
+        if ( not -d $codePath ) {
+            print("ERROR: start path:$startPath($codePath) not exists.\n");
+            exit(-1);
+        }
+    }
+
+    my $prjLock    = RUNLock->new("$prjDir.lock");
+    my $preLockMsg = $prjLock->tryLock("$opUser running build");
+
+    if ( not defined($preLockMsg) ) {
+
+        my $appbuildLock = RUNLock->new("$appbuildDir.lock");
+        $appbuildLock->lock();
+
+        rmtree("$appbuildDir/app") if ( -e "$appbuildDir/app" );
+        rmtree("$appbuildDir/db")  if ( -e "$appbuildDir/db" );
+        rmtree("$appbuildDir/res") if ( -e "$appbuildDir/res" );
+        $appbuildLock->release();
+
+        my $isFail = 0;
+        my $logger = Logger->new("$deploysysHome/logs");
+
+        if ( $isFail eq 0 ) {
+            my $buildSuccess;
+            my @codePaths;
+
+            if ( defined($startPath) and $startPath ne '' and defined($buildType) and $buildType ne '' ) {
+                print("INFO: start path and build type defined, use $buildType to build $startPath under $prjDir.\n");
+                @codePaths = ($codePath);
+            }
+            else {
+                @codePaths = Utils::getPrjRoots($codePath);
+            }
+
+            my $aCodePath;
+            foreach $aCodePath (@codePaths) {
+                if ( not defined($buildType) ) {
+                    if ( -e "$aCodePath/build.xml" ) {
+                        $buildType = 'ant';
+                    }
+                    elsif ( -e "$aCodePath/pom.xml" ) {
+                        $buildType = 'mvn';
+                    }
+                    elsif ( -e "$aCodePath/build.gradle" ) {
+                        $buildType = 'gradle';
+                    }
+                    elsif ( -e "$aCodePath/package.json" ) {
+                        $buildType = 'npm';
+                    }
+                }
+                else {
+                    if ( $buildType =~ /^(.*?)([\d\.\-\_]+)$/ ) {
+                        $buildType   = $1;
+                        $makeToolVer = $2;
+                    }
+                    if ( $buildType eq 'maven' ) {
+                        $buildType = 'mvn';
+                    }
+                    elsif ( $buildType eq 'nodejs' ) {
+                        $buildType = 'npm';
+                    }
+                }
+
+                my %opt = (
+                    prjDir      => $aCodePath,
+                    versDir     => $versionsDir,
+                    version     => $version,
+                    jdk         => $jdk,
+                    args        => $args,
+                    isVerbose   => $isVerbose,
+                    isUpdate    => $isUpdate,
+                    nodejs      => $nodejs,
+                    makeToolVer => $makeToolVer
+                );
+
+                if ( defined $makeToolVer and $makeToolVer ne '' ) {
+                    print("INFO: Build type is $buildType, build tool version is $makeToolVer\n");
+                }
+
+                if ( $buildType eq 'ant' ) {
+
+                    #$buildSuccess = ANTbuild::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose );
+                    $buildSuccess = ANTbuild::build(%opt);
+                }
+                elsif ( $buildType eq 'mvn' ) {
+
+                    #$buildSuccess = MVNbuild::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose, $isUpdate );
+                    $buildSuccess = MVNbuild::build(%opt);
+                }
+                elsif ( $buildType eq 'gradle' ) {
+
+                    #$buildSuccess = BuildGradle::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose );
+                    $buildSuccess = BuildGradle::build(%opt);
+                }
+                elsif ( $buildType eq 'npm' ) {
+
+                    #$buildSuccess = NPMbuild::build( $aCodePath, $versionsDir, $version, $nodejs, $args, $isVerbose );
+                    $buildSuccess = NPMbuild::build(%opt);
+                }
+                else {
+                    print("WARN: It is not java project,if compile is needed, use slave host to compile.\n");
+                    $buildSuccess = 1;
+                }
+
+                if ( $buildSuccess ne 1 ) {
+                    $isFail = 1;
+                    $logger->log( "Build $subSysPath $version with src code path:$aCodePath failed.", "ERROR" );
+                }
+            }
+
+            if ( $isFail == 0 ) {
+                $logger->log( "Build $subSysPath $version success.", "INFO" );
+            }
+            else {
+                $logger->log( "Build $subSysPath $version failed.", "ERROR" );
+                Utils::setErrFlag();
+            }
+        }
+
+        if ( $isFail eq 0 ) {
+            print("FINEST: Build $namePath version:$version success.\n");
+        }
+        else {
+            Utils::setErrFlag();
+            print("ERROR: Build $namePath version:$version failed.\n");
+        }
+
+        $logger->close();
+    }
+    else {
+        print("INFO: $pname is in progress, $preLockMsg.\n");
+
+        my $msg = $prjLock->lock("$opUser running build");
+
+        if ( $msg ne 'success' ) {
+            Utils::setErrFlag();
+        }
+        print("INFO: Build $namePath version:$version complete.\n");
+    }
+
+    if ( Utils::getErrFlag() eq 0 ) {
+        $prjLock->release('success');
+    }
+    else {
+        $prjLock->release('failed');
+    }
+
+    Utils::exitWithFlag();
+}
+
+main();
+
