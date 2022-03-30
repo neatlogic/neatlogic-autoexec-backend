@@ -34,6 +34,8 @@ class VsphereQuery:
 
     def get_datastore(self, cluster):
         data_list = []
+        if not hasattr( cluster , 'datastore'):
+            return data_list
         datastore = cluster.datastore
         if datastore != None:
             for dst in datastore:
@@ -60,6 +62,8 @@ class VsphereQuery:
 
     def get_network(self, cluster):
         data_list = []
+        if not hasattr( cluster , 'network'):
+            return data_list
         network = cluster.network
         if network != None:
             for nt in network:
@@ -141,10 +145,12 @@ class VsphereQuery:
 
     def get_hostlist(self, cluster):
         data_list = []
+        if not hasattr( cluster , 'host'):
+            return data_list
+
         host_list = cluster.host
-        if host_list != None:
-            for host in host_list:
-                data_list.append(self.get_hardware(host))
+        for host in host_list:
+             data_list.append(self.get_hardware(host))
         return data_list
 
     def str_format(self, str):
