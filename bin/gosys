@@ -1,0 +1,29 @@
+#!/bin/bash
+GOSYS_DIR=$(dirname $(which gosys))
+AUTOEXEC_DIR=$(
+    cd $GOSYS_DIR/..
+    pwd
+)
+_DEPLOY_PATH=$1
+_DEPLOY_ID_PATH=$1
+_DEPLOY_DATA_PATH="$AUTOEXEC_DIR/data/verdata/$DEPLOY_ID_PATH"
+
+if [ -e "$_DEPLOY_DATA_PATH" ]; then
+    cd "$_DEPLOY_DATA_PATH"
+else
+    _DEPLOY_DATA_PATH=$(echo $1 | perl -e 's/\/[^\/]+$//')
+    if [ -e "$_DEPLOY_DATA_PATH" ]; then
+        cd "$_DEPLOY_DATA_PATH"
+    else
+        echo "ERROR: Directory $_DEPLOY_DATA_PATH not exists."
+    fi
+fi
+
+export _DEPLOY_PATH
+export _DEPLOY_ID_PATH
+export _DEPLOY_DATA_PATH
+
+unset GOSYS_DIR
+unset AUTOEXEC_DIR
+
+exec bash

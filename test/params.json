@@ -1,5 +1,18 @@
 {
         "jobId": 575071089123340,
+        "enviroment": {
+                "_RUNNER_GROUP": "r1",
+                "_DEPLOY_PATH": "ABS/Core/SIT",
+                "_DEPLOY_ID_PATH": "12/12/3",
+                "VERSION": "1.2.0",
+                "BUILD": "b1",
+                "SYS_NAME": "ABC",
+                "SYS_ID": 123,
+                "MODULE_NAME": "core",
+                "MODULE_ID": 3434,
+                "ENV_NAME": "SIT",
+                "ENV_ID": "2"
+        },
         "opt": {},
         "roundCount": 2,
         "runFlow": [{

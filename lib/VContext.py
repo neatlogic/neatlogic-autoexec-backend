@@ -140,6 +140,8 @@ class VContext:
         dbName = self.config.get('autoexec', 'db.name')
         dbUsername = self.config.get('autoexec', 'db.username')
         dbPassword = self.config.get('autoexec', 'db.password')
+        if parallelCount < 1:
+            parallelCount = 8
         if dbUrl is not None:
             mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=parallelCount)
             autoexecDB = mongoClient[dbName]
