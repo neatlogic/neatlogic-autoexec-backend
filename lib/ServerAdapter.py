@@ -39,7 +39,7 @@ class ServerAdapter:
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
             'fireNextGroup': 'codedriver/public/api/rest/autoexec/job/next/group/fire',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/round/nextphase/fire',
+            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/phase/inform/round/end',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
