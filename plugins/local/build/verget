@@ -63,19 +63,16 @@ sub main {
 
     my $versionInfo = {
         version  => $version,
-        buildNo  => 0,
         repoType => uc($repoType),
         repo     => $repo,
         trunk    => $trunk,
         branch   => $branch,
         tagsDir  => $tagsDir,
-        tag      => $tag,
-        username => $userName,
-        password => $password
+        tag      => $tag
     };
     my $lock = BuildLock->new($buildEnv);
     $lock->lockWorkspace($BuildLock::EXCLUDE);
-    my $verInfo = ServerAdapter->getVer();
+    my $verInfo = ServerAdapter->getVer( $buildEnv, $version );
 
     if ( defined($verInfo) ) {
         if ( $verInfo->{isFreeze} ne 0 ) {
@@ -83,6 +80,7 @@ sub main {
             return 3;
         }
 
+        $versionInfo->{buildNo}  = $verInfo->{buildNo};
         $versionInfo->{startRev} = $verInfo->{startRev};
         $versionInfo->{endRev}   = $verInfo->{endRev};
         if ( defined( $verInfo->{username} ) and $verInfo->{username} ne '' ) {
@@ -91,12 +89,12 @@ sub main {
         if ( defined( $verInfo->{password} ) and $verInfo->{password} ne '' ) {
             $versionInfo->{password} = $verInfo->{password};
         }
-
-        my $buildNo     = 0;
-        my $lastBuildNo = $verInfo->{lastBuildNo};
-        if ( defined($lastBuildNo) ) {
-            $buildNo = $lastBuildNo + 1;
-        }
+    }
+    if ( defined($userName) and $userName ne '' ) {
+        $versionInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $versionInfo->{password} = $password;
     }
 
     my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );

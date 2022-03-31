@@ -42,8 +42,14 @@ sub new {
 
     my $gitUser = $verInfo->{username};
     my $gitPass = $verInfo->{password};
-    $gitUser = uri_escape($gitUser);
-    $gitPass = uri_escape($gitPass);
+    if ( not defined($gitUser) or $gitUser eq '' ) {
+        $gitUser = $buildEnv->{'git.user'};
+    }
+    if ( not defined($gitPass) or $gitPass eq '' ) {
+        $gitPass = $buildEnv->{'git.password'};
+    }
+    $gitUser = quotemeta($gitUser);
+    $gitPass = quotemeta($gitPass);
 
     $repo =~ s/^https:\/\//https:\/\/$gitUser:$gitPass\@/;
     $repo =~ s/^http:\/\//http:\/\/$gitUser:$gitPass\@/;

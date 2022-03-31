@@ -10,8 +10,15 @@ use ServerAdapter;
 sub deployInit {
     my ( $namePath, $version ) = @_;
 
-    my $dpPath   = $ENV{_DEPLOY_PATH};
-    my $dpIdPath = $ENV{_DEPLOY_ID_PATH};
+    my $dpPath     = $ENV{_DEPLOY_PATH};
+    my $dpIdPath   = $ENV{_DEPLOY_ID_PATH};
+    my $deployConf = $ENV{_DEPLOY_CONF};
+
+    my $deployEnv = {};
+    if ( defined($deployConf) and $deployConf ne '' ) {
+        $deployEnv = from_json($deployConf);
+    }
+
     if ( defined($namePath) and $namePath ne '' and uc($namePath) ne 'DEFAULT' ) {
         my $idPath = ServerAdapter->getIdPath($namePath);
         $dpPath               = $namePath;
@@ -20,9 +27,8 @@ sub deployInit {
         $ENV{_DEPLOY_ID_PATH} = $dpIdPath;
     }
 
-    my $deployEnv = {};
-    my @dpNames   = split( '/', $dpPath );
-    my @dpIds     = split( '/', $dpIdPath );
+    my @dpNames = split( '/', $dpPath );
+    my @dpIds   = split( '/', $dpIdPath );
 
     my $idx = 0;
     for my $level ( 'SYS', 'MODULE', 'ENV' ) {
