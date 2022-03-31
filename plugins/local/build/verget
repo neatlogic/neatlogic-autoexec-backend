@@ -85,6 +85,12 @@ sub main {
 
         $versionInfo->{startRev} = $verInfo->{startRev};
         $versionInfo->{endRev}   = $verInfo->{endRev};
+        if ( defined( $verInfo->{username} ) and $verInfo->{username} ne '' ) {
+            $versionInfo->{username} = $verInfo->{username};
+        }
+        if ( defined( $verInfo->{password} ) and $verInfo->{password} ne '' ) {
+            $versionInfo->{password} = $verInfo->{password};
+        }
 
         my $buildNo     = 0;
         my $lastBuildNo = $verInfo->{lastBuildNo};
@@ -93,17 +99,15 @@ sub main {
         }
     }
 
-    my $ret        = 0;
-    my $verGet     = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
-    my $getSuccess = $verGet->get();
+    my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
+    my $ret = $verGet->get();
 
     my $desc = "Get version for $namePath version:$version";
-    if ( $getSuccess eq 1 ) {
+    if ( $ret eq 0 ) {
         ServerAdapter->updateVer($versionInfo);
         print("FINEST: $desc success.\n");
     }
     else {
-        $ret = 1;
         print("ERROR: $desc failed.\n");
     }
 

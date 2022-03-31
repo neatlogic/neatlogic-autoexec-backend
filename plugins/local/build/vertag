@@ -17,13 +17,13 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
-    print("              [--version VERSION]\n");
+    print("              [--version VERSION] [--tagprefix TAGPREFIX\n");
     print("\n");
     print("optional arguments:\n");
     print("  --envpath\toptionnal, name path for application\n");
     print("  --lang\toptionnal, LANG\n");
     print("  --version\toptionnal, Version number\n");
-
+    print("  --tagprefix\toptionnal, Tag prefix, tag:[tagPrefix]version number\n");
     exit(1);
 }
 
@@ -59,16 +59,14 @@ sub main {
         print("ERROR: Can not find application $namePath version:$version.\n");
     }
 
-    my $ret        = 0;
-    my $verGet     = VerGet->new( $buildEnv, $verInfo, $isVerbose );
-    my $getSuccess = $verGet->tag( $tagPrefix, $isVerbose );
+    my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+    my $ret = $verGet->tag( $tagPrefix, $isVerbose );
 
-    my $desc = "Get version for $namePath version:$version";
-    if ( $getSuccess eq 1 ) {
+    my $desc = "Create tag for $namePath version:$version";
+    if ( $ret eq 0 ) {
         print("FINEST: $desc success.\n");
     }
     else {
-        $ret = 1;
         print("ERROR: $desc failed.\n");
     }
 

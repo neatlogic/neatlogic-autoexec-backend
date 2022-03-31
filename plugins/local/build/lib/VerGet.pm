@@ -14,7 +14,6 @@ sub new {
     my ( $pkg, $buildEnv, $versionInfo, $isVerbose ) = @_;
     my $self = {};
     bless( $self, $pkg );
-
     $self->{buildEnv}  = $buildEnv;
     $self->{verInfo}   = $versionInfo;
     $self->{version}   = $versionInfo->{version};
@@ -88,16 +87,9 @@ sub get {
     print("INFO: Get version, this may take a few minutes.\n");
     my $handler = $self->getHandler();
 
-    my $ret = 0;
+    my $ret = 1;
     if ( defined($handler) ) {
         $ret = $handler->get();
-    }
-
-    if ( $ret eq 1 ) {
-        print("INFO: Checkout version $version success.\n");
-    }
-    else {
-        print("ERROR: Checkout version $version failed.\n");
     }
 
     return $ret;
@@ -108,21 +100,14 @@ sub checkBaseLineMerged {
 
     my $version = $self->{version};
 
-    print("INFO:check base line merged for version, this may take a few minutes.\n");
+    print("INFO: Check base line merged for version, this may take a few minutes.\n");
     my $handler = $self->getHandler();
-    my $success = 0;
+    my $ret     = 1;
     if ( defined($handler) ) {
-        $success = $handler->checkBaseLineMerged();
+        $ret = $handler->checkBaseLineMerged();
     }
 
-    if ( $success eq 1 ) {
-        print("INFO: check base line merged for version $version success.\n");
-    }
-    else {
-        print("ERROR: check base line merged for version $version failed.\n");
-    }
-
-    return $success;
+    return $ret;
 }
 
 sub mergeToBaseLine {
@@ -130,21 +115,29 @@ sub mergeToBaseLine {
 
     my $version = $self->{version};
 
-    print("INFO:merge version to base line, this may take a few minutes.\n");
+    print("INFO: Merge version to base line, this may take a few minutes.\n");
     my $handler = $self->getHandler();
-    my $success = 0;
+    my $ret     = 1;
     if ( defined($handler) ) {
-        $success = $handler->mergeToBaseLine();
+        $ret = $handler->mergeToBaseLine();
     }
 
-    if ( $success eq 1 ) {
-        print("INFO: merge version to base line success.\n");
-    }
-    else {
-        print("ERROR: merge version to base line failed.\n");
+    return $ret;
+}
+
+sub mergeBaseLine {
+    my ($self) = @_;
+
+    my $version = $self->{version};
+
+    print("INFO: Merge base line changes to version, this may take a few minutes.\n");
+    my $handler = $self->getHandler();
+    my $ret     = 1;
+    if ( defined($handler) ) {
+        $ret = $handler->mergeBaseLine();
     }
 
-    return $success;
+    return $ret;
 }
 
 sub tag {
@@ -152,22 +145,15 @@ sub tag {
 
     my $version = $self->{version};
 
-    print("INFO:Create tag $version with tag:$tagPrefix$version, this may take a few minutes.\n");
+    print("INFO: Create tag:$tagPrefix$version, this may take a few minutes.\n");
 
     my $handler = $self->getHandler();
-    my $success = 0;
+    my $ret     = 1;
     if ( defined($handler) ) {
-        $success = $handler->tag( $version, $tagPrefix );
+        $ret = $handler->tag( $version, $tagPrefix );
     }
 
-    if ( $success eq 1 ) {
-        print("INFO: Create tag $version with tag:$tagPrefix$version success.\n");
-    }
-    else {
-        print("ERROR: Create tag $version with tag:$tagPrefix$version failed.\n");
-    }
-
-    return $success;
+    return $ret;
 }
 
 sub tagRev {
@@ -175,21 +161,15 @@ sub tagRev {
 
     my $version = $self->{version};
 
-    print("INFO:Create tag $version with tag:$tagPrefix$version, this may take a few minutes.\n");
+    print("INFO: Create tag $version with tag:$tagPrefix$version, this may take a few minutes.\n");
 
     my $handler = $self->getHandler();
-    my $success = 0;
+    my $ret     = 1;
     if ( defined($handler) ) {
-        $success = $handler->tagRev( $version, $tagPrefix, $tagRevision );
-    }
-    if ( $success eq 1 ) {
-        print("INFO: Create tag $version at revision $tagRevision with tag:$tagPrefix$version success.\n");
-    }
-    else {
-        print("ERROR: Create tag $version at revision $tagRevision with tag:$tagPrefix$version failed.\n");
+        $ret = $handler->tagRev( $version, $tagPrefix, $tagRevision );
     }
 
-    return $success;
+    return $ret;
 }
 
 sub checkChangedAfterCompiled {
@@ -202,19 +182,12 @@ sub checkChangedAfterCompiled {
     print("INFO: Check if there are new changes after version:$version compiled.\n");
 
     my $handler = $self->getHandler();
-    my $success = 0;
+    my $ret     = 1;
     if ( defined($handler) ) {
-        $success = $handler->checkChangedAfterCompiled($version);
+        $ret = $handler->checkChangedAfterCompiled($version);
     }
 
-    if ( $success eq 1 ) {
-        print("INFO: There is no changes after compiled.\n");
-    }
-    else {
-        print("ERROR: There are changes after compiled.\n");
-    }
-
-    return $success;
+    return $ret;
 }
 
 sub getDiffByTag {
@@ -236,20 +209,20 @@ sub getDiffByTag {
 
     my $handler = $self->getHandler();
 
-    my $success;
+    my $ret = 1;
     if ( defined($handler) ) {
-        $success = $handler->getDiffByTag( $tagName, $excludeDirs, $diffSaveDir, $isVerbose );
+        $ret = $handler->getDiffByTag( $tagName, $excludeDirs, $diffSaveDir, $isVerbose );
     }
 
     print("=======================================================\n");
-    if ( $success == 1 ) {
+    if ( $ret == 0 ) {
         print("INFO: Get diff files between $version and $cmpDestDesc success.\n");
     }
     else {
         print("INFO: Get diff files between $version and $cmpDestDesc failed.\n");
     }
 
-    return $success;
+    return $ret;
 }
 
 sub getDiffByRev {
@@ -272,20 +245,20 @@ sub getDiffByRev {
 
     my $handler = $self->getHandler();
 
-    my $success;
+    my $ret = 1;
     if ( defined($handler) ) {
-        $success = $handler->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffSaveDir, $isVerbose );
+        $ret = $handler->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffSaveDir, $isVerbose );
     }
 
     print("=======================================================\n");
-    if ( $success == 1 ) {
+    if ( $ret == 0 ) {
         print("INFO: Get diff files between $version and $cmpDestDesc success.\n");
     }
     else {
         print("INFO: Get diff files between $version and $cmpDestDesc failed.\n");
     }
 
-    return $success;
+    return $ret;
 }
 
 sub getBuildDiff {
@@ -299,19 +272,19 @@ sub getBuildDiff {
         undef($tag4CmpTo);
     }
 
-    my $success = 0;
+    my $ret = 1;
     if ( $tag4CmpTo ne '' ) {
-        $success = $self->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
+        $ret = $self->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
     }
     elsif ( $startRev ne '' ) {
 
-        $success = $self->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
+        $ret = $self->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
     }
     else {
         print("ERROR: Can not get diff base(tag|branch|revision).\n");
     }
 
-    return $success;
+    return $ret;
 }
 
 1;

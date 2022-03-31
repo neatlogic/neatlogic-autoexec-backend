@@ -223,15 +223,15 @@ sub fetch {
     my $ret = 0;
     if ( not -e "$prjPath/.git" ) {
         $self->{newWorkingCopy} = 1;
-        print("INFO:git clone $silentOpt '$repoDesc' '$prjPath'\n");
+        print("INFO: git clone $silentOpt '$repoDesc' '$prjPath'\n");
         $ret = DeployUtils::execmd( "git clone $silentOpt '$repo' $prjPath", $self->{pwdPattern} );
     }
     else {
-        print("INFO:cd '$prjPath' && git remote set-url origin $repoDesc\n");
+        print("INFO: cd '$prjPath' && git remote set-url origin $repoDesc\n");
         $ret = DeployUtils::execmd("cd '$prjPath' && git remote set-url origin '$repo'");
         if ( $ret != 0 ) {
             $ret = -1;
-            print("ERROR:switch remote url for $prjPath failed.\n");
+            print("ERROR: Switch remote url for $prjPath failed.\n");
         }
         else {
             $ret = DeployUtils::execmd( "cd '$prjPath' && git reset --hard && git clean -fd && git tag | xargs git tag -d >/dev/null && git fetch -q", $self->{pwdPattern} );
@@ -239,9 +239,9 @@ sub fetch {
     }
 
     if ( $ret ne 0 ) {
-        print("WARN:fetch failed, clean local repo and fetch again...\n");
+        print("WARN: Fetch failed, clean local repo and fetch again...\n");
         if ( rmtree($prjPath) == 0 ) {
-            print("ERROR:remove directory $prjPath failed.\n");
+            print("ERROR: Remove directory $prjPath failed.\n");
             $ret = -1;
         }
         else {
@@ -348,14 +348,10 @@ sub get {
 
     my $version = $self->{version};
 
-    my $success = 1;
-
     my $autoTag = 1;
     my $ret     = $self->checkout($version);
 
-    $success = 0 if ( $ret ne 0 );
-
-    return $success;
+    return $ret;
 }
 
 sub mergeToBaseLine {
@@ -369,11 +365,7 @@ sub mergeToBaseLine {
     my $gitTag       = $self->{gitTag};
     my $masterBranch = $self->{gitMasterBranch};
 
-    my $success = 1;
-
     my $repoDesc = $self->{repoDesc};
-
-    print("INFO: Merge version $version to the master branch:$masterBranch.\n");
 
     my $ret = $self->fetch();
 
@@ -390,26 +382,73 @@ sub mergeToBaseLine {
             print("WANR: Git masterBranch not defined, can not auto merge and tag.\n");
         }
         else {
+            print("INFO: Merge $tagOrBranchToBeMerged -> $masterBranch.\n");
+
             $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$masterBranch' && git reset --hard 'origin/$masterBranch' && git pull --tags", $self->{pwdPattern} );
             if ( $ret != 0 ) {
                 print("ERROR: Checkout $repoDesc branch $masterBranch failed.\n");
-                return 0;
             }
             else {
                 print("INFO: Try to merge $tagOrBranchToBeMerged to $masterBranch...\n");
                 $ret = DeployUtils::execmd( "cd '$prjPath' && git merge '$tagOrBranchToBeMerged' && git push $silentOpt", $self->{pwdPattern} );
                 if ( $ret != 0 ) {
-                    $success = 0;
-                    $ret     = DeployUtils::execmd("cd '$prjPath' && git reset --hard HEAD");
+                    DeployUtils::execmd("cd '$prjPath' && git reset --hard HEAD");
                     print("ERROR: Merge $repoDesc $tagOrBranchToBeMerged to branch $masterBranch failed.\n");
                 }
             }
         }
     }
 
-    $success = 0 if ( $ret ne 0 );
+    return $ret;
+}
 
-    return $success;
+sub mergeBaseLine {
+    my ($self) = @_;
+
+    my $version   = $self->{version};
+    my $silentOpt = $self->{silentOpt};
+
+    my $prjPath      = $self->{prjPath};
+    my $gitBranch    = $self->{gitBranch};
+    my $gitTag       = $self->{gitTag};
+    my $masterBranch = $self->{gitMasterBranch};
+
+    my $repoDesc = $self->{repoDesc};
+
+    my $checkoutName = $gitBranch;
+    if ( $self->{checkoutByTag} == 1 ) {
+        print("WARN: Version checkout by tag:$gitTag, can not merge base line changes.\n");
+        return 3;
+    }
+
+    my $ret = $self->fetch();
+
+    if ( $ret eq 0 ) {
+        my $tags     = $self->getTags();
+        my $branches = $self->getBranches();
+
+        if ( not defined($masterBranch) or $masterBranch eq '' ) {
+            print("WANR: Git masterBranch not defined, can not auto merge and tag.\n");
+        }
+        else {
+            print("INFO: Merge $masterBranch -> $checkoutName.\n");
+
+            $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$checkoutName' && git reset --hard 'origin/$checkoutName' && git pull --tags", $self->{pwdPattern} );
+            if ( $ret != 0 ) {
+                print("ERROR: Checkout $repoDesc branch $checkoutName failed.\n");
+            }
+            else {
+                print("INFO: Try to merge masterBranch to $checkoutName...\n");
+                $ret = DeployUtils::execmd( "cd '$prjPath' && git merge '$masterBranch' && git push $silentOpt", $self->{pwdPattern} );
+                if ( $ret != 0 ) {
+                    DeployUtils::execmd("cd '$prjPath' && git reset --hard HEAD");
+                    print("ERROR: Merge $repoDesc branch:$masterBranch to branch:$checkoutName failed.\n");
+                }
+            }
+        }
+    }
+
+    return $ret;
 }
 
 sub checkBaseLineMerged {
@@ -419,8 +458,6 @@ sub checkBaseLineMerged {
 
     my $prjPath      = $self->{prjPath};
     my $masterBranch = $self->{gitMasterBranch};
-
-    my $success = 1;
 
     my $repoDesc = $self->{repoDesc};
 
@@ -433,8 +470,14 @@ sub checkBaseLineMerged {
     else {
         $ret = $self->checkout($masterBranch);
         if ( $ret == 0 ) {
+            my $srcBranch = $self->{gitBranch};
+            if ( $self->{checkoutByTag} == 1 ) {
+                $srcBranch = $self->{gitTag};
+            }
+
             $ret = $self->checkout( $version, 1 );
             if ( $ret == 0 ) {
+                print("INFO: Check merge for: $srcBranch <- $masterBranch\n");
 
                 #print("INFO:cd $prjPath && git merge --no-commit --no-ff $masterBranch\n");
                 $ret = DeployUtils::execmd("cd '$prjPath' && git merge --no-commit --no-ff '$masterBranch'");
@@ -442,20 +485,22 @@ sub checkBaseLineMerged {
                 if ( $ret == 0 ) {
 
                     #print("INFO:cd $prjPath && git diff --cached | wc -l\n");
-                    my $lines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --cached | wc -l");
+                    my $lines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --cached | head -100 2>&1");
 
-                    if ( $$lines[0] ne '0' ) {
+                    if ( scalar(@$lines) > 0 ) {
+                        print( join( "\n", @$lines ) );
+                        print("\n...\n");
+                        $ret = 3;
                         DeployUtils::execmd("cd $prjPath && git diff --stat --cached");
 
                         #print("INFO:cd $prjPath && git merge --abort\n");
-                        $ret = DeployUtils::execmd("cd '$prjPath' && git merge --abort");
-                        print("ERROR:version $version has not merge master branch:$masterBranch modifications.\n");
-                        print("ERROR:未从master分支:$masterBranch合并最新代码，请合并至版本$version后再重新提交!\n");
-                        $success = 0;
+                        my $rstRet = DeployUtils::execmd("cd '$prjPath' && git merge --abort");
+                        print("ERROR: Version $version has not merge master branch:$masterBranch modifications.\n");
+                        print("ERROR: 未从master分支:$masterBranch合并最新代码，请合并至版本$version后再重新提交!\n");
                     }
                 }
                 else {
-                    print("ERROR:Test merge $repoDesc $masterBranch to $version failed.\n");
+                    print("ERROR: Test merge $repoDesc $masterBranch to $version failed.\n");
                     my $rstRet = DeployUtils::execmd("cd '$prjPath' && git reset --hard");
                     if ( $rstRet ne 0 ) {
                         print("ERROR: Reset merge failed.\n");
@@ -465,19 +510,19 @@ sub checkBaseLineMerged {
         }
     }
 
-    $success = 0 if ( $ret ne 0 );
-
-    return $success;
+    return $ret;
 }
 
 sub tag {
-    my ( $self, $tagName, $tagPrefix ) = @_;
-
-    if ( defined($tagPrefix) and $tagPrefix ne '' ) {
-        $tagName = "$tagPrefix$tagName";
-    }
+    my ( $self, $version, $tagPrefix ) = @_;
 
     my $branchName = $self->{gitBranch};
+    my $tag        = $self->{gitTag};
+
+    my $tagName = $tag;
+    if ( defined($tagPrefix) and $tagPrefix ne '' ) {
+        $tagName = "$tagPrefix$version";
+    }
 
     if ( $tagName eq $branchName ) {
         print("WARN: Tag:$tagName and branch:$branchName is same, abort.\n");
@@ -499,13 +544,7 @@ sub tag {
         print("WARN: Config branch:$branchName is a tag, create tag:$tagName for $branchName abort.\n");
     }
 
-    my $success = 1;
-
-    if ( $ret ne 0 ) {
-        $success = 0;
-    }
-
-    return $success;
+    return $ret;
 }
 
 sub checkChangedAfterCompiled {
@@ -514,8 +553,6 @@ sub checkChangedAfterCompiled {
     my $version  = $self->{version};
     my $prjPath  = $self->{prjPath};
     my $repoDesc = $self->{repoDesc};
-
-    my $success = 1;
 
     my $verInfo = $self->{verInfo};
     my $endRev  = $verInfo->{endRev};
@@ -534,7 +571,8 @@ sub checkChangedAfterCompiled {
             $checkoutName = "origin/$checkoutName";
         }
 
-        my $outLines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --stat $endRev '$checkoutName' | head -1000 2>&1");
+        print("INFO: Compare revision:$endRev -> $checkoutName\n");
+        my $outLines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --stat $endRev '$checkoutName' | head -100 2>&1");
         my $hasDiff  = 0;
         foreach my $line (@$outLines) {
             if ( $line ne '' ) {
@@ -542,21 +580,20 @@ sub checkChangedAfterCompiled {
                 print( $line, "\n" );
             }
         }
+        if ( scalar(@$outLines) > 0 ) {
+            print("...\n");
+        }
 
         if ( $hasDiff == 1 ) {
             print("ERROR: Version:$version has been changed after compiled at revision:$endRev.\n");
-            $success = 0;
+            $ret = 2;
         }
         else {
-            $success = 1;
             print("INFO: Version:$version not changed after copmpiled at revision:$endRev.\n");
         }
     }
-    else {
-        $success = 0;
-    }
 
-    return $success;
+    return $ret;
 }
 
 sub getDiffByTag {
@@ -583,13 +620,9 @@ sub _getDiff {
     my $prjPath   = $self->{prjPath};
     my $silentOpt = $self->{silentOpt};
 
-    my $success = 0;
-
     my $repoDesc = $self->{repoDesc};
 
     my $gitMasterBranch = $self->{gitMasterBranch};
-
-    my $ret = 0;
 
     my $baseName = "origin/$gitMasterBranch";
     if ( defined($tagName) and $tagName ne '' ) {
@@ -600,10 +633,6 @@ sub _getDiff {
         else {
             $baseName = "origin/$tagName";
         }
-    }
-
-    if ( $ret ne 0 ) {
-        return 0;
     }
 
     my $delListFile  = "$diffSaveDir/diff-del-list.txt";
@@ -625,7 +654,7 @@ sub _getDiff {
         }
     }
 
-    my $success = 1;
+    my $ret = 0;
 
     my $saveSub = sub {
         my ($line) = @_;
@@ -713,13 +742,10 @@ sub _getDiff {
         if ( defined($diffCmd) ) {
             eval { DeployUtils::handlePipeOut( $diffCmd, $saveSub ); };
             if ($@) {
-                $success = 0;
+                $ret = 3;
                 print( $@, "\n" );
             }
         }
-    }
-    else {
-        $success = 0;
     }
 
     if ( defined($delListFH) ) {
@@ -729,7 +755,7 @@ sub _getDiff {
         $diffListFH->close();
     }
 
-    return $success;
+    return $ret;
 }
 
 1;

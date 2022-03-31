@@ -119,7 +119,7 @@ sub main {
             eval {
                 #通过代码仓库比较获取差异文件存放到目录$diffDir
                 my $getDiffStatus = getBuildDiff( $verGet, $tag4CmpTo, $startRev, 'HEAD', $prjPath, $diffDir, \@excludeDirs, $isVerbose );
-                if ( $getDiffStatus ne 1 ) {
+                if ( $getDiffStatus ne 0 ) {
                     $isFail = 1;
                     print("ERROR: $namePath version:$version get diff failed.\n");
                 }
@@ -151,13 +151,13 @@ sub getBuildDiff {
         mkdir($diffDir);
     }
 
-    my $success = 0;
+    my $ret = 1;
     if ( defined($tag4CmpTo) and $tag4CmpTo ne '' ) {
-        $success = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
+        $ret = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
     }
     elsif ( defined($startRev) and $startRev ne '' ) {
 
-        $success = $verGet->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
+        $ret = $verGet->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
     }
     else {
         print("ERROR: Must defined tag name to compare to.\n");
@@ -165,7 +165,7 @@ sub getBuildDiff {
 
     print("----------------------------------------------------------------------\n");
 
-    return $success;
+    return $ret;
 }
 
 exit main();

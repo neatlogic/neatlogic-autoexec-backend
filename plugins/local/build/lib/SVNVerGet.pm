@@ -29,54 +29,26 @@ sub new {
 
     my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
 
-    my $success = 1;
-
-    my $repo     = $verInfo->{repo};
-    my $confRepo = $repo;
+    my $repo    = $verInfo->{repo};
+    my $trunk   = $verInfo->{trunk};
+    my $branch  = $verInfo->{branch};
+    my $tag     = $verInfo->{tag};
+    my $tagsDir = $verInfo->{tagsDir};
 
     $repo =~ s/\/+$//;
-    my $confRepo = $repo;
-    my $svnRepo  = $confRepo;
-    if ( defined($svnRepo) and $svnRepo ne '' ) {
-        $svnRepo =~ s/\{\{version\}\}/$version/g;
-        $self->{repo} = $svnRepo;
-        my $prjRepo = $confRepo;
-        $prjRepo =~ s/\{\{version\}\}.*?$/$version/g;
-        $self->{prjRepo} = $prjRepo;
-    }
-    if ( $confRepo eq $svnRepo ) {
-        $self->{isStatic} = 1;
-    }
-    else {
-        $self->{isStatic} = 0;
-    }
+    $repo =~ s/\{\{version\}\}/$version/g;
+    $trunk =~ s/^\/+|\/+$//g;
+    $trunk =~ s/\{\{version\}\}/$version/g;
+    $branch =~ s/^\/+|\/+$//g;
+    $branch =~ s/\{\{version\}\}/$version/g;
+    $tag =~ s/^\/+|\/+$//g;
+    $tag =~ s/\{\{version\}\}/$version/g;
+    $tagsDir =~ s/^\/+|\/+$//g;
+    $tagsDir =~ s/\{\{version\}\}/$version/g;
 
     $self->{checkoutByTag} = 0;
-    my $confSvnTag = $verInfo->{tag};
-    $confSvnTag =~ s/\/+$//;
-    my $svnTag = $confSvnTag;
-    if ( defined($svnTag) and $svnTag ne '' ) {
-        $svnTag =~ s/\{\{version\}\}/$version/g;
+    if ( defined($tag) and $tag ne '' ) {
         $self->{checkoutByTag} = 1;
-        $self->{svnTag}        = $svnTag;
-
-        my $prjRepo = $confSvnTag;
-        $prjRepo =~ s/\{\{version\}\}.*?$/$version/g;
-        $self->{prjRepo} = $prjRepo;
-    }
-    if ( $confSvnTag eq $svnTag ) {
-        $self->{isStatic} = 1;
-    }
-    else {
-        $self->{isStatic} = 0;
-    }
-
-    my $tagsDir = $verInfo->{tagsDir};
-    $tagsDir =~ s/\/+$//;
-
-    my $trunkRepo = $verInfo->{trunk};
-    if ( not defined($trunkRepo) or $trunkRepo eq '' ) {
-        $trunkRepo =~ s/\/+$//;
     }
 
     my $svnUser = $verInfo->{username};
@@ -93,7 +65,9 @@ sub new {
     $self->{svnUser}      = $svnUser;
     $self->{svnPass}      = $svnPass;
     $self->{repo}         = $repo;
-    $self->{trunkRepo}    = $trunkRepo;
+    $self->{trunk}        = $trunk;
+    $self->{branch}       = $branch;
+    $self->{tag}          = $tag;
     $self->{tagsDir}      = $tagsDir;
     $self->{localSvnInfo} = $localSvnInfo;
 
@@ -140,18 +114,18 @@ sub cleanUp {
         }
     };
 
-    print("INFO: begin to clean up unversioned files in working copy.\n");
+    print("INFO: Begin to clean up unversioned files in working copy.\n");
     DeployUtils::handlePipeOut( "svn status '$prjPath'", $callback );
     print("INFO: Clean up unversioned files finished.\n");
 }
 
 sub checkout {
-    my ( $self, $repo ) = @_;
+    my ( $self, $checkoutRepo ) = @_;
 
     my $autoexecHome = $self->{autoexecHome};
     my $prjPath      = $self->{prjPath};
     my $tagsDir      = $self->{tagsDir};
-    my $trunkRepo    = $self->{trunkRepo};
+    my $trunk        = $self->{trunk};
     my $version      = $self->{version};
 
     my $startRev = 0;
@@ -173,33 +147,31 @@ sub checkout {
 
     my $ret = 0;
 
-    my $checkoutRepo = $repo;
-
     my $localSvnInfo = $self->getLocalSvnInfo($prjPath);
 
     if ( not defined( $localSvnInfo->{URL} ) ) {
-        print("INFO:checkout $checkoutRepo, it will take a few minutes, pleas wait...\n");
+        print("INFO: Checkout $checkoutRepo, it will take a few minutes, pleas wait...\n");
         rmtree($prjPath);
 
-        #print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
+        print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
         $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
     }
     elsif ( $checkoutRepo ne $localSvnInfo->{URL} ) {
         $self->cleanUp();
-        print("INFO:Repo url has been changed, switch to $checkoutRepo......\n");
+        print("INFO: Local copy url has been changed, switch to $checkoutRepo......\n");
 
         #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser--password $svnPass switch $checkoutRepo $prjPath\n");
         $ret = DeployUtils::execmd("svn cleanup '$prjPath' && svn revert -R '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass switch '$checkoutRepo' '$prjPath'");
 
         if ( $ret ne 0 ) {
-            print("INFO:Checkout failed, clean the project directory will take a few minutes, please wait...\n");
+            print("INFO: Checkout failed, clean the project directory will take a few minutes, please wait...\n");
             if ( rmtree($prjPath) == 0 ) {
-
+                $ret = 3;
                 print("ERROR:Remove directory $prjPath failed.\n");
             }
             else {
                 mkdir($prjPath);
-                print("INFO:Checkout again, it will take a few minutes, please wait...\n");
+                print("INFO: Checkout again, it will take a few minutes, please wait...\n");
 
                 #print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
                 $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
@@ -208,7 +180,7 @@ sub checkout {
     }
     else {
         $self->cleanUp();
-        print("INFO:update $checkoutRepo......\n");
+        print("INFO: Update $checkoutRepo......\n");
 
         #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser--password $svnPass update $checkoutRepo\n");
         #print("cd $prjPath && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass update .\n");
@@ -217,7 +189,7 @@ sub checkout {
         if ( $ret ne 0 ) {
             print("INFO:Checkout failed, clean the project directory will take a few minutes, please wait...\n");
             if ( rmtree($prjPath) == 0 ) {
-
+                $ret = 3;
                 print("ERROR:remove directory $prjPath failed.\n");
             }
             else {
@@ -249,17 +221,26 @@ sub checkout {
 }
 
 sub tagRepo {
-    my ( $self, $repo, $tagRepo, $tagName ) = @_;
-
-    if ( $repo eq $tagRepo ) {
-        print("WARN: $repo and $tagRepo is same, tag abort.\n");
-        return 0;
-    }
+    my ( $self, $branchName, $tagName ) = @_;
 
     my $autoexecHome = $self->{autoexecHome};
 
-    my $version    = $self->{version};
-    my $svnTagsDir = $self->{tagsDir};
+    my $version = $self->{version};
+    my $repo    = $self->{repo};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
+
+    if ( not defined($tagName) or $tagName eq '' ) {
+        $tagName = $tag;
+    }
+
+    my $srcRepo = "$repo/$branchName";
+    my $tagRepo = "$repo/$tagName";
+
+    if ( $srcRepo eq $tagRepo ) {
+        print("WARN: $srcRepo and $tagRepo is same, tag abort.\n");
+        return 0;
+    }
 
     my $svnUser = $self->{svnUser};
     my $svnPass = $self->{svnPass};
@@ -268,50 +249,37 @@ sub tagRepo {
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    if ( not defined($tagRepo) or $tagRepo eq '' and defined($tagName) and $tagName ne '' ) {
-        if ( defined($svnTagsDir) and $svnTagsDir ne '' ) {
-            $tagRepo = "$svnTagsDir/$tagName";
-        }
-    }
-
-    if ( ( not defined($tagName) or $tagName eq '' ) and defined($tagRepo) and $tagRepo ne '' ) {
-        $tagName = basename($tagRepo);
-    }
-
     my $ret = 0;
-    if ( defined($tagRepo) and $tagRepo ne '' ) {
-        print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' rm  '$tagRepo' -m 'delete for autodeploy.'\n");
-        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass rm  '$tagRepo' -m 'delete for autodeploy.'");
-        print("INFO:Remove $tagRepo failed, maybe $tagRepo no exist.\n") if ( $ret != 0 );
 
-        print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp --parents '$repo' '$tagRepo'  -m 'copy for autodeploy.'\n");
-        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp --parents '$repo' '$tagRepo'  -m 'copy for autodeploy.'");
-        if ( $ret != 0 ) {
-            print("ERROR: Create tag $tagName $repo to $tagRepo failed.\n");
-        }
-        else {
-            print("FINEST: Create tag $tagName $repo to $tagRepo success.\n");
-        }
+    print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' rm  '$tagRepo' -m 'delete for autodeploy.'\n");
+    $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass rm  '$tagRepo' -m 'delete for autodeploy.'");
+    print("INFO: Remove $tagRepo failed, maybe $tagRepo no exist.\n") if ( $ret != 0 );
+
+    print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp --parents '$srcRepo' '$tagRepo'  -m 'copy for autodeploy.'\n");
+    $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp --parents '$srcRepo' '$tagRepo'  -m 'copy for autodeploy.'");
+    if ( $ret != 0 ) {
+        print("ERROR: Create tag:$tagName $tagRepo -> $srcRepo failed.\n");
     }
     else {
-        print("WARN: Config option tagsDir not defined, can not create tag $tagName.\n");
+        print("FINEST: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
     }
 
     return $ret;
 }
 
 sub tagRepoRev {
-    my ( $self, $repo, $tagRepo, $tagName, $tagRevision ) = @_;
+    my ( $self, $branch, $tag, $version, $tagRevision ) = @_;
 
-    if ( $repo eq $tagRepo ) {
-        print("WARN: $repo and $tagRepo is same, tag abort.\n");
+    if ( $branch eq $tag ) {
+        print("WARN: branch:$branch and tag:$tag is same, tag abort.\n");
         return 0;
     }
 
     my $autoexecHome = $self->{autoexecHome};
 
-    my $version    = $self->{version};
-    my $svnTagsDir = $self->{tagsDir};
+    my $version = $self->{version};
+    my $repo    = $self->{repo};
+    my $tagsDir = $self->{tagsDir};
 
     my $svnUser = $self->{svnUser};
     my $svnPass = $self->{svnPass};
@@ -320,18 +288,19 @@ sub tagRepoRev {
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    if ( not defined($tagRepo) or $tagRepo eq '' and defined($tagName) and $tagName ne '' ) {
-        if ( defined($svnTagsDir) and $svnTagsDir ne '' ) {
-            $tagRepo = "$svnTagsDir/$tagName";
+    my $tagName = $tag;
+    if ( not defined($tag) or $tag eq '' and defined($version) and $version ne '' ) {
+        if ( defined($tagsDir) and $tagsDir ne '' ) {
+            $tagName = "$tagsDir/$version";
         }
     }
 
-    if ( ( not defined($tagName) or $tagName eq '' ) and defined($tagRepo) and $tagRepo ne '' ) {
-        $tagName = basename($tagRepo);
-    }
+    my $svnTagsDir = "$repo/$tagsDir";
+    my $srcRepo    = "$repo/$branch";
+    my $tagRepo    = "$repo/$tagName";
 
     my $ret = 0;
-    if ( defined($tagRepo) and $tagRepo ne '' ) {
+    if ( defined($tagName) and $tagName ne '' ) {
         my $listtags = "svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass ls  '$svnTagsDir' ";
         $ret = DeployUtils::execmd($listtags);
         if ( $ret != 0 ) {
@@ -344,10 +313,10 @@ sub tagRepoRev {
             }
         }
 
-        print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp '$repo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'\n");
-        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp '$repo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'");
+        print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'\n");
+        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'");
         if ( $ret == 0 ) {
-            print("FINEST: Create tag $tagName $repo to $tagRepo success.\n");
+            print("FINEST: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
         }
     }
     else {
@@ -362,7 +331,9 @@ sub getTags {
 
     my $tags = {};
 
-    my $svnTagsDir = $self->{tagsDir};
+    my $repo       = $self->{repo};
+    my $tagsDir    = $self->{tagsDir};
+    my $svnTagsDir = "$repo/$tagsDir";
 
     if ( defined($svnTagsDir) and $svnTagsDir ne '' ) {
         my $autoexecHome = $self->{autoexecHome};
@@ -407,24 +378,30 @@ sub get {
     my $isVerbose = $self->{isVerbose};
 
     my $autoexecHome = $self->{autoexecHome};
+    my $repo         = $self->{repo};
+    my $branch       = $self->{branch};
+    my $tag          = $self->{tag};
     my $svnUser      = $self->{svnUser};
     my $svnPass      = $self->{svnPass};
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    my $success = 1;
-    my $ret     = 0;
+    my $ret = 0;
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        print("INFO: Try to checkout repository:$repo tag:$tag...\n");
+        $checkoutRepo = "$repo/$tag";
     }
+    else {
+        print("INFO: Try to checkout repository:$repo branch:$branch...\n");
+        $checkoutRepo = "$repo/$branch";
+    }
+
     $ret = $self->checkout($checkoutRepo);
 
-    $success = 0 if ( $ret ne 0 );
-
-    return $success;
+    return $ret;
 }
 
 sub checkBaseLineMerged {
@@ -435,13 +412,17 @@ sub checkBaseLineMerged {
 
     my $autoexecHome = $self->{autoexecHome};
     my $prjPath      = $self->{prjPath};
-    my $trunkRepo    = $self->{trunkRepo};
+
     my $svnUser      = $self->{svnUser};
     my $svnPass      = $self->{svnPass};
     my $localSvnInfo = $self->{localSvnInfo};
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
+
+    my $repo      = $self->{repo};
+    my $trunk     = $self->{trunk};
+    my $trunkRepo = "$repo/$trunk";
 
     if ( not defined($trunkRepo) or $trunkRepo eq '' ) {
         print("ERROR: Config option trunk not defined.\n");
@@ -450,11 +431,13 @@ sub checkBaseLineMerged {
 
     my $hasError = 0;
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
+    my $ret = $self->get();
+
+    if ( $ret != 0 ) {
+
+        #checkout failed
+        return $ret;
     }
-    my $ret = $self->checkout($checkoutRepo);
 
     my $hasError = 0;
     my $summary  = 0;
@@ -486,22 +469,20 @@ sub checkBaseLineMerged {
     };
     if ($@) {
         $hasError = 1;
-        print("ERROR:merge trunk to check if base line merged failed:$@\n");
+        print("ERROR: Merge trunk to check if base line merged failed:$@\n");
     }
 
     if ( $hasError == 1 ) {
-        print("ERROR: Version $version has not merge trunk modifications.\n");
+        print("ERROR: Version $version has not merged trunk modifications.\n");
         print("ERROR: 未从trunk合并最新代码，请合并至版本$version后再重新提交!\n");
     }
-
-    $ret = DeployUtils::execmd("cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass revert -R .");
-
-    if ( $hasError == 1 ) {
-        return 0;
-    }
     else {
-        return 1;
+        print("INFO: Version $version has merged trunk modifications.\n");
     }
+
+    my $ret = DeployUtils::execmd("cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass revert -R .");
+
+    return $hasError;
 }
 
 sub mergeToBaseLine {
@@ -510,9 +491,12 @@ sub mergeToBaseLine {
     my $version   = $self->{version};
     my $isVerbose = $self->{isVerbose};
 
+    my $repo         = $self->{repo};
+    my $trunk        = $self->{trunk};
+    my $branch       = $self->{branch};
+    my $tag          = $self->{tag};
     my $autoexecHome = $self->{autoexecHome};
     my $prjPath      = $self->{prjPath};
-    my $svnTrunkRepo = $self->{trunkRepo};
     my $svnTagsDir   = $self->{tagsDir};
     my $svnUser      = $self->{svnUser};
     my $svnPass      = $self->{svnPass};
@@ -521,104 +505,147 @@ sub mergeToBaseLine {
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        $checkoutRepo = "$repo/$tag";
+    }
+    else {
+        $checkoutRepo = "$repo/$branch";
     }
 
-    my $success = 1;
-
-    if ( defined($svnTrunkRepo) and $svnTrunkRepo ne '' ) {
-        my $ret = 0;
-
+    my $ret          = 0;
+    my $svnTrunkRepo = "$repo/$trunk";
+    if ( defined($trunk) and $trunk ne '' ) {
         $ret = $self->checkout($svnTrunkRepo);
 
         if ( $ret == 0 ) {
+            print("INFO: Merge $checkoutRepo -> $svnTrunkRepo\n");
             $ret =
                 DeployUtils::execmd(
 "cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$checkoutRepo' '$svnTrunkRepo' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass commit -m 'merge $version'"
                 );
-
-            #auto tag
-            if ( $ret == 0 ) {
-                $ret = $self->checkout($checkoutRepo);
-            }
-            else {
-                print("ERROR: Checkout $checkoutRepo failed.\n");
-                $success = 0;
-            }
         }
         else {
             print("ERROR: Checkout $svnTrunkRepo failed.\n");
         }
+    }
+    else {
+        $ret = 3;
+        print("ERROR: Config option trunk not defined, can not merge.\n");
+    }
 
-        if ( $ret ne 0 ) {
-            $success = 0;
+    return $ret;
+}
+
+sub mergeBaseLine {
+    my ($self) = @_;
+
+    my $version   = $self->{version};
+    my $isVerbose = $self->{isVerbose};
+
+    my $repo         = $self->{repo};
+    my $trunk        = $self->{trunk};
+    my $branch       = $self->{branch};
+    my $tag          = $self->{tag};
+    my $autoexecHome = $self->{autoexecHome};
+    my $prjPath      = $self->{prjPath};
+    my $svnTagsDir   = $self->{tagsDir};
+    my $svnUser      = $self->{svnUser};
+    my $svnPass      = $self->{svnPass};
+    my $localSvnInfo = $self->{localSvnInfo};
+
+    my $silentOpt = '-q';
+    $silentOpt = '' if ( defined($isVerbose) );
+
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        $checkoutRepo = "$repo/$tag";
+    }
+    else {
+        $checkoutRepo = "$repo/$branch";
+    }
+
+    my $ret          = 0;
+    my $svnTrunkRepo = "$repo/$trunk";
+    if ( defined($trunk) and $trunk ne '' ) {
+        $ret = $self->checkout($checkoutRepo);
+
+        if ( $ret == 0 ) {
+            print("INFO: Merge $svnTrunkRepo -> $checkoutRepo\n");
+            $ret =
+                DeployUtils::execmd(
+"cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$svnTrunkRepo' '$checkoutRepo' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass commit -m 'merge $version to baseline'"
+                );
+        }
+        else {
+            print("ERROR: Checkout $checkoutRepo failed.\n");
         }
     }
     else {
+        $ret = 3;
         print("ERROR: Config option trunk not defined, can not merge.\n");
-        $success = 0;
     }
 
-    return $success;
+    return $ret;
 }
 
 sub tag {
-    my ( $self, $tagName, $tagPrefix ) = @_;
+    my ( $self, $version, $tagPrefix ) = @_;
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
-    }
+    my $repo    = $self->{repo};
+    my $trunk   = $self->{trunk};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
+    my $tagsDir = $self->{tagsDir};
 
-    my $ret = 1;
-
-    if ( not defined($tagPrefix) or $tagPrefix eq '' ) {
-        my $svnTag = $self->{svnTag};
-        if ( defined($svnTag) and $svnTag ne '' ) {
-            $ret = $self->tagRepo( $checkoutRepo, $svnTag, undef );
+    my $tagName;
+    if ( defined($tagPrefix) and $tagPrefix ne '' ) {
+        if ( not defined($tagsDir) or $tagsDir eq '' ) {
+            print("ERROR: Config option tagsDir not difined.\n");
+            return 3;
+        }
+        elsif ( defined($version) and $version ne '' ) {
+            $tagName = "$tagsDir/$tagPrefix$version";
         }
         else {
-            $ret = 0;
+            print("ERROR: Version number not defined.\n");
+            return 3;
         }
     }
     else {
-        my $tagsDir = $self->{tagsDir};
-        if ( not defined($tagsDir) or $tagsDir ne '' ) {
-            print("ERROR: Config option tagsDir not difined.\n");
-        }
-        else {
-            $ret = $self->tagRepo( $checkoutRepo, $self->{tagsDir} . "/$tagPrefix$tagName", undef );
-        }
+        $tagName = $tag;
     }
 
-    my $success = 1;
-
-    if ( $ret ne 0 ) {
-        $success = 0;
+    if ( $tagName eq $branch ) {
+        print("WARN: Tag:$tagName and branch:$branch is same, can not create tag.\n");
+        return 0;
     }
 
-    return $success;
+    print("INFO: Create or replace tag:$tagName for branch:$branch.\n");
+    my $ret = $self->tagRepo( $branch, $tagName );
+
+    return $ret;
 }
 
 sub tagRev {
-    my ( $self, $tagName, $tagPrefix, $tagRevision ) = @_;
+    my ( $self, $version, $tagPrefix, $tagRevision ) = @_;
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
-    }
+    my $repo    = $self->{repo};
+    my $trunk   = $self->{trunk};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
+    my $tagsDir = $self->{tagsDir};
 
-    my $ret = 1;
+    my $ret = 0;
 
     if ( not defined($tagPrefix) or $tagPrefix eq '' ) {
-        my $svnTag = $self->{svnTag};
-        if ( defined($svnTag) and $svnTag ne '' ) {
-            $ret = $self->tagRepoRev( $checkoutRepo, $svnTag, undef );
-        }
-        else {
-            $ret = 0;
+        if ( defined($tag) and $tag ne '' ) {
+            if ( $tag eq $branch ) {
+                print("WARN: Tag:$tag and branch:$branch is same, can not create tag.\n");
+                return 0;
+            }
+
+            $ret = $self->tagRepoRev( $branch, $tag, undef );
         }
     }
     else {
@@ -626,18 +653,16 @@ sub tagRev {
         if ( not defined($tagsDir) or $tagsDir eq '' ) {
             print("ERROR: Config option tagsDir not difined.\n");
         }
+        elsif ( defined($version) and $version ne '' ) {
+            $ret = $self->tagRepoRev( $branch, "$tagsDir/$tagPrefix$version", $version, $tagRevision, undef );
+        }
         else {
-            $ret = $self->tagRepoRev( $checkoutRepo, $self->{tagsDir} . "/$tagPrefix$tagName", $tagName, $tagRevision, undef );
+            print("ERROR: Version number not defined.\n");
+            return 3;
         }
     }
 
-    my $success = 1;
-
-    if ( $ret ne 0 ) {
-        $success = 1;
-    }
-
-    return $success;
+    return $ret;
 }
 
 sub checkChangedAfterCompiled {
@@ -645,6 +670,9 @@ sub checkChangedAfterCompiled {
 
     my $verInfo = $self->{verInfo};
     my $repo    = $self->{repo};
+    my $trunk   = $self->{trunk};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
     my $version = $self->{version};
 
     my $isVerbose = $self->{isVerbose};
@@ -655,59 +683,67 @@ sub checkChangedAfterCompiled {
     my $svnPass      = $self->{svnPass};
     my $endRev       = $verInfo->{endRev};
 
-    my $checkoutRepo = $self->{repo};
-    if ( $self->{checkoutByTag} ) {
-        $checkoutRepo = $self->{svnTag};
+    my $newRepo;
+    if ( defined($branch) and $branch ne '' ) {
+        $newRepo = "$repo/$branch";
+    }
+    else {
+        $newRepo = "$repo/$trunk";
+    }
+
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        $checkoutRepo = "$repo/$tag";
+    }
+    else {
+        $checkoutRepo = "$repo/$branch";
     }
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    my $success = 0;
+    my $ret = 1;
 
     if ( defined($checkoutRepo) and $checkoutRepo ne '' ) {
-        my $ret = 0;
-
-        my $diffCountLines = DeployUtils::getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$checkoutRepo' | wc -l");
-        if ( $$diffCountLines[0] eq '0' ) {
-            $success = 1;
-            print("FINEST: Version:$version has no change after compiled, End Revision:$endRev.\n");
+        print("INFO: Compare $checkoutRepo\@$endRev -> $newRepo\n");
+        my $lines = DeployUtils::getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo' | head -100 2>&1");
+        if ( scalar(@$lines) eq '0' ) {
+            $ret = 0;
+            print("FINEST: Version:$version has not changed after compiled, End Revision:$endRev.\n");
         }
-        elsif ( $$diffCountLines[0] eq '1' ) {
-            my $lines = DeployUtils::getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$checkoutRepo'");
-            my $line  = $$lines[0];
+        elsif ( scalar(@$lines) eq '1' ) {
+            my $line = $$lines[0];
             if ( $line =~ /^\s*M\s+/ and $line =~ /\s+$checkoutRepo\s*$/ ) {
-                $success = 1;
+                $ret = 0;
                 print("WARN:$line\n");
             }
             else {
                 print("WARN: Version:$version has been changed after compiled, End Revision:$endRev.\n");
-                print("$line\n");
+                print( join( "\n", @$lines ) );
+                print("\n...\n");
             }
         }
         else {
             print("WARN: Version:$version has been changed after compiled, End Revision:$endRev.\n");
-            $ret = DeployUtils::execmd("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$repo' | head -1000 2>&1");
-            if ( $ret != 0 ) {
-                print("WARN:diff $checkoutRepo revision range:$endRev..HEAD failed.\n");
-            }
+            print( join( "\n", @$lines ) );
+            print("\n...\n");
         }
     }
     else {
-        print("ERROR:repo not defined.\n");
+        print("ERROR: SVN repository not defined.\n");
     }
 
-    return $success;
+    return $ret;
 }
 
 sub getDiffByTag {
     my ( $self, $tagName, $excludeDirs, $diffSaveDir, $isVerbose ) = @_;
-    $self->_getDiff( $tagName, undef, undef, $excludeDirs, $diffSaveDir, $isVerbose );
+    return $self->_getDiff( $tagName, undef, undef, $excludeDirs, $diffSaveDir, $isVerbose );
 }
 
 sub getDiffByRev {
     my ( $self, $startRev, $endRev, $excludeDirs, $diffSaveDir, $isVerbose ) = @_;
-    $self->_getDiff( undef, $startRev, $endRev, $excludeDirs, $diffSaveDir, $isVerbose );
+    return $self->_getDiff( undef, $startRev, $endRev, $excludeDirs, $diffSaveDir, $isVerbose );
 }
 
 sub _getDiff {
@@ -717,17 +753,28 @@ sub _getDiff {
         $endRev = 'HEAD';
     }
 
-    my $repo = $self->{repo};
+    my $repo    = $self->{repo};
+    my $trunk   = $self->{trunk};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
+    my $tagsDir = $self->{tagsDir};
 
     my $autoexecHome = $self->{autoexecHome};
     my $prjPath      = $self->{prjPath};
     my $svnUser      = $self->{svnUser};
     my $svnPass      = $self->{svnPass};
 
-    my $tagsDir  = $self->{tagsDir};
-    my $baseRepo = $self->{trunkRepo};
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        $checkoutRepo = "$repo/$tag";
+    }
+    else {
+        $checkoutRepo = "$repo/$branch";
+    }
+
+    my $baseRepo = "$repo/$trunk";
     if ( defined($tagName) and $tagName ne '' ) {
-        $baseRepo = "$tagsDir/$tagName";
+        $baseRepo = "$repo/$tagsDir/$tagName";
     }
 
     my $delListFile  = "$diffSaveDir/diff-del-list.txt";
@@ -750,7 +797,7 @@ sub _getDiff {
         }
     }
 
-    my $success = 1;
+    my $ret = 0;
 
     my $startPos = 0;
 
@@ -839,13 +886,13 @@ sub _getDiff {
         $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff -r $startRev:$endRev\n";
     }
     else {
-        $diffCmd  = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --new '$repo' --old '$baseRepo'";
-        $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff --new '$repo' --old '$baseRepo'\n";
+        $diffCmd  = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --new '$checkoutRepo' --old '$baseRepo'";
+        $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff --new '$checkoutRepo' --old '$baseRepo'\n";
     }
 
     eval { DeployUtils::handlePipeOut( $diffCmd, $saveSub, 0, $execDesc ); };
     if ($@) {
-        $success = 0;
+        $ret = 1;
         print( $@, "\n" );
     }
 
@@ -856,7 +903,7 @@ sub _getDiff {
         $diffListFH->close();
     }
 
-    return $success;
+    return $ret;
 }
 
 1;

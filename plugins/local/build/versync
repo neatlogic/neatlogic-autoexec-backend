@@ -57,17 +57,14 @@ sub main {
         print("ERROR: Can not find application $namePath version:$version.\n");
     }
 
-    my $ret        = 0;
-    my $verGet     = VerGet->new( $buildEnv, $verInfo, $isVerbose );
-    my $getSuccess = $verGet->mergeToBaseLine();
+    my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+    my $ret = $verGet->mergeBaseLine();
 
-    my $desc = "Get version for $namePath version:$version";
-    if ( $getSuccess eq 1 ) {
-        print("FINEST: $desc success.\n");
+    if ( $ret eq 0 ) {
+        print("FINEST: Merge baseline changes to version:$version success.\n");
     }
     else {
-        $ret = 1;
-        print("ERROR: $desc failed.\n");
+        print("ERROR: Merge baseline changes to version:$version failed.\n");
     }
 
     return $ret;

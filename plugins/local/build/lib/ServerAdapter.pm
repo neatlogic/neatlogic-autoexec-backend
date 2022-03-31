@@ -38,22 +38,39 @@ sub getVer {
 
     #TODO: call api get verInfo by param
 
-    my $verInfo = {
+    my $gitVerInfo = {
         version     => $version,
         repoType    => 'GIT',
         repo        => 'http://192.168.0.82:7070/luoyu/webTest.git',
         trunk       => 'master',
         branch      => '2.0.0',
-        tag         => undef,
+        tag         => 'V2.0.0',
         tagsDir     => undef,
         isFreeze    => 0,
         lastBuildNo => 0,
         startRev    => 'bda9fb6f',
-        endRev      => '80306e35',
+        endRev      => 'f2a9c727',
         username    => 'wenhb',
-        password    => 'won8802654'
+        password    => 'aaaaa'
     };
 
+    my $svnVerInfo = {
+        version     => $version,
+        repoType    => 'SVN',
+        repo        => 'svn://192.168.0.88/webTest',
+        trunk       => 'trunk',
+        branch      => 'branches/1.0.0',
+        tag         => undef,
+        tagsDir     => 'tags',
+        isFreeze    => 0,
+        lastBuildNo => 0,
+        startRev    => '0',
+        endRev      => '32',
+        username    => 'admin',
+        password    => 'wen7831'
+    };
+
+    my $verInfo = $svnVerInfo;
     return $verInfo;
 }
 

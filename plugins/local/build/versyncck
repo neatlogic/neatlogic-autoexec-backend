@@ -51,7 +51,6 @@ sub main {
 
     my $lock = BuildLock->new($buildEnv);
     $lock->lockWorkspace($BuildLock::EXCLUDE);
-
     my $verInfo = ServerAdapter->getVer($buildEnv);
 
     if ( not defined($verInfo) ) {
@@ -59,13 +58,13 @@ sub main {
     }
 
     my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
-    my $ret = $verGet->checkChangedAfterCompiled();
+    my $ret = $verGet->checkBaseLineMerged();
 
     if ( $ret eq 0 ) {
-        print("FINEST: $namePath version:$version source code not changed after compiled.\n");
+        print("FINEST: $namePath version:$version has merged baseline changes.\n");
     }
     else {
-        print("ERROR: $namePath version:$version source code changed after compiled.\n");
+        print("ERROR: $namePath version:$version has not merged baseline changes.\n");
     }
 
     return $ret;
