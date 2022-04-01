@@ -53,12 +53,6 @@ sub main {
     usage() if ( defined($isHelp) );
     usage() if ( not defined($envPath) or not defined($version) );
 
-    if ( defined($lang) ) {
-        $ENV{LANG}   = $lang;
-        $ENV{LC_ALL} = $lang;
-    }
-    $ENV{CLASSPATH} = '';
-
     my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
     my $namePath  = $buildEnv->{NAME_PATH};
     my $toolsPath = $buildEnv->{TOOLS_PATH};

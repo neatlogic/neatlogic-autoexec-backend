@@ -495,5 +495,5 @@ sub ifDiffHasJava {
     return $hasJava;
 }
 
-main();
+exit main();
 

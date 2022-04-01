@@ -63,16 +63,17 @@ sub deployInit {
 
     if ( defined($version) and $version ne '' ) {
         $ENV{VERSION} = $version;
-        $deployEnv->{VERSION} = $version;
     }
     else {
-        $deployEnv->{VERSION} = $ENV{VERSION};
+        $version = $ENV{VERSION};
     }
 
-    $deployEnv->{ID_PATH}   = $dpIdPath;
-    $deployEnv->{NAME_PATH} = $dpPath;
-    $deployEnv->{DATA_PATH} = $dataPath;
-    $deployEnv->{PRJ_PATH}  = $prjPath;
+    $deployEnv->{VERSION}    = $version;
+    $deployEnv->{BUILD_ROOT} = "$dataPath/artifact/V1.0.0/build";
+    $deployEnv->{ID_PATH}    = $dpIdPath;
+    $deployEnv->{NAME_PATH}  = $dpPath;
+    $deployEnv->{DATA_PATH}  = $dataPath;
+    $deployEnv->{PRJ_PATH}   = $prjPath;
 
     return $deployEnv;
 }

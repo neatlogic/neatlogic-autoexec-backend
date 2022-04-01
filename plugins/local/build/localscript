@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use File::Basename;
+use Cwd;
+use File::Temp;
+use Digest::MD5 qw(md5 md5_hex);
+use JSON qw(to_json from_json);
+
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = basename($0);
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--lang LANG] [--version VERSION] \n");
+    print("       [--basedir SubDirectoryInSysDataPath] --script EncodedScript\n");
+    print("\n");
+    print("       envpath: Env path in the data directory, example:10/10/10\n");
+    print("       cmd:         command text\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $baseDir, $scriptJson );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'lang=s'      => \$lang,
+        'v|verbose=i' => \$isVerbose,
+        'basedir=s'   => \$baseDir,
+        'script=s'    => \$scriptJson
+    );
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($scriptJson) or $scriptJson eq '' );
+    my $optionError = 0;
+
+    my $buildEnv     = DeployUtils->deployInit( $envPath, $version );
+    my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
+    my $namePath     = $buildEnv->{NAME_PATH};
+    my $dataPath     = $buildEnv->{DATA_PATH};
+    my $toolsPath    = $buildEnv->{TOOLS_PATH};
+
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    usage() if ( $optionError == 1 );
+
+    if ( not defined($baseDir) ) {
+        $baseDir = Cwd::realpath($dataPath);
+    }
+    else {
+        $baseDir = Cwd::realpath("$dataPath/$baseDir");
+    }
+
+    my $isFail = 0;
+    my $cmd = getScriptCmd( $autoexecHome, $scriptJson, $lang );
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- $cmd") != 0 ) {
+        print("ERROR: exec $cmd has error.\n");
+        $isFail = 1;
+    }
+    else {
+        print("INFO: exec $cmd has successed.\n");
+    }
+
+    return $isFail;
+}
+
+sub getScriptCmd {
+    my ( $autoexecHome, $scriptJson, $lang ) = @_;
+    my $scriptObj = from_json($scriptJson);
+
+    my $scriptName        = $scriptObj->{name};
+    my $scriptInterpreter = $scriptObj->{interpreter};
+    my $scriptContent     = $scriptObj->{content};
+    my $arguments         = $scriptObj->{arguments};
+
+    if ( defined($lang) ) {
+        $ENV{LANG} = $lang;
+    }
+
+    my $destCharset;
+    if ( $lang =~ /\.([^\.]+)$/ ) {
+        $destCharset = lc($1);
+    }
+
+    if ( defined($scriptContent) and $scriptContent ne '' ) {
+        my $unHexContent = pack( 'H*', $scriptContent );
+        my $hexContent = unpack( 'H*', $unHexContent );
+
+        if ( $hexContent eq lc($scriptContent) ) {
+            $scriptContent = $unHexContent;
+        }
+    }
+
+    if ( defined($destCharset) and $destCharset ne '' ) {
+        $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
+    }
+    my $TMPDIR  = "$autoexecHome/tmp";
+    my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".$scriptName" );
+    my $tmpPath = $tmp->filename;
+    print $tmp ($scriptContent);
+    $tmp->flush();
+
+    my $cmd = "$scriptInterpreter $tmpPath $arguments";
+
+    return $cmd;
+}
+
+exit main();

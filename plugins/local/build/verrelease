@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use FindBin;
+use strict;
+use DeployUtils;
+use BuildLock;
+
+use Getopt::Long;
+use JSON;
+use VerGet;
+use ServerAdapter;
+
+sub main(){
+
+}
+
+exit main();
