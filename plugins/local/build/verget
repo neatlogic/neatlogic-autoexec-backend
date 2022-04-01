@@ -12,7 +12,8 @@ use ServerAdapter;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] --repotype GIT|SVN --repo REPO \n");
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG] \n");
+    print("              --repotype GIT|SVN --repo REPO \n");
     print("              --trunk TRUNK [--branch BRANCH] [--tagsdir TAGSDIR] [--tag TAG]\n");
     print("              [--username USERNAME] [--password PASSWORD]\n");
     print("\n");

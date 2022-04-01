@@ -176,4 +176,72 @@ sub compile {
     return $isFail;
 }
 
+sub release {
+    my ( $buildEnv, $version, $buildNo ) = @_;
+
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    if ( not defined($version) ) {
+        $version = $buildEnv->{VERSION};
+    }
+    if ( not defined($buildNo) ) {
+        $buildNo = $buildEnv->{BUILDNO};
+    }
+
+    my $myRunnerId  = $buildEnv->{RUNNER_ID};
+    my $runnerGroup = $buildEnv->{RUNNER_GROUP};
+
+    my $cwd = getcwd();
+    chdir($dataPath);
+
+    my $outerCompileRoot = "workspace";
+    my $buildRoot        = "artifact/$version/build";
+    my $buildPath        = "$buildRoot/$buildNo";
+    my $envBuildRoot     = "artifact/$version/env/$envName";
+    my $buildLnk         = "artifact/$version/env/$envName/build";
+    my @dirsToRelease    = ($buildPath);
+    if ( defined($envName) and $envName ne '' ) {
+        if ( -l $buildLnk ) {
+            unlink($buildLnk);
+        }
+        symlink( "../../build/$buildNo", $buildLnk );
+    }
+
+    my $ret = 0;
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression = no -x';
+    while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
+        if ( $runnerId eq $myRunnerId ) {
+            next;
+        }
+
+        print("INFO: Sync '$buildPath' to $runnerIp::'$buildRoot/'.\n");
+        $ret = system("rsync -avrR --delete '$buildPath' $runnerIp::'$buildRoot/'");
+        if ( $ret != 0 ) {
+            print("ERROR: Sync '$buildPath' to $runnerIp::'$buildRoot/' failed.\n");
+            last;
+        }
+
+        if ( -d "$outerCompileRoot/build" ) {
+            print("INFO: Sync '$outerCompileRoot/build' to $runnerIp::'$outerCompileRoot/'\n");
+            $ret = system("rsync -avrR --delete '$outerCompileRoot/build' $runnerIp::'$outerCompileRoot/'");
+            if ( $ret != 0 ) {
+                print("ERROR: Sync '$outerCompileRoot/build' to $runnerIp::'$outerCompileRoot/' failed.\n");
+                last;
+            }
+        }
+
+        if ( defined($envName) and $envName ne '' and -l $buildLnk ) {
+            print("ERROR: Copy '$buildLnk' to $runnerIp::'$envBuildRoot/'.\n");
+            $ret = system("rsync -avR '$buildLnk' $runnerIp::'$envBuildRoot/'");
+            if ( $ret != 0 ) {
+                print("ERROR: Copy '$buildLnk' to $runnerIp::'$envBuildRoot/' failed.\n");
+                last;
+            }
+        }
+    }
+    chdir($cwd);
+}
+
 1;

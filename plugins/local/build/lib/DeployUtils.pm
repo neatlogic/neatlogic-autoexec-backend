@@ -18,13 +18,18 @@ sub new {
 sub deployInit {
     my ( $self, $namePath, $version ) = @_;
 
-    my $dpPath     = $ENV{_DEPLOY_PATH};
-    my $dpIdPath   = $ENV{_DEPLOY_ID_PATH};
-    my $deployConf = $ENV{_DEPLOY_CONF};
+    my $dpPath          = $ENV{_DEPLOY_PATH};
+    my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
+    my $deployConf      = $ENV{_DEPLOY_CONF};
+    my $runnerGroupConf = $ENV{_DEPLOY_RUNNERGROUP};
 
     my $deployEnv = {};
+    $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
     if ( defined($deployConf) and $deployConf ne '' ) {
-        $deployEnv = from_json($deployConf);
+        $deployEnv->{DEPLOY_CONF} = from_json($deployConf);
+    }
+    if ( defined($runnerGroupConf) and $runnerGroupConf ne '' ) {
+        $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
     }
 
     if ( defined($namePath) and $namePath ne '' and uc($namePath) ne 'DEFAULT' ) {
