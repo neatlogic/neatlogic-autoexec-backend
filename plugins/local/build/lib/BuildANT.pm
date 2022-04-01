@@ -4,54 +4,37 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use DeployUtils;
 
 #use File::Glob qw(bsd_glob);
 
 package BuildANT;
 
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+    return $self;
+}
+
 sub build {
-    my (%opt) = @_;
+    my ( $self, %opt ) = @_;
 
-    #my ( $prjDir, $versDir, $version, $jdk, $args, $isVerbose ) = @_;
-
-    my $prjDir      = $opt{prjDir};
-    my $versDir     = $opt{versDir};
+    my $prjPath     = $opt{prjPath};
+    my $toolsPath   = $opt{toolsPath};
     my $version     = $opt{version};
     my $jdk         = $opt{jdk};
     my $args        = $opt{args};
     my $isVerbose   = $opt{isVerbose};
     my $makeToolVer = $opt{makeToolVer};
 
-    my $verDir = "$versDir/$version";
-    chdir($prjDir);
+    chdir($prjPath);
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    #    my $classPath = "";
-    #    if ( -e "$prjDir/antlib" ) {
-    #        foreach my $libFile ( bsd_glob("$prjDir/antlib/*.jar") ) {
-    #            print "INFO:Find antlib:$libFile\n";
-    #            $classPath = $libFile . ':' . $classPath;
-    #        }
-    #    }
-    #    my $prjRoot = "$versDir/$version/project";
-    #    if ( -e "$prjRoot/antlib" ) {
-    #        foreach my $libFile ( bsd_glob("$prjRoot/antlib/*.jar") ) {
-    #            print "INFO:Find antlib:$libFile\n";
-    #            $classPath = $libFile . ':' . $classPath;
-    #        }
-    #    }
-    #    $classPath =~ s/(\:)|(:$)//;
-    #
-    #    $ENV{'CLASSPATH'} = $classPath;
-    my $techsureHome = $ENV{TECHSURE_HOME};
-    if ( not defined($techsureHome) or $techsureHome eq '' ) {
-        $techsureHome = Cwd::abs_path("$FindBin::Bin/../..");
-    }
-
-    #$ENV{CLASSPATH} = '';
-    my $antHome = "$techsureHome/serverware/ant$makeToolVer";
+    my $antHome = "$toolsPath/ant$makeToolVer";
 
     if ( not -e $antHome ) {
         print("ERROR: ant not found in dir:$antHome, check if ant version $makeToolVer is installed.\n");
@@ -72,14 +55,9 @@ sub build {
 
     my $cmd = "ant $silentOpt $args";
     print("INFO:execute->$cmd\n");
-    my $ret = Utils::execmd($cmd);
+    my $ret = DeployUtils->execmd($cmd);
 
-    my $isSuccess = 1;
-    if ( $ret ne 0 ) {
-        $isSuccess = 0;
-    }
-
-    return $isSuccess;
+    return $ret;
 }
 
 1;

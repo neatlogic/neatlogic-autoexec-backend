@@ -4,17 +4,25 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use DeployUtils;
 
 package BuildNPM;
 
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+    return $self;
+}
+
 sub build {
-    my (%opt) = @_;
+    my ( $self, %opt ) = @_;
 
-    #my ( $prjDir, $versDir, $version, $nodejsVer, $args, $isVerbose ) = @_;
-
-    my $prjDir      = $opt{prjDir};
-    my $versDir     = $opt{versDir};
-    my $version     = $opt{version}, my $jdk = $opt{jdk};
+    my $prjPath     = $opt{prjPath};
+    my $toolsPath   = $opt{toolsPath};
+    my $version     = $opt{version};
+    my $jdk         = $opt{jdk};
     my $args        = $opt{args};
     my $isVerbose   = $opt{isVerbose};
     my $makeToolVer = $opt{makeToolVer};
@@ -28,25 +36,18 @@ sub build {
         $nodejsVer = $makeToolVer;
     }
 
-    my $verDir = "$versDir/$version";
-    chdir($prjDir);
-
-    my $techsureHome = $ENV{TECHSURE_HOME};
-    if ( not defined($techsureHome) or $techsureHome eq '' ) {
-        $techsureHome = Cwd::abs_path("$FindBin::Bin/../..");
-    }
+    chdir($prjPath);
 
     my $nodejsPath = '';
 
     if ( $nodejsVer ne '' ) {
-        $nodejsPath = "$techsureHome/serverware/node$nodejsVer";
+        $nodejsPath = "$toolsPath/node$nodejsVer";
     }
     else {
-        $nodejsPath = "$techsureHome/serverware/node";
+        $nodejsPath = "$toolsPath/node";
     }
 
-    my $isSuccess = 1;
-    my $ret       = 0;
+    my $ret = 0;
 
     if ( not -e $nodejsPath ) {
         print("ERROR: node.js path($nodejsPath) not exists.\n");
@@ -61,20 +62,16 @@ sub build {
         if ( not defined($args) or $args eq '' ) {
             $cmd = "npm ci && npm run build";
             print("INFO:execute->$cmd\n");
-            $ret = Utils::execmd($cmd);
+            $ret = DeployUtils->execmd($cmd);
         }
         else {
             $cmd = "npm ci && npm $args";
             print("INFO:execute->$cmd\n");
-            $ret = Utils::execmd($cmd);
+            $ret = DeployUtils->execmd($cmd);
         }
     }
 
-    if ( $ret ne 0 ) {
-        $isSuccess = 0;
-    }
-
-    return $isSuccess;
+    return $ret;
 }
 
 1;

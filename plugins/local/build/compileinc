@@ -5,31 +5,27 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use Utils;
-use Logger;
-use RUNLock;
-use MVNbuild;
-use ANTbuild;
-use NPMbuild;
-use BuildGradle;
-use ExecAuth;
-use ENVInfo;
-use ServerAdapter;
 use IO::File;
 use File::Path;
 use File::Find;
 use File::Copy;
 use Cwd;
-use VerGet;
 use Getopt::Long;
 Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+use BuildUtils;
+use ServerAdapter;
+use VerGet;
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print(
-"Usage: $pname [-v|--verbose] [-U|--update] --subsyspath <subsys path> --type <ant|mvn|gradle> [--diffdirname <diff build dir>] [--skipfullcmp] [--addlibtoclasspath] [--tag4cmpto <tag for source compare to>] [--srcpaths <source paths>] [--libpaths <library paths>] [--cmpoutpaths <compile output paths>] [--reservepaths <reserve paths>] [--classpaths <static class paths>]  --jdk <jdk version> --nodejs <nodejs version> --startpath <start path> --lang <output charset> --args <build arguments> <version>\n"
-    );
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--type ant|maven|gradle|npm] [--diffdirname DiffBuildDir] [--skipfullcmp 0|1] \n");
+    print("       [--addlibtoclasspath 0|1] [--tag4cmpto TagName] [--srcpaths SourceCodePathInProject] [--libpaths LibPathInProject] \n");
+    print("       [--cmpoutpaths CompileOutPathInProject] [--reservepaths ReservePathInProject] [--classpaths ClassPathInProject]  \n");
+    print("       [--jdk JDKVersion] [--startpath SubDirInProject] [--lang LANG] [--args BuildArgs] [--version VERSION]\n");
+    print("\n");
     print("       subsyspath:   sub system path\n");
     print("       jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
     print("       startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
@@ -49,9 +45,9 @@ sub usage {
 }
 
 sub main {
-    my ( $ishelp, $subSysPath, $startPath, $lang, $version, $jdk, $nodejs, $buildType, $args, $isVerbose, $isUpdate );
     my $pname = $FindBin::Script;
-
+    my ( $isHelp,    $isVerbose, $lang,      $envPath, $version );
+    my ( $startPath, $jdk,       $buildType, $args,    $isUpdate );
     my $makeToolVer       = '';
     my $diffDirName       = 'build.diff';
     my $tag4CmpTo         = '';
@@ -63,77 +59,40 @@ sub main {
     my $classPaths        = '';
     my $addLibToClassPath = 0;
 
-    Utils::setEnv();
-
     GetOptions(
-        'h|help'            => \$ishelp,
-        'v|verbose'         => \$isVerbose,
-        'U|update'          => \$isUpdate,
-        'tag4cmpto:s'       => \$tag4CmpTo,
-        'diffdirname:s'     => \$diffDirName,
-        'skipfullcmp'       => \$skipFullCmp,
-        'addlibtoclasspath' => \$addLibToClassPath,
-        'subsyspath:s'      => \$subSysPath,
-        'startpath:s'       => \$startPath,
-        'srcpaths:s'        => \$srcPaths,
-        'libpaths:s'        => \$libPaths,
-        'reservepaths:s'    => \$reservePaths,
-        'cmpoutpaths:s'     => \$cmpOutPaths,
-        'classpaths:s'      => \$classPaths,
-        'lang:s'            => \$lang,
-        'jdk:s'             => \$jdk,
-        'nodejs:s'          => \$nodejs,
-        'type:s'            => \$buildType,
-        'args=s'            => \$args,
-        '<>'                => sub { my $item = shift(@_); $version = $item; }
+        'h|help'              => \$isHelp,
+        'verbose=i'           => \$isVerbose,
+        'envpath=s'           => \$envPath,
+        'version=s'           => \$version,
+        'startpath=s'         => \$startPath,
+        'lang=s'              => \$lang,
+        'jdk=s'               => \$jdk,
+        'type=s'              => \$buildType,
+        'args=s'              => \$args,
+        'tag4cmpto=s'         => \$tag4CmpTo,
+        'diffdirname=s'       => \$diffDirName,
+        'skipfullcmp=i'       => \$skipFullCmp,
+        'addlibtoclasspath=i' => \$addLibToClassPath,
+        'srcpaths=s'          => \$srcPaths,
+        'libpaths=s'          => \$libPaths,
+        'reservepaths=s'      => \$reservePaths,
+        'cmpoutpaths=s'       => \$cmpOutPaths,
+        'classpaths=s'        => \$classPaths
     );
 
-    usage() if ( not defined($subSysPath) or not defined($version) );
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) );
 
-    my $subSysInfo = SubSysInfo::parse( $subSysPath, $version );
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    #my $dataPath = ServerAdapter::getSysConf('system.data.path');
-    #my $sysRoot  = ServerAdapter::getSysConf('system.root');
-    my $sysRoot       = $ENV{TECHSURE_HOME};
-    my $deploysysHome = Cwd::fast_abs_path("$FindBin::Bin/..");
-    my $dataPath      = "$deploysysHome/data";
-
-    if ( defined $jdk ) {
-        if ( -d "$sysRoot/serverware/jdk$jdk" ) {
-            $jdk = "$sysRoot/serverware/jdk$jdk";
-        }
-        elsif ( -d "$sysRoot/serverware/$jdk" ) {
-            $jdk = "$sysRoot/serverware/$jdk";
-        }
-        else {
-            print("jdk $jdk is not supported\n");
-            exit(-1);
-        }
-    }
-    else {
-        $jdk = "$sysRoot/serverware/jdk1.8";
-    }
-
-    if ( defined($lang) ) {
-        $ENV{LANG}   = $lang;
-        $ENV{LC_ALL} = $lang;
-    }
-    $ENV{CLASSPATH} = '';
-
-    my $versionsDir = $subSysInfo->{versdir};
-    my $verDir      = $subSysInfo->{verdir};
-    my $subSysDir   = $subSysInfo->{subsysrealpath};
-    my $appbuildDir = $subSysInfo->{buildsrc};
-    my $prjDir      = $subSysInfo->{prjsrc};
-
-    my $opUser = $ENV{OPUSER};
-    if ( ExecAuth::auth( $subSysDir, 'build' ) eq 0 ) {
-        print("ERROR:user $opUser has no permission to build $subSysDir.\n");
-        exit(-1);
-    }
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
 
     my $cwd = getcwd();
-    chdir($prjDir);
+    chdir($prjPath);
 
     my $optError = 0;
 
@@ -213,331 +172,172 @@ sub main {
         exit(-1);
     }
 
-    my $prjLock    = RUNLock->new("$prjDir.lock");
-    my $preLockMsg = $prjLock->tryLock("$opUser running build");
-
-    if ( not defined($preLockMsg) ) {
-
-        my $appbuildLock = RUNLock->new("$appbuildDir.lock");
-        $appbuildLock->lock();
-        rmtree("$appbuildDir/app") if ( -e "$appbuildDir/app" );
-        rmtree("$appbuildDir/db")  if ( -e "$appbuildDir/db" );
-        rmtree("$appbuildDir/res") if ( -e "$appbuildDir/res" );
-        $appbuildLock->release();
-
-        my $isFail = 0;
-        my $logger = Logger->new("$deploysysHome/logs");
-
-        if ( $isFail eq 0 ) {
-            my $opts = {
-                subSysPath  => $subSysPath,
-                version     => $version,
-                startPath   => $startPath,
-                versionsDir => $versionsDir,
-                buildType   => $buildType,
-                args        => $args,
-                isUpdate    => $isUpdate,
-                isVerbose   => $isVerbose,
-                jdk         => $jdk,
-                logger      => $logger,
-                nodejs      => $nodejs,
-                prjDir      => $prjDir,
-                makeToolVer => $makeToolVer
-            };
-
-            if ( $skipFullCmp == 0 ) {
-
-                #全量编译, 目的是为了生成增量编译可能需要的class，不管成功失败，如果增量编译缺少了依赖的class，自然会失败
-                compile($opts);
-            }
-
-            if ( $isFail == 0 ) {
-                my $diffDir = "$prjDir/$diffDirName";
-
-                eval {
-                    #清除$diffDirName目录中已经存在的代码
-                    cleanSrc( $diffDir, \@allSrcPaths );
-
-                    #清除$diffDirName目录中已经存在的lib
-                    cleanLibs( $diffDir, \@allLibPaths );
-
-                    #拷贝编译需要的但是不是源代码、class、lib的那些编译可能需要的文件，譬如build.xml, pom.xml等文件
-                    copyPrj( $prjDir, $diffDirName, \@allSrcPaths, \@allLibPaths, \@allCmpOutPaths );
-
-                    #通过代码仓库比较获取差异文件存放到目录$diffDir
-                    my $getDiffStatus = getBuildDiff( $subSysInfo, $version, $tag4CmpTo, $prjDir, $diffDir, \@allCmpOutPaths, $isVerbose );
-                    if ( $getDiffStatus ne 1 ) {
-                        Utils::setErrFlag();
-                        die("ERROR:$pname $subSysPath $version get diff failed.\n");
-                    }
-
-                    #生成del文件的shell, 用于发布时可以使用
-                    my $fd = IO::File->new("<$diffDir/diff-del-list.txt");
-                    if ( defined($fd) ) {
-                        my $delShellFd = IO::File->new(">$diffDir/diff-del-list.sh");
-                        if ( defined($delShellFd) ) {
-                            my $line;
-                            while ( $line = $fd->getline() ) {
-                                if ( not print $delShellFd ("if [ -f '$line' ]; then rm -f $line; fi\n") ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.sh failed:$!\n");
-                                }
-                            }
-                            $delShellFd->close();
-                        }
-                        else {
-                            die("ERROR: open file $diffDir/diff-del-list.sh failed:$!\n");
-                        }
-
-                        $fd->close();
-                        $fd = IO::File->new("<$diffDir/diff-del-list.txt");
-                        my $delCmdFd = IO::File->new(">$diffDir/diff-del-list.cmd");
-                        if ( defined($delCmdFd) ) {
-                            my $line;
-                            while ( $line = $fd->getline() ) {
-                                if ( not print $delCmdFd ("if exist '$line' (del /F '$line')\n") ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.cmd failed:$!\n");
-                                }
-                            }
-                            $delCmdFd->close();
-                        }
-                        else {
-                            die("ERROR: open file $diffDir/diff-del-list.cmd failed:$!\n");
-                        }
-
-                        $fd->close();
-                    }
-
-                    $opts->{prjDir} = "$prjDir/$diffDirName";
-
-                    if ( $addLibToClassPath == 0 ) {
-                        backupIncLibs( $diffDir, \@allLibPaths );
-                        copyLibs( $prjDir, $diffDir, \@allLibPaths );
-                    }
-
-                    #拷贝编译需要的一些在lib或者out目录中需要保留的文件到$diffDirName中
-                    copyReservePaths( $prjDir, $diffDir, \@allReservePaths );
-
-                    if ( $addLibToClassPath == 1 ) {
-
-                        #add all jars in lib path to classpath
-                        my $libClassPath = '';
-                        foreach my $aPath (@allLibPaths) {
-                            foreach my $bPath ( glob("$prjDir/$aPath/*.jar") ) {
-                                $libClassPath = "$libClassPath:$bPath";
-                            }
-                        }
-                        $libClassPath = substr( $libClassPath, 1 );
-                        if ( $libClassPath ne '' ) {
-                            $ENV{CLASSPATH} = $libClassPath . ':' . $ENV{CLASSPATH};
-                        }
-
-                        #add all incrementy lib path to classpath
-                        my $incLibClassPath = '';
-                        foreach my $aPath (@allLibPaths) {
-                            foreach my $bPath ( glob("$diffDir/$aPath/*.jar") ) {
-                                $incLibClassPath = "$incLibClassPath:$bPath";
-                            }
-                        }
-                        $incLibClassPath = substr( $incLibClassPath, 1 );
-                        if ( $incLibClassPath ne '' ) {
-                            $ENV{CLASSPATH} = $incLibClassPath . ':' . $ENV{CLASSPATH};
-                        }
-                    }
-
-                    #add all custom class path to classpath
-                    my $classPath = '';
-                    foreach my $aPath (@allClassPaths) {
-                        $classPath = "$classPath:$prjDir/$aPath";
-                    }
-                    $classPath = substr( $classPath, 1 );
-                    if ( $classPath ne '' ) {
-                        $ENV{CLASSPATH} = $classPath . ':' . $ENV{CLASSPATH};
-                    }
-
-                    #add all class output path to classpath
-                    my $outClassPath = '';
-                    foreach my $aPath (@allCmpOutPaths) {
-                        $outClassPath = "$outClassPath:$prjDir/$aPath";
-                    }
-
-                    $outClassPath = substr( $outClassPath, 1 );
-                    if ( $outClassPath ne '' ) {
-                        $ENV{CLASSPATH} = $outClassPath . ':' . $ENV{CLASSPATH};
-                    }
-
-                    #增量编译
-                    $isFail = compile($opts);
-
-                    if ( $addLibToClassPath == 0 ) {
-                        restoreIncLibs( $diffDir, \@allLibPaths );
-                    }
-                };
-
-                if ($@) {
-                    $isFail = 1;
-                    my $msg = $@;
-                    $msg =~ s/ at .*?$//;
-                    print($msg);
-                    Utils::setErrFlag();
-                }
-            }
-        }
-
-        if ( $isFail eq 0 ) {
-            print("FINEST:build $subSysPath $version success.\n");
-        }
-        else {
-            Utils::setErrFlag();
-            print("ERROR:build $subSysPath $version failed.\n");
-        }
-
-        $logger->close();
-    }
-    else {
-        print("INFO:$pname is in progress, $preLockMsg.\n");
-
-        my $msg = $prjLock->lock("$opUser running build");
-
-        if ( $msg ne 'success' ) {
-            Utils::setErrFlag();
-        }
-        print("INFO: build $subSysPath $version complete.\n");
-    }
-
-    if ( Utils::getErrFlag() eq 0 ) {
-        $prjLock->release('success');
-    }
-    else {
-        $prjLock->release('failed');
-    }
-
-    Utils::exitWithFlag();
-}
-
-sub compile {
-    my ($opts)      = @_;
-    my $subSysPath  = $opts->{subSysPath};
-    my $version     = $opts->{version};
-    my $startPath   = $opts->{startPath};
-    my $versionsDir = $opts->{versionsDir};
-    my $buildType   = $opts->{buildType};
-    my $codePath    = $opts->{codePath};
-    my $args        = $opts->{args};
-    my $isUpdate    = $opts->{isUpdate};
-    my $isVerbose   = $opts->{isVerbose};
-    my $jdk         = $opts->{jdk};
-    my $logger      = $opts->{logger};
-    my $nodejs      = $opts->{nodejs};
-    my $prjDir      = $opts->{prjDir};
-    my $makeToolVer = $opts->{makeToolVer};
-
-    my $codePath = $prjDir;
-
-    if ( defined($startPath) and $startPath ne '' ) {
-        $codePath = "$codePath/$startPath";
-        if ( not -d $codePath ) {
-            print("ERROR: start path:$startPath($codePath) not exists.\n");
-            exit(-1);
-        }
-    }
-
-    my $isFail = 0;
-    my $buildSuccess;
-    my @codePaths;
-
-    if ( defined($startPath) and $startPath ne '' and defined($buildType) and $buildType ne '' ) {
-        print("INFO: start path and build type defined, use $buildType to build $startPath under $prjDir.\n");
-        @codePaths = ($codePath);
-    }
-    else {
-        @codePaths = Utils::getPrjRoots($codePath);
-    }
-
-    my $aCodePath;
-    foreach $aCodePath (@codePaths) {
-        if ( not defined($buildType) ) {
-            if ( -e "$aCodePath/build.xml" ) {
-                $buildType = 'ant';
-            }
-            elsif ( -e "$aCodePath/pom.xml" ) {
-                $buildType = 'mvn';
-            }
-            elsif ( -e "$aCodePath/build.gradle" ) {
-                $buildType = 'gradle';
-            }
-            elsif ( -e "$aCodePath/package.json" ) {
-                $buildType = 'npm';
-            }
-        }
-        else {
-            if ( $buildType =~ /^(.*?)([\d\.\-\_]+)$/ ) {
-                $buildType   = $1;
-                $makeToolVer = $2;
-            }
-            if ( $buildType eq 'maven' ) {
-                $buildType = 'mvn';
-            }
-            elsif ( $buildType eq 'nodejs' ) {
-                $buildType = 'npm';
-            }
-        }
-
-        my %opt = (
-            prjDir      => $aCodePath,
-            versDir     => $versionsDir,
+    my $buildUtils = BuildUtils->new();
+    my $isFail     = 0;
+    if ( $isFail eq 0 ) {
+        my $opts = {
+            buildEnv    => $buildEnv,
             version     => $version,
+            prjPath     => $prjPath,
+            buildType   => $buildType,
+            lang        => $lang,
+            startPath   => $startPath,
+            toolsPath   => $toolsPath,
             jdk         => $jdk,
             args        => $args,
             isVerbose   => $isVerbose,
-            isUpdate    => $isUpdate,
-            nodejs      => $nodejs,
             makeToolVer => $makeToolVer
-        );
+        };
 
-        if ( $buildType eq 'ant' ) {
+        if ( $skipFullCmp == 0 ) {
 
-            #$buildSuccess = ANTbuild::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose );
-            $buildSuccess = ANTbuild::build(%opt);
-        }
-        elsif ( $buildType eq 'mvn' ) {
-
-            #$buildSuccess = MVNbuild::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose, $isUpdate );
-            $buildSuccess = MVNbuild::build(%opt);
-        }
-        elsif ( $buildType eq 'gradle' ) {
-
-            #$buildSuccess = BuildGradle::build( $aCodePath, $versionsDir, $version, $jdk, $args, $isVerbose );
-            $buildSuccess = BuildGradle::build(%opt);
-        }
-        elsif ( $buildType eq 'npm' ) {
-
-            #$buildSuccess = NPMbuild::build( $aCodePath, $versionsDir, $version, $nodejs, $args, $isVerbose );
-            $buildSuccess = NPMbuild::build(%opt);
-        }
-        else {
-            print("ERROR: It is not java project, if compile is needed, use slave host to compile.\n");
-            $buildSuccess = 0;
+            #全量编译, 目的是为了生成增量编译可能需要的class，不管成功失败，如果增量编译缺少了依赖的class，自然会失败
+            $buildUtils->compile($opts);
         }
 
-        if ( $buildSuccess ne 1 ) {
-            $isFail = 1;
-            $logger->log( "Build $subSysPath $version with src code path:$aCodePath failed.", "ERROR" );
+        if ( $isFail == 0 ) {
+            my $diffDir = "$prjPath/$diffDirName";
+
+            eval {
+                #清除$diffDirName目录中已经存在的代码
+                cleanSrc( $diffDir, \@allSrcPaths );
+
+                #清除$diffDirName目录中已经存在的lib
+                cleanLibs( $diffDir, \@allLibPaths );
+
+                #拷贝编译需要的但是不是源代码、class、lib的那些编译可能需要的文件，譬如build.xml, pom.xml等文件
+                copyPrj( $prjPath, $diffDirName, \@allSrcPaths, \@allLibPaths, \@allCmpOutPaths );
+
+                #通过代码仓库比较获取差异文件存放到目录$diffDir
+                my $versionInfo = ServerAdapter->getVer($buildEnv);
+                my $getDiffStatus = getBuildDiff( $buildEnv, $versionInfo, $tag4CmpTo, $prjPath, $diffDir, \@allCmpOutPaths, $isVerbose );
+                if ( $getDiffStatus ne 1 ) {
+                    die("ERROR: $pname $namePath version:$version get diff failed.\n");
+                }
+
+                #生成del文件的shell, 用于发布时可以使用
+                my $fd = IO::File->new("<$diffDir/diff-del-list.txt");
+                if ( defined($fd) ) {
+                    my $delShellFd = IO::File->new(">$diffDir/diff-del-list.sh");
+                    if ( defined($delShellFd) ) {
+                        my $line;
+                        while ( $line = $fd->getline() ) {
+                            if ( not print $delShellFd ("if [ -f '$line' ]; then rm -f $line; fi\n") ) {
+                                die("ERROR: write to file $diffDir/diff-del-list.sh failed:$!\n");
+                            }
+                        }
+                        $delShellFd->close();
+                    }
+                    else {
+                        die("ERROR: open file $diffDir/diff-del-list.sh failed:$!\n");
+                    }
+
+                    $fd->close();
+                    $fd = IO::File->new("<$diffDir/diff-del-list.txt");
+                    my $delCmdFd = IO::File->new(">$diffDir/diff-del-list.cmd");
+                    if ( defined($delCmdFd) ) {
+                        my $line;
+                        while ( $line = $fd->getline() ) {
+                            if ( not print $delCmdFd ("if exist '$line' (del /F '$line')\n") ) {
+                                die("ERROR: write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                            }
+                        }
+                        $delCmdFd->close();
+                    }
+                    else {
+                        die("ERROR: open file $diffDir/diff-del-list.cmd failed:$!\n");
+                    }
+
+                    $fd->close();
+                }
+
+                $opts->{prjDir} = "$prjPath/$diffDirName";
+
+                if ( $addLibToClassPath == 0 ) {
+                    backupIncLibs( $diffDir, \@allLibPaths );
+                    copyLibs( $prjPath, $diffDir, \@allLibPaths );
+                }
+
+                #拷贝编译需要的一些在lib或者out目录中需要保留的文件到$diffDirName中
+                copyReservePaths( $prjPath, $diffDir, \@allReservePaths );
+
+                if ( $addLibToClassPath == 1 ) {
+
+                    #add all jars in lib path to classpath
+                    my $libClassPath = '';
+                    foreach my $aPath (@allLibPaths) {
+                        foreach my $bPath ( glob("$prjPath/$aPath/*.jar") ) {
+                            $libClassPath = "$libClassPath:$bPath";
+                        }
+                    }
+                    $libClassPath = substr( $libClassPath, 1 );
+                    if ( $libClassPath ne '' ) {
+                        $ENV{CLASSPATH} = $libClassPath . ':' . $ENV{CLASSPATH};
+                    }
+
+                    #add all incrementy lib path to classpath
+                    my $incLibClassPath = '';
+                    foreach my $aPath (@allLibPaths) {
+                        foreach my $bPath ( glob("$diffDir/$aPath/*.jar") ) {
+                            $incLibClassPath = "$incLibClassPath:$bPath";
+                        }
+                    }
+                    $incLibClassPath = substr( $incLibClassPath, 1 );
+                    if ( $incLibClassPath ne '' ) {
+                        $ENV{CLASSPATH} = $incLibClassPath . ':' . $ENV{CLASSPATH};
+                    }
+                }
+
+                #add all custom class path to classpath
+                my $classPath = '';
+                foreach my $aPath (@allClassPaths) {
+                    $classPath = "$classPath:$prjPath/$aPath";
+                }
+                $classPath = substr( $classPath, 1 );
+                if ( $classPath ne '' ) {
+                    $ENV{CLASSPATH} = $classPath . ':' . $ENV{CLASSPATH};
+                }
+
+                #add all class output path to classpath
+                my $outClassPath = '';
+                foreach my $aPath (@allCmpOutPaths) {
+                    $outClassPath = "$outClassPath:$prjPath/$aPath";
+                }
+
+                $outClassPath = substr( $outClassPath, 1 );
+                if ( $outClassPath ne '' ) {
+                    $ENV{CLASSPATH} = $outClassPath . ':' . $ENV{CLASSPATH};
+                }
+
+                #增量编译
+                $isFail = $buildUtils->compile($opts);
+
+                if ( $addLibToClassPath == 0 ) {
+                    restoreIncLibs( $diffDir, \@allLibPaths );
+                }
+            };
+
+            if ($@) {
+                $isFail = 1;
+                my $msg = $@;
+                $msg =~ s/ at .*?$//;
+                print($msg);
+            }
         }
     }
 
-    if ( $isFail == 0 ) {
-        $logger->log( "Build $subSysPath $version success.", "INFO" );
+    if ( $isFail eq 0 ) {
+        print("FINEST:build $namePath version:$version success.\n");
     }
     else {
-        $logger->log( "Build $subSysPath $version failed.", "ERROR" );
-        Utils::setErrFlag();
+        print("ERROR:build $namePath version:$version failed.\n");
     }
 
     return $isFail;
 }
 
 sub getBuildDiff {
-    my ( $subSysInfo, $version, $tag4CmpTo, $prjDir, $diffDir, $excludeDirs, $isVerbose ) = @_;
+    my ( $buildEnv, $versionInfo, $tag4CmpTo, $prjPath, $diffDir, $excludeDirs, $isVerbose ) = @_;
 
     if ( not -e $diffDir ) {
         mkdir($diffDir);
@@ -547,7 +347,7 @@ sub getBuildDiff {
         undef($tag4CmpTo);
     }
 
-    my $verGet = VerGet->new( $subSysInfo, $version, 1 );
+    my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
     my $success = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
     print("----------------------------------------------------------------------\n");
 
@@ -555,9 +355,9 @@ sub getBuildDiff {
 }
 
 sub copyPrj {
-    my ( $prjDir, $diffDirName, $allSrcPaths, $allLibPaths, $allCmpOutPaths ) = @_;
+    my ( $prjPath, $diffDirName, $allSrcPaths, $allLibPaths, $allCmpOutPaths ) = @_;
 
-    my $diffDir = "$prjDir/$diffDirName";
+    my $diffDir = "$prjPath/$diffDirName";
 
     my $allCmpOutPathsMap = {};
     $allCmpOutPathsMap->{$diffDirName} = 1;
@@ -566,7 +366,7 @@ sub copyPrj {
     }
 
     my $cwd = getcwd();
-    chdir($prjDir);
+    chdir($prjPath);
 
     find(
         {
@@ -638,18 +438,18 @@ sub cleanLibs {
 }
 
 sub copyReservePaths {
-    my ( $prjDir, $diffDir, $allReservePaths ) = @_;
+    my ( $prjPath, $diffDir, $allReservePaths ) = @_;
 
     foreach my $aPath (@$allReservePaths) {
-        Utils::copyTree( "$prjDir/$aPath", "$diffDir/$aPath" );
+        DeployUtils->copyTree( "$prjPath/$aPath", "$diffDir/$aPath" );
     }
 }
 
 sub copyLibs {
-    my ( $prjDir, $diffDir, $allLibPaths ) = @_;
+    my ( $prjPath, $diffDir, $allLibPaths ) = @_;
 
     foreach my $aPath (@$allLibPaths) {
-        Utils::copyTree( "$prjDir/$aPath", "$diffDir/$aPath" );
+        DeployUtils->copyTree( "$prjPath/$aPath", "$diffDir/$aPath" );
     }
 }
 
@@ -661,7 +461,7 @@ sub backupIncLibs {
     mkdir($bakDir);
     foreach my $aPath (@$allLibPaths) {
         mkpath("$bakDir/$aPath");
-        Utils::copyTree( "$diffDir/$aPath", "$bakDir/$aPath" );
+        DeployUtils->copyTree( "$diffDir/$aPath", "$bakDir/$aPath" );
     }
 }
 
@@ -673,9 +473,9 @@ sub restoreIncLibs {
     mkdir($bakDir);
     foreach my $aPath (@$allLibPaths) {
         rmtree("$diffDir/$aPath");
-        Utils::copyTree( "$bakDir/$aPath", "$diffDir/$aPath" );
+        DeployUtils->copyTree( "$bakDir/$aPath", "$diffDir/$aPath" );
     }
 }
 
-main();
+exit main();
 

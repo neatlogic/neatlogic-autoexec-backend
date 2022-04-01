@@ -84,7 +84,7 @@ sub new {
 sub getLocalSvnInfo {
     my ( $self, $localDir ) = @_;
 
-    my $output = DeployUtils::getPipeOut("svn info $localDir 2>/dev/null");
+    my $output = DeployUtils->getPipeOut("svn info $localDir 2>/dev/null");
 
     my $svnInfo = {};
     for my $line (@$output) {
@@ -122,7 +122,7 @@ sub cleanUp {
     };
 
     print("INFO: Begin to clean up unversioned files in working copy.\n");
-    DeployUtils::handlePipeOut( "svn status '$prjPath'", $callback );
+    DeployUtils->handlePipeOut( "svn status '$prjPath'", $callback );
     print("INFO: Clean up unversioned files finished.\n");
 }
 
@@ -161,14 +161,14 @@ sub checkout {
         rmtree($prjPath);
 
         print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
-        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
+        $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
     }
     elsif ( $checkoutRepo ne $localSvnInfo->{URL} ) {
         $self->cleanUp();
         print("INFO: Local copy url has been changed, switch to $checkoutRepo......\n");
 
         #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser--password $svnPass switch $checkoutRepo $prjPath\n");
-        $ret = DeployUtils::execmd("svn cleanup '$prjPath' && svn revert -R '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass switch '$checkoutRepo' '$prjPath'");
+        $ret = DeployUtils->execmd("svn cleanup '$prjPath' && svn revert -R '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass switch '$checkoutRepo' '$prjPath'");
 
         if ( $ret ne 0 ) {
             print("INFO: Checkout failed, clean the project directory will take a few minutes, please wait...\n");
@@ -181,7 +181,7 @@ sub checkout {
                 print("INFO: Checkout again, it will take a few minutes, please wait...\n");
 
                 #print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
-                $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
+                $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
             }
         }
     }
@@ -191,7 +191,7 @@ sub checkout {
 
         #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser--password $svnPass update $checkoutRepo\n");
         #print("cd $prjPath && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass update .\n");
-        $ret = DeployUtils::execmd("cd '$prjPath' && svn cleanup . && svn revert -R . && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass update .");
+        $ret = DeployUtils->execmd("cd '$prjPath' && svn cleanup . && svn revert -R . && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass update .");
 
         if ( $ret ne 0 ) {
             print("INFO:Checkout failed, clean the project directory will take a few minutes, please wait...\n");
@@ -204,7 +204,7 @@ sub checkout {
                 print("INFO:Checkout again, it will take a few minutes, please wait...\n");
 
                 #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
-                $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
+                $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
             }
         }
     }
@@ -259,11 +259,11 @@ sub tagRepo {
     my $ret = 0;
 
     print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' rm  '$tagRepo' -m 'delete for autodeploy.'\n");
-    $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass rm  '$tagRepo' -m 'delete for autodeploy.'");
+    $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass rm  '$tagRepo' -m 'delete for autodeploy.'");
     print("INFO: Remove $tagRepo failed, maybe $tagRepo no exist.\n") if ( $ret != 0 );
 
     print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp --parents '$srcRepo' '$tagRepo'  -m 'copy for autodeploy.'\n");
-    $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp --parents '$srcRepo' '$tagRepo'  -m 'copy for autodeploy.'");
+    $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp --parents '$srcRepo' '$tagRepo'  -m 'copy for autodeploy.'");
     if ( $ret != 0 ) {
         print("ERROR: Create tag:$tagName $tagRepo -> $srcRepo failed.\n");
     }
@@ -309,11 +309,11 @@ sub tagRepoRev {
     my $ret = 0;
     if ( defined($tagName) and $tagName ne '' ) {
         my $listtags = "svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass ls  '$svnTagsDir' ";
-        $ret = DeployUtils::execmd($listtags);
+        $ret = DeployUtils->execmd($listtags);
         if ( $ret != 0 ) {
             my $createtagsdir = "svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass mkdir '$svnTagsDir' -m 'create tags dir for autodeploy'";
             print("WARN: tags dir $svnTagsDir does not exist, creating one.\n");
-            $ret = DeployUtils::execmd($createtagsdir);
+            $ret = DeployUtils->execmd($createtagsdir);
             if ( $ret != 0 ) {
                 print("ERROR: creat tags dir $svnTagsDir failed, exiting.\n");
                 return $ret;
@@ -321,7 +321,7 @@ sub tagRepoRev {
         }
 
         print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'\n");
-        $ret = DeployUtils::execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'");
+        $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'");
         if ( $ret == 0 ) {
             print("FINEST: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
         }
@@ -472,7 +472,7 @@ sub checkBaseLineMerged {
         my $mergeCmd = "cd '$prjPath' && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$trunkRepo'";
         my $execDesc = "cd '$prjPath' && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' merge '$trunkRepo'";
 
-        $output = DeployUtils::handlePipeOut( $mergeCmd, $checkSub, 0, $execDesc );
+        $output = DeployUtils->handlePipeOut( $mergeCmd, $checkSub, 0, $execDesc );
     };
     if ($@) {
         $hasError = 1;
@@ -487,7 +487,7 @@ sub checkBaseLineMerged {
         print("INFO: Version $version has merged trunk modifications.\n");
     }
 
-    my $ret = DeployUtils::execmd("cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass revert -R .");
+    my $ret = DeployUtils->execmd("cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass revert -R .");
 
     return $hasError;
 }
@@ -528,7 +528,7 @@ sub mergeToBaseLine {
         if ( $ret == 0 ) {
             print("INFO: Merge $checkoutRepo -> $svnTrunkRepo\n");
             $ret =
-                DeployUtils::execmd(
+                DeployUtils->execmd(
 "cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$checkoutRepo' '$svnTrunkRepo' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass commit -m 'merge $version'"
                 );
         }
@@ -580,7 +580,7 @@ sub mergeBaseLine {
         if ( $ret == 0 ) {
             print("INFO: Merge $svnTrunkRepo -> $checkoutRepo\n");
             $ret =
-                DeployUtils::execmd(
+                DeployUtils->execmd(
 "cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$svnTrunkRepo' '$checkoutRepo' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass commit -m 'merge $version to baseline'"
                 );
         }
@@ -713,7 +713,7 @@ sub checkChangedAfterCompiled {
 
     if ( defined($checkoutRepo) and $checkoutRepo ne '' ) {
         print("INFO: Compare $checkoutRepo\@$endRev -> $newRepo\n");
-        my $lines = DeployUtils::getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo' | head -100 2>&1");
+        my $lines = DeployUtils->getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo' | head -100 2>&1");
         if ( scalar(@$lines) eq '0' ) {
             $ret = 0;
             print("FINEST: Version:$version has not changed after compiled, End Revision:$endRev.\n");
@@ -897,7 +897,7 @@ sub _getDiff {
         $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff --new '$checkoutRepo' --old '$baseRepo'\n";
     }
 
-    eval { DeployUtils::handlePipeOut( $diffCmd, $saveSub, 0, $execDesc ); };
+    eval { DeployUtils->handlePipeOut( $diffCmd, $saveSub, 0, $execDesc ); };
     if ($@) {
         $ret = 1;
         print( $@, "\n" );

@@ -4,35 +4,36 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use DeployUtils;
 
-package BuildGradle;
+package BuildGRADLE;
+
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+    return $self;
+}
 
 sub build {
-    my (%opt) = @_;
+    my ( $self, %opt ) = @_;
 
-    #my ( $prjDir, $versDir, $version, $jdk, $args, $isVerbose ) = @_;
-
-    my $prjDir      = $opt{prjDir};
-    my $versDir     = $opt{versDir};
+    my $prjPath     = $opt{prjPath};
+    my $toolsPath   = $opt{toolsPath};
     my $version     = $opt{version};
     my $jdk         = $opt{jdk};
     my $args        = $opt{args};
     my $isVerbose   = $opt{isVerbose};
     my $makeToolVer = $opt{makeToolVer};
 
-    my $verDir = "$versDir/$version";
-    chdir($prjDir);
+    chdir($prjPath);
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
 
-    my $techsureHome = $ENV{TECHSURE_HOME};
-    if ( not defined($techsureHome) or $techsureHome eq '' ) {
-        $techsureHome = Cwd::abs_path("$FindBin::Bin/../..");
-    }
-
     #$ENV{CLASSPATH} = '';
-    my $gradleHome = "$techsureHome/serverware/gradle$makeToolVer";
+    my $gradleHome = "$toolsPath/gradle$makeToolVer";
     if ( not -e $gradleHome ) {
         print("ERROR: gradle not found in dir:$gradleHome, check if gradle version $makeToolVer is installed.\n");
     }
@@ -51,25 +52,20 @@ sub build {
 
     my $cmd = "gradle $silentOpt clean";
     print("INFO:execute->$cmd\n");
-    my $ret = Utils::execmd($cmd);
+    my $ret = DeployUtils->execmd($cmd);
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "gradle $silentOpt assemble";
         print("INFO:execute->$cmd\n");
-        $ret = Utils::execmd($cmd);
+        $ret = DeployUtils->execmd($cmd);
     }
     else {
         $cmd = "gradle $silentOpt $args";
         print("INFO:execute->$cmd\n");
-        $ret = Utils::execmd($cmd);
+        $ret = DeployUtils->execmd($cmd);
     }
 
-    my $isSuccess = 1;
-    if ( $ret ne 0 ) {
-        $isSuccess = 0;
-    }
-
-    return $isSuccess;
+    return $ret;
 }
 
 1;

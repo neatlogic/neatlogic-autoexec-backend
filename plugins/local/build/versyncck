@@ -44,7 +44,7 @@ sub main {
         $ENV{LC_ALL} = $lang;
     }
 
-    my $buildEnv = DeployUtils::deployInit( $envPath, $version );
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
 
     my $version  = $buildEnv->{VERSION};
     my $namePath = $buildEnv->{NAME_PATH};

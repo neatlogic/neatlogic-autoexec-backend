@@ -4,38 +4,36 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use DeployUtils;
 
-package BuildMVN;
+package BuildMAVEN;
+
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+    return $self;
+}
 
 sub build {
-    my (%opt) = @_;
+    my ( $self, %opt ) = @_;
 
-    #my ( $prjDir, $versDir, $version, $jdk, $args, $isVerbose, $isUpdate ) = @_;
-
-    my $prjDir      = $opt{prjDir};
-    my $versDir     = $opt{versDir};
+    my $prjPath     = $opt{prjPath};
+    my $toolsPath   = $opt{toolsPath};
     my $version     = $opt{version};
     my $jdk         = $opt{jdk};
     my $args        = $opt{args};
     my $isVerbose   = $opt{isVerbose};
     my $makeToolVer = $opt{makeToolVer};
-    my $isUpdate    = $opt{isUpdate};
 
-    my $verDir = "$versDir/$version";
-    chdir($prjDir);
+    chdir($prjPath);
 
     my $silentOpt = '-q';
     $silentOpt = '' if ( defined($isVerbose) );
-    my $updateOpt = '';
-    $updateOpt = '-U' if ( defined($isUpdate) );
-
-    my $techsureHome = $ENV{TECHSURE_HOME};
-    if ( not defined($techsureHome) or $techsureHome eq '' ) {
-        $techsureHome = Cwd::abs_path("$FindBin::Bin/../..");
-    }
 
     #$ENV{CLASSPATH} = '';
-    my $m2Home = "$techsureHome/serverware/maven$makeToolVer";
+    my $m2Home = "$toolsPath/maven$makeToolVer";
     if ( not -e $m2Home ) {
         print("ERROR: maven not found in dir:$m2Home, check if maven version $makeToolVer is installed.\n");
     }
@@ -66,36 +64,29 @@ sub build {
         $ENV{CLASSPATH} = $m2JarPaths . ':' . $ENV{CLASSPATH};
     }
 
-    #my $cmd = "mvn $silentOpt clean";
-    #print("INFO:execute->$cmd\n");
-    #my $ret = Utils::execmd($cmd);
-
     my $ret = 0;
     my $cmd;
 
     if ( not defined($args) or $args eq '' ) {
-        $cmd = "mvn $silentOpt $updateOpt clean install";
+        $cmd = "mvn $silentOpt -U clean install";
         print("INFO:execute->$cmd\n");
-        $ret = Utils::execmd($cmd);
+        $ret = DeployUtils->execmd($cmd);
     }
     else {
-        #if ( $args !~ /\sclean\s/ ){
-        #    $cmd = "mvn $silentOpt clean";
-        #    print("INFO:execute->$cmd\n");
-        #    $ret = Utils::execmd($cmd);
-        #}
+        if ( $args !~ /\bclean\b/ ) {
+            $cmd = "mvn $silentOpt clean";
+            print("INFO:execute->$cmd\n");
+            $ret = DeployUtils->execmd($cmd);
+        }
 
-        $cmd = "mvn $silentOpt $updateOpt clean $args";
-        print("INFO:execute->$cmd\n");
-        $ret = Utils::execmd($cmd);
+        if ( $ret eq 0 ) {
+            $cmd = "mvn $args";
+            print("INFO:execute->$cmd\n");
+            $ret = DeployUtils->execmd($cmd);
+        }
     }
 
-    my $isSuccess = 1;
-    if ( $ret ne 0 ) {
-        $isSuccess = 0;
-    }
-
-    return $isSuccess;
+    return $ret;
 }
 
 1;

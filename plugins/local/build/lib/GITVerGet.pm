@@ -134,7 +134,7 @@ sub tagRepo {
     }
     else {
         print("INFO: Create or replace tag $tagName for branch:$branchName\n");
-        $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName' && git pull --tags", $self->{pwdPattern} );
+        $ret = DeployUtils->execmd( "cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName' && git pull --tags", $self->{pwdPattern} );
         if ( $ret != 0 ) {
             print("ERROR: Checkout $repoDesc branch:$branchName failed.\n");
             return $ret;
@@ -144,7 +144,7 @@ sub tagRepo {
 
         if ( defined( $tags->{$tagName} ) ) {
             print("INFO: Delete tag:$tagName for branch:$branchName.\n");
-            $ret = DeployUtils::execmd( "cd '$prjPath' && git tag -d '$tagName' && git push origin ':refs/tags/$tagName'", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "cd '$prjPath' && git tag -d '$tagName' && git push origin ':refs/tags/$tagName'", $self->{pwdPattern} );
             if ( $ret != 0 ) {
                 print("ERROR: Delete tag $tagName for branch:$branchName failed.\n");
                 return $ret;
@@ -152,7 +152,7 @@ sub tagRepo {
         }
 
         if ( $branchName ne $tagName ) {
-            $ret = DeployUtils::execmd( "cd '$prjPath' && git tag '$tagName' && git push origin --tags", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "cd '$prjPath' && git tag '$tagName' && git push origin --tags", $self->{pwdPattern} );
             if ( $ret != 0 ) {
                 print("ERROR: Create $tagName of $repoDesc branch:$branchName failed.\n");
             }
@@ -230,17 +230,17 @@ sub fetch {
     if ( not -e "$prjPath/.git" ) {
         $self->{newWorkingCopy} = 1;
         print("INFO: git clone $silentOpt '$repoDesc' '$prjPath'\n");
-        $ret = DeployUtils::execmd( "git clone $silentOpt '$repo' $prjPath", $self->{pwdPattern} );
+        $ret = DeployUtils->execmd( "git clone $silentOpt '$repo' $prjPath", $self->{pwdPattern} );
     }
     else {
         print("INFO: cd '$prjPath' && git remote set-url origin $repoDesc\n");
-        $ret = DeployUtils::execmd("cd '$prjPath' && git remote set-url origin '$repo'");
+        $ret = DeployUtils->execmd("cd '$prjPath' && git remote set-url origin '$repo'");
         if ( $ret != 0 ) {
             $ret = -1;
             print("ERROR: Switch remote url for $prjPath failed.\n");
         }
         else {
-            $ret = DeployUtils::execmd( "cd '$prjPath' && git reset --hard && git clean -fd && git tag | xargs git tag -d >/dev/null && git fetch -q", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "cd '$prjPath' && git reset --hard && git clean -fd && git tag | xargs git tag -d >/dev/null && git fetch -q", $self->{pwdPattern} );
         }
     }
 
@@ -253,13 +253,13 @@ sub fetch {
         else {
             mkdir($prjPath);
             $self->{newWorkingCopy} = 1;
-            $ret = DeployUtils::execmd( "git clone $silentOpt '$repo' '$prjPath'", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "git clone $silentOpt '$repo' '$prjPath'", $self->{pwdPattern} );
         }
     }
 
     if ( $ret eq 0 ) {
-        DeployUtils::execmd("cd '$prjPath' && git config user.name '$gitUser'");
-        DeployUtils::execmd("cd '$prjPath' && git config user.email '$gitUser\@techsure.com.cn'");
+        DeployUtils->execmd("cd '$prjPath' && git config user.name '$gitUser'");
+        DeployUtils->execmd("cd '$prjPath' && git config user.email '$gitUser\@techsure.com.cn'");
         print("FINEST: fetch $repoDesc success.\n");
     }
 
@@ -299,12 +299,12 @@ sub checkout {
         if ( $checkoutByTag == 1 ) {
 
             #if ( $self->{isStatic} == 0 and defined($masterBranch) and $masterBranch ne '' ){
-            #    my $lines = DeployUtils::getPipeOut("cd '$prjPath' && git merge-base --fork-point '$branchName' '$masterBranch'");
+            #    my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git merge-base --fork-point '$branchName' '$masterBranch'");
             #    $startRev = $$lines[0];
             #    $self->{startRev} = $startRev;
             #}
             if ( defined( $tags->{$tagName} ) ) {
-                $ret = DeployUtils::execmd("cd '$prjPath' && git checkout '$tagName'");
+                $ret = DeployUtils->execmd("cd '$prjPath' && git checkout '$tagName'");
             }
             else {
                 $ret = -1;
@@ -313,16 +313,16 @@ sub checkout {
         }
         else {
             #if ( $self->{isStatic} == 0 and defined($masterBranch) and $masterBranch ne '' ){
-            #    my $lines = DeployUtils::getPipeOut("cd '$prjPath' && git merge-base --fork-point '$tagName' '$masterBranch'");
+            #    my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git merge-base --fork-point '$tagName' '$masterBranch'");
             #    $startRev = $$lines[0];
             #    $self->{startRev} = $startRev;
             #}
             if ( defined( $branches->{$branchName} ) ) {
                 if ( defined($noPull) ) {
-                    $ret = DeployUtils::execmd("cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName'");
+                    $ret = DeployUtils->execmd("cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName'");
                 }
                 else {
-                    $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName' && git pull --tags", $self->{pwdPattern} );
+                    $ret = DeployUtils->execmd( "cd '$prjPath' && git checkout '$branchName' && git reset --hard 'origin/$branchName' && git pull --tags", $self->{pwdPattern} );
                 }
             }
             else {
@@ -332,7 +332,7 @@ sub checkout {
         }
 
         eval {
-            my $lines  = DeployUtils::getPipeOut("cd '$prjPath' && git rev-parse HEAD");
+            my $lines  = DeployUtils->getPipeOut("cd '$prjPath' && git rev-parse HEAD");
             my $endRev = $$lines[0];
             if ( defined($verInfo)
                 and $verInfo->{endRev} ne $endRev )
@@ -390,15 +390,15 @@ sub mergeToBaseLine {
         else {
             print("INFO: Merge $tagOrBranchToBeMerged -> $masterBranch.\n");
 
-            $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$masterBranch' && git reset --hard 'origin/$masterBranch' && git pull --tags", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "cd '$prjPath' && git checkout '$masterBranch' && git reset --hard 'origin/$masterBranch' && git pull --tags", $self->{pwdPattern} );
             if ( $ret != 0 ) {
                 print("ERROR: Checkout $repoDesc branch $masterBranch failed.\n");
             }
             else {
                 print("INFO: Try to merge $tagOrBranchToBeMerged to $masterBranch...\n");
-                $ret = DeployUtils::execmd( "cd '$prjPath' && git merge '$tagOrBranchToBeMerged' && git push $silentOpt", $self->{pwdPattern} );
+                $ret = DeployUtils->execmd( "cd '$prjPath' && git merge '$tagOrBranchToBeMerged' && git push $silentOpt", $self->{pwdPattern} );
                 if ( $ret != 0 ) {
-                    DeployUtils::execmd("cd '$prjPath' && git reset --hard HEAD");
+                    DeployUtils->execmd("cd '$prjPath' && git reset --hard HEAD");
                     print("ERROR: Merge $repoDesc $tagOrBranchToBeMerged to branch $masterBranch failed.\n");
                 }
             }
@@ -439,15 +439,15 @@ sub mergeBaseLine {
         else {
             print("INFO: Merge $masterBranch -> $checkoutName.\n");
 
-            $ret = DeployUtils::execmd( "cd '$prjPath' && git checkout '$checkoutName' && git reset --hard 'origin/$checkoutName' && git pull --tags", $self->{pwdPattern} );
+            $ret = DeployUtils->execmd( "cd '$prjPath' && git checkout '$checkoutName' && git reset --hard 'origin/$checkoutName' && git pull --tags", $self->{pwdPattern} );
             if ( $ret != 0 ) {
                 print("ERROR: Checkout $repoDesc branch $checkoutName failed.\n");
             }
             else {
                 print("INFO: Try to merge masterBranch to $checkoutName...\n");
-                $ret = DeployUtils::execmd( "cd '$prjPath' && git merge '$masterBranch' && git push $silentOpt", $self->{pwdPattern} );
+                $ret = DeployUtils->execmd( "cd '$prjPath' && git merge '$masterBranch' && git push $silentOpt", $self->{pwdPattern} );
                 if ( $ret != 0 ) {
-                    DeployUtils::execmd("cd '$prjPath' && git reset --hard HEAD");
+                    DeployUtils->execmd("cd '$prjPath' && git reset --hard HEAD");
                     print("ERROR: Merge $repoDesc branch:$masterBranch to branch:$checkoutName failed.\n");
                 }
             }
@@ -486,28 +486,28 @@ sub checkBaseLineMerged {
                 print("INFO: Check merge for: $srcBranch <- $masterBranch\n");
 
                 #print("INFO:cd $prjPath && git merge --no-commit --no-ff $masterBranch\n");
-                $ret = DeployUtils::execmd("cd '$prjPath' && git merge --no-commit --no-ff '$masterBranch'");
+                $ret = DeployUtils->execmd("cd '$prjPath' && git merge --no-commit --no-ff '$masterBranch'");
 
                 if ( $ret == 0 ) {
 
                     #print("INFO:cd $prjPath && git diff --cached | wc -l\n");
-                    my $lines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --cached | head -100 2>&1");
+                    my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --cached | head -100 2>&1");
 
                     if ( scalar(@$lines) > 0 ) {
                         print( join( "\n", @$lines ) );
                         print("\n...\n");
                         $ret = 3;
-                        DeployUtils::execmd("cd $prjPath && git diff --stat --cached");
+                        DeployUtils->execmd("cd $prjPath && git diff --stat --cached");
 
                         #print("INFO:cd $prjPath && git merge --abort\n");
-                        my $rstRet = DeployUtils::execmd("cd '$prjPath' && git merge --abort");
+                        my $rstRet = DeployUtils->execmd("cd '$prjPath' && git merge --abort");
                         print("ERROR: Version $version has not merge master branch:$masterBranch modifications.\n");
                         print("ERROR: 未从master分支:$masterBranch合并最新代码，请合并至版本$version后再重新提交!\n");
                     }
                 }
                 else {
                     print("ERROR: Test merge $repoDesc $masterBranch to $version failed.\n");
-                    my $rstRet = DeployUtils::execmd("cd '$prjPath' && git reset --hard");
+                    my $rstRet = DeployUtils->execmd("cd '$prjPath' && git reset --hard");
                     if ( $rstRet ne 0 ) {
                         print("ERROR: Reset merge failed.\n");
                     }
@@ -578,7 +578,7 @@ sub checkChangedAfterCompiled {
         }
 
         print("INFO: Compare revision:$endRev -> $checkoutName\n");
-        my $outLines = DeployUtils::getPipeOut("cd '$prjPath' && git diff --stat $endRev '$checkoutName' | head -100 2>&1");
+        my $outLines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --stat $endRev '$checkoutName' | head -100 2>&1");
         my $hasDiff  = 0;
         foreach my $line (@$outLines) {
             if ( $line ne '' ) {
@@ -746,7 +746,7 @@ sub _getDiff {
         }
 
         if ( defined($diffCmd) ) {
-            eval { DeployUtils::handlePipeOut( $diffCmd, $saveSub ); };
+            eval { DeployUtils->handlePipeOut( $diffCmd, $saveSub ); };
             if ($@) {
                 $ret = 3;
                 print( $@, "\n" );

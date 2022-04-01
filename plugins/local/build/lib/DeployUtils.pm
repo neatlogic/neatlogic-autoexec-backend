@@ -7,8 +7,16 @@ package DeployUtils;
 use Cwd;
 use ServerAdapter;
 
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+    return $self;
+}
+
 sub deployInit {
-    my ( $namePath, $version ) = @_;
+    my ( $self, $namePath, $version ) = @_;
 
     my $dpPath     = $ENV{_DEPLOY_PATH};
     my $dpIdPath   = $ENV{_DEPLOY_ID_PATH};
@@ -41,9 +49,12 @@ sub deployInit {
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
-        $autoexecHome               = Cwd::realpath("$FindBin::Bin/../../..");
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+        my $toolsPath = "$autoexecHome/plugins/local/build/tools";
         $ENV{AUTOEXEC_HOME}         = $autoexecHome;
+        $ENV{TOOLS_PATH}            = $toolsPath;
         $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
+        $deployEnv->{TOOLS_PATH}    = $toolsPath;
     }
     my $dataPath = "$autoexecHome/data/verdata/$ENV{SYS_ID}/$ENV{MODULE_ID}";
     $ENV{_DEPLOY_DATA_PATH} = $dataPath;
@@ -67,7 +78,7 @@ sub deployInit {
 }
 
 sub getFileContent {
-    my ($filePath) = @_;
+    my ( $self, $filePath ) = @_;
     my $content;
 
     if ( -f $filePath ) {
@@ -87,7 +98,7 @@ sub getFileContent {
 }
 
 sub execmd {
-    my ( $cmd, $pattern ) = @_;
+    my ( $self, $cmd, $pattern ) = @_;
     my $encoding;
     my $lang = $ENV{LANG};
 
@@ -137,7 +148,7 @@ sub execmd {
 
 #读取命令执行后管道的输出
 sub getPipeOut {
-    my ( $cmd, $isVerbose ) = @_;
+    my ( $self, $cmd, $isVerbose ) = @_;
     my ( $line, @outArray );
 
     my $exitCode = 0;
@@ -171,13 +182,13 @@ sub getPipeOut {
 
 #读取命令执行后管道的输出
 sub teePipeOut {
-    my ($cmd) = @_;
+    my ( $self, $cmd ) = @_;
     return getPipeOut( $cmd, 1 );
 }
 
 #读取命令执行后管道的输出
 sub handlePipeOut {
-    my ( $cmd, $callback, $isVerbose, $execDesc ) = @_;
+    my ( $self, $cmd, $callback, $isVerbose, $execDesc ) = @_;
 
     my $line;
 
@@ -220,6 +231,45 @@ sub handlePipeOut {
     }
 
     return $exitCode;
+}
+
+sub copyTree {
+    my ( $self, $src, $dest ) = @_;
+
+    if ( not -d $src ) {
+        my $dir = dirname($dest);
+        mkpath($dir) if ( not -e $dir );
+        copy( $src, $dest ) || die("ERROR: copy $src to $dest failed:$!");
+        chmod( ( stat($src) )[2], $dest );
+    }
+    else {
+        #$dest = Cwd::abs_path($dest);
+        my $cwd = getcwd();
+        chdir($src);
+
+        find(
+            {
+                wanted => sub {
+                    my $fileName  = $File::Find::name;
+                    my $targetDir = "$dest/$File::Find::dir";
+                    mkpath($targetDir) if not -e $targetDir;
+
+                    my $srcFile = $_;
+                    if ( -f $srcFile ) {
+
+                        #print("copy $_ $dest/$fileName\n");
+                        my $destFile = "$dest/$fileName";
+                        copy( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                        chmod( ( stat($srcFile) )[2], $destFile );
+                    }
+                },
+                follow => 0
+            },
+            '.'
+        );
+
+        chdir($cwd);
+    }
 }
 
 1;
