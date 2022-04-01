@@ -16,15 +16,27 @@ sub new {
 }
 
 sub deployInit {
-    my ( $self, $namePath, $version ) = @_;
+    my ( $self, $namePath, $version, $buildNo ) = @_;
 
     my $dpPath          = $ENV{_DEPLOY_PATH};
     my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
     my $deployConf      = $ENV{_DEPLOY_CONF};
     my $runnerGroupConf = $ENV{_DEPLOY_RUNNERGROUP};
+    my $buildNo         = $ENV{BUILD_NO};
+    my $isRelease       = $ENV{IS_RELEASE};
+
+    if ( not defined($isRelease) or $isRelease eq '' ) {
+        $isRelease = 0;
+    }
+    else {
+        $isRelease = int($isRelease);
+    }
 
     my $deployEnv = {};
-    $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
+    $deployEnv->{RUNNER_ID}  = $ENV{RUNNER_ID};
+    $deployEnv->{BUILD_NO}   = $buildNo;
+    $deployEnv->{IS_RELEASE} = $isRelease;
+
     if ( defined($deployConf) and $deployConf ne '' ) {
         $deployEnv->{DEPLOY_CONF} = from_json($deployConf);
     }

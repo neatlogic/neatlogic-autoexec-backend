@@ -76,10 +76,18 @@ sub getVer {
 }
 
 sub updateVer {
+    my ( $self, $buildEnv, $verInfo ) = @_;
 
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
 
+    return;
+}
+
+sub releaseVer {
+    my ( $self, $buildEnv, $version, $buildNo ) = @_;
+
+    #更新某个version的buildNo的release状态为1，build成功
     return;
 }
 

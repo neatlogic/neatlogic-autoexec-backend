@@ -10,6 +10,7 @@ use File::Copy;
 use File::Find;
 
 use DeployUtils;
+use BuildUtils;
 use FileUtils;
 
 sub usage {
@@ -309,7 +310,17 @@ sub main {
         print("ERROR: Get build target for $namePath version:$version failed.\n");
     }
     else {
-        print("FINEST: Get build target for $namePath version:$version success.\n");
+        eval {
+            my $buildUtils = BuildUtils->new();
+            $buildUtils->release( $buildEnv, $version, $buildNo );
+            ServerAdapter->releaseVer( $buildEnv, $version, $buildNo );
+        };
+        if ($@) {
+            print("ERRROR: $@\n");
+        }
+        else {
+            print("FINEST: Get build target for $namePath version:$version success.\n");
+        }
     }
 
     return $hasError;

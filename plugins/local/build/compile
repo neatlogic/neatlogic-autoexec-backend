@@ -55,6 +55,13 @@ sub main {
 
     my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
     my $namePath  = $buildEnv->{NAME_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+    if ( $isRelease == 1 ) {
+        print("ERROR: $namePath version:$version build $buildNo is released, can not compile again.\n");
+        return 3;
+    }
+
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 

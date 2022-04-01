@@ -177,7 +177,7 @@ sub compile {
 }
 
 sub release {
-    my ( $buildEnv, $version, $buildNo ) = @_;
+    my ( $self, $buildEnv, $version, $buildNo ) = @_;
 
     my $namePath = $buildEnv->{NAME_PATH};
     my $dataPath = $buildEnv->{DATA_PATH};
