@@ -58,6 +58,11 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                             if phaseName in self.context.phases:
                                 phaseStatus = self.context.phases[phaseName]
                                 phaseStatus.setGlobalRoundFinEvent()
+                    elif actionData['action'] == 'setEnv':
+                        self.context.setEnv(actionData['name'], actionData['value'])
+                    elif actionData['action'] == 'deployLock':
+                        # TODO: lock logic
+                        pass
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
                         break
