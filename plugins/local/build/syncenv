@@ -1,0 +1,311 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use File::Path;
+use Getopt::Long;
+
+use SyncLocalFile;
+use FileUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [-x ExcludeDirs]\n");
+    print("              [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1] [--src SrcDir] [--dest DestDir]\n");
+    print("              [--nomd5 0|1] [--notime 0|1] \n");
+    print("\n");
+    print("       sync files from appbuild to ENV/appsync, doc/db to ENV/appres\n");
+    print("       subsys env path: subsys env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       version:         version number\n");
+    print("       src dir:         relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
+    print("       dest dir:        releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       except dir:      which dirs not to be sync.\n");
+    print("       nomd5:           do not compare file md5, only compare size and mtime of file\n");
+    print("       notime:          do not compare file mtime, only compare size of file\n");
+    print("       nodelete:        do not delete the files in the destination direcotry\n");
+    print("       noattrs:         do not preserve the attributes of the source files\n");
+    print("       nochkver:        do not check the version build status\n");
+
+    exit(1);
+}
+
+sub isEmptyDir {
+    my ($dir) = @_;
+    my $isEmpty = 1;
+
+    my $dirHandle;
+    opendir( $dirHandle, $dir );
+
+    if ( defined($dirHandle) ) {
+        my $entry;
+        while ( $entry = readdir($dirHandle) ) {
+            if ( $entry ne '.' and $entry ne '..' ) {
+                $isEmpty = 0;
+                last;
+            }
+        }
+        close($dirHandle);
+    }
+
+    return $isEmpty;
+}
+
+sub main {
+    my $pname = basename($0);
+    $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
+
+    my ( $ishelp, $envPath, $version, $src, $dest, $expDir, $needBackup, $md5Check, $needMd5, $noMd5, $needMTime, $noMTime, $isVerbose, $noDelete, $noAttrs, $noChkVer, $isRollback );
+    $isVerbose  = 0;
+    $needBackup = 1;
+    $needMd5    = 1;
+    $needMTime  = 1;
+    $isRollback = 0;
+
+    Utils::setEnv();
+
+    GetOptions(
+        'help'      => \$ishelp,
+        'envpath:s' => \$envPath,
+        'version:s' => \$version,
+        'v|verbose' => \$isVerbose,
+        'nodelete'  => \$noDelete,
+        'noattrs'   => \$noAttrs,
+        'rollback'  => \$isRollback,
+        'nomd5'     => \$noMd5,
+        'md5check'  => \$md5Check,
+        'notime'    => \$noMTime,
+        'nochkver'  => \$noChkVer,
+        'src:s'     => \$src,
+        'x|exp:s'   => \$expDir,
+        'dest:s'    => \$dest
+    );
+
+    usage() if ( not defined($envPath) or $envPath eq '' );
+    usage() if ( not defined($version) );
+
+    $needMd5   = 0 if ( defined($noMd5) );
+    $needMTime = 0 if ( defined($noMTime) );
+    $src    = Utils::charsetConv( $src,    'utf-8' );
+    $dest   = Utils::charsetConv( $dest,   'utf-8' );
+    $expDir = Utils::charsetConv( $expDir, 'utf-8' );
+
+    my ( $dbSrc, $dbDest, $resSrc, $resDest );
+
+    my $envInfo     = ENVInfo::parse( $envPath, $version );
+    my $namePath    = $envInfo->{namepath};
+    my $envRealPath = $envInfo->{envrealpath};
+    my $verDir      = $envInfo->{verdir};
+    my $syncDir     = $envInfo->{distsrc};
+    my $appsyncDir  = $envInfo->{distsrc};
+    my $appresDir   = $envInfo->{distressrc};
+    my $dbResDir    = $envInfo->{dbressrc};
+    my $dpmirrorDir = $envInfo->{versyncsrc};
+
+    my $appbuildDir = $envInfo->{buildsrc};
+
+    my $sysName    = $envInfo->{sysname};
+    my $subSysName = $envInfo->{subsysname};
+
+    if ( not defined($expDir) ) {
+        $expDir = $envInfo->{expdir};
+    }
+
+    $dbSrc  = "$appbuildDir/db";
+    $resSrc = "$appbuildDir/res";
+
+    if ( not defined($src) ) {
+        $src = "$appbuildDir/app";
+
+        #mkpath($dbSrc)  if ( not -e $dbSrc );
+        #mkpath($resSrc) if ( not -e $resSrc );
+    }
+    else {
+        my $srcPath = $src;
+        $srcPath =~ s/\/+/\//g;
+        $srcPath =~ s/^\///;
+
+        if ( $src =~ /\/?appbuild\// ) {
+            $srcPath = "$verDir/$srcPath";
+        }
+        else {
+            $srcPath = "$appbuildDir/app/$srcPath";
+        }
+
+        $src = $srcPath;
+    }
+
+    my $opUser = $ENV{OPUSER};
+
+    #if ( ExecAuth::auth( $envRealPath, 'build' ) eq 0 ) {
+    #    print("ERROR:user $opUser has no permission to autocfg $envRealPath.\n");
+    #    exit(-1);
+    #}
+
+    my $logger = Logger->new();
+    my $desc   = $envInfo->{subsys} . " version:" . $envInfo->{version};
+
+    if ( not defined($noChkVer) && index( $src, $appbuildDir ) eq 0 && index( $ENV{PLAYBOOK}, 'env.' ) eq 0 ) {
+        print("INFO: begin to get build resource...\n");
+
+        my $startIdx = rindex( $src, "/appbuild/" ) + 10;
+        my $appbuildOrgDir = substr( $appbuildDir, 0, $startIdx );
+
+        my $subPath = '';
+        if ( length($src) > length($appbuildOrgDir) ) {
+            $subPath = substr( $src, $startIdx );
+        }
+
+        eval {
+            if ( $subPath eq '' ) {
+                ServerAdapter::getAppbuild( $appbuildOrgDir, $envInfo->{sys}, $envInfo->{subsys}, $version, undef, $sysName, $subSysName );
+            }
+            else {
+                my $subDbPath  = substr( $dbSrc,  $startIdx );
+                my $subResPath = substr( $resSrc, $startIdx );
+                ServerAdapter::getAppbuild( $appbuildOrgDir, $envInfo->{sys}, $envInfo->{subsys}, $version, undef, $sysName, $subSysName, undef, undef, undef, undef, [ $subPath, $subDbPath, $subResPath ] );
+            }
+        };
+        if ($@) {
+            print("ERROR: $@");
+            print("ERROR:get build resources failed.\n");
+            exit(-1);
+        }
+    }
+
+    if ( not defined($dest) ) {
+        $dest   = $dpmirrorDir;
+        $dbDest = "$appresDir/db";
+        if ( not -e $dbDest and -d $dbSrc ) {
+            mkpath($dbDest);
+        }
+        $resDest = "$appresDir/res";
+        if ( not -e $resDest and -d $resSrc ) {
+            mkpath($resDest);
+        }
+    }
+    else {
+        my $destPath = $dest;
+        $destPath =~ s/^\///;
+        $destPath = "$dpmirrorDir/$destPath";
+        $dest     = $destPath;
+    }
+
+    mkpath($dest) if ( not -e $dest );
+
+    my $appbuildLock = RUNLock->new("$appbuildDir.lock");
+    my $dpmirrorLock = RUNLock->new("$dpmirrorDir.lock");
+
+    my $preLockMsg = $appbuildLock->tryLock( "$opUser running $pname", 1 );
+
+    if ( defined($preLockMsg) ) {
+        print("INFO:another user $preLockMsg.\n");
+        print("INFO:waiting for it to complete...\n");
+        $appbuildLock->lock( "$opUser running $pname", 1 );
+    }
+    $dpmirrorLock->lock("$opUser running $pname");
+
+    my $insDiffSrc  = "$src.ins";
+    my $insDiffDest = "$dest.ins";
+
+    if ( -d $insDiffSrc ) {
+        mkpath($insDiffDest) if ( not -e $insDiffDest );
+    }
+
+    eval {
+        my $syncExec = new PreDistFile( $version, $needMd5, $needBackup, $needMTime );
+        if ($isRollback) {
+            $syncExec->rollback( $src, $dest );
+            $syncExec->rollback( $insDiffSrc, $insDiffDest ) if ( -d $insDiffSrc );
+        }
+        else {
+            $syncExec->upgradeFiles( $src, $dest, $expDir, $noDelete, $noAttrs );
+            $syncExec->upgradeFiles( $insDiffSrc, $insDiffDest, $expDir, $noDelete, $noAttrs ) if ( -d $insDiffSrc );
+        }
+
+        if ( -d $dbSrc ) {
+            ServerAdapter::restoreSqlStatus( $envInfo, $version );
+
+            #clean the schema black list dir
+            foreach my $schema ( split( ',', $envInfo->{'dbschema.blacklist'} ) ) {
+                if ( $schema ne '' and -e "$dbDest/$schema" ) {
+                    rmtree("$dbDest/$schema");
+                }
+            }
+
+            my $schemaBlackList = $envInfo->{'dbschema.blacklist'};
+            my $dbExpDirs       = $expDir;
+            if ( defined($schemaBlackList) and $schemaBlackList ne '' ) {
+                if ( defined($expDir) and $expDir ne '' ) {
+                    $dbExpDirs = "$schemaBlackList,$dbExpDirs";
+                }
+                else {
+                    $dbExpDirs = $schemaBlackList;
+                }
+            }
+
+            my $dbSyncExec = new PreDistFile( $version, 1, 0 );
+            $dbSyncExec->upgradeFiles( $dbSrc, $dbDest, $dbExpDirs );
+        }
+
+        if ( isEmptyDir($dest) == 1 ) {
+            rmtree($dest);
+        }
+        elsif ( defined($md5Check) ) {
+            eval { FileUtils::checkMd5($dest); };
+            if ($@) {
+                Utils::setErrFlag();
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+
+        if ( isEmptyDir($dbSrc) == 1 ) {
+            rmtree($dbDest);
+        }
+        elsif ( defined($md5Check) ) {
+            eval { FileUtils::checkMd5($dbDest); };
+            if ($@) {
+                Utils::setErrFlag();
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+
+        if ( isEmptyDir($resDest) == 1 ) {
+            rmtree($resDest);
+        }
+    };
+    if ($@) {
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print("$msg\n");
+        Utils::setErrFlag();
+    }
+
+    if ( Utils::getErrFlag() ne 0 ) {
+        $logger->log( "$pname $desc failed.", "ERROR" );
+    }
+    else {
+        $logger->log( "$pname $desc success.", "INFO" );
+    }
+    $logger->close();
+
+    if ( Utils::getErrFlag() ne 0 ) {
+        $appbuildLock->release('failed');
+        $dpmirrorLock->release('failed');
+        print("ERROR: $pname $namePath version:$version failed.\n");
+    }
+    else {
+        $appbuildLock->release('success');
+        $dpmirrorLock->release('success');
+        print("FINEST: $pname $namePath version:$version success.\n");
+    }
+
+    Utils::exitWithFlag();
+}
+
+main();
+

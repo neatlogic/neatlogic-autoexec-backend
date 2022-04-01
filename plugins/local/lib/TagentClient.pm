@@ -1,10 +1,9 @@
 #!/usr/bin/perl
+use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-
-use strict;
 
 package TagentClient;
 
@@ -24,8 +23,6 @@ use Crypt::RC4;
 
 my $PROTOCOL_VER        = 'Tagent1.1';
 my $SECURE_PROTOCOL_VER = 'Tagent1.1s';
-
-$ENV{PERL5LIB} = Cwd::abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5") . ':' . Cwd::abs_path("$FindBin::Bin/../lib");
 
 sub _rc4_encrypt_hex ($$) {
     my ( $key, $data ) = ( $_[0], $_[1] );
@@ -72,7 +69,7 @@ sub auth {
     #挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
     my $plainChlg = _rc4_decrypt_hex( $authKey, $challenge );
     my ( $factor1, $factor2, $serverTime ) = split( ',', $plainChlg );
-    if ( not defined($serverTime) or $serverTime eq '0' ){
+    if ( not defined($serverTime) or $serverTime eq '0' ) {
         $serverTime = time();
     }
 
@@ -619,7 +616,7 @@ sub execCmd {
             if ( $line =~ /^\d+$/ ) {
                 $status = int($line);
             }
-            if ( $line ne '1' and $line ne '0' ){
+            if ( $line ne '1' and $line ne '0' ) {
                 print("$line\n");
             }
         }

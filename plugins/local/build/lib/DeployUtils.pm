@@ -290,4 +290,51 @@ sub copyTree {
     }
 }
 
+sub getMonth {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my $nowMon = sprintf( '%4d%02d', $year + 1900, $mon + 1 );
+
+    return $nowMon;
+}
+
+sub getDate {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my $nowdate = sprintf( '%4d%02d%02d', $year + 1900, $mon + 1, $mday );
+
+    return $nowdate;
+}
+
+sub getTimeStr {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my $timeStr = sprintf( '%4d%02d%02d_%02d%02d%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
+
+    return $timeStr;
+}
+
+sub getTimeForLog {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my $timeStr = sprintf( '[%02d:%02d:%02d]', $hour, $min, $sec );
+
+    return $timeStr;
+}
+
+sub getDateTimeForLog {
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my $timeStr = sprintf( '[%4d-%02d-%02d %02d:%02d:%02d]', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
+
+    return $timeStr;
+}
+
+sub escapeQuote {
+    my ( $self, $line ) = @_;
+    $line =~ s/([\{\}\(\)\[\]\'\"\$\s\&\!])/\\$1/g;
+    return $line;
+}
+
+sub escapeQuoteWindows {
+    my ( $self, $line ) = @_;
+    $line =~ s/([\'\"\$\&\^\%])/^$1/g;
+    return $line;
+}
+
 1;
