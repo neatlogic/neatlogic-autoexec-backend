@@ -1,198 +1,127 @@
 #!/usr/bin/perl
+use strict;
 
 use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
-use strict;
 use File::Basename;
 use File::Path;
 use Getopt::Long;
-use PreDistFile;
-use ENVInfo;
-use Logger;
-use RUNLock;
-use ExecAuth;
+
+use SyncLocalFile;
 
 sub usage {
     my $pname = basename($0);
 
-    print(
-"Usage: $pname [-v] [--subsyspath <subsys path>] [--version <version>] [--env <env name>] [-x <except dir>] [--nodelete] [--noattrs] [--src <src dir>] [--dest <dest dir>] [--nomd5] [--notime]\n"
-    );
-    print("       sync files from appbuild to ENV/appsync, doc/db to ENV/appres\n");
-    print("       subsys path: subsys path in the data directory, example:100/123/234\n");
-    print("       version:         version number\n");
-    print("       src dir:         relative path for <sys>/<subsys>/<ver number>/\n");
-    print("       dest dir:        releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
-    print("       except dir:      which dirs not to be sync.\n");
-    print("       nomd5:           do not compare file md5, only compare size and mtime of file\n");
-    print("       notime:          do not compare file mtime, only compare size of file\n");
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [-x ExcludeDirsInSrcDir] [--nodelete 0|1] [--noattrs 0|1] [--src SourceDirectory]\n");
+    print("              [--dest DestinationDirectory] [--nomd5 0|1] [--notime 0|1]\n");
+    print("\n");
+    print("       --envpath:   env path in the data directory, example:SYS-X/MODULE-X/SIT\n");
+    print("       --version:   version number\n");
+    print("       --src:       relative path for <sys>/<subsys>/<ver number>/\n");
+    print("       --dest:      releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:       which dirs not to be sync.\n");
+    print("       --nomd5:     do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:    do not compare file mtime, only compare size of file\n");
 
     exit(1);
 }
 
 sub main {
-    my $pname = basename($0);
+    my ( $isHelp, $envPath, $version );
+    my $pname = $FindBin::Script;
 
-    my ( $ishelp, $subSysPath, $envName, $version, $src, $dest, $expDir, $needMd5, $noMd5, $needMTime, $noMTime, $needBackup, $isVerbose, $noDelete, $noAttrs, $isRollback );
-    $isVerbose  = 0;
-    $needMd5    = 1;
-    $needMTime  = 1;
-    $needBackup = 0;
-    $isRollback = 0;
+    my ( $src, $dest, $expDir );
+    my $isVerbose  = 0;
+    my $needMd5    = 1;
+    my $noMd5      = 0;
+    my $needMTime  = 1;
+    my $noMTime    = 0;
+    my $needBackup = 0;
+    my $noDelete   = 0;
+    my $noAttrs    = 0;
 
     Utils::setEnv();
 
     GetOptions(
-        'help'         => \$ishelp,
-        'subsyspath:s' => \$subSysPath,
-        'env:s'        => \$envName,
-        'version:s'    => \$version,
-        'v|verbose'    => \$isVerbose,
-        'nodelete'     => \$noDelete,
-        'noattrs'      => \$noAttrs,
-        'nomd5'        => \$noMd5,
-        'notime'       => \$noMTime,
-        'src:s'        => \$src,
-        'x|exp:s'      => \$expDir,
-        'dest:s'       => \$dest
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'nodelete=i'  => \$noDelete,
+        'noattrs=i'   => \$noAttrs,
+        'nomd5=i'     => \$noMd5,
+        'notime=i'    => \$noMTime,
+        'src=s'       => \$src,
+        'x|exp=s'     => \$expDir,
+        'dest=s'      => \$dest
     );
 
     my $optionError = 0;
-    if (   not defined($subSysPath)
+    if (   not defined($envPath)
         or not defined($version)
         or not defined($src)
         or not defined($dest) )
     {
         $optionError = 1;
-        print("ERROR: must defoned --subsyspath and --version and -env and --src and --dest\n");
+        print("ERROR: must defoned --envpath and --version and --src and --dest\n");
     }
 
     if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
         $optionError = 1;
-        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Sync source path can not has parent dir opertor:\"..\".\n");
     }
 
     if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
         $optionError = 1;
-        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Sync destination path can not has parent dir opertor:\"..\".\n");
     }
 
     usage() if ( $optionError eq 1 );
 
-    $needMd5   = 0 if ( defined($noMd5) );
-    $needMTime = 0 if ( defined($noMTime) );
+    $needMd5   = 0 if ( $noMd5 == 1 );
+    $needMTime = 0 if ( $noMTime == 1 );
+
     $src    = Utils::charsetConv( $src,    'utf-8' );
     $dest   = Utils::charsetConv( $dest,   'utf-8' );
     $expDir = Utils::charsetConv( $expDir, 'utf-8' );
 
-    my $desc;
-    my $isFailed = 0;
-    my $logger   = Logger->new();
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $envName   = $buildEnv->{ENV_NAME};
 
-    my @paths = split( '/', $subSysPath );
-    my ( $sys, $subSys, $env, $ins ) = @paths;
+    my $sysName    = $buildEnv->{SYS_NAME};
+    my $subSysName = $buildEnv->{MODUL_NAME};
 
-    my $subSysNamePath;
-    eval { $subSysNamePath = ServerAdapter::convId2Name( $sys, $subSys ); };
+    my $isFail = 0;
 
-    my $envPath;
-    if ( defined($subSysNamePath) ) {
-        if ( defined($envName) ) {
-            my @namePaths = split( '/', $subSysNamePath );
-            eval { $envPath = ServerAdapter::convName2Id( $namePaths[0], $namePaths[1], $envName ); };
-            if ($@) {
-                $isFailed = 1;
-                print("ERROR: can not find env: $subSysNamePath/$envName\n");
-            }
-        }
-    }
-    else {
-        $isFailed = 1;
-        print("ERROR: can not find subsys: $subSysNamePath.\n");
-    }
-
-    if ( $isFailed eq 0 ) {
-        $envPath = $subSysPath if ( not defined($envPath) );
-        my $envPathInfo = ENVInfo::parse( $envPath, $version );
-
-        my $env            = $envPathInfo->{env};
-        my $subSysRealPath = $envPathInfo->{subsysrealpath};
-        my $appbuildDir    = $envPathInfo->{buildsrc};
-        my $syncDir        = $envPathInfo->{distsrc};
-
-        my $opUser = $ENV{OPUSER};
-        if ( ExecAuth::auth( $subSysRealPath, 'build' ) eq 0 ) {
-            print("ERROR:user $opUser has no permission to build $subSysRealPath.\n");
-            exit(-1);
-        }
-
-        $desc = $subSysNamePath . " version:" . $envPathInfo->{version};
-
-        my $appbuildLock = RUNLock->new("$appbuildDir.lock");
-        my $appsyncLock  = RUNLock->new("$syncDir.lock");
-
-        my $preLockMsg = $appbuildLock->tryLock( $ENV{OPUSER} . " running $pname.", 1 );
-
-        if ( defined($preLockMsg) ) {
-            print("INFO:another user $preLockMsg.\n");
-            print("INFO:waiting for it to complete...\n");
-            $appbuildLock->lock( "$opUser running $pname", 1 );
-        }
-        $appsyncLock->lock("$opUser running $pname");
-
-        if ( not defined($expDir) ) {
-            $expDir = $envPathInfo->{expdir};
-        }
-
-        if ( defined($env) ) {
-            $src =~ s/\/ENVID\//\/$env\//g;
-            $dest =~ s/\/ENVID\//\/$env\//g;
-            $src =~ s/\/VERSION\//\/$version\//g;
-            $dest =~ s/\/VERSION\//\/$version\//g;
-        }
-
-        $src  = "$subSysRealPath/$src";
-        $dest = "$subSysRealPath/$dest";
+    if ( $isFail eq 0 ) {
+        $src  = "$dataPath/$src";
+        $dest = "$dataPath/$dest";
 
         eval {
             my $syncExec = new PreDistFile( $version, $needMd5, 0, $needMTime );
             $syncExec->upgradeFiles( $src, $dest, $expDir, $noDelete, $noAttrs );
         };
         if ($@) {
+            $isFail = 1;
             my $msg = $@;
             $msg =~ s/ at .*?$//;
             print("$msg\n");
-            Utils::setErrFlag();
         }
 
-        if ( Utils::getErrFlag() ne 0 ) {
-            $appsyncLock->release('failed');
-            $appbuildLock->release('failed');
-            print("ERROR: $pname $envPath/$version failed.\n");
+        if ( $isFail != 0 ) {
+            print("ERROR: $pname $namePath version:$version failed.\n");
         }
         else {
-            $appsyncLock->release('success');
-            $appbuildLock->release('success');
-            print("FINEST: $pname $envPath/$version success.\n");
+            print("FINEST: $pname $namePath version:$version success.\n");
         }
     }
-    else {
-        Utils::setErrFlag();
-    }
 
-    if ( Utils::getErrFlag() ne 0 ) {
-        $logger->log( "$pname $desc failed.", "ERROR" );
-    }
-    else {
-        $logger->log( "$pname $desc success.", "INFO" );
-    }
-    $logger->close();
-
-    Utils::exitWithFlag();
-
+    return $isFail;
 }
 
-main();
+exit main();
 

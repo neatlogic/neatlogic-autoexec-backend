@@ -19,16 +19,15 @@ sub usage {
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--hasbuildnumber 0|1] \n");
     print("              [--dbdir DBDirectoryInProject] [--docdir DocDirectoryInProject] \n");
     print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames] \n");
-    print("              [-x ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
+    print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
     print("\n");
-    print("       envpath: system envpath, example:ATM/ATMP/PRD\n");
-    print("       version:  versoin number\n");
-    print("       hasbuildnumber: version has build number\n");
-    print("       resdir:  db or doc resource start diretory(relative to project directory)\n");
-    print("       prefix:   target prefix\n");
-    print("       packexts: package extention names, example:zip,tar,tgz\n");
-    print("       except dir: which dirs not to be copy, please use | symbol as the delimiter.\n");
-    print("       version:  version number\n");
+    print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
+    print("       --version:  versoin number\n");
+    print("       --hasbuildnumber: version has build number\n");
+    print("       --docdir:  db or doc resource start diretory(relative to project directory)\n");
+    print("       --prefix:   target prefix\n");
+    print("       --packexts: package extention names, example:zip,tar,tgz\n");
+    print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");
 
     exit(1);
 }
@@ -70,6 +69,12 @@ sub main {
     my $buildRoot = $buildEnv->{BUILD_ROOT};
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $buildPath = "$buildRoot/$buildNo";
+
+    my $isRelease = $buildEnv->{IS_RELEASE};
+    if ( $isRelease == 1 ) {
+        print("ERROR: $namePath version:$version build $buildNo is released, can not release again.\n");
+        return 3;
+    }
 
     my $lock = BuildLock->new($buildEnv);
     $lock->lockWorkspace($BuildLock::EXCLUDE);
@@ -214,8 +219,8 @@ sub main {
     if ( -e "$buildPath/db" ) {
         rmtree("$buildPath/db");
     }
-    if ( -e "$buildPath/res" ) {
-        rmtree("$buildPath/res");
+    if ( -e "$buildPath/doc" ) {
+        rmtree("$buildPath/doc");
     }
     if ( -d "$buildPath/app/db" and defined($packExt) ) {
         rename( "$buildPath/app/db", "$buildPath/db" );
@@ -257,29 +262,9 @@ sub main {
     }
 
     if ( defined($docDir) and $docDir ne '' ) {
-        my $resCopied  = 0;
-        my $realDocDir = $docDir;
-
         my $ret = 0;
-        if ( -d "$prjPath/$realDocDir" ) {
-            if ( -d "$prjPath/$realDocDir" ) {
-                $ret = copyTarget( "$prjPath/$realDocDir", "$buildPath/res", undef, $md5Check );
-                $resCopied = 1;
-            }
-            else {
-                if ( $hasBuildNumber == 1 and $docDir =~ /\/$version$/ ) {
-                    my $pos  = rindex( $docDir, '.' );
-                    my $_pos = rindex( $docDir, '_' );
-                    if ( $pos < $_pos ) {
-                        $pos = $_pos;
-                    }
-                    $realDocDir = substr( $docDir, 0, $pos );
-                }
-                if ( -d "$prjPath/$realDocDir" ) {
-                    DeployUtils->execmd("cp -rf $prjPath/$realDocDir $buildPath/res");
-                    $resCopied = 1;
-                }
-            }
+        if ( -d "$prjPath/$docDir" ) {
+            $ret = copyTarget( "$prjPath/$docDir", "$buildPath/doc", undef, $md5Check );
         }
         if ( $ret != 0 ) {
             $hasError = 1;

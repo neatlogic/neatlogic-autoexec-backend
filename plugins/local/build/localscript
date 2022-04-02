@@ -22,8 +22,8 @@ sub usage {
     print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--lang LANG] [--version VERSION] \n");
     print("       [--basedir SubDirectoryInSysDataPath] --script EncodedScript\n");
     print("\n");
-    print("       envpath: Env path in the data directory, example:10/10/10\n");
-    print("       cmd:         command text\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+    print("       --cmd:         command text\n");
 
     exit(1);
 }

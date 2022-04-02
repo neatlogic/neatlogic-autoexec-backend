@@ -26,20 +26,20 @@ sub usage {
     print("       [--cmpoutpaths CompileOutPathInProject] [--reservepaths ReservePathInProject] [--classpaths ClassPathInProject]  \n");
     print("       [--jdk JDKVersion] [--startpath SubDirInProject] [--lang LANG] [--args BuildArgs] [--version VERSION]\n");
     print("\n");
-    print("       subsyspath:   sub system path\n");
-    print("       jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
-    print("       startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
-    print("       lang:         LANGUAGE, default: en_US.UTF8\n");
-    print("       type:         build type: mvn|ant|gradle, default is auto detect.\n");
-    print("       diffdirname:  diff build save directory, default:build.diff.\n");
-    print("       skipfullcmp:  skip full compile before increment build.\n");
-    print("       tag4cmpto:    source code compare to, if not defined, use master or trunk config in repo config.\n");
-    print("       srcpaths:     sources code paths: example: 'src,*/src'\n");
-    print("       libpaths:     library paths: example: 'target/webapp/WEB-INF/lib,*/target/webapp/WEB-INF/lib'\n");
-    print("       cmpoutpaths:  compile output paths: example: 'target/webapp/WEB-INF/classes,*/target/webapp/WEB-INF/classes'\n");
-    print("       reservepaths: file needed for increment compile in srcpaths or libpaths or cmpoutpaths, example:'target/webapp/WEB-INF/web.xml,*/target/webapp/WEB-INF/web.xml'\n");
-    print("       classpaths:   class paths(out of cmpoutpaths) for increment compile, example: 'staticclasses,*/staticclasses'\n");
-    print("       args:         arguments for ant|mvn|gradle, default is blank.\n");
+    print("       --envpath:      sub system path\n");
+    print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
+    print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
+    print("       --type:         build type: mvn|ant|gradle, default is auto detect.\n");
+    print("       --diffdirname:  diff build save directory, default:build.diff.\n");
+    print("       --skipfullcmp:  skip full compile before increment build.\n");
+    print("       --tag4cmpto:    source code compare to, if not defined, use master or trunk config in repo config.\n");
+    print("       --srcpaths:     sources code paths: example: 'src,*/src'\n");
+    print("       --libpaths:     library paths: example: 'target/webapp/WEB-INF/lib,*/target/webapp/WEB-INF/lib'\n");
+    print("       --cmpoutpaths:  compile output paths: example: 'target/webapp/WEB-INF/classes,*/target/webapp/WEB-INF/classes'\n");
+    print("       --reservepaths: file needed for increment compile in srcpaths or libpaths or cmpoutpaths, example:'target/webapp/WEB-INF/web.xml,*/target/webapp/WEB-INF/web.xml'\n");
+    print("       --classpaths:   class paths(out of cmpoutpaths) for increment compile, example: 'staticclasses,*/staticclasses'\n");
+    print("       --args:         arguments for ant|mvn|gradle, default is blank.\n");
 
     exit(1);
 }

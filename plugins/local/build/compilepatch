@@ -23,21 +23,21 @@ sub usage {
     print("              [--webdistpath WebPackagePathsInProject] \n");
     print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS] [--version VERSION]\n");
     print("\n");
-    print("       subsyspath:   sub system path\n");
-    print("       jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
-    print("       startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
-    print("       lang:         LANGUAGE, default: en_US.UTF8\n");
-    print("       type:         build type: mvn|ant|gradle, default is auto detect.\n");
-    print("       diffdirname:  diff build save directory, default:build.diff.\n");
-    print("       tag4cmpto:    source code compare to, if not defined, use master or trunk config in repo config.\n");
-    print("       startrev:     start revision.\n");
-    print("       endrev:       end revision.\n");
-    print("       srcpaths:     source code paths: example: 'src,*/src'\n");
-    print("       testsrcpaths: test source code paths: example: 'src/test'\n");
-    print("       websrcpath:   web content source path, default:src/main/webapp\n");
-    print("       webdistpath:  web distribute path, default:WebContent\n");
-    print("       cmpoutpath:   compile output path: example: 'target/webapp/WEB-INF/classes'\n");
-    print("       args:         arguments for ant|mvn|gradle, default is blank.\n");
+    print("       --envpath:      env path, example:SYS-X/MODULE-X/SIT\n");
+    print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
+    print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
+    print("       --type:         build type: mvn|ant|gradle, default is auto detect.\n");
+    print("       --diffdirname:  diff build save directory, default:build.diff.\n");
+    print("       --tag4cmpto:    source code compare to, if not defined, use master or trunk config in repo config.\n");
+    print("       --startrev:     start revision.\n");
+    print("       --endrev:       end revision.\n");
+    print("       --srcpaths:     source code paths: example: 'src,*/src'\n");
+    print("       --testsrcpaths: test source code paths: example: 'src/test'\n");
+    print("       --websrcpath:   web content source path, default:src/main/webapp\n");
+    print("       --webdistpath:  web distribute path, default:WebContent\n");
+    print("       --cmpoutpath:   compile output path: example: 'target/webapp/WEB-INF/classes'\n");
+    print("       --args:         arguments for ant|mvn|gradle, default is blank.\n");
 
     exit(1);
 }

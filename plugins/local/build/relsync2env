@@ -11,21 +11,21 @@ use FileUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [-x ExcludeDirs]\n");
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [-exp ExcludeDirs]\n");
     print("              [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1] [--src SrcDir] [--dest DestDir]\n");
     print("              [--nomd5 0|1] [--notime 0|1] \n");
     print("\n");
     print("       sync files from appbuild to ENV/appsync, doc/db to ENV/appres\n");
-    print("       subsys env path: subsys env path in the data directory, example:ATM/ATMP/PRD\n");
-    print("       version:         version number\n");
-    print("       src dir:         relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
-    print("       dest dir:        releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
-    print("       except dir:      which dirs not to be sync.\n");
-    print("       nomd5:           do not compare file md5, only compare size and mtime of file\n");
-    print("       notime:          do not compare file mtime, only compare size of file\n");
-    print("       nodelete:        do not delete the files in the destination direcotry\n");
-    print("       noattrs:         do not preserve the attributes of the source files\n");
-    print("       nochkver:        do not check the version build status\n");
+    print("       --envpath:  env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version:  version number\n");
+    print("       --src:      relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
+    print("       --dest:     releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:      which dirs not to be sync.\n");
+    print("       --nomd5:    do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:   do not compare file mtime, only compare size of file\n");
+    print("       --nodelete: do not delete the files in the destination direcotry\n");
+    print("       --noattrs:  do not preserve the attributes of the source files\n");
+    print("       --nochkver: do not check the version build status\n");
 
     exit(1);
 }
@@ -57,10 +57,12 @@ sub main {
 
     $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
 
-    my ( $src, $dest, $expDir, $md5Check, $noMd5, $noMTime, $noDelete, $noAttrs, $noChkVer );
+    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs, $noChkVer );
     my $isVerbose  = 0;
     my $needMd5    = 1;
+    my $noMd5      = 0;
     my $needMTime  = 1;
+    my $noMTime    = 0;
     my $needBackup = 0;
     my $isRollback = 0;
 
@@ -86,6 +88,9 @@ sub main {
 
     my $hasError = 0;
 
+    $needMd5   = 0 if ( $noMd5 == 1 );
+    $needMTime = 0 if ( $noMTime == 1 );
+
     $src    = Utils::charsetConv( $src,    'utf-8' );
     $dest   = Utils::charsetConv( $dest,   'utf-8' );
     $expDir = Utils::charsetConv( $expDir, 'utf-8' );
@@ -96,15 +101,18 @@ sub main {
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $envName   = $buildEnv->{ENV_NAME};
+    my $isRelease = $buildEnv->{IS_RELEASE};
     my $syncDir   = "$dataPath/artifact/$version/env/$envName";
     my $buildDir  = "$dataPath/artifact/$version/build/$buildNo";
 
-    my $sysName    = $buildEnv->{SYS_NAME};
-    my $subSysName = $buildEnv->{MODUL_NAME};
+    if ( $isRelease != 1 ) {
+        print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
+        return 3;
+    }
 
     my $dbSrc  = "$buildDir/db";
-    my $resSrc = "$buildDir/res";
-    my ( $dbDest, $resDest );
+    my $docSrc = "$buildDir/doc";
+    my ( $dbDest, $docDest );
 
     if ( not defined($src) ) {
         $src = "$buildDir/app";
@@ -139,9 +147,9 @@ sub main {
             mkpath($dbDest);
         }
 
-        $resDest = "$syncDir/res";
-        if ( not -e $resDest and -d $resSrc ) {
-            mkpath($resDest);
+        $docDest = "$syncDir/doc";
+        if ( not -e $docDest and -d $docSrc ) {
+            mkpath($docDest);
         }
     }
     else {
@@ -180,9 +188,9 @@ sub main {
             $dbSyncExec->upgradeFiles( $dbSrc, $dbDest, $dbExpDirs );
         }
 
-        if ( -d $resSrc ) {
+        if ( -d $docSrc ) {
             my $resSyncExec = new SyncLocalFile( $version, 1, 0 );
-            $resSyncExec->upgradeFiles( $resSrc, $resDest );
+            $resSyncExec->upgradeFiles( $docSrc, $docDest );
         }
 
         if ( isEmptyDir($dest) == 1 ) {
@@ -211,8 +219,8 @@ sub main {
             }
         }
 
-        if ( isEmptyDir($resDest) == 1 ) {
-            rmtree($resDest);
+        if ( isEmptyDir($docDest) == 1 ) {
+            rmtree($docDest);
         }
     };
 

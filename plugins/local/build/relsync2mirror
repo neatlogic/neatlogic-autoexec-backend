@@ -1,0 +1,235 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use File::Path;
+use Getopt::Long;
+
+use SyncLocalFile;
+use FileUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [-exp ExcludeDirs] [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1]\n");
+    print("              [--src SyncSourceDir] [--dest SyncDestDir]\n");
+    print("              [--nomd5 0|1] [--notime 0|1] \n");
+    print("\n");
+    print("       sync files from  build to ENV/app, doc/db to ENV/db\n");
+    print("       --envpath:  env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version:  version number\n");
+    print("       --src:      relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
+    print("       --dest:     releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:      which dirs not to be sync.\n");
+    print("       --nomd5:    do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:   do not compare file mtime, only compare size of file\n");
+    print("       --nodelete: do not delete the files in the destination direcotry\n");
+    print("       --noattrs:  do not preserve the attributes of the source files\n");
+    print("       --nochkver: do not check the version build status\n");
+
+    exit(1);
+}
+
+sub isEmptyDir {
+    my ($dir) = @_;
+    my $isEmpty = 1;
+
+    my $dirHandle;
+    opendir( $dirHandle, $dir );
+
+    if ( defined($dirHandle) ) {
+        my $entry;
+        while ( $entry = readdir($dirHandle) ) {
+            if ( $entry ne '.' and $entry ne '..' ) {
+                $isEmpty = 0;
+                last;
+            }
+        }
+        close($dirHandle);
+    }
+
+    return $isEmpty;
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version );
+    my $pname = $FindBin::Script;
+    $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
+
+    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs, $noChkVer );
+    my $isVerbose  = 0;
+    my $needMd5    = 1;
+    my $noMd5      = 0;
+    my $needMTime  = 1;
+    my $noMTime    = 0;
+    my $needBackup = 0;
+    my $isRollback = 0;
+
+    Utils::setEnv();
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'v|verbose=i' => \$isVerbose,
+        'nodelete=i'  => \$noDelete,
+        'noattrs=i'   => \$noAttrs,
+        'rollback=i'  => \$isRollback,
+        'nomd5=i'     => \$noMd5,
+        'md5check=i'  => \$md5Check,
+        'notime=i'    => \$noMTime,
+        'nochkver=i'  => \$noChkVer,
+        'src=s'       => \$src,
+        'x|exp=s'     => \$expDir,
+        'dest=s'      => \$dest
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or $envPath eq '' );
+    usage() if ( not defined($version) );
+
+    $needMd5   = 0 if ( $noMd5 == 1 );
+    $needMTime = 0 if ( $noMTime == 1 );
+
+    $src    = Utils::charsetConv( $src,    'utf-8' );
+    $dest   = Utils::charsetConv( $dest,   'utf-8' );
+    $expDir = Utils::charsetConv( $expDir, 'utf-8' );
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $envName   = $buildEnv->{ENV_NAME};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+    my $syncDir   = "$dataPath/artifact/$version/env/$envName";
+    my $buildDir  = "$dataPath/artifact/$version/build/$buildNo";
+    my $mirrorDir = "$dataPath/artifact/mirror/$envName/app";
+
+    if ( $isRelease != 1 ) {
+        print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
+        return 3;
+    }
+
+    my $dbSrc  = "$buildDir/db";
+    my $docSrc = "$buildDir/doc";
+
+    my ( $dbDest, $docDest );
+
+    if ( not defined($src) ) {
+        $src = "$buildDir/app";
+    }
+    else {
+        my $srcPath = $src;
+        $srcPath =~ s/\/+/\//g;
+        $srcPath =~ s/^\///;
+
+        $srcPath = "$buildDir/app/$srcPath";
+        $src     = $srcPath;
+    }
+
+    if ( not defined($dest) ) {
+        $dest   = $mirrorDir;
+        $dbDest = "$syncDir/db";
+        if ( not -e $dbDest and -d $dbSrc ) {
+            mkpath($dbDest);
+        }
+        $docDest = "$syncDir/doc";
+        if ( not -e $docDest and -d $docSrc ) {
+            mkpath($docDest);
+        }
+    }
+    else {
+        my $destPath = $dest;
+        $destPath =~ s/^\///;
+        $destPath = "$mirrorDir/$destPath";
+        $dest     = $destPath;
+    }
+
+    mkpath($dest) if ( not -e $dest );
+
+    my $isFail      = 0;
+    my $insDiffDest = "$dest.ins";
+    eval {
+        my $syncExec = new SyncLocalFile( $version, $needMd5, $needBackup, $needMTime );
+        if ($isRollback) {
+            $syncExec->rollback( $src, $dest );
+        }
+        else {
+            $syncExec->upgradeFiles( $src, $dest, $expDir, $noDelete, $noAttrs );
+        }
+
+        if ( -d $dbSrc ) {
+
+            #clean the schema black list dir
+            foreach my $schema ( split( ',', $buildConf->{'dbschema.blacklist'} ) ) {
+                if ( $schema ne '' and -e "$dbDest/$schema" ) {
+                    rmtree("$dbDest/$schema");
+                }
+            }
+
+            my $schemaBlackList = $buildConf->{'dbschema.blacklist'};
+            my $dbExpDirs       = $expDir;
+            if ( defined($schemaBlackList) and $schemaBlackList ne '' ) {
+                if ( defined($expDir) and $expDir ne '' ) {
+                    $dbExpDirs = "$schemaBlackList,$dbExpDirs";
+                }
+                else {
+                    $dbExpDirs = $schemaBlackList;
+                }
+            }
+
+            my $dbSyncExec = new SyncLocalFile( $version, 1, 0 );
+            $dbSyncExec->upgradeFiles( $dbSrc, $dbDest, $dbExpDirs );
+        }
+
+        if ( isEmptyDir($dest) == 1 ) {
+            rmtree($dest);
+        }
+        elsif ( defined($md5Check) ) {
+            eval { FileUtils::checkMd5($dest); };
+            if ($@) {
+                $isFail = 1;
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+
+        if ( isEmptyDir($dbSrc) == 1 ) {
+            rmtree($dbDest);
+        }
+        elsif ( defined($md5Check) ) {
+            eval { FileUtils::checkMd5($dbDest); };
+            if ($@) {
+                $isFail = 1;
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+
+        if ( isEmptyDir($docDest) == 1 ) {
+            rmtree($docDest);
+        }
+    };
+    if ($@) {
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print("$msg\n");
+        $isFail = 1;
+    }
+
+    if ( $isFail != 0 ) {
+        print("ERROR: $pname $namePath version:$version failed.\n");
+    }
+    else {
+        print("FINEST: $pname $namePath version:$version success.\n");
+    }
+
+    return $isFail;
+}
+
+exit main();
+
