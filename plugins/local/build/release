@@ -72,7 +72,12 @@ sub main {
 
     my $isRelease = $buildEnv->{IS_RELEASE};
     if ( $isRelease == 1 ) {
-        print("ERROR: $namePath version:$version build $buildNo is released, can not release again.\n");
+        print("WARN: $namePath version:$version build $buildNo is released, release again.\n");
+    }
+
+    my $verInfo = ServerAdapter->getVer( $buildEnv, $version );
+    if ( $verInfo->{isFreeze} ne 0 ) {
+        print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
         return 3;
     }
 

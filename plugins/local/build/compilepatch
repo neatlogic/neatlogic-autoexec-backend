@@ -90,8 +90,7 @@ sub main {
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
     if ( $isRelease == 1 ) {
-        print("ERROR: $namePath version:$version build $buildNo is released, can not compile again.\n");
-        return 3;
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
     }
 
     my $namePath  = $buildEnv->{NAME_PATH};
