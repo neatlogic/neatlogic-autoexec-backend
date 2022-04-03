@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use File::Basename;
+use Getopt::Long;
+use AutoCfg;
+use SQLCheck;
+use DBInfo;
+use EnvCheck;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname --envpath <subsys env path> --version <version> [--checkins] [--checkdb] [--checksql]\n");
+    print("       env path: subsys env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       checkdb:         check if the db can be connected\n");
+    print("       checkins:        check if the ins can be connected\n");
+    print("       checksql:        check if the sql syntax correct\n");
+
+    exit(1);
+}
+
+sub checkSql {
+    my ( $envPath, $version ) = @_;
+
+    my $checkPass = 1;
+    my $runBatch  = new RunBatch( $envPath, $version );
+    my $envInfo   = ENVInfo::parse( $envPath, $version );
+
+    my $bookItem;
+
+    my $allSqlFiles      = $runBatch->getAllSqlFilePath();
+    my $rollbackSqlFiles = $runBatch->getAllSqlFilePath('rollback');
+    push( @$allSqlFiles, @$rollbackSqlFiles );
+    my $dbTypeCache = {};
+    my $sqlFile;
+    foreach $sqlFile (@$allSqlFiles) {
+        my $pos = index( $sqlFile, '/' );
+        my $dbDesc = substr( $sqlFile, 0, $pos );
+
+        my $dbType = $dbTypeCache->{$dbDesc};
+
+        if ( not defined($dbType) ) {
+            my @dbDescs   = split( '\.', $dbDesc );
+            my $dbName    = $dbDescs[0];
+            my $userAlias = $dbDescs[1];
+
+            my ( $host, $port, $user, $pass, $oraWallet );
+            eval { $dbType = DBInfo::getDBType( $envPath, $dbName ); };
+
+            $dbTypeCache->{$dbDesc} = $dbType;
+        }
+
+        if ( defined($dbType) and $dbType ne '' ) {
+            if ( $sqlFile !~ /\.ctl$/i and $sqlFile !~ /\.dmp$/i ) {
+                my $ret = SQLCheck::checkSqlScript( $sqlFile, $dbType );
+
+                if ( $ret eq 0 ) {
+                    $checkPass = 0;
+                    print("ERROR: $sqlFile check failed.\n");
+                }
+                else {
+                    print("INFO: check sql file $sqlFile success.\n");
+                }
+            }
+        }
+        else {
+            $checkPass = 0;
+            print("ERROR: $sqlFile check failed because of db not defined in config.\n");
+        }
+    }
+
+    Utils::setErrFlag() if ( $checkPass eq 0 );
+
+    return $checkPass;
+}
+
+sub main {
+    my ( $ishelp, $envPath, $version, $checkDB, $checkINS, $checkSQL );
+
+    GetOptions(
+        'help'      => \$ishelp,
+        'envpath:s' => \$envPath,
+        'version:s' => \$version,
+        'checkdb'   => \$checkDB,
+        'checksql'  => \$checkSQL,
+        'checkins'  => \$checkINS,
+    );
+
+    usage() if ( not defined($envPath) or not defined($version) );
+
+    Utils::setEnv();
+
+    my $envInfo = ENVInfo::parse( $envPath, $version );
+
+    my $desc = $envInfo->{subsys};
+
+    if ( defined($checkSQL) ) {
+        checkSql( $envPath, $version );
+    }
+
+    if ( defined($checkINS) ) {
+        UserPassCheck::checkInsPass( $envPath, $version );
+    }
+
+    if ( defined($checkDB) ) {
+        UserPassCheck::checkDBSchemaPassByClient( $envPath, $version );
+    }
+
+    my $isFail = Utils::getErrFlag();
+
+    if ( $isFail ne 0 ) {
+        print("ERROR: check $envPath failed.\n");
+    }
+    else {
+        print("FINEST: check $envPath success.\n");
+    }
+
+    Utils::exitWithFlag();
+}
+
+main();
+

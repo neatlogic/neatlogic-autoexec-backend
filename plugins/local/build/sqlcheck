@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use Cwd;
+use Digest::MD5;
+use File::Basename;
+use Getopt::Long;
+use JSON;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [-v|--verbose] --sqlfilejson <1.ddl.a.sql>\n");
+    print("       sql file:    sql script file\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $node;
+    my $isHelp        = 0;
+    my $isVerbose     = 0;
+    my $isDryRun      = 0;
+    my $isForce       = 0;
+    my $isAutoCommit  = 0;
+    my $parallelCount = 0;
+
+    my $dbVersion;
+    my $dbArgs;
+    my $dbName;
+    my $dbNodeJson;
+    my $sqlFileJson;
+
+    GetOptions(
+        'help'          => \$isHelp,
+        'node=s'        => \$node,
+        'dbname=s'      => \$dbName,
+        'dbargs=s'      => \$dbArgs,
+        'v|verbose=i'   => \$isVerbose,
+        'sqlfilejson=s' => \$sqlFileJson
+    );
+
+    my $hasOptError = 0;
+
+    my $dbNode;
+    my $dbNodeJson = $ENV{AUTOEXEC_NODE};
+    if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+        $dbNode = from_json($dbNodeJson);
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $sqlFiles = [];
+    if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
+        my $sqlFileArray = from_json($sqlFileJson);
+        foreach my $sqlFile (@$sqlFileArray) {
+            $sqlFile =~ s/^\/?file\///;
+            push( @$sqlFiles, $sqlFile );
+        }
+    }
+    if ( scalar(@$sqlFiles) == 0 ) {
+        $hasOptError = 1;
+        print("ERROR: Must define sql files with option --sqlfiles in json string.\n");
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, dbName=>$dbName, dbArgs=>$dbArgs, sqlFiles => $sqlFiles );
+    $sqlFileRunner->checkSqlFiles();
+}
+
+main();
+
