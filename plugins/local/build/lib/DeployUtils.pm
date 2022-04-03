@@ -7,6 +7,9 @@ package DeployUtils;
 use Cwd;
 use ServerAdapter;
 
+our $TERM_CHARSET;
+our $READ_TMOUT = 86400;
+
 sub new {
     my ( $pkg, %args ) = @_;
 
@@ -93,6 +96,26 @@ sub deployInit {
     $deployEnv->{PRJ_PATH}   = $prjPath;
 
     return $deployEnv;
+}
+
+#添加进程事件处理响应函数, 会保留并执行原来的逻辑
+sub sigHandler {
+    my $subref = pop(@_);
+    foreach my $sig (@_) {
+        my $original = $SIG{$sig} || sub { };
+        $SIG{$sig} = sub {
+            $subref->();
+            $original->();
+        };
+    }
+}
+
+sub isatty {
+    my $isTTY = open( my $tty, '+<', '/dev/tty' );
+    if ( defined($tty) ) {
+        close($tty);
+    }
+    return $isTTY;
 }
 
 sub getFileContent {
@@ -337,4 +360,243 @@ sub escapeQuoteWindows {
     return $line;
 }
 
+sub convToUTF8 {
+    my ($content) = @_;
+    if ( not defined($TERM_CHARSET) ) {
+        my $lang = $ENV{LANG};
+        if ( not defined($lang) or $lang eq '' ) {
+            $ENV{LANG} = 'en_US.UTF-8';
+            $TERM_CHARSET = 'utf-8';
+        }
+        else {
+            $TERM_CHARSET = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
+            $TERM_CHARSET = 'utf-8' if ( $TERM_CHARSET eq 'utf8' );
+        }
+    }
+
+    if ( $TERM_CHARSET ne 'utf-8' ) {
+        $content = Encode::encode( 'utf-8', Encode::decode( $TERM_CHARSET, $content ) );
+    }
+
+    return $content;
+}
+
+sub guessEncoding {
+    my ($file) = @_;
+
+    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    my $possibleEncodingConf = '';
+
+    my @possibleEncodings = ( 'GBK', 'UTF-8' );
+    if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {
+        @possibleEncodings = split( /\s*,\s*/, $possibleEncodingConf );
+    }
+
+    my $encoding;
+    my $charSet;
+
+    my $fh = new IO::File("<$file");
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            my $enc = guess_encoding( $line, @possibleEncodings );
+            if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
+                $charSet = $enc->mime_name;
+                last;
+            }
+        }
+        $fh->close();
+    }
+
+    if ( not defined($charSet) ) {
+        $charSet = `file -b --mime-encoding "$file"`;
+        $charSet =~ s/^\s*|\s*$//g;
+        $charSet = uc($charSet);
+        if ( $charSet =~ /ERROR:/ or $charSet eq 'US-ASCII' or $charSet eq 'BINARY' ) {
+            undef($charSet);
+        }
+
+        if ( not defined($charSet) ) {
+            $charSet = $possibleEncodings[0];
+        }
+    }
+
+    return $charSet;
+}
+
+sub guessDataEncoding {
+    my ($data) = @_;
+
+    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    my $possibleEncodingConf = '';
+
+    my @possibleEncodings = ( 'GBK', 'UTF-8' );
+    if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {
+        @possibleEncodings = split( /\s*,\s*/, $possibleEncodingConf );
+    }
+
+    my $encoding;
+    my $charSet;
+
+    foreach $encoding (@possibleEncodings) {
+        my $enc = guess_encoding( $data, $encoding );
+        if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
+            $charSet = $enc->mime_name;
+            last;
+        }
+    }
+
+    if ( not defined($charSet) ) {
+        $charSet = $possibleEncodings[0];
+    }
+
+    return $charSet;
+}
+
+sub doInteract {
+    my ( $pipeFile, %args ) = @_;
+
+    my $message = $args{message};    # 交互操作文案
+    my $opType  = $args{opType};     # 类型：button|input|select|mselect
+    my $title   = $args{title};      # 交互操作标题
+    my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
+    my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
+    $args{pipeFile} = $pipeFile;
+
+    my $optsMap = {};
+
+    for my $opt (@$opts) {
+        $optsMap->{$opt} = 1;
+    }
+    my $pipeDescFile = "$pipeFile.json";
+
+    my $pipe;
+
+    END {
+        local $?;
+        if ( defined($pipe) ) {
+            $pipe->close();
+        }
+        unlink($pipeFile);
+        unlink($pipeDescFile);
+    }
+
+    my $userId;
+    my $enter;
+
+    if ( -e $pipeFile ) {
+        unlink($pipeFile);
+    }
+
+    my $pipeDescFH = IO::File->new(">$pipeDescFile");
+    if ( not defined($pipeDescFH) ) {
+        die("ERROR: Create file $pipeDescFile failed $!\n");
+    }
+    print $pipeDescFH ( to_json( \%args ) );
+    close($pipeDescFH);
+
+    POSIX::mkfifo( $pipeFile, 0700 );
+    $pipe = IO::File->new("+<$pipeFile");
+
+    if ( defined($pipe) ) {
+        my $hasGetInput = 0;
+        while ( $hasGetInput == 0 ) {
+            print("$message\n");
+
+            my $select = IO::Select->new( $pipe, \*STDIN );
+            my @inputHandles = $select->can_read($READ_TMOUT);
+
+            if ( not @inputHandles ) {
+                print("\nWARN:wait user input timeout.\n");
+                $enter = 'force-exit';
+                if ( defined($pipe) ) {
+                    $pipe->close();
+                }
+                unlink($pipeFile);
+                die("ERROR: Read time out");
+            }
+
+            foreach my $inputHandle (@inputHandles) {
+                $enter = $inputHandle->getline();
+
+                if ( not defined($enter) ) {
+                    $enter = 'force-exit';
+                }
+
+                $enter =~ s/^\s*|\s*$//g;
+                if ( $enter =~ /^\[(.*?)\]# (.*)$/ ) {
+                    $userId = $1;
+                    $enter  = $2;
+                }
+                print("INFO: Get input:$enter\n");
+
+                if ( $opType eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
+                    $hasGetInput = 1;
+                    last;
+                }
+                else {
+                    print("WARN: Invalid input value:$enter, try again.\n");
+                }
+            }
+        }
+    }
+    else {
+        die("ERROR: Can not get input $!\n");
+    }
+
+    if ( defined($pipe) ) {
+        $pipe->close();
+    }
+    unlink($pipeFile);
+    unlink($pipeDescFile);
+
+    if ( $enter eq 'force-exit' ) {
+        undef($enter);
+    }
+
+    return ( $userId, $enter );
+}
+
+sub decideOption {
+    my ( $msg, $pipeFile ) = @_;
+
+    my @opts;
+    if ( $msg =~ /\(([\w\|]+)\)$/ ) {
+        my $optLine = $1;
+        @opts = split( /\|/, $optLine );
+    }
+
+    my $role = $ENV{DECIDE_WITH_ROLE};
+    my ( $userId, $enter ) = doInteract(
+        $pipeFile,
+        message => $msg,
+        title   => 'Choose the action',
+        opType  => 'button',
+        role    => $role,
+        options => \@opts
+    );
+
+    return ( $userId, $enter );
+}
+
+sub decideContinue {
+    my ( $msg, $pipeFile, $logFH ) = @_;
+
+    my $role = $ENV{DECIDE_WITH_ROLE};
+    my ( $userId, $enter ) = doInteract(
+        $pipeFile,
+        message => $msg,
+        title   => '',
+        opType  => 'button',
+        role    => $role,
+        options => [ 'Yes', 'No' ]
+    );
+
+    my $isYes = 0;
+
+    if    ( $enter =~ /\s*y\s*/i )   { $isYes = 1; }
+    elsif ( $enter =~ /\s*yes\s*/i ) { $isYes = 1; }
+
+    return $isYes;
+}
 1;

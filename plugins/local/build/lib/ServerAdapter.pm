@@ -91,4 +91,36 @@ sub releaseVer {
     return;
 }
 
+sub getAutoCfgConf {
+    my ( $self, $buildEnv ) = @_;
+
+    #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
+    my $autoCfgMap = {
+        autoCfg => {
+            key1 => 'value1',
+            key2 => 'value2'
+        },
+        insCfgList => [
+            {
+                insName => "insName1",
+                autoCfg => {
+                    key1 => 'value1',
+                    key2 => 'value2'
+                }
+            },
+            {
+                insName => "insName2",
+                autoCfg => {
+                    key1 => 'value1',
+                    key2 => 'value2'
+                }
+            }
+        ]
+    };
+    ###############################
+    if ( not defined($autoCfgMap) ) {
+        $autoCfgMap = {};
+    }
+    return $autoCfgMap;
+}
 1;

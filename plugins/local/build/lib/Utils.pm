@@ -2,30 +2,26 @@
 use FindBin;
 
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+
+#use lib "$FindBin::Bin/../lib";
 
 package Utils;
 
 use strict;
 use POSIX;
-use IO::Socket;
-use IO::Socket::SSL;
 use IO::File;
+use IO::Select;
 use Sys::Hostname;
 use File::Copy;
 use File::Find;
 use File::Path;
-use Term::ReadKey;
 use Encode;
+use Mojo::JSON qw(to_json from_json);
 use Encode::Guess;
-use CharsetDetector;
 use File::Basename;
 use Cwd;
 use File::Glob qw(bsd_glob);
-use CommonConfig;
-use ENVPathInfo;
-use ServerAdapter;
-use VerNotice;
+use Data::Dumper;
 
 my $READ_TMOUT = 86400;
 my $SYSTEM_CONF;
@@ -52,26 +48,6 @@ sub convToUTF8 {
     return $content;
 }
 
-sub charsetConv {
-    my ( $content, $from ) = @_;
-
-    my $encoding;
-    my $lang = $ENV{LANG};
-    if ( not defined($lang) or $lang eq '' ) {
-        $ENV{LANG} = 'en_US.UTF-8';
-        $encoding = 'utf-8';
-    }
-    else {
-        $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
-        $encoding = 'utf-8' if ( $encoding eq 'utf8' );
-    }
-
-    if ( $from ne $encoding ) {
-        $content = Encode::encode( $encoding, Encode::decode( $from, $content ) );
-    }
-    return $content;
-}
-
 sub url_encode {
     my $rv = shift;
     $rv =~ s/([^a-z\d\Q.-_~ \E])/sprintf("%%%2.2X", ord($1))/geix;
@@ -84,55 +60,6 @@ sub url_decode {
     $rv =~ tr/+/ /;
     $rv =~ s/\%([a-f\d]{2})/ pack 'C', hex $1 /geix;
     return $rv;
-}
-
-sub execmd {
-    my ( $cmd, $pattern ) = @_;
-    my $encoding;
-    my $lang = $ENV{LANG};
-
-    if ( not defined($lang) or $lang eq '' ) {
-        $ENV{LANG} = 'en_US.UTF-8';
-        $encoding = 'utf-8';
-    }
-    else {
-        $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
-        $encoding = 'utf-8' if ( $encoding eq 'utf8' );
-    }
-
-    my $exitCode = -1;
-    my ( $pid, $handle );
-    if ( $pid = open( $handle, "$cmd 2>\&1 |" ) ) {
-        my $line;
-        if ( $encoding eq 'utf-8' ) {
-            while ( $line = <$handle> ) {
-                if ( defined($pattern) ) {
-                    $line =~ s/$pattern//;
-                }
-
-                print($line);
-            }
-        }
-        else {
-            while ( $line = <$handle> ) {
-                if ( defined($pattern) ) {
-                    $line =~ s/$pattern//;
-                }
-                print( Encode::encode( "utf-8", Encode::decode( $encoding, $line ) ) );
-            }
-        }
-
-        waitpid( $pid, 0 );
-        $exitCode = $?;
-
-        if ( $exitCode > 255 ) {
-            $exitCode = $exitCode >> 8;
-        }
-
-        close($handle);
-    }
-
-    return $exitCode;
 }
 
 sub escapeQuote {
@@ -242,349 +169,161 @@ sub sigHandler {
         $SIG{$sig} = sub {
             $subref->();
             $original->();
-            }
-    }
-}
-
-#获取指定目录里的所有文件列表
-sub getFilesInDir {
-    my ( $path, $fileList ) = @_;
-    my $file     = '';
-    my $filePath = '';
-    my @entries  = ();
-
-    if ( not defined($fileList) ) {
-        my @fileListArray = ();
-        $fileList = \@fileListArray;
-    }
-
-    if ( opendir( DIR, $path ) ) {
-        @entries = readdir(DIR);
-        closedir(DIR);
-
-        foreach $file (@entries) {
-            $filePath = "$path/$file";
-            if ( -f $filePath ) {
-                push( @$fileList, $filePath );
-            }
-            elsif ( $file ne '.' and $file ne '..' ) {
-                Utils::getFilesInDir( $filePath, $fileList );
-            }
-        }
-    }
-    else {
-        print STDERR ("ERROR: can not open directory:$path check permission.\n");
-    }
-
-    return $fileList;
-}
-
-#遍历指定目录中的所有文件，并逐个文件执行输入的函数
-sub walkFilesInDir {
-    my ( $path, $fileProc, @fileProcArgs ) = @_;
-    my $file     = '';
-    my $filePath = '';
-    my @entries  = ();
-
-    if ( opendir( DIR, $path ) ) {
-        @entries = readdir(DIR);
-        closedir(DIR);
-
-        foreach $file (@entries) {
-            $filePath = "$path/$file";
-            if ( -f $filePath ) {
-                &$fileProc( $filePath, @fileProcArgs );
-            }
-            elsif ( $file ne '.' and $file ne '..' ) {
-                Utils::walkFilesInDir( $filePath, $fileProc, @fileProcArgs );
-            }
-        }
-    }
-    else {
-        print STDERR ("ERROR: can not open directory:$path check permission.\n");
-    }
-
-    return;
-}
-
-#将文件拷贝到目标路径，如果目标路径不存在则创建
-sub copyWithDir {
-    my ( $srcDir, $destDir, $isverbose ) = @_;
-
-    if ( -e $destDir and $isverbose ) {
-        print("HINT: copy to:${destDir}\n");
-    }
-
-    #创建目录, 创建目录树中的各层目录
-    my ( @dirs, $dirLen, $i );
-    @dirs = split( /\/|\\/, $destDir );
-    $dirLen = scalar(@dirs) - 1;
-
-    my $dirStr = '';
-    for ( $i = 0 ; $i < $dirLen ; $i++ ) {
-        $dirStr = $dirStr . $dirs[$i];
-
-        if ( !-e $dirStr ) {
-            mkdir($dirStr);
-        }
-        $dirStr = $dirStr . '/';
-    }
-
-    #目录创建完成
-
-    File::Copy::copy( $srcDir, $destDir );
-    chmod( ( stat($srcDir) )[2], $destDir );
-}
-
-sub getHostIp {
-    my ($host) = @_;
-
-    my $hostIp = join( ".", unpack( "C4", gethostbyname($host) ) );
-    if ( not defined($hostIp) or $hostIp eq '' ) {
-        print STDERR ("ERROR: can not find the host ip.\n");
-    }
-    else {
-        $host = $hostIp;
-    }
-
-    return $host;
-}
-
-sub getIPStr {
-    my $host = Sys::Hostname::hostname();
-    my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
-    my ( $a, $b, $c, $d ) = unpack( 'C4', $addrs[0] );
-    my $ip = "$a.$b.$c.$d";
-    return $ip;
-}
-
-sub getMonth {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
-    my $nowMon = sprintf( '%4d%02d', $year + 1900, $mon + 1 );
-
-    return $nowMon;
-}
-
-sub getDate {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
-    my $nowdate = sprintf( '%4d%02d%02d', $year + 1900, $mon + 1, $mday );
-
-    return $nowdate;
-}
-
-sub getTimeStr {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
-    my $timeStr = sprintf( '%4d%02d%02d_%02d%02d%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-    return $timeStr;
-}
-
-sub getTimeForLog {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
-    my $timeStr = sprintf( '[%02d:%02d:%02d]', $hour, $min, $sec );
-
-    return $timeStr;
-}
-
-sub getDateTimeForLog {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
-    my $timeStr = sprintf( '[%4d-%02d-%02d %02d:%02d:%02d]', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
-
-    return $timeStr;
-}
-
-sub decideOption {
-    my ( $msg, $inputPipe, $logFH ) = @_;
-
-    sigHandler(
-        'TERM', 'INT', 'HUP', 'ABRT',
-        sub {
-            unlink($inputPipe) if ( -e $inputPipe );
-            return -1;
-        }
-    );
-
-    my $decideRole = $ENV{DECIDE_WITH_ROLE};
-    if ( defined($decideRole) and $decideRole ne '' and $msg !~ /^\[.*?\]/ ) {
-        $msg = "[$decideRole]$msg";
-    }
-
-    my $usePipe = 0;
-    $usePipe = 1 if ( defined($inputPipe) and exists( $ENV{IS_INTERACT} ) and exists( $ENV{JOB_ID} ) );
-
-    #print $logFH ("DEBUG: is interact:" . $ENV{IS_INTERACT} . ",use Pipe:$usePipe\n");
-
-    my $enter  = '';
-    my $userId = '';
-
-    my $hasOpts = 0;
-    my %options;
-    if ( $msg =~ /\(([\w\|]+)\)$/ ) {
-        my $optLine = $1;
-        my @opts = split( /\|/, $1 );
-        my $opt;
-
-        foreach $opt (@opts) {
-            if ( lc($opt) ne 'input' ) {
-                $hasOpts = 1;
-                $options{$opt} = 1;
-            }
-        }
-    }
-
-    $| = 1;
-    my $cmdPrefix = '<Wait for instrunction>';
-
-    my $scope    = $ENV{SCOPE};
-    my $ticketId = $ENV{TICKET_ID};
-    my $playbook = $ENV{PLAYBOOK};
-    my $version  = $ENV{VERSION};
-    my $subSys   = $ENV{SUBSYS};
-    my $sys      = $ENV{SYS};
-    my $env      = $ENV{ENV};
-
-    eval {
-        local $SIG{ALRM} = sub {
-            print("\nWARN:wait user input timeout.\n");
-            if ( defined($logFH) ) {
-                print $logFH ("\nWARN:wait user input timeout.\n");
-            }
-            $enter = 'force-exit';
-            die("Read time out");
         };
-        alarm($READ_TMOUT);
+    }
+}
 
-        if ( defined($ticketId) and defined($playbook) and defined($version) and defined($subSys) ) {
-            ServerAdapter::callback( 'waitinput', $scope, $ticketId, $playbook, '', $sys, $subSys, $version, $env );
+sub isatty {
+    my $isTTY = open( my $tty, '+<', '/dev/tty' );
+    if ( defined($tty) ) {
+        close($tty);
+    }
+    return $isTTY;
+}
 
-            #send waitinput notice
-            my $jobId      = $ENV{JOB_ID};
-            my $envPath    = $ENV{ENVPATH};
-            my $subSysPath = $ENV{SUBSYSPATH};
-            if ( not defined($envPath) or $envPath eq '' ) {
-                $envPath = $subSysPath;
-            }
-            my $envInfo = ENVPathInfo::parse( $envPath, $version );
-            my $verNotice = VerNotice->new( $envInfo, $version, $playbook, 2, $ticketId, $jobId );
-            $verNotice->notice();
+sub doInteract {
+    my ( $pipeFile, %args ) = @_;
+
+    my $message = $args{message};    # 交互操作文案
+    my $opType  = $args{opType};     # 类型：button|input|select|mselect
+    my $title   = $args{title};      # 交互操作标题
+    my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
+    my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
+    $args{pipeFile} = $pipeFile;
+
+    my $optsMap = {};
+
+    for my $opt (@$opts) {
+        $optsMap->{$opt} = 1;
+    }
+    my $pipeDescFile = "$pipeFile.json";
+
+    my $pipe;
+
+    END {
+        local $?;
+        if ( defined($pipe) ) {
+            $pipe->close();
         }
+        unlink($pipeFile);
+        unlink($pipeDescFile);
+    }
 
-        print("\n$cmdPrefix$msg:\n");
+    my $userId;
+    my $enter;
 
-        if ( defined($logFH) ) {
-            print $logFH ("\n$cmdPrefix$msg:");
-            $logFH->flush();
-        }
+    if ( -e $pipeFile ) {
+        unlink($pipeFile);
+    }
 
-        #$enter = Term::ReadKey::ReadLine(0);
-        if ( $usePipe eq 0 ) {
-            $enter = <STDIN>;
-        }
-        else {
-            $enter = 'force-exit';
-            my $ticket = $ENV{TICKET_ID};
-            if ( defined($ticket) ) {
-                unlink($inputPipe) if ( -e $inputPipe );
-                POSIX::mkfifo( $inputPipe, 0700 );
+    my $pipeDescFH = IO::File->new(">$pipeDescFile");
+    if ( not defined($pipeDescFH) ) {
+        die("ERROR: Create file $pipeDescFile failed $!\n");
+    }
+    print $pipeDescFH ( to_json( \%args ) );
+    close($pipeDescFH);
 
-                my $pipe = IO::File->new("<$inputPipe");
+    POSIX::mkfifo( $pipeFile, 0700 );
+    $pipe = IO::File->new("+<$pipeFile");
+
+    if ( defined($pipe) ) {
+        my $hasGetInput = 0;
+        while ( $hasGetInput == 0 ) {
+            print("$message\n");
+
+            my $select = IO::Select->new( $pipe, \*STDIN );
+            my @inputHandles = $select->can_read($READ_TMOUT);
+
+            if ( not @inputHandles ) {
+                print("\nWARN:wait user input timeout.\n");
+                $enter = 'force-exit';
                 if ( defined($pipe) ) {
-                    $enter = $pipe->getline();
-                    $enter = 'force-exit' if ( not defined($enter) );
-                    print("\n");
-                    if ( defined($logFH) ) {
-                        print $logFH ("\n");
-                    }
                     $pipe->close();
                 }
-                unlink($inputPipe) if ( -e $inputPipe );
+                unlink($pipeFile);
+                die("ERROR: Read time out");
             }
-        }
-        alarm(0);
-    };
 
-    $enter =~ s/\s*$//;
-    if ( $enter =~ /^\[(.*?)\]# (.*)$/ ) {
-        $userId = $1;
-        $enter  = $2;
-    }
+            foreach my $inputHandle (@inputHandles) {
+                $enter = $inputHandle->getline();
 
-    while ( $hasOpts == 1 and not $options{$enter} eq 1 and $enter ne 'force-exit' ) {
-        print("\n$cmdPrefix incorrect input, try again. $msg:");
-        if ( defined($logFH) ) {
-            print $logFH ("\n$cmdPrefix incorrect input, try again. $msg:");
-        }
-        eval {
-            local $SIG{ALRM} = sub {
-                print("\nWARN:wait user input timeout.\n");
-                if ( defined($logFH) ) {
-                    print $logFH ("\nWARN:wait user input timeout.\n");
+                if ( not defined($enter) ) {
+                    $enter = 'force-exit';
                 }
-                $enter = 'force-exit';
-                die("Read time out");
-            };
-            alarm($READ_TMOUT);
 
-            #$enter = Term::ReadKey::ReadLine(0);
-            if ( $usePipe eq 0 ) {
-                $enter = <STDIN>;
-            }
-            else {
-                $enter = 'force-exit';
-                my $ticket = $ENV{TICKET_ID};
-                if ( defined($ticket) ) {
-                    unlink($inputPipe) if ( -e $inputPipe );
-                    POSIX::mkfifo( $inputPipe, 0700 );
+                $enter =~ s/^\s*|\s*$//g;
+                if ( $enter =~ /^\[(.*?)\]# (.*)$/ ) {
+                    $userId = $1;
+                    $enter  = $2;
+                }
+                print("INFO: Get input:$enter\n");
 
-                    my $pipe = IO::File->new("<$inputPipe");
-                    if ( defined($pipe) ) {
-                        $enter = $pipe->getline();
-                        if ( not defined($enter) ) {
-                            $enter = 'force-exit';
-                            last;
-                        }
-                        print("\n");
-                        if ( defined($logFH) ) {
-                            print $logFH ("\n");
-                        }
-                        $pipe->close();
-                    }
-                    unlink($inputPipe) if ( -e $inputPipe );
+                if ( $opType eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
+                    $hasGetInput = 1;
+                    last;
+                }
+                else {
+                    print("WARN: Invalid input value:$enter, try again.\n");
                 }
             }
-
-            alarm(0);
-        };
-        $enter =~ s/\s*$//;
-        if ( $enter =~ /^\[(.*?)\]# (.*)$/ ) {
-            $userId = $1;
-            $enter  = $2;
         }
     }
-
-    undef($enter) if ( $enter eq 'force-exit' );
-    if ( defined($logFH) ) {
-        print $logFH ("$enter\n");
+    else {
+        die("ERROR: Can not get input $!\n");
     }
 
-    unlink($inputPipe) if ( -e $inputPipe );
+    if ( defined($pipe) ) {
+        $pipe->close();
+    }
+    unlink($pipeFile);
+    unlink($pipeDescFile);
 
-    if ( defined($ticketId) and defined($playbook) and defined($version) and defined($subSys) ) {
-        ServerAdapter::callback( 'running', $scope, $ticketId, $playbook, '', $sys, $subSys, $version, $env );
+    if ( $enter eq 'force-exit' ) {
+        undef($enter);
     }
 
     return ( $userId, $enter );
 }
 
-sub decideContinue {
-    my ( $msg, $inputPipe, $logFH ) = @_;
+sub decideOption {
+    my ( $msg, $pipeFile ) = @_;
 
-    my $msg   = "$msg(yes|no)";
+    my @opts;
+    if ( $msg =~ /\(([\w\|]+)\)$/ ) {
+        my $optLine = $1;
+        @opts = split( /\|/, $optLine );
+    }
+
+    my $role = $ENV{DECIDE_WITH_ROLE};
+    my ( $userId, $enter ) = doInteract(
+        $pipeFile,
+        message => $msg,
+        title   => 'Choose the action',
+        opType  => 'button',
+        role    => $role,
+        options => \@opts
+    );
+
+    return ( $userId, $enter );
+}
+
+sub decideContinue {
+    my ( $msg, $pipeFile, $logFH ) = @_;
+
+    my $role = $ENV{DECIDE_WITH_ROLE};
+    my ( $userId, $enter ) = doInteract(
+        $pipeFile,
+        message => $msg,
+        title   => '',
+        opType  => 'button',
+        role    => $role,
+        options => [ 'Yes', 'No' ]
+    );
+
     my $isYes = 0;
 
-    my $enter = decideOption( $msg, $inputPipe, $logFH );
-    if    ( $enter =~ /\s*y\s*/i )   { $isYes = 1 }
-    elsif ( $enter =~ /\s*yes\s*/i ) { $isYes = 1 }
+    if    ( $enter =~ /\s*y\s*/i )   { $isYes = 1; }
+    elsif ( $enter =~ /\s*yes\s*/i ) { $isYes = 1; }
 
     return $isYes;
 }
@@ -616,250 +355,32 @@ sub initENV {
     }
 }
 
-sub readPass {
-    my ($prompt) = @_;
-    my $orgSignalHandler = $SIG{INT};
-
-    $SIG{INT} = sub { Term::ReadKey::ReadMode('normal'); print("\n"); exit(-1); };
-
-    print("$prompt:");
-    Term::ReadKey::ReadMode('noecho');
-    my $password;
-    eval {
-        local $SIG{ALRM} = sub { print("\nWARN:wait user input timeout.\n"); die("Read time out"); };
-        alarm($READ_TMOUT);
-        $password = Term::ReadKey::ReadLine(0);
-        alarm(0);
-    };
-    Term::ReadKey::ReadMode('normal');
-    chomp($password);
-    print("\n");
-
-    $SIG{INT} = $orgSignalHandler;
-
-    return $password;
-}
-
-sub getProcCmdLine {
-    my ($pid) = @_;
-    my ( $procCmdFile, $cmdlineFH, $cmdline );
-    $procCmdFile = "/proc/$pid/cmdline";
-    if ( -e $procCmdFile ) {
-        $cmdlineFH = new IO::File("<$procCmdFile");
-        if ( defined($cmdlineFH) ) {
-            $cmdline = <$cmdlineFH>;
-            $cmdlineFH->close();
-        }
-    }
-
-    return $cmdline;
-}
-
-sub getDeployPwd {
-    my $pwdPath = "$FindBin::Bin/../conf/system/deploy.pwd";
-
-    my $deployPwd = '';
-
-    if ( -e $pwdPath ) {
-        my $fh = IO::File->new("<$pwdPath");
-        if ($fh) {
-            $deployPwd = <$fh>;
-            $fh->close();
-        }
-    }
-    else {
-        my $fh = IO::File->new("<$pwdPath.s");
-        if ($fh) {
-            $deployPwd = <$fh>;
-            $fh->close();
-        }
-
-        $deployPwd =~ s/\s*$//;
-        $fh = IO::File->new("<$pwdPath.e");
-        if ($fh) {
-            my $eDeployPwd = <$fh>;
-            $deployPwd = $deployPwd . $eDeployPwd;
-            $fh->close();
-        }
-    }
-
-    $deployPwd =~ s/\s*$//;
-    return $deployPwd;
-}
-
-sub setDeployPwd {
-    my ($pass) = @_;
-    my $pwdPath = "$FindBin::Bin/../conf/system/deploy.pwd";
-
-    if ( -e $pwdPath ) {
-        my $fh = IO::File->new(">$pwdPath");
-        if ($fh) {
-            print $fh ($pass);
-            $fh->close();
-        }
-    }
-    else {
-        my $len   = $pass;
-        my $sLen  = int( $pass / 2 );
-        my $sPass = substr( $pass, 0, $sLen );
-        my $ePass = substr( $pass, $sLen );
-
-        my $fh = IO::File->new(">$pwdPath.s");
-        if ($fh) {
-            print $fh ($sPass);
-            $fh->close();
-        }
-
-        $fh = IO::File->new(">$pwdPath.e");
-        if ($fh) {
-            print $fh ($ePass);
-            $fh->close();
-        }
-    }
-}
-
-sub getPass {
-    my ( $pType, $target, $user, $env ) = @_;
-    my $pass;
-
-    use CredentialAdmin;
-    my $credPath  = "$FindBin::Bin/../conf/";
-    my $credAdmin = CredentialAdmin->new($credPath);
-    my $deployPwd = getDeployPwd();
-
-    eval { $pass = $credAdmin->getPwd( $deployPwd, $pType, "$target\:\:$user", $env ); };
-
-    if ( not defined($pass) or $pass eq '' ) {
-        die("ERROR: Can not find password for $user\@$target.\n");
-    }
-
-    return $pass;
-}
-
 sub setErrFlag {
     my ($val) = @_;
     if ( not defined($val) ) {
-        $ENV{easydplyrunflag} = -1;
+        $ENV{AUTOEXEC_FAIL_FLAG} = -1;
     }
     else {
-        $ENV{easydplyrunflag} = $val;
+        $ENV{AUTOEXEC_FAIL_FLAG} = $val;
     }
 }
 
 sub exitWithFlag {
-    my $flag = $ENV{easydplyrunflag};
+    my $flag = $ENV{AUTOEXEC_FAIL_FLAG};
     exit($flag) if ( defined($flag) and $flag ne 0 );
 }
 
 sub getErrFlag {
-    my $flag = $ENV{easydplyrunflag};
+    my $flag = $ENV{AUTOEXEC_FAIL_FLAG};
     return int($flag) if ( defined($flag) );
     return 0 if ( not defined($flag) );
-}
-
-sub getPrjResRoot {
-    my ($prjSrc) = @_;
-    my $prjResRoot = $prjSrc;
-
-    if ( -d "$prjSrc/db" or -d "$prjSrc/doc" ) {
-        $prjResRoot = $prjSrc;
-    }
-    else {
-        my @subPoms = bsd_glob("$prjSrc/*");
-
-        for my $subDir (@subPoms) {
-            if ( -d "$prjSrc/db" or -d "$prjSrc/doc" ) {
-                $prjResRoot = $subDir;
-                last;
-            }
-        }
-    }
-
-    return $prjResRoot;
-}
-
-sub getPrjRoots {
-    my ($prjSrc) = @_;
-    my @prjRoots;
-
-    if ( -f "$prjSrc/pom.xml" or -f "$prjSrc/build.xml" or -f "$prjSrc/build.gradle" ) {
-        push( @prjRoots, $prjSrc );
-    }
-    else {
-        my @subPoms = bsd_glob("$prjSrc/*");
-
-        for my $subDir (@subPoms) {
-            if ( -f "$subDir/pom.xml" or -f "$subDir/build.xml" or -f "$subDir/build.gradle" ) {
-                push( @prjRoots, $subDir );
-            }
-        }
-    }
-
-    push( @prjRoots, $prjSrc ) if ( scalar(@prjRoots) == 0 );
-
-    return @prjRoots;
-}
-
-sub getPrjDir {
-    my ($subSysInfo) = @_;
-
-    my $prjSrc = $subSysInfo->{prjsrc};
-
-    #if ( -e "$prjSrc.buildinenv" ) {
-    #    my $envName = $ENV{ENVNAME};
-    #    if ( not defined($envName) or $envName eq '' ) {
-    #        $envName = $subSysInfo->{defaultenvname};
-    #    }
-    #    if ( not defined($envName) or $envName eq '' ) {
-    #        my $fh = new IO::File("<$prjSrc.buildinenv");
-    #        if ( defined($fh) ) {
-    #            $envName = <$fh>;
-    #            $fh->close();
-    #        }
-    #    }
-    #
-    #    if ( not -e $prjSrc ) {
-    #        mkpath($prjSrc);
-    #    }
-    #
-    #    $prjSrc = "$prjSrc/$envName";
-    #}
-
-    return $prjSrc;
-}
-
-sub getAppbuildDir {
-    my ($subSysInfo) = @_;
-
-    my $prjSrc      = $subSysInfo->{prjsrc};
-    my $appbuildDir = $subSysInfo->{buildsrc};
-
-    #if ( -e "$prjSrc.buildinenv" ) {
-    #    my $envName = $ENV{ENVNAME};
-    #    if ( not defined($envName) or $envName eq '' ) {
-    #        $envName = $subSysInfo->{defaultenvname};
-    #    }
-    #    if ( not defined($envName) or $envName eq '' ) {
-    #        my $fh = new IO::File("<$prjSrc.buildinenv");
-    #        if ( defined($fh) ) {
-    #            $envName = <$fh>;
-    #            $fh->close();
-    #        }
-    #    }
-    #
-    #    $appbuildDir = "$appbuildDir/$envName";
-    #    if ( not -e $appbuildDir ) {
-    #        mkpath($appbuildDir);
-    #    }
-    #}
-
-    return $appbuildDir;
 }
 
 sub guessEncoding {
     my ($file) = @_;
 
-    my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    my $possibleEncodingConf = '';
 
     my @possibleEncodings = ( 'GBK', 'UTF-8' );
     if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {
@@ -871,56 +392,26 @@ sub guessEncoding {
 
     my $fh = new IO::File("<$file");
     if ( defined($fh) ) {
-        my $lineCount = 0;
         my $line;
         while ( $line = $fh->getline() ) {
-            $lineCount++;
             my $enc = guess_encoding( $line, @possibleEncodings );
-            if ( ref($enc) ) {
-                if ( $enc->mime_name ne 'US-ASCII' ) {
-                    $charSet = $enc->mime_name;
-                    last;
-                }
-            }
-            else {
-                if ( $enc eq 'utf-8-strict or utf8' ) {
-                    $charSet = 'UTF-8';
-                    last;
-                }
-                elsif ( $enc !~ /ascii/i and $enc !~ /iso/i ) {
-                    foreach my $pEnc (@possibleEncodings) {
-                        eval {
-                            my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $line ) );
-                            my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
-                            if ( $srcTmp eq $line ) {
-                                $charSet = $pEnc;
-                                last;
-                            }
-                        };
-                    }
-                    if ( defined($charSet) ) {
-                        last;
-                    }
-                }
+            if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
+                $charSet = $enc->mime_name;
+                last;
             }
         }
         $fh->close();
-
-        if ( $lineCount == 0 ) {
-            $charSet = $possibleEncodings[0];
-        }
     }
 
     if ( not defined($charSet) ) {
-        $charSet = `file -b --mime-encoding '$file'`;
+        $charSet = `file -b --mime-encoding "$file"`;
         $charSet =~ s/^\s*|\s*$//g;
         $charSet = uc($charSet);
-        if ( $charSet =~ /ERROR:/ or $charSet eq 'BINARY' ) {
+        if ( $charSet =~ /ERROR:/ or $charSet eq 'US-ASCII' or $charSet eq 'BINARY' ) {
             undef($charSet);
         }
 
-        #if ( $charSet eq 'US-ASCII' ) {
-        if ( $charSet eq 'US-ASCII' or $charSet eq 'ISO-8859-1' ) {
+        if ( not defined($charSet) ) {
             $charSet = $possibleEncodings[0];
         }
     }
@@ -931,7 +422,8 @@ sub guessEncoding {
 sub guessDataEncoding {
     my ($data) = @_;
 
-    my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
+    my $possibleEncodingConf = '';
 
     my @possibleEncodings = ( 'GBK', 'UTF-8' );
     if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {
@@ -943,32 +435,9 @@ sub guessDataEncoding {
 
     foreach $encoding (@possibleEncodings) {
         my $enc = guess_encoding( $data, $encoding );
-        if ( ref($enc) ) {
-            if ( $enc->mime_name ne 'US-ASCII' ) {
-                $charSet = $enc->mime_name;
-                last;
-            }
-        }
-        else {
-            if ( $enc eq 'utf-8-strict or utf8' ) {
-                $charSet = 'UTF-8';
-                last;
-            }
-            elsif ( $enc !~ /ascii/i and $enc !~ /iso/i ) {
-                foreach my $pEnc (@possibleEncodings) {
-                    eval {
-                        my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
-                        my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
-                        if ( $srcTmp eq $data ) {
-                            $charSet = $pEnc;
-                            last;
-                        }
-                    };
-                }
-                if ( defined($charSet) ) {
-                    last;
-                }
-            }
+        if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
+            $charSet = $enc->mime_name;
+            last;
         }
     }
 
@@ -977,74 +446,6 @@ sub guessDataEncoding {
     }
 
     return $charSet;
-}
-
-#sub isFileUtf8Encoding {
-#    my ($file) = @_;
-#
-#    my $isUtf8 = 0;
-#    my $size   = -s $file;
-#    my $fh     = new IO::File("<$file");
-#
-#    if ( defined($fh) ) {
-#        my $content;
-#
-#        $fh->read( $content, $size );
-#        my $charSet = CharsetDetector::detect($content);
-#        $fh->close();
-#
-#        $isUtf8 = 1 if ( $charSet eq 'utf8' );
-#    }
-#    return $isUtf8;
-#}
-
-sub copyTree {
-    my ( $src, $dest ) = @_;
-
-    if ( not -d $src ) {
-        my $dir = dirname($dest);
-        mkpath($dir) if ( not -e $dir );
-        copy( $src, $dest ) || die("ERROR: copy $src to $dest failed:$!");
-        chmod( ( stat($src) )[2], $dest );
-    }
-    else {
-        #$dest = Cwd::abs_path($dest);
-        my $cwd = getcwd();
-        chdir($src);
-
-        find(
-            {
-                wanted => sub {
-                    my $fileName  = $File::Find::name;
-                    my $targetDir = "$dest/$File::Find::dir";
-                    mkpath($targetDir) if not -e $targetDir;
-
-                    my $srcFile = $_;
-                    if ( -f $srcFile ) {
-
-                        #print("copy $_ $dest/$fileName\n");
-                        my $destFile = "$dest/$fileName";
-                        copy( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
-                        chmod( ( stat($srcFile) )[2], $destFile );
-                    }
-                },
-                follow => 0
-            },
-            '.'
-        );
-
-        chdir($cwd);
-    }
-}
-
-sub getSysConf {
-    my ($confKey) = @_;
-    if ( not defined($SYSTEM_CONF) ) {
-        my $sysConfPath = "$FindBin::Bin/../conf/system";
-        $SYSTEM_CONF = new CommonConfig( $sysConfPath, 'system.conf' );
-    }
-
-    return $SYSTEM_CONF->getConfig($confKey);
 }
 
 sub setEnv {
@@ -1094,48 +495,6 @@ sub setEnv {
     #$ENV{ANT_HOME} = "$techsureHome/serverware/ant";
     #
     $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
-    IO::Socket::SSL::set_defaults(
-        'SSL_verify_mode'     => IO::Socket::SSL::SSL_VERIFY_NONE,
-        'SSL_verify_callback' => sub { return 1; }
-    );
-}
-
-sub clearVersion {
-    my ( $versionsDir, $version ) = @_;
-
-    return if ( not defined($version)     or $version eq "" );
-    return if ( not defined($versionsDir) or $versionsDir eq "" );
-
-    #remove build target rsources
-    rmtree("$versionsDir/$version/appbuild") if ( -d "$versionsDir/$version/appbuild" );
-}
-
-sub delFileHeadingBytes {
-    my ( $filePath, $bytesCount ) = @_;
-    my $fhRead  = IO::File->new("+<$filePath");
-    my $fhWrite = IO::File->new("+<$filePath");
-
-    if ( defined($fhRead) and defined($fhWrite) ) {
-        $fhRead->seek( $bytesCount, 0 );
-        $fhWrite->seek( 0, 0 );
-
-        my $buf;
-        my $len      = 0;
-        my $totalLen = 0;
-
-        do {
-            $len = $fhRead->sysread( $buf, 16 );
-            $fhWrite->syswrite( $buf, $len );
-            $totalLen = $totalLen + $len;
-        } while ( $len > 0 );
-
-        $fhRead->close();
-        $fhWrite->truncate($totalLen);
-        $fhWrite->close();
-    }
-    else {
-        die("Open file:$filePath failed");
-    }
 }
 
 sub getFileContent {
