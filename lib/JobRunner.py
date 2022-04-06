@@ -99,9 +99,9 @@ class JobRunner:
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
             dstPath = '{}/nodes.json'.format(self.context.runPath)
             if context.firstFire:
-                context.serverAdapter.getNodes(nodefrom='job')
+                context.serverAdapter.getNodes(nodeFrom='job')
             elif not os.path.exists(dstPath):
-                context.serverAdapter.getNodes(nodefrom='job')
+                context.serverAdapter.getNodes(nodeFrom='job')
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
             self.localDefinedNodes = True
@@ -219,7 +219,7 @@ class JobRunner:
                 self.context.addPhase(phaseName)
                 serverAdapter = self.context.serverAdapter
                 if not self.localDefinedNodes:
-                    serverAdapter.getNodes(nodefrom='phase',phaseName)
+                    serverAdapter.getNodes(nodeFrom='phase',phase=phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName, phaseGroup=groupNo)
