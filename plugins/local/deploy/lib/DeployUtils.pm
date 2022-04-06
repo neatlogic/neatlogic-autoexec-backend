@@ -70,12 +70,16 @@ sub deployInit {
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
-        my $toolsPath = "$autoexecHome/plugins/local/tools";
+        my $toolsPath = "$autoexecHome/plugins/local/build/tools";
         $ENV{AUTOEXEC_HOME}         = $autoexecHome;
         $ENV{TOOLS_PATH}            = $toolsPath;
         $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
         $deployEnv->{TOOLS_PATH}    = $toolsPath;
     }
+    my $dataPath = "$autoexecHome/data/verdata/$ENV{SYS_ID}/$ENV{MODULE_ID}";
+    $ENV{_DEPLOY_DATA_PATH} = $dataPath;
+    my $prjPath = "$dataPath/workspace/project";
+    $ENV{_DEPLOY_PRJ_PATH} = $prjPath;
 
     if ( defined($version) and $version ne '' ) {
         $ENV{VERSION} = $version;
@@ -84,66 +88,14 @@ sub deployInit {
         $version = $ENV{VERSION};
     }
 
-    my $dataPath = "$autoexecHome/data/verdata/$ENV{SYS_ID}/$ENV{MODULE_ID}";
-    $ENV{_DEPLOY_DATA_PATH} = $dataPath;
-
-    my $prjPath   = "$dataPath/workspace/project";
-    my $buildRoot = "$dataPath/artifact/$version/build";
-
-    $deployEnv->{ID_PATH}   = $dpIdPath;
-    $deployEnv->{NAME_PATH} = $dpPath;
-    $deployEnv->{VERSION}   = $version;
-
+    $deployEnv->{VERSION}    = $version;
+    $deployEnv->{BUILD_ROOT} = "$dataPath/artifact/V1.0.0/build";
+    $deployEnv->{ID_PATH}    = $dpIdPath;
+    $deployEnv->{NAME_PATH}  = $dpPath;
     $deployEnv->{DATA_PATH}  = $dataPath;
     $deployEnv->{PRJ_PATH}   = $prjPath;
-    $deployEnv->{BUILD_ROOT} = $buildRoot;
 
     return $deployEnv;
-}
-
-sub getDataDirStruct {
-    my ( $self, $buildEnv, $isRelative ) = @_;
-
-    my $dataPath = $buildEnv->{DATA_PATH};
-    my $envName  = $buildEnv->{ENV_NAME};
-    my $version  = $buildEnv->{VERSION};
-    my $buildNo  = $buildEnv->{BUILD_NO};
-
-    my $workSpacePath = "workspace";
-    my $prjPath       = "$workSpacePath/project";
-    my $relRoot       = "artifact/$version/build";
-    my $relPath       = "$relRoot/$buildNo";
-    my $distPath      = "artifact/env/$envName";
-    my $mirrorPath    = "mirror/$envName";
-    my $envresPath    = "envres/$envName";
-
-    my $dirStructure = {};
-    if ( $isRelative == 1 ) {
-        $dirStructure = {
-            approot     => $dataPath,
-            workspace   => $workSpacePath,
-            project     => $prjPath,
-            release     => $relPath,
-            releaseRoot => $relRoot,
-            distribute  => $distPath,
-            mirror      => $mirrorPath,
-            envres      => $envresPath
-        };
-    }
-    else {
-        $dirStructure = {
-            approot     => $dataPath,
-            workspace   => "$dataPath/$workSpacePath",
-            project     => "$dataPath/$prjPath",
-            release     => "$dataPath/$relPath",
-            releaseRoot => "$dataPath/$relRoot",
-            distribute  => "$dataPath/$distPath",
-            mirror      => "$dataPath/$mirrorPath",
-            envres      => "$dataPath/$envresPath"
-        };
-    }
-
-    return $dirStructure;
 }
 
 #添加进程事件处理响应函数, 会保留并执行原来的逻辑
@@ -426,26 +378,6 @@ sub convToUTF8 {
         $content = Encode::encode( 'utf-8', Encode::decode( $TERM_CHARSET, $content ) );
     }
 
-    return $content;
-}
-
-sub charsetConv {
-    my ( $content, $from ) = @_;
-
-    my $encoding;
-    my $lang = $ENV{LANG};
-    if ( not defined($lang) or $lang eq '' ) {
-        $ENV{LANG} = 'en_US.UTF-8';
-        $encoding = 'utf-8';
-    }
-    else {
-        $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
-        $encoding = 'utf-8' if ( $encoding eq 'utf8' );
-    }
-
-    if ( $from ne $encoding ) {
-        $content = Encode::encode( $encoding, Encode::decode( $from, $content ) );
-    }
     return $content;
 }
 

@@ -5,6 +5,8 @@ package BuildUtils;
 use Cwd;
 use ServerAdapter;
 
+use DeployUtils;
+
 sub new {
     my ( $pkg, %args ) = @_;
 
@@ -197,11 +199,12 @@ sub release {
     chdir($dataPath);
 
     my $outerCompileRoot = "workspace";
-    my $buildRoot        = "artifact/$version/build";
-    my $buildPath        = "$buildRoot/$buildNo";
-    my $envBuildRoot     = "artifact/$version/env/$envName";
-    my $buildLnk         = "artifact/$version/env/$envName/build";
-    my @dirsToRelease    = ($buildPath);
+    my $dirInfo          = DeployUtils->getDataDirStruct( $buildEnv, 1 );
+    my $buildRoot        = $dirInfo->{releaseRoot};
+    my $buildPath        = $dirInfo->{release};
+    my $envBuildRoot     = $dirInfo->{distribute};
+    my $buildLnk         = "$envBuildRoot/build";
+
     if ( defined($envName) and $envName ne '' ) {
         if ( -l $buildLnk ) {
             unlink($buildLnk);

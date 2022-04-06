@@ -1187,11 +1187,14 @@ sub config {
 
     my $isFail = 0;
 
-    my $dataPath  = $buildEnv->{DATA_PATH};
-    my $envName   = $buildEnv->{ENV_NAME};
-    my $distSrc   = "$dataPath/artifact/$version/env/$envName/app";
-    my $mirrorSrc = "$dataPath/mirror/$envName";
-    my $dbSrc     = "$dataPath/artifact/$version/env/$envName/db";
+    my $envName = $buildEnv->{ENV_NAME};
+
+    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $mirrorDir  = $dirInfo->{mirror};
+    my $distSrc    = "$releaseDir/app";
+    my $mirrorSrc  = "$mirrorDir/app";
+    my $dbSrc      = "$releaseDir/db";
 
     $buildEnv->{autoCfg} = convertCfgMapCharset( $buildEnv->{autoCfg}, $charset );
     my $packCfgMap = $buildEnv->{autoCfg};

@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use Cwd 'realpath';
+use Getopt::Long;
+
+use ServerAdapter;
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--src SourcePath] [--dest DestinationPath]\n");
+    print("       sync files timestamp from ENV/appsync to other directory\n");
+    print("       --envpath: env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version: which version to be sync\n");
+    print("       --src: source sub directory/.\n");
+    print("       --dest: destination sub directory/.\n");
+
+    exit(1);
+}
+
+sub copyTimeStamp($$) {
+    my ( $src, $dest ) = @_;
+
+    my $hasError = 0;
+
+    #print("DEBUG: cptimestamp from $src to $dest\n");
+
+    chdir($src);
+
+    my @dirs = ('./');
+
+    my ( $dir, $file );
+    while ( $dir = pop(@dirs) ) {
+        local *DH;
+        if ( !opendir( DH, $dir ) ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Cannot opendir $src/$dir: $!");
+            next;
+        }
+        foreach ( readdir(DH) ) {
+            if ( $_ eq '.' || $_ eq '..' ) {
+                next;
+            }
+            $file = $dir . $_;
+            if ( !-l $file && -d $file ) {
+                $file .= '/';
+                push( @dirs, $file );
+            }
+
+            my @statInfo = stat($file);
+            my $aTime    = $statInfo[8];
+            my $mTime    = $statInfo[9];
+            if ( -e "$dest/$file" ) {
+
+                #print("DEBUG: modify $dest/$file timesamp to $aTime, $mTime\n");
+                if ( not utime( $aTime, $mTime, "$dest/$file" ) ) {
+                    $hasError = $hasError + 1;
+                    print("ERROR: Can not change file:$dest/$file atime and mtime, $!.\n");
+                }
+            }
+        }
+        closedir(DH);
+    }
+
+    return $hasError;
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $host,   $port,      $src,     $dest );
+    my $pname = $FindBin::Script;
+
+    $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'src=s'       => \$src,
+        'dest=s'      => \$dest
+    );
+
+    my $optionError = 0;
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: Must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or not defined($dest) ) {
+        print("ERROR: Must defined option --src and --dest.\n");
+        $optionError = 1;
+    }
+
+    usage() if ( defined($isHelp) );
+    usage() if ( $optionError == 1 );
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
+
+    my $appRootDir = $dirInfo->{approot};
+    my $mirrorDir  = $dirInfo->{mirror};
+
+    print("INFO: begin sync $src timestamp to $dest.\n");
+
+    $src  = DeployUtils->charsetConv( $src,  'utf-8' );
+    $dest = DeployUtils->charsetConv( $dest, 'utf-8' );
+
+    my $srcPath = $src;
+    $srcPath =~ s/^\///;
+    $srcPath = "$mirrorDir/$srcPath";
+    my $destPath = $dest;
+    $destPath =~ s/^\///;
+    $destPath = "$appRootDir/$destPath";
+
+    my $hasError = copyTimeStamp( $srcPath, $destPath );
+
+    if ( $hasError ne 0 ) {
+        print( "ERROR: Sync $namePath $src time stamp to $dest failed.", "ERROR" );
+    }
+    else {
+        print( "INFO: Sync $namePath $src time stamp to $dest success.", "INFO" );
+    }
+
+    return $hasError;
+}
+
+exit main();

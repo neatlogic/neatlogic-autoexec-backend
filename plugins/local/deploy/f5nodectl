@@ -1,0 +1,194 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use JSON qw(to_json from_json);
+
+use DeployUtils;
+use WebCtl;
+use ServerAdapter;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname --envpath EnvPath\n");
+    print("       --baseurl F5ApiBaseUrl --username UserName --password Password\n");
+    print("       --pool PoolName --action enable|disable\n");
+    print("\n");
+    print("       --envpath           EnvPath\n");
+    print("       --baseurl:          F5 api base url, \$\{baseurl\}/axapi/...\n");
+    print("       --username:         user name\n");
+    print("       --password:         password\n");
+    print("       --node:             node json\n");
+    print("       --pool:             F5 pool name\n");
+    print("       --action:           Action: enable|disable\n");
+    print("       --timeout:          wait timeout seconds\n");
+    print("       --waitdisconnected: wait until node disconnected\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath );
+    my ( $f5Url, $user, $pass, $pool, $action, $waitDisConnected, $timeOut, $node );
+    GetOptions(
+        'h|help'             => \$isHelp,
+        'envpath=s'          => \$envPath,
+        'baseurl=s'          => \$f5Url,
+        'username=s'         => \$user,
+        'password=s'         => \$pass,
+        'pool=s'             => \$pool,
+        'action=s'           => \$action,
+        'waitdisconnected=i' => \$waitDisConnected,
+        'timeout=s'          => \$timeOut,
+        'node=s'             => \$node
+    );
+
+    $| = 1;
+
+    my $hasOptError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --envpath.\n");
+    }
+
+    if ( not defined($f5Url) or $f5Url eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --baseurl.\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --username.\n");
+    }
+
+    if ( not defined($pool) or $pool eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --pool.\n");
+    }
+
+    if ( $action ne 'disable' and $action ne 'enable' ) {
+        $hasOptError = 1;
+        print("ERROR: action must to be enabled or disabled.\n");
+    }
+
+    if ( $action ne 'disable' ) {
+        if ( defined $waitDisConnected ) {
+            $hasOptError = 1;
+            print("ERROR: when --action defined disable, should be define --waitdisconnected. \n");
+        }
+    }
+
+    if ( not defined($timeOut) ) {
+        $timeOut = 30;
+    }
+    else {
+        $timeOut = int($timeOut);
+    }
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+
+        #TODO: F5密码的获取方法需要修改
+        $pass = ServerAdapter->getAppPassWord( $f5Url, $user );
+    }
+
+    my $hasError = 0;
+
+    #curl -sk -u admin:admin https://<F5地址>:443/mgmt/tm/ltm/pool/~Common~ pool_ywzsc_xhx_test/members/~Common~节点IP:节点端口? -H 'Content-Type: application/json' -X PATCH -d '{"session":"user-enabled"}'
+    my $webCtl = WebCtl->new();
+    $f5Url =~ s/\/+$//;
+    my $url = "$f5Url/mgmt/tm/ltm/pool/~Common~$pool/members/~Common~";
+
+    $webCtl->addCredentials( $f5Url, $user, $pass );
+
+    my $lbNode = $nodeInfo->{host} . ':' . $nodeInfo->{port};
+    eval {
+        $webCtl->doRest( 'PATCH', "$url$lbNode?", { "session" => "user-$action" . 'd' } );
+        print("INFO: $action $pool member $lbNode success.\n");
+    };
+    if ($@) {
+        $hasError = 1;
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print("ERROR: $action $pool member $lbNode failed.\n");
+        print("$msg\n");
+    }
+
+    if ( defined($waitDisConnected) ) {
+        my $nodeDisconnected = {};
+        my $startTime        = time();
+        my $isTimeOut        = 0;
+        my $loopCount        = 0;
+
+        #print("DEBUG: timeout $timeOut \n");
+
+        while ( $isTimeOut == 0 ) {
+            my $lbNode = $nodeInfo->{host} . ':' . $nodeInfo->{port};
+            if ( defined( $nodeDisconnected->{$lbNode} ) ) {
+                next;
+            }
+
+            my $curConns = 0;
+            my $content;
+            eval {
+                $content = $webCtl->get("$url$lbNode/stats");
+
+                #TODO：这里的代码看起来有点凌乱，需要验证
+                my $rcJson    = from_json($content);
+                my $statusUrl = "https://localhost/mgmt/tm/ltm/pool/~Common~" . $pool . "/members/~Common~" . $lbNode . "/~Common~" . $lbNode . "/stats";
+                $curConns = int( $rcJson->{'entries'}->{$statusUrl}->{'nestedStats'}->{'entries'}->{'serverside.curConns'}->{'value'} );
+
+                if ( $curConns > 0 ) {
+                    if ( $loopCount % 5 == 0 ) {
+                        print("INFO: node $lbNode current connections is $curConns, waiting... \n");
+                    }
+                }
+                else {
+                    print("INFO: connections for node $lbNode is disconnected. \n");
+                    $nodeDisconnected->{$lbNode} = 1;
+                }
+            };
+
+            if ($@) {
+                $hasError = 1;
+                my $msg = $@;
+                $msg =~ s/ at .*?$//;
+                print("WARN: get $pool member $lbNode stats failed, api return:$content\n");
+                print("$msg\n");
+            }
+            if ( $curConns == 0 ) {
+                last;
+            }
+            elsif ( time() - $startTime > $timeOut ) {
+                $isTimeOut = 1;
+                $hasError  = 1;
+                print("WARN: wait node connection disconnected timeout, larger than $timeOut seconds.\n");
+            }
+            else {
+                sleep(2);
+            }
+            $loopCount = $loopCount + 1;
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();
+
