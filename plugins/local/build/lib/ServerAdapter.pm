@@ -160,4 +160,10 @@ sub addBuildQuality {
 
     #TODO: 提交sonarqube扫描结果数据到后台，老版本有相应的实现
 }
+
+sub getAppPassWord {
+    my ( $self, $buildEnv, $appUrl, $userName ) = @_;
+
+    #TODO: 譬如F5、A10、DNS服务等API的密码
+}
 1;

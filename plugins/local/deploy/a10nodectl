@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Getopt::Long;
+use JSON qw(to_json from_json);
+
+use DeployUtils;
+use WebCtl;
+use ServerAdapter;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname --envpath EnvPath\n");
+    print("              --baseurl BaseUrl [--username UserName] [--password PassWord]\n");
+    print("              --pool PoolName --action enable|disable\n");
+    print("\n");
+    print("       --envpath      EnvPath\n");
+    print("       --baseurl:     A10 api base url, \$\{baseurl\}/axapi/...\n");
+    print("       --username:    user name\n");
+    print("       --password:    password\n");
+    print("       --node:        node json\n");
+    print("       --pool:        A10 pool name\n");
+    print("       --action:      Action: enable|disable\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath );
+    my ( $a10Url, $user, $pass, $pool, $action, $node );
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath:s'  => \$envPath,
+        'baseurl=s'  => \$a10Url,
+        'username=s' => \$user,
+        'password=s' => \$pass,
+        'pool=s'     => \$pool,
+        'action=s'   => \$action,
+        'node=s'     => \$node
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $hasOptError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --envpath.\n");
+    }
+
+    if ( not defined($a10Url) or $a10Url eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --baseurl.\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --username.\n");
+    }
+
+    if ( not defined($pool) or $pool eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define --pool.\n");
+    }
+
+    if ( $action ne 'disable' and $action ne 'enable' ) {
+        $hasOptError = 1;
+        print("ERROR: action must to be enable or disable.\n");
+    }
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $buildEnv = DeployUtils->deployInit($envPath);
+
+    my $hasError = 0;
+    if ( not defined($pass) or $pass eq '' ) {
+
+        #TODO: A10密码的获取方法需要修改
+        $pass = ServerAdapter->getAppPassWord( $a10Url, $user );
+    }
+
+    my $webCtl = WebCtl->new();
+    $a10Url =~ s/\/+$//;
+
+    #curl -k https://20.16.185.1/axapi/v3/auth -H 'Content-Type: application/json' -X POST -d '{"credentials":{"username":"itsm","password":"123456"}}'
+    #get auth token
+    my $resp = $webCtl->doRest( 'POST', "$a10Url/axapi/v3/auth", { "credentials" => { "username" => $user, "password" => $pass } } );
+
+    my $authContent = from_json($resp);
+
+    my $authHeader = $authContent->{authresponse}->{signature};
+
+    if ( defined($authHeader) and $authHeader ne '' ) {
+        print("INFO: login $a10Url success.\n");
+    }
+    else {
+        print("ERROR: login $a10Url failed.\n");
+        print($resp);
+        $hasError = $hasError + 1;
+        return $hasError;
+    }
+
+    #curl -k https://20.16.185.1/axapi/v3/slb/service-group/OA_8080_pool/member/OA_01+8080 -H 'Authorization: A10 618a942a22dd0506c03b987f914071' -H 'Content-Type: application/json' -X POST -d '{"member":{"member-state":"enable"}}'
+    my $url = "$a10Url/axapi/v3/slb/service-group/$pool/member";
+
+    eval {
+        my $lbNode = $nodeInfo->{host} . '+' . $nodeInfo->{port};
+        $webCtl->doRest( 'POST', "$url/$lbNode", { "member" => { "member-state" => $action }, { "Authorization" => "A10 $authHeader" } } );
+        print("INFO: $action $pool member $node success.\n");
+    };
+    if ($@) {
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print("$msg\n");
+        $hasError = $hasError + 1;
+    }
+
+    return $hasError;
+}
+
+exit main();
