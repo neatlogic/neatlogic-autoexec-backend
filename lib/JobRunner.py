@@ -250,14 +250,14 @@ class JobRunner:
         # 启动所有的phase运行的线程，然后分批进行灰度
         groupNo = phaseGroup['groupNo']
         phaseNodeFactorys = {}
-
-        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupNo)
-        # 获取分组运行的最大的并行线程数
-        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
         # 下载group的节点s
         serverAdapter = self.context.serverAdapter
         if not self.localDefinedNodes:
             serverAdapter.getNodes(nodeFrom='group',phase=None, groupNo=groupNo)
+        nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupNo)
+        # 获取分组运行的最大的并行线程数
+        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
+        
         threads = []
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
