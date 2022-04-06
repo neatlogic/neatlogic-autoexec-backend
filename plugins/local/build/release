@@ -14,7 +14,7 @@ use BuildUtils;
 use FileUtils;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--hasbuildnumber 0|1] \n");
     print("              [--dbdir DBDirectoryInProject] [--docdir DocDirectoryInProject] \n");
@@ -34,7 +34,7 @@ sub usage {
 
 sub main {
     my ( $isHelp, $envPath, $version, $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $isVerbose, @targetFiles );
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     my $hasBuildNumber = 0;
     Utils::setEnv();

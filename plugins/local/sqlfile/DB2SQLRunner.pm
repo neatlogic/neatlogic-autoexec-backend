@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package DB2SQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 use File::Temp;
@@ -382,7 +382,6 @@ sub run {
 
     if ( not defined($sqlFH) ) {
         $isFail = 1;
-        Utils::setErrFlag();
         print("ERROR: sql script file not exists:$sqlFileName.\n");
     }
     else {
@@ -472,7 +471,7 @@ sub run {
                     if ( $isAutoCommit == 1 ) {
                         print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                         if ( exists( $ENV{IS_INTERACT} ) ) {
-                            $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                            $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                         }
 
                         $opt = 'abort' if ( not defined($opt) );
@@ -483,7 +482,7 @@ sub run {
                     }
                     else {
                         if ( exists( $ENV{IS_INTERACT} ) ) {
-                            $opt = Utils::decideOption( 'Execute failed, select action(commit|rollback)', $pipeFile );
+                            $opt = DeployUtils->decideOption( 'Execute failed, select action(commit|rollback)', $pipeFile );
                         }
 
                         $opt = 'rollback' if ( not defined($opt) );
@@ -582,7 +581,6 @@ sub run {
 
             if ( $exitCode ne 0 ) {
                 $isFail = 1;
-                Utils::setErrFlag();
             }
             $ENV{WARNING_COUNT} = $warningCount;
             $ENV{HAS_ERROR}     = $hasError;

@@ -1,11 +1,8 @@
 #!/usr/bin/perl
 
 use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
 
 use strict;
-use File::Basename;
 use Cwd;
 use File::Temp;
 use Digest::MD5 qw(md5 md5_hex);
@@ -18,7 +15,7 @@ use DeployUtils;
 use ServerAdapter;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
     print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--lang LANG] [--version VERSION] \n");
     print("       [--basedir SubDirectoryInSysDataPath] --script EncodedScript\n");
     print("\n");

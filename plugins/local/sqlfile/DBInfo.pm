@@ -10,7 +10,7 @@ use strict;
 
 sub new {
     my ( $type, $nodeInfo, $args ) = @_;
-    
+
     my $self = {
         dbStr  => $nodeInfo->{accessEndpoint},
         dbType => $nodeInfo->{nodeType},
@@ -24,7 +24,7 @@ sub new {
         sid          => $nodeInfo->{nodeName},
         user         => $nodeInfo->{username},
         pass         => $nodeInfo->{password},
-        oraWallet    => $args->{nodeName},
+        oraWallet    => $args->{oraWallet},
         locale       => $args->{locale},
         fileCharset  => $args->{fileCharset},
         autocommit   => $args->{autocommit},

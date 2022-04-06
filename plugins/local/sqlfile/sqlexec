@@ -7,14 +7,13 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use strict;
 use Cwd;
 use Digest::MD5;
-use File::Basename;
 use Getopt::Long;
 use Expect;
 use JSON;
 use SQLFileRunner;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     print("Usage: $pname [-v|--verbose] [--dryrun] [--autocommit] [--dbversion <db version>] [--dbargs <db client tool args>] --encoding <encoding> --sqlfilejson <1.ddl.a.sql>\n");
     print("       dryrun:      only test, not realy execute the sql script\n");
@@ -48,7 +47,7 @@ sub main {
         'help'          => \$isHelp,
         'node=s'        => \$node,
         'v|verbose=i'   => \$isVerbose,
-        'force=i'         => \$isForce,
+        'force=i'       => \$isForce,
         'dryrun'        => \$isDryRun,
         'parallel=i'    => \$parallelCount,
         'autocommit'    => \$isAutoCommit,

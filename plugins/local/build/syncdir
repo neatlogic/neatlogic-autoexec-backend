@@ -2,14 +2,13 @@
 use strict;
 
 use FindBin;
-use File::Basename;
 use File::Path;
 use Getopt::Long;
 
 use SyncLocalFile;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
     print("              [-x ExcludeDirsInSrcDir] [--nodelete 0|1] [--noattrs 0|1] [--src SourceDirectory]\n");

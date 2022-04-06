@@ -17,7 +17,7 @@ use File::Basename;
 use Getopt::Long;
 use JSON;
 use DBInfo;
-use Utils;
+use DeployUtils;
 use Data::Dumper;
 
 sub new {

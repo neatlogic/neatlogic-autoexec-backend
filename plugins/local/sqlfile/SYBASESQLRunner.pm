@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package SYBASESQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Temp;
 use File::Basename;
@@ -132,7 +132,7 @@ sub test {
         ],
         [
             eof => sub {
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 }
         ],
         [
@@ -206,7 +206,7 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -219,7 +219,7 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -336,7 +336,7 @@ sub run {
                 #(0 rows affected)
                 #qr/(?<=\n)Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\n.*?\n(?=1>\s)/is => sub {
                 qr/Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\s*\n.*?(?=\d>\s)/is => sub {
-                    my $matchContent = Utils::convToUTF8( $spawn->match() );
+                    my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                     my $nwPos = index( $matchContent, "\n" );
                     $sqlError = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = $matchContent;

@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package POSTGRESQLSQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 
@@ -121,7 +121,7 @@ sub test {
         ],
         [
             eof => sub {
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 }
         ]
     );
@@ -194,7 +194,7 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -207,7 +207,7 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -271,7 +271,7 @@ sub run {
             eof => sub {
                 $hasHardError = 1;
                 $hasError     = 1;
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 &$execEnded();
                 }
         ]
@@ -296,7 +296,7 @@ sub run {
 
                 #psql:pgtest.root/2.test.sql:1: ERROR:  syntax error at or near "select1"
                 qr/\n(psql:)?($sqlFile:\d+:)?\s*(ERROR|FATAL):\s*(.*?)(?=\n)/ => sub {
-                    my $matchContent = Utils::convToUTF8( $spawn->match() );
+                    my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                     $matchContent =~ /(ERROR|FATAL):(.*?)\s*$/s;
                     $sqlError  = $1;
                     $sqlErrMsg = $2;

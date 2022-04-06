@@ -7,13 +7,12 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use strict;
 use Cwd;
 use Digest::MD5;
-use File::Basename;
 use Getopt::Long;
 use JSON;
 use SQLFileRunner;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     print("Usage: $pname [-v|--verbose] --sqlfilejson <1.ddl.a.sql>\n");
     print("       sql file:    sql script file\n");
@@ -93,7 +92,7 @@ sub main {
         usage();
     }
 
-    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, dbName=>$dbName, dbArgs=>$dbArgs, sqlFiles => $sqlFiles );
+    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, dbName => $dbName, dbArgs => $dbArgs, sqlFiles => $sqlFiles );
     $sqlFileRunner->checkSqlFiles();
 }
 

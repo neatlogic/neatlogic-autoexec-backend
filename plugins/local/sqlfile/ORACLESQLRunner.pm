@@ -13,7 +13,7 @@ use File::Temp;
 use Cwd;
 use Expect;
 
-use Utils;
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -242,7 +242,7 @@ sub test {
                 print( $spawn->before() );
                 print( $spawn->match() );
                 print( $spawn->after() );
-                }
+            }
         ],
         [
             qr/ORA-28001/i => sub {
@@ -250,18 +250,18 @@ sub test {
                 print( $spawn->before() );
                 print( $spawn->match() );
                 print( $spawn->after() );
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
-                }
+            }
         ],
         [
             eof => sub {
-                print( Utils::convToUTF8( $spawn->before() ) );
-                }
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
+            }
         ]
     );
 
@@ -329,7 +329,7 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -342,7 +342,7 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -398,7 +398,7 @@ sub run {
                     $isFail = 1;
                     $spawn->send("\cd\n");
                     print("\nERROR: username/password incorrect.\n");
-                    }
+                }
             ],
             [
 
@@ -408,7 +408,7 @@ sub run {
                     $isFail = 1;
                     $spawn->send("\cd\n");
                     print("\nERROR: open file $sqlCmd failed, this file exist? has permission?\n");
-                    }
+                }
             ],
             [
 
@@ -418,7 +418,7 @@ sub run {
                 qr/TNS:could\s+not\s+resolve\s+the\s+connect\s+identifier\s+specified/ => sub {
                     $isFail = 1;
                     print("ERROR: could not resolve connect identifier: $dbName\n");
-                    }
+                }
             ],
             [
 
@@ -428,7 +428,7 @@ sub run {
                 qr/no\s+listener/ => sub {
                     $isFail = 1;
                     print("ERROR: listener not start. Try commend: lsnrctl start ?\n");
-                    }
+                }
             ],
             [
 
@@ -437,7 +437,7 @@ sub run {
                 qr/(?<=\n)ORA-12514:.*(?=\n)/ => sub {
                     $isFail = 1;
                     print("ERROR: listener does not know service of \"$dbName\", this service already startup?\n");
-                    }
+                }
             ],
             [
 
@@ -456,7 +456,7 @@ sub run {
                     $notFound =~ s/,\s$//;
                     print("\nWARING: table(s) \"$notFound\" not exist in file \"$sqlCmd\".\n");
                     $spawn->exp_continue;
-                    }
+                }
             ],
             [
 
@@ -473,7 +473,7 @@ sub run {
                     print("WARNING: some table(s) exist, skip.\n") if $tabExist == 0;
                     $tabExist = 1;
                     $spawn->exp_continue;
-                    }
+                }
             ]
         );
 
@@ -501,7 +501,6 @@ sub run {
 
         if ( not defined($sqlFH) ) {
             $isFail = 1;
-            Utils::setErrFlag();
             print("ERROR: sql script file not exists:$self->{sqlDir}/$sqlFileName.\n");
         }
         else {
@@ -511,38 +510,38 @@ sub run {
                 undef,
                 [
                     qr/(?<=\n)Usage(\s*\d*):\s*SQLPLUS.*?(?=\n)/i => sub {
-                        my $matchContent = Utils::convToUTF8( $spawn->match() );
+                        my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                         $hasHardError = 1;
                         $isFail       = 1;
                         $spawn->send("\cC\cC\n");
                         print("ERROR: $matchContent\n");
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
 
                     #SP2-0310: unable to open file "oratest.scott/1.a.sql "
                     qr/(?<=\n)SP2-\d+:.*(?=\n)/ => sub {
-                        my $SPError = Utils::convToUTF8( $spawn->match() );
+                        my $SPError = DeployUtils->convToUTF8( $spawn->match() );
 
                         #$hasError = 1;
                         $hasHardError = 1;
                         $isFail       = 1;
                         print("\nERROR: $SPError\n");
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
                     $PROMPT => sub {
                         $hasLogon = 1;
-                        }
+                    }
                 ],
                 [
                     eof => sub {
                         $hasHardError = 1;
-                        print( Utils::convToUTF8( $spawn->before() ) );
+                        print( DeployUtils->convToUTF8( $spawn->before() ) );
                         &$sqlEndHandle();
-                        }
+                    }
                 ]
             );
         }
@@ -592,24 +591,24 @@ sub run {
 
                     #SP2-0027: Input is too long (> 2499 characters) - line ignored
                     qr/(?<=\n)SP2-\d+:.*(?=\n)/ => sub {
-                        my $SPError = Utils::convToUTF8( $spawn->match() );
+                        my $SPError = DeployUtils->convToUTF8( $spawn->match() );
                         $hasError     = 1;
                         $warningCount = $warningCount + 1;
                         print("\nERROR: $SPError\n");
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
                     qr/\nSEVERE: Could not process url:file:/ => sub {
                         $hasError = 1;
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
                     qr/(?<=\n)Warning:.*?(?=\n)/i => sub {
                         $hasWarn = 1;
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
 
@@ -617,7 +616,7 @@ sub run {
                     #ORA-00904: "NAME": invalid identifier
                     #qr/\nERROR\s+at\s+line\s+\d+:\s*\nORA-\d+:[^\n]+/ => sub {
                     qr/\nERROR[^\n\r]*?:[\r\n]+ORA-\d+:[^\n\r]+/s => sub {
-                        my $matchContent = Utils::convToUTF8( $spawn->match() );
+                        my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                         $matchContent =~ /^\n(ERROR.*?:.*?\x0A(ORA-\d+):.*)/s;
                         my $oraErrMsg = $1;
                         my $oraError  = $2;
@@ -641,7 +640,7 @@ sub run {
                             print("\nERROR: $oraErrMsg\n");
                         }
                         $spawn->exp_continue;
-                        }
+                    }
                 ],
                 [
 
@@ -649,13 +648,13 @@ sub run {
                     $PROMPT => sub {
                         $spawn->clear_accum();
                         &$sqlEndHandle();
-                        }
+                    }
                 ],
                 [
                     eof => sub {
                         $hasHardError = 1;
                         &$sqlEndHandle();
-                        }
+                    }
                 ]
             );
         }

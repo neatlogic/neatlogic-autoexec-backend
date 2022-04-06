@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package MSSQLSQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Temp;
 use File::Basename;
@@ -130,7 +130,7 @@ sub test {
         ],
         [
             eof => sub {
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 $spawn->soft_close();
                 }
         ]
@@ -224,7 +224,7 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -237,7 +237,7 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -356,7 +356,7 @@ sub run {
             eof => sub {
                 $hasHardError = 1;
                 $hasError     = 1;
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 &$execEnded();
                 }
         ]
