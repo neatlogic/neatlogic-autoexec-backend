@@ -7,7 +7,7 @@ use FindBin;
 package MYSQLSQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 
@@ -112,7 +112,7 @@ sub test {
         [
             eof => sub {
                 $hasHardError = 1;
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 }
         ]
     );
@@ -124,7 +124,7 @@ sub test {
         print("INFO: mysql $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
-        my $errMsg = Utils::convToUTF8( $spawn->before() );
+        my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
         print($errMsg );
         print("ERROR: mysql $user\@//$host:$port/$dbName connection test failed.\n");
     }
@@ -183,7 +183,7 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -197,7 +197,7 @@ sub run {
             else {
 
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -257,7 +257,7 @@ sub run {
         ],
         [
             eof => sub {
-                my $errMsg = Utils::convToUTF8( $spawn->before() );
+                my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
                 print( "ERROR: ", $errMsg );
                 $hasHardError = 1;
                 &$execEnded();
@@ -312,7 +312,7 @@ sub run {
                     }
                     else {
                         $hasError     = 1;
-                        $matchContent = Utils::convToUTF8($matchContent);
+                        $matchContent = DeployUtils->convToUTF8($matchContent);
                         print("ERROR: $matchContent\n");
                     }
                     $spawn->exp_continue;

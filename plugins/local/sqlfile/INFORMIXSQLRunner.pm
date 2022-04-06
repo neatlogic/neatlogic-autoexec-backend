@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package INFORMIXSQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Temp;
 use File::Basename;
@@ -200,7 +200,7 @@ sub test {
         [
             eof => sub {
                 $hasLogon = 0;
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 }
         ]
     );
@@ -263,7 +263,7 @@ sub run {
 
             my $opt;
             if ( exists( $ENV{IS_INTERACT} ) ) {
-                $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
             }
 
             $opt = 'rollback' if ( not defined($opt) );
@@ -345,7 +345,7 @@ sub run {
                         $hasWarn = 1;
                     }
                     else {
-                        $matchContent = Utils::convToUTF8($matchContent);
+                        $matchContent = DeployUtils->convToUTF8($matchContent);
                         print("ERROR: $matchContent\n");
                         $hasError = 1;
                     }
@@ -374,7 +374,7 @@ sub run {
                             while ( $line = <$fh> ) {
                                 $spawn->send($line);
                                 $spawn->expect( undef, [ $PROMPT => sub { } ] );
-                                $expContent = Utils::convToUTF8( $spawn->before() );
+                                $expContent = DeployUtils->convToUTF8( $spawn->before() );
                                 if ( $expContent =~ /\s*(\d+:.*?)\nError in line \d+\s*\nNear character position \d+\s*/is ) {
                                     $warningCount = $warningCount + 1;
                                     $sqlError     = $1;
@@ -420,7 +420,7 @@ sub run {
                     #$sqlErrMsg =~ s/\r|\n/ /g;
                     $hasHardError = 1;
                     $hasError     = 1;
-                    print( Utils::convToUTF8( $spawn->before() ) );
+                    print( DeployUtils->convToUTF8( $spawn->before() ) );
                     &$execEnded();
                     }
             ]

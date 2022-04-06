@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
-use File::Basename;
 use Cwd;
 use Getopt::Long;
 
@@ -11,7 +10,7 @@ use ServerAdapter;
 Getopt::Long::Configure("pass_through");
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
     print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG]\n");
     print("       [--basedir SubDirectoryInSysDataPath] --cmd Command\n");
     print("\n");

@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package MONGODBSQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 
@@ -118,7 +118,7 @@ sub test {
         [
             eof => sub {
                 $hasHardError = 1;
-                print( Utils::convToUTF8( $spawn->before() ) );
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
                 }
         ]
     );
@@ -131,7 +131,7 @@ sub test {
         print("INFO: $dbStr connection test success.\n");
     }
     else {
-        my $errMsg = Utils::convToUTF8( $spawn->before() );
+        my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
         print($errMsg );
         print("ERROR: $dbStr connection test failed.\n");
     }
@@ -187,7 +187,7 @@ sub run {
             if ( $autocommit == 0 ) {
                 my $opt;
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );
@@ -261,7 +261,7 @@ sub run {
         ],
         [
             eof => sub {
-                my $errMsg = Utils::convToUTF8( $spawn->before() );
+                my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
                 print( "ERROR: ", $errMsg );
                 $hasHardError = 1;
                 &$execEnded();

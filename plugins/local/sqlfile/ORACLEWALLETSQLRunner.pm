@@ -7,7 +7,7 @@ package ORACLEWALLETSQLRunner;
 
 use strict;
 use base 'ORACLESQLRunner';
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 

@@ -19,7 +19,7 @@ use Getopt::Long;
 use JSON;
 use DBInfo;
 use AutoExecUtils;
-use Utils;
+use DeployUtils;
 
 use SQLFileStatus;
 
@@ -177,7 +177,7 @@ sub execOneSqlFile {
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
     my $charSet     = $self->{charSet};
     if ( not defined($charSet) ) {
-        $charSet = Utils::guessEncoding($sqlFilePath);
+        $charSet = DeployUtils->guessEncoding($sqlFilePath);
         if ( defined($charSet) ) {
             print("INFO: Detech charset $charSet.\n");
         }
@@ -270,7 +270,7 @@ sub execOneSqlFile {
         binmode( STDOUT, 'encoding(UTF-8)' );
         binmode( STDERR, 'encoding(UTF-8)' );
 
-        Utils::sigHandler(
+        DeployUtils->sigHandler(
             'TERM', 'INT', 'HUP', 'ABRT',
             sub {
                 $sqlFileStatus->_loadStatus();
@@ -468,7 +468,7 @@ sub checkWaitInput {
     if ( $sqlFileStatus->loadAndGetStatusValue('status') eq 'running' ) {
         if ( -e $pipePath and -e $pipeDescPath ) {
             $isWaitInput = 1;
-            my $pipeDesc     = Utils::getFileContent($pipeDescPath);
+            my $pipeDesc     = DeployUtils->getFileContent($pipeDescPath);
             my $pipeDescJson = from_json($pipeDesc);
             $sqlFileStatus->updateStatus( interact => $pipeDescJson, status => 'waitInput' );
         }

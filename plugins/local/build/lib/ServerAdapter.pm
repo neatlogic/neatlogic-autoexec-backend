@@ -15,7 +15,7 @@ sub getIdPath {
         $idx = $idx + 1;
     }
 
-    #TODO: vcall api convert namePath to idPath
+    #TODO: call api convert namePath to idPath
 
     my $idPath = $namePath;
     return $idPath;
@@ -80,6 +80,7 @@ sub updateVer {
 
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
+    #TODO: 通过接口更新版本信息
 
     return;
 }
@@ -88,14 +89,17 @@ sub releaseVer {
     my ( $self, $buildEnv, $version, $buildNo ) = @_;
 
     #更新某个version的buildNo的release状态为1，build成功
+    #TODO：发布版本，更新版本某个buildNo的release的状态为1
     return;
 }
 
 sub getAutoCfgConf {
     my ( $self, $buildEnv ) = @_;
+    my $autoCfgMap = {};
 
     #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
-    my $autoCfgMap = {
+
+    $autoCfgMap = {
         autoCfg => {
             key1 => 'value1',
             key2 => 'value2'
@@ -117,10 +121,37 @@ sub getAutoCfgConf {
             }
         ]
     };
-    ###############################
-    if ( not defined($autoCfgMap) ) {
-        $autoCfgMap = {};
-    }
     return $autoCfgMap;
+}
+
+sub getDBConf {
+    my ( $self, $buildEnv ) = @_;
+    my $dbInfo = {};
+
+    #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
+    my $dbConf = {
+        'dbname.dbuser' => {
+            node => {
+                resourceId     => 9823748347,
+                nodeName       => 'bsmdb',
+                accessEndpoint => '192.168.0.26:3306',
+                nodeType       => 'Mysql',
+                host           => '192.168.0.26',
+                port           => 3306,
+                username       => 'root',
+                password       => '{RC4}xxxxx'
+            },
+            args => {
+                locale       => 'en_US.UTF-8',
+                fileCharset  => 'UTF-8',
+                autocommit   => 0,
+                dbVersion    => '10.3',
+                dbArgs       => '',
+                ignoreErrors => 'ORA-403',
+                oraWallet    => ''
+            }
+        }
+    };
+    return $dbConf;
 }
 1;

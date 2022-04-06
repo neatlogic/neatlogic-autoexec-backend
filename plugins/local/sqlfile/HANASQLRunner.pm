@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 package HANASQLRunner;
 
 use strict;
-use Utils;
+use DeployUtils;
 use Encode;
 use File::Basename;
 use Cwd;
@@ -136,13 +136,13 @@ sub test {
             qr/$PROMPT/ => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
-                }
+            }
         ],
         [
             eof => sub {
                 $hasHardError = 1;
-                print( Utils::convToUTF8( $spawn->before() ) );
-                }
+                print( DeployUtils->convToUTF8( $spawn->before() ) );
+            }
         ]
     );
 
@@ -212,7 +212,7 @@ sub run {
                 if ( $isAutoCommit == 0 ) {
                     my $opt;
                     if ( exists( $ENV{IS_INTERACT} ) ) {
-                        $opt = Utils::decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                        $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
                     }
 
                     $opt = 'rollback' if ( not defined($opt) );
@@ -248,13 +248,12 @@ sub run {
         my $pwd         = Cwd::getcwd();
 
         print("INFO: unzip -qd '$zipTmpDir' $zipFileName >/dev/null 2>\&1\n");
-        my $ret = Utils::execmd("unzip -qd $zipTmpDir $sqlDir/$zipFileName >/dev/null 2>\&1");
+        my $ret = DeployUtils->execmd("unzip -qd $zipTmpDir $sqlDir/$zipFileName >/dev/null 2>\&1");
 
-        if ( $ret ne 0 ) {
+        if ( $ret eq 0 ) {
             print("INFO: zip file $zipFileName success.\n");
         }
         else {
-            Utils::setErrFlag();
             print("ERROR: unzip file $zipFileName failed.\n");
             $hasError = 1;
             &$execEnded();
@@ -265,56 +264,53 @@ sub run {
         my @files = glob("$zipTmpDir/$zipFileName/*");
         my $cmd;
 
-        if ( $ret ne 0 and $hasError != 1 ) {
+        if ( $ret eq 0 ) {
             print("INFO : create workspace myWS success\n");
             print("INFO: regi create workspace myWS\n");
             $cmd = "regi create workspace myWS";
-            $ret = Utils::execmd($cmd);
+            $ret = DeployUtils->execmd($cmd);
         }
         else {
-            Utils::setErrFlag();
             print("ERROR: create workspace myWS failed\n");
             $hasHardError = 1;
             &$execEnded();
         }
 
-        foreach (@files) {
-            print("INFO: regi checkOut $_\n");
-            $cmd = "regi checkOut $_";
-            $ret = Utils::execmd($cmd);
-            if ( $ret eq 0 and $hasError != 1 ) {
-                print("INFO: checkout package $_ success\n");
-                print("INFO: cp -r $zipTmpDir/$zipFileName/* myWS/");
-                $ret = Utils::execmd("cp -r $zipTmpDir/$zipFileName/* myWS/");
+        if ( $ret eq 0 ) {
+            foreach (@files) {
+                print("INFO: regi checkOut $_\n");
+                $cmd = "regi checkOut $_";
+                $ret = DeployUtils->execmd($cmd);
+                if ( $ret eq 0 ) {
+                    print("INFO: checkout package $_ success\n");
+                    print("INFO: cp -r $zipTmpDir/$zipFileName/* myWS/");
+                    $ret = DeployUtils->execmd("cp -r $zipTmpDir/$zipFileName/* myWS/");
+                }
+                else {
+                    print("ERROR: checkout package $_ failed\n");
+                    $hasHardError = 1;
+                    &$execEnded();
+                }
             }
-            else {
-                Utils::setErrFlag();
-                print("ERROR: checkout package $_ failed\n");
-                $hasHardError = 1;
-                &$execEnded();
-            }
-
         }
 
-        if ( $ret eq 0 and $hasError != 1 ) {
+        if ( $ret eq 0 ) {
             print("INFO : copy packages to myWS success\n");
             print("INFO: regi push\n");
             $cmd = "regi push";
-            $ret = Utils::execmd($cmd);
+            $ret = DeployUtils->execmd($cmd);
         }
         else {
-            Utils::setErrFlag();
             print("ERROR: copy packages to myWS failed\n");
             $hasError = 1;
             &$execEnded();
         }
 
-        if ( $ret eq 0 and $hasError != 1 ) {
+        if ( $ret eq 0 ) {
             print("INFO : activate objects success\n");
             unlink("myWS");
         }
         else {
-            Utils::setErrFlag();
             print("ERROR: activate objects failed\n");
             $hasHardError = 1;
             &$execEnded();
@@ -339,22 +335,22 @@ sub run {
             [
                 qr/$PROMPT/ => sub {
                     $hasLogon = 1;
-                    }
+                }
             ],
             [
                 timeout => sub {
                     print("ERROR: connection timeout.\n");
                     $hasHardError = 1;
                     &$execEnded();
-                    }
+                }
             ],
             [
                 eof => sub {
-                    my $errMsg = Utils::convToUTF8( $spawn->before() );
+                    my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
                     print( "ERROR: ", $errMsg );
                     $hasHardError = 1;
                     &$execEnded();
-                    }
+                }
             ]
         );
 
@@ -370,17 +366,17 @@ sub run {
                         qr/OFF/ => sub {
                             $hasError = 1;
                             $spawn->exp_continue();
-                            }
+                        }
                     ],
                     [
                         qr/ON/ => sub {
-                            }
+                        }
                     ],
                     [
                         eof => sub {
                             $hasHardError = 1;
                             &$execEnded();
-                            }
+                        }
                     ]
                 );
             }
@@ -395,31 +391,31 @@ sub run {
                         print("ERROR: syntax error.\n");
                         $hasError = 1;
                         $spawn->exp_continue();
-                        }
+                    }
                 ],
                 [
                     qr/Cannot open/ => sub {
                         print("ERROR: not such file.\n");
                         $hasError = 1;
                         $spawn->exp_continue();
-                        }
+                    }
                 ],
                 [
                     qr/cannot/ => sub {
                         print("ERROR");
                         $hasError = 1;
                         $spawn->exp_continue();
-                        }
+                    }
                 ],
                 [
                     qr/rows affected/ => sub {
-                        }
+                    }
                 ],
                 [
                     eof => sub {
                         $hasHardError = 1;
                         &$execEnded();
-                        }
+                    }
                 ]
             );
         }
