@@ -18,9 +18,9 @@ class RunNodeFactory:
         self.phaseName = phaseName
         self.nodesFile = None
 
-        nodesFilePath = context.getNodesFilePath(phaseName=phaseName)
+        nodesFilePath = context.getNodesFilePath(phaseName=phaseName, type='phase')
         if not os.path.isfile(nodesFilePath):
-            nodesFilePath = context.getNodesFilePath(phaseGroup=phaseGroup)
+            nodesFilePath = context.getNodesFilePath(phaseGroup=phaseGroup, type='group')
             if not os.path.isfile(nodesFilePath):
                 nodesFilePath = context.getNodesFilePath()
         self.nodesFile = open(nodesFilePath)

@@ -257,7 +257,7 @@ class JobRunner:
         # 下载group的节点s
         serverAdapter = self.context.serverAdapter
         if not self.localDefinedNodes:
-            serverAdapter.getNodes(nodeFrom='group',phase=phaseName, phaseGroup=groupNo)
+            serverAdapter.getNodes(nodeFrom='group',phase=None, groupNo=groupNo)
         threads = []
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
