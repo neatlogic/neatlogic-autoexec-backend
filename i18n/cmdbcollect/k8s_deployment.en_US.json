@@ -1,0 +1,131 @@
+{
+	"label": "K8S_DEPLOYMENT",
+	"collection": "COLLECT_K8S",
+	"docroot": "NAMESPACES.DEPLOYMENTS",
+	"collection_label": "Kubernetes",
+	"filter": {
+		"_OBJ_TYPE": "K8S_DEPLOYMENT"
+	},
+	"fields": [{
+			"name": "_OBJ_CATEGORY",
+			"desc": "Object Type",
+			"type": "String"
+		},
+		{
+			"name": "_OBJ_TYPE",
+			"desc": "Application Type",
+			"type": "String"
+		}, {
+			"name": "UID",
+			"desc": "uid",
+			"type": "String"
+		},
+		{
+			"name": "NAME",
+			"desc": "Name",
+			"type": "String"
+		},
+		{
+			"name": "NAMESPACE",
+			"desc": "Namespace",
+			"type": "String"
+		}, {
+			"name": "GENERATION",
+			"desc": "Generation",
+			"type": "Int"
+		}, {
+			"name": "REPLICAS",
+			"desc": "Replicas",
+			"type": "Int"
+		}, {
+			"name": "REVISIONHISTORYLIMIT",
+			"desc": "RevisionHistoryLimit",
+			"type": "Int"
+		}, {
+			"name": "PROGRESSDEADLINESECONDS",
+			"desc": "ProgressDeadlineSeconds",
+			"type": "Int"
+		}, {
+			"name": "STRATEGY",
+			"desc": "Strategy",
+			"type": "String"
+		}, {
+			"name": "OBSERVEDGENERATION",
+			"desc": "ObservedGeneration",
+			"type": "Int"
+		}, {
+			"name": "UPDATEDREPLICAS",
+			"desc": "UpdatedReplicas",
+			"type": "Int"
+		}, {
+			"name": "READYREPLICAS",
+			"desc": "ReadyReplicas",
+			"type": "Int"
+		}, {
+			"name": "AVAILABLEREPLICAS",
+			"desc": "AvailableReplicas",
+			"type": "Int"
+		},
+		{
+			"name": "LABELS",
+			"desc": "Labels",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "KEY",
+					"desc": "Key",
+					"type": "String"
+				},
+				{
+					"name": "VALUE",
+					"desc": "Value",
+					"type": "String"
+				}
+			]
+		},
+		{
+			"name": "ANNOTATIONS",
+			"desc": "Annotations",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "KEY",
+					"desc": "Key",
+					"type": "String"
+				},
+				{
+					"name": "VALUE",
+					"desc": "Value",
+					"type": "String"
+				}
+			]
+		}, {
+			"name": "CONDITIONS",
+			"desc": "Conditions",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "TYPE",
+				"desc": "Type",
+				"type": "String"
+			}, {
+				"name": "STATUS",
+				"desc": "Status",
+				"type": "String"
+			}, {
+				"name": "LASTHEARTBEATTIME",
+				"desc": "LastheartbeatTime",
+				"type": "String"
+			}, {
+				"name": "LASTTRANSITIONTIME",
+				"desc": "LasttransitionTime",
+				"type": "String"
+			}, {
+				"name": "REASON",
+				"desc": "Reason",
+				"type": "String"
+			}, {
+				"name": "MESSAGE",
+				"desc": "Message",
+				"type": "String"
+			}]
+		}
+	]
+}
