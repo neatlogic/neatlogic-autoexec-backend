@@ -178,33 +178,35 @@ class ServerAdapter:
     def getNodes(self, nodeFrom=None, phase=None, groupNo=None):
         params = {
             'jobId': self.context.jobId,
-            'nodeForm': nodeFrom,
+            'nodeFrom': nodeFrom,
             'runnerId': self.context.runnerId,
             'passThroughEnv': self.context.passThroughEnv,
             'phase': ''
         }
 
+        type = None
         if phase is not None:
             params['phase'] = phase
+            type = 'phase'
 
         if groupNo is not None:
             params['groupNo'] = groupNo
+            type = 'group'
 
         lastModifiedTime = 0
-        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, phaseGroup=groupNo)
+        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, phaseGroup=groupNo, type=type)
         if os.path.exists(nodesFilePath):
             lastModifiedTime = os.path.getmtime(nodesFilePath)
         params['lastModified'] = lastModifiedTime
 
         nodesFile = None
         try:
-            nodesFile = open(nodesFilePath, 'a+')
-            fcntl.lockf(nodesFile, fcntl.LOCK_EX)
-
             # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
             response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
             if response.status == 200:
+                nodesFile = open(nodesFilePath, 'a+')
+                fcntl.lockf(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
                 for line in response:
                     nodesFile.write(str(line, encoding='utf-8'))
@@ -212,9 +214,9 @@ class ServerAdapter:
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
 
-            elif response.status == 205:
+            #elif response.status == 205:
                 # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-                pass
+            #    pass
             elif response.status == 204:
                 # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
                 if phase is not None:
@@ -278,7 +280,7 @@ class ServerAdapter:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
             # 促使下次运行主动更新节点文件
             nodesFilePath = self.context.getNodesFilePath()
-            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName)
+            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName, type='phase')
             if (os.path.exists(nodesFilePath)):
                 os.utime(nodesFilePath, (0, 0))
             if (os.path.exists(phaseNodesFilePath)):
