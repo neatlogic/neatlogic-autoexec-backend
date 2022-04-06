@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Fcntl qw(:flock);
+use File::Basename;
+use Getopt::Long;
+use File::Path;
+use IO::File;
+use File::Temp;
+
+use DeployUtils;
+use ServerAdapter;
+use SonarQubeAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--language ProgrammingLanguage]\n");
+    print("              [--prefix SubDirOfProject]  [--encode SourceFileEncoding]  [--level Level]\n");
+    print("              [--threshold ThresHold] [--modules <module1,module2>]\n");
+    print("       --envpath: subsys env path in the data directory, example:ATM/ATMP/PRD \n");
+    print("       --version:  versoin name \n");
+    print("       --prefix:   sub directory of project\n");
+    print("       --encode:   project encode,example:UTF-8 \n");
+    print("       --language: project develop language,example:java \n");
+    print("       --level: warning level ,example:blocker,critical \n");
+    print("       --threshold: waning threshold(number),example:50,100.. \n");
+    print("       --modules: modules\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $prefix, $language, $encode, $level, $threshold, $src, $bin, $tmout, $projectKey, $projectVersion, $projectName, $modules );
+    my $pname = $FindBin::Script;
+
+    Utils::setEnv();
+
+    GetOptions(
+        'h|help'           => \$isHelp,
+        'envpath=s'        => \$envPath,
+        'version=s'        => \$version,
+        'prefix=s'         => \$prefix,
+        'language=s'       => \$language,
+        'encode=s'         => \$encode,
+        'level=s'          => \$level,
+        'threshold=i'      => \$threshold,
+        'src=s'            => \$src,
+        'bin=s'            => \$bin,
+        'tmout=s'          => \$tmout,
+        'projectKey=s'     => \$projectKey,
+        'projectVersion=s' => \$projectVersion,
+        'projectName=s'    => \$projectName,
+        'modules=s'        => \$modules
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) );
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+
+    my $prjDir     = $buildEnv->{PRJ_PATH};
+    my $sysName    = $buildEnv->{SYS_NAME};
+    my $moduleName = $buildEnv->{MODULE_NAME};
+
+    my $sonarUrl   = $buildConf->{'sonar.host.url'};
+    my $sonarLogin = $buildConf->{'sonar.login'};
+    my $sonarPwd   = $buildConf->{'sonar.password'};
+
+    $src    = $prjDir if ( not defined($src)    or $src eq '' );
+    $bin    = $prjDir if ( not defined($bin)    or $bin eq '' );
+    $encode = 'UTF-8' if ( not defined($encode) or $encode eq '' );
+
+    $projectName    = $moduleName            if ( not defined($projectName)    or $projectName eq '' );
+    $projectKey     = "$sysName.$moduleName" if ( not defined($projectKey)     or $projectKey eq '' );
+    $projectVersion = $version               if ( not defined($projectVersion) or $projectVersion eq '' );
+
+    if ( defined($prefix) ) {
+        $prjDir = $prjDir . "/" . $prefix;
+    }
+
+    print("INFO: encode:$encode \n");
+    print("INFO: sonar-scanner code start, it will take a few minutes, please wait...\n");
+
+    $ENV{SONAR_SCANNER_OPTS} = '-Xss8m';
+    $ENV{PATH}               = "$toolsPath/node/bin:" . $ENV{PATH};
+
+    my $cmd =
+          "cd $prjDir;"
+        . "$toolsPath/sonar-scanner/bin/sonar-scanner"
+        . " -Dsonar.host.url='$sonarUrl'"
+        . " -Dsonar.login='$sonarLogin'"
+        . " -Dsonar.password='$sonarPwd'"
+        . " -Dsonar.projectName='$projectName'"
+        . " -Dsonar.language='$language'"
+        . " -Dsonar.sourceEncoding='$encode'"
+        . " -Dsonar.sources='$src'"
+        . " -Dsonar.java.binaries='$bin'"
+        . " -Dsonar.ws.timeout='$tmout'"
+        . " -Dsonar.projectKey='$projectKey'"
+        . " -Dsonar.projectVersion='$projectVersion'"
+        . " -Dsonar.modules='$modules'";
+
+    print("INFO: begin to execute cmd:\n");
+    print("INFO: $cmd\n");
+
+    my $ret = system($cmd);
+
+    if ( $ret ne 0 ) {
+        print "ERROR: sonar-scanner failed, return code:$ret.\n";
+        Utils::setErrFlag();
+    }
+    else {
+        eval {
+            my $measures = SonarQubeAdapter::getMeasures( $projectKey, $sonarUrl, $sonarLogin, $sonarPwd, $level, $threshold );
+            ServerAdapter->addBuildQuality( $buildEnv, $measures );
+        };
+        if ($@) {
+            print("ERROR:$@");
+        }
+        else {
+            print("FINEST: sonar-scanner code end .\r\n");
+            print("<a target=\"_blank\" style=\"color:white;font-size:16px;\"  href=\"$sonarUrl/dashboard?id=$projectKey\">---&gt;点击查看代码扫描报告</a>\n");
+        }
+    }
+
+    Utils::exitWithFlag();
+}
+
+main();
+

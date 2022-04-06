@@ -154,4 +154,10 @@ sub getDBConf {
     };
     return $dbConf;
 }
+
+sub addBuildQuality {
+    my ( $self, $buildEnv, $measures ) = @_;
+
+    #TODO: 提交sonarqube扫描结果数据到后台，老版本有相应的实现
+}
 1;

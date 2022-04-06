@@ -31,15 +31,6 @@ sub main {
     usage() if ( defined($isHelp) );
     my $optionError = 0;
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $namePath  = $buildEnv->{NAME_PATH};
-    my $dataPath  = $buildEnv->{DATA_PATH};
-    my $buildNo   = $buildEnv->{BUILD_NO};
-    my $envName   = $buildEnv->{ENV_NAME};
-    my $isRelease = $buildEnv->{IS_RELEASE};
-    my $buildDir  = "$dataPath/artifact/$version/build/$buildNo";
-    my $syncDir   = "$dataPath/artifact/$version/env/$envName";
-
     if ( not defined($envPath) or not defined($version) ) {
         print("ERROR: must defined option --envpath and --version.\n");
         $optionError = 1;
@@ -47,54 +38,64 @@ sub main {
 
     usage() if ( $optionError == 1 );
 
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+
     if ( $isRelease != 1 ) {
         print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
         return 3;
     }
 
+    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $distDir    = $dirInfo->{distribute};
+
     my $ret = 0;
-    if ( -e "$syncDir/app" ) {
-        $ret = system("rm -rf '$syncDir/app'");
+    if ( -e "$distDir/app" ) {
+        $ret = system("rm -rf '$distDir/app'");
     }
 
     if ( $ret != 0 ) {
         return $ret;
     }
 
-    if ( -e "$syncDir/db" ) {
-        $ret = system("rm -rf '$syncDir/db'");
+    if ( -e "$distDir/db" ) {
+        $ret = system("rm -rf '$distDir/db'");
     }
 
     if ( $ret != 0 ) {
         return $ret;
     }
 
-    if ( -e "$syncDir/doc" ) {
-        $ret = system("rm -rf '$syncDir/doc'");
+    if ( -e "$distDir/doc" ) {
+        $ret = system("rm -rf '$distDir/doc'");
     }
 
     if ( $ret != 0 ) {
         return $ret;
     }
 
-    if ( -d "$buildDir/app" ) {
-        $ret = system("cp -rf '$buildDir/app' '$syncDir/'");
+    if ( -d "$releaseDir/app" ) {
+        $ret = system("cp -rf '$releaseDir/app' '$distDir/'");
     }
 
     if ( $ret != 0 ) {
         return $ret;
     }
 
-    if ( -d "$buildDir/db" ) {
-        $ret = system("cp -rf '$buildDir/db' '$syncDir/'");
+    if ( -d "$releaseDir/db" ) {
+        $ret = system("cp -rf '$releaseDir/db' '$distDir/'");
     }
 
     if ( $ret != 0 ) {
         return $ret;
     }
 
-    if ( -d "$buildDir/doc" ) {
-        $ret = system("cp -rf '$buildDir/doc' '$syncDir/'");
+    if ( -d "$releaseDir/doc" ) {
+        $ret = system("cp -rf '$releaseDir/doc' '$distDir/'");
     }
 
     return $ret;

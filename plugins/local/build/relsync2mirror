@@ -92,50 +92,51 @@ sub main {
     $needMd5   = 0 if ( $noMd5 == 1 );
     $needMTime = 0 if ( $noMTime == 1 );
 
-    $src    = Utils::charsetConv( $src,    'utf-8' );
-    $dest   = Utils::charsetConv( $dest,   'utf-8' );
-    $expDir = Utils::charsetConv( $expDir, 'utf-8' );
+    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
 
     my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
     my $buildConf = $buildEnv->{DEPLOY_CONF};
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $buildNo   = $buildEnv->{BUILD_NO};
-    my $envName   = $buildEnv->{ENV_NAME};
     my $isRelease = $buildEnv->{IS_RELEASE};
-    my $syncDir   = "$dataPath/artifact/$version/env/$envName";
-    my $buildDir  = "$dataPath/artifact/$version/build/$buildNo";
-    my $mirrorDir = "$dataPath/artifact/mirror/$envName/app";
 
     if ( $isRelease != 1 ) {
         print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
         return 3;
     }
 
-    my $dbSrc  = "$buildDir/db";
-    my $docSrc = "$buildDir/doc";
+    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $distDir    = $dirInfo->{distribute};
+    my $mirrorDir  = $dirInfo->{mirror};
+
+    my $dbSrc  = "$releaseDir/db";
+    my $docSrc = "$releaseDir/doc";
 
     my ( $dbDest, $docDest );
 
     if ( not defined($src) ) {
-        $src = "$buildDir/app";
+        $src = "$releaseDir/app";
     }
     else {
         my $srcPath = $src;
         $srcPath =~ s/\/+/\//g;
         $srcPath =~ s/^\///;
 
-        $srcPath = "$buildDir/app/$srcPath";
+        $srcPath = "$releaseDir/app/$srcPath";
         $src     = $srcPath;
     }
 
     if ( not defined($dest) ) {
         $dest   = $mirrorDir;
-        $dbDest = "$syncDir/db";
+        $dbDest = "$distDir/db";
         if ( not -e $dbDest and -d $dbSrc ) {
             mkpath($dbDest);
         }
-        $docDest = "$syncDir/doc";
+        $docDest = "$distDir/doc";
         if ( not -e $docDest and -d $docSrc ) {
             mkpath($docDest);
         }

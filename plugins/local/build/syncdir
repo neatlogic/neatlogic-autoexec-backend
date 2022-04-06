@@ -80,9 +80,9 @@ sub main {
     $needMd5   = 0 if ( $noMd5 == 1 );
     $needMTime = 0 if ( $noMTime == 1 );
 
-    $src    = Utils::charsetConv( $src,    'utf-8' );
-    $dest   = Utils::charsetConv( $dest,   'utf-8' );
-    $expDir = Utils::charsetConv( $expDir, 'utf-8' );
+    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
 
     my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
     my $buildConf = $buildEnv->{DEPLOY_CONF};

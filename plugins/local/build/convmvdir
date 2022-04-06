@@ -1,0 +1,161 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use Getopt::Long;
+use Cwd;
+use Encode;
+use Encode::Guess;
+use File::Find;
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              --from FromCharset --to ToCharset\n");
+    print("\n");
+    print("       --envpath:   sub system envrionment path\n");
+    print("       --version:   version number\n");
+    print("       --from:      file name origin encoding charset\n");
+    print("       --to:        file name destination encoding charset\n");
+
+    exit(1);
+}
+
+sub guessEncoding {
+    my ( $data, $encodings ) = @_;
+
+    my $encoding;
+    my $charSet;
+    foreach $encoding (@$encodings) {
+        my $enc = guess_encoding( $data, $encoding );
+        if ( ref($enc) ) {
+            $charSet = uc( $enc->mime_name );
+            last;
+        }
+    }
+
+    return $charSet;
+}
+
+sub convmvdir {
+    my ( $dir, $from, $to ) = @_;
+
+    my $succeed = 1;
+    my $cwd     = getcwd();
+    chdir($dir);
+
+    $from = uc($from);
+    $to   = uc($to);
+
+    my @encodings = ( $from, $to );
+
+    find(
+        {
+            bydepth => 1,
+            wanted  => sub {
+                my $dir     = $File::Find::dir;
+                my $srcPath = $_;
+                if ( index( $dir, '/.svn/' ) >= 0 or index( $dir, '/.git/' ) >= 0 ) {
+                    $File::Find::prune = 1;
+                    return;
+                }
+
+                if ( -e $srcPath ) {
+                    my $hasConverted = 0;
+                    my $destPath;
+
+                    my $guessCharset = guessEncoding( $srcPath, \@encodings );
+
+                    if ( not defined($guessCharset) ) {
+                        my $destPathTmp = Encode::encode( $to,   Encode::decode( $from, $srcPath ) );
+                        my $srcPathTmp  = Encode::encode( $from, Encode::decode( $to,   $destPathTmp ) );
+                        if ( $srcPathTmp eq $srcPath ) {
+                            $hasConverted = 1;
+                            $destPath     = $destPathTmp;
+                        }
+                        else {
+                            $succeed = 0;
+                            print("ERROR: 无法识别文件名$dir/$srcPath的编码\n");
+                        }
+                    }
+                    elsif ( $guessCharset eq $to ) {
+                        print("WARN: 文件名$dir/$srcPath, 已经是编码$to, 不需要转换\n");
+                    }
+                    elsif ( $guessCharset ne 'US-ASCII' and $guessCharset ne $from ) {
+                        print("WARN: $srcPath encoding is not $from but $guessCharset\n");
+                        $destPath = Encode::encode( $to, Encode::decode( $guessCharset, $srcPath ) );
+                        $hasConverted = 1;
+                    }
+                    elsif ( $guessCharset eq $from ) {
+                        $destPath = Encode::encode( $to, Encode::decode( $from, $srcPath ) );
+                        $hasConverted = 1;
+                    }
+
+                    if ( $hasConverted == 1 and $destPath ne $srcPath ) {
+                        print("INFO: 转换编码($from\->$to):$dir/$srcPath\->$dir/$destPath\n");
+                        if ( not rename( $srcPath, $destPath ) ) {
+                            $succeed = 0;
+                            print("ERROR: 重命名文件失败, $!\n");
+                        }
+                    }
+                }
+            },
+            follow => 0
+        },
+        '.'
+    );
+
+    chdir($cwd);
+
+    return $succeed;
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $from, $to );
+    my $pname = $FindBin::Script;
+    my $pdir  = 'project';
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'pdir=s'      => \$pdir,
+        'from=s'      => \$from,
+        'to=s'        => \$to
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) or not defined($from) or not defined($to) );
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
+    my $verPath  = $dirInfo->{$pdir};
+
+    my $hasError = 0;
+    print("INFO: 开始转换文件名编码:${from}->${to}\n");
+    if ( -d $verPath ) {
+        my $succeed = convmvdir( $verPath, $from, $to );
+        if ( $succeed == 0 ) {
+            $hasError = 1;
+        }
+    }
+
+    if ( -d "$verPath.insdiff" ) {
+        my $succeed = convmvdir( "$verPath.ins", $from, $to );
+        if ( $succeed == 0 ) {
+            $hasError = 1;
+        }
+    }
+    print("INFO: 转换文件名编码结束:${from}->${to}\n");
+
+    return $hasError;
+}
+
+exit main();
+

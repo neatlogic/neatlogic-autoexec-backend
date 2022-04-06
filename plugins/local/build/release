@@ -62,13 +62,13 @@ sub main {
         @packExts = split( /\s*,\s*/, lc($packExt) );
     }
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $namePath  = $buildEnv->{NAME_PATH};
-    my $prjPath   = $buildEnv->{PRJ_PATH};
-    my $dataPath  = $buildEnv->{DATA_PATH};
-    my $buildRoot = $buildEnv->{BUILD_ROOT};
-    my $buildNo   = $buildEnv->{BUILD_NO};
-    my $buildPath = "$buildRoot/$buildNo";
+    my $buildEnv    = DeployUtils->deployInit( $envPath, $version );
+    my $namePath    = $buildEnv->{NAME_PATH};
+    my $prjPath     = $buildEnv->{PRJ_PATH};
+    my $dataPath    = $buildEnv->{DATA_PATH};
+    my $buildRoot   = $buildEnv->{BUILD_ROOT};
+    my $buildNo     = $buildEnv->{BUILD_NO};
+    my $releasePath = "$buildRoot/$buildNo";
 
     my $isRelease = $buildEnv->{IS_RELEASE};
     if ( $isRelease == 1 ) {
@@ -84,7 +84,7 @@ sub main {
     my $lock = BuildLock->new($buildEnv);
     $lock->lockWorkspace($BuildLock::EXCLUDE);
 
-    my $destDir = "$buildPath/app";
+    my $destDir = "$releasePath/app";
     mkpath($destDir) if ( not -e $destDir );
 
     if ( defined($prefix) and $prefix ne '' ) {
@@ -93,7 +93,7 @@ sub main {
 
     my %excludeDirsMap;
     if ( defined($expDir) and $expDir ne '' ) {
-        $expDir = Utils::charsetConv( $expDir, 'utf-8' );
+        $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
 
         my $aDir;
         foreach $aDir ( split( /,/, $expDir ) ) {
@@ -108,7 +108,7 @@ sub main {
 
     my $filePath;
     foreach my $filePath (@targetFiles) {
-        $filePath = Utils::charsetConv( $filePath, 'utf-8' );
+        $filePath = DeployUtils->charsetConv( $filePath, 'utf-8' );
         my $filePattern = $filePath;
 
         my $destFilePath;
@@ -130,7 +130,7 @@ sub main {
                 next;
             }
 
-            $destDir = "$buildPath/app";
+            $destDir = "$releasePath/app";
 
             if ( defined($prefix) and $prefix ne '' ) {
                 $destDir = "$destDir/$prefix";
@@ -221,14 +221,14 @@ sub main {
         }
     }
 
-    if ( -e "$buildPath/db" ) {
-        rmtree("$buildPath/db");
+    if ( -e "$releasePath/db" ) {
+        rmtree("$releasePath/db");
     }
-    if ( -e "$buildPath/doc" ) {
-        rmtree("$buildPath/doc");
+    if ( -e "$releasePath/doc" ) {
+        rmtree("$releasePath/doc");
     }
-    if ( -d "$buildPath/app/db" and defined($packExt) ) {
-        rename( "$buildPath/app/db", "$buildPath/db" );
+    if ( -d "$releasePath/app/db" and defined($packExt) ) {
+        rename( "$releasePath/app/db", "$releasePath/db" );
     }
 
     if ( defined($dbDir) and $dbDir ne '' ) {
@@ -237,7 +237,7 @@ sub main {
 
         my $ret = 0;
         if ( -d "$prjPath/$realDbDir" ) {
-            $ret = copyTarget( "$prjPath/$realDbDir", "$buildPath/db", undef, $md5Check );
+            $ret = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
             $dbCopied = 1;
         }
         else {
@@ -250,7 +250,7 @@ sub main {
                 $realDbDir = substr( $dbDir, 0, $pos );
             }
             if ( -d "$prjPath/$realDbDir" ) {
-                $ret = copyTarget( "$prjPath/$realDbDir", "$buildPath/db", undef, $md5Check );
+                $ret = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
                 $dbCopied = 1;
             }
         }
@@ -269,7 +269,7 @@ sub main {
     if ( defined($docDir) and $docDir ne '' ) {
         my $ret = 0;
         if ( -d "$prjPath/$docDir" ) {
-            $ret = copyTarget( "$prjPath/$docDir", "$buildPath/doc", undef, $md5Check );
+            $ret = copyTarget( "$prjPath/$docDir", "$releasePath/doc", undef, $md5Check );
         }
         if ( $ret != 0 ) {
             $hasError = 1;
@@ -277,7 +277,7 @@ sub main {
     }
 
     if ( defined($md5Check) ) {
-        eval { FileUtils::genMd5("$buildPath/app"); };
+        eval { FileUtils::genMd5("$releasePath/app"); };
         if ($@) {
             $hasError = 1;
             my $errMsg = $@;
@@ -285,8 +285,8 @@ sub main {
             print($errMsg );
         }
 
-        if ( -d "$buildPath/db" ) {
-            eval { FileUtils::genMd5("$buildPath/db"); };
+        if ( -d "$releasePath/db" ) {
+            eval { FileUtils::genMd5("$releasePath/db"); };
             if ($@) {
                 $hasError = 1;
                 my $errMsg = $@;
