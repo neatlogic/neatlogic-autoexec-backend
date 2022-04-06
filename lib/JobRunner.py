@@ -99,9 +99,9 @@ class JobRunner:
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件
             dstPath = '{}/nodes.json'.format(self.context.runPath)
             if context.firstFire:
-                context.serverAdapter.getNodes()
+                context.serverAdapter.getNodes(nodeFrom='job')
             elif not os.path.exists(dstPath):
-                context.serverAdapter.getNodes()
+                context.serverAdapter.getNodes(nodeFrom='job')
         else:
             # 如果命令行参数指定了nodesfile参数，则以此文件做为运行目标节点列表
             self.localDefinedNodes = True
@@ -219,7 +219,7 @@ class JobRunner:
                 self.context.addPhase(phaseName)
                 serverAdapter = self.context.serverAdapter
                 if not self.localDefinedNodes:
-                    serverAdapter.getNodes(phaseName)
+                    serverAdapter.getNodes(nodeFrom='phase',phase=phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName, phaseGroup=groupNo)
@@ -254,7 +254,10 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseGroup=groupNo)
         # 获取分组运行的最大的并行线程数
         parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
-
+        # 下载group的节点s
+        serverAdapter = self.context.serverAdapter
+        if not self.localDefinedNodes:
+            serverAdapter.getNodes(nodeFrom='group',phase=phaseName, phaseGroup=groupNo)
         threads = []
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
@@ -275,10 +278,6 @@ class JobRunner:
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True
-
-            serverAdapter = self.context.serverAdapter
-            if not self.localDefinedNodes:
-                serverAdapter.getNodes(phase=phaseName, phaseGroup=groupNo)
 
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
