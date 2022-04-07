@@ -176,12 +176,12 @@ class Context(VContext.VContext):
         self.serverAdapter.exportEnv(name, value)
 
     #type 为了明确获取路径类型,不通过是不是None判断,否则优先获取phase、再者group、最后取nodes的节点文件逻辑判断就会出问题
-    def getNodesFilePath(self, phaseName=None, phaseGroup=None, type=None):
+    def getNodesFilePath(self, phaseName=None, groupNo=None):
         nodesFilePath = None
-        if type == 'phase':
+        if phaseName is not None:
             nodesFilePath = '{}/nodes-ph-{}.json'.format(self.runPath, phaseName)
-        elif type == 'group':
-            nodesFilePath = '{}/nodes-gp-{}.json'.format(self.runPath, phaseGroup)
+        elif groupNo is not None:
+            nodesFilePath = '{}/nodes-gp-{}.json'.format(self.runPath, groupNo)
         else:
             nodesFilePath = '{}/nodes.json'.format(self.runPath)
         return nodesFilePath

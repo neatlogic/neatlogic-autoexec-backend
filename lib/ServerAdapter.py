@@ -175,26 +175,25 @@ class ServerAdapter:
                 paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
-    def getNodes(self, nodeFrom=None, phase=None, groupNo=None):
+    def getNodes(self, phase=None, groupNo=None):
         params = {
             'jobId': self.context.jobId,
-            'nodeFrom': nodeFrom,
             'runnerId': self.context.runnerId,
             'passThroughEnv': self.context.passThroughEnv,
-            'phase': ''
+            'phase': '',
+            'nodeFrom':'job'
         }
 
-        type = None
         if phase is not None:
             params['phase'] = phase
-            type = 'phase'
+            params['nodeFrom'] = 'phase'
 
         if groupNo is not None:
             params['groupNo'] = groupNo
-            type = 'group'
+            params['nodeFrom'] = 'group'
 
         lastModifiedTime = 0
-        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, phaseGroup=groupNo, type=type)
+        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, groupNo=groupNo)
         if os.path.exists(nodesFilePath):
             lastModifiedTime = os.path.getmtime(nodesFilePath)
         params['lastModified'] = lastModifiedTime

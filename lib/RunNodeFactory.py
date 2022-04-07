@@ -13,16 +13,14 @@ import RunNode
 
 class RunNodeFactory:
 
-    def __init__(self, context, phaseName=None, phaseGroup=None):
+    def __init__(self, context, phaseName=None, groupNo=None):
         self.context = context
         self.phaseName = phaseName
         self.nodesFile = None
 
-        nodesFilePath = context.getNodesFilePath(phaseName=phaseName, type='phase')
+        nodesFilePath = context.getNodesFilePath(phaseName=phaseName,groupNo=groupNo)
         if not os.path.isfile(nodesFilePath):
-            nodesFilePath = context.getNodesFilePath(phaseGroup=phaseGroup, type='group')
-            if not os.path.isfile(nodesFilePath):
-                nodesFilePath = context.getNodesFilePath()
+            nodesFilePath = context.getNodesFilePath()
         self.nodesFile = open(nodesFilePath)
 
         # 第一行是节点运行描述信息，包括节点总数，local运行节点ID等信息
