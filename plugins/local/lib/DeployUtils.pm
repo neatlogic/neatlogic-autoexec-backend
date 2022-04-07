@@ -98,6 +98,51 @@ sub deployInit {
     return $deployEnv;
 }
 
+sub getDataDirStruct {
+    my ( $self, $buildEnv, $isRelative ) = @_;
+
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
+    my $version  = $buildEnv->{VERSION};
+    my $buildNo  = $buildEnv->{BUILD_NO};
+
+    my $workSpacePath = "workspace";
+    my $prjPath       = "$workSpacePath/project";
+    my $relRoot       = "artifact/$version/build";
+    my $relPath       = "$relRoot/$buildNo";
+    my $distPath      = "artifact/env/$envName";
+    my $mirrorPath    = "mirror/$envName";
+    my $envresPath    = "envres/$envName";
+
+    my $dirStructure = {};
+    if ( $isRelative == 1 ) {
+        $dirStructure = {
+            approot     => $dataPath,
+            workspace   => $workSpacePath,
+            project     => $prjPath,
+            release     => $relPath,
+            releaseRoot => $relRoot,
+            distribute  => $distPath,
+            mirror      => $mirrorPath,
+            envres      => $envresPath
+        };
+    }
+    else {
+        $dirStructure = {
+            approot     => $dataPath,
+            workspace   => "$dataPath/$workSpacePath",
+            project     => "$dataPath/$prjPath",
+            release     => "$dataPath/$relPath",
+            releaseRoot => "$dataPath/$relRoot",
+            distribute  => "$dataPath/$distPath",
+            mirror      => "$dataPath/$mirrorPath",
+            envres      => "$dataPath/$envresPath"
+        };
+    }
+
+    return $dirStructure;
+}
+
 #添加进程事件处理响应函数, 会保留并执行原来的逻辑
 sub sigHandler {
     my $subref = pop(@_);
@@ -314,35 +359,35 @@ sub copyTree {
 }
 
 sub getMonth {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $nowMon = sprintf( '%4d%02d', $year + 1900, $mon + 1 );
 
     return $nowMon;
 }
 
 sub getDate {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $nowdate = sprintf( '%4d%02d%02d', $year + 1900, $mon + 1, $mday );
 
     return $nowdate;
 }
 
 sub getTimeStr {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '%4d%02d%02d_%02d%02d%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
 
     return $timeStr;
 }
 
 sub getTimeForLog {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '[%02d:%02d:%02d]', $hour, $min, $sec );
 
     return $timeStr;
 }
 
 sub getDateTimeForLog {
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '[%4d-%02d-%02d %02d:%02d:%02d]', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
 
     return $timeStr;
@@ -361,7 +406,7 @@ sub escapeQuoteWindows {
 }
 
 sub convToUTF8 {
-    my ($content) = @_;
+    my ( $self, $content ) = @_;
     if ( not defined($TERM_CHARSET) ) {
         my $lang = $ENV{LANG};
         if ( not defined($lang) or $lang eq '' ) {
@@ -382,7 +427,7 @@ sub convToUTF8 {
 }
 
 sub guessEncoding {
-    my ($file) = @_;
+    my ( $self, $file ) = @_;
 
     #my $possibleEncodingConf = getSysConf('file.possible.encodings');
     my $possibleEncodingConf = '';
@@ -425,7 +470,7 @@ sub guessEncoding {
 }
 
 sub guessDataEncoding {
-    my ($data) = @_;
+    my ( $self, $data ) = @_;
 
     #my $possibleEncodingConf = getSysConf('file.possible.encodings');
     my $possibleEncodingConf = '';
@@ -454,7 +499,7 @@ sub guessDataEncoding {
 }
 
 sub doInteract {
-    my ( $pipeFile, %args ) = @_;
+    my ( $self, $pipeFile, %args ) = @_;
 
     my $message = $args{message};    # 交互操作文案
     my $opType  = $args{opType};     # 类型：button|input|select|mselect
@@ -558,7 +603,7 @@ sub doInteract {
 }
 
 sub decideOption {
-    my ( $msg, $pipeFile ) = @_;
+    my ( $self, $msg, $pipeFile ) = @_;
 
     my @opts;
     if ( $msg =~ /\(([\w\|]+)\)$/ ) {
@@ -567,7 +612,7 @@ sub decideOption {
     }
 
     my $role = $ENV{DECIDE_WITH_ROLE};
-    my ( $userId, $enter ) = doInteract(
+    my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
         message => $msg,
         title   => 'Choose the action',
@@ -580,10 +625,10 @@ sub decideOption {
 }
 
 sub decideContinue {
-    my ( $msg, $pipeFile, $logFH ) = @_;
+    my ( $self, $msg, $pipeFile ) = @_;
 
     my $role = $ENV{DECIDE_WITH_ROLE};
-    my ( $userId, $enter ) = doInteract(
+    my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
         message => $msg,
         title   => '',

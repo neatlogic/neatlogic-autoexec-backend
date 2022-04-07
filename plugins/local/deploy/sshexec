@@ -12,13 +12,12 @@ use ServerAdapter;
 Getopt::Long::Configure("pass_through");
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
-    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath]\n");
+    print("Usage: $pname [--verbose 0|1]\n");
     print("              [--supass SuPassword] [--eofstr EOFString] [--failstr FailString]\n");
     print("              [--timeout TimeoutSecs] [-o SSHOptions] cmd\n");
     print("\n");
-    print("       --envpath:   Env path in the data directory, example:ATM/ATMP/PRD\n");
     print("       --node:      Host node json\n");
     print("       --supass:    su execute user password\n");
     print("       --eofstr:    when command outpute match eofstr, the execute will be terminated\n");
@@ -44,22 +43,27 @@ sub main {
     }
 
     GetOptions(
-        'h|help'         => \$isHelp,
-        'v|verbose=i'    => \$isVerbose,
-        'envpath=s{0,1}' => \$envPath,
-        'node=s'         => \$node,
-        'supass=s'       => \$supass,
-        'eofstr=s'       => \$eofStr,
-        'failstr=s'      => \$failStr,
-        'timeout=i'      => \$timeOut,
-        'o=s'            => \$sshOpts,
-        '<>'             => \&addCmd
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'supass=s'    => \$supass,
+        'eofstr=s'    => \$eofStr,
+        'failstr=s'   => \$failStr,
+        'timeout=i'   => \$timeOut,
+        'o=s'         => \$sshOpts,
+        '<>'          => \&addCmd
     );
 
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
-    my $nodeInfo    = {};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: must defined optoin --envpath.\n");
+    }
+
+    my $nodeInfo = {};
     if ( not defined($node) ) {
         $node = $ENV{AUTOEXEC_NODE};
     }
@@ -80,14 +84,12 @@ sub main {
         usage();
     }
 
-    my $hasError = 0;
-
     if ( defined($eofStr) and $eofStr =~ /^\{([\w-\d]+)\}/ ) {
         $eofStr =~ s/^\{[\w-\d]+\}//;
         $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
     }
 
-    my $hasOptError = 0;
+    my $hasError = 0;
 
     my $host    = $nodeInfo->{host};
     my $port    = $nodeInfo->{protocolPort};
