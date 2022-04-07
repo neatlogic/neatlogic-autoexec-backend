@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+use IO::File;
+use strict;
+use FindBin;
+use lib "$FindBin::Bin";
+use Getopt::Long;
+use Cwd 'abs_path';
+use File::Basename;
+use POSIX;
+use Patcher;
+
+Getopt::Long::Configure("pass_through");
+
+my $homePath = abs_path("$FindBin::Bin/..");
+my $progName = $FindBin::Script;
+my @uname    = uname();
+my $osType   = 'unix';
+$osType = 'windows' if ( $uname[0] =~ /Windows/i );
+
+sub usage {
+    print(
+        "Usage:$progName --ins <instance name> --version <version> --backupdir <backup dir> --backupcount <backup count> --backup
+lastdays <backup longest days> --versrcpath <pack relative path> --targetdir <target dir>\n"
+    );
+    exit(-1);
+}
+
+sub main {
+    if ( $osType eq 'windows' ) {
+        $ENV{PATH} = "$homePath/../7-Zip;$ENV{ProgramFiles}/7-Zip;" . $ENV{PATH};
+    }
+
+    my $isVerbose = 0;
+    my $insName;
+    my $version;
+    my $verSrcPath;
+    my $backupDir;
+    my $backupCount    = 5;
+    my $backupLastDays = 90;
+    my $targetDir;
+
+    GetOptions(
+        'v'                => \$isVerbose,
+        'ins:s'            => \$insName,
+        'version:s'        => \$version,
+        'backupcount:i'    => \$backupCount,
+        'backuplastdays:i' => \$backupLastDays,
+        'versrcpath:s'     => \$verSrcPath,
+        'backupdir:s'      => \$backupDir,
+        'targetdir:s'      => \$targetDir
+    );
+
+    $backupCount = int($backupCount);
+    if ( $backupCount == 0 ) {
+        $backupCount = 5;
+    }
+
+    my $backupType = 'fullbackup';
+
+    my $patchSrcPath = $verSrcPath;
+
+    my $hasOptionError = 0;
+    if ( not defined($version) or $version eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Version not defined(option --version).\n");
+    }
+
+    if ( not defined($targetDir) or $targetDir eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Target directory not defined(option --targetdir).\n");
+    }
+    elsif ( not -e $targetDir ) {
+        print("ERROR: Target directory:$targetDir not exist.\n");
+    }
+
+    if ( not defined($patchSrcPath) or $patchSrcPath eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Version resource directory not defined(option --versrcpath).\n");
+    }
+    elsif ( not -e $patchSrcPath ) {
+        $hasOptionError = 1;
+        print("ERROR: Version resource directory:$patchSrcPath not exist.\n");
+    }
+
+    if ( not defined($backupDir) or $backupDir eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Backup directory not defined(option --backupdir).\n");
+    }
+    else {
+        my $backupParent = dirname($backupDir);
+        my $backupRoot   = dirname($backupParent);
+        if ( not -d $backupRoot ) {
+            $hasOptionError = 1;
+            print("ERROR: Backup directory:$backupRoot not exist.\n");
+        }
+        else {
+            mkdir($backupParent);
+        }
+    }
+
+    if ( $hasOptionError == 1 ) {
+        usage();
+    }
+
+    my $patcher = Patcher->new( $homePath, $backupDir, $backupCount );
+    my $status = 0;
+    $status = $patcher->backup( $insName, $version, $patchSrcPath, $targetDir, $backupType );
+
+    if ( $status == 0 ) {
+        $status = $patcher->patch( $insName, $version, $patchSrcPath, $targetDir );
+    }
+
+    if ( $status == 0 ) {
+        print("INFO: Patch $version patch to $insName with $verSrcPath success.\n");
+    }
+    else {
+        print("ERROR: Patch $version patch to $insName with $verSrcPath failed.\n");
+    }
+    exit($status);
+}
+
+main();
+
