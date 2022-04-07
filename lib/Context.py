@@ -175,7 +175,6 @@ class Context(VContext.VContext):
             value = os.environ[name]
         self.serverAdapter.exportEnv(name, value)
 
-    #type 为了明确获取路径类型,不通过是不是None判断,否则优先获取phase、再者group、最后取nodes的节点文件逻辑判断就会出问题
     def getNodesFilePath(self, phaseName=None, groupNo=None):
         nodesFilePath = None
         if phaseName is not None:
