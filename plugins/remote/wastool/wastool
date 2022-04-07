@@ -5,6 +5,7 @@ use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/lib";
 
 use strict;
+use IO::File;
 use File::Basename;
 use Cwd 'abs_path';
 use Getopt::Long;
