@@ -1,0 +1,77 @@
+https://www.ibm.com/support/knowledgecenter/was_beta/com.ibm.websphere.base.doc/ae/rxml_taskoptions.html
+
+appname='name'
+source='app.ear'
+nodeName='was7Node01'
+cell='was7Cell01'
+server='server1'
+contextRoot='/deploymenttest'
+
+    # 1. node
+    # 2. cell
+    # 3. server
+    # 4. Application Name
+    # 5. ContextRoot
+    # 5. JNDI target name 
+attrs = [
+         '-node ', nodeName,
+         ' -cell ', cell,
+         ' -server ', server,
+         ' -appname ', appname,
+         ' -CtxRootForWebMod ', contextRoot,
+         ' -MapResRefToEJB ', [
+                               [ 
+                                 appname,"",
+                                 source+',WEB-INF/web.xml',
+                                 'jdbc/appdb','javax.sql.DataSource',
+                                 'jbdc/app22','DefaultPrincipalMapping',
+                                 'was7CellManager01/db2inst1',""
+                               ],
+                               [
+                                 appname,"",
+                                 source+',WEB-INF/web.xml',
+                                 'jdbc/app1db','javax.sql.DataSource',
+                                 'jbdc/app22','DefaultPrincipalMapping',
+                                 'was7CellManager01/db2inst1',""
+                               ]
+                             ] 
+         ]
+
+AdminApp.install(source, attrs)
+
+
+###########################################
+WebSphere应用服务器的wsadmin Jython脚本环境提供了AdminApp.install方法来进行WAR/EAR的安装。AdminApp.install方法需要两个输入参数， 第一个是archivePath，其值为war/ear文件的全路径名， 第二个是options，其值为若干个安装选项， 其中的一个可用选项就是Web模块的context root。
+
+[python] view plain copy
+AdminApp.install(archivePath, options)  
+
+当安装的是WAR文件时, 使用的-contextroot选项, 其值则为需要设置的context root.
+[python] view plain copy
+options = []  
+...  
+options.append("-contextroot")  
+options.append(contextRoot)  
+...  
+AdminApp.install(warPath, options)  
+
+
+
+当安装的是EAR文件时, 使用的-CtxRootForWebMod选项, 其值是一个列表，包含三个元素： Web模块名字，Web模块URI和需要设置的context root。 设置Web模块名字和URI的方法有两种: 使用给定值，或是使用模式匹配，
+
+[python] view plain copy
+#Set Web module name and URI with specific values  
+options = []  
+...  
+options.append("-CtxRootForWebMod")  
+options.append([['My Web Applicaiton', 'my_app.war,WEB-INF/web.xml', contextRoot]])  
+...  
+AdminApp.install(earPath, options)  
+  
+#Set Web module name and URI using pattern matching  
+options = []  
+...  
+options.append("-CtxRootForWebMod")  
+options.append([['.*', '.*', contextRoot]])  
+...  
+AdminApp.install(earPath, options)  

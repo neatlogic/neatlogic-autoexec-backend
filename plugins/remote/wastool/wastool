@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/lib";
+
+use strict;
+use File::Basename;
+use Cwd 'abs_path';
+use Getopt::Long;
+
+Getopt::Long::Configure qw(gnu_getopt);
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [--insname instanceName] [--verbos 0|1] [--action ActionName] <was options...>\n");
+    print("       --insname:   instance name\n");
+    print("       --action:    start|stop|deploy|undeploy|patch|unpatch..., see document\n");
+    print("       was options: webshpere application server config options, see document\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $insName, $action, $isVerbose );
+
+    my $pname = basename($0);
+
+    $isVerbose = 0;
+
+    my %opts = (
+        insName       => '',
+        action        => '',
+        verbose       => '',
+        was_profile   => '',
+        dmgr_profile  => '',
+        backup_dir    => '',
+        pkgs_dir      => '',
+        backup_count  => '',
+        start_timeout => '',
+        stop_timeout  => '',
+        LANG          => '',
+        LC_ALL        => '',
+        umask         => '',
+        standalone    => '',
+        need_deploy   => '',
+        ihs_dir       => '',
+        ihs_docroot   => '',
+        was_user      => '',
+        was_pwd       => '',
+        cellname      => '',
+        nodename      => '',
+        servername    => '',
+        clustername   => '',
+        appname       => '',
+        appfile       => '',
+        contextroot   => '',
+        targetdir     => '',
+        options       => '',
+        checkurl      => '',
+        admin_url     => '',
+    );
+
+    GetOptions(
+        \%opts, qw(
+            insname=s
+            action=s
+            verbose=i
+            was_profile=s
+            dmgr_profile=s
+            backup_dir=s
+            pkgs_dir=s
+            backup_count=s
+            start_timeout=s
+            stop_timeout=s
+            LANG=s
+            LC_ALL=s
+            umask=s
+            standalone=s
+            need_deploy=s
+            ihs_dir=s
+            ihs_docroot=s
+            was_user=s
+            was_pwd=s
+            cellname=s
+            nodename=s
+            servername=s
+            clustername=s
+            appname=s
+            appfile=s
+            contextroot=s
+            targetdir=s
+            options=s
+            checkurl=s
+            admin_url=s
+            )
+    ) || exit(1);
+
+    $insName   = $opts{insname};
+    $isVerbose = $opts{verbose};
+    $action    = $opts{action};
+
+    my $optionError = 0;
+    if ( not defined($action) or $action eq '' ) {
+        $optionError = 1;
+    }
+    if ( not defined($insName) or $insName eq '' ) {
+        $optionError = 1;
+    }
+
+    if ( $optionError != 0 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    if ( $opts{was_profile} eq '' or $opts{admin_url} eq '' ) {
+        print("ERROR: was_profile and admin_url must to be defined.\n");
+        $hasError = 1;
+    }
+
+    my $deploysysHome = $ENV{DEPLOYSYS_HOME};
+    my $logger        = Logger->new("$deploysysHome/logs");
+
+    my $appname = '';
+    foreach my $key ( keys(%opts) ) {
+        if ( $key eq "appname" ) {
+            $appname = $opts{$key};
+        }
+    }
+
+    my $newLine    = "\n";
+    my $iniContent = '[app]';
+    $iniContent = $iniContent . $newLine;
+    foreach my $key ( keys(%opts) ) {
+        if ( $key eq "contextroot" || $key eq "targetdir" || $key eq "options" || $key eq "checkurl" ) {
+            $iniContent = $iniContent . "$appname.$key=$opts{$key}$newLine";
+        }
+        else {
+            $iniContent = $iniContent . "$key=$opts{$key}$newLine";
+        }
+    }
+
+    my $hasError = 0;
+
+    $hasError = execAction( $insName, 'was', $iniContent, $action, \@ARGV, $isVerbose );
+
+    return $hasError;
+}
+
+sub execAction {
+    my ( $insName, $runtimeBaseName, $iniContent, $action, $envArgs, $isVerbose ) = @_;
+
+    my $hasError = 0;
+
+    if ( $hasError eq 0 ) {
+        my $envParams = '';
+        if ( defined($envArgs) and scalar(@$envArgs) > 0 ) {
+            $envParams = '"' . join( '" "', @$envArgs ) . '"';
+        }
+
+        my $confFH = IO::File->new(">conf/was.ini");
+        if ( not defined($confFH) ) {
+            print("ERROR: Can not open file conf/was.ini to write, $!\n");
+            exit(2);
+        }
+        else {
+            print $confFH($iniContent);
+            $confFH->close();
+        }
+
+        system("perl bin/$runtimeBaseName-$action.pl app $insName $envParams");
+    }
+
+    return $hasError;
+}
+
+exit main();
+
