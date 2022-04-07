@@ -14,13 +14,12 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              [--verbose 0|1] [--np 0|1] [--cpifexists 0|1] [--followlinks 0|1] [--pull 0|1]\n");
+    print("              [--verbose 0|1] [--cpifexists 0|1] [--followlinks 0|1] [--pull 0|1]\n");
     print("              [--pdir approot|project|release|distribute|mirror]\n");
     print("              <src> <dest>\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version: version number of sub system\n");
-    print("       --np    : not preserve the mode of file\n");
     print("       --cpifexists: copy if local dir or file exists.\n");
     print("       --pull: pull from remote site to local site\n");
 
@@ -29,7 +28,7 @@ sub usage {
 
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
-    my ( $isPull, $isPush, $cpIfExists, $followLinks, $pdir, $src, $dest, $np, $node );
+    my ( $isPull, $isPush, $cpIfExists, $followLinks, $pdir, $node );
 
     my $pname = $FindBin::Script;
 
@@ -41,7 +40,6 @@ sub main {
     GetOptions(
         'h|help'         => \$isHelp,
         'v|verbose=i'    => \$isVerbose,
-        'np=i'           => \$np,
         'pull=i'         => \$isPull,
         'version=s'      => \$version,
         'envpath=s{0,1}' => \$envPath,
@@ -51,6 +49,8 @@ sub main {
         'node=s'         => \$node,
         '<>'             => \&pushItems
     );
+
+    usage() if ( defined($isHelp) );
 
     my ( @items, @dirs );
 
@@ -77,7 +77,7 @@ sub main {
             $optionError = 1;
         }
         else {
-            $dir = Utils::charsetConv( $items[$i], 'utf-8' );
+            $dir = DeployUtils->charsetConv( $items[$i], 'utf-8' );
             $items[$i] = $dir;
         }
     }
@@ -114,7 +114,6 @@ sub main {
     if ( $isPull == 1 ) {
         $direction = 'pull';
     }
-    my $src = '';
 
     my ( $env, $insId, $insName, $verPath, $verDiffPath );
 
@@ -192,9 +191,9 @@ sub main {
     else {
         foreach my $dir (@dirs) {
             if ( $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ or $dir =~ /\/\.\.\// ) {
-                Utils::setErrFlag();
+                $hasError = $hasError + 1;
                 print("ERROR: file name can not has '..':$dir.\n");
-                exit(-1);
+                exit($hasError);
             }
             my $tarScpExec = new TarSCPExec( $host, $port, $user, $pass, $dir, $dest, 0, $followLinks, $isVerbose );
             my $rc = $tarScpExec->exec();

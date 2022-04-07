@@ -1,0 +1,189 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd 'abs_path';
+use Getopt::Long;
+use Digest::MD5 qw(md5 md5_hex);
+use JSON qw(to_json from_json);
+
+use DeployUtils;
+use ServerAdapter;
+use TagentClient;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--async 0|1] [--eofstr EOFString]\n");
+    print("              [--agentcharset ServerSideCharset] [--timeout TimeoutSecs] cmd\n");
+    print("\n");
+    print("       --node:         Host node json\n");
+    print("       --async:        execute remote cmd asynchronized\n");
+    print("       --eofstr:       when command outpute match eofstr, the execute will be terminated\n");
+    print("       --agentcharset: server Side charset\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+    print("       --script:       script json\n");
+
+    exit(1);
+}
+
+# windows测试target server是否可连接
+# tagentexec --inspath "qqqq" -h 192.168.0.178 -p 3939 -u tagent --pass ts9012501  "dir C:"
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $node, $async, $scriptObj, $eofStr, $agentCharset, $timeOut );
+
+    $isVerbose = 0;
+    $async     = 0;
+    $timeOut   = 0;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'node=s'         => \$node,
+        'async=i'        => \$async,
+        'eofstr=s'       => \$eofStr,
+        'timeout=i'      => \$timeOut,
+        'agentcharset=s' => \$agentCharset,
+        'script=s'       => \$scriptObj,
+        '<>'             => \&addCmd
+    );
+
+    usage() if ( defined($isHelp) );
+    my $optionError = 0;
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($scriptObj) ) {
+        $optionError = 1;
+        print("ERROR: must defined script obj with --script option.\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    if ( defined($eofStr) and $eofStr =~ /^\{([\w-\d]+)\}/ ) {
+        $eofStr =~ s/^\{[\w-\d]+\}//;
+        $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
+    }
+
+    my $hasError = 0;
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $agentCharset );
+
+    my $scriptJson = from_json($scriptObj);
+
+    my $scriptName        = $scriptJson->{name};
+    my $scriptInterpreter = $scriptJson->{interpreter};
+    my $scriptContent     = $scriptJson->{content};
+    my $arguments         = $scriptJson->{arguments};
+
+    while ( $arguments =~ /(?<!\\)\$(\w+)/g ) {
+        my $varName = $1;
+        if ( exists( $ENV{$varName} ) ) {
+            $arguments =~ s/(?<!\\)\$$varName/$ENV{$varName}/g;
+        }
+    }
+
+    while ( $arguments =~ /(?<!\\)\$\{(\w+)\}/g ) {
+        my $varName = $1;
+        if ( exists( $ENV{$varName} ) ) {
+            $arguments =~ s/(?<!\\)\$\{$varName\}/$ENV{$varName}/g;
+        }
+    }
+
+    if ( defined($scriptContent) and $scriptContent ne '' ) {
+        my $unHexContent = pack( 'H*', $scriptContent );
+        my $hexContent = unpack( 'H*', $unHexContent );
+
+        if ( $hexContent eq lc($scriptContent) ) {
+            $scriptContent = $unHexContent;
+        }
+    }
+
+    if ( index( $scriptName, '.' ) < 0 ) {
+        $scriptName = ".$scriptName";
+    }
+
+    my $hasError = 0;
+
+    my $randStr;
+    $randStr = $randStr . sprintf( "%x", rand(16) ) for 1 .. 4;
+    $scriptName = md5_hex($scriptContent) . "-$randStr$scriptName";
+
+    my $ret = $tagent->writeFile( $user, $scriptContent, '$TMPDIR/' . $scriptName, 1, 1 );
+    if ( $ret != 0 ) {
+        die("ERROR: can not connect to tagent.\n");
+    }
+
+    my $agentOsType = $tagent->{agentOsType};
+    my $envLine     = '';
+
+    my $namePath = $ENV{_DEPLOY_PATH};
+    my $idPath   = $ENV{_DEPLOY_ID_PATH};
+    if ( defined($namePath) and $namePath ne '' ) {
+        my $insIdPath   = "$idPath/$insId";
+        my $insNamePath = "$namePath/$insName";
+        if ( $agentOsType eq 'windows' ) {
+            $envLine = "set TS_INSID=$insIdPath && set TS_INSNAME=\"$insNamePath\" \&\& ";
+        }
+        else {
+            $envLine = "export TS_INSNAME=\"$insNamePath\" || setenv TS_INSNAME \"$insNamePath\"; export TS_INSID=$insIdPath || setenv TS_INSID $insIdPath \&\& ";
+        }
+    }
+
+    my $cmd = '';
+    my $delCmd;
+    if ( $agentOsType eq 'windows' ) {
+        $cmd    = "$envLine$scriptInterpreter %TMPDIR%\\$scriptName $arguments";
+        $delCmd = "del %TMPDIR%\\$scriptName";
+    }
+    else {
+        $cmd = "$envLine$scriptInterpreter \$TMPDIR/$scriptName $arguments; rc=\$?; rm -f \$TMPDIR/$scriptName; exit \$rc";
+    }
+
+    my $exitStatus = -1;
+    if ( $async == 1 ) {
+        $exitStatus = $tagent->execCmdAsync( $user, $cmd, 1, $eofStr );
+    }
+    else {
+        $exitStatus = $tagent->execCmd( $user, $cmd, 1, $eofStr );
+    }
+
+    if ( $exitStatus eq 0 ) {
+        print("FINEST: tagent remote exec success.\n");
+    }
+    else {
+        Utils::setErrFlag();
+        print("ERROR: tagent remote exec has error.\n");
+    }
+
+    if ( defined($delCmd) ) {
+        $tagent->execCmd( $user, $delCmd, 0 );
+    }
+
+    return $hasError;
+}
+
+main();
+

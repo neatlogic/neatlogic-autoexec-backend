@@ -259,9 +259,9 @@ sub exec {
         );
 
         my $envLine = '';
-        if ( defined( $ENV{INSTANCEPATH} ) and $ENV{INSTANCEPATH} ne '' ) {
-            my $insIdPath   = $ENV{INSTANCEPATH};
-            my $insNamePath = DeployUtils->escapeQuote( $ENV{SYSNAME} . '/' . $ENV{SUBSYSNAME} . '/' . $ENV{ENVNAME} . '/' . $ENV{INSNAME} );
+        if ( defined( $ENV{_INS_PATH} ) and $ENV{_INS_PATH} ne '' ) {
+            my $insIdPath   = $ENV{_INS_ID_PATH};
+            my $insNamePath = DeployUtils->escapeQuote( $ENV{_INS_PATH} );
             $envLine = "export TS_INSNAME=\"$insNamePath\" || setenv TS_INSNAME \"$insNamePath\"; export TS_INSID=$insIdPath || setenv TS_INSID $insIdPath \&\& ";
         }
         $spawn->send("$envLine$cmd;exit \$?\n");

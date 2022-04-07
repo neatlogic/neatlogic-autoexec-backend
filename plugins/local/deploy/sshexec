@@ -30,7 +30,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $isHelp, $isVerbose );
     my ( $node, $supass, $sshOpts, $cmd, $eofStr, $failStr, $timeOut );
 
     $isVerbose = 0;
@@ -57,11 +57,6 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
-
-    if ( not defined($envPath) or $envPath eq '' ) {
-        $optionError = 1;
-        print("ERROR: must defined optoin --envpath.\n");
-    }
 
     my $nodeInfo = {};
     if ( not defined($node) ) {
@@ -97,6 +92,13 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    my $namePath = $ENV{_DEPLOY_PATH};
+    my $idPath   = $ENV{_DEPLOY_ID_PATH};
+    if ( defined($namePath) and $namePath ne '' ) {
+        $ENV{_INS_ID_PATH} = "$idPath/$insId";
+        $ENV{_INS_PATH}    = "$namePath/$insName";
+    }
 
     my $sshExec = new SSHRemoteExec( $host, $port, $user, $pass, $isVerbose, $cmd, undef, $eofStr, $failStr, $supass, $timeOut, $sshOpts );
     my $ret = $sshExec->exec();

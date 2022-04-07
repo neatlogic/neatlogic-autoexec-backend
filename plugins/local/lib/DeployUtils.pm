@@ -644,4 +644,18 @@ sub decideContinue {
 
     return $isYes;
 }
+
+sub url_encode {
+    my ( $self, $rv ) = @_;
+    $rv =~ s/([^a-z\d\Q.-_~ \E])/sprintf("%%%2.2X", ord($1))/geix;
+    $rv =~ tr/ /+/;
+    return $rv;
+}
+
+sub url_decode {
+    my ( $self, $rv ) = @_;
+    $rv =~ tr/+/ /;
+    $rv =~ s/\%([a-f\d]{2})/ pack 'C', hex $1 /geix;
+    return $rv;
+}
 1;
