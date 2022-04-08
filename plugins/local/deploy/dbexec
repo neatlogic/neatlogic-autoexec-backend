@@ -46,7 +46,6 @@ sub main {
     my $isRollback   = 0;
     my $filter;
     my $index;
-    my $parallelCount = 0;
 
     GetOptions(
         'help'         => \$isHelp,
@@ -55,7 +54,6 @@ sub main {
         'v|verbose=i'  => \$isVerbose,
         'force=i'      => \$isForce,
         'dryrun'       => \$isDryRun,
-        'parallel=i'   => \$parallelCount,
         'autocommit=i' => \$isAutoCommit,
         'rollback=i'   => \$isRollback,
         'filter=s'     => \$filter,
@@ -128,6 +126,9 @@ sub main {
         $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
     }
 
+    my $parallelCount = $buildConf->{'sql.parallelCount'};
+    my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $parallelCount );
+
     my $dbSchemasMap = {};
     my $dbConf       = ServerAdapter->getDBConf($buildEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
@@ -136,7 +137,7 @@ sub main {
     }
 
     my $rc = 0;
-    if ( scalar(@$sqlFiles) > 0 ) {
+    if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(
             dbSchemasMap => $dbSchemasMap,
             nodeInfo     => { nodeId => 0 },
@@ -150,7 +151,7 @@ sub main {
             istty        => 0
         );
 
-        $rc = $sqlFileRunner->execSqlFiles();
+        $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
 
     return $rc;
