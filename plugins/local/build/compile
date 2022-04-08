@@ -15,8 +15,8 @@ use ServerAdapter;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--type ant|maven|gradle|npm]\n");
-    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS] [--version VERSION]\n");
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--type ant|maven|gradle|npm]\n");
+    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS]\n");
     print("       --envpath:      example:SYS-A/MODULE-X/SIT\n");
     print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
     print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");

@@ -24,23 +24,23 @@ sub new {
     my ( $type, $sqlFile, %args ) = @_;
 
     my $self = {
-        sqlFile   => $sqlFile,
-        dbInfo    => $args{dbInfo},
-        istty     => $args{istty},
-        jobPath   => $args{jobPath},
-        phaseName => $args{phaseName},
-        status    => {}
+        sqlFile      => $sqlFile,
+        istty        => $args{istty},
+        sqlFileDir   => $args{sqlFileDir},
+        sqlStatusDir => $args{sqlStatusDir},
+        status       => {}
     };
 
-    my $dbInfo    = $self->{dbInfo};
-    my $statusDir = "$self->{jobPath}/status/$self->{phaseName}/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
+    my $statusDir  = $self->{sqlStatusDir};
+    my $sqlFileDir = $self->{sqlFileDir};
+
     if ( not -e $statusDir ) {
         if ( not mkpath($statusDir) ) {
             die("ERROR: Create directory $statusDir failed $!\n");
         }
     }
 
-    $self->{sqlPath}    = "$self->{jobPath}/sqlfile/$self->{phaseName}/$sqlFile";
+    $self->{sqlPath}    = "$sqlFileDir/$sqlFile";
     $self->{statusPath} = "$statusDir/$sqlFile.txt";
 
     bless( $self, $type );

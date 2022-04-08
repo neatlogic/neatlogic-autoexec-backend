@@ -1,0 +1,159 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use Cwd;
+use Digest::MD5;
+use Getopt::Long;
+use Expect;
+use JSON;
+
+use SQLBatchUtils;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
+    print("              [--encoding SqlFileEncoding] [--filter SqlFileNamePattern]\n");
+    print("              [--index SqlIndexFiles] [--rollback 0|1]\n");
+    print("       --dryrun:      only test, not realy execute the sql script\n");
+    print("       --autocommit:  permit autocommit on mysql, postgresql\n");
+    print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
+    print("       --dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       --encoding:    encoding for sql file\n");
+    print("       --filter:      sql file name pattern, just execute matched sql file\n");
+    print("       --index:       index file names\n");
+    print("       --rollback:    execute sql files in sub directory:rollback\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $isHelp    = 0;
+    my $isVerbose = 0;
+    my $envPath;
+    my $version;
+    my $isDryRun     = 0;
+    my $isForce      = 0;
+    my $isAutoCommit = 0;
+    my $isRollback   = 0;
+    my $filter;
+    my $index;
+    my $parallelCount = 0;
+
+    GetOptions(
+        'help'         => \$isHelp,
+        'envpath=s'    => \$envPath,
+        'version=s'    => \$version,
+        'v|verbose=i'  => \$isVerbose,
+        'force=i'      => \$isForce,
+        'dryrun'       => \$isDryRun,
+        'parallel=i'   => \$parallelCount,
+        'autocommit=i' => \$isAutoCommit,
+        'rollback=i'   => \$isRollback,
+        'filter=s'     => \$filter,
+        'index=s'      => \$index
+    );
+
+    $ENV{IS_INTERACT} = 1;
+    my $hasOptError = 0;
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $dirInfo   = DeployUtils->getDataDirStruct($buildEnv);
+
+    #作业目录，日志
+    #jobpath/
+    #|-- log
+    #|   `-- phase-db
+    #|       `-- asm.root
+    #|          |-- 2.sql.hislog
+    #|          |   |-- 20210625-163515-failed-anonymous.txt
+    #|          |   |-- 20210625-163607-failed-anonymous.txt
+    #|          |   `-- 20210625-164543-failed-anonymous.txt
+    #|          `-- 2.sql.txt
+
+    #环境制品目录，sql文件和sql执行状态
+    #distributePath/
+    #|-- db
+    #|   `-- asm.root
+    #|       `-- 2.sql
+    #`-- db.status
+    #    `-- asm.root
+    #        `-- 2.sql.txt
+
+    my $distPath     = $dirInfo->{distribute};
+    my $sqlFileDir   = "$distPath/db";
+    my $logFileDir   = "$jobPath/log/$phaseName";
+    my $sqlStatusDir = "$distPath/db.status";
+
+    my $batchUtils = SQLBatchUtils->new(
+        sqlExtNames => [ 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' ],
+        buildEnv    => $buildEnv,
+        dirInfo     => $dirInfo
+    );
+
+    my $sqlFiles = [];
+    if ( defined($index) and $index ne '' ) {
+        $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+    }
+    else {
+        $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+    }
+
+    my $dbSchemasMap = {};
+    my $dbConf       = ServerAdapter->getDBConf($buildEnv);
+    while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
+        my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
+        $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
+    }
+
+    my $rc = 0;
+    if ( scalar(@$sqlFiles) > 0 ) {
+        my $sqlFileRunner = SQLFileRunner->new(
+            dbSchemasMap => $dbSchemasMap,
+            nodeInfo     => { nodeId => 0 },
+            sqlFiles     => $sqlFiles,
+            sqlFileDir   => $sqlFileDir,
+            sqlStatusDir => $sqlStatusDir,
+            logFileDir   => $logFileDir,
+            isForce      => $isForce,
+            isDryRun     => $isDryRun,
+            autocommit   => $isAutoCommit,
+            istty        => 0
+        );
+
+        $rc = $sqlFileRunner->execSqlFiles();
+    }
+
+    return $rc;
+}
+
+exit main();

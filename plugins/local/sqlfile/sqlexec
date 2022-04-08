@@ -10,18 +10,22 @@ use Digest::MD5;
 use Getopt::Long;
 use Expect;
 use JSON;
+
+use DBInfo;
 use SQLFileRunner;
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-v|--verbose] [--dryrun] [--autocommit] [--dbversion <db version>] [--dbargs <db client tool args>] --encoding <encoding> --sqlfilejson <1.ddl.a.sql>\n");
-    print("       dryrun:      only test, not realy execute the sql script\n");
-    print("       autocommit:  permit autocommit on mysql, postgresql\n");
-    print("       dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
-    print("       dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
-    print("       encoding:    encoding for sql file\n");
-    print("       sql file:    sql script file\n");
+    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
+    print("              [--encoding SqlFileEncoding] --sqlfilejson SqlFileJsonArray\n");
+    print("       --dryrun:      only test, not realy execute the sql script\n");
+    print("       --autocommit:  permit autocommit on mysql, postgresql\n");
+    print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
+    print("       --dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       --encoding:    encoding for sql file\n");
+    print("       --sqlfilejson: sql file json array, example:[\"1.sql\",\"2.sql\"]\n");
 
     exit(1);
 }
@@ -99,16 +103,58 @@ sub main {
         usage();
     }
 
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    #sqlfile, log, status
+    #jobpath/
+    #|-- file
+    #|   |-- 1.sql
+    #|   `-- 2.sql
+    #|-- log
+    #|   `-- phase-run
+    #|       `-- 192.168.0.26-3306-bsm
+    #|           |-- 2.sql.hislog
+    #|           |   |-- 20210625-163515-failed-anonymous.txt
+    #|           |   |-- 20210625-163607-failed-anonymous.txt
+    #|           |   `-- 20210625-164543-failed-anonymous.txt
+    #|           `-- 2.sql.txt
+    #|-- sqlfile
+    #|   `-- phase-run
+    #|       `-- 2.sql
+    #`-- status
+    #    `-- phase-run
+    #            `-- 192.168.0.26-3306-bsm
+    #                        `-- 2.sql.txt
+
+    my $sqlUploadDir = "$jobPath/file";
+    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
+    my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+    my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+
+    my $dbExtArgs = {
+        fileCharset => $charSet,
+        autocommit  => $isAutoCommit,
+        version     => $dbVersion,
+        args        => $dbArgs
+    };
+
+    my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
+
     my $sqlFileRunner = SQLFileRunner->new(
-        dbNode     => $dbNode,
-        sqlFiles   => $sqlFiles,
-        isForce    => $isForce,
-        isDryRun   => $isDryRun,
-        autocommit => $isAutoCommit,
-        dbVersion  => $dbVersion,
-        dbArgs     => $dbArgs,
-        charSet    => $charSet,
-        istty      => 0
+        dbInfo       => $dbInfo,          #单DB目标执行需要的特有的属性
+        nodeInfo     => $dbNode,
+        sqlUploadDir => $sqlUploadDir,    #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
+
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $sqlFiles,
+        isForce      => $isForce,
+        isDryRun     => $isDryRun,
+        istty        => 0
     );
     my $rc = 0;
     $rc = $sqlFileRunner->checkSqlFiles();

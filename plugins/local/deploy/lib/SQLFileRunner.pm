@@ -27,94 +27,82 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
-        charSet      => $args{charSet},
-        dbNode       => $args{dbNode},
-        sqlFiles     => $args{sqlFiles},
-        istty        => $args{istty},
-        isForce      => $args{isForce},
-        isDryRun     => $args{isDryRun},
-        dbVersion    => $args{dbVersion},
-        dbArgs       => $args{dbArgs},
-        oraWallet    => $args{oraWallet},
-        locale       => $args{locale},
-        fileCharset  => $args{fileCharset},
-        autocommit   => $args{autocommit},
-        ignoreErrors => $args{ignoreErrors}
+        jobPath      => $args{jobPath},
+        phaseName    => $args{phaseName},
+        dbSchemasMap => $args{dbSchemasMap},
+        dbInfo       => $args{dbInfo},
+        nodeInfo     => $args{nodeInfo},
+        sqlFileDir   => $args{sqlFileDir},
+        sqlStatusDir => $args{sqlStatusDir},
+
+        fileCharset => $args{fileCharset},
+
+        sqlFiles => $args{sqlFiles},
+        istty    => $args{istty},
+        isForce  => $args{isForce},
+        isDryRun => $args{isDryRun}
     };
+
+    #$dbInfo包含节点信息以外，还包含以下DB的扩展属性
+    # dbNode      => $args{dbNode},
+    # dbVersion    => $args{dbVersion},
+    # dbArgs       => $args{dbArgs},
+    # oraWallet    => $args{oraWallet},
+    # locale       => $args{locale},
+    # autocommit   => $args{autocommit},
+    # ignoreErrors => $args{ignoreErrors}
 
     bless( $self, $type );
 
-    my ( $jobPath, $phaseName ) = $self->_initDir();
+    my $jobPath = $args{jobPath};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+    $self->{jobPath} = $jobPath;
 
-    $self->{jobPath}   = $jobPath;
+    my $phaseName = $args{phaseName};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $phaseName = 'sql-file';
+    }
     $self->{phaseName} = $phaseName;
 
-    my $dbInfo = DBInfo->new( $self->{dbNode}, \%args );
-    $self->{dbInfo}     = $dbInfo;
-    $self->{sqlFileDir} = "$jobPath/sqlfile/$phaseName";
-    $self->{logFileDir} = "$jobPath/log/$phaseName/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
+    $self->_initDir( \%args );
 
     return $self;
 }
 
 sub _initDir {
-    my ($self) = @_;
+    my ( $self, %args ) = @_;
 
     my $hasError = 0;
-    my $jobPath  = $ENV{AUTOEXEC_WORK_PATH};
-    if ( not defined($jobPath) or $jobPath eq '' ) {
-        $jobPath = getcwd();
-    }
-    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
-    if ( not defined($phaseName) or $phaseName eq '' ) {
-        $phaseName = 'sql-file';
-    }
 
-    #sqlfile, log, status
-    #jobpath/
-    #|-- file
-    #|   |-- 1.sql
-    #|   `-- 2.sql
-    #|-- log
-    #|   `-- phase-run
-    #|       `-- 192.168.0.26-3306-bsm
-    #|           |-- 2.sql.hislog
-    #|           |   |-- 20210625-163515-failed-anonymous.txt
-    #|           |   |-- 20210625-163607-failed-anonymous.txt
-    #|           |   `-- 20210625-164543-failed-anonymous.txt
-    #|           `-- 2.sql.txt
-    #|-- sqlfile
-    #|   `-- phase-run
-    #|       `-- 2.sql
-    #`-- status
-    #    `-- phase-run
-    #            `-- 192.168.0.26-3306-bsm
-    #                        `-- 2.sql.txt
-
-    if ( not -e "$jobPath/sqlfile/$phaseName" ) {
-        mkpath("$jobPath/sqlfile/$phaseName");
+    my $sqlFileDir = $self->{sqlFileDir};
+    if ( not -e $sqlFileDir ) {
+        mkpath($sqlFileDir);
         my $err = $!;
-        if ( not -e "$jobPath/sqlfile/$phaseName" ) {
+        if ( not -e $sqlFileDir ) {
             $hasError = 1;
-            print("ERROR: Create dir '$jobPath/sqlfile/$phaseName' failed $err\n");
+            print("ERROR: Create dir '$sqlFileDir' failed $err\n");
         }
     }
 
-    if ( not -e "$jobPath/log/$phaseName" ) {
-        mkpath("$jobPath/log/$phaseName");
+    my $sqlStatusDir = $self->{sqlStatusDir};
+    if ($sqlStatusDir) {
+        mkpath($sqlStatusDir);
         my $err = $!;
-        if ( not -e "$jobPath/log/$phaseName" ) {
+        if ( not -e $sqlStatusDir ) {
             $hasError = 1;
-            print("ERROR: Create dir '$jobPath/log/$phaseName' failed $err\n");
+            print("ERROR: Create dir '$sqlStatusDir' failed $err\n");
         }
     }
 
-    if ( not -e "$jobPath/status/$phaseName" ) {
-        mkpath("$jobPath/status/$phaseName");
+    my $logFileDir = $self->{logFileDir};
+    if ( not -e $logFileDir ) {
+        mkpath($logFileDir);
         my $err = $!;
-        if ( not -e "$jobPath/status/$phaseName" ) {
+        if ( not -e $logFileDir ) {
             $hasError = 1;
-            print("ERROR: Create dir '$jobPath/status/$phaseName' failed $err\n");
+            print("ERROR: Create dir '$logFileDir' failed $err\n");
         }
     }
 
@@ -122,15 +110,24 @@ sub _initDir {
         exit(2);
     }
 
-    return ( $jobPath, $phaseName );
+    return;
 }
 
 sub execOneSqlFile {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
 
-    my $dbNode    = $self->{dbNode};
-    my $phaseName = $self->{phaseName};
-    my $dbInfo    = $self->{dbInfo};
+    my $dbInfo;
+    my $dbSchemasMap = $self->{dbSchemasMap};
+    if ( defined($dbSchemasMap) ) {
+
+        #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
+        my $dbSchema = lc( dirname($sqlFile) );
+        $dbInfo = $dbSchemasMap->{$dbSchema};
+    }
+    else {
+        #否则就是针对单一DB目标执行SQL文件，只有单库脚本
+        $dbInfo = $self->{dbInfo};
+    }
 
     my $hasError = 0;
 
@@ -175,11 +172,11 @@ sub execOneSqlFile {
     }
 
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
-    my $charSet     = $self->{charSet};
-    if ( not defined($charSet) ) {
-        $charSet = DeployUtils->guessEncoding($sqlFilePath);
-        if ( defined($charSet) ) {
-            print("INFO: Detech charset $charSet.\n");
+    my $fileCharset = $self->{fileCharset};
+    if ( not defined($fileCharset) ) {
+        $fileCharset = DeployUtils->guessEncoding($sqlFilePath);
+        if ( defined($fileCharset) ) {
+            print("INFO: Detech charset $fileCharset.\n");
         }
         else {
             print("ERROR: Can not detect $sqlFilePath charset.\n");
@@ -187,7 +184,7 @@ sub execOneSqlFile {
         }
     }
     else {
-        print("INFO: Use charset: $charSet\n");
+        print("INFO: Use charset: $fileCharset\n");
     }
 
     if ( $hasError == 1 ) {
@@ -223,8 +220,8 @@ sub execOneSqlFile {
         while ( my $line = <$fromChild> ) {
             @nowTime = localtime();
             $timeStr = sprintf( "%02d:%02d:%02d", $nowTime[2], $nowTime[1], $nowTime[0] );
-            if ( $charSet ne 'UTF-8' ) {
-                $line = Encode::encode( 'utf-8', Encode::decode( $charSet, $line ) );
+            if ( $fileCharset ne 'UTF-8' ) {
+                $line = Encode::encode( 'utf-8', Encode::decode( $fileCharset, $line ) );
             }
             if ( not $self->{istty} ) {
                 print $logFH ( $timeStr, ' ', $line );
@@ -312,7 +309,7 @@ sub execOneSqlFile {
                 print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
                 require $requireName;
 
-                $handler = $handlerName->new( $dbInfo, $sqlFilePath, $charSet, $logFilePath );
+                $handler = $handlerName->new( $dbInfo, $sqlFilePath, $fileCharset, $logFilePath );
             };
             if ($@) {
                 $hasError = 1;
@@ -484,19 +481,17 @@ sub checkWaitInput {
 
 sub execSqlFiles {
     my ($self) = @_;
-
     my $sqlFiles = $self->{sqlFiles};
-    my $jobPath  = $self->{jobPath};
 
     my $hasError = 0;
 
     foreach my $sqlFile (@$sqlFiles) {
+
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
-            dbInfo    => $self->{dbInfo},
-            jobPath   => $jobPath,
-            phaseName => $self->{phaseName},
-            istty     => $self->{istty}
+            sqlStatusDir => $self->{sqlStatusDir},
+            sqlFileDir   => $self->{sqlFileDir},
+            istty        => $self->{istty}
         );
         my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
@@ -514,7 +509,7 @@ sub execSqlFiles {
                     if ( $exitPid eq 0 ) {
                         $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
                         if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            AutoExecUtils::informNodeWaitInput( $self->{dbInfo}->{nodeId} );
+                            AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
                         }
                         $isPreWaitInput = $isWaitInput;
 
@@ -539,8 +534,82 @@ sub execSqlFiles {
     return $hasError;
 }
 
+sub execSqlFileSets {
+    my ( $self, $sqlFileSets ) = @_;
+
+    my $hasError = 0;
+
+    foreach my $sqlFiles (@$sqlFileSets) {
+        my $runnerPidsMap = {};
+        foreach my $sqlFile (@$sqlFiles) {
+            my $sqlFileStatus = SQLFileStatus->new(
+                $sqlFile,
+                sqlStatusDir => $self->{sqlStatusDir},
+                sqlFileDir   => $self->{sqlFileDir},
+                istty        => $self->{istty}
+            );
+            my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
+
+            if ( $checkRet == 1 ) {
+                my $pid = fork();
+                if ( $pid == 0 ) {
+                    my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
+                    $hasError = $hasError + $rc;
+                }
+                else {
+                    $runnerPidsMap->{$pid} = [ $sqlFile, $sqlFileStatus ];
+                }
+            }
+        }
+
+        foreach my $pid ( keys(%$runnerPidsMap) ) {
+            my $exitPid;
+            my $isPreWaitInput = 0;
+            my $isWaitInput    = 0;
+            if ( ( $exitPid = waitpid( $pid, 1 ) ) >= 0 ) {
+                if ( $exitPid eq 0 ) {
+                    my $sqlInfo       = $runnerPidsMap->{$pid};
+                    my $sqlFile       = $$sqlInfo[0];
+                    my $sqlFileStatus = $$sqlInfo[1];
+                    $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
+                    if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
+                        AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
+                    }
+                    $isPreWaitInput = $isWaitInput;
+
+                    sleep(2);
+                    next;
+                }
+
+                my $rc = $?;
+                $rc = $rc >> 8 if ( $rc > 255 );
+                if ( $rc ne 0 ) {
+                    $hasError = $hasError + 1;
+                }
+                delete( $runnerPidsMap->{$pid} );
+            }
+        }
+
+        if ( $hasError != 0 ) {
+            last;
+        }
+    }
+
+    return $hasError;
+}
+
 sub checkOneSqlFile {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
+
+    # my $dbInfo;
+    # my $dbSchemasMap = $self->{dbSchemasMap};
+    # if ( defined($dbSchemasMap) ) {
+    #     my $dbSchema = lc( dirname($sqlFile) );
+    #     $dbInfo = $dbSchemasMap->{$dbSchema};
+    # }
+    # else {
+    #     $dbInfo = $self->{dbInfo};
+    # }
 
     my $hasError = 0;
 
@@ -561,39 +630,25 @@ sub checkOneSqlFile {
 sub checkSqlFiles {
     my ($self) = @_;
 
-    my $sqlFiles = $self->{sqlFiles};
-    my $jobPath  = $self->{jobPath};
+    my $sqlFiles   = $self->{sqlFiles};
+    my $sqlFileDir = $self->{sqlFileDir};
 
     my $hasError = 0;
     foreach my $sqlFile (@$sqlFiles) {
-        my $sqlDir = dirname($sqlFile);
 
-        if ( -e "$jobPath/file/$sqlFile" ) {
+        if ( -e "$sqlFileDir/$sqlFile" ) {
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
-                dbInfo    => $self->{dbInfo},
-                jobPath   => $jobPath,
-                phaseName => $self->{phaseName},
-                istty     => $self->{istty}
+                sqlStatusDir => $self->{sqlStatusDir},
+                sqlFileDir   => $sqlFileDir,
+                istty        => $self->{istty}
             );
-
-            if ( -e "$self->{sqlFileDir}/$sqlFile" ) {
-                unlink("$self->{sqlFileDir}/$sqlFile");
-            }
-            if ( not -e "$self->{sqlFileDir}/$sqlDir" ) {
-                mkpath("$self->{sqlFileDir}/$sqlDir");
-            }
-
-            if ( not link( "$jobPath/file/$sqlFile", "$self->{sqlFileDir}/$sqlFile" ) ) {
-                $hasError = 1;
-                print("ERROR: Copy $jobPath/file/$sqlFile to $self->{sqlFileDir}/$sqlFile failed $!\n");
-            }
 
             $self->checkOneSqlFile( $sqlFile, $sqlFileStatus );
         }
         else {
             $hasError = 1;
-            print("ERROR: Sql file '$jobPath/file/$sqlFile' not exists.\n");
+            print("ERROR: Sql file '$sqlFileDir/$sqlFile' not exists.\n");
         }
     }
 
