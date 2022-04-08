@@ -112,21 +112,34 @@ sub main {
     my $logFileDir   = "$jobPath/log/$phaseName";
     my $sqlStatusDir = "$distPath/db.status";
 
+    my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
+    my $sqlExtNamesStr = $buildConf->{'sql.extendNames'};
+    if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
+        @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
+    }
+
     my $batchUtils = SQLBatchUtils->new(
-        sqlExtNames => [ 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' ],
+        sqlExtNames => \@sqlExtNames,
         buildEnv    => $buildEnv,
         dirInfo     => $dirInfo
     );
 
+    my $sqlFilesJson = $buildEnv->{_SQL_FILES};
+
     my $sqlFiles = [];
-    if ( defined($index) and $index ne '' ) {
-        $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+    if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
+        $sqlFiles = from_json($sqlFilesJson);
     }
     else {
-        $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+        if ( defined($index) and $index ne '' ) {
+            $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+        }
+        else {
+            $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+        }
     }
 
-    my $parallelCount = $buildConf->{'sql.parallelCount'};
+    my $parallelCount = $buildConf->{'sql.maxParallelCount'};
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $parallelCount );
 
     my $dbSchemasMap = {};
