@@ -1,0 +1,71 @@
+{
+    "opDesc": "获取增量代码",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "使用代码仓库的diff功能获取增量代码（需要在verget后才能使用）",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "diffsavedir",
+            "name": "增量保存目录",
+            "help": "抽取的增量代码保存的子目录（工程内的相对目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "master",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "excludedirs",
+            "name": "排除目录",
+            "help": "增量抽取排除的子目录，逗号相隔（工程内的相对目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${VERSION}",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "basetag",
+            "name": "基线标签",
+            "help": "diff比较的基线标签名或者SVN的标签子目录",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "baseline",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "baserev",
+            "name": "比较Revision",
+            "help": "diff比较的Revision号",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

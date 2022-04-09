@@ -1,0 +1,51 @@
+{
+    "opDesc": "合并版本代码到主干",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "合并当前版本代码到主干分支（需要在verget后才能使用）",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "en_US.UTF-8",
+                    "value": "en_US.UTF-8",
+                    "selected": "true"
+                },
+                {
+                    "text": "en_US.GB18030",
+                    "value": "en_US.GB18030"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}
