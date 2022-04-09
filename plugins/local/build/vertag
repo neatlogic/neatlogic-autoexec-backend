@@ -18,6 +18,7 @@ sub usage {
 
     print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
     print("              [--version VERSION] [--tagprefix TAGPREFIX\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
     print("\n");
     print("optional arguments:\n");
     print("  --envpath\toptionnal, name path for application\n");
