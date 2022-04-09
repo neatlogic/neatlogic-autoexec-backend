@@ -3,7 +3,6 @@ use strict;
 
 package AutoCfg;
 use FindBin;
-use File::Type;
 use IO::String;
 use File::Temp;
 use File::Path;
