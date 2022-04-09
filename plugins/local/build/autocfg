@@ -13,11 +13,11 @@ sub usage {
     print("              [--md5check 0|1] [--nocheckorgexists 0|1] [--nozip 0|1] [--followtar 0|1]\n");
     print("              ConfigFile1 ConfigFile2\n");
     print("\n");
-    print("       --version:         version number\n");
-    print("       --nozip:           just only extract firstlevel package\n");
-    print("       --followtar:       extract tar and tar.gz pkg to autocfg\n");
-    print("       --md5check:        don't check md5 sum\n");
-    print("       --nocheckorgexists:don't check if the original file exists\n");
+    print("       --version:          version number\n");
+    print("       --nozip:            just only extract firstlevel package\n");
+    print("       --followtar:        extract tar and tar.gz pkg to autocfg\n");
+    print("       --md5check:         check md5 sum\n");
+    print("       --nocheckorgexists: don't check if the original file exists\n");
 
     exit(1);
 }
