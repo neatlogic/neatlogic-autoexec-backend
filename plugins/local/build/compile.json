@@ -127,14 +127,5 @@
             "validate": ""
         }
     ],
-    "argument": {
-        "name": "模版文件列表",
-        "help": "相对于制品根目录的模版文件列表（为空代表自动查找）",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "true",
-        "validate": ""
-    },
     "output": []
 }
