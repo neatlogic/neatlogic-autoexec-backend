@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "检查主干代码是否已经合并到当前版本分支或标签（需要在verget后才能使用）",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

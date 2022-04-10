@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "拉取GIT/SVN代码",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

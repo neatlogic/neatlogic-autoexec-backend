@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "合并当前版本代码到主干分支（需要在verget后才能使用）",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

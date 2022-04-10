@@ -1,0 +1,186 @@
+{
+    "opDesc": "SonarQube扫描",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "对代码进行静态扫描，生成扫描报告",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "prefix",
+            "name": "工程子目录",
+            "help": "需要扫描的工程下的子目录",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "language",
+            "name": "编程语言",
+            "help": "本工程使用的程序语言",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "Java",
+                    "value": "Java",
+                    "selected": "true"
+                },
+                {
+                    "text": "C",
+                    "value": "C"
+                },
+                {
+                    "text": "C++",
+                    "value": "C++"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "编码",
+            "name": "文件编码",
+            "help": "工程中程序文件的字符编码",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "UTF-8",
+                    "value": "UTF-8"
+                },
+                {
+                    "text": "GBK",
+                    "value": "GBK",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "level",
+            "name": "告警级别",
+            "help": "触发告警的Level",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "critical",
+                    "value": "critical",
+                    "selected": "true"
+                },
+                {
+                    "text": "blocker",
+                    "value": "blocker"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "threshold",
+            "name": "门限值",
+            "help": "扫描通过的最高门限值",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "80",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "src",
+            "name": "源代码目录",
+            "help": "相对于工程的相对目录",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "80",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "bin",
+            "name": "二进制目录",
+            "help": "编译结果文件，需要分析的Target(如果没编译可以不写)",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "80",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "tmout",
+            "name": "超时时间",
+            "help": "扫描超时时间（秒）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "600",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "projectKey",
+            "name": "项目Key",
+            "help": "SonarQube里的工程Key",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "$SYS_NAME.$MODULE_NAME",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "projectName",
+            "name": "项目名称",
+            "help": "SonarQube里的项目的名称",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "$MODULE_NAME",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "projectVersion",
+            "name": "项目的版本",
+            "help": "SonarQube里的项目的版本号",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "$VERSION",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "modules",
+            "name": "项目的模块",
+            "help": "SonarQube里的项目的模块，例如：module1,module2",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "$VERSION",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

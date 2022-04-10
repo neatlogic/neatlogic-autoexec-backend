@@ -1,10 +1,10 @@
 {
-    "opDesc": "配置文件适配",
+    "opDesc": "生成环境制品（同步）",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "基于不同环境配置的配置，对环境制品里的配置模版进行自动修改",
+    "description": "把版本制品目录同步到环境制品目录",
     "enabled": 0,
     "option": [
         {
@@ -28,29 +28,9 @@
             "validate": ""
         },
         {
-            "opt": "puredir",
-            "name": "目录型制品",
-            "help": "目录型制品，配置文件就在目录中，不需要对任何压缩包进行处理",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0",
-                    "selected": "true"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "nozip",
-            "name": "处理嵌套zip",
-            "help": "制品中嵌套的zip或jar文件存在配置模版文件",
+            "opt": "nomd5",
+            "name": "文件MD5",
+            "help": "同步时比较文件的MD5",
             "type": "select",
             "isConst": "false",
             "defaultValue": [
@@ -68,49 +48,9 @@
             "validate": ""
         },
         {
-            "opt": "followtar",
-            "name": "处理嵌套tar",
-            "help": "制品中嵌套的tar或tgz文件存在配置模版文件",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0",
-                    "selected": "true"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "md5check",
-            "name": "文件MD5校验",
-            "help": "校验制品文件的MD5 checksum（正常不需要，除非客户要求）",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0",
-                    "selected": "true"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "nocheckorgexists",
-            "name": "检查模版源文件",
-            "help": "检查配置文件模版文件对应的源文件是否存在",
+            "opt": "nodelete",
+            "name": "删除多出内容",
+            "help": "删除目标目录多出的文件或子目录",
             "type": "select",
             "isConst": "false",
             "defaultValue": [
@@ -128,9 +68,9 @@
             "validate": ""
         },
         {
-            "opt": "noclean",
-            "name": "删除模版文件",
-            "help": "处理完后删除配置文件模版",
+            "opt": "noattrs",
+            "name": "同步文件权限",
+            "help": "把源目录下的文件和子目录的权限同步到目标目录",
             "type": "select",
             "isConst": "false",
             "defaultValue": [
@@ -144,18 +84,59 @@
                     "value": "1"
                 }
             ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "notime",
+            "name": "比较修改时间",
+            "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "0"
+                },
+                {
+                    "text": "否",
+                    "value": "1",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "exp",
+            "name": "排除目录",
+            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "src",
+            "name": "源目录",
+            "help": "相对于版本制品目录的相对目录（留空代表默认使用版本制品目录根）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "dest",
+            "name": "目标目录",
+            "help": "相对于环境制品目录的相对目录（留空代表默认使用环境制品目录根）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
             "required": "true",
             "validate": ""
         }
     ],
-    "argument": {
-        "name": "模版文件列表",
-        "help": "相对于制品根目录的模版文件列表（为空代表自动查找）",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "true",
-        "validate": ""
-    },
     "output": []
 }

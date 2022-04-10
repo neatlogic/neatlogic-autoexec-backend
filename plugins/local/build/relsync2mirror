@@ -26,7 +26,6 @@ sub usage {
     print("       --notime:   do not compare file mtime, only compare size of file\n");
     print("       --nodelete: do not delete the files in the destination direcotry\n");
     print("       --noattrs:  do not preserve the attributes of the source files\n");
-    print("       --nochkver: do not check the version build status\n");
 
     exit(1);
 }
@@ -57,7 +56,7 @@ sub main {
     my $pname = $FindBin::Script;
     $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
 
-    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs, $noChkVer );
+    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs );
     my $isVerbose  = 0;
     my $needMd5    = 1;
     my $noMd5      = 0;
@@ -79,7 +78,6 @@ sub main {
         'nomd5=i'     => \$noMd5,
         'md5check=i'  => \$md5Check,
         'notime=i'    => \$noMTime,
-        'nochkver=i'  => \$noChkVer,
         'src=s'       => \$src,
         'x|exp=s'     => \$expDir,
         'dest=s'      => \$dest

@@ -1,10 +1,10 @@
 {
-    "opDesc": "合并主干代码",
+    "opDesc": "生成环境制品",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "合并基线代码到版本分支（需要在verget后才能使用）",
+    "description": "把编译释放出的版本拷贝到对应的环境制品目录",
     "enabled": 0,
     "option": [
         {
@@ -22,26 +22,6 @@
                 {
                     "text": "否",
                     "value": "0"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "lang",
-            "name": "语言",
-            "help": "工程代码的语言和编码",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
-                },
-                {
-                    "text": "en_US.GB18030",
-                    "value": "en_US.GB18030"
                 }
             ],
             "required": "true",

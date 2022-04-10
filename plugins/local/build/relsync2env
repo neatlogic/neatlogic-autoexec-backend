@@ -25,7 +25,6 @@ sub usage {
     print("       --notime:   do not compare file mtime, only compare size of file\n");
     print("       --nodelete: do not delete the files in the destination direcotry\n");
     print("       --noattrs:  do not preserve the attributes of the source files\n");
-    print("       --nochkver: do not check the version build status\n");
 
     exit(1);
 }
@@ -57,7 +56,7 @@ sub main {
 
     $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
 
-    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs, $noChkVer );
+    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs);
     my $isVerbose  = 0;
     my $needMd5    = 1;
     my $noMd5      = 0;
@@ -76,10 +75,9 @@ sub main {
         'md5check=i'  => \$md5Check,
         'nomd5=i'     => \$noMd5,
         'notime=i'    => \$noMTime,
-        'nochkver=i'  => \$noChkVer,
         'src=s'       => \$src,
-        'x|exp=s'     => \$expDir,
-        'dest=s'      => \$dest
+        'dest=s'      => \$dest,
+        'x|exp=s'     => \$expDir
     );
 
     usage() if ( defined($isHelp) );
@@ -125,20 +123,6 @@ sub main {
 
         $srcPath = "$releaseDir/app/$srcPath";
         $src     = $srcPath;
-    }
-
-    my $desc = "$namePath version:$version";
-
-    if ( not defined($noChkVer) && index( $src, $releaseDir ) eq 0 && index( $ENV{PLAYBOOK}, 'env.' ) eq 0 ) {
-        print("INFO: begin to get build resource...\n");
-
-        my $startIdx = rindex( $src, "/appbuild/" ) + 10;
-        my $appbuildOrgDir = substr( $releaseDir, 0, $startIdx );
-
-        my $subPath = '';
-        if ( length($src) > length($appbuildOrgDir) ) {
-            $subPath = substr( $src, $startIdx );
-        }
     }
 
     if ( not defined($dest) ) {

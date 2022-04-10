@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "对拉取的代码进行编译",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

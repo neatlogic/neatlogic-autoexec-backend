@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "把源目录下的文件的时间同步到目标目录",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

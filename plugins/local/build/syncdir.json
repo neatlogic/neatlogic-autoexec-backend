@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "同步本地的两个目录内容",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",
@@ -132,7 +133,7 @@
             "help": "同步的目标目录（相对于当前系统存储物料的根目录）",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "${global:git.user}",
+            "defaultValue": "",
             "required": "true",
             "validate": ""
         }

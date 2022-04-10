@@ -1,10 +1,10 @@
 {
-    "opDesc": "拉取GIT代码",
+    "opDesc": "GIT保护设置",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "拉取GIT仓库中的代码",
+    "description": "设置或删除GIT的保护策略",
     "enabled": 0,
     "option": [
         {
@@ -28,32 +28,12 @@
             "validate": ""
         },
         {
-            "opt": "lang",
-            "name": "语言",
-            "help": "工程代码的语言和编码",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
-                },
-                {
-                    "text": "en_US.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "repo",
-            "name": "仓库地址",
-            "help": "GIT的仓库地址",
+            "opt": "apibaseurl",
+            "name": "API根URL",
+            "help": "GitLab的RestFul api的根，例如：https://gitlab.example.com/api/v4",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:git.api.token}",
             "required": "true",
             "validate": ""
         },
@@ -68,42 +48,62 @@
             "validate": ""
         },
         {
-            "opt": "password",
-            "name": "密码",
-            "help": "访问仓库的密码",
+            "opt": "token",
+            "name": "验证令牌",
+            "help": "访问API的Token",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "${global:git.password}",
+            "defaultValue": "${global:git.api.token}",
             "required": "true",
             "validate": ""
         },
         {
-            "opt": "trunk",
-            "name": "主干",
-            "help": "GIT的主干分支名",
-            "type": "text",
+            "opt": "object",
+            "name": "保护类型",
+            "help": "保护策略保护的类型",
+            "type": "select",
             "isConst": "false",
-            "defaultValue": "master",
+            "defaultValue": [
+                {
+                    "text": "tags",
+                    "value": "tags",
+                    "selected": "true"
+                },
+                {
+                    "text": "branches",
+                    "value": "branches"
+                }
+            ],
             "required": "true",
             "validate": ""
         },
         {
-            "opt": "branch",
-            "name": "版本分支",
-            "help": "GIT的版本分支",
+            "opt": "pattern",
+            "name": "保护目标",
+            "help": "保护目标名称或名称的Pattern",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "${VERSION}",
+            "defaultValue": "",
             "required": "true",
             "validate": ""
         },
         {
-            "opt": "tag",
-            "name": "标签",
-            "help": "GIT的版本标签名，如配置了tag则会优先使用tag获取代码",
-            "type": "text",
+            "opt": "action",
+            "name": "动作",
+            "help": "动作（增加或删除保护）",
+            "type": "select",
             "isConst": "false",
-            "defaultValue": "V${VERSION}",
+            "defaultValue": [
+                {
+                    "text": "添加",
+                    "value": "add",
+                    "selected": "true"
+                },
+                {
+                    "text": "删除",
+                    "value": "delete"
+                }
+            ],
             "required": "true",
             "validate": ""
         }

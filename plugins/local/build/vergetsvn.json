@@ -5,6 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "拉取SVN仓库中的代码",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",

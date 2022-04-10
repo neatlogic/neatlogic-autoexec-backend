@@ -1,10 +1,10 @@
 {
-    "opDesc": "代码是否已修改",
+    "opDesc": "执行本地命令",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "版本编译后，代码分支是否存在修改（需要在verget后才能使用）",
+    "description": "执行本地命令，可以对系统的工程、制品进行客户化处理",
     "enabled": 0,
     "option": [
         {
@@ -44,6 +44,26 @@
                     "value": "en_US.GB18030"
                 }
             ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "basedir",
+            "name": "可写目录",
+            "help": "相对于系统数据目录的子目录（留空代表以系统物料目录作为可写入的目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "cmd",
+            "name": "命令",
+            "help": "本地执行的命令",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.user}",
             "required": "true",
             "validate": ""
         }
