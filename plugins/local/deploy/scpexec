@@ -40,10 +40,10 @@ sub main {
     GetOptions(
         'h|help'         => \$isHelp,
         'v|verbose=i'    => \$isVerbose,
-        'np=i'           => \$np,
-        'pull=i'         => \$isPull,
-        'version=s'      => \$version,
         'envpath=s{0,1}' => \$envPath,
+        'version=s'      => \$version,
+        'pull=i'         => \$isPull,
+        'np=i'           => \$np,
         'cpifexists=i'   => \$cpIfExists,
         'pdir=s'         => \$pdir,
         'node=s'         => \$node,

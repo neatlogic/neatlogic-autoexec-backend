@@ -1,0 +1,102 @@
+{
+    "opDesc": "Appollo配置控制",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "Appolo配置控制",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "baseurl",
+            "name": "接口URL",
+            "help": "Appollo接口URL地址，例如：https://10.16.185.1",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:apollo.url}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "token",
+            "name": "验证令牌",
+            "help": "访问Appolo接口的访问令牌",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:apollo.token}",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "env",
+            "name": "Apollo环境名",
+            "help": "要操控的Apollo环境名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "$ENV_NAME",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "appid",
+            "name": "Apollo应用ID",
+            "help": "应用在Apollo中的ID",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "cluster",
+            "name": "Apollo Cluster名",
+            "help": "Appolo Cluster名称",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "namespace",
+            "name": "Apollo NameSpace名",
+            "help": "Appolo NameSpace名称",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "operator",
+            "name": "操作人",
+            "help": "更新操作的Appolo用户（用于记录操作历史）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

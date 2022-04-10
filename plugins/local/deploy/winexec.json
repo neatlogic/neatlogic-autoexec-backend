@@ -1,0 +1,61 @@
+{
+    "opDesc": "执行远程Windows命令",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "通过WinRM执行远程Windows服务器命令",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "protocol",
+            "name": "协议",
+            "help": "WinRM使用的协议",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "http",
+                    "value": "http"
+                },
+                {
+                    "text": "https",
+                    "value": "https",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "命令",
+        "help": "命令行内容",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

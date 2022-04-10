@@ -9,7 +9,7 @@ use WebCtl;
 use ServerAdapter;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     print("Usage: $pname --envpath EnvPath\n");
     print("       --baseurl F5ApiBaseUrl --username UserName --password Password\n");
@@ -33,6 +33,7 @@ sub main {
     my ( $f5Url, $user, $pass, $pool, $action, $waitDisConnected, $timeOut, $node );
     GetOptions(
         'h|help'             => \$isHelp,
+        'verbose=i'          => \$isVerbose,
         'envpath=s'          => \$envPath,
         'baseurl=s'          => \$f5Url,
         'username=s'         => \$user,

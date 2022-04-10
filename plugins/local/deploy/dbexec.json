@@ -1,10 +1,10 @@
 {
-    "opDesc": "本地目录同步",
-    "opType": "runner",
-    "typeName": "BUILD",
-    "riskName": "LOW",
+    "opDesc": "SQL文件执行工具",
+    "opType": "sqlfile",
+    "typeName": "SQL_FILE",
+    "riskName": "HIGH",
     "interpreter": "perl",
-    "description": "同步本地的两个目录内容",
+    "description": "SQL文件执行",
     "enabled": 0,
     "option": [
         {
@@ -28,19 +28,38 @@
             "validate": ""
         },
         {
-            "opt": "nomd5",
-            "name": "文件MD5",
-            "help": "同步时比较文件的MD5",
-            "type": "select",
+            "opt": "dryrun",
+            "name": "测试运行",
+            "help": "测试运行，并没有真正执行SQL",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [
                 {
                     "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "force",
+            "name": "强制运行",
+            "help": "不管SQL处于什么状态，重复强制执行SQL文件",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "否",
                     "value": "0",
                     "selected": "true"
                 },
                 {
-                    "text": "否",
+                    "text": "是",
                     "value": "1"
                 }
             ],
@@ -48,19 +67,18 @@
             "validate": ""
         },
         {
-            "opt": "nodelete",
-            "name": "删除多出内容",
-            "help": "删除目标目录多出的文件或子目录",
-            "type": "select",
+            "opt": "autocommit",
+            "name": "自动提交",
+            "help": "SQL执行，每执行一条SQL自动提交",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
+            "defaultValue": [{
+                    "text": "否",
                     "value": "0",
                     "selected": "true"
                 },
                 {
-                    "text": "否",
+                    "text": "是",
                     "value": "1"
                 }
             ],
@@ -68,73 +86,43 @@
             "validate": ""
         },
         {
-            "opt": "noattrs",
-            "name": "同步文件权限",
-            "help": "把源目录下的文件和子目录的权限同步到目标目录",
+            "opt": "rollback",
+            "name": "回退",
+            "help": "检入回退用的SQL脚本",
             "type": "select",
             "isConst": "false",
             "defaultValue": [
                 {
                     "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
                     "value": "0",
                     "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
                 }
             ],
             "required": "true",
             "validate": ""
         },
         {
-            "opt": "notime",
-            "name": "比较修改时间",
-            "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
-            "type": "select",
+            "opt": "filter",
+            "name": "目录过滤",
+            "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
+            "type": "file",
             "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1",
-                    "selected": "true"
-                }
-            ],
-            "required": "true",
+            "defaultValue": "",
+            "required": "",
             "validate": ""
         },
         {
-            "opt": "exp",
-            "name": "排除目录",
-            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "opt": "index",
+            "name": "SQL顺序文件",
+            "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "src",
-            "name": "源目录",
-            "help": "同步的源目录（相对于当前系统存储物料的根目录）",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "dest",
-            "name": "目标目录",
-            "help": "同步的目标目录（相对于当前系统存储物料的根目录）",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
             "validate": ""
         }
     ],

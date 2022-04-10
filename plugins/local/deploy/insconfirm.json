@@ -1,0 +1,21 @@
+{
+    "opDesc": "配置文件适配",
+    "opType": "localremote",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "基于不同环境配置的配置，对环境制品里的配置模版进行自动修改",
+    "enabled": 0,
+    "option": [
+    ],
+    "argument": {
+        "name": "实例名称",
+        "help": "实例名称，一个或多个",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

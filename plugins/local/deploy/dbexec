@@ -53,7 +53,7 @@ sub main {
         'version=s'    => \$version,
         'v|verbose=i'  => \$isVerbose,
         'force=i'      => \$isForce,
-        'dryrun'       => \$isDryRun,
+        'dryrun=i'     => \$isDryRun,
         'autocommit=i' => \$isAutoCommit,
         'rollback=i'   => \$isRollback,
         'filter=s'     => \$filter,
@@ -112,7 +112,7 @@ sub main {
     my $logFileDir   = "$jobPath/log/$phaseName";
     my $sqlStatusDir = "$distPath/db.status";
 
-    my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
+    my @sqlExtNames    = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
     my $sqlExtNamesStr = $buildConf->{'sql.extendNames'};
     if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
         @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
@@ -140,7 +140,7 @@ sub main {
     }
 
     my $parallelCount = $buildConf->{'sql.maxParallelCount'};
-    my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $parallelCount );
+    my $sqlFileSets   = $batchUtils->getRunRoundSets( $sqlFiles, $parallelCount );
 
     my $dbSchemasMap = {};
     my $dbConf       = ServerAdapter->getDBConf($buildEnv);

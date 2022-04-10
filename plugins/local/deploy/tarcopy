@@ -40,9 +40,9 @@ sub main {
     GetOptions(
         'h|help'         => \$isHelp,
         'v|verbose=i'    => \$isVerbose,
-        'pull=i'         => \$isPull,
-        'version=s'      => \$version,
         'envpath=s{0,1}' => \$envPath,
+        'version=s'      => \$version,
+        'pull=i'         => \$isPull,
         'cpifexists=i'   => \$cpIfExists,
         'followlinks=i'  => \$followLinks,
         'pdir=s'         => \$pdir,
