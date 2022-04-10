@@ -1,6 +1,6 @@
 {
     "opDesc": "A10 POOL节点控制",
-    "opType": "runner",
+    "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

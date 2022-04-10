@@ -1,10 +1,10 @@
 {
-    "opDesc": "SSH执行命令",
-    "opType": "runner",
+    "opDesc": "Tagent执行命令",
+    "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "SSH执行远程命令",
+    "description": "通过Tagent执行远程命令",
     "enabled": 0,
     "option": [
         {

@@ -40,14 +40,14 @@ sub main {
     my $targetDir;
 
     GetOptions(
-        'v'                => \$isVerbose,
-        'ins:s'            => \$insName,
-        'version:s'        => \$version,
-        'backupcount:i'    => \$backupCount,
-        'backuplastdays:i' => \$backupLastDays,
-        'versrcpath:s'     => \$verSrcPath,
-        'backupdir:s'      => \$backupDir,
-        'targetdir:s'      => \$targetDir
+        'v｜verbose=i'      => \$isVerbose,
+        'ins=s'            => \$insName,
+        'version=s'        => \$version,
+        'backupcount=i'    => \$backupCount,
+        'backuplastdays=i' => \$backupLastDays,
+        'versrcpath=s'     => \$verSrcPath,
+        'backupdir=s'      => \$backupDir,
+        'targetdir=s'      => \$targetDir
     );
 
     my $backupType = 'fullbackup';
@@ -98,7 +98,7 @@ sub main {
     }
 
     my $patcher = Patcher->new( $homePath, $backupDir, $backupCount, $backupLastDays );
-    my $status = 0;
+    my $status  = 0;
     $status = $patcher->backup( $insName, $version, $patchSrcPath, $targetDir, $backupType );
 
     if ( $status == 0 ) {

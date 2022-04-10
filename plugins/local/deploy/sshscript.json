@@ -1,6 +1,6 @@
 {
     "opDesc": "SSH执行脚本",
-    "opType": "runner",
+    "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

@@ -1,6 +1,6 @@
 {
     "opDesc": "Windows拷贝文件",
-    "opType": "runner",
+    "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

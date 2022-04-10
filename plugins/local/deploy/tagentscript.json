@@ -1,10 +1,10 @@
 {
-    "opDesc": "SSH执行命令",
+    "opDesc": "Tagent执行脚本",
     "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "SSH执行远程命令",
+    "description": "Tagent执行远程脚本",
     "enabled": 0,
     "option": [
         {
@@ -28,13 +28,13 @@
             "validate": ""
         },
         {
-            "opt": "o",
-            "name": "SSH参数",
-            "help": "特殊需要的SSH参数",
-            "type": "text",
+            "opt": "script",
+            "name": "脚本",
+            "help": "执行脚本内容",
+            "type": "script",
             "isConst": "false",
             "defaultValue": "",
-            "required": "false",
+            "required": "true",
             "validate": ""
         },
         {
@@ -58,12 +58,46 @@
             "validate": ""
         },
         {
-            "opt": "failstr",
-            "name": "失败字串",
-            "help": "对于不会结束的命令，当输出此字串时，失败并结束执行",
-            "type": "text",
+            "opt": "async",
+            "name": "异步执行",
+            "help": "异步执行，不等待执行结束",
+            "type": "select",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "agentcharset",
+            "name": "服务端字符集",
+            "help": "指定服务端的执行字符集",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "自动",
+                    "value": "",
+                    "selected": "true"
+                },
+                {
+                    "text": "en_US.UTF-8",
+                    "value": "en_US.UTF-8"
+                },
+                {
+                    "text": "zh_CN.GBK",
+                    "value": "zh_CN.GBK"
+                }
+            ],
             "required": "false",
             "validate": ""
         }

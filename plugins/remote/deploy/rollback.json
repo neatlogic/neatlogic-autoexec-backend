@@ -1,10 +1,10 @@
 {
-    "opDesc": "SSH执行命令",
-    "opType": "localremote",
+    "opDesc": "回退版本",
+    "opType": "remote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "description": "SSH执行远程命令",
+    "description": "把应用回退到版本发布前状态",
     "enabled": 0,
     "option": [
         {
@@ -28,54 +28,45 @@
             "validate": ""
         },
         {
-            "opt": "o",
-            "name": "SSH参数",
-            "help": "特殊需要的SSH参数",
+            "opt": "ins",
+            "name": "实例名",
+            "help": "实例名称",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
+            "defaultValue": "$INS_NAME",
+            "required": "true",
             "validate": ""
         },
         {
-            "opt": "timeout",
-            "name": "超时时间",
-            "help": "调用超时时间（秒）",
+            "opt": "version",
+            "name": "版本",
+            "help": "版本号",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "15",
-            "required": "false",
+            "defaultValue": "$VERSION",
+            "required": "true",
             "validate": ""
         },
         {
-            "opt": "eofstr",
-            "name": "结束字串",
-            "help": "对于不会结束的命令，当输出此字串时，成功并结束执行",
+            "opt": "backupdir",
+            "name": "保存备份目录",
+            "help": "保存备份的目录，例如：/app/backup",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
-            "required": "false",
+            "required": "true",
             "validate": ""
         },
         {
-            "opt": "failstr",
-            "name": "失败字串",
-            "help": "对于不会结束的命令，当输出此字串时，失败并结束执行",
+            "opt": "targetdir",
+            "name": "应用目录",
+            "help": "版本物料更新到的目录目录，例如：/app/myapp",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
-            "required": "false",
+            "required": "true",
             "validate": ""
         }
     ],
-    "argument": {
-        "name": "命令",
-        "help": "命令行内容",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "true",
-        "validate": ""
-    },
     "output": []
 }

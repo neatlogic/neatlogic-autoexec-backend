@@ -47,8 +47,7 @@ sub main {
         'eofstr=s'       => \$eofStr,
         'timeout=i'      => \$timeOut,
         'agentcharset=s' => \$agentCharset,
-        'script=s'       => \$scriptObj,
-        '<>'             => \&addCmd
+        'script=s'       => \$scriptObj
     );
 
     usage() if ( defined($isHelp) );

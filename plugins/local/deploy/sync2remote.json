@@ -1,6 +1,6 @@
 {
     "opDesc": "同步环境制品",
-    "opType": "runner",
+    "opType": "localremote",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
