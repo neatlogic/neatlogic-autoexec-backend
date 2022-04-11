@@ -5,16 +5,14 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "Weblogic发布",
-    "enabled": 0,
-    "option": [
-        {
+    "enabled": 1,
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -33,8 +31,7 @@
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -62,8 +59,7 @@
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -101,8 +97,7 @@
             "help": "WAS操作动作",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "admin-start",
                     "value": "admin-start",
                     "selected": "true"
@@ -213,8 +208,8 @@
         },
         {
             "opt": "wls_user",
-            "help": "Weblogic用户名",
             "name": "WLS用户名",
+            "help": "Weblogic用户名",
             "type": "text",
             "isConst": "false",
             "defaultValue": "weblogic",
@@ -222,8 +217,8 @@
         },
         {
             "opt": "start_timeout",
-            "help": "启动超时时间（秒），默认180秒",
             "name": "启动超时",
+            "help": "启动超时时间（秒），默认180秒",
             "type": "text",
             "isConst": "false",
             "defaultValue": "180",
@@ -231,8 +226,8 @@
         },
         {
             "opt": "stop_timeout",
-            "help": "停止超时时间（秒），默认180秒",
             "name": "停止超时",
+            "help": "停止超时时间（秒），默认180秒",
             "type": "text",
             "isConst": "false",
             "defaultValue": "180",
@@ -240,12 +235,11 @@
         },
         {
             "opt": "standalone",
+            "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
-            "name": "停止超时",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -259,12 +253,11 @@
         },
         {
             "opt": "need_deploy",
-            "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "name": "新应用自动部署",
+            "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -278,8 +271,8 @@
         },
         {
             "opt": "servername",
-            "help": "Server名称",
             "name": "Server名称",
+            "help": "Server名称",
             "type": "text",
             "isConst": "false",
             "defaultValue": "server1",
@@ -287,8 +280,8 @@
         },
         {
             "opt": "appname",
-            "help": "在Weblogic console上看到的应用的部署名",
             "name": "部署名",
+            "help": "在Weblogic console上看到的应用的部署名",
             "type": "text",
             "isConst": "false",
             "defaultValue": "demo_war",
@@ -296,8 +289,8 @@
         },
         {
             "opt": "appfile",
+            "name": "包路径",
             "help": "包路径",
-            "name": "",
             "type": "text",
             "isConst": "false",
             "defaultValue": "/tmp/demo.war",
@@ -305,8 +298,8 @@
         },
         {
             "opt": "source-path",
+            "name": "安装路径",
             "help": "在weblogic console安装时，指定的目录或包的路径",
-            "name": "",
             "type": "text",
             "isConst": "false",
             "defaultValue": "/app/systems/test/sample/sample.war",
@@ -327,8 +320,7 @@
             "help": "部署模式，nostage代表Managed server不会从admin server下载应用，而是需要在所有Server上同构的目录上上传应用，建议使用nostage模式，否则每次重启都要从Admin Server下载应用",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "nostage",
                     "value": "nostage",
                     "selected": "true"
@@ -342,8 +334,8 @@
         },
         {
             "opt": "checkurl",
-            "help": "应用访问URL，注意端口，例如：http://127.0.0.1:9082/demo/",
             "name": "检测URL",
+            "help": "应用访问URL，注意端口，例如：http://127.0.0.1:9082/demo/",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
