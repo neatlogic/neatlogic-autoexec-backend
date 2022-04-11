@@ -405,6 +405,8 @@ class Operation:
                         cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
                         cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
+                    elif self.interpreter == 'powershell':
+                        cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}/{}'.format(remotePath, self.scriptFileName)
                     else:
                         cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
                 else:
