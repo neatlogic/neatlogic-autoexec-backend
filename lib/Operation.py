@@ -284,8 +284,11 @@ class Operation:
             paramName = matchObj.group(1)
 
             nativeRefMap = self.context.opt
+            globalOptMap = self.globalOpt
             if paramName in nativeRefMap:
                 optValue = nativeRefMap[paramName]
+            elif paramName in globalOptMap:
+                optValue = globalOptMap[paramName]
             elif paramName in os.environ:
                 optValue = os.environ[paramName]
             else:
