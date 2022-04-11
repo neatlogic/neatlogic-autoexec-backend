@@ -92,9 +92,9 @@ my $appName = $sectionConfig->{"appname"};
 $appName =~ s/\s*//g;
 my @appNames = split( ",", $appName );
 
-my $appFile = $sectionConfig->{"appfile"};
-$appFile =~ s/\s*//g;
-my @appFiles = split( ",", $appFile );
+my $appFileStr = $sectionConfig->{"appfile"};
+$appFileStr =~ s/\s*//g;
+my @appFiles = split( ",", $appFileStr );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
     print("ERROR: config error, appfile number is not same as appname number.\n");
@@ -241,8 +241,12 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
     for ( my $i = 0 ; $i < $appNum ; $i++ ) {
         my $hasExtract = 0;
         my $appName    = $appNames[$i];
-        my $appFile    = $appFiles[$i];
-        my $targetDir  = '';
+
+        my $appFile = $appFiles[$i];
+        if ( not( $appFile =~ /^[\/|\\]/ or -e $appFile ) ) {
+            $appFile = "$pkgsDir/$insName/$appFile";
+        }
+        my $targetDir = '';
         if ( $appFile =~ /\.war$/ ) {
 
             my $ctxRoot = $sectionConfig->{ lc($appName) . ".contextroot" };
@@ -261,9 +265,9 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
 
                 print("INFO: Extract package to $ihsTargetDir.\n");
 
-                #my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
-                my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir";
-                $extractCmd = "7z x $pkgsDir/$insName/$appFile -o$ihsTargetDir" if ( $ostype eq 'windows' );
+                #my $extractCmd = "unzip -qo $appFile -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
+                my $extractCmd = "unzip -qo $appFile -d $ihsTargetDir";
+                $extractCmd = "7z x $appFile -o$ihsTargetDir" if ( $ostype eq 'windows' );
 
                 #system($extractCmd);
                 Utils::execCmd($extractCmd);
@@ -284,8 +288,8 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
                 }
                 print("INFO: Extract package to $ihsTargetDir\n");
 
-                #system("unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir");
-                my $unzipCmd = Utils::getFileOPCmd( "$pkgsDir/$insName/$appFile", $ihsTargetDir, $ostype, 'unzip' );
+                #system("unzip -qo $appFile -d $ihsTargetDir");
+                my $unzipCmd = Utils::getFileOPCmd( "$appFile", $ihsTargetDir, $ostype, 'unzip' );
 
                 #system($unzipCmd);
                 Utils::execCmd($unzipCmd);
@@ -309,7 +313,7 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
             $hasExtract = 1;
         }
         else {
-            my $suffix = $appFile;
+            #my $suffix = $appFile;
             print("ERROR: file type of $appFile is not supported.\n");
             $rc = 1;
         }

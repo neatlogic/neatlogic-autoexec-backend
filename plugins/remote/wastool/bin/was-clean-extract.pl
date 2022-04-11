@@ -93,9 +93,9 @@ my $appName = $sectionConfig->{"appname"};
 $appName =~ s/\s*//g;
 my @appNames = split( ",", $appName );
 
-my $appFile = $sectionConfig->{"appfile"};
-$appFile =~ s/\s*//g;
-my @appFiles = split( ",", $appFile );
+my $appFileStr = $sectionConfig->{"appfile"};
+$appFileStr =~ s/\s*//g;
+my @appFiles = split( ",", $appFileStr );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
     print("ERROR: config error, appfile number is not same as appname number.\n");
@@ -114,12 +114,21 @@ if ( $needDeploy == 1 ) {
     for ( my $i = 0 ; $i < $appNum ; $i++ ) {
         my $hasExtract = 0;
         my $appName    = $appNames[$i];
-        my $appFile    = $appFiles[$i];
-        my $targetDir  = '';
+
+        my $appFile = $appFiles[$i];
+        my $appfilePath;
+        if ( -e $appFile or $appFile =~ /^[\/\\]/ ) {
+            $appfilePath = $appFile;
+            $appFile     = basename($appFile);
+        }
+        else {
+            $appfilePath = "$pkgsDir/$insName/$appFile";
+        }
+
+        my $targetDir = '';
         if ( $appFile =~ /\.war$/ ) {
-            my $descTarget  = "$wasprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $dmgrTarget  = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $appfilePath = "$pkgsDir/$insName/$appFile";
+            my $descTarget = "$wasprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
+            my $dmgrTarget = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
 
             my $appDir = $sectionConfig->{"$appName.targetdir"};
             if ( defined($appDir) and $appDir ne '' ) {
@@ -148,8 +157,8 @@ if ( $needDeploy == 1 ) {
                 print("INFO: extract package to $targetDir.\n");
                 mkpath($targetDir) if ( not -e $targetDir );
 
-                #my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $targetDir";
-                my $extractCmd = Utils::getFileOPCmd( "$pkgsDir/$insName/$appFile", $targetDir, $ostype, 'unzip' );
+                #my $extractCmd = "unzip -qo $appfilePath -d $targetDir";
+                my $extractCmd = Utils::getFileOPCmd( $appfilePath, $targetDir, $ostype, 'unzip' );
 
                 #system($extractCmd);
                 Utils::execCmd($extractCmd);
@@ -187,8 +196,8 @@ if ( $needDeploy == 1 ) {
                 }
                 print("INFO: Extract package to $ihsTargetDir.\n");
 
-                #my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
-                my $extractCmd = Utils::getFileOPCmd( "$pkgsDir/$insName/$appFile", $ihsTargetDir, $ostype, 'unzip' );
+                #my $extractCmd = "unzip -qo $appfilePath -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
+                my $extractCmd = Utils::getFileOPCmd( $appfilePath, $ihsTargetDir, $ostype, 'unzip' );
 
                 #system($extractCmd);
                 Utils::execCmd($extractCmd);
@@ -198,9 +207,8 @@ if ( $needDeploy == 1 ) {
             }
         }
         elsif ( $appFile =~ /\.ear$/ ) {
-            my $descTarget  = "$wasprofile/config/cells/$cellname/applications/$appFile/deployments/$appName";
-            my $dmgrTarget  = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $appfilePath = "$pkgsDir/$insName/$appFile";
+            my $descTarget = "$wasprofile/config/cells/$cellname/applications/$appFile/deployments/$appName";
+            my $dmgrTarget = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
 
             my $appDir = $sectionConfig->{ lc($appName) . ".targetdir" };
             if ( defined($appDir) and $appDir ne '' ) {
@@ -224,14 +232,14 @@ if ( $needDeploy == 1 ) {
                     }
                 }
 
-                my $pkgRoot = "$pkgsDir/$insName";
-                my $extractCmd = Utils::getFileOPCmd( "$pkgRoot/$appFile", "$pkgRoot/$appFile.extract", $ostype, 'unzip' );
+                #my $pkgRoot = "$pkgsDir/$insName";
+                my $extractCmd = Utils::getFileOPCmd( $appfilePath, "$appfilePath.extract", $ostype, 'unzip' );
 
                 #system($extractCmd);
                 Utils::execCmd($extractCmd);
 
                 my $curDir = Cwd::getcwd();
-                chdir("$pkgRoot/$appFile.extract");
+                chdir("$appfilePath.extract");
 
                 my @jarFiles = glob("*.jar");
                 for my $jarFile (@jarFiles) {
@@ -331,11 +339,11 @@ if ( $needDeploy == 1 ) {
                 #    print("INFO: Remove deploy dir $ihsTargetDir.\n");
                 #    rmtree($ihsTargetDir);
                 #}
-                my $extractTmp = "$pkgsDir/$insName/$appFile.extract";
+                my $extractTmp = "$appfilePath.extract";
                 print("INFO: Extract ear package to $extractTmp\n");
 
-                #my $unzipCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $extractTmp";
-                my $unzipCmd = Utils::getFileOPCmd( "$pkgsDir/$insName/$appFile", $extractTmp, $ostype, 'unzip' );
+                #my $unzipCmd = "unzip -qo $appfilePath -d $extractTmp";
+                my $unzipCmd = Utils::getFileOPCmd( $appfilePath, $extractTmp, $ostype, 'unzip' );
 
                 #system($unzipCmd);
                 Utils::execCmd($unzipCmd);

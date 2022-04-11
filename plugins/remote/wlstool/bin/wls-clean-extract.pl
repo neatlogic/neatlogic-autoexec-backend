@@ -76,7 +76,7 @@ sub main {
     my @appNames = split( ",", $appnames );
 
     my $appfilePath = "$pkgsDir/$insName/$packName";
-    if ( -f $appfile ) {
+    if ( -f $appfile or $appfile =~ /^[\/\\]/ ) {
         $appfilePath = $appfile;
     }
 

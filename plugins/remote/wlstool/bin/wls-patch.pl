@@ -59,6 +59,9 @@ sub main {
 
     my $appfile  = $config->{'appfile'};
     my $packName = $appfile;
+    if ( defined($appfile) and $appfile ne '' ) {
+        $packName = basename($appfile);
+    }
 
     my $pkgsDir = $config->{"pkgs_dir"};
     if ( not defined($pkgsDir) or $pkgsDir eq '' ) {
@@ -73,6 +76,9 @@ sub main {
     my $backupCount = int( $config->{"backup_count"} );
 
     my $appfilePath = "$pkgsDir/$insName/$packName";
+    if ( -f $appfile or $appfile =~ /^[\/\\]/ ) {
+        $appfilePath = $appfile;
+    }
 
     my $backupPath = "$pkgsDir/$insName.backup";
     if ( defined($backupDir) and $backupDir ne '' ) {

@@ -223,7 +223,17 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
         my $hasExtract = 0;
         my $appName    = $appNames[$i];
         my $appFile    = $appFiles[$i];
-        my $targetDir  = '';
+
+        my $appfilePath;
+        if ( -e $appFile or $appFile =~ /^[\/\\]/ ) {
+            $appfilePath = $appFile;
+            $appFile     = basename($appFile);
+        }
+        else {
+            $appfilePath = "$pkgsDir/$insName/$appFile";
+        }
+
+        my $targetDir = '';
         if ( $appFile =~ /\.war$/ ) {
 
             my $ctxRoot = $sectionConfig->{ lc($appName) . ".contextroot" };
@@ -242,9 +252,9 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
 
                 print("INFO: Extract package to $ihsTargetDir.\n");
 
-                #my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
-                my $extractCmd = "unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir";
-                $extractCmd = "7z x $pkgsDir/$insName/$appFile -o$ihsTargetDir" if ( $ostype eq 'windows' );
+                #my $extractCmd = "unzip -qo $appfilePath -d $ihsTargetDir;rm -rf $ihsTargetDir/WEB-INF";
+                my $extractCmd = "unzip -qo $appfilePath -d $ihsTargetDir";
+                $extractCmd = "7z x $appfilePath -o$ihsTargetDir" if ( $ostype eq 'windows' );
 
                 #system($extractCmd);
                 Utils::execCmd($extractCmd);
@@ -265,8 +275,8 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
                 }
                 print("INFO: Extract package to $ihsTargetDir\n");
 
-                #system("unzip -qo $pkgsDir/$insName/$appFile -d $ihsTargetDir");
-                my $unzipCmd = Utils::getFileOPCmd( "$pkgsDir/$insName/$appFile", $ihsTargetDir, $ostype, 'unzip' );
+                #system("unzip -qo $appfilePath -d $ihsTargetDir");
+                my $unzipCmd = Utils::getFileOPCmd( $appfilePath, $ihsTargetDir, $ostype, 'unzip' );
 
                 #system($unzipCmd);
                 Utils::execCmd($unzipCmd);
