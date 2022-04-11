@@ -11,21 +11,21 @@ config = ConfigParser.ConfigParser()
 config.optionxform = str
 config.readfp(open("%s/conf/wastool.ini" % homepath))
 
-appfile = config.get(confname,'appfile')
-appname= config.get(confname,'appname')
+appfile = config.get(confname, 'appfile')
+appname = config.get(confname, 'appname')
 servername = config.get(confname, 'servername')
 try:
-	pkgsDir = config.get(confname, 'pkgs_dir')
+    pkgsDir = config.get(confname, 'pkgs_dir')
 except:
-	pkgsDir = "%s/pkgs" % (homepath);
+    pkgsDir = "%s/pkgs" % (homepath)
 if pkgsDir is None or pkgsDir == '':
-	pkgsDir = "%s/pkgs" % (homepath);
+    pkgsDir = "%s/pkgs" % (homepath)
 
 clustername = None
 try:
-	clustername = config.get(confname, 'clustername')
+    clustername = config.get(confname, 'clustername')
 except:
-	pass
+    pass
 
 servername = servername.replace(' ', '')
 servername = servername.replace("\t", '')
@@ -46,125 +46,127 @@ startWeight = 0
 deployedAppnames = listApplications()
 
 for appname in appnames:
-	appfile = "%s/%s/%s" % (pkgsDir, insname, appfiles[startWeight])
-	startWeight = startWeight + 1
+    appfile = appfiles[startWeight]
+    if not(appfile.startswith('/') or appfile.startswith('\\') or os.path.exists(appfile)):
+        appfile = "%s/%s/%s" % (pkgsDir, insname, appfiles[startWeight])
+    startWeight = startWeight + 1
 
-	precheckurl = None
-	checkurl = None
-	try:
-		checkurl = config.get(confname, '%s.checkurl' % appname)
-	except:
-		pass
+    precheckurl = None
+    checkurl = None
+    try:
+        checkurl = config.get(confname, '%s.checkurl' % appname)
+    except:
+        pass
 
-	try:
-		precheckurl = config.get(confname, '%s.precheckurl' % appname)
-	except:
-		pass
-	
-	installDir = None
-	try:
-		appdir = config.get(confname, '%s.targetdir' % appname)
-		if appdir != '':
-			installDir = appdir
-	except:
-		pass
+    try:
+        precheckurl = config.get(confname, '%s.precheckurl' % appname)
+    except:
+        pass
 
-	if appname in deployedAppnames :
-		checkUtilUrlAvaliable(precheckurl)
+    installDir = None
+    try:
+        appdir = config.get(confname, '%s.targetdir' % appname)
+        if appdir != '':
+            installDir = appdir
+    except:
+        pass
 
-		AdminApp.update(appname, 'app', ['-operation', 'update', '-contents', appfile, ])
-		AdminConfig.save()
+    if appname in deployedAppnames:
+        checkUtilUrlAvaliable(precheckurl)
 
-		#checkUtilUrlAvaliable(checkurl)
-	else:
-		checkUtilUrlAvaliable(precheckurl)
+        AdminApp.update(appname, 'app', ['-operation', 'update', '-contents', appfile, ])
+        AdminConfig.save()
 
-		options = []
-		contextroot = '/'
+        # checkUtilUrlAvaliable(checkurl)
+    else:
+        checkUtilUrlAvaliable(precheckurl)
 
-		nodename = config.get(confname, 'nodename')
-		if appfile.endswith('.war'):
-			print("INFO: Begin to deploy war.\n")
-			try:
-				contextroot = config.get(confname, '%s.contextroot' % appname)
-			except:
-				contextroot = config.get(confname, 'contextroot')
+        options = []
+        contextroot = '/'
 
-			options = ['-contextroot', contextroot, '-appname', appname]
-		elif appfile.endswith('.ear'):
-			print("INFO: Begin to deploy ear.\n")
-			contextroot = '/'
-			contextOpts = []
-			opts = config.options(confname)
-			for opt in opts:
-				if opt.endswith('contextroot') and opt.startswith(appname):
-					warFile = opt
-					warFile = warFile.replace('.contextroot', '')
-					warFile = warFile.replace('%s.' % appname, '')
-					warAppName = warFile
-					warAppName = warAppName.replace('.', '_')
-					warContextRoot = config.get(confname, opt)
-					if warContextRoot is None or warContextRoot == '':
-						warContextRoot = '/'
+        nodename = config.get(confname, 'nodename')
+        if appfile.endswith('.war'):
+            print("INFO: Begin to deploy war.\n")
+            try:
+                contextroot = config.get(confname, '%s.contextroot' % appname)
+            except:
+                contextroot = config.get(confname, 'contextroot')
 
-					contextOpts.append([appname, '%s,WEB-INF/web.xml' % warFile, warContextRoot])
+            options = ['-contextroot', contextroot, '-appname', appname]
+        elif appfile.endswith('.ear'):
+            print("INFO: Begin to deploy ear.\n")
+            contextroot = '/'
+            contextOpts = []
+            opts = config.options(confname)
+            for opt in opts:
+                if opt.endswith('contextroot') and opt.startswith(appname):
+                    warFile = opt
+                    warFile = warFile.replace('.contextroot', '')
+                    warFile = warFile.replace('%s.' % appname, '')
+                    warAppName = warFile
+                    warAppName = warAppName.replace('.', '_')
+                    warContextRoot = config.get(confname, opt)
+                    if warContextRoot is None or warContextRoot == '':
+                        warContextRoot = '/'
 
-			#if len(contextOpts) > 0:
-			#	options = ['-CtxRootForWebMod']
-			#	options.append(contextOpts)
+                    contextOpts.append([appname, '%s,WEB-INF/web.xml' % warFile, warContextRoot])
 
-		if installDir is not None:
-			options.extend(['-installed.ear.destination', installDir])
-		
-		extopt = None
-		try:
-			extopt = config.get(confname, '%s.options' % appname)
-			print("extend options:%s\n" % extopt)
-		except:
-			pass
+            # if len(contextOpts) > 0:
+            #	options = ['-CtxRootForWebMod']
+            #	options.append(contextOpts)
 
-		if extopt != None and extopt != '':
-			extoptions = eval(extopt)
-			options.extend(extoptions)
+        if installDir is not None:
+            options.extend(['-installed.ear.destination', installDir])
 
-		print("INFO: App options:%s\n" % options)
+        extopt = None
+        try:
+            extopt = config.get(confname, '%s.options' % appname)
+            print("extend options:%s\n" % extopt)
+        except:
+            pass
 
-		if clustername != None and clustername != '':
-			installApplication(appfile, [], [clustername], options)
-			print("INFO: Begin deploy %s on cluster:%s with option:%s.\n" % (appfile, clustername, options))
-		else:
-			targets = []
-			for servername in servernames:
-				targets.append({'nodename':nodename, 'servername':servername})
+        if extopt != None and extopt != '':
+            extoptions = eval(extopt)
+            options.extend(extoptions)
 
-			print("INFO: Begin deploy %s on target:%s with option:%s.\n" % (appfile, targets, options))
-			installApplication(appfile, targets, [], options)
+        print("INFO: App options:%s\n" % options)
 
-		print("INFO: App %s installed.\n" % appfile)
+        if clustername != None and clustername != '':
+            installApplication(appfile, [], [clustername], options)
+            print("INFO: Begin deploy %s on cluster:%s with option:%s.\n" % (appfile, clustername, options))
+        else:
+            targets = []
+            for servername in servernames:
+                targets.append({'nodename': nodename, 'servername': servername})
 
-		dep = AdminConfig.getid("/Deployment:%s" % appname)
-		depObject = AdminConfig.showAttribute(dep, "deployedObject")
-		print("modify the startingWeight...")
-		AdminConfig.modify(depObject, [['startingWeight', '%d' % startWeight]])
-		print("modify the backgroundApplication to true:app start before server start.")
-		AdminConfig.modify(depObject, [['backgroundApplication', 'true']])
+            print("INFO: Begin deploy %s on target:%s with option:%s.\n" % (appfile, targets, options))
+            installApplication(appfile, targets, [], options)
 
-		AdminConfig.save()
-		print("config saved.\n")
+        print("INFO: App %s installed.\n" % appfile)
 
-		result = AdminApp.isAppReady(appname)
-		while (result == "false"):
-			print AdminApp.getDeployStatus(appname)
-			time.sleep(5)
-			result = AdminApp.isAppReady(appname)
+        dep = AdminConfig.getid("/Deployment:%s" % appname)
+        depObject = AdminConfig.showAttribute(dep, "deployedObject")
+        print("modify the startingWeight...")
+        AdminConfig.modify(depObject, [['startingWeight', '%d' % startWeight]])
+        print("modify the backgroundApplication to true:app start before server start.")
+        AdminConfig.modify(depObject, [['backgroundApplication', 'true']])
 
-		print("INFO: App DeployStatus finshed.")
-		for servername in servernames:
-			#startApplication(appname)
-			if serverpid:
-				print("Starting %s application %s...\n" % (servername , appname))
-				startApplicationOnServer(appname,nodename,servername)
-				print("startApplication %s complete.\n" % appname)
-		#checkUtilUrlAvaliable(checkurl)
-		#startApplicationOnCluster(appname,clustername)
-		#startApplicationOnServer(appname,nodename,servername)
+        AdminConfig.save()
+        print("config saved.\n")
+
+        result = AdminApp.isAppReady(appname)
+        while (result == "false"):
+            print AdminApp.getDeployStatus(appname)
+            time.sleep(5)
+            result = AdminApp.isAppReady(appname)
+
+        print("INFO: App DeployStatus finshed.")
+        for servername in servernames:
+            # startApplication(appname)
+            if serverpid:
+                print("Starting %s application %s...\n" % (servername, appname))
+                startApplicationOnServer(appname, nodename, servername)
+                print("startApplication %s complete.\n" % appname)
+        # checkUtilUrlAvaliable(checkurl)
+        # startApplicationOnCluster(appname,clustername)
+        # startApplicationOnServer(appname,nodename,servername)

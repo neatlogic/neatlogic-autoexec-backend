@@ -79,7 +79,7 @@ sub main {
     my $appsInfo = $wlsDeployer->getAppsConfig();
 
     my $appfilePath = "$pkgsDir/$insName/$packName";
-    if ( -f $appfile ) {
+    if ( -f $appfile or $appfile =~ /^[\/\\]/ ) {
         $appfilePath = $appfile;
     }
 

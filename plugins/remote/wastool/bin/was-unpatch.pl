@@ -130,11 +130,20 @@ if ( $needDeploy == 1 ) {
         my $hasExtract = 0;
         my $appName    = $appNames[$i];
         my $appFile    = $appFiles[$i];
-        my $targetDir  = '';
+
+        my $appfilePath;
+        if ( -e $appFile or $appFile =~ /^[\/\\]/ ) {
+            $appfilePath = $appFile;
+            $appFile     = basename($appFile);
+        }
+        else {
+            $appfilePath = "$pkgsDir/$insName/$appFile";
+        }
+
+        my $targetDir = '';
         if ( $appFile =~ /\.war$/ ) {
-            my $descTarget  = "$wasprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $dmgrTarget  = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $appfilePath = "$pkgsDir/$insName/$appFile";
+            my $descTarget = "$wasprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
+            my $dmgrTarget = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
 
             my $appDir = $sectionConfig->{"$appName.targetdir"};
             if ( defined($appDir) and $appDir ne '' ) {
@@ -207,9 +216,8 @@ if ( $needDeploy == 1 ) {
             }
         }
         elsif ( $appFile =~ /\.ear$/ ) {
-            my $descTarget  = "$wasprofile/config/cells/$cellname/applications/$appFile/deployments/$appName";
-            my $dmgrTarget  = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
-            my $appfilePath = "$pkgsDir/$insName/$appFile";
+            my $descTarget = "$wasprofile/config/cells/$cellname/applications/$appFile/deployments/$appName";
+            my $dmgrTarget = "$dmgrprofile/config/cells/$cellname/applications/$appName.ear/deployments/$appName";
 
             my $appDir = $sectionConfig->{ lc($appName) . ".targetdir" };
             if ( defined($appDir) and $appDir ne '' ) {
