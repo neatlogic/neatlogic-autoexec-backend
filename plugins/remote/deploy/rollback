@@ -18,7 +18,8 @@ my $osType   = 'unix';
 $osType = 'windows' if ( $uname[0] =~ /Windows/i );
 
 sub usage {
-    print("Usage:$progName --ins <instance name> --version <version> --backupdir <backup dir> --targetdir <target dir>\n");
+    print("Usage:$progName --ins INSName --version VERSION\n");
+    print("                --backupdir BackupSaveDir --targetdir TargetDir\n");
     exit(-1);
 }
 
@@ -27,6 +28,7 @@ sub main {
         $ENV{PATH} = "$homePath/../7-Zip;$ENV{ProgramFiles}/7-Zip;" . $ENV{PATH};
     }
 
+    my $isHelp;
     my $isVerbose = 0;
     my $insName;
     my $version;
@@ -34,7 +36,8 @@ sub main {
     my $backupDir;
 
     GetOptions(
-        'v'           => \$isVerbose,
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
         'ins:s'       => \$insName,
         'version:s'   => \$version,
         'backupdir:s' => \$backupDir,
