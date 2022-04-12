@@ -1,7 +1,7 @@
 {
     "opDesc": "Weblogic发布",
     "opType": "remote",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "Weblogic发布",
@@ -345,7 +345,7 @@
             "opt": "custom_stdoutfiles",
             "name": "客户化日志路径",
             "help": "可以设置多个路径，逗号相隔，第一个路径是标准输出文件路径",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "false"
@@ -354,7 +354,7 @@
             "opt": "max_logsize",
             "name": "日志单文件大小",
             "help": "控制台输出日志，单文件最大的大小（单位M），默认是2048M",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "2048",
             "required": "false"
@@ -363,7 +363,7 @@
             "opt": "max_logfiles",
             "name": "最大日志数量",
             "help": "控制台输出日志最大的文件数，超过会自动清理",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "123",
             "required": "false"
@@ -372,7 +372,7 @@
             "opt": "max_logdays",
             "name": "日志最大保留天数",
             "help": "控制台输出日志最大保留天数，超过会自动清理",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "93",
             "required": "false"
@@ -381,7 +381,7 @@
             "opt": "USER_MEM_ARGS",
             "name": "JAVA内存参数",
             "help": "JAVA内存参数，用于设置内存相关参数，例如：-Xms256m -Xmx1024m -XX:MaxPermSize=256m",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "false"
@@ -390,7 +390,7 @@
             "opt": "JAVA_EXT_OPTS",
             "name": "JAVA参数",
             "help": "JAVA扩展参数，用于设置JAVA扩展参数",
-            "type": "input",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "-Djava.security.egd=file:/dev/./urandom",
             "required": "false"
