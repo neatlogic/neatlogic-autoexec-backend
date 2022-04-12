@@ -56,24 +56,23 @@ sub main {
     my ( $object, $action, $pattern, $apiBaseUrl, $token, $userName );
 
     GetOptions(
-        'h|help'     => \$isHelp,
-        'envpath=s'  => \$envPath,
-        'version=s'  => \$version,
-        'action=s'   => \$action,
-        'object=s'   => \$object,
-        'pattern=s'  => \$pattern,
-        'apibaseurl=s'=>\$apiBaseUrl,
-        'username=s' => \$userName,
-        'token=s' => \$token
+        'h|help'       => \$isHelp,
+        'envpath=s'    => \$envPath,
+        'version=s'    => \$version,
+        'action=s'     => \$action,
+        'object=s'     => \$object,
+        'pattern=s'    => \$pattern,
+        'apibaseurl=s' => \$apiBaseUrl,
+        'username=s'   => \$userName,
+        'token=s'      => \$token
     );
 
     usage() if ( defined($isHelp) );
     usage() if ( not defined($envPath) or not defined($version) );
-    usage() if ( not defined($action)  or not defined($object) or not defined($pattern) );
+    usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
-    my $verInfo   = ServerAdapter->getVer($buildEnv);
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $verInfo = ServerAdapter->getVer($buildEnv);
 
     my $repo = $verInfo->{repo};
 
@@ -113,7 +112,7 @@ sub main {
         print("INFO: withdraw $object protect: $pattern\n");
         print("INFO: check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
-        my @protects      = @{ from_json($protectsJsonStr) };
+        my @protects = @{ from_json($protectsJsonStr) };
         if (@protects) {
             foreach my $protect (@protects) {
                 if ( $protect->{name} eq $pattern ) {
@@ -128,7 +127,7 @@ sub main {
         print("INFO: add protect\n");
         print("INFO: check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
-        my @protects      = @{ from_json($protectsJsonStr) };
+        my @protects = @{ from_json($protectsJsonStr) };
         if (@protects) {
             foreach my $protect (@protects) {
                 if ( $protect->{name} eq $pattern ) {

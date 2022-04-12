@@ -11,3 +11,4 @@ plugins/local/lib/perl-lib
 plugins/local/build/tools
 plugins/local/tools
 plugins/local/media/perl-pkgs/*/
+tools/*

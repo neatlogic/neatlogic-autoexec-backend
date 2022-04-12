@@ -18,9 +18,13 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("              [--maxparallel MaxParallelCount] [--extnames SqlExtNames]\n");
     print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
     print("              [--encoding SqlFileEncoding] [--filter SqlFileNamePattern]\n");
     print("              [--index SqlIndexFiles] [--rollback 0|1]\n");
+    print("\n");
+    print("       --maxparallel: max parallel running sql files\n");
+    print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
     print("       --dryrun:      only test, not realy execute the sql script\n");
     print("       --autocommit:  permit autocommit on mysql, postgresql\n");
     print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
@@ -40,18 +44,22 @@ sub main {
     my $isVerbose = 0;
     my $envPath;
     my $version;
-    my $isDryRun     = 0;
-    my $isForce      = 0;
-    my $isAutoCommit = 0;
-    my $isRollback   = 0;
+    my $maxParallelCount = 1;
+    my $sqlExtNamesStr   = '';
+    my $isDryRun         = 0;
+    my $isForce          = 0;
+    my $isAutoCommit     = 0;
+    my $isRollback       = 0;
     my $filter;
     my $index;
 
     GetOptions(
         'help'         => \$isHelp,
+        'v|verbose=i'  => \$isVerbose,
         'envpath=s'    => \$envPath,
         'version=s'    => \$version,
-        'v|verbose=i'  => \$isVerbose,
+        'maxparall=i'  => \$maxParallelCount,
+        'extnames=s'   => \$sqlExtNamesStr,
         'force=i'      => \$isForce,
         'dryrun=i'     => \$isDryRun,
         'autocommit=i' => \$isAutoCommit,
@@ -83,9 +91,8 @@ sub main {
         $jobPath = getcwd();
     }
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
-    my $dirInfo   = DeployUtils->getDataDirStruct($buildEnv);
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo = DeployUtils->getDataDirStruct($buildEnv);
 
     #作业目录，日志
     #jobpath/
@@ -112,8 +119,7 @@ sub main {
     my $logFileDir   = "$jobPath/log/$phaseName";
     my $sqlStatusDir = "$distPath/db.status";
 
-    my @sqlExtNames    = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
-    my $sqlExtNamesStr = $buildConf->{'sql.extendNames'};
+    my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
     if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
         @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
     }
@@ -139,8 +145,7 @@ sub main {
         }
     }
 
-    my $parallelCount = $buildConf->{'sql.maxParallelCount'};
-    my $sqlFileSets   = $batchUtils->getRunRoundSets( $sqlFiles, $parallelCount );
+    my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
 
     my $dbSchemasMap = {};
     my $dbConf       = ServerAdapter->getDBConf($buildEnv);

@@ -225,7 +225,7 @@ sub updateNameSpace {
     if ( -f $nsFilePath ) {
         print("INFO: Namespace($namespace):$nsFilePath config item update processing...\n");
         my $config = getConfInNSFile( $apolloPath, $nsFilePath );
-        my @keys   = keys(%$config);
+        my @keys = keys(%$config);
         foreach my $key (@keys) {
             if ( exists( $allItems->{$key} ) ) {
 
@@ -270,7 +270,7 @@ sub updateNameSpace {
     if ( -f $nsDelFilePath ) {
         print("INFO: Begin namespace($namespace):$nsDelFilePath config item delete processing...\n");
         my $delConfig = getConfInNSFile( $apolloPath, $nsDelFilePath );
-        my @delKeys   = keys(%$delConfig);
+        my @delKeys = keys(%$delConfig);
         foreach my $key (@delKeys) {
             if ( exists( $allItems->{$key} ) ) {
 
@@ -322,7 +322,7 @@ sub main {
         usage();
     }
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
     my $buildConf = $buildEnv->{DEPLOY_CONF};
 
     if ( not defined($cluster) or $cluster eq '' ) {
@@ -343,17 +343,17 @@ sub main {
         $apolloEnv =~ s/^[^_]+_//;    #去掉最前端的XXX_，如果有的话
     }
 
-    my $apolloAddr;
-    my $token;
-    eval {
-        $apolloAddr = $buildConf->{"$apolloEnv.apollo.url"};
-        $token      = $buildConf->{"$apolloEnv.apollo.token"};
-    };
-    if ( $@ or $apolloAddr eq '' ) {
-        print("WARN: $apolloEnv.apollo.url not defind in system.conf, use applo.url.\n");
-        $apolloAddr = $buildConf->('apollo.url');
-        $token      = $buildConf->('apollo.token');
-    }
+    # my $apolloAddr;
+    # my $token;
+    # eval {
+    #     $apolloAddr = $buildConf->{"$apolloEnv.apollo.url"};
+    #     $token      = $buildConf->{"$apolloEnv.apollo.token"};
+    # };
+    # if ( $@ or $apolloAddr eq '' ) {
+    #     print("WARN: $apolloEnv.apollo.url not defind in system.conf, use applo.url.\n");
+    #     $apolloAddr = $buildConf->('apollo.url');
+    #     $token      = $buildConf->('apollo.token');
+    # }
 
     my $apolloCtl = ApolloCtl->new(
         url      => $apolloAddr,

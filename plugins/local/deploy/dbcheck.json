@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "SQL文件检查检入",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -33,8 +31,7 @@
             "help": "检入回退用的SQL脚本",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -51,7 +48,7 @@
             "opt": "filter",
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
-            "type": "file",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "",

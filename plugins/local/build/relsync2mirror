@@ -12,20 +12,22 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
-    print("              [-exp ExcludeDirs] [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1]\n");
+    print("              [--blacklist BlackList] [-exp ExcludeDirs]\n");
+    print("              [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1]\n");
     print("              [--src SyncSourceDir] [--dest SyncDestDir]\n");
     print("              [--nomd5 0|1] [--notime 0|1] \n");
     print("\n");
     print("       sync files from  build to ENV/app, doc/db to ENV/db\n");
-    print("       --envpath:  env path in the data directory, example:ATM/ATMP/PRD\n");
-    print("       --version:  version number\n");
-    print("       --src:      relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
-    print("       --dest:     releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
-    print("       --exp:      which dirs not to be sync.\n");
-    print("       --nomd5:    do not compare file md5, only compare size and mtime of file\n");
-    print("       --notime:   do not compare file mtime, only compare size of file\n");
-    print("       --nodelete: do not delete the files in the destination direcotry\n");
-    print("       --noattrs:  do not preserve the attributes of the source files\n");
+    print("       --envpath:    env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version:    version number\n");
+    print("       --blalcklist: blakck list for db schemas, example:mydb.myuser,myadb.myauser\n");
+    print("       --src:        relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
+    print("       --dest:       releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:        which dirs not to be sync.\n");
+    print("       --nomd5:      do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:     do not compare file mtime, only compare size of file\n");
+    print("       --nodelete:   do not delete the files in the destination direcotry\n");
+    print("       --noattrs:    do not preserve the attributes of the source files\n");
 
     exit(1);
 }
@@ -56,7 +58,7 @@ sub main {
     my $pname = $FindBin::Script;
     $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
 
-    my ( $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs );
+    my ( $schemaBlackList, $src, $dest, $expDir, $md5Check, $noDelete, $noAttrs );
     my $isVerbose  = 0;
     my $needMd5    = 1;
     my $noMd5      = 0;
@@ -69,9 +71,10 @@ sub main {
 
     GetOptions(
         'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
-        'v|verbose=i' => \$isVerbose,
+        'blacklist=s' => \$schemaBlackList,
         'nodelete=i'  => \$noDelete,
         'noattrs=i'   => \$noAttrs,
         'rollback=i'  => \$isRollback,
@@ -95,7 +98,6 @@ sub main {
     $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
 
     my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $buildNo   = $buildEnv->{BUILD_NO};
@@ -162,14 +164,13 @@ sub main {
         if ( -d $dbSrc ) {
 
             #clean the schema black list dir
-            foreach my $schema ( split( ',', $buildConf->{'dbschema.blacklist'} ) ) {
+            foreach my $schema ( split( ',', $schemaBlackList ) ) {
                 if ( $schema ne '' and -e "$dbDest/$schema" ) {
                     rmtree("$dbDest/$schema");
                 }
             }
 
-            my $schemaBlackList = $buildConf->{'dbschema.blacklist'};
-            my $dbExpDirs       = $expDir;
+            my $dbExpDirs = $expDir;
             if ( defined($schemaBlackList) and $schemaBlackList ne '' ) {
                 if ( defined($expDir) and $expDir ne '' ) {
                     $dbExpDirs = "$schemaBlackList,$dbExpDirs";

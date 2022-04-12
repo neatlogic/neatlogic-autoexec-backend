@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "SQL文件执行",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -28,13 +26,32 @@
             "validate": ""
         },
         {
+            "opt": "maxparallel",
+            "name": "最大并行",
+            "help": "可以同时运行的SQL的最大并行运行数量",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "1",
+            "required": "",
+            "validate": ""
+        },
+        {
+            "opt": "extnames",
+            "name": "扩展名",
+            "help": "逗号相隔的SQL扩展名，例如：sql,prc,pck,pkg,pkgh,pkgb",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:sql.extnames}",
+            "required": "",
+            "validate": ""
+        },
+        {
             "opt": "dryrun",
             "name": "测试运行",
             "help": "测试运行，并没有真正执行SQL",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -91,8 +108,7 @@
             "help": "检入回退用的SQL脚本",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -109,7 +125,7 @@
             "opt": "filter",
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
-            "type": "file",
+            "type": "text",
             "isConst": "false",
             "defaultValue": "",
             "required": "",
@@ -121,7 +137,7 @@
             "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "index.txt",
             "required": "false",
             "validate": ""
         }
