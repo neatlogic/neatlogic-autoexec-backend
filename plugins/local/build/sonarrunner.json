@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "对代码进行静态扫描，生成扫描报告",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -24,6 +22,36 @@
                     "value": "0"
                 }
             ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "baseurl",
+            "name": "API地址",
+            "help": "SonarQube地址，例如：http://192.168.0.26:9000",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:sonar.url}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "访问仓库的用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:sonar.user}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问仓库的密码",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "${global:sonar.password}",
             "required": "true",
             "validate": ""
         },
@@ -43,8 +71,7 @@
             "help": "本工程使用的程序语言",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "Java",
                     "value": "Java",
                     "selected": "true"
@@ -67,8 +94,7 @@
             "help": "工程中程序文件的字符编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "UTF-8",
                     "value": "UTF-8"
                 },
@@ -87,8 +113,7 @@
             "help": "触发告警的Level",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "critical",
                     "value": "critical",
                     "selected": "true"

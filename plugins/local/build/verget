@@ -84,12 +84,6 @@ sub main {
         $versionInfo->{buildNo}  = $verInfo->{buildNo};
         $versionInfo->{startRev} = $verInfo->{startRev};
         $versionInfo->{endRev}   = $verInfo->{endRev};
-        if ( defined( $verInfo->{username} ) and $verInfo->{username} ne '' ) {
-            $versionInfo->{username} = $verInfo->{username};
-        }
-        if ( defined( $verInfo->{password} ) and $verInfo->{password} ne '' ) {
-            $versionInfo->{password} = $verInfo->{password};
-        }
     }
     if ( defined($userName) and $userName ne '' ) {
         $versionInfo->{username} = $userName;

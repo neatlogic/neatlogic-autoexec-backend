@@ -13,10 +13,14 @@ use SQLFileRunner;
 
 sub usage {
     my $pname = $FindBin::Script;
-
-    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
-    print("       --envpath:      example:SYS-A/MODULE-X/SIT\n");
-
+    print("Usage: $pname [--verbose 0|1] \n");
+    print("              [--extnames SqlExtNames] [--rollback 0|1]\n");
+    print("              [--index IndexFileNames] [--filter SqlFileNamePattern]\n");
+    print("\n");
+    print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
+    print("       --filter:      sql file name pattern, just execute matched sql file\n");
+    print("       --index:       index file names, example:index.txt\n");
+    print("       --rollback:    execute sql files in sub directory:rollback\n");
     exit(1);
 }
 
@@ -25,9 +29,10 @@ sub main {
 
     my $envPath;
     my $version;
-    my $isHelp     = 0;
-    my $isVerbose  = 0;
-    my $isRollback = 0;
+    my $sqlExtNamesStr = '';
+    my $isHelp         = 0;
+    my $isVerbose      = 0;
+    my $isRollback     = 0;
     my $filter;
     my $index;
 
@@ -36,6 +41,7 @@ sub main {
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'extnames=s'  => \$sqlExtNamesStr,
         'rollback=i'  => \$isRollback,
         'filter=s'    => \$filter,
         'index=s'     => \$index
@@ -79,9 +85,8 @@ sub main {
         $jobPath = getcwd();
     }
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
-    my $dirInfo   = DeployUtils->getDataDirStruct($buildEnv);
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo = DeployUtils->getDataDirStruct($buildEnv);
 
     #sqlfile, log, status
     #jobpath/
@@ -109,8 +114,13 @@ sub main {
     my $logFileDir   = "$jobPath/log/$phaseName";
     my $sqlStatusDir = "$distPath/db.status";
 
+    my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
+    if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
+        @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
+    }
+
     my $batchUtils = SQLBatchUtils->new(
-        sqlExtNames => [ 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' ],
+        sqlExtNames => \@sqlExtNames,
         buildEnv    => $buildEnv,
         dirInfo     => $dirInfo
     );

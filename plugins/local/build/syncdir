@@ -84,12 +84,11 @@ sub main {
     $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
     $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
-    my $namePath  = $buildEnv->{NAME_PATH};
-    my $dataPath  = $buildEnv->{DATA_PATH};
-    my $buildNo   = $buildEnv->{BUILD_NO};
-    my $envName   = $buildEnv->{ENV_NAME};
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $buildNo  = $buildEnv->{BUILD_NO};
+    my $envName  = $buildEnv->{ENV_NAME};
 
     my $sysName    = $buildEnv->{SYS_NAME};
     my $subSysName = $buildEnv->{MODUL_NAME};

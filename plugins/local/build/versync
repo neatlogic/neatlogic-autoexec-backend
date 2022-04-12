@@ -18,6 +18,7 @@ sub usage {
 
     print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
     print("              [--version VERSION]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
     print("\n");
     print("optional arguments:\n");
     print("  --envpath\toptionnal, name path for application\n");
@@ -29,12 +30,16 @@ sub usage {
 
 sub main {
     my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $userName, $password );
+
     GetOptions(
         'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'lang=s'      => \$lang,
-        'version=s'   => \$version
+        'version=s'   => \$version,
+        'username=s'  => \$userName,
+        'password=s'  => \$password
     );
 
     usage() if ( defined($isHelp) );
@@ -55,6 +60,14 @@ sub main {
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    if ( defined($userName) and $userName ne '' ) {
+        $verInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $verInfo->{password} = $password;
     }
 
     my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );

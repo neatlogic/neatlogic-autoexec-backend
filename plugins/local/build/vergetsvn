@@ -39,7 +39,7 @@ sub main() {
     usage() if ( defined($isHelp) );
 
     my $toolDir = $FindBin::Bin;
-    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype SVN --repo '$repo' --trunk '$trunk' --branch '$branch' --tagsdir '$tagsDir' --tag '$tag'});
+    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype SVN --repo '$repo' --trunk '$trunk' --branch '$branch' --tagsdir '$tagsDir' --tag '$tag' --username '$userName', --password '$password'});
 }
 
 exit main();

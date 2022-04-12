@@ -30,6 +30,7 @@ sub usage {
 
 sub main {
     my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $userName, $password );
     my $tagPrefix;
     GetOptions(
         'h|help'      => \$isHelp,
@@ -37,7 +38,9 @@ sub main {
         'envpath=s'   => \$envPath,
         'lang=s'      => \$lang,
         'version=s'   => \$version,
-        'tagprefix=s' => \$tagPrefix
+        'tagprefix=s' => \$tagPrefix,
+        'username=s'  => \$userName,
+        'password=s'  => \$password
     );
 
     usage() if ( defined($isHelp) );
@@ -58,6 +61,14 @@ sub main {
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    if ( defined($userName) and $userName ne '' ) {
+        $verInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $verInfo->{password} = $password;
     }
 
     my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );

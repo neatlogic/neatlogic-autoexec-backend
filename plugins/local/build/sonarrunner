@@ -16,21 +16,24 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--language ProgrammingLanguage]\n");
+    print("              [--baseurl APIAddress] [--username UserName] [--password Password]\n");
     print("              [--prefix SubDirOfProject]  [--encode SourceFileEncoding]  [--level Level]\n");
     print("              [--threshold ThresHold] [--modules <module1,module2>]\n");
-    print("       --envpath: subsys env path in the data directory, example:ATM/ATMP/PRD \n");
-    print("       --version:  versoin name \n");
-    print("       --prefix:   sub directory of project\n");
-    print("       --encode:   project encode,example:UTF-8 \n");
-    print("       --language: project develop language,example:java \n");
-    print("       --level: warning level ,example:blocker,critical \n");
+    print("       --envpath:  subsys env path in the data directory, example:ATM/ATMP/PRD \n");
+    print("       --version:   versoin name\n");
+    print("       --baseurl:   SonarQube API address\n");
+    print("       --prefix:    sub directory of project\n");
+    print("       --encode:    project encode,example:UTF-8 \n");
+    print("       --language:  project develop language,example:java \n");
+    print("       --level:     warning level ,example:blocker,critical \n");
     print("       --threshold: waning threshold(number),example:50,100.. \n");
-    print("       --modules: modules\n");
+    print("       --modules:   modules\n");
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $sonarUrl, $sonarLogin, $sonarPwd );
     my ( $prefix, $language, $encode, $level, $threshold, $src, $bin, $tmout, $projectKey, $projectVersion, $projectName, $modules );
     my $pname = $FindBin::Script;
 
@@ -40,6 +43,9 @@ sub main {
         'h|help'           => \$isHelp,
         'envpath=s'        => \$envPath,
         'version=s'        => \$version,
+        'baseurl=s'        => \$sonarUrl,
+        'username=s'       => \$sonarLogin,
+        'password=s'       => \$sonarPwd,
         'prefix=s'         => \$prefix,
         'language=s'       => \$language,
         'encode=s'         => \$encode,
@@ -57,17 +63,12 @@ sub main {
     usage() if ( defined($isHelp) );
     usage() if ( not defined($envPath) or not defined($version) );
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
     my $toolsPath = $buildEnv->{TOOLS_PATH};
 
     my $prjDir     = $buildEnv->{PRJ_PATH};
     my $sysName    = $buildEnv->{SYS_NAME};
     my $moduleName = $buildEnv->{MODULE_NAME};
-
-    my $sonarUrl   = $buildConf->{'sonar.host.url'};
-    my $sonarLogin = $buildConf->{'sonar.login'};
-    my $sonarPwd   = $buildConf->{'sonar.password'};
 
     $src    = $prjDir if ( not defined($src)    or $src eq '' );
     $bin    = $prjDir if ( not defined($bin)    or $bin eq '' );

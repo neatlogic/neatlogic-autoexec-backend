@@ -38,7 +38,7 @@ sub main() {
     usage() if ( defined($isHelp) );
 
     my $toolDir = $FindBin::Bin;
-    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype GIT --repo '$repo' --trunk '$trunk' --branch '$branch' --tag '$tag'});
+    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype GIT --repo '$repo' --trunk '$trunk' --branch '$branch' --tag '$tag' --username '$userName', --password '$password'});
 }
 
 exit main();

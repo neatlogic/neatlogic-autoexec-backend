@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "使用代码仓库的diff功能获取增量代码（需要在verget后才能使用）",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -65,6 +63,26 @@
             "isConst": "false",
             "defaultValue": "",
             "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "访问仓库的用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.user}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问仓库的密码",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "${global:git.password}",
+            "required": "true",
             "validate": ""
         }
     ],

@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "拉取SVN仓库中的代码",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -33,8 +31,7 @@
             "help": "工程代码的语言和编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "en_US.UTF-8",
                     "value": "en_US.UTF-8",
                     "selected": "true"
@@ -71,7 +68,7 @@
             "opt": "password",
             "name": "密码",
             "help": "访问仓库的密码",
-            "type": "text",
+            "type": "password",
             "isConst": "false",
             "defaultValue": "${global:svn.password}",
             "required": "true",

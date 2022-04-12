@@ -1,6 +1,6 @@
 {
         "jobId": 575071089123340,
-        "enviroment": {
+        "procEnv": {
                 "_RUNNER_GROUP": "r1",
                 "_DEPLOY_PATH": "ABS/Core/SIT",
                 "_DEPLOY_ID_PATH": "12/12/3",
@@ -15,6 +15,7 @@
                 "ENV_NAME": "SIT",
                 "ENV_ID": "2"
         },
+        "globalOpt": {},
         "opt": {},
         "roundCount": 2,
         "runFlow": [{
@@ -112,7 +113,6 @@
                         }]
                 }
         ],
-        "arg": {},
         "execUser": "system",
         "tenant": "develop"
 }
