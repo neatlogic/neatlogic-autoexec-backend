@@ -6,46 +6,6 @@
 	"interpreter": "perl",
 	"description": "基于tagent文件传输",
 	"option": [{
-			"opt": "host",
-			"name": "tagent IP",
-			"help": "",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		},
-		{
-			"opt": "port",
-			"name": "tagent端口",
-			"help": "默认为3939端口",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "3939",
-			"required": "false",
-			"validate": ""
-		},
-		{
-			"opt": "user",
-			"name": "tagent用户",
-			"help": "",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "false",
-			"validate": ""
-		},
-		{
-			"opt": "pass",
-			"name": "tagent密码",
-			"help": "",
-			"type": "text",
-			"isConst": "true",
-			"defaultValue": "",
-			"required": "false",
-			"validate": ""
-		},
-		{
 			"opt": "direction",
 			"name": "拷贝方式",
 			"help": "",
@@ -83,7 +43,7 @@
 			"validate": ""
 		},
 		{
-			"opt": "v",
+			"opt": "verbose",
 			"name": "输出详细信息",
 			"help": "",
 			"type": "radio",

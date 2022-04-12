@@ -6,42 +6,21 @@
 	"interpreter": "perl",
 	"description": "基于FTP文件传输",
 	"option": [{
-			"opt": "host",
-			"name": "FTP服务IP",
+			"opt": "verbose",
+			"name": "输出详细信息",
 			"help": "",
-			"type": "text",
+			"type": "radio",
 			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		},
-		{
-			"opt": "port",
-			"name": "FTP端口",
-			"help": "默认为21端口",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "21",
-			"required": "false",
-			"validate": ""
-		},
-		{
-			"opt": "user",
-			"name": "FTP用户",
-			"help": "",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "false",
-			"validate": ""
-		},
-		{
-			"opt": "pass",
-			"name": "FTP用户密码",
-			"help": "",
-			"type": "text",
-			"isConst": "true",
-			"defaultValue": "",
+			"defaultValue": [{
+					"text": "否",
+					"value": "0",
+					"selected": "true"
+				},
+				{
+					"text": "是",
+					"value": "1"
+				}
+			],
 			"required": "false",
 			"validate": ""
 		},

@@ -5,7 +5,6 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use File::Basename;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use SCPExec;
@@ -13,50 +12,51 @@ use AutoExecUtils;
 use Cwd;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-h|--host <host>] [-u|--user <username>] [--direction <push|pull>] [--src <src,eg:/tmp/a,tmp/b>] [--dest <dest>] [-v] [-np]\n");
-    print("       -h|--host: remote host ip .\n");
-    print("       -p|--port: remote host ssh port .\n");
-    print("       -u|--user: remote host ssh user .\n");
-    print("       --pass: remote host ssh user password .\n");
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--np NoPermission] [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:      Host node json\n");
     print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
-    print("       --src: copy source path ,many src path , separated .\n");
-    print("       --dest: remote target path .\n");
-    print("       -np    : not preserve the mode of file\n");
-    exit(-1);
+    print("       --np:        not preserve the mode of file\n");
+    print("       --src:       copy source path ,many src path , separated .\n");
+    print("       --dest:      remote target path .\n");
+    exit(1);
 }
 
 sub main {
-    my ( $ishelp, $direction, $cpIfExists, $host, $port, $user, $pass, $src, $dest, $isVerbose, $np );
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest, $np );
     AutoExecUtils::setEnv();
 
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
     $isVerbose = 0;
-    $np = 0;
+    $np        = 0;
 
     GetOptions(
-        'help'        => \$ishelp,
+        'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
         'np=i'        => \$np,
         'direction:s' => \$direction,
-        'h|host:s'    => \$host,
-        'p|port:i'    => \$port,
-        'u|user:s'    => \$user,
-        'pass:s'      => \$pass,
         'src:s'       => \$src,
         'dest:s'      => \$dest
     );
 
+    usage() if ( defined($isHelp) );
+
     my $optionError = 0;
-    if ( not defined($host) or $host eq '' ) {
-        print("ERROR: must define target host.\n");
-        $optionError = 1;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
-        print("ERROR: must define user and password.\n");
-
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
     }
 
     if ( not defined($direction) or $direction eq '' ) {
@@ -82,12 +82,19 @@ sub main {
         $optionError = 1;
     }
 
-    if ( not defined($port) ) {
-        $port = 22;
-    }
-
     if ( $optionError == 1 ) {
         usage();
+    }
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    if ( not defined($port) ) {
+        $port = 22;
     }
 
     my $isSuccess = 0;
@@ -97,12 +104,12 @@ sub main {
         foreach my $dir (@src_dirs) {
             $src_path = "$src_path $dir";
         }
-        $dest      = "$user\@$host:$dest";
+        $dest = "$user\@$host:$dest";
         $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
     }
     elsif ( $direction eq 'pull' ) {
         foreach my $dir (@src_dirs) {
-            $src_path  = "$user\@$host:$dir";
+            $src_path = "$user\@$host:$dir";
             $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
             if ( $isSuccess ne 0 ) {
                 last;
@@ -129,8 +136,8 @@ sub myExec {
     my $dest      = $args{dest};
     my $isVerbose = $args{isVerbose};
     my $np        = $args{notpreserve};
-    my $scpExec   = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
-    my $rc        = $scpExec->exec();
+    my $scpExec = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+    my $rc = $scpExec->exec();
     return $rc;
 }
 

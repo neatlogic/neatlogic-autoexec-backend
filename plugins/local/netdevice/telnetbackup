@@ -1,59 +1,53 @@
 #!/usr/bin/python
 
+import TelnetClient
 import argparse
 import sys
-import os 
+import os
 import json
 
 binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
-import TelnetClient
 
 def usage():
     pname = os.path.basename(__file__)
-    print(pname + " --ip <remote ip> --port <port|23> --user <user> --password <password> --timeout <timeout|3> --cmd <command> --backupdir <backupdir> ")
+    print(pname + " --timeout <timeout|3> --cmd <command> --backupdir <backupdir> ")
     exit(1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ip', default='', help='交换机管理IP')
-    parser.add_argument('--port', default='23', help='交换机管理端口')
-    parser.add_argument('--user', default='', help='登录账户')
-    parser.add_argument('--password', default='', help='登录账户密码')
+    parser.add_argument('--node', default='', help='目标节点JSON')
     parser.add_argument('--cmd', default='', help='备份命令')
     parser.add_argument('--backupdir', default='', help='备份目录')
     parser.add_argument('--timeout', default=3, help='连接超时(秒)')
     #parser.add_argument('--node', default='', help='set job run node env')
     args = parser.parse_args()
-    
-    ip = args.ip
-    user = args.user
-    password = args.password
-    port = args.port
-    #node = args.node
-    backupdir = args.backupdir
-    cmd = args.cmd 
-    timeout = args.timeout
-    
-    node = os.getenv('AUTOEXEC_NODE')
-    if node != None:
-        node = json.loads(node)
-        ip = node['host']
-        port = node['port']
-        user = node['username']
-        password = node['password']
 
-    if( backupdir == None or backupdir == '' ):
+    node = args.node
+    backupdir = args.backupdir
+    cmd = args.cmd
+    timeout = args.timeout
+
+    if node is None or node == '':
+        node = os.getenv('AUTOEXEC_NODE')
+
+    node = json.loads(node)
+    ip = node['host']
+    port = node['port']
+    user = node['username']
+    password = node['password']
+
+    if(backupdir == None or backupdir == ''):
         usage()
-    if( cmd == None or cmd == '' ):
+    if(cmd == None or cmd == ''):
         usage()
-    if( (node == None or node == '' ) and ( ip == None or ip == '' and user == None or user =='' or password == None or password == ''  ) ):
+    if((node == None or node == '') and (ip == None or ip == '' and user == None or user == '' or password == None or password == '')):
         usage()
-    
-    client = TelnetClient.TelnetClient( ip ,  port , user , password , timeout , backupdir )
+
+    client = TelnetClient.TelnetClient(ip,  port, user, password, timeout, backupdir)
     if client.login():
         client.backupCfg(cmd)
         client.logout()

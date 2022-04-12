@@ -13,59 +13,60 @@ use Cwd;
 use TagentClient;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
-    print(
-        "Usage: $pname  [-h|--host <host>] [port <port>] [-u|--user <username>] [--pass <pass>] [--direction <push|pull>] [--src <src>] [--dest <dest>] [-v] [-np]  [--cpifexists] [--followlinks]\n");
-    print("       host:        tagent host ip .\n");
-    print("       port:        tagent host port. \n");
-    print("       username:    tagent sudo username(while tagent started by root/admin).\n");
-    print("       password:    tagent logon password.\n");
-    print("       direction: push from local site to remote site or pull from remote site to local site .\n");
-    print("       src: copy source path ,many src path , separated .\n");
-    print("       dest: remote target path .\n");
-    print("       -np:         not preserve the mode of file\n");
-    print("       -cpifexists: copy if local dir or file exists.\n");
-
-    exit(-1);
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--np NoPermission] [--followlinks FollowLinks] [--cpifexists CopyIfExists]]\n");
+    print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:        Host node json\n");
+    print("       --direction:   push from local site to remote site or pull from remote site to local site .\n");
+    print("       --np:          not preserve the mode of file\n");
+    print("       --cpifexists:  copy if local dir or file exists.\n");
+    print("       --followlinks: symbol link as directory\n");
+    print("       --src:         copy source path ,many src path , separated .\n");
+    print("       --dest:        remote target path .\n");
+    exit(1);
 }
 
 sub main {
-    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest, $isVerbose, $np, $cpIfExists, $followLinks );
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest, $np, $cpIfExists, $followLinks );
     AutoExecUtils::setEnv();
 
     my $pname = basename($0);
 
-    $isVerbose = 0;
-    $np = 0;
+    $isVerbose   = 0;
+    $np          = 0;
     $followLinks = 0;
-    $cpIfExists = 0;
+    $cpIfExists  = 0;
 
     GetOptions(
-        'help'          => \$ishelp,
-        'h|host=s'      => \$host,
-        'p|port=i'      => \$port,
-        'u|user=s'      => \$user,
-        'pass=s'        => \$pass,
+        'h|help'        => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'node=s'        => \$node,
         'direction=s'   => \$direction,
         'src=s'         => \$src,
         'dest=s'        => \$dest,
-        'v|verbose=i'   => \$isVerbose,
         'np=i'          => \$np,
         'followlinks=i' => \$followLinks,
         'cpifexists=i'  => \$cpIfExists
     );
 
+    usage() if ( defined($isHelp) );
+
     my $optionError = 0;
 
-    if ( not defined($host) or $host eq '' ) {
-        print("ERROR: must define remote host.\n");
-        $optionError = 1;
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
-        print("ERROR: must define user and password.\n");
+    if ( not defined($node) or $node eq '' ) {
         $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
     }
 
     if ( not defined($direction) or $direction eq '' ) {
@@ -91,12 +92,19 @@ sub main {
         $optionError = 1;
     }
 
-    if ( not defined($port) or $port eq '' ) {
-        $port = '3939';
-    }
-
     if ( $optionError == 1 ) {
         usage();
+    }
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = 3939;
     }
 
     my $isSuccess = 0;
