@@ -1,0 +1,173 @@
+{
+	"label": "K8S_POD",
+	"collection": "COLLECT_K8S",
+	"docroot": "NAMESPACES.PODS",
+	"collection_label": "Kubernetes",
+	"filter": {
+		"_OBJ_TYPE": "K8S_POD"
+	},
+	"fields": [{
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },{
+            "name": "KIND",
+            "desc": "类型",
+            "type": "String"
+        },{
+			"name": "UID",
+			"desc": "uid",
+			"type": "String"
+		},
+		{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		},
+		{
+			"name": "NAMESPACE",
+			"desc": "命名空间",
+			"type": "String"
+		}, {
+			"name": "GENERATENAME",
+			"desc": "第几代",
+			"type": "Int"
+		}, {
+			"name": "RESTARTPOLICY",
+			"desc": "重启策略",
+			"type": "String"
+		}, {
+			"name": "TERMINATIONGRACEPERIODSECONDS",
+			"desc": "终止等待时间",
+			"type": "Int"
+		}, {
+			"name": "DNSPOLICY",
+			"desc": "DNS策略",
+			"type": "String"
+		}, {
+			"name": "SERVICEACCOUNTNAME",
+			"desc": "服务显示名称",
+			"type": "String"
+		}, {
+			"name": "SERVICEACCOUNT",
+			"desc": "服务名称",
+			"type": "String"
+		}, {
+			"name": "NODENAME",
+			"desc": "节点名称",
+			"type": "String"
+		}, {
+			"name": "PRIORITY",
+			"desc": "优先级",
+			"type": "Int"
+		}, {
+			"name": "SCHEDULERNAME",
+			"desc": "作业名称",
+			"type": "String"
+		},
+		{
+			"name": "PHASE",
+			"desc": "阶段",
+			"type": "String"
+		},
+		{
+			"name": "HOSTIP",
+			"desc": "操作系统IP",
+			"type": "String"
+		},
+		{
+			"name": "PODIP",
+			"desc": "pod IP",
+			"type": "String"
+		},
+		{
+			"name": "STARTTIME",
+			"desc": "启动时间",
+			"type": "String"
+		},
+		{
+			"name": "PODIPS",
+			"desc": "pod IPS",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "NAME",
+				"desc": "IP",
+				"type": "String"
+			}]
+		},
+		{
+			"name": "LABELS",
+			"desc": "标签",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "KEY",
+					"desc": "标签键",
+					"type": "String"
+				},
+				{
+					"name": "VALUE",
+					"desc": "标签值",
+					"type": "String"
+				}
+			]
+		},
+		{
+			"name": "OWNERREFERENCES",
+			"desc": "依赖控制对象",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "KIND",
+					"desc": "类型",
+					"type": "String"
+				}
+			]
+		},
+		{
+			"name": "RUN_NODE",
+			"desc": "所在操作系统",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "UID",
+				"desc": "k8s node uid",
+				"type": "String"
+			}]
+		},
+		{
+			"name": "CONDITIONS",
+			"desc": "状态",
+			"type": "JsonArray",
+			"subset": [{
+				"name": "TYPE",
+				"desc": "类型",
+				"type": "String"
+			}, {
+				"name": "STATUS",
+				"desc": "状态",
+				"type": "String"
+			}, {
+				"name": "LASTPROBETIME",
+				"desc": "最后的检测时间",
+				"type": "String"
+			}, {
+				"name": "LASTTRANSITIONTIME",
+				"desc": "最后的迁移时间",
+				"type": "String"
+			}]
+		}
+	]
+}

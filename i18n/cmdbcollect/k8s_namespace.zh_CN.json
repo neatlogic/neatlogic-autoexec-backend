@@ -1,0 +1,660 @@
+{
+	"label": "K8S_NAMESPACE",
+	"collection": "COLLECT_K8S",
+	"docroot": "NAMESPACES",
+	"collection_label": "Kubernetes",
+	"filter": {
+		"_OBJ_TYPE": "K8S_NAMESPACE"
+	},
+	"fields": [{
+			"name": "_OBJ_CATEGORY",
+			"desc": "Object Type",
+			"type": "String"
+		},
+		{
+			"name": "_OBJ_TYPE",
+			"desc": "Application Type",
+			"type": "String"
+		}, {
+			"name": "KIND",
+			"desc": "类型",
+			"type": "String"
+		}, {
+			"name": "UID",
+			"desc": "uid",
+			"type": "String"
+		},
+		{
+			"name": "NAME",
+			"desc": "名称",
+			"type": "String"
+		},
+		{
+			"name": "CREATEDATA",
+			"desc": "创建时间",
+			"type": "String"
+		},
+		{
+			"name": "STATUS",
+			"desc": "状态",
+			"type": "String"
+		}, {
+			"name": "CREATEDATA",
+			"desc": "创建时间",
+			"type": "String"
+		},
+		{
+			"name": "DEPLOYMENTS",
+			"desc": "Deployments",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "NAMESPACE",
+					"desc": "命名空间",
+					"type": "String"
+				}, {
+					"name": "GENERATION",
+					"desc": "第几代",
+					"type": "Int"
+				}, {
+					"name": "REPLICAS",
+					"desc": "期望pod数量",
+					"type": "Int"
+				}, {
+					"name": "REVISIONHISTORYLIMIT",
+					"desc": "修改限制",
+					"type": "Int"
+				}, {
+					"name": "PROGRESSDEADLINESECONDS",
+					"desc": "最大等待时间",
+					"type": "Int"
+				}, {
+					"name": "STRATEGY",
+					"desc": "部署策略",
+					"type": "String"
+				}, {
+					"name": "OBSERVEDGENERATION",
+					"desc": "监控relicaset生成",
+					"type": "Int"
+				}, {
+					"name": "UPDATEDREPLICAS",
+					"desc": "StatefulSet创建的Pod数量",
+					"type": "Int"
+				}, {
+					"name": "READYREPLICAS",
+					"desc": "Ready状态Pod数量",
+					"type": "Int"
+				}, {
+					"name": "AVAILABLEREPLICAS",
+					"desc": "存活pod总数",
+					"type": "Int"
+				},
+				{
+					"name": "LABELS",
+					"desc": "标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "ANNOTATIONS",
+					"desc": "注释",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				}, {
+					"name": "CONDITIONS",
+					"desc": "状态",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "TYPE",
+						"desc": "类型",
+						"type": "String"
+					}, {
+						"name": "STATUS",
+						"desc": "状态",
+						"type": "String"
+					}, {
+						"name": "LASTHEARTBEATTIME",
+						"desc": "最后的检测时间",
+						"type": "String"
+					}, {
+						"name": "LASTTRANSITIONTIME",
+						"desc": "最后的迁移时间",
+						"type": "String"
+					}, {
+						"name": "REASON",
+						"desc": "原因",
+						"type": "String"
+					}, {
+						"name": "MESSAGE",
+						"desc": "信息",
+						"type": "String"
+					}]
+				}
+
+			]
+		}, {
+			"name": "REPLICASETS",
+			"desc": "replicasets",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "NAMESPACE",
+					"desc": "命名空间",
+					"type": "String"
+				}, {
+					"name": "GENERATION",
+					"desc": "第几代",
+					"type": "Int"
+				}, {
+					"name": "REPLICAS",
+					"desc": "期望pod数量",
+					"type": "Int"
+				}, {
+					"name": "FULLYLABELEDREPLICAS",
+					"desc": "与副本集标签相同的pod数量",
+					"type": "Int"
+				}, {
+					"name": "OBSERVEDGENERATION",
+					"desc": "监控relicaset生成",
+					"type": "Int"
+				}, {
+					"name": "READYREPLICAS",
+					"desc": "StatefulSet创建的Pod数量",
+					"type": "Int"
+				}, {
+					"name": "AVAILABLEREPLICAS",
+					"desc": "存活pod总数",
+					"type": "Int"
+				},
+				{
+					"name": "LABELS",
+					"desc": "标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "ANNOTATIONS",
+					"desc": "注释",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "SELECTOR",
+					"desc": "已选择标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "OWNERREFERENCES",
+					"desc": "依赖控制对象",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "UID",
+							"desc": "uid",
+							"type": "String"
+						}, {
+							"name": "NAME",
+							"desc": "名称",
+							"type": "String"
+						},
+						{
+							"name": "KIND",
+							"desc": "类型",
+							"type": "String"
+						}
+					]
+				}
+			]
+		}, {
+			"name": "PODS",
+			"desc": "pods",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "NAMESPACE",
+					"desc": "命名空间",
+					"type": "String"
+				}, {
+					"name": "GENERATENAME",
+					"desc": "第几代",
+					"type": "Int"
+				}, {
+					"name": "RESTARTPOLICY",
+					"desc": "重启策略",
+					"type": "String"
+				}, {
+					"name": "TERMINATIONGRACEPERIODSECONDS",
+					"desc": "终止等待时间",
+					"type": "Int"
+				}, {
+					"name": "DNSPOLICY",
+					"desc": "DNS策略",
+					"type": "String"
+				}, {
+					"name": "SERVICEACCOUNTNAME",
+					"desc": "服务显示名称",
+					"type": "String"
+				}, {
+					"name": "SERVICEACCOUNT",
+					"desc": "服务名称",
+					"type": "String"
+				}, {
+					"name": "NODENAME",
+					"desc": "节点名称",
+					"type": "String"
+				}, {
+					"name": "PRIORITY",
+					"desc": "优先级",
+					"type": "Int"
+				}, {
+					"name": "SCHEDULERNAME",
+					"desc": "作业名称",
+					"type": "String"
+				},
+				{
+					"name": "PHASE",
+					"desc": "阶段",
+					"type": "String"
+				},
+				{
+					"name": "HOSTIP",
+					"desc": "操作系统IP",
+					"type": "String"
+				},
+				{
+					"name": "PODIP",
+					"desc": "pod IP",
+					"type": "String"
+				},
+				{
+					"name": "STARTTIME",
+					"desc": "启动时间",
+					"type": "String"
+				},
+				{
+					"name": "PODIPS",
+					"desc": "pod IPS",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "NAME",
+						"desc": "IP",
+						"type": "String"
+					}]
+				},
+				{
+					"name": "LABELS",
+					"desc": "标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "OWNERREFERENCES",
+					"desc": "依赖控制对象",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "UID",
+							"desc": "uid",
+							"type": "String"
+						},
+						{
+							"name": "NAME",
+							"desc": "名称",
+							"type": "String"
+						},
+						{
+							"name": "KIND",
+							"desc": "类型",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "RUN_NODE",
+					"desc": "所在操作系统",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "UID",
+						"desc": "k8s node uid",
+						"type": "String"
+					}]
+				},
+				{
+					"name": "CONDITIONS",
+					"desc": "状态",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "TYPE",
+						"desc": "类型",
+						"type": "String"
+					}, {
+						"name": "STATUS",
+						"desc": "状态",
+						"type": "String"
+					}, {
+						"name": "LASTPROBETIME",
+						"desc": "最后的检测时间",
+						"type": "String"
+					}, {
+						"name": "LASTTRANSITIONTIME",
+						"desc": "最后的迁移时间",
+						"type": "String"
+					}]
+				}
+
+			]
+		}, {
+			"name": "SERVICES",
+			"desc": "services",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "NAMESPACE",
+					"desc": "命名空间",
+					"type": "String"
+				}, {
+					"name": "CLUSTERIP",
+					"desc": "集群IP",
+					"type": "String"
+				},
+				{
+					"name": "TYPE",
+					"desc": "类型",
+					"type": "String"
+				},
+				{
+					"name": "SESSIONAFFINITY",
+					"desc": "SESSION保持",
+					"type": "String"
+				},
+				{
+					"name": "IPFAMILYPOLICY",
+					"desc": "双协议栈",
+					"type": "String"
+				},
+				{
+					"name": "EXTERNALTRAFFICPOLICY",
+					"desc": "外部流量策略",
+					"type": "String"
+				},
+				{
+					"name": "INTERNALTRAFFICPOLICY",
+					"desc": "内部流量策略",
+					"type": "String"
+				},
+				{
+					"name": "PORTS",
+					"desc": "ports",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "NAME",
+							"desc": "名称",
+							"type": "String"
+						}, {
+							"name": "PROTOCOL",
+							"desc": "协议",
+							"type": "String"
+						},
+						{
+							"name": "PORT",
+							"desc": "服务端口",
+							"type": "String"
+						},
+						{
+							"name": "TARGETPORT",
+							"desc": "容器端口",
+							"type": "String"
+						},
+						{
+							"name": "NODEPORT",
+							"desc": "操作系统端口",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "LABELS",
+					"desc": "标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				}, {
+					"name": "SELECTOR",
+					"desc": "已选择标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "CONTAIN_PODS",
+					"desc": "包含PODS",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "UID",
+						"desc": "uid",
+						"type": "String"
+					}, {
+						"name": "NAME",
+						"desc": "name",
+						"type": "String"
+					}]
+				}
+			]
+		}, {
+			"name": "INGRESS",
+			"desc": "ingress",
+			"type": "JsonArray",
+			"subset": [{
+					"name": "UID",
+					"desc": "uid",
+					"type": "String"
+				},
+				{
+					"name": "NAME",
+					"desc": "名称",
+					"type": "String"
+				},
+				{
+					"name": "NAMESPACE",
+					"desc": "命名空间",
+					"type": "String"
+				},
+				{
+					"name": "CREATEDATE",
+					"desc": "创建时间",
+					"type": "String"
+				},
+				{
+					"name": "ANNOTATIONS",
+					"desc": "注释",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				}, {
+					"name": "SELECTOR",
+					"desc": "已选择标签",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "KEY",
+							"desc": "标签键",
+							"type": "String"
+						},
+						{
+							"name": "VALUE",
+							"desc": "标签值",
+							"type": "String"
+						}
+					]
+				},
+				{
+					"name": "CONTAIN_SERVICES",
+					"desc": "包含服务",
+					"type": "JsonArray",
+					"subset": [{
+						"name": "UID",
+						"desc": "uid",
+						"type": "String"
+					}, {
+						"name": "NAME",
+						"desc": "name",
+						"type": "String"
+					}]
+				}, {
+					"name": "RULES",
+					"desc": "规则",
+					"type": "JsonArray",
+					"subset": [{
+							"name": "HOST",
+							"desc": "节点",
+							"type": "String"
+						}, {
+							"name": "METHOD",
+							"desc": "方式",
+							"type": "String"
+						}, {
+							"name": "PATH",
+							"desc": "路径",
+							"type": "String"
+						}, {
+							"name": "PATHTYPE",
+							"desc": "类型",
+							"type": "String"
+						}, {
+							"name": "NAME",
+							"desc": "服务名",
+							"type": "String"
+						},
+						{
+							"name": "PORT",
+							"desc": "端口",
+							"type": "String"
+						}
+					]
+				}
+			]
+		}
+
+	]
+}

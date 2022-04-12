@@ -32,7 +32,8 @@ def getObjCatPkDef(objCat, customPkDef):
         'FIREWALL': ['MGMT_IP', 'SN'],
         'LOADBALANCER': ['MGMT_IP', 'SN'],
         'STORAGE': ['MGMT_IP', 'SN'],
-        'FCSWITCH': ['MGMT_IP', 'SN']
+        'FCSWITCH': ['MGMT_IP', 'SN'],
+        'K8S' : ['MGMT_IP']
     }
     fixPkDef = pkDefs.get(objCat)
     if fixPkDef is not None:
