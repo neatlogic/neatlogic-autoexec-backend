@@ -1,0 +1,115 @@
+{
+    "opDesc": "Tagent执行脚本",
+    "opType": "localremote",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "Tagent执行远程脚本",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "script",
+            "name": "脚本",
+            "help": "执行脚本内容",
+            "type": "script",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "调用超时时间（秒）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "15",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "eofstr",
+            "name": "结束字串",
+            "help": "对于不会结束的命令，当输出此字串时，成功并结束执行",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "async",
+            "name": "异步执行",
+            "help": "异步执行，不等待执行结束",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "agentcharset",
+            "name": "服务端字符集",
+            "help": "指定服务端的执行字符集",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "自动",
+                    "value": "",
+                    "selected": "true"
+                },
+                {
+                    "text": "en_US.UTF-8",
+                    "value": "en_US.UTF-8"
+                },
+                {
+                    "text": "zh_CN.GBK",
+                    "value": "zh_CN.GBK"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "命令",
+        "help": "命令行内容",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

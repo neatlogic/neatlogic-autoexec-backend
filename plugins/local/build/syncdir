@@ -1,0 +1,125 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use File::Path;
+use Getopt::Long;
+
+use SyncLocalFile;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [-x ExcludeDirsInSrcDir] [--nodelete 0|1] [--noattrs 0|1] [--src SourceDirectory]\n");
+    print("              [--dest DestinationDirectory] [--nomd5 0|1] [--notime 0|1]\n");
+    print("\n");
+    print("       --envpath:   env path in the data directory, example:SYS-X/MODULE-X/SIT\n");
+    print("       --version:   version number\n");
+    print("       --src:       relative path for <sys>/<subsys>/<ver number>/\n");
+    print("       --dest:      releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:       which dirs not to be sync.\n");
+    print("       --nomd5:     do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:    do not compare file mtime, only compare size of file\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version );
+    my $pname = $FindBin::Script;
+
+    my ( $src, $dest, $expDir );
+    my $isVerbose  = 0;
+    my $needMd5    = 1;
+    my $noMd5      = 0;
+    my $needMTime  = 1;
+    my $noMTime    = 0;
+    my $needBackup = 0;
+    my $noDelete   = 0;
+    my $noAttrs    = 0;
+
+    Utils::setEnv();
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'nodelete=i'  => \$noDelete,
+        'noattrs=i'   => \$noAttrs,
+        'nomd5=i'     => \$noMd5,
+        'notime=i'    => \$noMTime,
+        'src=s'       => \$src,
+        'x|exp=s'     => \$expDir,
+        'dest=s'      => \$dest
+    );
+
+    my $optionError = 0;
+    if (   not defined($envPath)
+        or not defined($version)
+        or not defined($src)
+        or not defined($dest) )
+    {
+        $optionError = 1;
+        print("ERROR: must defoned --envpath and --version and --src and --dest\n");
+    }
+
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        $optionError = 1;
+        print("ERROR: Sync source path can not has parent dir opertor:\"..\".\n");
+    }
+
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        $optionError = 1;
+        print("ERROR: Sync destination path can not has parent dir opertor:\"..\".\n");
+    }
+
+    usage() if ( $optionError eq 1 );
+
+    $needMd5   = 0 if ( $noMd5 == 1 );
+    $needMTime = 0 if ( $noMTime == 1 );
+
+    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $buildNo  = $buildEnv->{BUILD_NO};
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    my $sysName    = $buildEnv->{SYS_NAME};
+    my $subSysName = $buildEnv->{MODUL_NAME};
+
+    my $isFail = 0;
+
+    if ( $isFail eq 0 ) {
+        $src  = "$dataPath/$src";
+        $dest = "$dataPath/$dest";
+
+        eval {
+            my $syncExec = new PreDistFile( $version, $needMd5, 0, $needMTime );
+            $syncExec->upgradeFiles( $src, $dest, $expDir, $noDelete, $noAttrs );
+        };
+        if ($@) {
+            $isFail = 1;
+            my $msg = $@;
+            $msg =~ s/ at .*?$//;
+            print("$msg\n");
+        }
+
+        if ( $isFail != 0 ) {
+            print("ERROR: $pname $namePath version:$version failed.\n");
+        }
+        else {
+            print("FINEST: $pname $namePath version:$version success.\n");
+        }
+    }
+
+    return $isFail;
+}
+
+exit main();
+

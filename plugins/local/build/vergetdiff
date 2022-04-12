@@ -1,0 +1,184 @@
+#!/usr/bin/perl
+
+use FindBin;
+
+use strict;
+use Getopt::Long;
+use File::Copy;
+use File::Path;
+use Cwd;
+
+use DeployUtils;
+use BuildLock;
+use VerGet;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
+    print("              [--version VERSION]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
+    print("\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --lang\toptionnal, LANG\n");
+    print("  --version\toptionnal, Version number\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $exclude, $diffSaveDir, $tag4CmpTo, $startRev );
+    my ( $userName, $password );
+
+    GetOptions(
+        'h|help'        => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'lang=s'        => \$lang,
+        'version=s'     => \$version,
+        'excludedirs=s' => \$exclude,
+        'diffsavedir=s' => \$diffSaveDir,
+        'basetag=s'     => \$tag4CmpTo,
+        'baserev=s'     => \$startRev,
+        'username=s'    => \$userName,
+        'password=s'    => \$password
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( defined($lang) ) {
+        $ENV{LANG}   = $lang;
+        $ENV{LC_ALL} = $lang;
+    }
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+
+    my $version  = $buildEnv->{VERSION};
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $prjPath  = $buildEnv->{PRJ_PATH};
+
+    my $optError = 0;
+
+    my $cwd = getcwd();
+    chdir($prjPath);
+    my @excludeDirs = ();
+    foreach my $aPath ( split( /\s*,\s*/, $exclude ) ) {
+        foreach my $bPath ( glob($aPath) ) {
+            $bPath =~ s/\/$//;
+            if ( -d $bPath ) {
+                push( @excludeDirs, $bPath );
+            }
+            else {
+                $optError = 1;
+                print("ERROR: $aPath($bPath) is not a directory.\n");
+            }
+        }
+    }
+    chdir($cwd);
+    if ( $optError == 1 ) {
+        exit(-1);
+    }
+
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $verInfo = ServerAdapter->getVer($buildEnv);
+
+    if ( not defined($verInfo) ) {
+        print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    if ( defined($userName) and $userName ne '' ) {
+        $verInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $verInfo->{password} = $password;
+    }
+
+    my $ret        = 0;
+    my $verGet     = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+    my $getSuccess = $verGet->mergeToBaseLine();
+
+    my $desc = "Get version for $namePath version:$version";
+    if ( $getSuccess eq 1 ) {
+        print("FINEST: $desc success.\n");
+    }
+    else {
+        $ret = 1;
+        print("ERROR: $desc failed.\n");
+    }
+
+    my $isFail = 0;
+
+    if ( $isFail eq 0 ) {
+        if ( $isFail == 0 ) {
+            my $diffDir = "$prjPath/$diffSaveDir";
+            rmtree($diffDir);
+
+            my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+
+            #如果没有定义$tag4CmpTo和$startRev则获取getver记录的revision的start和end
+            my $startRev;
+            my $endRev;
+            if ( $tag4CmpTo eq '' and $startRev eq '' ) {
+                $startRev = $verInfo->{startRev};
+                $endRev   = $verInfo->{endRev};
+            }
+
+            eval {
+                #通过代码仓库比较获取差异文件存放到目录$diffDir
+                my $getDiffStatus = getBuildDiff( $verGet, $tag4CmpTo, $startRev, 'HEAD', $prjPath, $diffDir, \@excludeDirs, $isVerbose );
+                if ( $getDiffStatus ne 0 ) {
+                    $isFail = 1;
+                    print("ERROR: $namePath version:$version get diff failed.\n");
+                }
+            };
+
+            if ($@) {
+                $isFail = 1;
+                my $msg = $@;
+                $msg =~ s/ at .*?$//;
+                print($msg);
+            }
+        }
+    }
+
+    if ( $isFail eq 0 ) {
+        print("FINEST: $namePath version:$version diff $tag4CmpTo success.\n");
+    }
+    else {
+        print("ERROR: $namePath version:$version diff $tag4CmpTo failed.\n");
+    }
+
+    return $isFail;
+}
+
+sub getBuildDiff {
+    my ( $verGet, $tag4CmpTo, $startRev, $endRev, $prjDir, $diffDir, $excludeDirs, $isVerbose ) = @_;
+
+    if ( not -e $diffDir ) {
+        mkdir($diffDir);
+    }
+
+    my $ret = 1;
+    if ( defined($tag4CmpTo) and $tag4CmpTo ne '' ) {
+        $ret = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
+    }
+    elsif ( defined($startRev) and $startRev ne '' ) {
+
+        $ret = $verGet->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
+    }
+    else {
+        print("ERROR: Must defined tag name to compare to.\n");
+    }
+
+    print("----------------------------------------------------------------------\n");
+
+    return $ret;
+}
+
+exit main();
+

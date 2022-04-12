@@ -1,0 +1,112 @@
+{
+    "opDesc": "GIT保护设置",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "设置或删除GIT的保护策略",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "apibaseurl",
+            "name": "API根URL",
+            "help": "GitLab的RestFul api的根，例如：https://gitlab.example.com/api/v4",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.api.token}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "访问仓库的用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.user}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "token",
+            "name": "验证令牌",
+            "help": "访问API的Token",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.api.token}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "object",
+            "name": "保护类型",
+            "help": "保护策略保护的类型",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "tags",
+                    "value": "tags",
+                    "selected": "true"
+                },
+                {
+                    "text": "branches",
+                    "value": "branches"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "pattern",
+            "name": "保护目标",
+            "help": "保护目标名称或名称的Pattern",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "action",
+            "name": "动作",
+            "help": "动作（增加或删除保护）",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "添加",
+                    "value": "add",
+                    "selected": "true"
+                },
+                {
+                    "text": "删除",
+                    "value": "delete"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

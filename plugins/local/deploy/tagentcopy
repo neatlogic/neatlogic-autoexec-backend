@@ -1,0 +1,208 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Cwd;
+
+use TagentClient;
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--verbose 0|1]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--np 0|1] [--followlinks 0|1]\n");
+    print("              [-x ExcludeSubDirs] [--pull 0|1]\n");
+    print("              [--src SourceSubDir] [--dest ServerSitePath]\n");
+    print("              <src1> <src2> <dest>\n");
+    print("\n");
+    print("       copy files to remote server\n");
+    print("       --envpath:           Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:           version number of sub system\n");
+    print("       --pull:              pull from remote site to local site\n");
+    print("       --pdir:              sub directory type of this system\n");
+    print("       --np    : not preserve the mode of file\n");
+    print("       --cpifexists: copy if local dir or file exists.\n");
+    print("       --followlinks:       symbol link as directory\n");
+    print("       --x:                 do not symc sub dir or files, example:sub1/sub2,sub3\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $node );
+    my ( $pdir,   $np,        $cpIfExists );
+    my ( $host,   $port,      $user,    $pass,    $expDir );
+    my $isPull            = 0;
+    my $isPush            = 1;
+    my $noDelete          = 0;
+    my $noAttrs           = 0;
+    my $addExecForNewFile = 0;
+    my $followLinks       = 0;
+    my $pname             = $FindBin::Script;
+
+    $isVerbose = 0;
+    $pdir      = 'distribute';
+
+    GetOptions(
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'h|help'        => \$isHelp,
+        'pdir=s'        => \$pdir,
+        'np=i'          => \$np,
+        'cpifexists'    => \$cpIfExists,
+        'followlinks=i' => \$followLinks,
+        'pull=i'        => \$isPull,
+        'x|exp=s'       => \$expDir,
+        'node=s'        => \$node,
+        '<>'            => \&pushItems
+    );
+
+    my @dirs;
+
+    sub pushItems {
+        my ($item) = @_;
+        push( @dirs, $item );
+    }
+
+    my $optionError = 0;
+
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    if ( $isPull == 0 ) {
+        $isPush = 1;
+    }
+
+    if ( scalar(@dirs) < 2 ) {
+        print("ERROR: must define local path and remote path.\n");
+        $optionError = 1;
+    }
+
+    for ( my $i = 0 ; $i < scalar(@dirs) ; $i++ ) {
+        my $dir = $dirs[$i];
+        if ( $dir =~ /\/\.\.\// or $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ ) {
+            print("ERROR: path can not has parent dir opertor:\"..\".\n");
+            $optionError = 1;
+        }
+        else {
+            $dir = DeployUtils->charsetConv( $dirs[$i], 'utf-8' );
+            $dirs[$i] = $dir;
+        }
+    }
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
+    my $verPath  = $dirInfo->{$pdir};
+
+    if ( defined($pdir) ) {
+        if ( not defined($verPath) ) {
+            print("ERROR: $pdir not valid, not in appsync|mirror|appbuild|version.\n");
+            $optionError = 1;
+        }
+    }
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    usage() if ( $optionError == 1 );
+
+    my $direction = 'push';
+    if ( $isPull == 1 ) {
+        $direction = 'pull';
+    }
+
+    my ( $env, $insId, $insName, $verPath, $verDiffPath );
+
+    my $envName = $buildEnv->{ENV_NAME};
+    my $verRoot = $dirInfo->{appRoot};
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    $port = 22 if ( not defined($port) );
+
+    my $insLockPath = "$verRoot/.$host.$insId.lock";
+    my $verDiffPath = "$verPath.ins/$insName";
+
+    my $tagent = new TagentClient( $host, $port, $pass );
+
+    my $hasError = 0;
+
+    my ( @srcs, $dest );
+    $dest = pop(@dirs);
+
+    if ($isPush) {
+        foreach my $dir (@dirs) {
+            my $aSrc = "$verPath/$dir";
+
+            my @aSrcExpanded = bsd_glob($aSrc);
+
+            if ( scalar(@aSrcExpanded) == 0 ) {
+                if ( defined($cpIfExists) ) {
+                    print("WARN: the src $aSrc does not match any file!\n");
+                    next;
+                }
+            }
+
+            foreach my $d (@aSrcExpanded) {
+                push( @srcs, $d );
+            }
+
+            my $hasDiff  = 0;
+            my @diffDirs = bsd_glob("$verDiffPath/$dir");
+            foreach my $diffDir (@diffDirs) {
+                if ( -e $diffDir ) {
+                    $hasDiff = 1;
+                    last;
+                }
+            }
+            if ( $hasDiff == 1 ) {
+                push( @srcs, "$verDiffPath/$dir" );
+            }
+        }
+
+        foreach my $src (@srcs) {
+            my $status = $tagent->upload( $user, $src, $dest, $isVerbose, 0, $followLinks );
+            $hasError = $hasError + $status;
+        }
+    }
+    elsif ($isPull) {
+        $dest = "$verPath/$dest";
+        foreach my $dir (@dirs) {
+            my $status = $tagent->download( $user, $dir, $dest, $isVerbose, $followLinks );
+            $hasError = $hasError + $status;
+        }
+    }
+
+    if ( $hasError == 0 ) {
+        print( "FINEST: $pname --$direction " . join( ',', @dirs ) . " $dest success.\n" );
+    }
+    else {
+        print( "ERROR: $pname --$direction " . join( ',', @dirs ) . " $dest failed.\n" );
+    }
+
+    return $hasError;
+}
+
+exit main();
+

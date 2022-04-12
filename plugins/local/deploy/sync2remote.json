@@ -1,0 +1,243 @@
+{
+    "opDesc": "同步环境制品",
+    "opType": "localremote",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "同步本地环境制品到远程服务器上",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "ostype",
+            "name": "OS类型",
+            "help": "操作系统类型",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "Unix｜Linux",
+                    "value": "unix"
+                },
+                {
+                    "text": "Windows",
+                    "value": "windows",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "agenttype",
+            "name": "Agent类型",
+            "help": "Agent的类型",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "无Agent",
+                    "value": "agentless",
+                    "selected": "true"
+                },
+                {
+                    "text": "Tagent",
+                    "value": "tagent"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "pdir",
+            "name": "基础目录",
+            "help": "相对于应用数据目录的基础目录类别",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "环境制品目录",
+                    "value": "distribute",
+                    "selected": "true"
+                },
+                {
+                    "text": "版本制品目录",
+                    "value": "release"
+                },
+                {
+                    "text": "环境镜像制品",
+                    "value": "mirror"
+                },
+                {
+                    "text": "工程目录",
+                    "value": "project"
+                },
+                {
+                    "text": "根目录",
+                    "value": "approot"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "nodelete",
+            "name": "删除多出内容",
+            "help": "删除目标目录多出的文件或子目录",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "0",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "1"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "noattrs",
+            "name": "同步文件权限",
+            "help": "把源目录下的文件和子目录的权限同步到目标目录",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "0",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "1"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "followlinks",
+            "name": "FollowLinks",
+            "help": "把软连接当作普通目录文件",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "addexecfornewfile",
+            "name": "加执行权限",
+            "help": "对新增的文件，主动赋予执行权限",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "pull",
+            "name": "拉取文件",
+            "help": "从远程拷贝到本地",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "exp",
+            "name": "排除目录",
+            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "src",
+            "name": "源目录",
+            "help": "同步的源目录（相对于当前系统存储物料的根目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "dest",
+            "name": "目标目录",
+            "help": "同步的目标目录（相对于当前系统存储物料的根目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "文件或目录",
+        "help": "最后一个是拷贝的目标文件或目录，类似真实的scp命令",
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

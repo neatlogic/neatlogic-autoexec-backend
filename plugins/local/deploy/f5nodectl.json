@@ -1,0 +1,118 @@
+{
+    "opDesc": "A10 POOL节点控制",
+    "opType": "localremote",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "Disable或Enable负载均衡F5 POOL的节点",
+    "enabled": 0,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "baseurl",
+            "name": "接口URL",
+            "help": "F5接口URL地址，例如：https://10.16.185.1",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "访问仓库的用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.user}",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问仓库的密码",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "${global:git.password}",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "pool",
+            "name": "POOL名称",
+            "help": "A10目标POOL名称",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "action",
+            "name": "操作",
+            "help": "操作（enable｜disable）",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "Disable",
+                    "value": "disable",
+                    "selected": "true"
+                },
+                {
+                    "text": "enable",
+                    "value": "enable"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "waitdisconnected",
+            "name": "等待连接断开",
+            "help": "执行节点disable后，等待分配到该节点的所有connection断开",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时",
+            "help": "调用超时时间（秒）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "15",
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

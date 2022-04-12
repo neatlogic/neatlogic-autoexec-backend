@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+
+use FindBin;
+
+use strict;
+use Getopt::Long;
+use File::Copy;
+use File::Path;
+use Cwd;
+
+use DeployUtils;
+use BuildLock;
+use VerGet;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--lang LANG] \n");
+    print("              [--version VERSION]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
+    print("\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --lang\toptionnal, LANG\n");
+    print("  --version\toptionnal, Version number\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $userName, $password );
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'lang=s'      => \$lang,
+        'version=s'   => \$version,
+        'username=s'  => \$userName,
+        'password=s'  => \$password
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( defined($lang) ) {
+        $ENV{LANG}   = $lang;
+        $ENV{LC_ALL} = $lang;
+    }
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+
+    my $version  = $buildEnv->{VERSION};
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
+
+    my $verInfo = ServerAdapter->getVer($buildEnv);
+
+    if ( not defined($verInfo) ) {
+        print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    if ( defined($userName) and $userName ne '' ) {
+        $verInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $verInfo->{password} = $password;
+    }
+
+    my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+    my $ret = $verGet->checkChangedAfterCompiled();
+
+    if ( $ret eq 0 ) {
+        print("FINEST: $namePath version:$version source code not changed after compiled.\n");
+    }
+    else {
+        print("ERROR: $namePath version:$version source code changed after compiled.\n");
+    }
+
+    return $ret;
+}
+
+exit main();
+

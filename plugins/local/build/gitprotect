@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Data::Dumper qw(Dumper);
+use JSON qw(to_json from_json);
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [--envpath EnvPath]  [--version VERSION]\n");
+    print("              [--object tags/branches] [--action add|delete] [--pattern v*/1.0.0]\n");
+    print("              [--username USERNAME]\n");
+    print("\n");
+    print("       --envpath:    Env Path\n");
+    print("       --version:    version\n");
+    print("       --apibaseurl: gitlab rest api base url，example：https://gitlab.example.com/api/v4\n");
+    print("       --token:      rest api authenticate token\n");
+    print("       --object:     object type to be protected\n");
+    print("       --action:     add protect or withdraw\n");
+    print("       --pattern:    protect target or rules\n");
+
+    exit(1);
+}
+
+sub apicall {
+    my ( $method, $api, $token, $expectStatusCode ) = @_;
+    my $client = REST::Client->new();
+    $client->addHeader( "PRIVATE-TOKEN", "$token" );
+
+    #print("DEBUG: $api, $method, $token, $expect_retcode\n");
+
+    $client->$method($api);
+    my $retcode = $client->responseCode();
+    if ( $client->responseCode() ne $expectStatusCode ) {
+        my $errMsg = $client->responseContent();
+        $errMsg = from_json($errMsg);
+        if ( $retcode eq "409" or $retcode eq "422" ) {
+            print("@{$errMsg->{message}}\n") if defined( $errMsg->{message} );
+        }
+        else {
+            die("ERROR: $errMsg->{message}\n") if defined( $errMsg->{message} );
+        }
+    }
+    my $return = $client->responseContent();
+
+    return $return;
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $object, $action, $pattern, $apiBaseUrl, $token, $userName );
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'envpath=s'    => \$envPath,
+        'version=s'    => \$version,
+        'action=s'     => \$action,
+        'object=s'     => \$object,
+        'pattern=s'    => \$pattern,
+        'apibaseurl=s' => \$apiBaseUrl,
+        'username=s'   => \$userName,
+        'token=s'      => \$token
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) );
+    usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $verInfo = ServerAdapter->getVer($buildEnv);
+
+    my $repo = $verInfo->{repo};
+
+    my $prjsApiUrl = "$apiBaseUrl/projects";
+
+    my $userId;
+    my $usersJsonStr = apicall( "GET", "$apiBaseUrl/users?username=$userName", $token, "200" );
+    my $usersJson = from_json($usersJsonStr);
+    if ( @$usersJson[0]->{id} ne '' ) {
+        $userId = @$usersJson[0]->{id};
+    }
+
+    my $projectsJsonStr = apicall( "GET", "$apiBaseUrl/users/$userId/projects", $token, "200" );
+    my $projectsJson = from_json($projectsJsonStr);
+
+    my $repoId;
+    foreach my $prjInfo (@$projectsJson) {
+        if ( $repo eq $prjInfo->{http_url_to_repo} ) {
+            $repoId = $prjInfo->{id};
+            last;
+        }
+    }
+
+    if ( $repoId eq '' ) {
+        die("Cannot find project's id: $repo\n");
+    }
+
+    my $protectApiUrl;
+    if ( $object eq "tags" ) {
+        $protectApiUrl = "$prjsApiUrl/$repoId/protected_tags";
+    }
+    elsif ( $object eq "branches" ) {
+        $protectApiUrl = "$prjsApiUrl/$repoId/protected_branches";
+    }
+
+    if ( $action eq "delete" ) {
+        print("INFO: withdraw $object protect: $pattern\n");
+        print("INFO: check if $object protect exists: $pattern\n");
+        my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
+        my @protects = @{ from_json($protectsJsonStr) };
+        if (@protects) {
+            foreach my $protect (@protects) {
+                if ( $protect->{name} eq $pattern ) {
+                    apicall( "DELETE", "$protectApiUrl/$pattern", $token, "204" );
+                    print("INFO: withdraw $object protect: $pattern success\n");
+                }
+            }
+        }
+
+    }
+    elsif ( $action eq "add" ) {
+        print("INFO: add protect\n");
+        print("INFO: check if $object protect exists: $pattern\n");
+        my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
+        my @protects = @{ from_json($protectsJsonStr) };
+        if (@protects) {
+            foreach my $protect (@protects) {
+                if ( $protect->{name} eq $pattern ) {
+                    print("INFO: $object protect $pattern already exist\n");
+                    return 0;
+                }
+            }
+        }
+        my $protectRulesStr = apicall( "POST", "$protectApiUrl?name=$pattern", $token, "201" );
+        my $protectRules = from_json($protectRulesStr);
+        print("INFO: add protect: $protectRules->{name} success\n") if defined( $protectRules->{name} );
+    }
+
+}
+
+main();

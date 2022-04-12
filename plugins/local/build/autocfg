@@ -1,0 +1,107 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use Getopt::Long;
+
+use AutoCfg;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG]\n");
+    print("              [--md5check 0|1] [--nocheckorgexists 0|1] [--nozip 0|1] [--followtar 0|1]\n");
+    print("              ConfigFile1 ConfigFile2\n");
+    print("\n");
+    print("       --version:          version number\n");
+    print("       --nozip:            just only extract firstlevel package\n");
+    print("       --followtar:        extract tar and tar.gz pkg to autocfg\n");
+    print("       --md5check:         check md5 sum\n");
+    print("       --nocheckorgexists: don't check if the original file exists\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my @cfgFiles;
+    my $isVerbose        = 0;
+    my $noCheckOrgExists = 0;
+    my $noZip            = 0;
+    my $noclean          = 0;
+    my $followTar        = 0;
+    my $followZip        = 1;
+    my $pureDir          = 0;
+    my $doClean          = 1;
+    my $checkOrg         = 1;
+    my $md5Check         = 0;
+    my $charset          = 'utf-8';
+
+    GetOptions(
+        'h|help'             => \$isHelp,
+        'v|verbose=i'        => \$isVerbose,
+        'envpath=s'          => \$envPath,
+        'version=s'          => \$version,
+        'nozip=i'            => \$noZip,
+        'followtar=i'        => \$followTar,
+        'puredir=i'          => \$pureDir,
+        'md5check=i'         => \$md5Check,
+        'lang=s'             => \$lang,
+        'nocheckorgexists=i' => \$noCheckOrgExists,
+        'noclean=i'          => \$noclean,
+        '<>'                 => sub { my $item = shift(@_); push( @cfgFiles, $item ); }
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) );
+
+    if ( $noZip == 1 ) {
+        $followZip = 0;
+    }
+
+    if ( $noclean == 1 ) {
+        $doClean = 0;
+    }
+
+    if ( $noCheckOrgExists == 1 ) {
+        $checkOrg = 0;
+    }
+
+    if ( defined($lang) ) {
+        if ( $lang =~ /\.(.*)$/ ) {
+            $charset = lc($1);
+        }
+        else {
+            $charset = lc($lang);
+        }
+    }
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $autoCfgMap = ServerAdapter->getAutoCfgConf($buildEnv);
+    my $autoCfg    = $autoCfgMap->{autoCfg};
+    if ( not defined($autoCfg) ) {
+        $autoCfg = {};
+    }
+    my $insCfgList = $autoCfgMap->{insCfgList};
+    if ( not defined( $autoCfgMap->{insCfgList} ) ) {
+        $insCfgList = [];
+    }
+    $buildEnv->{autoCfg}    = $autoCfg;
+    $buildEnv->{insCfgList} = $insCfgList;
+
+    my $isFail = AutoCfg::config( $buildEnv, \@cfgFiles, $version, $charset, $followZip, $doClean, $followTar, $checkOrg, $pureDir, $md5Check );
+
+    if ( $isFail != 0 ) {
+        print("ERROR: Auto config $namePath version:$version failed.\n");
+    }
+    else {
+        print("FINEST: Auto config $namePath version:$version success.\n");
+    }
+
+    return $isFail;
+}
+
+exit main();
+

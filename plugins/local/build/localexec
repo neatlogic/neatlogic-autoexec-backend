@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Getopt::Long;
+
+use DeployUtils;
+use ServerAdapter;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG]\n");
+    print("       [--basedir SubDirectoryInSysDataPath] --cmd Command\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+    print("       --cmd:         command text\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $baseDir, $cmd );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'lang=s'      => \$lang,
+        'v|verbose=i' => \$isVerbose,
+        'basedir=s'   => \$baseDir,
+        'cmd=s'       => \$cmd
+    );
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($cmd) or $cmd eq '' );
+    my $optionError = 0;
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    usage() if ( $optionError == 1 );
+
+    if ( not defined($baseDir) ) {
+        $baseDir = Cwd::realpath($dataPath);
+    }
+    else {
+        $baseDir = Cwd::realpath("$dataPath/$baseDir");
+    }
+
+    my $isFail = 0;
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- $cmd") != 0 ) {
+        print("ERROR: exec $cmd has error.\n");
+        $isFail = 1;
+    }
+    else {
+        print("INFO: exec $cmd has successed.\n");
+    }
+
+    return $isFail;
+}
+
+exit main();
+

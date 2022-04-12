@@ -7,16 +7,15 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use strict;
 use Cwd;
 use Digest::MD5;
-use File::Basename;
 use Getopt::Long;
 use JSON;
 use SQLFileRunner;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-v|--verbose] --sqlfilejson <1.ddl.a.sql>\n");
-    print("       sql file:    sql script file\n");
+    print("Usage: $pname [--verbose 0|1] --sqlfilejson SqlFileJsonArray\n");
+    print("       --sqlfilejson: sql file json array, example:[\"1.sql\",\"2.sql\"]\n");
 
     exit(1);
 }
@@ -25,14 +24,9 @@ sub main {
     my $isforce = 0;
 
     my $node;
-    my $isHelp        = 0;
-    my $isVerbose     = 0;
-    my $isDryRun      = 0;
-    my $isForce       = 0;
-    my $isAutoCommit  = 0;
-    my $parallelCount = 0;
+    my $isHelp    = 0;
+    my $isVerbose = 0;
 
-    my $dbVersion;
     my $dbArgs;
     my $dbName;
     my $dbNodeJson;
@@ -41,8 +35,6 @@ sub main {
     GetOptions(
         'help'          => \$isHelp,
         'node=s'        => \$node,
-        'dbname=s'      => \$dbName,
-        'dbargs=s'      => \$dbArgs,
         'v|verbose=i'   => \$isVerbose,
         'sqlfilejson=s' => \$sqlFileJson
     );
@@ -93,7 +85,51 @@ sub main {
         usage();
     }
 
-    my $sqlFileRunner = SQLFileRunner->new( dbNode => $dbNode, dbName=>$dbName, dbArgs=>$dbArgs, sqlFiles => $sqlFiles );
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    #sqlfile, log, status
+    #jobpath/
+    #|-- file
+    #|   |-- 1.sql
+    #|   `-- 2.sql
+    #|-- log
+    #|   `-- phase-run
+    #|       `-- 192.168.0.26-3306-bsm
+    #|           |-- 2.sql.hislog
+    #|           |   |-- 20210625-163515-failed-anonymous.txt
+    #|           |   |-- 20210625-163607-failed-anonymous.txt
+    #|           |   `-- 20210625-164543-failed-anonymous.txt
+    #|           `-- 2.sql.txt
+    #|-- sqlfile
+    #|   `-- phase-run
+    #|       `-- 2.sql
+    #`-- status
+    #    `-- phase-run
+    #            `-- 192.168.0.26-3306-bsm
+    #                        `-- 2.sql.txt
+
+    my $sqlUploadDir = "$jobPath/file";
+    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
+    my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+    my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+
+    my $dbExtArgs = {};
+
+    my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
+
+    my $sqlFileRunner = SQLFileRunner->new(
+        dbInfo       => $dbInfo,
+        nodeInfo     => $dbNode,
+        sqlUploadDir => $sqlUploadDir,
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $sqlFiles
+    );
+
     $sqlFileRunner->checkSqlFiles();
 }
 

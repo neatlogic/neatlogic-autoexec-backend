@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use File::Path;
+use Cwd;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+use BuildUtils;
+
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--type ant|maven|gradle|npm]\n");
+    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS]\n");
+    print("       --envpath:      example:SYS-A/MODULE-X/SIT\n");
+    print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
+    print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
+    print("       --type:         build type: maven|ant|gradle|npm|ant1.5, default is auto detect.\n");
+    print("       --args:         arguments for ant|maven|gradle, default is blank.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp,    $isVerbose, $lang,      $envPath, $version );
+    my ( $startPath, $jdk,       $buildType, $args,    $isUpdate );
+    my $pname = $FindBin::Script;
+
+    my $makeToolVer = '';
+
+    GetOptions(
+        'h|help'    => \$isHelp,
+        'verbose=i' => \$isVerbose,
+
+        #'update=i'    => \$isUpdate,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'startpath=s' => \$startPath,
+        'lang=s'      => \$lang,
+        'jdk=s'       => \$jdk,
+
+        #'nodejs=s'    => \$nodejsVer,
+        'type=s' => \$buildType,
+        'args=s' => \$args
+    );
+
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($envPath) or not defined($version) );
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+    if ( $isRelease == 1 ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    my $prjPath   = $buildEnv->{PRJ_PATH};
+
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
+
+    my $opts = {
+        buildEnv    => $buildEnv,
+        version     => $version,
+        prjPath     => $prjPath,
+        buildType   => $buildType,
+        lang        => $lang,
+        startPath   => $startPath,
+        toolsPath   => $toolsPath,
+        jdk         => $jdk,
+        args        => $args,
+        isVerbose   => $isVerbose,
+        makeToolVer => $makeToolVer
+    };
+
+    my $buildUtils = BuildUtils->new();
+    $buildUtils->compile($opts);
+}
+
+exit main();
+

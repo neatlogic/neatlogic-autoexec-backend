@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+use FindBin;
+use strict;
+use DeployUtils;
+use BuildLock;
+
+use Getopt::Long;
+use JSON;
+use VerGet;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG] \n");
+    print("              --repotype GIT|SVN --repo REPO \n");
+    print("              --trunk TRUNK [--branch BRANCH] [--tagsdir TAGSDIR] [--tag TAG]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
+    print("\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --repo\tGIT or SVN repo address\n");
+    print("  --trunk\tGIT master branch or SVN trunk address\n");
+    print("  --branch\tcheckout branch\n");
+    print("  --tagsdir\tSVN directory to save tagsdir. example https://xxxx/abc/tags\n");
+    print("  --tag\tGIT tag or SVN tag address\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $repoType, $repo, $trunk, $branch, $tagsDir, $tag );
+    my ( $userName, $password );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'lang=s'      => \$lang,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'repotype=s'  => \$repoType,
+        'repo=s'      => \$repo,
+        'trunk=s'     => \$trunk,
+        'branch=s'    => \$branch,
+        'tagsdir=s'   => \$tagsDir,
+        'tag=s'       => \$tag,
+        'username=s'  => \$userName,
+        'password=s'  => \$password
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( defined($lang) ) {
+        $ENV{LANG}   = $lang;
+        $ENV{LC_ALL} = $lang;
+    }
+
+    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+
+    my $version  = $buildEnv->{VERSION};
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $versionInfo = {
+        version  => $version,
+        repoType => uc($repoType),
+        repo     => $repo,
+        trunk    => $trunk,
+        branch   => $branch,
+        tagsDir  => $tagsDir,
+        tag      => $tag
+    };
+    my $lock = BuildLock->new($buildEnv);
+    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $verInfo = ServerAdapter->getVer( $buildEnv, $version );
+
+    if ( defined($verInfo) ) {
+        if ( $verInfo->{isFreeze} ne 0 ) {
+            print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
+            return 3;
+        }
+
+        $versionInfo->{buildNo}  = $verInfo->{buildNo};
+        $versionInfo->{startRev} = $verInfo->{startRev};
+        $versionInfo->{endRev}   = $verInfo->{endRev};
+    }
+    if ( defined($userName) and $userName ne '' ) {
+        $versionInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $versionInfo->{password} = $password;
+    }
+
+    my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
+    my $ret = $verGet->get();
+
+    my $desc = "Get version for $namePath version:$version";
+    if ( $ret eq 0 ) {
+        ServerAdapter->updateVer($versionInfo);
+        print("FINEST: $desc success.\n");
+    }
+    else {
+        print("ERROR: $desc failed.\n");
+    }
+
+    return $ret;
+}
+
+exit main();
+

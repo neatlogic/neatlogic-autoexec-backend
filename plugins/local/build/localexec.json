@@ -1,0 +1,72 @@
+{
+    "opDesc": "执行本地命令",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "description": "执行本地命令，可以对系统的工程、制品进行客户化处理",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "en_US.UTF-8",
+                    "value": "en_US.UTF-8",
+                    "selected": "true"
+                },
+                {
+                    "text": "en_US.GB18030",
+                    "value": "en_US.GB18030"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "basedir",
+            "name": "可写目录",
+            "help": "相对于系统数据目录的子目录（留空代表以系统物料目录作为可写入的目录）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "cmd",
+            "name": "命令",
+            "help": "本地执行的命令",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:git.user}",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

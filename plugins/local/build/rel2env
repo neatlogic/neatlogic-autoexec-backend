@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Getopt::Long;
+
+use DeployUtils;
+use ServerAdapter;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'v|verbose=i' => \$isVerbose
+    );
+    usage() if ( defined($isHelp) );
+    my $optionError = 0;
+
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    usage() if ( $optionError == 1 );
+
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+
+    if ( $isRelease != 1 ) {
+        print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
+        return 3;
+    }
+
+    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $distDir    = $dirInfo->{distribute};
+
+    my $ret = 0;
+    if ( -e "$distDir/app" ) {
+        $ret = system("rm -rf '$distDir/app'");
+    }
+
+    if ( $ret != 0 ) {
+        return $ret;
+    }
+
+    if ( -e "$distDir/db" ) {
+        $ret = system("rm -rf '$distDir/db'");
+    }
+
+    if ( $ret != 0 ) {
+        return $ret;
+    }
+
+    if ( -e "$distDir/doc" ) {
+        $ret = system("rm -rf '$distDir/doc'");
+    }
+
+    if ( $ret != 0 ) {
+        return $ret;
+    }
+
+    if ( -d "$releaseDir/app" ) {
+        $ret = system("cp -rf '$releaseDir/app' '$distDir/'");
+    }
+
+    if ( $ret != 0 ) {
+        return $ret;
+    }
+
+    if ( -d "$releaseDir/db" ) {
+        $ret = system("cp -rf '$releaseDir/db' '$distDir/'");
+    }
+
+    if ( $ret != 0 ) {
+        return $ret;
+    }
+
+    if ( -d "$releaseDir/doc" ) {
+        $ret = system("cp -rf '$releaseDir/doc' '$distDir/'");
+    }
+
+    return $ret;
+}
+
+exit main();
+
