@@ -60,7 +60,7 @@ class Context(VContext.VContext):
             try:
                 fd = open(self.paramsFilePath, 'r')
                 self.params = json.loads(fd.read())
-            except ex:
+            except Exception as ex:
                 print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex), end='')
             finally:
                 if fd is not None:

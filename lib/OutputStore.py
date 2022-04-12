@@ -122,6 +122,6 @@ class OutputStore:
             pk = {'jobId': self.jobId}
             collection.remove(pk)
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(jobId))
+            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(self.jobId))
 
         return status
