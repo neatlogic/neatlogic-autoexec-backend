@@ -119,14 +119,15 @@ class VContext:
         subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
         return '/'.join(subPath)
 
-    def initDB(self, parallelCount):
+    def initDB(self):
         # 初始化创建mongodb connect
         dbUrl = self.config.get('autoexec', 'db.url')
+        maxPoolSize = self.config.get('autoexec', 'db.maxPoolSize')
         dbName = self.config.get('autoexec', 'db.name')
         dbUsername = self.config.get('autoexec', 'db.username')
         dbPassword = self.config.get('autoexec', 'db.password')
         if dbUrl is not None:
-            mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=parallelCount)
+            mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=maxPoolSize)
             autoexecDB = mongoClient[dbName]
 
             self.dbclient = mongoClient

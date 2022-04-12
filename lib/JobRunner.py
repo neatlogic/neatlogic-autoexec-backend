@@ -20,9 +20,10 @@ import NodeStatus
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def __init__(self, name, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
-        self.context = context
         self.goToStop = False
         self.socketPath = context.runPath + '/job.sock'
+        context.initDB()
+        self.context = context
 
     def run(self):
         socketPath = self.socketPath
@@ -106,7 +107,6 @@ class JobRunner:
         phaseStatus.hasLocal = False
         phaseStatus.hasRemote = False
 
-        self.context.initDB(parallelCount)
         self.context.loadEnv()
 
         operations = []
