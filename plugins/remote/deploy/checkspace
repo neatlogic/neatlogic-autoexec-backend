@@ -5,6 +5,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 use strict;
 use POSIX;
+use Getopt::Long;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -33,6 +34,7 @@ sub getMountPointFreeSize {
         if ( scalar(@lines) >= 2 ) {
             my $firstLine = shift(@lines);
             my $info = join( ' ', @lines );
+
             #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
             if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
                 $freeSize = int($3);
@@ -100,6 +102,7 @@ sub getMountPointInodeUsage {
         if ( scalar(@lines) >= 2 ) {
             my $firstLine = shift(@lines);
             my $info = join( ' ', @lines );
+
             #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
             if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)%\s+/ ) {
                 $inodeUsage = int($4);
@@ -125,22 +128,29 @@ sub getMountPointInodeUsage {
 }
 
 sub main() {
+    my $isHelp;
+    GetOptions( 'h|help' => \$isHelp );
+
+    usage() if ( defined($isHelp) );
+
     my $hasError = 0;
 
     foreach my $arg (@ARGV) {
-        my ($dir, $minSize, $unit, $inodeMaxSize);
+        my ( $dir, $minSize, $unit, $inodeMaxSize );
         if ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)\s+(\d+)/i ) {
-            $dir     = $1;
-            $minSize = int($2);
-            $unit    = uc($3);
+            $dir          = $1;
+            $minSize      = int($2);
+            $unit         = uc($3);
             $inodeMaxSize = $4;
-        }elsif($arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)/i){
-            $dir     = $1;
-            $minSize = int($2);
-            $unit    = uc($3);
-            $inodeMaxSize = 50;        
-        }else{
-             usage();
+        }
+        elsif ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)/i ) {
+            $dir          = $1;
+            $minSize      = int($2);
+            $unit         = uc($3);
+            $inodeMaxSize = 50;
+        }
+        else {
+            usage();
         }
 
         if ( $unit eq 'K' ) {

@@ -19,7 +19,6 @@ sub usage {
     print("Usage: $pname [-verbose <0|1>] [--md5listfile <md5 file>] [--delmd5 <0|1>] <dir1>,<dir2>\n");
     print("       -verbose <0|1>:       verbose\n");
     print("       --delmd5:             remove the md5 file if check success.\n");
-    print("       <dir pattern>:        directorys or files to process\n");
 
     exit(1);
 }
@@ -107,14 +106,18 @@ sub checkOneDir {
 }
 
 sub main {
-    my ( $isVerbose, $delMd5, @dirPatterns );
+    my ( $isHelp, $isVerbose );
+    my ( $delMd5, @dirPatterns );
 
     GetOptions(
+        'h|help'        => \$isHelp,
         'verbose:i'     => \$isVerbose,
         'delmd5:i'      => \$delMd5,
         'md5listfile:s' => \$md5ListFileName,
         '<>'            => sub { my $item = shift(@_); push( @dirPatterns, $item ); }
     );
+
+    usage() if ( defined($isHelp) );
 
     if ( scalar(@dirPatterns) == 0 ) {
         print("ERROR: no directory pattern specified.\n");
