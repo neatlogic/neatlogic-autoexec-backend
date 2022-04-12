@@ -11,48 +11,49 @@ use File::Basename;
 use Net::FTP::Recursive;
 
 sub usage {
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
-    print("Usage: $pname [-h|--host <hostname>] [-p|--port <hostname>] [-u|--user <username>] [--pass <password>] [--direction <push|pull>] [--src <src>] [--dest <dest>] \n");
-    print("       host:        remote host name or ip\n");
-    print("       port:        remote host port \n");
-    print("       username:    ssh logon username\n");
-    print("       password:    ssh logon password\n");
-    print("       direction: push from local site to remote site or pull from remote site to local site .\n");
-    print("       src: copy source path ,many src path , separated .\n");
-    print("       dest: remote target path .\n");
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:      Host node json\n");
+    print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       --src:       copy source path ,many src path , separated .\n");
+    print("       --dest:      remote target path .\n");
     exit(1);
 }
 
 sub main {
-    my ( $ishelp, $host, $port, $user, $pass, $direction, $src, $dest );
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest );
 
     AutoExecUtils::setEnv();
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     my $isVerbose = 0;
-    
+
     GetOptions(
-        'help'        => \$ishelp,
-        'v=i'         => \$isVerbose,
-        'h|host:s'    => \$host,
-        'p|port:i'    => \$port,
-        'u|user:s'    => \$user,
-        'pass:s'      => \$pass,
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
         'direction:s' => \$direction,
         'src:s'       => \$src,
         'dest:s'      => \$dest
     );
 
+    usage() if ( defined($isHelp) );
+
     my $optionError = 0;
-    if ( not defined($host) or $host eq '' ) {
-        print("ERROR: must define remote host.\n");
-        $optionError = 1;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( ( not defined($user) or $user eq '' ) || ( not defined($pass) or $pass eq '' ) ) {
-        print("ERROR: must define user and password.\n");
+    if ( not defined($node) or $node eq '' ) {
         $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
     }
 
     if ( not defined($direction) or $direction eq '' ) {
@@ -78,17 +79,24 @@ sub main {
         $optionError = 1;
     }
 
-    if ( not defined($port) or $port eq '' ) {
-        $port = 21;
-    }
-
     if ( $optionError == 1 ) {
         usage();
     }
 
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = 21;
+    }
+
     my $isSuccess = 0;
-    my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
-    $ftp->login( "ftpadmin", 'ftpadmin' ) or die "ERROR::$user login failed.\n";
+    my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
+    $ftp->login( $user, $pass ) or die "ERROR::$user login failed.\n";
     $ftp->binary();
     print("INFO:login ftp success.\n");
 

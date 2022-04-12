@@ -14,7 +14,10 @@ use AutoExecUtils;
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname --title <title> --message <message> --optype <button|input|select|mselect> --options <options to select> --role <privileged role name>\n");
+    print("Usage: $pname --title <title> --message <message>\n");
+    print("              --optype button|input|select|mselect\n");
+    print("              --options Options --role PrivilegedRole\n");
+    print("\n");
     print(qq{Example: $pname --title "Confirm" --message "Confirm your operation, continue?" --optype "button", --options '["Yes", "No"]'\n});
 
     exit(1);
