@@ -1,7 +1,7 @@
 {
     "opDesc": "WAS发布",
     "opType": "remote",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "description": "WAS发布",
