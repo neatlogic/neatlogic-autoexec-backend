@@ -113,6 +113,10 @@ class VContext:
         self.paramsFilePath = self.runPath + '/params.json'
         os.environ['JOB_PARAMS_PATH'] = self.paramsFilePath
 
+    def __del__(self):
+        if self.dbclient is not None:
+            self.dbclient.close()
+
     def _getSubPath(self, jobId):
         jobIdStr = str(jobId)
         jobIdLen = len(jobIdStr)
