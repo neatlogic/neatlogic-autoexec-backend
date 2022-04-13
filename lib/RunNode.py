@@ -327,16 +327,30 @@ class RunNode:
         opOutPutPath = self._getOpOutputPath(op)
         if os.path.exists(opOutPutPath):
             try:
+                opOutput = {}
                 opOutputFile = open(opOutPutPath, 'r')
                 content = opOutputFile.read()
                 if content:
                     opOutput = json.loads(content)
-                    self.output[op.opId] = opOutput
+
+                # 根据output的定义填入工具没有输出的output属性
+                for outOpt in self.outputDesc:
+                    if outOpt['opt'] not in opOutput:
+                        opOutput[outOpt['opt']] = outOpt['defaultValue']
+
+                self.output[op.opId] = opOutput
             except Exception as ex:
                 self.writeNodeLog('ERROR: Load operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
             finally:
                 if opOutputFile:
                     opOutputFile.close()
+
+    def _getOpFileOutVals(self, op):
+        fileOutVals = []
+        opOutput = self.output[op.opId]
+        for fileOpt in op.outputFiles:
+            fileOutVals.append(opOutput[fileOpt])
+        return fileOutVals
 
     def _removeOpOutput(self, op):
         opOutputFile = None
@@ -410,7 +424,8 @@ class RunNode:
                 self._removeOpOutput(op)
                 self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
             else:
-                self._loadOpOutput(op)
+                if op.opType != 'remote':
+                    self._loadOpOutput(op)
                 self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
         except:
@@ -710,6 +725,14 @@ class RunNode:
                         if outputStatus != 0:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
+                        else:
+                            self._loadOpOutput(op)
+                            outFilePaths = self._getOpFileOutVals(op)
+                            for outFilePath in outFilePaths:
+                                outputStatus = tagent.download(self.username, '{}/{}'.format(remotePath), outFilePath, outputFilePath)
+                                if outputStatus != 0:
+                                    self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
+                                    ret = 2
                     try:
                         if not self.context.devMode and ret == 0:
                             if tagent.agentOsType == 'windows':
@@ -876,6 +899,10 @@ class RunNode:
                         try:
                             outputFilePath = self._getOpOutputPath(op)
                             sftp.get('{}/output.json'.format(remotePath), outputFilePath)
+                            self._loadOpOutput(op)
+                            outFilePaths = self._getOpFileOutVals(op)
+                            for outFilePath in outFilePaths:
+                                sftp.get('{}/{}'.format(remotePath, outFilePath), outputFilePath)
                         except:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
