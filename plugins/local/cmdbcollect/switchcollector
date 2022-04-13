@@ -41,6 +41,11 @@ sub main {
 
     my $nodeInfo  = {};
     my $hasOptErr = 0;
+
+    if ( not defined($node) ) {
+        $node = $ENV{'AUTOEXEC_NODE'};
+    }
+
     if ( not defined($node) or $node eq '' ) {
         print("ERROR: option --node not defined.\n");
         $hasOptErr = 1;
