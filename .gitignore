@@ -7,6 +7,5 @@ plib/*
 .vscode/*
 .DS_Store
 **/.DS_Store
-plugins/local/lib/perl-lib
 plugins/local/media/perl-pkgs/*/
 tools/*
