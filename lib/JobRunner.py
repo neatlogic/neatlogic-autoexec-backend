@@ -22,9 +22,10 @@ import NodeStatus
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def __init__(self, name, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
-        self.context = context
         self.goToStop = False
         self.socketPath = context.runPath + '/job.sock'
+        context.initDB()
+        self.context = context
 
     def run(self):
         socketPath = self.socketPath
@@ -148,7 +149,7 @@ class JobRunner:
 
     def execOperations(self, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
         phaseStatus = self.context.phases[phaseName]
-        self.context.initDB(parallelCount)
+
         self.context.loadEnv()
 
         operations = []
@@ -257,7 +258,7 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
         # 获取分组运行的最大的并行线程数
         parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
-        
+
         threads = []
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']

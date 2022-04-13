@@ -93,7 +93,7 @@ def registerTools(serverAdapter, pluginsPath, opType):
                         descFile = open(descPath, 'r')
                         pluginObj = json.loads(descFile.read())
                         if 'enabled' in pluginObj and pluginObj['enabled'] == 0:
-                            #如果工具没有enabled，则略过注册
+                            # 如果工具没有enabled，则略过注册
                             continue
 
                         print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     if args.cleanstatus:
         vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
-        vContext.initDB(1)
+        vContext.initDB()
 
         outputStore = OutputStore.OutputStore(vContext, None, None)
         outputStore.removeJobStatus()

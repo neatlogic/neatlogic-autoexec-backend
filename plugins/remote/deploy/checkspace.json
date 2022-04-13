@@ -9,6 +9,7 @@
     "argument": {
         "name": "检查表达式",
         "help": "例如：'/app/mysystem1 100M 50','/app/mysystem2 10G 50'",
+        "count": 0,
         "type": "text",
         "isConst": "false",
         "defaultValue": "",

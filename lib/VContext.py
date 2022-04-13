@@ -128,25 +128,28 @@ class VContext:
         self.paramsFilePath = self.runPath + '/params.json'
         os.environ['JOB_PARAMS_PATH'] = self.paramsFilePath
 
+    def __del__(self):
+        if self.dbclient is not None:
+            self.dbclient.close()
+
     def _getSubPath(self, jobId):
         jobIdStr = str(jobId)
         jobIdLen = len(jobIdStr)
         subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
         return '/'.join(subPath)
 
-    def initDB(self, parallelCount):
-        # 初始化创建mongodb connect
-        #if self.dbclient:
-        #    self.dbclient.close()
-
+    def initDB(self):
         dbUrl = self.config.get('autoexec', 'db.url')
+        maxPoolSize = int(self.config.get('autoexec', 'db.maxPoolSize'))
         dbName = self.config.get('autoexec', 'db.name')
         dbUsername = self.config.get('autoexec', 'db.username')
         dbPassword = self.config.get('autoexec', 'db.password')
-        if parallelCount < 1:
-            parallelCount = 8
+
+        if maxPoolSize <= 0:
+            maxPoolSize = 64
+
         if dbUrl is not None:
-            mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=parallelCount)
+            mongoClient = pymongo.MongoClient(dbUrl, username=dbUsername, password=dbPassword, maxPoolSize=maxPoolSize)
             autoexecDB = mongoClient[dbName]
 
             self.dbclient = mongoClient
