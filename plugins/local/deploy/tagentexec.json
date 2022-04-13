@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "通过Tagent执行远程命令",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -51,10 +49,9 @@
             "opt": "async",
             "name": "异步执行",
             "help": "异步执行，不等待执行结束",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -73,8 +70,7 @@
             "help": "指定服务端的执行字符集",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "自动",
                     "value": "",
                     "selected": "true"

@@ -1,6 +1,6 @@
 {
 	"opDesc": "FTP远程拷贝",
-	"opType": "runner",
+	"opType": "runner_target",
 	"typeName": "BASIC",
 	"riskName": "HIGH",
 	"interpreter": "perl",
@@ -26,16 +26,16 @@
 		},
 		{
 			"opt": "direction",
-			"name": "拷贝方式",
-			"help": "",
+			"name": "拷贝方向",
+			"help": "拷贝方向",
 			"type": "select",
 			"isConst": "false",
 			"defaultValue": [{
-				"text": "远程拷贝到本地",
+				"text": "远程到本地",
 				"value": "pull",
 				"selected": "true"
 			}, {
-				"text": "本地拷贝到远程",
+				"text": "本地到远程",
 				"value": "push"
 			}],
 			"required": "true",

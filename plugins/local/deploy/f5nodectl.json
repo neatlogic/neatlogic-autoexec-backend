@@ -10,7 +10,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [{
                     "text": "是",
@@ -88,7 +88,7 @@
             "opt": "waitdisconnected",
             "name": "等待连接断开",
             "help": "执行节点disable后，等待分配到该节点的所有connection断开",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [{
                     "text": "是",

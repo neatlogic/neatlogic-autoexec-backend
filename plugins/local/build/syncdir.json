@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "同步本地的两个目录内容",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -31,10 +29,9 @@
             "opt": "nomd5",
             "name": "文件MD5",
             "help": "同步时比较文件的MD5",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0",
                     "selected": "true"
@@ -51,10 +48,9 @@
             "opt": "nodelete",
             "name": "删除多出内容",
             "help": "删除目标目录多出的文件或子目录",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0",
                     "selected": "true"
@@ -71,10 +67,9 @@
             "opt": "noattrs",
             "name": "同步文件权限",
             "help": "把源目录下的文件和子目录的权限同步到目标目录",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0",
                     "selected": "true"
@@ -91,10 +86,9 @@
             "opt": "notime",
             "name": "比较修改时间",
             "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0"
                 },

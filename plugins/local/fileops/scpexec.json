@@ -1,22 +1,41 @@
 {
 	"opDesc": "SSH远程拷贝",
-	"opType": "runner",
+	"opType": "runner_target",
 	"typeName": "BASIC",
 	"riskName": "HIGH",
 	"interpreter": "perl",
 	"description": "基于SSH协议进行文件传输",
 	"option": [{
-			"opt": "direction",
-			"name": "拷贝方式",
+			"opt": "verbose",
+			"name": "输出详细信息",
 			"help": "",
+			"type": "radio",
+			"isConst": "false",
+			"defaultValue": [{
+					"text": "否",
+					"value": "0",
+					"selected": "true"
+				},
+				{
+					"text": "是",
+					"value": "1"
+				}
+			],
+			"required": "false",
+			"validate": ""
+		},
+		{
+			"opt": "direction",
+			"name": "拷贝方向",
+			"help": "拷贝方向",
 			"type": "select",
 			"isConst": "false",
 			"defaultValue": [{
-				"text": "远程拷贝到本地",
+				"text": "远程到本地",
 				"value": "pull",
 				"selected": "true"
 			}, {
-				"text": "本地拷贝到远程",
+				"text": "本地到远程",
 				"value": "push"
 			}],
 			"required": "true",
@@ -40,25 +59,6 @@
 			"isConst": "false",
 			"defaultValue": "",
 			"required": "true",
-			"validate": ""
-		},
-		{
-			"opt": "verbose",
-			"name": "输出详细信息",
-			"help": "",
-			"type": "radio",
-			"isConst": "false",
-			"defaultValue": [{
-					"text": "否",
-					"value": "0",
-					"selected": "true"
-				},
-				{
-					"text": "是",
-					"value": "1"
-				}
-			],
-			"required": "false",
 			"validate": ""
 		},
 		{

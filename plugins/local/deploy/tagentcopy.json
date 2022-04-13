@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "通过Tagent拷贝文件或目录",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -33,8 +31,7 @@
             "help": "相对于应用数据目录的基础目录类别",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "环境制品目录",
                     "value": "distribute",
                     "selected": "true"
@@ -63,10 +60,9 @@
             "opt": "cpifexists",
             "name": "当文件存在时才拷贝",
             "help": "当本地文件存在时，才执行拷贝",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -81,17 +77,16 @@
         },
         {
             "opt": "pull",
-            "name": "拉取文件",
-            "help": "从远程拷贝到本地",
+            "name": "拷贝方向",
+            "help": "拷贝方向",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
+            "defaultValue": [{
+                    "text": "远程到本地",
                     "value": "1"
                 },
                 {
-                    "text": "否",
+                    "text": "本地到远程",
                     "value": "0",
                     "selected": "true"
                 }
@@ -103,10 +98,9 @@
             "opt": "followlinks",
             "name": "FollowLinks",
             "help": "把软连接当作普通目录文件",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -123,10 +117,9 @@
             "opt": "np",
             "name": "保留权限属性",
             "help": "同时拷贝文件的属性和权限",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
