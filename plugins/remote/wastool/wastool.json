@@ -10,7 +10,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [{
                     "text": "是",
@@ -235,7 +235,7 @@
             "opt": "standalone",
             "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [{
                     "text": "否",
@@ -253,7 +253,7 @@
             "opt": "need_deploy",
             "name": "新应用自动部署",
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
             "defaultValue": [{
                     "text": "否",

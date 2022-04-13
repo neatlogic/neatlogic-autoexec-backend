@@ -6,15 +6,13 @@
     "interpreter": "perl",
     "description": "同步本地环境制品到远程服务器上",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -33,8 +31,7 @@
             "help": "操作系统类型",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "Unix｜Linux",
                     "value": "unix"
                 },
@@ -53,8 +50,7 @@
             "help": "Agent的类型",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "无Agent",
                     "value": "agentless",
                     "selected": "true"
@@ -73,8 +69,7 @@
             "help": "相对于应用数据目录的基础目录类别",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "环境制品目录",
                     "value": "distribute",
                     "selected": "true"
@@ -103,10 +98,9 @@
             "opt": "nodelete",
             "name": "删除多出内容",
             "help": "删除目标目录多出的文件或子目录",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0",
                     "selected": "true"
@@ -123,10 +117,9 @@
             "opt": "noattrs",
             "name": "同步文件权限",
             "help": "把源目录下的文件和子目录的权限同步到目标目录",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "0",
                     "selected": "true"
@@ -143,10 +136,9 @@
             "opt": "followlinks",
             "name": "FollowLinks",
             "help": "把软连接当作普通目录文件",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -163,10 +155,9 @@
             "opt": "addexecfornewfile",
             "name": "加执行权限",
             "help": "对新增的文件，主动赋予执行权限",
-            "type": "select",
+            "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -181,17 +172,16 @@
         },
         {
             "opt": "pull",
-            "name": "拉取文件",
-            "help": "从远程拷贝到本地",
+            "name": "拷贝方式",
+            "help": "拷贝方向",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
+            "defaultValue": [{
+                    "text": "远程拷贝到本地",
                     "value": "1"
                 },
                 {
-                    "text": "否",
+                    "text": "本地拷贝到远程",
                     "value": "0",
                     "selected": "true"
                 }
