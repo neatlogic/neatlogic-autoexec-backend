@@ -98,7 +98,17 @@ class Operation:
         self.passKey = context.config.get('server', 'password.key')
         self.param = param
 
+        # 加载操作的output描述，并计算抽取出文件output属性
+        self.outputFiles = []
         if 'output' in param:
+            self.outputDesc = param['output']
+            for outOpt in self.outputDesc:
+                if outOpt['type'] == 'file':
+                    self.outputFiles.append(outOpt['opt'])
+        else:
+            self.outputDesc = {}
+
+        if self.outputDesc:
             self.hasOutput = True
         else:
             self.hasOutput = False
