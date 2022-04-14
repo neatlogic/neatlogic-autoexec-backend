@@ -132,9 +132,12 @@ class RunNode:
         self.statusPath = '{}/{}-{}-{}.json'.format(self.statusPhaseDir, self.host, self.port, self.resourceId)
 
         self.outputRoot = self.runPath + '/output'
-        self.outputPathPrefix = '{}/output/{}-{}-{}'.format(self.runPath, self.host, self.port, self.resourceId)
-        self.opOutputPathPrefix = '{}/output-op/{}-{}-{}'.format(self.runPath, self.host, self.port, self.resourceId)
-        self.outputPath = self.outputPathPrefix + '.json'
+        self.outputRelDir = 'output/{}-{}-{}'.format(self.host, self.port, self.resourceId)
+        self.outputDir = '{}/{}'.format(self.runPath, self.outputRelDir)
+        self.outputPath = self.outputDir + '.json'
+        self.opOutputRoot = self.runPath + '/output-op'
+        self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
+        self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
 
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
@@ -244,16 +247,37 @@ class RunNode:
 
         return isExists
 
+    def _ensureOpOutputDir(self, op):
+        outDir = self.opOutputDir
+        if not os.path.exists(outDir):
+            os.mkdir(outDir)
+            # 如果操作是带目录的，则创建子目录
+            opBundleDir = os.path.dirname(op.opId)
+            if opBundleDir:
+                outDir = outDir + '/' + opBundleDir
+                if not os.path.exists(outDir):
+                    os.mkdir(outDir)
+        return outDir
+
+    def _ensureOpFileOutputDir(self, op):
+        outDir = self.opOutputDir
+        outRelDir = self.opOutputRelDir
+        if not os.path.exists(outDir):
+            os.mkdir(outDir)
+        for subName in op.opId.split('/'):
+            outRelDir = outRelDir + '/' + subName
+            outDir = outDir + '/' + subName
+            if not os.path.exists(outDir):
+                os.mkdir(outDir)
+        return outRelDir
+
     def _getOpOutputPath(self, op):
-        opOutPutPath = '{}-{}.json'.format(self.opOutputPathPrefix, op.opId)
-        opOutPutDir = os.path.dirname(opOutPutPath)
-        if len(opOutPutPath) > len(opOutPutDir) and not os.path.exists(opOutPutDir):
-            os.mkdir(opOutPutDir)
+        opOutPutPath = '{}/{}.json'.format(self.opOutputDir, op.opId)
         return opOutPutPath
 
     def _getLocalOutput(self):
         output = {}
-        localOutputPath = '{}/output/local-0.json'.format(self.runPath)
+        localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
         if os.path.exists(localOutputPath):
             # 如果runner本地存在local的output文件，则从本地加载
             # TODO：如果local的运行runner是随机选择的，那就要必须强制从mongodb中加载output
@@ -302,9 +326,10 @@ class RunNode:
             self.output = self.outputStore.loadOutput()
 
         # 加载local节点的output
-        localOutput = self._getLocalOutput()
-        if localOutput is not None:
-            self.output.update(localOutput)
+        # TODO: 在不允许local和remote混合在一个阶段的情况应该是不需要用local的output update节点的output了
+        #localOutput = self._getLocalOutput()
+        # if localOutput is not None:
+        #    self.output.update(localOutput)
 
     def _saveOutput(self):
         if self.output:
@@ -334,9 +359,9 @@ class RunNode:
                     opOutput = json.loads(content)
 
                 # 根据output的定义填入工具没有输出的output属性
-                for outOpt in self.outputDesc:
-                    if outOpt['opt'] not in opOutput:
-                        opOutput[outOpt['opt']] = outOpt['defaultValue']
+                for outOptName, outOpt in op.outputDesc.items():
+                    if outOptName not in opOutput:
+                        opOutput[outOptName] = outOpt['defaultValue']
 
                 self.output[op.opId] = opOutput
             except Exception as ex:
@@ -345,12 +370,27 @@ class RunNode:
                 if opOutputFile:
                     opOutputFile.close()
 
-    def _getOpFileOutVals(self, op):
-        fileOutVals = []
+    def _saveOpOutput(self, op):
+        # 修改操作的输出后保存到对应的文件
+        opOutput = self.output[op.opId]
+        if opOutput:
+            opOutputFile = None
+            opOutPutPath = self._getOpOutputPath(op)
+            try:
+                opOutputFile = open(opOutPutPath, 'w')
+                opOutputFile.write(json.dumps(opOutput))
+            except Exception as ex:
+                self.writeNodeLog('ERROR: Save operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
+            finally:
+                if opOutputFile:
+                    opOutputFile.close()
+
+    def _getOpFileOutMap(self, op):
+        fileOutMap = {}
         opOutput = self.output[op.opId]
         for fileOpt in op.outputFiles:
-            fileOutVals.append(opOutput[fileOpt])
-        return fileOutVals
+            fileOutMap[fileOpt] = opOutput[fileOpt]
+        return fileOutMap
 
     def _removeOpOutput(self, op):
         opOutputFile = None
@@ -489,7 +529,7 @@ class RunNode:
                 elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
 
-            #nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
+            # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime
 
             hintKey = 'FINEST:'
@@ -551,7 +591,7 @@ class RunNode:
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
         environment['AUTOEXEC_TENENT'] = os.getenv('AUTOEXEC_TENENT')
-        environment['OUTPUT_ROOT_PATH'] = self.outputRoot
+        environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
@@ -610,11 +650,11 @@ class RunNode:
         orgCmdLine = op.getCmdLine(fullPath=True)
         orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=True)
 
-        #cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
+        # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
         environment['AUTOEXEC_TENENT'] = os.getenv('AUTOEXEC_TENENT')
-        environment['OUTPUT_ROOT_PATH'] = self.outputRoot
+        environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
@@ -720,19 +760,35 @@ class RunNode:
                     self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
+                        self._ensureOpOutputDir(op)
                         outputFilePath = self._getOpOutputPath(op)
                         outputStatus = tagent.download(self.username, '{}/output.json'.format(remotePath), outputFilePath)
                         if outputStatus != 0:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
                         else:
+                            # 如果成功，而且工具有文件输出的output配置
+                            # 则下载output文件到操作的文件输出目录，
+                            # 并更新文件output对应的key的目录为相对于作业目录下的目录
                             self._loadOpOutput(op)
-                            outFilePaths = self._getOpFileOutVals(op)
-                            for outFilePath in outFilePaths:
-                                outputStatus = tagent.download(self.username, '{}/{}'.format(remotePath), outFilePath, outputFilePath)
+
+                            outFileMap = self._getOpFileOutMap(op)
+                            opFileOutRelDir = None
+                            if outFileMap:
+                                opFileOutRelDir = self._ensureOpFileOutputDir(op)
+
+                            for outFileKey, outFilePath in outFileMap.items():
+                                outFileName = os.path.basename(outFilePath)
+                                savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
+                                outputStatus = tagent.download(self.username, '{}/{}'.format(remotePath, outFilePath), savePath)
+                                opOutput = self.output[op.opId]
+                                opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
+
                                 if outputStatus != 0:
                                     self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
                                     ret = 2
+
+                            self._saveOpOutput(op)
                     try:
                         if not self.context.devMode and ret == 0:
                             if tagent.agentOsType == 'windows':
@@ -897,14 +953,30 @@ class RunNode:
 
                     if ret == 0 and op.hasOutput:
                         try:
+                            self._ensureOpOutputDir(op)
                             outputFilePath = self._getOpOutputPath(op)
                             sftp.get('{}/output.json'.format(remotePath), outputFilePath)
+                            # 如果成功，而且工具有文件输出的output配置
+                            # 则下载output文件到操作的文件输出目录，
+                            # 并更新文件output对应的key的目录为相对于作业目录下的目录
                             self._loadOpOutput(op)
-                            outFilePaths = self._getOpFileOutVals(op)
-                            for outFilePath in outFilePaths:
-                                sftp.get('{}/{}'.format(remotePath, outFilePath), outputFilePath)
-                        except:
-                            self.writeNodeLog("ERROR: Download output failed.\n")
+
+                            outFileMap = self._getOpFileOutMap(op)
+                            opFileOutRelDir = None
+                            if outFileMap:
+                                opFileOutRelDir = self._ensureOpFileOutputDir(op)
+
+                            for outFileKey, outFilePath in outFileMap.items():
+                                outFileName = os.path.basename(outFilePath)
+                                savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
+                                sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
+
+                                opOutput = self.output[op.opId]
+                                opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
+
+                            self._saveOpOutput(op)
+                        except Exception as ex:
+                            self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
                             ret = 2
                     try:
                         if not self.context.devMode and ret == 0:

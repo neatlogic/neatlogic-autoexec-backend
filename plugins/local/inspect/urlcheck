@@ -1,11 +1,7 @@
 #!/usr/bin/perl
+use strict;
 use FindBin;
 use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
-
-use strict;
 use Getopt::Long;
 use AutoExecUtils;
 use JSON;
@@ -50,13 +46,13 @@ sub main {
     }
 
     my $host       = $nodeInfo->{host};
-    my $port       = int($nodeInfo->{port});
+    my $port       = int( $nodeInfo->{port} );
     my $user       = $nodeInfo->{username};
     my $pass       = $nodeInfo->{password};
     my $resourceId = $nodeInfo->{resourceId};
 
     if ( $port == 0 or $port == 65535 ) {
-        $port = int($nodeInfo->{protocolPort});
+        $port = int( $nodeInfo->{protocolPort} );
     }
 
     my $data = {
@@ -107,7 +103,7 @@ sub main {
     };
     my $responseTime = time() - $startTime;
     $data->{RESPONSE_TIME} = $responseTime;
-    
+
     if ($@) {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;

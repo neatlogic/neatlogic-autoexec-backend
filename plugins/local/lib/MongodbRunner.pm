@@ -1,11 +1,8 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package MongodbRunner;
-
-use strict;
+use FindBin;
 use utf8;
 use IO::File;
 use Getopt::Long;
@@ -22,11 +19,11 @@ sub _rc4_decrypt_hex ($$) {
 }
 
 sub new {
-    my ($type)      = @_;
-    my $MY_KEY      = 'E!YO@JyjD^RIwe*OE739#Sdk%';
-    my $pwd         = getcwd;
-    my $cfg_path    = $pwd . '/../../../conf/config.ini';
-    my $cfg         = Config::IniFiles->new( -file => "$cfg_path" );
+    my ($type)   = @_;
+    my $MY_KEY   = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+    my $pwd      = getcwd;
+    my $cfg_path = $pwd . '/../../../conf/config.ini';
+    my $cfg = Config::IniFiles->new( -file => "$cfg_path" );
     my $db_url      = $cfg->val( 'autoexec', 'db.url' );
     my $db_name     = $cfg->val( 'autoexec', 'db.name' );
     my $db_username = $cfg->val( 'autoexec', 'db.username' );

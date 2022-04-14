@@ -1,11 +1,8 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package SCPExec;
-
-use strict;
+use FindBin;
 use Expect;
 $Expect::Multiline_Matching = 0;
 

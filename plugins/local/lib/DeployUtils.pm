@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 use strict;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/lib";
 
 package DeployUtils;
 use Cwd;
