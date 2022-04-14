@@ -1,12 +1,9 @@
 #!/usr/bin/perl
 use strict;
-use warnings;
-use FindBin;
-use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 package TagentClient;
-
+use warnings;
+use FindBin;
 use Socket;
 use Encode;
 use POSIX;

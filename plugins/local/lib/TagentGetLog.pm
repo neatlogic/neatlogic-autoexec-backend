@@ -1,12 +1,9 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
 
 package TagentGetLog;
 
+use FindBin;
 use File::Glob qw(bsd_glob);
 use TagentClient;
 

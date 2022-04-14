@@ -102,9 +102,9 @@ class Operation:
         self.outputFiles = []
         if 'output' in param:
             self.outputDesc = param['output']
-            for outOpt in self.outputDesc:
+            for outOptName, outOpt in self.outputDesc.items():
                 if outOpt['type'] == 'file':
-                    self.outputFiles.append(outOpt['opt'])
+                    self.outputFiles.append(outOptName)
         else:
             self.outputDesc = {}
 
