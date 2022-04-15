@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "A10-args",
     "description": "Disable或Enable负载均衡A10 POOL的节点",
     "enabled": 0,
     "option": [

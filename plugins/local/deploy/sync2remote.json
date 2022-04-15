@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "sync2remote-args",
     "description": "同步本地环境制品到远程服务器上",
     "enabled": 0,
     "option": [

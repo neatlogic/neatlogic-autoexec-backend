@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "sonar-args",
     "description": "对代码进行静态扫描，生成扫描报告",
     "enabled": 0,
     "option": [
