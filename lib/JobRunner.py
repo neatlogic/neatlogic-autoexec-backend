@@ -476,7 +476,7 @@ class JobRunner:
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             phaseStatus.isAborting = 1
-            phaseStatus.setGlobalRoundFinEvent(0)
+            phaseStatus.setGlobalRoundFinEvent(1)
             phaseStatus.setRoundFinEvent()
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
@@ -487,7 +487,7 @@ class JobRunner:
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
             phaseStatus.isPausing = 1
-            phaseStatus.setGlobalRoundFinEvent(0)
+            phaseStatus.setGlobalRoundFinEvent(1)
             phaseStatus.setRoundFinEvent()
             if phaseStatus.executor is not None:
                 phaseStatus.executor.pause()
