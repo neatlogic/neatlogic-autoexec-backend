@@ -23,6 +23,7 @@ class PhaseStatus:
         self.isPausing = 0
         # 用于标记当前runner的node的失败数量
         self.couterLock = threading.Lock()
+        self.roundNo = 0
         self.execNodeCount = 0
         self.leftNodeCount = 0
         self.failNodeCount = 0
@@ -35,8 +36,9 @@ class PhaseStatus:
         self.executor = None
         self.nodesFilePath = None
 
-    def incRoundCounter(self, taskCount):
+    def incRoundCounter(self, roundNo, taskCount):
         with self.couterLock:
+            self.roundNo = roundNo
             self.leftNodeCount += taskCount
 
     def setRoundFinEvent(self):
@@ -54,8 +56,9 @@ class PhaseStatus:
         else:
             return self.roundFinEvent.wait(timeout=timeOut)
 
-    def setGlobalRoundFinEvent(self):
-        self.globalRoundFinEvent.set()
+    def setGlobalRoundFinEvent(self, roundNo == 0):
+        if roundNo == 0 or self.roundNo == roundNo:
+            self.globalRoundFinEvent.set()
 
     def clearGlobalRoundFinEvent(self):
         self.globalRoundFinEvent.clear()

@@ -56,9 +56,10 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                     elif actionData['action'] == 'informRoundContinue':
                         if 'phaseName' in actionData:
                             phaseName = actionData['phaseName']
+                            roundNo = actionData['roundNo']
                             if phaseName in self.context.phases:
                                 phaseStatus = self.context.phases[phaseName]
-                                phaseStatus.setGlobalRoundFinEvent()
+                                phaseStatus.setGlobalRoundFinEvent(roundNo)
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
                     elif actionData['action'] == 'deployLock':
@@ -335,7 +336,7 @@ class JobRunner:
 
                     if needExecute:
                         # Local执行的phase，直接把localNode put到队列
-                        phaseStatus.incRoundCounter(1)
+                        phaseStatus.incRoundCounter(roundNo, 1)
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
@@ -351,7 +352,7 @@ class JobRunner:
                             break
                         if self.context.runnerId == node['runnerId']:
                             runNode = RunNode.RunNode(self.context, phaseName, node)
-                            phaseStatus.incRoundCounter(1)
+                            phaseStatus.incRoundCounter(roundNo, 1)
                             phaseNodeFactory.putRunNode(runNode)
 
                 loopCount = self.context.maxExecSecs / 3
@@ -475,7 +476,7 @@ class JobRunner:
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             phaseStatus.isAborting = 1
-            phaseStatus.setGlobalRoundFinEvent()
+            phaseStatus.setGlobalRoundFinEvent(0)
             phaseStatus.setRoundFinEvent()
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
@@ -486,7 +487,7 @@ class JobRunner:
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
             phaseStatus.isPausing = 1
-            phaseStatus.setGlobalRoundFinEvent()
+            phaseStatus.setGlobalRoundFinEvent(0)
             phaseStatus.setRoundFinEvent()
             if phaseStatus.executor is not None:
                 phaseStatus.executor.pause()
