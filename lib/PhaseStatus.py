@@ -56,7 +56,7 @@ class PhaseStatus:
         else:
             return self.roundFinEvent.wait(timeout=timeOut)
 
-    def setGlobalRoundFinEvent(self, roundNo == 0):
+    def setGlobalRoundFinEvent(self, roundNo=0):
         if roundNo == 0 or self.roundNo == roundNo:
             self.globalRoundFinEvent.set()
 
