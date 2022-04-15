@@ -163,6 +163,9 @@ sub main {
         $rc = $sqlFileRunner->execSqlFiles();
     }
 
+    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    ServerAdapter->saveSqlFilesStatus( $buildEnv, $sqlFileInfos );
+
     return $rc;
 }
 

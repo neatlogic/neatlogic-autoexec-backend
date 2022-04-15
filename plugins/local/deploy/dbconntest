@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../pllib/lib/perl5";
+
+use strict;
+use Getopt::Long;
+
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --dbtype DBType(oracle|mysql|...)\n");
+    print("              [--host Host] [--port Port] [--dbname DBNameOrServiceName]\n");
+    print("              [--username UserName] [--password Password]\n");
+
+    exit(1);
+}
+
+sub main() {
+    my ( $isHelp, $dbType, $host, $port, $dbName, $user, $pass );
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'dbtype=s'   => \$dbType,
+        'host=s'     => \$host,
+        'port=i'     => \$port,
+        'dbname=s'   => \$dbName,
+        'username=s' => \$user,
+        'password=s' => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $hasError = 0;
+
+    my $hasLogon = SQLFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
+
+    if ( $hasLogon != 1 ) {
+        $hasError = 1;
+    }
+
+    return $haserror;
+}
+
+exit main();
+

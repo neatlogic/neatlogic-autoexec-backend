@@ -54,6 +54,8 @@ sub new {
 
     bless( $self, $type );
 
+    $self->{sqlFileInfos} = [];
+
     my $jobPath = $args{jobPath};
     if ( not defined($jobPath) or $jobPath eq '' ) {
         $jobPath = getcwd();
@@ -121,7 +123,8 @@ sub execOneSqlFile {
     if ( defined($dbSchemasMap) ) {
 
         #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
-        my $dbSchema = lc( dirname($sqlFile) );
+        my @sqlDirSegments = split( '/', $sqlFile );
+        my $dbSchema = lc( $sqlDirSegments[0] );
         $dbInfo = $dbSchemasMap->{$dbSchema};
     }
     else {
@@ -599,7 +602,7 @@ sub execSqlFileSets {
 }
 
 sub checkOneSqlFile {
-    my ( $self, $sqlFile, $sqlFileStatus ) = @_;
+    my ( $self, $sqlFile, $nodeInfo, $sqlFileStatus ) = @_;
 
     # my $dbInfo;
     # my $dbSchemasMap = $self->{dbSchemasMap};
@@ -617,26 +620,60 @@ sub checkOneSqlFile {
 
     $self->_checkAndDelBom($sqlFilePath);
 
+    my $preStatus;
     my $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
-
     if ( $sqlFileStatus->getStatusValue('md5') eq '' ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef, startTime => undef, endTime => undef );
+        $preStatus = $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef, startTime => undef, endTime => undef );
     }
     elsif ( $md5Sum ne $sqlFileStatus->getStatusValue('md5') ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef, startTime => undef, endTime => undef );
+        $preStatus = $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef, startTime => undef, endTime => undef );
     }
+
+    if ( not defined($preStatus) or $preStatus eq '' ) {
+        $preStatus = 'pending';
+    }
+
+    my $sqlInfo = {
+        resourceId     => $nodeInfo->{resourceId},
+        nodeName       => $nodeInfo->{nodeName},
+        host           => $nodeInfo->{host},
+        port           => $nodeInfo->{port},
+        accessEndpoint => $nodeInfo->{accessEndpoint},
+        sqlFile        => $sqlFile,
+        status         => $preStatus,
+        md5            => $md5Sum
+    };
+
+    return $sqlInfo;
 }
 
 sub checkSqlFiles {
     my ($self) = @_;
 
-    my $sqlFiles   = $self->{sqlFiles};
-    my $sqlFileDir = $self->{sqlFileDir};
+    my $sqlFiles     = $self->{sqlFiles};
+    my $sqlFileDir   = $self->{sqlFileDir};
+    my $dbSchemasMap = $self->{dbSchemasMap};
+    my $sqlFileInfos = $self->{sqlFileInfos};
+    my $hasError     = 0;
 
-    my $hasError = 0;
+    my @usedSchemas = ();
     foreach my $sqlFile (@$sqlFiles) {
 
         if ( -e "$sqlFileDir/$sqlFile" ) {
+            my $nodeInfo;
+            if ( defined($dbSchemasMap) ) {
+
+                #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
+                my @sqlDirSegments = split( '/', $sqlFile );
+                my $dbSchema = lc( $sqlDirSegments[0] );
+                push( @usedSchemas, $dbSchema );
+                my $dbInfo   = $dbSchemasMap->{$dbSchema};
+                my $nodeInfo = $dbInfo->{node};
+            }
+            else {
+                $nodeInfo = $self->{nodeInfo};
+            }
+
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
                 sqlStatusDir => $self->{sqlStatusDir},
@@ -644,15 +681,83 @@ sub checkSqlFiles {
                 istty        => $self->{istty}
             );
 
-            $self->checkOneSqlFile( $sqlFile, $sqlFileStatus );
+            my $sqlInfo = $self->checkOneSqlFile( $sqlFile, $nodeInfo, $sqlFileStatus );
+            push( @$sqlFileInfos, $sqlInfo );
         }
         else {
-            $hasError = 1;
+            $hasError = $hasError + 1;
             print("ERROR: Sql file '$sqlFileDir/$sqlFile' not exists.\n");
         }
     }
 
+    foreach my $dbSchema (@usedSchemas) {
+        my $dbInfo = $dbSchemasMap->{$dbSchema};
+        my $dbType = uc( $dbInfo->{dbType} );
+        my $dbName = $dbInfo->{dbName};
+
+        my $handlerName = uc($dbType) . 'SQLRunner';
+        my $requireName = $handlerName . '.pm';
+
+        my $handler;
+        eval {
+            print( "INFO: Try to use SQLRunner " . uc($dbType) . " to test.\n" );
+            require $requireName;
+
+            $handler = $handlerName->new( $dbInfo, 'test.sql', 'UTF-8' );
+            my $hasLogon = $handler->test();
+            if ( $hasLogon != 1 ) {
+                $hasError = $hasError + 1;
+            }
+        };
+        if ($@) {
+            $hasError = $hasError + 1;
+            print("ERROR: $@\n");
+        }
+
+    }
+
     return $hasError;
+}
+
+sub testByIpPort {
+    my ( $dbType, $host, $port, $dbName, $user, $pass ) = @_;
+
+    my $dbInfo = {
+        dbType     => $dbType,
+        host       => $host,
+        addrs      => [$host],
+        port       => $port,
+        sid        => $dbName,
+        dbName     => $dbName,
+        user       => $user,
+        pass       => $pass,
+        autocommit => 1,
+        args       => ''
+    };
+
+    if ( not defined($dbType) and not defined($dbName) ) {
+        print("ERROR: can not find db type and db name, check the db configuration.\n");
+        exit(-1);
+    }
+
+    my $handlerName = uc($dbType) . 'SQLRunner';
+    my $requireName = $handlerName . '.pm';
+
+    my $handler;
+    eval {
+        require $requireName;
+        $handler = $handlerName->new( $dbInfo, 'test.sql', 'UTF-8' );
+    };
+    if ($@) {
+        if ( -f "$FindBin::Bin/../lib/$requireName" ) {
+            Utils::setErrFlag();
+            print("ERROR: $@\n");
+        }
+    }
+
+    my $hasLogon = $handler->test();
+
+    return $hasLogon;
 }
 
 1;
