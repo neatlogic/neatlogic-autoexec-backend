@@ -72,12 +72,6 @@ sub getHandler {
     return $handler;
 }
 
-sub addVerBuildInfo {
-    my ( $self, $verInfo ) = @_;
-
-    #TODO: call api to update verinformation
-}
-
 sub get {
     my ($self) = @_;
 

@@ -19,6 +19,8 @@ sub new {
 
 sub _lock {
     my ( $self, $lockTarget, $lockLevel ) = @_;
+
+    #TODO：保护workspace和制品中心制品的锁接口实现
 }
 
 sub _unlock {
