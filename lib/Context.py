@@ -92,7 +92,7 @@ class Context(VContext.VContext):
 
         if 'procEnv' in params:
             for k, v in params['procEnv'].items():
-                os.environ[k] = v
+                os.environ[k] = str(v)
 
         if 'passThroughEnv' in params:
             passThroughInParams = params['passThroughEnv']
