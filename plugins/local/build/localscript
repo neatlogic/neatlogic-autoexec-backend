@@ -80,10 +80,10 @@ sub getScriptCmd {
     my ( $autoexecHome, $scriptJson, $lang ) = @_;
     my $scriptObj = from_json($scriptJson);
 
-    my $scriptName        = $scriptObj->{name};
     my $scriptInterpreter = $scriptObj->{interpreter};
     my $scriptContent     = $scriptObj->{content};
     my $arguments         = $scriptObj->{arguments};
+    my $scriptExt         = DeployUtils->getScriptExtName($scriptInterpreter);
 
     if ( defined($lang) ) {
         $ENV{LANG} = $lang;
@@ -107,7 +107,7 @@ sub getScriptCmd {
         $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
     }
     my $TMPDIR  = "$autoexecHome/tmp";
-    my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".$scriptName" );
+    my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => "$scriptExt" );
     my $tmpPath = $tmp->filename;
     print $tmp ($scriptContent);
     $tmp->flush();
