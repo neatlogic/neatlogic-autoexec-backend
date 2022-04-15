@@ -324,7 +324,7 @@ class JobRunner:
                 if 'execRound' in phaseConfig:
                     execRound = phaseConfig['execRound']
 
-                if phaseStatus.hasLocal:
+                if phaseStatus.hasLocal and self.context.runnerId == nodesFactory.localRunnerId:
                     needExecute = False
                     if firstRound and execRound == 'first':
                         needExecute = True
