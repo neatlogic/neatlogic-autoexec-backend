@@ -91,7 +91,6 @@ sub main {
 
     my $scriptJson = from_json($scriptObj);
 
-    my $scriptName        = $scriptJson->{name};
     my $scriptInterpreter = $scriptJson->{interpreter};
     my $scriptContent     = $scriptJson->{content};
     my $arguments         = $scriptJson->{arguments};
@@ -119,10 +118,6 @@ sub main {
         }
     }
 
-    if ( index( $scriptName, '.' ) < 0 ) {
-        $scriptName = ".$scriptName";
-    }
-
     #$scriptName = md5_hex($scriptContent);    # . "$scriptName";
 
     if ( defined($destCharset) and $destCharset ne '' ) {
@@ -134,7 +129,7 @@ sub main {
     print $tmp ($scriptContent);
     $tmp->flush();
 
-    $scriptName = basename($tmpPath) . $scriptName;
+    my $scriptName = basename($tmpPath) . DeployUtils->getScriptExtName($scriptInterpreter);
 
     my $hasError = 0;
 
@@ -168,8 +163,8 @@ sub main {
         print("ERROR: ssh remote exec has error.\n");
     }
 
-    Utils::exitWithFlag();
+    return $hasError;
 }
 
-main();
+exit main();
 

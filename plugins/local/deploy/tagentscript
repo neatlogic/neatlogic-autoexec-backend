@@ -92,7 +92,6 @@ sub main {
 
     my $scriptJson = from_json($scriptObj);
 
-    my $scriptName        = $scriptJson->{name};
     my $scriptInterpreter = $scriptJson->{interpreter};
     my $scriptContent     = $scriptJson->{content};
     my $arguments         = $scriptJson->{arguments};
@@ -120,15 +119,11 @@ sub main {
         }
     }
 
-    if ( index( $scriptName, '.' ) < 0 ) {
-        $scriptName = ".$scriptName";
-    }
-
     my $hasError = 0;
 
     my $randStr;
     $randStr = $randStr . sprintf( "%x", rand(16) ) for 1 .. 4;
-    $scriptName = md5_hex($scriptContent) . "-$randStr$scriptName";
+    my $scriptName = md5_hex($scriptContent) . "-$randStr" . DeployUtils->getScriptExtName($scriptInterpreter);
 
     my $ret = $tagent->writeFile( $user, $scriptContent, '$TMPDIR/' . $scriptName, 1, 1 );
     if ( $ret != 0 ) {
@@ -169,11 +164,11 @@ sub main {
         $exitStatus = $tagent->execCmd( $user, $cmd, 1, $eofStr );
     }
 
+    $hasError = $hasError + $exitStatus;
     if ( $exitStatus eq 0 ) {
         print("FINEST: tagent remote exec success.\n");
     }
     else {
-        Utils::setErrFlag();
         print("ERROR: tagent remote exec has error.\n");
     }
 
@@ -184,5 +179,4 @@ sub main {
     return $hasError;
 }
 
-main();
-
+exit main();

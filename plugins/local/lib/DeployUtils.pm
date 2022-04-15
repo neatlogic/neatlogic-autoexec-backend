@@ -181,6 +181,26 @@ sub getFileContent {
     return $content;
 }
 
+sub getScriptExtName {
+    my ( $self, $interpreter ) = @_;
+
+    my $type2ExtName = {
+        perl       => '.pl',
+        python     => '.py',
+        ruby       => '.rb',
+        cmd        => '.bat',
+        powershell => '.ps1',
+        vbscript   => '.vbs',
+        bash       => '.sh',
+        ksh        => '.sh',
+        csh        => '.sh',
+        sh         => '.sh',
+        javascript => '.js'
+    };
+
+    return $type2ExtName->{$interpreter};
+}
+
 sub execmd {
     my ( $self, $cmd, $pattern ) = @_;
     my $encoding;

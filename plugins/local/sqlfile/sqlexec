@@ -163,8 +163,8 @@ sub main {
         $rc = $sqlFileRunner->execSqlFiles();
     }
 
-    exit($rc);
+    return $rc;
 }
 
-main();
+exit main();
 

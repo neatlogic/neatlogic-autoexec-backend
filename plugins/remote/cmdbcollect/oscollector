@@ -531,8 +531,8 @@ sub doDetailCollect {
             }
 
             if ( $osType eq 'Windows' ) {
-                $appInfo->{MEM_USED}  = $procInfo->{MEMSIZE} + 0.0;
-                if ( not defined($appInfo->{MEM_USAGE}) and $osInfo->{MEM_TOTAL} > 0 ){
+                $appInfo->{MEM_USED} = $procInfo->{MEMSIZE} + 0.0;
+                if ( not defined( $appInfo->{MEM_USAGE} ) and $osInfo->{MEM_TOTAL} > 0 ) {
                     $appInfo->{MEM_USAGE} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
                 }
             }
@@ -742,6 +742,8 @@ sub main {
         print( to_json( $out->{DATA}, { pretty => 1 } ) );
         print("==================\n");
     }
+
+    return 0;
 }
 
-main();
+exit main();

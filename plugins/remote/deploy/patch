@@ -51,6 +51,8 @@ sub main {
         'targetdir=s'      => \$targetDir
     );
 
+    usage() if ( defined($isHelp) );
+
     $backupCount = int($backupCount);
     if ( $backupCount == 0 ) {
         $backupCount = 5;
@@ -117,8 +119,9 @@ sub main {
     else {
         print("ERROR: Patch $version patch to $insName with $verSrcPath failed.\n");
     }
-    exit($status);
+
+    return $status;
 }
 
-main();
+exit main();
 

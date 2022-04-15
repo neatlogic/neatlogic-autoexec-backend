@@ -113,8 +113,8 @@ sub main {
 
     $out->{interactOut} = $enter;
     AutoExecUtils::saveOutput($out);
-    exit($rc);
+    return $rc;
 }
 
-main();
+exit main();
 

@@ -1,9 +1,6 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
+use FindBin;
 use Getopt::Long;
 
 use AutoExecUtils;
@@ -20,7 +17,7 @@ sub usage {
 #主程序
 ################################
 sub main {
-    $|=1; #不对输出进行buffer，便于实时看到输出日志
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
     my ( $ishelp, $tinput, $tjson, $tselect, $tmultiselect, $tpassword, $tfile, $tnode, $tdate, $ttime, $tdatetime );
@@ -51,6 +48,8 @@ sub main {
         usage();
     }
 
+    my $hasError = 0;
+
     print("=========GetOptions:\n");
     print("tinput:$tinput\n");
     print("tjson:$tjson\n");
@@ -74,9 +73,11 @@ sub main {
     $out->{outjson}     = '{"key1":"value1", "key2":"value2"}';
     $out->{outcsv}      = q{"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"};
     AutoExecUtils::saveOutput($out);
+
+    return $hasError;
 }
 
 #运行主程序
 ##############################
-main();
+exit main();
 

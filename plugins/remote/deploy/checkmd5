@@ -111,9 +111,9 @@ sub main {
 
     GetOptions(
         'h|help'        => \$isHelp,
-        'verbose:i'     => \$isVerbose,
-        'delmd5:i'      => \$delMd5,
-        'md5listfile:s' => \$md5ListFileName,
+        'verbose=i'     => \$isVerbose,
+        'delmd5=i'      => \$delMd5,
+        'md5listfile=s' => \$md5ListFileName,
         '<>'            => sub { my $item = shift(@_); push( @dirPatterns, $item ); }
     );
 
