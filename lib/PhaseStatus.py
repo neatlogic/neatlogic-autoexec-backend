@@ -36,10 +36,6 @@ class PhaseStatus:
         self.executor = None
         self.nodesFilePath = None
 
-    def incRoundNo(self, roundNo):
-        with self.couterLock:
-            self.roundNo = roundNo
-
     def incRoundCounter(self, taskCount):
         with self.couterLock:
             self.leftNodeCount += taskCount
@@ -60,7 +56,6 @@ class PhaseStatus:
             return self.roundFinEvent.wait(timeout=timeOut)
 
     def setGlobalRoundFinEvent(self, roundNo=1):
-        print("TEST:=====self{}======roundNo={}".format(self.roundNo,roundNo))
         if roundNo == 1 or self.roundNo == roundNo:
             self.globalRoundFinEvent.set()
 

@@ -304,7 +304,6 @@ class JobRunner:
 
             oneRoundNodes = []
             curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
-            phaseStatus.incRoundNo(roundNo)
             for k in range(1, curRoundNodes + 1):
                 node = nodesFactory.nextNode()
                 if node is None:
@@ -321,7 +320,7 @@ class JobRunner:
                 phaseStatus = self.context.phases[phaseName]
                 phaseStatus.clearRoundFinEvent()
                 phaseStatus.clearGlobalRoundFinEvent()
-
+                phaseStatus.roundNo = roundNo
                 execRound = 'first'
                 if 'execRound' in phaseConfig:
                     execRound = phaseConfig['execRound']
