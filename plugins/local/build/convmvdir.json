@@ -4,6 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "转换目录或文件名编码为一致的编码",
     "enabled": 0,
     "option": [

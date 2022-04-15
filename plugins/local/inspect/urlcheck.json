@@ -4,17 +4,20 @@
     "typeName": "INSPECTION",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "检查多个URL是否可以正常访问",
-    "option": [{
-        "opt": "timeout",
-        "name": "超时时间",
-        "help": "查询超时时间，单位秒",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "10",
-        "required": "false",
-        "validate": ""
-    }],
+    "option": [
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "10",
+            "required": "false",
+            "validate": ""
+        }
+    ],
     "argument": {
         "name": "HTTP请求",
         "help": "例如：GET, http://${host}:${port}/console",
@@ -24,10 +27,12 @@
         "required": "true",
         "validate": ""
     },
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

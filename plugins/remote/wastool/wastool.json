@@ -4,15 +4,18 @@
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "WAS发布",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -31,7 +34,8 @@
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -59,7 +63,8 @@
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -97,7 +102,8 @@
             "help": "WAS操作动作",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "app-start",
                     "value": "app-start",
                     "selected": "true"
@@ -237,7 +243,8 @@
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -255,7 +262,8 @@
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"

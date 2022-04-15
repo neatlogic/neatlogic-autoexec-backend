@@ -4,6 +4,7 @@
     "typeName": "INSPECTION",
     "riskName": "LOW",
     "interpreter": "python",
+    "defaultProfile": null,
     "description": "分析CMDB采集输出数据，形成巡检报告",
     "option": [],
     "output": []

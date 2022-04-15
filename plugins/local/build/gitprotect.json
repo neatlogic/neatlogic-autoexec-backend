@@ -4,15 +4,18 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "设置或删除GIT的保护策略",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -61,7 +64,8 @@
             "help": "保护策略保护的类型",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "tags",
                     "value": "tags",
                     "selected": "true"
@@ -90,7 +94,8 @@
             "help": "动作（增加或删除保护）",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "添加",
                     "value": "add",
                     "selected": "true"
