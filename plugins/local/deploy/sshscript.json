@@ -4,15 +4,18 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "SSH执行远程脚本",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -31,7 +34,8 @@
             "help": "目标OS执行脚本需要的编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "UTF-8",
                     "value": "UTF-8",
                     "selected": "true"

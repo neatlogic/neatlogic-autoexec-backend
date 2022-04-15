@@ -4,8 +4,10 @@
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "使用SNMP采集F5的VS、POOL、MEMBER信息",
-    "option": [{
+    "option": [
+        {
             "opt": "community",
             "name": "默认团体字",
             "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
@@ -31,7 +33,8 @@
             "help": "回显采集到的数据",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "不回显",
                     "value": "0",
                     "selected": "true"
@@ -45,10 +48,12 @@
             "validate": ""
         }
     ],
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

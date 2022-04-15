@@ -1,10 +1,11 @@
 {
-	"opDesc": "CMDB采集存储插件",
-	"opType": "runner_target",
-	"typeName": "CMDB",
-	"riskName": "LOW",
-	"interpreter": "python",
-	"description": "对采集插件生成的output数据存储到DB插件",
-	"option": [],
-	"output": []
+    "opDesc": "CMDB采集存储插件",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "对采集插件生成的output数据存储到DB插件",
+    "option": [],
+    "output": []
 }

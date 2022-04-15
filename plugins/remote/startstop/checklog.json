@@ -4,21 +4,26 @@
     "typeName": "DEPLOY",
     "riskName": "HIGH",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "检查日志是否出现某些关键字",
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "详细输出",
             "help": "显示匹配的详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
-                "text": "是",
-                "value": "1",
-                "selected": "true"
-            }, {
-                "text": "否",
-                "value": "0"
-            }],
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
             "required": "true",
             "validate": ""
         },
@@ -38,14 +43,17 @@
             "help": "出现关键字是成功还是失败",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
-                "text": "失败",
-                "value": "1",
-                "selected": "true"
-            }, {
-                "text": "成功",
-                "value": "0"
-            }],
+            "defaultValue": [
+                {
+                    "text": "失败",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "成功",
+                    "value": "0"
+                }
+            ],
             "required": "true",
             "validate": ""
         },
@@ -65,14 +73,17 @@
             "help": "多个关键字的操作符号",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
-                "text": "OR",
-                "value": "or",
-                "selected": "true"
-            }, {
-                "text": "AND",
-                "value": "and"
-            }],
+            "defaultValue": [
+                {
+                    "text": "OR",
+                    "value": "or",
+                    "selected": "true"
+                },
+                {
+                    "text": "AND",
+                    "value": "and"
+                }
+            ],
             "required": "true",
             "validate": ""
         }

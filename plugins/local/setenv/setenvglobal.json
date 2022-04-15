@@ -4,8 +4,10 @@
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "python",
+    "defaultProfile": null,
     "description": "设置全局环境变量",
-    "option": [{
+    "option": [
+        {
             "opt": "name",
             "name": "变量名",
             "help": "在环境变量中的名称",

@@ -4,8 +4,10 @@
     "typeName": "DR_SWITCH",
     "riskName": "HIGH",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "原备库（现主库）启动，需要在现备库启动前启动",
-    "option": [{
+    "option": [
+        {
             "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
@@ -31,7 +33,8 @@
             "help": "当前节点是否是ORACLE RAC的成员",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"
