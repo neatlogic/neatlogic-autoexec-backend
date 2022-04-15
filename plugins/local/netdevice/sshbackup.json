@@ -1,40 +1,42 @@
 {
-	"opDesc": "ssh配置备份",
-	"opType": "runner_target",
-	"typeName": "BACKUP",
-	"riskName": "HIGH",
-	"interpreter": "perl",
-	"description": "基于telnet对交换机配置备份",
-	"desc": [{
-			"opt": "node",
-			"name": "node",
-			"help": "",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "must",
-			"validate": ""
-		},
-		{
-			"opt": "backupdir",
-			"name": "备份存放目录",
-			"help": "如：/tmp/config,目录不存在会自动创建",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "",
-			"required": "true",
-			"validate": ""
-		},
-		{
-			"opt": "timeout",
-			"name": "连接超时时间",
-			"help": "默认是3秒",
-			"type": "text",
-			"isConst": "false",
-			"defaultValue": "3",
-			"required": "false",
-			"validate": ""
-		}
-	],
-	"output": []
+    "opDesc": "ssh配置备份",
+    "opType": "runner_target",
+    "typeName": "BACKUP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "基于telnet对交换机配置备份",
+    "desc": [
+        {
+            "opt": "node",
+            "name": "node",
+            "help": "",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "must",
+            "validate": ""
+        },
+        {
+            "opt": "backupdir",
+            "name": "备份存放目录",
+            "help": "如：/tmp/config,目录不存在会自动创建",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "连接超时时间",
+            "help": "默认是3秒",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "3",
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "output": []
 }

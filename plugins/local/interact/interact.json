@@ -4,14 +4,17 @@
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "执行过程中获取用户输入",
-    "option": [{
+    "option": [
+        {
             "opt": "optype",
             "name": "交互类型",
             "help": "选择交互的类型",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "按钮",
                     "value": "button",
                     "selected": "true"
@@ -73,10 +76,12 @@
             "validate": ""
         }
     ],
-    "output": [{
-        "opt": "interactOut",
-        "name": "交互结果",
-        "help": "交互输入的结果",
-        "type": "text"
-    }]
+    "output": [
+        {
+            "opt": "interactOut",
+            "name": "交互结果",
+            "help": "交互输入的结果",
+            "type": "text"
+        }
+    ]
 }

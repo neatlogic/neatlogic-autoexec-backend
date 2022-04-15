@@ -4,15 +4,18 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "对于基于标签的版本，自动打标签（需要在verget后才能使用）",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"

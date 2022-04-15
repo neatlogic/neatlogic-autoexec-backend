@@ -4,6 +4,7 @@
     "typeName": "DEPLOY",
     "riskName": "HIGH",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "检查挂载点的空间是否足够",
     "option": [],
     "argument": {

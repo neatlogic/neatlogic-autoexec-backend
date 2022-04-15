@@ -4,8 +4,10 @@
     "typeName": "DEPLOY",
     "riskName": "HIGH",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "调用远程命令启动应用，检测应用是否启动的同时tail日志",
-    "option": [{
+    "option": [
+        {
             "opt": "prescript",
             "name": "启动命令",
             "help": "启动应用所需要的Shell命令",
@@ -61,7 +63,8 @@
             "help": "用于某些启动命令启动成功后，需要Ctrl+C的情况",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"

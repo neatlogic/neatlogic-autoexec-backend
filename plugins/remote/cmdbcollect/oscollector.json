@@ -4,8 +4,10 @@
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
-    "option": [{
+    "option": [
+        {
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
@@ -64,13 +66,15 @@
             "defaultValue": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount},Mongodb:#{mongoaccount}",
             "required": "false",
             "validate": ""
-        }, {
+        },
+        {
             "opt": "inspect",
             "name": "巡检检查",
             "help": "采集更详细的巡检数据",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "不采集",
                     "value": "0",
                     "selected": "true"
@@ -89,7 +93,8 @@
             "help": "回显采集到的数据",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "不回显",
                     "value": "0",
                     "selected": "true"
@@ -108,7 +113,8 @@
             "help": "显示命令执行的详细信息",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -122,10 +128,12 @@
             "validate": ""
         }
     ],
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

@@ -4,18 +4,22 @@
     "typeName": "DR_SWITCH",
     "riskName": "HIGH",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "参数包括：库名（主备一致），实例名：RAC集群内一致，主备不一样，同步的sequence等",
-    "option": [{
-        "opt": "sid",
-        "name": "SID",
-        "help": "如不设置则直接使用环境变量ORACLE_SID",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "false",
-        "validate": ""
-    }],
-    "output": [{
+    "option": [
+        {
+            "opt": "sid",
+            "name": "SID",
+            "help": "如不设置则直接使用环境变量ORACLE_SID",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        }
+    ],
+    "output": [
+        {
             "opt": "dbName",
             "name": "DB库名",
             "help": "库名，主备是一致的",

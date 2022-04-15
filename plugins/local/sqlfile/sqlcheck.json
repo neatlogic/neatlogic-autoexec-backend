@@ -4,34 +4,39 @@
     "typeName": "SQL_FILE",
     "riskName": "LOW",
     "interpreter": "perl",
+    "defaultProfile": null,
     "description": "SQL文件检查",
-    "option": [{
-        "opt": "sqlfilejson",
-        "name": "SQL文件",
-        "help": "上传到系统的多个SQL文件",
-        "type": "file",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "true",
-        "validate": ""
-    }, {
-        "opt": "dbname",
-        "name": "库名",
-        "help": "库名，如不指定则使用执行节点名",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "false",
-        "validate": ""
-    }, {
-        "opt": "dgargs",
-        "name": "DB参数",
-        "help": "额外的DB参数，一般不需要设置",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "false",
-        "validate": ""
-    }],
+    "option": [
+        {
+            "opt": "sqlfilejson",
+            "name": "SQL文件",
+            "help": "上传到系统的多个SQL文件",
+            "type": "file",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "dbname",
+            "name": "库名",
+            "help": "库名，如不指定则使用执行节点名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "dgargs",
+            "name": "DB参数",
+            "help": "额外的DB参数，一般不需要设置",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        }
+    ],
     "output": []
 }

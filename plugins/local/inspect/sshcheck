@@ -1,11 +1,7 @@
 #!/usr/bin/perl
+use strict;
 use FindBin;
 use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
-
-use strict;
 use Getopt::Long;
 use AutoExecUtils;
 use Net::OpenSSH;
@@ -50,9 +46,9 @@ sub main {
 
     my $resourceId = $nodeInfo->{resourceId};
     my $host       = $nodeInfo->{host};
-    my $port       = int($nodeInfo->{port});
+    my $port       = int( $nodeInfo->{port} );
     if ( $port == 0 or $port == 65535 ) {
-        $port = int($nodeInfo->{protocolPort});
+        $port = int( $nodeInfo->{protocolPort} );
     }
 
     my $data = {
@@ -64,7 +60,7 @@ sub main {
 
     print("INFO: Try to ssh logon to $host:$port.\n");
     my $startTime = time();
-    my $ssh = Net::OpenSSH->new(
+    my $ssh       = Net::OpenSSH->new(
         $host,
         port        => $port,
         user        => $nodeInfo->{username},
@@ -75,7 +71,7 @@ sub main {
 
     my $responseTime = time() - $startTime;
     $data->{RESPONSE_TIME} = $responseTime;
-    
+
     if ( not $ssh->error ) {
         my $out = $ssh->capture("echo HEALTH_OK");
         if ( $out =~ /HEALTH_OK/ ) {

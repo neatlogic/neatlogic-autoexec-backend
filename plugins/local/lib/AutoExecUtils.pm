@@ -1,12 +1,8 @@
 #!/usr/bin/perl
-
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package AutoExecUtils;
-
-use strict;
+use FindBin;
 use POSIX;
 use IO::Socket;
 use IO::Socket::SSL;
@@ -58,6 +54,15 @@ sub saveOutput {
 
     print("INFO: Try to save output to $outputPath.\n");
     if ( defined($outputPath) and $outputPath ne '' ) {
+        my $outputDir = dirname($outputPath);
+        if ( not -e $outputDir ) {
+            my $outputPDir = dirname($outputDir);
+            if ( not -e $outputPDir ) {
+                mkdir($outputPDir);
+            }
+            mkdir($outputDir);
+        }
+
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
             print $fh ( to_json( $outputData, { utf8 => 0 } ) );

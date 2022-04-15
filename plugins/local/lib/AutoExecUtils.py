@@ -11,8 +11,8 @@ import socket
 import json
 import time
 import binascii
-import configparser
 import pymongo
+import configparser
 import ServerAdapter
 
 PYTHON_VER = sys.version_info.major
@@ -66,6 +66,12 @@ def saveOutput(outputData):
     outputPath = os.getenv('OUTPUT_PATH')
     print("INFO: Try save output to {}.\n".format(outputPath))
     if outputPath is not None and outputPath != '':
+        outputDir = os.path.dirname(outputPath)
+        if not os.path.exists(outputDir):
+            outputPDir = os.path.dirname(outputDir)
+            if not os.path.exists(outputPDir):
+                os.mkdir(outputPDir)
+            os.mkdir(outputDir)
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, ensure_ascii=False))
         outputFile.close()

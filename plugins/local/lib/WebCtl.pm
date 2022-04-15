@@ -1,12 +1,8 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
 
 package WebCtl;
-
+use FindBin;
 use IO::Socket::SSL;
 use Encode;
 use REST::Client;
