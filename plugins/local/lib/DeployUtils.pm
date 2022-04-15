@@ -4,6 +4,7 @@ use strict;
 package DeployUtils;
 use Cwd;
 use ServerAdapter;
+use AutoExecUtils;
 
 our $TERM_CHARSET;
 our $READ_TMOUT = 86400;
@@ -18,6 +19,8 @@ sub new {
 
 sub deployInit {
     my ( $self, $namePath, $version, $buildNo ) = @_;
+
+    AutoExecUtils::setEnv();
 
     my $dpPath          = $ENV{_DEPLOY_PATH};
     my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
