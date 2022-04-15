@@ -166,4 +166,36 @@ sub getAppPassWord {
 
     #TODO: 譬如F5、A10、DNS服务等API的密码
 }
+
+sub saveSqlFilesStatus {
+    my ( $self, $buildEnv, $sqlFilesStatus ) = @_;
+
+    #$sqlFilesStatus格式
+    # [
+    #     {
+    #         resourceId     => $nodeInfo->{resourceId},
+    #         nodeName       => $nodeInfo->{nodeName},
+    #         host           => $nodeInfo->{host},
+    #         port           => $nodeInfo->{port},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         sqlFile        => $sqlFile,
+    #         status         => $preStatus,
+    #         md5            => $md5Sum
+    #     },
+    #     {
+    #         resourceId     => $nodeInfo->{resourceId},
+    #         nodeName       => $nodeInfo->{nodeName},
+    #         host           => $nodeInfo->{host},
+    #         port           => $nodeInfo->{port},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         sqlFile        => $sqlFile,
+    #         status         => $preStatus,
+    #         md5            => $md5Sum
+    #     }
+    # ]
+
+    #TODO: 保存sql文件信息到DB
+
+    return;
+}
 1;

@@ -1,13 +1,12 @@
 {
-    "opDesc": "SQL文件检查工具",
+    "opDesc": "SQL文件导入",
     "opType": "sqlfile",
     "typeName": "SQL_FILE",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "SQL文件检查",
-    "option": [
-        {
+    "description": "SQL文件导入",
+    "option": [{
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",

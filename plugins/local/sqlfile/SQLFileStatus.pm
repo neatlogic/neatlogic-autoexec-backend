@@ -187,10 +187,14 @@ sub _saveStatus {
 sub updateStatus {
     my ( $self, %args ) = @_;
 
+    my $preStatus = $self->{status}->{status};
+
     foreach my $key ( keys(%args) ) {
         $self->{status}->{$key} = $args{$key};
     }
     $self->_saveStatus();
+
+    return $preStatus;
 }
 
 sub getStatusValue {
