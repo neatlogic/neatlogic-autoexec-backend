@@ -37,8 +37,6 @@ sub main {
     my ( $prefix, $language, $encode, $level, $threshold, $src, $bin, $tmout, $projectKey, $projectVersion, $projectName, $modules );
     my $pname = $FindBin::Script;
 
-    Utils::setEnv();
-
     GetOptions(
         'h|help'           => \$isHelp,
         'envpath=s'        => \$envPath,
@@ -107,11 +105,12 @@ sub main {
     print("INFO: begin to execute cmd:\n");
     print("INFO: $cmd\n");
 
-    my $ret = system($cmd);
+    my $hasError = 0;
+    my $ret      = system($cmd);
+    $hasError = $hasError + $ret;
 
     if ( $ret ne 0 ) {
         print "ERROR: sonar-scanner failed, return code:$ret.\n";
-        Utils::setErrFlag();
     }
     else {
         eval {
@@ -119,6 +118,7 @@ sub main {
             ServerAdapter->addBuildQuality( $buildEnv, $measures );
         };
         if ($@) {
+            $hasError = $hasError + 1;
             print("ERROR:$@");
         }
         else {
@@ -127,8 +127,8 @@ sub main {
         }
     }
 
-    Utils::exitWithFlag();
+    return $hasError;
 }
 
-main();
+exit main();
 

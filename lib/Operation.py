@@ -65,7 +65,7 @@ class Operation:
             'ksh': '.sh',
             'csh': '.sh',
             'sh': '.sh',
-            'javascript:': '.js'
+            'javascript': '.js'
         }
 
         # 把runner、target、runner_target、sqlfile转换为local、remote、localremote

@@ -172,7 +172,7 @@ sub execAction {
             $confFH->close();
         }
 
-        system("perl bin/$runtimeBaseName-$action.pl app $insName $envParams");
+        exec("perl bin/$runtimeBaseName-$action.pl app $insName $envParams");
     }
 
     return $hasError;

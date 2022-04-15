@@ -149,8 +149,9 @@ sub main {
         sqlFiles     => $sqlFiles
     );
 
-    $sqlFileRunner->checkSqlFiles();
+    my $ret = $sqlFileRunner->checkSqlFiles();
+
+    return $ret;
 }
 
-main();
-
+exit main();

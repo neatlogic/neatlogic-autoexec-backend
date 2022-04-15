@@ -27,6 +27,7 @@ sub main {
         $ENV{PATH} = "$homePath/../7-Zip;$ENV{ProgramFiles}/7-Zip;" . $ENV{PATH};
     }
 
+    my $isHelp;
     my $isVerbose = 0;
     my $insName;
     my $version;
@@ -36,14 +37,17 @@ sub main {
     my $targetDir;
 
     GetOptions(
-        'v'                => \$isVerbose,
-        'ins:s'            => \$insName,
-        'version:s'        => \$version,
-        'backupcount:i'    => \$backupCount,
-        'backuplastdays:i' => \$backupLastDays,
-        'backupdir:s'      => \$backupDir,
-        'targetdir:s'      => \$targetDir
+        'h|help'           => \$isHelp,
+        'v|verbose=i'      => \$isVerbose,
+        'ins=s'            => \$insName,
+        'version=s'        => \$version,
+        'backupcount=i'    => \$backupCount,
+        'backuplastdays=i' => \$backupLastDays,
+        'backupdir=s'      => \$backupDir,
+        'targetdir=s'      => \$targetDir
     );
+
+    usage() if defined($isHelp);
 
     my $backupType = 'fullbackup';
     $backupCount = int($backupCount);
@@ -90,8 +94,8 @@ sub main {
     my $status = 0;
     $status = $patcher->backup( $insName, $version, '', $targetDir, $backupType );
 
-    exit($status);
+    return $status;
 }
 
-main();
+exit main();
 

@@ -114,8 +114,9 @@ sub main {
     else {
         print("ERROR: Deploy $version to $insName with $verSrcPath failed.\n");
     }
-    exit($status);
+
+    return $status;
 }
 
-main();
+exit main();
 

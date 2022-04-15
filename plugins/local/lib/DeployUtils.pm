@@ -4,6 +4,7 @@ use strict;
 package DeployUtils;
 use Cwd;
 use ServerAdapter;
+use AutoExecUtils;
 
 our $TERM_CHARSET;
 our $READ_TMOUT = 86400;
@@ -18,6 +19,8 @@ sub new {
 
 sub deployInit {
     my ( $self, $namePath, $version, $buildNo ) = @_;
+
+    AutoExecUtils::setEnv();
 
     my $dpPath          = $ENV{_DEPLOY_PATH};
     my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
@@ -179,6 +182,26 @@ sub getFileContent {
     }
 
     return $content;
+}
+
+sub getScriptExtName {
+    my ( $self, $interpreter ) = @_;
+
+    my $type2ExtName = {
+        perl       => '.pl',
+        python     => '.py',
+        ruby       => '.rb',
+        cmd        => '.bat',
+        powershell => '.ps1',
+        vbscript   => '.vbs',
+        bash       => '.sh',
+        ksh        => '.sh',
+        csh        => '.sh',
+        sh         => '.sh',
+        javascript => '.js'
+    };
+
+    return $type2ExtName->{$interpreter};
 }
 
 sub execmd {

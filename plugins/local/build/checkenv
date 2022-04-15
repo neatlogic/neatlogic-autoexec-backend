@@ -29,9 +29,9 @@ sub usage {
 sub checkSql {
     my ( $envPath, $version ) = @_;
 
-    my $checkPass = 1;
-    my $runBatch  = new RunBatch( $envPath, $version );
-    my $envInfo   = ENVInfo::parse( $envPath, $version );
+    my $hasError = 0;
+    my $runBatch = new RunBatch( $envPath, $version );
+    my $envInfo  = ENVInfo::parse( $envPath, $version );
 
     my $bookItem;
 
@@ -60,9 +60,8 @@ sub checkSql {
         if ( defined($dbType) and $dbType ne '' ) {
             if ( $sqlFile !~ /\.ctl$/i and $sqlFile !~ /\.dmp$/i ) {
                 my $ret = SQLFileRunner::checkSqlFiles( $sqlFile, $dbType );
-
+                $hasError = $hasError + $ret;
                 if ( $ret eq 0 ) {
-                    $checkPass = 0;
                     print("ERROR: $sqlFile check failed.\n");
                 }
                 else {
@@ -71,14 +70,12 @@ sub checkSql {
             }
         }
         else {
-            $checkPass = 0;
+            $hasError = $hasError + 1;
             print("ERROR: $sqlFile check failed because of db not defined in config.\n");
         }
     }
 
-    Utils::setErrFlag() if ( $checkPass eq 0 );
-
-    return $checkPass;
+    return $hasError;
 }
 
 sub checkDBSchemaPassByClient {
@@ -88,7 +85,7 @@ sub checkDBSchemaPassByClient {
     my $runBatch = new RunBatch( $envPath, $version );
     my $allschemas = $runBatch->getAllSchema();
 
-    my $dbStatus = 1;
+    my $hasError = 0;
 
     foreach my $schema (@$allschemas) {
         my @dbDescs   = split( '\.', $schema );
@@ -98,26 +95,18 @@ sub checkDBSchemaPassByClient {
         print("INFO: database $schema connecting...\n");
         my $sqlRunner = SQLFileRunner->new( envPathInfo => $envInfo, dbName => $dbName, userAlias => $userAlias );
 
-        my $connected = $sqlRunner->test();
-        if ( $connected == 0 ) {
-            $dbStatus = 0;
-        }
+        $hasError = $sqlRunner->test();
     }
 
-    return $dbStatus;
+    return $hasError;
 }
 
 sub checkDBPassByIpPort {
     my ( $dbType, $host, $port, $dbName, $user, $pass ) = @_;
 
-    my $dbStatus = 1;
+    my $hasError = SQLFileRunner::testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
 
-    my $connected = SQLFileRunner::testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
-    if ( $connected == 0 ) {
-        $dbStatus = 0;
-    }
-
-    return $dbStatus;
+    return $hasError;
 }
 
 sub main {
@@ -137,25 +126,26 @@ sub main {
 
     my $buildEnv = DeployUtils->deployInit( $envPath, $version );
 
+    my $hasError = 0;
     if ( defined($checkSQL) ) {
-        checkSql( $envPath, $version );
+        my $ret = checkSql( $envPath, $version );
+        $hasError = $hasError + $ret;
     }
 
     if ( defined($checkDB) ) {
-        checkDBSchemaPassByClient( $envPath, $version );
+        my $ret = checkDBSchemaPassByClient( $envPath, $version );
+        $hasError = $hasError + $ret;
     }
 
-    my $isFail = Utils::getErrFlag();
-
-    if ( $isFail ne 0 ) {
+    if ( $hasError ne 0 ) {
         print("ERROR: check $envPath failed.\n");
     }
     else {
         print("FINEST: check $envPath success.\n");
     }
 
-    Utils::exitWithFlag();
+    return $hasError;
 }
 
-main();
+exit main();
 

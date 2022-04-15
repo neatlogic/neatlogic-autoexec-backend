@@ -143,4 +143,4 @@ sub main {
 
 }
 
-main();
+exit main();

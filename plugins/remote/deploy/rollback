@@ -38,11 +38,13 @@ sub main {
     GetOptions(
         'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
-        'ins:s'       => \$insName,
-        'version:s'   => \$version,
-        'backupdir:s' => \$backupDir,
-        'targetdir:s' => \$targetDir
+        'ins=s'       => \$insName,
+        'version=s'   => \$version,
+        'backupdir=s' => \$backupDir,
+        'targetdir=s' => \$targetDir
     );
+
+    usage() if defined($isHelp);
 
     my $hasOptionError = 0;
     if ( not defined($version) or $version eq '' ) {
@@ -77,8 +79,8 @@ sub main {
     my $status = 0;
     $status = $patcher->rollback( $insName, $version );
 
-    exit($status);
+    return $status;
 }
 
-main();
+exit main();
 

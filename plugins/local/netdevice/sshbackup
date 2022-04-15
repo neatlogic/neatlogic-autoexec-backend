@@ -116,5 +116,5 @@ sub main {
     print("INFO::config backup done.\n");
 }
 
-main();
+exit main();
 
