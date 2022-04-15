@@ -18,7 +18,7 @@ sub usage {
     print("\n");
     print("       --envpath:    Env Path\n");
     print("       --version:    version\n");
-    print("       --apibaseurl: gitlab rest api base url，example：https://gitlab.example.com/api/v4\n");
+    print("       --baseurl: gitlab rest api base url，example：https://gitlab.example.com/api/v4\n");
     print("       --token:      rest api authenticate token\n");
     print("       --object:     object type to be protected\n");
     print("       --action:     add protect or withdraw\n");
@@ -56,15 +56,15 @@ sub main {
     my ( $object, $action, $pattern, $apiBaseUrl, $token, $userName );
 
     GetOptions(
-        'h|help'       => \$isHelp,
-        'envpath=s'    => \$envPath,
-        'version=s'    => \$version,
-        'action=s'     => \$action,
-        'object=s'     => \$object,
-        'pattern=s'    => \$pattern,
-        'apibaseurl=s' => \$apiBaseUrl,
-        'username=s'   => \$userName,
-        'token=s'      => \$token
+        'h|help'     => \$isHelp,
+        'envpath=s'  => \$envPath,
+        'version=s'  => \$version,
+        'action=s'   => \$action,
+        'object=s'   => \$object,
+        'pattern=s'  => \$pattern,
+        'baseurl=s'  => \$apiBaseUrl,
+        'username=s' => \$userName,
+        'token=s'    => \$token
     );
 
     usage() if ( defined($isHelp) );

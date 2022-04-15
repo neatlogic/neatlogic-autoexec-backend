@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "git-args",
     "description": "拉取GIT仓库中的代码",
     "enabled": 0,
     "option": [

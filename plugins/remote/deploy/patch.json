@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "backup-args",
     "description": "更新应用补丁到目标应用",
     "enabled": 0,
     "option": [

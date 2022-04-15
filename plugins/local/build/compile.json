@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "maven-args",
     "description": "对拉取的代码进行编译",
     "enabled": 0,
     "option": [

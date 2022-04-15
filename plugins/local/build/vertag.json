@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "git-args",
     "description": "对于基于标签的版本，自动打标签（需要在verget后才能使用）",
     "enabled": 0,
     "option": [

@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "git-args",
     "description": "版本编译后，代码分支是否存在修改（需要在verget后才能使用）",
     "enabled": 0,
     "option": [

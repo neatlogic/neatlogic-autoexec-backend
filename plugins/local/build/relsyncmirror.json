@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "relsync-args",
     "description": "把版本制品目录同步到环境镜像制品目录",
     "enabled": 0,
     "option": [

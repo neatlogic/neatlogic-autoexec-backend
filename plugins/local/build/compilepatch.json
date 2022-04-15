@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "maven-args",
     "description": "使用代码仓库的diff功能抽取编译后的文件生成补丁",
     "enabled": 0,
     "option": [

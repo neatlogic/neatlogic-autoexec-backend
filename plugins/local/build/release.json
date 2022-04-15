@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "release-args",
     "description": "从编译目录中抽取文件生成版本制品",
     "enabled": 0,
     "option": [

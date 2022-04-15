@@ -4,7 +4,7 @@
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "was-args",
     "description": "WAS发布",
     "enabled": 1,
     "option": [

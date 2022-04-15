@@ -4,7 +4,7 @@
     "typeName": "SQL_FILE",
     "riskName": "HIGH",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "sqlexec-args",
     "description": "SQL文件执行",
     "enabled": 0,
     "option": [

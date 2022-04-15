@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "git-args",
     "description": "设置或删除GIT的保护策略",
     "enabled": 0,
     "option": [
@@ -29,7 +29,7 @@
             "validate": ""
         },
         {
-            "opt": "apibaseurl",
+            "opt": "baseurl",
             "name": "API根URL",
             "help": "GitLab的RestFul api的根，例如：https://gitlab.example.com/api/v4",
             "type": "text",
