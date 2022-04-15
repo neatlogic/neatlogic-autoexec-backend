@@ -304,6 +304,7 @@ class JobRunner:
 
             oneRoundNodes = []
             curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
+            phaseStatus.incRoundNo(roundNo)
             for k in range(1, curRoundNodes + 1):
                 node = nodesFactory.nextNode()
                 if node is None:
@@ -336,7 +337,7 @@ class JobRunner:
 
                     if needExecute:
                         # Local执行的phase，直接把localNode put到队列
-                        phaseStatus.incRoundCounter(roundNo, 1)
+                        phaseStatus.incRoundCounter(1)
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
@@ -352,7 +353,7 @@ class JobRunner:
                             break
                         if self.context.runnerId == node['runnerId']:
                             runNode = RunNode.RunNode(self.context, phaseName, node)
-                            phaseStatus.incRoundCounter(roundNo, 1)
+                            phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
 
                 loopCount = self.context.maxExecSecs / 3

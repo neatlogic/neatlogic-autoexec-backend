@@ -36,9 +36,12 @@ class PhaseStatus:
         self.executor = None
         self.nodesFilePath = None
 
-    def incRoundCounter(self, roundNo, taskCount):
+    def incRoundNo(self, roundNo):
         with self.couterLock:
             self.roundNo = roundNo
+
+    def incRoundCounter(self, taskCount):
+        with self.couterLock:
             self.leftNodeCount += taskCount
 
     def setRoundFinEvent(self):
