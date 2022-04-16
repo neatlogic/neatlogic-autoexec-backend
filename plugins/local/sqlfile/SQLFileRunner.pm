@@ -51,7 +51,6 @@ sub new {
     # locale       => $args{locale},
     # autocommit   => $args{autocommit},
     # ignoreErrors => $args{ignoreErrors}
-
     bless( $self, $type );
 
     $self->{sqlFileInfos} = [];
@@ -720,20 +719,21 @@ sub checkSqlFiles {
 }
 
 sub testByIpPort {
-    my ( $dbType, $host, $port, $dbName, $user, $pass ) = @_;
+    my ( $self, $dbType, $host, $port, $dbName, $user, $pass ) = @_;
 
-    my $dbInfo = {
-        dbType     => $dbType,
-        host       => $host,
-        addrs      => [$host],
-        port       => $port,
-        sid        => $dbName,
-        dbName     => $dbName,
-        user       => $user,
-        pass       => $pass,
-        autocommit => 1,
-        args       => ''
+    my $node = {
+        nodeType => $dbType,
+        host     => $host,
+        port     => $port,
+        username => $user,
+        password => $pass
     };
+    my $args = {
+        autocommit => 1,
+        dbArgs     => ''
+    };
+
+    my $dbInfo = DBInfo->new( $node, $args );
 
     if ( not defined($dbType) and not defined($dbName) ) {
         print("ERROR: can not find db type and db name, check the db configuration.\n");
@@ -743,19 +743,16 @@ sub testByIpPort {
     my $handlerName = uc($dbType) . 'SQLRunner';
     my $requireName = $handlerName . '.pm';
 
+    my $hasLogon = 0;
     my $handler;
     eval {
         require $requireName;
         $handler = $handlerName->new( $dbInfo, 'test.sql', 'UTF-8' );
+        $hasLogon = $handler->test();
     };
     if ($@) {
-        if ( -f "$FindBin::Bin/../lib/$requireName" ) {
-            Utils::setErrFlag();
-            print("ERROR: $@\n");
-        }
+        print("ERROR: $@\n");
     }
-
-    my $hasLogon = $handler->test();
 
     return $hasLogon;
 }

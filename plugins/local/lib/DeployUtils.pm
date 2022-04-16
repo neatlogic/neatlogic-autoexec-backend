@@ -164,6 +164,18 @@ sub isatty {
     return $isTTY;
 }
 
+our $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+
+sub _rc4_encrypt_hex () {
+    my ( $self, $key, $data ) = ( $_[0], $_[1] );
+    return join( '', unpack( 'H*', RC4( $key, $data ) ) );
+}
+
+sub _rc4_decrypt_hex () {
+    my ( $self, $key, $data ) = ( $_[0], $_[1] );
+    return RC4( $key, pack( 'H*', $data ) );
+}
+
 sub getFileContent {
     my ( $self, $filePath ) = @_;
     my $content;

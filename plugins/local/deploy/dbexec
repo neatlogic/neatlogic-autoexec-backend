@@ -7,6 +7,7 @@ use Getopt::Long;
 use Expect;
 use JSON;
 
+use DBInfo;
 use SQLBatchUtils;
 use SQLFileRunner;
 
@@ -166,10 +167,10 @@ sub main {
         );
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
-    }
 
-    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    ServerAdapter->saveSqlFilesStatus( $buildEnv, $sqlFileInfos );
+        my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+        ServerAdapter->saveSqlFilesStatus( $buildEnv, $sqlFileInfos );
+    }
 
     return $rc;
 }

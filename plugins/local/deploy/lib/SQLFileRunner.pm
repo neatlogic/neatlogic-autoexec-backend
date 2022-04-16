@@ -51,33 +51,6 @@ sub new {
     # locale       => $args{locale},
     # autocommit   => $args{autocommit},
     # ignoreErrors => $args{ignoreErrors}
-    my $nodeInfo = $args{nodeInfo};
-    if ( defined($nodeInfo) ) {
-        my $dbInfo = $self->{dbInfo};
-        if ( not defined($dbInfo) ) {
-            $dbInfo = {};
-            $self->{dbInfo} = $dbInfo;
-        }
-
-        $dbInfo->{dbName} = $nodeInfo->{nodeName};
-        $dbInfo->{sid}    = $nodeInfo->{nodeName};
-        $dbInfo->{dbType} = $nodeInfo->{nodeType};
-        $dbInfo->{host}   = $nodeInfo->{host};
-        $dbInfo->{port}   = $nodeInfo->{port};
-        $dbInfo->{user}   = $nodeInfo->{username};
-        $dbInfo->{pass}   = $nodeInfo->{pass};
-
-        my @addrs;
-        my $accessEndpoint = $nodeInfo->{accessEndpoint};
-        while ( $accessEndpoint =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
-            push( @addrs, { host => $1, port => int($2) } );
-        }
-        while ( $accessEndpoint =~ /([^\/\s,]+):(\d+)/g ) {
-            push( @addrs, { host => $1, port => int($2) } );
-        }
-        $dbInfo->{addrs} = \@addrs;
-    }
-
     bless( $self, $type );
 
     $self->{sqlFileInfos} = [];
@@ -748,18 +721,19 @@ sub checkSqlFiles {
 sub testByIpPort {
     my ( $self, $dbType, $host, $port, $dbName, $user, $pass ) = @_;
 
-    my $dbInfo = {
-        dbType     => $dbType,
-        host       => $host,
-        addrs      => [$host],
-        port       => $port,
-        sid        => $dbName,
-        dbName     => $dbName,
-        user       => $user,
-        pass       => $pass,
-        autocommit => 1,
-        args       => ''
+    my $node = {
+        nodeType => $dbType,
+        host     => $host,
+        port     => $port,
+        username => $user,
+        password => $pass
     };
+    my $args = {
+        autocommit => 1,
+        dbArgs     => ''
+    };
+
+    my $dbInfo = DBInfo->new( $node, $args );
 
     if ( not defined($dbType) and not defined($dbName) ) {
         print("ERROR: can not find db type and db name, check the db configuration.\n");
