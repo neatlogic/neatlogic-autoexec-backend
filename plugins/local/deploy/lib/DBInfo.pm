@@ -1,10 +1,8 @@
 #!/usr/bin/perl
 use FindBin;
 
-#use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-#use lib "$FindBin::Bin/../lib";
-
 package DBInfo;
+use DeployUtils;
 
 use strict;
 
@@ -12,10 +10,8 @@ sub new {
     my ( $type, $nodeInfo, $args ) = @_;
 
     my $self = {
-        dbStr  => $nodeInfo->{accessEndpoint},
-        dbType => $nodeInfo->{nodeType},
-
-        #dbType       => 'mysql',
+        dbStr        => $nodeInfo->{accessEndpoint},
+        dbType       => $nodeInfo->{nodeType},
         host         => $nodeInfo->{host},
         port         => $nodeInfo->{port},
         nodeId       => $nodeInfo->{nodeId},
@@ -34,10 +30,16 @@ sub new {
     };
 
     my @addrs;
-    while ( $self->{dbStr} =~ /([\w\.]+:\d+)/g ) {
-        push( @addrs, $1 );
+    my $accessEndpoint = $nodeInfo->{accessEndpoint};
+    if ( defined($accessEndpoint) ) {
+        while ( $accessEndpoint =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
+            push( @addrs, { host => $1, port => int($2) } );
+        }
+        while ( $accessEndpoint =~ /([^\/\s,]+):(\d+)/g ) {
+            push( @addrs, { host => $1, port => int($2) } );
+        }
+        $self->{addrs} = \@addrs;
     }
-    $self->{addrs} = \@addrs;
 
     my $dbName = $args->{dbName};
     if ( defined($dbName) ) {
@@ -46,6 +48,10 @@ sub new {
         $self->{oraWallet} = $dbName;
     }
 
+    my $password = $self->{password};
+    if ( $password =~ s/^\{ENCRYPTED\}// ) {
+        $self->{password} = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+    }
     bless( $self, $type );
     return $self;
 }

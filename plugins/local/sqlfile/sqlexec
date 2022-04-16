@@ -164,7 +164,7 @@ sub main {
     }
 
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    ServerAdapter->saveSqlFilesStatus( $buildEnv, $sqlFileInfos );
+    ServerAdapter->saveSqlFilesStatus( undef, $sqlFileInfos );
 
     return $rc;
 }

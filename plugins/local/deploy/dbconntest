@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../pllib/lib/perl5";
 
 use strict;
+use JSON;
 use Getopt::Long;
 
 use SQLFileRunner;
@@ -21,9 +22,10 @@ sub usage {
 }
 
 sub main() {
-    my ( $isHelp, $dbType, $host, $port, $dbName, $user, $pass );
+    my ( $isHelp, $node, $dbType, $host, $port, $dbName, $user, $pass );
     GetOptions(
         'h|help'     => \$isHelp,
+        'node=s'     => \$node,
         'dbtype=s'   => \$dbType,
         'host=s'     => \$host,
         'port=i'     => \$port,
@@ -34,6 +36,30 @@ sub main() {
 
     usage() if ( defined($isHelp) );
 
+    my $nodeInfo = {};
+    if ( defined($node) and $node ne '' ) {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($dbType) ) {
+        $dbType = $nodeInfo->{nodeType};
+    }
+    if ( not defined($dbName) ) {
+        $dbName = $nodeInfo->{nodeName};
+    }
+    if ( not defined($host) ) {
+        $host = $nodeInfo->{host};
+    }
+    if ( not defined($port) ) {
+        $port = $nodeInfo->{port};
+    }
+    if ( not defined($user) ) {
+        $user = $nodeInfo->{username};
+    }
+    if ( defined($pass) ) {
+        $pass = $nodeInfo->{password};
+    }
+
     my $hasError = 0;
 
     my $hasLogon = SQLFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
@@ -42,7 +68,7 @@ sub main() {
         $hasError = 1;
     }
 
-    return $haserror;
+    return $hasError;
 }
 
 exit main();
