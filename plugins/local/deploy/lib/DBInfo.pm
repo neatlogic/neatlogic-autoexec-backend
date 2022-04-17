@@ -1,10 +1,11 @@
 #!/usr/bin/perl
-use FindBin;
+use strict;
 
 package DBInfo;
-use DeployUtils;
 
-use strict;
+use FindBin;
+
+use DeployUtils;
 
 sub new {
     my ( $type, $nodeInfo, $args ) = @_;

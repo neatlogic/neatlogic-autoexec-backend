@@ -1,15 +1,13 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package SVNFILEVerGet;
-
-use strict;
-use DeployUtils;
-use File::Path;
-use ServerAdapter;
+use FindBin;
 use Cwd;
+use File::Path;
+
+use DeployUtils;
+use ServerAdapter;
 
 sub new {
     my ( $pkg, %args ) = @_;

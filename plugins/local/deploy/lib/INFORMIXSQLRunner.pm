@@ -1,15 +1,14 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package INFORMIXSQLRunner;
 
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Temp;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -176,32 +175,32 @@ sub test {
                 print( $spawn->before() );
                 print( $spawn->match() );
                 print( $spawn->after() );
-                }
+            }
         ],
         [
             "Connected." => sub {
                 $hasLogon = 1;
                 $spawn->send("\cd");
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("\cd");
-                }
+            }
         ],
         [
             timeout => sub {
                 print("ERROR: connection timeout.\n");
                 $spawn->send("\cc");
                 $hasLogon = 0;
-                }
+            }
         ],
         [
             eof => sub {
                 $hasLogon = 0;
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
-                }
+            }
         ]
     );
 
@@ -352,7 +351,7 @@ sub run {
 
                     #$spawn->exp_continue;
                     &$execEnded();
-                    }
+                }
             ],
             [
                 $PROMPT => sub {
@@ -400,7 +399,7 @@ sub run {
                         &$execEnded();
                     }
 
-                    }
+                }
             ],
             [
                 eof => sub {
@@ -422,7 +421,7 @@ sub run {
                     $hasError     = 1;
                     print( DeployUtils->convToUTF8( $spawn->before() ) );
                     &$execEnded();
-                    }
+                }
             ]
         );
     }

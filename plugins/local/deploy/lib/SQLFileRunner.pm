@@ -1,13 +1,9 @@
 #!/usr/bin/perl
-
-use FindBin;
-
-#use lib $FindBin::Bin;
-#use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use strict;
 
 package SQLFileRunner;
 
-use strict;
+use FindBin;
 use Encode;
 use POSIX qw(strftime);
 use IO::File;
@@ -17,6 +13,7 @@ use File::Path;
 use File::Basename;
 use Getopt::Long;
 use JSON;
+
 use DBInfo;
 use AutoExecUtils;
 use DeployUtils;

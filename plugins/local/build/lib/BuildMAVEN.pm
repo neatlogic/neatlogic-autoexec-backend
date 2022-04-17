@@ -1,12 +1,9 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
-use DeployUtils;
 
 package BuildMAVEN;
+use FindBin;
+use DeployUtils;
 
 sub new {
     my ( $pkg, %args ) = @_;

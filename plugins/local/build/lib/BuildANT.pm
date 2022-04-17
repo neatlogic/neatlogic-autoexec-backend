@@ -1,14 +1,12 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
+
+package BuildANT;
+
+use FindBin;
 use DeployUtils;
 
 #use File::Glob qw(bsd_glob);
-
-package BuildANT;
 
 sub new {
     my ( $pkg, %args ) = @_;

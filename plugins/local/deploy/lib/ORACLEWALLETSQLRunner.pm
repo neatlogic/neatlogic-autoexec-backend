@@ -1,15 +1,14 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package ORACLEWALLETSQLRunner;
 
-use strict;
 use base 'ORACLESQLRunner';
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;

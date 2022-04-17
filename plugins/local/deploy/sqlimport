@@ -1,14 +1,11 @@
 #!/usr/bin/perl
-
-use FindBin;
-use lib $FindBin::Bin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-
 use strict;
+use FindBin;
 use Cwd;
 use Digest::MD5;
 use Getopt::Long;
 use JSON;
+
 use SQLFileRunner;
 
 sub usage {

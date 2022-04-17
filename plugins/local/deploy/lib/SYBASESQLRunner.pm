@@ -1,15 +1,14 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package SYBASESQLRunner;
 
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Temp;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -128,18 +127,18 @@ sub test {
                 print( $spawn->before() );
                 print( $spawn->match() );
                 $spawn->send("quit\n");
-                }
+            }
         ],
         [
             eof => sub {
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("quit\n");
-                }
+            }
         ]
     );
 
@@ -277,7 +276,7 @@ sub run {
                 $spawn->send("quit\n");
                 $spawn->expect(undef);
                 &$execEnded();
-                }
+            }
         ],
         [
             eof => sub {
@@ -296,12 +295,12 @@ sub run {
                 $sqlErrMsg =~ s/\r|\n/ /g;
 
                 &$execEnded();
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
-                }
+            }
         ]
     );
 
@@ -361,19 +360,19 @@ sub run {
                         }
                     }
                     $spawn->exp_continue;
-                    }
+                }
             ],
             [
                 $PROMPT => sub {
                     &$execEnded();
-                    }
+                }
             ],
             [
                 eof => sub {
                     $hasHardError = 1;
                     $hasError     = 1;
                     &$execEnded();
-                    }
+                }
             ]
         );
     }

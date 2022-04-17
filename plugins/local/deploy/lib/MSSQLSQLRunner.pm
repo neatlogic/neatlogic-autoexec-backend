@@ -1,15 +1,13 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package MSSQLSQLRunner;
-
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Temp;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -113,26 +111,26 @@ sub test {
             qr/Password:\s+/is => sub {
                 $spawn->send("$password\n");
                 $spawn->exp_continue;
-                }
+            }
         ],
         [
             $PROMPT1 => sub {
                 $hasLogon = 1;
                 $spawn->send("quit\n");
                 $spawn->exp_continue;
-                }
+            }
         ],
         [
             qr/\x1b\[6n/ => sub {
                 $hasLogon = 1;
                 $spawn->hard_close();
-                }
+            }
         ],
         [
             eof => sub {
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
                 $spawn->soft_close();
-                }
+            }
         ]
     );
 
@@ -318,7 +316,7 @@ sub run {
                 }
 
                 #$spawn->exp_continue;
-                }
+            }
         ],
         [
 
@@ -328,7 +326,7 @@ sub run {
                 $hasHardError = 1;
 
                 #$spawn->exp_continue;
-                }
+            }
         ],
         [
 
@@ -338,19 +336,19 @@ sub run {
                 $hasHardError = 1;
 
                 #$spawn->exp_continue;
-                }
+            }
         ],
         [
             qr/Password:\s+/is => sub {
                 $spawn->send("$password\n");
                 $hasSendPassword = 1;
                 $spawn->exp_continue;
-                }
+            }
         ],
         [
             $PROMPT1 => sub {
                 $hasLogon = 1;
-                }
+            }
         ],
         [
             eof => sub {
@@ -358,7 +356,7 @@ sub run {
                 $hasError     = 1;
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
                 &$execEnded();
-                }
+            }
         ]
     );
 
@@ -414,19 +412,19 @@ sub run {
                         print("\nERROR: $sqlError:$sqlErrMsg\n");
                     }
                     $spawn->exp_continue;
-                    }
+                }
             ],
             [
                 $PROMPT1 => sub {
                     &$execEnded();
-                    }
+                }
             ],
             [
                 eof => sub {
                     $hasHardError = 1;
                     $hasError     = 1;
                     &$execEnded();
-                    }
+                }
             ]
         );
     }
