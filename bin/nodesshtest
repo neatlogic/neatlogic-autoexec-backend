@@ -7,6 +7,7 @@ import json
 import argparse
 import paramiko
 
+import initenv
 import VContext
 import Utils
 
@@ -35,12 +36,20 @@ if __name__ == "__main__":
     if password.startswith('{ENCRYPTED}'):
         vContext = VContext.VContext(0)
         password = Utils._rc4_decrypt_hex(vContext.MY_KEY, password[11:])
-        nodeObj['password'] = password
+        nodeInfo['password'] = password
 
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoPolicy())
+    hasError = 0
 
-    nodeInfo = {}
+    ssh = None
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=nodeInfo['host'], port=nodeInfo['protocolPort'], username=nodeInfo['username'], password=nodeInfo['password'])
+    except BaseException as ex:
+        hasError = 1
+        print("ERROR: Connect to {}@{}:{} failed, {}\n".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort'], ex))
+    finally:
+        if ssh is not None:
+            ssh.close()
 
-    ssh.connect(hostname=nodeInfo['host'], port=nodeInfo['protocolPort'], username=nodeInfo['username'], password=nodeInfo['password'])
-    ssh.close()
+    exit(hasError)
