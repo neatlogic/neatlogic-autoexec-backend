@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "SQL文件导入",
+    "description": "SQL文件导入工具（非自动发布）",
     "option": [{
             "opt": "sqlfilejson",
             "name": "SQL文件",
