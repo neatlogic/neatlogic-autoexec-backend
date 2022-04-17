@@ -3,6 +3,7 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
+import sys
 import json
 import argparse
 import paramiko
@@ -40,14 +41,15 @@ if __name__ == "__main__":
 
     hasError = 0
 
-    ssh = None
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    sys.tracebacklimit = -1
     try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(hostname=nodeInfo['host'], port=nodeInfo['protocolPort'], username=nodeInfo['username'], password=nodeInfo['password'])
+        ssh.connect(hostname=nodeInfo['host'], port=nodeInfo['protocolPort'], username=nodeInfo['username'], password=nodeInfo['password'], banner_timeout=10, timeout=10)
+        print("INFO: Connect to {}@{}:{} success.".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort']))
     except BaseException as ex:
         hasError = 1
-        print("ERROR: Connect to {}@{}:{} failed, {}\n".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort'], ex))
+        print("ERROR: Connect to {}@{}:{} failed, {}".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort'], ex))
     finally:
         if ssh is not None:
             ssh.close()
