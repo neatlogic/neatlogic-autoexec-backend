@@ -1,12 +1,9 @@
 #!/usr/bin/perl
-
-use FindBin;
-use lib $FindBin::Bin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use strict;
 
 package SQLFileStatus;
 
-use strict;
+use FindBin;
 use POSIX qw(strftime);
 use Fcntl qw(SEEK_SET O_RDWR O_CREAT O_DIRECT O_SYNC SEEK_SET F_RDLCK F_WRLCK F_UNLCK F_GETLK F_SETLK F_SETLKW);
 use IO::File;
@@ -16,6 +13,7 @@ use Digest::MD5;
 use File::Basename;
 use Getopt::Long;
 use JSON;
+
 use DBInfo;
 use DeployUtils;
 use Data::Dumper;

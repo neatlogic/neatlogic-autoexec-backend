@@ -1,12 +1,9 @@
 #!/usr/bin/perl
-use FindBin;
-
-#use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-#use lib "$FindBin::Bin/../lib";
+use strict;
 
 package ORACLESQLRunner;
 
-use strict;
+use FindBin;
 use Encode;
 use File::Basename;
 use File::Temp;

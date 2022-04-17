@@ -1,14 +1,12 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package POSTGRESQLSQLRunner;
-
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -111,18 +109,18 @@ sub test {
             qr/Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("\\q\n");
-                }
+            }
         ],
         [
             eof => sub {
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
-                }
+            }
         ]
     );
 
@@ -260,12 +258,12 @@ sub run {
             qr/Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
-                }
+            }
         ],
         [
             $PROMPT => sub {
                 $hasLogon = 1;
-                }
+            }
         ],
         [
             eof => sub {
@@ -273,7 +271,7 @@ sub run {
                 $hasError     = 1;
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
                 &$execEnded();
-                }
+            }
         ]
     );
 
@@ -321,12 +319,12 @@ sub run {
                     }
 
                     $spawn->exp_continue;
-                    }
+                }
             ],
             [
                 $PROMPT => sub {
                     &$execEnded();
-                    }
+                }
             ],
             [ eof => sub { &$execEnded(); } ]
         );

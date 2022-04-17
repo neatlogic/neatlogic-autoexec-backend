@@ -1,16 +1,15 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package HANASQLRunner;
 
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Basename;
 use Cwd;
 use File::Temp;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;

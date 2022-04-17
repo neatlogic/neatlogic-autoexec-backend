@@ -1,14 +1,12 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package VerGet;
-
-use strict;
-use DeployUtils;
+use FindBin;
 use File::Path;
 use Cwd;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $buildEnv, $versionInfo, $isVerbose ) = @_;

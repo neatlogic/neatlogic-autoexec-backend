@@ -1,14 +1,13 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package MONGODBSQLRunner;
 
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Basename;
+
+use DeployUtils;
 
 sub new {
     my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
@@ -113,13 +112,13 @@ sub test {
             qr/$PROMPT/ => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
-                }
+            }
         ],
         [
             eof => sub {
                 $hasHardError = 1;
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
-                }
+            }
         ]
     );
 
@@ -211,7 +210,7 @@ sub run {
                     [
                         qr/Error/ => sub {
                             $isFail = 1;
-                            }
+                        }
                     ],
                     [ qr/$PROMPT/ => sub { } ]
                 );
@@ -250,14 +249,14 @@ sub run {
         [
             qr/$PROMPT/ => sub {
                 $hasLogon = 1;
-                }
+            }
         ],
         [
             timeout => sub {
                 print("ERROR: connection timeout.\n");
                 $hasHardError = 1;
                 &$execEnded();
-                }
+            }
         ],
         [
             eof => sub {
@@ -265,7 +264,7 @@ sub run {
                 print( "ERROR: ", $errMsg );
                 $hasHardError = 1;
                 &$execEnded();
-                }
+            }
         ]
     );
 
@@ -280,17 +279,17 @@ sub run {
                 qr/Error/ => sub {
                     $hasError = 1;
                     $spawn->exp_continue();
-                    }
+                }
             ],
             [
                 qr/$PROMPT/ => sub {
-                    }
+                }
             ],
             [
                 eof => sub {
                     $hasHardError = 1;
                     &$execEnded();
-                    }
+                }
             ]
         );
 
@@ -303,17 +302,17 @@ sub run {
                         qr/Error/ => sub {
                             $hasError = 1;
                             $spawn->exp_continue();
-                            }
+                        }
                     ],
                     [
                         qr/$PROMPT/ => sub {
-                            }
+                        }
                     ],
                     [
                         eof => sub {
                             $hasHardError = 1;
                             &$execEnded();
-                            }
+                        }
                     ]
                 );
             }
@@ -326,18 +325,18 @@ sub run {
                         qr/Error/ => sub {
                             $hasError = 1;
                             $spawn->exp_continue();
-                            }
+                        }
                     ],
                     [
                         qr/$PROMPT/ => sub {
                             &$execEnded();
-                            }
+                        }
                     ],
                     [
                         eof => sub {
                             $hasHardError = 1;
                             &$execEnded();
-                            }
+                        }
                     ]
                 );
             }

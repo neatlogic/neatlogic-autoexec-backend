@@ -1,15 +1,14 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package DB2SQLRunner;
 
-use strict;
-use DeployUtils;
+use FindBin;
 use Encode;
 use File::Basename;
 use File::Temp;
+
+use DeployUtils;
 use ServerAdapter;
 
 our %ENCODING_TO_CCSID = (

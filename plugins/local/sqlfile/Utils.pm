@@ -1,13 +1,9 @@
 #!/usr/bin/perl
-use FindBin;
-
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-
-#use lib "$FindBin::Bin/../lib";
+use strict;
 
 package Utils;
 
-use strict;
+use FindBin;
 use POSIX;
 use IO::File;
 use IO::Select;

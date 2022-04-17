@@ -1,11 +1,9 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
+use strict;
 
 package OCEANBASESQLRunner;
 
-use strict;
+use FindBin;
 use DeployUtils;
 use Encode;
 use File::Basename;
@@ -98,13 +96,13 @@ sub test {
             qr/(obclient)>\s$/ => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
-                }
+            }
         ],
         [
             eof => sub {
                 $hasHardError = 1;
                 print( DeployUtils->convToUTF8( $spawn->before() ) );
-                }
+            }
         ]
     );
 
@@ -234,14 +232,14 @@ sub run {
         [
             qr/(obclient)>\s$/ => sub {
                 $hasLogon = 1;
-                }
+            }
         ],
         [
             timeout => sub {
                 print("ERROR: connection timeout.\n");
                 $hasHardError = 1;
                 &$execEnded();
-                }
+            }
         ],
         [
             eof => sub {
@@ -249,7 +247,7 @@ sub run {
                 print( "ERROR: ", $errMsg );
                 $hasHardError = 1;
                 &$execEnded();
-                }
+            }
         ]
     );
 
@@ -304,12 +302,12 @@ sub run {
                         print("ERROR: $matchContent\n");
                     }
                     $spawn->exp_continue;
-                    }
+                }
             ],
             [
                 $PROMPT => sub {
                     &$execEnded();
-                    }
+                }
             ],
             [ eof => sub { &$execEnded(); } ]
         );
