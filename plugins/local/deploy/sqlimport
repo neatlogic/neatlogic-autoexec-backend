@@ -108,16 +108,22 @@ sub main {
     #            `-- 192.168.0.26-3306-bsm
     #                        `-- 2.sql.txt
 
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
     my $sqlUploadDir = "$jobPath/file";
     my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
     my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
     my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
 
     my $dbExtArgs = {};
-
     my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
 
     my $sqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        deployEnv    => undef,
         dbInfo       => $dbInfo,
         nodeInfo     => $dbNode,
         sqlUploadDir => $sqlUploadDir,
@@ -128,8 +134,11 @@ sub main {
     );
 
     my $ret = $sqlFileRunner->checkSqlFiles();
+
+    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    ServerAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos );
+
     return $ret;
 }
 
 exit main();
-

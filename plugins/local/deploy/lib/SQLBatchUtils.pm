@@ -16,7 +16,7 @@ sub new {
 
     my $self = {
         sqlExtNames => $args{sqlExtNames},
-        buildEnv    => $args{buildEnv},
+        deployEnv   => $args{deployEnv},
         dirInfo     => $args{dirInfo}
     };
 

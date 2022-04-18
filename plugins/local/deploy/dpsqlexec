@@ -89,8 +89,8 @@ sub main {
         $jobPath = getcwd();
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
-    my $dirInfo = DeployUtils->getDataDirStruct($buildEnv);
+    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
 
     #作业目录，日志
     #jobpath/
@@ -122,13 +122,18 @@ sub main {
         @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
     }
 
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
     my $batchUtils = SQLBatchUtils->new(
         sqlExtNames => \@sqlExtNames,
-        buildEnv    => $buildEnv,
+        deployEnv   => $deployEnv,
         dirInfo     => $dirInfo
     );
 
-    my $sqlFilesJson = $buildEnv->{_SQL_FILES};
+    my $sqlFilesJson = $deployEnv->{_SQL_FILES};
 
     my $sqlFiles = [];
     if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
@@ -146,7 +151,7 @@ sub main {
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
 
     my $dbSchemasMap = {};
-    my $dbConf       = ServerAdapter->getDBConf($buildEnv);
+    my $dbConf       = ServerAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
@@ -155,6 +160,8 @@ sub main {
     my $rc = 0;
     if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(
+            jobId        => $jobId,
+            deployEnv    => $deployEnv,
             dbSchemasMap => $dbSchemasMap,
             nodeInfo     => { nodeId => 0 },
             sqlFiles     => $sqlFiles,
@@ -168,9 +175,6 @@ sub main {
         );
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
-
-        my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-        ServerAdapter->saveSqlFilesStatus( $buildEnv, $sqlFileInfos );
     }
 
     return $rc;

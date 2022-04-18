@@ -14,6 +14,7 @@ use File::Basename;
 use Getopt::Long;
 use JSON;
 
+use ServerAdapter;
 use DBInfo;
 use DeployUtils;
 use Data::Dumper;
@@ -23,6 +24,9 @@ sub new {
 
     my $self = {
         sqlFile      => $sqlFile,
+        jobId        => $args{jobId},
+        deployEnv    => $args{deployEnv},
+        dbInfo       => $args{dbInfo},
         istty        => $args{istty},
         sqlFileDir   => $args{sqlFileDir},
         sqlStatusDir => $args{sqlStatusDir},
@@ -192,6 +196,28 @@ sub updateStatus {
     }
     $self->_saveStatus();
 
+    my $newStatus = $args{status};
+    if ( defined( $newStatus and $preStatus ne $newStatus ) ) {
+
+        #如果sql状态发生了切变，则调用服务端接口更新sql状态
+        my $serverAdapter = $self->{serverAdapter};
+        my $dbInfo        = $self->{dbInfo};
+
+        my $nodeInfo = $dbInfo->{node};
+        my $sqlInfo  = {
+            jobId          => $self->{jobId},
+            resourceId     => $nodeInfo->{resourceId},
+            nodeId         => $nodeInfo->{nodeId},
+            nodeName       => $nodeInfo->{nodeName},
+            host           => $nodeInfo->{host},
+            port           => $nodeInfo->{port},
+            accessEndpoint => $nodeInfo->{accessEndpoint},
+            sqlFile        => $self->{sqlFile},
+            status         => $newStatus
+        };
+
+        $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );
+    }
     return $preStatus;
 }
 

@@ -37,6 +37,7 @@ sub deployInit {
     }
 
     my $deployEnv = {};
+    $deployEnv->{JOB_ID}     = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID}  = $ENV{RUNNER_ID};
     $deployEnv->{BUILD_NO}   = $buildNo;
     $deployEnv->{IS_RELEASE} = $isRelease;

@@ -16,6 +16,7 @@ use JSON;
 
 use DBInfo;
 use AutoExecUtils;
+use ServerAdapter;
 use DeployUtils;
 
 use SQLFileStatus;
@@ -24,6 +25,8 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
+        jobId        => $args{jobId},
+        deployEnv    => $args{deployEnv},
         jobPath      => $args{jobPath},
         phaseName    => $args{phaseName},
         dbSchemasMap => $args{dbSchemasMap},
@@ -50,6 +53,7 @@ sub new {
     # ignoreErrors => $args{ignoreErrors}
     bless( $self, $type );
 
+    $self->{usedSchemas}  = [];
     $self->{sqlFileInfos} = [];
 
     my $jobPath = $args{jobPath};
@@ -240,7 +244,8 @@ sub execOneSqlFile {
             $hasError = 1;
             $rc       = $rc >> 8;
         }
-        elsif ( $rc > 0 ) {
+
+        if ( $rc > 0 ) {
             $hasError = 1;
             if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
                 $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
@@ -372,7 +377,7 @@ sub execOneSqlFile {
         print("= Elapsed time: $consumeTime seconds.\n");
         print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
 
-        exit($hasError);
+        return $hasError;
     }
 }
 
@@ -421,6 +426,27 @@ sub _getFileMd5Sum {
     }
 
     return $md5Sum;
+}
+
+sub _getSqlDbInfo {
+    my ( $self, $sqlFile ) = @_;
+
+    my $dbSchemasMap = $self->{dbSchemasMap};
+
+    my $dbInfo;
+    if ( defined($dbSchemasMap) ) {
+
+        #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
+        my @sqlDirSegments = split( '/', $sqlFile );
+        my $dbSchema = lc( $sqlDirSegments[0] );
+        $dbInfo = $dbSchemasMap->{$dbSchema};
+    }
+    else {
+        #否则就是针对单一DB目标执行SQL文件，只有单库脚本
+        $dbInfo = $self->{dbInfo};
+    }
+
+    return $dbInfo;
 }
 
 sub needExecute {
@@ -488,6 +514,9 @@ sub execSqlFiles {
 
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
+            jobId        => $self->{jobId},
+            deployEnv    => $self->{deployEnv},
+            dbInfo       => $self->_getSqlDbInfo($sqlFile),
             sqlStatusDir => $self->{sqlStatusDir},
             sqlFileDir   => $self->{sqlFileDir},
             istty        => $self->{istty}
@@ -537,12 +566,14 @@ sub execSqlFileSets {
     my ( $self, $sqlFileSets ) = @_;
 
     my $hasError = 0;
-
     foreach my $sqlFiles (@$sqlFileSets) {
         my $runnerPidsMap = {};
         foreach my $sqlFile (@$sqlFiles) {
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
+                jobId        => $self->{jobId},
+                deployEnv    => $self->{deployEnv},
+                dbInfo       => $self->_getSqlDbInfo($sqlFile),
                 sqlStatusDir => $self->{sqlStatusDir},
                 sqlFileDir   => $self->{sqlFileDir},
                 istty        => $self->{istty}
@@ -630,7 +661,9 @@ sub checkOneSqlFile {
     }
 
     my $sqlInfo = {
+        jobId          => $self->{jobId},
         resourceId     => $nodeInfo->{resourceId},
+        nodeId         => $nodeInfo->{nodeId},
         nodeName       => $nodeInfo->{nodeName},
         host           => $nodeInfo->{host},
         port           => $nodeInfo->{port},
@@ -644,6 +677,9 @@ sub checkOneSqlFile {
 }
 
 sub checkSqlFiles {
+
+    #检查SQL是否需要运行，是否存在不正确的语法等
+    #同时生成schema的信息，完成对shema连通性的检测
     my ($self) = @_;
 
     my $sqlFiles     = $self->{sqlFiles};
@@ -652,7 +688,7 @@ sub checkSqlFiles {
     my $sqlFileInfos = $self->{sqlFileInfos};
     my $hasError     = 0;
 
-    my @usedSchemas = ();
+    my $usedSchemas = $self->{usedSchemas};
     foreach my $sqlFile (@$sqlFiles) {
 
         if ( -e "$sqlFileDir/$sqlFile" ) {
@@ -662,9 +698,9 @@ sub checkSqlFiles {
                 #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
                 my @sqlDirSegments = split( '/', $sqlFile );
                 my $dbSchema = lc( $sqlDirSegments[0] );
-                push( @usedSchemas, $dbSchema );
-                my $dbInfo   = $dbSchemasMap->{$dbSchema};
-                my $nodeInfo = $dbInfo->{node};
+                push( @$usedSchemas, $dbSchema );
+                my $dbInfo = $dbSchemasMap->{$dbSchema};
+                $nodeInfo = $dbInfo->{node};
             }
             else {
                 $nodeInfo = $self->{nodeInfo};
@@ -672,6 +708,9 @@ sub checkSqlFiles {
 
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
+                jobId        => $self->{jobId},
+                deployEnv    => $self->{deployEnv},
+                dbInfo       => $self->_getSqlDbInfo($sqlFile),
                 sqlStatusDir => $self->{sqlStatusDir},
                 sqlFileDir   => $sqlFileDir,
                 istty        => $self->{istty}
@@ -686,7 +725,16 @@ sub checkSqlFiles {
         }
     }
 
-    foreach my $dbSchema (@usedSchemas) {
+    return $hasError;
+}
+
+sub checkDBSchemas {
+    my ($self) = @_;
+
+    my $hasError     = 0;
+    my $dbSchemasMap = $self->{dbSchemasMap};
+    my $usedSchemas  = $self->{usedSchemas};
+    foreach my $dbSchema (@$usedSchemas) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
@@ -709,7 +757,6 @@ sub checkSqlFiles {
             $hasError = $hasError + 1;
             print("ERROR: $@\n");
         }
-
     }
 
     return $hasError;
