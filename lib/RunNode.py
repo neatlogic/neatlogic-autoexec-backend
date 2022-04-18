@@ -252,11 +252,11 @@ class RunNode:
         if not os.path.exists(outDir):
             os.mkdir(outDir)
             # 如果操作是带目录的，则创建子目录
-            opBundleDir = os.path.dirname(op.opId)
-            if opBundleDir:
-                outDir = outDir + '/' + opBundleDir
-                if not os.path.exists(outDir):
-                    os.mkdir(outDir)
+        opBundleDir = os.path.dirname(op.opId)
+        if opBundleDir:
+            outDir = outDir + '/' + opBundleDir
+            if not os.path.exists(outDir):
+                os.mkdir(outDir)
         return outDir
 
     def _ensureOpFileOutputDir(self, op):
