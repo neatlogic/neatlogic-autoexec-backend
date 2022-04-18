@@ -5,6 +5,7 @@ use File::Basename;
 use Getopt::Long;
 
 use AutoCfg;
+use BuildUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -93,7 +94,10 @@ sub main {
     $buildEnv->{insCfgList} = $insCfgList;
 
     my $isFail = AutoCfg::config( $buildEnv, \@cfgFiles, $version, $charset, $followZip, $doClean, $followTar, $checkOrg, $pureDir, $md5Check );
-
+    if ( $isFail == 0 ) {
+        my $buildUtils = BuildUtils->new();
+        $isFail = $buildUtils->release2Env($buildEnv);
+    }
     if ( $isFail != 0 ) {
         print("ERROR: Auto config $namePath version:$version failed.\n");
     }
@@ -105,4 +109,3 @@ sub main {
 }
 
 exit main();
-
