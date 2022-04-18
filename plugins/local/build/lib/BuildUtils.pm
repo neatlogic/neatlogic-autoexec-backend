@@ -196,6 +196,8 @@ sub release {
     my $envBuildRoot     = $dirInfo->{distribute};
     my $buildLnk         = "$envBuildRoot/build";
 
+    my $buildNo = $buildEnv->{BUILD_NO};
+
     if ( defined($envName) and $envName ne '' ) {
         if ( -l $buildLnk ) {
             unlink($buildLnk);
