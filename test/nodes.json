@@ -1,1 +1,14 @@
-{"nodeName":"ezproxy","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":493224221008128,"port":8071,"host":"192.168.0.101","nodeType":"Tomcat","totalCount":43,"nodeId":603515701223519,"protocolPort":22,"username":"root"}
+{"nodeName":"customerBaseline","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544471568384,"host":"192.168.0.101","nodeType":"Linux","totalCount":14,"nodeId":578922995310644,"protocolPort":22,"username":"root"}
+{"nodeName":"sit-db-21","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544396070912,"host":"192.168.0.21","nodeType":"Linux","nodeId":578922995310642,"protocolPort":22,"username":"root"}
+{"nodeName":"sit_asm_22","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544656117762,"host":"192.168.0.22","nodeType":"Linux","nodeId":578922995310648,"protocolPort":22,"username":"root"}
+{"nodeName":"sit_bsm_23","protocol":"ssh","password":"{ENCRYPTED}4efa56d03f9e","resourceId":512251060347257,"host":"192.168.0.23","nodeType":"Linux","nodeId":578922995310652,"protocolPort":22,"username":"root"}
+{"nodeName":"asm","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544614174720,"host":"192.168.0.24","nodeType":"Linux","nodeId":578922995310647,"protocolPort":22,"username":"root"}
+{"nodeName":"sit_ecmdb_25","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544572231702,"host":"192.168.0.25","nodeType":"Linux","nodeId":578922995310646,"protocolPort":22,"username":"root"}
+{"nodeName":"centos7base","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544429625462,"host":"192.168.0.26","nodeType":"Linux","nodeId":578922995310643,"protocolPort":22,"username":"root"}
+{"nodeName":"sit-asm-31","protocol":"ssh","resourceId":528000889970688,"host":"192.168.0.31","nodeType":"Linux","nodeId":578922995310654,"protocolPort":22,"username":"root"}
+{"nodeName":"prd-demo-33","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544521900032,"host":"192.168.0.33","nodeType":"Linux","nodeId":578922995310645,"protocolPort":22,"username":"root"}
+{"nodeName":"dev-asm-cmb-2021","protocol":"ssh","resourceId":562020134739974,"host":"192.168.0.55","nodeType":"Linux","nodeId":578922995310655,"protocolPort":22,"username":"root"}
+{"nodeName":"dev-asm-65","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544698060875,"host":"192.168.0.65","nodeType":"Linux","nodeId":578922995310650,"protocolPort":22,"username":"root"}
+{"nodeName":"Elasticsearch1","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544689672244,"host":"192.168.0.66","nodeType":"Linux","nodeId":578922995310649,"protocolPort":22,"username":"root"}
+{"nodeName":"prd-gitlab-runner","protocol":"ssh","resourceId":516341538545669,"host":"192.168.0.83","nodeType":"Linux","nodeId":578922995310653,"protocolPort":22,"username":"root"}
+{"nodeName":"dev-env-140","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544723226624,"host":"192.168.1.140","nodeType":"Linux","nodeId":578922995310651,"protocolPort":22,"username":"root"}

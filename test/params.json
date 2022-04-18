@@ -1,104 +1,83 @@
 {
-    "jobId": 607953492959252,
-    "opt": {},
-    "parallel": 64,
-    "runFlow": [{
-        "巡检执行": [{
-                "output": {},
-                "opt": {},
-                "opName": "inspect/setresjobid",
-                "opType": "runner_target",
-                "isScript": 0,
-                "opId": "inspect/setresjobid_603515701223557",
-                "interpreter": "python",
-                "failIgnore": 1,
-                "desc": {}
-            },
-            {
-                "output": {
-                    "DATA": {
-                        "opt": "DATA",
-                        "type": "text"
-                    }
+        "jobId": 575071089123340,
+        "opt": {},
+        "parallel": 64,
+        "runFlow": [{
+                        "groupId": 1,
+                        "execStrategy": "grayScale",
+                        "phases": [{
+                                "phaseName": "收集信息",
+                                "execRound": "first",
+                                "operations": [{
+                                                "output": {},
+                                                "opt": {
+                                                        "mssqlaccount": "",
+                                                        "mongoaccount": "",
+                                                        "debug": "0",
+                                                        "defaultpassconf": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
+                                                        "inspect": "0",
+                                                        "mysqlaccount": "",
+                                                        "pgaccount": "",
+                                                        "class": "",
+                                                        "verbose": "0"
+                                                },
+                                                "opName": "cmdbcollect/oscollector",
+                                                "opType": "target",
+                                                "isScript": 0,
+                                                "opId": "cmdbcollect/oscollector_575071089123392",
+                                                "interpreter": "perl",
+                                                "failIgnore": 1,
+                                                "desc": {
+                                                        "mssqlaccount": "account",
+                                                        "mongoaccount": "account",
+                                                        "debug": "select",
+                                                        "defaultpassconf": "text",
+                                                        "inspect": "select",
+                                                        "mysqlaccount": "account",
+                                                        "pgaccount": "account",
+                                                        "class": "text",
+                                                        "verbose": "select"
+                                                }
+                                        },
+                                        {
+                                                "output": {},
+                                                "opt": {},
+                                                "opName": "cmdbcollect/savedata",
+                                                "opType": "runner_target",
+                                                "isScript": 0,
+                                                "opId": "cmdbcollect/savedata_575071089123393",
+                                                "interpreter": "python",
+                                                "failIgnore": 1,
+                                                "desc": {}
+                                        }
+                                ]
+                        }]
                 },
-                "opt": {
-                    "timeout": "5"
-                },
-                "opName": "inspect/tcpcheck",
-                "opType": "runner_target",
-                "isScript": 0,
-                "opId": "inspect/tcpcheck_603515701223558",
-                "interpreter": "perl",
-                "failIgnore": 1,
-                "desc": {
-                    "timeout": "text"
+                {
+                        "groupId": 2,
+                        "execStrategy": "grayScale",
+                        "phases": [{
+                                "phaseName": "关系计算",
+                                "execRound": "first",
+                                "operations": [{
+                                        "output": {},
+                                        "opt": {
+                                                "type": "OS"
+                                        },
+                                        "opName": "cmdbcollect/backfillrel",
+                                        "opType": "runner",
+                                        "isScript": 0,
+                                        "opId": "cmdbcollect/backfillrel_575071089123396",
+                                        "interpreter": "python",
+                                        "failIgnore": 0,
+                                        "desc": {
+                                                "type": "select"
+                                        }
+                                }]
+                        }]
                 }
-            },
-            {
-                "output": {
-                    "DATA": {
-                        "opt": "DATA",
-                        "type": "text"
-                    },
-                    "testFile": {
-                        "type": "file",
-                        "defaultValue": "ApacheCollector.pm"
-                    }
-                },
-                "opt": {
-                    "mssqlaccount": "",
-                    "mongoaccount": "",
-                    "debug": "0",
-                    "defaultpassconf": "",
-                    "inspect": "1",
-                    "mysqlaccount": "",
-                    "pgaccount": "",
-                    "class": "Tomcat",
-                    "verbose": "0"
-                },
-                "opName": "cmdbcollect/oscollector",
-                "opType": "target",
-                "isScript": 0,
-                "opId": "cmdbcollect/oscollector_603515701223559",
-                "interpreter": "perl",
-                "failIgnore": 1,
-                "desc": {
-                    "mssqlaccount": "account",
-                    "mongoaccount": "account",
-                    "debug": "select",
-                    "defaultpassconf": "text",
-                    "inspect": "select",
-                    "mysqlaccount": "account",
-                    "pgaccount": "account",
-                    "class": "text",
-                    "verbose": "select"
-                }
-            },
-            {
-                "output": {},
-                "opt": {},
-                "opName": "inspect/genreport",
-                "opType": "runner_target",
-                "isScript": 0,
-                "opId": "inspect/genreport_603515701223560",
-                "interpreter": "python",
-                "failIgnore": 1,
-                "desc": {}
-            },
-            {
-                "output": {},
-                "opt": {},
-                "opName": "cmdbcollect/savedata",
-                "opType": "runner_target",
-                "isScript": 0,
-                "opId": "cmdbcollect/savedata_603515701223561",
-                "interpreter": "python",
-                "failIgnore": 1,
-                "desc": {}
-            }
-        ]
-    }],
-    "arg": {},
-    "execUser": "system",
-    "tenant": "develop"
+        ],
+        "arg": {},
+        "execUser": "system",
+        "tenant": "develop"
 }
