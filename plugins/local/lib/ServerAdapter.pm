@@ -234,4 +234,10 @@ sub pushSqlStatus {
 
     #TODO：更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
 }
+
+sub getBuild {
+    my ( $self, $deployEnv, $version, $buildNo ) = @_;
+
+    #download某个版本某个buildNo的版本制品到当前节点
+}
 1;

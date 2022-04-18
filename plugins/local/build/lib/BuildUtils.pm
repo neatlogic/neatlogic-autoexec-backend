@@ -178,18 +178,10 @@ sub compile {
 }
 
 sub release {
-    my ( $self, $buildEnv, $version, $buildNo ) = @_;
+    my ( $self, $buildEnv ) = @_;
 
-    my $namePath = $buildEnv->{NAME_PATH};
     my $dataPath = $buildEnv->{DATA_PATH};
     my $envName  = $buildEnv->{ENV_NAME};
-
-    if ( not defined($version) ) {
-        $version = $buildEnv->{VERSION};
-    }
-    if ( not defined($buildNo) ) {
-        $buildNo = $buildEnv->{BUILDNO};
-    }
 
     my $myRunnerId  = $buildEnv->{RUNNER_ID};
     my $runnerGroup = $buildEnv->{RUNNER_GROUP};
@@ -244,6 +236,44 @@ sub release {
         }
     }
     chdir($cwd);
+
+    return $ret;
 }
 
+sub release2Env {
+    my ( $self, $buildEnv ) = @_;
+
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    my $myRunnerId  = $buildEnv->{RUNNER_ID};
+    my $runnerGroup = $buildEnv->{RUNNER_GROUP};
+
+    my $cwd = getcwd();
+    chdir($dataPath);
+
+    my $dirInfo = DeployUtils->getDataDirStruct( $buildEnv, 1 );
+    my $envBuildRoot = $dirInfo->{distribute};
+
+    my $ret = 0;
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression = no -x';
+    while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
+        if ( $runnerId eq $myRunnerId ) {
+            next;
+        }
+
+        if ( defined($envName) and $envName ne '' and -d $envBuildRoot ) {
+            print("ERROR: Sync '$envBuildRoot/' to $runnerIp::'$envBuildRoot/'.\n");
+            $ret = system("rsync -avrR --delete '$envBuildRoot/' $runnerIp::'$envBuildRoot/'");
+            if ( $ret != 0 ) {
+                print("ERROR: Sync '$envBuildRoot/' to $runnerIp::'$envBuildRoot/' failed.\n");
+                last;
+            }
+        }
+    }
+
+    chdir($cwd);
+
+    return $ret;
+}
 1;
