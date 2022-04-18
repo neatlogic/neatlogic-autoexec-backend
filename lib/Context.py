@@ -112,11 +112,13 @@ class Context(VContext.VContext):
             for execPhase in phases.split(','):
                 self.phasesToRun[execPhase] = 1
 
+        self.nodesToRunCount = 0
         self.nodesToRun = None
         if nodes != '':
             self.nodesToRun = {}
             for execNode in nodes.split(','):
                 self.nodesToRun[int(execNode)] = 1
+                self.nodesToRunCount = self.nodesToRunCount + 1
 
         os.chdir(self.runPath)
 

@@ -18,7 +18,7 @@ class RunNodeFactory:
         self.phaseName = phaseName
         self.nodesFile = None
 
-        nodesFilePath = context.getNodesFilePath(phaseName=phaseName,groupNo=groupNo)
+        nodesFilePath = context.getNodesFilePath(phaseName=phaseName, groupNo=groupNo)
         if not os.path.isfile(nodesFilePath):
             nodesFilePath = context.getNodesFilePath()
         self.nodesFile = open(nodesFilePath)
@@ -38,6 +38,9 @@ class RunNodeFactory:
             self.jobRunnerCount = len(self.jobRunnerIds)
         except:
             pass
+
+        if self.context.nodesToRun is not None:
+            self.nodesCount = self.context.nodesToRunCount
 
     def __del__(self):
         if self.nodesFile is not None:
