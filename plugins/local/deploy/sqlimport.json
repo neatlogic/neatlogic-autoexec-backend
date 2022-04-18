@@ -6,6 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "SQL文件导入工具（非自动发布）",
+    "enabled": 0,
     "option": [{
             "opt": "sqlfilejson",
             "name": "SQL文件",

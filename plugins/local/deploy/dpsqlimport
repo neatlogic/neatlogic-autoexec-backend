@@ -85,8 +85,8 @@ sub main {
         $jobPath = getcwd();
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
-    my $dirInfo = DeployUtils->getDataDirStruct($buildEnv);
+    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
 
     #sqlfile, log, status
     #jobpath/
@@ -109,6 +109,11 @@ sub main {
     #            `-- 192.168.0.26-3306-bsm
     #                        `-- 2.sql.txt
 
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
     my $distPath     = $dirInfo->{distribute};
     my $sqlFileDir   = "$distPath/db";
     my $logFileDir   = "$jobPath/log/$phaseName";
@@ -121,7 +126,7 @@ sub main {
 
     my $batchUtils = SQLBatchUtils->new(
         sqlExtNames => \@sqlExtNames,
-        buildEnv    => $buildEnv,
+        deployEnv   => $deployEnv,
         dirInfo     => $dirInfo
     );
 
@@ -134,13 +139,15 @@ sub main {
     }
 
     my $dbSchemasMap = {};
-    my $dbConf       = ServerAdapter->getDBConf($buildEnv);
+    my $dbConf       = ServerAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
     my $sqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        deployEnv    => $deployEnv,
         dbSchemasMap => $dbSchemasMap,
         nodeInfo     => { nodeId => 0 },
         sqlFileDir   => $sqlFileDir,
@@ -149,9 +156,19 @@ sub main {
         sqlFiles     => $sqlFiles
     );
 
-    my $ret = $sqlFileRunner->checkSqlFiles();
+    my $hasError = 0;
+    my $ret      = 0;
+    $ret      = $sqlFileRunner->checkSqlFiles();
+    $hasError = $hasError + $ret;
 
-    return $ret;
+    #在检查SQL脚本后，抽取了schema信息，马上进行db schema的连通性检查
+    $ret      = $sqlFileRunner->checkDBSchemas();
+    $hasError = $hasError + $ret;
+
+    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    ServerAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos, $deployEnv );
+
+    return $hasError;
 }
 
 exit main();

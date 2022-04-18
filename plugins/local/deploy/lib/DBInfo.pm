@@ -30,6 +30,8 @@ sub new {
         ignoreErrors => $args->{ignoreErrors}
     };
 
+    $self->{node} = $nodeInfo;
+
     my @addrs;
     my $accessEndpoint = $nodeInfo->{accessEndpoint};
     if ( defined($accessEndpoint) ) {

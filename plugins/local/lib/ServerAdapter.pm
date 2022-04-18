@@ -168,7 +168,7 @@ sub getAppPassWord {
 }
 
 sub saveSqlFilesStatus {
-    my ( $self, $buildEnv, $sqlFilesStatus ) = @_;
+    my ( $self, $jobId, $sqlFilesStatus, $deployEnv ) = @_;
 
     #$sqlFilesStatus格式
     # [
@@ -194,8 +194,28 @@ sub saveSqlFilesStatus {
     #     }
     # ]
 
-    #TODO: 保存sql文件信息到DB
+    #TODO: 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
 
     return;
+}
+
+sub pushSqlStatus {
+    my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
+
+    #$jobId: 324234
+    #$sqlInfo = {
+    #     jobId          => 83743,
+    #     resourceId     => 243253234,
+    #     nodeId         => 234324,
+    #     nodeName       => 'mydb',
+    #     host           => '192.168.0.2',
+    #     port           => 3306,
+    #     accessEndpoint => '192.168.0.2:3306',
+    #     sqlFile        => 'mydb.myuser/1.test.sql',
+    #     status         => 'success'
+    # };
+    #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
+
+    #TODO：更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
 }
 1;

@@ -90,6 +90,13 @@ sub main {
             push( @$sqlFiles, $sqlFile );
         }
     }
+    else {
+        my $sqlFileArrayJson = $ENV{_SQL_FILES};
+        if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
+            $sqlFiles = from_json($sqlFileArrayJson);
+        }
+    }
+
     if ( scalar(@$sqlFiles) == 0 ) {
         $hasOptError = 1;
         print("ERROR: Must define sql files with option --sqlfiles in json string.\n");
@@ -125,6 +132,11 @@ sub main {
     #            `-- 192.168.0.26-3306-bsm
     #                        `-- 2.sql.txt
 
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
     my $sqlUploadDir = "$jobPath/file";
     my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
     my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
@@ -140,6 +152,8 @@ sub main {
     my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
 
     my $sqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        deployEnv    => undef,
         dbInfo       => $dbInfo,          #单DB目标执行需要的特有的属性
         nodeInfo     => $dbNode,
         sqlUploadDir => $sqlUploadDir,    #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
@@ -158,9 +172,6 @@ sub main {
     if ( $rc == 0 ) {
         $rc = $sqlFileRunner->execSqlFiles();
     }
-
-    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    ServerAdapter->saveSqlFilesStatus( undef, $sqlFileInfos );
 
     return $rc;
 }
