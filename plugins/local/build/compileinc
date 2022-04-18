@@ -216,7 +216,8 @@ sub main {
                 copyPrj( $prjPath, $diffDirName, \@allSrcPaths, \@allLibPaths, \@allCmpOutPaths );
 
                 #通过代码仓库比较获取差异文件存放到目录$diffDir
-                my $versionInfo = ServerAdapter->getVer($buildEnv);
+                my $serverAdapter = ServerAdapter->new();
+                my $versionInfo   = $serverAdapter->getVer($buildEnv);
                 my $getDiffStatus = getBuildDiff( $buildEnv, $versionInfo, $tag4CmpTo, $prjPath, $diffDir, \@allCmpOutPaths, $isVerbose );
                 if ( $getDiffStatus ne 1 ) {
                     die("ERROR: $pname $namePath version:$version get diff failed.\n");

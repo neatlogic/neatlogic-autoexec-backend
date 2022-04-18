@@ -170,8 +170,9 @@ sub main {
             mkpath("$patchDir");
         }
 
-        my $versionInfo = ServerAdapter->getVer($buildEnv);
-        my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
+        my $serverAdapter = ServerAdapter->new();
+        my $versionInfo   = $serverAdapter->getVer($buildEnv);
+        my $verGet        = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
 
         #如果没有定义$tag4CmpTo和$startRev则获取getver记录的revision的start和end
         if ( $tag4CmpTo eq '' and $startRev eq '' ) {

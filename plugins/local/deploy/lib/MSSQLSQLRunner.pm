@@ -8,9 +8,23 @@ use File::Temp;
 use File::Basename;
 
 use DeployUtils;
+use SQLFileStatus;
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
+
+    my $dbInfo      = $args{dbInfo};
+    my $charSet     = $args{charSet};
+    my $logFilePath = $args{logFilePath};
+    my $toolsDir    = $args{toolsDir};
+    my $tmpDir      = $args{tmpDir};
 
     my $dbType       = $dbInfo->{dbType};
     my $dbName       = $dbInfo->{sid};
@@ -23,20 +37,19 @@ sub new {
     my $dbArgs       = $dbInfo->{args};
     my $dbLocale     = $dbInfo->{locale};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "MSSQLSQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
 
-    $sqlCmd =~ s/^\s*'|'\s*$//g;
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
 
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -52,14 +65,7 @@ sub new {
     $ENV{LANG}   = 'en_US.UTF-8';
     $ENV{LC_ALL} = 'en_US.UTF-8';
 
-    my $deploysysHome;
-    if ( exists $ENV{DEPLOYSYS_HOME} ) {
-        $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    }
-    else {
-        $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-    }
-    my $mssqlHome = "$deploysysHome/tools/mssql-client";
+    my $mssqlHome = "$toolsDir/mssql-client";
     if ( defined($dbVersion) and -e "$mssqlHome-$dbVersion" ) {
         $mssqlHome = "$mssqlHome-$dbVersion";
     }
@@ -67,8 +73,8 @@ sub new {
     $ENV{PATH}            = "$mssqlHome/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$mssqlHome/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    my $sqlDir      = dirname($sqlCmd);
-    my $sqlFileName = basename($sqlCmd);
+    my $sqlDir      = dirname($sqlFile);
+    my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
     chdir($sqlDir);
@@ -152,7 +158,7 @@ sub run {
     my $spawn        = $self->{spawn};
     my $logFilePath  = $self->{logFilePath};
     my $charSet      = $self->{charSet};
-    my $sqlCmd       = $self->{sqlCmd};
+    my $sqlFile      = $self->{sqlFile};
     my $sqlFileName  = $self->{sqlFileName};
     my $isAutoCommit = $self->{isAutoCommit};
     my $sqlFile      = $sqlFileName;
@@ -222,7 +228,8 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    my $sqlFileStatus = $self->{sqlFileStatus};
+                    $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -235,7 +242,8 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    my $sqlFileStatus = $self->{sqlFileStatus};
+                    $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );

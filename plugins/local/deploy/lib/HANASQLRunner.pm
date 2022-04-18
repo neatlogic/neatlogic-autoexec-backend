@@ -10,9 +10,17 @@ use Cwd;
 use File::Temp;
 
 use DeployUtils;
+use SQLFileStatus;
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
 
     my $dbType         = $dbInfo->{dbType};
     my $dbName         = $dbInfo->{sid};
@@ -25,32 +33,17 @@ sub new {
     my $dbArgs         = $dbInfo->{args};
     my $dbServerLocale = $dbInfo->{locale};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "HANASQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
 
-    my $deploysysHome;
-
-    #if ( exists $ENV{DEPLOYSYS_HOME} ) {
-    #    $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    #}
-    #else {
-    $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-
-    #}
-
     my $hanaClientDir = 'hana-client';
-    if ( defined($dbVersion) and -e "$deploysysHome/tools/hana-client-$dbVersion" ) {
+    if ( defined($dbVersion) and -e "$toolsDir/hana-client-$dbVersion" ) {
         $hanaClientDir = "hana-client-$dbVersion";
     }
 
-    $ENV{HANA_HOME}       = "$deploysysHome/tools/$hanaClientDir";
+    $ENV{HANA_HOME}       = "$toolsDir/$hanaClientDir";
     $ENV{LD_LIBRARY_PATH} = $ENV{HANA_HOME} . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$deploysysHome/tools/$hanaClientDir" . ':' . $ENV{PATH};
+    $ENV{PATH}            = "$toolsDir/$hanaClientDir" . ':' . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
@@ -64,10 +57,16 @@ sub new {
         }
     }
 
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
+
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -83,13 +82,13 @@ sub new {
 
     my $spawn;
 
-    my $sqlDir      = dirname($sqlCmd);
-    my $sqlFileName = basename($sqlCmd);
+    my $sqlDir      = dirname($sqlFile);
+    my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
     chdir($sqlDir);
 
-    if ( $sqlCmd =~ /\.model/i ) {
+    if ( $sqlFile =~ /\.model/i ) {
         print("INFO: filetype:model\n");
         $ENV{REGI_HOST}   = "$host:$port";
         $ENV{REGI_USER}   = $user;
@@ -164,7 +163,7 @@ sub run {
     my $spawn        = $self->{spawn};
     my $logFilePath  = $self->{logFilePath};
     my $charSet      = $self->{charSet};
-    my $sqlCmd       = $self->{sqlCmd};
+    my $sqlFile      = $self->{sqlFile};
     my $user         = $self->{user};
     my $pass         = $self->{pass};
     my $dbName       = $self->{dbName};
@@ -211,7 +210,8 @@ sub run {
                 if ( $isAutoCommit == 0 ) {
                     my $opt;
                     if ( exists( $ENV{IS_INTERACT} ) ) {
-                        $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                        my $sqlFileStatus = $self->{sqlFileStatus};
+                        $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
                     }
 
                     $opt = 'rollback' if ( not defined($opt) );
@@ -235,12 +235,14 @@ sub run {
         }
     };
 
-    my $sqlDir = dirname($sqlCmd);
-    chdir($sqlDir);
+    my $sqlDir = dirname($sqlFile);
+    if ( $sqlDir ne '' ) {
+        chdir($sqlDir);
+    }
 
     if ( $fileType eq 'MODEL' ) {
 
-        my $TMPDIR      = Cwd::abs_path("$FindBin::Bin/../tmp");
+        my $TMPDIR      = $self->{tmpDir};
         my $zipFileName = $self->{sqlFileName};
         my $tmp         = File::Temp->new( DIR => $TMPDIR );
         my $zipTmpDir   = $tmp->newdir( DIR => $TMPDIR );

@@ -137,6 +137,15 @@ sub main {
         $jobId = 0;
     }
 
+    my $toolsDir;
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
+        $toolsDir           = "$autoexecHome/tools";
+        $ENV{AUTOEXEC_HOME} = $autoexecHome;
+        $ENV{TOOLS_PATH}    = $toolsDir;
+    }
+
     my $sqlUploadDir = "$jobPath/file";
     my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
     my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
@@ -154,9 +163,11 @@ sub main {
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
         deployEnv    => undef,
-        dbInfo       => $dbInfo,          #单DB目标执行需要的特有的属性
+        toolsDir     => $toolsDir,
+        tmpDir       => "$autoexecHome/tmp",
+        dbInfo       => $dbInfo,               #单DB目标执行需要的特有的属性
         nodeInfo     => $dbNode,
-        sqlUploadDir => $sqlUploadDir,    #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
+        sqlUploadDir => $sqlUploadDir,         #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
 
         sqlFileDir   => $sqlFileDir,
         sqlStatusDir => $sqlStatusDir,

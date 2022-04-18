@@ -12,7 +12,6 @@ use File::Copy;
 use MIME::Base64;
 use Cwd;
 
-use ServerAdapter;
 use DeployUtils;
 
 sub usage {

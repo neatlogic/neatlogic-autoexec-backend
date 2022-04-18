@@ -10,7 +10,6 @@ use Cwd;
 use URI::Escape;
 
 use DeployUtils;
-use ServerAdapter;
 
 sub new {
     my ( $pkg, %args ) = @_;

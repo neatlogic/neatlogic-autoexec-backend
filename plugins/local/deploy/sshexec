@@ -7,7 +7,6 @@ use Getopt::Long;
 
 use SSHRemoteExec;
 use DeployUtils;
-use ServerAdapter;
 
 Getopt::Long::Configure("pass_through");
 

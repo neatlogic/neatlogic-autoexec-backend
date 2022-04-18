@@ -9,9 +9,17 @@ use File::Temp;
 use File::Basename;
 
 use DeployUtils;
+use SQLFileStatus;
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
 
     my $dbType         = $dbInfo->{dbType};
     my $dbName         = $dbInfo->{sid};
@@ -24,21 +32,20 @@ sub new {
     my $dbArgs         = $dbInfo->{args};
     my $dbServerLocale = $dbInfo->{locale};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "INFORMIXSQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
 
-    $sqlCmd =~ s/^\s*'|'\s*$//g;
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
 
     $self->{PROMPT}       = qr/\n>\s/is;
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -94,15 +101,7 @@ sub new {
         }
     }
 
-    my $deploysysHome;
-    if ( exists $ENV{DEPLOYSYS_HOME} ) {
-        $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    }
-    else {
-        $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-    }
-
-    my $informixHome = "$deploysysHome/tools/informix-client";
+    my $informixHome = "$toolsDir/informix-client";
     if ( defined($dbVersion) and -e "$informixHome-$dbVersion" ) {
         $informixHome = "$informixHome-$dbVersion";
     }
@@ -110,12 +109,11 @@ sub new {
     $ENV{INFORMIXDIR} = $informixHome;
     $ENV{PATH}        = "$informixHome/bin:" . $ENV{PATH};
 
-    my $sqlDir      = dirname($sqlCmd);
-    my $sqlFileName = basename($sqlCmd);
+    my $sqlDir      = dirname($sqlFile);
+    my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
-    my $TMPDIR  = "$deploysysHome/tmp";
-    my $tmp     = File::Temp->new( DIR => $TMPDIR, UNLINK => 1, SUFFIX => '.informix' );
+    my $tmp = File::Temp->new( DIR => $tmpDir, UNLINK => 1, SUFFIX => '.informix' );
     my $content = "$serverName onsoctcp $host $port\n";
     print $tmp ($content);
     my $sqlHostFile = $tmp->filename;
@@ -224,7 +222,7 @@ sub run {
     my $spawn       = $self->{spawn};
     my $logFilePath = $self->{logFilePath};
     my $charSet     = $self->{charSet};
-    my $sqlCmd      = $self->{sqlCmd};
+    my $sqlFile     = $self->{sqlFile};
     my $sqlFileName = $self->{sqlFileName};
     my $user        = $self->{user};
     my $dbName      = $self->{dbName};
@@ -262,7 +260,8 @@ sub run {
 
             my $opt;
             if ( exists( $ENV{IS_INTERACT} ) ) {
-                $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                my $sqlFileStatus = $self->{sqlFileStatus};
+                $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
             }
 
             $opt = 'rollback' if ( not defined($opt) );

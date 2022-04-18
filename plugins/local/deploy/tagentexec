@@ -5,7 +5,6 @@ use Cwd 'abs_path';
 use Getopt::Long;
 
 use DeployUtils;
-use ServerAdapter;
 use TagentClient;
 
 Getopt::Long::Configure("pass_through");

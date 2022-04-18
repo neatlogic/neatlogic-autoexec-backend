@@ -10,8 +10,6 @@ Getopt::Long::Configure("pass_through");
 use DeployUtils;
 use BuildUtils;
 
-use ServerAdapter;
-
 sub usage {
     my $pname = $FindBin::Script;
 

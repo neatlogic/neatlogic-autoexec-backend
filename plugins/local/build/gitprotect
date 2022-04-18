@@ -71,8 +71,9 @@ sub main {
     usage() if ( not defined($envPath) or not defined($version) );
     usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
-    my $verInfo = ServerAdapter->getVer($buildEnv);
+    my $buildEnv      = DeployUtils->deployInit( $envPath, $version );
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer($buildEnv);
 
     my $repo = $verInfo->{repo};
 

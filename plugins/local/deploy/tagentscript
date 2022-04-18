@@ -7,7 +7,6 @@ use Digest::MD5 qw(md5 md5_hex);
 use JSON qw(to_json from_json);
 
 use DeployUtils;
-use ServerAdapter;
 use TagentClient;
 
 Getopt::Long::Configure("pass_through");

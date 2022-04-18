@@ -637,7 +637,7 @@ sub doInteract {
 }
 
 sub decideOption {
-    my ( $self, $msg, $pipeFile ) = @_;
+    my ( $self, $msg, $pipeFile, $role ) = @_;
 
     my @opts;
     if ( $msg =~ /\(([\w\|]+)\)$/ ) {
@@ -645,7 +645,6 @@ sub decideOption {
         @opts = split( /\|/, $optLine );
     }
 
-    my $role = $ENV{DECIDE_WITH_ROLE};
     my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
         message => $msg,
@@ -659,9 +658,8 @@ sub decideOption {
 }
 
 sub decideContinue {
-    my ( $self, $msg, $pipeFile ) = @_;
+    my ( $self, $msg, $pipeFile, $role ) = @_;
 
-    my $role = $ENV{DECIDE_WITH_ROLE};
     my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
         message => $msg,

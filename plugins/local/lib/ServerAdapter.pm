@@ -3,6 +3,19 @@ use strict;
 
 package ServerAdapter;
 
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+
+    if ( $ENV{AUTOEXEC_DEV_MODE} ) {
+        $self->{devMode} = 1;
+    }
+
+    return $self;
+}
+
 sub getIdPath {
     my ( $self, $namePath ) = @_;
     $namePath =~ s/^\/+|\/+$//g;
@@ -142,13 +155,16 @@ sub getDBConf {
                 password       => '{RC4}xxxxx'
             },
             args => {
-                locale       => 'en_US.UTF-8',
-                fileCharset  => 'UTF-8',
-                autocommit   => 0,
-                dbVersion    => '10.3',
-                dbArgs       => '',
-                ignoreErrors => 'ORA-403',
-                oraWallet    => ''
+                locale            => 'en_US.UTF-8',
+                fileCharset       => 'UTF-8',
+                autocommit        => 0,
+                dbVersion         => '10.3',
+                dbArgs            => '',
+                ignoreErrors      => 'ORA-403',
+                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+                oraWallet         => '',              #只有oracle需要
+                db2SqlTerminator  => '',              #只有DB2需要
+                db2ProcTerminator => ''               #只有DB2需要
             }
         }
     };

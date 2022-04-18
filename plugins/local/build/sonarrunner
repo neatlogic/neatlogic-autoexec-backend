@@ -115,7 +115,8 @@ sub main {
     else {
         eval {
             my $measures = SonarQubeAdapter::getMeasures( $projectKey, $sonarUrl, $sonarLogin, $sonarPwd, $level, $threshold );
-            ServerAdapter->addBuildQuality( $buildEnv, $measures );
+            my $serverAdapter = ServerAdapter->new();
+            $serverAdapter->addBuildQuality( $buildEnv, $measures );
         };
         if ($@) {
             $hasError = $hasError + 1;

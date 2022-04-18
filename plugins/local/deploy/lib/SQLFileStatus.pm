@@ -233,5 +233,34 @@ sub loadAndGetStatusValue {
     return $self->{status}->{$key};
 }
 
+sub waitInput {
+    my ( $self, $msg, $pipeFile ) = @_;
+
+    my @opts;
+    if ( $msg =~ /\(([\w\|]+)\)$/ ) {
+        my $optLine = $1;
+        @opts = split( /\|/, $optLine );
+    }
+
+    my $dbInfo = $self->{dbInfo};
+    my $role   = $dbInfo->{dbaRole};
+    if ( defined($role) and $role eq '' ) {
+        undef($role);
+    }
+
+    my $pipeDescJson = {
+        pipeFile => $pipeFile,
+        message  => $msg,
+        title    => 'Choose the action',
+        opType   => 'button',
+        role     => $role,
+        options  => \@opts
+    };
+
+    $self->updateStatus( interact => $pipeDescJson, status => 'waitInput' );
+
+    return DeployUtils->decideOption( $msg, $pipeFile, $role );
+}
+
 1;
 

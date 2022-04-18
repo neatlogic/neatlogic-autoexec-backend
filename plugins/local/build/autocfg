@@ -79,8 +79,9 @@ sub main {
     my $buildEnv = DeployUtils->deployInit( $envPath, $version );
     my $namePath = $buildEnv->{NAME_PATH};
 
-    my $autoCfgMap = ServerAdapter->getAutoCfgConf($buildEnv);
-    my $autoCfg    = $autoCfgMap->{autoCfg};
+    my $serverAdapter = ServerAdapter->new();
+    my $autoCfgMap    = $serverAdapter->getAutoCfgConf($buildEnv);
+    my $autoCfg       = $autoCfgMap->{autoCfg};
     if ( not defined($autoCfg) ) {
         $autoCfg = {};
     }

@@ -5,7 +5,6 @@ use File::Basename;
 use Cwd 'realpath';
 use Getopt::Long;
 
-use ServerAdapter;
 use DeployUtils;
 
 sub usage {

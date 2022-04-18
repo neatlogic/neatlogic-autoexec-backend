@@ -9,7 +9,6 @@ use Getopt::Long;
 use SyncFile;
 use SyncRemote2Local;
 use DeployUtils;
-use ServerAdapter;
 
 sub usage {
     my $pname = $FindBin::Script;

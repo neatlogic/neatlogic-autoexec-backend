@@ -12,7 +12,6 @@ use Getopt::Long;
 Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
-use ServerAdapter;
 
 sub usage {
     my $pname = $FindBin::Script;

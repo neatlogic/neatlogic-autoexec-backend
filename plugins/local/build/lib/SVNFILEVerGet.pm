@@ -7,7 +7,6 @@ use Cwd;
 use File::Path;
 
 use DeployUtils;
-use ServerAdapter;
 
 sub new {
     my ( $pkg, %args ) = @_;

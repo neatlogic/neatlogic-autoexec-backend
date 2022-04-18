@@ -16,7 +16,6 @@ use JSON;
 
 use DBInfo;
 use AutoExecUtils;
-use ServerAdapter;
 use DeployUtils;
 
 use SQLFileStatus;
@@ -27,6 +26,8 @@ sub new {
     my $self = {
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
+        toolsDir     => $args{toolsDir},
+        tmpDir       => $args{tmpDir},
         jobPath      => $args{jobPath},
         phaseName    => $args{phaseName},
         dbSchemasMap => $args{dbSchemasMap},
@@ -313,7 +314,15 @@ sub execOneSqlFile {
                 print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
                 require $requireName;
 
-                $handler = $handlerName->new( $dbInfo, $sqlFilePath, $fileCharset, $logFilePath );
+                $handler = $handlerName->new(
+                    $sqlFilePath,
+                    sqlFileStatus => $sqlFileStatus,
+                    toolsDir      => $self->{toolsDir},
+                    tmpDir        => $self->{tmpDir},
+                    dbInfo        => $dbInfo,
+                    charSet       => $fileCharset,
+                    logFilePath   => $logFilePath
+                );
             };
             if ($@) {
                 $hasError = 1;
@@ -524,37 +533,11 @@ sub execSqlFiles {
         my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
         if ( $checkRet == 1 ) {
-            my $pid = fork();
-            if ( $pid == 0 ) {
-                my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
-                exit($rc);
-            }
-            else {
-                my $exitPid;
-                my $isPreWaitInput = 0;
-                my $isWaitInput    = 0;
-                while ( ( $exitPid = waitpid( -1, 1 ) ) >= 0 ) {
-                    if ( $exitPid eq 0 ) {
-                        $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
-                        if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                            AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
-                        }
-                        $isPreWaitInput = $isWaitInput;
-
-                        sleep(2);
-                        next;
-                    }
-
-                    my $rc = $?;
-                    $rc = $rc >> 8 if ( $rc > 255 );
-                    if ( $rc ne 0 ) {
-                        $hasError = 1;
-                    }
-                }
-            }
+            my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
+            $hasError = $hasError + $rc;
         }
 
-        if ( $hasError == 1 ) {
+        if ( $hasError != 0 ) {
             last;
         }
     }
@@ -592,33 +575,46 @@ sub execSqlFileSets {
             }
         }
 
-        foreach my $pid ( keys(%$runnerPidsMap) ) {
-            my $exitPid;
-            my $isPreWaitInput = 0;
-            my $isWaitInput    = 0;
-            if ( ( $exitPid = waitpid( $pid, 1 ) ) >= 0 ) {
-                if ( $exitPid eq 0 ) {
-                    my $sqlInfo       = $runnerPidsMap->{$pid};
-                    my $sqlFile       = $$sqlInfo[0];
-                    my $sqlFileStatus = $$sqlInfo[1];
-                    $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
-                    if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-                        AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
-                    }
-                    $isPreWaitInput = $isWaitInput;
-
-                    sleep(2);
-                    next;
-                }
-
-                my $rc = $?;
-                $rc = $rc >> 8 if ( $rc > 255 );
-                if ( $rc ne 0 ) {
-                    $hasError = $hasError + 1;
-                }
-                delete( $runnerPidsMap->{$pid} );
+        my $pid = 0;
+        while ( ( $pid = waitpid( -1, 0 ) ) > 0 ) {
+            my $rc = $?;
+            if ( $rc > 255 ) {
+                $rc = $rc >> 8;
             }
+
+            if ( $rc ne 0 ) {
+                $hasError = $hasError + 1;
+            }
+            delete( $runnerPidsMap->{$pid} );
         }
+
+        # foreach my $pid ( keys(%$runnerPidsMap) ) {
+        #     my $exitPid;
+        #     my $isPreWaitInput = 0;
+        #     my $isWaitInput    = 0;
+        #     if ( ( $exitPid = waitpid( $pid, 1 ) ) >= 0 ) {
+        #         if ( $exitPid eq 0 ) {
+        #             my $sqlInfo       = $runnerPidsMap->{$pid};
+        #             my $sqlFile       = $$sqlInfo[0];
+        #             my $sqlFileStatus = $$sqlInfo[1];
+        #             $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
+        #             if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
+        #                 AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
+        #             }
+        #             $isPreWaitInput = $isWaitInput;
+
+        #             sleep(2);
+        #             next;
+        #         }
+
+        #         my $rc = $?;
+        #         $rc = $rc >> 8 if ( $rc > 255 );
+        #         if ( $rc ne 0 ) {
+        #             $hasError = $hasError + 1;
+        #         }
+        #         delete( $runnerPidsMap->{$pid} );
+        #     }
+        # }
 
         if ( $hasError != 0 ) {
             last;
@@ -630,16 +626,6 @@ sub execSqlFileSets {
 
 sub checkOneSqlFile {
     my ( $self, $sqlFile, $nodeInfo, $sqlFileStatus ) = @_;
-
-    # my $dbInfo;
-    # my $dbSchemasMap = $self->{dbSchemasMap};
-    # if ( defined($dbSchemasMap) ) {
-    #     my $dbSchema = lc( dirname($sqlFile) );
-    #     $dbInfo = $dbSchemasMap->{$dbSchema};
-    # }
-    # else {
-    #     $dbInfo = $self->{dbInfo};
-    # }
 
     my $hasError = 0;
 
@@ -734,6 +720,7 @@ sub checkDBSchemas {
     my $hasError     = 0;
     my $dbSchemasMap = $self->{dbSchemasMap};
     my $usedSchemas  = $self->{usedSchemas};
+
     foreach my $dbSchema (@$usedSchemas) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         my $dbType = uc( $dbInfo->{dbType} );
@@ -747,7 +734,13 @@ sub checkDBSchemas {
             print( "INFO: Try to use SQLRunner " . uc($dbType) . " to test.\n" );
             require $requireName;
 
-            $handler = $handlerName->new( $dbInfo, 'test.sql', 'UTF-8' );
+            $handler = $handlerName->new(
+                'test.sql',
+                toolsDir => $self->{toolsDir},
+                tmpDir   => $self->{tmpDir},
+                dbInfo   => $dbInfo,
+                charSet  => 'UTF-8'
+            );
             my $hasLogon = $handler->test();
             if ( $hasLogon != 1 ) {
                 $hasError = $hasError + 1;
@@ -791,7 +784,13 @@ sub testByIpPort {
     my $handler;
     eval {
         require $requireName;
-        $handler = $handlerName->new( $dbInfo, 'test.sql', 'UTF-8' );
+        $handler = $handlerName->new(
+            'test.sql',
+            toolsDir => $self->{toolsDir},
+            tmpDir   => $self->{tmpDir},
+            dbInfo   => $dbInfo,
+            charSet  => 'UTF-8'
+        );
         $hasLogon = $handler->test();
     };
     if ($@) {
