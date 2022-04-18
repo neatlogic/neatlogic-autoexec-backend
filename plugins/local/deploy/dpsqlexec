@@ -7,6 +7,8 @@ use Getopt::Long;
 use Expect;
 use JSON;
 
+use DeployUtils;
+use ServerAdapter;
 use DBInfo;
 use SQLBatchUtils;
 use SQLFileRunner;
@@ -150,8 +152,9 @@ sub main {
 
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
 
-    my $dbSchemasMap = {};
-    my $dbConf       = ServerAdapter->getDBConf($deployEnv);
+    my $dbSchemasMap  = {};
+    my $serverAdapter = ServerAdapter->new();
+    my $dbConf        = $serverAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
@@ -162,6 +165,8 @@ sub main {
         my $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
             deployEnv    => $deployEnv,
+            toolsDir     => $deployEnv->{TOOLS_PATH},
+            tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
             dbSchemasMap => $dbSchemasMap,
             nodeInfo     => { nodeId => 0 },
             sqlFiles     => $sqlFiles,

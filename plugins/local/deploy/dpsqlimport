@@ -9,6 +9,9 @@ use Cwd;
 use Digest::MD5;
 use Getopt::Long;
 use JSON;
+
+use DeployUtils;
+use ServerAdapter;
 use SQLFileRunner;
 
 sub usage {
@@ -138,8 +141,9 @@ sub main {
         $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
     }
 
-    my $dbSchemasMap = {};
-    my $dbConf       = ServerAdapter->getDBConf($deployEnv);
+    my $serverAdapter = ServerAdapter->new();
+    my $dbSchemasMap  = {};
+    my $dbConf        = $serverAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
@@ -148,6 +152,8 @@ sub main {
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
         deployEnv    => $deployEnv,
+        toolsDir     => $deployEnv->{TOOLS_PATH},
+        tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
         dbSchemasMap => $dbSchemasMap,
         nodeInfo     => { nodeId => 0 },
         sqlFileDir   => $sqlFileDir,
@@ -166,7 +172,7 @@ sub main {
     $hasError = $hasError + $ret;
 
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    ServerAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos, $deployEnv );
+    $serverAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos, $deployEnv );
 
     return $hasError;
 }

@@ -3,7 +3,6 @@ use strict;
 
 package BuildUtils;
 use Cwd;
-use ServerAdapter;
 
 use DeployUtils;
 

@@ -182,6 +182,9 @@ if __name__ == "__main__":
     homePath = os.path.realpath(binPaths[0]+'/..')
     os.environ['AUTOEXEC_HOME'] = homePath
 
+    if args.devmode:
+        os.environ['AUTOEXEC_DEV_MODE'] = '1'
+
     passThroughEnv = {}
     if args.passthroughenv != '{}':
         passThroughEnv = json.loads(args.passthroughenv)

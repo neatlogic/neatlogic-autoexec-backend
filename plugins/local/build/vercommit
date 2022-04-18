@@ -56,7 +56,9 @@ sub main {
 
     my $lock = BuildLock->new($buildEnv);
     $lock->lockWorkspace($BuildLock::EXCLUDE);
-    my $verInfo = ServerAdapter->getVer($buildEnv);
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer($buildEnv);
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");
@@ -85,4 +87,3 @@ sub main {
 }
 
 exit main();
-

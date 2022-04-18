@@ -9,9 +9,17 @@ use Encode;
 use File::Basename;
 
 use DeployUtils;
+use SQLFileStatus;
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
 
     my $dbType         = $dbInfo->{dbType};
     my $dbName         = $dbInfo->{sid};
@@ -25,31 +33,17 @@ sub new {
     my $dbServerLocale = $dbInfo->{locale};
     my $oraWallet      = $dbInfo->{oraWallet};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "ORACLEWALLETSQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
 
-    #init environment
-    my $deploysysHome;
-    if ( exists $ENV{DEPLOYSYS_HOME} ) {
-        $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    }
-    else {
-        $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-    }
-
     my $oraClientDir = 'oracle-client';
-    if ( defined($dbVersion) and -e "$deploysysHome/tools/oracle-client-$dbVersion" ) {
+    if ( defined($dbVersion) and -e "$toolsDir/oracle-client-$dbVersion" ) {
         $oraClientDir = "oracle-client-$dbVersion";
     }
 
-    $ENV{ORACLE_HOME}     = "$deploysysHome/tools/$oraClientDir";
+    $ENV{ORACLE_HOME}     = "$toolsDir/$oraClientDir";
     $ENV{LD_LIBRARY_PATH} = $ENV{ORACLE_HOME} . '/lib:' . $ENV{ORACLE_HOME} . '/bin' . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$deploysysHome/tools/$oraClientDir/bin:" . $ENV{PATH};
+    $ENV{PATH}            = "$toolsDir/$oraClientDir/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
@@ -63,10 +57,16 @@ sub new {
         }
     }
 
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
+
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -82,13 +82,13 @@ sub new {
 
     my $spawn;
 
-    my $sqlDir      = dirname($sqlCmd);
-    my $sqlFileName = basename($sqlCmd);
+    my $sqlDir      = dirname($sqlFile);
+    my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
     chdir($sqlDir);
 
-    if ( $sqlCmd =~ /\.ctl/i ) {
+    if ( $sqlFile =~ /\.ctl/i ) {
         $ENV{LANG}     = 'en_US.ISO-8859-1';
         $ENV{LC_ALL}   = 'en_US.ISO-8859-1';
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
@@ -97,7 +97,7 @@ sub new {
         print("INFO:sqlldr userid=/\@$oraWallet $dbArgs control='$sqlFileName'\n");
         $spawn = Expect->spawn("sqlldr /\@$oraWallet $dbArgs control='$sqlFileName'");
     }
-    elsif ( $sqlCmd =~ /\.dmp/i ) {
+    elsif ( $sqlFile =~ /\.dmp/i ) {
         $ENV{LANG}     = 'en_US.ISO-8859-1';
         $ENV{LC_ALL}   = 'en_US.ISO-8859-1';
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';

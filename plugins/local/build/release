@@ -10,6 +10,7 @@ use File::Copy;
 use File::Find;
 
 use DeployUtils;
+use ServerAdapter;
 use BuildUtils;
 use FileUtils;
 
@@ -39,17 +40,17 @@ sub main {
 
     $isVerbose = 0;
     GetOptions(
-        'h|help'           => \$isHelp,
-        'v|verbose=i'      => \$isVerbose,
-        'envpath=s'        => \$envPath,
-        'version=s'        => \$version,
-        'dbdir=s'          => \$dbDir,
-        'docdir=s'         => \$docDir,
-        'prefix=s'         => \$prefix,
-        'md5check=i'       => \$md5Check,
-        'packexts=s'       => \$packExt,
-        'x|exp=s'          => \$expDir,
-        '<>'               => sub { my $item = shift(@_); push( @targetFiles, $item ); }
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'dbdir=s'     => \$dbDir,
+        'docdir=s'    => \$docDir,
+        'prefix=s'    => \$prefix,
+        'md5check=i'  => \$md5Check,
+        'packexts=s'  => \$packExt,
+        'x|exp=s'     => \$expDir,
+        '<>'          => sub { my $item = shift(@_); push( @targetFiles, $item ); }
     );
 
     usage() if ( defined($isHelp) );
@@ -67,12 +68,14 @@ sub main {
     my $buildNo     = $buildEnv->{BUILD_NO};
     my $releasePath = "$buildRoot/$buildNo";
 
+    my $serverAdapter = ServerAdapter->new();
+
     my $isRelease = $buildEnv->{IS_RELEASE};
     if ( $isRelease == 1 ) {
         print("WARN: $namePath version:$version build $buildNo is released, release again.\n");
     }
 
-    my $verInfo = ServerAdapter->getVer( $buildEnv, $version );
+    my $verInfo = $serverAdapter->getVer( $buildEnv, $version );
     if ( $verInfo->{isFreeze} ne 0 ) {
         print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
         return 3;
@@ -292,7 +295,7 @@ sub main {
         eval {
             my $buildUtils = BuildUtils->new();
             $buildUtils->release( $buildEnv, $version, $buildNo );
-            ServerAdapter->releaseVer( $buildEnv, $version, $buildNo );
+            $serverAdapter->releaseVer( $buildEnv, $version, $buildNo );
         };
         if ($@) {
             print("ERRROR: $@\n");

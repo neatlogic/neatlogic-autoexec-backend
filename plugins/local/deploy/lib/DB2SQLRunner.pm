@@ -9,7 +9,7 @@ use File::Basename;
 use File::Temp;
 
 use DeployUtils;
-use ServerAdapter;
+use SQLFileStatus;
 
 our %ENCODING_TO_CCSID = (
     'ASCII'            => '367',
@@ -157,7 +157,14 @@ our %ENCODING_TO_CCSID = (
 );
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
 
     my $dbType         = $dbInfo->{dbType};
     my $dbName         = $dbInfo->{sid};
@@ -170,33 +177,18 @@ sub new {
     my $dbArgs         = $dbInfo->{args};
     my $dbServerLocale = $dbInfo->{locale};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "DB2SQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
-
-    my $deploysysHome;
-    if ( exists $ENV{DEPLOYSYS_HOME} ) {
-        $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    }
-    else {
-        $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-    }
-
-    $self->{deploysysHome} = $deploysysHome;
 
     my @pwdInfo = getpwuid($<);
     my $runUser = $pwdInfo[0];
     my $homeDir = $pwdInfo[7];
 
     if ( not -e "$homeDir/sqllib" ) {
-        symlink( "$deploysysHome/tools/db2-client", "$homeDir/sqllib" );
+        symlink( "$toolsDir/db2-client", "$homeDir/sqllib" );
     }
 
-    $ENV{DB2_HOME}        = "$deploysysHome/tools/db2-client";
+    $ENV{DB2_HOME}        = "$toolsDir/db2-client";
     $ENV{DB2LIB}          = $ENV{DB2_HOME} . '/lib';
     $ENV{IBM_DB_LIB}      = $ENV{DB2LIB};
     $ENV{LD_LIBRARY_PATH} = $ENV{DB2_HOME} . '/lib64:' . $ENV{DB2_HOME} . '/bin:' . $ENV{LD_LIBRARY_PATH};
@@ -222,11 +214,17 @@ sub new {
 
     $ENV{DB2CODEPAGE} = $codePage;
 
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
+
     $self->{dbName}       = $dbName;
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -235,9 +233,9 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
 
-    if ( defined($sqlCmd) and $sqlCmd ne '' and $sqlCmd ne 'test' ) {
-        my $sqlDir      = dirname($sqlCmd);
-        my $sqlFileName = basename($sqlCmd);
+    if ( defined($sqlFile) and $sqlFile ne '' and $sqlFile ne 'test' ) {
+        my $sqlDir      = dirname($sqlFile);
+        my $sqlFileName = basename($sqlFile);
         $self->{sqlFileName} = $sqlFileName;
         chdir($sqlDir);
         mkdir('backup');
@@ -245,14 +243,14 @@ sub new {
 
         #DB@OPTIONS, set autocommit off and verbose is on
         #procedure use terminator '@', otherwise ';'
-        #在system.conf里设置默认的sql和procedure的结束符号db2.sql.terminator, db2.proc.terminator
+        #在DB扩展参数里设置默认的sql和procedure的结束符号db2SqlTerminator, db2ProcTerminator
         #可以在sql的开头使用SET TERMINATOR xx来定义sql的结束符号
-        my $sqlTerminator = ServerAdapter::getSysConf('db2.sql.terminator');
+        my $sqlTerminator = $dbInfo->{db2SqlTerminator};
         if ( not defined($sqlTerminator) or $sqlTerminator eq '' ) {
             $sqlTerminator = ';';
         }
 
-        my $procTerminator = ServerAdapter::getSysConf('db2.proc.terminator');
+        my $procTerminator = $dbInfo->{db2ProcTerminator};
         if ( not defined($procTerminator) or $procTerminator eq '' ) {
             $procTerminator = '@';
         }
@@ -275,8 +273,7 @@ sub new {
         $ENV{DB2OPTIONS} = $db2Options;
     }
 
-    my $TMPDIR = "$deploysysHome/tmp";
-    my $tmp = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $TMPDIR, UNLINK => 1, SUFFIX => '' );
+    my $tmp = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $tmpDir, UNLINK => 1, SUFFIX => '' );
 
     $self->{catalogFH} = $tmp;
     my $catalogFile = $tmp->filename;
@@ -292,8 +289,8 @@ sub test {
 
     my $hasLogon = 0;
 
-    my $TMPDIR      = "$self->{deploysysHome}/tmp";
-    my $tmp         = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $TMPDIR, UNLINK => 1, SUFFIX => '' );
+    my $tmpDir      = $self->{tmpDir};
+    my $tmp         = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $tmpDir, UNLINK => 1, SUFFIX => '' );
     my $catalogName = basename( $tmp->filename );
 
     my $host   = $self->{host};
@@ -349,7 +346,7 @@ sub run {
     my ($self)       = @_;
     my $logFilePath  = $self->{logFilePath};
     my $charSet      = $self->{charSet};
-    my $sqlCmd       = $self->{sqlCmd};
+    my $sqlFile      = $self->{sqlFile};
     my $sqlFileName  = $self->{sqlFileName};
     my $catalogFile  = $self->{catalogFile};
     my $catalogFH    = $self->{catalogFH};
@@ -470,7 +467,8 @@ sub run {
                     if ( $isAutoCommit == 1 ) {
                         print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                         if ( exists( $ENV{IS_INTERACT} ) ) {
-                            $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                            my $sqlFileStatus = $self->{sqlFileStatus};
+                            $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
                         }
 
                         $opt = 'abort' if ( not defined($opt) );
@@ -481,7 +479,8 @@ sub run {
                     }
                     else {
                         if ( exists( $ENV{IS_INTERACT} ) ) {
-                            $opt = DeployUtils->decideOption( 'Execute failed, select action(commit|rollback)', $pipeFile );
+                            my $sqlFileStatus = $self->{sqlFileStatus};
+                            $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(commit|rollback)', $pipeFile );
                         }
 
                         $opt = 'rollback' if ( not defined($opt) );

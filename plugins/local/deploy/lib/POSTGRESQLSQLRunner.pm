@@ -7,9 +7,17 @@ use Encode;
 use File::Basename;
 
 use DeployUtils;
+use SQLFileStatus;
 
 sub new {
-    my ( $pkg, $dbInfo, $sqlCmd, $charSet, $logFilePath ) = @_;
+    my ( $pkg, $sqlFile, %args ) = @_;
+
+    my $sqlFileStatus = $args{sqlFileStatus};
+    my $dbInfo        = $args{dbInfo};
+    my $charSet       = $args{charSet};
+    my $logFilePath   = $args{logFilePath};
+    my $toolsDir      = $args{toolsDir};
+    my $tmpDir        = $args{tmpDir};
 
     my $dbType       = $dbInfo->{dbType};
     my $dbName       = $dbInfo->{sid};
@@ -21,19 +29,20 @@ sub new {
     my $dbVersion    = $dbInfo->{version};
     my $dbArgs       = $dbInfo->{args};
 
-    $pkg = ref($pkg) || $pkg;
-    unless ($pkg) {
-        $pkg = "POSTGRESQLSQLRunner";
-    }
-
     my $self = {};
     bless( $self, $pkg );
+
+    $sqlFile =~ s/^\s*'|'\s*$//g;
+
+    $self->{sqlFileStatus} = $sqlFileStatus;
+    $self->{toolsDir}      = $toolsDir;
+    $self->{tmpDir}        = $tmpDir;
 
     $self->{dbType}       = $dbType;
     $self->{host}         = $host;
     $self->{port}         = $port;
     $self->{dbName}       = $dbName;
-    $self->{sqlCmd}       = $sqlCmd;
+    $self->{sqlFile}      = $sqlFile;
     $self->{charSet}      = $charSet;
     $self->{user}         = $user;
     $self->{pass}         = $pass;
@@ -44,18 +53,11 @@ sub new {
     $self->{PROMPT}   = qr/\n$dbName=> $/s;
     $self->{hasLogon} = 0;
 
-    my $sqlDir      = dirname($sqlCmd);
-    my $sqlFileName = basename($sqlCmd);
+    my $sqlDir      = dirname($sqlFile);
+    my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
-    my $deploysysHome;
-    if ( exists $ENV{DEPLOYSYS_HOME} ) {
-        $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    }
-    else {
-        $deploysysHome = Cwd::abs_path("$FindBin::Bin/..");
-    }
-    my $pgHome = "$deploysysHome/tools/postgresql-client";
+    my $pgHome = "$toolsDir/postgresql-client";
     if ( defined($dbVersion) and -e "$pgHome-$dbVersion" ) {
         $pgHome = "$pgHome-$dbVersion";
     }
@@ -144,7 +146,7 @@ sub run {
     my $spawn        = $self->{spawn};
     my $logFilePath  = $self->{logFilePath};
     my $charSet      = $self->{charSet};
-    my $sqlCmd       = $self->{sqlCmd};
+    my $sqlFile      = $self->{sqlFile};
     my $sqlFileName  = $self->{sqlFileName};
     my $user         = $self->{user};
     my $pass         = $self->{pass};
@@ -192,7 +194,8 @@ sub run {
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = DeployUtils->decideOption( 'Execute failed, select action(ignore|abort)', $pipeFile );
+                    my $sqlFileStatus = $self->{sqlFileStatus};
+                    $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
 
                 $opt = 'abort' if ( not defined($opt) );
@@ -205,7 +208,8 @@ sub run {
             }
             else {
                 if ( exists( $ENV{IS_INTERACT} ) ) {
-                    $opt = DeployUtils->decideOption( 'Running with error, please select action(commit|rollback)', $pipeFile );
+                    my $sqlFileStatus = $self->{sqlFileStatus};
+                    $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
 
                 $opt = 'rollback' if ( not defined($opt) );

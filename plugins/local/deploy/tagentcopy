@@ -7,7 +7,6 @@ use Cwd;
 
 use TagentClient;
 use DeployUtils;
-use ServerAdapter;
 
 sub usage {
     my $pname = $FindBin::Script;

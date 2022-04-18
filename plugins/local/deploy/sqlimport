@@ -6,6 +6,7 @@ use Digest::MD5;
 use Getopt::Long;
 use JSON;
 
+use ServerAdapter;
 use SQLFileRunner;
 
 sub usage {
@@ -113,6 +114,15 @@ sub main {
         $jobId = 0;
     }
 
+    my $toolsDir;
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
+        $toolsDir           = "$autoexecHome/tools";
+        $ENV{AUTOEXEC_HOME} = $autoexecHome;
+        $ENV{TOOLS_PATH}    = $toolsDir;
+    }
+
     my $sqlUploadDir = "$jobPath/file";
     my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
     my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
@@ -124,6 +134,8 @@ sub main {
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
         deployEnv    => undef,
+        toolsDir     => $toolsDir,
+        tmpDir       => "$autoexecHome/tmp",
         dbInfo       => $dbInfo,
         nodeInfo     => $dbNode,
         sqlUploadDir => $sqlUploadDir,
@@ -135,8 +147,9 @@ sub main {
 
     my $ret = $sqlFileRunner->checkSqlFiles();
 
-    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    ServerAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos );
+    my $sqlFileInfos  = $sqlFileRunner->{sqlFileInfos};
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos );
 
     return $ret;
 }

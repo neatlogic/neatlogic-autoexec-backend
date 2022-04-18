@@ -6,7 +6,6 @@ use File::Temp;
 use File::Copy;
 use MIME::Base64;
 
-use ServerAdapter;
 use DeployUtils;
 use WinCmd;
 

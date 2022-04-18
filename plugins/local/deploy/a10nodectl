@@ -92,7 +92,8 @@ sub main {
     if ( not defined($pass) or $pass eq '' ) {
 
         #TODO: A10密码的获取方法需要修改
-        $pass = ServerAdapter->getAppPassWord( $a10Url, $user );
+        my $serverAdapter = ServerAdapter->new();
+        $pass = $serverAdapter->getAppPassWord( $a10Url, $user );
     }
 
     my $webCtl = WebCtl->new();

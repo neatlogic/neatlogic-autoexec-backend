@@ -106,7 +106,8 @@ sub main {
     if ( not defined($pass) or $pass eq '' ) {
 
         #TODO: F5密码的获取方法需要修改
-        $pass = ServerAdapter->getAppPassWord( $f5Url, $user );
+        my $serverAdapter = ServerAdapter->new();
+        $pass = $serverAdapter->getAppPassWord( $f5Url, $user );
     }
 
     my $hasError = 0;
