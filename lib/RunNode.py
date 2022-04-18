@@ -948,6 +948,9 @@ class RunNode:
                             break
 
                     if ret == 0 and op.hasOutput:
+                        outFileKey = None
+                        outFilePath = None
+
                         try:
                             self._ensureOpOutputDir(op)
                             outputFilePath = self._getOpOutputPath(op)
