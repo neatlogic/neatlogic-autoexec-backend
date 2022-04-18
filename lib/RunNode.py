@@ -966,16 +966,19 @@ class RunNode:
                                 opFileOutRelDir = self._ensureOpFileOutputDir(op)
 
                             for outFileKey, outFilePath in outFileMap.items():
-                                outFileName = os.path.basename(outFilePath)
-                                savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
-                                sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
+                                try:
+                                    outFileName = os.path.basename(outFilePath)
+                                    savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
+                                    sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
 
-                                opOutput = self.output[op.opId]
-                                opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
-
+                                    opOutput = self.output[op.opId]
+                                    opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
+                                except Exception as ex:
+                                    self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                                    ret = 2
                             self._saveOpOutput(op)
                         except Exception as ex:
-                            self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                            self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
                             ret = 2
                     try:
                         if not self.context.devMode and ret == 0:
