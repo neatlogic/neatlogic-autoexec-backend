@@ -150,7 +150,7 @@ sub collect {
         $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
         $clusterInfo->{CLUSTER_VERSION}  = $version;
-        $clusterInfo->{MEMBERS_PEER}     = $clusterMembers;
+        $clusterInfo->{MEMBER_PEER}     = $clusterMembers;
     }
 
     return ( $appInfo, $clusterInfo );

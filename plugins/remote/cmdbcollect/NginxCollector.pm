@@ -115,7 +115,24 @@ sub collect {
         $nginxInfo->{MON_PORT} = $port;
         $nginxInfo->{PORTS}    = $ports;
     }
-    return $nginxInfo;
+
+    my $clusterInfo = {
+        _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+        _OBJ_TYPE     => 'NginxCluster',
+        INDEX_FIELDS  => ['MEMBER_PEER'],
+        MEMBERS       => []
+    };
+    my $clusterMembers = [];
+    my $MGMT_IP = $procInfo->{MGMT_IP};
+    $clusterInfo->{UNIQUE_NAME}      = "$MGMT_IP:$port";
+    $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
+    $clusterInfo->{CLUSTER_SOFTWARE} = 'Nginx';
+    $clusterInfo->{CLUSTER_VERSION}  = $version;
+    $clusterInfo->{NAME} =  "$MGMT_IP:$port";
+    push( @$clusterMembers, "$MGMT_IP:$port" );
+    $clusterInfo->{MEMBER_PEER}     = $clusterMembers;
+
+    return ($nginxInfo , $clusterInfo) ;
 }
 
 sub parseConfigServer {
@@ -211,6 +228,7 @@ sub parseConfigParam {
 
         if ( $line =~ /server_name/ ) {
             $serverName = $line;
+            $serverName =~ s/server_name//;
             $serverName =~ s/;//;
             $serverName =~ s/^\s+|\s+$//g;
         }

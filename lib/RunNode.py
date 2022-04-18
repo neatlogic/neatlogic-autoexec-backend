@@ -252,11 +252,11 @@ class RunNode:
         if not os.path.exists(outDir):
             os.mkdir(outDir)
             # 如果操作是带目录的，则创建子目录
-            opBundleDir = os.path.dirname(op.opId)
-            if opBundleDir:
-                outDir = outDir + '/' + opBundleDir
-                if not os.path.exists(outDir):
-                    os.mkdir(outDir)
+        opBundleDir = os.path.dirname(op.opId)
+        if opBundleDir:
+            outDir = outDir + '/' + opBundleDir
+            if not os.path.exists(outDir):
+                os.mkdir(outDir)
         return outDir
 
     def _ensureOpFileOutputDir(self, op):
@@ -952,6 +952,9 @@ class RunNode:
                             break
 
                     if ret == 0 and op.hasOutput:
+                        outFileKey = None
+                        outFilePath = None
+
                         try:
                             self._ensureOpOutputDir(op)
                             outputFilePath = self._getOpOutputPath(op)
@@ -967,16 +970,19 @@ class RunNode:
                                 opFileOutRelDir = self._ensureOpFileOutputDir(op)
 
                             for outFileKey, outFilePath in outFileMap.items():
-                                outFileName = os.path.basename(outFilePath)
-                                savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
-                                sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
+                                try:
+                                    outFileName = os.path.basename(outFilePath)
+                                    savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
+                                    sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
 
-                                opOutput = self.output[op.opId]
-                                opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
-
+                                    opOutput = self.output[op.opId]
+                                    opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
+                                except Exception as ex:
+                                    self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                                    ret = 2
                             self._saveOpOutput(op)
                         except Exception as ex:
-                            self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                            self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
                             ret = 2
                     try:
                         if not self.context.devMode and ret == 0:
