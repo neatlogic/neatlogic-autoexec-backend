@@ -640,26 +640,6 @@ sub main {
         $ENV{OSCOLLECT_DEBUG} = 1;
     }
 
-    # GetOptionsFromArray(
-    #     \@myOpts,
-    #     'verbose=i'         => \$isVerbose,
-    #     'class=s'           => \$classDef,
-    #     'defaultpassconf=s' => \$defaultPassConf
-    # );
-
-    #拼装账户参数
-    my $accountInfo = {};
-    for ( my $i = 0 ; $i < $#myOpts ; $i++ ) {
-        my $item = $myOpts[$i];
-        if ( substr( $item, 0, 1 ) eq '-' ) {
-            $item =~ s/^--?//;
-            my $optName = $item;
-            my $optVal  = $myOpts[ $i + 1 ];
-            $i = $i + 1;
-            $accountInfo->{$optName} = $optVal;
-        }
-    }
-
     my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
@@ -671,8 +651,29 @@ sub main {
         map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
     }
 
+    #拼装账户参数
+    my $passArgs    = {};
+    my $accountInfo = {};
+    for ( my $i = 0 ; $i < $#myOpts ; $i++ ) {
+        my $item = $myOpts[$i];
+        if ( substr( $item, 0, 1 ) eq '-' ) {
+            $item =~ s/^--?//;
+            my $optName = $item;
+            my $optVal  = $myOpts[ $i + 1 ];
+            $i = $i + 1;
+            $accountInfo->{$optName} = $optVal;
+
+            if ( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+                $passArgs->{$optName} = {
+                    username => $1,
+                    password => $2
+                };
+            }
+        }
+    }
+
     # Example:
-    #Mysql:#{mysqlaccount},Postgresql:#{pgaccount}
+    #Mysql:#{Mysql},Postgresql:#{Postgresql}
     #Mysql:root/pass1234,Postgresql:demo/test1234
     # 转换为:
     # {
@@ -685,12 +686,11 @@ sub main {
     #         "password":"pgpassword"
     #     }
     # }
-    my $passArgs = {};
     if ( defined($defaultPassConf) and $defaultPassConf ne '' ) {
         $defaultPassConf =~ s/#\{\s*(\w+)\s*\}/$accountInfo->{$1}/g;
         $defaultPassConf = $defaultPassConf . ',H:H/H';
 
-        while ( $defaultPassConf =~ /(.*?),(?=\w+:\w+\/)/g ) {
+        while ( $defaultPassConf =~ /(.*?),(?=\w+:\w*\/)/g ) {
             my $part = $1;
             if ( $part =~ /^(\w+):(\w+)\/(.*)$/ ) {
                 my $account = {};

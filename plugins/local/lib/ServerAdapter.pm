@@ -18,6 +18,11 @@ sub new {
 
 sub getIdPath {
     my ( $self, $namePath ) = @_;
+    #-----------------------
+    #getIdPath
+    #in:  $namePath  Operate enviroment path, example:mysys/mymodule/SIT
+    #ret: idPath of operate enviroment, example:100/200/3
+    #-----------------------
     $namePath =~ s/^\/+|\/+$//g;
     my @dpNames = split( '/', $namePath );
 
