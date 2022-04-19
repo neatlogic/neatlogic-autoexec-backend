@@ -339,8 +339,11 @@ class Operation:
             for argValue in self.arguments:
                 jsonStr = jsonStr.dumps(argValue)
                 if (osType == 'windows'):
-                    jsonStr = jsonStr.replace('\\', '\\\\')
-                    jsonStr = jsonStr.replace('"', '\\"')
+                    #jsonStr = jsonStr.replace('\\', '\\\\')
+                    #jsonStr = jsonStr.replace('"', '\\"')
+                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                    jsonStr = re.sub(r'(?<!\\)"', '\\"', jsonStr)
                     cmd = cmd + ' "{}"'.format(jsonStr)
                 else:
                     jsonStr = jsonStr.replace("'", "'\\''")
@@ -348,16 +351,20 @@ class Operation:
         elif argDesc == 'password':
             for argValue in self.arguments:
                 if osType == 'windows':
-                    argValue = argValue.replace('\\', '\\\\')
-                    argValue = argValue.replace('"', '\\"')
+                    #argValue = argValue.replace('\\', '\\\\')
+                    #argValue = argValue.replace('"', '\\"')
+                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                     cmd = cmd + ' "{}"'.format(argValue)
                 else:
                     argValue = argValue.replace("'", "'\\''")
                     cmd = cmd + " '{}'".format(argValue)
         else:
             for argValue in self.arguments:
-                argValue = argValue.replace('\\', '\\\\')
-                argValue = argValue.replace('"', '\\"')
+                #argValue = argValue.replace('\\', '\\\\')
+                #argValue = argValue.replace('"', '\\"')
+                jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                 cmd = cmd + ' "{}"'.format(argValue)
 
         return cmd
@@ -377,27 +384,35 @@ class Operation:
                 if kDesc in ('node', 'json', 'file', 'multiselect'):
                     jsonStr = json.dumps(v)
                     if osType == 'windows':
-                        jsonStr = jsonStr.replace('\\', '\\\\')
-                        jsonStr = jsonStr.replace('"', '\\"')
+                        #jsonStr = jsonStr.replace('\\', '\\\\')
+                        #jsonStr = jsonStr.replace('"', '\\"')
+                        jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                        jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                     else:
                         jsonStr = jsonStr.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                 elif kDesc == 'password' or k.endswith('account'):
                     if osType == 'windows':
-                        v = v.replace('\\', '\\\\')
-                        v = v.replace('"', '\\"')
+                        #v = v.replace('\\', '\\\\')
+                        #v = v.replace('"', '\\"')
+                        jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                        jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                         cmd = cmd + ' --{} "{}" '.format(k, v)
                     else:
                         v = v.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
-                    v = v.replace('\\', '\\\\')
-                    v = v.replace('"', '\\"')
+                    #v = v.replace('\\', '\\\\')
+                    #v = v.replace('"', '\\"')
+                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
-                    v = v.replace('\\', '\\\\')
-                    v = v.replace('"', '\\"')
+                    #v = v.replace('\\', '\\\\')
+                    #v = v.replace('"', '\\"')
+                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
+                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                     cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd
 

@@ -2,7 +2,9 @@
 use strict;
 
 package POSTGRESQLSQLRunner;
+
 use FindBin;
+use Expect;
 use Encode;
 use File::Basename;
 

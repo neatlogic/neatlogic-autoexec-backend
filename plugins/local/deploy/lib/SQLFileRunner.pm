@@ -13,6 +13,7 @@ use File::Path;
 use File::Basename;
 use Getopt::Long;
 use JSON;
+use Digest::MD5;
 
 use DBInfo;
 use AutoExecUtils;
@@ -35,6 +36,7 @@ sub new {
         nodeInfo     => $args{nodeInfo},
         sqlFileDir   => $args{sqlFileDir},
         sqlStatusDir => $args{sqlStatusDir},
+        logFileDir   => $args{logFileDir},
 
         fileCharset => $args{fileCharset},
 
@@ -69,18 +71,18 @@ sub new {
     }
     $self->{phaseName} = $phaseName;
 
-    $self->_initDir( \%args );
+    $self->_initDir();
 
     return $self;
 }
 
 sub _initDir {
-    my ( $self, %args ) = @_;
+    my ($self) = @_;
 
     my $hasError = 0;
 
     my $sqlFileDir = $self->{sqlFileDir};
-    if ( not -e $sqlFileDir ) {
+    if ( defined($sqlFileDir) and not -e $sqlFileDir ) {
         mkpath($sqlFileDir);
         my $err = $!;
         if ( not -e $sqlFileDir ) {
@@ -90,7 +92,7 @@ sub _initDir {
     }
 
     my $sqlStatusDir = $self->{sqlStatusDir};
-    if ($sqlStatusDir) {
+    if ( $sqlStatusDir and not -e $sqlStatusDir ) {
         mkpath($sqlStatusDir);
         my $err = $!;
         if ( not -e $sqlStatusDir ) {
@@ -100,7 +102,7 @@ sub _initDir {
     }
 
     my $logFileDir = $self->{logFileDir};
-    if ( not -e $logFileDir ) {
+    if ( defined($logFileDir) and not -e $logFileDir ) {
         mkpath($logFileDir);
         my $err = $!;
         if ( not -e $logFileDir ) {
@@ -425,16 +427,19 @@ sub _checkAndDelBom {
 }
 
 sub _getFileMd5Sum {
-    my ( $self, $sqlPath ) = @_;
-    my $md5Sum = `md5sum '$sqlPath'`;
-    if ( $? == 0 ) {
-        $md5Sum = substr( $md5Sum, 0, index( $md5Sum, ' ' ) );
+    my ( $self, $filePath ) = @_;
+    my $fileFH = new IO::File("<$filePath");
+
+    my $md5Hash = '';
+    if ( defined($fileFH) ) {
+        $md5Hash = Digest::MD5->new->addfile(*$fileFH)->hexdigest();
+        $fileFH->close();
     }
     else {
-        die("ERROR: execute md5sum failed, $!.\n");
+        die("ERROR: Get md5sum of file:$filePath failed, $!\n");
     }
 
-    return $md5Sum;
+    return $md5Hash;
 }
 
 sub _getSqlDbInfo {

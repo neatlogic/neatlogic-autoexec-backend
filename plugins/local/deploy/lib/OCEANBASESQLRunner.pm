@@ -4,6 +4,7 @@ use strict;
 package OCEANBASESQLRunner;
 
 use FindBin;
+use Expect;
 use DeployUtils;
 use Encode;
 use File::Basename;

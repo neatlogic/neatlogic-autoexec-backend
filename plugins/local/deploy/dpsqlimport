@@ -11,6 +11,7 @@ use Getopt::Long;
 use JSON;
 
 use DeployUtils;
+use SQLBatchUtils;
 use ServerAdapter;
 use SQLFileRunner;
 
@@ -52,17 +53,6 @@ sub main {
 
     my $hasOptError = 0;
 
-    my $dbNode;
-    my $dbNodeJson = $ENV{AUTOEXEC_NODE};
-    if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
-        $dbNode = from_json($dbNodeJson);
-    }
-
-    if ( not defined($dbNode) ) {
-        $hasOptError = 1;
-        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
-    }
-
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
     if ( not defined($phaseName) or $phaseName eq '' ) {
         $hasOptError = 1;
@@ -72,11 +62,6 @@ sub main {
     my $execUser = $ENV{AUTOEXEC_USER};
     if ( not defined($execUser) or $execUser eq '' ) {
         $ENV{AUTOEXEC_USER} = 'anonymous';
-    }
-
-    if ( not defined($dbNode) ) {
-        $hasOptError = 1;
-        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
     }
 
     if ( $hasOptError == 1 ) {

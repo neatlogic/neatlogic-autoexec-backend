@@ -33,6 +33,7 @@ sub new {
         status       => {}
     };
 
+    my $sqlSubDir  = dirname($sqlFile);
     my $statusDir  = $self->{sqlStatusDir};
     my $sqlFileDir = $self->{sqlFileDir};
 
@@ -41,9 +42,15 @@ sub new {
             die("ERROR: Create directory $statusDir failed $!\n");
         }
     }
+    if ( $sqlSubDir ne '.' and not -e "$statusDir/$sqlSubDir" ) {
+        if ( not mkpath("$statusDir/$sqlSubDir") ) {
+            die("ERROR: Create directory $statusDir/$sqlSubDir failed $!\n");
+        }
+    }
 
-    $self->{sqlPath}    = "$sqlFileDir/$sqlFile";
-    $self->{statusPath} = "$statusDir/$sqlFile.txt";
+    $self->{sqlPath}       = "$sqlFileDir/$sqlFile";
+    $self->{statusPath}    = "$statusDir/$sqlFile.txt";
+    $self->{serverAdapter} = ServerAdapter->new();
 
     bless( $self, $type );
 

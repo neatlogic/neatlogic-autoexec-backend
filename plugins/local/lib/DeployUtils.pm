@@ -3,6 +3,8 @@ use strict;
 
 package DeployUtils;
 use Cwd;
+use Crypt::RC4;
+
 use ServerAdapter;
 use AutoExecUtils;
 
@@ -63,9 +65,9 @@ sub deployInit {
     my $idx = 0;
     for my $level ( 'SYS', 'MODULE', 'ENV' ) {
         $ENV{ $level . "_ID" }           = $dpIds[$idx];
-        $ENV{ $level . "_NAME" }         = $dpIds[$idx];
+        $ENV{ $level . "_NAME" }         = $dpNames[$idx];
         $deployEnv->{ $level . "_ID" }   = $dpIds[$idx];
-        $deployEnv->{ $level . "_NAME" } = $dpIds[$idx];
+        $deployEnv->{ $level . "_NAME" } = $dpNames[$idx];
         $idx                             = $idx + 1;
     }
 
@@ -91,7 +93,7 @@ sub deployInit {
     }
 
     $deployEnv->{VERSION}    = $version;
-    $deployEnv->{BUILD_ROOT} = "$dataPath/artifact/V1.0.0/build";
+    $deployEnv->{BUILD_ROOT} = "$dataPath/artifact/$version/build";
     $deployEnv->{ID_PATH}    = $dpIdPath;
     $deployEnv->{NAME_PATH}  = $dpPath;
     $deployEnv->{DATA_PATH}  = $dataPath;
@@ -110,9 +112,10 @@ sub getDataDirStruct {
 
     my $workSpacePath = "workspace";
     my $prjPath       = "$workSpacePath/project";
-    my $relRoot       = "artifact/$version/build";
+    my $verRoot       = "artifact/$version";
+    my $relRoot       = "$verRoot/build";
     my $relPath       = "$relRoot/$buildNo";
-    my $distPath      = "artifact/env/$envName";
+    my $distPath      = "$verRoot/env/$envName";
     my $mirrorPath    = "mirror/$envName";
     my $envresPath    = "envres/$envName";
 
@@ -121,6 +124,7 @@ sub getDataDirStruct {
         $dirStructure = {
             approot     => $dataPath,
             workspace   => $workSpacePath,
+            verroot     => $verRoot,
             project     => $prjPath,
             release     => $relPath,
             releaseRoot => $relRoot,
@@ -133,6 +137,7 @@ sub getDataDirStruct {
         $dirStructure = {
             approot     => $dataPath,
             workspace   => "$dataPath/$workSpacePath",
+            verroot     => "$dataPath/$verRoot",
             project     => "$dataPath/$prjPath",
             release     => "$dataPath/$relPath",
             releaseRoot => "$dataPath/$relRoot",
@@ -167,13 +172,13 @@ sub isatty {
 
 our $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
 
-sub _rc4_encrypt_hex () {
-    my ( $self, $key, $data ) = ( $_[0], $_[1] );
+sub _rc4_encrypt_hex {
+    my ( $self, $key, $data ) = @_;
     return join( '', unpack( 'H*', RC4( $key, $data ) ) );
 }
 
-sub _rc4_decrypt_hex () {
-    my ( $self, $key, $data ) = ( $_[0], $_[1] );
+sub _rc4_decrypt_hex {
+    my ( $self, $key, $data ) = @_;
     return RC4( $key, pack( 'H*', $data ) );
 }
 

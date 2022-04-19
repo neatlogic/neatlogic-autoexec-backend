@@ -4,6 +4,7 @@ use strict;
 package MONGODBSQLRunner;
 
 use FindBin;
+use Expect;
 use Encode;
 use File::Basename;
 

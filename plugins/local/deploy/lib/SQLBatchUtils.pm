@@ -7,6 +7,9 @@ use FindBin;
 use POSIX qw(WNOHANG);
 use IO::File;
 use File::Path;
+use File::Glob qw(bsd_glob);
+use File::Basename;
+use File::Find;
 
 use DeployUtils;
 
