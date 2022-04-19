@@ -353,8 +353,8 @@ class Operation:
                 if osType == 'windows':
                     #argValue = argValue.replace('\\', '\\\\')
                     #argValue = argValue.replace('"', '\\"')
-                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                    argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
+                    argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
                     cmd = cmd + ' "{}"'.format(argValue)
                 else:
                     argValue = argValue.replace("'", "'\\''")
@@ -363,8 +363,8 @@ class Operation:
             for argValue in self.arguments:
                 #argValue = argValue.replace('\\', '\\\\')
                 #argValue = argValue.replace('"', '\\"')
-                jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
+                argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
                 cmd = cmd + ' "{}"'.format(argValue)
 
         return cmd
@@ -396,8 +396,8 @@ class Operation:
                     if osType == 'windows':
                         #v = v.replace('\\', '\\\\')
                         #v = v.replace('"', '\\"')
-                        jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                        jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                        v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
+                        v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                         cmd = cmd + ' --{} "{}" '.format(k, v)
                     else:
                         v = v.replace("'", "'\\''")
@@ -405,14 +405,14 @@ class Operation:
                 elif len(k) == 1:
                     #v = v.replace('\\', '\\\\')
                     #v = v.replace('"', '\\"')
-                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                    v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
+                    v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
                     #v = v.replace('\\', '\\\\')
                     #v = v.replace('"', '\\"')
-                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
+                    v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
+                    v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                     cmd = cmd + ' --{} "{}" '.format(k, v)
         return cmd
 
