@@ -5,6 +5,7 @@ package ORACLEWALLETSQLRunner;
 
 use base 'ORACLESQLRunner';
 use FindBin;
+use Expect;
 use Encode;
 use File::Basename;
 

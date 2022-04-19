@@ -4,6 +4,7 @@ use strict;
 package HANASQLRunner;
 
 use FindBin;
+use Expect;
 use Encode;
 use File::Basename;
 use Cwd;

@@ -152,7 +152,8 @@ sub main {
 
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
 
-    my $dbSchemasMap  = {};
+    my $dbSchemasMap = {};
+
     my $serverAdapter = ServerAdapter->new();
     my $dbConf        = $serverAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {

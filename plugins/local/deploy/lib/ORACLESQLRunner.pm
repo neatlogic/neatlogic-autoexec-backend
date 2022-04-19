@@ -4,6 +4,7 @@ use strict;
 package ORACLESQLRunner;
 
 use FindBin;
+use Expect;
 use Encode;
 use File::Basename;
 use File::Temp;

@@ -3,6 +3,9 @@ use strict;
 
 package ServerAdapter;
 
+use DeployUtils;
+use Data::Dumper;
+
 sub new {
     my ( $pkg, %args ) = @_;
 
@@ -18,6 +21,12 @@ sub new {
 
 sub getIdPath {
     my ( $self, $namePath ) = @_;
+
+    #-----------------------
+    #getIdPath
+    #in:  $namePath  Operate enviroment path, example:mysys/mymodule/SIT
+    #ret: idPath of operate enviroment, example:100/200/3
+    #-----------------------
     $namePath =~ s/^\/+|\/+$//g;
     my @dpNames = split( '/', $namePath );
 
@@ -30,7 +39,7 @@ sub getIdPath {
 
     #TODO: call api convert namePath to idPath
 
-    my $idPath = $namePath;
+    my $idPath = '0/0/0';    #测试用数据
     return $idPath;
 }
 
@@ -102,7 +111,7 @@ sub releaseVer {
     my ( $self, $buildEnv, $version, $buildNo ) = @_;
 
     #更新某个version的buildNo的release状态为1，build成功
-    #TODO：发布版本，更新版本某个buildNo的release的状态为1
+    #TODO: 发布版本，更新版本某个buildNo的release的状态为1
     return;
 }
 
@@ -143,16 +152,16 @@ sub getDBConf {
 
     #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
     my $dbConf = {
-        'dbname.dbuser' => {
+        'mydb.myuser' => {
             node => {
                 resourceId     => 9823748347,
-                nodeName       => 'bsmdb',
+                nodeName       => 'bsm',
                 accessEndpoint => '192.168.0.26:3306',
                 nodeType       => 'Mysql',
                 host           => '192.168.0.26',
                 port           => 3306,
                 username       => 'root',
-                password       => '{RC4}xxxxx'
+                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
             },
             args => {
                 locale            => 'en_US.UTF-8',
@@ -168,6 +177,14 @@ sub getDBConf {
             }
         }
     };
+
+    while ( my ( $schema, $conf ) = each(%$dbConf) ) {
+        my $nodeInfo = $conf->{node};
+        my $password = $nodeInfo->{password};
+        if ( defined($password) and $password =~ s/^\{ENCRYPTED\}// ) {
+            $nodeInfo->{password} = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+        }
+    }
     return $dbConf;
 }
 
@@ -184,9 +201,9 @@ sub getAppPassWord {
 }
 
 sub saveSqlFilesStatus {
-    my ( $self, $jobId, $sqlFilesStatus, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
 
-    #$sqlFilesStatus格式
+    #$sqlInfo格式
     # [
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
@@ -212,11 +229,13 @@ sub saveSqlFilesStatus {
 
     #TODO: 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
 
+    print Dumper ($sqlInfo);
+
     return;
 }
 
 sub pushSqlStatus {
-    my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlFilesStatus, $deployEnv ) = @_;
 
     #$jobId: 324234
     #$sqlInfo = {
@@ -232,12 +251,16 @@ sub pushSqlStatus {
     # };
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
 
-    #TODO：更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
+    #TODO: 更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
+    print Dumper($sqlFilesStatus);
+    return;
 }
 
 sub getBuild {
     my ( $self, $deployEnv, $version, $buildNo ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
+    return;
 }
+
 1;

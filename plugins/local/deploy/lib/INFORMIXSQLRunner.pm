@@ -4,6 +4,7 @@ use strict;
 package INFORMIXSQLRunner;
 
 use FindBin;
+use Expect;
 use Encode;
 use File::Temp;
 use File::Basename;
