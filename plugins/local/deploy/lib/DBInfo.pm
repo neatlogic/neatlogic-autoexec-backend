@@ -38,9 +38,11 @@ sub new {
     my @addrs;
     my $accessEndpoint = $nodeInfo->{accessEndpoint};
     if ( defined($accessEndpoint) ) {
-        while ( $accessEndpoint =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
-            push( @addrs, { host => $1, port => int($2) } );
-        }
+
+        #为了兼容IPV6，更改为后面的匹配方式
+        # while ( $accessEndpoint =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
+        #     push( @addrs, { host => $1, port => int($2) } );
+        # }
         while ( $accessEndpoint =~ /([^\/\s,]+):(\d+)/g ) {
             push( @addrs, { host => $1, port => int($2) } );
         }
