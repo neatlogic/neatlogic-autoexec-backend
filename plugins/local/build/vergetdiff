@@ -97,6 +97,9 @@ sub main {
         $verInfo->{username} = $userName;
     }
     if ( defined($password) and $password ne '' ) {
+        if ( $password =~ s/^\{ENCRYPTED\}// ) {
+            $password = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+        }
         $verInfo->{password} = $password;
     }
 

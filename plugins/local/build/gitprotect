@@ -75,6 +75,12 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     my $verInfo       = $serverAdapter->getVer($buildEnv);
 
+    if ( defined($token) and $token ne '' ) {
+        if ( $token =~ s/^\{ENCRYPTED\}// ) {
+            $token = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $token );
+        }
+    }
+
     my $repo = $verInfo->{repo};
 
     my $prjsApiUrl = "$apiBaseUrl/projects";
