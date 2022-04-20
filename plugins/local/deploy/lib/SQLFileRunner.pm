@@ -682,6 +682,7 @@ sub checkSqlFiles {
     #同时生成schema的信息，完成对shema连通性的检测
     my ($self) = @_;
 
+    my $jobPath      = $self->{jobPath};
     my $sqlFiles     = $self->{sqlFiles};
     my $sqlFileDir   = $self->{sqlFileDir};
     my $dbSchemasMap = $self->{dbSchemasMap};
@@ -691,21 +692,29 @@ sub checkSqlFiles {
     my $usedSchemas = $self->{usedSchemas};
     foreach my $sqlFile (@$sqlFiles) {
 
+        my $nodeInfo;
+        if ( defined($dbSchemasMap) ) {
+
+            #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
+            my @sqlDirSegments = split( '/', $sqlFile );
+            my $dbSchema = lc( $sqlDirSegments[0] );
+            push( @$usedSchemas, $dbSchema );
+            my $dbInfo = $dbSchemasMap->{$dbSchema};
+            $nodeInfo = $dbInfo->{node};
+        }
+        else {
+            $nodeInfo = $self->{nodeInfo};
+            if ( -e "$sqlFileDir/$sqlFile" ) {
+                unlink("$sqlFileDir/$sqlFile");
+            }
+
+            if ( not link( "$jobPath/file/$sqlFile", "$sqlFileDir/$sqlFile" ) ) {
+                $hasError = 1;
+                print("ERROR: Copy $jobPath/file/$sqlFile to $sqlFileDir/$sqlFile failed $!\n");
+            }
+        }
+
         if ( -e "$sqlFileDir/$sqlFile" ) {
-            my $nodeInfo;
-            if ( defined($dbSchemasMap) ) {
-
-                #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
-                my @sqlDirSegments = split( '/', $sqlFile );
-                my $dbSchema = lc( $sqlDirSegments[0] );
-                push( @$usedSchemas, $dbSchema );
-                my $dbInfo = $dbSchemasMap->{$dbSchema};
-                $nodeInfo = $dbInfo->{node};
-            }
-            else {
-                $nodeInfo = $self->{nodeInfo};
-            }
-
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
                 jobId        => $self->{jobId},

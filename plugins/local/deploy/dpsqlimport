@@ -136,6 +136,7 @@ sub main {
 
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
+        jobPath      => $jobPath,
         deployEnv    => $deployEnv,
         toolsDir     => $deployEnv->{TOOLS_PATH},
         tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',

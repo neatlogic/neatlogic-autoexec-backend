@@ -40,9 +40,14 @@ sub main {
     my $hasOptError = 0;
 
     my $dbNode;
-    my $dbNodeJson = $ENV{AUTOEXEC_NODE};
-    if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
-        $dbNode = from_json($dbNodeJson);
+    if ( defined($node) and $node ne '' ) {
+        $dbNode = from_json($node);
+    }
+    else {
+        my $dbNodeJson = $ENV{AUTOEXEC_NODE};
+        if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+            $dbNode = from_json($dbNodeJson);
+        }
     }
 
     if ( not defined($dbNode) ) {
@@ -133,6 +138,7 @@ sub main {
 
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
+        jobPath      => $jobPath,
         deployEnv    => undef,
         toolsDir     => $toolsDir,
         tmpDir       => "$autoexecHome/tmp",

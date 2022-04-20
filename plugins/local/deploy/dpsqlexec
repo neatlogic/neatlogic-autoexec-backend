@@ -168,6 +168,7 @@ sub main {
     if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
+            jobPath      => $jobPath,
             deployEnv    => $deployEnv,
             toolsDir     => $deployEnv->{TOOLS_PATH},
             tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
