@@ -57,7 +57,7 @@ sub main {
         'sqlfilejson=s' => \$sqlFileJson
     );
 
-    $ENV{IS_INTERACT} = 1;
+    #$ENV{IS_INTERACT} = 1;
     my $hasOptError = 0;
 
     my $dbNode;
@@ -175,7 +175,8 @@ sub main {
         sqlFiles     => $sqlFiles,
         isForce      => $isForce,
         isDryRun     => $isDryRun,
-        istty        => 0
+        istty        => 0,
+        isInteract   => 1
     );
     my $rc = 0;
     $rc = $sqlFileRunner->checkSqlFiles();

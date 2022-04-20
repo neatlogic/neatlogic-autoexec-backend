@@ -68,7 +68,7 @@ sub main {
         'index=s'      => \$index
     );
 
-    $ENV{IS_INTERACT} = 1;
+    #$ENV{IS_INTERACT} = 1;
     my $hasOptError = 0;
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
@@ -180,7 +180,8 @@ sub main {
             isForce      => $isForce,
             isDryRun     => $isDryRun,
             autocommit   => $isAutoCommit,
-            istty        => 0
+            istty        => 0,
+            isInteract   => 1
         );
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);

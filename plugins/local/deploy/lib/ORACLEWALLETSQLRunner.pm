@@ -21,6 +21,7 @@ sub new {
     my $logFilePath   = $args{logFilePath};
     my $toolsDir      = $args{toolsDir};
     my $tmpDir        = $args{tmpDir};
+    my $isInteract    = $args{isInteract};
 
     my $dbType         = $dbInfo->{dbType};
     my $dbName         = $dbInfo->{sid};
@@ -80,6 +81,12 @@ sub new {
     $self->{PROMPT}       = qr/\nSQL> $/s;
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
+    $self->{warningCount} = 0;
+
+    if ( not defined($isInteract) ) {
+        $isInteract = 0;
+    }
+    $self->{isInteract} = $isInteract;
 
     my $spawn;
 

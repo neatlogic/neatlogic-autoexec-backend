@@ -39,10 +39,11 @@ sub new {
         logFileDir   => $args{logFileDir},
         fileCharset  => $args{fileCharset},
 
-        sqlFiles => $args{sqlFiles},
-        istty    => $args{istty},
-        isForce  => $args{isForce},
-        isDryRun => $args{isDryRun}
+        sqlFiles   => $args{sqlFiles},
+        isForce    => $args{isForce},
+        isDryRun   => $args{isDryRun},
+        istty      => $args{istty},
+        isInteract => $args{isInteract}
     };
 
     #$dbInfo包含节点信息以外，还包含以下DB的扩展属性
@@ -227,6 +228,7 @@ sub execOneSqlFile {
         my $timeStr;
         my @nowTime;
         while ( my $line = <$fromChild> ) {
+            $line =~ s/\x0D//g;
             @nowTime = localtime();
             $timeStr = sprintf( "%02d:%02d:%02d", $nowTime[2], $nowTime[1], $nowTime[0] );
             if ( $fileCharset ne 'UTF-8' ) {
@@ -312,6 +314,7 @@ sub execOneSqlFile {
         print("#***************************************\n\n");
 
         my $startTime = time();
+        my $handler;
         my $spawn;
 
         if ( $self->{isDryRun} == 1 ) {
@@ -319,7 +322,6 @@ sub execOneSqlFile {
             $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
         }
         else {
-            my $handler;
             eval {
                 print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
                 require $requireName;
@@ -331,26 +333,24 @@ sub execOneSqlFile {
                     tmpDir        => $self->{tmpDir},
                     dbInfo        => $dbInfo,
                     charSet       => $fileCharset,
-                    logFilePath   => $logFilePath
+                    logFilePath   => $logFilePath,
+                    isInteract    => $self->{isInteract}
                 );
             };
             if ($@) {
                 $hasError = 1;
+                print("ERROR: Load SQLRunner failed.\n");
                 print("ERROR: $@\n");
+                exit($hasError);
             }
 
-            if ( defined($handler) ) {
-                $spawn = $handler->{spawn};
-            }
-
+            $spawn = $handler->{spawn};
             if ( defined($spawn) ) {
                 $spawn->log_stdout(0);
                 $spawn->log_file(
                     sub {
                         if ( $handler->{hasLogon} == 1 ) {
-                            my $content = shift;
-                            $content =~ s/\x0D//g;
-                            print($content);
+                            print($_);
                         }
                     }
                 );
@@ -364,6 +364,7 @@ sub execOneSqlFile {
             }
         }
 
+        $spawn = $handler->{spawn};
         if ( $hasError == 0 ) {
             if ( defined($spawn) ) {
                 if ( defined( $spawn->exitstatus() ) and $spawn->exitstatus() == 0 ) {
@@ -393,11 +394,11 @@ sub execOneSqlFile {
                 $endStatus = 'succeed';
             }
 
-            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $handler->{warningCount}, endTime => time() );
         }
         else {
             $endStatus = 'failed';
-            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $handler->{warningCount}, endTime => time() );
         }
 
         my $consumeTime = time() - $startTime;
@@ -408,7 +409,7 @@ sub execOneSqlFile {
         print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
 
         #exit sql execute child process
-        exit $hasError;
+        exit($hasError);
     }
 }
 
@@ -512,9 +513,11 @@ sub needExecute {
     return $ret;
 }
 
+#Deprecated
 sub checkWaitInput {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
 
+    #Deprecated
     my $isWaitInput = 0;
 
     my $logFileDir   = $self->{logFileDir};
@@ -552,8 +555,7 @@ sub execSqlFiles {
             deployEnv    => $self->{deployEnv},
             dbInfo       => $self->_getSqlDbInfo($sqlFile),
             sqlStatusDir => $self->{sqlStatusDir},
-            sqlFileDir   => $self->{sqlFileDir},
-            istty        => $self->{istty}
+            sqlFileDir   => $self->{sqlFileDir}
         );
         my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
@@ -586,8 +588,7 @@ sub execSqlFileSets {
                 deployEnv    => $self->{deployEnv},
                 dbInfo       => $self->_getSqlDbInfo($sqlFile),
                 sqlStatusDir => $self->{sqlStatusDir},
-                sqlFileDir   => $self->{sqlFileDir},
-                istty        => $self->{istty}
+                sqlFileDir   => $self->{sqlFileDir}
             );
             my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
@@ -628,34 +629,6 @@ sub execSqlFileSets {
                 print("INFO: Execute $sqlFile return status:$sqlStatus.\n");
             }
         }
-
-        # foreach my $pid ( keys(%$runnerPidsMap) ) {
-        #     my $exitPid;
-        #     my $isPreWaitInput = 0;
-        #     my $isWaitInput    = 0;
-        #     if ( ( $exitPid = waitpid( $pid, 1 ) ) >= 0 ) {
-        #         if ( $exitPid eq 0 ) {
-        #             my $sqlInfo       = $runnerPidsMap->{$pid};
-        #             my $sqlFile       = $$sqlInfo[0];
-        #             my $sqlFileStatus = $$sqlInfo[1];
-        #             $isWaitInput = $self->checkWaitInput( $sqlFile, $sqlFileStatus );
-        #             if ( $isWaitInput == 1 and $isPreWaitInput != 1 ) {
-        #                 AutoExecUtils::informNodeWaitInput( $self->{dbNode}->{nodeId} );
-        #             }
-        #             $isPreWaitInput = $isWaitInput;
-
-        #             sleep(2);
-        #             next;
-        #         }
-
-        #         my $rc = $?;
-        #         $rc = $rc >> 8 if ( $rc > 255 );
-        #         if ( $rc ne 0 ) {
-        #             $hasError = $hasError + 1;
-        #         }
-        #         delete( $runnerPidsMap->{$pid} );
-        #     }
-        # }
 
         if ( $hasError != 0 ) {
             last;
@@ -739,8 +712,7 @@ sub checkSqlFiles {
                 deployEnv    => $self->{deployEnv},
                 dbInfo       => $self->_getSqlDbInfo($sqlFile),
                 sqlStatusDir => $self->{sqlStatusDir},
-                sqlFileDir   => $sqlFileDir,
-                istty        => $self->{istty}
+                sqlFileDir   => $sqlFileDir
             );
 
             my $sqlInfo = $self->checkOneSqlFile( $sqlFile, $nodeInfo, $sqlFileStatus );
@@ -768,8 +740,7 @@ sub restoreSqlStatuses {
             $sqlFile,
             jobId        => $self->{jobId},
             deployEnv    => $self->{deployEnv},
-            sqlStatusDir => $self->{sqlStatusDir},
-            istty        => $self->{istty}
+            sqlStatusDir => $self->{sqlStatusDir}
         );
 
         $sqlFileStatus->_setStatus( status => $status, md5 => $md5 );

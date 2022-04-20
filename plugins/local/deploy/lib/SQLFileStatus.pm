@@ -27,7 +27,6 @@ sub new {
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
         dbInfo       => $args{dbInfo},
-        istty        => $args{istty},
         sqlFileDir   => $args{sqlFileDir},
         sqlStatusDir => $args{sqlStatusDir},
         status       => {}
