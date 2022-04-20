@@ -491,7 +491,7 @@ sub checkBaseLineMerged {
                 if ( $ret == 0 ) {
 
                     #print("INFO:cd $prjPath && git diff --cached | wc -l\n");
-                    my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --cached | head -100 2>&1");
+                    my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --stat-count 100 --cached 2>&1");
 
                     if ( scalar(@$lines) > 0 ) {
                         print( join( "\n", @$lines ) );
@@ -578,7 +578,7 @@ sub checkChangedAfterCompiled {
         }
 
         print("INFO: Compare revision:$endRev -> $checkoutName\n");
-        my $outLines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --stat $endRev '$checkoutName' | head -100 2>&1");
+        my $outLines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --stat-count 100 --stat $endRev '$checkoutName'  2>&1");
         my $hasDiff  = 0;
         foreach my $line (@$outLines) {
             if ( $line ne '' ) {

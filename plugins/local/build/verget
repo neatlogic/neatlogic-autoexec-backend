@@ -7,6 +7,7 @@ use BuildLock;
 use Getopt::Long;
 use JSON;
 use VerGet;
+use BuildLock;
 use ServerAdapter;
 
 sub usage {
@@ -90,6 +91,9 @@ sub main {
         $versionInfo->{username} = $userName;
     }
     if ( defined($password) and $password ne '' ) {
+        if ( $password =~ s/^\{ENCRYPTED\}// ) {
+            $password = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+        }
         $versionInfo->{password} = $password;
     }
 

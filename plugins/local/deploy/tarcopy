@@ -8,6 +8,7 @@ use Cwd;
 
 use TarSCPExec;
 use DeployUtils;
+use BuildLock;
 
 sub usage {
     my $pname = $FindBin::Script;

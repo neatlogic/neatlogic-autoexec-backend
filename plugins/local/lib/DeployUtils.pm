@@ -293,7 +293,6 @@ sub getPipeOut {
         }
         waitpid( $pid, 0 );
         $exitCode = $?;
-
         close(PIPE);
     }
 

@@ -6,6 +6,7 @@ use Cwd 'realpath';
 use Getopt::Long;
 
 use DeployUtils;
+use BuildLock;
 
 sub usage {
     my $pname = $FindBin::Script;

@@ -68,13 +68,11 @@ sub getVer {
         repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
         trunk    => 'master',
         branch   => '2.0.0',
-        tag      => 'V2.0.0',
+        tag      => 'V4.0.0',
         tagsDir  => undef,
         isFreeze => 0,
         startRev => 'bda9fb6f',
         endRev   => 'f2a9c727',
-        username => 'wenhb',                                        #optional
-        password => 'xxxxx'                                         #optional
     };
 
     my $svnVerInfo = {
@@ -89,11 +87,9 @@ sub getVer {
         isFreeze => 0,
         startRev => '0',
         endRev   => '32',
-        username => 'admin',                        #optional
-        password => 'wen7831'                       #optional
     };
 
-    my $verInfo = $svnVerInfo;
+    my $verInfo = $gitVerInfo;
     return $verInfo;
 }
 
