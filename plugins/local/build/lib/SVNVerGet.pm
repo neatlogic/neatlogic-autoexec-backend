@@ -710,7 +710,7 @@ sub checkChangedAfterCompiled {
 
     if ( defined($checkoutRepo) and $checkoutRepo ne '' ) {
         print("INFO: Compare $checkoutRepo\@$endRev -> $newRepo\n");
-        my $lines = DeployUtils->getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo' | head -100 2>&1");
+        my $lines = DeployUtils->getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo'");
         if ( scalar(@$lines) eq '0' ) {
             $ret = 0;
             print("FINEST: Version:$version has not changed after compiled, End Revision:$endRev.\n");
