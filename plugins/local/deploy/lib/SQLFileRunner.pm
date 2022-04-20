@@ -37,8 +37,7 @@ sub new {
         sqlFileDir   => $args{sqlFileDir},
         sqlStatusDir => $args{sqlStatusDir},
         logFileDir   => $args{logFileDir},
-
-        fileCharset => $args{fileCharset},
+        fileCharset  => $args{fileCharset},
 
         sqlFiles => $args{sqlFiles},
         istty    => $args{istty},
@@ -58,6 +57,10 @@ sub new {
 
     $self->{usedSchemas}  = [];
     $self->{sqlFileInfos} = [];
+
+    if ( defined( $args{autocommit} ) and defined( $self->{dbInfo} ) ) {
+        $self->{dbInfo}->{autocommit} = $args{autocommit};
+    }
 
     my $jobPath = $args{jobPath};
     if ( not defined($jobPath) or $jobPath eq '' ) {
@@ -269,8 +272,12 @@ sub execOneSqlFile {
         close($toChild);
         close($fromChild);
         close($fromParent);
-        open( STDOUT, '>&', $toParent );
-        open( STDERR, '>&', $toParent );
+
+        select($toParent);
+        open( STDERR, ">&STDOUT" );
+
+        #open( STDOUT, '>&', $toParent );
+        #open( STDERR, '>&', $toParent );
         binmode( STDOUT, 'encoding(UTF-8)' );
         binmode( STDERR, 'encoding(UTF-8)' );
 
@@ -299,6 +306,7 @@ sub execOneSqlFile {
         print("#***************************************\n");
         print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
         print("# FILE=$sqlFile\n");
+        print("# Status=$sqlFileStatus->{status}->{status}\n");
         print("# MD5=$sqlFileStatus->{status}->{md5}\n");
         print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
         print("#***************************************\n\n");
@@ -362,7 +370,7 @@ sub execOneSqlFile {
                     print("\nFINEST:execute sql:$sqlFile success.\n");
                 }
                 else {
-                    print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
+                    print("\nERROR:execute sql:$sqlFile failed.\n");
                     $hasError = 1;
                 }
             }
@@ -371,7 +379,7 @@ sub execOneSqlFile {
             }
         }
         else {
-            print("\nERROR:execute sql:$sqlFile failed, check log for detail.\n");
+            print("\nERROR:execute sql:$sqlFile failed.\n");
             $hasError = 1;
         }
 
@@ -385,10 +393,12 @@ sub execOneSqlFile {
         my $consumeTime = time() - $startTime;
         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
         print( "= End\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
+        print("= Status=$sqlFileStatus->{status}->{status}\n");
         print("= Elapsed time: $consumeTime seconds.\n");
         print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
 
-        return $hasError;
+        #exit sql execute child process
+        exit $hasError;
     }
 }
 
@@ -538,7 +548,10 @@ sub execSqlFiles {
         my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
         if ( $checkRet == 1 ) {
+            print("INFO: Execute sql file:$sqlFile...\n");
             my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
+            my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
+            print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
             $hasError = $hasError + $rc;
         }
 
@@ -569,13 +582,18 @@ sub execSqlFileSets {
             my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
             if ( $checkRet == 1 ) {
+                print("INFO: Execute sql file:$sqlFile...\n");
                 my $pid = fork();
                 if ( $pid == 0 ) {
                     my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
-                    $hasError = $hasError + $rc;
+                    exit $rc;
+                }
+                elsif ( $pid > 0 ) {
+                    $runnerPidsMap->{$pid} = [ $sqlFile, $sqlFileStatus ];
                 }
                 else {
-                    $runnerPidsMap->{$pid} = [ $sqlFile, $sqlFileStatus ];
+                    print("ERROR: Can not fork process to execute sql file:$sqlFile\n");
+                    $hasError = $hasError + 1;
                 }
             }
         }
@@ -587,10 +605,18 @@ sub execSqlFileSets {
                 $rc = $rc >> 8;
             }
 
+            my $sqlInfoArray  = $runnerPidsMap->{$pid};
+            my $sqlFile       = $$sqlInfoArray[0];
+            my $sqlFileStatus = $$sqlInfoArray[1];
+            my $sqlStatus     = $sqlFileStatus->loadAndGetStatusValue('status');
+            delete( $runnerPidsMap->{$pid} );
             if ( $rc ne 0 ) {
                 $hasError = $hasError + 1;
+                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
             }
-            delete( $runnerPidsMap->{$pid} );
+            else {
+                print("INFO: Execute $sqlFile return status:$sqlStatus.\n");
+            }
         }
 
         # foreach my $pid ( keys(%$runnerPidsMap) ) {
@@ -709,6 +735,7 @@ sub checkSqlFiles {
 
             my $sqlInfo = $self->checkOneSqlFile( $sqlFile, $nodeInfo, $sqlFileStatus );
             push( @$sqlFileInfos, $sqlInfo );
+            print("INFO: Sql file:$sqlFile checked.\n");
         }
         else {
             $hasError = $hasError + 1;
@@ -753,7 +780,7 @@ sub checkDBSchemas {
         };
         if ($@) {
             $hasError = $hasError + 1;
-            print("ERROR: $@\n");
+            print("ERROR: $@");
         }
     }
 
@@ -799,7 +826,7 @@ sub testByIpPort {
         $hasLogon = $handler->test();
     };
     if ($@) {
-        print("ERROR: $@\n");
+        print("ERROR: $@");
     }
 
     return $hasLogon;

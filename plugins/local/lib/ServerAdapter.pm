@@ -252,6 +252,7 @@ sub pushSqlStatus {
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
 
     #TODO: 更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
+    print("DEBUG: update sql status to server.\n");
     print Dumper($sqlFilesStatus);
     return;
 }

@@ -130,7 +130,8 @@ sub _doFcntl {
 
     if ( $ret == 0 and not $!{EAGAIN} ) {
         my $lockFile = $self->{statusPath};
-        print("WARN: Lock $lockFile error:$!.\n");
+
+        #print("WARN: Lock $lockFile error:$!.\n");
     }
 
     return $ret;

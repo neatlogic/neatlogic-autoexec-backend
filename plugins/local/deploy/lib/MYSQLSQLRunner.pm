@@ -35,6 +35,8 @@ sub new {
     my $self = {};
     bless( $self, $pkg );
 
+    $self->{PROMPT} = qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/;
+
     $sqlFile =~ s/^\s*'|'\s*$//g;
 
     $self->{sqlFileStatus} = $sqlFileStatus;
@@ -99,10 +101,11 @@ sub test {
     my $hasHardError = 0;
     my $hasLogon     = 0;
 
+    my $PROMPT = $self->{PROMPT};
     $spawn->expect(
         15,
         [
-            qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/ => sub {
+            $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
             }
@@ -146,12 +149,14 @@ sub run {
 
     #my $PROMPT = qr/(?<=\n)(mysql|MariaDB\s\[$dbName\])> $/;
     #my $PROMPT = qr/(mysql|MariaDB\s\[$dbName\])> $/;
-    my $PROMPT = qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/;
+    #my $PROMPT = qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/;
+    my $PROMPT = $self->{PROMPT};
 
     my $hasSendAutocommit = 0;
     my $hasSendCharset    = 0;
     my $hasSendSql        = 0;
-    my ( $sqlError, $sqlErrMsg );
+    my $sqlError;
+    my $sqlErrMsg;
     my $sessionKilled = 0;
     my $hasWarn       = 0;
     my $hasError      = 0;
@@ -244,7 +249,7 @@ sub run {
         15,
         [
             #qr/(mysql|MariaDB\s\[$dbName\])> $/ => sub {
-            qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/ => sub {
+            $PROMPT => sub {
                 $hasLogon = 1;
             }
         ],

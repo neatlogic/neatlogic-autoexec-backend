@@ -158,6 +158,9 @@ sub main {
     my $dbConf        = $serverAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
+        if ( defined($isAutoCommit) and $isAutoCommit == 1 ) {
+            $dbInfo->{autocommit} = 1;
+        }
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
