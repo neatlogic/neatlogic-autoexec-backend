@@ -68,7 +68,7 @@ sub main {
         'index=s'      => \$index
     );
 
-    $ENV{IS_INTERACT} = 1;
+    #$ENV{IS_INTERACT} = 1;
     my $hasOptError = 0;
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
@@ -158,6 +158,9 @@ sub main {
     my $dbConf        = $serverAdapter->getDBConf($deployEnv);
     while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
         my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
+        if ( defined($isAutoCommit) and $isAutoCommit == 1 ) {
+            $dbInfo->{autocommit} = 1;
+        }
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
@@ -165,6 +168,7 @@ sub main {
     if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
+            jobPath      => $jobPath,
             deployEnv    => $deployEnv,
             toolsDir     => $deployEnv->{TOOLS_PATH},
             tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
@@ -177,7 +181,8 @@ sub main {
             isForce      => $isForce,
             isDryRun     => $isDryRun,
             autocommit   => $isAutoCommit,
-            istty        => 0
+            istty        => 0,
+            isInteract   => 1
         );
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);

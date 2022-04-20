@@ -5,7 +5,7 @@ package SQLFileStatus;
 
 use FindBin;
 use POSIX qw(strftime);
-use Fcntl qw(SEEK_SET O_RDWR O_CREAT O_DIRECT O_SYNC SEEK_SET F_RDLCK F_WRLCK F_UNLCK F_GETLK F_SETLK F_SETLKW);
+use Fcntl qw(:flock SEEK_SET O_RDWR O_CREAT O_DIRECT O_SYNC SEEK_SET F_RDLCK F_WRLCK F_UNLCK F_GETLK F_SETLK F_SETLKW);
 use IO::File;
 use File::Path;
 use Cwd;
@@ -27,7 +27,6 @@ sub new {
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
         dbInfo       => $args{dbInfo},
-        istty        => $args{istty},
         sqlFileDir   => $args{sqlFileDir},
         sqlStatusDir => $args{sqlStatusDir},
         status       => {}
@@ -105,60 +104,23 @@ sub getFileContent {
     return $content;
 }
 
-sub _doFcntl {
-    my ( $self, $fh, $operation, $flags ) = @_;
-
-    my $ret = 0;
-
-    if ( fcntl( $fh, $operation, $flags ) ) {
-        $ret = 1;
-    }
-    else {
-        if ( $!{EAGAIN} ) {
-            if ( fcntl( $fh, $operation, $flags ) ) {
-                $ret = 1;
-            }
-        }
-
-        while ( $ret != 1 and $!{EINTR} ) {
-            if ( fcntl( $fh, $operation, $flags ) ) {
-                $ret = 1;
-                last;
-            }
-        }
-    }
-
-    if ( $ret == 0 and not $!{EAGAIN} ) {
-        my $lockFile = $self->{statusPath};
-        print("WARN: Lock $lockFile error:$!.\n");
-    }
-
-    return $ret;
-}
-
 sub _lockStatus {
     my ( $self, $lockShare ) = @_;
 
-    my $lockMod = F_WRLCK;
+    my $lockMod = LOCK_EX;
     if ( $lockShare eq 1 ) {
-        $lockMod = F_RDLCK;
+        $lockMod = LOCK_SH;
     }
 
     my $fh = $self->{statusFH};
-    sysseek( $fh, 0, SEEK_SET );
-    my $flags = pack( 'ssx4qqlx4', $lockMod, 0, 0, 0, 0 );
-
-    $self->_doFcntl( $fh, F_SETLKW, $flags );
+    flock( $fh, $lockMod );
 }
 
 sub _unlockStatus {
     my ($self) = @_;
 
     my $fh = $self->{statusFH};
-    sysseek( $fh, 0, SEEK_SET );
-    my $flags = pack( 'ssx4qqlx4', F_UNLCK, 0, 0, 0, 0 );
-
-    $self->_doFcntl( $fh, F_SETLKW, $flags );
+    flock( $fh, LOCK_UN );
 }
 
 #md5:xxxxx
@@ -187,10 +149,24 @@ sub _saveStatus {
     my $jsonStr = to_json( $self->{status} );
     my $fh      = $self->{statusFH};
 
+    $fh->seek( 0, 0 );
     truncate( $fh, 0 );
     syswrite( $fh, $jsonStr );
 
     $self->_unlockStatus(0);
+}
+
+sub _setStatus {
+    my ( $self, %args ) = @_;
+
+    my $preStatus = $self->{status}->{status};
+
+    foreach my $key ( keys(%args) ) {
+        $self->{status}->{$key} = $args{$key};
+    }
+    $self->_saveStatus();
+
+    return $preStatus;
 }
 
 sub updateStatus {

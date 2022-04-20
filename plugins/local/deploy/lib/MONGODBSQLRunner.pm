@@ -20,6 +20,7 @@ sub new {
     my $logFilePath   = $args{logFilePath};
     my $toolsDir      = $args{toolsDir};
     my $tmpDir        = $args{tmpDir};
+    my $isInteract    = $args{isInteract};
 
     my $dbStr        = $dbInfo->{dbStr};
     my $dbType       = $dbInfo->{dbType};
@@ -56,6 +57,12 @@ sub new {
     $self->{PROMPT}       = ':PRIMARY>\s$';
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
+    $self->{warningCount} = 0;
+
+    if ( not defined($isInteract) ) {
+        $isInteract = 0;
+    }
+    $self->{isInteract} = $isInteract;
 
     if ( defined($sqlFile) and $sqlFile ne '' ) {
         my $sqlDir      = dirname($sqlFile);
@@ -187,7 +194,7 @@ sub run {
 
             if ( $autocommit == 0 ) {
                 my $opt;
-                if ( exists( $ENV{IS_INTERACT} ) ) {
+                if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
@@ -346,8 +353,7 @@ sub run {
         }
     }
 
-    $ENV{WARNING_COUNT} = $warningCount;
-    $ENV{HAS_ERROR}     = $hasError;
+    $self->{warningCount} = $warningCount;
 
     return $isFail;
 }

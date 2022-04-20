@@ -4,6 +4,9 @@ use strict;
 package DeployUtils;
 use Cwd;
 use Crypt::RC4;
+use Encode;
+use Encode::Guess;
+use JSON;
 
 use ServerAdapter;
 use AutoExecUtils;
@@ -41,6 +44,7 @@ sub deployInit {
     my $deployEnv = {};
     $deployEnv->{JOB_ID}     = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID}  = $ENV{RUNNER_ID};
+    $deployEnv->{_SQL_FILES} = $ENV{_SQL_FILES};
     $deployEnv->{BUILD_NO}   = $buildNo;
     $deployEnv->{IS_RELEASE} = $isRelease;
 

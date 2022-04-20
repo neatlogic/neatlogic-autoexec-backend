@@ -21,6 +21,7 @@ sub new {
     my $logFilePath   = $args{logFilePath};
     my $toolsDir      = $args{toolsDir};
     my $tmpDir        = $args{tmpDir};
+    my $isInteract    = $args{isInteract};
 
     my $dbType       = $dbInfo->{dbType};
     my $dbName       = $dbInfo->{sid};
@@ -54,6 +55,12 @@ sub new {
     $self->{PROMPT}       = qr/1> $/is;
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
+    $self->{warningCount} = 0;
+
+    if ( not defined($isInteract) ) {
+        $isInteract = 0;
+    }
+    $self->{isInteract} = $isInteract;
 
     if ( $charSet eq 'UTF-8' ) {
         $ENV{LANG} = 'en_US.UTF8';
@@ -203,7 +210,7 @@ sub run {
 
             if ( $isAutoCommit == 1 ) {
                 print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
-                if ( exists( $ENV{IS_INTERACT} ) ) {
+                if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
                 }
@@ -217,7 +224,7 @@ sub run {
                 $spawn->soft_close();
             }
             else {
-                if ( exists( $ENV{IS_INTERACT} ) ) {
+                if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Running with error, please select action(commit|rollback)', $pipeFile );
                 }
@@ -378,8 +385,7 @@ sub run {
         );
     }
 
-    $ENV{WARNING_COUNT} = $warningCount;
-    $ENV{HAS_ERROR}     = $hasError;
+    $self->{warningCount} = $warningCount;
 
     return $isFail;
 }

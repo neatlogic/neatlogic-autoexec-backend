@@ -200,10 +200,49 @@ sub getAppPassWord {
     #TODO: 譬如F5、A10、DNS服务等API的密码
 }
 
-sub saveSqlFilesStatus {
+sub getSqlFileStatuses {
+    my ( $self, $jobId, $deployEnv ) = @_;
+    if ( defined($deployEnv) ) {
+
+        #TODO:获取应用发布某个环境的所有的SQL状态List
+    }
+    else {
+        #TODO:获取某个作业的所有的SQL状态List
+    }
+
+    #格式：
+    my $sqlInfoList = [
+
+        # {
+        #     resourceId     => $nodeInfo->{resourceId},
+        #     nodeName       => $nodeInfo->{nodeName},
+        #     host           => $nodeInfo->{host},
+        #     port           => $nodeInfo->{port},
+        #     accessEndpoint => $nodeInfo->{accessEndpoint},
+        #     sqlFile        => $sqlFile,
+        #     status         => $preStatus,
+        #     md5            => $md5Sum
+        # },
+        # {
+        #     resourceId     => $nodeInfo->{resourceId},
+        #     nodeName       => $nodeInfo->{nodeName},
+        #     host           => $nodeInfo->{host},
+        #     port           => $nodeInfo->{port},
+        #     accessEndpoint => $nodeInfo->{accessEndpoint},
+        #     sqlFile        => $sqlFile,
+        #     status         => $preStatus,
+        #     md5            => $md5Sum
+        # }
+    ];
+
+    return $sqlInfoList;
+}
+
+sub checkInSqlFiles {
     my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
 
-    #$sqlInfo格式
+    #$sqlInfoList格式
+    #服务端接受到次信息，只需要增加不存在的SQL记录即可，已经存在的不需要更新
     # [
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
@@ -252,6 +291,7 @@ sub pushSqlStatus {
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
 
     #TODO: 更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
+    print("DEBUG: update sql status to server.\n");
     print Dumper($sqlFilesStatus);
     return;
 }
