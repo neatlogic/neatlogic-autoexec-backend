@@ -7,6 +7,7 @@ use BuildLock;
 use Getopt::Long;
 use JSON;
 use VerGet;
+use BuildLock;
 use ServerAdapter;
 
 sub usage {

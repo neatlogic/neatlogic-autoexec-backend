@@ -13,6 +13,7 @@ use DeployUtils;
 use ServerAdapter;
 use BuildUtils;
 use FileUtils;
+use BuildLock;
 
 sub usage {
     my $pname = $FindBin::Script;

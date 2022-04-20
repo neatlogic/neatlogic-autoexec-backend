@@ -11,6 +11,7 @@ use Getopt::Long;
 Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
+use BuildLock;
 use ServerAdapter;
 use VerGet;
 
