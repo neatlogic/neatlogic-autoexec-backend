@@ -157,6 +157,19 @@ sub _saveStatus {
     $self->_unlockStatus(0);
 }
 
+sub _setStatus {
+    my ( $self, %args ) = @_;
+
+    my $preStatus = $self->{status}->{status};
+
+    foreach my $key ( keys(%args) ) {
+        $self->{status}->{$key} = $args{$key};
+    }
+    $self->_saveStatus();
+
+    return $preStatus;
+}
+
 sub updateStatus {
     my ( $self, %args ) = @_;
 

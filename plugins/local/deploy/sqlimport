@@ -149,7 +149,7 @@ sub main {
 
     my $sqlFileInfos  = $sqlFileRunner->{sqlFileInfos};
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos );
+    $serverAdapter->checkInSqlFiles( $jobId, $sqlFileInfos );
 
     return $ret;
 }

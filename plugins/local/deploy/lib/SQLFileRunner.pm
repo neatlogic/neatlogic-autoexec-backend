@@ -254,7 +254,7 @@ sub execOneSqlFile {
         if ( $rc > 0 ) {
             $hasError = 1;
             if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
-                $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+                $sqlFileStatus->updateStatus( status => 'aborted' );
             }
         }
         else {
@@ -383,17 +383,27 @@ sub execOneSqlFile {
             $hasError = 1;
         }
 
+        my $endStatus;
         if ( $hasError == 0 ) {
-            $sqlFileStatus->updateStatus( status => 'succeed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+            my $preStatus = $sqlFileStatus->getStatusValue('status');
+            if ( $preStatus eq 'waitInput' ) {
+                $endStatus = 'ignored';
+            }
+            else {
+                $endStatus = 'succeed';
+            }
+
+            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $ENV{WARNING_COUNT}, endTime => time() );
         }
         else {
-            $sqlFileStatus->updateStatus( status => 'failed', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+            $endStatus = 'failed';
+            $sqlFileStatus->updateStatus( status => $endStatus, warnCount => $ENV{WARNING_COUNT}, endTime => time() );
         }
 
         my $consumeTime = time() - $startTime;
         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
         print( "= End\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
-        print("= Status=$sqlFileStatus->{status}->{status}\n");
+        print("= Status=$endStatus\n");
         print("= Elapsed time: $consumeTime seconds.\n");
         print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
 
@@ -744,6 +754,26 @@ sub checkSqlFiles {
     }
 
     return $hasError;
+}
+
+sub restoreSqlStatuses {
+    my ( $self, $sqlInfoList ) = @_;
+
+    my $sqlFileDir = $self->{sqlFileDir};
+    foreach my $sqlInfo (@$sqlInfoList) {
+        my $sqlFile       = $sqlInfo->{sqlFile};
+        my $status        = $sqlInfo->{status};
+        my $md5           = $sqlInfo->{md5};
+        my $sqlFileStatus = SQLFileStatus->new(
+            $sqlFile,
+            jobId        => $self->{jobId},
+            deployEnv    => $self->{deployEnv},
+            sqlStatusDir => $self->{sqlStatusDir},
+            istty        => $self->{istty}
+        );
+
+        $sqlFileStatus->_setStatus( status => $status, md5 => $md5 );
+    }
 }
 
 sub checkDBSchemas {

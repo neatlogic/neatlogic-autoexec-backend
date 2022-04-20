@@ -149,6 +149,10 @@ sub main {
 
     my $hasError = 0;
     my $ret      = 0;
+
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+    $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+
     $ret      = $sqlFileRunner->checkSqlFiles();
     $hasError = $hasError + $ret;
 
@@ -157,7 +161,7 @@ sub main {
     $hasError = $hasError + $ret;
 
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    $serverAdapter->saveSqlFilesStatus( $jobId, $sqlFileInfos, $deployEnv );
+    $serverAdapter->checkInSqlFiles( $jobId, $sqlFileInfos, $deployEnv );
 
     return $hasError;
 }
