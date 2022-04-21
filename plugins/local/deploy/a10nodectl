@@ -44,29 +44,29 @@ sub main {
 
     usage() if ( defined($isHelp) );
 
-    my $hasOptError = 0;
+    my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --envpath.\n");
     }
 
     if ( not defined($a10Url) or $a10Url eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --baseurl.\n");
     }
 
     if ( not defined($user) or $user eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --username.\n");
     }
 
     if ( not defined($pool) or $pool eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --pool.\n");
     }
 
     if ( $action ne 'disable' and $action ne 'enable' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: action must to be enable or disable.\n");
     }
 
@@ -76,17 +76,22 @@ sub main {
     }
 
     if ( not defined($node) or $node eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
     }
     else {
         $nodeInfo = from_json($node);
     }
 
-    if ( $hasOptError == 1 ) {
+    my $deployEnv = DeployUtils->deployInit($envPath);
+    $envPath = $deployEnv->{NAME_PATH};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( $optionError == 1 ) {
         usage();
     }
-
-    my $buildEnv = DeployUtils->deployInit($envPath);
 
     my $hasError = 0;
     if ( not defined($pass) or $pass eq '' ) {

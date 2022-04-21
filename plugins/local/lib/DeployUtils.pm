@@ -7,6 +7,9 @@ use Crypt::RC4;
 use Encode;
 use Encode::Guess;
 use JSON;
+use File::Find;
+use File::Path;
+use File::Copy;
 
 use ServerAdapter;
 use AutoExecUtils;
@@ -465,6 +468,26 @@ sub convToUTF8 {
         $content = Encode::encode( 'utf-8', Encode::decode( $TERM_CHARSET, $content ) );
     }
 
+    return $content;
+}
+
+sub charsetConv {
+    my ( $self, $content, $from ) = @_;
+
+    my $encoding;
+    my $lang = $ENV{LANG};
+    if ( not defined($lang) or $lang eq '' ) {
+        $ENV{LANG} = 'en_US.UTF-8';
+        $encoding = 'utf-8';
+    }
+    else {
+        $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
+        $encoding = 'utf-8' if ( $encoding eq 'utf8' );
+    }
+
+    if ( $from ne $encoding ) {
+        $content = Encode::encode( $encoding, Encode::decode( $from, $content ) );
+    }
     return $content;
 }
 

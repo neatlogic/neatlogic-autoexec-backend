@@ -69,11 +69,11 @@ sub main {
     );
 
     #$ENV{IS_INTERACT} = 1;
-    my $hasOptError = 0;
+    my $optionError = 0;
 
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
     if ( not defined($phaseName) or $phaseName eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
     }
 
@@ -82,16 +82,27 @@ sub main {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
-    if ( $hasOptError == 1 ) {
-        usage();
-    }
-
     my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
     if ( not defined($jobPath) or $jobPath eq '' ) {
         $jobPath = getcwd();
     }
 
     my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
     my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
 
     #作业目录，日志

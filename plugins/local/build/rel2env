@@ -3,6 +3,7 @@ use strict;
 use FindBin;
 use Cwd;
 use Getopt::Long;
+use File::Path;
 
 use DeployUtils;
 use BuildLock;
@@ -31,16 +32,29 @@ sub main {
     usage() if ( defined($isHelp) );
     my $optionError = 0;
 
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: must defined option --envpath and --version.\n");
+    usage() if ( $optionError == 1 );
+    my $deployUtils = DeployUtils->new();
+
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
         $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
     }
 
-    usage() if ( $optionError == 1 );
-
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
+    my $envName   = $buildEnv->{ENV_NAME};
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
 
@@ -49,56 +63,70 @@ sub main {
         return 3;
     }
 
-    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $releaseDir = $dirInfo->{release};
     my $distDir    = $dirInfo->{distribute};
 
-    my $ret = 0;
-    if ( -e "$distDir/app" ) {
-        $ret = system("rm -rf '$distDir/app'");
+    my $hasError = 0;
+    my $ret      = 0;
+    if ( not -e $distDir ) {
+        if ( not mkpath($distDir) ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Can not Create directory:$distDir $!\n");
+        }
     }
 
-    if ( $ret != 0 ) {
-        return $ret;
+    if ( -e "$distDir/app" ) {
+        if ( not rmtree("$distDir/app") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/app failed, $!\n");
+        }
     }
 
     if ( -e "$distDir/db" ) {
-        $ret = system("rm -rf '$distDir/db'");
-    }
-
-    if ( $ret != 0 ) {
-        return $ret;
+        if ( not rmtree("$distDir/db") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/db failed, $!\n");
+        }
     }
 
     if ( -e "$distDir/doc" ) {
-        $ret = system("rm -rf '$distDir/doc'");
+        if ( not rmtree("$distDir/doc") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/doc failed, $!\n");
+        }
     }
 
-    if ( $ret != 0 ) {
-        return $ret;
+    if ( $hasError > 0 ) {
+        return $hasError;
     }
 
+    my $relItemCount = 0;
+    print("INFO: Try to release $namePath $version build:$buildNo to $envName...\n");
     if ( -d "$releaseDir/app" ) {
-        $ret = system("cp -rf '$releaseDir/app' '$distDir/'");
-    }
-
-    if ( $ret != 0 ) {
-        return $ret;
+        $deployUtils->copyTree( "$releaseDir/app", "$distDir/" );
+        $relItemCount = $relItemCount + 1;
+        print("INFO: Release application to $envName success.\n");
     }
 
     if ( -d "$releaseDir/db" ) {
-        $ret = system("cp -rf '$releaseDir/db' '$distDir/'");
-    }
-
-    if ( $ret != 0 ) {
-        return $ret;
+        $deployUtils->copyTree( "$releaseDir/db", "$distDir/" );
+        $relItemCount = $relItemCount + 1;
+        print("INFO: Release DB scripts to $envName success.\n");
     }
 
     if ( -d "$releaseDir/doc" ) {
-        $ret = system("cp -rf '$releaseDir/doc' '$distDir/'");
+        $deployUtils->copyTree( "$releaseDir/doc", "$distDir/" );
+        $relItemCount = $relItemCount + 1;
+        print("INFO: Release documents to $envName success.\n");
     }
 
-    return $ret;
+    if ( $relItemCount == 0 ) {
+        print("WARN: Artifacts of $namePath $version build:$buildNo are empty.\n");
+    }
+
+    print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
+    return $hasError;
 }
 
 exit main();

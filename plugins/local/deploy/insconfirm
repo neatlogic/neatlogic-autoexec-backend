@@ -66,12 +66,6 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
-    if (   not defined($envPath)
-        or not defined($version) )
-    {
-        print("ERROR: must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
 
     my $nodeInfo = {};
     if ( not defined($node) ) {
@@ -85,10 +79,6 @@ sub main {
         $nodeInfo = from_json($node);
     }
 
-    if ( $optionError == 1 ) {
-        usage();
-    }
-
     my $pauseInsNames = {};
 
     foreach my $pauseInsName (@insNames) {
@@ -96,10 +86,24 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
 
-    my $insId   = $buildEnv->{INS_ID};
-    my $insName = $buildEnv->{INS_NAME};
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $insId   = $deployEnv->{INS_ID};
+    my $insName = $deployEnv->{INS_NAME};
 
     if ( defined($insId) ) {
         if ( defined( $pauseInsNames->{$insName} ) ) {

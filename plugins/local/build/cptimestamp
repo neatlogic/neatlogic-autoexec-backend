@@ -85,21 +85,31 @@ sub main {
         'dest=s'      => \$dest
     );
 
+    usage() if ( defined($isHelp) );
+
     my $optionError = 0;
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: Must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
 
     if ( not defined($src) or not defined($dest) ) {
         print("ERROR: Must defined option --src and --dest.\n");
         $optionError = 1;
     }
 
-    usage() if ( defined($isHelp) );
-    usage() if ( $optionError == 1 );
-
     my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
     my $namePath = $buildEnv->{NAME_PATH};
     my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
 

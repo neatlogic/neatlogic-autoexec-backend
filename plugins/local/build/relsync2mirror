@@ -68,8 +68,6 @@ sub main {
     my $needBackup = 0;
     my $isRollback = 0;
 
-    Utils::setEnv();
-
     GetOptions(
         'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
@@ -78,6 +76,7 @@ sub main {
         'blacklist=s' => \$schemaBlackList,
         'nodelete=i'  => \$noDelete,
         'noattrs=i'   => \$noAttrs,
+        'backup=i'    => \$needBackup,
         'rollback=i'  => \$isRollback,
         'nomd5=i'     => \$noMd5,
         'md5check=i'  => \$md5Check,
@@ -88,28 +87,46 @@ sub main {
     );
 
     usage() if ( defined($isHelp) );
-    usage() if ( not defined($envPath) or $envPath eq '' );
-    usage() if ( not defined($version) );
 
     $needMd5   = 0 if ( $noMd5 == 1 );
     $needMTime = 0 if ( $noMTime == 1 );
 
-    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
-    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
-    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
+    my $deployUtils = DeployUtils->new();
+    $src    = $deployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
+    my $envName   = $buildEnv->{ENV_NAME};
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
+
+    my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
 
     if ( $isRelease != 1 ) {
         print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
         return 3;
     }
 
-    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $releaseDir = $dirInfo->{release};
     my $distDir    = $dirInfo->{distribute};
     my $mirrorDir  = $dirInfo->{mirror};
@@ -149,12 +166,25 @@ sub main {
         $dest     = $destPath;
     }
 
-    mkpath($dest) if ( not -e $dest );
+    if ( not -e $dest ) {
+        if ( not mkpath($dest) ) {
+            print("ERROR: Create directory $dest failed, $!\n");
+            return 3;
+        }
+    }
 
+    print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName(mirror)...\n");
     my $isFail      = 0;
     my $insDiffDest = "$dest.ins";
     eval {
-        my $syncExec = new SyncLocalFile( $version, $needMd5, $needBackup, $needMTime );
+        my $syncExec = new SyncLocalFile(
+            version => $version,
+            md5     => $needMd5,
+            backup  => $needBackup,
+            mtime   => $needMTime,
+            tmpDir  => $tmpDir
+        );
+
         if ($isRollback) {
             $syncExec->rollback( $src, $dest );
         }
@@ -181,7 +211,12 @@ sub main {
                 }
             }
 
-            my $dbSyncExec = new SyncLocalFile( $version, 1, 0 );
+            my $dbSyncExec = new SyncLocalFile(
+                version => $version,
+                md5     => 1,
+                backup  => 0
+            );
+
             $dbSyncExec->upgradeFiles( $dbSrc, $dbDest, $dbExpDirs );
         }
 
@@ -223,10 +258,10 @@ sub main {
     }
 
     if ( $isFail != 0 ) {
-        print("ERROR: $pname $namePath version:$version failed.\n");
+        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName(mirror) faled.\n");
     }
     else {
-        print("FINEST: $pname $namePath version:$version success.\n");
+        print("FINEST: Release(sync) $namePath $version build:$buildNo to $envName(mirror) success.\n");
     }
 
     return $isFail;

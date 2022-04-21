@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package SyncFile;
+package SyncLocal2Remote;
 use FindBin;
 use IO::File;
 use Expect;
@@ -16,16 +16,19 @@ use TagentClient;
 $Expect::Multiline_Matching = 0;
 use Cwd 'realpath';
 
-use Term::ANSIColor qw(uncolor);
-use Term::ANSIColor qw(:constants);
-$Term::ANSIColor::AUTORESET = 1;
-
 sub new {
-    my ( $pkg, $port ) = @_;
-    my $self = {};
-    $self->{port} = $port;
-    my $tmpdir = Cwd::abs_path("$FindBin::Bin/../tmp");
-    $self->{tmpdir} = $tmpdir;
+    my ( $pkg, %args ) = @_;
+
+    if ( not defined( $args{tmpDir} ) ) {
+        $args{tmpDir} = '/tmp';
+    }
+
+    my $self = {
+        port        => $args{port},
+        tmpdir      => $args{tmpDir},
+        tmpDir      => $args{tmpDir},
+        deployUtils => DeployUtils->new()
+    };
 
     bless( $self, $pkg );
 
@@ -60,6 +63,8 @@ sub allRemoteFiles {
     my ( $filePath, $fileTime, $fileMode );
     my ( %outfiles, %outdirs );
 
+    my $deployUtils = $self->{deployUtils};
+
     my $getFileInfoLine = sub {
         my ( $line, $outfiles, $outdirs ) = @_;
 
@@ -86,7 +91,7 @@ sub allRemoteFiles {
         }
     };
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "begin sync, it will take a few minutes...\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "begin sync, it will take a few minutes...\n" );
 
     my $calcPerlSub = q{
     sub isExceptMatch {
@@ -189,7 +194,7 @@ sub allRemoteFiles {
 
     my $cmd = $calcPerlSub . qq{mkdir("$inPath") if (not -e "$inPath"); exit(searchrecusion("$inPath","$xPath"));};
     if ( $ostype eq 'windows' ) {
-        my $nowdate    = DeployUtils->getDate();
+        my $nowdate    = $deployUtils->getDate();
         my $pmFileName = ".$inIP\_$instanceName\_update_$nowdate.pm";
         my $fh         = new IO::File("> /tmp/$pmFileName");
         die("ERROR: Create update script file:$pmFileName failed.\n") if ( not defined($fh) );
@@ -381,6 +386,7 @@ sub spawnSSHCmd {
         ]
     );
 
+    my $deployUtils = $self->{deployUtils};
     if ( $isClosed == 0 ) {
         my $isLogin = 0;
         $spawn->expect(
@@ -389,7 +395,7 @@ sub spawnSSHCmd {
                 "\n" => sub {
                     if ( $isLogin == 0 ) {
                         $isLogin = 1;
-                        print( 'INFO: ' . DeployUtils->getTimeForLog() . "server $inUser\@$inIP:$port conntected.\n" );
+                        print( 'INFO: ' . $deployUtils->getTimeForLog() . "server $inUser\@$inIP:$port conntected.\n" );
                     }
                     $lastLine = $spawn->before();
                     $callback->( $lastLine, @cbparams ) if ( defined($callback) );
@@ -576,7 +582,9 @@ sub upgradeFiles {
     my ( $allSrcFiles, $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile, $srcDir, $tgtFile, $tgtDir, $hasTar );
     my ( $allSrcFilesPrefix, $allSrcDirsPrefix );
     my ( $srcStat, $tgtStat, $srcMode, $tgtMode );
-    my $nowdate = DeployUtils->getDate();
+
+    my $deployUtils = $self->{deployUtils};
+    my $nowdate     = $deployUtils->getDate();
 
     my $cmdStr            = '';
     my $cmdStr_forwindows = '';    #用来调整语句顺序，把删除语句写到创建语句之前，这样可以回避windows特有的文件名不分大小写的问题
@@ -606,8 +614,8 @@ sub upgradeFiles {
         $instanceName = '';
     }
 
-    my @allSrcPath  = split( ',', $sourcePaths );
-    my $tarPath     = realpath( $allSrcPath[0] . '/..' );
+    my @allSrcPath = split( ',', $sourcePaths );
+
     my $tarFileName = ".$targetIP\_$instanceName\_update_$nowdate.tar";
     my $shFileName;
     if ( $ostype eq 'windows' ) {
@@ -625,6 +633,10 @@ sub upgradeFiles {
         }
     }
 
+    my $TMPDIR = $self->{tmpDir};
+    my $tarPath = File::Temp->newdir( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.sync' );
+
+    #my $tarPath     = realpath( $allSrcPath[0] . '/..' );
     if ( -e "$tarPath/$tarFileName" ) {
         unlink("$tarPath/$tarFileName");    #删除tar文件，防止原来存在这样的文件
     }
@@ -632,9 +644,9 @@ sub upgradeFiles {
         unlink("$tarPath/$shFileName");     #删除脚本文件
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "begin get remote files info...\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get remote files info...\n" );
     ( $allTgtFiles, $allTgtDirs ) = $self->allRemoteFiles( $ostype, $targetUser, $targetPwd, $targetIP, $instanceName, $targetPath, $inExceptDirs, $agentType, $followLinks );
-    print( "INFO: " . DeployUtils->getTimeForLog() . "get remote files info complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "get remote files info complete.\n" );
 
     #print BLUE "\n--------------------------------------------------- $allTgtFiles -------------------------------------------------\n";
     #for ( sort keys %$allTgtFiles ) {
@@ -659,9 +671,9 @@ sub upgradeFiles {
         if ( not -e $sourcePath ) {
             die("ERROR: Source path:$sourcePath not exists or permission deny.");
         }
-        print( "INFO: " . DeployUtils->getTimeForLog() . "begin to find file info for $sourcePath...\n" );
+        print( "INFO: " . $deployUtils->getTimeForLog() . "begin to find file info for $sourcePath...\n" );
         my ( $srcFiles, $srcDirs ) = $self->allLocalFiles( $sourcePath, $inExceptDirs );
-        print( "INFO: " . DeployUtils->getTimeForLog() . "find file info for $sourcePath complete.\n" );
+        print( "INFO: " . $deployUtils->getTimeForLog() . "find file info for $sourcePath complete.\n" );
 
         #print GREEN "\n--------------------------------------------------- $allTgtFiles -------------------------------------------------\n";
         #for ( sort keys %$srcFiles ) {
@@ -683,7 +695,7 @@ sub upgradeFiles {
         map { $$allSrcDirs{$_}  = $$srcDirs{$_};  $$allSrcDirsPrefix{$_}  = $sourcePath; } ( keys(%$srcDirs) );
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "begin to compare local and remote files info...\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "begin to compare local and remote files info...\n" );
     my $needCreateTar = 1;
     my ( @updatedFiles, @newFiles, @oldFiles, @delFiles, @newDirs, @modDirs, @delDirs );
     foreach $sourcePath (@allSrcPath) {
@@ -722,7 +734,7 @@ sub upgradeFiles {
                             if ( $$srcStat[1] ne $$tgtStat[1] and $ostype ne 'windows' ) {
 
                                 #print("预更改$srcFile权限为", $$srcStat[1], "\n");
-                                $chmodCmdStr = "chmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcFile) . " || exit 1\n$chmodCmdStr";
+                                $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcFile) . " || exit 1\n$chmodCmdStr";
                             }
                         }
                     }
@@ -751,7 +763,7 @@ sub upgradeFiles {
                     if ( ( not defined($noAttrs) or $noAttrs eq 0 ) and $ostype ne 'windows' ) {
 
                         #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
                     }
                 }
                 else {
@@ -761,7 +773,7 @@ sub upgradeFiles {
                             push( @modDirs, $srcDir );
 
                             #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                            $chmodCmdStr = "chmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                            $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
                         }
                         else {
                             my $mode = oct( $$tgtStat[1] );
@@ -778,14 +790,19 @@ sub upgradeFiles {
             $hasTar = 1;
             my $cmd = "tar r${followLinksOpt}f $tarPath/$tarFileName";
             if ( $needCreateTar == 1 ) {
-                $cmd           = "tar --warning=no-file-changed -c${followLinksOpt}f $tarPath/$tarFileName";
+                $cmd           = "tar -c${followLinksOpt}f $tarPath/$tarFileName";
                 $needCreateTar = 0;
             }
 
+            my $hasTarFile = 0;
             foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
-                $cmd = $cmd . ' ' . DeployUtils->escapeQuote($file);
+                $hasTarFile = 1;
+                $cmd        = $cmd . ' ' . $deployUtils->escapeQuote($file);
             }
-            my $rc = DeployUtils->execmd($cmd);
+            my $rc = 0;
+            if ( $hasTarFile == 1 ) {
+                $rc = $deployUtils->execmd($cmd);
+            }
             if ( $rc ne 0 and $rc ne 1 ) {
                 print("ERROR: Package and update files failed.\n");
                 exit(-1);
@@ -793,12 +810,12 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "files info cmpare and delta tar file generation complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "files info cmpare and delta tar file generation complete.\n" );
 
     #更改tar文件权限
     if ( -e "$tarPath/$tarFileName" ) {
 
-        #DeployUtils->execmd("chmod 664 $tarPath/$tarFileName");
+        #$deployUtils->execmd("chmod 664 $tarPath/$tarFileName");
         chmod( 0664, "$tarPath/$tarFileName" );
         print("$targetIP:Create tar:$tarPath/$tarFileName complete.\n");
     }
@@ -814,7 +831,7 @@ sub upgradeFiles {
                         if ( $tmp_tgtFile ne $shFileName );    #防止在bat文件中出现删掉它自己的命令
                 }
                 else {
-                    $cmdStr = "${cmdStr}if [ -e " . DeployUtils->escapeQuote($tgtFile) . " ]; then rm -f " . DeployUtils->escapeQuote($tgtFile) . " || exit 1; fi\n";
+                    $cmdStr = "${cmdStr}if [ -e " . $deployUtils->escapeQuote($tgtFile) . " ]; then rm -f " . $deployUtils->escapeQuote($tgtFile) . " || exit 1; fi\n";
                 }
                 push( @delFiles, $tgtFile );
 
@@ -829,7 +846,7 @@ sub upgradeFiles {
                     $cmdStr = "${cmdStr}if exist \"" . $tmp_tgtDir . "\" rmdir /s /q \"" . $tmp_tgtDir . "\"\n";
                 }
                 else {
-                    $cmdStr = "${cmdStr}if [ -e " . DeployUtils->escapeQuote($tgtDir) . " ]; then  rm -rf " . DeployUtils->escapeQuote($tgtDir) . " || exit 1; fi\n";
+                    $cmdStr = "${cmdStr}if [ -e " . $deployUtils->escapeQuote($tgtDir) . " ]; then  rm -rf " . $deployUtils->escapeQuote($tgtDir) . " || exit 1; fi\n";
                 }
                 push( @delDirs, $tgtDir );
 
@@ -840,12 +857,12 @@ sub upgradeFiles {
 
     if ( $ostype eq 'windows' ) { $cmdStr .= $cmdStr_forwindows }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "files delete shell script generation complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "files delete shell script generation complete.\n" );
 
     #如果有更新的文件则将文件拷贝到远程端
     if ( $hasTar == 1 ) {
         $self->remoteCopy( $agentType, $targetUser, $targetPwd, $targetIP, "$tarPath/$tarFileName", $targetPath, 1, 0 );
-        print( "INFO: " . DeployUtils->getTimeForLog() . "$targetIP: copy tar file complete.\n" );
+        print( "INFO: " . $deployUtils->getTimeForLog() . "$targetIP: copy tar file complete.\n" );
         if ( $ostype eq 'windows' ) {
             $cmdStr = $cmdStr . "7z x $tarFileName -y\n";
         }
@@ -913,13 +930,13 @@ sub upgradeFiles {
         print("Run script on $targetUser\@$targetIP complete.\n");
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "execute update script complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "execute update script complete.\n" );
 
     #将更新情况输出
     my $hasDiff = 0;
     my $hasMd5  = 0;
     my $file;
-    print( "==============", DeployUtils->getDateTimeForLog(), "===============\n" );
+    print( "==============", $deployUtils->getDateTimeForLog(), "===============\n" );
     foreach $file (@newDirs) {
         $hasDiff = 1;
         print("New Dir:$file\n");
