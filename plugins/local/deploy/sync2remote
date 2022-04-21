@@ -72,21 +72,28 @@ sub main {
     );
 
     my $optionError = 0;
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
-
     if ( not defined($dest) ) {
         print("ERROR: must defined option --dest.\n");
         $optionError = 1;
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
-    my $dirInfo     = $deployUtils->getDataDirStruct($buildEnv);
-    my $verPath     = $dirInfo->{$pdir};
-    my $verRoot     = $dirInfo->{appRoot};
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
+    my $verPath = $dirInfo->{$pdir};
+    my $verRoot = $dirInfo->{appRoot};
 
     if ( defined($pdir) ) {
         if ( not defined($verPath) ) {
@@ -107,7 +114,9 @@ sub main {
         $nodeInfo = from_json($node);
     }
 
-    usage() if ( $optionError == 1 );
+    if ( $optionError == 1 ) {
+        usage();
+    }
 
     if ( not defined($ostype) or $ostype eq '' ) {
         $ostype = 'unix';
@@ -121,10 +130,10 @@ sub main {
     $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
     $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $envName = $buildEnv->{ENV_NAME};
+    my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
-    my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
+    my $tmpDir = $deployEnv->{AUTOEXEC_HOME} . '/tmp';
 
     my $host    = $nodeInfo->{host};
     my $port    = $nodeInfo->{protocolPort};

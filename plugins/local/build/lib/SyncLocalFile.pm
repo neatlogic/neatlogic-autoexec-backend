@@ -8,7 +8,7 @@ use IO::File;
 use File::Path;
 use File::Basename;
 use Digest::MD5;
-use Cwd 'realpath';
+use Cwd qw(realpath);
 use File::Find;
 use File::Copy;
 use File::Temp;
@@ -251,9 +251,15 @@ sub upgradeFiles {
     if ( $sourcePath eq '' ) {
         die('ERROR: Source directory not defined.');
     }
+    elsif ( not -e $sourcePath ) {
+        die("ERROR: Source directory:$sourcePath not exists.");
+    }
 
     if ( $targetPath eq '' ) {
         die('ERROR: Destination directory not defined.');
+    }
+    elsif ( not -e $targetPath ) {
+        die("ERROR: Destination directory:$targetPath not exists.");
     }
 
     my $version = $self->{version};

@@ -47,35 +47,35 @@ sub main {
 
     $| = 1;
 
-    my $hasOptError = 0;
+    my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --envpath.\n");
     }
 
     if ( not defined($f5Url) or $f5Url eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --baseurl.\n");
     }
 
     if ( not defined($user) or $user eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --username.\n");
     }
 
     if ( not defined($pool) or $pool eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: must define --pool.\n");
     }
 
     if ( $action ne 'disable' and $action ne 'enable' ) {
-        $hasOptError = 1;
+        $optionError = 1;
         print("ERROR: action must to be enabled or disabled.\n");
     }
 
     if ( $action ne 'disable' ) {
         if ( defined $waitDisConnected ) {
-            $hasOptError = 1;
+            $optionError = 1;
             print("ERROR: when --action defined disable, should be define --waitdisconnected. \n");
         }
     }
@@ -93,13 +93,13 @@ sub main {
     }
 
     if ( not defined($node) or $node eq '' ) {
-        $hasOptError = 1;
+        $optionError = 1;
     }
     else {
         $nodeInfo = from_json($node);
     }
 
-    if ( $hasOptError == 1 ) {
+    if ( $optionError == 1 ) {
         usage();
     }
 
@@ -108,6 +108,17 @@ sub main {
         #TODO: F5密码的获取方法需要修改
         my $serverAdapter = ServerAdapter->new();
         $pass = $serverAdapter->getAppPassWord( $f5Url, $user );
+    }
+
+    my $deployEnv = DeployUtils->deployInit($envPath);
+    $envPath = $deployEnv->{NAME_PATH};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
     }
 
     my $hasError = 0;
