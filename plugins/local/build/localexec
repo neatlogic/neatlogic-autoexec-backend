@@ -66,7 +66,7 @@ sub main {
     }
 
     my $isFail = 0;
-    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- $cmd") != 0 ) {
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
         print("ERROR: exec $cmd has error.\n");
         $isFail = 1;
     }

@@ -105,9 +105,11 @@ sub main {
     $lock->lockWorkspace($BuildLock::EXCLUDE);
 
     my $destDir = "$releasePath/app";
-    if ( not rmtree($destDir) ) {
-        print("ERROR: Remove directory $destDir failed, $!\n");
-        return 4;
+    if ( -e $destDir ) {
+        if ( not rmtree($destDir) ) {
+            print("ERROR: Remove directory $destDir failed, $!\n");
+            return 4;
+        }
     }
     if ( not mkpath($destDir) ) {
         print("ERROR: Create directory $destDir failed, $!\n");
