@@ -17,11 +17,17 @@ use DeployUtils;
 use TagentClient;
 
 sub new {
-    my ( $pkg, $port ) = @_;
-    my $self = {};
+    my ( $pkg, %args ) = @_;
 
-    #$self->{'sshport'} = $port;
-    $self->{'port'} = $port;
+    if ( not defined( $args{tmpDir} ) ) {
+        $args{tmpDir} = '/tmp';
+    }
+
+    my $self = {
+        port   => $args{port},
+        tmpdir => $args{tmpDir},
+        tmpDir => $args{tmpDir}
+    };
 
     bless( $self, $pkg );
 

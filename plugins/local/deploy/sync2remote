@@ -5,8 +5,9 @@ use FindBin;
 use File::Basename;
 use Cwd 'realpath';
 use Getopt::Long;
+use JSON;
 
-use SyncFile;
+use SyncLocal2Remote;
 use SyncRemote2Local;
 use DeployUtils;
 use BuildLock;
@@ -81,10 +82,11 @@ sub main {
         $optionError = 1;
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
-    my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
-    my $verPath  = $dirInfo->{$pdir};
-    my $verRoot  = $dirInfo->{appRoot};
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $dirInfo     = $deployUtils->getDataDirStruct($buildEnv);
+    my $verPath     = $dirInfo->{$pdir};
+    my $verRoot     = $dirInfo->{appRoot};
 
     if ( defined($pdir) ) {
         if ( not defined($verPath) ) {
@@ -115,12 +117,14 @@ sub main {
         $agentType = 'agentless';
     }
 
-    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
-    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
-    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
+    $src    = $deployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
     my $envName = $buildEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
+
+    my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
 
     my $host    = $nodeInfo->{host};
     my $port    = $nodeInfo->{protocolPort};
@@ -164,11 +168,11 @@ sub main {
     eval {
         if ( $isPull == 1 ) {
             $directDesc = 'from';
-            my $syncExec = new SyncRemote2Local($port);
+            my $syncExec = new SyncRemote2Local( port => $port, tmpDir => $tmpDir );
             $syncExec->upgradeFiles( $dest, $user, $pass, $host, $src, $expDir, $noDelete, $noAttrs, $followLinks, $agentType );
         }
         else {
-            my $syncExec = new SyncFile($port);
+            my $syncExec = new SyncLocal2Remote( port => $port, tmpDir => $tmpDir );
             $syncExec->upgradeFiles( $ostype, $src, $user, $pass, $host, $insId, $dest, $expDir, $noDelete, $noAttrs, $followLinks, $addExecForNewFile, $agentType );
         }
     };
