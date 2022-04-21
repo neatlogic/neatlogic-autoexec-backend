@@ -29,15 +29,13 @@ sub usage {
     print("       --prefix:   target prefix\n");
     print("       --packexts: package extention names, example:zip,tar,tgz\n");
     print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");
-
+    print("       target: Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $envPath, $version, $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $isVerbose, @targetFiles );
     my $pname = $FindBin::Script;
-
-    Utils::setEnv();
 
     $isVerbose = 0;
     GetOptions(
@@ -61,12 +59,18 @@ sub main {
         @packExts = split( /\s*,\s*/, lc($packExt) );
     }
 
-    my $buildEnv    = DeployUtils->deployInit( $envPath, $version );
-    my $namePath    = $buildEnv->{NAME_PATH};
-    my $prjPath     = $buildEnv->{PRJ_PATH};
-    my $dataPath    = $buildEnv->{DATA_PATH};
-    my $buildRoot   = $buildEnv->{BUILD_ROOT};
-    my $buildNo     = $buildEnv->{BUILD_NO};
+    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $prjPath   = $buildEnv->{PRJ_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildRoot = $buildEnv->{BUILD_ROOT};
+    my $buildNo   = $buildEnv->{BUILD_NO};
+
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        print("ERROR: Build number is empty, it is not provided by version:$version\n");
+        return 2;
+    }
+
     my $releasePath = "$buildRoot/$buildNo";
 
     my $serverAdapter = ServerAdapter->new();
@@ -86,7 +90,14 @@ sub main {
     $lock->lockWorkspace($BuildLock::EXCLUDE);
 
     my $destDir = "$releasePath/app";
-    mkpath($destDir) if ( not -e $destDir );
+    if ( not rmtree($destDir) ) {
+        print("ERROR: Remove directory $destDir failed, $!\n");
+        return 4;
+    }
+    if ( not mkpath($destDir) ) {
+        print("ERROR: Create directory $destDir failed, $!\n");
+        return 5;
+    }
 
     if ( defined($prefix) and $prefix ne '' ) {
         mkpath("$destDir/$prefix") if ( not -e "$destDir/$prefix" );

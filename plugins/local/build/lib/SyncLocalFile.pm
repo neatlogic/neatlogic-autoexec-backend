@@ -11,6 +11,7 @@ use Digest::MD5;
 use Cwd 'realpath';
 use File::Find;
 use File::Copy;
+use File::Temp;
 use File::Glob qw(bsd_glob);
 use Cwd;
 
@@ -19,19 +20,29 @@ use DeployUtils;
 our $HAS_ERROR = 0;
 
 sub new {
-    my ( $pkg, $version, $needMd5, $needBackup, $needMTime ) = @_;
-    my $self = {};
+    my ( $pkg, %args ) = @_;
+    my $self = {
+        version => $args{version},
+        md5     => $args{md5},
+        mtime   => $args{mtime},
+        backup  => $args{backup},
+        tmpDir  => $args{tmpDir}
+    };
 
-    $self->{version} = $version;
+    if ( not defined( $self->{md5} ) ) {
+        $self->{md5} = 0;
+    }
+    if ( not defined( $self->{mtime} ) ) {
+        $self->{mtime} = 0;
+    }
+    if ( not defined( $self->{backup} ) ) {
+        $self->{backup} = 0;
+    }
+    if ( not defined( $self->{tmpDir} ) or $self->{tmpDir} eq '' ) {
+        $self->{tmpDir} = '/tmp';
+    }
 
-    $self->{md5} = 0;
-    $self->{md5} = 1 if ( defined($needMd5) and $needMd5 == 1 );
-
-    $self->{mtime} = 1;
-    $self->{mtime} = 0 if ( defined($needMTime) and $needMTime == 0 );
-
-    $self->{backup} = 0;
-    $self->{backup} = 1 if ( defined($needBackup) and $needBackup == 1 );
+    $self->{deployUtils} = DeployUtils->new();
 
     bless( $self, $pkg );
 
@@ -227,13 +238,15 @@ sub upgradeFiles {
     my ( $self, $sourcePath, $targetPath, $inExceptDirs, $noDelete, $noAttrs ) = @_;
     my ( $allSrcFiles, $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile, $srcDir, $tgtFile, $tgtDir, $hasTar );
     my ( $allSrcFilesPrefix, $allSrcDirsPrefix );
-    my $tarPath;
+
     my $cmd           = '';
     my $cmdStr        = '';
     my $addDirCmdStr  = '';
     my $delDirCmdStr  = '';
     my $delFileCmdStr = '';
     my $bakCmdStr     = '';
+
+    my $deployUtils = $self->{deployUtils};
 
     if ( $sourcePath eq '' ) {
         die('ERROR: Source directory not defined.');
@@ -250,7 +263,7 @@ sub upgradeFiles {
     my $journalFh;
 
     my $bakRootPath = "$targetPath.rollback/$version";
-    my $nowtime     = DeployUtils->getTimeStr();
+    my $nowtime     = $deployUtils->getTimeStr();
     my $bakDir      = "$bakRootPath/$nowtime";
     my $journalFh;
 
@@ -264,7 +277,7 @@ sub upgradeFiles {
         while ( mkpath($bakDir) == 0 ) {
             if ( -e $bakDir ) {
                 sleep(1);
-                $nowtime = DeployUtils->getTimeStr();
+                $nowtime = $deployUtils->getTimeStr();
                 $bakDir  = "$bakRootPath/$nowtime";
             }
             else {
@@ -284,7 +297,9 @@ sub upgradeFiles {
 
     }
 
-    my $tarPath   = "$bakDir/tar";
+    my $TMPDIR    = $self->{tmpDir};
+    my $tmpDir    = File::Temp->newdir( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.sync' );
+    my $tarPath   = "$tmpDir/tar";
     my $shadowDir = "$bakDir/shadow";
 
     if ( not -e $tarPath ) {
@@ -322,17 +337,17 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "begin get source file info for:$sourcePath...\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get source file info for:$sourcePath...\n" );
     my ( $srcFiles, $srcDirs ) = $self->allLocalFiles( $sourcePath, $inExceptDirs );
     map { $$allSrcFiles{$_} = $$srcFiles{$_}; $$allSrcFilesPrefix{$_} = $sourcePath; } ( keys(%$srcFiles) );
     map { $$allSrcDirs{$_}  = $$srcDirs{$_};  $$allSrcDirsPrefix{$_}  = $sourcePath; } ( keys(%$srcDirs) );
-    print( "INFO: " . DeployUtils->getTimeForLog() . "get source file info complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "get source file info complete.\n" );
 
     #mkdir($targetPath) if ( not -e $targetPath );
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "begin get target file info for:$targetPath...\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get target file info for:$targetPath...\n" );
     ( $allTgtFiles, $allTgtDirs ) = $self->allLocalFiles( $targetPath, $inExceptDirs );
-    print( "INFO: " . DeployUtils->getTimeForLog() . "get target file info complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "get target file info complete.\n" );
 
     chdir($sourcePath);
 
@@ -349,12 +364,11 @@ sub upgradeFiles {
         foreach $tgtFile ( keys(%$allTgtFiles) ) {
             if ( not exists( $$allSrcFiles{$tgtFile} ) ) {
                 push( @delFiles, $tgtFile );
-                $delFileCmdStr = "${delFileCmdStr}rm -f " . DeployUtils->escapeQuote($tgtFile) . "\n";
+                $delFileCmdStr = "${delFileCmdStr}rm -f " . $deployUtils->escapeQuote($tgtFile) . "\n";
                 $tgtStat       = $$allTgtFiles{$tgtFile};
                 $tgtMode       = $$tgtStat[1];
 
                 #print("预删除文件 $targetPath/$tgtFile\n");
-                #DeployUtils->execmd("tar rf $tarPath/$bakTarFileName '$tgtFile'");
                 if ( $self->{backup} ) {
                     $shadowPath = "$shadowDir/$tgtFile";
                     $bakDirPath = dirname($shadowPath);
@@ -392,12 +406,9 @@ sub upgradeFiles {
                 push( @delDirs, $tgtDir );
                 $tgtStat      = $$allTgtDirs{$tgtDir};
                 $tgtMode      = $$tgtStat[1];
-                $delDirCmdStr = "${delDirCmdStr}if [ -e '$tgtDir' ]; then  rm -rf " . DeployUtils->escapeQuote($tgtDir) . "; fi\n";
-
-                #$bakCmdStr = "$bakCmdStr\nif [ ! -e '$tarPath/$tgtDir' ]; then  mkdir -p '$tarPath/$tgtDir'; chmod $tgtMode '$tarPath/$tgtDir'; fi\n";
+                $delDirCmdStr = "${delDirCmdStr}if [ -e '$tgtDir' ]; then  rm -rf " . $deployUtils->escapeQuote($tgtDir) . "; fi\n";
 
                 #print("预删除目录 $targetPath/$tgtDir\n");
-                #DeployUtils->execmd("tar rf $tarPath/$bakTarFileName $tgtDir");
                 if ( $self->{backup} ) {
                     $shadowPath = "$shadowDir/$tgtDir";
                     $bakDirPath = dirname($shadowPath);
@@ -427,7 +438,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "find deleted files and dirs complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "find deleted files and dirs complete.\n" );
 
     #找出新增的目录
     my ( @newDirs, @modDirs );
@@ -453,7 +464,7 @@ sub upgradeFiles {
                 if ( not defined($noAttrs) or $noAttrs eq 0 ) {
 
                     #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                    $chmodCmdStr = "chmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
+                    $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
                 }
             }
 
@@ -477,14 +488,14 @@ sub upgradeFiles {
                         }
 
                         #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
+                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
                     }
                 }
             }
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "find new dirs complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "find new dirs complete.\n" );
 
     #找出新增的文件和更改过的文件
     chdir($sourcePath);
@@ -545,7 +556,7 @@ sub upgradeFiles {
                     if ( $$srcStat[1] ne $tgtMode ) {
 
                         #print("预更改$srcFile权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "$chmodCmdStr\nchmod " . $$srcStat[1] . " " . DeployUtils->escapeQuote($srcFile);
+                        $chmodCmdStr = "$chmodCmdStr\nchmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcFile);
 
                         if ( $self->{backup} ) {
                             if ( not print $journalFh ("f:m:$tgtMode:$srcFile\n") ) {
@@ -558,7 +569,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "find modified files complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "find modified files complete.\n" );
 
     $cmdStr = "${delFileCmdStr}${addDirCmdStr}${delDirCmdStr}";
 
@@ -569,9 +580,9 @@ sub upgradeFiles {
         $hasTar = 1;
         my $cmd = "tar rf $tarPath/$tarFileName";
         foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
-            $cmd = $cmd . ' ' . DeployUtils->escapeQuote($file);
+            $cmd = $cmd . ' ' . $deployUtils->escapeQuote($file);
         }
-        my $rc = DeployUtils->execmd($cmd);
+        my $rc = $deployUtils->execmd($cmd);
         if ( $rc ne 0 ) {
             print("ERROR: Package and update files failed.\n");
             exit(-1);
@@ -580,22 +591,16 @@ sub upgradeFiles {
 
     #更改tar文件权限
     if ( -e "$tarPath/$tarFileName" ) {
-        DeployUtils->execmd("chmod 664 $tarPath/$tarFileName");
+        $deployUtils->execmd("chmod 664 $tarPath/$tarFileName");
         print("Create $tarPath/$tarFileName complete.\n");
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "tar modified files and dirs complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "tar modified files and dirs complete.\n" );
 
     #如果有更新的文件则将文件拷贝到远程端
     if ( $hasTar == 1 ) {
-
-        #if ( DeployUtils->execmd("cp $tarPath/$tarFileName $targetPath/") != 0 ) {
-        #    $HAS_ERROR = 1;
-        #    print("ERROR: 拷贝$tarPath/$tarFileName到$targetPath失败\n");
-        #}
-
         my $untarCmd = "umask 002;\ncd '$targetPath'\n#解开$tarFileName\n" . "tar xf '$tarPath/$tarFileName'";
-        if ( DeployUtils->execmd($untarCmd) ne 0 ) {
+        if ( $deployUtils->execmd($untarCmd) ne 0 ) {
             $HAS_ERROR = 1;
             die("ERROR: Execute update instruction failed.");
         }
@@ -605,7 +610,7 @@ sub upgradeFiles {
         $cmdStr = "${cmdStr}$chmodCmdStr\n";
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "untar complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "untar complete.\n" );
 
     chdir($sourcePath);
 
@@ -617,7 +622,7 @@ sub upgradeFiles {
             $fh->close();
             print("INFO: begin to execute the sync shell script...\n");
             $cmdStr = "umask 002;\ncd '$targetPath'\nsh '$tarPath/$shFileName'";
-            if ( DeployUtils->execmd($cmdStr) ne 0 ) {
+            if ( $deployUtils->execmd($cmdStr) ne 0 ) {
                 $HAS_ERROR = 1;
                 die("ERROR: Execute update instruction failed.");
             }
@@ -631,11 +636,11 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . DeployUtils->getTimeForLog() . "execute update script complete.\n" );
+    print( "INFO: " . $deployUtils->getTimeForLog() . "execute update script complete.\n" );
 
     #将更新情况输出
     my ( $file, $diffCmd, $diffContent );
-    print( "==============", DeployUtils->getTimeStr(), "===============\n" );
+    print( "==============", $deployUtils->getTimeStr(), "===============\n" );
     foreach $file (@newDirs) {
         $hasDiff = 1;
         print("New Dir:$file\n");
@@ -761,7 +766,8 @@ sub oneRollback {
     }
 
     if ( -d $shadowDir ) {
-        if ( DeployUtils->execmd("cp -rp $shadowDir/. $targetPath/") ne 0 ) {
+        my $deployUtils = $self->{deployUtils};
+        if ( $deployUtils->execmd("cp -rp $shadowDir/. $targetPath/") ne 0 ) {
             $rollbackError = 1;
         }
     }

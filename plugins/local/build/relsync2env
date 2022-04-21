@@ -92,22 +92,26 @@ sub main {
     $needMd5   = 0 if ( $noMd5 == 1 );
     $needMTime = 0 if ( $noMTime == 1 );
 
-    $src    = DeployUtils->charsetConv( $src,    'utf-8' );
-    $dest   = DeployUtils->charsetConv( $dest,   'utf-8' );
-    $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
+    my $deployUtils = DeployUtils->new();
+    $src    = $deployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $buildEnv  = DeployUtils->deployInit( $envPath, $version );
+    my $buildEnv  = $deployUtils->deployInit( $envPath, $version );
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
+    my $envName   = $buildEnv->{ENV_NAME};
     my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
+
+    my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
 
     if ( $isRelease != 1 ) {
         print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
         return 3;
     }
 
-    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $releaseDir = $dirInfo->{release};
     my $distDir    = $dirInfo->{distribute};
 
@@ -146,10 +150,23 @@ sub main {
         $dest     = $destPath;
     }
 
-    mkpath($dest) if ( not -e $dest );
+    if ( not -e $dest ) {
+        if ( not mkpath($dest) ) {
+            print("ERROR: Create directory $dest failed, $!\n");
+            return 3;
+        }
+    }
 
+    print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
     eval {
-        my $syncExec = new SyncLocalFile( $version, $needMd5, $needBackup, $needMTime );
+        my $syncExec = new SyncLocalFile(
+            version => $version,
+            md5     => $needMd5,
+            backup  => $needBackup,
+            mtime   => $needMTime,
+            tmpDir  => $tmpDir
+        );
+
         $syncExec->upgradeFiles( $src, $dest, $expDir, $noDelete, $noAttrs );
 
         #clean the schema black list dir
@@ -160,7 +177,13 @@ sub main {
         }
 
         if ( -d $dbSrc ) {
-            my $dbSyncExec = new SyncLocalFile( $version, 1, 0 );
+            my $dbSyncExec = new SyncLocalFile(
+                version => $version,
+                md5     => 1,
+                backup  => 0,
+                tmpDir  => $tmpDir
+            );
+
             my $dbExpDirs = $expDir;
             if ( defined($schemaBlackList) and $schemaBlackList ne '' ) {
                 if ( defined($expDir) and $expDir ne '' ) {
@@ -175,7 +198,13 @@ sub main {
         }
 
         if ( -d $docSrc ) {
-            my $resSyncExec = new SyncLocalFile( $version, 1, 0 );
+            my $resSyncExec = new SyncLocalFile(
+                version => $version,
+                md5     => 1,
+                backup  => 0,
+                tmpDir  => $tmpDir
+            );
+
             $resSyncExec->upgradeFiles( $docSrc, $docDest );
         }
 
@@ -218,10 +247,10 @@ sub main {
     }
 
     if ( $hasError != 0 ) {
-        print("ERROR: $pname $namePath version:$version failed.\n");
+        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName faled.\n");
     }
     else {
-        print("FINEST: $pname $namePath version:$version success.\n");
+        print("FINEST: Release(sync) $namePath $version build:$buildNo to $envName success.\n");
     }
 
     return $hasError;
