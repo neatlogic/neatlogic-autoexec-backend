@@ -53,17 +53,24 @@ sub getVer {
     my $param = {
         sysId    => $buildEnv->{SYS_ID},
         subSysId => $buildEnv->{MODULE_ID},
-        version  => $version,
-        buildNo  => $buildNo
+        version  => $buildEnv->{VERSION},
+        buildNo  => $buildEnv->{BUILD_NO}
     };
+
+    if ( defined($version) and $version ne '' ) {
+        $param->{version} = $version;
+    }
+    if ( defined($buildNo) and $buildNo ne '' ) {
+        $param->{buildNo} = $buildNo;
+    }
 
     #TODO: call api get verInfo by param
     my $verInfo     = {};
     my $lastBuildNo = $verInfo->{lastBuildNo};
 
     my $gitVerInfo = {
-        version  => $version,
-        buildNo  => $buildNo,
+        version  => $buildEnv->{VERSION},
+        buildNo  => $buildEnv->{BUILD_NO},
         repoType => 'GIT',
         repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
         trunk    => 'master',
@@ -76,8 +83,8 @@ sub getVer {
     };
 
     my $svnVerInfo = {
-        version  => $version,
-        buildNo  => $buildNo,
+        version  => $buildEnv->{VERSION},
+        buildNo  => $buildEnv->{BUILD_NO},
         repoType => 'SVN',
         repo     => 'svn://192.168.0.88/webTest',
         trunk    => 'trunk',

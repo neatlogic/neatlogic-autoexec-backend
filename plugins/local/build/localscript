@@ -80,8 +80,12 @@ sub main {
     }
 
     my $isFail = 0;
-    my $cmd = getScriptCmd( $autoexecHome, $scriptJson, $lang );
-    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- $cmd") != 0 ) {
+
+    my $TMPDIR = "$autoexecHome/tmp";
+    my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );
+
+    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang );
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
         print("ERROR: exec $cmd has error.\n");
         $isFail = 1;
     }
@@ -93,7 +97,7 @@ sub main {
 }
 
 sub getScriptCmd {
-    my ( $autoexecHome, $scriptJson, $lang ) = @_;
+    my ( $fileTmp, $autoexecHome, $scriptJson, $lang ) = @_;
     my $scriptObj = from_json($scriptJson);
 
     my $scriptInterpreter = $scriptObj->{interpreter};
@@ -122,11 +126,9 @@ sub getScriptCmd {
     if ( defined($destCharset) and $destCharset ne '' ) {
         $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
     }
-    my $TMPDIR  = "$autoexecHome/tmp";
-    my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => "$scriptExt" );
-    my $tmpPath = $tmp->filename;
-    print $tmp ($scriptContent);
-    $tmp->flush();
+    my $tmpPath = $fileTmp->filename;
+    print $fileTmp ($scriptContent);
+    $fileTmp->flush();
 
     my $cmd = "$scriptInterpreter $tmpPath $arguments";
 

@@ -233,7 +233,7 @@ sub main {
                 my $serverAdapter = ServerAdapter->new();
                 my $versionInfo   = $serverAdapter->getVer($buildEnv);
                 my $getDiffStatus = getBuildDiff( $buildEnv, $versionInfo, $tag4CmpTo, $prjPath, $diffDir, \@allCmpOutPaths, $isVerbose );
-                if ( $getDiffStatus ne 1 ) {
+                if ( $getDiffStatus ne 0 ) {
                     die("ERROR: $pname $namePath version:$version get diff failed.\n");
                 }
 
@@ -370,10 +370,10 @@ sub getBuildDiff {
     }
 
     my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
-    my $success = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
+    my $ret = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
     print("----------------------------------------------------------------------\n");
 
-    return $success;
+    return $ret;
 }
 
 sub copyPrj {

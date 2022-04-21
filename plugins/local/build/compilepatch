@@ -11,6 +11,7 @@ use Getopt::Long;
 Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
+use BuildUtils;
 use BuildLock;
 use ServerAdapter;
 use VerGet;
@@ -198,7 +199,7 @@ sub main {
         eval {
             #通过代码仓库比较获取差异文件存放到目录$diffDir
             my $getDiffStatus = $verGet->getBuildDiff( $tag4CmpTo, $startRev, $endRev, $prjPath, "$diffDir/tmp", \@excludeDirs, $isVerbose );
-            if ( $getDiffStatus ne 1 ) {
+            if ( $getDiffStatus ne 0 ) {
                 die("ERROR:$pname $envPath $version get diff failed.\n");
             }
 

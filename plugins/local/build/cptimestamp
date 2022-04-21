@@ -123,18 +123,32 @@ sub main {
 
     my $srcPath = $src;
     $srcPath =~ s/^\///;
-    $srcPath = "$mirrorDir/$srcPath";
+    $srcPath = "$appRootDir/$srcPath";
     my $destPath = $dest;
     $destPath =~ s/^\///;
     $destPath = "$appRootDir/$destPath";
 
-    my $hasError = copyTimeStamp( $srcPath, $destPath );
+    my $hasError = 0;
 
-    if ( $hasError ne 0 ) {
-        print( "ERROR: Sync $namePath $src time stamp to $dest failed.", "ERROR" );
+    if ( not -e $srcPath ) {
+        $hasError = 1;
+        print("ERROR: Source directory:$srcPath not exists.\n");
+    }
+    if ( not -e $destPath ) {
+        $hasError = 2;
+        print("ERROR: Destination directory:$destPath not exists.\n");
+    }
+    if ( $hasError != 0 ) {
+        return $hasError;
+    }
+
+    $hasError = copyTimeStamp( $srcPath, $destPath );
+
+    if ( $hasError != 0 ) {
+        print("ERROR: Sync $namePath $src time stamp to $dest failed.\n");
     }
     else {
-        print( "INFO: Sync $namePath $src time stamp to $dest success.", "INFO" );
+        print("INFO: Sync $namePath $src time stamp to $dest success.\n");
     }
 
     return $hasError;

@@ -153,7 +153,7 @@ sub main {
     my $verPath = $dirInfo->{$pdir};
 
     my $hasError = 0;
-    print("INFO: 开始转换文件名编码:${from}->${to}\n");
+    print("INFO: Begin to transfer directory and file name:${from}->${to}\n");
     if ( -d $verPath ) {
         my $succeed = convmvdir( $verPath, $from, $to );
         if ( $succeed == 0 ) {
@@ -167,7 +167,7 @@ sub main {
             $hasError = 1;
         }
     }
-    print("INFO: 转换文件名编码结束:${from}->${to}\n");
+    print("INFO:  Transfer directory and file name complete:${from}->${to}\n");
 
     return $hasError;
 }
