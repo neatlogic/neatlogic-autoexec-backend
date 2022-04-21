@@ -1,0 +1,197 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use File::Basename;
+use Cwd 'realpath';
+use Getopt::Long;
+use JSON;
+
+use SyncLocal2Remote;
+use SyncRemote2Local;
+use DeployUtils;
+use BuildLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--verbose 0|1]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--ostype windows|unix] [--agenttype agentless|tagent]\n");
+    print("              [--nodelete 0|1] [--noattrs 0|1] [--followlinks 0|1]\n");
+    print("              [--addexecfornewfile 0|1] [-x ExcludeSubDirs] [--pull 0|1]\n");
+    print("              [--src SourceSubDir] [--dest ServerSitePath]\n");
+    print("\n");
+    print("       sync files to remote server\n");
+    print("       --envpath:           Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:           version number of sub system\n");
+    print("       --pull:              pull from remote site to local site\n");
+    print("       --pdir:              sub directory type of this system\n");
+    print("       --nodelete:          do not delete server site file\n");
+    print("       --noattrs:           do not sync file attributes\n");
+    print("       --followlinks:       symbol link as directory\n");
+    print("       --addexecfornewfile: add execute permission on new file of server side\n");
+    print("       --x:                 do not symc sub dir or files, example:sub1/sub2,sub3\n");
+    print("       --src:               sub directory in pdir\n");
+    print("       --dest:              directory on server side\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $node );
+    my ( $ostype, $agentType, $pdir );
+    my ( $host, $port, $user, $pass, $src, $dest, $expDir );
+    my $isPull            = 0;
+    my $noDelete          = 0;
+    my $noAttrs           = 0;
+    my $addExecForNewFile = 0;
+    my $followLinks       = 0;
+    my $pname             = $FindBin::Script;
+
+    $isVerbose = 0;
+    $pdir      = 'mirror';
+
+    GetOptions(
+        'v|verbose=i'         => \$isVerbose,
+        'h|help'              => \$isHelp,
+        'ostype=s'            => \$ostype,
+        'agenttype=s'         => \$agentType,
+        'envpath=s'           => \$envPath,
+        'version=s'           => \$version,
+        'pdir=s'              => \$pdir,
+        'nodelete=i'          => \$noDelete,
+        'noattrs=i'           => \$noAttrs,
+        'followlinks=i'       => \$followLinks,
+        'addexecfornewfile=i' => \$addExecForNewFile,
+        'pull=i'              => \$isPull,
+        'x|exp=s'             => \$expDir,
+        'src=s'               => \$src,
+        'dest=s'              => \$dest,
+        'node=s'              => \$node
+    );
+
+    my $optionError = 0;
+    if ( not defined($envPath) or not defined($version) ) {
+        print("ERROR: must defined option --envpath and --version.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) ) {
+        print("ERROR: must defined option --dest.\n");
+        $optionError = 1;
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $dirInfo     = $deployUtils->getDataDirStruct($buildEnv);
+    my $verPath     = $dirInfo->{$pdir};
+    my $verRoot     = $dirInfo->{appRoot};
+
+    if ( defined($pdir) ) {
+        if ( not defined($verPath) ) {
+            print("ERROR: $pdir not valid, not in appsync|mirror|appbuild|version.\n");
+            $optionError = 1;
+        }
+    }
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    usage() if ( $optionError == 1 );
+
+    if ( not defined($ostype) or $ostype eq '' ) {
+        $ostype = 'unix';
+    }
+
+    if ( not defined($agentType) or $agentType eq '' ) {
+        $agentType = 'agentless';
+    }
+
+    $src    = $deployUtils->charsetConv( $src,    'utf-8' );
+    $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
+    $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
+
+    my $envName = $buildEnv->{ENV_NAME};
+    my $verRoot = $dirInfo->{appRoot};
+
+    my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    $port = 22 if ( not defined($port) );
+
+    my $insLockPath = "$verRoot/.$host.$insId.lock";
+    my $insDiffPath = "$verPath.ins";
+
+    if ( not defined($src) or $src eq '' ) {
+        $src = $verPath;
+        if ( defined($insId) and $insId ne '' ) {
+            my $insDiff = $insDiffPath . '/' . $insName;
+            if ( $pdir eq 'mirror' and -d $insDiff ) {
+                $src = "$src,$insDiff";
+            }
+        }
+    }
+    else {
+        my $realSrc = realpath("$verPath/$src");
+        if ( defined($insId) and $insId ne '' ) {
+            my $insDiff = "$insDiffPath/$insName/$src";
+            if ( -d $insDiff ) {
+                $src = "$realSrc,$insDiff";
+            }
+            else {
+                $src = $realSrc;
+            }
+        }
+    }
+
+    my $hasError = 0;
+
+    my $desc       = "$user\@$host:$dest";
+    my $directDesc = 'to';
+    print("INFO: Begin sync $src $directDesc $desc \n");
+    eval {
+        if ( $isPull == 1 ) {
+            $directDesc = 'from';
+            my $syncExec = new SyncRemote2Local( port => $port, tmpDir => $tmpDir );
+            $syncExec->upgradeFiles( $dest, $user, $pass, $host, $src, $expDir, $noDelete, $noAttrs, $followLinks, $agentType );
+        }
+        else {
+            my $syncExec = new SyncLocal2Remote( port => $port, tmpDir => $tmpDir );
+            $syncExec->upgradeFiles( $ostype, $src, $user, $pass, $host, $insId, $dest, $expDir, $noDelete, $noAttrs, $followLinks, $addExecForNewFile, $agentType );
+        }
+    };
+    if ($@) {
+        $hasError = $hasError + 1;
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print($msg);
+    }
+
+    if ( $hasError == 0 ) {
+        print("FINEST: Sync $src $directDesc $desc success.\n");
+    }
+    else {
+        print("ERROR: Sync $src $directDesc $desc failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+
