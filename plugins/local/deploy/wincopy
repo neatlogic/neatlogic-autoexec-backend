@@ -176,8 +176,6 @@ sub main {
     my $autoexecHome  = $ENV{AUTOEXEC_HOME};
     my $transPathRoot = Cwd::fast_abs_path("$autoexecHome/data/filetrans");
 
-    my ( $env, $insId, $insName, $verPath, $verDiffPath );
-
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
