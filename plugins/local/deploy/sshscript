@@ -10,6 +10,7 @@ use Digest::MD5 qw(md5 md5_hex);
 use JSON qw(to_json from_json);
 
 use SSHRemoteExec;
+use SCPExec;
 use DeployUtils;
 
 Getopt::Long::Configure("pass_through");
@@ -117,18 +118,20 @@ sub main {
         }
     }
 
+    my $deployUtils = DeployUtils->new();
+
     #$scriptName = md5_hex($scriptContent);    # . "$scriptName";
 
     if ( defined($destCharset) and $destCharset ne '' ) {
         $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
     }
-    my $TMPDIR  = $ENV{DEPLOYSYS_HOME} . '/tmp';
+    my $TMPDIR  = $ENV{AUTOEXEC_HOME} . '/tmp';
     my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => '' );
     my $tmpPath = $tmp->filename;
     print $tmp ($scriptContent);
     $tmp->flush();
 
-    my $scriptName = basename($tmpPath) . DeployUtils->getScriptExtName($scriptInterpreter);
+    my $scriptName = basename($tmpPath) . $deployUtils->getScriptExtName($scriptInterpreter);
 
     my $hasError = 0;
 
@@ -139,15 +142,43 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
-    my $scpExec = new SCPExec( $host, $port, $user, $pass, $tmpPath, "$user\@$host:/tmp/$scriptName", 1 );
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
+    my $scpExec = new SCPExec(
+        host        => $host,
+        port        => $port,
+        username    => $user,
+        password    => $pass,
+        source      => $tmpPath,
+        destination => "$user\@$host:/tmp/$scriptName",
+        verbose     => $isVerbose
+    );
     my $rc = $scpExec->exec();
-    if ( $rc eq 0 ) {
+
+    if ( $rc != 0 ) {
         print("ERROR: Copy scirpt to /tmp/$scriptName failed.\n");
         exit(1);
     }
 
-    my $cmd = "$scriptInterpreter /tmp/$scriptName $arguments; rm -f /tmp/$scriptName";
-    my $sshExec = new SSHRemoteExec( $host, $port, $user, $pass, $isVerbose, $cmd, undef, $eofStr, $failStr, $supass, $timeOut, $sshOpts );
+    my $cmd     = "$scriptInterpreter /tmp/$scriptName $arguments; rm -f /tmp/$scriptName";
+    my $sshExec = new SSHRemoteExec(
+        host       => $host,
+        port       => $port,
+        username   => $user,
+        password   => $pass,
+        verbose    => $isVerbose,
+        cmd        => $cmd,
+        scriptFile => undef,
+        eofStr     => $eofStr,
+        failStr    => $failStr,
+        supassword => $supass,
+        timeout    => $timeOut,
+        sshOpts    => $sshOpts
+    );
 
     my $ret = $sshExec->exec();
     $hasError = $hasError + $ret;

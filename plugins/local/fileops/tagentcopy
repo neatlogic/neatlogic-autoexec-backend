@@ -1,15 +1,12 @@
 #!/usr/bin/perl
-
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
+use FindBin;
 use File::Basename;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
-use AutoExecUtils;
 use Cwd;
+
+use AutoExecUtils;
 use TagentClient;
 
 sub usage {
@@ -102,6 +99,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     if ( not defined($port) or $port eq '' ) {
         $port = 3939;

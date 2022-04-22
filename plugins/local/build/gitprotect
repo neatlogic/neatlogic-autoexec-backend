@@ -70,7 +70,9 @@ sub main {
     usage() if ( defined($isHelp) );
     usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
 
@@ -92,7 +94,7 @@ sub main {
 
     if ( defined($token) and $token ne '' ) {
         if ( $token =~ s/^\{ENCRYPTED\}// ) {
-            $token = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $token );
+            $token = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $token );
         }
     }
 

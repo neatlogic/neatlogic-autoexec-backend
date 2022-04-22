@@ -94,7 +94,9 @@ sub main {
         $optionError = 1;
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
 
@@ -111,15 +113,15 @@ sub main {
     }
 
     my $namePath = $buildEnv->{NAME_PATH};
-    my $dirInfo  = DeployUtils->getDataDirStruct($buildEnv);
+    my $dirInfo  = $deployUtils->getDataDirStruct($buildEnv);
 
     my $appRootDir = $dirInfo->{approot};
     my $mirrorDir  = $dirInfo->{mirror};
 
     print("INFO: begin sync $src timestamp to $dest.\n");
 
-    $src  = DeployUtils->charsetConv( $src,  'utf-8' );
-    $dest = DeployUtils->charsetConv( $dest, 'utf-8' );
+    $src  = $deployUtils->charsetConv( $src,  'utf-8' );
+    $dest = $deployUtils->charsetConv( $dest, 'utf-8' );
 
     my $srcPath = $src;
     $srcPath =~ s/^\///;

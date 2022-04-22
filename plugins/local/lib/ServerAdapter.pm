@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 use strict;
+use FindBin;
 
 package ServerAdapter;
+use JSON;
+use Cwd;
+use Config::Tiny;
 
 use DeployUtils;
 use Data::Dumper;
@@ -15,6 +19,15 @@ sub new {
     if ( $ENV{AUTOEXEC_DEV_MODE} ) {
         $self->{devMode} = 1;
     }
+
+    $self->{DeployUtils} = DeployUtils->new();
+
+    my $confFile    = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
+    my $config      = Config::Tiny->read($confFile);
+    my $baseurl     = $config->{server}->{'server.baseurl'};
+    my $username    = $config->{server}->{'server.username'};
+    my $password    = $config->{server}->{'server.password'};
+    my $passwordKey = $config->{server}->{'password.key'};
 
     return $self;
 }
@@ -75,7 +88,7 @@ sub getVer {
         repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
         trunk    => 'master',
         branch   => '2.0.0',
-        tag      => 'V4.0.0',
+        tag      => '',
         tagsDir  => undef,
         isFreeze => 0,
         startRev => 'bda9fb6f',

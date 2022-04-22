@@ -41,7 +41,9 @@ sub main {
     usage() if ( defined($isHelp) );
     usage() if ( not defined($scriptJson) or $scriptJson eq '' );
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
 
@@ -62,15 +64,6 @@ sub main {
     my $namePath     = $buildEnv->{NAME_PATH};
     my $dataPath     = $buildEnv->{DATA_PATH};
     my $toolsPath    = $buildEnv->{TOOLS_PATH};
-
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
-
-    if ( $optionError == 1 ) {
-        usage();
-    }
 
     if ( not defined($baseDir) ) {
         $baseDir = Cwd::realpath($dataPath);
@@ -103,7 +96,9 @@ sub getScriptCmd {
     my $scriptInterpreter = $scriptObj->{interpreter};
     my $scriptContent     = $scriptObj->{content};
     my $arguments         = $scriptObj->{arguments};
-    my $scriptExt         = DeployUtils->getScriptExtName($scriptInterpreter);
+
+    my $deployUtils = DeployUtils->new();
+    my $scriptExt   = $deployUtils->getScriptExtName($scriptInterpreter);
 
     if ( defined($lang) ) {
         $ENV{LANG} = $lang;

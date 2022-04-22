@@ -69,7 +69,9 @@ sub main {
         $jobPath = getcwd();
     }
 
-    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -85,7 +87,7 @@ sub main {
         usage();
     }
 
-    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
 
     #sqlfile, log, status
     #jobpath/

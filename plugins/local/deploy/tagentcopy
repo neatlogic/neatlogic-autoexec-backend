@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
@@ -69,6 +70,8 @@ sub main {
         push( @dirs, $item );
     }
 
+    my $deployUtils = DeployUtils->new();
+
     my $optionError = 0;
 
     if ( $isPull == 0 ) {
@@ -87,12 +90,12 @@ sub main {
             $optionError = 1;
         }
         else {
-            $dir = DeployUtils->charsetConv( $dirs[$i], 'utf-8' );
+            $dir = $deployUtils->charsetConv( $dirs[$i], 'utf-8' );
             $dirs[$i] = $dir;
         }
     }
 
-    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -105,7 +108,7 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
     my $verPath = $dirInfo->{$pdir};
 
     if ( defined($pdir) ) {
@@ -136,8 +139,6 @@ sub main {
         $direction = 'pull';
     }
 
-    my ( $env, $insId, $insName, $verPath, $verDiffPath );
-
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
@@ -147,6 +148,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $port = 22 if ( not defined($port) );
 

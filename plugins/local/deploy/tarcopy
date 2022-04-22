@@ -2,6 +2,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
@@ -59,6 +60,8 @@ sub main {
         push( @items, $item );
     }
 
+    my $deployUtils = DeployUtils->new();
+
     my $optionError = 0;
 
     if ( scalar(@items) < 2 ) {
@@ -73,12 +76,12 @@ sub main {
             $optionError = 1;
         }
         else {
-            $dir = DeployUtils->charsetConv( $items[$i], 'utf-8' );
+            $dir = $deployUtils->charsetConv( $items[$i], 'utf-8' );
             $items[$i] = $dir;
         }
     }
 
-    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -91,7 +94,7 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
     my $verPath = $dirInfo->{$pdir};
 
     if ( defined($pdir) ) {
@@ -125,8 +128,6 @@ sub main {
         $direction = 'pull';
     }
 
-    my ( $env, $insId, $insName, $verPath, $verDiffPath );
-
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
@@ -136,6 +137,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $port = 22 if ( not defined($port) );
 
@@ -185,7 +192,18 @@ sub main {
                 exit(-1);
             }
 
-            my $tarScpExec = new TarSCPExec( $host, $port, $user, $pass, $dir, $dest, 1, $followLinks, $isVerbose );
+            my $tarScpExec = new TarSCPExec(
+                host        => $host,
+                port        => $port,
+                username    => $user,
+                password    => $pass,
+                source      => $dir,
+                destination => $dest,
+                isPull      => 1,
+                followLinks => $followLinks,
+                verbose     => $isVerbose
+            );
+
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {
@@ -205,7 +223,18 @@ sub main {
                 print("ERROR: file name can not has '..':$dir.\n");
                 exit($hasError);
             }
-            my $tarScpExec = new TarSCPExec( $host, $port, $user, $pass, $dir, $dest, 0, $followLinks, $isVerbose );
+            my $tarScpExec = new TarSCPExec(
+                host        => $host,
+                port        => $port,
+                username    => $user,
+                password    => $pass,
+                source      => $dir,
+                destination => $dest,
+                isPull      => 0,
+                followLinks => $followLinks,
+                verbose     => $isVerbose
+            );
+
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {

@@ -13,21 +13,24 @@ use DeployUtils;
 $Expect::Multiline_Matching = 0;
 
 sub new {
-    my ( $type, $host, $port, $user, $pass, $isVerbose, $cmd, $scriptFile, $eofStr, $failStr, $supass, $timeOut, $sshOpts ) = @_;
+    my ( $type, %args ) = @_;
+
+    #args keys:host,port,username,password,supassword,verbose,cmd,scriptFile,eofStr,failStr,timeout,sshOpts
     my $self = {};
 
-    $self->{host}       = $host;
-    $self->{port}       = $port;
-    $self->{user}       = $user;
-    $self->{pass}       = $pass;
-    $self->{supass}     = $supass;
-    $self->{isVerbose}  = $isVerbose;
-    $self->{cmd}        = $cmd;
-    $self->{scriptFile} = $scriptFile;
-    $self->{eofStr}     = $eofStr;
-    $self->{failStr}    = $failStr;
-    $self->{timeOut}    = $timeOut, $self->{status} = 'SUCCESS';
-    $self->{sshOpts}    = $sshOpts;
+    $self->{host}       = $args{host};
+    $self->{port}       = $args{port};
+    $self->{user}       = $args{username};
+    $self->{pass}       = $args{password};
+    $self->{supass}     = $args{supassword};
+    $self->{isVerbose}  = $args{verbose};
+    $self->{cmd}        = $args{cmd};
+    $self->{scriptFile} = $args{scriptFile};
+    $self->{eofStr}     = $args{eofStr};
+    $self->{failStr}    = $args{failStr};
+    $self->{timeOut}    = $args{timeout};
+    $self->{status}     = 'SUCCESS';
+    $self->{sshOpts}    = $args{sshOpts};
 
     return bless( $self, $type );
 }

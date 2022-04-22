@@ -26,7 +26,6 @@ sub new {
     my $charSet     = $args{charSet};
     my $logFilePath = $args{logFilePath};
     my $toolsDir    = $args{toolsDir};
-    my $tmpDir      = $args{tmpDir};
 
     my $dbType       = $dbInfo->{dbType};
     my $dbName       = $dbInfo->{sid};
@@ -142,7 +141,8 @@ sub test {
         ],
         [
             eof => sub {
-                print( DeployUtils->convToUTF8( $spawn->before() ) );
+
+                #print( DeployUtils->convToUTF8( $spawn->before() ) );
                 $spawn->soft_close();
             }
         ]
@@ -171,7 +171,7 @@ sub run {
     my $isAutoCommit = $self->{isAutoCommit};
     my $sqlFile      = $sqlFileName;
 
-    my $TMPDIR  = $ENV{DEPLOYSYS_HOME} . '/tmp';
+    my $TMPDIR  = $self->{tmpDir};
     my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => '.sql' );
     my $tmpPath = $tmp->filename;
 

@@ -257,7 +257,8 @@ sub test {
         ],
         [
             eof => sub {
-                print( DeployUtils->convToUTF8( $spawn->before() ) );
+
+                #print( DeployUtils->convToUTF8( $spawn->before() ) );
             }
         ]
     );

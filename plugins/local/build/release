@@ -58,7 +58,9 @@ sub main {
         @packExts = split( /\s*,\s*/, lc($packExt) );
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
 
@@ -122,7 +124,7 @@ sub main {
 
     my %excludeDirsMap;
     if ( defined($expDir) and $expDir ne '' ) {
-        $expDir = DeployUtils->charsetConv( $expDir, 'utf-8' );
+        $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
         my $aDir;
         foreach $aDir ( split( /,/, $expDir ) ) {
@@ -137,7 +139,7 @@ sub main {
 
     my $filePath;
     foreach my $filePath (@targetFiles) {
-        $filePath = DeployUtils->charsetConv( $filePath, 'utf-8' );
+        $filePath = $deployUtils->charsetConv( $filePath, 'utf-8' );
         my $filePattern = $filePath;
 
         my $destFilePath;
@@ -231,13 +233,13 @@ sub main {
                 }
 
                 if ( $packExt eq 'tgz' or $packExt eq 'tar.gz' ) {
-                    $ret = DeployUtils->execmd("tar -C $destDir -xzf '$subFilePath'");
+                    $ret = $deployUtils->execmd("tar -C $destDir -xzf '$subFilePath'");
                 }
                 elsif ( $packExt eq 'tar' ) {
-                    $ret = DeployUtils->execmd("tar -C $destDir -xf '$subFilePath'");
+                    $ret = $deployUtils->execmd("tar -C $destDir -xf '$subFilePath'");
                 }
                 elsif ( $packExt eq 'zip' ) {
-                    $ret = DeployUtils->execmd("unzip -oqd $destDir '$subFilePath'");
+                    $ret = $deployUtils->execmd("unzip -oqd $destDir '$subFilePath'");
                 }
 
                 if ( $ret != 0 ) {

@@ -1,15 +1,12 @@
 #!/usr/bin/perl
-
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
+use FindBin;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
+use Cwd;
+
 use SCPExec;
 use AutoExecUtils;
-use Cwd;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -93,50 +90,85 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
     if ( not defined($port) ) {
         $port = 22;
     }
 
-    my $isSuccess = 0;
-    my @src_dirs  = split( /,/, $src );
-    my $src_path  = '';
+    my $ret      = 0;
+    my @src_dirs = split( /,/, $src );
+    my $src_path = '';
     if ( $direction eq 'push' ) {
         foreach my $dir (@src_dirs) {
             $src_path = "$src_path $dir";
         }
         $dest = "$user\@$host:$dest";
-        $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+        $ret  = myExec(
+            host        => $host,
+            port        => $port,
+            username    => $user,
+            passname    => $pass,
+            source      => $src_path,
+            destination => $dest,
+            verbose     => $isVerbose,
+            notpreserve => $np
+        );
     }
     elsif ( $direction eq 'pull' ) {
         foreach my $dir (@src_dirs) {
             $src_path = "$user\@$host:$dir";
-            $isSuccess = myExec( host => $host, port => $port, user => $user, pass => $pass, src => $src_path, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
-            if ( $isSuccess ne 0 ) {
+            $ret      = myExec(
+                host        => $host,
+                port        => $port,
+                username    => $user,
+                password    => $pass,
+                source      => $src_path,
+                destination => $dest,
+                verbose     => $isVerbose,
+                notpreserve => $np
+            );
+            if ( $ret ne 0 ) {
                 last;
             }
         }
     }
 
-    if ( $isSuccess ne 0 ) {
+    if ( $ret ne 0 ) {
         print("ERROR: $pname --$direction $src $dest failed.\n");
     }
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
-    return $isSuccess;
+    return $ret;
 }
 
 sub myExec {
     my (%args)    = @_;
     my $host      = $args{host};
     my $port      = $args{port};
-    my $user      = $args{user};
-    my $pass      = $args{pass};
-    my $src       = $args{src};
-    my $dest      = $args{dest};
-    my $isVerbose = $args{isVerbose};
+    my $user      = $args{username};
+    my $pass      = $args{password};
+    my $src       = $args{source};
+    my $dest      = $args{destination};
+    my $isVerbose = $args{verbose};
     my $np        = $args{notpreserve};
-    my $scpExec = new SCPExec( host => $host, port => $port, user => $user, pass => $pass, src => $src, dest => $dest, isVerbose => $isVerbose, notpreserve => $np );
+
+    my $scpExec = new SCPExec(
+        host        => $host,
+        port        => $port,
+        username    => $user,
+        password    => $pass,
+        source      => $src,
+        destination => $dest,
+        verbose     => $isVerbose,
+        notpreserve => $np
+    );
+
     my $rc = $scpExec->exec();
     return $rc;
 }
