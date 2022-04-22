@@ -332,7 +332,7 @@ class Operation:
         if 'arg' in self.param and 'type' in self.param['arg']:
             argDesc = self.param['arg']['type'].lower()
 
-        if noPassword and argDesc == 'password':
+        if noPassword and argDesc == 'password' or argDesc == 'account':
             for argValue in self.arguments:
                 cmd = cmd + ' "******"'
         elif argDesc in ('node', 'json', 'file', 'multiselect'):
@@ -348,7 +348,7 @@ class Operation:
                 else:
                     jsonStr = jsonStr.replace("'", "'\\''")
                     cmd = cmd + " '{}'".format(jsonStr)
-        elif argDesc == 'password':
+        elif argDesc == 'password'  or argDesc == 'account':
             for argValue in self.arguments:
                 if osType == 'windows':
                     #argValue = argValue.replace('\\', '\\\\')
@@ -378,7 +378,7 @@ class Operation:
             if 'desc' in self.param and k in self.param['desc']:
                 kDesc = self.param['desc'][k].lower()
 
-            if noPassword and (kDesc == 'password' or k.endswith('account')):
+            if noPassword and (kDesc == 'password' or kDesc == 'account' or k.endswith('account')):
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
                 if kDesc in ('node', 'json', 'file', 'multiselect'):
@@ -392,7 +392,7 @@ class Operation:
                     else:
                         jsonStr = jsonStr.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
-                elif kDesc == 'password' or k.endswith('account'):
+                elif kDesc == 'password' or kDesc == 'account' or k.endswith('account'):
                     if osType == 'windows':
                         #v = v.replace('\\', '\\\\')
                         #v = v.replace('"', '\\"')
