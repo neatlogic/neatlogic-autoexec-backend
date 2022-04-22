@@ -118,6 +118,8 @@ sub main {
         }
     }
 
+    my $deployUtils = DeployUtils->new();
+
     #$scriptName = md5_hex($scriptContent);    # . "$scriptName";
 
     if ( defined($destCharset) and $destCharset ne '' ) {
@@ -129,7 +131,7 @@ sub main {
     print $tmp ($scriptContent);
     $tmp->flush();
 
-    my $scriptName = basename($tmpPath) . DeployUtils->getScriptExtName($scriptInterpreter);
+    my $scriptName = basename($tmpPath) . $deployUtils->getScriptExtName($scriptInterpreter);
 
     my $hasError = 0;
 
@@ -142,7 +144,7 @@ sub main {
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
         }
     }
 

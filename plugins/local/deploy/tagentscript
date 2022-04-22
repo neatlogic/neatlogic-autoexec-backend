@@ -78,6 +78,8 @@ sub main {
         $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
     }
 
+    my $deployUtils = DeployUtils->new();
+
     my $hasError = 0;
 
     my $host    = $nodeInfo->{host};
@@ -89,7 +91,7 @@ sub main {
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
         }
     }
 
@@ -128,7 +130,7 @@ sub main {
 
     my $randStr;
     $randStr = $randStr . sprintf( "%x", rand(16) ) for 1 .. 4;
-    my $scriptName = md5_hex($scriptContent) . "-$randStr" . DeployUtils->getScriptExtName($scriptInterpreter);
+    my $scriptName = md5_hex($scriptContent) . "-$randStr" . $deployUtils->getScriptExtName($scriptInterpreter);
 
     my $ret = $tagent->writeFile( $user, $scriptContent, '$TMPDIR/' . $scriptName, 1, 1 );
     if ( $ret != 0 ) {

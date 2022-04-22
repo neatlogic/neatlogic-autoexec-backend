@@ -5,6 +5,7 @@ use File::Basename;
 use Getopt::Long;
 
 use AutoCfg;
+use DeployUtils;
 use BuildUtils;
 
 sub usage {
@@ -76,7 +77,9 @@ sub main {
         }
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
     my $optionError = 0;

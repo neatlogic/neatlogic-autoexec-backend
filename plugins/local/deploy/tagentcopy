@@ -70,6 +70,8 @@ sub main {
         push( @dirs, $item );
     }
 
+    my $deployUtils = DeployUtils->new();
+
     my $optionError = 0;
 
     if ( $isPull == 0 ) {
@@ -88,12 +90,12 @@ sub main {
             $optionError = 1;
         }
         else {
-            $dir = DeployUtils->charsetConv( $dirs[$i], 'utf-8' );
+            $dir = $deployUtils->charsetConv( $dirs[$i], 'utf-8' );
             $dirs[$i] = $dir;
         }
     }
 
-    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -106,7 +108,7 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
     my $verPath = $dirInfo->{$pdir};
 
     if ( defined($pdir) ) {
@@ -149,7 +151,7 @@ sub main {
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
         }
     }
 

@@ -54,7 +54,9 @@ sub main {
         $ENV{LC_ALL} = $lang;
     }
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
 
@@ -112,7 +114,7 @@ sub main {
     }
     if ( defined($password) and $password ne '' ) {
         if ( $password =~ s/^\{ENCRYPTED\}// ) {
-            $password = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+            $password = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
         }
         $verInfo->{password} = $password;
     }

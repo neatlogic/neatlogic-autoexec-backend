@@ -110,7 +110,9 @@ sub main {
         $pass = $serverAdapter->getAppPassWord( $f5Url, $user );
     }
 
-    my $deployEnv = DeployUtils->deployInit($envPath);
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit($envPath);
+
     $envPath = $deployEnv->{NAME_PATH};
 
     if ( not defined($envPath) or $envPath eq '' ) {

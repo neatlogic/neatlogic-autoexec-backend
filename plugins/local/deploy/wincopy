@@ -103,6 +103,8 @@ sub main {
         push( @items, $item );
     }
 
+    my $deployUtils = DeployUtils->new();
+
     my $optionError = 0;
     if ( scalar(@items) < 2 ) {
         print("ERROR: must define local path and remote path.\n");
@@ -116,12 +118,12 @@ sub main {
             $optionError = 1;
         }
         else {
-            $dir = DeployUtils->charsetConv( $items[$i], 'utf-8' );
+            $dir = $deployUtils->charsetConv( $items[$i], 'utf-8' );
             $items[$i] = $dir;
         }
     }
 
-    my $deployEnv = DeployUtils->deployInit( $envPath, $version );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -134,7 +136,7 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
     my $verPath = $dirInfo->{$pdir};
 
     if ( defined($pdir) ) {
@@ -188,7 +190,7 @@ sub main {
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
         }
     }
 
@@ -256,7 +258,7 @@ sub main {
             my $fh    = IO::File->new(">$transPath");
             my $tarFh = IO::File->new(">$transPath.tar");
 
-            DeployUtils->sigHandler(
+            $deployUtils->sigHandler(
                 'TERM', 'INT', 'HUP', 'ABRT',
                 sub {
                     rmtree($transPath) if ( -e $transPath );
@@ -287,7 +289,7 @@ sub main {
                         }
                     }
                     else {
-                        DeployUtils->execmd("tar -C '$dest' -x${quietOpt}f $transPath.tar");
+                        $deployUtils->execmd("tar -C '$dest' -x${quietOpt}f $transPath.tar");
                         unlink("$transPath.tar");
                     }
 
@@ -336,7 +338,7 @@ sub main {
                 $transPath = "$transPath.tar";
 
                 #print("DEBUG:cd '$dir' && tar -c${quietOpt}f '$transPath' *\n");
-                my $tarRet = DeployUtils->execmd("cd '$dir' && tar -c${quietOpt}f '$transPath' *");
+                my $tarRet = $deployUtils->execmd("cd '$dir' && tar -c${quietOpt}f '$transPath' *");
                 if ( $tarRet ne 0 ) {
                     print("ERROR: tar $dir to $transPath failed.\n");
                     exit(-1);

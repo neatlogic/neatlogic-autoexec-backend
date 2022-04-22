@@ -318,9 +318,11 @@ sub main {
     usage() if ( defined($isHelp) );
     my $optionError = 0;
 
-    my $buildEnv = DeployUtils->deployInit( $envPath, $version );
-    $envPath = $buildEnv->{NAME_PATH};
-    $version = $buildEnv->{VERSION};
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -335,10 +337,10 @@ sub main {
         usage();
     }
 
-    my $buildConf = $buildEnv->{DEPLOY_CONF};
+    my $buildConf = $deployEnv->{DEPLOY_CONF};
 
     if ( not defined($cluster) or $cluster eq '' ) {
-        $cluster = $buildEnv->{ENV_NAME};
+        $cluster = $deployEnv->{ENV_NAME};
     }
 
     #$apolloEnv对应system.conf里的apollo地址, ${appoloEnv}.appolo.url, ${appoloEnv}.appolo.token
@@ -349,8 +351,8 @@ sub main {
         $apolloEnv = $env;
     }
     else {
-        $apolloEnv = $buildEnv->{ENV_NAME};
-        $env       = $buildEnv->{ENV_NAME};
+        $apolloEnv = $deployEnv->{ENV_NAME};
+        $env       = $deployEnv->{ENV_NAME};
         $apolloEnv =~ s/_[^_]+$//;    #去掉最末端的_XXXX, 如果有的话
         $apolloEnv =~ s/^[^_]+_//;    #去掉最前端的XXX_，如果有的话
     }
@@ -385,7 +387,7 @@ sub main {
         return (0);
     }
 
-    my $dirInfo       = DeployUtils->getDataDirStruct($buildEnv);
+    my $dirInfo       = $deployUtils->getDataDirStruct($deployEnv);
     my $buildPath     = $dirInfo->{release};
     my $envRealPath   = $dirInfo->{distribute};
     my $apolloResPath = $envRealPath . "/apollo";
