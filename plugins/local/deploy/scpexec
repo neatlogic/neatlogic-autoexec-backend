@@ -4,6 +4,7 @@ use FindBin;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
+use JSON;
 
 use SCPExec;
 use DeployUtils;
@@ -58,11 +59,6 @@ sub main {
     }
 
     my $optionError = 0;
-
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
 
     if ( $isPull == 0 ) {
         $isPush = 1;
@@ -131,10 +127,8 @@ sub main {
     if ( $isPull == 1 ) {
         $direction = 'pull';
     }
-    my $src = '';
 
-    my ( $env, $insId, $insName, $verPath, $verDiffPath );
-
+    my $src     = '';
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
@@ -144,6 +138,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $port = 22 if ( not defined($port) );
 
@@ -183,12 +183,18 @@ sub main {
         $dest = "$verPath/$dest";
     }
 
-    my $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    my $logger        = Logger->new("$deploysysHome/logs");
-
     my $ret = 0;
     if ( $src !~ /^\s*$/ ) {
-        my $scpExec = new SCPExec( $host, $port, $user, $pass, $src, $dest, $isVerbose, $np );
+        my $scpExec = new SCPExec(
+            host        => $host,
+            port        => $port,
+            username    => $user,
+            password    => $pass,
+            source      => $src,
+            destination => $dest,
+            verbose     => $isVerbose,
+            notpreserve => $np
+        );
         $ret = $scpExec->exec();
     }
 

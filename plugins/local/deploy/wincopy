@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
-
+use JSON;
 use File::Basename;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
@@ -187,6 +187,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $port = 22 if ( not defined($port) );
 

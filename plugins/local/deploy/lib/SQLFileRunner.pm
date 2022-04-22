@@ -802,6 +802,7 @@ sub testByIpPort {
 
     my $node = {
         nodeType => $dbType,
+        nodeName => $dbName,
         host     => $host,
         port     => $port,
         username => $user,

@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use Getopt::Long;
 use File::Temp;
 use File::Copy;
@@ -77,8 +78,11 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
-    my $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    my $logger        = Logger->new("$deploysysHome/logs");
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $cmd =~ s/\"/\\\"/g;
     my $winCmd = WinCmd->new( 'http', $host, $port, $user, $pass, "$cmd", $isVerbose );

@@ -196,7 +196,8 @@ sub updateStatus {
             port           => $nodeInfo->{port},
             accessEndpoint => $nodeInfo->{accessEndpoint},
             sqlFile        => $self->{sqlFile},
-            status         => $newStatus
+            status         => $newStatus,
+            interact       => $self->{status}->{interact}
         };
 
         $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );

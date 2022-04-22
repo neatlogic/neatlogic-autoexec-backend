@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use Cwd 'abs_path';
 use Getopt::Long;
 
@@ -93,6 +94,12 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
     my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $agentCharset );
 
     my $ret = $tagent->execCmd( $user, 'echo x' );
@@ -119,6 +126,7 @@ sub main {
         $cmd = "$envLine $cmd";
     }
 
+    print("INFO: Try to execute command by tagent...\n");
     my $exitStatus = -1;
     if ( $async == 1 ) {
         $exitStatus = $tagent->execCmdAsync( $user, $cmd, 1, $eofStr );

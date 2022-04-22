@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
@@ -136,8 +137,6 @@ sub main {
         $direction = 'pull';
     }
 
-    my ( $env, $insId, $insName, $verPath, $verDiffPath );
-
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
@@ -147,6 +146,12 @@ sub main {
     my $pass    = $nodeInfo->{password};
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
 
     $port = 22 if ( not defined($port) );
 

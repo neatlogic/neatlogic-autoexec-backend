@@ -63,15 +63,6 @@ sub main {
     my $dataPath     = $buildEnv->{DATA_PATH};
     my $toolsPath    = $buildEnv->{TOOLS_PATH};
 
-    if ( not defined($envPath) or not defined($version) ) {
-        print("ERROR: must defined option --envpath and --version.\n");
-        $optionError = 1;
-    }
-
-    if ( $optionError == 1 ) {
-        usage();
-    }
-
     if ( not defined($baseDir) ) {
         $baseDir = Cwd::realpath($dataPath);
     }

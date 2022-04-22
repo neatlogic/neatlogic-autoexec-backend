@@ -8,16 +8,19 @@ $Expect::Multiline_Matching = 0;
 
 sub new {
     my ( $type, %args ) = @_;
-    my $self = {
-        host        => $args{host},
-        port        => $args{port},
-        user        => $args{user},
-        pass        => $args{pass},
-        src         => $args{src},
-        dest        => $args{dest},
-        isVerbose   => $args{isVerbose},
-        notpreserve => $args{notpreserve}
-    };
+
+    #args keys:host,port,username,password,source,destination,verbose,notpreserve
+    my $self = {};
+
+    $self->{host}        = $args{host};
+    $self->{port}        = $args{port};
+    $self->{user}        = $args{username};
+    $self->{pass}        = $args{password};
+    $self->{src}         = $args{source};
+    $self->{dest}        = $args{destination};
+    $self->{isVerbose}   = $args{verbose};
+    $self->{notpreserve} = $args{notpreserve};
+
     return bless( $self, $type );
 }
 
@@ -82,11 +85,7 @@ sub exec {
         ]
     );
 
-    my $rc = 0;
-    if ( $spawn->exitstatus() != 0 ) {
-        print("ERROR: scp failed.\n");
-        $rc = 1;
-    }
+    my $rc = $spawn->exitstatus();
 
     return $rc;
 }

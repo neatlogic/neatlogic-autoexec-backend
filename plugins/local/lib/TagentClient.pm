@@ -1,9 +1,13 @@
 #!/usr/bin/perl
+use warnings;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
 use strict;
 
 package TagentClient;
-use warnings;
-use FindBin;
+
 use Socket;
 use Encode;
 use POSIX;
@@ -54,7 +58,7 @@ sub auth {
     }
     elsif ( $self->{protocolVer} ne $protocolVer ) {
         $socket->shutdown(2);
-        die( "ERROR: server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
+        die( "ERROR: Server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
     }
     $self->{protocolVer} = $protocolVer;
 
@@ -234,7 +238,7 @@ sub getConnection {
             my $ret = $self->auth( $socket, $password, $isVerbose );
 
             if ( $ret != 1 ) {
-                die("ERROR: Authenticate failed while connect to $host:$port.\n");
+                die("Authenticate failed while connect to $host:$port.\n");
                 return;
             }
             $self->{socket} = $socket;
@@ -242,7 +246,7 @@ sub getConnection {
         if ($@) {
             my $errMsg = $@;
             $errMsg =~ s/\sat\s.*$//;
-            die($errMsg);
+            die("ERROR: $errMsg");
         }
 
     }
@@ -266,9 +270,9 @@ sub _readChunk {
 
     my $chunk;
 
-    my $len     = 0;
-    my $readLen = 0;
-    my $chunkHead;
+    my $len       = 0;
+    my $readLen   = 0;
+    my $chunkHead = '';
 
     my $readTimeout = $self->{readTimeout};
     my $sel         = new IO::Select($socket);
@@ -322,6 +326,7 @@ sub _readChunk {
     my $chunkLen = unpack( 'n', $chunkHead );
 
     if ( $chunkLen > 0 ) {
+        $chunk   = '';
         $readLen = 0;
         do {
             @ready = ();
@@ -369,6 +374,7 @@ sub _readChunk {
     }
     else {
         $readLen = 0;
+        $chunk   = '';
         do {
             @ready = ();
 
@@ -417,6 +423,9 @@ sub _readChunk {
             }
             die($chunk);
         }
+        else {
+            undef($chunk);
+        }
     }
 
     if ( $encrypt == 1 ) {
@@ -424,6 +433,7 @@ sub _readChunk {
             $chunk = RC4( $self->{password}, $chunk );
         }
     }
+
     return $chunk;
 }
 

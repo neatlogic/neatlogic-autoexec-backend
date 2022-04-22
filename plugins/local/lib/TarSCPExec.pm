@@ -11,20 +11,20 @@ use DeployUtils;
 $Expect::Multiline_Matching = 0;
 
 sub new {
-    my ( $type, $host, $port, $user, $pass, $src, $dest, $isPull, $followLinks, $isVerbose ) = @_;
+    my ( $type, %args ) = @_;
     my $self = {};
 
-    $self->{host}      = $host;
-    $self->{port}      = $port;
-    $self->{user}      = $user;
-    $self->{pass}      = $pass;
-    $self->{src}       = $src;
-    $self->{dest}      = $dest;
-    $self->{isVerbose} = $isVerbose;
-    $self->{isPull}    = $isPull;
+    $self->{host}      = $args{host};
+    $self->{port}      = $args{port};
+    $self->{user}      = $args{username};
+    $self->{pass}      = $args{password};
+    $self->{src}       = $args{source};
+    $self->{dest}      = $args{destination};
+    $self->{isVerbose} = $args{verbose};
+    $self->{isPull}    = $args{isPull};
 
     $self->{followLinksOpt} = '';
-    if ( defined($followLinks) ) {
+    if ( defined( $args{followLinks} ) ) {
         $self->{followLinksOpt} = 'h';
     }
 

@@ -87,6 +87,12 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
     my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $agentCharset );
 
     my $scriptJson = from_json($scriptObj);
@@ -155,6 +161,7 @@ sub main {
         $cmd = "$envLine$scriptInterpreter \$TMPDIR/$scriptName $arguments; rc=\$?; rm -f \$TMPDIR/$scriptName; exit \$rc";
     }
 
+    print("INFO: Try to execute script by tagent...\n");
     my $exitStatus = -1;
     if ( $async == 1 ) {
         $exitStatus = $tagent->execCmdAsync( $user, $cmd, 1, $eofStr );

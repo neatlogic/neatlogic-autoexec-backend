@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use JSON;
 use File::Basename;
 use Cwd 'abs_path';
 use Getopt::Long;
@@ -92,6 +93,12 @@ sub main {
     my $insId   = $nodeInfo->{resourceId};
     my $insName = $nodeInfo->{nodeName};
 
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
     my $namePath = $ENV{_DEPLOY_PATH};
     my $idPath   = $ENV{_DEPLOY_ID_PATH};
     if ( defined($namePath) and $namePath ne '' ) {
@@ -99,7 +106,21 @@ sub main {
         $ENV{_INS_PATH}    = "$namePath/$insName";
     }
 
-    my $sshExec = new SSHRemoteExec( $host, $port, $user, $pass, $isVerbose, $cmd, undef, $eofStr, $failStr, $supass, $timeOut, $sshOpts );
+    my $sshExec = new SSHRemoteExec(
+        host       => $host,
+        port       => $port,
+        username   => $user,
+        password   => $pass,
+        verbose    => $isVerbose,
+        cmd        => $cmd,
+        scriptFile => undef,
+        eofStr     => $eofStr,
+        failStr    => $failStr,
+        supass     => $supass,
+        timeout    => $timeOut,
+        sshOpts    => $sshOpts
+    );
+
     my $ret = $sshExec->exec();
 
     $hasError = $hasError + $ret;

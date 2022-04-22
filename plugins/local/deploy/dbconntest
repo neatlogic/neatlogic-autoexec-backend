@@ -56,13 +56,29 @@ sub main() {
     if ( not defined($user) ) {
         $user = $nodeInfo->{username};
     }
-    if ( defined($pass) ) {
+    if ( not defined($pass) ) {
         $pass = $nodeInfo->{password};
+    }
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+        }
+    }
+
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
     }
 
     my $hasError = 0;
 
-    my $hasLogon = SQLFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
+    my $sqlFileRunner = SQLFileRunner->new(
+        toolsDir => $autoexecHome . '/tools',
+        tmpdir   => $autoexecHome . '/tmp'
+    );
+
+    my $hasLogon = $sqlFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
 
     if ( $hasLogon != 1 ) {
         $hasError = 1;

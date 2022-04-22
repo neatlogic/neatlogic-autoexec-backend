@@ -119,7 +119,8 @@ sub test {
         [
             eof => sub {
                 $hasHardError = 1;
-                print( DeployUtils->convToUTF8( $spawn->before() ) );
+
+                #print( DeployUtils->convToUTF8( $spawn->before() ) );
             }
         ]
     );
