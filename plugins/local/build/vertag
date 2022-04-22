@@ -67,7 +67,6 @@ sub main {
         usage();
     }
 
-    my $version  = $buildEnv->{VERSION};
     my $namePath = $buildEnv->{NAME_PATH};
 
     my $serverAdapter = ServerAdapter->new();

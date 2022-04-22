@@ -75,7 +75,7 @@ sub getVer {
         repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
         trunk    => 'master',
         branch   => '2.0.0',
-        tag      => 'V4.0.0',
+        tag      => '',
         tagsDir  => undef,
         isFreeze => 0,
         startRev => 'bda9fb6f',
