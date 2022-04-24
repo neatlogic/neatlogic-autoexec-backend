@@ -21,11 +21,11 @@ sub new {
     my $passwordKey = $config->{server}->{'password.key'};
 
     my $self = {
-        confFile=>$confFile,
-        baseurl->$baseurl,
-        username=>$username,
-        password=>$password,
-        passwordKey=>$passwordKey
+        confFile    => $confFile,
+        baseurl     => $baseurl,
+        username    => $username,
+        password    => $password,
+        passwordKey => $passwordKey
     };
 
     if ( $ENV{AUTOEXEC_DEV_MODE} ) {
