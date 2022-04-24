@@ -77,6 +77,7 @@ class RunNodeFactory:
 
             runNode = RunNode.RunNode(self.context, self.phaseName, nodeObj)
         else:
+            runNode = None
             self.nodesFile.close()
 
         return runNode
