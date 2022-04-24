@@ -131,7 +131,7 @@ sub execOneSqlFile {
 
         #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
         my @sqlDirSegments = split( '/', $sqlFile );
-        my $dbSchema = lc( $sqlDirSegments[0] );
+        my $dbSchema       = lc( $sqlDirSegments[0] );
         $dbInfo = $dbSchemasMap->{$dbSchema};
     }
     else {
@@ -473,7 +473,7 @@ sub _getSqlDbInfo {
 
         #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
         my @sqlDirSegments = split( '/', $sqlFile );
-        my $dbSchema = lc( $sqlDirSegments[0] );
+        my $dbSchema       = lc( $sqlDirSegments[0] );
         $dbInfo = $dbSchemasMap->{$dbSchema};
     }
     else {
@@ -561,7 +561,7 @@ sub execSqlFiles {
 
         if ( $checkRet == 1 ) {
             print("INFO: Execute sql file:$sqlFile...\n");
-            my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
+            my $rc        = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
             print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
             $hasError = $hasError + $rc;
@@ -582,11 +582,12 @@ sub execSqlFileSets {
     foreach my $sqlFiles (@$sqlFileSets) {
         my $runnerPidsMap = {};
         foreach my $sqlFile (@$sqlFiles) {
+            my $dbInfo        = $self->_getSqlDbInfo($sqlFile);
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
                 jobId        => $self->{jobId},
                 deployEnv    => $self->{deployEnv},
-                dbInfo       => $self->_getSqlDbInfo($sqlFile),
+                dbInfo       => $dbInfo,
                 sqlStatusDir => $self->{sqlStatusDir},
                 sqlFileDir   => $self->{sqlFileDir}
             );
@@ -596,6 +597,7 @@ sub execSqlFileSets {
                 print("INFO: Execute sql file:$sqlFile...\n");
                 my $pid = fork();
                 if ( $pid == 0 ) {
+                    $self->{logFileDir} = $self->{logFileDir} . "/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
                     my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
                     exit $rc;
                 }
@@ -697,7 +699,7 @@ sub checkSqlFiles {
 
             #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
             my @sqlDirSegments = split( '/', $sqlFile );
-            my $dbSchema = lc( $sqlDirSegments[0] );
+            my $dbSchema       = lc( $sqlDirSegments[0] );
             push( @$usedSchemas, $dbSchema );
             my $dbInfo = $dbSchemasMap->{$dbSchema};
             $nodeInfo = $dbInfo->{node};
