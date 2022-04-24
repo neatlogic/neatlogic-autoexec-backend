@@ -262,10 +262,10 @@ class JobRunner:
 
         threads = []
         for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
             if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                 continue
 
-            phaseName = phaseConfig['phaseName']
             # 初始化phase的节点信息
             self.context.addPhase(phaseName)
 
@@ -319,10 +319,10 @@ class JobRunner:
                 if self.context.goToStop:
                     break
 
+                phaseName = phaseConfig['phaseName']
                 if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                     continue
 
-                phaseName = phaseConfig['phaseName']
                 phaseStatus = self.context.phases[phaseName]
                 phaseStatus.clearRoundFinEvent()
                 phaseStatus.clearGlobalRoundFinEvent()
@@ -402,9 +402,9 @@ class JobRunner:
 
         # 给各个phase的node factory发送None节点，通知线程任务完成
         for phaseConfig in phaseGroup['phases']:
+            phaseName = phaseConfig['phaseName']
             if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                 continue
-            phaseName = phaseConfig['phaseName']
             phaseNodeFactory = phaseNodeFactorys[phaseName]
             phaseNodeFactory.putRunNode(None)
 
