@@ -88,7 +88,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
