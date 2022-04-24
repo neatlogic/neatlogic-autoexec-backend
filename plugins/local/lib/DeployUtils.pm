@@ -20,8 +20,32 @@ our $READ_TMOUT = 86400;
 sub new {
     my ( $pkg, %args ) = @_;
 
-    my $self = \%args;
+    my $confFile = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
+    my $config   = Config::Tiny->read($confFile);
+    my $baseurl  = $config->{server}->{'server.baseurl'};
+    my $username = $config->{server}->{'server.username'};
+    my $password = $config->{server}->{'server.password'};
+    my $passKey  = $config->{server}->{'password.key'};
+
+    my $deployUtils = DeployUtils->new();
+    if ( defined($passKey) and $passKey =~ s/^\{ENCRYPTED\}// ) {
+        $passKey = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $passKey );
+    }
+
+    if ( defined($password) and $password =~ s/^\{ENCRYPTED\}// ) {
+        $password = $deployUtils->_rc4_decrypt_hex( $passKey, $password );
+    }
+
+    my $self = {
+        confFile => $confFile,
+        baseurl  => $baseurl,
+        username => $username,
+        password => $password,
+        passKey  => $passKey
+    };
+
     bless( $self, $pkg );
+
     return $self;
 }
 
@@ -284,7 +308,7 @@ sub getPipeOut {
     my ( $line, @outArray );
 
     my $exitCode = 0;
-    my $pid = open( PIPE, "$cmd |" );
+    my $pid      = open( PIPE, "$cmd |" );
     if ( defined($pid) ) {
         while ( $line = <PIPE> ) {
             if ( $isVerbose == 1 ) {
@@ -613,7 +637,7 @@ sub doInteract {
         while ( $hasGetInput == 0 ) {
             print("$message\n");
 
-            my $select = IO::Select->new( $pipe, \*STDIN );
+            my $select       = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {

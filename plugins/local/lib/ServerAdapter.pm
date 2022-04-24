@@ -13,25 +13,14 @@ use Data::Dumper;
 sub new {
     my ( $pkg, %args ) = @_;
 
-    my $confFile    = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
-    my $config      = Config::Tiny->read($confFile);
-    my $baseurl     = $config->{server}->{'server.baseurl'};
-    my $username    = $config->{server}->{'server.username'};
-    my $password    = $config->{server}->{'server.password'};
-    my $passwordKey = $config->{server}->{'password.key'};
-
-    my $self = {
-        confFile    => $confFile,
-        baseurl     => $baseurl,
-        username    => $username,
-        password    => $password,
-        passwordKey => $passwordKey
-    };
+    my $self = {};
 
     if ( $ENV{AUTOEXEC_DEV_MODE} ) {
         $self->{devMode} = 1;
     }
-    $self->{DeployUtils} = DeployUtils->new();
+
+    my $deployUtils = DeployUtils->new();
+    $self->{DeployUtils} = $deployUtils;
 
     bless( $self, $pkg );
     return $self;
