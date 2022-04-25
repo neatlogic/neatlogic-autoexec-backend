@@ -67,8 +67,6 @@ class VContext:
             self.dataPath = dataPath
 
         # 读取配置
-        config = {'server': {}, 'autoexec': {}}
-        self.config = config
         cfgPath = homePath + '/conf/config.ini'
         cfg = configparser.ConfigParser()
         cfg.optionxform = str
