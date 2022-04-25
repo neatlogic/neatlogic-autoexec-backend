@@ -79,7 +79,6 @@ class VContext:
             for confKey in cfg[section]:
                 config[section][confKey] = cfg[section][confKey]
 
-        #maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
         maxExecSecs = config['autoexec']['job.maxExecSecs']
 
         if maxExecSecs:
