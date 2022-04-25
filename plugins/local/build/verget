@@ -1,13 +1,12 @@
 #!/usr/bin/perl
-use FindBin;
 use strict;
-use DeployUtils;
-use BuildLock;
-
+use FindBin;
 use Getopt::Long;
 use JSON;
+
 use VerGet;
-use BuildLock;
+use DeployLock;
+use DeployUtils;
 use ServerAdapter;
 
 sub usage {
@@ -89,8 +88,8 @@ sub main {
         tagsDir  => $tagsDir,
         tag      => $tag
     };
-    my $lock = BuildLock->new($buildEnv);
-    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $lock = DeployLock->new($buildEnv);
+    $lock->lockWorkspace($DeployLock::WRITE);
     my $verInfo = $serverAdapter->getVer( $buildEnv, $version );
 
     if ( defined($verInfo) ) {

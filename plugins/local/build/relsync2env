@@ -7,7 +7,7 @@ use Getopt::Long;
 
 use SyncLocalFile;
 use FileUtils;
-use BuildLock;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;

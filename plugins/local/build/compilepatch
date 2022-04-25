@@ -12,7 +12,7 @@ Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
 use BuildUtils;
-use BuildLock;
+use DeployLock;
 use ServerAdapter;
 use VerGet;
 
@@ -116,8 +116,8 @@ sub main {
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    my $lock = BuildLock->new($buildEnv);
-    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $lock = DeployLock->new($buildEnv);
+    $lock->lockWorkspace($DeployLock::WRITE);
 
     my $cwd = getcwd();
     chdir($prjPath);

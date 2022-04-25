@@ -6,7 +6,7 @@ use Getopt::Long;
 use File::Path;
 
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 
 Getopt::Long::Configure("pass_through");
 
