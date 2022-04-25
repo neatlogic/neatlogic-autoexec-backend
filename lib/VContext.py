@@ -14,7 +14,6 @@ import Utils
 
 class VContext:
     def __init__(self, jobId=0, execUser=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
-        self.MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
         self.jobId = jobId
         self.pid = os.getpid()
 
@@ -88,8 +87,9 @@ class VContext:
         passKey = cfg.get('server', 'password.key')
         autoexecDBPass = cfg.get('autoexec', 'db.password')
 
+        MY_KEY = 'c3H002LGZRrseEPc'
         if passKey.startswith('{ENCRYPTED}'):
-            passKey = Utils._rc4_decrypt_hex(self.MY_KEY, passKey[11:])
+            passKey = Utils._rc4_decrypt_hex(MY_KEY, passKey[11:])
             config['server']['password.key'] = passKey
         else:
             hasNoEncrypted = True

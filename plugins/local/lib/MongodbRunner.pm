@@ -19,8 +19,8 @@ sub _rc4_decrypt_hex ($$) {
 }
 
 sub new {
-    my ($type)      = @_;
-    my $MY_KEY      = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+    my ($type) = @_;
+
     my $pwd         = getcwd;
     my $cfg_path    = $pwd . '/../../../conf/config.ini';
     my $cfg         = Config::IniFiles->new( -file => "$cfg_path" );
@@ -31,6 +31,7 @@ sub new {
     my $db_password = $cfg->val( 'autoexec', 'db.password' );
 
     if ( $db_password =~ /\{ENCRYPTED\}/ ) {
+        my $MY_KEY = 'c3H002LGZRrseEPc';
         $pass_key = _rc4_decrypt_hex( $MY_KEY, $pass_key );
     }
 

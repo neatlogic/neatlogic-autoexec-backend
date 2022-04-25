@@ -36,8 +36,8 @@ sub new {
     };
 
     bless( $self, $pkg );
-    my $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
 
+    my $MY_KEY = 'c3H002LGZRrseEPc';
     if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
         $self->{passKey} = $self->_rc4_decrypt_hex( $MY_KEY, $passKey );
     }
