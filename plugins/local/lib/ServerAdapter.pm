@@ -6,8 +6,10 @@ package ServerAdapter;
 use JSON;
 use Cwd;
 use Config::Tiny;
+use MIME::Base64;
+use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
 
-use DeployUtils;
+use WebCtl;
 use Data::Dumper;
 
 sub new {
@@ -20,9 +22,62 @@ sub new {
         $self->{devMode} = 1;
     }
 
-    $self->{deployUtils} = DeployUtils->new();
+    $self->{serverConf} = ServerConf->new();
+
+    $self->{apiMap} = {
+        'getIdPath'          => 'codedriver/public/api/rest/ezdeploy/path',
+        'getVer'             => 'codedriver/public/api/rest/ezdeploy/version/get',
+        'updateVer'          => 'codedriver/public/api/rest/ezdeploy/version/update',
+        'releaseVer'         => 'codedriver/public/api/rest/ezdeploy/version/release',
+        'getAutoConf'        => 'codedriver/public/api/rest/ezdeploy/autocfg/get',
+        'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
+        'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
+        'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
+        'getSqlFileStatuses' => 'codedriver/public/api/rest/ezdeploy/sql/status/get',
+        'checkInSqlFiles'    => 'codedriver/public/api/rest/ezdeploy/sql/status/checkin',
+        'pushSqlStatus'      => 'codedriver/public/api/rest/ezdeploy/sql/status/push',
+        'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
+    };
+
+    my $webCtl = WebCtl->new();
+    $webCtl->setHeaders( { Authorization => $self->getAuthToken() } );
+    $self->{webCtl} = $webCtl;
 
     return $self;
+}
+
+sub _getAuthToken() {
+    my ($self)     = @_;
+    my $serverConf = $self->{serverConf};
+    my $username   = $serverConf->{username};
+    my $password   = $serverConf->{password};
+
+    my $authToken = 'Basic ' . MIME::Base64::encode( $username . ':' . $password );
+    return $authToken;
+}
+
+sub _getApiUrl {
+    my ( $self, $apiName ) = @_;
+    my $url = $self->{baseurl} . '/' . $self->{apiMap}->{$apiName};
+
+    return $url;
+}
+
+sub _getParams {
+    my ( $self, $buildEnv ) = @_;
+
+    my $params = {
+        sysId      => $buildEnv->{SYS_ID},
+        moduleId   => $buildEnv->{MODULE_ID},
+        envId      => $buildEnv->{ENV_ID},
+        sysName    => $buildEnv->{SYS_NAME},
+        moduleName => $buildEnv->{MODULE_NAME},
+        envName    => $buildEnv->{ENV_NAME},
+        version    => $buildEnv->{VERSION},
+        buildNo    => $buildEnv->{BUILD_NO}
+    };
+
+    return $params;
 }
 
 sub getIdPath {
@@ -34,18 +89,34 @@ sub getIdPath {
     #ret: idPath of operate enviroment, example:100/200/3
     #-----------------------
     $namePath =~ s/^\/+|\/+$//g;
-    my @dpNames = split( '/', $namePath );
+    my @dpNames   = split( '/', $namePath );
+    my @partsName = ( 'sysName', 'moduleName', 'envName' );
 
     my $param = {};
-    my $idx   = 0;
-    for my $level ( 'sysName', 'moduleName', 'envName' ) {
-        $param->{$level} = @dpNames[$idx];
-        $idx = $idx + 1;
+    my $len   = scalar(@dpNames);
+    for ( my $idx = 0 ; $idx < $len ; $idx++ ) {
+        $param->{ $partsName[$idx] } = $dpNames[$idx];
     }
 
-    #TODO: call api convert namePath to idPath
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getIdPath');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcJson  = from_json($content);
 
-    my $idPath = '0/0/0';    #测试用数据
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: check call api convert namePath to idPath
+    my $idPath = $rcObj->{idPath};
+
+    #TODO: Delete follow test line
+    $idPath = '0/0/0';    #测试用数据
+
     return $idPath;
 }
 
@@ -56,12 +127,7 @@ sub getVer {
     #startRev: 如果是新版本，则获取同一个仓库地址和分支的所有版本最老的一次build的startRev
     #               如果是现有的版本，则获取当前版本的startRev
     #               如果获取不到则默认是0
-    my $param = {
-        sysId    => $buildEnv->{SYS_ID},
-        subSysId => $buildEnv->{MODULE_ID},
-        version  => $buildEnv->{VERSION},
-        buildNo  => $buildEnv->{BUILD_NO}
-    };
+    my $param = $self->_getParams($buildEnv);
 
     if ( defined($version) and $version ne '' ) {
         $param->{version} = $version;
@@ -70,10 +136,23 @@ sub getVer {
         $param->{buildNo} = $buildNo;
     }
 
-    #TODO: call api get verInfo by param
-    my $verInfo     = {};
-    my $lastBuildNo = $verInfo->{lastBuildNo};
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getVer');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcJson  = from_json($content);
 
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: check call api get verInfo by param
+    my $verInfo = $rcObj;
+
+    #TODO: Delete follow test lines
     my $gitVerInfo = {
         version  => $buildEnv->{VERSION},
         buildNo  => $buildEnv->{BUILD_NO},
@@ -103,6 +182,9 @@ sub getVer {
     };
 
     my $verInfo = $gitVerInfo;
+
+    #TODO: test data ended
+
     return $verInfo;
 }
 
@@ -111,7 +193,25 @@ sub updateVer {
 
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
-    #TODO: 通过接口更新版本信息
+    my $params = $self->_getParams($buildEnv);
+    while ( my ( $key, $val ) = each(%$verInfo) ) {
+        $params->{$key} = $val;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('updateVer');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: check 通过接口更新版本信息
 
     return;
 }
@@ -120,14 +220,52 @@ sub releaseVer {
     my ( $self, $buildEnv, $version, $buildNo ) = @_;
 
     #更新某个version的buildNo的release状态为1，build成功
-    #TODO: 发布版本，更新版本某个buildNo的release的状态为1
+    my $params = $self->_getParams($buildEnv);
+    if ( defined($version) and $version ne '' ) {
+        $params->{version} = $version;
+    }
+    if ( defined($buildNo) and $buildNo ne '' ) {
+        $params->{buildNo} = $buildNo;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('releaseVer');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: check 发布版本，更新版本某个buildNo的release的状态为1
     return;
 }
 
 sub getAutoCfgConf {
     my ( $self, $buildEnv ) = @_;
-    my $autoCfgMap = {};
 
+    my $params = $self->_getParams($buildEnv);
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getAutoCfgConf');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    my $autoCfgMap = $rcObj;
+
+    #TODO: delete follow test lines
     #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
 
     $autoCfgMap = {
@@ -152,15 +290,35 @@ sub getAutoCfgConf {
             }
         ]
     };
+
+    #TODO: test end
+
     return $autoCfgMap;
 }
 
 sub getDBConf {
     my ( $self, $buildEnv ) = @_;
-    my $dbInfo = {};
 
+    my $params = $self->_getParams($buildEnv);
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getAutoCfgConf');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    my $dbConf = $rcObj;
+
+    #TODO: Delete follow test lines
     #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
-    my $dbConf = {
+    $dbConf = {
         'mydb.myuser' => {
             node => {
                 resourceId     => 9823748347,
@@ -187,12 +345,12 @@ sub getDBConf {
         }
     };
 
-    my $deployUtils = $self->{deployUtils};
+    my $serverConf = $self->{serverConf};
     while ( my ( $schema, $conf ) = each(%$dbConf) ) {
         my $nodeInfo = $conf->{node};
         my $password = $nodeInfo->{password};
         if ( defined($password) ) {
-            $nodeInfo->{password} = $deployUtils->decryptPwd($password);
+            $nodeInfo->{password} = $serverConf->decryptPwd($password);
         }
     }
     return $dbConf;
@@ -201,27 +359,117 @@ sub getDBConf {
 sub addBuildQuality {
     my ( $self, $buildEnv, $measures ) = @_;
 
-    #TODO: 提交sonarqube扫描结果数据到后台，老版本有相应的实现
+    my $params = $self->_getParams($buildEnv);
+    while ( my ( $key, $val ) = each(%$measures) ) {
+        $params->{$key} = $val;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('addBuildQuality');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: check 提交sonarqube扫描结果数据到后台，老版本有相应的实现
+    return;
 }
 
 sub getAppPassWord {
     my ( $self, $buildEnv, $appUrl, $userName ) = @_;
 
-    #TODO: 譬如F5、A10、DNS服务等API的密码
+    my $params = $self->_getParams($buildEnv);
+
+    my $protocol;
+    my $host;
+    my $port;
+    if ( $appUrl =~ /(http|https):\/\/(.*?)\/?/i ) {
+        $protocol = lc($1);
+        my $hostAndPort = $2;
+        if ( $hostAndPort =~ /(.*?):(\d+)/ ) {
+            $host = $1;
+            $port = $2;
+        }
+        else {
+            $host = $hostAndPort;
+            if ( $protocol eq 'https' ) {
+                $port = 443;
+            }
+            else {
+                $port = 80;
+            }
+        }
+    }
+
+    $params->{protocol} = $protocol;
+    $params->{host}     = $host;
+    $params->{port}     = $port;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getAppPassWord');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    my $pass        = 'notfound';
+    my $accountList = $rcObj;
+    if ( scalar(@$accountList) > 1 ) {
+        my $accountInfo = $$accountList[0];
+        $pass = $accountInfo->{password};
+        my $serverConf = $self->{serverConf};
+        $pass = $serverConf->decryptPwd($pass);
+    }
+
+    #TODO: check and test 譬如F5、A10、DNS服务等API的密码
+    return $pass;
 }
 
 sub getSqlFileStatuses {
     my ( $self, $jobId, $deployEnv ) = @_;
+
+    my $params = {};
+
     if ( defined($deployEnv) ) {
 
-        #TODO:获取应用发布某个环境的所有的SQL状态List
+        #获取应用发布某个环境的所有的SQL状态List
+        $params = $self->_getParams($deployEnv);
     }
     else {
-        #TODO:获取某个作业的所有的SQL状态List
+        #获取某个作业的所有的SQL状态List
+        $params->{jobId} = $jobId;
     }
 
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getSqlFileStatuses');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    my $sqlInfoList = $rcObj;
+
+    #TODO: delete follow test lines
     #格式：
-    my $sqlInfoList = [
+    $sqlInfoList = [
 
         # {
         #     resourceId     => $nodeInfo->{resourceId},
@@ -245,12 +493,31 @@ sub getSqlFileStatuses {
         # }
     ];
 
+    #TODO: test lines end
+
     return $sqlInfoList;
 }
 
 sub checkInSqlFiles {
     my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
 
+    my $params = $self->_getParams($deployEnv);
+    $params->{sqlInfo} = $sqlInfo;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('checkInSqlFiles');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: Delete follow test lines
     #$sqlInfoList格式
     #服务端接受到次信息，只需要增加不存在的SQL记录即可，已经存在的不需要更新
     # [
@@ -276,16 +543,34 @@ sub checkInSqlFiles {
     #     }
     # ]
 
-    #TODO: 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
-
     print Dumper ($sqlInfo);
+
+    #TODO: 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
 
     return;
 }
 
 sub pushSqlStatus {
-    my ( $self, $jobId, $sqlFilesStatus, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlFileStatus, $deployEnv ) = @_;
 
+    my $params = $self->_getParams($deployEnv);
+    $params->{jobId}     = $jobId;
+    $params->{sqlStatus} = $sqlFileStatus;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('pushSqlStatus');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: Delete follow test lines
     #$jobId: 324234
     #$sqlInfo = {
     #     jobId          => 83743,
@@ -302,15 +587,153 @@ sub pushSqlStatus {
 
     #TODO: 更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
     print("DEBUG: update sql status to server.\n");
-    print Dumper($sqlFilesStatus);
+    print Dumper($sqlFileStatus);
+
+    #TODO: Test ended
+
     return;
 }
 
 sub getBuild {
-    my ( $self, $deployEnv, $version, $buildNo ) = @_;
+    my ( $self, $deployEnv, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
-    return;
+
+    my $checked = 0;
+    my $builded = 0;
+
+    my $namePath  = $deployEnv->{_DEPLOY_PATH};
+    my $version   = $deployEnv->{version};
+    my $buildNo   = $deployEnv->{buildNo};
+    my $buildPath = $deployEnv->{BUILD_PATH};
+
+    if ( not -e $buildPath ) {
+        mkpath($buildPath);
+    }
+
+    my $fh;
+    sysopen( $fh, "$buildPath.lock", O_RDWR | O_CREAT | O_SYNC );
+    if ( not defined($fh) ) {
+        die("Can not open or create file $buildPath.lock, $!\n");
+    }
+
+    my $gzMagicNum  = "\x1f\x8b";
+    my $tarMagicNum = "\x75\x73";
+    my ( $pid, $reader, $writer, $releaseStatus, $contentDisposition, $magicNum, $firstChunk );
+    my $callback = sub {
+        my ( $chunk, $res ) = @_;
+        if ( $checked == 0 ) {
+            $checked = 1;
+            if ( $res->code eq 200 ) {
+                $releaseStatus      = $res->header('Build-Status');
+                $contentDisposition = $res->header('Content-Disposition');
+                if ( $releaseStatus eq 'released' ) {
+                    print("INFO: Build-Status:$releaseStatus\n");
+                    print("INFO: Try to lock directory $buildPath");
+                    flock( $fh, LOCK_EX );
+                    print("INFO: Locked.\n");
+                    $builded = 1;
+                    if ( $cleanSubDirs == 1 ) {
+                        foreach my $subDir (@$subDirs) {
+                            foreach my $dir ( glob("$buildPath/$subDir") ) {
+                                if ( -e $dir ) {
+
+                                    #print("INFO: clean dir:$dir\n");
+                                    rmtree($dir) or die("remove $dir failed.\n");
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if ( -e $buildPath ) {
+                            rmtree($buildPath) or die("remove $buildPath failed.\n");
+                            mkdir($buildPath);
+                        }
+                    }
+
+                    $magicNum = substr( $chunk, 0, 2 );
+                    my $cmd = "| tar -C '$buildPath' -xf -";
+                    if ( $contentDisposition =~ /\.gz"?$/ or $magicNum eq $gzMagicNum ) {
+                        $cmd = "| tar -C '$buildPath' -xzf -";
+                    }
+                    $pid = open( $writer, $cmd ) or die("open tar cmd failed:$!");
+                    binmode($writer);
+                }
+            }
+        }
+
+        if ( $builded == 1 ) {
+            if ( not defined($firstChunk) and $magicNum ne $gzMagicNum and $magicNum ne $tarMagicNum ) {
+                $firstChunk = $chunk;
+            }
+            print $writer ($chunk);
+            $writer->flush();
+        }
+    };
+
+    my $client = REST::Client->new();
+    my $url    = $self->_getApiUrl('getBuild');
+
+    my $pdata = $self->_getParams($deployEnv);
+
+    if ( defined($subDirs) and scalar($subDirs) > 0 ) {
+        $pdata->{'subDirs'} = join( ',', @$subDirs );
+    }
+
+    my $params = $client->buildQuery($pdata);
+    $url = $url . $params;
+
+    #$url = $url . "?agentId=$agentId&action=getappbuild&sysId=$sysId&subSysId=$subSysId&version=$version";
+
+    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
+    $client->getUseragent()->ssl_opts( SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE );
+    $client->getUseragent()->timeout(1200);
+    $client->addHeader( 'Authorization', $self->_getAuthToken() );
+    $client->setFollow(1);
+    $client->setContentFile( \&$callback );
+
+    $client->GET($url);
+    $releaseStatus = $client->responseHeader('Build-Status');
+
+    my $untarCode = -1;
+    if ( defined($writer) ) {
+        close($writer);
+
+        #waitpid( $pid, 0 );
+        $untarCode = $?;
+
+        #print("DEBUG: untar return code:$untarCode\n");
+    }
+
+    flock( $fh, LOCK_UN );
+
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        die("Get build namePath Version:$version build$buildNo failed with status:$releaseStatus, cause by:$errMsg\n");
+    }
+
+    if ( $releaseStatus ne 'released' ) {
+
+        my $errMsg = $client->responseContent();
+        if ( defined($releaseStatus) and $releaseStatus ne '' ) {
+            if ( $releaseStatus eq 'null' ) {
+                die("$namePath Version:$version build$buildNo not exists.\n");
+            }
+            else {
+                die("Version $version build$buildNo in error status:$releaseStatus.\n");
+            }
+        }
+        else {
+            die("Get resources failed: $errMsg\n");
+        }
+    }
+
+    if ( $untarCode ne 0 ) {
+        die("Get resources failed with status:$releaseStatus, build resource is empty or data corrupted because of network timeout problem.\n");
+    }
+
+    #TODO: 通过getres测试检查
+    return $releaseStatus;
 }
 
 1;

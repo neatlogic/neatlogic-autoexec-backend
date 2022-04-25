@@ -11,6 +11,7 @@ use File::Find;
 use File::Path;
 use File::Copy;
 
+use ServerConf;
 use ServerAdapter;
 use AutoExecUtils;
 
@@ -20,30 +21,10 @@ our $READ_TMOUT = 86400;
 sub new {
     my ( $pkg, %args ) = @_;
 
-    my $confFile = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
-    my $config   = Config::Tiny->read($confFile);
-    my $baseurl  = $config->{server}->{'server.baseurl'};
-    my $username = $config->{server}->{'server.username'};
-    my $password = $config->{server}->{'server.password'};
-    my $passKey  = $config->{server}->{'password.key'};
-
-    my $self = {
-        confFile    => $confFile,
-        baseurl     => $baseurl,
-        username    => $username,
-        password    => $password,
-        passwordKey => $passKey
-    };
-
+    my $self = {};
     bless( $self, $pkg );
 
-    my $MY_KEY = 'c3H002LGZRrseEPc';
-    if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
-        $self->{passKey} = $self->_rc4_decrypt_hex( $MY_KEY, $passKey );
-    }
-    if ( $password =~ s/^\{ENCRYPTED\}// ) {
-        $self->{password} = $self->_rc4_decrypt_hex( $passKey, $password );
-    }
+    $self->{serverConf} = ServerConf->new();
 
     return $self;
 }
@@ -122,8 +103,12 @@ sub deployInit {
         $version = $ENV{VERSION};
     }
 
+    my $buildRoot = "$dataPath/artifact/$version/build";
+    my $buildPath = "$buildRoot/$buildNo";
+
     $deployEnv->{VERSION}    = $version;
-    $deployEnv->{BUILD_ROOT} = "$dataPath/artifact/$version/build";
+    $deployEnv->{BUILD_ROOT} = $buildRoot;
+    $deployEnv->{BUILD_PATH} = $buildPath;
     $deployEnv->{ID_PATH}    = $dpIdPath;
     $deployEnv->{NAME_PATH}  = $dpPath;
     $deployEnv->{DATA_PATH}  = $dataPath;
@@ -200,24 +185,9 @@ sub isatty {
     return $isTTY;
 }
 
-sub _rc4_encrypt_hex {
-    my ( $self, $key, $data ) = @_;
-    return join( '', unpack( 'H*', RC4( $key, $data ) ) );
-}
-
-sub _rc4_decrypt_hex {
-    my ( $self, $key, $data ) = @_;
-    return RC4( $key, pack( 'H*', $data ) );
-}
-
 sub decryptPwd {
     my ( $self, $data ) = @_;
-    if ( $data =~ s/^\{ENCRYPTED\}// ) {
-        return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
-    }
-    else {
-        return $data;
-    }
+    return $self->{serverConf}->decryptPwd($data);
 }
 
 sub getFileContent {

@@ -87,18 +87,16 @@ sub main {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
-    my $sqlFiles = [];
-    if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
+    my $sqlFiles         = [];
+    my $sqlFileArrayJson = $ENV{_SQL_FILES};
+    if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
+        $sqlFiles = from_json($sqlFileArrayJson);
+    }
+    elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
         my $sqlFileArray = from_json($sqlFileJson);
         foreach my $sqlFile (@$sqlFileArray) {
             $sqlFile =~ s/^\/?file\///;
             push( @$sqlFiles, $sqlFile );
-        }
-    }
-    else {
-        my $sqlFileArrayJson = $ENV{_SQL_FILES};
-        if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
-            $sqlFiles = from_json($sqlFileArrayJson);
         }
     }
 
