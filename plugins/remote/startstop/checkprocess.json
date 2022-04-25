@@ -62,6 +62,7 @@
         "name": "关键字",
         "help": "关键字，支持正则表达式",
         "type": "text",
+        "count": 0,
         "isConst": "false",
         "defaultValue": "ERROR",
         "required": "true",

@@ -93,6 +93,7 @@
         "name": "抽取列表",
         "help": "从工程目录中抽取的文件或目录，例如：target/*.war或者target/*.war:webapp/",
         "type": "text",
+        "count": 0,
         "isConst": "false",
         "defaultValue": "target/*.war",
         "required": "true",

@@ -97,6 +97,7 @@
         "name": "命令",
         "help": "命令行内容",
         "type": "text",
+        "count": 1,
         "isConst": "false",
         "defaultValue": "",
         "required": "true",

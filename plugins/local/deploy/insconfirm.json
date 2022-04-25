@@ -12,6 +12,7 @@
         "name": "实例名称",
         "help": "实例名称，一个或多个",
         "type": "text",
+        "count": 0,
         "isConst": "false",
         "defaultValue": "",
         "required": "true",
