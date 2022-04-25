@@ -4,9 +4,9 @@ import Utils
 
 
 def testEncrypt():
-    data = 'zanyue$2012'
+    data = 'E!YO@JyjD^RIwe*OE739#Sdk%'
     vContext = VContext.VContext()
-    enrypted = Utils._rc4_encrypt_hex(vContext.passKey, data)
+    enrypted = Utils._rc4_encrypt_hex('c3H002LGZRrseEPc', data)
     print(enrypted)
 
 
