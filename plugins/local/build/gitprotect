@@ -71,7 +71,7 @@ sub main {
     usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -93,9 +93,7 @@ sub main {
     my $verInfo       = $serverAdapter->getVer($buildEnv);
 
     if ( defined($token) and $token ne '' ) {
-        if ( $token =~ s/^\{ENCRYPTED\}// ) {
-            $token = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $token );
-        }
+        $token = $deployUtils->decryptPwd($token);
     }
 
     my $repo = $verInfo->{repo};
@@ -104,13 +102,13 @@ sub main {
 
     my $userId;
     my $usersJsonStr = apicall( "GET", "$apiBaseUrl/users?username=$userName", $token, "200" );
-    my $usersJson = from_json($usersJsonStr);
+    my $usersJson    = from_json($usersJsonStr);
     if ( @$usersJson[0]->{id} ne '' ) {
         $userId = @$usersJson[0]->{id};
     }
 
     my $projectsJsonStr = apicall( "GET", "$apiBaseUrl/users/$userId/projects", $token, "200" );
-    my $projectsJson = from_json($projectsJsonStr);
+    my $projectsJson    = from_json($projectsJsonStr);
 
     my $repoId;
     foreach my $prjInfo (@$projectsJson) {
@@ -136,7 +134,7 @@ sub main {
         print("INFO: withdraw $object protect: $pattern\n");
         print("INFO: check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
-        my @protects = @{ from_json($protectsJsonStr) };
+        my @protects        = @{ from_json($protectsJsonStr) };
         if (@protects) {
             foreach my $protect (@protects) {
                 if ( $protect->{name} eq $pattern ) {
@@ -151,7 +149,7 @@ sub main {
         print("INFO: add protect\n");
         print("INFO: check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
-        my @protects = @{ from_json($protectsJsonStr) };
+        my @protects        = @{ from_json($protectsJsonStr) };
         if (@protects) {
             foreach my $protect (@protects) {
                 if ( $protect->{name} eq $pattern ) {
@@ -161,7 +159,7 @@ sub main {
             }
         }
         my $protectRulesStr = apicall( "POST", "$protectApiUrl?name=$pattern", $token, "201" );
-        my $protectRules = from_json($protectRulesStr);
+        my $protectRules    = from_json($protectRulesStr);
         print("INFO: add protect: $protectRules->{name} success\n") if defined( $protectRules->{name} );
     }
 

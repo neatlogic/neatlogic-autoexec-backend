@@ -13,27 +13,14 @@ use Data::Dumper;
 sub new {
     my ( $pkg, %args ) = @_;
 
-    my $confFile    = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
-    my $config      = Config::Tiny->read($confFile);
-    my $baseurl     = $config->{server}->{'server.baseurl'};
-    my $username    = $config->{server}->{'server.username'};
-    my $password    = $config->{server}->{'server.password'};
-    my $passwordKey = $config->{server}->{'password.key'};
-
-    my $self = {
-        confFile    => $confFile,
-        baseurl     => $baseurl,
-        username    => $username,
-        password    => $password,
-        passwordKey => $passwordKey
-    };
+    my $self = {};
+    bless( $self, $pkg );
 
     if ( $ENV{AUTOEXEC_DEV_MODE} ) {
         $self->{devMode} = 1;
     }
-    $self->{DeployUtils} = DeployUtils->new();
+    $self->{deployUtils} = DeployUtils->new();
 
-    bless( $self, $pkg );
     return $self;
 }
 
@@ -199,11 +186,12 @@ sub getDBConf {
         }
     };
 
+    my $deployUtils = $self->{deployUtils};
     while ( my ( $schema, $conf ) = each(%$dbConf) ) {
         my $nodeInfo = $conf->{node};
         my $password = $nodeInfo->{password};
-        if ( defined($password) and $password =~ s/^\{ENCRYPTED\}// ) {
-            $nodeInfo->{password} = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+        if ( defined($password) ) {
+            $nodeInfo->{password} = $deployUtils->decryptPwd($password);
         }
     }
     return $dbConf;

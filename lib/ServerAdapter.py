@@ -46,12 +46,12 @@ class ServerAdapter:
         }
 
         self.context = context
-        self.serverBaseUrl = context.config.get('server', 'server.baseurl')
+        self.serverBaseUrl = context.config['server']['server.baseurl']
         if(self.serverBaseUrl[-1] != '/'):
             self.serverBaseUrl = self.serverBaseUrl + '/'
 
-        self.serverUserName = context.config.get('server', 'server.username')
-        self.serverPassword = context.config.get('server', 'server.password')
+        self.serverUserName = context.config['server']['server.username']
+        self.serverPassword = context.config['server']['server.password']
         self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
 
     def addHeaders(self, request, headers):

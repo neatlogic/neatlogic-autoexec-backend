@@ -143,7 +143,7 @@ sub main {
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
+            $pass = $deployUtils->decryptPwd($pass);
         }
     }
 

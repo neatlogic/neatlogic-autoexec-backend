@@ -6,14 +6,14 @@ import Utils
 def testEncrypt():
     data = 'zanyue$2012'
     vContext = VContext.VContext()
-    enrypted = Utils._rc4_encrypt_hex(vContext.MY_KEY, data)
+    enrypted = Utils._rc4_encrypt_hex(vContext.passKey, data)
     print(enrypted)
 
 
 def testDecrypt():
     encrypted = '05a90b9d7fcd2449928041'
     vContext = VContext.VContext()
-    data = Utils._rc4_decrypt_hex(vContext.MY_KEY, encrypted)
+    data = Utils._rc4_decrypt_hex(vContext.passKey, encrypted)
     print(data)
 
 

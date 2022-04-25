@@ -61,9 +61,8 @@ sub main() {
     }
 
     if ( defined($pass) and $pass ne '' ) {
-        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
-        }
+        my $deployUtils = DeployUtils->new();
+        $pass = $deployUtils->decryptPwd($pass);
     }
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};

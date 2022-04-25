@@ -90,9 +90,7 @@ sub main {
     my $insName = $nodeInfo->{nodeName};
 
     if ( defined($pass) and $pass ne '' ) {
-        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
-        }
+        $pass = $deployUtils->decryptPwd($pass);
     }
 
     my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $agentCharset );
@@ -119,7 +117,7 @@ sub main {
 
     if ( defined($scriptContent) and $scriptContent ne '' ) {
         my $unHexContent = pack( 'H*', $scriptContent );
-        my $hexContent = unpack( 'H*', $unHexContent );
+        my $hexContent   = unpack( 'H*', $unHexContent );
 
         if ( $hexContent eq lc($scriptContent) ) {
             $scriptContent = $unHexContent;

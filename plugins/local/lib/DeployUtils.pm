@@ -20,8 +20,31 @@ our $READ_TMOUT = 86400;
 sub new {
     my ( $pkg, %args ) = @_;
 
-    my $self = \%args;
+    my $confFile = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
+    my $config   = Config::Tiny->read($confFile);
+    my $baseurl  = $config->{server}->{'server.baseurl'};
+    my $username = $config->{server}->{'server.username'};
+    my $password = $config->{server}->{'server.password'};
+    my $passKey  = $config->{server}->{'password.key'};
+
+    my $self = {
+        confFile    => $confFile,
+        baseurl     => $baseurl,
+        username    => $username,
+        password    => $password,
+        passwordKey => $passKey
+    };
+
     bless( $self, $pkg );
+    my $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+
+    if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
+        $self->{passKey} = $self->_rc4_decrypt_hex( $MY_KEY, $passKey );
+    }
+    if ( $password =~ s/^\{ENCRYPTED\}// ) {
+        $self->{password} = $self->_rc4_decrypt_hex( $passKey, $password );
+    }
+
     return $self;
 }
 
@@ -177,8 +200,6 @@ sub isatty {
     return $isTTY;
 }
 
-our $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
-
 sub _rc4_encrypt_hex {
     my ( $self, $key, $data ) = @_;
     return join( '', unpack( 'H*', RC4( $key, $data ) ) );
@@ -187,6 +208,16 @@ sub _rc4_encrypt_hex {
 sub _rc4_decrypt_hex {
     my ( $self, $key, $data ) = @_;
     return RC4( $key, pack( 'H*', $data ) );
+}
+
+sub decryptPwd {
+    my ( $self, $data ) = @_;
+    if ( $data =~ s/^\{ENCRYPTED\}// ) {
+        return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
+    }
+    else {
+        return $data;
+    }
 }
 
 sub getFileContent {
@@ -284,7 +315,7 @@ sub getPipeOut {
     my ( $line, @outArray );
 
     my $exitCode = 0;
-    my $pid = open( PIPE, "$cmd |" );
+    my $pid      = open( PIPE, "$cmd |" );
     if ( defined($pid) ) {
         while ( $line = <PIPE> ) {
             if ( $isVerbose == 1 ) {
@@ -613,7 +644,7 @@ sub doInteract {
         while ( $hasGetInput == 0 ) {
             print("$message\n");
 
-            my $select = IO::Select->new( $pipe, \*STDIN );
+            my $select       = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {

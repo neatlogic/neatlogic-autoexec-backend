@@ -43,11 +43,11 @@ sub getCopyCmd {
     my ( $psPath, $cmd );
     if ( $method eq 'pull' ) {
         $psPath = "$FindBin::Bin/../tools/windeploy/upload.ps1";
-        $cmd = sprintf( 'PutFile "%s" "%s" "%s"', $serverPath, $remote, $transName );
+        $cmd    = sprintf( 'PutFile "%s" "%s" "%s"', $serverPath, $remote, $transName );
     }
     else {
         $psPath = "$FindBin::Bin/../tools/windeploy/download.ps1";
-        $cmd = sprintf( 'GetRemoteFile "%s?fileName=%s" "%s" %d', $serverPath, $transName, $remote, $isPack );
+        $cmd    = sprintf( 'GetRemoteFile "%s?fileName=%s" "%s" %d', $serverPath, $transName, $remote, $isPack );
     }
 
     my $content;
@@ -189,9 +189,7 @@ sub main {
     my $insName = $nodeInfo->{nodeName};
 
     if ( defined($pass) and $pass ne '' ) {
-        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
-        }
+        $pass = $deployUtils->decryptPwd($pass);
     }
 
     $port = 22 if ( not defined($port) );
@@ -261,7 +259,7 @@ sub main {
             $deployUtils->sigHandler(
                 'TERM', 'INT', 'HUP', 'ABRT',
                 sub {
-                    rmtree($transPath) if ( -e $transPath );
+                    rmtree($transPath)       if ( -e $transPath );
                     rmtree("$transPath.tar") if ( -e "$transPath.tar" );
                     return -1;
                 }
@@ -318,7 +316,7 @@ sub main {
             #$dir = "$verPath/$dir";
 
             my ( $isPack, $randStr, $fileName, $transName );
-            $isPack = 0;
+            $isPack  = 0;
             $randStr = $randStr . sprintf( "%x", rand 16 ) for 1 .. 16;
 
             $fileName  = basename($dir);
@@ -351,7 +349,7 @@ sub main {
                 exit($hasError);
             }
 
-            my $cmd = getCopyCmd( 'push', $serverPath, $transName, $dest, $isPack );
+            my $cmd    = getCopyCmd( 'push', $serverPath, $transName, $dest, $isPack );
             my $winCmd = WinCmd->new( $protocol, $host, $port, $user, $pass, $cmd, $isVerbose );
             my $result = $winCmd->exec();
 

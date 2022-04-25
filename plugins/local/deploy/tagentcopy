@@ -36,7 +36,7 @@ sub usage {
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version, $node );
     my ( $pdir,   $np,        $cpIfExists );
-    my ( $host,   $port,      $user,    $pass,    $expDir );
+    my ( $host,   $port,      $user, $pass, $expDir );
     my $isPull            = 0;
     my $isPush            = 1;
     my $noDelete          = 0;
@@ -150,9 +150,7 @@ sub main {
     my $insName = $nodeInfo->{nodeName};
 
     if ( defined($pass) and $pass ne '' ) {
-        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
-        }
+        $pass = $deployUtils->decryptPwd($pass);
     }
 
     $port = 22 if ( not defined($port) );
