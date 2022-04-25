@@ -25,12 +25,15 @@ class VContext:
             self.execUser = execUser
 
         self.params = {}
-        self.parallelCount = 25
+        #self.roundCount = 0
+        #self.parallelCount = 25
+        self.runnerId = 1
         self.tenant = ''
         self.phases = {}
         self.opt = {}
         #self.arg = []
         #self.output = {}
+        self.maxExecSecs = 86400
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath
@@ -45,9 +48,17 @@ class VContext:
         homePath = os.path.realpath(homePath + '/..')
         self.homePath = homePath
 
-        self.tenant = os.getenv('tenant')
-        if not self.tenant or self.tenant == '':
-            self.tenant = os.getenv('TENANT')
+        if 'tenant' in passThroughEnv:
+            self.tenant = passThroughEnv['tenant']
+        else:
+            self.tenant = os.getenv('tenant')
+            if not self.tenant or self.tenant == '':
+                self.tenant = os.getenv('TENANT')
+
+        if 'runnerId' in passThroughEnv:
+            self.runnerId = int(passThroughEnv['runnerId'])
+        elif 'RUNNER_ID' in os.environ:
+            self.runnerId = int(os.getenv('RUNNER_ID'))
 
         # 存放执行数据以及日志的根目录
         if (dataPath == None):
@@ -59,6 +70,10 @@ class VContext:
         cfgPath = homePath + '/conf/config.ini'
         cfg = configparser.ConfigParser()
         cfg.read(cfgPath)
+
+        maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
+        if maxExecSecs:
+            self.maxExecSecs = int(maxExecSecs)
 
         hasNoEncrypted = False
         serverPass = cfg.get('server', 'server.password')
@@ -124,14 +139,13 @@ class VContext:
         return '/'.join(subPath)
 
     def initDB(self):
-        # 初始化创建mongodb connect
         dbUrl = self.config.get('autoexec', 'db.url')
         maxPoolSize = int(self.config.get('autoexec', 'db.maxPoolSize'))
         dbName = self.config.get('autoexec', 'db.name')
         dbUsername = self.config.get('autoexec', 'db.username')
         dbPassword = self.config.get('autoexec', 'db.password')
 
-        if maxPoolSize == 0:
+        if maxPoolSize <= 0:
             maxPoolSize = 64
 
         if dbUrl is not None:

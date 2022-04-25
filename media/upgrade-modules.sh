@@ -13,7 +13,7 @@ declare -a INS_FAIL_PKGS
 PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools)
 
 for PKG in ${PKGS[@]}; do
-    pip3 install $PKG -t $AUTOEXEC_HOME/plib
+    pip3 install --upgrade $PKG -t $AUTOEXEC_HOME/plib
 
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}ERROR: Install package:$PKG failed.${NC}"
