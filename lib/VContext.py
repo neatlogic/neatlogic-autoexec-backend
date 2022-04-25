@@ -57,7 +57,7 @@ class VContext:
 
         if 'runnerId' in passThroughEnv:
             self.runnerId = int(passThroughEnv['runnerId'])
-        else:
+        elif 'RUNNER_ID' in os.environ:
             self.runnerId = int(os.getenv('RUNNER_ID'))
 
         # 存放执行数据以及日志的根目录
@@ -69,9 +69,19 @@ class VContext:
         # 读取配置
         cfgPath = homePath + '/conf/config.ini'
         cfg = configparser.ConfigParser()
+        cfg.optionxform = str
         cfg.read(cfgPath)
 
-        maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
+        config = {}
+        self.config = config
+        for section in cfg.sections():
+            config[section] = {}
+            for confKey in cfg[section]:
+                config[section][confKey] = cfg[section][confKey]
+
+        #maxExecSecs = cfg.get('autoexec', 'job.maxExecSecs')
+        maxExecSecs = config['autoexec']['job.maxExecSecs']
+
         if maxExecSecs:
             self.maxExecSecs = int(maxExecSecs)
 
@@ -80,46 +90,42 @@ class VContext:
         passKey = cfg.get('server', 'password.key')
         autoexecDBPass = cfg.get('autoexec', 'db.password')
 
-        if serverPass.startswith('{ENCRYPTED}'):
-            serverPass = Utils._rc4_decrypt_hex(self.MY_KEY, serverPass[11:])
-            cfg.set('server', 'server.password', serverPass)
-        else:
-            hasNoEncrypted = True
-
         if passKey.startswith('{ENCRYPTED}'):
             passKey = Utils._rc4_decrypt_hex(self.MY_KEY, passKey[11:])
-            cfg.set('server', 'password.key', passKey)
+            config['server']['password.key'] = passKey
+        else:
+            hasNoEncrypted = True
+        self.passKey = passKey
+
+        if serverPass.startswith('{ENCRYPTED}'):
+            serverPass = Utils._rc4_decrypt_hex(self.passKey, serverPass[11:])
+            config['server']['server.password'] = serverPass
         else:
             hasNoEncrypted = True
 
         if autoexecDBPass.startswith('{ENCRYPTED}'):
-            autoexecDBPass = Utils._rc4_decrypt_hex(self.MY_KEY, autoexecDBPass[11:])
-            cfg.set('autoexec', 'db.password', autoexecDBPass)
+            autoexecDBPass = Utils._rc4_decrypt_hex(self.passKey, autoexecDBPass[11:])
+            config['autoexec']['db.password'] = autoexecDBPass
         else:
             hasNoEncrypted = True
 
-        self.config = cfg
-
         if hasNoEncrypted:
-            mcfg = configparser.ConfigParser()
-            mcfg.read(cfgPath)
-
-            serverPass = mcfg.get('server', 'server.password')
-            passKey = mcfg.get('server', 'password.key')
-            autoexecDBPass = mcfg.get('autoexec', 'db.password')
-
-            if not serverPass.startswith('{ENCRYPTED}'):
-                mcfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, serverPass))
+            serverPass = config['server']['server.password']
+            passKey = config['server']['password.key']
+            autoexecDBPass = config['autoexec']['db.password']
 
             if not passKey.startswith('{ENCRYPTED}'):
-                mcfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
+                cfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
+
+            if not serverPass.startswith('{ENCRYPTED}'):
+                cfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.passKey, serverPass))
 
             if not autoexecDBPass.startswith('{ENCRYPTED}'):
-                mcfg.set('autoexec', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, autoexecDBPass))
+                cfg.set('autoexec', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.passKey, autoexecDBPass))
 
             with FileLock(cfgPath):
                 fp = open(cfgPath, 'w')
-                mcfg.write(fp)
+                cfg.write(fp)
                 fp.close()
 
         # 存放任务参数，输入输出信息，日志的目录，为了避免单目录子目录数量太多，对ID进行每3个字母分段处理
@@ -139,11 +145,11 @@ class VContext:
         return '/'.join(subPath)
 
     def initDB(self):
-        dbUrl = self.config.get('autoexec', 'db.url')
-        maxPoolSize = int(self.config.get('autoexec', 'db.maxPoolSize'))
-        dbName = self.config.get('autoexec', 'db.name')
-        dbUsername = self.config.get('autoexec', 'db.username')
-        dbPassword = self.config.get('autoexec', 'db.password')
+        dbUrl = self.config['autoexec']['db.url']
+        maxPoolSize = int(self.config['autoexec']['db.maxPoolSize'])
+        dbName = self.config['autoexec']['db.name']
+        dbUsername = self.config['autoexec']['db.username']
+        dbPassword = self.config['autoexec']['db.password']
 
         if maxPoolSize <= 0:
             maxPoolSize = 64

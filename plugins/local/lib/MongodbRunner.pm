@@ -19,19 +19,24 @@ sub _rc4_decrypt_hex ($$) {
 }
 
 sub new {
-    my ($type)   = @_;
-    my $MY_KEY   = 'E!YO@JyjD^RIwe*OE739#Sdk%';
-    my $pwd      = getcwd;
-    my $cfg_path = $pwd . '/../../../conf/config.ini';
-    my $cfg = Config::IniFiles->new( -file => "$cfg_path" );
+    my ($type)      = @_;
+    my $MY_KEY      = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+    my $pwd         = getcwd;
+    my $cfg_path    = $pwd . '/../../../conf/config.ini';
+    my $cfg         = Config::IniFiles->new( -file => "$cfg_path" );
     my $db_url      = $cfg->val( 'autoexec', 'db.url' );
     my $db_name     = $cfg->val( 'autoexec', 'db.name' );
     my $db_username = $cfg->val( 'autoexec', 'db.username' );
+    my $pass_key    = $cfg->val( 'autoexec', 'password.key' );
     my $db_password = $cfg->val( 'autoexec', 'db.password' );
 
     if ( $db_password =~ /\{ENCRYPTED\}/ ) {
+        $pass_key = _rc4_decrypt_hex( $MY_KEY, $pass_key );
+    }
+
+    if ( $db_password =~ /\{ENCRYPTED\}/ ) {
         $db_password =~ s/\{ENCRYPTED\}//;
-        $db_password = _rc4_decrypt_hex( $MY_KEY, $db_password );
+        $db_password = _rc4_decrypt_hex( $pass_key, $db_password );
     }
 
     my $dbclient = MongoDB::MongoClient->new(

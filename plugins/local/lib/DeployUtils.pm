@@ -27,24 +27,23 @@ sub new {
     my $password = $config->{server}->{'server.password'};
     my $passKey  = $config->{server}->{'password.key'};
 
-    my $deployUtils = DeployUtils->new();
-    if ( defined($passKey) and $passKey =~ s/^\{ENCRYPTED\}// ) {
-        $passKey = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $passKey );
-    }
-
-    if ( defined($password) and $password =~ s/^\{ENCRYPTED\}// ) {
-        $password = $deployUtils->_rc4_decrypt_hex( $passKey, $password );
-    }
-
     my $self = {
-        confFile => $confFile,
-        baseurl  => $baseurl,
-        username => $username,
-        password => $password,
-        passKey  => $passKey
+        confFile    => $confFile,
+        baseurl     => $baseurl,
+        username    => $username,
+        password    => $password,
+        passwordKey => $passKey
     };
 
     bless( $self, $pkg );
+    my $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
+
+    if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
+        $self->{passKey} = $self->_rc4_decrypt_hex( $MY_KEY, $passKey );
+    }
+    if ( $password =~ s/^\{ENCRYPTED\}// ) {
+        $self->{password} = $self->_rc4_decrypt_hex( $passKey, $password );
+    }
 
     return $self;
 }
@@ -201,8 +200,6 @@ sub isatty {
     return $isTTY;
 }
 
-our $MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%';
-
 sub _rc4_encrypt_hex {
     my ( $self, $key, $data ) = @_;
     return join( '', unpack( 'H*', RC4( $key, $data ) ) );
@@ -211,6 +208,16 @@ sub _rc4_encrypt_hex {
 sub _rc4_decrypt_hex {
     my ( $self, $key, $data ) = @_;
     return RC4( $key, pack( 'H*', $data ) );
+}
+
+sub decryptPwd {
+    my ( $self, $data ) = @_;
+    if ( $data =~ s/^\{ENCRYPTED\}// ) {
+        return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
+    }
+    else {
+        return $data;
+    }
 }
 
 sub getFileContent {

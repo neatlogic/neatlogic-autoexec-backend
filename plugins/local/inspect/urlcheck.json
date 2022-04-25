@@ -23,6 +23,7 @@
         "help": "例如：GET, http://${host}:${port}/console",
         "isConst": "false",
         "type": "text",
+        "count": 0,
         "defaultValue": "GET, http://${host}:${port}/",
         "required": "true",
         "validate": ""

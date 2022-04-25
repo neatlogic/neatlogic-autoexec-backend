@@ -6,8 +6,9 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "SQL文件执行工具（非自动发布）",
-    "enabled": 0,
-    "option": [{
+    "enabled": 1,
+    "option": [
+        {
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",
@@ -23,7 +24,8 @@
             "help": "SQL文件的编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "自动识别",
                     "value": "",
                     "selected": "true"
@@ -46,7 +48,8 @@
             "help": "测试运行，并没有真正执行SQL",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -65,7 +68,8 @@
             "help": "不管SQL处于什么状态，重复强制执行SQL文件",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"
@@ -84,7 +88,8 @@
             "help": "SQL执行，每执行一条SQL自动提交",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "否",
                     "value": "0",
                     "selected": "true"

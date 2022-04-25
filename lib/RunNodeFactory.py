@@ -96,7 +96,7 @@ class RunNodeFactory:
             if 'password' in nodeObj:
                 password = nodeObj['password']
                 if password.startswith('{ENCRYPTED}'):
-                    password = Utils._rc4_decrypt_hex(self.context.MY_KEY, password[11:])
+                    password = Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
                     nodeObj['password'] = password
             else:
                 nodeObj['password'] = ''

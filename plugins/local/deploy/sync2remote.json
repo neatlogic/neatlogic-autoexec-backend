@@ -235,6 +235,7 @@
         "name": "文件或目录",
         "help": "最后一个是拷贝的目标文件或目录，类似真实的scp命令",
         "type": "text",
+        "count": 0,
         "isConst": "false",
         "defaultValue": "",
         "required": "true",

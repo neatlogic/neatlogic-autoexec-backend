@@ -11,6 +11,7 @@
         "name": "导出变量名",
         "help": "需要导出的环境变量名",
         "isConst": "false",
+        "count": 0,
         "type": "text",
         "defaultValue": "",
         "required": "true",

@@ -62,6 +62,7 @@
         "name": "检查目录",
         "help": "检查目录，支持通配符和反引号",
         "type": "text",
+        "count": 0,
         "isConst": "false",
         "defaultValue": "",
         "required": "true",

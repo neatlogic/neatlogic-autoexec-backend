@@ -56,10 +56,9 @@ sub new {
         $self->{oraWallet} = $dbName;
     }
 
-    my $password = $self->{password};
-    if ( $password =~ s/^\{ENCRYPTED\}// ) {
-        $self->{password} = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
-    }
+    my $deployUtils = DeployUtils->new();
+    my $password    = $self->{password};
+    $password = $deployUtils->decryptPwd($password);
     bless( $self, $type );
     return $self;
 }

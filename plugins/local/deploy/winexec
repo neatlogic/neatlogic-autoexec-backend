@@ -80,9 +80,7 @@ sub main {
 
     my $deployUtils = DeployUtils->new();
     if ( defined($pass) and $pass ne '' ) {
-        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
-            $pass = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $pass );
-        }
+        $pass = $deployUtils->decryptPwd($pass);
     }
 
     $cmd =~ s/\"/\\\"/g;

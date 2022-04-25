@@ -36,7 +36,7 @@ if __name__ == "__main__":
     password = nodeInfo['password']
     if password.startswith('{ENCRYPTED}'):
         vContext = VContext.VContext(0)
-        password = Utils._rc4_decrypt_hex(vContext.MY_KEY, password[11:])
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
         nodeInfo['password'] = password
 
     hasError = 0

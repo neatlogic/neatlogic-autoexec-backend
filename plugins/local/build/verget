@@ -30,7 +30,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $isHelp,   $isVerbose, $lang, $envPath, $version );
     my ( $repoType, $repo, $trunk, $branch, $tagsDir, $tag );
     my ( $userName, $password );
     my $pname = $FindBin::Script;
@@ -59,7 +59,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -107,14 +107,12 @@ sub main {
         $versionInfo->{username} = $userName;
     }
     if ( defined($password) and $password ne '' ) {
-        if ( $password =~ s/^\{ENCRYPTED\}// ) {
-            $password = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
-        }
+        $password = $deployUtils->decryptPwd($password);
         $versionInfo->{password} = $password;
     }
 
     my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
-    my $ret = $verGet->get();
+    my $ret    = $verGet->get();
 
     my $desc = "Get version for $namePath version:$version";
     if ( $ret eq 0 ) {

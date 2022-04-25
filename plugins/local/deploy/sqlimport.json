@@ -6,8 +6,9 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "SQL文件导入工具（非自动发布）",
-    "enabled": 0,
-    "option": [{
+    "enabled": 1,
+    "option": [
+        {
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",

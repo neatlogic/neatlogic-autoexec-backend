@@ -14,15 +14,14 @@ sub new {
     my ( $pkg, %args ) = @_;
 
     my $self = {};
+    bless( $self, $pkg );
 
     if ( $ENV{AUTOEXEC_DEV_MODE} ) {
         $self->{devMode} = 1;
     }
 
-    my $deployUtils = DeployUtils->new();
-    $self->{DeployUtils} = $deployUtils;
+    $self->{deployUtils} = DeployUtils->new();
 
-    bless( $self, $pkg );
     return $self;
 }
 
@@ -188,11 +187,12 @@ sub getDBConf {
         }
     };
 
+    my $deployUtils = $self->{deployUtils};
     while ( my ( $schema, $conf ) = each(%$dbConf) ) {
         my $nodeInfo = $conf->{node};
         my $password = $nodeInfo->{password};
-        if ( defined($password) and $password =~ s/^\{ENCRYPTED\}// ) {
-            $nodeInfo->{password} = DeployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
+        if ( defined($password) ) {
+            $nodeInfo->{password} = $deployUtils->decryptPwd($password);
         }
     }
     return $dbConf;

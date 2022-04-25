@@ -41,24 +41,30 @@ def getAutoexecContext():
         cfg = configparser.ConfigParser()
         cfg.read(cfgPath)
 
-        serverPass = cfg.get('server', 'server.password')
-        passKey = cfg.get('server', 'password.key')
-        autoexecDBPass = cfg.get('autoexec', 'db.password')
+        config = {}
+        for section in cfg.sections():
+            config[section] = {}
+            for confKey in cfg[section]:
+                config[section][confKey] = cfg[section][confKey]
+
+        serverPass = config['server']['server.password']
+        passKey = config['server']['password.key']
+        autoexecDBPass = config['autoexec']['db.password']
 
         MY_KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
-        if serverPass.startswith('{ENCRYPTED}'):
-            serverPass = _rc4_decrypt_hex(MY_KEY, serverPass[11:])
-            cfg.set('server', 'server.password', serverPass)
-
         if passKey.startswith('{ENCRYPTED}'):
             passKey = _rc4_decrypt_hex(MY_KEY, passKey[11:])
-            cfg.set('server', 'password.key', passKey)
+            config['server']['password.key'] = passKey
+
+        if serverPass.startswith('{ENCRYPTED}'):
+            serverPass = _rc4_decrypt_hex(passKey, serverPass[11:])
+            config['server']['server.password'] = serverPass
 
         if autoexecDBPass.startswith('{ENCRYPTED}'):
-            autoexecDBPass = _rc4_decrypt_hex(MY_KEY, autoexecDBPass[11:])
-            cfg.set('autoexec', 'db.password', autoexecDBPass)
+            autoexecDBPass = _rc4_decrypt_hex(passKey, autoexecDBPass[11:])
+            config['autoexec']['db.password'] = autoexecDBPass
 
-        AUTOEXEC_CONTEXT = Context(cfg, os.getenv('AUTOEXEC_TENENT'))
+        AUTOEXEC_CONTEXT = Context(config, os.getenv('AUTOEXEC_TENENT'))
     return AUTOEXEC_CONTEXT
 
 
@@ -112,10 +118,10 @@ def _rc4_decrypt_hex(key, data):
 def getDB():
     context = getAutoexecContext()
     cfg = context.config
-    dburl = cfg.get('autoexec', 'db.url')
-    dbname = cfg.get('autoexec', 'db.name')
-    dbuser = cfg.get('autoexec', 'db.username')
-    dbpwd = cfg.get('autoexec', 'db.password')
+    dburl = cfg['autoexec']['db.url']
+    dbname = cfg['autoexec']['db.name']
+    dbuser = cfg['autoexec']['db.username']
+    dbpwd = cfg['autoexec']['db.password']
 
     dbclient = pymongo.MongoClient(dburl, username=dbuser, password=dbpwd)
     mydb = dbclient[dbname]

@@ -95,7 +95,7 @@ class Operation:
 
         self.runPath = context.runPath
         self.dataPath = context.dataPath
-        self.passKey = context.config.get('server', 'password.key')
+        self.passKey = context.config['server']['password.key']
         self.param = param
 
         # 加载操作的output描述，并计算抽取出文件output属性
@@ -344,7 +344,7 @@ class Operation:
                 else:
                     jsonStr = jsonStr.replace("'", "'\\''")
                     cmd = cmd + " '{}'".format(jsonStr)
-        elif argDesc == 'password'  or argDesc == 'account':
+        elif argDesc == 'password' or argDesc == 'account':
             for argValue in self.arguments:
                 if osType == 'windows':
                     #argValue = argValue.replace('\\', '\\\\')

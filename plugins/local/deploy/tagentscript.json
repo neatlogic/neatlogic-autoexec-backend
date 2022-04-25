@@ -103,14 +103,5 @@
             "validate": ""
         }
     ],
-    "argument": {
-        "name": "命令",
-        "help": "命令行内容",
-        "type": "text",
-        "isConst": "false",
-        "defaultValue": "",
-        "required": "true",
-        "validate": ""
-    },
     "output": []
 }

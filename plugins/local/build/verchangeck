@@ -51,7 +51,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -86,14 +86,12 @@ sub main {
         $verInfo->{username} = $userName;
     }
     if ( defined($password) and $password ne '' ) {
-        if ( $password =~ s/^\{ENCRYPTED\}// ) {
-            $password = $deployUtils->_rc4_decrypt_hex( $DeployUtils::MY_KEY, $password );
-        }
+        $password = $deployUtils->decryptPwd($password);
         $verInfo->{password} = $password;
     }
 
     my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
-    my $ret = $verGet->checkChangedAfterCompiled();
+    my $ret    = $verGet->checkChangedAfterCompiled();
 
     if ( $ret eq 0 ) {
         print("FINEST: $namePath version:$version source code not changed after compiled.\n");
