@@ -8,8 +8,6 @@ import time
 import shutil
 from pathlib import Path
 
-import traceback
-
 
 class JobPurger:
     def __init__(self, context, reserveDays):

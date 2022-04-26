@@ -4,9 +4,6 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  提供读取节点运行的输出和在某个阶段各个节点的运行状态的共享存放处理，存放到公共的mogondb
 """
-import sys
-import os
-import pymongo
 import datetime
 
 import AutoExecError

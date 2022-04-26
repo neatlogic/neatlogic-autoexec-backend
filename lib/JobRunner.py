@@ -18,12 +18,14 @@ import PhaseNodeFactory
 import Operation
 import PhaseExecutor
 import NodeStatus
+import GlobalLocks
 
 
 class ListenWorkThread(threading.Thread):
     def __init__(self, name, server, queue, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
+        self.globalLocks = GlobalLocks.GlobalLocks()
         self.context = context
         server.server = server
         self.queue = queue
@@ -57,7 +59,7 @@ class ListenWorkThread(threading.Thread):
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
                     elif actionData['action'] == 'deployLock':
-                        lockId = serverAdapter.deployLock(actionData['lockParams'])
+                        lockId = self.globalLocks.doLock(actionData['lockParams'])
                         self.server.sendto({'lockId': lockId}, addr)
 
                     elif actionData['action'] == 'exit':
@@ -523,6 +525,7 @@ class JobRunner:
 
     def kill(self):
         self.context.goToStop = True
+        self.globalLocks.stop()
         self.stopListen()
         self.context.close()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
@@ -536,6 +539,7 @@ class JobRunner:
 
     def pause(self):
         self.context.goToStop = True
+        self.globalLocks.stop()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
             phaseStatus.isPausing = 1

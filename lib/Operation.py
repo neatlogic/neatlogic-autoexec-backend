@@ -6,11 +6,8 @@
  文件参数转换为对当前file子目录下文件路径名
  密码参数进行解密
 """
-import sys
 import os
 import fcntl
-import stat
-import subprocess
 import re
 import json
 

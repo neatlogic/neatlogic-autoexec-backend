@@ -4,7 +4,6 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  提供读取节点文件，遍历节点，更新节点运行状态功能
 """
-import sys
 import os
 import json
 import Utils
@@ -112,6 +111,5 @@ class RunNodeFactory:
             if self.nodesFile is not None:
                 self.nodesFile.close()
             self.nodesFile = None
-
 
         return nodeObj

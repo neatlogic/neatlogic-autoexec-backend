@@ -26,6 +26,7 @@ import Utils
 import VContext
 import Context
 import ServerAdapter
+import GlobalLocks
 import OutputStore
 import JobPurger
 
@@ -284,6 +285,9 @@ if __name__ == "__main__":
         purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
         purger.purge()
     else:
+        # 初始化单例的GlobalLocks
+        GlobalLocks.GlobalLocks()
+
         sqlFilesJson = args.sqlfiles
         if sqlFilesJson is not None and sqlFilesJson != '':
             os.environ['_SQL_FILES'] = sqlFilesJson

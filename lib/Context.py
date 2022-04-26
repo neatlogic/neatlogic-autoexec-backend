@@ -5,9 +5,7 @@
 """
 
 import os
-import threading
 from filelock import FileLock
-import configparser
 import json
 from shutil import copyfile
 import datetime
@@ -16,7 +14,6 @@ import VContext
 import PhaseStatus
 import ServerAdapter
 import AutoExecError
-import Utils
 
 
 class Context(VContext.VContext):

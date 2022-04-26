@@ -3,7 +3,6 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-import sys
 import os
 import stat
 import fcntl
@@ -53,15 +52,9 @@ class ServerAdapter:
         if(self.serverBaseUrl[-1] != '/'):
             self.serverBaseUrl = self.serverBaseUrl + '/'
 
-        self.deployLocks = {}
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
         self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
-
-    def __del__(self):
-        for lockId, lockParams in self.deployLocks.items():
-            lockParams['action'] = 'unlock'
-            self.deployLock(lockParams)
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -188,7 +181,7 @@ class ServerAdapter:
             'runnerId': self.context.runnerId,
             'passThroughEnv': self.context.passThroughEnv,
             'phase': '',
-            'nodeFrom':'job'
+            'nodeFrom': 'job'
         }
 
         if phase is not None:
@@ -220,7 +213,7 @@ class ServerAdapter:
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
 
-            #elif response.status == 205:
+            # elif response.status == 205:
                 # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
             #    pass
             elif response.status == 204:
@@ -532,7 +525,7 @@ class ServerAdapter:
         except:
             raise
 
-    def deployLock(self, lockParams):
+    def callGlobalLock(self, lockParams):
         # Lock reqeust
         # lockParams = {
         #     'lockId': None,
@@ -545,6 +538,7 @@ class ServerAdapter:
         #     'version': '2.0.0',
         #     'buildNo': '2',
         #     'action': 'lock',  # unlock
+        #     'wait': 1, #0｜1，wait or not
         #     'lockTarget': 'workspace',  # build mirror env/app env/sql
         #     'lockMode': 'read',  # write
         #     'namePath': 'mySys/myModule/SIT'
@@ -553,9 +547,6 @@ class ServerAdapter:
         # lockParams = {
         #     'lockId': 83205734845,
         # }
-
-        lockId = lockParams['lockId']
-        lockActoin = lockParams['action']
         response = self.httpJSON(self.apiMap['deployLock'], self.authToken, lockParams)
 
         try:
@@ -564,17 +555,6 @@ class ServerAdapter:
             retObj = json.loads(content)
             if retObj['Status'] == 'OK':
                 lockInfo = retObj['Return']
-                if lockId is None:
-                    lockId = lockInfo['lockId']
-                    lockParams['lockId'] = lockId
-                    self.deployLocks[lockId] = lockParams
-                else:
-                    self.deployLocks.pop(lockId)
-                # lockInfo = {
-                #     'lockId':23403298324,
-                #     'status':'failed',#success
-                #     'message':'Lock help by job:xxxxx'
-                # }
                 return lockInfo
             else:
                 raise AutoExecError("Lock failed, {}".format(retObj['Message']))

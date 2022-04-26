@@ -4,11 +4,9 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  运行节点类
 """
-import sys
 import os
 import traceback
 import fcntl
-import io
 import signal
 import time
 import stat
@@ -21,7 +19,6 @@ import traceback
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
-import AutoExecError
 import NodeStatus
 import TagentClient
 import Utils
