@@ -285,9 +285,6 @@ if __name__ == "__main__":
         purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
         purger.purge()
     else:
-        # 初始化单例的GlobalLocks
-        GlobalLocks.GlobalLocks()
-
         sqlFilesJson = args.sqlfiles
         if sqlFilesJson is not None and sqlFilesJson != '':
             os.environ['_SQL_FILES'] = sqlFilesJson
@@ -299,6 +296,9 @@ if __name__ == "__main__":
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
         os.environ['AUTOEXEC_TENENT'] = context.tenant
+
+        # 初始化单例的GlobalLocks
+        GlobalLocks.GlobalLocks(context)
 
         # 初始化console日志文件
         logDir = context.runPath + '/log'

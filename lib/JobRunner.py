@@ -4,9 +4,9 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
 import os
-import time
 import socket
 import threading
+import _thread
 import queue
 import traceback
 import json
@@ -31,7 +31,6 @@ class ListenWorkThread(threading.Thread):
         self.queue = queue
 
     def run(self):
-        serverAdapter = self.context.serverAdapter
         while not self.goToStop:
             reqObj = self.queue.get()
             if reqObj is None:
@@ -59,8 +58,7 @@ class ListenWorkThread(threading.Thread):
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
                     elif actionData['action'] == 'deployLock':
-                        lockId = self.globalLocks.doLock(actionData['lockParams'])
-                        self.server.sendto({'lockId': lockId}, addr)
+                        _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
 
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
@@ -70,6 +68,10 @@ class ListenWorkThread(threading.Thread):
 
     def stop(self):
         self.goToStop = True
+
+    def doLock(self, lockParams, addr):
+        lockId = self.globalLocks.doLock(lockParams)
+        self.server.sendto({'lockId': lockId}, addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
@@ -85,8 +87,12 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         self.workers = workers
         for i in range(8):
             worker = ListenWorkThread('Listen-Worker-{}'.format(i), self.server, self.workQueue, self.context)
+            worker.setDaemon(True)
             worker.start()
             workers.append(worker)
+
+    def __del__(self):
+        self.stop()
 
     def run(self):
         socketPath = self.socketPath
@@ -109,7 +115,9 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def stop(self):
         self.goToStop = True
         try:
-            self.server.close()
+            if self.server is not None:
+                self.server.close()
+                self.server = None
             if os.path.exists(self.socketPath):
                 os.remove(self.socketPath)
 

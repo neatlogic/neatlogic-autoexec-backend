@@ -44,7 +44,7 @@ class ServerAdapter:
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
-            'deployLock': 'codedriver/public/api/rest/ezdeploy/lock'
+            'globalLock': 'codedriver/public/api/rest/ezdeploy/lock'
         }
 
         self.context = context
@@ -547,7 +547,7 @@ class ServerAdapter:
         # lockParams = {
         #     'lockId': 83205734845,
         # }
-        response = self.httpJSON(self.apiMap['deployLock'], self.authToken, lockParams)
+        response = self.httpJSON(self.apiMap['globalLock'], self.authToken, lockParams)
 
         try:
             charset = response.info().get_content_charset()

@@ -17,6 +17,7 @@ class GlobalLock(object):
         return GlobalLock._instance
 
     def __init__(self, context):
+        self.goToStop = False
         self.context = context
         self.globalLocks = {}
 
@@ -32,6 +33,7 @@ class GlobalLock(object):
             del(self.globalLocks[lockId])
 
     def stop(self):
+        self.goToStop = True
         for lockId in self.globalLocks.keys():
             lockEvent = self.globalLocks[lockId]
             if lockEvent is not None:
@@ -78,6 +80,9 @@ class GlobalLock(object):
         # lockParams = {
         #     'lockId': 83205734845,
         # }
+        if self.goToStop:
+            return None
+
         serverAdapter = self.context.serverAdapter
         lockParams['action'] = 'lock'
         lockInfo = serverAdapter.callGlobalLock(lockParams)
@@ -94,9 +99,11 @@ class GlobalLock(object):
             self._putLock(lockId, lockedEvent)
             print("INFO: Wait because of:" + lockInfo['message'])
             if not lockedEvent.wait(timeout=3600):
+                cancelId = lockId
+                lockId = None
                 print("ERROR: Lock {} {} timeout.\n".format(namePath, lockTarget))
                 lockParams['action'] = 'cancel'
-                self.cancel(lockId)
+                self.cancel(cancelId)
         else:
             self._putLock(lockId, None)
         return lockId
