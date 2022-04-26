@@ -4,39 +4,43 @@ use strict;
 package ServerConf;
 
 use FindBin;
+use feature 'state';
 use CWD;
 use Crypt::RC4;
 use Config::Tiny;
 
 sub new {
-    my ( $pkg, %args ) = @_;
+    my ($pkg) = @_;
 
-    my $confFile = Cwd::abs_path("$FindBin::Script/../../../conf/config.ini");
-    my $config   = Config::Tiny->read($confFile);
-    my $baseurl  = $config->{server}->{'server.baseurl'};
-    my $username = $config->{server}->{'server.username'};
-    my $password = $config->{server}->{'server.password'};
-    my $passKey  = $config->{server}->{'password.key'};
+    state $instance;
+    if ( !defined($instance) ) {
+        my $confFile = Cwd::abs_path("$FindBin::Bin/../../../conf/config.ini");
+        my $config   = Config::Tiny->read($confFile);
+        my $baseurl  = $config->{server}->{'server.baseurl'};
+        my $username = $config->{server}->{'server.username'};
+        my $password = $config->{server}->{'server.password'};
+        my $passKey  = $config->{server}->{'password.key'};
 
-    my $self = {
-        confFile => $confFile,
-        baseurl  => $baseurl,
-        username => $username,
-        password => $password,
-        passKey  => $passKey
-    };
+        my $MY_KEY = 'c3H002LGZRrseEPc';
+        if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
+            $passKey = $pkg->_rc4_decrypt_hex( $MY_KEY, $passKey );
+        }
+        if ( $password =~ s/^\{ENCRYPTED\}// ) {
+            $password = $pkg->_rc4_decrypt_hex( $passKey, $password );
+        }
 
-    bless( $self, $pkg );
+        my $self = {
+            confFile => $confFile,
+            baseurl  => $baseurl,
+            username => $username,
+            password => $password,
+            passKey  => $passKey
+        };
 
-    my $MY_KEY = 'c3H002LGZRrseEPc';
-    if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
-        $self->{passKey} = $self->_rc4_decrypt_hex( $MY_KEY, $passKey );
+        $instance = bless( $self, $pkg );
     }
-    if ( $password =~ s/^\{ENCRYPTED\}// ) {
-        $self->{password} = $self->_rc4_decrypt_hex( $passKey, $password );
-    }
 
-    return $self;
+    return $instance;
 }
 
 sub _rc4_encrypt_hex {

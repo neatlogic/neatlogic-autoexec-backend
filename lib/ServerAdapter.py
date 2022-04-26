@@ -499,18 +499,6 @@ class ServerAdapter:
         # Unlock request
         # lockParams = {
         #     'lockId': 83205734845,
-        #     'sysId': 343,
-        #     'moduleId': 4353,
-        #     'envId': 3,
-        #     'sysName': 'mySys',
-        #     'moduleName': 'myModule',
-        #     'envName': 'SIT',
-        #     'version': '2.0.0',
-        #     'buildNo': '2',
-        #     'action': 'lock',  # unlock
-        #     'lockTarget': 'workspace',  # build mirror env/app env/sql
-        #     'lockMode': 'read',  # write
-        #     'namePath': 'mySys/myModule/SIT'
         # }
 
         lockId = lockParams['lockId']
@@ -529,7 +517,12 @@ class ServerAdapter:
                     self.deployLocks[lockId] = lockParams
                 else:
                     self.deployLocks.pop(lockId)
-                return lockId
+                # lockInfo = {
+                #     'lockId':23403298324,
+                #     'status':'failed',#success
+                #     'message':'Lock help by job:xxxxx'
+                # }
+                return lockInfo
             else:
                 raise AutoExecError("Lock failed, {}".format(retObj['Message']))
         except:

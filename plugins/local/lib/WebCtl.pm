@@ -85,7 +85,7 @@ sub addCredentials {
 
     $url =~ s/\?.*$//;
 
-    my @parts = split( '/', $url );
+    my @parts   = split( '/', $url );
     my $service = $parts[0];
     $passStore->{$service}                = [ $user, $pass ];
     $passStore->{"$protocol://$service"}  = [ $user, $pass ];
@@ -127,17 +127,21 @@ sub convCharSet {
     my $contentEncoding;
 
     if ( not defined($charSet) ) {
-        $contentEncoding = 'utf-8';
+        $contentEncoding = 'UTF-8';
         my $contentType = $client->responseHeader('Content-Type');
-        $contentEncoding = $1 if ( $contentType =~ /charset=(.*)$/ );
+        if ( $contentType =~ /charset=(.*)$/ ) {
+            $contentEncoding = uc($1);
+        }
     }
     else {
         $contentEncoding = $charSet;
     }
 
-    my $lang = $ENV{LANG};
+    my $lang     = $ENV{LANG};
     my $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
-    $encoding = 'utf-8' if ( $encoding eq 'utf8' );
+    if ( $encoding eq '' or uc($encoding) eq 'UTF8' ) {
+        $encoding = 'UTF-8';
+    }
     if ( $encoding ne $contentEncoding ) {
         $content = Encode::encode( $encoding, Encode::decode( $contentEncoding, $content ) );
     }
@@ -203,7 +207,7 @@ sub doPost {
     $client->POST( $url, $params );
 
     my $content = $self->convCharSet( $client->responseContent() );
-    if ( $client->responseCode() eq 500 or $client->responseCode() eq 404 or $client->responseCode() eq 401 ) {
+    if ( $client->responseCode() >= 400 ) {
         die( "call url:$url failed," . $content . "\n" );
     }
 
