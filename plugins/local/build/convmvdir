@@ -9,7 +9,7 @@ use Encode::Guess;
 use File::Find;
 
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;

@@ -1,16 +1,14 @@
 #!/usr/bin/perl
-
+use strict;
 use FindBin;
 
-use strict;
 use Getopt::Long;
 use File::Copy;
 use File::Path;
 use Cwd;
 
 use DeployUtils;
-use BuildLock;
-use BuildLock;
+use DeployLock;
 use VerGet;
 use ServerAdapter;
 
@@ -71,8 +69,8 @@ sub main {
 
     my $namePath = $buildEnv->{NAME_PATH};
 
-    my $lock = BuildLock->new($buildEnv);
-    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $lock = DeployLock->new($buildEnv);
+    $lock->lockWorkspace($DeployLock::WRITE);
 
     my $serverAdapter = ServerAdapter->new();
     my $verInfo       = $serverAdapter->getVer($buildEnv);

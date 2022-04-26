@@ -10,7 +10,7 @@ use JSON;
 use SyncLocal2Remote;
 use SyncRemote2Local;
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;

@@ -8,7 +8,7 @@ use Cwd;
 
 use TagentClient;
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;

@@ -2,6 +2,7 @@
 use strict;
 
 package DeployUtils;
+use feature 'state';
 use Cwd;
 use Crypt::RC4;
 use Encode;
@@ -19,14 +20,17 @@ our $TERM_CHARSET;
 our $READ_TMOUT = 86400;
 
 sub new {
-    my ( $pkg, %args ) = @_;
+    my ($pkg) = @_;
 
-    my $self = {};
-    bless( $self, $pkg );
+    state $instance;
+    if ( !defined($instance) ) {
+        my $self = {};
+        $instance = bless( $self, $pkg );
 
-    $self->{serverConf} = ServerConf->new();
+        $self->{serverConf} = ServerConf->new();
+    }
 
-    return $self;
+    return $instance;
 }
 
 sub deployInit {

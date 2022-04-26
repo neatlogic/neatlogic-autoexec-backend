@@ -7,6 +7,7 @@ import os
 import time
 import socket
 import threading
+import queue
 import traceback
 import json
 import shutil
@@ -19,34 +20,27 @@ import PhaseExecutor
 import NodeStatus
 
 
-class ListenThread (threading.Thread):  # 继承父类threading.Thread
-    def __init__(self, name, context=None):
+class ListenWorkThread(threading.Thread):
+    def __init__(self, name, server, queue, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
-        self.socketPath = context.runPath + '/job.sock'
-        context.initDB()
         self.context = context
+        server.server = server
+        self.queue = queue
 
     def run(self):
-        socketPath = self.socketPath
-        if os.path.exists(socketPath):
-            os.remove(socketPath)
-
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-        server.bind(socketPath)
-        self.server = server
-
+        serverAdapter = self.context.serverAdapter
         while not self.goToStop:
+            reqObj = self.queue.get()
+            if reqObj is None:
+                break
+
+            datagram = reqObj[0]
+            addr = reqObj[1]
+
             actionData = None
             try:
-                datagram = server.recv(4096)
-                if not datagram:
-                    continue
                 actionData = json.loads(datagram.decode('utf-8'))
-            except Exception as ex:
-                pass
-
-            try:
                 if actionData:
                     if actionData['action'] == 'informNodeWaitInput':
                         nodeId = actionData['nodeId']
@@ -63,8 +57,9 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
                     elif actionData['action'] == 'deployLock':
-                        # TODO: lock logic
-                        pass
+                        lockId = serverAdapter.deployLock(actionData['lockParams'])
+                        self.server.sendto({'lockId': lockId}, addr)
+
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
                         break
@@ -73,10 +68,59 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
 
     def stop(self):
         self.goToStop = True
+
+
+class ListenThread (threading.Thread):  # 继承父类threading.Thread
+    def __init__(self, name, context=None):
+        threading.Thread.__init__(self, name=name, daemon=True)
+        self.goToStop = False
+        self.socketPath = context.runPath + '/job.sock'
+        context.initDB()
+        self.context = context
+        self.workQueue = queue.Queue(2048)
+        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        workers = []
+        self.workers = workers
+        for i in range(8):
+            worker = ListenWorkThread('Listen-Worker-{}'.format(i), self.server, self.workQueue, self.context)
+            worker.start()
+            workers.append(worker)
+
+    def run(self):
+        socketPath = self.socketPath
+        if os.path.exists(socketPath):
+            os.remove(socketPath)
+
+        self.server.bind(socketPath)
+
+        while not self.goToStop:
+            actionData = None
+            try:
+                datagram, addr = self.server.recv(8192)
+                self.workQueue.put([datagram, addr])
+
+                if not datagram:
+                    continue
+            except Exception as ex:
+                pass
+
+    def stop(self):
+        self.goToStop = True
         try:
             self.server.close()
             if os.path.exists(self.socketPath):
                 os.remove(self.socketPath)
+
+            workerCount = len(self.workers)
+            # 入队对应线程数量的退出信号对象
+            for idx in range(1, workerCount*2):
+                self.workQueue.put(None)
+
+            while len(self.workers) > 0:
+                worker = self.workers[-1]
+                worker.join(3)
+                if not worker.is_alive():
+                    self.workers.pop(-1)
         except:
             pass
 

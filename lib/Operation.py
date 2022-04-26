@@ -16,7 +16,6 @@ import json
 
 import Utils
 import AutoExecError
-import ServerAdapter
 
 
 class Operation:

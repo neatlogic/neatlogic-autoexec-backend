@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 use strict;
-use FindBin;
 
 package ServerAdapter;
+
+use FindBin;
+use feature 'state';
 use JSON;
 use Cwd;
 use Config::Tiny;
@@ -10,40 +12,44 @@ use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
 
 use WebCtl;
+use Serverconf;
 use Data::Dumper;
 
 sub new {
-    my ( $pkg, %args ) = @_;
+    my ($pkg) = @_;
 
-    my $self = {};
-    bless( $self, $pkg );
+    state $instance;
+    if ( !defined($instance) ) {
+        my $self = {};
+        $instance = bless( $self, $pkg );
 
-    if ( $ENV{AUTOEXEC_DEV_MODE} ) {
-        $self->{devMode} = 1;
+        if ( $ENV{AUTOEXEC_DEV_MODE} ) {
+            $self->{devMode} = 1;
+        }
+
+        $self->{serverConf} = ServerConf->new();
+
+        $self->{apiMap} = {
+            'getIdPath'          => 'codedriver/public/api/rest/ezdeploy/path',
+            'getVer'             => 'codedriver/public/api/rest/ezdeploy/version/get',
+            'updateVer'          => 'codedriver/public/api/rest/ezdeploy/version/update',
+            'releaseVer'         => 'codedriver/public/api/rest/ezdeploy/version/release',
+            'getAutoCfgConf'     => 'codedriver/public/api/rest/ezdeploy/autocfg/get',
+            'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
+            'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
+            'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
+            'getSqlFileStatuses' => 'codedriver/public/api/rest/ezdeploy/sql/status/get',
+            'checkInSqlFiles'    => 'codedriver/public/api/rest/ezdeploy/sql/status/checkin',
+            'pushSqlStatus'      => 'codedriver/public/api/rest/ezdeploy/sql/status/push',
+            'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
+        };
+
+        my $webCtl = WebCtl->new();
+        $webCtl->setHeaders( { Authorization => $self->_getAuthToken() } );
+        $self->{webCtl} = $webCtl;
     }
 
-    $self->{serverConf} = ServerConf->new();
-
-    $self->{apiMap} = {
-        'getIdPath'          => 'codedriver/public/api/rest/ezdeploy/path',
-        'getVer'             => 'codedriver/public/api/rest/ezdeploy/version/get',
-        'updateVer'          => 'codedriver/public/api/rest/ezdeploy/version/update',
-        'releaseVer'         => 'codedriver/public/api/rest/ezdeploy/version/release',
-        'getAutoConf'        => 'codedriver/public/api/rest/ezdeploy/autocfg/get',
-        'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
-        'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
-        'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
-        'getSqlFileStatuses' => 'codedriver/public/api/rest/ezdeploy/sql/status/get',
-        'checkInSqlFiles'    => 'codedriver/public/api/rest/ezdeploy/sql/status/checkin',
-        'pushSqlStatus'      => 'codedriver/public/api/rest/ezdeploy/sql/status/push',
-        'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
-    };
-
-    my $webCtl = WebCtl->new();
-    $webCtl->setHeaders( { Authorization => $self->getAuthToken() } );
-    $self->{webCtl} = $webCtl;
-
-    return $self;
+    return $instance;
 }
 
 sub _getAuthToken() {
@@ -58,7 +64,7 @@ sub _getAuthToken() {
 
 sub _getApiUrl {
     my ( $self, $apiName ) = @_;
-    my $url = $self->{baseurl} . '/' . $self->{apiMap}->{$apiName};
+    my $url = $self->{serverConf}->{baseurl} . '/' . $self->{apiMap}->{$apiName};
 
     return $url;
 }
@@ -88,6 +94,15 @@ sub getIdPath {
     #in:  $namePath  Operate enviroment path, example:mysys/mymodule/SIT
     #ret: idPath of operate enviroment, example:100/200/3
     #-----------------------
+
+    #TODO: Delete follow test line
+    my $idPath = '0/0/0';    #测试用数据
+
+    return $idPath;
+
+    #Test end########################################
+
+    #TODO: check call api convert namePath to idPath
     $namePath =~ s/^\/+|\/+$//g;
     my @dpNames   = split( '/', $namePath );
     my @partsName = ( 'sysName', 'moduleName', 'envName' );
@@ -111,12 +126,7 @@ sub getIdPath {
         die( $rcJson->{Message} );
     }
 
-    #TODO: check call api convert namePath to idPath
     my $idPath = $rcObj->{idPath};
-
-    #TODO: Delete follow test line
-    $idPath = '0/0/0';    #测试用数据
-
     return $idPath;
 }
 
@@ -127,30 +137,9 @@ sub getVer {
     #startRev: 如果是新版本，则获取同一个仓库地址和分支的所有版本最老的一次build的startRev
     #               如果是现有的版本，则获取当前版本的startRev
     #               如果获取不到则默认是0
-    my $param = $self->_getParams($buildEnv);
-
-    if ( defined($version) and $version ne '' ) {
-        $param->{version} = $version;
-    }
-    if ( defined($buildNo) and $buildNo ne '' ) {
-        $param->{buildNo} = $buildNo;
-    }
-
-    my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('getVer');
-    my $content = $webCtl->postJson( $url, $param );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
 
     #TODO: check call api get verInfo by param
-    my $verInfo = $rcObj;
+    my $verInfo;
 
     #TODO: Delete follow test lines
     my $gitVerInfo = {
@@ -182,14 +171,42 @@ sub getVer {
     };
 
     my $verInfo = $gitVerInfo;
-
-    #TODO: test data ended
-
     return $verInfo;
+
+    #TODO: test data ended###########################
+
+    my $param = $self->_getParams($buildEnv);
+
+    if ( defined($version) and $version ne '' ) {
+        $param->{version} = $version;
+    }
+    if ( defined($buildNo) and $buildNo ne '' ) {
+        $param->{buildNo} = $buildNo;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getVer');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    return $rcObj;
 }
 
 sub updateVer {
     my ( $self, $buildEnv, $verInfo ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #Test end########################
 
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
@@ -211,13 +228,18 @@ sub updateVer {
         die( $rcJson->{Message} );
     }
 
-    #TODO: check 通过接口更新版本信息
+    #TODO: 测试通过接口更新版本信息
 
     return;
 }
 
 sub releaseVer {
     my ( $self, $buildEnv, $version, $buildNo ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #Test end############################
 
     #更新某个version的buildNo的release状态为1，build成功
     my $params = $self->_getParams($buildEnv);
@@ -241,34 +263,17 @@ sub releaseVer {
         die( $rcJson->{Message} );
     }
 
-    #TODO: check 发布版本，更新版本某个buildNo的release的状态为1
+    #TODO: 测试 发布版本，更新版本某个buildNo的release的状态为1
     return;
 }
 
 sub getAutoCfgConf {
     my ( $self, $buildEnv ) = @_;
 
-    my $params = $self->_getParams($buildEnv);
-
-    my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('getAutoCfgConf');
-    my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
-
-    my $autoCfgMap = $rcObj;
-
     #TODO: delete follow test lines
     #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
 
-    $autoCfgMap = {
+    my $autoCfgMap = {
         autoCfg => {
             key1 => 'value1',
             key2 => 'value2'
@@ -291,13 +296,33 @@ sub getAutoCfgConf {
         ]
     };
 
-    #TODO: test end
-
     return $autoCfgMap;
-}
 
-sub getDBConf {
-    my ( $self, $buildEnv ) = @_;
+    #TODO: test end###############################################33
+
+    #数据格式
+    # {
+    #     autoCfg => {
+    #         key1 => 'value1',
+    #         key2 => 'value2'
+    #     },
+    #     insCfgList => [
+    #         {
+    #             insName => "insName1",
+    #             autoCfg => {
+    #                 key1 => 'value1',
+    #                 key2 => 'value2'
+    #             }
+    #         },
+    #         {
+    #             insName => "insName2",
+    #             autoCfg => {
+    #                 key1 => 'value1',
+    #                 key2 => 'value2'
+    #             }
+    #         }
+    #     ]
+    # };
 
     my $params = $self->_getParams($buildEnv);
 
@@ -314,11 +339,17 @@ sub getDBConf {
         die( $rcJson->{Message} );
     }
 
-    my $dbConf = $rcObj;
+    my $autoCfgMap = $rcObj;
+
+    return $autoCfgMap;
+}
+
+sub getDBConf {
+    my ( $self, $buildEnv ) = @_;
 
     #TODO: Delete follow test lines
     #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
-    $dbConf = {
+    my $dbConf = {
         'mydb.myuser' => {
             node => {
                 resourceId     => 9823748347,
@@ -354,10 +385,71 @@ sub getDBConf {
         }
     }
     return $dbConf;
+
+    #TODO:Test end##################################3
+
+    #数据格式
+    # {
+    #     'mydb.myuser' => {
+    #         node => {
+    #             resourceId     => 9823748347,
+    #             nodeName       => 'bsm',
+    #             accessEndpoint => '192.168.0.26:3306',
+    #             nodeType       => 'Mysql',
+    #             host           => '192.168.0.26',
+    #             port           => 3306,
+    #             username       => 'root',
+    #             password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+    #         },
+    #         args => {
+    #             locale            => 'en_US.UTF-8',
+    #             fileCharset       => 'UTF-8',
+    #             autocommit        => 0,
+    #             dbVersion         => '10.3',
+    #             dbArgs            => '',
+    #             ignoreErrors      => 'ORA-403',
+    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+    #             oraWallet         => '',              #只有oracle需要
+    #             db2SqlTerminator  => '',              #只有DB2需要
+    #             db2ProcTerminator => ''               #只有DB2需要
+    #         }
+    #     }
+    # };
+
+    my $params = $self->_getParams($buildEnv);
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getAutoCfgConf');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    my $dbConf     = $rcObj;
+    my $serverConf = $self->{serverConf};
+    while ( my ( $schema, $conf ) = each(%$dbConf) ) {
+        my $nodeInfo = $conf->{node};
+        my $password = $nodeInfo->{password};
+        if ( defined($password) ) {
+            $nodeInfo->{password} = $serverConf->decryptPwd($password);
+        }
+    }
+    return $dbConf;
 }
 
 sub addBuildQuality {
     my ( $self, $buildEnv, $measures ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #TODO:Test end#################
 
     my $params = $self->_getParams($buildEnv);
     while ( my ( $key, $val ) = each(%$measures) ) {
@@ -377,7 +469,7 @@ sub addBuildQuality {
         die( $rcJson->{Message} );
     }
 
-    #TODO: check 提交sonarqube扫描结果数据到后台，老版本有相应的实现
+    #TODO: 测试 提交sonarqube扫描结果数据到后台，老版本有相应的实现
     return;
 }
 
@@ -440,6 +532,38 @@ sub getAppPassWord {
 sub getSqlFileStatuses {
     my ( $self, $jobId, $deployEnv ) = @_;
 
+    #TODO: delete follow test lines
+    #格式：
+    my $sqlInfoList = [];
+
+    return $sqlInfoList;
+
+    #TODO: test lines end#####################3
+
+    #返回数据格式
+    # [
+    # {
+    #     resourceId     => $nodeInfo->{resourceId},
+    #     nodeName       => $nodeInfo->{nodeName},
+    #     host           => $nodeInfo->{host},
+    #     port           => $nodeInfo->{port},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     sqlFile        => $sqlFile,
+    #     status         => $preStatus,
+    #     md5            => $md5Sum
+    # },
+    # {
+    #     resourceId     => $nodeInfo->{resourceId},
+    #     nodeName       => $nodeInfo->{nodeName},
+    #     host           => $nodeInfo->{host},
+    #     port           => $nodeInfo->{port},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     sqlFile        => $sqlFile,
+    #     status         => $preStatus,
+    #     md5            => $md5Sum
+    # }
+    #]
+
     my $params = {};
 
     if ( defined($deployEnv) ) {
@@ -467,57 +591,29 @@ sub getSqlFileStatuses {
 
     my $sqlInfoList = $rcObj;
 
-    #TODO: delete follow test lines
-    #格式：
-    $sqlInfoList = [
-
-        # {
-        #     resourceId     => $nodeInfo->{resourceId},
-        #     nodeName       => $nodeInfo->{nodeName},
-        #     host           => $nodeInfo->{host},
-        #     port           => $nodeInfo->{port},
-        #     accessEndpoint => $nodeInfo->{accessEndpoint},
-        #     sqlFile        => $sqlFile,
-        #     status         => $preStatus,
-        #     md5            => $md5Sum
-        # },
-        # {
-        #     resourceId     => $nodeInfo->{resourceId},
-        #     nodeName       => $nodeInfo->{nodeName},
-        #     host           => $nodeInfo->{host},
-        #     port           => $nodeInfo->{port},
-        #     accessEndpoint => $nodeInfo->{accessEndpoint},
-        #     sqlFile        => $sqlFile,
-        #     status         => $preStatus,
-        #     md5            => $md5Sum
-        # }
-    ];
-
-    #TODO: test lines end
-
     return $sqlInfoList;
 }
 
 sub checkInSqlFiles {
-    my ( $self, $jobId, $sqlInfo, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlInfoList, $deployEnv ) = @_;
 
-    my $params = $self->_getParams($deployEnv);
-    $params->{sqlInfo} = $sqlInfo;
+    #TODO: uncomment after test
 
-    my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('checkInSqlFiles');
-    my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
+    if ( defined($deployEnv) ) {
+        my $params = $self->_getParams($deployEnv);
+        foreach my $sqlInfo (@$sqlInfoList) {
+            while ( my ( $k, $v ) = each(%$params) ) {
+                $sqlInfo->{$k} = $v;
+                $sqlInfo->{operType} = 'deploy';
+            }
+        }
     }
 
-    #TODO: Delete follow test lines
+    print Dumper ($sqlInfoList);
+    return;
+
+    #TODO:Test end#################
+
     #$sqlInfoList格式
     #服务端接受到次信息，只需要增加不存在的SQL记录即可，已经存在的不需要更新
     # [
@@ -543,9 +639,23 @@ sub checkInSqlFiles {
     #     }
     # ]
 
-    print Dumper ($sqlInfo);
+    my $params = $self->_getParams($deployEnv);
+    $params->{sqlInfoList} = $sqlInfoList;
 
-    #TODO: 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('checkInSqlFiles');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcJson  = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    #TODO: 测试 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
 
     return;
 }
@@ -553,6 +663,27 @@ sub checkInSqlFiles {
 sub pushSqlStatus {
     my ( $self, $jobId, $sqlFileStatus, $deployEnv ) = @_;
 
+    #TODO: Delete follow test lines
+    print("DEBUG: update sql status to server.\n");
+    print Dumper($sqlFileStatus);
+
+    return;
+
+    #TODO: Test ended#############################
+
+    #$jobId: 324234
+    #$sqlInfo = {
+    #     jobId          => 83743,
+    #     resourceId     => 243253234,
+    #     nodeId         => 234324,
+    #     nodeName       => 'mydb',
+    #     host           => '192.168.0.2',
+    #     port           => 3306,
+    #     accessEndpoint => '192.168.0.2:3306',
+    #     sqlFile        => 'mydb.myuser/1.test.sql',
+    #     status         => 'success'
+    # };
+    #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
     my $params = $self->_getParams($deployEnv);
     $params->{jobId}     = $jobId;
     $params->{sqlStatus} = $sqlFileStatus;
@@ -569,27 +700,6 @@ sub pushSqlStatus {
     else {
         die( $rcJson->{Message} );
     }
-
-    #TODO: Delete follow test lines
-    #$jobId: 324234
-    #$sqlInfo = {
-    #     jobId          => 83743,
-    #     resourceId     => 243253234,
-    #     nodeId         => 234324,
-    #     nodeName       => 'mydb',
-    #     host           => '192.168.0.2',
-    #     port           => 3306,
-    #     accessEndpoint => '192.168.0.2:3306',
-    #     sqlFile        => 'mydb.myuser/1.test.sql',
-    #     status         => 'success'
-    # };
-    #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
-
-    #TODO: 更新单个SQL状态的服务端接口对接（SQLFileStatus.pm调用此接口）
-    print("DEBUG: update sql status to server.\n");
-    print Dumper($sqlFileStatus);
-
-    #TODO: Test ended
 
     return;
 }

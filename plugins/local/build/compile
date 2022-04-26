@@ -8,7 +8,7 @@ use Getopt::Long;
 Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 use BuildUtils;
 
 sub usage {
@@ -52,7 +52,7 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -79,8 +79,12 @@ sub main {
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    my $lock = BuildLock->new($buildEnv);
-    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $lock = DeployLock->new($buildEnv);
+    $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        $lock->unlockWorkspace();
+    }
 
     my $opts = {
         buildEnv    => $buildEnv,

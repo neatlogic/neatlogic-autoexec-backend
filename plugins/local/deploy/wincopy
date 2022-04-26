@@ -13,7 +13,7 @@ use MIME::Base64;
 use Cwd;
 
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;

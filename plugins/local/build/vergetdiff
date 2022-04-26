@@ -9,7 +9,7 @@ use File::Path;
 use Cwd;
 
 use DeployUtils;
-use BuildLock;
+use DeployLock;
 use VerGet;
 use ServerAdapter;
 
@@ -100,8 +100,8 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
 
-    my $lock = BuildLock->new($buildEnv);
-    $lock->lockWorkspace($BuildLock::EXCLUDE);
+    my $lock = DeployLock->new($buildEnv);
+    $lock->lockWorkspace($DeployLock::WRITE);
     my $verInfo = $serverAdapter->getVer($buildEnv);
 
     if ( not defined($verInfo) ) {

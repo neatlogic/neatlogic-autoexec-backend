@@ -44,7 +44,8 @@ class ServerAdapter:
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
-            'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get'
+            'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
+            'deployLock': 'codedriver/public/api/rest/ezdeploy/lock'
         }
 
         self.context = context
@@ -52,9 +53,15 @@ class ServerAdapter:
         if(self.serverBaseUrl[-1] != '/'):
             self.serverBaseUrl = self.serverBaseUrl + '/'
 
+        self.deployLocks = {}
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
         self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
+
+    def __del__(self):
+        for lockId, lockParams in self.deployLocks.items():
+            lockParams['action'] = 'unlock'
+            self.deployLock(lockParams)
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -522,6 +529,55 @@ class ServerAdapter:
             charset = response.info().get_content_charset()
             content = response.read().decode(charset)
             return json.loads(content)
+        except:
+            raise
+
+    def deployLock(self, lockParams):
+        # Lock reqeust
+        # lockParams = {
+        #     'lockId': None,
+        #     'sysId': 343,
+        #     'moduleId': 4353,
+        #     'envId': 3,
+        #     'sysName': 'mySys',
+        #     'moduleName': 'myModule',
+        #     'envName': 'SIT',
+        #     'version': '2.0.0',
+        #     'buildNo': '2',
+        #     'action': 'lock',  # unlock
+        #     'lockTarget': 'workspace',  # build mirror env/app env/sql
+        #     'lockMode': 'read',  # write
+        #     'namePath': 'mySys/myModule/SIT'
+        # }
+        # Unlock request
+        # lockParams = {
+        #     'lockId': 83205734845,
+        # }
+
+        lockId = lockParams['lockId']
+        lockActoin = lockParams['action']
+        response = self.httpJSON(self.apiMap['deployLock'], self.authToken, lockParams)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if retObj['Status'] == 'OK':
+                lockInfo = retObj['Return']
+                if lockId is None:
+                    lockId = lockInfo['lockId']
+                    lockParams['lockId'] = lockId
+                    self.deployLocks[lockId] = lockParams
+                else:
+                    self.deployLocks.pop(lockId)
+                # lockInfo = {
+                #     'lockId':23403298324,
+                #     'status':'failed',#success
+                #     'message':'Lock help by job:xxxxx'
+                # }
+                return lockInfo
+            else:
+                raise AutoExecError("Lock failed, {}".format(retObj['Message']))
         except:
             raise
 
