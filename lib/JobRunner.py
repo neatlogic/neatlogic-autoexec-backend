@@ -18,14 +18,14 @@ import PhaseNodeFactory
 import Operation
 import PhaseExecutor
 import NodeStatus
-import GlobalLocks
+import GlobalLock
 
 
 class ListenWorkThread(threading.Thread):
     def __init__(self, name, server, queue, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
-        self.globalLocks = GlobalLocks.GlobalLocks()
+        self.globalLocks = GlobalLock.GlobalLock()
         self.context = context
         server.server = server
         self.queue = queue
@@ -59,7 +59,8 @@ class ListenWorkThread(threading.Thread):
                         self.context.setEnv(actionData['name'], actionData['value'])
                     elif actionData['action'] == 'golbalLock':
                         _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
-
+                    elif actionData['action'] == 'golbalLockNotify':
+                        self.globalLocks.notifyWaiter(actionData['lockId'])
                     elif actionData['action'] == 'exit':
                         self.server.shutdown()
                         break

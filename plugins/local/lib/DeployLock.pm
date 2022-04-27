@@ -31,15 +31,13 @@ sub _getParams {
     my $jobId      = $self->{jobId};
     my $sysId      = $deployEnv->{SYS_ID};
     my $moduleId   = $deployEnv->{MODULE_ID};
-    my $envId      = $deployEnv->{ENV_ID};
     my $sysName    = $deployEnv->{SYS_NAME};
     my $moduleName = $deployEnv->{MODULE_NAME};
-    my $envName    = $deployEnv->{ENV_NAME};
 
     my $params = {
         jobId         => $jobId,
-        lockOwner     => "$sysId/$moduleId/$envId",
-        lockOwnerName => "$sysName/$moduleName/$envName"
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName"
     };
 
     return $params;
@@ -90,12 +88,9 @@ sub _doLockByJob {
 }
 
 sub _lock {
-    my ( $self, $lockTarget, $lockMode ) = @_;
+    my ( $self, $params ) = @_;
 
-    my $params = $self->_getParams( $self->{deployEnv} );
-    $params->{lockTarget} = $lockTarget;
-    $params->{lockMode}   = $lockMode;
-    $params->{action}     = 'lock';
+    $params->{action} = 'lock';
 
     my $lockAction = $params->{action};
     my $lockTarget = $params->{lockTarget};
@@ -140,22 +135,49 @@ sub _unlock {
 
 sub lockWorkspace {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'workspace', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+
+    my $params = {
+        jobId         => $self->{jobId},
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName",
+        lockTarget    => 'workspace',
+        lockMode      => $lockMode
+    };
+
+    $self->_lock($params);
 }
 
 sub unLockWorkspace {
-    my ($self) = @_;
-    $self->_unlock('workspace');
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 sub lockMirror {
     my ( $self, $lockMode ) = @_;
-    my $deployEnv  = $self->{deployEnv};
-    my $version    = $deployEnv->{VERSION};
-    my $envName    = $deployEnv->{ENV_NAME};
-    my $lockTarget = "mirror/$envName/app";
 
-    $self->_lock( 'mirror', $lockMode );
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+
+    my $params = {
+        jobId         => $self->{jobId},
+        lockOwner     => "$sysId/$moduleId/$envId/",
+        lockOwnerName => "$sysName/$moduleName/$envName",
+        lockTarget    => "mirror/$envName/app",
+        lockMode      => $lockMode
+    };
+
+    $self->_lock($params);
 }
 
 sub unlockMirror {
@@ -165,11 +187,24 @@ sub unlockMirror {
 
 sub lockBuild {
     my ( $self, $lockMode ) = @_;
+
     my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
     my $version    = $deployEnv->{VERSION};
     my $buildNo    = $deployEnv->{BUILD_NO};
-    my $lockTarget = "artifact/$version/build/$buildNo";
-    $self->_lock( $lockTarget, $lockMode );
+
+    my $params = {
+        jobId         => $self->{jobId},
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName",
+        lockTarget    => "artifact/$version/build/$buildNo",
+        lockMode      => $lockMode
+    };
+
+    $self->_lock($params);
 }
 
 sub unlockBuild {
@@ -179,11 +214,26 @@ sub unlockBuild {
 
 sub lockEnvApp {
     my ( $self, $lockMode ) = @_;
+
     my $deployEnv  = $self->{deployEnv};
-    my $version    = $deployEnv->{VERSION};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
     my $envName    = $deployEnv->{ENV_NAME};
-    my $lockTarget = "artifact/$version/env/$envName/app";
-    $self->_lock( $lockTarget, $lockMode );
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = {
+        jobId         => $self->{jobId},
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName",
+        lockTarget    => "artifact/$version/env/$envName/app",
+        lockMode      => $lockMode
+    };
+
+    $self->_lock($params);
 }
 
 sub unlockEnvApp {
@@ -193,11 +243,26 @@ sub unlockEnvApp {
 
 sub lockEnvSql {
     my ( $self, $lockMode ) = @_;
+
     my $deployEnv  = $self->{deployEnv};
-    my $version    = $deployEnv->{VERSION};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
     my $envName    = $deployEnv->{ENV_NAME};
-    my $lockTarget = "artifact/$version/env/$envName/db";
-    $self->_lock( $lockTarget, $lockMode );
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = {
+        jobId         => $self->{jobId},
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName",
+        lockTarget    => "artifact/$version/env/$envName/db",
+        lockMode      => $lockMode
+    };
+
+    $self->_lock($params);
 }
 
 sub unlockEnvSql {
