@@ -109,7 +109,7 @@ sub main {
 
     END {
         $lock->unlockBuild($buildLock);
-        $lock->unLockWorkspace($spaceLockId);
+        $lock->unlockWorkspace($spaceLockId);
     }
 
     my $destDir = "$releasePath/app";

@@ -22,6 +22,16 @@ sub new {
     my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
     $self->{sockPath} = $sockPath;
 
+    my $devMode = $ENV{DEV_MODE};
+    if ( not defined($devMode) ) {
+        $devMode = 0;
+    }
+    else {
+        $devMode = int($devMode);
+    }
+
+    $self->{devMode} = $devMode;
+
     return $self;
 }
 
@@ -57,6 +67,10 @@ sub _getParams {
 sub _doLockByJob {
     my ( $self, $params ) = @_;
 
+    if ( $self->{devMode} ) {
+        return { lockId => 0 };
+    }
+
     my $sockPath = $self->{sockPath};
 
     my $lockAction = $params->{action};
@@ -88,11 +102,11 @@ sub _doLockByJob {
             return $lockRetObj;
         };
         if ($@) {
-            print("WARN: $namePath $lockAction $lockTarget($lockMode) failed, $@\n");
+            print("WARN: $lockAction $namePath $lockTarget($lockMode) failed, $@\n");
         }
     }
     else {
-        print("WARN: $namePath $lockAction $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
+        print("WARN: $lockAction $namePath $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
     }
 
     return;
@@ -108,15 +122,16 @@ sub _lock {
     my $lockMode   = $params->{lockMode};
     my $namePath   = $params->{lockOwnerName};
 
+    print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
     my $lockInfo = $self->_doLockByJob($params);
     my $lockId   = $lockInfo->{lockId};
 
     if ( not defined($lockId) ) {
         my $errMsg = $lockInfo->{message};
-        die("ERROR: $namePath $lockAction $lockTarget($lockMode) faled, $errMsg.\n");
+        die("ERROR: $lockAction $namePath $lockTarget($lockMode) failed, $errMsg.\n");
     }
     else {
-        print("INFO: $namePath $lockAction $lockTarget($lockMode) success.\n");
+        print("INFO: $lockAction $namePath $lockTarget($lockMode) success.\n");
     }
 
     return $lockId;
@@ -129,7 +144,7 @@ sub _unlock {
         return;
     }
 
-    my $params = { $self->_getParams( $self->{deployEnv} ) };
+    my $params = $self->_getParams();
 
     $params->{action} = 'unlock';
 
@@ -142,10 +157,10 @@ sub _unlock {
 
     if ( not defined($lockId) ) {
         my $errMsg = $lockInfo->{message};
-        print("WARN: $namePath $lockAction $lockTarget faled, $errMsg.\n");
+        print("WARN: $lockAction $namePath failed, $errMsg.\n");
     }
     else {
-        print("INFO: $namePath $lockAction $lockTarget success.\n");
+        print("INFO: $lockAction $namePath success.\n");
     }
 }
 

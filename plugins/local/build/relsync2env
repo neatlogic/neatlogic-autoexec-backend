@@ -179,7 +179,7 @@ sub main {
     END {
         $lock->unlockEnvSql($sqlLockId);
         $lock->unlockEnvApp($appLockId);
-        $lock->unLockWorkspace($spaceLockId);
+        $lock->unlockWorkspace($spaceLockId);
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");

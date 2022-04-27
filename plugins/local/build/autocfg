@@ -4,6 +4,7 @@ use FindBin;
 use File::Basename;
 use Getopt::Long;
 
+use ServerAdapter;
 use AutoCfg;
 use DeployUtils;
 use DeployLock;
