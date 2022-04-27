@@ -57,7 +57,7 @@ class ListenWorkThread(threading.Thread):
                                 phaseStatus.setGlobalRoundFinEvent(roundNo)
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
-                    elif actionData['action'] == 'deployLock':
+                    elif actionData['action'] == 'golbalLock':
                         _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
 
                     elif actionData['action'] == 'exit':
@@ -70,8 +70,8 @@ class ListenWorkThread(threading.Thread):
         self.goToStop = True
 
     def doLock(self, lockParams, addr):
-        lockId = self.globalLocks.doLock(lockParams)
-        self.server.sendto({'lockId': lockId}, addr)
+        lockInfo = self.globalLocks.doLock(lockParams)
+        self.server.sendto(json.dumps(lockInfo), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread

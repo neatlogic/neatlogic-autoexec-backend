@@ -42,43 +42,40 @@ class GlobalLock(object):
             else:
                 self.unlock(lockId)
 
-    def callApi(self, lockParams):
-        pass
-
     def doLock(self, lockParams):
-        lockId = None
+        lockInfo = {'lockId': None}
         lockAction = lockParams['action']
         if lockAction == 'lock':
-            lockId = self.lock(lockParams)
+            lockInfo = self.lock(lockParams)
         elif lockAction == 'unlock':
             lockId = lockParams['lockId']
+            lockInfo['lockId'] = lockId
             self.unlock(lockId)
         elif lockAction == 'cancel':
             lockId = lockParams['lockId']
+            lockInfo['lockId'] = lockId
             self.cancel(lockId)
-        return lockId
+
+        return lockInfo
 
     def lock(self, lockParams):
         # Lock reqeust
         # lockParams = {
-        #     'lockId': None,
-        #     'sysId': 343,
-        #     'moduleId': 4353,
-        #     'envId': 3,
-        #     'sysName': 'mySys',
-        #     'moduleName': 'myModule',
-        #     'envName': 'SIT',
-        #     'version': '2.0.0',
-        #     'buildNo': '2',
-        #     'action': 'lock',  # unlock
-        #     'wait': 1, #0｜1，wait or not
-        #     'lockTarget': 'workspace',  # build mirror env/app env/sql
-        #     'lockMode': 'read',  # write
-        #     'namePath': 'mySys/myModule/SIT'
+        #     'lockId': None,  #如果是unlock则lockId有值，否则是空
+        #     'jobId': 23434,  #作业ID，只有同一个作业ID的才可以进行相应锁ID的解锁
+        #
+        #     'lockOwner': "$sysId/$moduleId/$envId",  #可以为空，lockOwner和lockOwnerName加起来确定一个锁的handle
+        #     'lockTarget': 'artifact/1.0.0/build/3',  # build mirror env/app env/sql
+        #
+        #     'lockOwnerName': "$sysName/$moduleName/$envName",  #这个属性仅仅是为了方便，为了报错写日志使用
+        #     'action': 'lock',                        # lock|unlock|cancel
+        #     'wait': 1, #0｜1，wait or not            # 如果wait是0，则不排队等待，直接锁失败
+        #     'lockMode': 'read',                      # read|write
         # }
         # Unlock request
         # lockParams = {
         #     'lockId': 83205734845,
+        #     'jobId':  34324
         # }
         if self.goToStop:
             return None
@@ -93,7 +90,7 @@ class GlobalLock(object):
         # }
         lockId = lockInfo['lockId']
         lockTarget = lockParams['lockTarget']
-        namePath = lockParams['namePath']
+        namePath = lockParams['lockOwnerName']
         if lockInfo['wait'] == 1:
             lockedEvent = threading.Event()
             self._putLock(lockId, lockedEvent)
@@ -101,12 +98,13 @@ class GlobalLock(object):
             if not lockedEvent.wait(timeout=3600):
                 cancelId = lockId
                 lockId = None
-                print("ERROR: Lock {} {} timeout.\n".format(namePath, lockTarget))
+                lockInfo['message'] = "Lock {} {} timeout.\n".format(namePath, lockTarget)
+                print("ERROR: " + lockInfo['message'])
                 lockParams['action'] = 'cancel'
                 self.cancel(cancelId)
         else:
             self._putLock(lockId, None)
-        return lockId
+        return lockInfo
 
     def unlock(self, lockId):
         serverAdapter = self.context.serverAdapter
@@ -114,7 +112,8 @@ class GlobalLock(object):
         lockInfo = serverAdapter.callGlobalLock(lockParams)
         lockId = lockInfo['lockId']
         self._removeLock(lockId)
-        return lockId
+        lockInfo = {'lockId': lockId, 'jobId': self.context.jobId}
+        return lockInfo
 
     def cancel(self, lockId):
         serverAdapter = self.context.serverAdapter
@@ -122,4 +121,5 @@ class GlobalLock(object):
         lockInfo = serverAdapter.callGlobalLock(lockParams)
         lockId = lockInfo['lockId']
         self._removeLock(lockId)
-        return lockId
+        lockInfo = {'lockId': lockId, 'jobId': self.context.jobId}
+        return lockInfo
