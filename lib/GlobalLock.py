@@ -31,7 +31,8 @@ class GlobalLock(object):
         if waitEvent is None:
             lockOwner = lockParams['lockOwner']
             lockTarget = lockParams['lockTarget']
-            self.lockHandles[lockOwner + '/' + lockTarget] = lockId
+            lockMode = lockParams['lockMode']
+            self.lockHandles[lockOwner + '/' + lockTarget + '/' + lockMode] = lockId
             self.holdLocks[lockId] = lockParams
         else:
             self.lockWaits[lockId] = waitEvent
@@ -41,7 +42,8 @@ class GlobalLock(object):
         if lockParams is not None:
             lockOwner = lockParams['lockOwner']
             lockTarget = lockParams['lockTarget']
-            del(self.lockHandles[lockOwner + '/' + lockTarget])
+            lockMode = lockParams['lockMode']
+            del(self.lockHandles[lockOwner + '/' + lockTarget + '/' + lockMode])
             del(self.holdLocks[lockId])
 
     def stop(self):
@@ -100,7 +102,8 @@ class GlobalLock(object):
         # 同一个作业内部，对同一个锁发起多次请求，如果前面已经锁上则返回相应的lockId
         lockOwner = lockParams['lockOwner']
         lockTarget = lockParams['lockTarget']
-        preLockId = self.lockHandles.get(lockOwner + '/' + lockTarget)
+        lockMode = lockParams['lockMode']
+        preLockId = self.lockHandles.get(lockOwner + '/' + lockTarget + '/' + lockMode)
         if preLockId is not None:
             lockInfo = {'lockId': lockId}
             return lockInfo
