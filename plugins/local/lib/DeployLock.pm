@@ -8,7 +8,7 @@ use ServerAdapter;
 our $READ  = 'read';
 our $WRITE = 'write';
 
-#调用autoexec的ListenThread，进行作业层次的Lock和unLock
+#调用autoexec的ListenThread，进行作业层次的Lock和unlock
 #参数，jobId，lockTarget
 #TODO: 修改autoexec主程序，通过它进行加锁，这个类药迁移到local/lib
 sub new {
@@ -168,7 +168,7 @@ sub lockWorkspace {
     return $self->_lock($params);
 }
 
-sub unLockWorkspace {
+sub unlockWorkspace {
     my ( $self, $lockId ) = @_;
     $self->_unlock($lockId);
 }
