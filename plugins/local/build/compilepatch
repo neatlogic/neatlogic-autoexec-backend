@@ -87,7 +87,7 @@ sub main {
     print("INFO: Begin to compile project and get the patch...\n");
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -116,8 +116,12 @@ sub main {
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::WRITE);
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        $lock->unlockWorkspace($spaceLockId);
+    }
 
     my $cwd = getcwd();
     chdir($prjPath);
@@ -411,7 +415,7 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            copy( $srcFile, $destFile ) || die("ERROR: copy class $srcFile to $destFile failed, $!");
+                            copy( $srcFile, $destFile )                              || die("ERROR: copy class $srcFile to $destFile failed, $!");
                             print $updateListFH ("$cmpOutPath/$destRelPath.class\n") || die("ERROR: write $cmpOutPath/$destRelPath.class to file:$updateListFile failed, $!");
 
                             #拷贝同一个主类下的内嵌类
@@ -432,7 +436,7 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            copy( $file, $destFile ) || die("ERROR: copy file $file to $destFile failed:$!");
+                            copy( $file, $destFile )                           || die("ERROR: copy file $file to $destFile failed:$!");
                             print $updateListFH ("$cmpOutPath/$destRelPath\n") || die("ERROR: write $cmpOutPath/$destRelPath to file:$updateListFile failed, $!");
                         }
                     }
@@ -464,7 +468,7 @@ sub makePatch {
                             mkpath($destDir);
                         }
                         if ( not -f $destFile ) {    #这个判断，防止通过java文件拷贝到目标的class被checkin到仓库的编译输出目录的class覆盖
-                            copy( $file, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                            copy( $file, $destFile )            || die("ERROR: copy $srcFile to $destFile failed:$!");
                             print $updateListFH ("$filePath\n") || die("ERROR: write $filePath to file:$updateListFile failed, $!");
                         }
                     }
@@ -504,7 +508,7 @@ sub ifDiffHasJava {
     my ($diffFileList) = @_;
 
     my $hasJava = 0;
-    my $fh = IO::File->new( $diffFileList, 'r' );
+    my $fh      = IO::File->new( $diffFileList, 'r' );
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {

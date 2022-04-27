@@ -148,7 +148,13 @@ sub main {
 
     $port = 22 if ( not defined($port) );
 
-    my $insLockPath = "$verRoot/.$host.$insId.lock";
+    my $lock         = DeployLock->new($deployEnv);
+    my $mirrorLockId = $lock->lockMirror($DeployLock::WRITE);
+
+    END {
+        $lock->unlockMirror($mirrorLockId);
+    }
+
     my $insDiffPath = "$verPath.ins";
 
     if ( not defined($src) or $src eq '' ) {

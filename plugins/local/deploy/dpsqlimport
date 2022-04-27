@@ -11,6 +11,7 @@ use Getopt::Long;
 use JSON;
 
 use DeployUtils;
+use DeployLock;
 use SQLBatchUtils;
 use ServerAdapter;
 use SQLFileRunner;
@@ -70,7 +71,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
@@ -163,6 +164,13 @@ sub main {
 
     my $hasError = 0;
     my $ret      = 0;
+
+    my $lock      = DeployLock->new($deployEnv);
+    my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
+
+    END {
+        $lock->unlockEnvSql($sqlLockId);
+    }
 
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
     $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);

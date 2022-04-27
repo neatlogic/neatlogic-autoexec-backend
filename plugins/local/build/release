@@ -103,8 +103,14 @@ sub main {
         return 3;
     }
 
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::READ);
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
+        $lock->unLockWorkspace($spaceLockId);
+    }
 
     my $destDir = "$releasePath/app";
     if ( -e $destDir ) {

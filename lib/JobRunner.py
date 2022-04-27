@@ -71,8 +71,11 @@ class ListenWorkThread(threading.Thread):
         self.goToStop = True
 
     def doLock(self, lockParams, addr):
-        lockInfo = self.globalLocks.doLock(lockParams)
-        self.server.sendto(json.dumps(lockInfo), addr)
+        if self.context.devMode:
+            return {'lockId': 0}
+        else:
+            lockInfo = self.globalLocks.doLock(lockParams)
+            self.server.sendto(json.dumps(lockInfo), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread

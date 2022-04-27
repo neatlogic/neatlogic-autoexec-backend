@@ -83,6 +83,7 @@ class GlobalLock(object):
         #     'lockId': None,  #如果是unlock则lockId有值，否则是空
         #     'jobId': 23434,  #作业ID，只有同一个作业ID的才可以进行相应锁ID的解锁
         #
+        #     'operType': "deploy", #deploy|auto
         #     'lockOwner': "$sysId/$moduleId/",  #可以为空，lockOwner和lockOwnerName加起来确定一个锁的handle
         #     'lockTarget': 'artifact/1.0.0/build/3',  # build mirror env/app env/sql
         #
@@ -90,6 +91,14 @@ class GlobalLock(object):
         #     'action': 'lock',                        # lock|unlock|cancel|retry
         #     'wait': 1, #0｜1，wait or not            # 如果wait是0，则不排队等待，直接锁失败
         #     'lockMode': 'read',                      # read|write
+        #
+        #      #下面是deploy的扩展属性
+        #     'operType':       'deploy',
+        #     'sysId':          '$sysId',
+        #     'moduleId':       '$moduleId',
+        #     'envId':         '$envId',
+        #     'version':        '$version',
+        #     'buildNo':        '$buildNo'
         # }
         # Unlock request
         # unLockParams = {

@@ -101,6 +101,17 @@ sub main {
         return $hasError;
     }
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $appLockId   = $lock->lockEnvApp($DeployLock::WRITE);
+    my $sqlLockId   = $lock->lockEnvSql($DeployLock::WRITE);
+
+    END {
+        $lock->unlockEnvSql($sqlLockId);
+        $lock->unlockEnvApp($appLockId);
+        $lock->unLockWorkspace($spaceLockId);
+    }
+
     my $relItemCount = 0;
     print("INFO: Try to release $namePath $version build:$buildNo to $envName...\n");
     if ( -d "$releaseDir/app" ) {

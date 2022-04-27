@@ -8,6 +8,7 @@ use Expect;
 use JSON;
 
 use DeployUtils;
+use DeployLock;
 use ServerAdapter;
 use DBInfo;
 use SQLBatchUtils;
@@ -197,6 +198,13 @@ sub main {
             istty        => 0,
             isInteract   => 1
         );
+
+        my $lock      = DeployLock->new($deployEnv);
+        my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
+
+        END {
+            $lock->unlockEnvSql($sqlLockId);
+        }
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
