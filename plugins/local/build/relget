@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Getopt::Long;
+use File::Path;
+
+use DeployUtils;
+use DeployLock;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my $pname   = $FindBin::Script;
+    my @subDirs = ( 'app', 'db', 'doc' );
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'v|verbose=i' => \$isVerbose
+    );
+
+    usage() if ( defined($isHelp) );
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $buildNo  = $buildEnv->{BUILD_NO};
+
+    my $hasError = 0;
+
+    print("INFO: begin to get build:$namePath $version(build $buildNo)...\n");
+    my $serverAdapter = ServerAdapter->new();
+    eval { $serverAdapter->getBuild( $buildEnv, \@subDirs, 1 ); };
+    if ($@) {
+        $hasError = 1;
+        print("ERROR: $@");
+        print("ERROR: $pname $namePath $version failed.\n");
+    }
+
+    if ( $hasError == 0 ) {
+        print("FINEST: $pname $namePath $version(build $buildNo) success.\n");
+    }
+    else {
+        print("ERROR: $pname $namePath $version(build $buildNo) failed.\n");
+    }
+}
+
+main();
+
