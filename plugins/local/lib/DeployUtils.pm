@@ -8,6 +8,7 @@ use Crypt::RC4;
 use Encode;
 use Encode::Guess;
 use JSON;
+use File::Basename;
 use File::Find;
 use File::Path;
 use File::Copy;
