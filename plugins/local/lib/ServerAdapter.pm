@@ -275,22 +275,22 @@ sub getAutoCfgConf {
 
     my $autoCfgMap = {
         autoCfg => {
-            key1 => 'value1',
-            key2 => 'value2'
+            basic    => 'mybasicval',
+            password => 'mypasswd'
         },
         insCfgList => [
             {
                 insName => "insName1",
                 autoCfg => {
-                    key1 => 'value1',
-                    key2 => 'value2'
+                    basic    => 'ins1-mybasicval',
+                    password => 'ins1-mypasswd'
                 }
             },
             {
                 insName => "insName2",
                 autoCfg => {
-                    key1 => 'value1',
-                    key2 => 'value2'
+                    basic    => 'ins2-mybasicval',
+                    password => 'ins2-mypasswd'
                 }
             }
         ]
