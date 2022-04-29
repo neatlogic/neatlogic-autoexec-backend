@@ -197,6 +197,7 @@ sub updateStatus {
             accessEndpoint => $nodeInfo->{accessEndpoint},
             sqlFile        => $self->{sqlFile},
             status         => $newStatus,
+            md5            => $self->{status}->{md5},
             interact       => $self->{status}->{interact}
         };
 
