@@ -1,0 +1,63 @@
+{
+    "opDesc": "Docker镜像生成",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "工程编译后，生成docker镜像",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "baseurl",
+            "name": "Nexus地址",
+            "help": "Nexus地址，例如：https://192.168.0.8:8443",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "repo",
+            "name": "Nexus库",
+            "help": "Nexus中的包含此Artifact的库名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "group",
+            "name": "组名",
+            "help": "Artifact的组名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "artifact",
+            "name": "包名",
+            "help": "Artifact的包名（不含版本号）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "targetdir",
+            "name": "保存目录",
+            "help": "相对于工程目录的保存下载的子目录",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

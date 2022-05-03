@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+
+use REST::Client;
+use LWP::Simple qw(getstore);
+use JSON;
+use Cwd;
+use Data::Dumper;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl NexusBaseUrl --repo Repository --group Group --artifact Artifact\n");
+    print("              --targetdir SubDirInProject\n");
+    print("\n");
+    print("       --envpath:  Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:  Version number of sub system\n");
+    print("       --baseurl:  Nexus base url, example:http://192.168.0.13:8080\n");
+    print("       --repo:     Nexus repository, example:public.\n");
+    print("       --group:    Group of artifact, example:com.any\n");
+    print("       --artifact: Artifact, example: log4j\n");
+    print("       --targetdir:Save to sub directory relative to project.\n");
+
+    exit(-1);
+}
+
+sub main {
+
+    my ( $isHelp, $envPath, $version );
+    my ( $baseUrl, $repo, $group, $artifact, $targetdir );
+
+    GetOptions(
+        'h|help'      => $isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'baseurl=s'   => \$baseUrl,
+        'repo=s'      => \$repo,
+        'group=s'     => \$group,
+        'artifact=s'  => \$artifact,
+        'targetdir=s' => \$targetdir
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    if ( not defined($repo) or $repo eq '' ) {
+        print("ERROR: Must defind repository id\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($group) or $group eq '' ) {
+        print("ERROR: Must defind group id\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($artifact) or $artifact eq '' ) {
+        print("ERROR: Must defind artifact id\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
+    my $distDir = $dirInfo->{distribute};
+
+    my $prjPath = $buildEnv->{PRJ_PATH};
+    my $saveDir = "$prjPath/$targetdir";
+
+    #TODO: 如此遍历整个nexus仓库不合理，需要修改
+    my $client = REST::Client->new();
+    my $url    = "$baseUrl/service/rest/v1/components?repository=$repo";
+
+    $client->GET($url);
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        die("ERROR: Download $url failed, cause by:$errMsg\n");
+    }
+
+    my $content = $client->responseContent();
+    my $retObj  = from_json($content);
+    my $items   = $retObj->{'items'};
+    foreach my $item (@$items) {
+        if ( ( $item->{"version"} eq $version ) and ( $item->{"name"} eq $artifact ) and ( $item->{"group"} eq $group ) and ( $item->{"repository"} eq $repo ) ) {
+            my $assets = $item->{'assets'};
+            foreach my $asset (@$assets) {
+                my $downUrl     = $asset->{'downloadUrl'};
+                my @downUrlSegs = split( /\//, $downUrl );
+
+                #使用LWP::Simple getstore下载文件
+                getstore( $downUrl, "$saveDir/$downUrlSegs[-1]" );
+            }
+        }
+    }
+}
+
+main();

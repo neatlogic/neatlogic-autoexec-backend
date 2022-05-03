@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --name ContanerName --image ImageName --tag TagName\n");
+    print("\n");
+    print("       --name:    ContainerName\n");
+    print("       --image:   Image name\n");
+    print("       --tagname: Tag name.\n");
+    print("       arg1 arg2....argN");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $name, $image, $tagName );
+
+    GetOptions(
+        'name:s'    => \$name,
+        'image:s'   => \$image,
+        'tagname:s' => \$tagName
+    );
+
+    if (   not defined($name)
+        or not defined($image)
+        or not defined($tagName) )
+    {
+        usage();
+    }
+
+    #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
+    my $cmd = "docker rm -vf $name";
+    print("INFO:execute->$cmd\n");
+    my $ret = system($cmd );
+
+    if ( $ret eq 0 ) {
+        print("INFO: Container $name is removed.\n");
+    }
+    else {
+        print("INFO: Container $name is not running.\n");
+    }
+
+    my $cmd = "docker run -d --name=$name @ARGV $image:$tagName";
+
+    #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
+    print("INFO:execute->$cmd\n");
+    $ret = system($cmd );
+
+    if ( $ret eq 0 ) {
+        print("INFO: Docker run success.\n");
+    }
+    else {
+        print("ERROR: Docker run failed.\n");
+        return ($ret);
+    }
+
+}
+
+exit main();
