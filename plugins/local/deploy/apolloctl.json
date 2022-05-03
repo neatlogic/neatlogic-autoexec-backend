@@ -1,7 +1,7 @@
 {
     "opDesc": "Appollo配置控制",
     "opType": "runner",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "apollo-args",

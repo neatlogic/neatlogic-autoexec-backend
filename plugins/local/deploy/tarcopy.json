@@ -1,7 +1,7 @@
 {
     "opDesc": "SCP Tar拷贝文件",
     "opType": "localremote",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
