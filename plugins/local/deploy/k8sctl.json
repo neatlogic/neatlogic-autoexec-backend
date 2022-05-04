@@ -1,0 +1,89 @@
+{
+    "opDesc": "K8S应用部署工具",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "k8s-args",
+    "description": "K8S应用的部署",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "baseurl",
+            "name": "API地址",
+            "help": "K8S API地址，例如：https://192.168.99.100:8443",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "token",
+            "name": "验证TOKEN",
+            "help": "K8S API服务的验证TOKEN",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "action",
+            "name": "动作",
+            "help": "执行的动作",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "更新",
+                    "value": "patch",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "image",
+            "name": "镜像",
+            "help": "镜像，例如：nginx:1.7.6",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "name",
+            "name": "应用名",
+            "help": "K8S中定义的应用名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "namespace",
+            "name": "命令空间",
+            "help": "应用所在的K8S命令空间",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "deployment",
+            "name": "部署名",
+            "help": "K8S中定义的deployment名称",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

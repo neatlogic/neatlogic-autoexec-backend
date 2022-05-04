@@ -1,0 +1,141 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use JSON;
+use REST::Client;
+use Getopt::Long;
+use Data::Dumper;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --baseurl K8sApiServerURL --token AuthToken\n");
+    print("        --image DockerImage --name AppName  --namespace K8sNameSpace --deployment K8sDeployment\n");
+    print("       --baseurl:      k8s apiserver base URL, example:https://192.168.99.100:8443\n");
+    print("       --token:        k8s authenticate token\n");
+    print("       --image:        docker image, example:nginx:1.7.6\n");
+    print("       --name:         app name, example:nginx\n");
+    print("       --namespace:    k8s namespace, example:default\n");
+    print("       --deployment:   k8s deployment: example:nginx-deployment\n");
+    print("       --acton:        k8s deploy action patch|del\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $baseUrl, $token );
+    my ( $image, $name, $namespace, $deployment, $action );
+
+    GetOptions(
+        'baseurl=s'    => \$baseUrl,
+        'token=s'      => \$token,
+        'image=s'      => \$image,
+        'name=s'       => \$name,
+        'namespace=s'  => \$namespace,
+        'deployment=s' => \$deployment,
+        'action=s'     => \$action
+    );
+
+    my $optionError = 0;
+
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        print("ERROR: Must defind baseurl for k8s api server.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($token) or $token eq '' ) {
+        print("ERROR: Must defind Authenticate token for k8s api server.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($image) or $image eq '' ) {
+        print("ERROR: Must defind docker image\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($name) or $name eq '' ) {
+        print("ERROR: Must defind app name\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($namespace) or $namespace eq '' ) {
+        print("ERROR: Must defind namespace\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($deployment) or $deployment eq '' ) {
+        print("ERROR: Must defind deployment name\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+# my $name = 'nginx';
+# my $image = 'nginx:1.7.6';
+# my $baseUrl = 'https://192.168.99.100:8443';
+# my $namespace = 'default';
+# my $deployment = 'nginx-deployment';
+# my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
+
+    my $url = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
+
+    my $reqObj = {
+        spec => {
+            template => {
+                spec => {
+                    containers => [
+                        {
+                            name  => $name,
+                            image => $image
+                        }
+                    ]
+                }
+            }
+        }
+    };
+
+    my $hasError = 0;
+    my $req      = to_json($reqObj);
+    my $client   = REST::Client->new();
+
+    $client->addHeader( "Authorization", "Bearer $token" );
+    $client->addHeader( 'Content-Type',  'application/strategic-merge-patch+json' );
+
+    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
+    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+
+    #TODO: 增加其他的action，譬如：del、put等
+    if ( $action eq 'patch' ) {
+        $client->PATCH( $url, $req );
+    }
+    else {
+        print("ERROR: Action:$action not supported.\n");
+        $hasError = $hasError + 1;
+        return $hasError;
+    }
+
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        print("ERROR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed, cause by:$errMsg\n");
+        $hasError = $hasError + 1;
+    }
+    else {
+        my $content = $client->responseContent();
+        my $data    = from_json($content);
+
+        my $name  = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'name'};
+        my $image = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'image'};
+
+        #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
+        if ( defined($name) and defined($image) ) {
+            print("FINEST: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();
