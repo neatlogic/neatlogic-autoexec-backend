@@ -14,7 +14,7 @@
             "help": "镜像仓库地址，例如：10.0.1.13:8080",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:docker.reg.addr}",
             "required": "true",
             "validate": ""
         },
@@ -62,7 +62,7 @@
             "opt": "password",
             "name": "仓库密码",
             "help": "Docker的镜像仓库登录用户密码",
-            "type": "text",
+            "type": "password",
             "isConst": "false",
             "defaultValue": "${global:docker.reg.password}",
             "required": "true",

@@ -4,6 +4,7 @@ use FindBin;
 
 use Cwd;
 use IO::File;
+use MIME::Base64;
 use File::Basename;
 use Data::Dumper;
 use LWP::UserAgent;
@@ -17,7 +18,7 @@ sub usage {
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
     print("              --repo Repository --group Group --artifact Artifact\n");
-    print("              --artifactfile FilePath --pomfile PomFilePath\n");
+    print("              --pkgfile FilePath --pomfile PomFilePath\n");
     print("\n");
     print("       --envpath:      Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version:      Version number of sub system\n");
@@ -27,7 +28,7 @@ sub usage {
     print("       --repo:         Nexus repository, example:public.\n");
     print("       --group:        Group of artifact, example:com.any\n");
     print("       --artifact:     Artifact, example: log4j\n");
-    print("       --artifactfile: Jar file path relative to project.\n");
+    print("       --pkgfile:      Package file, war|war file path relative to project.\n");
     print("       --pomfile:      pom.xml file path relative to project.\n");
 
     exit(-1);
@@ -44,22 +45,23 @@ sub getBoundary {
     return $randStr;
 }
 
+#TODO: 测试nexus上传
 sub main {
     my ( $isHelp, $envPath, $version );
-    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $filePath, $pom );
+    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $pkgPath, $pom );
 
     GetOptions(
-        'h|help'         => \$isHelp,
-        'envpath:s'      => \$envPath,
-        'version=s'      => \$version,
-        'baseurl=s'      => \$baseUrl,
-        'user:s'         => \$user,
-        'password:s'     => \$pass,
-        'repo=s'         => \$repo,
-        'group=s'        => \$group,
-        'artifact=s'     => \$artifact,
-        'artifactfile=s' => \$filePath,
-        'pomfile:s'      => \$pom,
+        'h|help'     => \$isHelp,
+        'envpath:s'  => \$envPath,
+        'version=s'  => \$version,
+        'baseurl=s'  => \$baseUrl,
+        'user:s'     => \$user,
+        'password:s' => \$pass,
+        'repo=s'     => \$repo,
+        'group=s'    => \$group,
+        'artifact=s' => \$artifact,
+        'pkgfile=s'  => \$pkgPath,
+        'pomfile:s'  => \$pom,
 
     );
 
@@ -96,7 +98,7 @@ sub main {
         $optionError = 1;
     }
 
-    if ( not defined($filePath) or $filePath eq '' ) {
+    if ( not defined($pkgPath) or $pkgPath eq '' ) {
         print("ERROR: Must defind filepath path\n");
         $optionError = 1;
     }
@@ -105,56 +107,63 @@ sub main {
         usage();
     }
 
+    my $hasError = 0;
+
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $distDir = $dirInfo->{distribute};
 
     my $prjPath = $buildEnv->{PRJ_PATH};
 
-    my $realFilePath = "$prjPath/$filePath";
+    my $pkgRealPath  = "$prjPath/$pkgPath";
     my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
     my $TMPDIR       = "$autoexecHome/tmp";
 
     my $tmp    = File::Temp->newdir( "nexusupd-XXXXX", DIR => $TMPDIR, UNLINK => 1 );
     my $tmpDir = $tmp->dirname();
 
-    my $tmpPomFilePath = "$tmpDir/pom.xml";
+    my $tmpPomPath = "$tmpDir/pom.xml";
     if ( defined($pom) ) {
         my $pomFilePath = "$prjPath/$pom";
         my $content     = $deployUtils->getFileContent("$pomFilePath");
         $content =~ s/<version>.*?<\/version>/<version>$version<\/version>/g;
-        my $fh = IO::File->new(">$tmpPomFilePath");
+        my $fh = IO::File->new(">$tmpPomPath");
         if ( defined($fh) ) {
             print $fh ($content);
             $fh->close();
         }
         else {
-            die("ERROR: Can not write to file $tmpPomFilePath, $!\n");
+            $hasError = $hasError + 1;
+            print("ERROR: Can not write to file $tmpPomPath, $!\n");
+            return $hasError;
         }
     }
     else {
         my $pomInZip = "META-INF/maven/$group/$artifact/pom.xml";
 
-        #TODO：unzip需要测试
-        my $unzipRet = system("unzip -jod '$tmpDir' '$realFilePath' '$pomInZip'");
+        my $unzipRet = system("unzip -jod '$tmpDir' '$pkgRealPath' '$pomInZip'");
         if ( $unzipRet != 0 ) {
-            die("ERROR: Unzip $pomInZip from $realFilePath failed.\n");
+            $hasError = $hasError + 1;
+            print("ERROR: Unzip $pomInZip from $pkgRealPath failed.\n");
+            return $hasError;
         }
 
-        my $content = $deployUtils->getFileContent($tmpPomFilePath);
+        my $content = $deployUtils->getFileContent($tmpPomPath);
         $content =~ s/<version>.*?<\/version>/<version>$version<\/version>/g;
 
-        my $fh = IO::File->new(">$tmpPomFilePath");
+        my $fh = IO::File->new(">$tmpPomPath");
         if ( defined($fh) ) {
             print $fh ($content);
             $fh->close();
         }
         else {
-            die("ERROR: Can not write to file $tmpPomFilePath, $!\n");
+            $hasError = $hasError + 1;
+            print("ERROR: Can not write to file $tmpPomPath, $!\n");
+            return $hasError;
         }
     }
 
     my $ext = '';
-    if ( $filePath =~ /\.([^\.])$/ ) {
+    if ( $pkgPath =~ /\.([^\.])$/ ) {
         $ext = $1;
     }
 
@@ -162,15 +171,15 @@ sub main {
         'maven2.groupId'           => $group,
         'maven2.artifactId'        => $artifact,
         'maven2.version'           => $version,
-        'maven2.asset1'            => [ $realFilePath, basename($realFilePath), Content_Type => 'application/octet-stream' ],
+        'maven2.asset1'            => [ $pkgRealPath, basename($pkgRealPath), Content_Type => 'application/octet-stream' ],
         'maven2.asset1.classifier' => '',
         'maven2.asset1.extension'  => $ext
     ];
 
-    if ( defined($pom) and -f $tmpPomFilePath ) {
+    if ( defined($pom) and -f $tmpPomPath ) {
         push(
             @$contentMap,
-            'maven2.asset2'            => [ $tmpPomFilePath, basename($tmpPomFilePath), Content_Type => 'application/octet-stream' ],
+            'maven2.asset2'            => [ $tmpPomPath, basename($tmpPomPath), Content_Type => 'application/octet-stream' ],
             'maven2.asset2.extension'  => 'pom',
             'maven2.asset2.classifier' => ''
         );
@@ -178,17 +187,26 @@ sub main {
 
     my $url = "$baseUrl/service/rest/v1/components?repository=$repo";
 
-    my $ua = LWP::UserAgent->new( timeout => 120 );
+    my $ua = LWP::UserAgent->new( timeout => 600 );
 
+    #Content_Type是multipart/form-data;boundary就会触发LWP执行上传逻辑，使用multipart上传相关的属性和文件
     my $response = $ua->post(
         "$url",
         'Authorization', 'Basic ' . MIME::Base64::encode( $user . ':' . $pass ),
         'Content_Type' => 'multipart/form-data;boundary=' . getBoundary(),
         'Content'      => $contentMap
     );
-    my $content = $response->content;
+    my $statusCode = $response->code();
+    if ( $statusCode == 200 ) {
+        print("FINEST: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
+    }
+    else {
+        $hasError = $hasError + 1;
+        my $content = $response->content();
+        print("ERROR: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version faiiled.\n$content\n");
+    }
 
-    #TODO: 缺少了url请求后的错误检测
+    return $hasError;
 }
 
 exit main();

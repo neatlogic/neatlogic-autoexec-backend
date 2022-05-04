@@ -14,7 +14,7 @@
             "help": "K8S API地址，例如：https://192.168.99.100:8443",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:k8s.addr}",
             "required": "true",
             "validate": ""
         },
@@ -22,9 +22,9 @@
             "opt": "token",
             "name": "验证TOKEN",
             "help": "K8S API服务的验证TOKEN",
-            "type": "text",
+            "type": "password",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:k8s.token}",
             "required": "true",
             "validate": ""
         },

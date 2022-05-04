@@ -3,6 +3,7 @@ use strict;
 use FindBin;
 
 use DeployUtils;
+use DeployLock;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -66,6 +67,13 @@ sub main {
     $project = lc($project);
     $image   = lc($image);
     $tagname = lc($tagname);
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $appLockId   = $lock->lockEnvApp($DeployLock::READ);
+
+    END {
+        $lock->unlockEnvApp($appLockId);
+    }
 
     my $cmd = "sudo docker build -t $registry/$project/$image:$tagname $distDir/app";
     print("INFO:execute->$cmd\n");

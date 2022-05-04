@@ -4,7 +4,7 @@
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": "docker-args",
+    "defaultProfile": "nexus-args",
     "description": "工程编译后，生成docker镜像",
     "enabled": 0,
     "option": [
@@ -14,7 +14,27 @@
             "help": "Nexus地址，例如：https://192.168.0.8:8443",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:nexus.addr}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "Nexus登录用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:nexus.user}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "Nexus登录用户密码",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "${global:nexus.password}",
             "required": "true",
             "validate": ""
         },
@@ -41,7 +61,7 @@
         {
             "opt": "artifact",
             "name": "包名",
-            "help": "Artifact的包名（不含版本号）",
+            "help": "Artifact的包名(不含版本号)",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
@@ -49,7 +69,27 @@
             "validate": ""
         },
         {
-            "opt": "targetdir",
+            "opt": "ext",
+            "name": "扩展名",
+            "help": "包的扩展名，例如: jar|war|pom",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "version",
+            "name": "版本号",
+            "help": "包的版本号",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "saveto",
             "name": "保存目录",
             "help": "相对于工程目录的保存下载的子目录",
             "type": "text",
