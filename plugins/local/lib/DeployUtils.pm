@@ -22,9 +22,10 @@ our $READ_TMOUT = 86400;
 
 sub new {
     my ($pkg) = @_;
-
+    
     state $instance;
     if ( !defined($instance) ) {
+        hidePwdInCmdLine();
         my $self = {};
         $instance = bless( $self, $pkg );
 
@@ -32,6 +33,24 @@ sub new {
     }
 
     return $instance;
+}
+
+sub hidePwdInCmdLine {
+    my @args = ($0);
+    my $arg;
+    for ( my $i = 0 ; $i <= $#ARGV ; $i++ ) {
+        $arg = $ARGV[$i];
+        if ( $arg =~ /[-]+\w*pass\w*[^=]/ or $arg =~ /[-]+\w*pwd\w*[^=]/ or $arg =~ /[-]+\w*account\w*[^=]/ ) {
+            push( @args, $arg );
+            push( @args, '******' );
+            $i = $i + 1;
+        }
+        else {
+            $arg =~ s/"password":\K".*?"/"******"/ig;
+            push( @args, $arg );
+        }
+    }
+    $0 = join( ' ', @args );
 }
 
 sub deployInit {

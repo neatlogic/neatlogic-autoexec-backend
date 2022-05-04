@@ -7,10 +7,6 @@ use IO::File;
 use File::Basename;
 use Data::Dumper;
 use LWP::UserAgent;
-use MIME::Base64;
-use IO::Uncompress::Unzip;
-use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
-use CharsetDetector;
 use Getopt::Long;
 
 use DeployUtils;
@@ -19,12 +15,15 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              --baseurl NexusBaseUrl --repo Repository --group Group --artifact Artifact\n");
+    print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
+    print("              --repo Repository --group Group --artifact Artifact\n");
     print("              --artifactfile FilePath --pomfile PomFilePath\n");
     print("\n");
     print("       --envpath:      Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version:      Version number of sub system\n");
     print("       --baseurl:      Nexus base url, example:http://192.168.0.13:8080\n");
+    print("       --user:         User name to login nexus\n");
+    print("       --password:     User password to login nexus\n");
     print("       --repo:         Nexus repository, example:public.\n");
     print("       --group:        Group of artifact, example:com.any\n");
     print("       --artifact:     Artifact, example: log4j\n");
@@ -133,17 +132,14 @@ sub main {
         }
     }
     else {
-        #TODO：Archive::Zip不靠谱，需要直接改为unzip解压出pom.xml
-        $pom = "pom.xml";
         my $pomInZip = "META-INF/maven/$group/$artifact/pom.xml";
-        my $zip      = Archive::Zip->new();
-        my $status   = $zip->read("$realFilePath");
 
-        if ( $status != AZ_OK ) {
-            die("ERROR: Read $zip failed.\n");
+        #TODO：unzip需要测试
+        my $unzipRet = system("unzip -jod '$tmpDir' '$realFilePath' '$pomInZip'");
+        if ( $unzipRet != 0 ) {
+            die("ERROR: Unzip $pomInZip from $realFilePath failed.\n");
         }
 
-        $zip->extractMemberWithoutPaths( $pomInZip, $tmpPomFilePath );
         my $content = $deployUtils->getFileContent($tmpPomFilePath);
         $content =~ s/<version>.*?<\/version>/<version>$version<\/version>/g;
 
