@@ -189,14 +189,17 @@ sub main {
 
     my $url = "$baseUrl/service/rest/v1/components?repository=$repo";
 
+    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
+    $authToken =~ s/\s*$//;
+
     my $ua = LWP::UserAgent->new( timeout => 600 );
 
     #Content_Type是multipart/form-data;boundary就会触发LWP执行上传逻辑，使用multipart上传相关的属性和文件
     my $response = $ua->post(
-        "$url",
-        'Authorization', 'Basic ' . MIME::Base64::encode( $user . ':' . $pass ),
-        'Content_Type' => 'multipart/form-data;boundary=' . getBoundary(),
-        'Content'      => $contentMap
+        $url,
+        'Authorization' => $authToken,
+        'Content_Type'  => 'multipart/form-data;boundary=' . getBoundary(),
+        'Content'       => $contentMap
     );
     my $statusCode = $response->code();
     if ( $statusCode == 200 ) {

@@ -4,7 +4,7 @@ use strict;
 use FindBin;
 
 use REST::Client;
-use LWP::Simple qw(getstore);
+use HTTP::Tiny;
 use MIME::Base64;
 use JSON;
 use Cwd;
@@ -97,18 +97,24 @@ sub main {
     }
 
     $baseUrl =~ s/\/+$//;
-    
+    my $hasError = 0;
+
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $distDir = $dirInfo->{distribute};
 
     my $prjPath = $buildEnv->{PRJ_PATH};
-    my $saveDir = "$prjPath/$saveDir";
+    if ( not -e $prjPath ) {
+        $hasError = $hasError + 1;
+        print("ERROR: Directory $prjPath not exists.\n");
+    }
 
-    my $hasError = 0;
+    my $saveDir = Cwd::abs_path("$prjPath/$saveDir");
 
-    my $client = REST::Client->new();
-    $client->addHeader( 'Authorization', 'Basic ' . MIME::Base64::encode( $user . ':' . $pass ) );
-    
+    my $client    = REST::Client->new();
+    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
+    $authToken =~ s/\s*$//;
+    $client->addHeader( 'Authorization', $authToken );
+
     #my $url    = "$baseUrl/service/rest/v1/components?repository=$repo"; #老的browser整个仓库的方法，不合理，改为使用search方法
     #searchUrl
     #http://repo.techsure.cn:9008/nexus/service/rest/v1/search?repository=techsure-release&maven.groupId=com.techsure&maven.artifactId=tagent&maven.extension=jar&version=1.2.2.1
@@ -131,18 +137,36 @@ sub main {
         print("ERROR: Can not find artifact by URL:$url.\n");
         return $hasError;
     }
-    else{
+    else {
         print("INFO: Search by by URL:$url finished.\n");
     }
+
+    my $headers = {Authorization => $authToken};
+    my $http = HTTP::Tiny->new();
 
     foreach my $item (@$items) {
         my $assets = $item->{'assets'};
         foreach my $asset (@$assets) {
-            my $downUrl     = $asset->{'downloadUrl'};
+            my $downUrl = $asset->{'downloadUrl'};
+            if ( $downUrl !~ /\.$ext$/ ) {
+                next;
+            }
+
             my @downUrlSegs = split( /\//, $downUrl );
 
-            #使用LWP::Simple getstore下载文件
-            getstore( $downUrl, "$saveDir/$downUrlSegs[-1]" );
+            #使用HTTP::Tiny的mirror方法下载文件
+            my $fileName = $downUrlSegs[-1];
+            print("INFO: Downloading $downUrl to $saveDir/$fileName.\n");
+
+            my $response = $http->mirror( $downUrl, "$saveDir/$fileName", { headers => $headers } );
+            if ( $response->{success} ) {
+                print("FINEST: Download $downUrl to $saveDir/$fileName success.\n");
+            }
+            else {
+                $hasError = $hasError + 1;
+                my $content = $response->{content};
+                print("ERROR: Download $downUrl to $saveDir/$fileName failed.\n$content.\n");
+            }
         }
     }
 
