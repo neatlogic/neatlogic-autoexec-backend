@@ -107,6 +107,8 @@ sub main {
         usage();
     }
 
+    $baseUrl =~ s/\/+$//;
+
     my $hasError = 0;
 
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);

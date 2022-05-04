@@ -337,6 +337,8 @@ sub main {
         usage();
     }
 
+    $apolloAddr =~ s/\/+$//;
+    
     my $buildConf = $deployEnv->{DEPLOY_CONF};
 
     if ( not defined($cluster) or $cluster eq '' ) {

@@ -73,12 +73,14 @@ sub main {
         usage();
     }
 
-# my $name = 'nginx';
-# my $image = 'nginx:1.7.6';
-# my $baseUrl = 'https://192.168.99.100:8443';
-# my $namespace = 'default';
-# my $deployment = 'nginx-deployment';
-# my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
+    $baseUrl =~ s/\/+$//;
+    
+    # my $name = 'nginx';
+    # my $image = 'nginx:1.7.6';
+    # my $baseUrl = 'https://192.168.99.100:8443';
+    # my $namespace = 'default';
+    # my $deployment = 'nginx-deployment';
+    # my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
 
     my $url = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
 

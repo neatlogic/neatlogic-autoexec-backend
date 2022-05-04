@@ -98,6 +98,7 @@ sub main {
 
     my $repo = $verInfo->{repo};
 
+    $apiBaseUrl =~ s/\/+$//;
     my $prjsApiUrl = "$apiBaseUrl/projects";
 
     my $userId;
