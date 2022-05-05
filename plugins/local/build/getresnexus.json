@@ -7,14 +7,13 @@
     "defaultProfile": "nexus-args",
     "description": "工程编译后，生成docker镜像",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "baseurl",
             "name": "Nexus地址",
             "help": "Nexus地址，例如：https://192.168.0.8:8443",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "${global:nexus.addr}",
+            "defaultValue": "${global:nexus.baseurl}",
             "required": "true",
             "validate": ""
         },
@@ -79,12 +78,12 @@
             "validate": ""
         },
         {
-            "opt": "version",
+            "opt": "ver",
             "name": "版本号",
             "help": "包的版本号",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${ENV_NAME}${VERSION}",
             "required": "true",
             "validate": ""
         },

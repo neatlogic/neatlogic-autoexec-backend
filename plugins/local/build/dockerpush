@@ -57,38 +57,19 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    if ( not defined($image) or not defined($tagname) or not defined($project) ) {
+    if ( not defined($username) or $username eq '' ) {
         $optionError = 1;
-        print("ERROR: Must defined option: --image and --tagname and --project.\n");
+        print("ERROR: Docker registry user name not defined by option --user\n");
     }
 
-    if ( $optionError == 1 ) {
-        usage();
-    }
-
-    my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
-
-    $envPath = $buildEnv->{NAME_PATH};
-    $version = $buildEnv->{VERSION};
-
-    my $optionError = 0;
-    if ( not defined($envPath) or $envPath eq '' ) {
+    if ( not defined($password) or $password eq '' ) {
         $optionError = 1;
-        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
-    }
-    if ( not defined($version) or $version eq '' ) {
-        $optionError = 1;
-        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+        print("ERROR: Docker registry password not defined by option --password\n");
     }
 
     if ( not defined($image) or not defined($tagname) or not defined($project) ) {
         $optionError = 1;
         print("ERROR: Must defined option: --image and --tagname and --project.\n");
-    }
-
-    if ( $optionError == 1 ) {
-        usage();
     }
 
     $project = lc($project);

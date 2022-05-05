@@ -28,6 +28,7 @@ sub usage {
     print("       --repo:         Nexus repository, example:public.\n");
     print("       --group:        Group of artifact, example:com.any\n");
     print("       --artifact:     Artifact, example: log4j\n");
+    print("       --ver:          Version or artifact.\n");
     print("       --pkgfile:      Package file, war|war file path relative to project.\n");
     print("       --pomfile:      pom.xml file path relative to project.\n");
 
@@ -48,7 +49,7 @@ sub getBoundary {
 #TODO: 测试nexus上传
 sub main {
     my ( $isHelp, $envPath, $version );
-    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $pkgPath, $pom );
+    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $artifactVer, $pkgPath, $pom );
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -60,6 +61,7 @@ sub main {
         'repo=s'     => \$repo,
         'group=s'    => \$group,
         'artifact=s' => \$artifact,
+        'ver=s'      => \$artifactVer,
         'pkgfile=s'  => \$pkgPath,
         'pomfile:s'  => \$pom,
 
@@ -83,6 +85,21 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus base url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus password not defined by option --password\n");
+    }
+
     if ( not defined($repo) or $repo eq '' ) {
         print("ERROR: Must defind repository id\n");
         $optionError = 1;
@@ -96,6 +113,11 @@ sub main {
     if ( not defined($artifact) or $artifact eq '' ) {
         print("ERROR: Must defind artifact id\n");
         $optionError = 1;
+    }
+
+    if ( not defined($artifactVer) or $artifactVer eq '' ) {
+        $optionError = 1;
+        print("ERROR: Artifact version not defined by option --ver or Environment:VERSION\n");
     }
 
     if ( not defined($pkgPath) or $pkgPath eq '' ) {
@@ -127,7 +149,7 @@ sub main {
     if ( defined($pom) ) {
         my $pomFilePath = "$prjPath/$pom";
         my $content     = $deployUtils->getFileContent("$pomFilePath");
-        $content =~ s/<version>.*?<\/version>/<version>$version<\/version>/g;
+        $content =~ s/<version>.*?<\/version>/<version>$artifactVer<\/version>/g;
         my $fh = IO::File->new(">$tmpPomPath");
         if ( defined($fh) ) {
             print $fh ($content);
@@ -150,7 +172,7 @@ sub main {
         }
 
         my $content = $deployUtils->getFileContent($tmpPomPath);
-        $content =~ s/<version>.*?<\/version>/<version>$version<\/version>/g;
+        $content =~ s/<version>.*?<\/version>/<version>$artifactVer<\/version>/g;
 
         my $fh = IO::File->new(">$tmpPomPath");
         if ( defined($fh) ) {
@@ -172,7 +194,7 @@ sub main {
     my $contentMap = [
         'maven2.groupId'           => $group,
         'maven2.artifactId'        => $artifact,
-        'maven2.version'           => $version,
+        'maven2.version'           => $artifactVer,
         'maven2.asset1'            => [ $pkgRealPath, basename($pkgRealPath), Content_Type => 'application/octet-stream' ],
         'maven2.asset1.classifier' => '',
         'maven2.asset1.extension'  => $ext

@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::Socket::INET;
+use File::Basename;
+use Getopt::Long;
+use TarSCPExec;
+use File::Path;
+
+use DeployUtils;
+use DeployLock;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl ResourceServerBaseUrl --user UserName --password Password\n");
+    print("              --srcenvpath SourceEnvPath\n");
+    print("              subDir1 subDir2 ...\n");
+    print("\n");
+    print("       --envpath:    Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:    Version number of module version\n");
+    print("       --baseurl:    Resource server base url, example:http://192.168.0.13:8080/nexus\n");
+    print("       --user:       User name to login nexus\n");
+    print("       --password:   User password to login nexus\n");
+    print("       --srcenvpath: Source env path, example:MY-SYS/MY-MODULE/UAT.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp,     $envPath, $version );
+    my ( $baseUrl,    $user,    $pass );
+    my ( $srcEnvPath, @subDirs );
+    my $isVerbose = 0;
+    my $pname     = $FindBin::Script;
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'v|verbose'    => \$isVerbose,
+        'envpath=s'    => \$envPath,
+        'version=s'    => \$version,
+        'baseurl=s'    => \$baseUrl,
+        'user=s'       => \$user,
+        'password=s'   => \$pass,
+        'srcenvpath:s' => \$srcEnvPath,
+        '<>'           => \&pushItems
+    );
+
+    sub pushItems {
+        my ($item) = @_;
+        push( @subDirs, $item );
+    }
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    if ( not defined($srcEnvPath) or $srcEnvPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: Source Env Path not defined by option --srcenvpath\n");
+    }
+
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Web console url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Web console user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Web console password not defined by option --password\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
+
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $prjDir     = $buildEnv->{PRJ_PATH};
+
+    $srcEnvPath =~ s/^\s*\/|\/\s*$//g;
+    my @srcPathSegs = split( '\/', $srcEnvPath );
+    my $srcEnvInfo  = {
+        namePath   => $srcEnvPath,
+        sysName    => $srcPathSegs[0],
+        moduleName => $srcPathSegs[1],
+        envName    => $srcPathSegs[2],
+        authToken  => $authToken,
+        baseUrl    => $baseUrl
+    };
+
+    my $serverAdapter = ServerAdapter->new();
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
+    }
+
+    print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
+    eval { $serverAdapter->getBuild( $buildEnv, $srcEnvInfo, \@subDirs, 1 ); };
+    if ($@) {
+        $hasError = $hasError + 1;
+        print("ERROR: $@");
+        print("ERROR: $pname $envPath $version failed.\n");
+    }
+
+    if ( $hasError == 0 ) {
+        print("FINEST: $pname $envPath $version success.\n");
+    }
+    else {
+        print("ERROR: $pname $envPath $version failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();

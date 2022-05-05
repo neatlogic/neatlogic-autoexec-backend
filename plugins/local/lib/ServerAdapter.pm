@@ -705,7 +705,7 @@ sub pushSqlStatus {
 }
 
 sub getBuild {
-    my ( $self, $deployEnv, $subDirs, $cleanSubDirs ) = @_;
+    my ( $self, $deployEnv, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
 
@@ -785,6 +785,25 @@ sub getBuild {
     my $url    = $self->_getApiUrl('getBuild');
 
     my $pdata = $self->_getParams($deployEnv);
+
+    #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准
+    if ($srcEnvInfo) {
+        my $srcNamePath = $srcEnvInfo->{namePath};
+        if ( defined($srcNamePath) ) {
+            if ( $srcNamePath eq $deployEnv->{NAME_PATH} ) {
+                print("WARN: No need to get resource from the same environment.\n");
+                return;
+            }
+        }
+        else {
+            print("WARN: No need to get resource from the same environment.\n");
+            return;
+        }
+
+        while ( my ( $key, $val ) = each(%$srcEnvInfo) ) {
+            $pdata->{$key} = $val;
+        }
+    }
 
     if ( defined($subDirs) and scalar($subDirs) > 0 ) {
         $pdata->{'subDirs'} = join( ',', @$subDirs );
