@@ -8,6 +8,7 @@ use TarSCPExec;
 use File::Path;
 
 use DeployUtils;
+use DeployLock;
 use ServerAdapter;
 
 sub usage {
@@ -114,6 +115,13 @@ sub main {
     };
 
     my $serverAdapter = ServerAdapter->new();
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
+    }
 
     print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
     eval { $serverAdapter->getBuild( $buildEnv, $srcEnvInfo, \@subDirs, 1 ); };

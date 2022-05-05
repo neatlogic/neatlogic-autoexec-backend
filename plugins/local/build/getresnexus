@@ -13,6 +13,7 @@ use Getopt::Long;
 use File::Basename;
 
 use DeployUtils;
+use DeployLock;
 use FileUtils;
 
 sub usage {
@@ -164,6 +165,13 @@ sub main {
     }
     else {
         print("INFO: Search by by URL:$url finished.\n");
+    }
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
     }
 
     my @downFiles = ();

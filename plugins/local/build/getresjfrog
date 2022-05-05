@@ -13,6 +13,7 @@ use Getopt::Long;
 use File::Basename;
 
 use DeployUtils;
+use DeployLock;
 use FileUtils;
 
 sub usage {
@@ -133,6 +134,13 @@ sub main {
     }
 
     my $saveDir = Cwd::abs_path("$prjPath/$saveDir");
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
+    }
 
     my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
     $authToken =~ s/\s*$//;
