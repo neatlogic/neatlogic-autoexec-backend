@@ -20,8 +20,8 @@ sub usage {
 }
 
 sub main() {
-    my ( $isHelp, $isVerbose, $envPath, $lang );
-    my ( $repo,   $trunk,     $branch,  $tag );
+    my ( $isHelp,   $isVerbose, $envPath, $lang );
+    my ( $repo,     $trunk,     $branch,  $tag );
     my ( $userName, $password );
     GetOptions(
         'h|help'      => \$isHelp,
@@ -32,7 +32,7 @@ sub main() {
         'trunk=s'     => \$trunk,
         'branch=s'    => \$branch,
         'tag=s'       => \$tag,
-        'username=s'  => \$userName,
+        'user=s'      => \$userName,
         'password=s'  => \$password
     );
     usage() if ( defined($isHelp) );

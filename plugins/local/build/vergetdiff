@@ -43,7 +43,7 @@ sub main {
         'diffsavedir=s' => \$diffSaveDir,
         'basetag=s'     => \$tag4CmpTo,
         'baserev=s'     => \$startRev,
-        'username=s'    => \$userName,
+        'user=s'        => \$userName,
         'password=s'    => \$password
     );
 

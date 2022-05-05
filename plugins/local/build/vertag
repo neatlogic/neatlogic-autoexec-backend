@@ -39,7 +39,7 @@ sub main {
         'lang=s'      => \$lang,
         'version=s'   => \$version,
         'tagprefix=s' => \$tagPrefix,
-        'username=s'  => \$userName,
+        'user=s'      => \$userName,
         'password=s'  => \$password
     );
 

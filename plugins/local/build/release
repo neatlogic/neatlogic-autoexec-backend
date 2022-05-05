@@ -25,7 +25,8 @@ sub usage {
     print("\n");
     print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
     print("       --version:  versoin number\n");
-    print("       --docdir:  db or doc resource start diretory(relative to project directory)\n");
+    print("       --dbdir:   db resource start directory(relative to project directory)\n");
+    print("       --docdir:  doc resource start diretory(relative to project directory)\n");
     print("       --prefix:   target prefix\n");
     print("       --packexts: package extention names, example:zip,tar,tgz\n");
     print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");

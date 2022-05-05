@@ -1,30 +1,62 @@
 {
-    "opDesc": "获取版本制品",
+    "opDesc": "跨环境制品获取",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
-    "description": "把测试环境的版本的build下载到当前runner",
+    "defaultProfile": "getres-args",
+    "description": "用户跨多套环境获取制品，例如: 生产从测试下载版本制品",
     "enabled": 0,
     "option": [{
-        "opt": "verbose",
-        "name": "显示明细",
-        "help": "执行日志显示详细信息",
-        "type": "radio",
+            "opt": "baseurl",
+            "name": "制品库地址",
+            "help": "制品库地址，例如：https://192.168.0.8:8443",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:getres.baseurl}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "制品库登录用户名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:getres.user}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "制品库登录用户密码",
+            "type": "password",
+            "isConst": "false",
+            "defaultValue": "${global:getres.password}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "srcenvpath",
+            "name": "源环境路径",
+            "help": "获取版本的源头环境路径,例如:MY-SYS/MY-MODULE/UAT",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "抽取子目录",
+        "help": "从release的版本目录中抽取的子目录",
+        "type": "text",
+        "count": 0,
         "isConst": "false",
-        "defaultValue": [{
-                "text": "是",
-                "value": "1",
-                "selected": "true"
-            },
-            {
-                "text": "否",
-                "value": "0"
-            }
-        ],
+        "defaultValue": ["app", "db"],
         "required": "true",
         "validate": ""
-    }],
+    },
     "output": []
 }

@@ -38,7 +38,7 @@ sub main {
         'envpath=s'   => \$envPath,
         'lang=s'      => \$lang,
         'version=s'   => \$version,
-        'username=s'  => \$userName,
+        'user=s'      => \$userName,
         'password=s'  => \$password
     );
 
