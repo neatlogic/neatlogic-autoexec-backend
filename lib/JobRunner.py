@@ -25,9 +25,9 @@ class ListenWorkThread(threading.Thread):
     def __init__(self, name, server, queue, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
-        self.globalLocks = GlobalLock.GlobalLock()
+        self.globalLocks = GlobalLock.GlobalLock(context)
         self.context = context
-        server.server = server
+        self.server = server
         self.queue = queue
 
     def run(self):
