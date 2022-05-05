@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 use strict;
 
-package checkService;
+package CheckService;
 
-use LWP::UserAgent;
+use HTTP::Tiny;
 use File::Copy;
 use File::Path;
 use File::Basename;
@@ -16,6 +16,7 @@ sub _checkTcp {
     my $isSuccess = 0;
 
     eval {
+        print("INFO:Checking $host:$port...\n");
         my $socket = IO::Socket::INET->new(
             PeerHost => $host,
             PeerPort => $port,
@@ -24,12 +25,16 @@ sub _checkTcp {
 
         if ( defined($socket) ) {
             $isSuccess = 1;
+            print("INFO:Checking $host:$port success.\n");
             $socket->close();
+        }
+        else {
+            print("INFO:Checking $host:$port failed, $!.\n");
         }
 
     };
     if ($@) {
-        print("ERROR:$@\n");
+        print("WARN:$@\n");
     }
 
     return $isSuccess;
@@ -51,11 +56,16 @@ sub _checkUrl {
     }
 
     eval {
-        my $ua         = new LWP::UserAgent;
-        my $request    = HTTP::Request->new( "GET" => $url );
-        my $response   = $ua->request($request);
-        my $statusCode = $response->code;
-        print("INFO:Checking $url, status code $statusCode\n");
+        # my $ua         = new LWP::UserAgent;
+        # my $request    = HTTP::Request->new( "GET" => $url );
+        # my $response   = $ua->request($request);
+
+        my $http     = HTTP::Tiny->new( timeout => $timeout );
+        my $response = $http->get($url);
+
+        my $statusCode = $response->{status};
+
+        #print("INFO:Checking $url, status code $statusCode\n");
         if ( $statusCode == 200 or $statusCode == 302 ) {
             if ( defined($keyword) ) {
                 my $content = $response->content;
@@ -68,6 +78,14 @@ sub _checkUrl {
                 $isSuccess = 1;
                 print("INFO:Checking $url success.\n");
             }
+        }
+        else {
+            my $reason = $response->{content};
+            $reason =~ s/\s+$//;
+            if ( length($reason) > 80 ) {
+                $reason = $response->{reason};
+            }
+            print("INFO:Checking $url failed, $reason.\n");
         }
     };
     if ($@) {
@@ -82,18 +100,20 @@ sub checkServiceAvailable {
 
     my $isSuccess    = 0;
     my $step         = 3;
+    my $stepTimeout  = $step * 2;
     my $stepCount    = $timeout / $step;
     my $addrCheckMap = {};
 
+    my $isTimeout = 0;
     my $startTime = time();
     for ( my $i = 0 ; $i < $stepCount ; $i++ ) {
-        print("INFO:waiting app to start....\n");
+        print("INFO:waiting service to start....\n");
 
         my $allSuccess = 1;
         for my $addr (@$addrs) {
             if ( $addrCheckMap->{$addr} != 1 ) {
                 if ( $addr =~ /^([\d\.]+):(\d+)$/ ) {
-                    if ( _checkTcp( $1, $2, $keyword, $timeout ) == 1 ) {
+                    if ( _checkTcp( $1, $2, $keyword, $stepTimeout ) == 1 ) {
                         $addrCheckMap->{$addr} = 1;
                     }
                     else {
@@ -101,7 +121,7 @@ sub checkServiceAvailable {
                     }
                 }
                 else {
-                    if ( _checkUrl( $addr, $keyword, $method, $timeout ) == 1 ) {
+                    if ( _checkUrl( $addr, $keyword, $method, $stepTimeout ) == 1 ) {
                         $addrCheckMap->{$addr} = 1;
                     }
                     else {
@@ -114,16 +134,25 @@ sub checkServiceAvailable {
             $isSuccess = 1;
             last;
         }
-
-        if ( time() - $startTime > $timeout ) {
-            print("WARN: Check service imeout($timeout).\n");
+        elsif ( time() - $startTime >= $timeout ) {
+            $isTimeout = 1;
+            print("WARN: Check service failed, imeout($timeout).\n");
+            last;
         }
 
         sleep($step);
     }
 
     if ( $isSuccess == 0 ) {
-        print("WARN:App service check failed. \n");
+        if ( $isTimeout == 0 and time() - $startTime >= $timeout ) {
+            print("WARN: Check service failed, imeout($timeout).\n");
+        }
+        else {
+            print("WARN:App service check failed. \n");
+        }
+    }
+    else {
+        print("INFO: Service started.\n");
     }
 
     return $isSuccess;

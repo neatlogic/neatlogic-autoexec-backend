@@ -21,13 +21,14 @@ sub usage {
     print("              --saveto SubDirInProject\n");
     print("\n");
     print("       --envpath:  Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
-    print("       --version:  Version number of sub system\n");
+    print("       --version:  Version number of module version\n");
     print("       --baseurl:  Nexus base url, example:http://192.168.0.13:8080/nexus\n");
-    print("       --user:         User name to login nexus\n");
-    print("       --password:     User password to login nexus\n");
+    print("       --user:     User name to login nexus\n");
+    print("       --password: User password to login nexus\n");
     print("       --repo:     Nexus repository, example:public.\n");
     print("       --group:    Group of artifact, example:com.any\n");
     print("       --artifact: Artifact, example: log4j\n");
+    print("       --ver:      Version number of artifact\n");
     print("       --ext:      Package file extention name.\n");
     print("       --saveto:   Save to sub directory relative to project.\n");
 
@@ -38,7 +39,7 @@ sub main {
 
     my ( $isHelp,  $envPath, $version );
     my ( $baseUrl, $user,    $pass );
-    my ( $repo,    $group,   $artifact, $ext, $saveDir );
+    my ( $repo,    $group,   $artifact, $artifactVer, $ext, $saveDir );
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -50,6 +51,7 @@ sub main {
         'repo=s'     => \$repo,
         'group=s'    => \$group,
         'artifact=s' => \$artifact,
+        'ver=s'      => \$artifactVer,
         'ext=s'      => \$ext,
         'saveto=s'   => \$saveDir
     );
@@ -118,14 +120,14 @@ sub main {
     #my $url    = "$baseUrl/service/rest/v1/components?repository=$repo"; #老的browser整个仓库的方法，不合理，改为使用search方法
     #searchUrl
     #http://repo.techsure.cn:9008/nexus/service/rest/v1/search?repository=techsure-release&maven.groupId=com.techsure&maven.artifactId=tagent&maven.extension=jar&version=1.2.2.1
-    my $url = "$baseUrl/service/rest/v1/search?repository=$repo&maven.groupId=$group&maven.artifactId=$artifact&maven.extension=$ext&version=$version";
+    my $url = "$baseUrl/service/rest/v1/search?repository=$repo&maven.groupId=$group&maven.artifactId=$artifact&maven.extension=$ext&version=$artifactVer";
 
     $client->setTimeout(5);
     $client->GET($url);
     if ( $client->responseCode() ne 200 ) {
         $hasError = $hasError + 1;
         my $errMsg = $client->responseContent();
-        print("ERROR: Search artifact by URL:$url failed, cause by:$errMsg\n");
+        print("ERROR: Search artifact by URL:$url failed, cause by:\n$errMsg\n");
         return $hasError;
     }
 
@@ -141,8 +143,8 @@ sub main {
         print("INFO: Search by by URL:$url finished.\n");
     }
 
-    my $headers = {Authorization => $authToken};
-    my $http = HTTP::Tiny->new();
+    my $headers = { Authorization => $authToken };
+    my $http    = HTTP::Tiny->new();
 
     foreach my $item (@$items) {
         my $assets = $item->{'assets'};
