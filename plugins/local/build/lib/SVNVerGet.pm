@@ -32,14 +32,14 @@ sub new {
     my $tag     = $verInfo->{tag};
     my $tagsDir = $verInfo->{tagsDir};
 
-    $repo =~ s/\/+$//;
-    $repo =~ s/\{\{version\}\}/$version/g;
-    $trunk =~ s/^\/+|\/+$//g;
-    $trunk =~ s/\{\{version\}\}/$version/g;
-    $branch =~ s/^\/+|\/+$//g;
-    $branch =~ s/\{\{version\}\}/$version/g;
-    $tag =~ s/^\/+|\/+$//g;
-    $tag =~ s/\{\{version\}\}/$version/g;
+    $repo    =~ s/\/+$//;
+    $repo    =~ s/\{\{version\}\}/$version/g;
+    $trunk   =~ s/^\/+|\/+$//g;
+    $trunk   =~ s/\{\{version\}\}/$version/g;
+    $branch  =~ s/^\/+|\/+$//g;
+    $branch  =~ s/\{\{version\}\}/$version/g;
+    $tag     =~ s/^\/+|\/+$//g;
+    $tag     =~ s/\{\{version\}\}/$version/g;
     $tagsDir =~ s/^\/+|\/+$//g;
     $tagsDir =~ s/\{\{version\}\}/$version/g;
 
@@ -815,7 +815,7 @@ sub _getDiff {
     my $saveSub = sub {
         my ($line) = @_;
         if ( defined($diffSaveDir) and $line =~ /^([MDA].*?)\s+(.*)$/ ) {
-            my $flag = $1;
+            my $flag     = $1;
             my $filePath = substr( $2, $startPos );
 
             if ( $isVerbose == 1 ) {
@@ -905,6 +905,96 @@ sub _getDiff {
     }
     if ( defined($diffListFH) ) {
         $diffListFH->close();
+    }
+
+    return $ret;
+}
+
+sub compare {
+    my ( $self, $callback, $tagName, $startRev, $endRev, $excludeDirs, $isVerbose ) = @_;
+
+    if ( not defined($endRev) ) {
+        $endRev = 'HEAD';
+    }
+
+    my $repo    = $self->{repo};
+    my $trunk   = $self->{trunk};
+    my $branch  = $self->{branch};
+    my $tag     = $self->{tag};
+    my $tagsDir = $self->{tagsDir};
+
+    my $autoexecHome = $self->{autoexecHome};
+    my $prjPath      = $self->{prjPath};
+    my $svnUser      = $self->{svnUser};
+    my $svnPass      = $self->{svnPass};
+
+    my $checkoutRepo;
+    if ( $self->{checkoutByTag} == 1 ) {
+        $checkoutRepo = "$repo/$tag";
+    }
+    else {
+        $checkoutRepo = "$repo/$branch";
+    }
+
+    my $baseRepo = "$repo/$trunk";
+    if ( defined($tagName) and $tagName ne '' ) {
+        $baseRepo = "$repo/$tagsDir/$tagName";
+    }
+
+    my $ret = 0;
+
+    my $startPos = 0;
+
+    if ( defined($tagName) ) {
+        $startPos = length($baseRepo);
+        if ( $baseRepo !~ /\/$/ ) {
+            $startPos = $startPos + 1;
+        }
+    }
+
+    my $saveSub = sub {
+        my ($line) = @_;
+
+        if ( $line =~ /^([MDA])\s+(.+)$/ ) {
+            my $flag     = $1;
+            my $filePath = substr( $2, $startPos );
+
+            my $isExcluded = 0;
+            foreach my $exdir (@$excludeDirs) {
+                if ( $filePath =~ /^$exdir/ ) {
+                    $isExcluded = 1;
+                    last;
+                }
+            }
+
+            if ( $isExcluded == 0 and defined($callback) ) {
+                &$callback("$flag $filePath");
+            }
+        }
+    };
+
+    chdir($prjPath);
+
+    #[app@techsure project]$ svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir /app/ezdeploy --username wenhb --password xxx diff --old 'svn://192.168.0.89/commander/tags/v1.0.0' --new 'svn://192.168.0.89/co
+    #mmander/branches/1.0.0'
+##D       svn://192.168.0.89/commander/branches/v1.0.0/build/classes
+##M       svn://192.168.0.89/commander/branches/v1.0.0/build.properties
+##A       svn://192.168.0.89/commander/branches/v1.0.0/test.txt
+    my $diffCmd;
+    my $execDesc;
+    if ( defined($startRev) and $startRev ne '' ) {
+        $diffCmd  = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff -r $startRev:$endRev";
+        $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff -r $startRev:$endRev\n";
+    }
+    else {
+        $diffCmd  = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --new '$checkoutRepo' --old '$baseRepo'";
+        $execDesc = "cd '$prjPath' && svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password '******' diff --new '$checkoutRepo' --old '$baseRepo'\n";
+    }
+
+    eval { DeployUtils->handlePipeOut( $diffCmd, $saveSub, 0, $execDesc ); };
+    if ($@) {
+        $ret = 1;
+        print( $@, "\n" );
     }
 
     return $ret;

@@ -279,4 +279,15 @@ sub getBuildDiff {
     return $ret;
 }
 
+sub compare {
+    my ( $self, $callback, $tagName, $startRev, $endRev, $excludeDirs, $isVerbose ) = @_;
+    my $handler = $self->getHandler();
+
+    my $ret = 1;
+    if ( defined($handler) ) {
+        $ret = $handler->compare( $callback, $tagName, $startRev, $endRev, $excludeDirs, $isVerbose );
+    }
+
+    return $ret;
+}
 1;

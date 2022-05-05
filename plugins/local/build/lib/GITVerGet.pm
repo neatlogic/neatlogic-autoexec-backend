@@ -764,5 +764,87 @@ sub _getDiff {
     return $ret;
 }
 
+sub compare {
+    my ( $self, $callback, $tagName, $startRev, $endRev, $excludeDirs, $isVerbose ) = @_;
+
+    if ( not defined($endRev) ) {
+        $endRev = 'HEAD';
+    }
+
+    my $repo      = $self->{repo};
+    my $version   = $self->{version};
+    my $gitBranch = $self->{gitBranch};
+
+    my $prjPath   = $self->{prjPath};
+    my $silentOpt = $self->{silentOpt};
+
+    my $repoDesc = $self->{repoDesc};
+
+    my $gitMasterBranch = $self->{gitMasterBranch};
+
+    my $baseName = "origin/$gitMasterBranch";
+    if ( defined($tagName) and $tagName ne '' ) {
+        my $tags = $self->getTags();
+        if ( defined( $tags->{$tagName} ) ) {
+            $baseName = "tags/$tagName";
+        }
+        else {
+            $baseName = "origin/$tagName";
+        }
+    }
+
+    my $ret = 0;
+
+    my $saveSub = sub {
+        my ($line) = @_;
+
+        if ( $line =~ /^([MDA])\s+(.+)$/ ) {
+            my $flag     = $1;
+            my $filePath = $2;
+
+            my $isExcluded = 0;
+            foreach my $exdir (@$excludeDirs) {
+                if ( $filePath =~ /^$exdir/ ) {
+                    $isExcluded = 1;
+                    last;
+                }
+            }
+
+            if ( $isExcluded == 0 and defined($callback) ) {
+                &$callback("$flag $filePath");
+            }
+        }
+    };
+
+    chdir($prjPath);
+
+    #[app@prd_demo_26 project]$ git diff --name-status origin/oldbase..origin/1.0.0
+    #M       build.xml
+    #D       db/master/bsm.root/1.dml.select.sql
+    #D       db/master/bsm.root/2.dml.update.sql
+    #D       db/master/bsm.root/pre/1.pre.dml.select.sql
+    #D       db/master/bsm.root/pre/2.pre.dml.update.sql
+    #M       pom.xml
+    #A       test.sh
+    if ( $ret eq 0 ) {
+        my $diffCmd;
+        if ( defined($startRev) and $startRev ne '' ) {
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $startRev..$endRev";
+        }
+        else {
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $baseName..HEAD";
+        }
+
+        if ( defined($diffCmd) ) {
+            eval { DeployUtils->handlePipeOut( $diffCmd, $saveSub ); };
+            if ($@) {
+                $ret = 3;
+                print( $@, "\n" );
+            }
+        }
+    }
+
+    return $ret;
+}
 1;
 
