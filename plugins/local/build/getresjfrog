@@ -10,14 +10,17 @@ use JSON;
 use Cwd;
 use Data::Dumper;
 use Getopt::Long;
+use File::Basename;
 
 use DeployUtils;
+use FileUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              --baseurl NexusBaseUrl --repo Repository --group Group --artifact Artifact\n");
+    print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
+    print("              --repo Repository --group Group --artifact Artifact\n");
     print("              --saveto SubDirInProject\n");
     print("\n");
     print("       --envpath:  Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
@@ -36,7 +39,6 @@ sub usage {
 }
 
 sub main {
-
     my ( $isHelp,  $envPath, $version );
     my ( $baseUrl, $user,    $pass );
     my ( $repo,    $group,   $artifact, $artifactVer, $ext, $saveDir );
@@ -89,6 +91,11 @@ sub main {
         $optionError = 1;
     }
 
+    if ( not defined($artifactVer) or $artifactVer eq '' ) {
+        $optionError = 1;
+        print("ERROR: Artifact version not defined by option --ver or Environment:VERSION\n");
+    }
+
     if ( not defined($ext) or $ext eq '' ) {
         print("ERROR: Must defind download file extention\n");
         $optionError = 1;
@@ -112,67 +119,42 @@ sub main {
 
     my $saveDir = Cwd::abs_path("$prjPath/$saveDir");
 
-    my $client    = REST::Client->new();
-    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
-    $authToken =~ s/\s*$//;
-    $client->addHeader( 'Authorization', $authToken );
-
-    #my $url    = "$baseUrl/service/rest/v1/components?repository=$repo"; #老的browser整个仓库的方法，不合理，改为使用search方法
-    #searchUrl
-    #http://repo.techsure.cn:9008/nexus/service/rest/v1/search?repository=techsure-release&maven.groupId=com.techsure&maven.artifactId=tagent&maven.extension=jar&version=1.2.2.1
-    my $url = "$baseUrl/service/rest/v1/search?repository=$repo&maven.groupId=$group&maven.artifactId=$artifact&maven.extension=$ext&version=$artifactVer";
-
-    $client->setTimeout(5);
-    $client->GET($url);
-    if ( $client->responseCode() ne 200 ) {
-        $hasError = $hasError + 1;
-        my $errMsg = $client->responseContent();
-        print("ERROR: Search artifact by URL:$url failed, cause by:\n$errMsg\n");
-        return $hasError;
-    }
-
-    my $content = $client->responseContent();
-    my $retObj  = from_json($content);
-    my $items   = $retObj->{'items'};
-    if ( scalar(@$items) <= 0 ) {
-        $hasError = $hasError + 1;
-        print("ERROR: Can not find artifact by URL:$url.\n");
-        return $hasError;
-    }
-    else {
-        print("INFO: Search by by URL:$url finished.\n");
-    }
-
     my $headers = { Authorization => $authToken };
     my $http    = HTTP::Tiny->new();
 
-    foreach my $item (@$items) {
-        my $assets = $item->{'assets'};
-        foreach my $asset (@$assets) {
-            my $downUrl = $asset->{'downloadUrl'};
-            if ( $downUrl !~ /\.$ext$/ ) {
-                next;
-            }
+    my $pkgFileName = "$artifact.$ext";
+    my $pkgURI      = "$repo/$group/$artifact/$artifactVer";
+    my $pkgURL      = "$baseUrl/$pkgURI";
 
-            my @downUrlSegs = split( /\//, $downUrl );
+    my $response = $http->mirror( $pkgURL, "$saveDir/$pkgFileName", { headers => $headers } );
+    if ( $response->{success} ) {
+        print("FINEST: Download $pkgURL to $saveDir/$pkgFileName success.\n");
+    }
+    else {
+        $hasError = $hasError + 1;
+        my $content = $response->{content};
+        print("ERROR: Download $pkgURL to $saveDir/$pkgFileName failed.\n$content.\n");
+    }
 
-            #使用HTTP::Tiny的mirror方法下载文件
-            my $fileName = $downUrlSegs[-1];
-            print("INFO: Downloading $downUrl to $saveDir/$fileName.\n");
-
-            my $response = $http->mirror( $downUrl, "$saveDir/$fileName", { headers => $headers } );
-            if ( $response->{success} ) {
-                print("FINEST: Download $downUrl to $saveDir/$fileName success.\n");
-            }
-            else {
-                $hasError = $hasError + 1;
-                my $content = $response->{content};
-                print("ERROR: Download $downUrl to $saveDir/$fileName failed.\n$content.\n");
-            }
+    my $md5URL  = "$baseUrl/api/storage/$pkgURI";
+    my $md5Res  = $http->get( $md5URL, { headers => $headers } );
+    my $content = $md5Res->{content};
+    if ( $md5Res->{success} ) {
+        my $md5Json    = from_json($content);
+        my $srvSideMd5 = $md5Json->{checksums}->{md5};
+        my $md5Sum     = FileUtils::getFileMd5("$saveDir/$pkgFileName");
+        if ( $md5Sum ne $srvSideMd5 ) {
+            $hasError = $hasError + 1;
+            print("ERROR: File $pkgFileName md5sum($md5Sum) not equal server side md5sum($srvSideMd5).\n");
         }
+    }
+    else {
+        $hasError = $hasError + 1;
+        print("ERROR: Get file $pkgFileName md5sum by url:$md5URL failed,\n$content\n");
     }
 
     return $hasError;
 }
 
+#TODO: 没有经过验证，需要Jfrog进行测试
 exit main();
