@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Expect;
+$Expect::Multiline_Matching = 1;
+use IO::File;
+use Getopt::Long;
+use File::Path;
+use File::Basename;
+use IPC::Open3;
+use Encode;
+
+my $IS_VERBOSE = 0;
+my $CHARSET    = 'utf-8';
+
+my $PROMPT  = '[\]\$\>\#]\s$';
+my $TIMEOUT = 30;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              --timeout TimeoutSecs\n");
+    print("              --charset TargetOsEncoding\n");
+    print("              cmd1 cmd2 ...\n");
+    print("\n");
+    print("       --node:         Host node json\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+    print("       --o:            ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
+    print("       --charset:      Target OS encoding\n");
+
+    exit(1);
+}
+
+sub exitIfFail {
+    my ( $ret, $msg ) = @_;
+    if ( not defined($ret) ) {
+        print("\nERROR: $msg\n");
+        exit(-1);
+    }
+}
+
+sub login {
+    my ( $spawn, $user, $pass ) = @_;
+
+    my $ret;
+    $ret = $spawn->expect( 60, '-re', qr/login:/i );
+    exitIfFail( $ret, "timeout while wait login prompt" );
+    $spawn->send("$user\n");
+
+    $ret = $spawn->expect( 60, '-re', qr/Password:/i );
+    exitIfFail( $ret, "timeout while wait password prompt" );
+    $spawn->send("$pass\n");
+
+    $ret = $spawn->expect( 10, '-re', qr/$PROMPT/i );
+    exitIfFail( $ret, "logon timeout" );
+
+    #print("INFO: login successful.\n");
+}
+
+sub closeSpawn {
+    my ($spawn) = @_;
+    $spawn->send("\n");
+    $spawn->hard_close();
+    print("\n\n");
+}
+
+sub dispatchCmd {
+    my ( $spawn, $cmd ) = @_;
+    if ( $cmd =~ /^\@sh\s+/ ) {
+        $cmd =~ s/^\@sh\s+//;
+        compoundCmd( $spawn, $cmd );
+    }
+    elsif ( $cmd =~ /^\@exp\s+/ ) {
+        $cmd =~ s/^\@exp\s+//;
+        expectCmd( $spawn, $cmd );
+    }
+    elsif ( $cmd =~ /^\@snd\s+/ ) {
+        $cmd =~ s/^\@snd\s+//;
+        sendCmd( $spawn, $cmd );
+    }
+    elsif ( $cmd !~ /^#/ and $cmd ne '' ) {
+        print("INFO:$cmd\n") if ( $IS_VERBOSE eq 0 );
+    }
+}
+
+sub expectCmd {
+    my ( $spawn, $patStrs ) = @_;
+
+    $patStrs =~ s/^\s*"//;
+    $patStrs =~ s/"\s*$//;
+    my @patterns = split( /"\s*,\s*"/, $patStrs );
+
+    #print("INFO:Expect:", join(',', @patterns), "\n");
+    my $ret = $spawn->expect( $TIMEOUT, @patterns );
+
+    my $before = $spawn->before();
+    if ( $before =~ /failed/i ) {
+        print("ERROR: run failed.\n");
+    }
+}
+
+sub sendCmd {
+    my ( $spawn, $cmdStrs ) = @_;
+    $cmdStrs =~ s/^\s*"//;
+    $cmdStrs =~ s/\s*"$//;
+    my @cmds = split( /"\s*,\s*"/, $cmdStrs );
+    foreach my $cmd (@cmds) {
+
+        #print("INFO: send cmd:$cmd\n");
+        #eval{$spawn->send("$cmd")};
+        eval("\$spawn->send(\"$cmd\")");
+        $spawn->expect( $TIMEOUT, '-re', '..' );
+
+        #$spawn->send("\r\n");
+    }
+}
+
+sub iconvToUtf8 {
+    my ($content) = @_;
+
+    if ( $CHARSET ne 'utf-8' and $CHARSET ne 'utf8' ) {
+        my ( $pid, $cmdPipe );
+
+        #print("INFO:sh cmd:$cmd\n");
+        my ( $in, $out );
+        if ( $pid = open3( \*CHLD_IN, \*CHLD_OUT, \*CHLD_ERR, "iconv -f $CHARSET -t utf-8" ) ) {
+            close(CHLD_ERR);
+            print CHLD_IN ($content);
+            close(CHLD_IN);
+
+            while ( my $line = <CHLD_OUT> ) {
+                print($line);
+            }
+
+            waitpid( $pid, 0 );
+        }
+    }
+    else {
+        print($content);
+    }
+}
+
+sub compoundCmd {
+    my ( $spawn, $cmd ) = @_;
+
+    #print("\nINFO: exec compoundCmd $cmd\n");
+
+    my ( $pid, $cmdPipe );
+
+    #print("INFO:sh cmd:$cmd\n");
+    if ( $pid = open( $cmdPipe, "$cmd |" ) ) {
+        my $line;
+        while ( $line = <$cmdPipe> ) {
+            chomp($line);
+            dispatchCmd( $spawn, $line ) if ( $line ne '' );
+        }
+
+        waitpid( $pid, 0 );
+
+        my $exitCode = $?;
+        $exitCode = $exitCode >> 8;
+
+        if ( $exitCode ne 0 and $cmd !~ /^sleep/ ) {
+            print("\n\n");
+            print("ERROR:execute compound command:$cmd failed, it's exit code:$exitCode\n");
+            exit(-1);
+        }
+
+        close($cmdPipe);
+    }
+    else {
+        print("\n\n");
+        print("ERROR: can not execute command $cmd\n");
+        exit(-1);
+    }
+}
+
+sub processLog {
+    my ($content) = @_;
+    $content =~ s/\e\[?.*?[\@-~]//g;    #去掉Term中颜色和移位等特殊字符
+                                        #$content =~ s/\e\[[\d;]*m//g; #去掉Term中颜色
+    iconvToUtf8($content);
+}
+
+sub main {
+    my ( $isHelp,  $node );
+    my ( $charset, @cmds );
+
+    $ENV{TERM} = 'dumb';
+
+    my $isVerbose = 0;
+    my $timeout   = 30;
+
+    sub addCmd {
+        my $item = shift(@_);
+        push( @cmds, $item );
+    }
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'charset=s'   => \$charset,
+        'timeout=i'   => \$timeout,
+        '<>'          => \&addCmd
+    );
+
+    usage() if ( defined($isHelp) );
+    $IS_VERBOSE = $isVerbose;
+    $TIMEOUT    = $timeout;
+
+    my $optionError = 0;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    my $desc;
+    $CHARSET = lc($charset) if ( defined($charset) );
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    $desc = $user . "\@" . $host . "/" . $insName;
+
+    my $exp = Expect->new();
+    $exp->raw_pty(1);
+    $exp->log_stdout(0);
+    if ( $isVerbose == 1 ) {
+        $exp->log_file( \&processLog );
+    }
+    $exp->max_accum(4096);
+
+    #print("INFO:execute telnet cmd with verbose:$isVerbose\n");
+    my $spawn = $exp->spawn("telnet $host $port");
+    login( $spawn, $user, $pass );
+
+    foreach my $cmd (@cmds) {
+        if ( $CHARSET ne 'utf-8' and $CHARSET ne 'utf8' ) {
+            $cmd = Encode::encode( $CHARSET, Encode::decode( 'utf-8', $cmd ) );
+        }
+        dispatchCmd( $spawn, $cmd );
+    }
+
+    closeSpawn($spawn);
+
+    return;
+}
+
+main();
+
+1;
+

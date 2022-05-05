@@ -1,0 +1,252 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use Expect;
+$Expect::Multiline_Matching = 1;
+use IO::File;
+use Getopt::Long;
+use File::Path;
+use File::Basename;
+use Cwd;
+
+my $TIMEOUT = 30;
+my $PROMPT  = "ftp>";
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              --timeout TimeoutSecs\n");
+    print("              --charset TargetOsEncoding\n");
+    print("              cmd1 cmd2 ...\n");
+    print("\n");
+    print("       --node:         Host node json\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+    print("       --o:            ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
+    print("       --charset:      Target OS encoding\n");
+
+    exit(1);
+}
+
+sub exitIfFail {
+    my ( $ret, $msg ) = @_;
+    if ( not defined($ret) ) {
+        print("\nERROR: $msg\n");
+        exit(-1);
+    }
+}
+
+sub login {
+    my ( $spawn, $host, $port, $user, $pass ) = @_;
+
+    #ftp> open pub400.com 21
+    #Connected to pub400.com (185.113.4.15).
+    #220-QTCP at WWW.PUB400.COM.
+    #220 Connection will close if idle more than 5 minutes.
+    #Name (pub400.com:root): winwinwon
+    #331 Enter password.
+    #Password:
+    #230 WINWINWON logged on.
+    #Remote system type is .
+    #ftp>
+
+    my $ret;
+    $ret = $spawn->expect( 10, '-re', "^$PROMPT" );
+    exitIfFail( $ret, "connect to $host $port timeout" );
+    $spawn->send("open $host $port\n");
+
+    $ret = $spawn->expect( 10, '-re', '(?<=\n)Name\s+' );
+    exitIfFail( $ret, "timeout while wait password prompt" );
+    $spawn->send("$user\n");
+
+    $ret = $spawn->expect( 10, '-re', '(?<=\n)Password:' );
+    exitIfFail( $ret, "timeout while wait password prompt" );
+    $spawn->send("$pass\n");
+
+    $ret = $spawn->expect( 10, '-re', '^230' );
+    exitIfFail( $ret, "logon timeout" );
+
+    $ret = $spawn->expect( 10, '-re', "^$PROMPT" );
+    exitIfFail( $ret, "timeout" );
+
+    print("INFO: login successful.\n");
+}
+
+sub closeSpawn {
+    my ($spawn) = @_;
+    $spawn->send("\n");
+    $spawn->send("bye\n");
+    $spawn->soft_close();
+}
+
+sub dispatchCmd {
+    my ( $spawn, $cmd ) = @_;
+    if ( $cmd =~ /^\@sh\s+/ ) {
+        $cmd =~ s/^\@sh\s+//;
+        if ( $cmd ne '' ) {
+            compoundCmd( $spawn, $cmd );
+        }
+    }
+    elsif ( $cmd =~ /^\@ftp\s+/ ) {
+        $cmd =~ s/^\@ftp\s+//;
+        if ( $cmd ne '' ) {
+            ftpCmd( $spawn, $cmd );
+        }
+    }
+    elsif ( $cmd !~ /^#/ and $cmd ne '' ) {
+        if ( $cmd ne '' ) {
+            print("INFO:$cmd\n");
+        }
+    }
+}
+
+sub ftpCmd {
+    my ( $spawn, $cmd ) = @_;
+
+    #print("INFO: exec ftp cmd:$cmd\n");
+    my @nextCmds = split( /\@/, $cmd );
+    shift(@nextCmds);
+
+    $spawn->send("$cmd\n");
+    my $ret = $spawn->expect( $TIMEOUT, '-re', "^$PROMPT" );
+
+    my $before       = $spawn->before();
+    my $lastLfPos    = rindex( $before, "\n" );
+    my $preLastLfPos = $lastLfPos - 1;
+    my $lastLine     = substr( $before, $lastLfPos + 1 );
+    $lastLine =~ s/\s*$//;
+
+    while ( $lastLine eq '' or $lastLine eq 'ftp>' ) {
+        $preLastLfPos = $lastLfPos;
+        $lastLfPos    = rindex( $before, "\n", $preLastLfPos - 1 );
+        $lastLine     = substr( $before, $lastLfPos + 1, $preLastLfPos );
+        $lastLine =~ s/\s*$//;
+    }
+
+    #print("DEBUG:**************lastLine:$lastLine\n");
+    #print("DEBUG:BEFORE------------------------------------------------------\n");
+    #print($before);
+    #print("DEBUG:BEFORE===========================================\n");
+
+    if ( $lastLine =~ /^550\s/ ) {
+        if ( scalar(@nextCmds) > 0 ) {
+            foreach my $nextCmd (@nextCmds) {
+                dispatchCmd( $spawn, '@' . $nextCmd );
+            }
+        }
+        else {
+            print("\nERROR: $lastLine\n");
+            close($spawn);
+            exit(-1);
+        }
+    }
+}
+
+sub compoundCmd {
+    my ( $spawn, $cmd ) = @_;
+
+    print("\nINFO: exec compoundCmd $cmd\n");
+
+    my ( $pid, $cmdPipe );
+    if ( $pid = open( $cmdPipe, "$cmd |" ) ) {
+        my $line;
+        while ( $line = <$cmdPipe> ) {
+            chomp($line);
+            dispatchCmd( $spawn, $line ) if ( $line ne '' );
+        }
+        my $ret      = waitpid( $pid, 0 );
+        my $exitCode = $?;
+
+        if ( $exitCode != 0 and $cmd !~ /^sleep/ ) {
+            print("\n\n");
+            print("ERROR:execute compound command:$cmd failed, Pid:$pid, waitpid return:$ret exit code:$exitCode\n");
+            exit(-1);
+        }
+        close($cmdPipe);
+    }
+    else {
+        print("\n\n");
+        print("ERROR: can not execute command $cmd\n");
+        exit(-1);
+    }
+}
+
+sub main {
+    my ( $isHelp,  $node );
+    my ( $charset, @cmds );
+
+    $ENV{TERM} = 'dumb';
+
+    my $isVerbose = 0;
+    my $timeout   = 30;
+
+    sub addCmd {
+        my $item = shift(@_);
+        push( @cmds, $item );
+    }
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'charset=s'   => \$charset,
+        'timeout=i'   => \$timeout,
+        '<>'          => \&addCmd
+    );
+
+    usage() if ( defined($isHelp) );
+    $TIMEOUT = $timeout;
+
+    my $optionError = 0;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    my $desc = $user . "\@" . $host . "/" . $insName;
+
+    my $exp = Expect->new();
+    $exp->raw_pty(1);
+    $exp->log_stdout(0);
+    if ( $isVerbose == 1 ) {
+        $exp->log_file( \&processLog );
+    }
+    $exp->max_accum(4096);
+
+    my $exp = Expect->new();
+    $exp->raw_pty(1);
+    $exp->log_stdout($isVerbose);
+    $exp->max_accum(512);
+
+    print("INFO:execute ftp cmd\n");
+    my $spawn = $exp->spawn("ftp");
+    login( $spawn, $host, $port, $user, $pass );
+
+    my @subCmds;
+    foreach my $cmd (@cmds) {
+        dispatchCmd( $spawn, $cmd );
+    }
+
+    closeSpawn($spawn);
+    return;
+}
+
+main();
+
+1;
+
