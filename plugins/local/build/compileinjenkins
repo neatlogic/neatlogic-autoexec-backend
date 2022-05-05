@@ -72,9 +72,19 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    if ( not defined($baseurl) or $baseurl eq '' ) {
-        print("ERROR: Must defind Jenkins base url by option --baseurl\n");
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
         $optionError = 1;
+        print("ERROR: Jenkins base url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jenkins user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jenkins password not defined by option --password\n");
     }
 
     if ( not defined($jobName) or $jobName eq '' ) {

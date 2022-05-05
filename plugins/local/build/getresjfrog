@@ -76,6 +76,21 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jfrog base url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jfrog user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jfrog password not defined by option --password\n");
+    }
+
     if ( not defined($repo) or $repo eq '' ) {
         print("ERROR: Must defind repository id\n");
         $optionError = 1;
@@ -119,6 +134,8 @@ sub main {
 
     my $saveDir = Cwd::abs_path("$prjPath/$saveDir");
 
+    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
+    $authToken =~ s/\s*$//;
     my $headers = { Authorization => $authToken };
     my $http    = HTTP::Tiny->new();
 

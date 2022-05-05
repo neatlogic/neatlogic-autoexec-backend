@@ -77,6 +77,21 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus base url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus password not defined by option --password\n");
+    }
+
     if ( not defined($repo) or $repo eq '' ) {
         print("ERROR: Must defind repository id\n");
         $optionError = 1;
