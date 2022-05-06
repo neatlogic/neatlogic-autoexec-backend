@@ -38,9 +38,9 @@ sub new {
             'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
             'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
             'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
-            'getSqlFileStatuses' => 'codedriver/public/api/rest/ezdeploy/sql/status/get',
-            'checkInSqlFiles'    => 'codedriver/public/api/rest/ezdeploy/sql/status/checkin',
-            'pushSqlStatus'      => 'codedriver/public/api/rest/ezdeploy/sql/status/push',
+            'getSqlFileStatuses' => 'codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'    => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'      => 'codedriver/public/api/rest/autoexec/job/sql/update',
             'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
         };
 
@@ -599,18 +599,18 @@ sub checkInSqlFiles {
 
     #TODO: uncomment after test
 
-    if ( defined($deployEnv) ) {
-        my $params = $self->_getParams($deployEnv);
-        foreach my $sqlInfo (@$sqlInfoList) {
-            while ( my ( $k, $v ) = each(%$params) ) {
-                $sqlInfo->{$k} = $v;
-                $sqlInfo->{operType} = 'deploy';
-            }
-        }
-    }
+    # if ( defined($deployEnv) ) {
+    #     my $params = $self->_getParams($deployEnv);
+    #     foreach my $sqlInfo (@$sqlInfoList) {
+    #         while ( my ( $k, $v ) = each(%$params) ) {
+    #             $sqlInfo->{$k} = $v;
+    #             $sqlInfo->{operType} = 'deploy';
+    #         }
+    #     }
+    # }
 
-    print Dumper ($sqlInfoList);
-    return;
+    # print Dumper ($sqlInfoList);
+    # return;
 
     #TODO:Test end#################
 
