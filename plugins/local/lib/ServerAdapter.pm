@@ -38,9 +38,9 @@ sub new {
             'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
             'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
             'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
-            'getSqlFileStatuses' => 'codedriver/public/api/rest/ezdeploy/sql/status/get',
-            'checkInSqlFiles'    => 'codedriver/public/api/rest/ezdeploy/sql/status/checkin',
-            'pushSqlStatus'      => 'codedriver/public/api/rest/ezdeploy/sql/status/push',
+            'getSqlFileStatuses' => 'codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'    => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'      => 'codedriver/public/api/rest/autoexec/job/sql/update',
             'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
         };
 
@@ -599,18 +599,18 @@ sub checkInSqlFiles {
 
     #TODO: uncomment after test
 
-    if ( defined($deployEnv) ) {
-        my $params = $self->_getParams($deployEnv);
-        foreach my $sqlInfo (@$sqlInfoList) {
-            while ( my ( $k, $v ) = each(%$params) ) {
-                $sqlInfo->{$k} = $v;
-                $sqlInfo->{operType} = 'deploy';
-            }
-        }
-    }
+    # if ( defined($deployEnv) ) {
+    #     my $params = $self->_getParams($deployEnv);
+    #     foreach my $sqlInfo (@$sqlInfoList) {
+    #         while ( my ( $k, $v ) = each(%$params) ) {
+    #             $sqlInfo->{$k} = $v;
+    #             $sqlInfo->{operType} = 'deploy';
+    #         }
+    #     }
+    # }
 
-    print Dumper ($sqlInfoList);
-    return;
+    # print Dumper ($sqlInfoList);
+    # return;
 
     #TODO:Test end#################
 
@@ -702,6 +702,47 @@ sub pushSqlStatus {
     }
 
     return;
+}
+
+sub addJob {
+    my ( $self, $buildEnv, %args ) = @_;
+
+    my $baseUrl   = $args{baseUrl};
+    my $authToken = $args{authToken};
+    if ( not defined($authToken) ) {
+        $authToken = $self->_getAuthToken();
+    }
+
+    my $targetEnvPath = $args{targetEnvPath};
+    my $targetVersion => $args{targetVersion};
+    my $senario  = $args{senario};
+    my $isRunNow = $args{isRunNow};
+    my $isAuto   = $args{isAuto};
+    my $waitJob  = $args{waitJob};
+    my $planTime   => $args{planTime};
+    my $roundCount => $args{roundCount};
+    my $jobUser    => $args{jobUser};
+    my $instances  => $args{instances};
+    my $jobArgs = $args{jobArgs};
+
+    #TODO: addJob
+}
+
+sub getJobStatus {
+    my ( $self, $jobId, %args ) = @_;
+    my $baseUrl   = $args{baseUrl};
+    my $authToken = $args{authToken};
+    if ( not defined($authToken) ) {
+        $authToken = $self->_getAuthToken();
+    }
+
+    #TODO: getJobStatus
+}
+
+sub saveVersionDependency {
+    my ( $self, $buildEnv, $data ) = @_;
+
+    #TODO： save jar dependency infomations
 }
 
 sub getBuild {

@@ -16,13 +16,14 @@ sub usage {
     print("              [--object tags/branches] [--action add|delete] [--pattern v*/1.0.0]\n");
     print("              [--username USERNAME]\n");
     print("\n");
-    print("       --envpath:    Env Path\n");
-    print("       --version:    version\n");
+    print("       --envpath: Env Path\n");
+    print("       --version: version\n");
+    print("       --buildno: Build number\n");
     print("       --baseurl: gitlab rest api base url，example：https://gitlab.example.com/api/v4\n");
-    print("       --token:      rest api authenticate token\n");
-    print("       --object:     object type to be protected\n");
-    print("       --action:     add protect or withdraw\n");
-    print("       --pattern:    protect target or rules\n");
+    print("       --token:   rest api authenticate token\n");
+    print("       --object:  object type to be protected\n");
+    print("       --action:  add protect or withdraw\n");
+    print("       --pattern: protect target or rules\n");
 
     exit(1);
 }
@@ -52,13 +53,14 @@ sub apicall {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo );
     my ( $object, $action, $pattern, $apiBaseUrl, $token, $userName );
 
     GetOptions(
         'h|help'     => \$isHelp,
         'envpath=s'  => \$envPath,
         'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
         'action=s'   => \$action,
         'object=s'   => \$object,
         'pattern=s'  => \$pattern,
@@ -71,10 +73,11 @@ sub main {
     usage() if ( not defined($action) or not defined($object) or not defined($pattern) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -84,6 +87,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();

@@ -19,13 +19,16 @@ sub usage {
     print("       [--basedir SubDirectoryInSysDataPath] --script EncodedScript\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:10/10/10\n");
-    print("       --cmd:         command text\n");
+    print("       --version: version number of sub system\n");
+    print("       --buildno: Build number\n");
+    print("       --basedir: Base directory for execution\n");
+    print("       --script:  Script json text\n");
 
     exit(1);
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
     my ( $baseDir, $scriptJson );
     my $pname = $FindBin::Script;
 
@@ -33,6 +36,7 @@ sub main {
         'h|help'      => \$isHelp,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'lang=s'      => \$lang,
         'v|verbose=i' => \$isVerbose,
         'basedir=s'   => \$baseDir,
@@ -42,10 +46,11 @@ sub main {
     usage() if ( not defined($scriptJson) or $scriptJson eq '' );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -55,6 +60,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();
@@ -74,7 +83,7 @@ sub main {
 
     my $isFail = 0;
 
-    my $TMPDIR = "$autoexecHome/tmp";
+    my $TMPDIR  = "$autoexecHome/tmp";
     my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );
 
     my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang );
@@ -111,7 +120,7 @@ sub getScriptCmd {
 
     if ( defined($scriptContent) and $scriptContent ne '' ) {
         my $unHexContent = pack( 'H*', $scriptContent );
-        my $hexContent = unpack( 'H*', $unHexContent );
+        my $hexContent   = unpack( 'H*', $unHexContent );
 
         if ( $hexContent eq lc($scriptContent) ) {
             $scriptContent = $unHexContent;

@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Cwd;
+use Getopt::Long;
+use File::Find;
+use File::Basename;
+use File::Glob qw(bsd_glob);
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --netblacklist IPNetId --autocfgenvs AutocfgEnvNames --excludeexts ExcludeExtnames\n");
+    print("\n");
+    print("       --envpath:      Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
+    print("       --version:      version number of sub system\n");
+    print("       --buildno:      Build number\n");
+    print("       --netblacklist: NetId to check, example:\n");
+    print("       --autocfgenvs:  autocfg files env names, example:DEV,SIT\n");
+    print("       --excludeexts:  File extentions not to be check, example:java,jsp\n");
+
+    exit(-1);
+}
+
+sub main {
+
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $nets, $checkEnvs, $excludeExts );
+
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'envpath=s'      => \$envPath,
+        'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
+        'netblacklist=s' => \$nets,
+        'autocfgenvs=s'  => \$checkEnvs,
+        'excludeexts=s'  => \$excludeExts,
+    );
+
+    usage() if ( defined($isHelp) );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
+    if ( not defined($nets) ) {
+        $optionError = 1;
+        print("ERROR: Netblacklist must defined by option --netblacklist.\n");
+    }
+
+    if ( not defined($checkEnvs) and not defined($excludeExts) ) {
+        $optionError = 1;
+        print("ERROR: Autocfg files env names must defined by --autocfgenvs.\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasWarn  = 0;
+    my $hasError = 0;
+
+    my @netsArray = ();
+    foreach my $net ( split( ',', $nets ) ) {
+        $net =~ s/\s*//g;
+        if ( $net =~ /^(((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))\/(3[0-2]|2[0-9]|1[0-9]|\d)$/ ) {
+            my $ipStr  = $1;
+            my $netbit = int($11);
+            my $ip     = int( unpack( "N", pack( "C4", split( /\./, $ipStr ) ) ) );
+            my $mask   = int( ( 2**$netbit - 1 ) << ( 32 - $netbit ) );
+
+            my $cidr = { 'ipStr' => $ipStr, 'netid' => int( $ip & $mask ), 'netbit' => $netbit, 'mask' => $mask };
+            push( @netsArray, $cidr );
+        }
+        else {
+            print("ERROR: $net is invaild, please use CI/DR format.\n");
+            $hasError = 1;
+        }
+    }
+
+    if ( $hasError == 1 ) {
+        exit(-1);
+    }
+
+    my @envsArray  = split( ",", $checkEnvs );
+    my $envsRegexp = join( '|', @envsArray );
+
+    my $excludeAllExts = 0;
+    my $excludeExtsMap = {};
+    foreach my $ext ( split( ",", $excludeExts ) ) {
+        if ( $ext eq '*' ) {
+            $excludeAllExts = 1;
+        }
+        $excludeExtsMap->{$ext} = 1;
+    }
+
+    my $prjDir = $buildEnv->{PRJ_PATH};
+
+    my $isFail = 0;
+
+    sub findFiles {
+        my $filePath = $File::Find::name;
+        if ( -f $filePath and index( $filePath, '/.git/' ) < 0 and index( $filePath, '/.svn/' ) < 0 ) {
+            my $fileName = basename($filePath);
+
+            my $ext = lc( substr( $fileName, rindex( $fileName, '.' ) + 1 ) );
+
+            my $isWarn    = 0;
+            my $needCheck = 0;
+            if ( $ext eq 'autocfg' ) {
+                if ( $filePath =~ /\.($envsRegexp)\./i ) {
+                    $needCheck = 1;
+                }
+            }
+            elsif ( $excludeAllExts == 0 and not $excludeExtsMap->{$ext} == 1 ) {
+                $isWarn = 1;
+                if ( not bsd_glob("$filePath.*.autocfg") ) {
+                    $needCheck = 1;
+                }
+            }
+
+            if ( $needCheck == 1 ) {
+                my $line;
+                my $lineNum = 0;
+                my $fh      = IO::File->new("<$filePath");
+                if ( defined($fh) ) {
+                    while ( $line = $fh->getline() ) {
+                        $lineNum++;
+                        while ( $line =~ /(((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/g ) {
+                            my $ipStr = $1;
+                            my $ip    = unpack( "N", pack( "C4", split( /\./, $ipStr ) ) );
+                            foreach my $net (@netsArray) {
+                                if ( int( $ip & $net->{mask} ) == $net->{netid} ) {
+                                    if ( $isWarn == 1 ) {
+                                        $hasWarn = 1;
+                                        print("WARN: $filePath(line $lineNum):$ipStr match $net->{ipStr}\n");
+                                        print( "$filePath(line $lineNum):", $line, "\n" );
+                                    }
+                                    else {
+                                        print("ERROR: $filePath(line $lineNum):$ipStr match $net->{ipStr}\n");
+                                        print( "$filePath(line $lineNum):", $line, "\n" );
+                                        $hasError = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $fh->close();
+                }
+                else {
+                    $hasError = 1;
+                    print("ERROR: Open file:$filePath failed, $!\n");
+                }
+            }
+        }
+    }
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+
+    END {
+        $lock->unlockWorkspace($spaceLockId);
+    }
+
+    find( { wanted => \&findFiles, }, $prjDir );
+
+    if ( $hasError == 0 and $hasWarn == 0 ) {
+        print("FINENEST: There is no any invalid ip in files.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+

@@ -63,7 +63,7 @@ class RunNodeFactory:
         localNode = None
         if self.context.runnerId == self.localRunnerId:
             # 如果当前runner是指定运行local阶段的runner
-            localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+            localNode = {"resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
         return localNode
 
     def nextNode(self, runnerId=None):
@@ -78,7 +78,7 @@ class RunNodeFactory:
                 if runnerId is None:
                     nodeObj = json.loads(line)
                     if self.context.nodesToRun is not None:
-                        if nodeObj['nodeId'] in self.context.nodesToRun:
+                        if nodeObj['resourceId'] in self.context.nodesToRun:
                             break
                     else:
                         break
@@ -86,7 +86,7 @@ class RunNodeFactory:
                     nodeObj = json.loads(line)
                     if nodeObj['runnerId'] == runnerId:
                         if self.context.nodesToRun is not None:
-                            if nodeObj['nodeId'] in self.context.nodesToRun:
+                            if nodeObj['resourceId'] in self.context.nodesToRun:
                                 break
                         else:
                             break

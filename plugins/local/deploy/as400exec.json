@@ -1,0 +1,70 @@
+{
+    "opDesc": "SSH Expect工具",
+    "opType": "localremote",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SSH通过Expect执行命令",
+    "enabled": 0,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "libs",
+            "name": "AS400LIB",
+            "help": "AS400的LIB名称, 多个逗号相隔, 例如: USRLIB,SYSLIB",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "USRLIB",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "ccsid",
+            "name": "字符集",
+            "help": "远端OS的字符集",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "UTF-8",
+                    "value": "1208",
+                    "selected": "true"
+                },
+                {
+                    "text": "GBK",
+                    "value": "1386"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "命令",
+        "help": "命令内容",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

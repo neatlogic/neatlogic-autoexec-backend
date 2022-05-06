@@ -13,6 +13,7 @@ sub usage {
     print("\n");
     print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version: version number of sub system\n");
+    print("       --buildno: Build number\n");
     print("       --image:   Image name\n");
     print("       --tagname: Tag name.\n");
     print("       --project: Project\n");
@@ -21,13 +22,14 @@ sub usage {
 }
 
 sub main {
-    my ( $envPath, $version, $isHelp );
-    my ( $image, $tagname, $registry, $project );
+    my ( $envPath, $version, $buildNo,  $isHelp );
+    my ( $image,   $tagname, $registry, $project );
 
     GetOptions(
         'h|help'     => $isHelp,
         'envpath=s'  => \$envPath,
         'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
         'registry=s' => \$registry,
         'project=s'  => \$project,
         'image=s'    => \$image,
@@ -37,10 +39,11 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -51,7 +54,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
-
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( not defined($image) or not defined($tagname) or not defined($project) ) {
         $optionError = 1;
         print("ERROR: Must defined option: --image and --tagname and --project.\n");
@@ -61,15 +67,15 @@ sub main {
         usage();
     }
 
-    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
-    my $distDir    = $dirInfo->{distribute};
+    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
+    my $distDir = $dirInfo->{distribute};
 
     $project = lc($project);
     $image   = lc($image);
     $tagname = lc($tagname);
 
-    my $lock        = DeployLock->new($buildEnv);
-    my $appLockId   = $lock->lockEnvApp($DeployLock::READ);
+    my $lock      = DeployLock->new($buildEnv);
+    my $appLockId = $lock->lockEnvApp($DeployLock::READ);
 
     END {
         $lock->unlockEnvApp($appLockId);

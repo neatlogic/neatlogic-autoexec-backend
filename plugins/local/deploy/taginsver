@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath <instance path>] [--version <version>]\n");
+    print("              [--node NodeJson] [--rollback 0|1]\n");
+    print("       tag instance version.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $isRollback );
+
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath=s'  => \$envPath,
+        'version=s'  => \$version,
+        'rollback=i' => \$isRollback
+    );
+
+}
+
+exit main();
+

@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::Socket::INET;
+use File::Basename;
+use Getopt::Long;
+use TarSCPExec;
+use File::Path;
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl BaseURLForConsole --user UserName --password Password\n");
+    print("              --runnow 0|1 --user --auto 0|1 --wait 0|1\n");
+    print("              --plantime PlanTime --round RoundCount --senario Senario\n");
+    print("              --createuser JobUser --instances IP:PORT1,IP:PORT2\n");
+    print("              arg1=value1 arg2=value2");
+    print("\n");
+    print("       --envpath:    Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
+    print("       --version:    Version number of sub system\n");
+    print("       --buildno:    Build number\n");
+    print("       --targetenvpath: Target EnvPath\n");
+    print("       --targetver: Target version\n");
+    print("       --baseurl:    If cross deploy system, need to defined the target deploy system url\n");
+    print("       --user:       If create job in other system, defined the login user\n");
+    print("       --password:   Password for the login user\n");
+    print("       --runnow:     Create job and execute the job\n");
+    print("       --plantime:   Job executeion plan time，example: 2022-2-22 17:00:00\n");
+    print("       --auto:       If define plantime, auto=0, mean juse create the job\n");
+    print("       --wait:       Wait the job complete\n");
+    print("       --round:      Execution round for job\n");
+    print("       --senario:    Senario for system\n");
+    print("       --jobuser:    Job user\n");
+    print("       --instances:  Instances for job, example:192.168.0.1:8080,192.168.0.2:8080\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp,        $envPath,  $version, $buildNo );
+    my ( $baseUrl,       $userName, $password );
+    my ( $targetEnvPath, $targetVer );
+
+    my $pname = $FindBin::Script;
+    my $senario;
+    my $isVerbose  = 0;
+    my $isRunNow   = 0;
+    my $isAuto     = 0;
+    my $waitJob    = 1;
+    my $roundCount = 1;
+    my $planTime   = '';
+    my $jobUser    = $ENV{AUTOEXEC_USER};
+    my $instances  = '';
+
+    GetOptions(
+        'h|help'        => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'buildno=s'     => \$buildNo,
+        'baseurl=s'     => \$baseUrl,
+        'user=s'        => \$userName,
+        'password=s'    => \$password,
+        'targetenvpath' => \$targetEnvPath,
+        'targetver'     => \$targetVer,
+        'runnow=i'      => \$isRunNow,
+        'plantime=s'    => \$planTime,
+        'auto=i'        => \$isAuto,
+        'wait=i'        => \$waitJob,
+        'round=i'       => \$roundCount,
+        'senario:s'     => \$senario,
+        'jobuser:s'     => \$jobUser,
+        'instances:s'   => \$instances,
+        '<>'            => \&pushItems
+    );
+
+    usage() if ( defined($isHelp) );
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+
+    my $args = {};
+
+    sub pushItems {
+        my ($item) = @_;
+        $item =~ s/^\s+//;
+        $item =~ s/\s+$//;
+
+        # example: TS_OPT_name1=A=value1 TS_OPT_name2=B=value2
+        my @arg = split( /\s*=\s*/, $item, 2 );
+
+        if ( not defined( $arg[0] ) or $arg[0] eq '' or not defined( $arg[0] ) or $arg[1] eq '' ) {
+            print("ERROR: invalid args format: '$item', valid format is 'name=value'\n");
+            usage();
+        }
+
+        $args->{ $arg[0] } = $arg[1];
+    }
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
+    if ( not defined($isRunNow) and not defined($planTime) ) {
+        print("ERROR: must define option --plantime while without option --runnow.\n");
+        $optionError = 1;
+    }
+
+    usage() if ( $optionError == 1 );
+
+    if ( not defined($targetEnvPath) or $targetEnvPath eq '' ) {
+        $targetEnvPath = $envPath;
+    }
+    if ( not defined($targetVer) or $targetVer eq '' ) {
+        $targetVer = $version;
+    }
+
+    my $authToken;
+    if ( defined($baseUrl) ) {
+        my $authToken = 'Basic ' . MIME::Base64::encode( $userName . ':' . $password );
+        $authToken =~ s/\s*$//;
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    print("INFO: begin to add job...\n");
+
+    my $hasError = 0;
+
+    my $jobId;
+    eval {
+        $jobId = $serverAdapter->addJob(
+            $buildEnv,
+            targetEnvPath => $targetEnvPath,
+            targetVersion => $targetVer,
+            senario       => $senario,
+            baseUrl       => $baseUrl,
+            isRunNow      => $isRunNow,
+            isAuto        => $isAuto,
+            waitJob       => $waitJob,
+            planTime      => $planTime,
+            roundCount    => $roundCount,
+            jobUser       => $jobUser,
+            instances     => $instances
+        );
+    };
+    if ( $@ or not defined($jobId) ) {
+        $hasError = $hasError + 1;
+        print("ERROR: $@");
+        print("ERROR: $pname $envPath $version $senario failed.\n");
+    }
+    else {
+        print("INFO: JOBADDED $jobId\n");
+    }
+
+    if ( $isRunNow eq 1 and $waitJob eq 1 ) {
+        my $jobStatus;
+        my $loopCount = 0;
+        while ( $jobStatus = $serverAdapter->getJobStatus( $jobId, baseUrl => $baseUrl, authToken => $authToken ) ) {
+            if ( not defined($jobStatus) ) {
+                print("ERROR: can not get job status for jobId:$jobId on $baseUrl\n");
+            }
+            elsif ( $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
+                print("FINEST: job:$jobId on $baseUrl succeed.\n");
+                last;
+            }
+            elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
+                if ( $loopCount % 5 eq 0 ) {
+                    print("INFO: job:$jobId status:$jobStatus, wait...\n");
+                }
+                $loopCount = $loopCount + 1;
+                sleep(3);
+                next;
+            }
+            else {
+                $hasError = $hasError + 1;
+                print("ERROR: job:$jobId on $baseUrl $jobStatus.\n");
+                last;
+            }
+        }
+    }
+
+    if ( $hasError == 0 ) {
+        print("FINEST: $pname $envPath $version $senario succeed.\n");
+    }
+    else {
+        print("ERROR: $pname $envPath $version $senario failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+

@@ -17,7 +17,9 @@ sub usage {
     print("              [--md5check 0|1] [--nocheckorgexists 0|1] [--nozip 0|1] [--followtar 0|1]\n");
     print("              ConfigFile1 ConfigFile2\n");
     print("\n");
+    print("       --envpath:          example:SYS-A/MODULE-X/SIT\n");
     print("       --version:          version number\n");
+    print("       --buildno:          Build number\n");
     print("       --nozip:            just only extract firstlevel package\n");
     print("       --followtar:        extract tar and tar.gz pkg to autocfg\n");
     print("       --md5check:         check md5 sum\n");
@@ -27,7 +29,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $lang, $envPath, $version );
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
     my @cfgFiles;
     my $isVerbose        = 0;
     my $noCheckOrgExists = 0;
@@ -46,6 +48,7 @@ sub main {
         'v|verbose=i'        => \$isVerbose,
         'envpath=s'          => \$envPath,
         'version=s'          => \$version,
+        'buildno=s'          => \$buildNo,
         'nozip=i'            => \$noZip,
         'followtar=i'        => \$followTar,
         'puredir=i'          => \$pureDir,
@@ -80,10 +83,12 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
         $optionError = 1;
@@ -92,6 +97,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();

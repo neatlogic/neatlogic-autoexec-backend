@@ -102,7 +102,7 @@ class RunNode:
             self.protocolPort = node['protocolPort']
         else:
             self.protocolPort = ''
-        self.id = node['nodeId']
+        self.id = node['resourceId']
         self.username = node['username']
         self.password = node['password']
 

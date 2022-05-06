@@ -24,12 +24,13 @@ sub usage {
     print("  --envpath\toptionnal, name path for application\n");
     print("  --lang\toptionnal, LANG\n");
     print("  --version\toptionnal, Version number\n");
+    print("  --buildno\ttoptionnal Build number\n");
 
     exit(1);
 }
 
 sub main {
-    my ( $isHelp,   $isVerbose,   $lang, $envPath, $version );
+    my ( $isHelp,   $isVerbose,   $lang, $envPath, $version, $buildNo );
     my ( $exclude,  $diffSaveDir, $tag4CmpTo, $startRev );
     my ( $userName, $password );
 
@@ -39,6 +40,7 @@ sub main {
         'envpath=s'     => \$envPath,
         'lang=s'        => \$lang,
         'version=s'     => \$version,
+        'buildno=s'     => \$buildNo,
         'excludedirs=s' => \$exclude,
         'diffsavedir=s' => \$diffSaveDir,
         'basetag=s'     => \$tag4CmpTo,
@@ -55,10 +57,11 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -68,6 +71,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();

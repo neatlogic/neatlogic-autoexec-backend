@@ -16,6 +16,7 @@ sub usage {
     print("\n");
     print("       --envpath:   env path in the data directory, example:SYS-X/MODULE-X/SIT\n");
     print("       --version:   version number\n");
+    print("       --buildno:   Build number\n");
     print("       --src:       relative path for <sys>/<subsys>/<ver number>/\n");
     print("       --dest:      releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
     print("       --exp:       which dirs not to be sync.\n");
@@ -26,7 +27,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version );
+    my ( $isHelp, $envPath, $version, $buildNo );
     my $pname = $FindBin::Script;
 
     my ( $src, $dest, $expDir );
@@ -44,6 +45,7 @@ sub main {
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'nodelete=i'  => \$noDelete,
         'noattrs=i'   => \$noAttrs,
         'nomd5=i'     => \$noMd5,
@@ -74,9 +76,10 @@ sub main {
     $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
     $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version, $buildNo );
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     if ( not defined($envPath) or $envPath eq '' ) {
         $optionError = 1;
@@ -86,13 +89,16 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
 
     my $namePath = $buildEnv->{NAME_PATH};
     my $dataPath = $buildEnv->{DATA_PATH};
-    my $buildNo  = $buildEnv->{BUILD_NO};
     my $envName  = $buildEnv->{ENV_NAME};
 
     my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';

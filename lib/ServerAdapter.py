@@ -234,7 +234,7 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'phase': phaseName,
             'resourceId': runNode.resourceId,
-            'nodeId': runNode.id,
+            # 'nodeId': runNode.id,
             'host': runNode.host,
             'port': runNode.port,
             'status': status,

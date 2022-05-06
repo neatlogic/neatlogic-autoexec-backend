@@ -19,6 +19,8 @@ sub usage {
     print("\n");
     print("optional arguments:\n");
     print("  --envpath\toptionnal, name path for application\n");
+    print("  --version\tVersion number\n");
+    print("  --buildno\tBuild number\n");
     print("  --repo\tGIT or SVN repo address\n");
     print("  --trunk\tGIT master branch or SVN trunk address\n");
     print("  --branch\tcheckout branch\n");
@@ -29,8 +31,8 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,   $isVerbose, $lang, $envPath, $version );
-    my ( $repoType, $repo, $trunk, $branch, $tagsDir, $tag );
+    my ( $isHelp,   $isVerbose, $lang,  $envPath, $version, $buildNo );
+    my ( $repoType, $repo,      $trunk, $branch,  $tagsDir, $tag );
     my ( $userName, $password );
     my $pname = $FindBin::Script;
 
@@ -40,6 +42,7 @@ sub main {
         'lang=s'      => \$lang,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'repotype=s'  => \$repoType,
         'repo=s'      => \$repo,
         'trunk=s'     => \$trunk,
@@ -58,10 +61,11 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -71,6 +75,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();

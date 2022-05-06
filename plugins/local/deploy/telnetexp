@@ -26,7 +26,6 @@ sub usage {
     print("\n");
     print("       --node:         Host node json\n");
     print("       --timeout:      tiemout for ssh execute\n");
-    print("       --o:            ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
     print("       --charset:      Target OS encoding\n");
 
     exit(1);
@@ -259,7 +258,7 @@ sub main {
     return;
 }
 
-main();
+exit main();
 
 1;
 

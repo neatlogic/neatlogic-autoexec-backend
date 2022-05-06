@@ -19,6 +19,7 @@ sub usage {
     print("       sync files    from appbuild to ENV/appsync, doc/db to ENV/appres\n");
     print("       --envpath:    env path in the data directory, example:ATM/ATMP/PRD\n");
     print("       --version:    version number\n");
+    print("       --buildno:    Build number\n");
     print("       --blalcklist: blakck list for db schemas, example:mydb.myuser,myadb.myauser\n");
     print("       --src:        relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
     print("       --dest:       releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
@@ -53,7 +54,7 @@ sub isEmptyDir {
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version );
+    my ( $isHelp, $envPath, $version, $buildNo );
     my $pname = $FindBin::Script;
 
     $ENV{CMD_LINE} = join( ' ', $0, @ARGV );
@@ -72,6 +73,7 @@ sub main {
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'blacklist=s' => \$schemaBlackList,
         'nodelete=i'  => \$noDelete,
         'noattrs=i'   => \$noAttrs,
@@ -95,9 +97,10 @@ sub main {
     $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
     $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
 
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version, $buildNo );
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -108,6 +111,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
@@ -115,7 +122,6 @@ sub main {
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $envName   = $buildEnv->{ENV_NAME};
-    my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
 
     my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';

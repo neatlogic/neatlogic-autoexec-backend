@@ -24,7 +24,8 @@ sub usage {
     print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
     print("\n");
     print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
-    print("       --version:  versoin number\n");
+    print("       --version: versoin number\n");
+    print("       --buildno: Build number\n");
     print("       --dbdir:   db resource start directory(relative to project directory)\n");
     print("       --docdir:  doc resource start diretory(relative to project directory)\n");
     print("       --prefix:   target prefix\n");
@@ -35,7 +36,8 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version, $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $isVerbose, @targetFiles );
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $isVerbose, @targetFiles );
     my $pname = $FindBin::Script;
 
     $isVerbose = 0;
@@ -44,6 +46,7 @@ sub main {
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'dbdir=s'     => \$dbDir,
         'docdir=s'    => \$docDir,
         'prefix=s'    => \$prefix,
@@ -60,10 +63,11 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -74,6 +78,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
@@ -82,7 +90,6 @@ sub main {
     my $prjPath   = $buildEnv->{PRJ_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $buildRoot = $buildEnv->{BUILD_ROOT};
-    my $buildNo   = $buildEnv->{BUILD_NO};
 
     if ( not defined($buildNo) or $buildNo eq '' ) {
         print("ERROR: Build number is empty, it is not provided by version:$version\n");
