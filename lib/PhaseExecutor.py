@@ -9,20 +9,17 @@ import logging
 import threading
 from threading import Thread
 import traceback
-import subprocess
 import queue
 import copy
-import json
-import RunNode
 import NodeStatus
 
 
 class PhaseWorker(threading.Thread):
-    def __init__(self, context, phaseName, operations, queue):
+    def __init__(self, context, phaseName, operations, execQueue):
         threading.Thread.__init__(self)
         self.phaseName = phaseName
         self.context = context
-        self._queue = queue
+        self._queue = execQueue
         self.operations = operations
         self.currentNode = None
 
@@ -31,21 +28,23 @@ class PhaseWorker(threading.Thread):
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
             node = None
             try:
-                node = self._queue.get(timeout=300)
+                node = self._queue.get(timeout=self.context.maxExecSecs)
             except Exception as ex:
-                print("INFO: Task queue empty, all task processed.")
+                print("WARN: Task last for 24 hours, it's too long, exit.\n", end='')
                 break
 
+            phaseStatus = self.context.phases[self.phaseName]
             if node is None:
+                phaseStatus.setRoundFinEvent()
+
                 break
             self.currentNode = node
-            phaseStatus = self.context.phases[self.phaseName]
 
             nodeStatus = node.getNodeStatus()
             if nodeStatus == NodeStatus.succeed:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
-                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
                 try:
                     self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
                 except Exception as ex:
@@ -53,13 +52,13 @@ class PhaseWorker(threading.Thread):
                 continue
             elif nodeStatus == NodeStatus.running:
                 if node.ensureNodeIsRunning():
-                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
                     phaseStatus.incFailNodeCount()
                     continue
                 elif self.context.goToStop == False:
-                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
             elif self.context.goToStop == False:
-                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port))
+                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
 
             # 运行完所有操作
             localOps = []
@@ -73,17 +72,17 @@ class PhaseWorker(threading.Thread):
             except Exception as ex:
                 if opsStatus is None:
                     opsStatus = NodeStatus.failed
-                print("ERROR: Unknow error occurred.{}\m{}\n".format(str(ex), traceback.format_exc))
+                print("ERROR: Unknow error occurred.{}\n{}\n".format(str(ex), traceback.format_exc), end='')
 
             if opsStatus == NodeStatus.ignored:
                 phaseStatus.incIgnoreFailNodeCount()
-                print("WARN: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port))
+                print("WARN: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port), end='')
             elif opsStatus == NodeStatus.succeed:
                 phaseStatus.incSucNodeCount()
-                print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port))
+                print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port), end='')
             else:
                 phaseStatus.incFailNodeCount()
-                print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port))
+                print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port), end='')
 
     def informNodeWaitInput(self, nodeId, interact=None):
         currentNode = self.currentNode
@@ -114,12 +113,13 @@ class PhaseExecutor:
         self.workers = []
         self.parallelCount = parallelCount
         self.execQueue = None
+        self.isRunning = False
         self.waitInputFlagFilePath = self.context.runPath + '/log/' + self.phaseName + '.waitInput'
 
-    def _buildWorkerPool(self, queue):
+    def _buildWorkerPool(self, execQueue):
         workers = []
         for i in range(self.parallelCount):
-            worker = PhaseWorker(self.context, self.phaseName, self.operations, queue)
+            worker = PhaseWorker(self.context, self.phaseName, self.operations, execQueue)
             worker.start()
             worker.setName('Worker-{}'.format(i))
             workers.append(worker)
@@ -147,22 +147,28 @@ class PhaseExecutor:
             worker_threads = self._buildWorkerPool(execQueue)
 
             # 如果有本地执行的插件（不是每个节点调用一次的插件）则虚构一个local的节点，直接执行
-            if phaseStatus.hasLocal:
-                localRunNode = None
+            if phaseStatus.hasLocal and phaseStatus.execLocal:
+                node = None
                 try:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
-                    localNode = {"nodeId": 0, "resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
-                    localRunNode = RunNode.RunNode(self.context, self.phaseName, localNode)
+                    node = nodesFactory.localRunNode()
 
+                    # 如果node是None，代表local的操作不是在当前runner执行
                     if self.context.goToStop == False:
+                        if node is None:
+                            print("INFO: Local phase:{} is no need to execute in current runner.\n".format(self.phaseName), end='')
+                        elif not self.isRunning:
+                            self.isRunning = True
+                            print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end='')
+
                         # 需要执行的节点实例加入等待执行队列
-                        execQueue.put(localRunNode)
+                        execQueue.put(node)
                 except Exception as ex:
                     phaseStatus.incFailNodeCount()
-                    if localRunNode is not None:
-                        localRunNode.writeNodeLog("ERROR: Unknown error occurred\n{}\n" + traceback.format_exc())
+                    if node is not None:
+                        node.writeNodeLog("ERROR: Unknown error occurred\n{}\n" + traceback.format_exc())
                     else:
-                        print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                        print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()), end='')
 
                 if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                     try:
@@ -176,11 +182,15 @@ class PhaseExecutor:
                 while self.context.goToStop == False:
                     node = None
                     try:
-                        node = nodesFactory.nextNode()
+                        node = nodesFactory.nextRunNode()
                         if node is None:
                             break
 
                         if self.context.goToStop == False:
+                            if not self.isRunning:
+                                self.isRunning = True
+                                print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end='')
+
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
                     except Exception as ex:
@@ -188,7 +198,7 @@ class PhaseExecutor:
                         if node is not None:
                             node.writeNodeLog("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
                         else:
-                            print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
+                            print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()), end='')
 
                     if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
                         try:
@@ -204,16 +214,12 @@ class PhaseExecutor:
                 execQueue.put(None)
 
             # 等待所有worker线程退出
-            # for worker in worker_threads:
-            #    worker.join()
             while len(worker_threads) > 0:
                 worker = worker_threads[-1]
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
 
-            # if phaseStatus.hasRemote:
-            #    print("INFO: Execute complete, successCount:{}, skipCount:{}, failCount:{}, ignoreCount:{}\n".format(phaseStatus.sucNodeCount, phaseStatus.skipNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount))
         return phaseStatus.failNodeCount
 
     def informNodeWaitInput(self, nodeId, interact=None):
@@ -223,7 +229,7 @@ class PhaseExecutor:
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-            print("INFO: Update runner node status to waitInput succeed.\n")
+            print("INFO: Update runner node status to waitInput succeed.\n", end='')
 
     def pause(self):
         self.context.goToStop = True
@@ -244,12 +250,12 @@ class PhaseExecutor:
                 pauseWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to pause woker\n")
+                print("ERROR: unable to start thread to pause woker.\n", end='')
 
         for t in pauseWorkers:
             t.join()
 
-        print("INFO: Try to pause job complete.\n")
+        print("INFO: Try to pause job complete.\n", end='')
 
     def kill(self):
         self.context.goToStop = True
@@ -270,9 +276,9 @@ class PhaseExecutor:
                 killWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to kill woker\n")
+                print("ERROR: unable to start thread to kill woker.\n", end='')
 
         for t in killWorkers:
             t.join()
 
-        print("INFO: Try to kill job complete.\n")
+        print("INFO: Try to kill job complete.\n", end='')

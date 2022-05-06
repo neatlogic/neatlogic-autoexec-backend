@@ -1,0 +1,53 @@
+{
+    "opDesc": "Docker镜像生成",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "工程编译后，生成docker镜像",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "registry",
+            "name": "镜像仓库",
+            "help": "镜像仓库地址，例如：10.0.1.13:8080",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:docker.reg.addr}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "project",
+            "name": "Docker工程名",
+            "help": "Docker的project名称，默认保持与应用同名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${SYS_NAME}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "image",
+            "name": "镜像名",
+            "help": "Docker的镜像名，默认保持与模块同名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${MODULE_NAME}",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "tagname",
+            "name": "镜像名",
+            "help": "Docker的镜像名，默认保持与模块同名",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${ENV_NAME}-${VERSION}",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": []
+}

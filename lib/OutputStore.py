@@ -4,9 +4,6 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  提供读取节点运行的输出和在某个阶段各个节点的运行状态的共享存放处理，存放到公共的mogondb
 """
-import sys
-import os
-import pymongo
 import datetime
 
 import AutoExecError
@@ -122,6 +119,6 @@ class OutputStore:
             pk = {'jobId': self.jobId}
             collection.remove(pk)
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(jobId))
+            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(self.jobId))
 
         return status

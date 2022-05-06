@@ -25,7 +25,8 @@ sub usage {
     print("\n");
     print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
     print("       --version:  versoin number\n");
-    print("       --docdir:  db or doc resource start diretory(relative to project directory)\n");
+    print("       --dbdir:   db resource start directory(relative to project directory)\n");
+    print("       --docdir:  doc resource start diretory(relative to project directory)\n");
     print("       --prefix:   target prefix\n");
     print("       --packexts: package extention names, example:zip,tar,tgz\n");
     print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");
@@ -103,8 +104,14 @@ sub main {
         return 3;
     }
 
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::READ);
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        $lock->unlockBuild($buildLock);
+        $lock->unlockWorkspace($spaceLockId);
+    }
 
     my $destDir = "$releasePath/app";
     if ( -e $destDir ) {

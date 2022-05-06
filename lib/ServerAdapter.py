@@ -3,7 +3,6 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-import sys
 import os
 import stat
 import fcntl
@@ -37,13 +36,15 @@ class ServerAdapter:
             'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
             'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': 'codedriver/public/api/rest/autoexec/job/next/group/fire',
             'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/phase/inform/round/end',
             'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
             'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
-            'deployLock': 'codedriver/public/api/rest/ezdeploy/lock'
+            'globalLock': 'codedriver/public/api/rest/ezdeploy/lock'
         }
 
         self.context = context
@@ -51,15 +52,9 @@ class ServerAdapter:
         if(self.serverBaseUrl[-1] != '/'):
             self.serverBaseUrl = self.serverBaseUrl + '/'
 
-        self.deployLocks = {}
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
         self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
-
-    def __del__(self):
-        for lockId, lockParams in self.deployLocks.items():
-            lockParams['action'] = 'unlock'
-            self.deployLock(lockParams)
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -180,31 +175,37 @@ class ServerAdapter:
                 paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
-    def getNodes(self, phase=None):
+    def getNodes(self, phase=None, groupNo=None):
         params = {
             'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
             'passThroughEnv': self.context.passThroughEnv,
-            'phase': ''
+            'phase': '',
+            'nodeFrom': 'job'
         }
 
         if phase is not None:
             params['phase'] = phase
+            params['nodeFrom'] = 'phase'
+
+        if groupNo is not None:
+            params['groupNo'] = groupNo
+            params['nodeFrom'] = 'group'
 
         lastModifiedTime = 0
-        nodesFilePath = self.context.getNodesFilePath(phase)
+        nodesFilePath = self.context.getNodesFilePath(phaseName=phase, groupNo=groupNo)
         if os.path.exists(nodesFilePath):
             lastModifiedTime = os.path.getmtime(nodesFilePath)
         params['lastModified'] = lastModifiedTime
 
         nodesFile = None
         try:
-            nodesFile = open(nodesFilePath, 'a+')
-            fcntl.lockf(nodesFile, fcntl.LOCK_EX)
-
             # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
             response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
 
             if response.status == 200:
+                nodesFile = open(nodesFilePath, 'a+')
+                fcntl.lockf(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
                 for line in response:
                     nodesFile.write(str(line, encoding='utf-8'))
@@ -212,9 +213,9 @@ class ServerAdapter:
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
 
-            elif response.status == 205:
+            # elif response.status == 205:
                 # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-                pass
+            #    pass
             elif response.status == 204:
                 # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
                 if phase is not None:
@@ -278,11 +279,32 @@ class ServerAdapter:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
             # 促使下次运行主动更新节点文件
             nodesFilePath = self.context.getNodesFilePath()
-            phaseNodesFilePath = self.context.getNodesFilePath(phaseName)
+            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName, type='phase')
             if (os.path.exists(nodesFilePath)):
                 os.utime(nodesFilePath, (0, 0))
             if (os.path.exists(phaseNodesFilePath)):
                 os.utime(phaseNodesFilePath, (0, 0))
+            raise
+
+    # 通知后端进行下一个组的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def fireNextGroup(self, groupNo):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
+            'groupNo': groupNo,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['fireNextGroup'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
             raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
@@ -292,11 +314,35 @@ class ServerAdapter:
 
         params = {
             'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
             'lastPhase': lastPhase,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            return json.loads(content)
+        except:
+            raise
+
+    # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
+    def informRoundEnded(self, groupNo, phaseName, roundNo):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'runnerId': self.context.runnerId,
+            'groupNo': groupNo,
+            'phase': phaseName,
+            'roundNo': roundNo,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+        response = self.httpJSON(self.apiMap['informRoundEnded'], self.authToken, params)
 
         try:
             charset = response.info().get_content_charset()
@@ -479,7 +525,7 @@ class ServerAdapter:
         except:
             raise
 
-    def deployLock(self, lockParams):
+    def callGlobalLock(self, lockParams):
         # Lock reqeust
         # lockParams = {
         #     'lockId': None,
@@ -492,6 +538,7 @@ class ServerAdapter:
         #     'version': '2.0.0',
         #     'buildNo': '2',
         #     'action': 'lock',  # unlock
+        #     'wait': 1, #0｜1，wait or not
         #     'lockTarget': 'workspace',  # build mirror env/app env/sql
         #     'lockMode': 'read',  # write
         #     'namePath': 'mySys/myModule/SIT'
@@ -500,10 +547,7 @@ class ServerAdapter:
         # lockParams = {
         #     'lockId': 83205734845,
         # }
-
-        lockId = lockParams['lockId']
-        lockActoin = lockParams['action']
-        response = self.httpJSON(self.apiMap['deployLock'], self.authToken, lockParams)
+        response = self.httpJSON(self.apiMap['globalLock'], self.authToken, lockParams)
 
         try:
             charset = response.info().get_content_charset()
@@ -511,17 +555,6 @@ class ServerAdapter:
             retObj = json.loads(content)
             if retObj['Status'] == 'OK':
                 lockInfo = retObj['Return']
-                if lockId is None:
-                    lockId = lockInfo['lockId']
-                    lockParams['lockId'] = lockId
-                    self.deployLocks[lockId] = lockParams
-                else:
-                    self.deployLocks.pop(lockId)
-                # lockInfo = {
-                #     'lockId':23403298324,
-                #     'status':'failed',#success
-                #     'message':'Lock help by job:xxxxx'
-                # }
                 return lockInfo
             else:
                 raise AutoExecError("Lock failed, {}".format(retObj['Message']))

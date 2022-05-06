@@ -1,64 +1,100 @@
 {
         "jobId": 575071089123340,
+        "procEnv": {
+                "_RUNNER_GROUP": "r1",
+                "_DEPLOY_PATH": "ABS/Core/SIT",
+                "_DEPLOY_ID_PATH": "12/12/3",
+                "_DEPLOY_CONF": "{\"git.user\":\"wenhb\",\"git.password\":\"test123\"}",
+                "VERSION": "1.2.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "0",
+                "SYS_NAME": "ABC",
+                "SYS_ID": 123,
+                "MODULE_NAME": "core",
+                "MODULE_ID": 3434,
+                "ENV_NAME": "SIT",
+                "ENV_ID": "2"
+        },
+        "globalOpt": {},
         "opt": {},
-        "parallel": 64,
+        "roundCount": 2,
         "runFlow": [{
-                        "groupId": 1,
+                        "groupNo": 1,
                         "execStrategy": "grayScale",
                         "phases": [{
-                                "phaseName": "收集信息",
-                                "execRound": "first",
-                                "operations": [{
+                                        "phaseName": "收集信息",
+                                        "execRound": "first",
+                                        "operations": [{
+                                                        "output": {},
+                                                        "opt": {
+                                                                "mssqlaccount": "",
+                                                                "mongoaccount": "",
+                                                                "debug": "0",
+                                                                "defaultpassconf": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
+                                                                "inspect": "0",
+                                                                "mysqlaccount": "",
+                                                                "pgaccount": "",
+                                                                "class": "",
+                                                                "verbose": "0"
+                                                        },
+                                                        "opName": "cmdbcollect/oscollector",
+                                                        "opType": "target",
+                                                        "isScript": 0,
+                                                        "opId": "cmdbcollect/oscollector_575071089123392",
+                                                        "interpreter": "perl",
+                                                        "failIgnore": 1,
+                                                        "desc": {
+                                                                "mssqlaccount": "account",
+                                                                "mongoaccount": "account",
+                                                                "debug": "select",
+                                                                "defaultpassconf": "text",
+                                                                "inspect": "select",
+                                                                "mysqlaccount": "account",
+                                                                "pgaccount": "account",
+                                                                "class": "text",
+                                                                "verbose": "select"
+                                                        }
+                                                },
+                                                {
+                                                        "output": {},
+                                                        "opt": {},
+                                                        "opName": "cmdbcollect/savedata",
+                                                        "opType": "runner_target",
+                                                        "isScript": 0,
+                                                        "opId": "cmdbcollect/savedata_575071089123393",
+                                                        "interpreter": "python",
+                                                        "failIgnore": 1,
+                                                        "desc": {}
+                                                }
+                                        ]
+                                },
+                                {
+                                        "phaseName": "关系计算0",
+                                        "execRound": "last",
+                                        "operations": [{
                                                 "output": {},
                                                 "opt": {
-                                                        "mssqlaccount": "",
-                                                        "mongoaccount": "",
-                                                        "debug": "0",
-                                                        "defaultpassconf": "Mysql:#{mysqlaccount},Postgresql:#{pgaccount},MSSQLServer:#{mssqlaccount}",
-                                                        "inspect": "0",
-                                                        "mysqlaccount": "",
-                                                        "pgaccount": "",
-                                                        "class": "",
-                                                        "verbose": "0"
+                                                        "type": "OS"
                                                 },
-                                                "opName": "cmdbcollect/oscollector",
-                                                "opType": "target",
+                                                "opName": "cmdbcollect/backfillrel",
+                                                "opType": "runner",
                                                 "isScript": 0,
-                                                "opId": "cmdbcollect/oscollector_575071089123392",
-                                                "interpreter": "perl",
-                                                "failIgnore": 1,
-                                                "desc": {
-                                                        "mssqlaccount": "account",
-                                                        "mongoaccount": "account",
-                                                        "debug": "select",
-                                                        "defaultpassconf": "text",
-                                                        "inspect": "select",
-                                                        "mysqlaccount": "account",
-                                                        "pgaccount": "account",
-                                                        "class": "text",
-                                                        "verbose": "select"
-                                                }
-                                        },
-                                        {
-                                                "output": {},
-                                                "opt": {},
-                                                "opName": "cmdbcollect/savedata",
-                                                "opType": "runner_target",
-                                                "isScript": 0,
-                                                "opId": "cmdbcollect/savedata_575071089123393",
+                                                "opId": "cmdbcollect/backfillrel_575071089123396",
                                                 "interpreter": "python",
                                                 "failIgnore": 1,
-                                                "desc": {}
-                                        }
-                                ]
-                        }]
+                                                "desc": {
+                                                        "type": "select"
+                                                }
+                                        }]
+                                }
+                        ]
                 },
                 {
-                        "groupId": 2,
+                        "groupNo": 2,
                         "execStrategy": "grayScale",
                         "phases": [{
                                 "phaseName": "关系计算",
-                                "execRound": "first",
+                                "execRound": "last",
                                 "operations": [{
                                         "output": {},
                                         "opt": {
@@ -69,7 +105,7 @@
                                         "isScript": 0,
                                         "opId": "cmdbcollect/backfillrel_575071089123396",
                                         "interpreter": "python",
-                                        "failIgnore": 0,
+                                        "failIgnore": 1,
                                         "desc": {
                                                 "type": "select"
                                         }
@@ -77,7 +113,6 @@
                         }]
                 }
         ],
-        "arg": {},
         "execUser": "system",
         "tenant": "develop"
 }

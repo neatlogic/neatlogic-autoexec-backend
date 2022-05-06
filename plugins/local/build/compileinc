@@ -84,7 +84,7 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -111,8 +111,12 @@ sub main {
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::WRITE);
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        $lock->unlockWorkspace($spaceLockId);
+    }
 
     my $cwd = getcwd();
     chdir($prjPath);
@@ -372,7 +376,7 @@ sub getBuildDiff {
     }
 
     my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
-    my $ret = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
+    my $ret    = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
     print("----------------------------------------------------------------------\n");
 
     return $ret;
@@ -395,7 +399,7 @@ sub copyPrj {
     find(
         {
             wanted => sub {
-                my $fileName = substr( $File::Find::name, 2 );
+                my $fileName  = substr( $File::Find::name, 2 );
                 my $targetDir = "$diffDir/$File::Find::dir";
                 if ( not -e $targetDir ) {
                     mkpath($targetDir);

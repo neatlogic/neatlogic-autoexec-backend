@@ -155,7 +155,13 @@ sub main {
 
     $port = 22 if ( not defined($port) );
 
-    my $insLockPath = "$verRoot/.$host.$insId.lock";
+    my $lock      = DeployLock->new($deployEnv);
+    my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+
+    END {
+        $lock->unlockEnvApp($appLockId);
+    }
+
     my $verDiffPath = "$verPath.ins/$insName";
 
     my $tagent = new TagentClient( $host, $port, $pass );

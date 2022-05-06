@@ -38,7 +38,7 @@ sub main {
         'envpath=s'   => \$envPath,
         'lang=s'      => \$lang,
         'version=s'   => \$version,
-        'username=s'  => \$userName,
+        'user=s'      => \$userName,
         'password=s'  => \$password
     );
 
@@ -68,12 +68,16 @@ sub main {
         usage();
     }
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        $lock->unlockWorkspace($spaceLockId);
+    }
+
     my $namePath      = $buildEnv->{NAME_PATH};
     my $serverAdapter = ServerAdapter->new();
-
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::WRITE);
-    my $verInfo = $serverAdapter->getVer($buildEnv);
+    my $verInfo       = $serverAdapter->getVer($buildEnv);
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");

@@ -115,21 +115,6 @@
             "type": "String"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_ADDR",
-            "desc": "服务地址",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
-            "type": "String"
-        },
-        {
             "name": "INSTANCES",
             "desc": "关联实例",
             "type": "JsonArray",
@@ -175,6 +160,21 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "服务地址",
+            "type": "String"
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
         }
     ]
 }

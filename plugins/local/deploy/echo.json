@@ -1,0 +1,24 @@
+{
+    "opDesc": "echo",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "回显文本",
+    "enabled": 0,
+    "option": [
+
+    ],
+    "argument": {
+        "name": "回显内容",
+        "help": "",
+        "type": "text",
+        "count": 1,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

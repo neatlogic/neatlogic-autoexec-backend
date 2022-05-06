@@ -7,15 +7,13 @@
     "defaultProfile": "git-args",
     "description": "合并基线代码到版本分支（需要在verget后才能使用）",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -34,8 +32,7 @@
             "help": "工程代码的语言和编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "en_US.UTF-8",
                     "value": "en_US.UTF-8",
                     "selected": "true"
@@ -49,7 +46,7 @@
             "validate": ""
         },
         {
-            "opt": "username",
+            "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",

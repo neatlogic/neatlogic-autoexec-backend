@@ -19,7 +19,7 @@ use DeployUtils;
 use FileUtils;
 
 my $hasError = 0;
-my $TMPDIR   = Cwd::abs_path("$FindBin::Bin/../tmp");
+my $TMPDIR   = Cwd::abs_path("$FindBin::Bin/../../../tmp");
 my $suffix   = 'autocfg';
 
 sub toDirsMap {
@@ -227,7 +227,7 @@ sub parsePreDefinedCfgFiles {
         }
 
         my @subDirs = split( '/', $cfgFile );
-        my $dir = $subDirs[0];
+        my $dir     = $subDirs[0];
 
         my $fileExists = 1;
         my $seenPkg    = 0;
@@ -309,9 +309,9 @@ sub replacePlaceHolder {
         $insCfgMap = {};
     }
 
-    $fileName =~ s/\/$//;
+    $fileName    =~ s/\/$//;
     $orgFileName =~ s/\.$suffix(\/|$)//;
-    $orgCfgName =~ s/\.$suffix(\/|$)//;
+    $orgCfgName  =~ s/\.$suffix(\/|$)//;
 
     my $orgFileDir = dirname($orgFileName);
     mkpath($orgFileDir) if ( not -e $orgFileDir );
@@ -321,7 +321,7 @@ sub replacePlaceHolder {
     if ( defined($instance) and $instance ne '' and $fileName =~ /\.$env\.$instance\.$suffix(\/|$)/i ) {
         $rplOrgFiles->{$orgFileName} = 2;
         $orgFileName =~ s/\.$env\.$instance//i;
-        $orgCfgName =~ s/\.$env\.$instance//i;
+        $orgCfgName  =~ s/\.$env\.$instance//i;
 
         if ( $checkOrg == 1 and not( -e $orgFileName or -e "$autoCfgDocRoot/$orgCfgName" ) ) {
             print("ERROR: original file:$orgCfgName for $cfgName not found.");
@@ -362,7 +362,7 @@ sub replacePlaceHolder {
     elsif ( $fileName =~ /\.$env\.$suffix(\/|$)/i ) {
         $rplOrgFiles->{$orgFileName} = 2;
         $orgFileName =~ s/\.$env//i;
-        $orgCfgName =~ s/\.$env//i;
+        $orgCfgName  =~ s/\.$env//i;
 
         if ( $checkOrg == 1 and not( -e $orgFileName or -e "$autoCfgDocRoot/$orgCfgName" ) ) {
             print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
@@ -665,7 +665,7 @@ sub checkAndRecordFile {
         if ( ( $zipType eq 'zip' and $followZip == 1 ) or ( ( $zipType eq 'tgz' or $zipType eq 'tar' ) and $followTar == 1 ) ) {
             my $pathInZip = $name;
 
-            my $tmp = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
+            my $tmp       = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
             my $zipTmpDir = $tmp->newdir( DIR => $TMPDIR, CLEANUP => 1 );
 
             my $nameMeta = DeployUtils->escapeQuote($name);
@@ -694,7 +694,7 @@ sub checkAndRecordFile {
     else {
         if ( $name =~ /\.$suffix(\/|$)/ and $name !~ /\/$/ ) {
             my $prettyPreName = $preName;
-            $name =~ s/\.$suffix\/.*$/\.$suffix\//;
+            $name          =~ s/\.$suffix\/.*$/\.$suffix\//;
             $prettyPreName =~ s/^$rootDir\///;
             $cfgFiles->{"$prettyPreName$name"} = 1;
 
@@ -741,7 +741,7 @@ sub findFilesInZip {
 
         my $pipe;
         my $exitCode = 0;
-        my $pid = open( $pipe, "$cmd |" );
+        my $pid      = open( $pipe, "$cmd |" );
         if ( defined($pid) ) {
             while ( $line = <$pipe> ) {
                 chomp($line);
@@ -809,7 +809,7 @@ sub findFilesInZip {
 
             my $pipe;
             my $exitCode = 0;
-            my $pid = open( $pipe, "$cmd |" );
+            my $pid      = open( $pipe, "$cmd |" );
             if ( defined($pid) ) {
                 while ( $line = <$pipe> ) {
                     chomp($line);
@@ -859,8 +859,8 @@ sub convertCfgMapCharset {
     if ( $encoding ne 'utf8' and $encoding ne 'utf-8' ) {
         my ( $key, $keyEncode, $val );
         foreach $key ( keys %$cfgMap ) {
-            $keyEncode = Encode::encode( $encoding, Encode::decode( 'utf-8', $key ) );
-            $val       = Encode::encode( $encoding, Encode::decode( 'utf-8', $cfgMap->{$key} ) );
+            $keyEncode            = Encode::encode( $encoding, Encode::decode( 'utf-8', $key ) );
+            $val                  = Encode::encode( $encoding, Encode::decode( 'utf-8', $cfgMap->{$key} ) );
             $cfgMap->{$keyEncode} = $val;
         }
     }
@@ -896,7 +896,7 @@ sub updateConfigInZip {
     my $diffCfgCount    = 0;
     my $diffInsCfgCount = 0;
 
-    my $tmp = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
+    my $tmp       = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
     my $zipTmpDir = $tmp->newdir( DIR => $TMPDIR, CLEANUP => 1 );
 
     foreach my $subFile (@$subFiles) {
@@ -931,7 +931,7 @@ sub updateConfigInZip {
             }
 
             my $firstDotIdx = index( $subFile, '.', $lastSlashIdx );
-            my $orgSubFile = substr( $subFile, 0, $firstDotIdx );
+            my $orgSubFile  = substr( $subFile, 0, $firstDotIdx );
 
             $pathInZipPat = "$orgSubFile*";
             if ( $subFile =~ /\/$/ ) {
@@ -1052,7 +1052,7 @@ sub updateConfigInZip {
         elsif ( $zipType eq 'tgz' ) {
             my $quotePreZipDir = DeployUtils->escapeQuote($preZipDir);
             $tmpTarDir = $tmp->new( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.tar' );
-            $zipCmd = sprintf( "gunzip -f -c '%s' > '$tmpTarDir' && cd '%s' && tar -rf '$tmpTarDir' * && gzip -f -c '$tmpTarDir' > '%s'", $quotePreZipDir, $zipTmpDir, $quotePreZipDir );
+            $zipCmd    = sprintf( "gunzip -f -c '%s' > '$tmpTarDir' && cd '%s' && tar -rf '$tmpTarDir' * && gzip -f -c '$tmpTarDir' > '%s'", $quotePreZipDir, $zipTmpDir, $quotePreZipDir );
         }
 
         if ( $zipType ne 'zip' ) {

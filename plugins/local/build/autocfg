@@ -4,8 +4,10 @@ use FindBin;
 use File::Basename;
 use Getopt::Long;
 
+use ServerAdapter;
 use AutoCfg;
 use DeployUtils;
+use DeployLock;
 use BuildUtils;
 
 sub usage {
@@ -78,7 +80,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -110,7 +112,17 @@ sub main {
     $buildEnv->{autoCfg}    = $autoCfg;
     $buildEnv->{insCfgList} = $insCfgList;
 
+    my $lock      = DeployLock->new($buildEnv);
+    my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
+
+    END {
+        $lock->unlockEnvApp($appLockId);
+        $lock->unlockEnvSql($sqlLockId);
+    }
+
     my $isFail = AutoCfg::config( $buildEnv, \@cfgFiles, $version, $charset, $followZip, $doClean, $followTar, $checkOrg, $pureDir, $md5Check );
+
     if ( $isFail == 0 ) {
         my $buildUtils = BuildUtils->new();
         $isFail = $buildUtils->release2Env($buildEnv);

@@ -8,7 +8,7 @@ use ServerAdapter;
 our $READ  = 'read';
 our $WRITE = 'write';
 
-#调用autoexec的ListenThread，进行作业层次的Lock和unLock
+#调用autoexec的ListenThread，进行作业层次的Lock和unlock
 #参数，jobId，lockTarget
 #TODO: 修改autoexec主程序，通过它进行加锁，这个类药迁移到local/lib
 sub new {
@@ -17,21 +17,48 @@ sub new {
     bless( $self, $pkg );
     $self->{deployEnv} = $deployEnv;
 
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    $self->{jobId} = $jobId;
+    my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    $self->{sockPath} = $sockPath;
+
+    my $devMode = $ENV{DEV_MODE};
+    if ( not defined($devMode) ) {
+        $devMode = 0;
+    }
+    else {
+        $devMode = int($devMode);
+    }
+
+    $self->{devMode} = $devMode;
+
     return $self;
 }
 
 sub _getParams {
-    my ( $self, $deployEnv ) = @_;
+    my ($self) = @_;
+
+    my $jobId     = $self->{jobId};
+    my $deployEnv = $self->{deployEnv};
+
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
 
     my $params = {
-        sysId      => $deployEnv->{SYS_ID},
-        moduleId   => $deployEnv->{MODULE_ID},
-        envId      => $deployEnv->{ENV_ID},
-        sysName    => $deployEnv->{SYS_NAME},
-        moduleName => $deployEnv->{MODULE_NAME},
-        envName    => $deployEnv->{ENV_NAME},
-        version    => $deployEnv->{VERSION},
-        buildNo    => $deployEnv->{BUILD_NO}
+        jobId         => $jobId,
+        lockOwner     => "$sysId/$moduleId",
+        lockOwnerName => "$sysName/$moduleName",
+        operType      => 'deploy',
+        sysId         => $sysId,
+        moduleId      => $moduleId,
+        envId         => $envId,
+        version       => $version,
+        buildNo       => $buildNo
     };
 
     return $params;
@@ -40,12 +67,16 @@ sub _getParams {
 sub _doLockByJob {
     my ( $self, $params ) = @_;
 
-    my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    if ( $self->{devMode} ) {
+        return { lockId => 0 };
+    }
+
+    my $sockPath = $self->{sockPath};
 
     my $lockAction = $params->{action};
     my $lockTarget = $params->{lockTarget};
     my $lockMode   = $params->{lockMode};
-    my $namePath   = $params->{namePath};
+    my $namePath   = $params->{lockOwnerName};
 
     if ( -e $sockPath ) {
         eval {
@@ -56,7 +87,7 @@ sub _doLockByJob {
             );
 
             my $request = {};
-            $request->{action}     = 'deployLock';
+            $request->{action}     = 'golbalLock';
             $request->{lockParams} = $params;
 
             $client->send( to_json($request) );
@@ -66,86 +97,202 @@ sub _doLockByJob {
             my $lockRetObj = from_json($lockRet);
 
             $client->close();
-            print("INFO: $namePath $lockAction $lockTarget($lockMode) success.\n");
+
+            #print("INFO: $namePath $lockAction $lockTarget($lockMode) success.\n");
+            return $lockRetObj;
         };
         if ($@) {
-            print("WARN: $namePath $lockAction $lockTarget($lockMode) failed, $@\n");
+            print("WARN: $lockAction $namePath $lockTarget($lockMode) failed, $@\n");
         }
     }
     else {
-        print("WARN: $namePath $lockAction $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
+        print("WARN: $lockAction $namePath $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
     }
+
     return;
 }
 
 sub _lock {
-    my ( $self, $lockTarget, $lockMode ) = @_;
+    my ( $self, $params ) = @_;
 
-    my $params = $self->_getParams( $self->{deployEnv} );
-    $params->{lockTarget} = $lockTarget;
-    $params->{lockMode}   = $lockMode;
-    $params->{action}     = 'lock';
+    $params->{action} = 'lock';
 
-    #TODO：保护workspace和制品中心制品的锁接口实现
+    my $lockAction = $params->{action};
+    my $lockTarget = $params->{lockTarget};
+    my $lockMode   = $params->{lockMode};
+    my $namePath   = $params->{lockOwnerName};
+
+    print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
+    my $lockInfo = $self->_doLockByJob($params);
+    my $lockId   = $lockInfo->{lockId};
+
+    if ( not defined($lockId) ) {
+        my $errMsg = $lockInfo->{message};
+        die("ERROR: $lockAction $namePath $lockTarget($lockMode) failed, $errMsg.\n");
+    }
+    else {
+        print("INFO: $lockAction $namePath $lockTarget($lockMode) success.\n");
+    }
+
+    return $lockId;
 }
 
 sub _unlock {
-    my ( $self, $lockTarget, $lockMode ) = @_;
-    my $params = $self->_getParams( $self->{deployEnv} );
-    $params->{lockTarget} = $lockTarget;
-    $params->{lockMode}   = $lockMode;
-    $params->{action}     = 'unlock';
+    my ( $self, $lockId ) = @_;
 
+    if ( not defined($lockId) ) {
+        return;
+    }
+
+    my $params = $self->_getParams();
+
+    $params->{action} = 'unlock';
+
+    my $lockAction = $params->{action};
+    my $lockTarget = $params->{lockTarget};
+    my $namePath   = $params->{lockOwnerName};
+
+    my $lockInfo = $self->_doLockByJob($params);
+    my $lockId   = $lockInfo->{lockId};
+
+    if ( not defined($lockId) ) {
+        my $errMsg = $lockInfo->{message};
+        print("WARN: $lockAction $namePath failed, $errMsg.\n");
+    }
+    else {
+        print("INFO: $lockAction $namePath success.\n");
+    }
 }
 
 sub lockWorkspace {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'workspace', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId";
+    $params->{lockOwnerName} = "$sysName/$moduleName";
+    $params->{lockTarget}    = 'workspace';
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
 }
 
-sub unLockWorkspace {
-    my ($self) = @_;
-    $self->_unlock('workspace');
+sub unlockWorkspace {
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 sub lockMirror {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'mirror', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId/$envId";
+    $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
+    $params->{lockTarget}    = "mirror/$envName/app";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
 }
 
 sub unlockMirror {
-    my ( $self, $lockMode ) = @_;
-    $self->_unlock('mirror');
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 sub lockBuild {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'build', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId";
+    $params->{lockOwnerName} = "$sysName/$moduleName";
+    $params->{lockTarget}    = "artifact/$version/build/$buildNo";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
 }
 
 sub unlockBuild {
-    my ( $self, $lockMode ) = @_;
-    $self->_unlock('build');
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 sub lockEnvApp {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'env/app', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+    my $version    = $deployEnv->{VERSION};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId/$envId";
+    $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
+    $params->{lockTarget}    = "artifact/$version/env/$envName/app";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
 }
 
 sub unlockEnvApp {
-    my ( $self, $lockMode ) = @_;
-    $self->_unlock('env/app');
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 sub lockEnvSql {
     my ( $self, $lockMode ) = @_;
-    $self->_lock( 'env/db', $lockMode );
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId/$envId";
+    $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
+    $params->{lockTarget}    = "artifact/$version/env/$envName/db";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
 }
 
 sub unlockEnvSql {
-    my ( $self, $lockMode ) = @_;
-    $self->_unlock('env/db');
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
 }
 
 1;

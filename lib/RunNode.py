@@ -4,11 +4,9 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  运行节点类
 """
-import sys
 import os
 import traceback
 import fcntl
-import io
 import signal
 import time
 import stat
@@ -21,7 +19,6 @@ import traceback
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
-import AutoExecError
 import NodeStatus
 import TagentClient
 import Utils
@@ -572,7 +569,7 @@ class RunNode:
                 self.writeNodeLog(traceback.format_exc())
                 self.writeNodeLog("\n")
             except Exception as ex:
-                print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()))
+                print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()), end='')
 
         self.killCmd = None
         self.childPid = None
@@ -926,6 +923,10 @@ class RunNode:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
+                if scp is not None:
+                    scp.close()
+                if sftp is not None:
+                    sftp.close()
 
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")

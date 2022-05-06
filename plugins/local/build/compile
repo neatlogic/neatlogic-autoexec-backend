@@ -79,11 +79,11 @@ sub main {
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
-    my $lock = DeployLock->new($buildEnv);
-    $lock->lockWorkspace($DeployLock::WRITE);
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
 
     END {
-        $lock->unlockWorkspace();
+        $lock->unlockWorkspace($spaceLockId);
     }
 
     my $opts = {

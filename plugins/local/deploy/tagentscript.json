@@ -1,7 +1,7 @@
 {
     "opDesc": "Tagent执行脚本",
     "opType": "localremote",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,

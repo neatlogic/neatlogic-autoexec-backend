@@ -1,0 +1,80 @@
+{
+    "opDesc": "SSH Expect工具",
+    "opType": "localremote",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SSH通过Expect执行命令",
+    "enabled": 0,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "o",
+            "name": "SSH参数",
+            "help": "特殊需要的SSH参数",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "调用超时时间（秒）",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "15",
+            "required": "false",
+            "validate": ""
+        },
+        {
+            "opt": "charset",
+            "name": "字符集",
+            "help": "远端OS的字符集",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "UTF-8",
+                    "value": "UTF-8",
+                    "selected": "true"
+                },
+                {
+                    "text": "GB18030",
+                    "value": "GB18030"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "argument": {
+        "name": "命令",
+        "help": "命令行内容",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

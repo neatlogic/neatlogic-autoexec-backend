@@ -1,7 +1,7 @@
 {
     "opDesc": "A10 POOL节点控制",
     "opType": "localremote",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "F5-args",

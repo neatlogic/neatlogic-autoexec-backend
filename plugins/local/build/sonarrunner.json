@@ -7,15 +7,13 @@
     "defaultProfile": "sonar-args",
     "description": "对代码进行静态扫描，生成扫描报告",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -39,7 +37,7 @@
             "validate": ""
         },
         {
-            "opt": "username",
+            "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
@@ -74,8 +72,7 @@
             "help": "本工程使用的程序语言",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "Java",
                     "value": "Java",
                     "selected": "true"
@@ -98,8 +95,7 @@
             "help": "工程中程序文件的字符编码",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "UTF-8",
                     "value": "UTF-8"
                 },
@@ -118,8 +114,7 @@
             "help": "触发告警的Level",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "critical",
                     "value": "critical",
                     "selected": "true"

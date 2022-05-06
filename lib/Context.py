@@ -5,9 +5,7 @@
 """
 
 import os
-import threading
 from filelock import FileLock
-import configparser
 import json
 from shutil import copyfile
 import datetime
@@ -16,11 +14,10 @@ import VContext
 import PhaseStatus
 import ServerAdapter
 import AutoExecError
-import Utils
 
 
 class Context(VContext.VContext):
-    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phaseGroups='', phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
         super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.firstFire = firstFire
@@ -52,7 +49,7 @@ class Context(VContext.VContext):
                     if self.paramsFilePath != os.path.realpath(paramsFile):
                         copyfile(paramsFile, self.paramsFilePath)
                 else:
-                    print("ERROR: Params file:{} not exists.\n".format(paramsFile))
+                    print("ERROR: Params file:{} not exists.\n".format(paramsFile), end='')
 
         if paramsLoaded == False:
             # 加载运行参数文件
@@ -60,8 +57,8 @@ class Context(VContext.VContext):
             try:
                 fd = open(self.paramsFilePath, 'r')
                 self.params = json.loads(fd.read())
-            except ex:
-                print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex))
+            except Exception as ex:
+                print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex), end='')
             finally:
                 if fd is not None:
                     fd.close()
@@ -82,9 +79,17 @@ class Context(VContext.VContext):
 
         if 'opt' in params:
             self.opt = params['opt']
+        else:
+            self.opt = {}
 
-        # if 'arg' in params:
-        #    self.arg = params['arg']
+        if 'globalOpt' in params:
+            self.globalOpt = params['globalOpt']
+        else:
+            self.globalOpt = {}
+
+        if 'procEnv' in params:
+            for k, v in params['procEnv'].items():
+                os.environ[k] = str(v)
 
         if 'passThroughEnv' in params:
             passThroughInParams = params['passThroughEnv']
@@ -92,17 +97,25 @@ class Context(VContext.VContext):
                 passThroughInParams[key] = self.passThroughEnv[key]
             self.passThroughEnv = passThroughInParams
 
+        self.phaseGroupsToRun = None
+        if phaseGroups != '':
+            self.phaseGroupsToRun = {}
+            for groupNo in phaseGroups.split(','):
+                self.phaseGroupsToRun[int(groupNo)] = 1
+
         self.phasesToRun = None
         if phases != '':
             self.phasesToRun = {}
             for execPhase in phases.split(','):
                 self.phasesToRun[execPhase] = 1
 
+        self.nodesToRunCount = 0
         self.nodesToRun = None
         if nodes != '':
             self.nodesToRun = {}
             for execNode in nodes.split(','):
                 self.nodesToRun[int(execNode)] = 1
+                self.nodesToRunCount = self.nodesToRunCount + 1
 
         os.chdir(self.runPath)
 
@@ -169,10 +182,12 @@ class Context(VContext.VContext):
             value = os.environ[name]
         self.serverAdapter.exportEnv(name, value)
 
-    def getNodesFilePath(self, phaseName=None):
+    def getNodesFilePath(self, phaseName=None, groupNo=None):
         nodesFilePath = None
         if phaseName is not None:
-            nodesFilePath = '{}/nodes-{}.json'.format(self.runPath, phaseName)
+            nodesFilePath = '{}/nodes-ph-{}.json'.format(self.runPath, phaseName)
+        elif groupNo is not None:
+            nodesFilePath = '{}/nodes-gp-{}.json'.format(self.runPath, groupNo)
         else:
             nodesFilePath = '{}/nodes.json'.format(self.runPath)
         return nodesFilePath
@@ -182,3 +197,7 @@ class Context(VContext.VContext):
             phase = PhaseStatus.PhaseStatus(phaseName)
             phase.nodesFilePath = self.getNodesFilePath()
             self.phases[phaseName] = phase
+
+    def close(self):
+        if self.dbclient:
+            self.dbclient.close()

@@ -79,6 +79,7 @@ class VContext:
                 config[section][confKey] = cfg[section][confKey]
 
         maxExecSecs = config['autoexec']['job.maxExecSecs']
+
         if maxExecSecs:
             self.maxExecSecs = int(maxExecSecs)
 

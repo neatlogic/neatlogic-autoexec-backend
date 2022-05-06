@@ -6,11 +6,8 @@
  文件参数转换为对当前file子目录下文件路径名
  密码参数进行解密
 """
-import sys
 import os
 import fcntl
-import stat
-import subprocess
 import re
 import json
 
@@ -161,7 +158,7 @@ class Operation:
         if self.node:
             self.node.writeNodeLog(msg)
         else:
-            print(msg)
+            print(msg, end='')
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None, resourceId=None, host=None, port=None):
@@ -288,36 +285,32 @@ class Operation:
             refMap = self.node.output
 
         # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
-        matchObj = re.match(r'^\s*\$\{\s*([^\.]+)\s*\}\s*$', optValue)
+        matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
         if matchObj:
             paramName = matchObj.group(1)
+
             nativeRefMap = self.context.opt
+            globalOptMap = self.globalOpt
             if paramName in nativeRefMap:
                 optValue = nativeRefMap[paramName]
+            elif paramName in globalOptMap:
+                optValue = globalOptMap[paramName]
             elif paramName in os.environ:
                 optValue = os.environ[paramName]
             else:
-                raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
-        else:
-            # 变量格式是：${opId.varName}，则是在运行过程中产生的内部引用参数
-            matchObj = re.match(r'^\s*\$\{\s*(.+)\s*\}\s*$', optValue)
-            if matchObj:
-                varName = matchObj.group(1)
-                varNames = varName.split('.', 3)
                 newArgValue = None
                 opId = None
                 paramName = None
-                if len(varNames) == 3:
-                    opId = varNames[1]
-                    paramName = varNames[2]
-                else:
+                # 变量格式是：${opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
+                varNames = paramName.split('.', 1)
+                if len(varNames) == 2:
                     opId = varNames[0]
                     paramName = varNames[1]
 
-                if opId in refMap:
-                    paramMap = refMap[opId]
-                    if paramName in paramMap:
-                        newArgValue = paramMap[paramName]
+                    if opId in refMap:
+                        paramMap = refMap[opId]
+                        if paramName in paramMap:
+                            newArgValue = paramMap[paramName]
 
                 if newArgValue is not None:
                     optValue = newArgValue

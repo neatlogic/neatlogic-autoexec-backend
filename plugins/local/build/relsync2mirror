@@ -173,6 +173,15 @@ sub main {
         }
     }
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $mirrorLock  = $lock->lockMirror($DeployLock::WRITE);
+
+    END {
+        $lock->unlockMirror($mirrorLock);
+        $lock->unlockWorkspace($spaceLockId);
+    }
+
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName(mirror)...\n");
     my $isFail      = 0;
     my $insDiffDest = "$dest.ins";

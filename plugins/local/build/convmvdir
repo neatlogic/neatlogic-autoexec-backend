@@ -88,11 +88,11 @@ sub convmvdir {
                     }
                     elsif ( $guessCharset ne 'US-ASCII' and $guessCharset ne $from ) {
                         print("WARN: $srcPath encoding is not $from but $guessCharset\n");
-                        $destPath = Encode::encode( $to, Encode::decode( $guessCharset, $srcPath ) );
+                        $destPath     = Encode::encode( $to, Encode::decode( $guessCharset, $srcPath ) );
                         $hasConverted = 1;
                     }
                     elsif ( $guessCharset eq $from ) {
-                        $destPath = Encode::encode( $to, Encode::decode( $from, $srcPath ) );
+                        $destPath     = Encode::encode( $to, Encode::decode( $from, $srcPath ) );
                         $hasConverted = 1;
                     }
 
@@ -134,7 +134,7 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
@@ -153,6 +153,13 @@ sub main {
 
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $verPath = $dirInfo->{$pdir};
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        $lock->unlockWorkspace($spaceLockId);
+    }
 
     my $hasError = 0;
     print("INFO: Begin to transfer directory and file name:${from}->${to}\n");
