@@ -1,0 +1,188 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use warnings FATAL => 'all';
+use Getopt::Long;
+use IO::File;
+use File::Path;
+use File::Basename;
+use IPC::Open3;
+use Mojo::DOM;
+use Mojo::DOM::CSS;
+use Encode;
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("\n");
+    print("       --envpath:   sub system envrionment path\n");
+    print("       --version:   version number\n");
+    print("       --pdir:      Artifact sub directory\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $startDir );
+
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath=s'  => \$envPath,
+        'version=s'  => \$version,
+        'startdir=s' => \$startDir,
+        '<>'         => sub { my $item = shift(@_); $version = $item; }
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+
+    my $prjDir = $buildEnv->{PRJ_PATH};
+
+    my $hasError = 0;
+
+    #my $docDir = $versionsDir . "/appreport/dependence";
+    my $docDir = "$releaseDir/doc";
+    if ( defined($releaseDir) and $releaseDir ne '' and not -e $docDir ) {
+        if ( not mkpath($docDir) ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Create directory $docDir failed.\n");
+            return $hasError;
+        }
+    }
+    my $moduleId = $buildEnv->{MODULE_ID};
+
+    my $ret;
+    if ( not defined($startDir) or $startDir eq '' ) {
+        $startDir = 'target';
+    }
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    my $m2Home    = "$toolsPath/maven";
+    $ENV{MAVEN_OPTS} = '-XX:MaxPermSize=1024M';
+    $ENV{M2_HOME}    = $m2Home;
+    $ENV{PATH}       = "/bin:$m2Home/bin:" . $ENV{PATH};
+    my $codePath = $prjDir;
+    if ( -e "$codePath/pom.xml" ) {
+        my $cmd = "cd $prjDir && mvn org.apache.maven.plugins:maven-project-info-reports-plugin:dependencies";
+        print("INFO:execute->$cmd\n");
+        $ret = $deployUtils->execmd($cmd);
+        if ( $ret ne 0 ) {
+            print("ERROR:execute->$cmd failed,$!\n");
+            exit(1);
+        }
+        print("FINEST:execute->$cmd success\n");
+        if ( not -e "$prjDir/$startDir/site/dependencies.html" ) {
+            print("ERROR:project dependency reports 'site/dependencies.html' at '$prjDir/$startDir' is not exist.\n");
+            exit(1);
+        }
+
+        $ret = $deployUtils->execmd("\\cp -rf $prjDir/$startDir/site/** $docDir/");
+        if ( $ret ne 0 ) {
+            print("ERROR: cp project dependency reports to '$docDir' failed. \n");
+            exit(1);
+        }
+
+        my $filePath = $docDir . "/dependencies.html";
+        my $content  = $deployUtils->getFileContent($filePath);
+
+        my $dom = Mojo::DOM->new($content);
+        my $ul  = $dom->at('div.section,section ul li ul');
+        if ( !$ul ) {
+            print("ERROR:analysis dependencies.html failed,please check file: $filePath.\n");
+            exit(1);
+        }
+        my $treeDom = $ul->find('li');
+        my @treeArr = @$treeDom;
+        my @data;
+        print("INFO:start print version:$version dependencies\n");
+        for ( $a = 0 ; $a < @treeArr ; $a = $a + 1 ) {
+            my @item       = split( /\:/, $treeArr[$a]->text );
+            my $len        = @item;
+            my $groupId    = $item[0];
+            my $artifactId = $item[1];
+            my $type       = $item[2];
+            my $version    = substr( $item[3], 0, index( $item[3], "(" ) );
+            my $scope      = substr( $item[3], index( $item[3], "(" ) + 1, index( $item[3], ")" ) - index( $item[3], "(" ) - 1 );
+            if ( 5 eq $len ) {
+
+                #除去类符
+                $version = substr( $item[4], 0, index( $item[4], "(" ) );
+                $scope   = substr( $item[4], index( $item[4], "(" ) + 1, index( $item[4], ")" ) - index( $item[4], "(" ) - 1 );
+            }
+            my $otherInfo = $treeArr[$a]->at('div table');
+            my $url       = "";
+            my $licenses  = "";
+            my $parent;
+            if ($otherInfo) {
+                my $infos   = $otherInfo->at('td')->find('p');
+                my @infoArr = @$infos;
+                if ( $infoArr[1] and $infoArr[1]->at('a') ) {
+                    $url = $infoArr[1]->at('a')->text;
+                }
+                if ( $infoArr[2] and $infoArr[2]->at('a') ) {
+                    $licenses = $infoArr[2]->at('a')->text;
+                }
+            }
+            my $parentNode = $treeArr[$a]->parent;
+            if ( $parentNode and $parentNode->parent and $parentNode->parent->parent and $parentNode->parent->parent->parent and $parentNode->parent->parent->parent->matches('li') ) {
+                @item = split( /\:/, $parentNode->parent->text );
+                $len  = @item;
+                my $parentGroupId    = $item[0];
+                my $parentArtifactId = $item[1];
+                my $parentType       = $item[2];
+                my $parentVersion    = substr( $item[3], 0, index( $item[3], "(" ) );
+                my $parentScope      = substr( $item[3], index( $item[3], "(" ) + 1, index( $item[3], ")" ) - index( $item[3], "(" ) - 1 );
+                if ( 5 eq $len ) {
+                    $parentVersion = substr( $item[4], 0, index( $item[4], "(" ) );
+                    $parentScope   = substr( $item[4], index( $item[4], "(" ) + 1, index( $item[4], ")" ) - index( $item[4], "(" ) - 1 );
+                }
+                $parent->{'groupId'}    = $parentGroupId;
+                $parent->{'artifactId'} = $parentArtifactId;
+                $parent->{'type'}       = $parentType;
+                $parent->{'version'}    = $parentVersion;
+                $parent->{'scope'}      = $parentScope;
+            }
+            my $itemData;
+            $itemData->{'groupId'}    = $groupId;
+            $itemData->{'artifactId'} = $artifactId;
+            $itemData->{'type'}       = $type;
+            $itemData->{'version'}    = $version;
+            $itemData->{'scope'}      = $scope;
+            $itemData->{'url'}        = $url;
+            $itemData->{'licenses'}   = $licenses;
+            $itemData->{'parent'}     = $parent;
+            push( @data, $itemData );
+            print("$groupId:$artifactId:$type:$version($scope)\n");
+        }
+
+        my $serverAdapter = ServerAdapter->new();
+        $serverAdapter->saveVersionDependency( $buildEnv, \@data );
+    }
+}
+
+exit main();

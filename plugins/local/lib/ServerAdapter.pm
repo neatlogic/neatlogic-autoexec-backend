@@ -704,6 +704,47 @@ sub pushSqlStatus {
     return;
 }
 
+sub addJob {
+    my ( $self, $buildEnv, %args ) = @_;
+
+    my $baseUrl   = $args{baseUrl};
+    my $authToken = $args{authToken};
+    if ( not defined($authToken) ) {
+        $authToken = $self->_getAuthToken();
+    }
+
+    my $targetEnvPath = $args{targetEnvPath};
+    my $targetVersion => $args{targetVersion};
+    my $senario  = $args{senario};
+    my $isRunNow = $args{isRunNow};
+    my $isAuto   = $args{isAuto};
+    my $waitJob  = $args{waitJob};
+    my $planTime   => $args{planTime};
+    my $roundCount => $args{roundCount};
+    my $jobUser    => $args{jobUser};
+    my $instances  => $args{instances};
+    my $jobArgs = $args{jobArgs};
+
+    #TODO: addJob
+}
+
+sub getJobStatus {
+    my ( $self, $jobId, %args ) = @_;
+    my $baseUrl   = $args{baseUrl};
+    my $authToken = $args{authToken};
+    if ( not defined($authToken) ) {
+        $authToken = $self->_getAuthToken();
+    }
+
+    #TODO: getJobStatus
+}
+
+sub saveVersionDependency {
+    my ( $self, $buildEnv, $data ) = @_;
+
+    #TODO： save jar dependency infomations
+}
+
 sub getBuild {
     my ( $self, $deployEnv, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
 
