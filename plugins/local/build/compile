@@ -17,6 +17,8 @@ sub usage {
     print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--type ant|maven|gradle|npm]\n");
     print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS]\n");
     print("       --envpath:      example:SYS-A/MODULE-X/SIT\n");
+    print("       --version:      version number\n");
+    print("       --buildno:      Build number\n");
     print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
     print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
     print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
@@ -27,8 +29,8 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,    $isVerbose, $lang,      $envPath, $version );
-    my ( $startPath, $jdk,       $buildType, $args,    $isUpdate );
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
+    my ( $startPath, $jdk, $buildType, $args, $isUpdate );
     my $pname = $FindBin::Script;
 
     my $makeToolVer = '';
@@ -40,6 +42,7 @@ sub main {
         #'update=i'    => \$isUpdate,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'startpath=s' => \$startPath,
         'lang=s'      => \$lang,
         'jdk=s'       => \$jdk,
@@ -52,10 +55,12 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
         $optionError = 1;
@@ -65,12 +70,15 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
 
     my $namePath  = $buildEnv->{NAME_PATH};
-    my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
     if ( $isRelease == 1 ) {
         print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");

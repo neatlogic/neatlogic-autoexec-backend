@@ -19,6 +19,7 @@ sub usage {
     print("\n");
     print("       --envpath:      Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
     print("       --version:      version number of sub system\n");
+    print("       --buildno:      Build number\n");
     print("       --netblacklist: NetId to check, example:\n");
     print("       --autocfgenvs:  autocfg files env names, example:DEV,SIT\n");
     print("       --excludeexts:  File extentions not to be check, example:java,jsp\n");
@@ -28,14 +29,15 @@ sub usage {
 
 sub main {
 
-    my ( $isHelp, $envPath,   $version );
-    my ( $nets,   $checkEnvs, $excludeExts );
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $nets, $checkEnvs, $excludeExts );
 
     my $pname = $FindBin::Script;
 
     GetOptions(
         'envpath=s'      => \$envPath,
         'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
         'netblacklist=s' => \$nets,
         'autocfgenvs=s'  => \$checkEnvs,
         'excludeexts=s'  => \$excludeExts,
@@ -43,10 +45,11 @@ sub main {
 
     usage() if ( defined($isHelp) );
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -57,7 +60,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
-
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( not defined($nets) ) {
         $optionError = 1;
         print("ERROR: Netblacklist must defined by option --netblacklist.\n");

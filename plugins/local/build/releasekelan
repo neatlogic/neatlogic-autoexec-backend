@@ -18,19 +18,21 @@ sub usage {
     print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames]\n");
     print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
     print("\n");
-    print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
+    print("       --envpath:  system envpath, example:ATM/ATMP/PRD\n");
     print("       --version:  versoin number\n");
-    print("       --dbdir:   db resource start directory(relative to project directory)\n");
-    print("       --docdir:  doc resource start diretory(relative to project directory)\n");
+    print("       --buildno:  Build number\n");
+    print("       --dbdir:    db resource start directory(relative to project directory)\n");
+    print("       --docdir:   doc resource start diretory(relative to project directory)\n");
     print("       --prefix:   target prefix\n");
-    print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");
-    print("       target: Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
+    print("       --exp:      which dirs not to be copy, please use | symbol as the delimiter.\n");
+    print("       target:     Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
     exit(1);
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version, $userName, $password );
-    my ( $dbDir, $docDir, $prefix, $expDir, $isVerbose, @targetFiles );
+    my ( $isHelp,   $envPath, $version, $buildNo );
+    my ( $userName, $password );
+    my ( $dbDir,    $docDir, $prefix, $expDir, $isVerbose, @targetFiles );
     my $pname     = $FindBin::Script;
     my $isVerbose = 0;
     GetOptions(
@@ -38,6 +40,7 @@ sub main {
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'user=s'      => \$userName,
         'password=s'  => \$password,
         'dbdir=s'     => \$dbDir,
@@ -50,12 +53,13 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
-    my $cmd = "release --envpath $envPath --version $version ";
+    my $cmd = "release --envpath $envPath --version $version --buildno $buildNo ";
     if ( defined($expDir) and $expDir ne '' ) {
         $cmd = "$cmd --exp '$expDir' ";
     }

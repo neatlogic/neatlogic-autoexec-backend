@@ -23,18 +23,20 @@ sub usage {
     print("\n");
     print("       --envpath:   sub system envrionment path\n");
     print("       --version:   version number\n");
+    print("       --buildno:   Build number\n");
     print("       --pdir:      Artifact sub directory\n");
 
     exit(1);
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version, $startDir );
+    my ( $isHelp, $envPath, $version, $buildNo, $startDir );
 
     GetOptions(
         'h|help'     => \$isHelp,
         'envpath=s'  => \$envPath,
         'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
         'startdir=s' => \$startDir,
         '<>'         => sub { my $item = shift(@_); $version = $item; }
     );
@@ -42,9 +44,10 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -54,6 +57,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();

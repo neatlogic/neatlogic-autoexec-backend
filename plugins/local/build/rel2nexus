@@ -20,17 +20,18 @@ sub usage {
     print("              --repo Repository --group Group --artifact Artifact\n");
     print("              --pkgfile FilePath --pomfile PomFilePath\n");
     print("\n");
-    print("       --envpath:      Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
-    print("       --version:      Version number of sub system\n");
-    print("       --baseurl:      Nexus base url, example:http://192.168.0.13:8080\n");
-    print("       --user:         User name to login nexus\n");
-    print("       --password:     User password to login nexus\n");
-    print("       --repo:         Nexus repository, example:public.\n");
-    print("       --group:        Group of artifact, example:com.any\n");
-    print("       --artifact:     Artifact, example: log4j\n");
-    print("       --ver:          Version or artifact.\n");
-    print("       --pkgfile:      Package file, war|war file path relative to project.\n");
-    print("       --pomfile:      pom.xml file path relative to project.\n");
+    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version: version number of module\n");
+    print("       --buildno: Build number\n");
+    print("       --baseurl: Nexus base url, example:http://192.168.0.13:8080\n");
+    print("       --user:    User name to login nexus\n");
+    print("       --password:User password to login nexus\n");
+    print("       --repo:    Nexus repository, example:public.\n");
+    print("       --group:   Group of artifact, example:com.any\n");
+    print("       --artifact:Artifact, example: log4j\n");
+    print("       --ver:     Version or artifact.\n");
+    print("       --pkgfile: Package file, war|war file path relative to project.\n");
+    print("       --pomfile: pom.xml file path relative to project.\n");
 
     exit(-1);
 }
@@ -48,13 +49,14 @@ sub getBoundary {
 
 #TODO: 测试nexus上传
 sub main {
-    my ( $isHelp, $envPath, $version );
+    my ( $isHelp, $envPath, $version, $buildNo );
     my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $artifactVer, $pkgPath, $pom );
 
     GetOptions(
         'h|help'     => \$isHelp,
         'envpath:s'  => \$envPath,
         'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
         'baseurl=s'  => \$baseUrl,
         'user:s'     => \$user,
         'password:s' => \$pass,
@@ -70,10 +72,11 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -84,12 +87,18 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
-
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( not defined($baseUrl) or $baseUrl eq '' ) {
         $optionError = 1;
         print("ERROR: Nexus base url not defined by option --baseurl\n");
     }
-
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( not defined($user) or $user eq '' ) {
         $optionError = 1;
         print("ERROR: Nexus user name not defined by option --user\n");

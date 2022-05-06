@@ -15,18 +15,20 @@ sub usage {
     print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:10/10/10\n");
-
+    print("       --version: version number of module\n");
+    print("       --buildno: Build number\n");
     exit(1);
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo );
     my $pname = $FindBin::Script;
 
     GetOptions(
         'h|help'      => \$isHelp,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
         'v|verbose=i' => \$isVerbose
     );
     usage() if ( defined($isHelp) );
@@ -35,9 +37,10 @@ sub main {
     usage() if ( $optionError == 1 );
     my $deployUtils = DeployUtils->new();
 
-    my $buildEnv = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version, $buildNo );
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -48,6 +51,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
@@ -55,7 +62,6 @@ sub main {
     my $namePath  = $buildEnv->{NAME_PATH};
     my $dataPath  = $buildEnv->{DATA_PATH};
     my $envName   = $buildEnv->{ENV_NAME};
-    my $buildNo   = $buildEnv->{BUILD_NO};
     my $isRelease = $buildEnv->{IS_RELEASE};
 
     if ( $isRelease != 1 ) {

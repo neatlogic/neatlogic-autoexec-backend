@@ -16,13 +16,13 @@ sub usage {
     print("              --baseurl BaseUrl [--username UserName] [--password PassWord]\n");
     print("              --pool PoolName --action enable|disable\n");
     print("\n");
-    print("       --envpath      EnvPath\n");
-    print("       --baseurl:     A10 api base url, \$\{baseurl\}/axapi/...\n");
-    print("       --username:    user name\n");
-    print("       --password:    password\n");
-    print("       --node:        node json\n");
-    print("       --pool:        A10 pool name\n");
-    print("       --action:      Action: enable|disable\n");
+    print("       --envpath\tEnvPath\n");
+    print("       --baseurl\tA10 api base url, \$\{baseurl\}/axapi/...\n");
+    print("       --username\tuser name\n");
+    print("       --password\tpassword\n");
+    print("       --node\tnode json\n");
+    print("       --pool\tA10 pool name\n");
+    print("       --action\tAction: enable|disable\n");
 
     exit(1);
 }

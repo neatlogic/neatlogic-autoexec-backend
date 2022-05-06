@@ -22,6 +22,7 @@ sub usage {
     print("\n");
     print("       --envpath:    Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
     print("       --version:    Version number of sub system\n");
+    print("       --buildno:    Build number\n");
     print("       --targetenvpath: Target EnvPath\n");
     print("       --targetver: Target version\n");
     print("       --baseurl:    If cross deploy system, need to defined the target deploy system url\n");
@@ -40,7 +41,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,        $envPath,  $version );
+    my ( $isHelp,        $envPath,  $version, $buildNo );
     my ( $baseUrl,       $userName, $password );
     my ( $targetEnvPath, $targetVer );
 
@@ -60,6 +61,7 @@ sub main {
         'v|verbose=i'   => \$isVerbose,
         'envpath=s'     => \$envPath,
         'version=s'     => \$version,
+        'buildno=s'     => \$buildNo,
         'baseurl=s'     => \$baseUrl,
         'user=s'        => \$userName,
         'password=s'    => \$password,
@@ -78,10 +80,11 @@ sub main {
 
     usage() if ( defined($isHelp) );
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
 
@@ -111,7 +114,10 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
-
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
     if ( not defined($isRunNow) and not defined($planTime) ) {
         print("ERROR: must define option --plantime while without option --runnow.\n");
         $optionError = 1;

@@ -21,6 +21,7 @@ sub usage {
     print("              [--threshold ThresHold] [--modules <module1,module2>]\n");
     print("       --envpath:  subsys env path in the data directory, example:ATM/ATMP/PRD \n");
     print("       --version:   versoin name\n");
+    print("       --buildno:   Build number\n");
     print("       --baseurl:   SonarQube API address\n");
     print("       --prefix:    sub directory of project\n");
     print("       --encode:    project encode,example:UTF-8 \n");
@@ -32,7 +33,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,   $isVerbose,  $envPath, $version );
+    my ( $isHelp,   $isVerbose,  $envPath, $version, $buildNo );
     my ( $sonarUrl, $sonarLogin, $sonarPwd );
     my ( $prefix,   $language,   $encode, $level, $threshold, $src, $bin, $tmout, $projectKey, $projectVersion, $projectName, $modules );
     my $pname = $FindBin::Script;
@@ -41,6 +42,7 @@ sub main {
         'h|help'           => \$isHelp,
         'envpath=s'        => \$envPath,
         'version=s'        => \$version,
+        'buildno=s'        => \$buildNo,
         'baseurl=s'        => \$sonarUrl,
         'user=s'           => \$sonarLogin,
         'password=s'       => \$sonarPwd,
@@ -61,10 +63,11 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
     $envPath = $buildEnv->{NAME_PATH};
     $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -74,6 +77,10 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
     if ( $optionError == 1 ) {
         usage();
