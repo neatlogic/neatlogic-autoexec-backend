@@ -668,7 +668,7 @@ sub checkInSqlFiles {
 }
 
 sub pushSqlStatus {
-    my ( $self, $jobId, $sqlStatusList, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlStatus, $deployEnv ) = @_;
 
     #TODO: Delete follow test lines
     # print("DEBUG: update sql status to server.\n");
@@ -690,15 +690,15 @@ sub pushSqlStatus {
     #     status         => 'success'
     # };
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
-    if ( not @$sqlStatusList ) {
+    if ( not $sqlStatus ) {
         return;
     }
 
     my $params = $self->_getParams($deployEnv);
-    $params->{jobId}         = $jobId;
-    $params->{phaseName}     = $ENV{AUTOEXEC_PHASE_NAME};
-    $params->{operType}      = $$sqlStatusList[0]->{operType};
-    $params->{sqlStatusList} = $sqlStatusList;
+    $params->{jobId}     = $jobId;
+    $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+    $params->{operType}  = $sqlStatus->{operType};
+    $params->{sqlStatus} = $sqlStatus;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
