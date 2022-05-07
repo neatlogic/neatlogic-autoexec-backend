@@ -706,10 +706,7 @@ sub pushSqlStatus {
 
     $params->{jobId}     = $jobId;
     $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
-
-    while ( my ( $key, $val ) = each(%$sqlStatus) ) {
-        $params->{$key} = $val;
-    }
+    $params->{sqlStatus} = $sqlStatus;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
