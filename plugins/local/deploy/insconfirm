@@ -86,7 +86,7 @@ sub main {
     }
 
     my $deployUtils = DeployUtils->new();
-    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
@@ -111,13 +111,14 @@ sub main {
             my $pipePath = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
 
             AutoExecUtils::informNodeWaitInput(
-                nodeId   => $nodeInfo->{nodeId},
-                pipeFile => $pipePath,
-                message  => 'Do you want to continue?',
-                opType   => 'button',
-                title    => 'Continue?',
-                options  => [ "Yes", "No" ],
-                role     => undef
+                phaseName  => $phaseName,
+                resourceId => $nodeInfo->{resourceId},
+                pipeFile   => $pipePath,
+                message    => 'Do you want to continue?',
+                opType     => 'button',
+                title      => 'Continue?',
+                options    => [ "Yes", "No" ],
+                role       => undef
             );
 
             my $decideRet = $deployUtils->decideContinue( "Do you want to continue?", $pipePath );

@@ -666,7 +666,6 @@ sub checkOneSqlFile {
         jobId          => $self->{jobId},
         operType       => 'auto',
         resourceId     => $nodeInfo->{resourceId},
-        nodeId         => $nodeInfo->{nodeId},
         nodeName       => $nodeInfo->{nodeName},
         host           => $nodeInfo->{host},
         port           => $nodeInfo->{port},

@@ -187,7 +187,7 @@ sub main {
             toolsDir     => $deployEnv->{TOOLS_PATH},
             tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
             dbSchemasMap => $dbSchemasMap,
-            nodeInfo     => { nodeId => 0 },
+            nodeInfo     => { resourceId => 0 },
             sqlFiles     => $sqlFiles,
             sqlFileDir   => $sqlFileDir,
             sqlStatusDir => $sqlStatusDir,

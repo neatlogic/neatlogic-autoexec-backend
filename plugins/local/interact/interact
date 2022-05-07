@@ -91,13 +91,14 @@ sub main {
     my $pipeFile = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
 
     AutoExecUtils::informNodeWaitInput(
-        nodeId   => $nodeInfo->{nodeId},
-        title    => $title,
-        opType   => $opType,
-        message  => $message,
-        options  => $options,
-        role     => $role,
-        pipeFile => $pipeFile
+        phaseName  => $phaseName,
+        resourceId => $nodeInfo->{resourceId},
+        title      => $title,
+        opType     => $opType,
+        message    => $message,
+        options    => $options,
+        role       => $role,
+        pipeFile   => $pipeFile
     );
 
     my ( $userId, $enter ) = AutoExecUtils::doInteract(

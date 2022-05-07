@@ -22,7 +22,7 @@ our $READ_TMOUT = 86400;
 
 sub new {
     my ($pkg) = @_;
-    
+
     state $instance;
     if ( !defined($instance) ) {
         hidePwdInCmdLine();
@@ -86,7 +86,7 @@ sub deployInit {
         $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
     }
 
-    if ( defined($namePath) and $namePath ne '' and uc($namePath) ne 'DEFAULT' ) {
+    if ( defined($namePath) and $namePath eq '' and uc($namePath) ne 'DEFAULT' ) {
         my $idPath = ServerAdapter->getIdPath($namePath);
         $dpPath               = $namePath;
         $dpIdPath             = $idPath;

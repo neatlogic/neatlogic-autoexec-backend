@@ -89,7 +89,7 @@ sub getMyNode {
 }
 
 sub getNode {
-    my ($nodeId) = @_;
+    my ($resourceId) = @_;
     my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
 
     my $node = {};
@@ -98,7 +98,7 @@ sub getNode {
         my $line;
         while ( $line = $fh->getline() ) {
             my $cNode = from_json($line);
-            if ( $cNode->{nodeId} == $nodeId ) {
+            if ( $cNode->{resourceId} == $resourceId ) {
                 $node = $cNode;
                 last;
             }
@@ -167,7 +167,7 @@ sub doInteract {
             print("[wait interact]$message\n");
             STDOUT->flush();
 
-            my $select = IO::Select->new( $pipe, \*STDIN );
+            my $select       = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {
@@ -224,16 +224,18 @@ sub doInteract {
 sub informNodeWaitInput {
     my (%args) = @_;
 
-    # $args{nodeId}     #节点Id
-    # $args{pipeFile};  # 管道文件的全路径
+    # $args{phaseName}   # 当前phase名称
+    # $args{resourceId}  # 节点Id
+    # $args{pipeFile};   # 管道文件的全路径
     # $args{message};    # 交互操作文案
     # $args{opType};     # 类型：button|input|select|mselect
     # $args{title};      # 交互操作标题
     # $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
     # $args{role};       # 可以操作此操作的角色，如果空代表不控制
 
-    my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
-    my $nodeId   = $args{nodeId};
+    my $sockPath   = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    my $phaseName  = $args{phaseName};
+    my $resoruceId = $args{resoruceId};
 
     if ( -e $sockPath ) {
         eval {
@@ -244,8 +246,9 @@ sub informNodeWaitInput {
             );
 
             my $request = {};
-            $request->{action} = 'informNodeWaitInput';
-            $request->{nodeId} = $nodeId;
+            $request->{action}     = 'informNodeWaitInput';
+            $request->{phaseName}  = $phaseName;
+            $request->{resoruceId} = $resoruceId;
 
             if (    %args
                 and defined( $args{pipeFile} )
@@ -295,7 +298,7 @@ sub getNodes {
         my $line;
         while ( $line = $fh->getline() ) {
             my $node = from_json($line);
-            $nodesMap->{ $node->{nodeId} } = $node;
+            $nodesMap->{ $node->{resourceId} } = $node;
         }
         $fh->close();
     }

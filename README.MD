@@ -332,18 +332,21 @@ python3 bin/autoexec --jobid "374288003424256" --cleanstatus
 ## nodes文件样例
 
 ```json
-{ "nodeId": 456, "nodeType": "ssh", "host": "192.168.0.27", "port": 22, "username": "root", "password": "xxxxxx" }
-{ "nodeId": 567, "nodeType": "tagent", "host": "192.168.0.22", "port": 3939, "username": "root", "password": "{RC4}xxxxxxx" }
-{ "nodeId": 458, "nodeType": "tagent", "host": "192.168.0.26", "port": 3939, "username": "root", "password": "xxxxxxxx" }
+{ "resourceId": 456, "nodeName":"myhost", "nodeType": "host", "host": "192.168.0.27", "protocol":"ssh", "protocolPort":22, "username": "root", "password": "xxxxxx" }
+{ "resourceId": 567,"nodeName":"tomcat1", "nodeType": "tomcat", "host": "192.168.0.22", "protocol":"tagent", "protocolPort":3939, "port": 8080, "username": "root", "password": "{RC4}xxxxxxx" }
+{ "resourceId": 458, "nodeName":"tomcat2", "nodeType": "tomcat", "host": "192.168.0.26", "protocol":"tagent", "protocolPort":3939, "port": 8080, "username": "root", "password": "xxxxxxxx" }
 
 ```
 
 补充说明:
 
-- "nodeId": 在运行作业运行时对每个阶段的节点生成的关联Id
+- "resourceId": 运行目标节点的UUID
+- "nodeName": 节点名称（不一定唯一）
 - "nodeType": 表示连接节点的方式
 - "host": 连接目标的IP
-- "port": 目标节点的IP
+- "port": 目标节点的端口（IP+服务端口确定一个目标节点）
+- "protocol": 连接节点远程操作的协议，ssh｜tagent
+- "protocolPort": 连接协议对应的端口
 - "username": 在目标节点运行工具的OS用户s
 - "password": 连接目标节点的密码
 

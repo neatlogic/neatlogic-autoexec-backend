@@ -45,7 +45,7 @@ sub new {
         };
 
         my $webCtl = WebCtl->new();
-        $webCtl->setHeaders( { Authorization => $self->_getAuthToken() } );
+        $webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
         $self->{webCtl} = $webCtl;
     }
 
@@ -675,7 +675,6 @@ sub pushSqlStatus {
     #$sqlInfo = {
     #     jobId          => 83743,
     #     resourceId     => 243253234,
-    #     nodeId         => 234324,
     #     nodeName       => 'mydb',
     #     host           => '192.168.0.2',
     #     port           => 3306,
@@ -686,6 +685,7 @@ sub pushSqlStatus {
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
     my $params = $self->_getParams($deployEnv);
     $params->{jobId}     = $jobId;
+    $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
     $params->{sqlStatus} = $sqlFileStatus;
 
     my $webCtl  = $self->{webCtl};

@@ -295,7 +295,7 @@ if __name__ == "__main__":
                                   nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
-        os.environ['AUTOEXEC_TENENT'] = context.tenant
+        os.environ['AUTOEXEC_TENANT'] = context.tenant
 
         # 初始化单例的GlobalLocks
         GlobalLock.GlobalLock(context)

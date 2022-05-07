@@ -15,7 +15,6 @@ sub new {
         dbType            => $nodeInfo->{nodeType},
         host              => $nodeInfo->{host},
         port              => $nodeInfo->{port},
-        nodeId            => $nodeInfo->{nodeId},
         resourceId        => $nodeInfo->{resourceId},
         dbName            => $nodeInfo->{nodeName},
         sid               => $nodeInfo->{nodeName},

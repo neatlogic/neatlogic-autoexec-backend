@@ -139,7 +139,7 @@ def getMyNode():
     return node
 
 
-def getNode(nodeId):
+def getNode(resourceId):
     matchNode = None
 
     if 'AUTOEXEC_NODES_PATH' in os.environ:
@@ -151,7 +151,7 @@ def getNode(nodeId):
             if not line:
                 break
             node = json.loads(line)
-            if node['nodeId'] == nodeId:
+            if node['resourceId'] == resourceId:
                 matchNode = node
 
     return matchNode
@@ -181,15 +181,17 @@ def loadNodeOutput():
     return output
 
 
-def informNodeWaitInput(nodeId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
-    sockPath = os.environ['AUTOEXEC_WORK_PATH'] + '/job.sock'
+def informNodeWaitInput(resourceId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
+    sockPath = os.getenv('AUTOEXEC_WORK_PATH') + '/job.sock'
+    phaseName = os.getenv('AUTOEXEC_PHASE_NAME')
     if os.path.exists(sockPath):
         try:
             client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
             client.connect(sockPath)
             request = {}
             request['action'] = 'informNodeWaitInput'
-            request['nodeId'] = nodeId
+            request['phaseName'] = phaseName
+            request['resourceId'] = resourceId
 
             if (options is not None and (isinstance(options, tuple) or isinstance(options, list))):
                 request['interact'] = {
@@ -205,11 +207,11 @@ def informNodeWaitInput(nodeId, title=None, opType='button', message='Please sel
 
             client.send(json.dumps(request))
             client.close()
-            print("INFO: Inform node:{} udpate status to waitInput success.\n".format(nodeId))
+            print("INFO: Inform node:{} udpate status to waitInput success.\n".format(resourceId))
         except Exception as ex:
-            print("WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(nodeId, ex))
+            print("WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(resourceId, ex))
     else:
-        print("WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(nodeId, sockPath))
+        print("WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(resourceId, sockPath))
     return
 
 
@@ -225,7 +227,7 @@ def getNodes():
             if not line:
                 break
             node = json.loads(line)
-            nodesMap[node['nodeId']] = node
+            nodesMap[node['resourceId']] = node
 
     return nodesMap
 

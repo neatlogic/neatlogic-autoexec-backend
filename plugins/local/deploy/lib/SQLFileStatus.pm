@@ -190,7 +190,6 @@ sub updateStatus {
         my $sqlInfo  = {
             jobId          => $self->{jobId},
             resourceId     => $nodeInfo->{resourceId},
-            nodeId         => $nodeInfo->{nodeId},
             nodeName       => $nodeInfo->{nodeName},
             host           => $nodeInfo->{host},
             port           => $nodeInfo->{port},
