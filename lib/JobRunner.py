@@ -260,13 +260,14 @@ class JobRunner:
             print("\n", end='')
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
-        groupNo = phaseGroup['groupNo']
         lastPhase = None
         # runFlow是一个数组，每个元素是一个phaseGroup
         threads = []
         # 每个group有多个phase，使用线程并发执行
+        phaseIndex = 0
         for phaseConfig in phaseGroup['phases']:
             phaseName = phaseConfig['phaseName']
+            phaseIndex = phaseIndex + 1
 
             if self.context.goToStop == True:
                 break
@@ -282,7 +283,7 @@ class JobRunner:
                     serverAdapter.getNodes(phase=phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseName=phaseName)
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName)
                 parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
 
                 lastPhase = phaseName
@@ -373,6 +374,7 @@ class JobRunner:
                     oneRoundNodes.append(node)
 
             lastPhase = None
+            phaseIndex = 0
             for phaseConfig in phaseGroup['phases']:
                 if self.context.goToStop:
                     break
@@ -381,6 +383,7 @@ class JobRunner:
                 if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                     continue
 
+                phaseIndex = phaseIndex + 1
                 phaseStatus = self.context.phases[phaseName]
                 phaseStatus.clearRoundFinEvent()
                 phaseStatus.clearGlobalRoundFinEvent()
@@ -404,7 +407,7 @@ class JobRunner:
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
-                            localRunNode = RunNode.RunNode(self.context, phaseName, localNode)
+                            localRunNode = RunNode.RunNode(self.context, phaseIndex, phaseName, localNode)
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
 
@@ -415,7 +418,7 @@ class JobRunner:
                             phaseNodeFactory.putRunNode(None)
                             break
                         if self.context.runnerId == node['runnerId']:
-                            runNode = RunNode.RunNode(self.context, phaseName, node)
+                            runNode = RunNode.RunNode(self.context, phaseIndex, phaseName, node)
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
 

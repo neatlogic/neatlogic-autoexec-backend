@@ -61,13 +61,14 @@ class LogFile:
 
 class RunNode:
 
-    def __init__(self, context, phaseName, node):
+    def __init__(self, context, phaseIndex, phaseName, node):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
         self.hasIgnoreFail = 0
         self.statuses = {}
         self.statusFile = None
         self.logger = logging.getLogger('')
+        self.phaseIndex = phaseIndex
         self.phaseName = phaseName
         self.runPath = context.runPath
         self.node = node
@@ -712,7 +713,7 @@ class RunNode:
         if self.type == 'tagent':
             scriptFile = None
             try:
-                remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
+                remoteRoot = '$TMPDIR/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
                 remotePath = remoteRoot + '/' + op.opBunddleName
                 runEnv = {'AUTOEXEC_JOBID': self.context.jobId, 'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword), 'HISTSIZE': '0'}
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
@@ -809,7 +810,7 @@ class RunNode:
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
-            remoteRoot = '/tmp/autoexec-{}-{}'.format(self.context.jobId, self.resourceId)
+            remoteRoot = '/tmp/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
             remoteCmdHidePass = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
