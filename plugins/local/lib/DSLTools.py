@@ -272,11 +272,15 @@ class Interpreter(object):
             if fieldValue is not None:
                 try:
                     if op(fieldValue, value):
+                        attrs = {}
+                        for attr, val in parentDoc.items():
+                            attrs[attr] = val
                         matchedField = {
                             'jsonPath': jsonPath[1:],
                             'ruleName': self.ruleName,
                             'ruleLevel': self.ruleLevel,
-                            'fieldValue': fieldValue
+                            'fieldValue': fieldValue,
+                            'attrs': attrs
                         }
                         self.matchedFields.append(matchedField)
                         return matchedRecord + 1
