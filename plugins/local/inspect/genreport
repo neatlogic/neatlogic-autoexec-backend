@@ -257,14 +257,12 @@ def inspectData(nodeInfo):
                 #         "ruleLevel": "WARN",
                 #         "ruleName": "测试",
                 #         "fieldValue": 92,
-                #         "attrs":{"CAPACITY":92}
                 #     },
                 #     {
                 #         "jsonPath": "$.DISKS[1].CAPACITY",
                 #         "ruleLevel": "WARN",
                 #         "ruleName": "测试",
                 #         "fieldValue": 92,
-                #         "attrs":{"CAPACITY":92}
                 #     }
                 # ]
 
