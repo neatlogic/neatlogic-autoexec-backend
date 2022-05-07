@@ -639,7 +639,14 @@ sub checkInSqlFiles {
     #     }
     # ]
 
+    if ( not @$sqlInfoList ) {
+        return;
+    }
+
     my $params = $self->_getParams($deployEnv);
+    $params->{jobId}       = $jobId;
+    $params->{phaseName}   = $ENV{AUTOEXEC_PHASE_NAME};
+    $params->{operType}    = $$sqlInfoList[0]->{operType};
     $params->{sqlInfoList} = $sqlInfoList;
 
     my $webCtl  = $self->{webCtl};
@@ -661,13 +668,13 @@ sub checkInSqlFiles {
 }
 
 sub pushSqlStatus {
-    my ( $self, $jobId, $sqlFileStatus, $deployEnv ) = @_;
+    my ( $self, $jobId, $sqlStatusList, $deployEnv ) = @_;
 
     #TODO: Delete follow test lines
-    print("DEBUG: update sql status to server.\n");
-    print Dumper($sqlFileStatus);
+    # print("DEBUG: update sql status to server.\n");
+    # print Dumper($sqlStatusList);
 
-    return;
+    # return;
 
     #TODO: Test ended#############################
 
@@ -683,10 +690,15 @@ sub pushSqlStatus {
     #     status         => 'success'
     # };
     #deployEnv: 包含SYS_ID、MODULE_ID、ENV_ID等环境的属性
+    if ( not @$sqlStatusList ) {
+        return;
+    }
+
     my $params = $self->_getParams($deployEnv);
-    $params->{jobId}     = $jobId;
-    $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
-    $params->{sqlStatus} = $sqlFileStatus;
+    $params->{jobId}         = $jobId;
+    $params->{phaseName}     = $ENV{AUTOEXEC_PHASE_NAME};
+    $params->{operType}      = $$sqlStatusList[0]->{operType};
+    $params->{sqlStatusList} = $sqlStatusList;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
