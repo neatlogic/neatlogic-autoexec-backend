@@ -643,10 +643,14 @@ sub checkInSqlFiles {
         return;
     }
 
-    my $params = $self->_getParams($deployEnv);
+    my $params = {};
+    if ( defined($deployEnv) ) {
+        $params = $self->_getParams($deployEnv);
+        $params->{operType} = 'deploy';
+    }
+
     $params->{jobId}       = $jobId;
     $params->{phaseName}   = $ENV{AUTOEXEC_PHASE_NAME};
-    $params->{operType}    = $$sqlInfoList[0]->{operType};
     $params->{sqlInfoList} = $sqlInfoList;
 
     my $webCtl  = $self->{webCtl};
@@ -694,11 +698,18 @@ sub pushSqlStatus {
         return;
     }
 
-    my $params = $self->_getParams($deployEnv);
+    my $params = {};
+    if ( defined($deployEnv) ) {
+        $params = $self->_getParams($deployEnv);
+        $params->{operType} = 'deploy';
+    }
+
     $params->{jobId}     = $jobId;
     $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
-    $params->{operType}  = $sqlStatus->{operType};
-    $params->{sqlStatus} = $sqlStatus;
+
+    while ( my ( $key, $val ) = each(%$sqlStatus) ) {
+        $params->{$key} = $val;
+    }
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
@@ -725,6 +736,10 @@ sub addJob {
         $authToken = $self->_getAuthToken();
     }
 
+    #因为需要指向其他的控制端，所以不能用公用的webCtl实例
+    my $webCtl = WebCtl->new();
+    $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
+
     my $targetEnvPath = $args{targetEnvPath};
     my $targetVersion => $args{targetVersion};
     my $senario  = $args{senario};
@@ -747,6 +762,10 @@ sub getJobStatus {
     if ( not defined($authToken) ) {
         $authToken = $self->_getAuthToken();
     }
+
+    #因为需要指向其他的控制端，所以不能用公用的webCtl实例
+    my $webCtl = WebCtl->new();
+    $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
 
     #TODO: getJobStatus
 }
@@ -840,6 +859,14 @@ sub getBuild {
     my $pdata = $self->_getParams($deployEnv);
 
     #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准
+    # {
+    #     namePath   => ‘MYSYS/MYMODULE/SIT,
+    #     sysName    => ’MYSYS',
+    #     moduleName => 'MYMODULE',
+    #     envName    => 'SIT',
+    #     authToken  => 'Basic Xkiekdjfkdfdf==',
+    #     baseUrl    => 'https://192.168.0.3:8080'
+    # };
     if ($srcEnvInfo) {
         my $srcNamePath = $srcEnvInfo->{namePath};
         if ( defined($srcNamePath) ) {

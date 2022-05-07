@@ -189,6 +189,7 @@ sub updateStatus {
         my $nodeInfo = $dbInfo->{node};
         my $sqlInfo  = {
             jobId          => $self->{jobId},
+            operType       => 'auto',
             resourceId     => $nodeInfo->{resourceId},
             nodeName       => $nodeInfo->{nodeName},
             host           => $nodeInfo->{host},
