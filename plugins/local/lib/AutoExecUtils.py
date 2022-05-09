@@ -64,7 +64,7 @@ def getAutoexecContext():
             autoexecDBPass = _rc4_decrypt_hex(passKey, autoexecDBPass[11:])
             config['autoexec']['db.password'] = autoexecDBPass
 
-        AUTOEXEC_CONTEXT = Context(config, os.getenv('AUTOEXEC_TENENT'))
+        AUTOEXEC_CONTEXT = Context(config, os.getenv('AUTOEXEC_TENANT'))
     return AUTOEXEC_CONTEXT
 
 

@@ -588,7 +588,7 @@ class RunNode:
 
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
-        environment['AUTOEXEC_TENENT'] = os.getenv('AUTOEXEC_TENENT')
+        environment['AUTOEXEC_TENANT'] = os.getenv('AUTOEXEC_TENANT')
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
@@ -651,7 +651,7 @@ class RunNode:
         # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = {}
-        environment['AUTOEXEC_TENENT'] = os.getenv('AUTOEXEC_TENENT')
+        environment['AUTOEXEC_TENANT'] = os.getenv('AUTOEXEC_TENANT')
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
