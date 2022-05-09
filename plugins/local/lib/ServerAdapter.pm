@@ -30,18 +30,25 @@ sub new {
         $self->{serverConf} = ServerConf->new();
 
         $self->{apiMap} = {
-            'getIdPath'          => 'codedriver/public/api/rest/ezdeploy/path',
-            'getVer'             => 'codedriver/public/api/rest/ezdeploy/version/get',
-            'updateVer'          => 'codedriver/public/api/rest/ezdeploy/version/update',
-            'releaseVer'         => 'codedriver/public/api/rest/ezdeploy/version/release',
-            'getAutoCfgConf'     => 'codedriver/public/api/rest/ezdeploy/autocfg/get',
-            'getDBConf'          => 'codedriver/public/api/rest/ezdeploy/dbconf/get',
-            'addBuildQulity'     => 'codedriver/public/api/rest/ezdeploy/scan/add',
-            'getAppPassWord'     => 'codedriver/public/api/rest/cmdb/password/get',
-            'getSqlFileStatuses' => 'codedriver/public/api/rest/autoexec/job/sql/list',
-            'checkInSqlFiles'    => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
-            'pushSqlStatus'      => 'codedriver/public/api/rest/autoexec/job/sql/update',
-            'getBuild'           => 'codedriver/public/api/rest/ezdeploy/getbuild'
+            'getIdPath'             => '',
+            'getVer'                => '',
+            'updateVer'             => '',
+            'releaseVer'            => '',
+            'getAutoCfgConf'        => '',
+            'getDBConf'             => '',
+            'addBuildQulity'        => '',
+            'getAppPassWord'        => '',
+            'getSqlFileStatuses'    => 'codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'       => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'         => 'codedriver/public/api/rest/autoexec/job/sql/update',
+            'creatJob'              => '',
+            'getJobStatus'          => '',
+            'saveVersionDependency' => '',
+            'setEnvVersion'         => '',
+            'rollbackEnvVersion'    => '',
+            'setInsVersion'         => '',
+            'rollbackInsVersion'    => '',
+            'getBuild'              => ''
         };
 
         my $webCtl = WebCtl->new();
@@ -86,6 +93,21 @@ sub _getParams {
     return $params;
 }
 
+sub _getReturn {
+    my ( $self, $content ) = @_;
+    my $rcJson = from_json($content);
+
+    my $rcObj;
+    if ( $rcJson->{Status} eq 'OK' ) {
+        $rcObj = $rcJson->{Return};
+    }
+    else {
+        die( $rcJson->{Message} );
+    }
+
+    return $rcObj;
+}
+
 sub getIdPath {
     my ( $self, $namePath ) = @_;
 
@@ -116,15 +138,7 @@ sub getIdPath {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getIdPath');
     my $content = $webCtl->postJson( $url, $param );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     my $idPath = $rcObj->{idPath};
     return $idPath;
@@ -187,15 +201,7 @@ sub getVer {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getVer');
     my $content = $webCtl->postJson( $url, $param );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;
 }
@@ -218,15 +224,7 @@ sub updateVer {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('updateVer');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     #TODO: 测试通过接口更新版本信息
 
@@ -253,15 +251,7 @@ sub releaseVer {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('releaseVer');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     #TODO: 测试 发布版本，更新版本某个buildNo的release的状态为1
     return;
@@ -329,15 +319,7 @@ sub getAutoCfgConf {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getAutoCfgConf');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     my $autoCfgMap = $rcObj;
 
@@ -421,15 +403,7 @@ sub getDBConf {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getAutoCfgConf');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     my $dbConf     = $rcObj;
     my $serverConf = $self->{serverConf};
@@ -459,15 +433,7 @@ sub addBuildQuality {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('addBuildQuality');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     #TODO: 测试 提交sonarqube扫描结果数据到后台，老版本有相应的实现
     return;
@@ -506,15 +472,7 @@ sub getAppPassWord {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getAppPassWord');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     my $pass        = 'notfound';
     my $accountList = $rcObj;
@@ -579,15 +537,7 @@ sub getSqlFileStatuses {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getSqlFileStatuses');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     my $sqlInfoList = $rcObj;
 
@@ -656,15 +606,7 @@ sub checkInSqlFiles {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('checkInSqlFiles');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     #TODO: 测试 保存sql文件信息到DB，工具sqlimport、dpsqlimport调用此接口
 
@@ -711,21 +653,13 @@ sub pushSqlStatus {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
     my $content = $webCtl->postJson( $url, $params );
-    my $rcJson  = from_json($content);
-
-    my $rcObj;
-    if ( $rcJson->{Status} eq 'OK' ) {
-        $rcObj = $rcJson->{Return};
-    }
-    else {
-        die( $rcJson->{Message} );
-    }
+    my $rcObj   = $self->_getReturn($content);
 
     return;
 }
 
-sub addJob {
-    my ( $self, $buildEnv, %args ) = @_;
+sub creatJob {
+    my ( $self, $jobId, $buildEnv, %args ) = @_;
 
     my $baseUrl   = $args{baseUrl};
     my $authToken = $args{authToken};
@@ -737,19 +671,28 @@ sub addJob {
     my $webCtl = WebCtl->new();
     $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
 
-    my $targetEnvPath = $args{targetEnvPath};
-    my $targetVersion => $args{targetVersion};
-    my $senario  = $args{senario};
-    my $isRunNow = $args{isRunNow};
-    my $isAuto   = $args{isAuto};
-    my $waitJob  = $args{waitJob};
-    my $planTime   => $args{planTime};
-    my $roundCount => $args{roundCount};
-    my $jobUser    => $args{jobUser};
-    my $instances  => $args{instances};
-    my $jobArgs = $args{jobArgs};
+    my $params = {
+        jobId         => $jobId,
+        targetEnvPath => $args{targetEnvPath},
+        targetVersion => $args{targetVersion},
+        senario       => $args{senario},
+        isRunNow      => $args{isRunNow},
+        isAuto        => $args{isAuto},
+        waitJob       => $args{waitJob},
+        planTime      => $args{planTime},
+        roundCount    => $args{roundCount},
+        jobUser       => $args{jobUser},
+        instances     => $args{instances},
+        jobArgs       => $args{jobArgs}
+    };
 
-    #TODO: addJob
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('createJob');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO: test createJob
+    return;
 }
 
 sub getJobStatus {
@@ -764,13 +707,94 @@ sub getJobStatus {
     my $webCtl = WebCtl->new();
     $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
 
-    #TODO: getJobStatus
+    my $params = { jobId => $jobId };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getJobStatus');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO: test getJobStatus
+    return;
 }
 
 sub saveVersionDependency {
     my ( $self, $buildEnv, $data ) = @_;
 
     #TODO： save jar dependency infomations
+    my $params = $self->_getParams($buildEnv);
+    $params->{data} = $data;
+
+    my $webCtl = WebCtl->new();
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('saveVersionDependency');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    return;
+}
+
+sub setEnvVersion ($deployEnv) {
+    my ( $self, $buildEnv ) = @_;
+
+    my $params = $self->_getParams($buildEnv);
+
+    my $webCtl  = WebCtl->new();
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('setEnvVersion');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO： Test plugin (tagenvver) set Env version
+    return;
+}
+
+sub rollbackEnvVersion ($deployEnv) {
+    my ( $self, $buildEnv ) = @_;
+
+    my $params = $self->_getParams($buildEnv);
+
+    my $webCtl  = WebCtl->new();
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('rollbackEnvVersion');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO： Test plugin (tagenvver --rollback) test rollback env version
+    return;
+}
+
+sub setInsVersion ( $deployEnv, $nodeInfo ) {
+    my ( $self, $buildEnv, $nodeInfo ) = @_;
+
+    my $params = $self->_getParams($buildEnv);
+    $params->{resourceId} = $nodeInfo->{resourceId};
+
+    my $webCtl  = WebCtl->new();
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('setInsVersion');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO： Test plugin (taginsver) test set instance version
+    return;
+}
+
+sub rollbackInsVersion ( $deployEnv, $nodeInfo ) {
+    my ( $self, $buildEnv, $nodeInfo ) = @_;
+
+    my $params = $self->_getParams($buildEnv);
+    $params->{resourceId} = $nodeInfo->{resourceId};
+
+    my $webCtl  = WebCtl->new();
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('rollbackInsVersion');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO： Test plugin (taginsver --rollback) test rollback instance version
+    return;
 }
 
 sub getBuild {

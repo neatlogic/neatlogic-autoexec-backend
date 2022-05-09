@@ -143,9 +143,15 @@ sub main {
 
     my $hasError = 0;
 
-    my $jobId;
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
+    my $createdJobId;
     eval {
-        $jobId = $serverAdapter->addJob(
+        $createdJobId = $serverAdapter->createJob(
+            $jobId,
             $buildEnv,
             targetEnvPath => $targetEnvPath,
             targetVersion => $targetVer,
@@ -160,29 +166,29 @@ sub main {
             instances     => $instances
         );
     };
-    if ( $@ or not defined($jobId) ) {
+    if ( $@ or not defined($createdJobId) ) {
         $hasError = $hasError + 1;
         print("ERROR: $@");
         print("ERROR: $pname $envPath $version $senario failed.\n");
     }
     else {
-        print("INFO: JOBADDED $jobId\n");
+        print("INFO: JOBADDED $createdJobId\n");
     }
 
     if ( $isRunNow eq 1 and $waitJob eq 1 ) {
         my $jobStatus;
         my $loopCount = 0;
-        while ( $jobStatus = $serverAdapter->getJobStatus( $jobId, baseUrl => $baseUrl, authToken => $authToken ) ) {
+        while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, baseUrl => $baseUrl, authToken => $authToken ) ) {
             if ( not defined($jobStatus) ) {
-                print("ERROR: can not get job status for jobId:$jobId on $baseUrl\n");
+                print("ERROR: can not get job status for jobId:$createdJobId on $baseUrl\n");
             }
             elsif ( $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
-                print("FINEST: job:$jobId on $baseUrl succeed.\n");
+                print("FINEST: job:$createdJobId on $baseUrl succeed.\n");
                 last;
             }
             elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
                 if ( $loopCount % 5 eq 0 ) {
-                    print("INFO: job:$jobId status:$jobStatus, wait...\n");
+                    print("INFO: job:$createdJobId status:$jobStatus, wait...\n");
                 }
                 $loopCount = $loopCount + 1;
                 sleep(3);
@@ -190,7 +196,7 @@ sub main {
             }
             else {
                 $hasError = $hasError + 1;
-                print("ERROR: job:$jobId on $baseUrl $jobStatus.\n");
+                print("ERROR: job:$createdJobId on $baseUrl $jobStatus.\n");
                 last;
             }
         }

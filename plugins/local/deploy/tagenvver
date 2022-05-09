@@ -16,15 +16,49 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $envPath, $version, $isRollback );
+    my ( $isHelp, $envPath, $version, $buildNo );
 
+    my $isRollback = 0;
     GetOptions(
         'h|help'     => \$isHelp,
         'envpath=s'  => \$envPath,
         'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
         'rollback=i' => \$isRollback
     );
+    usage() if ( defined($isHelp) );
 
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+    $buildNo = $deployEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    if ( $isRollback == 0 ) {
+        $serverAdapter->setEnvVersion($deployEnv);
+    }
+    else {
+        $serverAdapter->rollbackEnvVersion($deployEnv);
+    }
 }
 
 exit main();
