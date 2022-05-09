@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "检查代码中是否出现非法IP",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "netblacklist",
             "name": "网络ID",
             "help": "是否出现定义的网络ID的IP, 例如: 10.10.0.0/16,10.20.0.0/24",

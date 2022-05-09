@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "发布版本目录中的osgi包",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "console",
             "name": "管理URL",
             "help": "科蓝管理控制台URL",

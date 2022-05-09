@@ -7,13 +7,15 @@
     "defaultProfile": "jenkins-args",
     "description": "调用Jenkins进行编译打包",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -32,7 +34,8 @@
             "help": "JDK版本",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -63,7 +66,8 @@
             "help": "Jenkins版本",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -122,7 +126,8 @@
             "help": "等待Jenkins作业运行完",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"

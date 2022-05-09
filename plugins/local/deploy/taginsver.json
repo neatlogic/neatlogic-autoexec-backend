@@ -7,24 +7,27 @@
     "defaultProfile": null,
     "description": "标记实例的版本号",
     "enabled": 0,
-    "option": [{
-        "opt": "rollback",
-        "name": "是否回退",
-        "help": "是否回退已经标记好的版本号到上一个版本",
-        "type": "radio",
-        "isConst": "false",
-        "defaultValue": [{
-                "text": "是",
-                "value": "1"
-            },
-            {
-                "text": "否",
-                "value": "0",
-                "selected": "true"
-            }
-        ],
-        "required": "true",
-        "validate": ""
-    }],
+    "option": [
+        {
+            "opt": "rollback",
+            "name": "是否回退",
+            "help": "是否回退已经标记好的版本号到上一个版本",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0",
+                    "selected": "true"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        }
+    ],
     "output": []
 }

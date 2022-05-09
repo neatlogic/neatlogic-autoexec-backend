@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "创建作业",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "baseurl",
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",
@@ -63,7 +64,8 @@
             "help": "创建作业后马上执行",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -92,7 +94,8 @@
             "help": "计划作业创建后, 到计划时间自动执行",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -111,7 +114,8 @@
             "help": "等待作业执行完成",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "是",
                     "value": "1"
                 },

@@ -7,9 +7,7 @@
     "defaultProfile": null,
     "description": "回显文本",
     "enabled": 0,
-    "option": [
-
-    ],
+    "option": [],
     "argument": {
         "name": "回显内容",
         "help": "",
