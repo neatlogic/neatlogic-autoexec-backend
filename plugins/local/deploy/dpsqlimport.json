@@ -49,6 +49,16 @@
             "validate": ""
         },
         {
+            "opt": "extnames",
+            "name": "SQL扩展名",
+            "help": "SQL文件的扩展名, 默认: sql,exp,imp,prc,pck,pkg,pkgh,pkgb",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "${global:sql.extnames}",
+            "required": "false",
+            "validate": ""
+        },
+        {
             "opt": "filter",
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",

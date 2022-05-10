@@ -9,6 +9,26 @@
     "enabled": 1,
     "option": [
         {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "radio",
+            "isConst": "false",
+            "defaultValue": [
+                {
+                    "text": "是",
+                    "value": "1",
+                    "selected": "true"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",
@@ -16,26 +36,6 @@
             "isConst": "false",
             "defaultValue": "",
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "dbname",
-            "name": "库名",
-            "help": "库名，如不指定则使用执行节点名",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "dgargs",
-            "name": "DB参数",
-            "help": "额外的DB参数，一般不需要设置",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
             "validate": ""
         }
     ],
