@@ -136,7 +136,7 @@ def findJobProcesses(jobId):
                             f = open(entry.path + '/cmdline')
                             content = f.read()
                             if content.index(jobId) > 0 and pid != mypid:
-                                autoexecPids.append(pid)
+                                autoexecPids.append(str(pid))
                     except:
                         pass
     return autoexecPids

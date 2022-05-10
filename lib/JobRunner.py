@@ -25,7 +25,7 @@ class ListenWorkThread(threading.Thread):
     def __init__(self, name, server, queue, context=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
-        self.globalLocks = GlobalLock.GlobalLock(context)
+        self.globalLock = GlobalLock.GlobalLock(context)
         self.context = context
         self.server = server
         self.queue = queue
@@ -60,8 +60,9 @@ class ListenWorkThread(threading.Thread):
                     elif actionData['action'] == 'golbalLock':
                         _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
                     elif actionData['action'] == 'golbalLockNotify':
-                        self.globalLocks.notifyWaiter(actionData['lockId'])
+                        self.globalLock.notifyWaiter(actionData['lockId'])
                     elif actionData['action'] == 'exit':
+                        self.globalLock.stop()
                         self.server.shutdown()
                         break
             except Exception as ex:
@@ -74,7 +75,7 @@ class ListenWorkThread(threading.Thread):
         if self.context.devMode:
             return {'lockId': 0}
         else:
-            lockInfo = self.globalLocks.doLock(lockParams)
+            lockInfo = self.globalLock.doLock(lockParams)
             self.server.sendto(json.dumps(lockInfo), addr)
 
 
@@ -540,7 +541,6 @@ class JobRunner:
 
     def kill(self):
         self.context.goToStop = True
-        self.globalLocks.stop()
         self.stopListen()
         self.context.close()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
@@ -554,7 +554,6 @@ class JobRunner:
 
     def pause(self):
         self.context.goToStop = True
-        self.globalLocks.stop()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
             phaseStatus.isPausing = 1

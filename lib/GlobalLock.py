@@ -129,7 +129,7 @@ class GlobalLock(object):
         #     'message':'Lock help by job:xxxxx'
         # }
         lockId = lockInfo['lockId']
-        lockParams['lockId'] = lockId 
+        lockParams['lockId'] = lockId
         lockTarget = lockParams['lockTarget']
         namePath = lockParams['lockOwnerName']
         if lockInfo['wait'] == 1:

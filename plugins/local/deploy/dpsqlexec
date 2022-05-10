@@ -203,7 +203,9 @@ sub main {
         my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
 
         END {
-            $lock->unlockEnvSql($sqlLockId);
+            if ( defined($lock) ) {
+                $lock->unlockEnvSql($sqlLockId);
+            }
         }
 
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
