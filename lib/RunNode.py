@@ -792,6 +792,7 @@ class RunNode:
                                 opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
 
                                 if outputStatus != 0:
+                                    opOutput[outFileKey] = None
                                     self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
                                     ret = 2
 
@@ -987,6 +988,7 @@ class RunNode:
                                     opOutput = self.output[op.opId]
                                     opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
                                 except Exception as ex:
+                                    opOutput[outFileKey] = None
                                     self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
                                     ret = 2
                             self._saveOpOutput(op)
