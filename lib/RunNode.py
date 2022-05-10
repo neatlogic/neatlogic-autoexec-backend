@@ -735,7 +735,7 @@ class RunNode:
                         uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
                         if tagent.agentCharset not in ['UTF-8', 'cp65001']:
                             # 如果脚本使用编码与服务端不一致，则执行转换
-                            uploadRet = tagent.upload(self.username, op.scriptFile, remotePath + '/' + op.scriptFileName, convertCharset=1)
+                            uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
                         fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     finally:
                         scriptFile.close()
