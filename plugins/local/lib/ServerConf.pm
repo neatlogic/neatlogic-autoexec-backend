@@ -5,7 +5,7 @@ package ServerConf;
 
 use FindBin;
 use feature 'state';
-use CWD;
+use Cwd;
 use Crypt::RC4;
 use Config::Tiny;
 
