@@ -12,7 +12,7 @@ use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
 
 use WebCtl;
-use Serverconf;
+use ServerConf;
 use Data::Dumper;
 
 sub new {
