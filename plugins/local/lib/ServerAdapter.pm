@@ -607,6 +607,7 @@ sub checkInSqlFiles {
     }
     else {
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+        $params->{operType}  = 'auto';
     }
 
     $params->{jobId}       = $jobId;
@@ -656,6 +657,7 @@ sub pushSqlStatus {
     }
     else {
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+        $params->{operType}  = 'auto';
     }
 
     $params->{jobId}     = $jobId;
