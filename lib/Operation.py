@@ -99,7 +99,7 @@ class Operation:
         if 'output' in param:
             self.outputDesc = param['output']
             for outOptName, outOpt in self.outputDesc.items():
-                if outOpt['type'] == 'file':
+                if outOpt['type'] == 'filepath':
                     self.outputFiles.append(outOptName)
         else:
             self.outputDesc = {}
