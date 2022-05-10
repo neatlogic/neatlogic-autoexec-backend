@@ -16,6 +16,8 @@ import select
 import json
 import logging
 import traceback
+
+from setuptools import find_namespace_packages
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
@@ -920,14 +922,16 @@ class RunNode:
 
             except Exception as err:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
-            finally:
-                if scriptFile is not None:
-                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
-                    scriptFile.close()
                 if scp is not None:
                     scp.close()
                 if sftp is not None:
                     sftp.close()
+                if ssh:
+                    ssh.close()
+            finally:
+                if scriptFile is not None:
+                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                    scriptFile.close()
 
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
@@ -991,11 +995,12 @@ class RunNode:
                 except Exception as err:
                     self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
                 finally:
+                    if scp is not None:
+                        scp.close()
+                    if sftp is not None:
+                        sftp.close()
                     if ssh:
                         ssh.close()
-
-                if scp:
-                    scp.close()
 
             if ret == 0:
                 self.writeNodeLog("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmdHidePass))
