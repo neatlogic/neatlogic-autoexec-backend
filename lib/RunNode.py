@@ -733,6 +733,9 @@ class RunNode:
                     try:
                         fcntl.flock(scriptFile, fcntl.LOCK_SH)
                         uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
+                        if tagent.agentCharset not in ['UTF-8', 'cp65001']:
+                            # 如果脚本使用编码与服务端不一致，则执行转换
+                            uploadRet = tagent.upload(self.username, op.scriptFile, remotePath + '/' + op.scriptFileName, convertCharset=1)
                         fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     finally:
                         scriptFile.close()
@@ -748,6 +751,10 @@ class RunNode:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot)
                         if uploadRet != 0:
                             break
+                    if tagent.agentCharset not in ['UTF-8', 'cp65001']:
+                        # 如果脚本使用编码与服务端不一致，则执行转换
+                        uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/', convertCharset=1)
+
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
                     remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
 

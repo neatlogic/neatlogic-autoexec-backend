@@ -80,6 +80,9 @@ sub _getParams {
     my ( $self, $buildEnv ) = @_;
 
     my $params = {
+        runnerId   => $ENV{RUNNER_ID},
+        jobId      => $ENV{AUTOEXEC_JOBID},
+        phaseName  => $ENV{AUTOEXEC_PHASE_NAME},
         sysId      => $buildEnv->{SYS_ID},
         moduleId   => $buildEnv->{MODULE_ID},
         envId      => $buildEnv->{ENV_ID},
@@ -528,10 +531,14 @@ sub getSqlFileStatuses {
 
         #获取应用发布某个环境的所有的SQL状态List
         $params = $self->_getParams($deployEnv);
+        $params->{operType} = 'deploy';
     }
     else {
         #获取某个作业的所有的SQL状态List
-        $params->{jobId} = $jobId;
+        $params->{jobId}     = $jobId;
+        $params->{runnerId}  = $ENV{RUNNER_ID};
+        $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+        $params->{operType}  = 'auto';
     }
 
     my $webCtl  = $self->{webCtl};
@@ -598,9 +605,11 @@ sub checkInSqlFiles {
         $params = $self->_getParams($deployEnv);
         $params->{operType} = 'deploy';
     }
+    else {
+        $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+    }
 
     $params->{jobId}       = $jobId;
-    $params->{phaseName}   = $ENV{AUTOEXEC_PHASE_NAME};
     $params->{sqlInfoList} = $sqlInfoList;
 
     my $webCtl  = $self->{webCtl};
@@ -645,9 +654,11 @@ sub pushSqlStatus {
         $params = $self->_getParams($deployEnv);
         $params->{operType} = 'deploy';
     }
+    else {
+        $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
+    }
 
     $params->{jobId}     = $jobId;
-    $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
     $params->{sqlStatus} = $sqlStatus;
 
     my $webCtl  = $self->{webCtl};
