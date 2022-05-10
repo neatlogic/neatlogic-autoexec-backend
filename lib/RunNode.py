@@ -470,7 +470,6 @@ class RunNode:
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
         except:
             ret = 3
-            timeConsume = time.time() - startTime
             self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
 
         hintKey = 'FINEST:'

@@ -290,7 +290,7 @@ class Operation:
             paramName = matchObj.group(1)
 
             nativeRefMap = self.context.opt
-            globalOptMap = self.globalOpt
+            globalOptMap = self.context.globalOpt
             if paramName in nativeRefMap:
                 optValue = nativeRefMap[paramName]
             elif paramName in globalOptMap:
