@@ -137,14 +137,19 @@ sub convCharSet {
         $contentEncoding = $charSet;
     }
 
-    my $lang     = $ENV{LANG};
-    my $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
-    if ( $encoding eq '' or uc($encoding) eq 'UTF8' ) {
-        $encoding = 'UTF-8';
+    # my $lang     = $ENV{LANG};
+    # my $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
+    # if ( $encoding eq '' or uc($encoding) eq 'UTF8' ) {
+    #     $encoding = 'UTF-8';
+    # }
+    # if ( $encoding ne $contentEncoding ) {
+    #     $content = Encode::encode( $encoding, Encode::decode( $contentEncoding, $content ) );
+    # }
+
+    if ( $contentEncoding ne 'UTF-8' ) {
+        $content = Encode::encode( 'UTF-8', Encode::decode( $contentEncoding, $content ) );
     }
-    if ( $encoding ne $contentEncoding ) {
-        $content = Encode::encode( $encoding, Encode::decode( $contentEncoding, $content ) );
-    }
+
     return $content;
 }
 
