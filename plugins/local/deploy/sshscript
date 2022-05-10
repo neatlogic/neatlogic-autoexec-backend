@@ -162,7 +162,7 @@ sub main {
         exit(1);
     }
 
-    my $cmd     = "$scriptInterpreter /tmp/$scriptName $arguments; rm -f /tmp/$scriptName";
+    my $cmd     = "$scriptInterpreter /tmp/$scriptName $arguments; rc=\$?; rm -f /tmp/$scriptName; exit \$rc";
     my $sshExec = new SSHRemoteExec(
         host       => $host,
         port       => $port,
