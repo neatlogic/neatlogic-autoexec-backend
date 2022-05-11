@@ -405,6 +405,7 @@ class RunNode:
     def execOneOperation(self, op):
         ret = 0
         timeConsume = None
+        startTime = time.time()
         try:
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)
@@ -470,6 +471,7 @@ class RunNode:
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
         except:
             ret = 3
+            timeConsume = time.time() - startTime
             self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
 
         hintKey = 'FINEST:'
@@ -929,12 +931,10 @@ class RunNode:
 
             except Exception as err:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
-                if scp is not None:
-                    scp.close()
                 if sftp is not None:
                     sftp.close()
-                if ssh:
-                    ssh.close()
+                if scp is not None:
+                    scp.close()
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -1003,10 +1003,10 @@ class RunNode:
                 except Exception as err:
                     self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
                 finally:
-                    if scp is not None:
-                        scp.close()
                     if sftp is not None:
                         sftp.close()
+                    if scp is not None:
+                        scp.close()
                     if ssh:
                         ssh.close()
 
