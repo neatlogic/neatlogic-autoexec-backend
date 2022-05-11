@@ -251,13 +251,12 @@ class JobRunner:
             self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
+                endStatus = NodeStatus.succeed
                 if phaseStatus.isAborting:
-                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.aborted)
-                else:
-                    if phaseStatus.ignoreFailNodeCount > 0:
-                        self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.completed)
-                    else:
-                        self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.succeed)
+                    endStatus = NodeStatus.aborted
+                elif phaseStatus.ignoreFailNodeCount > 0:
+                    endStatus = NodeStatus.completed
+                self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
             else:
                 self.context.hasFailNodeInGlobal = True
                 failStatus = NodeStatus.failed
