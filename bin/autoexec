@@ -259,7 +259,7 @@ if __name__ == "__main__":
         autoexecIsKilled = False
         autoexecPids = findJobProcesses(args.jobid)
         if len(autoexecPids) > 0:
-            pidsStr = ','.join(autoexecPids)
+            pidsStr = ','.join([str(x) for x in autoexecPids])
             print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
             for i in range(10):
                 killProcesses(autoexecPids, signal.SIGTERM)
