@@ -14,6 +14,7 @@ class RunNodeFactory:
 
     def __init__(self, context, phaseIndex=0, phaseName=None, groupNo=None):
         self.context = context
+        self.groupNo = groupNo
         self.phaseIndex = phaseIndex
         self.phaseName = phaseName
         self.nodesFile = None
@@ -50,14 +51,14 @@ class RunNodeFactory:
         localRunNode = None
         localNode = self.localNode()
         if localNode is not None:
-            localRunNode = RunNode.RunNode(self.context, self.phaseIndex, self.phaseName, localNode)
+            localRunNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, localNode)
         return localRunNode
 
     def nextRunNode(self):
         runNode = None
         nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
-            runNode = RunNode.RunNode(self.context, self.phaseIndex, self.phaseName, nodeObj)
+            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, nodeObj)
         return runNode
 
     def localNode(self):

@@ -15,8 +15,9 @@ import NodeStatus
 
 
 class PhaseWorker(threading.Thread):
-    def __init__(self, context, phaseName, operations, execQueue):
+    def __init__(self, context, groupNo, phaseName, operations, execQueue):
         threading.Thread.__init__(self)
+        self.groupNo = groupNo
         self.phaseName = phaseName
         self.context = context
         self._queue = execQueue
@@ -46,7 +47,7 @@ class PhaseWorker(threading.Thread):
                 phaseStatus.incSkipNodeCount()
                 print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
                 try:
-                    self.context.serverAdapter.pushNodeStatus(self.phaseName, node, nodeStatus)
+                    self.context.serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, node, nodeStatus)
                 except Exception as ex:
                     logging.error("RePush node status to server failed, {}\n".format(ex))
                 continue
@@ -104,7 +105,8 @@ class PhaseWorker(threading.Thread):
 
 
 class PhaseExecutor:
-    def __init__(self, context, phaseName, operations, nodesFactory, parallelCount=25):
+    def __init__(self, context, groupNo, phaseName, operations, nodesFactory, parallelCount=25):
+        self.groupNo = groupNo
         self.phaseName = phaseName
         self.phaseStatus = context.phases[self.phaseName]
         self.context = context
@@ -119,7 +121,7 @@ class PhaseExecutor:
     def _buildWorkerPool(self, execQueue):
         workers = []
         for i in range(self.parallelCount):
-            worker = PhaseWorker(self.context, self.phaseName, self.operations, execQueue)
+            worker = PhaseWorker(self.context, self.groupNo, self.phaseName, self.operations, execQueue)
             worker.start()
             worker.setName('Worker-{}'.format(i))
             workers.append(worker)
@@ -228,7 +230,7 @@ class PhaseExecutor:
             if (worker.informNodeWaitInput(resourceId, interact=interact)):
                 hasInformed = True
         if hasInformed:
-            self.context.serverAdapter.pushPhaseStatus(self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+            self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
             print("INFO: Update runner node status to waitInput succeed.\n", end='')
 
     def pause(self):

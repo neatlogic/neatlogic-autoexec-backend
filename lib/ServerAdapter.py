@@ -226,12 +226,13 @@ class ServerAdapter:
                 nodesFile.close()
 
     # 更新运行阶段某个节点的状态到服务端
-    def pushNodeStatus(self, phaseName, runNode, status, failIgnore=0):
+    def pushNodeStatus(self, groupNo, phaseName, runNode, status, failIgnore=0):
         if self.context.devMode:
             return {}
 
         params = {
             'jobId': self.context.jobId,
+            'groupNo': groupNo,
             'phase': phaseName,
             'resourceId': runNode.resourceId,
             'host': runNode.host,
@@ -252,12 +253,13 @@ class ServerAdapter:
             raise
 
     # 更新运行端阶段的状态
-    def pushPhaseStatus(self, phaseName, phaseStatus, status):
+    def pushPhaseStatus(self, groupNo, phaseName, phaseStatus, status):
         if self.context.devMode:
             return {}
 
         params = {
             'jobId': self.context.jobId,
+            'groupNo': groupNo,
             'phase': phaseName,
             'status': status,
             'failNodeCount': phaseStatus.failNodeCount,
@@ -277,12 +279,24 @@ class ServerAdapter:
         except:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
             # 促使下次运行主动更新节点文件
-            nodesFilePath = self.context.getNodesFilePath()
-            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName, type='phase')
-            if (os.path.exists(nodesFilePath)):
-                os.utime(nodesFilePath, (0, 0))
+            found = False
+
+            phaseNodesFilePath = self.context.getNodesFilePath(phaseName=phaseName)
             if (os.path.exists(phaseNodesFilePath)):
+                found = True
                 os.utime(phaseNodesFilePath, (0, 0))
+
+            if not found:
+                groupNodesFilePath = self.context.getNodesFilePath(groupNo=groupNo)
+                if (os.path.exists(groupNodesFilePath)):
+                    found = True
+                    os.utime(groupNodesFilePath, (0, 0))
+
+            if not found:
+                nodesFilePath = self.context.getNodesFilePath()
+                if (os.path.exists(nodesFilePath)):
+                    os.utime(nodesFilePath, (0, 0))
+
             raise
 
     # 通知后端进行下一个组的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段

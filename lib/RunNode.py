@@ -63,13 +63,14 @@ class LogFile:
 
 class RunNode:
 
-    def __init__(self, context, phaseIndex, phaseName, node):
+    def __init__(self, context, groupNo, phaseIndex, phaseName, node):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
         self.hasIgnoreFail = 0
         self.statuses = {}
         self.statusFile = None
         self.logger = logging.getLogger('')
+        self.groupNo = groupNo
         self.phaseIndex = phaseIndex
         self.phaseName = phaseName
         self.runPath = context.runPath
@@ -198,7 +199,7 @@ class RunNode:
             try:
                 serverAdapter = self.context.serverAdapter
                 # 当status为failed，但是failIgnore为1，不影响继续执行
-                retObj = serverAdapter.pushNodeStatus(self.phaseName, self, status, failIgnore)
+                retObj = serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, self, status, failIgnore)
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':

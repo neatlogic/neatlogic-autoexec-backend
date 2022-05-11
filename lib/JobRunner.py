@@ -216,7 +216,7 @@ class JobRunner:
 
         return parallelCount
 
-    def execOperations(self, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
+    def execOperations(self, groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
         phaseStatus = self.context.phases[phaseName]
 
         self.context.loadEnv()
@@ -240,22 +240,22 @@ class JobRunner:
 
             operations.append(op)
 
-        executor = PhaseExecutor.PhaseExecutor(self.context, phaseName, operations, nodesFactory, parallelCount)
+        executor = PhaseExecutor.PhaseExecutor(self.context, groupNo, phaseName, operations, nodesFactory, parallelCount)
         phaseStatus.executor = executor
         return executor.execute()
 
-    def execPhase(self, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
+    def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         serverAdapter = self.context.serverAdapter
         phaseStatus = self.context.phases[phaseName]
 
         try:
-            self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.running)
-            failCount = self.execOperations(phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
+            self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+            failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
                 if phaseStatus.ignoreFailNodeCount > 0:
-                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.completed)
+                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.completed)
                 else:
-                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.succeed)
+                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.succeed)
             else:
                 self.context.hasFailNodeInGlobal = True
                 failStatus = NodeStatus.failed
@@ -263,13 +263,14 @@ class JobRunner:
                     failStatus = NodeStatus.aborted
                 elif phaseStatus.isPausing:
                     failStatus = NodeStatus.paused
-                self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, failStatus)
+                self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, failStatus)
         except:
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end='')
             traceback.print_exc()
             print("\n", end='')
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
+        groupNo = phaseGroup['groupNo']
         lastPhase = None
         # runFlow是一个数组，每个元素是一个phaseGroup
         threads = []
@@ -293,11 +294,11 @@ class JobRunner:
                     serverAdapter.getNodes(phase=phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName)
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, groupNo=groupNo)
                 parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
 
                 lastPhase = phaseName
-                thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
+                thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
                 thread.name = 'PhaseExecutor-' + phaseName
                 threads.append(thread)
                 thread.start()
@@ -355,7 +356,7 @@ class JobRunner:
 
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
-            thread = threading.Thread(target=self.execPhase, args=(phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
+            thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
             thread.start()
             thread.name = 'PhaseExecutor-' + phaseName
             threads.append(thread)
@@ -417,7 +418,7 @@ class JobRunner:
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
-                            localRunNode = RunNode.RunNode(self.context, phaseIndex, phaseName, localNode)
+                            localRunNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, localNode)
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
 
@@ -428,7 +429,7 @@ class JobRunner:
                             phaseNodeFactory.putRunNode(None)
                             break
                         if self.context.runnerId == node['runnerId']:
-                            runNode = RunNode.RunNode(self.context, phaseIndex, phaseName, node)
+                            runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, node)
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
 
@@ -446,7 +447,7 @@ class JobRunner:
                     print("INFO: Execute phase:{} in current runner finished, wait other runner...\n".format(phaseName), end='')
 
                 if self.context.hasFailNodeInGlobal:
-                    self.context.serverAdapter.pushPhaseStatus(phaseName, phaseStatus, NodeStatus.failed)
+                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.failed)
                     break
 
                 if not nodesFactory.jobRunnerCount == 1:
