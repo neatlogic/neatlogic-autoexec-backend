@@ -263,12 +263,17 @@ if __name__ == "__main__":
             print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
             for i in range(10):
                 killProcesses(autoexecPids, signal.SIGTERM)
+                if len(autoexecPids) == 0:
+                    break
                 time.sleep(1)
 
-            killProcesses(autoexecPids, signal.SIGKILL)
-            time.sleep(1)
+            if len(autoexecPids) > 0:
+                killProcesses(autoexecPids, signal.SIGKILL)
 
-            killProcesses(autoexecPids, 0)
+            if len(autoexecPids) > 0:
+                time.sleep(1)
+                killProcesses(autoexecPids, 0)
+
             if len(autoexecPids) == 0:
                 serverAdapter.jobKilled()
             else:
