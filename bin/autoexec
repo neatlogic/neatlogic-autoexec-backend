@@ -136,7 +136,7 @@ def findJobProcesses(jobId):
                             f = open(entry.path + '/cmdline')
                             content = f.read()
                             if content.index(jobId) > 0 and pid != mypid:
-                                autoexecPids.append(str(pid))
+                                autoexecPids.append(pid)
                     except:
                         pass
     return autoexecPids
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         autoexecPids = findJobProcesses(args.jobid)
 
         if len(autoexecPids) > 0:
-            pidsStr = ','.join(autoexecPids)
+            pidsStr = ','.join([str(x) for x in autoexecPids])
             print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
             killProcesses(autoexecPids, signal.SIGUSR1)
 
