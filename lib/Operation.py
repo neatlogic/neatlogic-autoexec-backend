@@ -435,7 +435,7 @@ class Operation:
                 if fullPath:
                     cmd = self.pluginPath
                 else:
-                    cmd = self.pluginPath
+                    cmd = self.opName
         else:
             # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
             if self.opType == 'remote':
@@ -467,7 +467,7 @@ class Operation:
                 if fullPath:
                     cmd = self.pluginPath
                 else:
-                    cmd = self.opSubName
+                    cmd = self.opName
 
         return cmd
 
