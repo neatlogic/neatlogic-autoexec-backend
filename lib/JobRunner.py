@@ -247,15 +247,17 @@ class JobRunner:
     def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         serverAdapter = self.context.serverAdapter
         phaseStatus = self.context.phases[phaseName]
-
         try:
             self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
-                if phaseStatus.ignoreFailNodeCount > 0:
-                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.completed)
+                if phaseStatus.isAborting:
+                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.aborted)
                 else:
-                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.succeed)
+                    if phaseStatus.ignoreFailNodeCount > 0:
+                        self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.completed)
+                    else:
+                        self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.succeed)
             else:
                 self.context.hasFailNodeInGlobal = True
                 failStatus = NodeStatus.failed
