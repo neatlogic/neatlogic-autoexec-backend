@@ -25,7 +25,7 @@ class ListenWorkThread(threading.Thread):
     def __init__(self, name, runnerListener=None, jobRunner=None):
         threading.Thread.__init__(self, name=name, daemon=True)
         server = runnerListener.server
-        queue = runnerListener.queue
+        queue = runnerListener.workQueue
         context = jobRunner.context
 
         self.runnerListener = runnerListener
