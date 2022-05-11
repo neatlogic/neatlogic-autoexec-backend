@@ -175,6 +175,9 @@ class RunNode:
                 self.context.hasFailNodeInGlobal = True
             if self.killing:
                 status = NodeStatus.aborted
+        elif status == NodeStatus.ignored:
+            if self.killing:
+                status = NodeStatus.aborted
 
         self.statuses['pid'] = self.context.pid
         self.statuses['interact'] = interact
