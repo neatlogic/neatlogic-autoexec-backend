@@ -22,8 +22,14 @@ import GlobalLock
 
 
 class ListenWorkThread(threading.Thread):
-    def __init__(self, name, server, queue, context=None):
+    def __init__(self, name, runnerListener=None, jobRunner=None):
         threading.Thread.__init__(self, name=name, daemon=True)
+        server = runnerListener.server
+        queue = runnerListener.queue
+        context = jobRunner.context
+
+        self.runnerListener = runnerListener
+        self.jobRunner = jobRunner
         self.goToStop = False
         self.globalLock = GlobalLock.GlobalLock(context)
         self.context = context
@@ -62,14 +68,10 @@ class ListenWorkThread(threading.Thread):
                     elif actionData['action'] == 'golbalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
                     elif actionData['action'] == 'exit':
-                        self.globalLock.stop()
-                        self.server.shutdown()
+                        self.runnerListener.stop()
                         break
             except Exception as ex:
                 print('ERROR: Inform node status to waitInput failed, {}\n{}\n'.format(actionData, ex), end='')
-
-    def stop(self):
-        self.goToStop = True
 
     def doLock(self, lockParams, addr):
         if self.context.devMode:
@@ -80,18 +82,21 @@ class ListenWorkThread(threading.Thread):
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
-    def __init__(self, name, context=None):
+    def __init__(self, name, jobRunner=None):
         threading.Thread.__init__(self, name=name, daemon=True)
+        context = jobRunner.context
         self.goToStop = False
         self.socketPath = context.runPath + '/job.sock'
         context.initDB()
         self.context = context
         self.workQueue = queue.Queue(2048)
         self.server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.globalLock = GlobalLock.GlobalLock(context)
+
         workers = []
         self.workers = workers
         for i in range(8):
-            worker = ListenWorkThread('Listen-Worker-{}'.format(i), self.server, self.workQueue, self.context)
+            worker = ListenWorkThread('Listen-Worker-{}'.format(i), self, jobRunner)
             worker.setDaemon(True)
             worker.start()
             workers.append(worker)
@@ -131,12 +136,16 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
             for idx in range(1, workerCount*2):
                 self.workQueue.put(None)
 
-            while len(self.workers) > 0:
-                worker = self.workers[-1]
-                worker.join(3)
-                if not worker.is_alive():
-                    self.workers.pop(-1)
+            self.globalLock.stop()
+
+            # 线程是daemon，不需要等待线程退出了
+            # while len(self.workers) > 0:
+            #     worker = self.workers[-1]
+            #     worker.join(3)
+            #     if not worker.is_alive():
+            #         self.workers.pop(-1)
         except:
+            print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()))
             pass
 
 
@@ -479,7 +488,7 @@ class JobRunner:
         return lastPhase
 
     def execute(self):
-        listenThread = ListenThread('Listen-Thread', self.context)
+        listenThread = ListenThread('Listen-Thread', self)
         listenThread.start()
 
         params = self.context.params
