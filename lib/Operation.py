@@ -410,7 +410,7 @@ class Operation:
 
     def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
         cmd = None
-        if remotePath is None:
+        if remotePath is None or fullPath == False:
             remotePath = '.'
 
         if self.isScript:
