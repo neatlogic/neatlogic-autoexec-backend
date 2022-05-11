@@ -281,4 +281,4 @@ class PhaseExecutor:
         for t in killWorkers:
             t.join()
 
-        print("INFO: Try to kill job complete.\n", end='')
+        print("INFO: Try to kill phase:{} complete.\n".format(self.phaseName), end='')

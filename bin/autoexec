@@ -255,7 +255,7 @@ if __name__ == "__main__":
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         ret = 0
-        print("INFO: try to kill job:{}\n".format(args.jobid))
+        print("INFO: try to kill job:{}...\n".format(args.jobid))
         autoexecIsKilled = False
         autoexecPids = findJobProcesses(args.jobid)
         if len(autoexecPids) > 0:

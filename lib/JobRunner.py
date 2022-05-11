@@ -550,7 +550,7 @@ class JobRunner:
 
     def kill(self):
         self.context.goToStop = True
-        print("INFO: Try to kill job...\n")
+        print("INFO: Try to kill job...\n", end='')
         self.stopListen()
         self.context.close()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
@@ -558,22 +558,22 @@ class JobRunner:
             phaseStatus.isAborting = 1
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
-            print("INFO: Try to stop phase:{}...\n".format(phaseStatus.phaseName))
+            print("INFO: Try to kill phase:{}...\n".format(phaseStatus.phaseName), end='')
             if phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
         self.context.serverAdapter.jobKilled()
-        print("INFO: Job killed.\n")
+        print("INFO: Job killed.\n", end='')
 
     def pause(self):
         self.context.goToStop = True
-        print("INFO: Try to pause job...\n")
+        print("INFO: Try to pause job...\n", end='')
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():
             phaseStatus.isPausing = 1
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
-            print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName))
+            print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName), end='')
             if phaseStatus.executor is not None:
                 phaseStatus.executor.pause()
         self.context.serverAdapter.jobPaused()
-        print("INFO: Job paused.\n")
+        print("INFO: Job paused.\n", end='')
