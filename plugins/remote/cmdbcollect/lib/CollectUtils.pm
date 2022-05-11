@@ -59,6 +59,9 @@ sub getWinPs1Cmd {
 #执行powershell脚本
 sub getWinPSCmdOut {
     my ( $self, $psScript, $opts ) = @_;
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
@@ -97,6 +100,9 @@ sub getWinPSCmdOut {
 #执行powershell脚本
 sub getWinPSCmdOutLines {
     my ( $self, $psScript, $opts ) = @_;
+    if ( not defined($opts) ) {
+        $opts = {};
+    }
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
