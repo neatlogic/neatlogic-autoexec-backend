@@ -22,8 +22,13 @@ Function getProcess($PID){
         $parentPid = $wmiObj.ParentProcessId;
         $pgid = $wmiObj.SessionId;
         $cmdLine = $wmiObj.CommandLine;
-        $elapsed = (New-TimeSpan -Start $process.StartTime).TotalSeconds;
 
+		$elapsed = 0
+		$procStartTime = $process.StartTime
+		if ($procStartTime){
+			$elapsed = (New-TimeSpan -Start $process.StartTime).TotalSeconds;
+		}
+        
         [Console]::Write("$processId $parentPid $pgid $user $pcpu $memSize $processName $elapsed $cmdLine");
         Write-Output("")
     }

@@ -11,6 +11,7 @@ package WebSphereCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
+use Cwd;
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -73,7 +74,7 @@ sub getPorts {
     my $portConfXml;
     if ( -e $portConfPath ) {
         my $fileSize = -s $portConfPath;
-        my $fh = IO::File->new( $portConfPath, 'r' );
+        my $fh       = IO::File->new( $portConfPath, 'r' );
         if ( defined($fh) ) {
             $fh->read( $portConfXml, $fileSize );
         }
@@ -254,8 +255,16 @@ sub collect {
     my $appPkgTmpDir = File::Spec->canonpath("$serverRoot/temp/$nodeName/$serverName");
     $self->getApplications( $appInfo, $appPkgTmpDir );
 
-    $appInfo->{INSTALL_PATH} = $appInfo->{WAS_HOME};
-    $appInfo->{CONFIG_PATH}  = $appInfo->{CONFIG_ROOT};
+    if ( defined( $appInfo->{WAS_HOME} ) ) {
+        $appInfo->{INSTALL_PATH} = $appInfo->{WAS_HOME};
+    }
+    else {
+        my $wasHome = Cwd::abs_path( $appInfo->{CONFIG_ROOT} . '/../../../..' );
+        $appInfo->{WAS_HOME}     = $wasHome;
+        $appInfo->{INSTALL_PATH} = $wasHome;
+    }
+
+    $appInfo->{CONFIG_PATH} = $appInfo->{CONFIG_ROOT};
     return $appInfo;
 }
 

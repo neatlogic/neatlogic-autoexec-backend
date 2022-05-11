@@ -58,16 +58,23 @@ sub getWinPs1Cmd {
 
 #执行powershell脚本
 sub getWinPSCmdOut {
-    my ( $self, $psScript ) = @_;
+    my ( $self, $psScript, $opts ) = @_;
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my $cmd = qq{PowerShell -Command "$psScript"};
+    my $cmd;
     if ( $self->{debug} ) {
-        print("DEBUG: Begin execute command: $cmd\n");
+        $cmd = qq{PowerShell -Command "$psScript"};
+    }
+    else {
+        $cmd = qq{PowerShell -Command "$psScript" 2>nul};
+    }
+
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd\n");
     }
 
     my $out = `$cmd`;
@@ -89,16 +96,23 @@ sub getWinPSCmdOut {
 
 #执行powershell脚本
 sub getWinPSCmdOutLines {
-    my ( $self, $psScript ) = @_;
+    my ( $self, $psScript, $opts ) = @_;
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
     $psScript =~ s/\"/\\\"/g;
     $psScript =~ s/\&/\"\&amp;\"/g;
 
-    my $cmd = qq{PowerShell -Command "$psScript"};
+    my $cmd;
     if ( $self->{debug} ) {
-        print("DEBUG: Begin execute command: $cmd\n");
+        $cmd = qq{PowerShell -Command "$psScript"};
+    }
+    else {
+        $cmd = qq{PowerShell -Command "$psScript" 2>nul};
+    }
+
+    if ( $opts->{verbose} == 1 ) {
+        print("INFO:$cmd\n");
     }
 
     my $out = `$cmd`;

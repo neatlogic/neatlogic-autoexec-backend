@@ -72,8 +72,14 @@ sub collect {
     # Name             ID   State      Physical Path                  Bindings
     # ----             --   -----      -------------                  --------
     # Default Web Site 1    Started    %SystemDrive%\inetpub\wwwroot  http *:80:
-    my @sites         = ();
-    my $siteInfoLines = $utils->getWinPSCmdOutLines('Get-IISSite');
+    my @sites = ();
+    my ( $status, $siteInfoLines ) = $utils->getWinPSCmdOutLines('Get-IISSite');
+    if ( $status ne 0 ) {
+        print("ERROR: Powershell module IISAdministration not install.\n");
+        print("WARN: Please install by powershell command:Install-Module -Name IISAdministration -force -Scope AllUsers -AllowClobber\n");
+        return;
+    }
+
     my $siteLineCount = scalar(@$siteInfoLines);
     foreach ( my $i = 3 ; $i < $siteLineCount ; $i++ ) {
         my $line = $$siteInfoLines[$i];
