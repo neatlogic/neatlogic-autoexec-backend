@@ -638,7 +638,7 @@ class RunNode:
         if ret == 0:
             self.writeNodeLog("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
         else:
-            self.writeNodeLog("ERROR: Execute local command failed:{}\n".format(orgCmdLineHidePassword))
+            self.writeNodeLog("ERROR: Execute local command failed(exit status:{}):{}\n".format(ret, orgCmdLineHidePassword))
 
         return ret
 
@@ -702,7 +702,7 @@ class RunNode:
         if ret == 0:
             self.writeNodeLog("INFO: Execute local-remote command succeed: {}\n".format(orgCmdLineHidePassword))
         else:
-            self.writeNodeLog("ERROR: Execute local-remote command faled: {}\n".format(orgCmdLineHidePassword))
+            self.writeNodeLog("ERROR: Execute local-remote command failed(exit status:{}): {}\n".format(ret, orgCmdLineHidePassword))
 
         return ret
 
