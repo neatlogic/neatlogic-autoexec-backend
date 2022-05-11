@@ -449,7 +449,10 @@ class JobRunner:
                     print("INFO: Execute phase:{} in current runner finished, wait other runner...\n".format(phaseName), end='')
 
                 if self.context.hasFailNodeInGlobal:
-                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.failed)
+                    nodeStatus = NodeStatus.failed
+                    if phaseStatus.isAborting:
+                        nodeStatus = NodeStatus.aborted
+                    self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
                 if not nodesFactory.jobRunnerCount == 1:
