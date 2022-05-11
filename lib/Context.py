@@ -76,6 +76,8 @@ class Context(VContext.VContext):
 
         if 'tenant' in params:
             self.tenant = params['tenant']
+        if self.tenant is None:
+            self.tenant = 'none'
 
         if 'opt' in params:
             self.opt = params['opt']

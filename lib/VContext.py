@@ -27,7 +27,7 @@ class VContext:
         #self.roundCount = 0
         #self.parallelCount = 25
         self.runnerId = 1
-        self.tenant = ''
+        self.tenant = 'none'
         self.phases = {}
         self.opt = {}
         #self.arg = []
@@ -53,6 +53,8 @@ class VContext:
             self.tenant = os.getenv('tenant')
             if not self.tenant or self.tenant == '':
                 self.tenant = os.getenv('TENANT')
+        if self.tenant is None:
+            self.tenant = 'none'
 
         if 'runnerId' in passThroughEnv:
             self.runnerId = int(passThroughEnv['runnerId'])
