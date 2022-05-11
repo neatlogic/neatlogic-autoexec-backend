@@ -629,8 +629,7 @@ class RunNode:
             self.writeNodeLog(line)
 
         # 等待插件执行完成并获取进程返回值，0代表成功
-        child.wait()
-        ret = child.returncode
+        ret = child.wait()
 
         lastContent = child.stdout.read()
         if lastContent is not None:
@@ -639,7 +638,7 @@ class RunNode:
         if ret == 0:
             self.writeNodeLog("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
         else:
-            self.writeNodeLog("ERROR: Execute local command faled:{}\n".format(orgCmdLineHidePassword))
+            self.writeNodeLog("ERROR: Execute local command failed:{}\n".format(orgCmdLineHidePassword))
 
         return ret
 
@@ -694,8 +693,7 @@ class RunNode:
             self.writeNodeLog(line)
 
         # 等待插件执行完成并获取进程返回值，0代表成功
-        child.wait()
-        ret = child.returncode
+        ret = child.wait()
 
         lastContent = child.stdout.read()
         if lastContent is not None:
