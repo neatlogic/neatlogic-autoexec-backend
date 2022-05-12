@@ -14,8 +14,7 @@
         "isConst": "false",
         "required": "true"
     },
-    "option": [
-        {
+    "option": [{
             "opt": "tinput",
             "name": "普通输入",
             "help": "普通输入测试",
@@ -41,8 +40,7 @@
             "help": "单选输入测试",
             "type": "select",
             "isConst": "true",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "选择1",
                     "value": "sel1",
                     "selected": "true"
@@ -61,8 +59,7 @@
             "help": "多选输入测试",
             "type": "multiselect",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "选择1",
                     "value": "sel1"
                 },
@@ -139,8 +136,7 @@
             "validate": ""
         }
     ],
-    "output": [
-        {
+    "output": [{
             "opt": "outtext",
             "name": "普通输出1",
             "help": "普通输出测试",
@@ -149,6 +145,7 @@
         {
             "opt": "outfile",
             "name": "文件输出",
+            "defaultValue": "test.txt",
             "help": "文件输出测试",
             "type": "file"
         },
