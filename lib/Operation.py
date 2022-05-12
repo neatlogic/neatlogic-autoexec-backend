@@ -172,7 +172,6 @@ class Operation:
         opOpts = self.param['opt']
 
         for optName, optValue in opOpts.items():
-            optValue = self.resolveOptValue(optValue, refMap=refMap)
             if optName in opDesc:
                 optType = opDesc[optName]
                 if optType == 'password' and optValue[0:11] == '{ENCRYPTED}':
@@ -201,8 +200,10 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        # optValue = json.dumps(fileNamesJson, ensure_ascii=False)
-                        optValue = fileNamesJson
+                        optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                else:
+                    optValue = self.resolveOptValue(optValue, refMap=refMap)
+
                 self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
@@ -210,7 +211,6 @@ class Operation:
             argType = self.param['arg']['type']
             argValues = []
             for argValue in opArgs['values']:
-                argValue = self.resolveOptValue(argValue, refMap=refMap)
                 if(argType == 'password' and argValue[0:11] == '{ENCRYPTED}'):
                     try:
                         argValue = Utils._rc4_decrypt_hex(self.KEY, argValue[11:])
@@ -223,8 +223,9 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        # argValue = json.dumps(fileNamesJson, ensure_ascii=False)
-                        argValue = fileNamesJson
+                        argValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                else:
+                    argValue = self.resolveOptValue(argValue, refMap=refMap)
                 argValues.append(argValue)
             self.arguments = argValues
 
