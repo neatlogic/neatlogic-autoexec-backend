@@ -142,7 +142,7 @@ sub getPorts {
     $appInfo->{MON_PORT}       = $soapPort;
     $appInfo->{PORTS}          = \@ports;
 
-    my $wasType = $appInfo->{wasType};
+    my $wasType = $appInfo->{WAS_TYPE};
     if ( $wasType eq 'DMGR' ) {
         $appInfo->{PORT}     = $adminPort;
         $appInfo->{SSL_PORT} = $adminSslPort;
