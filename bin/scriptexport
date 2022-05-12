@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import base64
 import json
 import os
@@ -7,11 +10,11 @@ import argparse
 
 
 def export_json_info(args):
-    serverUser = args.u
-    serverPass = args.p
+    serverUser = args.user
+    serverPass = args.password
     tenant = args.t
     pathStr = args.dir
-    url = 'http://' + args.ip + ':' + args.port + '/develop/public/api/binary/autoexec/script/export'
+    url = 'http://' + args.host + ':' + args.port + '/develop/public/api/binary/autoexec/script/export'
     # 获取json数据
     str = serverUser + ":" + serverPass
     Authorization = "Basic " + base64.b64encode(str.encode('utf8')).decode()
@@ -104,12 +107,12 @@ def export_json_info(args):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='you should add those paramete')
-    parser.add_argument("-u", help="userName")
-    parser.add_argument("-p", help="passWord")
-    parser.add_argument("-t", help="租户 tenant")
-    parser.add_argument("-ip", help="IP")
+    parser.add_argument("-host", help="Host of autoexec api server")
     parser.add_argument("-port", help="port")
-    parser.add_argument("-dir", help="脚本导出路径")
+    parser.add_argument("-tenant", help="Tenant")
+    parser.add_argument("-user", help="username")
+    parser.add_argument("-password", help="passWord")
+    parser.add_argument("-dir", help="Script's directory")
     args = parser.parse_args()
     return args
 

@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import requests
@@ -5,10 +8,10 @@ import argparse
 
 
 def import_json_info(data_dir):
-    serverUser = args.u
-    serverPass = args.p
-    tenant = args.t
-    url = 'http://' + args.ip + ':' + args.port + '/develop/public/api/stream/autoexec/script/import/fromjson'
+    serverUser = args.user
+    serverPass = args.password
+    tenant = args.tenant
+    url = 'http://' + args.host + ':' + args.port + '/develop/public/api/stream/autoexec/script/import/fromjson'
     data_dir = args.dir
     headers = {
         'tenant': tenant,
@@ -89,12 +92,12 @@ def import_json_info(data_dir):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='you should add those paramete')
-    parser.add_argument("-u", help="userName")
-    parser.add_argument("-p", help="passWord")
-    parser.add_argument("-t", help="租户 tenant")
-    parser.add_argument("-ip", help="IP")
+    parser.add_argument("-host", help="Host of autoexec api server")
     parser.add_argument("-port", help="port")
-    parser.add_argument("-dir", help="导入脚本文件路径")
+    parser.add_argument("-tenant", help="Tenant")
+    parser.add_argument("-user", help="username")
+    parser.add_argument("-password", help="passWord")
+    parser.add_argument("-dir", help="Script's directory")
     args = parser.parse_args()
     return args
 
