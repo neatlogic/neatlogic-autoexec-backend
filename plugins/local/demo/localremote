@@ -35,11 +35,12 @@ sub main {
     );
 
     my $hasOptErr = 0;
+    my $nodeObj;
     if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
-        $node = from_json($node);
+        $nodeObj = from_json($node);
     }
 
     if ( not defined($tinput) or $tinput eq '' ) {
@@ -54,7 +55,10 @@ sub main {
     my $hasError = 0;
 
     print("=========GetOptions:\n");
-    print( "node:", to_json($node), "\n" );
+    if ( defined($nodeObj) ) {
+        print( "node:", to_json($nodeObj), "\n" );
+    }
+
     print("tinput:$tinput\n");
     print("tjson:$tjson\n");
     print("tselect:$tselect\n");
@@ -68,7 +72,7 @@ sub main {
     print("===================\n");
 
     #Connect to the node and Do some job
-    print( "INFO: Do some job to node:", to_json($node), "\n" );
+    #print( "INFO: Do some job to node:", to_json($node), "\n" );
 
     #process output
     my $out = {};
