@@ -7,6 +7,8 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
+use IO::File;
+
 use AutoExecUtils;
 use Getopt::Long;
 Getopt::Long::Configure("pass_through");
@@ -70,6 +72,12 @@ sub main {
     if ( defined($fh) ) {
         $fh->print("This a test output file.\n");
         $fh->close();
+    }
+
+    print("INFO: Sleep 5 seconds to pretend do some jobs.\n");
+    for ( my $i = 0 ; $i < 5 ; $i++ ) {
+        print("INFO: Sleep $i....\n");
+        sleep(1);
     }
 
     #Do some job

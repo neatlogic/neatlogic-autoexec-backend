@@ -63,6 +63,12 @@ sub main {
     print("tdatetime:$tdatetime\n");
     print("===================\n");
 
+    print("INFO: Sleep 5 seconds to pretend do some jobs.\n");
+    for ( my $i = 0 ; $i < 5 ; $i++ ) {
+        print("INFO: Sleep $i....\n");
+        sleep(1);
+    }
+
     #Do some job
     #process output
     my $out = {};

@@ -14,14 +14,15 @@
         "isConst": "false",
         "required": "true"
     },
-    "option": [{
+    "option": [
+        {
             "opt": "tinput",
             "name": "普通输入",
             "help": "普通输入测试",
             "type": "text",
             "isConst": "false",
             "defaultValue": "测试1",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -31,7 +32,7 @@
             "type": "json",
             "isConst": "false",
             "defaultValue": "测试1",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -40,7 +41,8 @@
             "help": "单选输入测试",
             "type": "select",
             "isConst": "true",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "选择1",
                     "value": "sel1",
                     "selected": "true"
@@ -59,7 +61,8 @@
             "help": "多选输入测试",
             "type": "multiselect",
             "isConst": "false",
-            "defaultValue": [{
+            "defaultValue": [
+                {
                     "text": "选择1",
                     "value": "sel1"
                 },
@@ -136,7 +139,8 @@
             "validate": ""
         }
     ],
-    "output": [{
+    "output": [
+        {
             "opt": "outtext",
             "name": "普通输出1",
             "help": "普通输出测试",

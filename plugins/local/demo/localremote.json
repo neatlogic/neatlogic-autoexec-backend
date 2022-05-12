@@ -14,7 +14,7 @@
             "type": "text",
             "isConst": "false",
             "defaultValue": "测试Local-Remote",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -24,7 +24,7 @@
             "type": "json",
             "isConst": "false",
             "defaultValue": "{\"name\":\"测试Local-Remote\"}",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -44,7 +44,7 @@
                     "value": "sel2"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
