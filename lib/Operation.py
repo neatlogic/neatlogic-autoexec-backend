@@ -300,7 +300,6 @@ class Operation:
             else:
                 newArgValue = None
                 opId = None
-                paramName = None
                 # 变量格式是：${opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
                 varNames = paramName.split('.', 1)
                 if len(varNames) == 2:
