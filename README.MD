@@ -6,10 +6,11 @@ autoexec是自动化runner上的backend执行工具。用于执行自动化作�
 
 ## 参数
 ```shell
-usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER]
-                [--paramsfile PARAMSFILE] [--nodesfile NODESFILE] [--force]
-                [--firstfire] [--abort] [--pause] [--register REGISTER]
-                [--cleanstatus] [--devmode] [--nofirenext]
+usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER] [--paramsfile PARAMSFILE]
+                [--nodesfile NODESFILE] [--force] [--firstfire] [--abort] [--pause]
+                [--register REGISTER] [--cleanstatus] [--purgejobdata PURGEJOBDATA] [--devmode]
+                [--nofirenext] [--passthroughenv PASSTHROUGHENV] [--phasegroups PHASEGROUPS]
+                [--phases PHASES] [--nodes NODES] [--sqlfiles SQLFILES]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -29,11 +30,48 @@ optional arguments:
   --register REGISTER, -r REGISTER
                         register all tools to tenent
   --cleanstatus, -c     clean all stats of job
+  --purgejobdata PURGEJOBDATA
+                        Job reserve days
   --devmode, -d         develope test in command line
-  --nofirenext, -e      do not fire next job phase
+  --nofirenext          do not fire next job phase
+  --passthroughenv PASSTHROUGHENV
+                        Additinal json parameter while callback to console
+  --phasegroups PHASEGROUPS
+                        Just execute specify group
+  --phases PHASES       Just execute defined phases, Example:phase1,phase2
+  --nodes NODES         Just execute defined node ids, Example:463104705880067,463104705880068
+  --sqlfiles SQLFILES   Just execute defined sql files,
+                        Example:["mydb.myuser/1.test.sql","mydb.myuser1/2.test.sql"]
 ```
 
 ## 使用
+### python3 在Linux上的安装后，更改python3位默认的python执行程序
+执行autoexec目录下的setup.sh切换python3位默认python
+```shell
+cd autoexec
+./setup.sh
+```
+### 安装python3第三方库
+```
+cd autoexec/media
+./ins-modules.sh
+```
+python3第三方库会安装到目录autoexec/plib下
+
+### 安装本地工具需要的perl的第三方库
+```shell
+cd autoexec/plugins/local/media
+./setup.sh
+```
+
+### 重新安装本地工具需要的perl的某些第三方库
+- 以安装Config-Tiny-2.28和XML-Simple-2.22.tar为例
+```shell
+cd autoexec/plugins/local/media
+./setupone.sh Config-Tiny-2.28 XML-Simple-2.22
+```
+perl第三方库会安装到autoexec/plugins/local/pllib
+
 ### 开发调试模式
 - 运行调试
 ```shell
@@ -62,6 +100,77 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 >* 如果没有设置参数paramsfile，需要指定jobid，告诉autoexec下载哪个作业的运行参数。
 >* 如果没有设置参数nodes.json，而且paramsfile中没有"runNode"属性，需要指定jobid，告诉autoexec下载哪个作业的运行的目标节点。否则，autoexec就会认为没有运行目标节点。 
 >* 如果在测试模式下或者当前进程关联了TTY，autoexec的console输出日志回直接打印到console。如果在生产模式下运行，console输出会写入日志文件中。运行目标相关的日志，不管在哪个模式下都会写入每个运行目标独立的日志文件中。
+
+- VSCode lauch.json配置样例
+```json
+{
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "autoexec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/autoexec",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+                "PASSTHROUGH_ENV": "{\"runnerId\":1}",
+            },
+            "args": ["--jobid",
+                "623789909794820",
+                "--firstfire",
+                "--execuser",
+                "fccf704231734072a1bf80d90b2d1de2",
+                "--passthroughenv",
+                "{\"runnerId\":1}",
+                "--paramsfile",
+                "${workspaceFolder}/test/params.json",
+                "--nodesfile", "${workspaceFolder}/test/nodes.json"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "autoexec-abort",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/autoexec",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+                "PASSTHROUGH_ENV": "{\"runnerId\":1}",
+            },
+            "args": ["--jobid",
+                "623907543244820",
+                "--execuser",
+                "fccf704231734072a1bf80d90b2d1de2",
+                "--passthroughenv",
+                "{\"runnerId\":1}",
+                "--abort"
+            ],
+
+            "console": "integratedTerminal"
+        }
+    ]
+}
+```
+- .vscode/settings.json配置样例
+```json
+{
+    "python.envFile": "/Users/wenhb/git/autoexec/.vscode/.env",
+    "perltidy.profile": "/Users/wenhb/git/autoexec/.vscode/.perltidyrc",
+    "perl.perlInc": [
+        ".",
+        "/Users/wenhb/git/autoexec/plugins/remote/wastool/bin",
+        "/Users/wenhb/git/autoexec/plugins/local/build/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/deploy/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/pllib/lib/perl5",
+        "/Users/wenhb/git/autoexec/plugins/local/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/cmdbcollect/lib"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive",
+}
+```
 
 ### 生产模式
 - 注册内置工具
@@ -182,6 +291,25 @@ python3 bin/autoexec --jobid "374288003424256" --cleanstatus
 
 *节点运行的output目录，保存每个节点的output文件。每个节点一个output文件，譬如:192.168.0.22-3939.json。内容样例子:*
 
+- i18n
+
+*存放cmdb自动采集的各种对象的数据结构描述
+*导入cmdb和巡检对象描述的方法
+```shell
+cd autoexec
+source ./setenv.sh
+cd autoexec/i18n/cmdbcollect
+python3 dicttool 
+```
+
+- plugins/local
+
+* 在Runner上运行的内置工具目录，一个子目录是一个工具组，工具组中存放多个工具，每个工具包括实现的程序和json描述文件
+
+- plugins/remote
+
+* 在目标OS上运行的内置工具目录，一个子目录是一个工具组，工具组中存放多个工具，每个工具包括实现的程序和json描述文件
+
 ```json
 {
     "localdemo": {
@@ -223,109 +351,123 @@ python3 bin/autoexec --jobid "374288003424256" --cleanstatus
 
 ```json
 {
-        "jobId": "360782453596160",
-        "preJobId": "156",
-        "parallel": 10,
-        "tenant": "develop",
-
-
-        "passThroughEnv": {
-                "stepId": "353",
-                "preStepId": "353"
-        },
-
-        "arg": {
-                "fetchfile": "testfile"
-        },
-
-        "runFlow": [{
-                        "pre": [{
-                                "opId": "localdemo",
-                                "isScript:": 0,
-                                "scriptId": "",
-                                "opName": "localdemo",
-                                "opType": "local",
-                                "failIgnore": false,
-                                "arg": {
-                                        "tinput": "xxxx",
-                                        "tselect": "yyyy",
-                                        "tpassword": "{RC4}xxxxxxx",
-                                        "tfile": "${fetchfile}"
-                                },
-
-                                "desc": {
-                                        "tinput": "input",
-                                        "tselect": "input",
-                                        "tpassword": "password",
-                                        "tfile": "input"
-                                },
-                                "output": {
-                                        "outtext": "text",
-                                        "outfile": "input"
-                                }
-                        }]
+    "jobId": 624490098515988,
+    "roundCount": 64,
+    "opt": {},
+    "runFlow": [
+        {
+            "execStrategy": "oneShot",
+            "groupNo": 0,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098515994",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_local"
                 },
                 {
-                        "run": [{
-                                        "opId": "localremotedemo_tttt",
-                                        "opName": "localremotedemo",
-                                        "opType": "localremote",
-                                        "failIgnore": false,
-                                        "arg": {
-                                                "tinput": "${pre.localdemo.outtext}",
-                                                "tselect": "yyyy",
-                                                "tpassword": "{RC4}xxxxxxx",
-                                                "tfile": "testfile"
-                                        },
-
-                                        "desc": {
-                                                "tinput": "input",
-                                                "tselect": "input",
-                                                "tpassword": "password",
-                                                "tfile": "input"
-                                        },
-
-                                        "output": {
-                                                "outtext": "text",
-                                                "outfile": "input"
-                                        }
-                                },
-                                {
-                                        "opId": "remotedemo_34234",
-                                        "opName": "remotedemo",
-                                        "opType": "remote",
-                                        "interpreter": "perl",
-                                        "failIgnore": false,
-                                        "arg": {
-                                                "tinput": "${run.localremotedemo_tttt.outtext}",
-                                                "tselect": "yyyy",
-                                                "tpassword": "{RC4}xxxxxxx",
-                                                "tfile": "testfile"
-                                        },
-
-                                        "desc": {
-                                                "tinput": "input",
-                                                "tselect": "input",
-                                                "tpassword": "password",
-                                                "tfile": "input"
-                                        },
-                                        "output": {
-                                                "outtext": "text",
-                                                "outfile": "input"
-                                        }
-                                }
-                        ]
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时_target",
+                            "opType": "target",
+                            "isScript": 1,
+                            "opId": "shell倒计时_target_624490098515998",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_target"
                 }
-        ]
+            ]
+        },
+        {
+            "execStrategy": "grayScale",
+            "groupNo": 1,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098516001",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "execRound": "first",
+                    "phaseName": "grayscale_local"
+                },
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时_target",
+                            "opType": "target",
+                            "isScript": 1,
+                            "opId": "shell倒计时_target_624490098516163",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "grayscale_target"
+                }
+            ]
+        },
+        {
+            "execStrategy": "oneShot",
+            "groupNo": 2,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098516166",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_local2"
+                }
+            ]
+        }
+    ],
+    "arg": {},
+    "execUser": "system",
+    "tenant": "develop"
 }
 ```
 
 说明:
 
 - "jobId": 作业Id，如果定义的跟autoexec的命令行参数--jobid不一致，会强行改成一致。
-- "preJobId": 前一个作业的Id，用于在ITSM流程串接多个作业时传入，会在callback时回传到控制后台。
+- "roundCount": 分组运行分组的数量
+- "preJobId": 前一个作业的Id，用于在ITSM流程串接多个作业时传入，会在callback时回传到控制后台。(deprecated)
 - "runNode":如果含有此属性，运行目标就以此为准，autoexec不会再调用接口获取运行需要的目标节点。
-- "arg": 整个作业的输入参数列表，结构是key value结构
+- "opt": 整个作业的输入参数列表，结构是key value结构
 - "runFlow": 数组结构，包括多个运行组，一个数组元素是一个运行组，autoexec会按顺序执行运行组。运行组是key value结构，key是运行阶段（phase）的名称，运行阶段内容由多个操作组成的数组。一个运行组内的多个阶段会并发运行。
 - 操作内的参数"isScript": 表示此操作是自定义脚本，如果isScript是1，那么必须有另外一个参数"scriptId"给出script的Id，这样autoexec才能根据scriptId到控制端下载脚本。
 

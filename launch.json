@@ -1,7 +1,0 @@
-{
-    "configurations": [{
-        "env": {
-            "PYTHONPATH": "${workspaceFolder}/test:${workspaceFolder}/plugins/local/cmdbclollect/lib:${workspaceFolder}/plugins/local/lib:${workspaceFolder}/plugins/remote/cmdbclollect/lib:${workspaceFolder}/plugins/remote/lib:${workspaceFolder}/lib:${workspaceFolder}/plib"
-        }
-    }]
-}
