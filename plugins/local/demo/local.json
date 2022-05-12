@@ -154,7 +154,7 @@
             "opt": "outcsv",
             "name": "csv输出",
             "help": "csv输出测试",
-            "type": "csv"
+            "type": "text"
         },
         {
             "opt": "outpassword",
