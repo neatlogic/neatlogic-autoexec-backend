@@ -68,7 +68,7 @@ sub main {
     print("tdatetime:$tdatetime\n");
     print("===================\n");
 
-    my $fh = IO::File(">testfile.txt");
+    my $fh = IO::File->new(">testfile.txt");
     if ( defined($fh) ) {
         $fh->print("This a test output file.\n");
         $fh->close();
