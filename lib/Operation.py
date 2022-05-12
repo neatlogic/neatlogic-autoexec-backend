@@ -308,9 +308,9 @@ class Operation:
                 opId = None
                 # 变量格式是：${opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
                 varNames = paramName.split('.', 1)
-                if len(varNames) == 2:
-                    opId = varNames[0]
-                    paramName = varNames[1]
+                if len(varNames) == 3:
+                    opId = varNames[1]
+                    paramName = varNames[2]
 
                     if opId in refMap:
                         paramMap = refMap[opId]

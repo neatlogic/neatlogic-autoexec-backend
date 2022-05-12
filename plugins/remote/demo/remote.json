@@ -40,18 +40,19 @@
             "name": "单选输入",
             "help": "单选输入测试",
             "type": "select",
-            "isConst": "false",
+            "isConst": "true",
             "defaultValue": [
                 {
                     "text": "选择1",
-                    "value": "sel1"
+                    "value": "sel1",
+                    "selected": "true"
                 },
                 {
                     "text": "选择2",
                     "value": "sel2"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -74,7 +75,7 @@
                     "value": "sel3"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -84,7 +85,7 @@
             "type": "password",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -94,7 +95,7 @@
             "type": "file",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -104,7 +105,7 @@
             "type": "node",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -114,7 +115,7 @@
             "type": "date",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -124,7 +125,7 @@
             "type": "time",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -134,7 +135,7 @@
             "type": "datetime",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         }
     ],

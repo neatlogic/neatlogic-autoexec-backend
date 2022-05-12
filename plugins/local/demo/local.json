@@ -13,7 +13,7 @@
             "help": "普通输入测试",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "测试1",
+            "defaultValue": "测试-Local",
             "required": "true",
             "validate": ""
         },
@@ -23,7 +23,7 @@
             "help": "json输入测试",
             "type": "json",
             "isConst": "false",
-            "defaultValue": "测试1",
+            "defaultValue": "{\"name\":\"测试-Local\"}",
             "required": "true",
             "validate": ""
         },
@@ -32,18 +32,19 @@
             "name": "单选输入",
             "help": "单选输入测试",
             "type": "select",
-            "isConst": "false",
+            "isConst": "true",
             "defaultValue": [
                 {
                     "text": "选择1",
-                    "value": "sel1"
+                    "value": "sel1",
+                    "selected": "true"
                 },
                 {
                     "text": "选择2",
                     "value": "sel2"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -66,7 +67,7 @@
                     "value": "sel3"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -75,8 +76,8 @@
             "help": "密码输入测试",
             "type": "password",
             "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
+            "defaultValue": "local-password",
+            "required": "false",
             "validate": ""
         },
         {
@@ -86,7 +87,7 @@
             "type": "file",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -96,7 +97,7 @@
             "type": "node",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -106,7 +107,7 @@
             "type": "date",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -116,7 +117,7 @@
             "type": "time",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -126,7 +127,7 @@
             "type": "datetime",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         }
     ],

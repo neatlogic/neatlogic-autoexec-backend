@@ -1,6 +1,6 @@
 {
-    "opDesc": "演示Local",
-    "opType": "local",
+    "opDesc": "演示LocalRemote",
+    "opType": "localremote",
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
@@ -13,7 +13,7 @@
             "help": "普通输入测试",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "测试1",
+            "defaultValue": "测试Local-Remote",
             "required": "true",
             "validate": ""
         },
@@ -23,7 +23,7 @@
             "help": "json输入测试",
             "type": "json",
             "isConst": "false",
-            "defaultValue": "测试1",
+            "defaultValue": "{\"name\":\"测试Local-Remote\"}",
             "required": "true",
             "validate": ""
         },
@@ -36,7 +36,8 @@
             "defaultValue": [
                 {
                     "text": "选择1",
-                    "value": "sel1"
+                    "value": "sel1",
+                    "selected": "true"
                 },
                 {
                     "text": "选择2",
@@ -66,7 +67,7 @@
                     "value": "sel3"
                 }
             ],
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -76,7 +77,7 @@
             "type": "password",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -86,7 +87,7 @@
             "type": "file",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -96,7 +97,7 @@
             "type": "node",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -106,7 +107,7 @@
             "type": "date",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -116,7 +117,7 @@
             "type": "time",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         },
         {
@@ -126,7 +127,7 @@
             "type": "datetime",
             "isConst": "false",
             "defaultValue": "",
-            "required": "true",
+            "required": "false",
             "validate": ""
         }
     ],
