@@ -281,7 +281,7 @@ class Operation:
             serverAdapter.fetchScript(savePath, opId)
 
     def resolveOptValue(self, optValue, refMap=None):
-        if not isinstance(optValue, str):
+        if optValue is None and not isinstance(optValue, str) or optValue == '':
             return optValue
 
         if not refMap:
@@ -306,8 +306,8 @@ class Operation:
             else:
                 newVal = None
                 opId = None
-                # 变量格式是：${opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
-                varNames = paramName.split('.', 1)
+                # 变量格式是：${phaseName.opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
+                varNames = paramName.split('.')
                 if len(varNames) == 3:
                     opId = varNames[1]
                     paramName = varNames[2]
