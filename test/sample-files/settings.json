@@ -1,0 +1,15 @@
+{
+    "python.envFile": "/Users/wenhb/git/autoexec/.vscode/.env",
+    "perltidy.profile": "/Users/wenhb/git/autoexec/.vscode/.perltidyrc",
+    "perl.perlInc": [
+        ".",
+        "/Users/wenhb/git/autoexec/plugins/remote/wastool/bin",
+        "/Users/wenhb/git/autoexec/plugins/local/build/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/deploy/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/pllib/lib/perl5",
+        "/Users/wenhb/git/autoexec/plugins/local/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/cmdbcollect/lib"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive",
+}

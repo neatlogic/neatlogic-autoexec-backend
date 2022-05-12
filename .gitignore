@@ -1,7 +1,7 @@
 *.pyc
 logs/*
-test/*
 data/*
+test/*
 tmp/*
 plib/*
 .vscode/*

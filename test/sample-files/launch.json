@@ -1,0 +1,1326 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "autoexec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/autoexec",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+            },
+            "args": ["--jobid",
+                "623789909794820",
+                "--firstfire",
+                "--execuser",
+                "fccf704231734072a1bf80d90b2d1de2",
+                "--passthroughenv",
+                "{\"runnerId\":1}",
+                "--paramsfile",
+                "${workspaceFolder}/test/params.json",
+                "--nodesfile", "${workspaceFolder}/test/nodes.json"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "autoexec-abort",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/autoexec",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+            },
+            "args": ["--jobid",
+                "623907543244820",
+                "--execuser",
+                "fccf704231734072a1bf80d90b2d1de2",
+                "--passthroughenv",
+                "{\"runnerId\":1}",
+                "--abort"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "pytest",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/test.py",
+
+            "args": [],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "myperltest",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/test.pl",
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "dbconntest",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/dbconntest",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--node",
+                "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "bin/dbconntest",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/dbconntest",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--node",
+                "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "dpsqlimport",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/dpsqlimport",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "dpsqlexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/dpsqlexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--maxparall",
+                "4",
+                "--dryrun",
+                "0",
+                "--autocommit",
+                "1",
+                "--rollback",
+                "0",
+                "--filter",
+                "",
+                "--index",
+                ""
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "sqlimport",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/sqlimport",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--node",
+                "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+                "--sqlfilejson",
+                "[\"1.test.sql\",\"1.test1.sql\",\"2.test.sql\"]"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "sqlexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/sqlexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--node",
+                "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+                "--sqlfilejson",
+                "[\"1.test.sql\",\"1.test1.sql\",\"2.test.sql\"]"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "autocfg",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/autocfg",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "verget",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/verget",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--repotype",
+                "git",
+                "--repo",
+                "http://192.168.0.82:7070/luoyu/webTest.git",
+                "--trunk",
+                "master",
+                "--branch",
+                "2.0.0",
+                "--tag",
+                "V2.0.0",
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "verchangeck",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/verchangeck",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "versync",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/versync",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "versyncck",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/versyncck",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "verchangeck",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/versyncck",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "vercommit",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/vercommit",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--username",
+                "wenhb",
+                "--password",
+                "{ENCRYPTED}08a70bdc3298324d9785"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "convmvdir",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/convmvdir",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--from",
+                "GBK",
+                "--to",
+                "UTF-8"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "cptimestamp",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/cptimestamp",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--src",
+                "workspace/build",
+                "--dest",
+                "workspace/project"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "localexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/localexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--basedir",
+                "workspace",
+                "--cmd",
+                "echo hello && pwd && ls -l"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "localscript",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/localscript",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--basedir",
+                "workspace",
+                "--script",
+                "{\"interpreter\":\"bash\",\"content\":\"echo $*\",\"arguments\":\"arg1 arg2\"}"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "compile",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/compile",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "compileinc",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/compileinc",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--tag4cmpto",
+                "master"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "compilepatch",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/compilepatch",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--tag4cmpto",
+                "master"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "getresnexus",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/getresnexus",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "--baseurl",
+                "http://repo.techsure.cn:9008/nexus/",
+                "--user",
+                "deployment",
+                "--password",
+                "sure908",
+                "--repo",
+                "techsure-release",
+                "--group",
+                "com.techsure",
+                "--artifact",
+                "tagent",
+                "--ver",
+                "1.2.2.1",
+                "--ext",
+                "jar",
+                "--saveto",
+                ".",
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "release",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/release",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [
+                "target/*.war",
+                "target/EmpManager2:test/"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "rel2env",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/rel2env",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "relsync2env",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/relsync2env",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "relsync2mirror",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/relsync2mirror",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+            },
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "syncdir",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/syncdir",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--src",
+                "workspace/project",
+                "--dest",
+                "workspace/build"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "sync2remote",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/sync2remote",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--dest",
+                "/tmp/mytest"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "syncmirror2remote",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/syncmirror2remote",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--dest",
+                "/tmp/mytest"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "scpexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/scpexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "app/*",
+                "/tmp/mytest"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "sshexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/sshexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "ls -l /tmp"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "sshscript",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/sshscript",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "--script",
+                "{\"interpreter\":\"bash\",\"content\":\"echo $*\",\"arguments\":\"arg1 arg2\"}"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "tarcopy",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/tarcopy",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "app/*",
+                "/tmp/mytest/"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "tagentcopy",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/tagentcopy",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "app/*",
+                "/tmp/mytest"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "tagentexec",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/tagentexec",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "ls -l /app"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "tagentscript",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/tagentscript",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
+            },
+            "args": [
+                "--verbose",
+                "1",
+                "--script",
+                "{\"interpreter\":\"bash\",\"content\":\"echo $*\",\"arguments\":\"arg1 arg2\"}"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "checksvc",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/checksvc",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "mysys/mymodule/SIT",
+                "_DEPLOY_ID_PATH": "0/0/0",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1",
+                "IS_RELEASE": "1",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
+            },
+            "args": [
+                "--timeout",
+                "10",
+                "http://192.168.0.88",
+                "192.168.0.88:80"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        }
+    ]
+}

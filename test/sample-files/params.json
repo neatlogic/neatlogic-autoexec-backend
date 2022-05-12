@@ -1,0 +1,109 @@
+{
+    "jobId": 624490098515988,
+    "roundCount": 64,
+    "opt": {},
+    "runFlow": [
+        {
+            "execStrategy": "oneShot",
+            "groupNo": 0,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098515994",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_local"
+                },
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时_target",
+                            "opType": "target",
+                            "isScript": 1,
+                            "opId": "shell倒计时_target_624490098515998",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_target"
+                }
+            ]
+        },
+        {
+            "execStrategy": "grayScale",
+            "groupNo": 1,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098516001",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "execRound": "first",
+                    "phaseName": "grayscale_local"
+                },
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时_target",
+                            "opType": "target",
+                            "isScript": 1,
+                            "opId": "shell倒计时_target_624490098516163",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "grayscale_target"
+                }
+            ]
+        },
+        {
+            "execStrategy": "oneShot",
+            "groupNo": 2,
+            "phases": [
+                {
+                    "operations": [
+                        {
+                            "output": {},
+                            "opt": {},
+                            "opName": "shell倒计时",
+                            "opType": "runner",
+                            "isScript": 1,
+                            "opId": "shell倒计时_624490098516166",
+                            "interpreter": "bash",
+                            "failIgnore": 1,
+                            "desc": {}
+                        }
+                    ],
+                    "phaseName": "oneshot_local2"
+                }
+            ]
+        }
+    ],
+    "arg": {},
+    "execUser": "system",
+    "tenant": "develop"
+}

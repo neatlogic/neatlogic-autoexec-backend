@@ -1,0 +1,3 @@
+{"jobRunnerIds":[1],"localRunnerId":1,"totalCount":2}
+{"nodeName":"Mysql","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":493223784800258,"port":3306,"host":"192.168.0.101","runnerId":1,"nodeType":"MySQL","protocolPort":22,"username":"root"}
+{"nodeName":"Mysql","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":493223793188865,"port":3306,"host":"192.168.0.21","runnerId":1,"nodeType":"MySQL","protocolPort":22,"username":"root"}
