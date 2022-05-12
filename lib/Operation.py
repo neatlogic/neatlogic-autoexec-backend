@@ -27,6 +27,9 @@ class Operation:
         self.interpreter = ''
         self.lockedFDs = []
 
+        self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "script": 1, "textarea": 1}
+        self.PWD_TYPES = {"password": 1, "account": 1}
+
         self.opId = param['opId']
 
         opFullName = param['opName']
@@ -198,7 +201,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                        # optValue = json.dumps(fileNamesJson, ensure_ascii=False)
                         optValue = fileNamesJson
                 self.options[optName] = optValue
 
@@ -220,7 +223,7 @@ class Operation:
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
-                        #argValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                        # argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                         argValue = fileNamesJson
                 argValues.append(argValue)
             self.arguments = argValues
@@ -284,21 +287,24 @@ class Operation:
         if not refMap:
             refMap = self.node.output
 
-        # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
-        matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
-        if matchObj:
-            paramName = matchObj.group(1)
+        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', optValue)
+        for matchObj in matchObjs:
+            # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
+            #matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
+            exp = matchObj[0]
+            paramName = matchObj[1]
+            val = None
 
             nativeRefMap = self.context.opt
             globalOptMap = self.context.globalOpt
             if paramName in nativeRefMap:
-                optValue = nativeRefMap[paramName]
+                val = nativeRefMap[paramName]
             elif paramName in globalOptMap:
-                optValue = globalOptMap[paramName]
+                val = globalOptMap[paramName]
             elif paramName in os.environ:
-                optValue = os.environ[paramName]
+                val = os.environ[paramName]
             else:
-                newArgValue = None
+                newVal = None
                 opId = None
                 # 变量格式是：${opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
                 varNames = paramName.split('.', 1)
@@ -309,12 +315,15 @@ class Operation:
                     if opId in refMap:
                         paramMap = refMap[opId]
                         if paramName in paramMap:
-                            newArgValue = paramMap[paramName]
+                            newVal = paramMap[paramName]
 
-                if newArgValue is not None:
-                    optValue = newArgValue
+                if newVal is not None:
+                    val = newVal
                 else:
                     raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
+
+            if val is not None:
+                optValue = optValue.replace(exp, val)
 
         return optValue
 
@@ -323,15 +332,13 @@ class Operation:
         if 'arg' in self.param and 'type' in self.param['arg']:
             argDesc = self.param['arg']['type'].lower()
 
-        if noPassword and argDesc == 'password' or argDesc == 'account':
+        if noPassword and argDesc in self.PWD_TYPES:
             for argValue in self.arguments:
                 cmd = cmd + ' "******"'
-        elif argDesc in ('node', 'json', 'file', 'multiselect'):
+        elif argDesc in self.JSON_TYPES:
             for argValue in self.arguments:
                 jsonStr = jsonStr.dumps(argValue)
                 if (osType == 'windows'):
-                    #jsonStr = jsonStr.replace('\\', '\\\\')
-                    #jsonStr = jsonStr.replace('"', '\\"')
                     jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
                     jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                     jsonStr = re.sub(r'(?<!\\)"', '\\"', jsonStr)
@@ -339,11 +346,9 @@ class Operation:
                 else:
                     jsonStr = jsonStr.replace("'", "'\\''")
                     cmd = cmd + " '{}'".format(jsonStr)
-        elif argDesc == 'password' or argDesc == 'account':
+        elif argDesc in self.PWD_TYPES:
             for argValue in self.arguments:
                 if osType == 'windows':
-                    #argValue = argValue.replace('\\', '\\\\')
-                    #argValue = argValue.replace('"', '\\"')
                     argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
                     argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
                     cmd = cmd + ' "{}"'.format(argValue)
@@ -352,8 +357,6 @@ class Operation:
                     cmd = cmd + " '{}'".format(argValue)
         else:
             for argValue in self.arguments:
-                #argValue = argValue.replace('\\', '\\\\')
-                #argValue = argValue.replace('"', '\\"')
                 argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
                 argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
                 cmd = cmd + ' "{}"'.format(argValue)
@@ -369,24 +372,20 @@ class Operation:
             if 'desc' in self.param and k in self.param['desc']:
                 kDesc = self.param['desc'][k].lower()
 
-            if noPassword and (kDesc == 'password' or kDesc == 'account' or k.endswith('account')):
+            if noPassword and (kDesc in self.PWD_TYPES or k.endswith('account')):
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
-                if kDesc in ('node', 'json', 'file', 'multiselect'):
+                if kDesc in self.JSON_TYPES:
                     jsonStr = json.dumps(v)
                     if osType == 'windows':
-                        #jsonStr = jsonStr.replace('\\', '\\\\')
-                        #jsonStr = jsonStr.replace('"', '\\"')
                         jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
                         jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
                     else:
                         jsonStr = jsonStr.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, jsonStr)
-                elif kDesc == 'password' or kDesc == 'account' or k.endswith('account'):
+                elif kDesc in self.PWD_TYPES or k.endswith('account'):
                     if osType == 'windows':
-                        #v = v.replace('\\', '\\\\')
-                        #v = v.replace('"', '\\"')
                         v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
                         v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                         cmd = cmd + ' --{} "{}" '.format(k, v)
@@ -394,14 +393,10 @@ class Operation:
                         v = v.replace("'", "'\\''")
                         cmd = cmd + " --{} '{}' ".format(k, v)
                 elif len(k) == 1:
-                    #v = v.replace('\\', '\\\\')
-                    #v = v.replace('"', '\\"')
                     v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
                     v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                     cmd = cmd + ' -{} "{}" '.format(k, v)
                 else:
-                    #v = v.replace('\\', '\\\\')
-                    #v = v.replace('"', '\\"')
                     v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
                     v = re.sub(r'(?<=\\\\)+"', '\\"', v)
                     cmd = cmd + ' --{} "{}" '.format(k, v)

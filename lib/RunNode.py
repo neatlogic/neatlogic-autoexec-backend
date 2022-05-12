@@ -76,7 +76,7 @@ class RunNode:
         self.runPath = context.runPath
         self.node = node
         self.warnCount = 0
-        self.killing = False
+        self.isAborting = False
 
         self.tagent = None
         self.childPid = None
@@ -173,10 +173,10 @@ class RunNode:
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             if op is None or not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
-            if self.killing:
+            if self.isAborting:
                 status = NodeStatus.aborted
         elif status == NodeStatus.ignored:
-            if self.killing:
+            if self.isAborting:
                 status = NodeStatus.aborted
 
         self.statuses['pid'] = self.context.pid
@@ -1028,7 +1028,7 @@ class RunNode:
         self.writeNodeLog("INFO: Try to puase node.\n")
 
     def kill(self):
-        self.killing = True
+        self.isAborting = True
         if self.childPid is not None:
             pid = self.childPid
 
