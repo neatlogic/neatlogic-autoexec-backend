@@ -7,6 +7,7 @@ import os
 import sys
 import traceback
 import threading
+import subprocess
 
 import io
 import shutil
@@ -123,22 +124,42 @@ def registerTools(serverAdapter, pluginsPath, opType):
 def findJobProcesses(jobId):
     mypid = os.getpid()
     autoexecPids = []
-    with os.scandir('/proc') as it:
-        for entry in it:
-            if not entry.name.startswith('.') and entry.is_dir():
-                if re.match('^\d+$', entry.name):
-                    pid = int(entry.name)
-                    try:
-                        cf = open(entry.path + '/comm')
-                        comm = cf.read()
-                        comm = comm.strip()
-                        if comm == 'autoexec':
-                            f = open(entry.path + '/cmdline')
-                            content = f.read()
-                            if content.index(jobId) > 0 and pid != mypid:
-                                autoexecPids.append(pid)
-                    except:
-                        pass
+    if os.path.exists('/proc'):
+        with os.scandir('/proc') as it:
+            for entry in it:
+                if not entry.name.startswith('.') and entry.is_dir():
+                    if re.match('^\d+$', entry.name):
+                        pid = int(entry.name)
+                        try:
+                            cf = open(entry.path + '/comm')
+                            comm = cf.read()
+                            comm = comm.strip()
+                            if comm == 'autoexec':
+                                f = open(entry.path + '/cmdline')
+                                content = f.read()
+                                if content.index(jobId) > 0 and pid != mypid:
+                                    autoexecPids.append(pid)
+                        except:
+                            pass
+    else:
+        # 为了便于在MacOS上测试
+        jobId = jobId.encode('UTF-8')
+        result = subprocess.Popen('ps auxww',  shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        while True:
+            # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
+            line = result.stdout.readline(4096)
+            if not line:
+                break
+            try:
+                if line.index(b'autoexec') > 0 and line.index(jobId) > 0:
+                    lineParts = re.split('\s+', line, 2)
+                    pid = int(lineParts[1])
+                    if pid != mypid:
+                        autoexecPids.append(pid)
+            except:
+                pass
+        result.wait()
+
     return autoexecPids
 
 
