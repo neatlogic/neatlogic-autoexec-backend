@@ -340,7 +340,7 @@ class Operation:
                 cmd = cmd + ' "******"'
         elif argDesc in self.JSON_TYPES:
             for argValue in self.arguments:
-                jsonStr = jsonStr.dumps(argValue)
+                jsonStr = argValue
                 if (osType == 'windows'):
                     jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
                     jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
@@ -379,7 +379,7 @@ class Operation:
                 cmd = cmd + ' --{} "{}" '.format(k, '******')
             else:
                 if kDesc in self.JSON_TYPES:
-                    jsonStr = json.dumps(v)
+                    jsonStr = v
                     if osType == 'windows':
                         jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
                         jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
