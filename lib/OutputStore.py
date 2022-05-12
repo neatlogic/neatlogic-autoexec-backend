@@ -16,7 +16,7 @@ class OutputStore:
         self.db = context.db
         self.node = node
         self.outputFile = None
-        if 'port' in self.node:
+        if node is not None and 'port' in node:
             self.port = node['port']
         else:
             self.port = ''
@@ -117,8 +117,8 @@ class OutputStore:
         status = {}
         try:
             pk = {'jobId': self.jobId}
-            collection.remove(pk)
+            collection.delete_many(pk)
         except Exception as ex:
-            raise AutoExecError.AutoExecError('Can not dele status for job:{}\n'.format(self.jobId))
+            raise AutoExecError.AutoExecError("Can not delete status for job:{}\n{}\n".format(self.jobId, ex))
 
         return status

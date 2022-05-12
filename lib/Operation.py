@@ -281,8 +281,11 @@ class Operation:
             serverAdapter.fetchScript(savePath, opId)
 
     def resolveOptValue(self, optValue, refMap=None):
-        if optValue is None and not isinstance(optValue, str) or optValue == '':
+        if optValue is None or optValue == '':
             return optValue
+
+        if not isinstance(optValue, str):
+            optValue = json.dumps(optValue, ensure_ascii=False)
 
         if not refMap:
             refMap = self.node.output

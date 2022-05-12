@@ -332,11 +332,10 @@ class RunNode:
             # 如果本地output文件不存在则从mongodb加载
             self.output = self.outputStore.loadOutput()
 
-        # 加载local节点的output
-        # TODO: 在不允许local和remote混合在一个阶段的情况应该是不需要用local的output update节点的output了
-        #localOutput = self._getLocalOutput()
-        # if localOutput is not None:
-        #    self.output.update(localOutput)
+        # 为了让remote的节点能够引用到local输出的参数，需要加载local节点的output
+        localOutput = self._getLocalOutput()
+        if localOutput is not None:
+            self.output.update(localOutput)
 
     def _saveOutput(self):
         if self.output:
