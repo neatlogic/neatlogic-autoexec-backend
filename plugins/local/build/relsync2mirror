@@ -184,8 +184,10 @@ sub main {
     my $mirrorLock  = $lock->lockMirror($DeployLock::WRITE);
 
     END {
-        $lock->unlockMirror($mirrorLock);
-        $lock->unlockWorkspace($spaceLockId);
+        if ( defined($lock) ) {
+            $lock->unlockMirror($mirrorLock);
+            $lock->unlockWorkspace($spaceLockId);
+        }
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName(mirror)...\n");

@@ -153,7 +153,9 @@ sub main {
     my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
 
     END {
-        $lock->unlockEnvApp($appLockId);
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($appLockId);
+        }
     }
 
     my $verDiffPath = "$verPath.ins/$insName";

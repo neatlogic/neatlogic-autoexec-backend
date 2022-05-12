@@ -78,7 +78,9 @@ sub main {
     my $appLockId = $lock->lockEnvApp($DeployLock::READ);
 
     END {
-        $lock->unlockEnvApp($appLockId);
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($appLockId);
+        }
     }
 
     my $cmd = "sudo docker build -t $registry/$project/$image:$tagname $distDir/app";

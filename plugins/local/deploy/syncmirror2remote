@@ -152,7 +152,9 @@ sub main {
     my $mirrorLockId = $lock->lockMirror($DeployLock::WRITE);
 
     END {
-        $lock->unlockMirror($mirrorLockId);
+        if ( defined($lock) ) {
+            $lock->unlockMirror($mirrorLockId);
+        }
     }
 
     my $insDiffPath = "$verPath.ins";

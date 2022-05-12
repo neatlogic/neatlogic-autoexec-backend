@@ -183,9 +183,11 @@ sub main {
     my $sqlLockId   = $lock->lockEnvSql($DeployLock::WRITE);
 
     END {
-        $lock->unlockEnvSql($sqlLockId);
-        $lock->unlockEnvApp($appLockId);
-        $lock->unlockWorkspace($spaceLockId);
+        if ( defined($lock) ) {
+            $lock->unlockEnvSql($sqlLockId);
+            $lock->unlockEnvApp($appLockId);
+            $lock->unlockWorkspace($spaceLockId);
+        }
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");

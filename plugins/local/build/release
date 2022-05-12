@@ -116,8 +116,10 @@ sub main {
     my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
 
     END {
-        $lock->unlockBuild($buildLock);
-        $lock->unlockWorkspace($spaceLockId);
+        if ( defined($lock) ) {
+            $lock->unlockBuild($buildLock);
+            $lock->unlockWorkspace($spaceLockId);
+        }
     }
 
     my $destDir = "$releasePath/app";

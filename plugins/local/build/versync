@@ -79,7 +79,9 @@ sub main {
     my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
 
     END {
-        $lock->unlockWorkspace($spaceLockId);
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
     }
 
     my $namePath      = $buildEnv->{NAME_PATH};

@@ -146,7 +146,9 @@ sub main {
     my $buildLock = $lock->lockBuild($DeployLock::WRITE);
 
     END {
-        $lock->unlockBuild($buildLock);
+        if ( defined($lock) ) {
+            $lock->unlockBuild($buildLock);
+        }
     }
 
     my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );

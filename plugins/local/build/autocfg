@@ -126,8 +126,10 @@ sub main {
     my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
 
     END {
-        $lock->unlockEnvApp($appLockId);
-        $lock->unlockEnvSql($sqlLockId);
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($appLockId);
+            $lock->unlockEnvSql($sqlLockId);
+        }
     }
 
     my $isFail = AutoCfg::config( $buildEnv, \@cfgFiles, $version, $charset, $followZip, $doClean, $followTar, $checkOrg, $pureDir, $md5Check );
