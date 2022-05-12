@@ -72,6 +72,12 @@ cd autoexec/plugins/local/media
 ```
 perl第三方库会安装到autoexec/plugins/local/pllib
 
+### VSCode设置
+- 设置.vscode/settings.json（参考test/examples-files/settings.json)
+- 设置.vscode/launch.json (用python和perl的单步调试，参考test/examples-files/launch.json))
+- 设置python环境变量（参考test/examples-files/.penv，此文件会被settings.json引用）
+- 需要把上述三个文件拷贝到工程的.vscode目录下，根据实际目录进行修改
+
 ### 开发调试模式
 - 运行调试
 ```shell
