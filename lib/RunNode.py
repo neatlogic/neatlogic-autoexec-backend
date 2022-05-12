@@ -795,7 +795,11 @@ class RunNode:
                                 outFileName = os.path.basename(outFilePath)
                                 savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
                                 outputStatus = tagent.download(self.username, '{}/{}'.format(remotePath, outFilePath), savePath)
-                                opOutput = self.output[op.opId]
+
+                                opOutput = self.output.get(op.opId)
+                                if opOutput is None:
+                                    break
+
                                 opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
 
                                 if outputStatus != 0:
@@ -985,12 +989,15 @@ class RunNode:
                                 opFileOutRelDir = self._ensureOpFileOutputDir(op)
 
                             for outFileKey, outFilePath in outFileMap.items():
+                                opOutput = self.output.get(op.opId)
+                                if opOutput is None:
+                                    break
+
                                 try:
                                     outFileName = os.path.basename(outFilePath)
                                     savePath = '{}/{}/{}'.format(self.runPath, opFileOutRelDir, outFileName)
                                     sftp.get('{}/{}'.format(remotePath, outFilePath), savePath)
 
-                                    opOutput = self.output[op.opId]
                                     opOutput[outFileKey] = opFileOutRelDir + '/' + outFileName
                                 except Exception as ex:
                                     opOutput[outFileKey] = None
