@@ -1,10 +1,10 @@
-#!/usr/bin/python -u
+#!/usr/bin/python3 -u
 # -*- coding: utf-8 -*-
-# python -u参数是运行中不对stdout的输出进行缓存，便于实时看到日志
 
 import AutoExecUtils
 import os
 import sys
+import time
 import argparse
 
 binPaths = os.path.split(os.path.realpath(__file__))
@@ -47,14 +47,20 @@ if __name__ == "__main__":
     print("ttime:" + args.ttime)
     print("tdatetime:" + args.tdatetime)
 
-    print("Do some jobs=====\n")
+    fo = open("testfile.txt", "w")
+    fo.write("This is python test file.\n")
+    fo.close()
 
+    print("Do some jobs=====\n")
+    for i in range(1, 5):
+        print("Loop:{}".format(i))
+        time.sleep(1)
     # 保存输出到json文件
     print("Save output to file\n")
     out = {}
     out['outtext'] = "this is the text out value"
     out['outpassword'] = "{RC4}xxxxxxxxxx"
-    out['outfile'] = "this is the output file name"
+    out['outfile'] = "testfile.txt"
     out['outjson'] = '{"key1":"value1", "key2":"value2"}'
     out['outcsv'] = '"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"}'
     AutoExecUtils.saveOutput(out)

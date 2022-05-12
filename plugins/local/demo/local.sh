@@ -1,66 +1,77 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 #显示帮助信息
 #####################################
-usage(){
-	pname=`basename $0`
-	echo "$pname --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate>
+usage() {
+    pname=$(basename $0)
+    echo "$pname --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate>
  -- ttime <ttime> --tdatetime <tdatetime>"
-        exit 2
+    exit 2
 }
 
 #参数处理,全部用长参数
 ######################################
-parseOpts(){
+parseOpts() {
     OPT_SPEC=":h-:"
     while getopts "$OPT_SPEC" optchar; do
         case "${optchar}" in
-            -)
-                case "${OPTARG}" in
-                    tinput)
-                        tinput="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tjson)
-                        tjson="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tselect)
-                        tselect="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tmultiselect)
-                        tmultiselect="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tpassword)
-                        tpassword="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tfile)
-                        tfile="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tnode)
-                        tnode="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tdate)
-                        tdate="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    ttime)
-                        ttime="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    tdatetime)
-                        tdatetime="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                        ;;
-                    *)
-                        if [ "$OPTERR" = 1 ] && [ "${OPT_SPEC:0:1}" != ":" ]; then
-                            echo "Unknown option --${OPTARG}" >&2
-                        fi
-                        ;;
-                esac;;
-            h)
-                usage
-                exit 2
+        -)
+            case "${OPTARG}" in
+            tinput)
+                tinput="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tjson)
+                tjson="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tselect)
+                tselect="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tmultiselect)
+                tmultiselect="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tpassword)
+                tpassword="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tfile)
+                tfile="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tnode)
+                tnode="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tdate)
+                tdate="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            ttime)
+                ttime="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
+                ;;
+            tdatetime)
+                tdatetime="${!OPTIND}"
+                OPTIND=$(($OPTIND + 1))
                 ;;
             *)
-                if [ "$OPTERR" != 1 ] || [ "${OPT_SPEC:0:1}" = ":" ]; then
-                    echo "Non-option argument: '-${OPTARG}'" >&2
+                if [ "$OPTERR" = 1 ] && [ "${OPT_SPEC:0:1}" != ":" ]; then
+                    echo "Unknown option --${OPTARG}" >&2
                 fi
                 ;;
+            esac
+            ;;
+        h)
+            usage
+            exit 2
+            ;;
+        *)
+            if [ "$OPTERR" != 1 ] || [ "${OPT_SPEC:0:1}" = ":" ]; then
+                echo "Non-option argument: '-${OPTARG}'" >&2
+            fi
+            ;;
         esac
     done
 }
@@ -83,12 +94,14 @@ echo "tdatetime: $tdatetime"
 ###########################################
 echo "Do some jobs."
 
-#Save output 
+#Save output
 ###########################################
 echo "======Save output to output file"
-if [ ! -z "$OUTPUT_PATH" ]
-then
-cat <<EOF > "$OUTPUT_PATH"
+outtext="This the outText"
+outfile="testfile.txt"
+
+if [ ! -z "$OUTPUT_PATH" ]; then
+    cat <<EOF >"$OUTPUT_PATH"
 {
     "outtext":"$outtext",
     'outfile":"$outfile"
@@ -96,5 +109,3 @@ cat <<EOF > "$OUTPUT_PATH"
 EOF
 fi
 ##########################################
-
-
