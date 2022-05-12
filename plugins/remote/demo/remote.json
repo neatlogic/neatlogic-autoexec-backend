@@ -14,7 +14,7 @@
         "isConst": "false",
         "required": "true"
     },
-    "opt": [
+    "option": [
         {
             "opt": "tinput",
             "name": "普通输入",
