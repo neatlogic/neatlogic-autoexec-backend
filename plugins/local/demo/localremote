@@ -47,7 +47,8 @@ sub main {
     }
 
     if ( $hasOptErr == 1 ) {
-        usage();
+
+        #usage();
     }
 
     my $hasError = 0;
