@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use strict;
+
 use FindBin;
+use IO::File;
 use JSON;
 use Getopt::Long;
 
@@ -71,6 +73,12 @@ sub main {
     print("tdatetime:$tdatetime\n");
     print("===================\n");
 
+    my $fh = IO::File->new(">testfile.txt");
+    if ( defined($fh) ) {
+        $fh->print("This a test output file.\n");
+        $fh->close();
+    }
+
     print("INFO: Sleep 5 seconds to pretend do some jobs.\n");
     for ( my $i = 0 ; $i < 5 ; $i++ ) {
         print("INFO: Sleep $i....\n");
@@ -85,7 +93,7 @@ sub main {
 
     $out->{outtext}     = "this is the text out value";
     $out->{outpassword} = "{RC4}xxxxxxxxxx";
-    $out->{outfile}     = "this is the output file name";
+    $out->{outfile}     = "testfile.txt";
     $out->{outjson}     = '{"key1":"value1", "key2":"value2"}';
     $out->{outcsv}      = q{"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"};
     AutoExecUtils::saveOutput($out);
