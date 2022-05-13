@@ -9,12 +9,32 @@
     "enabled": 0,
     "option": [
         {
-            "opt": "baseurl",
-            "name": "API地址",
-            "help": "K8S API地址，例如：https://192.168.99.100:8443",
+            "opt": "ip",
+            "name": "k8s管理ip",
+            "help": "K8S 管理IP，例如：192.168.99.100",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "${global:k8s.addr}",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "apiPort",
+            "name": "API端口",
+            "help": "K8S API端口，例如:8443",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "8443",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "managerPort",
+            "name": "k8s管理端口",
+            "help": "K8S 管理端口，例如：30001",
+            "type": "text",
+            "isConst": "false",
+            "defaultValue": "30001",
             "required": "true",
             "validate": ""
         },
