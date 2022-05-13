@@ -30,17 +30,19 @@ sub usage {
 sub main {
     my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
     my ( $baseDir, $scriptJson );
-    my $pname = $FindBin::Script;
+    my $interpreter = 'sh';
+    my $pname       = $FindBin::Script;
 
     GetOptions(
-        'h|help'      => \$isHelp,
-        'envpath=s'   => \$envPath,
-        'version=s'   => \$version,
-        'buildno=s'   => \$buildNo,
-        'lang=s'      => \$lang,
-        'v|verbose=i' => \$isVerbose,
-        'basedir=s'   => \$baseDir,
-        'script=s'    => \$scriptJson
+        'h|help'        => \$isHelp,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'buildno=s'     => \$buildNo,
+        'lang=s'        => \$lang,
+        'v|verbose=i'   => \$isVerbose,
+        'basedir=s'     => \$baseDir,
+        'interpreter=s' => \$interpreter,
+        'script=s'      => \$scriptJson
     );
     usage() if ( defined($isHelp) );
     usage() if ( not defined($scriptJson) or $scriptJson eq '' );
@@ -86,7 +88,7 @@ sub main {
     my $TMPDIR  = "$autoexecHome/tmp";
     my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );
 
-    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang );
+    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang, $interpreter, \@ARGV );
     if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
         print("ERROR: exec $cmd has error.\n");
         $isFail = 1;
@@ -99,12 +101,11 @@ sub main {
 }
 
 sub getScriptCmd {
-    my ( $fileTmp, $autoexecHome, $scriptJson, $lang ) = @_;
+    my ( $fileTmp, $autoexecHome, $scriptJson, $lang, $interpreter, $args ) = @_;
     my $scriptObj = from_json($scriptJson);
 
-    my $scriptInterpreter = $scriptObj->{interpreter};
+    my $scriptInterpreter = $interpreter;
     my $scriptContent     = $scriptObj->{content};
-    my $arguments         = $scriptObj->{arguments};
 
     my $deployUtils = DeployUtils->new();
     my $scriptExt   = $deployUtils->getScriptExtName($scriptInterpreter);
@@ -134,6 +135,10 @@ sub getScriptCmd {
     print $fileTmp ($scriptContent);
     $fileTmp->flush();
 
+    my $arguments = '';
+    foreach my $arg (@$args) {
+        $arguments = qq{$arguments "$arg"};
+    }
     my $cmd = "$scriptInterpreter $tmpPath $arguments";
 
     return $cmd;

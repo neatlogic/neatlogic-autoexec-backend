@@ -7,15 +7,13 @@
     "defaultProfile": null,
     "description": "Tagent执行远程脚本",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1",
                     "selected": "true"
@@ -25,16 +23,6 @@
                     "value": "0"
                 }
             ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "script",
-            "name": "脚本",
-            "help": "执行脚本内容",
-            "type": "script",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
             "validate": ""
         },
@@ -64,8 +52,7 @@
             "help": "异步执行，不等待执行结束",
             "type": "radio",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "是",
                     "value": "1"
                 },
@@ -84,8 +71,7 @@
             "help": "指定服务端的执行字符集",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "自动",
                     "value": "",
                     "selected": "true"
@@ -101,7 +87,62 @@
             ],
             "required": "false",
             "validate": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "脚本语言",
+            "help": "编写脚本的语言",
+            "type": "select",
+            "isConst": "false",
+            "defaultValue": [{
+                    "text": "bash",
+                    "value": "sh",
+                    "selected": "true"
+                },
+                {
+                    "text": "perl",
+                    "value": "perl"
+                },
+                {
+                    "text": "python",
+                    "value": "python"
+                },
+                {
+                    "text": "cmd",
+                    "value": "cmd"
+                },
+                {
+                    "text": "powershell",
+                    "value": "powershell"
+                },
+                {
+                    "text": "vbscript",
+                    "value": "vbscript"
+                }
+            ],
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "script",
+            "name": "脚本",
+            "help": "执行脚本内容",
+            "type": "textarea",
+            "isConst": "false",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
         }
     ],
+    "argument": {
+        "name": "脚本参数",
+        "help": "自定义脚本执行需要的参数",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
     "output": []
 }

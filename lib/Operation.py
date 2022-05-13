@@ -27,7 +27,7 @@ class Operation:
         self.interpreter = ''
         self.lockedFDs = []
 
-        self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "script": 1, "textarea": 1}
+        self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "checkbox": 1, "textarea": 1}
         self.PWD_TYPES = {"password": 1, "account": 1}
 
         self.opId = param['opId']
@@ -202,6 +202,9 @@ class Operation:
                             fileNamesJson.append('file/' + fileName)
                         optValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
+                    if optType == 'textarea':
+                        optValue = {"content": optValue}
+
                     optValue = self.resolveOptValue(optValue, refMap=refMap)
 
                 self.options[optName] = optValue

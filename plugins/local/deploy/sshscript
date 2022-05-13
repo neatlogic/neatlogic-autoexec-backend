@@ -38,7 +38,7 @@ sub usage {
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
     my ( $node, $destCharset, $supass, $sshOpts, $scriptObj, $eofStr, $failStr, $timeOut );
-
+    my $interpreter = 'sh';
     $isVerbose = 0;
     $scriptObj = '';
 
@@ -52,6 +52,7 @@ sub main {
         'failstr=s'      => \$failStr,
         'timeout=i'      => \$timeOut,
         'o=s'            => \$sshOpts,
+        'interpreter=s'  => \$interpreter,
         'script=s'       => \$scriptObj
     );
 
@@ -91,9 +92,12 @@ sub main {
 
     my $scriptJson = from_json($scriptObj);
 
-    my $scriptInterpreter = $scriptJson->{interpreter};
+    my $scriptInterpreter = $interpreter;
     my $scriptContent     = $scriptJson->{content};
-    my $arguments         = $scriptJson->{arguments};
+    my $arguments         = '';
+    foreach my $arg (@ARGV) {
+        $arguments = qq{$arguments "$arg"};
+    }
 
     while ( $arguments =~ /(?<!\\)\$(\w+)/g ) {
         my $varName = $1;
