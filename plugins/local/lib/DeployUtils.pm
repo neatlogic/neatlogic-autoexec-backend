@@ -117,7 +117,8 @@ sub deployInit {
     }
     my $dataPath = "$autoexecHome/data/verdata/$ENV{SYS_ID}/$ENV{MODULE_ID}";
     $ENV{_DEPLOY_DATA_PATH} = $dataPath;
-    my $prjPath = "$dataPath/workspace/project";
+    my $prjRoot = "$dataPath/workspace";
+    my $prjPath = "$prjRoot/project";
     $ENV{_DEPLOY_PRJ_PATH} = $prjPath;
 
     if ( defined($version) and $version ne '' ) {
@@ -127,16 +128,30 @@ sub deployInit {
         $version = $ENV{VERSION};
     }
 
-    my $buildRoot = "$dataPath/artifact/$version/build";
-    my $buildPath = "$buildRoot/$buildNo";
+    my $verRoot    = "$dataPath/artifact/$version";
+    my $distRoot   = "$verRoot/env";
+    my $mirrorRoot = "$dataPath/mirror";
+    my $buildRoot  = "$dataPath/artifact/$version/build";
+    my $buildPath  = "$buildRoot/$buildNo";
 
-    $deployEnv->{VERSION}    = $version;
-    $deployEnv->{BUILD_ROOT} = $buildRoot;
-    $deployEnv->{BUILD_PATH} = $buildPath;
-    $deployEnv->{ID_PATH}    = $dpIdPath;
-    $deployEnv->{NAME_PATH}  = $dpPath;
-    $deployEnv->{DATA_PATH}  = $dataPath;
-    $deployEnv->{PRJ_PATH}   = $prjPath;
+    $deployEnv->{VERSION}     = $version;
+    $deployEnv->{VER_ROOT}    = $verRoot;
+    $deployEnv->{BUILD_ROOT}  = $buildRoot;
+    $deployEnv->{BUILD_PATH}  = $buildPath;
+    $deployEnv->{ID_PATH}     = $dpIdPath;
+    $deployEnv->{NAME_PATH}   = $dpPath;
+    $deployEnv->{DATA_PATH}   = $dataPath;
+    $deployEnv->{PRJ_ROOT}    = $prjRoot;
+    $deployEnv->{PRJ_PATH}    = $prjPath;
+    $deployEnv->{DIST_ROOT}   = $distRoot;
+    $deployEnv->{MIRROR_ROOT} = $mirrorRoot;
+
+    $ENV{VER_ROOT}    = $verRoot;
+    $ENV{BUILD_ROOT}  = $buildRoot;
+    $ENV{DIST_ROOT}   = $distRoot;
+    $ENV{PRJ_ROOT}    = $prjRoot;
+    $ENV{PRJ_PATH}    = $prjPath;
+    $ENV{MIRROR_ROOT} = $mirrorRoot;
 
     return $deployEnv;
 }
