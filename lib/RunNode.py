@@ -21,6 +21,10 @@ from setuptools import find_namespace_packages
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
+
+import AutoExecError
+import Operation
+import ConditionDSL
 import NodeStatus
 import TagentClient
 import Utils
@@ -497,22 +501,42 @@ class RunNode:
         return opFinalStatus
 
     def getIfBlockOps(self, ifOp):
-        ifOps = []
-        # if 'opt' in operation:
-        #     opArgsRefMap[operation['opId']] = operation['opt']
-        # else:
-        #     opArgsRefMap[operation['opId']] = {}
+        result = True
+        opParams = ifOp.param
+        condition = opParams['condition']
+        ast = ConditionDSL.Parser(condition)
+        if isinstance(ast, ConditionDSL.Operation):
+            interpreter = ConditionDSL.Interpreter(AST=ast.asList())
+            result = interpreter.resolve()
+        else:
+            raise AutoExecError("Parse error, syntax error at char 0\n")
 
-        # op = Operation.Operation(self.context, opArgsRefMap, operation)
+        activeOps = None
+        if result:
+            activeOps = opParams['if']
+        else:
+            activeOps = opParams['else']
 
-        # # 如果有本地操作，则在context中进行标记
-        # if op.opType == 'local':
-        #     phaseStatus.hasLocal = True
-        # else:
-        #     phaseStatus.hasRemote = True
+        phaseStatus = self.context.phases[self.phaseName]
+        opArgsRefMap = ifOp.opsParam
+        retOps = []
+        for operation in activeOps:
+            if 'opt' in operation:
+                opArgsRefMap[operation['opId']] = operation['opt']
+            else:
+                opArgsRefMap[operation['opId']] = {}
 
-        # operations.append(op)
-        return ifOps
+            op = Operation.Operation(self.context, opArgsRefMap, operation)
+
+            # 如果有本地操作，则在context中进行标记
+            if op.opType == 'local':
+                phaseStatus.hasLocal = True
+            else:
+                phaseStatus.hasRemote = True
+
+            retOps.append(op)
+
+        return retOps
 
     def execute(self, ops):
         if self.context.goToStop:
