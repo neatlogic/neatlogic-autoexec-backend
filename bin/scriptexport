@@ -9,7 +9,7 @@ import urllib.request
 import argparse
 
 
-def export_json_info(args):
+def exportJsonInfo(args):
     serverUser = args.user
     serverPass = args.password
     tenant = args.t
@@ -105,7 +105,7 @@ def export_json_info(args):
             break
 
 
-def parse_args():
+def parseArgs():
     parser = argparse.ArgumentParser(description='you should add those paramete')
     parser.add_argument("-host", help="Host of autoexec api server")
     parser.add_argument("-port", help="port")
@@ -113,10 +113,10 @@ def parse_args():
     parser.add_argument("-user", help="username")
     parser.add_argument("-password", help="passWord")
     parser.add_argument("-dir", help="Script's directory")
-    args = parser.parse_args()
+    args = parser.parseArgs()
     return args
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    export_json_info(args)
+    args = parseArgs()
+    exportJsonInfo(args)
