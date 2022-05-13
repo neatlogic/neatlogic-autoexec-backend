@@ -568,18 +568,18 @@ class RunNode:
                     break
 
                 # TODO: evaluate if-block
-                ifOps = self.getIfBlockOps(op)
-                for ifOp in ifOps:
-                    ifOp.setNode(self)
-                    opStatus = self.execOneOperation(ifOp)
-                    if opStatus == NodeStatus.failed:
-                        isFail = 1
-                        hasIgnoreFail = 0
-                        break
-                    elif opStatus == NodeStatus.ignored:
-                        hasIgnoreFail = 1
-
-                if isFail == 0:
+                if op.opName.startswith('control/IF-Block'):
+                    ifOps = self.getIfBlockOps(op)
+                    for ifOp in ifOps:
+                        ifOp.setNode(self)
+                        opStatus = self.execOneOperation(ifOp)
+                        if opStatus == NodeStatus.failed:
+                            isFail = 1
+                            hasIgnoreFail = 0
+                            break
+                        elif opStatus == NodeStatus.ignored:
+                            hasIgnoreFail = 1
+                else:
                     op.setNode(self)
                     # execute on operation
                     opStatus = self.execOneOperation(op)
