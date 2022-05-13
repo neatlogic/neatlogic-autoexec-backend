@@ -606,6 +606,8 @@ sub checkInSqlFiles {
         $params->{operType} = 'deploy';
     }
     else {
+        $params->{jobId}     = $jobId;
+        $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
     }
@@ -656,6 +658,8 @@ sub pushSqlStatus {
         $params->{operType} = 'deploy';
     }
     else {
+        $params->{jobId}     = $jobId;
+        $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
     }

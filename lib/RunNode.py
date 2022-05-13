@@ -496,6 +496,24 @@ class RunNode:
 
         return opFinalStatus
 
+    def getIfBlockOps(self, ifOp):
+        ifOps = []
+        # if 'opt' in operation:
+        #     opArgsRefMap[operation['opId']] = operation['opt']
+        # else:
+        #     opArgsRefMap[operation['opId']] = {}
+
+        # op = Operation.Operation(self.context, opArgsRefMap, operation)
+
+        # # 如果有本地操作，则在context中进行标记
+        # if op.opType == 'local':
+        #     phaseStatus.hasLocal = True
+        # else:
+        #     phaseStatus.hasRemote = True
+
+        # operations.append(op)
+        return ifOps
+
     def execute(self, ops):
         if self.context.goToStop:
             return 2
@@ -525,16 +543,29 @@ class RunNode:
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
-                op.setNode(self)
-                # execute on operation
-                opStatus = self.execOneOperation(op)
+                # TODO: evaluate if-block
+                ifOps = self.getIfBlockOps(op)
+                for ifOp in ifOps:
+                    ifOp.setNode(self)
+                    opStatus = self.execOneOperation(ifOp)
+                    if opStatus == NodeStatus.failed:
+                        isFail = 1
+                        hasIgnoreFail = 0
+                        break
+                    elif opStatus == NodeStatus.ignored:
+                        hasIgnoreFail = 1
 
-                if opStatus == NodeStatus.failed:
-                    isFail = 1
-                    hasIgnoreFail = 0
-                    break
-                elif opStatus == NodeStatus.ignored:
-                    hasIgnoreFail = 1
+                if isFail == 0:
+                    op.setNode(self)
+                    # execute on operation
+                    opStatus = self.execOneOperation(op)
+
+                    if opStatus == NodeStatus.failed:
+                        isFail = 1
+                        hasIgnoreFail = 0
+                        break
+                    elif opStatus == NodeStatus.ignored:
+                        hasIgnoreFail = 1
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime
