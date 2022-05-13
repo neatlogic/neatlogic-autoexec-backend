@@ -7,18 +7,18 @@ import requests
 import argparse
 
 
-def import_json_info(data_dir):
+def importJsonInfo(dataDir):
     serverUser = args.user
     serverPass = args.password
     tenant = args.tenant
     url = 'http://' + args.host + ':' + args.port + '/develop/public/api/stream/autoexec/script/import/fromjson'
-    data_dir = args.dir
+    dataDir = args.dir
     headers = {
         'tenant': tenant,
     }
     try:
-        if data_dir != None and data_dir != '':
-            for root, dirs, files in os.walk(data_dir, topdown=False):
+        if dataDir != None and dataDir != '':
+            for root, dirs, files in os.walk(dataDir, topdown=False):
                 for name in files:
                     if not name.endswith('.json'):
                         path = os.path.join(root, name)
@@ -90,7 +90,7 @@ def import_json_info(data_dir):
         print(path + '.json文件导入失败')
 
 
-def parse_args():
+def parseArgs():
     parser = argparse.ArgumentParser(description='you should add those paramete')
     parser.add_argument("-host", help="Host of autoexec api server")
     parser.add_argument("-port", help="port")
@@ -98,10 +98,10 @@ def parse_args():
     parser.add_argument("-user", help="username")
     parser.add_argument("-password", help="passWord")
     parser.add_argument("-dir", help="Script's directory")
-    args = parser.parse_args()
+    args = parser.parseArgs()
     return args
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    import_json_info(args)
+    args = parseArgs()
+    importJsonInfo(args)
