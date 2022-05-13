@@ -5,14 +5,17 @@ use FindBin;
 use JSON;
 use REST::Client;
 use Getopt::Long;
+use JSON qw(to_json from_json);
 use Data::Dumper;
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --baseurl K8sApiServerURL --token AuthToken\n");
+    print("Usage: $pname --ip <ip> --apiPort <apiPort> --managerPort <managerPort> --token <authToken>\n");
     print("        --image DockerImage --name AppName  --namespace K8sNameSpace --deployment K8sDeployment\n");
-    print("       --baseurl:      k8s apiserver base URL, example:https://192.168.99.100:8443\n");
+    print("       --ip:           k8s web manager ip, example:192.168.99.100\n");
+    print("       --apiPort:      k8s api port, example:8843\n");
+    print("       --managerPort:  k8s web manager port , example:30001\n");
     print("       --token:        k8s authenticate token\n");
     print("       --image:        docker image, example:nginx:1.7.6\n");
     print("       --name:         app name, example:nginx\n");
@@ -23,24 +26,149 @@ sub usage {
     exit(1);
 }
 
+sub doGet {
+    my ( $url, $headers ) = @_;
+
+    my $client = REST::Client->new();
+    $client->addHeader( 'Content-Type', 'application/json' );
+    if ( defined($headers) ) {
+        foreach my $keyName ( keys(%$headers) ) {
+            $client->addHeader( $keyName, $headers->{$keyName} );
+        }
+    }
+
+    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
+    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+    $client->GET($url);
+    my $data;
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        print("ERROR: get restful api:$url failed, cause by:$errMsg\n");
+    }
+    else {
+        my $content = $client->responseContent();
+        $data = from_json($content);
+    }
+    return $data;
+}
+
+sub doPost {
+    my ( $url, $param, $headers ) = @_;
+
+    my $client = REST::Client->new();
+    $client->addHeader( 'Content-Type', 'application/json' );
+    if ( defined($headers) ) {
+        foreach my $keyName ( keys(%$headers) ) {
+            $client->addHeader( $keyName, $headers->{$keyName} );
+        }
+    }
+
+    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
+    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+    $client->POST( $url, $param );
+    my $data;
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        print("ERROR: get restful api:$url failed, cause by:$errMsg\n");
+    }
+    else {
+        my $content = $client->responseContent();
+        $data = from_json($content);
+    }
+    return $data;
+}
+
+sub login {
+    my ( $baseUrl, $token ) = @_;
+
+    my $csrfUrl = $baseUrl . "/api/v1/csrftoken/login";
+    my $csrfRes = doGet($csrfUrl);
+    my $csrf    = $csrfRes->{'token'};
+
+    my $v1Url   = $baseUrl . "/api/v1/login";
+    my $param   = { 'token' => $token };
+    my $data    = to_json($param);
+    my $headers = { 'x-csrf-token' => $csrf };
+
+    my $res      = doPost( $v1Url, $data, $headers );
+    my $jweToken = $res->{'jweToken'};
+    return $jweToken;
+}
+
+sub getDeployment {
+    my ( $baseUrl, $jwetoken, $namespace, $deploymentName ) = @_;
+    my $url     = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName";
+    my $headers = { 'jwetoken' => $jwetoken };
+    my $res     = doGet( $url, $headers );
+    return $res;
+}
+
+sub getRplicaset {
+    my ( $baseUrl, $jwetoken, $namespace, $deploymentName ) = @_;
+    my $newrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/newreplicaset";
+    my $headers  = { 'jwetoken' => $jwetoken };
+    my $newRes   = doGet( $newrsUrl, $headers );
+
+    #历史副本只取最新5条
+    my $oldrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/oldreplicaset?itemsPerPage=5&page=1&sortBy=d,creationTimestamp";
+    my $oldRes   = doGet( $oldrsUrl, $headers );
+
+    return ( $newRes, $oldRes );
+}
+
+sub getPods {
+    my ( $baseUrl, $jwetoken, $namespace, $podName ) = @_;
+    my $url     = $baseUrl . "/api/v1/replicaset/$namespace/$podName/pod?itemsPerPage=10&page=1&sortBy=d,creationTimestamp";
+    my $headers = { 'jwetoken' => $jwetoken };
+    my $res     = doGet( $url, $headers );
+
+    return $res;
+}
+
+sub getRollUpdateInfo {
+    my ( $baseUrl, $token, $namespace, $deploymentName ) = @_;
+    my $data     = {};
+    my $jwetoken = login( $baseUrl, $token );
+    if ( defined($jwetoken) ) {
+        my $deployment = getDeployment( $baseUrl, $jwetoken, $namespace, $deploymentName );
+        if ( defined($deployment) ) {
+            $data->{'selector'}              = $deployment->{'selector'};
+            $data->{'rollingUpdateStrategy'} = $deployment->{'rollingUpdateStrategy'};
+            $data->{'statusInfo'}            = $deployment->{'statusInfo'};
+        }
+        my ( $newRs, $oldRs ) = getRplicaset( $baseUrl, $jwetoken, $namespace, $deploymentName );
+        if ( defined($newRs) ) {
+            my $rsName = $newRs->{'objectMeta'}->{'name'};
+
+            $data->{'replicasetName'}   = $rsName;
+            $data->{'replicasePodInfo'} = $newRs->{'podInfo'};
+            my $pods = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
+            $data->{'pods'} = $pods;
+        }
+    }
+    return $data;
+}
+
 sub main {
-    my ( $baseUrl, $token );
+    my ( $ip, $apiPort, $managerPort, $token );
     my ( $image, $name, $namespace, $deployment, $action );
 
     GetOptions(
-        'baseurl=s'    => \$baseUrl,
-        'token=s'      => \$token,
-        'image=s'      => \$image,
-        'name=s'       => \$name,
-        'namespace=s'  => \$namespace,
-        'deployment=s' => \$deployment,
-        'action=s'     => \$action
+        'ip=s'          => \$ip,
+        'apiPort=s'     => \$apiPort,
+        'managerPort=s' => \$managerPort,
+        'token=s'       => \$token,
+        'image=s'       => \$image,
+        'name=s'        => \$name,
+        'namespace=s'   => \$namespace,
+        'deployment=s'  => \$deployment,
+        'action=s'      => \$action
     );
 
     my $optionError = 0;
 
-    if ( not defined($baseUrl) or $baseUrl eq '' ) {
-        print("ERROR: Must defind baseurl for k8s api server.\n");
+    if ( ( not defined($ip) or $ip eq '' ) and ( not defined($apiPort) or $apiPort eq '' ) ) {
+        print("ERROR: Must defind ip and apiPort for k8s api server.\n");
         $optionError = 1;
     }
 
@@ -73,16 +201,14 @@ sub main {
         usage();
     }
 
-    $baseUrl =~ s/\/+$//;
-    
-    # my $name = 'nginx';
-    # my $image = 'nginx:1.7.6';
-    # my $baseUrl = 'https://192.168.99.100:8443';
-    # my $namespace = 'default';
-    # my $deployment = 'nginx-deployment';
-    # my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
-
-    my $url = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
+# my $name = 'nginx';
+# my $image = 'nginx:1.7.6';
+# my $baseUrl = 'https://192.168.99.100:8443';
+# my $namespace = 'default';
+# my $deployment = 'nginx-deployment';
+# my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
+    my $baseUrl = "https://$ip:$apiPort";
+    my $url     = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
 
     my $reqObj = {
         spec => {
@@ -132,6 +258,29 @@ sub main {
         my $image = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'image'};
 
         #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
+        $baseUrl = "https://$ip:$managerPort";
+        while (1) {
+            my $data = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
+            if ( defined($data) ) {
+                my $podInfo = $data->{'replicasePodInfo'};
+
+                #desired =  pending + running + failed
+                my $desired = $podInfo->{'desired'};
+                my $pending = $podInfo->{'pending'};
+                my $running = $podInfo->{'running'};
+                my $failed  = $podInfo->{'failed'};
+                if ( $desired == ( $running + $failed ) ) {
+                    print("FINEST: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
+                    last;
+                }
+                else {
+                    sleep(3);
+                }
+            }
+            else {
+                last;
+            }
+        }
         if ( defined($name) and defined($image) ) {
             print("FINEST: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
         }
