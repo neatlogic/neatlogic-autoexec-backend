@@ -23,8 +23,8 @@ Function getAllProcesses{
         $pgid = $wmiObj.SessionId;
         $cmdLine = $wmiObj.CommandLine;
         
-		$elapsed = 0
-		$procStartTime = $process.StartTime
+		$elapsed = 0;
+		$procStartTime = $process.StartTime;
 		if ($procStartTime){
 			$elapsed = (New-TimeSpan -Start $process.StartTime).TotalSeconds;
 		}
