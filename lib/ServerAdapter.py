@@ -44,7 +44,8 @@ class ServerAdapter:
             'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
-            'globalLock': 'codedriver/public/api/rest/ezdeploy/lock'
+            'globalLock': 'codedriver/public/api/rest/ezdeploy/lock',
+            'getDeployIdPath': 'codedriver/public/api/rest/ezdeploy/idpath'
         }
 
         self.context = context
