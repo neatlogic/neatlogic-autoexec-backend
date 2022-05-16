@@ -290,6 +290,13 @@ class JobRunner:
             if not self.context.hasFailNodeInGlobal:
                 # 初始化phase的节点信息
                 self.context.addPhase(phaseName)
+                phaseStatus = self.context.phases[phaseName]
+                if 'phaseType' in phaseConfig:
+                    if phaseConfig['phaseType'] in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
+
                 serverAdapter = self.context.serverAdapter
                 if not self.localDefinedNodes:
                     serverAdapter.getNodes(phase=phaseName)
@@ -350,7 +357,7 @@ class JobRunner:
                 for operation in phaseConfig['operations']:
                     # 如果有本地操作，则在context中进行标记
                     opType = operation['opType']
-                    if opType in ('local', 'runner'):
+                    if opType == 'local':
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True

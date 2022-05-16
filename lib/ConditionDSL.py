@@ -256,23 +256,7 @@ class Interpreter(object):
         return result
 
     # 据根据抽象语法树从数据中抽取匹配的字段的path
-    def resolve(self, nodeObj, AST):
-        nodeName = nodeObj.get('nodeName')
-        host = nodeObj.get('host')
-        port = nodeObj.get('port')
-        protocolPort = nodeObj.get('protocolPort')
-        nodeEnv = {
-            'NODE_NAME': nodeName,
-            'INS_NAME': nodeName,
-            'NODE_HOST': host,
-            'INS_HOST': host,
-            'NODE_IP': host,
-            'INS_IP': host,
-            'NODE_PORT': port,
-            'INS_PORT': port,
-            'NODE_PROTOCOL_PORT': protocolPort,
-            'INS_PROTOCOL_PORT': protocolPort
-        }
+    def resolve(self, nodeEnv, AST):
         return self.resolveExp(nodeEnv, AST)
 
 

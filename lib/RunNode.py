@@ -444,7 +444,7 @@ class RunNode:
                 if op.opSubName == 'export':
                     for envName in op.arguments:
                         self.context.exportEnv(envName)
-                else:
+                elif op.opSubName == 'setenv':
                     envName = op.options['name']
                     envValue = op.options['value']
                     self.context.setEnv(envName, envValue)
@@ -518,7 +518,7 @@ class RunNode:
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
             interpreter = ConditionDSL.Interpreter(self.context.serverAdapter)
-            result = interpreter.resolve(self.node, AST=ast.asList())
+            result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
             raise AutoExecError("Parse error, syntax error at char 0\n")
 
@@ -579,7 +579,7 @@ class RunNode:
                     break
 
                 # TODO: evaluate if-block
-                if op.opName.startswith('control/IF-Block'):
+                if op.opName == 'native/IF-Block':
                     ifOps = self.getIfBlockOps(op)
                     for ifOp in ifOps:
                         ifOp.setNode(self)
