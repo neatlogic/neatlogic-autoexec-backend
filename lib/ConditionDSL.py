@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import threading
 import os.path
 import re
 import json
@@ -112,10 +113,16 @@ def _isLink(a):
 
 
 class Interpreter(object):
-    def __init__(self, AST=None):
-        # data格式为dict格式
-        self.AST = AST
+    _instance_lock = threading.Lock()
 
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(Interpreter, "_instance"):
+            with Interpreter._instance_lock:
+                if not hasattr(Interpreter, "_instance"):
+                    Interpreter._instance = object.__new__(cls)
+        return Interpreter._instance
+
+    def __init__(self, serverAdapter=None):
         self.operators = {
             '=': operator.eq,
             '==': operator.eq,
@@ -139,14 +146,56 @@ class Interpreter(object):
             'not': _not
         }
 
+        # 初始化计算条件需要的发布相关的进程环境变量
+        self.serverAdapter = serverAdapter
+        gEnv = {}
+        self.gEnv = gEnv
+        dpNamePath = os.getenv('_DEPLOY_PATH')
+        if dpNamePath is not None and dpNamePath != '':
+            for key, value in os.environ.items():
+                gEnv[key] = value
+
+            parts = ('SYS', 'MODULE', 'ENV')
+
+            rcObj = serverAdapter.getDeployIdPath(dpNamePath)
+            dpIdPath = rcObj.get('idPath')
+
+            if dpIdPath is not None:
+                dpIds = dpIdPath.split('/')
+                for idx in range(0, len(dpIds)):
+                    gEnv[parts[idx] + '_ID'] = dpIds[idx]
+
+            dpNames = dpNamePath.split('/')
+            for idx in range(0, len(dpNames)):
+                gEnv[parts[idx] + '_NAME'] = dpNames[idx]
+
+            autoexecHome = os.getenv('AUTOEXEC_HOME')
+            if autoexecHome is not None and autoexecHome != '':
+                version = os.getenv('_VERSION')
+                buildNo = os.getenv('_BUILD_NO')
+                gEnv['DATA_PATH'] = dataPath = autoexecHome + '/data/verdata/' + gEnv['SYS_ID'] + '/' + gEnv['MODULE_ID']
+                gEnv['PRJ_ROOT'] = prjRoot = dataPath + '/workspace'
+                gEnv['PRJ_PATH'] = prjPath = prjRoot + '/project'
+                gEnv['VER_ROOT'] = verRoot = dataPath + '/artifact/'
+                gEnv['DIST_ROOT'] = distRoot = "$verRoot/env"
+                gEnv['MIRROR_ROOT'] = mirrorRoot = "$dataPath/mirror"
+                gEnv['BUILD_ROOT'] = buildRoot = dataPath + '/artifact/' + version + '/build'
+                gEnv['BUILD_PATH'] = buildPath = buildRoot + '/' + buildNo
+
     def getOperator(self, operName):
         if operName in self.operators:
             return self.operators[operName]
         else:
             raise DSLError("Operation '{}' not supported.".format(operName))
 
-    # 展开字串中的变量
-    def resolveValue(self, val):
+    def getVarValue(self, nodeEnv, varName):
+        varVal = nodeEnv.get(varName)
+        if varVal is None:
+            varVal = self.gEnv.get(varName)
+        return varVal
+
+        # 展开字串中的变量
+    def resolveValue(self, nodeEnv, val):
         if not isinstance(val, str):
             return int(val)
 
@@ -154,7 +203,7 @@ class Interpreter(object):
         if matchObjs:
             for varName in matchObjs[0]:
                 if varName != '':
-                    varVal = os.getenv(varName)
+                    varVal = self.getVarValue(nodeEnv, varName)
                     if varVal is not None:
                         val = varVal
                         if re.match(r'^\d+$', varVal):
@@ -165,22 +214,22 @@ class Interpreter(object):
             matchObjs1 = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', val)
             for matchObj in matchObjs1:
                 exp = matchObj[0]
-                varVal = os.getenv(matchObj[1])
+                varVal = self.getVarValue(nodeEnv, matchObj[1])
                 if varVal is not None:
                     val = val.replace(exp, varVal)
 
             matchObjs2 = re.findall(r'(\$(\w+))', val)
             for matchObj in matchObjs2:
                 exp = matchObj[0]
-                varVal = os.getenv(matchObj[1])
+                varVal = self.getVarValue(nodeEnv, matchObj[1])
                 if varVal is not None:
                     val = val.replace(exp, varVal)
 
         return val
 
-    def resolveExp(self, AST):
+    def resolveExp(self, nodeEnv, AST):
         if not isinstance(AST, list):
-            return self.resolveValue(AST)
+            return self.resolveValue(nodeEnv, AST)
 
         result = 0
         operName = AST[0]
@@ -207,8 +256,24 @@ class Interpreter(object):
         return result
 
     # 据根据抽象语法树从数据中抽取匹配的字段的path
-    def resolve(self):
-        return self.resolveExp(self.AST)
+    def resolve(self, nodeObj, AST):
+        nodeName = nodeObj.get('nodeName')
+        host = nodeObj.get('host')
+        port = nodeObj.get('port')
+        protocolPort = nodeObj.get('protocolPort')
+        nodeEnv = {
+            'NODE_NAME': nodeName,
+            'INS_NAME': nodeName,
+            'NODE_HOST': host,
+            'INS_HOST': host,
+            'NODE_IP': host,
+            'INS_IP': host,
+            'NODE_PORT': port,
+            'INS_PORT': port,
+            'NODE_PROTOCOL_PORT': protocolPort,
+            'INS_PROTOCOL_PORT': protocolPort
+        }
+        return self.resolveExp(nodeEnv, AST)
 
 
 if __name__ == "__main__":

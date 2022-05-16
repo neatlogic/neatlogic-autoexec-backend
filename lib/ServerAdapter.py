@@ -763,3 +763,27 @@ class ServerAdapter:
                 raise AutoExecError("Get AccessEndpoint Config for {} failed, status code:{} {}".format(resourceId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, ex))
+
+    def getDeployIdPath(self, namePath):
+        namePath = namePath.strip()
+        dpNames = namePath.split('/')
+        partsName = ('sysName', 'moduleName', 'envName')
+        params = {}
+        for idx in range(0, len(dpNames)):
+            params[partsName[idx]] = dpNames[idx]
+        params['tenant'] = self.context.tenant
+
+        try:
+            response = self.httpJSON(self.apiMap['getDeployIdPath'], self.authToken, params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset)
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj['Status'] == 'OK':
+                    return retObj['Return']
+                else:
+                    raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, retObj['Message']))
+            else:
+                raise AutoExecError("Get deploy id path for {} failed, status code:{} {}".format(namePath, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, ex))
