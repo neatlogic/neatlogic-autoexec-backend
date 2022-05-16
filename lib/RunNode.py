@@ -70,6 +70,7 @@ class RunNode:
     def __init__(self, context, groupNo, phaseIndex, phaseName, node):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
+        self.nodeEnv = {}
         self.hasIgnoreFail = 0
         self.statuses = {}
         self.statusFile = None
@@ -114,6 +115,16 @@ class RunNode:
         self.id = node['resourceId']
         self.username = node['username']
         self.password = node['password']
+
+        self.nodeEnv['RESOURCE_ID'] = self.resourceId
+        self.nodeEnv['NODE_NAME'] = self.name
+        self.nodeEnv['NODE_HOST'] = self.host
+        self.nodeEnv['NODE_PORT'] = self.port
+        self.nodeEnv['NODE_PROTOCOL_PORT'] = self.protocolPort
+        self.nodeEnv['INS_NAME'] = self.name
+        self.nodeEnv['INS_HOST'] = self.host
+        self.nodeEnv['INS_PORT'] = self.port
+        self.nodeEnv['INS_PROTOCOL_PORT'] = self.protocolPort
 
         self.phaseLogDir = '{}/log/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.phaseLogDir):
@@ -419,7 +430,7 @@ class RunNode:
         try:
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)
-            op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port)
+            op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
 
             if not self.context.isForce and opStatus == NodeStatus.succeed:
                 self._loadOpOutput(op)
@@ -726,9 +737,9 @@ class RunNode:
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
-        environment['NODE_HOST'] = self.node.get('host')
-        environment['NODE_PORT'] = self.node.get('port')
-        environment['NODE_NAME'] = self.node.get('nodeName')
+        environment['NODE_HOST'] = self.host
+        environment['NODE_PORT'] = self.port
+        environment['NODE_NAME'] = self.name
         environment['AUTOEXEC_NODE'] = json.dumps(self.node)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
@@ -786,9 +797,9 @@ class RunNode:
                     'AUTOEXEC_JOBID': self.context.jobId,
                     'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword),
                     'HISTSIZE': '0',
-                    'NODE_HOST': self.node.get('host'),
-                    'NODE_PORT': self.node.get('port'),
-                    'NODE_NAME': self.node.get('nodeName')
+                    'NODE_HOST': self.host,
+                    'NODE_PORT': self.port,
+                    'NODE_NAME': self.name
                 }
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
@@ -899,7 +910,7 @@ class RunNode:
             remoteRoot = '/tmp/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'cd {} && HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                remotePath, self.node.get('host'), self.node.get('port'), self.node.get('nodeName'), self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
+                remotePath, self.host, self.port, self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
             remoteCmdHidePass = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None

@@ -164,7 +164,7 @@ class Operation:
             print(msg, end='')
 
     # 分析操作参数进行相应处理
-    def parseParam(self, refMap=None, resourceId=None, host=None, port=None):
+    def parseParam(self, refMap=None, resourceId=None, host=None, port=None, nodeEnv={}):
         opDesc = {}
         if 'desc' in self.param:
             opDesc = self.param['desc']
@@ -205,7 +205,7 @@ class Operation:
                     if optType == 'textarea':
                         optValue = {"content": optValue}
 
-                    optValue = self.resolveOptValue(optValue, refMap=refMap)
+                    optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
 
                 self.options[optName] = optValue
 
@@ -228,7 +228,7 @@ class Operation:
                             fileNamesJson.append('file/' + fileName)
                         argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
-                    argValue = self.resolveOptValue(argValue, refMap=refMap)
+                    argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
                 argValues.append(argValue)
             self.arguments = argValues
 
@@ -284,7 +284,7 @@ class Operation:
             serverAdapter = self.context.serverAdapter
             serverAdapter.fetchScript(savePath, opId)
 
-    def resolveOptValue(self, optValue, refMap=None):
+    def resolveOptValue(self, optValue, refMap=None, nodeEnv={}):
         if optValue is None or optValue == '':
             return optValue
 
@@ -308,6 +308,8 @@ class Operation:
                 val = nativeRefMap[paramName]
             elif paramName in globalOptMap:
                 val = globalOptMap[paramName]
+            elif paramName in nodeEnv:
+                val = nodeEnv[paramName]
             elif paramName in os.environ:
                 val = os.environ[paramName]
             else:
