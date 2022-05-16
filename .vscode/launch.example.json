@@ -4,6 +4,19 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [{
+            "name": "ConditionDSL.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/lib/ConditionDSL.py",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+            },
+            "args": [],
+
+            "console": "integratedTerminal"
+        },
+        {
             "name": "autoexec",
             "type": "python",
             "request": "launch",
@@ -13,7 +26,7 @@
                 "TENANT": "develop",
             },
             "args": ["--jobid",
-                "623789909794820",
+                "625229218766859",
                 "--firstfire",
                 "--execuser",
                 "fccf704231734072a1bf80d90b2d1de2",
@@ -22,6 +35,30 @@
                 "--paramsfile",
                 "${workspaceFolder}/test/params.json",
                 "--nodesfile", "${workspaceFolder}/test/nodes.json"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "autoexec-cleanstatus",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/autoexec",
+            "env": {
+                "RUNNER_ID": "1",
+                "TENANT": "develop",
+            },
+            "args": ["--jobid",
+                "625229218766859",
+                "--firstfire",
+                "--execuser",
+                "fccf704231734072a1bf80d90b2d1de2",
+                "--passthroughenv",
+                "{\"runnerId\":1}",
+                "--paramsfile",
+                "${workspaceFolder}/test/params.json",
+                "--nodesfile", "${workspaceFolder}/test/nodes.json",
+                "--cleanstatus"
             ],
 
             "console": "integratedTerminal"
