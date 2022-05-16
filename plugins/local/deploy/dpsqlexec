@@ -14,7 +14,6 @@ use DBInfo;
 use SQLBatchUtils;
 use SQLFileRunner;
 
-#TODO: autoexec主体程序需要支持单独运行某个sql的参数化输入支持（环境变量传值？）
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -149,7 +148,7 @@ sub main {
         dirInfo     => $dirInfo
     );
 
-    my $sqlFilesJson = $deployEnv->{_SQL_FILES};
+    my $sqlFilesJson = $deployEnv->{SQL_FILES};
 
     my $sqlFiles = [];
     if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {

@@ -62,9 +62,15 @@ sub deployInit {
     my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
     my $deployConf      = $ENV{_DEPLOY_CONF};
     my $runnerGroupConf = $ENV{_DEPLOY_RUNNERGROUP};
-    my $buildNo         = $ENV{BUILD_NO};
-    my $isRelease       = $ENV{IS_RELEASE};
 
+    if ( not defined($version) or $version eq '' ) {
+        $version = $ENV{_VERSION};
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $buildNo = $ENV{_BUILD_NO};
+    }
+
+    my $isRelease = $ENV{_IS_RELEASE};
     if ( not defined($isRelease) or $isRelease eq '' ) {
         $isRelease = 0;
     }
@@ -75,7 +81,7 @@ sub deployInit {
     my $deployEnv = {};
     $deployEnv->{JOB_ID}     = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID}  = $ENV{RUNNER_ID};
-    $deployEnv->{_SQL_FILES} = $ENV{_SQL_FILES};
+    $deployEnv->{SQL_FILES}  = $ENV{_SQL_FILES};
     $deployEnv->{BUILD_NO}   = $buildNo;
     $deployEnv->{IS_RELEASE} = $isRelease;
 
@@ -88,10 +94,8 @@ sub deployInit {
 
     if ( defined($namePath) and $namePath eq '' and uc($namePath) ne 'DEFAULT' ) {
         my $idPath = ServerAdapter->getIdPath($namePath);
-        $dpPath               = $namePath;
-        $dpIdPath             = $idPath;
-        $ENV{_DEPLOY_PATH}    = $dpPath;
-        $ENV{_DEPLOY_ID_PATH} = $dpIdPath;
+        $dpPath   = $namePath;
+        $dpIdPath = $idPath;
     }
 
     my @dpNames = split( '/', $dpPath );
@@ -99,8 +103,6 @@ sub deployInit {
 
     my $idx = 0;
     for my $level ( 'SYS', 'MODULE', 'ENV' ) {
-        $ENV{ $level . "_ID" }           = $dpIds[$idx];
-        $ENV{ $level . "_NAME" }         = $dpNames[$idx];
         $deployEnv->{ $level . "_ID" }   = $dpIds[$idx];
         $deployEnv->{ $level . "_NAME" } = $dpNames[$idx];
         $idx                             = $idx + 1;
@@ -110,48 +112,36 @@ sub deployInit {
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
         my $toolsPath = "$autoexecHome/tools";
-        $ENV{AUTOEXEC_HOME}         = $autoexecHome;
-        $ENV{TOOLS_PATH}            = $toolsPath;
         $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
         $deployEnv->{TOOLS_PATH}    = $toolsPath;
     }
-    my $dataPath = "$autoexecHome/data/verdata/$ENV{SYS_ID}/$ENV{MODULE_ID}";
-    $ENV{_DEPLOY_DATA_PATH} = $dataPath;
-    my $prjRoot = "$dataPath/workspace";
-    my $prjPath = "$prjRoot/project";
-    $ENV{_DEPLOY_PRJ_PATH} = $prjPath;
-
-    if ( defined($version) and $version ne '' ) {
-        $ENV{VERSION} = $version;
-    }
-    else {
-        $version = $ENV{VERSION};
-    }
-
+    my $dataPath   = "$autoexecHome/data/verdata/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
+    my $prjRoot    = "$dataPath/workspace";
+    my $prjPath    = "$prjRoot/project";
     my $verRoot    = "$dataPath/artifact/$version";
     my $distRoot   = "$verRoot/env";
     my $mirrorRoot = "$dataPath/mirror";
     my $buildRoot  = "$dataPath/artifact/$version/build";
     my $buildPath  = "$buildRoot/$buildNo";
 
+    $deployEnv->{ID_PATH}     = $dpIdPath;
+    $deployEnv->{NAME_PATH}   = $dpPath;
+    $deployEnv->{DATA_PATH}   = $dataPath;
     $deployEnv->{VERSION}     = $version;
     $deployEnv->{VER_ROOT}    = $verRoot;
     $deployEnv->{BUILD_ROOT}  = $buildRoot;
     $deployEnv->{BUILD_PATH}  = $buildPath;
-    $deployEnv->{ID_PATH}     = $dpIdPath;
-    $deployEnv->{NAME_PATH}   = $dpPath;
-    $deployEnv->{DATA_PATH}   = $dataPath;
     $deployEnv->{PRJ_ROOT}    = $prjRoot;
     $deployEnv->{PRJ_PATH}    = $prjPath;
     $deployEnv->{DIST_ROOT}   = $distRoot;
     $deployEnv->{MIRROR_ROOT} = $mirrorRoot;
 
-    $ENV{VER_ROOT}    = $verRoot;
-    $ENV{BUILD_ROOT}  = $buildRoot;
-    $ENV{DIST_ROOT}   = $distRoot;
-    $ENV{PRJ_ROOT}    = $prjRoot;
-    $ENV{PRJ_PATH}    = $prjPath;
-    $ENV{MIRROR_ROOT} = $mirrorRoot;
+    while ( my ( $name, $val ) = each(%$deployEnv) ) {
+        if ( ref($val) eq "ARRAY" or ref($val) eq 'HASH' ) {
+            $val = to_json($val);
+        }
+        $ENV{$name} = $val;
+    }
 
     return $deployEnv;
 }
