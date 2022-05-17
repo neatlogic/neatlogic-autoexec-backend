@@ -233,7 +233,7 @@ sub findProcess {
     my $callback    = $self->{callback};
     my $matchedProc = {};
     my ( $chldOut, $chldIn );
-    my $pid = open( $chldOut, $chldIn, $self->{listProcCmd} );
+    my $pid = open2( $chldOut, $chldIn, $self->{listProcCmd} );
     if ( defined($chldOut) ) {
         my $procFilters  = $self->{procFilters};
         my $filtersCount = $self->{filtersCount};
