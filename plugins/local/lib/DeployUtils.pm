@@ -333,6 +333,10 @@ sub getPipeOut {
         close($chldOut);
     }
 
+    if ( $exitCode > 255 ) {
+        $exitCode = $exitCode >> 8;
+    }
+
     if ( not defined($pid) or $exitCode != 0 and $isVerbose == 1 ) {
         my $len = scalar(@outArray);
         for ( my $i = 0 ; $i < 10 and $i < $len ; $i++ ) {
@@ -386,6 +390,10 @@ sub handlePipeOut {
 
         close($chldIn);
         close($chldOut);
+    }
+
+    if ( $exitCode > 255 ) {
+        $exitCode = $exitCode >> 8;
     }
 
     if ( not defined($pid) or $exitCode != 0 ) {
@@ -757,4 +765,5 @@ sub url_decode {
     $rv =~ s/\%([a-f\d]{2})/ pack 'C', hex $1 /geix;
     return $rv;
 }
+
 1;

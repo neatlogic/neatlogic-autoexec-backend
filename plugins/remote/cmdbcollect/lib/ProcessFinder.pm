@@ -7,6 +7,7 @@ package ProcessFinder;
 
 use strict;
 use FindBin;
+use IPC::Open2;
 use IO::File;
 use Cwd;
 use POSIX qw(uname);
@@ -157,9 +158,9 @@ sub getProcEnv {
         }
 
         my $lastEqualPos = rindex( $envLine, '=' );
-        my $lastEnvPos = rindex( $envLine, ' ', $lastEqualPos );
-        my $lastEnvName = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
-        my $lastEnvVal = substr( $envLine, $lastEqualPos + 1 );
+        my $lastEnvPos   = rindex( $envLine, ' ', $lastEqualPos );
+        my $lastEnvName  = substr( $envLine, $lastEnvPos + 1, $lastEqualPos - $lastEnvPos - 1 );
+        my $lastEnvVal   = substr( $envLine, $lastEqualPos + 1 );
         chomp($lastEnvVal);
         if ( $lastEnvVal =~ /^\w+$/ ) {
             $envMap->{$lastEnvName} = $lastEnvVal;
@@ -231,20 +232,20 @@ sub findProcess {
     print("INFO: Begin to find and match processes.\n");
     my $callback    = $self->{callback};
     my $matchedProc = {};
-    my $pipe;
-    my $pid = open( $pipe, "$self->{listProcCmd}|" );
-    if ( defined($pipe) ) {
+    my ( $chldOut, $chldIn );
+    my $pid = open( $chldOut, $chldIn, $self->{listProcCmd} );
+    if ( defined($chldOut) ) {
         my $procFilters  = $self->{procFilters};
         my $filtersCount = $self->{filtersCount};
 
         my $line;
-        my $headLine = <$pipe>;
+        my $headLine = <$chldOut>;
         $headLine =~ s/^\s*|\s*$//g;
         $headLine =~ s/^.*?PID/PID/g;
-        my $cmdPos = rindex( $headLine, ' ' );
-        my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
+        my $cmdPos      = rindex( $headLine, ' ' );
+        my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);
-        while ( $line = <$pipe> ) {
+        while ( $line = <$chldOut> ) {
             for ( my $i = 0 ; $i < $filtersCount ; $i++ ) {
                 my $config   = $$procFilters[$i];
                 my $regExps  = $config->{regExps};
@@ -361,8 +362,11 @@ sub findProcess {
             }
         }
 
-        close($pipe);
+        waitpid( $pid, 0 );
         my $status = $?;
+        close($chldIn);
+        close($chldOut);
+
         if ( $status != 0 ) {
             print("ERROR: Get Process list failed.\n");
             exit(1);
@@ -392,19 +396,19 @@ sub getProcess {
         IPV6_ADDRS => $self->{ipv6Addrs}
     };
 
-    my $pipe;
-    my $pipePid = open( $pipe, "$self->{listProcCmdByPid} $pid|" );
-    if ( defined($pipe) ) {
+    my ( $chldOut, $chldIn );
+    my $pipePid = open2( $chldOut, $chldIn, "$self->{listProcCmdByPid} $pid" );
+    if ( defined($chldOut) ) {
 
-        my $headLine = <$pipe>;
+        my $headLine = <$chldOut>;
         $headLine =~ s/^\s*|\s*$//g;
         $headLine =~ s/^.*?PID/PID/g;
-        my $cmdPos = rindex( $headLine, ' ' );
-        my @fields = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
+        my $cmdPos      = rindex( $headLine, ' ' );
+        my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
         my $fieldsCount = scalar(@fields);
 
         my $line;
-        while ( $line = <$pipe> ) {
+        while ( $line = <$chldOut> ) {
             $line =~ s/^\s*|\s*$//g;
             my @vars = split( /\s+/, $line );
 
@@ -427,8 +431,11 @@ sub getProcess {
             $procInfo->{ENVIRONMENT} = $envMap;
         }
 
-        close($pipe);
+        waitpid( $pipePid, 0 );
         my $status = $?;
+        close($chldIn);
+        close($chldOut);
+
         if ( $status != 0 ) {
             print("WARN: Get Process $pid information failed.\n");
             return undef;
