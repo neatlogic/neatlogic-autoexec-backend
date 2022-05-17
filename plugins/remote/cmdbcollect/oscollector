@@ -30,6 +30,9 @@ $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 sub collectTimeout {
     my $osType = ( uname() )[0];
     $osType =~ s/\s.*$//;
+
+    print("ERROR: Collect timeout, exceed $SINGLE_TIMEOUT seconds.\n");
+
     if ( $osType ne 'Windows' ) {
         my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
         foreach my $pid (@pids) {
