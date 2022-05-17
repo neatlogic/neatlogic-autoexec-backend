@@ -44,13 +44,13 @@ if __name__ == "__main__":
             timeout = 10
 
         errMsg = None
-        print("INFO: Try to connect to Tagent $host:$port.\n")
+        print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo['host'], nodeInfo['protocolPort']))
         startTime = time.time()
         tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
 
-        data = {'MGMT_IP': nodeInfo['host'],
-                'PORT': int(nodeInfo['port']),
-                'RESOURCE_ID': nodeInfo['resourceId'],
+        data = {'MGMT_IP': nodeInfo.get('host'),
+                'PORT': int(nodeInfo.get('port')),
+                'RESOURCE_ID': nodeInfo.get('resourceId'),
                 'AVAILABILITY': 0
                 }
 
