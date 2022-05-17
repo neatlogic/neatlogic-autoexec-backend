@@ -8,6 +8,31 @@
 工具开发例子请参考子目录 demo 下的工具和工具的json文件。
 
 ## ServerAdapter.pm 接口说明
+plugins/local/lib/ServerAdapter.pm
+lib/ServerAdapter.py 里有getDeployIdPath的方法，与SeverAdapter.pm的getIdPath一致
+```perl
+        $self->{apiMap} = {
+            'getIdPath'             => '',
+            'getVer'                => '',
+            'updateVer'             => '',
+            'releaseVer'            => '',
+            'getAutoCfgConf'        => '',
+            'getDBConf'             => '',
+            'addBuildQulity'        => '',
+            'getAppPassWord'        => '',
+            'getSqlFileStatuses'    => 'codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'       => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'         => 'codedriver/public/api/rest/autoexec/job/sql/update',
+            'creatJob'              => '',
+            'getJobStatus'          => '',
+            'saveVersionDependency' => '',
+            'setEnvVersion'         => '',
+            'rollbackEnvVersion'    => '',
+            'setInsVersion'         => '',
+            'rollbackInsVersion'    => '',
+            'getBuild'              => ''
+        };
+```
 ### Tenant信息
 Tenant信息在HTTP header中
 
@@ -15,10 +40,21 @@ Tenant信息在HTTP header中
 ### - getIdPath
 #### 功能：根据应用模块的名称信息从资源中心获取ID信息
 #### 输入：应用名称，模块名称，环境名(可选）
-    {"sysName":"xxxxxx", "moduleName":"yyyyy", "envName":"zzzzzz"}
-    或：{"sysName":"xxxxxx", "moduleName":"yyyyy"}
+    {
+        sysName    => 'MyApplication', 
+        moduleName => 'MyModule',
+        envName    => 'UAT'
+    }
+    {
+        sysName    => 'MyApplication', 
+        moduleName => 'MyModule'
+    }
 #### 输出
-    {"sysId":111111111, "moduleId":22222222, "envId":3}
+    {
+        sysId    => 11111111,
+        moduleId => 22222222,
+        envId    => 3
+    }
 
 ### 版本中心接口
 ### - getVer
