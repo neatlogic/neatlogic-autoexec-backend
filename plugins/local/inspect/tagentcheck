@@ -19,10 +19,10 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--tiemout', default='', help='Output json file path for node')
+    parser.add_argument('--timeout', default='', help='Output json file path for node')
 
     args = parser.parse_args()
-    tiemout = args.timeout
+    timeout = args.timeout
     node = args.node
 
     try:
