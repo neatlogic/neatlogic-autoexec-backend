@@ -153,6 +153,7 @@ sub main {
     my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockEnvApp($appLockId);
         }

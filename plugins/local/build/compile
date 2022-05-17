@@ -91,6 +91,7 @@ sub main {
     my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockWorkspace($spaceLockId);
         }
@@ -111,7 +112,8 @@ sub main {
     };
 
     my $buildUtils = BuildUtils->new();
-    $buildUtils->compile($opts);
+    my $hasError   = $buildUtils->compile($opts);
+    return $hasError;
 }
 
 exit main();

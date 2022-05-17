@@ -116,6 +116,7 @@ sub main {
     my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockBuild($buildLock);
             $lock->unlockWorkspace($spaceLockId);

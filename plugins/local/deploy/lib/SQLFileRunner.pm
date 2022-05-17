@@ -213,6 +213,7 @@ sub execOneSqlFile {
         close($toChild);
 
         END {
+            local $?;
             if ( defined($sqlFileStatus) ) {
                 my $endStatus     = $sqlFileStatus->getStatusValue('status');
                 my $newHisLogName = $hisLogName;

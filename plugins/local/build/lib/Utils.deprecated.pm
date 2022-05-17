@@ -75,7 +75,7 @@ sub getPipeOut {
     my ( $line, @outArray );
 
     my $exitCode = 0;
-    my $pid = open( PIPE, "$cmd |" );
+    my $pid      = open( PIPE, "$cmd |" );
     if ( defined($pid) ) {
         while ( $line = <PIPE> ) {
             if ( $isVerbose == 1 ) {
@@ -197,6 +197,7 @@ sub doInteract {
 
     END {
         local $?;
+        local $?;
         if ( defined($pipe) ) {
             $pipe->close();
         }
@@ -226,7 +227,7 @@ sub doInteract {
         while ( $hasGetInput == 0 ) {
             print("$message\n");
 
-            my $select = IO::Select->new( $pipe, \*STDIN );
+            my $select       = IO::Select->new( $pipe, \*STDIN );
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {
@@ -368,7 +369,7 @@ sub exitWithFlag {
 sub getErrFlag {
     my $flag = $ENV{AUTOEXEC_FAIL_FLAG};
     return int($flag) if ( defined($flag) );
-    return 0 if ( not defined($flag) );
+    return 0          if ( not defined($flag) );
 }
 
 sub guessEncoding {

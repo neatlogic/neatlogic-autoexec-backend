@@ -79,7 +79,7 @@ sub main {
 
     foreach my $logPattern (@logPatterns) {
         my $pipe;
-        my $pid = open( $pipe, "echo \"$logPattern\" |" );
+        my $pid        = open( $pipe, "echo \"$logPattern\" |" );
         my $logPattern = <$pipe>;
         close($pipe);
         if ( $? == 0 ) {

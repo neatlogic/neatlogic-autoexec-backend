@@ -180,6 +180,7 @@ sub main {
     my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockWorkspace($spaceLockId);
         }

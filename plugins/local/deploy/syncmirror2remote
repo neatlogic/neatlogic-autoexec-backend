@@ -152,6 +152,7 @@ sub main {
     my $mirrorLockId = $lock->lockMirror($DeployLock::WRITE);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockMirror($mirrorLockId);
         }

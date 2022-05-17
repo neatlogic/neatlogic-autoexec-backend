@@ -169,6 +169,7 @@ sub main {
     my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
 
     END {
+        local $?;
         if ( defined($lock) ) {
             $lock->unlockEnvSql($sqlLockId);
         }

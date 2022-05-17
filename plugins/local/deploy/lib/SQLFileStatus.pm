@@ -76,6 +76,7 @@ sub new {
     }
 
     END {
+        local $?;
         if ( defined($fh) ) {
             close($fh);
         }
