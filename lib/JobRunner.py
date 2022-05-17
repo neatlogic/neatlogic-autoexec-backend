@@ -233,7 +233,7 @@ class JobRunner:
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
             # 如果有本地操作，则在context中进行标记
-            if op.opType == 'local':
+            if op.opType in ('local', 'runner'):
                 phaseStatus.hasLocal = True
             else:
                 phaseStatus.hasRemote = True
@@ -357,7 +357,7 @@ class JobRunner:
                 for operation in phaseConfig['operations']:
                     # 如果有本地操作，则在context中进行标记
                     opType = operation['opType']
-                    if opType == 'local':
+                    if opType in ('local', 'runner'):
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True

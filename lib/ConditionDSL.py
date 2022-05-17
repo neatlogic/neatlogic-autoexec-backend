@@ -157,13 +157,14 @@ class Interpreter(object):
 
             parts = ('SYS', 'MODULE', 'ENV')
 
-            rcObj = serverAdapter.getDeployIdPath(dpNamePath)
-            dpIdPath = rcObj.get('idPath')
+            if serverAdapter is not None:
+                rcObj = serverAdapter.getDeployIdPath(dpNamePath)
+                dpIdPath = rcObj.get('idPath')
 
-            if dpIdPath is not None:
-                dpIds = dpIdPath.split('/')
-                for idx in range(0, len(dpIds)):
-                    gEnv[parts[idx] + '_ID'] = dpIds[idx]
+                if dpIdPath is not None:
+                    dpIds = dpIdPath.split('/')
+                    for idx in range(0, len(dpIds)):
+                        gEnv[parts[idx] + '_ID'] = dpIds[idx]
 
             dpNames = dpNamePath.split('/')
             for idx in range(0, len(dpNames)):
@@ -175,12 +176,12 @@ class Interpreter(object):
                 buildNo = os.getenv('_BUILD_NO')
                 gEnv['DATA_PATH'] = dataPath = autoexecHome + '/data/verdata/' + gEnv['SYS_ID'] + '/' + gEnv['MODULE_ID']
                 gEnv['PRJ_ROOT'] = prjRoot = dataPath + '/workspace'
-                gEnv['PRJ_PATH'] = prjPath = prjRoot + '/project'
+                gEnv['PRJ_PATH'] = prjRoot + '/project'
                 gEnv['VER_ROOT'] = verRoot = dataPath + '/artifact/'
-                gEnv['DIST_ROOT'] = distRoot = "$verRoot/env"
-                gEnv['MIRROR_ROOT'] = mirrorRoot = "$dataPath/mirror"
+                gEnv['DIST_ROOT'] = verRoot + "/env"
+                gEnv['MIRROR_ROOT'] = dataPath + "/mirror"
                 gEnv['BUILD_ROOT'] = buildRoot = dataPath + '/artifact/' + version + '/build'
-                gEnv['BUILD_PATH'] = buildPath = buildRoot + '/' + buildNo
+                gEnv['BUILD_PATH'] = buildRoot + '/' + buildNo
 
     def getOperator(self, operName):
         if operName in self.operators:
@@ -237,8 +238,8 @@ class Interpreter(object):
 
         operandsCount = len(AST) - 1
         if operandsCount == 2:
-            operand1 = self.resolveExp(AST[1])
-            operand2 = self.resolveExp(AST[2])
+            operand1 = self.resolveExp(nodeEnv, AST[1])
+            operand2 = self.resolveExp(nodeEnv, AST[2])
             if isinstance(operand1, str):
                 operand2 = str(operand2)
             else:
@@ -250,7 +251,7 @@ class Interpreter(object):
 
             result = op(operand1, operand2)
         else:
-            operand1 = self.resolveExp(AST[1])
+            operand1 = self.resolveExp(nodeEnv, AST[1])
             result = op(operand1)
 
         return result
@@ -269,8 +270,8 @@ if __name__ == "__main__":
     if isinstance(ast, Operation):
         print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
-        interpreter = Interpreter(AST=ast.asList())
-        result = interpreter.resolve()
+        interpreter = Interpreter()
+        result = interpreter.resolve({}, AST=ast.asList())
         print(result)
     else:
         print("ERROR: Parse error, syntax error at char 0\n")
