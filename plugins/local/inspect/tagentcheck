@@ -48,8 +48,12 @@ if __name__ == "__main__":
         startTime = time.time()
         tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
 
+        port = nodeInfo.get('port')
+        if port is not None:
+            port = int(port)
+
         data = {'MGMT_IP': nodeInfo.get('host'),
-                'PORT': int(nodeInfo.get('port')),
+                'PORT': port,
                 'RESOURCE_ID': nodeInfo.get('resourceId'),
                 'AVAILABILITY': 0
                 }
