@@ -215,6 +215,22 @@ sub isatty {
     return $isTTY;
 }
 
+sub getNodeInfo {
+    my ( $self, $node ) = @_;
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( defined($node) and $node ne '' ) {
+        $nodeInfo = from_json($node);
+        $nodeInfo->{nodeUniqueName} = $nodeInfo->{host} . '.' . $nodeInfo->{port};
+    }
+
+    return $nodeInfo;
+}
+
 sub decryptPwd {
     my ( $self, $data ) = @_;
     return $self->{serverConf}->decryptPwd($data);

@@ -44,16 +44,13 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
-    my $nodeInfo    = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
 
-    if ( not defined($node) or $node eq '' ) {
+    my $deployUtils = DeployUtils->new();
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( not defined($direction) or $direction eq '' ) {
@@ -83,14 +80,15 @@ sub main {
         usage();
     }
 
-    my $host    = $nodeInfo->{host};
-    my $port    = $nodeInfo->{protocolPort};
-    my $user    = $nodeInfo->{username};
-    my $pass    = $nodeInfo->{password};
-    my $insId   = $nodeInfo->{resourceId};
-    my $insName = $nodeInfo->{nodeName};
+    my $host  = $nodeInfo->{host};
+    my $port  = $nodeInfo->{protocolPort};
+    my $user  = $nodeInfo->{username};
+    my $pass  = $nodeInfo->{password};
+    my $insId = $nodeInfo->{resourceId};
 
-    my $deployUtils = DeployUtils->new();
+    #my $insName = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqueName};
+
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
     }

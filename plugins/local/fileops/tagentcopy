@@ -14,6 +14,7 @@ sub usage {
 
     print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
     print("              [--np NoPermission] [--followlinks FollowLinks] [--cpifexists CopyIfExists]]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
     print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
     print("\n");
     print("       --node:        Host node json\n");
@@ -27,8 +28,8 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose );
-    my ( $node, $direction, $src, $dest, $np, $cpIfExists, $followLinks );
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $pdir, $node, $direction, $src, $dest, $np, $cpIfExists, $followLinks );
     AutoExecUtils::setEnv();
 
     my $pname = basename($0);
@@ -39,31 +40,30 @@ sub main {
     $cpIfExists  = 0;
 
     GetOptions(
-        'h|help'        => \$isHelp,
-        'v|verbose=i'   => \$isVerbose,
-        'node=s'        => \$node,
-        'direction=s'   => \$direction,
-        'src=s'         => \$src,
-        'dest=s'        => \$dest,
-        'np=i'          => \$np,
-        'followlinks=i' => \$followLinks,
-        'cpifexists=i'  => \$cpIfExists
+        'h|help'         => \$isHelp,
+        'envpath=s{0,1}' => \$envPath,
+        'version=s'      => \$version,
+        'v|verbose=i'    => \$isVerbose,
+        'node=s'         => \$node,
+        'direction=s'    => \$direction,
+        'pdir=s'         => \$pdir,
+        'src=s'          => \$src,
+        'dest=s'         => \$dest,
+        'np=i'           => \$np,
+        'followlinks=i'  => \$followLinks,
+        'cpifexists=i'   => \$cpIfExists
     );
 
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
+    my $deployUtils = DeployUtils->new();
 
-    if ( not defined($node) or $node eq '' ) {
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( not defined($direction) or $direction eq '' ) {
@@ -89,18 +89,32 @@ sub main {
         $optionError = 1;
     }
 
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
+    my $verPath = $dirInfo->{$pdir};
+
+    if ( defined($pdir) ) {
+        if ( not defined($verPath) ) {
+            print("ERROR: $pdir not valid, not in appsync|mirror|appbuild|version.\n");
+            $optionError = 1;
+        }
+    }
+
     if ( $optionError == 1 ) {
         usage();
     }
 
-    my $host    = $nodeInfo->{host};
-    my $port    = $nodeInfo->{protocolPort};
-    my $user    = $nodeInfo->{username};
-    my $pass    = $nodeInfo->{password};
-    my $insId   = $nodeInfo->{resourceId};
-    my $insName = $nodeInfo->{nodeName};
+    my $host = $nodeInfo->{host};
+    my $port = $nodeInfo->{protocolPort};
+    my $user = $nodeInfo->{username};
+    my $pass = $nodeInfo->{password};
 
-    my $deployUtils = DeployUtils->new();
+    #my $insId   = $nodeInfo->{resourceId};
+    #my $insName = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqueName};
+
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
     }
@@ -109,45 +123,66 @@ sub main {
         $port = 3939;
     }
 
-    my $isSuccess = 0;
-    my @src_dirs  = split( /,/, $src );
-    my $tagent    = new TagentClient( $host, $port, $pass );
+    my $ret     = 0;
+    my @srcDirs = split( /,/, $src );
+    my $tagent  = new TagentClient( $host, $port, $pass );
 
     if ( $direction eq 'push' ) {
-        foreach my $target (@src_dirs) {
-            if ( !-d $target ) {
-                $isSuccess = 1;
-                print("ERROR: src path $target not exists .\n");
+        my $verDiffPath = "$verPath.ins/$insUniqName";
+
+        foreach my $target (@srcDirs) {
+            my @targetDirs = bsd_glob("$verPath/$target");
+            if ( scalar(@targetDirs) == 0 ) {
+                $ret = 1;
+                print("ERROR: Source file or directory:$target not found.\n");
                 last;
             }
-            $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
-            if ( $isSuccess ne 0 ) {
+
+            foreach my $dir (@targetDirs) {
+                $ret = $tagent->upload( $user, $dir, $dest, $isVerbose, 0, $followLinks );
+                if ( $ret ne 0 ) {
+                    last;
+                }
+            }
+
+            if ( $ret ne 0 ) {
+                last;
+            }
+
+            foreach my $diffDir ( bsd_glob("$verDiffPath/$target") ) {
+                $ret = $tagent->upload( $user, $diffDir, $dest, $isVerbose, 0, $followLinks );
+                if ( $ret ne 0 ) {
+                    last;
+                }
+            }
+
+            if ( $ret ne 0 ) {
                 last;
             }
         }
     }
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
-            $isSuccess = 1;
+            $ret = 1;
             print("ERROR: dest path $dest not exists .\n");
         }
         else {
-            foreach my $target (@src_dirs) {
-                $isSuccess = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
-                if ( $isSuccess ne 0 ) {
+            foreach my $target (@srcDirs) {
+                $ret = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
+                if ( $ret ne 0 ) {
                     last;
                 }
             }
         }
     }
 
-    if ( $isSuccess ne 0 ) {
+    if ( $ret ne 0 ) {
         print("ERROR: $pname --$direction $src $dest failed.\n");
     }
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
-    return $isSuccess;
+    return $ret;
 }
 
 exit( main() );

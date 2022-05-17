@@ -286,15 +286,19 @@ sub getAutoCfgConf {
         },
         insCfgList => [
             {
-                insName => "insName1",
-                autoCfg => {
+                nodeName => 'insName1',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {
                     basic    => 'ins1-mybasicval',
                     password => 'ins1-mypasswd'
                 }
             },
             {
-                insName => "insName2",
-                autoCfg => {
+                nodeName => 'insName1',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {
                     basic    => 'ins2-mybasicval',
                     password => 'ins2-mypasswd'
                 }

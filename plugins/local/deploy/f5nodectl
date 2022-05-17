@@ -48,11 +48,6 @@ sub main {
     $| = 1;
 
     my $optionError = 0;
-    if ( not defined($envPath) or $envPath eq '' ) {
-        $optionError = 1;
-        print("ERROR: must define --envpath.\n");
-    }
-
     if ( not defined($f5Url) or $f5Url eq '' ) {
         $optionError = 1;
         print("ERROR: must define --baseurl.\n");
@@ -87,16 +82,19 @@ sub main {
         $timeOut = int($timeOut);
     }
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit($envPath);
+
+    $envPath = $deployEnv->{NAME_PATH};
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
     }
 
-    if ( not defined($node) or $node eq '' ) {
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( $optionError == 1 ) {
@@ -108,19 +106,6 @@ sub main {
         #TODO: F5密码的获取方法需要修改
         my $serverAdapter = ServerAdapter->new();
         $pass = $serverAdapter->getAppPassWord( $f5Url, $user );
-    }
-
-    my $deployUtils = DeployUtils->new();
-    my $deployEnv   = $deployUtils->deployInit($envPath);
-
-    $envPath = $deployEnv->{NAME_PATH};
-
-    if ( not defined($envPath) or $envPath eq '' ) {
-        $optionError = 1;
-        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
-    }
-    if ( $optionError == 1 ) {
-        usage();
     }
 
     my $hasError = 0;

@@ -118,6 +118,12 @@ sub main {
     if ( not defined( $autoCfgMap->{insCfgList} ) ) {
         $insCfgList = [];
     }
+    else {
+        foreach my $insCfg (@$insCfgList) {
+            $insCfg->{insName}     = $insCfg->{host} . '.' . $insCfg->{port};
+            $insCfg->{insUniqName} = $insCfg->{host} . '.' . $insCfg->{port};
+        }
+    }
     $buildEnv->{autoCfg}    = $autoCfg;
     $buildEnv->{insCfgList} = $insCfgList;
 

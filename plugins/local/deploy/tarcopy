@@ -104,16 +104,10 @@ sub main {
         }
     }
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
-
-    if ( not defined($node) or $node eq '' ) {
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( $optionError == 1 ) {
@@ -131,12 +125,14 @@ sub main {
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
-    my $host    = $nodeInfo->{host};
-    my $port    = $nodeInfo->{protocolPort};
-    my $user    = $nodeInfo->{username};
-    my $pass    = $nodeInfo->{password};
-    my $insId   = $nodeInfo->{resourceId};
-    my $insName = $nodeInfo->{nodeName};
+    my $host  = $nodeInfo->{host};
+    my $port  = $nodeInfo->{protocolPort};
+    my $user  = $nodeInfo->{username};
+    my $pass  = $nodeInfo->{password};
+    my $insId = $nodeInfo->{resourceId};
+
+    #my $insName = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqueName};
 
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
@@ -154,7 +150,7 @@ sub main {
         }
     }
 
-    my $verDiffPath = "$verPath.ins/$insName";
+    my $verDiffPath = "$verPath.ins/$insUniqName";
 
     if ( $isPull eq 0 ) {
         foreach my $dir (@items) {

@@ -53,16 +53,12 @@ sub main {
     usage() if ( defined($isHelp) );
     my $optionError = 0;
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
+    my $deployUtils = DeployUtils->new();
 
-    if ( not defined($node) or $node eq '' ) {
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( not defined($scriptObj) ) {
@@ -78,8 +74,6 @@ sub main {
         $eofStr =~ s/^\{[\w-\d]+\}//;
         $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
     }
-
-    my $deployUtils = DeployUtils->new();
 
     my $hasError = 0;
 

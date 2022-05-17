@@ -841,12 +841,12 @@ sub getInsCfgMaps {
     my $insInfos = $buildEnv->{insCfgList};
 
     foreach my $insInfo (@$insInfos) {
-        push( @instances, $insInfo->{insName} );
+        push( @instances, $insInfo->{insUniqName} );
 
         my $insCfgMap = $insInfo->{autoCfg};
         if ( defined($insCfgMap) ) {
             $insCfgMap = convertCfgMapCharset( $insCfgMap, $encoding );
-            $insCfgMaps->{ $insInfo->{insName} } = $insCfgMap;
+            $insCfgMaps->{ $insInfo->{insUniqName} } = $insCfgMap;
         }
     }
 

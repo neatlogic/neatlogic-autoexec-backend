@@ -102,16 +102,10 @@ sub main {
         }
     }
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
-
-    if ( not defined($node) or $node eq '' ) {
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
         $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
     if ( $optionError == 1 ) {
@@ -135,12 +129,14 @@ sub main {
 
     my $tmpDir = $deployEnv->{AUTOEXEC_HOME} . '/tmp';
 
-    my $host    = $nodeInfo->{host};
-    my $port    = $nodeInfo->{protocolPort};
-    my $user    = $nodeInfo->{username};
-    my $pass    = $nodeInfo->{password};
-    my $insId   = $nodeInfo->{resourceId};
-    my $insName = $nodeInfo->{nodeName};
+    my $host  = $nodeInfo->{host};
+    my $port  = $nodeInfo->{protocolPort};
+    my $user  = $nodeInfo->{username};
+    my $pass  = $nodeInfo->{password};
+    my $insId = $nodeInfo->{resourceId};
+
+    #my $insName     = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqueName};
 
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
@@ -163,7 +159,7 @@ sub main {
     if ( not defined($src) or $src eq '' ) {
         $src = $verPath;
         if ( defined($insId) and $insId ne '' ) {
-            my $insDiff = $insDiffPath . '/' . $insName;
+            my $insDiff = $insDiffPath . '/' . $insUniqName;
             if ( $pdir eq 'distribute' and -d $insDiff ) {
                 $src = "$src,$insDiff";
             }
@@ -172,7 +168,7 @@ sub main {
     else {
         my $realSrc = realpath("$verPath/$src");
         if ( defined($insId) and $insId ne '' ) {
-            my $insDiff = "$insDiffPath/$insName/$src";
+            my $insDiff = "$insDiffPath/$insUniqName/$src";
             if ( -d $insDiff ) {
                 $src = "$realSrc,$insDiff";
             }

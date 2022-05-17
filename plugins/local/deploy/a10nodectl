@@ -45,11 +45,6 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
-    if ( not defined($envPath) or $envPath eq '' ) {
-        $optionError = 1;
-        print("ERROR: must define --envpath.\n");
-    }
-
     if ( not defined($a10Url) or $a10Url eq '' ) {
         $optionError = 1;
         print("ERROR: must define --baseurl.\n");
@@ -70,27 +65,21 @@ sub main {
         print("ERROR: action must to be enable or disable.\n");
     }
 
-    my $nodeInfo = {};
-    if ( not defined($node) ) {
-        $node = $ENV{AUTOEXEC_NODE};
-    }
-
-    if ( not defined($node) or $node eq '' ) {
-        $optionError = 1;
-    }
-    else {
-        $nodeInfo = from_json($node);
-    }
-
     my $deployUtils = DeployUtils->new();
     my $deployEnv   = $deployUtils->deployInit($envPath);
 
     $envPath = $deployEnv->{NAME_PATH};
-
     if ( not defined($envPath) or $envPath eq '' ) {
         $optionError = 1;
         print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
     }
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
     if ( $optionError == 1 ) {
         usage();
     }
