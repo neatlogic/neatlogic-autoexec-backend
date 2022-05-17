@@ -119,7 +119,7 @@ class RunNode:
         self.nodeEnv['RESOURCE_ID'] = self.resourceId
         self.nodeEnv['NODE_NAME'] = self.name
         self.nodeEnv['NODE_HOST'] = self.host
-        self.nodeEnv['NODE_PORT'] = self.port
+        self.nodeEnv['NODE_PORT'] = str(self.port)
         self.nodeEnv['NODE_PROTOCOL_PORT'] = self.protocolPort
         self.nodeEnv['INS_NAME'] = self.name
         self.nodeEnv['INS_HOST'] = self.host
@@ -738,7 +738,7 @@ class RunNode:
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
         environment['NODE_HOST'] = self.host
-        environment['NODE_PORT'] = self.port
+        environment['NODE_PORT'] = str(self.port)
         environment['NODE_NAME'] = self.name
         environment['AUTOEXEC_NODE'] = json.dumps(self.node)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
@@ -798,7 +798,7 @@ class RunNode:
                     'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword),
                     'HISTSIZE': '0',
                     'NODE_HOST': self.host,
-                    'NODE_PORT': self.port,
+                    'NODE_PORT': str(self.port),
                     'NODE_NAME': self.name
                 }
                 self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
@@ -910,7 +910,7 @@ class RunNode:
             remoteRoot = '/tmp/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'cd {} && HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                remotePath, self.host, self.port, self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
+                remotePath, self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
             remoteCmdHidePass = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
