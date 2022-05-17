@@ -7,11 +7,10 @@
     "defaultProfile": "k8s-args",
     "description": "K8S应用的部署",
     "enabled": 0,
-    "option": [
-        {
-            "opt": "ip",
-            "name": "k8s管理ip",
-            "help": "K8S 管理IP，例如：192.168.99.100",
+    "option": [{
+            "opt": "host",
+            "name": "管理IP或域名",
+            "help": "K8S 管理IP或域名，例如：192.168.99.100",
             "type": "text",
             "isConst": "false",
             "defaultValue": "",
@@ -19,7 +18,7 @@
             "validate": ""
         },
         {
-            "opt": "apiPort",
+            "opt": "apiport",
             "name": "API端口",
             "help": "K8S API端口，例如:8443",
             "type": "text",
@@ -29,7 +28,7 @@
             "validate": ""
         },
         {
-            "opt": "managerPort",
+            "opt": "mgmtport",
             "name": "k8s管理端口",
             "help": "K8S 管理端口，例如：30001",
             "type": "text",
@@ -54,20 +53,18 @@
             "help": "执行的动作",
             "type": "select",
             "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "更新",
-                    "value": "patch",
-                    "selected": "true"
-                }
-            ],
+            "defaultValue": [{
+                "text": "更新",
+                "value": "patch",
+                "selected": "true"
+            }],
             "required": "true",
             "validate": ""
         },
         {
             "opt": "image",
             "name": "镜像",
-            "help": "镜像，例如：nginx:1.7.6",
+            "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
             "type": "text",
             "isConst": "false",
             "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}",

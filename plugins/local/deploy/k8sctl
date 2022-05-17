@@ -11,11 +11,12 @@ use Data::Dumper;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --ip <ip> --apiPort <apiPort> --managerPort <managerPort> --token <authToken>\n");
-    print("        --image DockerImage --name AppName  --namespace K8sNameSpace --deployment K8sDeployment\n");
-    print("       --ip:           k8s web manager ip, example:192.168.99.100\n");
-    print("       --apiPort:      k8s api port, example:8843\n");
-    print("       --managerPort:  k8s web manager port , example:30001\n");
+    print("Usage: $pname --host K8sHost --apiport APIServerPort --mgmtport ManagermentPort --token Token\n");
+    print("       --image DockerImage --name AppName  --namespace K8sNameSpace --deployment K8sDeployment\n");
+    print("\n");
+    print("       --host:         k8s host, example:192.168.99.100\n");
+    print("       --apiport:      k8s api port, example:8843\n");
+    print("       --mgmtport:     k8s web management port , example:30001\n");
     print("       --token:        k8s authenticate token\n");
     print("       --image:        docker image, example:nginx:1.7.6\n");
     print("       --name:         app name, example:nginx\n");
@@ -150,24 +151,24 @@ sub getRollUpdateInfo {
 }
 
 sub main {
-    my ( $ip, $apiPort, $managerPort, $token );
+    my ( $host, $apiPort, $managerPort, $token );
     my ( $image, $name, $namespace, $deployment, $action );
 
     GetOptions(
-        'ip=s'          => \$ip,
-        'apiPort=s'     => \$apiPort,
-        'managerPort=s' => \$managerPort,
-        'token=s'       => \$token,
-        'image=s'       => \$image,
-        'name=s'        => \$name,
-        'namespace=s'   => \$namespace,
-        'deployment=s'  => \$deployment,
-        'action=s'      => \$action
+        'host=s'       => \$host,
+        'apiport=s'    => \$apiPort,
+        'mgmtport=s'   => \$managerPort,
+        'token=s'      => \$token,
+        'image=s'      => \$image,
+        'name=s'       => \$name,
+        'namespace=s'  => \$namespace,
+        'deployment=s' => \$deployment,
+        'action=s'     => \$action
     );
 
     my $optionError = 0;
 
-    if ( ( not defined($ip) or $ip eq '' ) and ( not defined($apiPort) or $apiPort eq '' ) ) {
+    if ( ( not defined($host) or $host eq '' ) and ( not defined($apiPort) or $apiPort eq '' ) ) {
         print("ERROR: Must defind ip and apiPort for k8s api server.\n");
         $optionError = 1;
     }
@@ -207,7 +208,7 @@ sub main {
 # my $namespace = 'default';
 # my $deployment = 'nginx-deployment';
 # my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
-    my $baseUrl = "https://$ip:$apiPort";
+    my $baseUrl = "https://$host:$apiPort";
     my $url     = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
 
     my $reqObj = {
@@ -258,7 +259,7 @@ sub main {
         my $image = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'image'};
 
         #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
-        $baseUrl = "https://$ip:$managerPort";
+        $baseUrl = "https://$host:$managerPort";
         while (1) {
             my $data = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
             if ( defined($data) ) {

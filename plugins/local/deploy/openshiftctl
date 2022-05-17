@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Getopt::Long;
+use WebCtl;
+use JSON;
+use File::Basename;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --baseurl BaseUrl --token Token\n");
+    print("        --project Project --deployment Deployment --image DockerImage --action patch|del\n");
+    print("\n");
+    print("       --baseurl:      web manager base url, example:https://192.168.99.100:8443\n");
+    print("       --token:        authenticate token\n");
+    print("       --image:        docker image, example:nginx:1.7.6\n");
+    print("       --project:      namespace, example:project\n");
+    print("       --deployment:   deployment: example:nginx-deployment\n");
+    print("       --acton:        deploy action patch|del\n");
+
+    exit(1);
+}
+
+sub main {
+    my ($isHelp);
+    my ( $baseUrl, $deployment, $project, $image, $action );
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'baseurl=s'    => \$baseUrl,
+        'deployment=s' => \$deployment,
+        'project=s'    => \$project,
+        'image=s'      => \$image,
+        'action=s'     => \$action,
+    );
+
+    $| = 1;
+
+    my $hasOptError = 0;
+
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define base url by option --baseurl.\n");
+    }
+
+    if ( not defined($deployment) or $deployment eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define deployment by option --deployment.\n");
+    }
+
+    if ( not defined($project) or $project eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define project by option --project.\n");
+    }
+
+    if ( not defined($image) or $image eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define image by option --image.\n");
+    }
+
+    if ( not defined($action) or $action eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: must define action by option --action.\n");
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+    $baseUrl =~ s/\/+$//;
+
+    my $hasError = 0;
+
+    my $webCtl        = WebCtl->new();
+    my $imageDef      = { "version"        => "$image" };
+    my $deploymentDef = { "name"           => "$deployment" };
+    my $projectDef    = { "name"           => "$project" };
+    my $header        = { "X-GitHub-Event" => "pull_request" };
+    $webCtl->setHeaders($header);
+
+    if ( $action eq 'patch' ) {
+        eval {
+            my $url = $baseUrl;
+
+            #TODO: API URL未知
+            my $content = $webCtl->doRest( 'GET', $url, { "image" => $imageDef, "deployment" => $deploymentDef, "project" => $projectDef } );
+            print("INFO: Patch success \n");
+        };
+        if ($@) {
+            $hasError = 1;
+            my $msg = $@;
+            $msg =~ s/ at .*?$//;
+            print("ERROR: Patch failed, $msg\n");
+        }
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Only support action patch.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+
