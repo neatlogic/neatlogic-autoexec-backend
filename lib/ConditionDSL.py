@@ -159,12 +159,9 @@ class Interpreter(object):
 
             if serverAdapter is not None:
                 rcObj = serverAdapter.getDeployIdPath(dpNamePath)
-                dpIdPath = rcObj.get('idPath')
-
-                if dpIdPath is not None:
-                    dpIds = dpIdPath.split('/')
-                    for idx in range(0, len(dpIds)):
-                        gEnv[parts[idx] + '_ID'] = dpIds[idx]
+                gEnv['SYS_ID'] = str(rcObj.get('sysId'))
+                gEnv['MODULE_ID'] = str(rcObj.get('moduleId'))
+                gEnv['ENV_ID'] = str(rcObj.get('envId'))
 
             dpNames = dpNamePath.split('/')
             for idx in range(0, len(dpNames)):

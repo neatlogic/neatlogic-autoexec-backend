@@ -2,6 +2,7 @@
 use strict;
 
 package DeployUtils;
+use IPC::Open2;
 use feature 'state';
 use Cwd;
 use Crypt::RC4;
@@ -274,11 +275,11 @@ sub execmd {
     }
 
     my $exitCode = -1;
-    my ( $pid, $handle );
-    if ( $pid = open( $handle, "$cmd 2>\&1 |" ) ) {
+    my ( $pid, $chldOut, $chldIn );
+    if ( $pid = open2( $chldOut, $chldIn, "$cmd 2>\&1" ) ) {
         my $line;
         if ( $encoding eq 'utf-8' ) {
-            while ( $line = <$handle> ) {
+            while ( $line = <$chldOut> ) {
                 if ( defined($pattern) ) {
                     $line =~ s/$pattern//;
                 }
@@ -287,7 +288,7 @@ sub execmd {
             }
         }
         else {
-            while ( $line = <$handle> ) {
+            while ( $line = <$chldOut> ) {
                 if ( defined($pattern) ) {
                     $line =~ s/$pattern//;
                 }
@@ -302,7 +303,8 @@ sub execmd {
             $exitCode = $exitCode >> 8;
         }
 
-        close($handle);
+        close($chldIn);
+        close($chldOut);
     }
 
     return $exitCode;
@@ -314,9 +316,10 @@ sub getPipeOut {
     my ( $line, @outArray );
 
     my $exitCode = 0;
-    my $pid      = open( PIPE, "$cmd |" );
+    my ( $pid, $chldOut, $chldIn );
+    $pid = open2( $chldOut, $chldIn, $cmd );
     if ( defined($pid) ) {
-        while ( $line = <PIPE> ) {
+        while ( $line = <$chldOut> ) {
             if ( $isVerbose == 1 ) {
                 print($line);
             }
@@ -326,7 +329,8 @@ sub getPipeOut {
         }
         waitpid( $pid, 0 );
         $exitCode = $?;
-        close(PIPE);
+        close($chldIn);
+        close($chldOut);
     }
 
     if ( not defined($pid) or $exitCode != 0 and $isVerbose == 1 ) {
@@ -365,9 +369,10 @@ sub handlePipeOut {
         }
     }
 
-    my $pid = open( PIPE, "$cmd |" );
+    my ( $pid, $chldOut, $chldIn );
+    $pid = open2( $chldOut, $chldIn, $cmd );
     if ( defined($pid) ) {
-        while ( $line = <PIPE> ) {
+        while ( $line = <$chldOut> ) {
             if ( $isVerbose == 1 ) {
                 print($line);
             }
@@ -379,7 +384,8 @@ sub handlePipeOut {
         waitpid( $pid, 0 );
         $exitCode = $?;
 
-        close(PIPE);
+        close($chldIn);
+        close($chldOut);
     }
 
     if ( not defined($pid) or $exitCode != 0 ) {

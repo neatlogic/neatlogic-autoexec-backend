@@ -148,6 +148,8 @@ sub main {
         $jobId = 0;
     }
 
+    my @insArray = split( /\s*,\s*/, $instances );
+
     my $createdJobId;
     eval {
         $createdJobId = $serverAdapter->createJob(
@@ -163,7 +165,7 @@ sub main {
             planTime      => $planTime,
             roundCount    => $roundCount,
             jobUser       => $jobUser,
-            instances     => $instances
+            instances     => \@insArray
         );
     };
     if ( $@ or not defined($createdJobId) ) {

@@ -143,7 +143,14 @@ sub getIdPath {
     my $content = $webCtl->postJson( $url, $param );
     my $rcObj   = $self->_getReturn($content);
 
-    my $idPath = $rcObj->{idPath};
+    my $sysId    = $rcObj->{sysId};
+    my $moduleId = $rcObj->{moduleId};
+    my $envId    = $rcObj->{envId};
+    my $idPath   = "$sysId/$moduleId";
+    if ( defined($envId) and $envId ne '' ) {
+        $idPath = "$idPath/$envId";
+    }
+
     return $idPath;
 }
 
@@ -220,9 +227,15 @@ sub updateVer {
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
     my $params = $self->_getParams($buildEnv);
-    while ( my ( $key, $val ) = each(%$verInfo) ) {
-        $params->{$key} = $val;
+
+    if ( defined( $verInfo->{version} ) and $verInfo->{version} ne '' ) {
+        $params->{version} = $verInfo->{version};
     }
+    if ( defined( $verInfo->{buildNo} ) and $verInfo->{buildNo} ne '' ) {
+        $params->{buildNo} = $verInfo->{buildNo};
+    }
+
+    $params->{verInfo} = $verInfo;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('updateVer');
@@ -471,6 +484,7 @@ sub getAppPassWord {
     $params->{protocol} = $protocol;
     $params->{host}     = $host;
     $params->{port}     = $port;
+    $params->{username} = $userName;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getAppPassWord');
@@ -675,7 +689,7 @@ sub pushSqlStatus {
     return;
 }
 
-sub creatJob {
+sub createJob {
     my ( $self, $jobId, $buildEnv, %args ) = @_;
 
     my $baseUrl   = $args{baseUrl};
@@ -708,8 +722,10 @@ sub creatJob {
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
+    my $chldJobId = $rcObj->{jobId};
+
     #TODO: test createJob
-    return;
+    return $chldJobId;
 }
 
 sub getJobStatus {
@@ -731,8 +747,10 @@ sub getJobStatus {
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
+    my $jobStatus = $rcObj->{status};
+
     #TODO: test getJobStatus
-    return;
+    return $jobStatus;
 }
 
 sub saveVersionDependency {
