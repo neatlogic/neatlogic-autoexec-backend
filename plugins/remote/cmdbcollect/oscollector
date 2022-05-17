@@ -23,7 +23,7 @@ use AutoExecUtils;
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
 
-my $SINGLE_TIMEOUT = 300;
+my $SINGLE_TIMEOUT = 600;
 my $START_TIME     = time();
 $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 
@@ -537,7 +537,7 @@ sub doDetailCollect {
                 }
             }
             else {
-                $appInfo->{MEM_USED} = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
+                $appInfo->{MEM_USED}  = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
                 $appInfo->{MEM_USAGE} = $procInfo->{'%MEM'} + 0.0;
             }
         }
