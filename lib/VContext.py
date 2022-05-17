@@ -14,7 +14,7 @@ import Utils
 
 class VContext:
     def __init__(self, jobId=0, execUser=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
-        self.jobId = jobId
+        self.jobId = str(jobId)
         self.pid = os.getpid()
 
         self.dbclient = None

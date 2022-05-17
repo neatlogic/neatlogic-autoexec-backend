@@ -66,7 +66,7 @@ class Context(VContext.VContext):
         params = self.params
         if 'jobId' in params:
             jobId = params['jobId']
-            self.jobId = '{}'.format(jobId)
+            self.jobId = str(jobId)
 
         if self.execUser is None:
             if 'execUser' in params and params['execUser'] != 'system':
