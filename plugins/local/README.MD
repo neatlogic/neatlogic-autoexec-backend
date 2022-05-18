@@ -166,7 +166,7 @@ Tenant信息在HTTP header中
     }
 #### 输出(JSON)，！！需要包含所有实例！！:
     AutoCfg的配置
-{
+    {
         autoCfg => {
             basic    => 'mybasicval',
             password => 'mypasswd'

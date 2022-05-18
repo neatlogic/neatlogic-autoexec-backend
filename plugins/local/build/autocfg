@@ -110,7 +110,9 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
     my $autoCfgMap    = $serverAdapter->getAutoCfgConf($buildEnv);
-    my $autoCfg       = $autoCfgMap->{autoCfg};
+
+    my $insCfgMaps = {};
+    my $autoCfg    = $autoCfgMap->{autoCfg};
     if ( not defined($autoCfg) ) {
         $autoCfg = {};
     }
@@ -119,23 +121,92 @@ sub main {
         $insCfgList = [];
     }
     else {
-        my $insNamsMap = {};
+        my $insNamesMap = {};
+        my $insHostsMap = {};
         foreach my $insCfg (@$insCfgList) {
-            my $nodeName = $insCfg->{nodeName};
-            $insCfg->{insName} = $nodeName;
+            my $nodeName = lc( $insCfg->{nodeName} );
+            $insCfg->{nodeName} = $nodeName;
 
-            #$insCfg->{insUniqName} = $insCfg->{host} . '.' . $insCfg->{port};
-            $insCfg->{insUniqName} = $nodeName;
+            my $nodeHost = lc( $insCfg->{host} );
+            $insCfg->{host} = $nodeHost;
 
-            if ( defined( $insNamsMap->{$nodeName} ) ) {
-                $insNamsMap->{$nodeName} = $insNamsMap->{$nodeName} + 1;
-                print("WARN: Instance name:$nodeName not unique.\n");
+            my $nodeUniqName = $nodeHost . '.' . $insCfg->{port};
+            $insCfg->{uniqName} = $nodeUniqName;
+
+            my $insAutoCfg = $insCfg->{autoCfg};
+            if ( not defined($insAutoCfg) ) {
+                $insAutoCfg = {};
+                $insCfg->{autoCfg} = $insAutoCfg;
+            }
+
+            #$insCfg->{uniqName} = $nodeName;
+            $insCfgMaps->{$nodeName}     = $insAutoCfg;
+            $insCfgMaps->{$nodeUniqName} = $insAutoCfg;
+            $insCfgMaps->{$nodeHost}     = $insAutoCfg;
+
+            if ( defined( $insNamesMap->{$nodeName} ) ) {
+                $insNamesMap->{$nodeName} = $insNamesMap->{$nodeName} + 1;
             }
             else {
-                $insNamsMap->{$nodeName} = 1;
+                $insNamesMap->{$nodeName} = 0;
+            }
+
+            if ( defined( $insHostsMap->{$nodeHost} ) ) {
+                $insHostsMap->{$nodeHost} = $insHostsMap->{$nodeHost} + 1;
+            }
+            else {
+                $insHostsMap->{$nodeHost} = 0;
             }
         }
+
+        foreach my $insCfg (@$insCfgList) {
+            my $insName           = $insCfg->{nodeName};
+            my $nameConflictCount = $insNamesMap->{$insName};
+            if ( not defined($nameConflictCount) ) {
+                $nameConflictCount = 0;
+            }
+            $insCfg->{nameConflictCount} = $nameConflictCount;
+
+            my $host              = $insCfg->{host};
+            my $hostConflictCount = $insHostsMap->{$host};
+            if ( not defined($hostConflictCount) ) {
+                $hostConflictCount = 0;
+            }
+            $insCfg->{hostConflictCount} = $hostConflictCount;
+        }
     }
+
+    #加工后的autoCfg和insCfgList
+    # autoCfg => {
+    #     basic    => 'mybasicval',
+    #     password => 'mypasswd'
+    # },
+    # insCfgList => [
+    #     {
+    #         nodeName          => 'insName1',
+    #         uniqName          => '192.168.0.2.8080',
+    #         nameConflictCount => 0,
+    #         host              => '192.168.0.2',
+    #         hostConflictCount => 0,
+    #         port              => 8080,
+    #         autoCfg           => {
+    #             basic    => 'ins1-mybasicval',
+    #             password => 'ins1-mypasswd'
+    #         }
+    #     },
+    #     {
+    #         nodeName          => 'insName2',
+    #         uniqName          => '192.168.0.3.8080',
+    #         nameConflictCount => 0,
+    #         host              => '192.168.0.3',
+    #         hostConflictCount => 0,
+    #         port              => 8080,
+    #         autoCfg           => {
+    #             basic    => 'ins2-mybasicval',
+    #             password => 'ins2-mypasswd'
+    #         }
+    #     }
+    # ]
 
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
@@ -152,6 +223,7 @@ sub main {
     my $autocfg = AutoCfg->new(
         buildEnv   => $buildEnv,
         autoCfg    => $autoCfg,
+        insCfgMaps => $insCfgMaps,
         insCfgList => $insCfgList,
         cfgFiles   => \@cfgFiles,
         version    => $version,
@@ -163,7 +235,8 @@ sub main {
         pureDir    => $pureDir,
         md5Check   => $md5Check
     );
-    my $isFail = AutoCfg::config();
+
+    my $isFail = $autocfg->config();
 
     if ( $isFail == 0 ) {
         my $buildUtils = BuildUtils->new();

@@ -286,7 +286,7 @@ sub getAutoCfgConf {
         },
         insCfgList => [
             {
-                nodeName => 'insName1',
+                nodeName => 'server1',
                 host     => '192.168.0.2',
                 port     => 8080,
                 autoCfg  => {
@@ -295,8 +295,8 @@ sub getAutoCfgConf {
                 }
             },
             {
-                nodeName => 'insName1',
-                host     => '192.168.0.2',
+                nodeName => 'server2',
+                host     => '192.168.0.3',
                 port     => 8080,
                 autoCfg  => {
                     basic    => 'ins2-mybasicval',
