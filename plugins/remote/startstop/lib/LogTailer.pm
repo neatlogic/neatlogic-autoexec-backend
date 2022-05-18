@@ -14,12 +14,6 @@ use Cwd;
 use IO::Socket::INET;
 use HTTP::Tiny;
 
-my $HTTP_AGENT = 'lwp';
-eval("use LWP::UserAgent");
-if ($@) {
-    $HTTP_AGENT = 'tiny';
-}
-
 sub _tailLog {
     my ( $logInfo, $callback ) = @_;
     $| = 1;
@@ -28,12 +22,6 @@ sub _tailLog {
     my $logFile    = $logInfo->{path};
     my $pos        = $logInfo->{pos};
     my $logName    = $logInfo->{name};
-
-    #my $fh = $logInfo->{fh};
-    #if ( not defined($fh) ) {
-    #    $fh = IO::File->new("<$logFile");
-    #    $logInfo->{fh} = $fh;
-    #}
 
     my $fh = IO::File->new("<$logFile");
 
@@ -85,6 +73,7 @@ sub globPatterns {
     foreach my $logPattern ( keys(%$logPatterns) ) {
         my @logFiles      = glob($logPattern);
         my $logFilesCount = scalar(@logFiles);
+
         #print("DEBUG: logPatterh:$logPattern, logFilesCount:$logFilesCount\n");
         if ( $logFilesCount > $logPatterns->{$logPattern} ) {
             $logPatterns->{$logPattern} = $logFilesCount;
@@ -124,7 +113,7 @@ sub _tailLogs {
     my $logsCount = scalar(@$logInfos);
     for ( my $i = 2 ; $i < $logsCount ; $i++ ) {
         my $logInfo = $$logInfos[$i];
-        my $newPos = _tailLog( $logInfo, $callback );
+        my $newPos  = _tailLog( $logInfo, $callback );
     }
 }
 
@@ -146,18 +135,9 @@ sub _checkUrl {
     eval {
         my $statusCode = 500;
 
-        #jif ( $HTTP_AGENT eq 'lwp' ) {
-        #    my $ua = new LWP::UserAgent;
-        #    $ua->ssl_opts( verify_hostname => 0, SSL_verify_mode => '0', SSL_use_cert => 0 );
-        #    $ua->timeout($timeout);
-        #    my $response = $ua->get($url);
-        #    $statusCode = $response->code;
-        #}
-        #else {
-        my $http = HTTP::Tiny->new();
+        my $http     = HTTP::Tiny->new( timeout => $timeout );
         my $response = $http->request( 'GET', $url );
         $statusCode = $response->{status};
-        #}
 
         if ( $statusCode == 200 or $statusCode == 302 ) {
             if ( $loopNo % 10 == 0 and $checkType eq 'stop' ) {
@@ -233,7 +213,7 @@ sub _checkService {
     $| = 1;
 
     $addrDef =~ s/^\s*|\s*$//g;
-    my @addrs = split( /\s*[,;]\s*/, $addrDef );
+    my @addrs         = split( /\s*[,;]\s*/, $addrDef );
     my $addrStatusMap = {};
     foreach my $addr (@addrs) {
         $addrStatusMap->{$addr} = $upOrDown ^ 1;
