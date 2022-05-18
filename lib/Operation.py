@@ -194,7 +194,7 @@ class Operation:
                             self.writeLog("WARN: {}\n".format(err.value))
 
                 elif optType == 'file':
-                    matchObj = re.match(r'^\s*\$\{', json.dumps(optValue))
+                    matchObj = re.match(r'^\s*\$\{', str(optValue))
                     if matchObj:
                         optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
                         optValue = json.loads(optValueStr)
@@ -223,7 +223,7 @@ class Operation:
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
-                    matchObj = re.match(r'^\s*\$\{', json.dumps(argValue))
+                    matchObj = re.match(r'^\s*\$\{', str(argValue))
                     if matchObj:
                         optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
                         optValue = json.loads(optValueStr)
@@ -338,6 +338,8 @@ class Operation:
                     raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
             if val is not None:
+                if not isinstance(val, str):
+                    val = json.dumps(val)
                 optValue = optValue.replace(exp, val)
 
         return optValue

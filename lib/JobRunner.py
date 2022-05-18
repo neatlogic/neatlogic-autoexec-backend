@@ -319,9 +319,10 @@ class JobRunner:
             if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                 continue
 
-            phaseStatus = self.context.phases[phaseName]
-            print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
-            print("--------------------------------------------------------------\n\n", end='')
+            phaseStatus = self.context.phases.get(phaseName)
+            if phaseStatus is not None:
+                print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
+                print("--------------------------------------------------------------\n\n", end='')
 
         return lastPhase
 
