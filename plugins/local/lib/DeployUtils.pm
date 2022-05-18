@@ -228,6 +228,9 @@ sub getNodeInfo {
 
         #$nodeInfo->{nodeUniqName} = $nodeInfo->{host} . '.' . $nodeInfo->{port};
         $nodeInfo->{nodeUniqName} = $nodeInfo->{nodeName};
+        if ( not defined( $nodeInfo->{port} ) ) {
+            $nodeInfo->{port} = 0;
+        }
     }
 
     return $nodeInfo;

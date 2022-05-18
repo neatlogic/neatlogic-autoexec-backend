@@ -130,7 +130,12 @@ sub main {
             my $nodeHost = lc( $insCfg->{host} );
             $insCfg->{host} = $nodeHost;
 
-            my $nodeUniqName = $nodeHost . '.' . $insCfg->{port};
+            my $port = $insCfg->{port};
+            if ( not defined($port) ) {
+                $port = 0;
+                $insCfg->{port} = $port;
+            }
+            my $nodeUniqName = $nodeHost . '.' . $port;
             $insCfg->{uniqName} = $nodeUniqName;
 
             my $insAutoCfg = $insCfg->{autoCfg};
