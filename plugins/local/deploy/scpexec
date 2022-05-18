@@ -134,7 +134,7 @@ sub main {
     my $pass        = $nodeInfo->{password};
     my $insId       = $nodeInfo->{resourceId};
     my $insName     = $nodeInfo->{nodeName};
-    my $insUniqName = $nodeInfo->{nodeUniqueName};
+    my $insUniqName = $nodeInfo->{nodeUniqName};
 
     if ( defined($pass) and $pass ne '' ) {
         if ( $pass =~ s/^\{ENCRYPTED\}// ) {

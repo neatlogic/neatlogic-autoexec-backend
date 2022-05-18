@@ -119,13 +119,23 @@ sub main {
         $insCfgList = [];
     }
     else {
+        my $insNamsMap = {};
         foreach my $insCfg (@$insCfgList) {
-            $insCfg->{insName}     = $insCfg->{host} . '.' . $insCfg->{port};
-            $insCfg->{insUniqName} = $insCfg->{host} . '.' . $insCfg->{port};
+            my $nodeName = $insCfg->{nodeName};
+            $insCfg->{insName} = $nodeName;
+
+            #$insCfg->{insUniqName} = $insCfg->{host} . '.' . $insCfg->{port};
+            $insCfg->{insUniqName} = $nodeName;
+
+            if ( defined( $insNamsMap->{$nodeName} ) ) {
+                $insNamsMap->{$nodeName} = $insNamsMap->{$nodeName} + 1;
+                print("WARN: Instance name:$nodeName not unique.\n");
+            }
+            else {
+                $insNamsMap->{$nodeName} = 1;
+            }
         }
     }
-    $buildEnv->{autoCfg}    = $autoCfg;
-    $buildEnv->{insCfgList} = $insCfgList;
 
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
@@ -139,7 +149,21 @@ sub main {
         }
     }
 
-    my $isFail = AutoCfg::config( $buildEnv, \@cfgFiles, $version, $charset, $followZip, $doClean, $followTar, $checkOrg, $pureDir, $md5Check );
+    my $autocfg = AutoCfg->new(
+        buildEnv   => $buildEnv,
+        autoCfg    => $autoCfg,
+        insCfgList => $insCfgList,
+        cfgFiles   => \@cfgFiles,
+        version    => $version,
+        charset    => $charset,
+        followZip  => $followZip,
+        doClean    => $doClean,
+        followTar  => $followTar,
+        checkOrt   => $checkOrg,
+        pureDir    => $pureDir,
+        md5Check   => $md5Check
+    );
+    my $isFail = AutoCfg::config();
 
     if ( $isFail == 0 ) {
         my $buildUtils = BuildUtils->new();

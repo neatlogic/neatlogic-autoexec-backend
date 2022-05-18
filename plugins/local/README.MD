@@ -164,7 +164,7 @@ Tenant信息在HTTP header中
         moduleName => 模块名,
         envName    => 环境名
     }
-#### 输出(JSON):
+#### 输出(JSON)，！！需要包含所有实例！！:
     AutoCfg的配置
 {
         autoCfg => {
@@ -182,7 +182,7 @@ Tenant信息在HTTP header中
                 }
             },
             {
-                nodeName => 'insName1',
+                nodeName => 'insName2',
                 host     => '192.168.0.2',
                 port     => 8080,
                 autoCfg  => {
@@ -198,12 +198,38 @@ Tenant信息在HTTP header中
             basic    => 'mybasicval',
             password => 'mypasswd'
         },
-        insCfgList => []
+        insCfgList => [
+            {
+                nodeName => 'insName1',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {}
+            },
+            {
+                nodeName => 'insName2',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {}
+            }
+        ]
     }
     或者：
     {
         autoCfg => {},
-        insCfgList => []
+        insCfgList => [
+            {
+                nodeName => 'insName1',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {}
+            },
+            {
+                nodeName => 'insName2',
+                host     => '192.168.0.2',
+                port     => 8080,
+                autoCfg  => {}
+            }
+        ]
     }
 
 ### DBConf接口

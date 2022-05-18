@@ -194,13 +194,16 @@ class Operation:
                             self.writeLog("WARN: {}\n".format(err.value))
 
                 elif optType == 'file':
-                    matchObj = re.match(r'^\s*\$\{', '{}'.format(optValue))
-                    if not matchObj:
-                        fileNames = self.fetchFile(optName, optValue)
-                        fileNamesJson = []
-                        for fileName in fileNames:
-                            fileNamesJson.append('file/' + fileName)
-                        optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                    matchObj = re.match(r'^\s*\$\{', json.dumps(optValue))
+                    if matchObj:
+                        optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                        optValue = json.loads(optValueStr)
+
+                    fileNames = self.fetchFile(optName, optValue)
+                    fileNamesJson = []
+                    for fileName in fileNames:
+                        fileNamesJson.append('file/' + fileName)
+                    optValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
                     if optType == 'textarea':
                         optValue = {"content": optValue}
@@ -220,13 +223,16 @@ class Operation:
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
-                    matchObj = re.match(r'^\s*\$\{', '{}'.format(argValue))
-                    if not matchObj:
-                        fileNames = self.fetchFile(optName, argValue)
-                        fileNamesJson = []
-                        for fileName in fileNames:
-                            fileNamesJson.append('file/' + fileName)
-                        argValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                    matchObj = re.match(r'^\s*\$\{', json.dumps(argValue))
+                    if matchObj:
+                        optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                        optValue = json.loads(optValueStr)
+
+                    fileNames = self.fetchFile(optName, argValue)
+                    fileNamesJson = []
+                    for fileName in fileNames:
+                        fileNamesJson.append('file/' + fileName)
+                    argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
                     argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
                 argValues.append(argValue)

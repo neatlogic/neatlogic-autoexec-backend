@@ -143,7 +143,7 @@ sub main {
     my $insId = $nodeInfo->{resourceId};
 
     #my $insName = $nodeInfo->{nodeName};
-    my $insUniqName = $nodeInfo->{nodeUniqueName};
+    my $insUniqName = $nodeInfo->{nodeUniqName};
 
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
@@ -183,20 +183,13 @@ sub main {
                 }
             }
 
-            foreach my $d (@aSrcExpanded) {
-                push( @srcs, $d );
+            foreach my $aDir (@aSrcExpanded) {
+                push( @srcs, $aDir );
             }
 
-            my $hasDiff  = 0;
             my @diffDirs = bsd_glob("$verDiffPath/$dir");
             foreach my $diffDir (@diffDirs) {
-                if ( -e $diffDir ) {
-                    $hasDiff = 1;
-                    last;
-                }
-            }
-            if ( $hasDiff == 1 ) {
-                push( @srcs, "$verDiffPath/$dir" );
+                push( @srcs, $diffDir );
             }
         }
 

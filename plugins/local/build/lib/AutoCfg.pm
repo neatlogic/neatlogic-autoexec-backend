@@ -22,8 +22,75 @@ my $hasError = 0;
 my $TMPDIR   = Cwd::abs_path("$FindBin::Bin/../../../tmp");
 my $suffix   = 'autocfg';
 
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = \%args;
+    bless( $self, $pkg );
+
+    #$buildEnv, $orgCfgFiles, $version, $charset, $followZip, $cleanAutoCfgFiles, $followTar, $checkOrg, $pureDir, $md5Check
+    my $buildEnv = $args{buildEnv};
+    my $charset  = $args{charset};
+
+    $self->{buildEnv}          = $buildEnv;
+    $self->{orgCfgFiles}       = $args{orgCfgFiles};
+    $self->{version}           = $args{version};
+    $self->{charset}           = $charset;
+    $self->{followZip}         = $args{followZip};
+    $self->{followTar}         = $args{followTar};
+    $self->{cleanAutoCfgFiles} = $args{doClean};
+    $self->{checkOrg}          = $args{checkOrg};
+    $self->{pureDir}           = $args{pureDir};
+    $self->{md5Check}          = $args{md5Check};
+
+    if ( not defined( $self->{followZip} ) ) {
+        $self->{followZip} = 1;
+    }
+
+    $self->{envName} = $buildEnv->{ENV_NAME};
+
+    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $mirrorDir  = $dirInfo->{mirror};
+    my $distSrc    = "$releaseDir/app";
+    my $mirrorSrc  = "$mirrorDir/app";
+    my $dbSrc      = "$releaseDir/db";
+    my @autoCfgDocRoots;
+
+    if ( -d $distSrc and defined( scalar( bsd_glob("$distSrc/*") ) ) ) {
+        push( @autoCfgDocRoots, $distSrc );
+    }
+
+    if ( -d $mirrorSrc and defined( scalar( bsd_glob("$mirrorSrc/*") ) ) ) {
+        push( @autoCfgDocRoots, $mirrorSrc );
+    }
+
+    if ( -d $dbSrc and defined( scalar( bsd_glob("$dbSrc/*") ) ) ) {
+        push( @autoCfgDocRoots, $dbSrc );
+    }
+
+    $self->{autoCfgDocRoots} = \@autoCfgDocRoots;
+    $self->{dbSrc}           = $dbSrc;
+    $self->{distSrc}         = $distSrc;
+    $self->{mirrorSrc}       = $mirrorSrc;
+
+    my $packCfgMap = $args{autoCfg};
+    $self->convertCfgMapCharset( $packCfgMap, $charset );
+    $self->{packCfgMap} = $packCfgMap;
+
+    my $insCfgMaps = {};
+    my $insCfgList = $args{insCfgList};
+    ( $insCfgMaps, $insCfgList ) = $self->getInsCfgMaps( $insCfgList, $charset );
+    my $insCount = scalar(@$insCfgList);
+    $self->{insCfgMaps} = $insCfgMaps;
+    $self->{insCount}   = $insCount;
+    $self->{insCfgList} = $insCfgList;
+
+    return $self;
+}
+
 sub toDirsMap {
-    my ($dirs) = @_;
+    my ( $self, $dirs ) = @_;
 
     my $root = {};
 
@@ -61,7 +128,7 @@ sub toDirsMap {
 }
 
 sub mergeMd5SumList {
-    my ( $fullMd5List, $updateMd5List ) = @_;
+    my ( $self, $fullMd5List, $updateMd5List ) = @_;
 
     my $updateFh  = IO::File->new("<$updateMd5List");
     my $updateMap = {};
@@ -105,7 +172,7 @@ sub mergeMd5SumList {
 }
 
 sub refreshFilesMd5 {
-    my ( $autoCfgDocRoot, $dirs ) = @_;
+    my ( $self, $autoCfgDocRoot, $dirs ) = @_;
 
     my $hasMd5    = 0;
     my $processed = {};
@@ -172,7 +239,7 @@ sub sortByLen {
 }
 
 sub getAllSubFiles {
-    my ( $root, $dir, $pkgFiles ) = @_;
+    my ( $self, $root, $dir, $pkgFiles ) = @_;
 
     my $beginIdx = length($dir);
 
@@ -216,7 +283,8 @@ sub getAllSubFiles {
 }
 
 sub parsePreDefinedCfgFiles {
-    my ( $autoCfgDocRoot, $env, $cfgFiles, $pkgFiles, $rplOrgFiles ) = @_;
+    my ( $self, $autoCfgDocRoot, $cfgFiles, $pkgFiles, $rplOrgFiles ) = @_;
+    my $env = $self->{envName};
 
     my @newCfgFiles = ();
 
@@ -234,7 +302,7 @@ sub parsePreDefinedCfgFiles {
 
         my $i = 0;
         for ( $i = 1 ; $i < scalar(@subDirs) ; $i++ ) {
-            my $zipType = getZipType($dir);
+            my $zipType = $self->getZipType($dir);
             if ( $zipType ne 'plain' ) {
                 $pkgFiles->{$dir} = 1;
 
@@ -263,7 +331,7 @@ sub parsePreDefinedCfgFiles {
 
         if ( $fileExists == 0 ) {
             print("ERROR: $suffix config file:$cfgFile not exists.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         my $orgFile = $cfgFile;
@@ -286,7 +354,7 @@ sub parsePreDefinedCfgFiles {
 
         if ( $cfgFile !~ /\.$suffix$/ ) {
             print("ERROR: $suffix config file:$cfgFile is not ended with extention \".$suffix\"\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
         elsif ( $fileExists == 1 ) {
             push( @newCfgFiles, $cfgFile );
@@ -297,7 +365,16 @@ sub parsePreDefinedCfgFiles {
 }
 
 sub replacePlaceHolder {
-    my ( $autoCfgDocRoot, $env, $fileName, $cfgName, $rplOrgFiles, $packCfgMap, $insCfgMap, $instance, $cleanAutoCfgFiles, $checkOrg ) = @_;
+    my ( $self, $autoCfgDocRoot, $fileName, $cfgName, $rplOrgFiles, $instance ) = @_;
+    my $env               = $self->{envName};
+    my $packCfgMap        = $self->{packCfgMap};
+    my $insCfgMap         = {};
+    my $cleanAutoCfgFiles = $self->{cleanAutoCfgFiles};
+    my $checkOrg          = $self->{checkOrg};
+    if ( defined($instance) ) {
+        $insCfgMap = $self->{insCfgMap};
+    }
+
     my $count           = 0;
     my $insCount        = 0;
     my $orgFileName     = $fileName;
@@ -325,7 +402,7 @@ sub replacePlaceHolder {
 
         if ( $checkOrg == 1 and not( -e $orgFileName or -e "$autoCfgDocRoot/$orgCfgName" ) ) {
             print("ERROR: original file:$orgCfgName for $cfgName not found.");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         if ( -f $fileName ) {
@@ -336,7 +413,7 @@ sub replacePlaceHolder {
             }
 
             if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
-                $hasError = 1;
+                $hasError = $hasError + 1;
                 print("ERROR: copy $fileName to $orgFileName.$suffix failed:$!\n");
             }
             chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
@@ -354,7 +431,7 @@ sub replacePlaceHolder {
         }
         elsif ( not -e $fileName ) {
             print("ERROR: $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         $insCount++;
@@ -366,7 +443,7 @@ sub replacePlaceHolder {
 
         if ( $checkOrg == 1 and not( -e $orgFileName or -e "$autoCfgDocRoot/$orgCfgName" ) ) {
             print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         if ( -f $fileName ) {
@@ -377,7 +454,7 @@ sub replacePlaceHolder {
             }
 
             if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
-                $hasError = 1;
+                $hasError = $hasError + 1;
                 print("ERROR: copy $fileName to $orgFileName.$suffix failed:$!\n");
             }
             chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
@@ -395,7 +472,7 @@ sub replacePlaceHolder {
         }
         elsif ( not -e $fileName ) {
             print("ERROR: $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         $count++;
@@ -421,7 +498,7 @@ sub replacePlaceHolder {
 
         if ( not -e $fileName ) {
             print("ERROR: $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         if ( $checkOrg == 1
@@ -429,7 +506,7 @@ sub replacePlaceHolder {
         {
             $orgCfgName =~ s/\.$suffix$//i;
             print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         if (
@@ -478,7 +555,7 @@ sub replacePlaceHolder {
                         if ( not defined( $notPlaceholders->{$key} ) ) {
                             if ( $key =~ /^[\w\-\.]+$/ ) {
                                 print("ERROR:config place holder:$key value not found.\n");
-                                $hasError = 1;
+                                $hasError = $hasError + 1;
                             }
                             else {
                                 print("WARN:malform place holder:$key value not found(the key has special characters).\n");
@@ -497,7 +574,7 @@ sub replacePlaceHolder {
                         chmod( ( stat($fileName) )[2], $orgFileName );
                     }
                     else {
-                        $hasError = 1;
+                        $hasError = $hasError + 1;
                         print("ERROR:can not rewrite file $orgFileName while modify config file.\n");
                     }
 
@@ -507,7 +584,7 @@ sub replacePlaceHolder {
                 }
             }
             else {
-                $hasError = 1;
+                $hasError = $hasError + 1;
                 print("ERROR:can not read file $orgFileName while modify config file.\n");
             }
         }
@@ -516,11 +593,11 @@ sub replacePlaceHolder {
         if ( $checkOrg == 1 and $rplOrgFiles->{$orgFileName} == 1 and not( -f $orgFileName or -f "$autoCfgDocRoot/$orgCfgName" ) ) {
             $orgCfgName =~ s/\.$suffix$//i;
             print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
 
         if ( not copy( $fileName, $orgFileName ) ) {
-            $hasError = 1;
+            $hasError = $hasError + 1;
             print("ERROR: copy file $fileName to $orgFileName failed:$!\n");
         }
 
@@ -539,7 +616,7 @@ sub replacePlaceHolder {
 }
 
 sub getZipType {
-    my ($file) = @_;
+    my ( $self, $file ) = @_;
 
     my $fileType = 'plain';
 
@@ -557,7 +634,7 @@ sub getZipType {
 }
 
 sub checkMagicNumber {
-    my ( $rootDir, $file, $fileType ) = @_;
+    my ( $self, $rootDir, $file, $fileType ) = @_;
 
     my $checkRet = 1;
 
@@ -600,7 +677,14 @@ sub checkMagicNumber {
 }
 
 sub findFilesInDir {
-    my ( $rootDir, $env, $cwd, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar, $pureDir ) = @_;
+    my ( $self, $rootDir, $cwd, $pkgFiles, $rplOrgFiles, $cfgFiles ) = @_;
+
+    my $env       = $self->{envName};
+    my $charset   = $self->{charset};
+    my $followZip = $self->{followZip};
+    my $followTar = $self->{followTar};
+    my $pureDir   = $self->{pureDir};
+
     my @dirs = ( $cwd . '/' );
 
     my ( $dir, $file );
@@ -645,9 +729,9 @@ sub findFilesInDir {
                 }
             }
             elsif ( $pureDir ne 1 ) {
-                my $zipType = getZipType($file);
-                if ( $zipType ne 'plain' and checkMagicNumber( $rootDir, $file, $zipType ) ) {
-                    findFilesInZip( $rootDir, $env, "$file/", $file, $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
+                my $zipType = $self->getZipType($file);
+                if ( $zipType ne 'plain' and $self->checkMagicNumber( $rootDir, $file, $zipType ) ) {
+                    $self->findFilesInZip( $rootDir, "$file/", $file, $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles );
                 }
             }
         }
@@ -656,10 +740,15 @@ sub findFilesInDir {
 }
 
 sub checkAndRecordFile {
-    my ( $rootDir, $env, $preName, $name, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar ) = @_;
+    my ( $self, $rootDir, $preName, $name, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles ) = @_;
 
-    my $parentZipType = getZipType($filePath);
-    my $zipType       = getZipType($name);
+    my $env       = $self->{envName};
+    my $charset   = $self->{charset};
+    my $followZip = $self->{followZip};
+    my $followTar = $self->{followTar};
+
+    my $parentZipType = $self->getZipType($filePath);
+    my $zipType       = $self->getZipType($name);
 
     if ( $zipType ne 'plain' ) {
         if ( ( $zipType eq 'zip' and $followZip == 1 ) or ( ( $zipType eq 'tgz' or $zipType eq 'tar' ) and $followTar == 1 ) ) {
@@ -683,10 +772,10 @@ sub checkAndRecordFile {
 
             my $unzipRet = DeployUtils->execmd($unzipCmd);
             if ( $unzipRet eq 0 ) {
-                findFilesInZip( $rootDir, $env, "$preName$name/", "$zipTmpDir/$name", $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
+                $self->findFilesInZip( $rootDir, "$preName$name/", "$zipTmpDir/$name", $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles );
             }
             else {
-                $hasError = 1;
+                $hasError = $hasError + 1;
                 print("ERROR: unzip file $preName$name failed.\n");
             }
         }
@@ -721,7 +810,12 @@ sub checkAndRecordFile {
 }
 
 sub findFilesInZip {
-    my ( $rootDir, $env, $preName, $filePath, $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar ) = @_;
+    my ( $self, $rootDir, $preName, $filePath, $zipType, $pkgFiles, $rplOrgFiles, $cfgFiles ) = @_;
+
+    my $env       = $self->{envName};
+    my $charset   = $self->{charset};
+    my $followZip = $self->{followZip};
+    my $followTar = $self->{followTar};
 
     my $pkgPath = $preName;
     $pkgPath =~ s/$rootDir\///;
@@ -730,7 +824,7 @@ sub findFilesInZip {
 
     printf( "INFO: try to find $suffix resource in pkg %s.\n", $pkgPath );
 
-    if ( checkMagicNumber( '', $filePath, $zipType ) == 0 ) {
+    if ( $self->checkMagicNumber( '', $filePath, $zipType ) == 0 ) {
         return;
     }
 
@@ -745,7 +839,7 @@ sub findFilesInZip {
         if ( defined($pid) ) {
             while ( $line = <$pipe> ) {
                 chomp($line);
-                checkAndRecordFile( $rootDir, $env, $preName, $line, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
+                $self->checkAndRecordFile( $rootDir, $preName, $line, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles );
             }
 
             #waitpid( $pid, 0 );
@@ -755,7 +849,7 @@ sub findFilesInZip {
         }
 
         if ( not defined($pid) or $exitCode != 0 ) {
-            $hasError = 1;
+            $hasError = $hasError + 1;
             print("ERROR: read zip content failed:$pkgPath, $!\n");
         }
 
@@ -782,7 +876,7 @@ sub findFilesInZip {
         #
         #    my $name = $header->{Name};
         #
-        #    checkAndRecordFile( $rootDir, $env, $preName, $name, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
+        #    $self->checkAndRecordFile( $rootDir, $env, $preName, $name, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
         #
         #    last if $status < 0;
         #}
@@ -813,7 +907,7 @@ sub findFilesInZip {
             if ( defined($pid) ) {
                 while ( $line = <$pipe> ) {
                     chomp($line);
-                    checkAndRecordFile( $rootDir, $env, $preName, $line, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles, $charset, $followZip, $followTar );
+                    $self->checkAndRecordFile( $rootDir, $preName, $line, $filePath, $pkgFiles, $rplOrgFiles, $cfgFiles );
                 }
 
                 #waitpid( $pid, 0 );
@@ -824,7 +918,7 @@ sub findFilesInZip {
             }
 
             if ( not defined($pid) or $exitCode != 0 ) {
-                $hasError = 1;
+                $hasError = $hasError + 1;
                 print("ERROR: read tar content failed:$pkgPath, $!\n");
             }
         }
@@ -832,30 +926,27 @@ sub findFilesInZip {
 }
 
 sub getInsCfgMaps {
-    my ( $buildEnv, $encoding ) = @_;
-
-    my $dataPath = $buildEnv->{DATA_PATH};
+    my ( $self, $insCfgList, $encoding ) = @_;
 
     my $insCfgMaps = {};
     my @instances;
-    my $insInfos = $buildEnv->{insCfgList};
 
-    foreach my $insInfo (@$insInfos) {
+    foreach my $insInfo (@$insCfgList) {
         push( @instances, $insInfo->{insUniqName} );
 
         my $insCfgMap = $insInfo->{autoCfg};
         if ( defined($insCfgMap) ) {
-            $insCfgMap = convertCfgMapCharset( $insCfgMap, $encoding );
+            $insCfgMap = $self->convertCfgMapCharset( $insCfgMap, $encoding );
             $insCfgMaps->{ $insInfo->{insUniqName} } = $insCfgMap;
         }
     }
 
-    #$buildEnv->{insCfgMaps} = $insCfgMaps;
-    return ( $insCfgMaps, @instances );
+    return ( $insCfgMaps, \@instances );
 }
 
 sub convertCfgMapCharset {
-    my ( $cfgMap, $encoding ) = @_;
+    my ( $self, $cfgMap, $encoding ) = @_;
+
     if ( $encoding ne 'utf8' and $encoding ne 'utf-8' ) {
         my ( $key, $keyEncode, $val );
         foreach $key ( keys %$cfgMap ) {
@@ -869,7 +960,7 @@ sub convertCfgMapCharset {
 }
 
 sub removeEmptyDir {
-    my ( $rootPath, $subPath ) = @_;
+    my ( $self, $rootPath, $subPath ) = @_;
     while ( $subPath ne $rootPath ) {
         last if ( not rmdir($subPath) );
         $subPath = dirname($subPath);
@@ -877,15 +968,26 @@ sub removeEmptyDir {
 }
 
 sub updateConfigInZip {
-    my ( $autoCfgDocRoot, $cwd, $preZipDir, $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $env, $packCfgMap, $insCfgMap, $cleanAutoCfgFiles, $checkOrg, $instance ) = @_;
+    my ( $self, $autoCfgDocRoot, $cwd, $preZipDir, $pkgFiles, $rplOrgFiles, $dirsMap, $instance ) = @_;
 
-    my $zipType = getZipType($preZipDir);
+    my $charset           = $self->{charset};
+    my $env               = $self->{envName};
+    my $packCfgMap        = $self->{packCfgMap};
+    my $insCfgMap         = {};
+    my $cleanAutoCfgFiles = $self->{cleanAutoCfgFiles};
+    my $checkOrg          = $self->{checkOrg};
 
-    if ( checkMagicNumber( '', $preZipDir, $zipType ) == 0 ) {
+    if ( defined($instance) ) {
+        $insCfgMap = $self->{insCfgMap};
+    }
+
+    my $zipType = $self->getZipType($preZipDir);
+
+    if ( $self->checkMagicNumber( '', $preZipDir, $zipType ) == 0 ) {
         return;
     }
 
-    my $subFiles = getAllSubFiles( $dirsMap, $cwd, $pkgFiles );
+    my $subFiles = $self->getAllSubFiles( $dirsMap, $cwd, $pkgFiles );
 
     #print("DEBUG: sub files for dir:==$instance--$cwd===================\n");
     #print Dumper $subFiles;
@@ -958,7 +1060,7 @@ sub updateConfigInZip {
             my $rc = DeployUtils->execmd($unzipCmd);
             if ( $rc ne 0 ) {
                 print("ERROR: get $pathInZipPat from $preZipDir failed.\n");
-                $hasError = 1;
+                $hasError = $hasError + 1;
             }
         }
 
@@ -966,7 +1068,7 @@ sub updateConfigInZip {
         my $insCfgCount = 0;
 
         if ( $pkgFiles->{$nextCwd} eq 1 ) {
-            ( $cfgCount, $insCfgCount ) = updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$zipTmpDir/$subFile", $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $env, $packCfgMap, $insCfgMap, $cleanAutoCfgFiles, $checkOrg, $instance );
+            ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$zipTmpDir/$subFile", $pkgFiles, $rplOrgFiles, $dirsMap, $instance );
         }
         else {
             if ( defined($instance) ) {
@@ -976,7 +1078,7 @@ sub updateConfigInZip {
                 printf( "INFO: auto config file in pkg %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $nextCwd ) ) );
             }
 
-            ( $cfgCount, $insCfgCount ) = replacePlaceHolder( $autoCfgDocRoot, $env, "$zipTmpDir/$subFile", $nextCwd, $rplOrgFiles, $packCfgMap, $insCfgMap, $instance, $cleanAutoCfgFiles, $checkOrg );
+            ( $cfgCount, $insCfgCount ) = $self->replacePlaceHolder( $autoCfgDocRoot, "$zipTmpDir/$subFile", $nextCwd, $rplOrgFiles, $instance );
             if ( $cleanAutoCfgFiles == 1 ) {
                 my $delZipCmd;
                 my $tmpTarDir;
@@ -1023,7 +1125,7 @@ sub updateConfigInZip {
                             $fileName = substr( $fileName, 2 );
 
                             my $aZipCmd;
-                            if ( getZipType($aFile) eq 'zip' ) {
+                            if ( $self->getZipType($aFile) eq 'zip' ) {
                                 $aZipCmd = sprintf( "cd '%s' && zip -q0 '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), $fileName );
                             }
                             else {
@@ -1061,7 +1163,7 @@ sub updateConfigInZip {
 
         if ( $rc ne 0 ) {
             print("ERROR: update config to $preZipDir failed.\n");
-            $hasError = 1;
+            $hasError = $hasError + 1;
         }
     }
 
@@ -1069,9 +1171,17 @@ sub updateConfigInZip {
 }
 
 sub updateConfig {
-    my ( $autoCfgDocRoot, $cwd, $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $env, $instances, $packCfgMap, $insCfgMaps, $cleanAutoCfgFiles, $checkOrg ) = @_;
+    my ( $self, $autoCfgDocRoot, $cwd, $pkgFiles, $rplOrgFiles, $dirsMap ) = @_;
 
-    my $subFiles = getAllSubFiles( $dirsMap, $cwd, $pkgFiles );
+    my $charset           = $self->{charset};
+    my $env               = $self->{envName};
+    my $instances         = $self->{insCfgList};
+    my $packCfgMap        = $self->{packCfgMap};
+    my $insCfgMaps        = $self->{insCfgMap};
+    my $cleanAutoCfgFiles = $self->{cleanAutoCfgFiles};
+    my $checkOrg          = $self->{checkOrg};
+
+    my $subFiles = $self->getAllSubFiles( $dirsMap, $cwd, $pkgFiles );
 
     #print("DEBUG: sub files for dir:$cwd===================\n");
     #print Dumper $subFiles;
@@ -1098,21 +1208,30 @@ sub updateConfig {
                     $hasInsCfg = 1;
                 }
                 else {
-                    my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd );
+                    my $allCfgFilesInZip = $self->getAllSubFiles( $dirsMap, $nextCwd );
                     foreach my $cfgFileInZip (@$allCfgFilesInZip) {
-                        if ( $cfgFileInZip =~ /\.$env\.$instance\.$suffix(\/|$)/i ) {
-                            $hasInsCfg = 1;
-                            last;
+
+                        #if ( $cfgFileInZip =~ /\.$env\.$instance\.$suffix(\/|$)/i ) {
+                        if ( $cfgFileInZip =~ /\.$env\.(.*?)\.$suffix(\/|$)/i ) {
+                            my $expectIns = $1;    #期望是实例唯一名
+                            if ( $expectIns eq $instance ) {
+                                $hasInsCfg = 1;
+                                last;
+                            }
+                            elsif ( not defined( $insCfgMaps->{$expectIns} ) ) {
+                                $hasError = $hasError + 1;
+                                print("ERROR: Unique instance name($expectIns) that substract from $cfgFileInZip not exists.\n");
+                            }
                         }
                     }
                 }
 
                 if ($hasInsCfg) {
                     DeployUtils->copyTree( "$autoCfgDocRoot/$cfgZipPath", $insCfgZipPath );
-                    my ( $cfgCount, $insCfgCount ) = updateConfigInZip( $autoCfgDocRoot, $nextCwd, $insCfgZipPath, $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $env, $packCfgMap, $insCfgMap, $cleanAutoCfgFiles, $checkOrg, $instance );
+                    my ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $insCfgZipPath, $pkgFiles, $rplOrgFiles, $dirsMap, $instance );
                     if ( $insCfgCount == 0 ) {
                         rmtree($insCfgZipPath);
-                        removeEmptyDir( "$autoCfgDocRoot.ins/$instance", dirname($insCfgZipPath) );
+                        $self->removeEmptyDir( "$autoCfgDocRoot.ins/$instance", dirname($insCfgZipPath) );
                     }
                     else {
                         $diffInsCount = $diffInsCount + 1;
@@ -1122,7 +1241,7 @@ sub updateConfig {
 
             #如果是包，则根据实例差异配置进行拷贝并进行修改
             if ( $diffInsCount < scalar(@$instances) or scalar(@$instances) == 0 ) {
-                updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$autoCfgDocRoot/$nextCwd", $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $env, $packCfgMap, {}, $cleanAutoCfgFiles, $checkOrg, undef );
+                $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$autoCfgDocRoot/$nextCwd", $pkgFiles, $rplOrgFiles, $dirsMap, undef );
             }
         }
         else {
@@ -1133,6 +1252,15 @@ sub updateConfig {
             foreach $instance (@$instances) {
                 my $insCfgFilePath = "$autoCfgDocRoot.ins/$instance/$cfgFile";
                 my $insCfgMap      = $insCfgMaps->{$instance};
+
+                #如果autocfg文件是实例整文件替换，检查实例名是否存在
+                if ( $cfgFile =~ /\.$env\.(.*?)\.$suffix(\/|$)/i ) {
+                    my $expectIns = $1;    #期望是实例唯一名
+                    if ( not defined( $insCfgMaps->{$expectIns} ) ) {
+                        $hasError = $hasError + 1;
+                        print("ERROR: Unique instance name($expectIns) that substract from $cfgFile not exists.\n");
+                    }
+                }
 
                 #如果是实力差异配置，则把配置文件拷贝一份到实例差异目录并进行修改
                 if ( defined($insCfgMap)
@@ -1147,7 +1275,7 @@ sub updateConfig {
 
                     DeployUtils->copyTree( $src, $dest );
 
-                    my ( $cfgCount, $insCfgCount ) = replacePlaceHolder( $autoCfgDocRoot, $env, $insCfgFilePath, $cfgFile, $rplOrgFiles, $packCfgMap, $insCfgMap, $instance, $cleanAutoCfgFiles, $checkOrg );
+                    my ( $cfgCount, $insCfgCount ) = $self->replacePlaceHolder( $autoCfgDocRoot, $insCfgFilePath, $cfgFile, $rplOrgFiles, $instance );
 
                     if ( $insCfgCount == 0 ) {
 
@@ -1158,7 +1286,7 @@ sub updateConfig {
                         $insCfgFilePath =~ s/\.$suffix//i;
                         rmtree($insCfgFilePath);
 
-                        removeEmptyDir( "$autoCfgDocRoot.ins", dirname($insCfgFilePath) );
+                        $self->removeEmptyDir( "$autoCfgDocRoot.ins", dirname($insCfgFilePath) );
                     }
                     else {
                         $diffInsCount = $diffInsCount + 1;
@@ -1168,7 +1296,7 @@ sub updateConfig {
 
             if ( $diffInsCount < scalar(@$instances) or scalar(@$instances) == 0 ) {
                 printf( "INFO: auto config file %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ) );
-                replacePlaceHolder( $autoCfgDocRoot, $env, $cfgFilePath, $cfgFile, $rplOrgFiles, $packCfgMap, {}, undef, $cleanAutoCfgFiles, $checkOrg );
+                $self->replacePlaceHolder( $autoCfgDocRoot, $cfgFilePath, $cfgFile, $rplOrgFiles, undef );
             }
 
             if ($cleanAutoCfgFiles) {
@@ -1180,53 +1308,39 @@ sub updateConfig {
 }
 
 sub config {
-    my ( $buildEnv, $orgCfgFiles, $version, $charset, $followZip, $cleanAutoCfgFiles, $followTar, $checkOrg, $pureDir, $md5Check ) = @_;
+    my ($self) = @_;
 
-    $followZip = 1 if ( not defined($followZip) );
+    my $orgCfgFiles       = $self->{orgCfgFiles};
+    my $version           = $self->{version};
+    my $envName           = $self->{envName};
+    my $charset           = $self->{charset};
+    my $followZip         = $self->{followZip};
+    my $cleanAutoCfgFiles = $self->{cleanAutoCfgFiles};
+    my $followTar         = $self->{followTar};
+    my $checkOrg          = $self->{checkOrg};
+    my $pureDir           = $self->{pureDir};
+    my $md5Check          = $self->{md5Check};
 
-    my $isFail = 0;
+    my $packCfgMap      = $self->{autoCfg};
+    my $instances       = $self->{insCfgList};
+    my $insCfgMaps      = $self->{insCfgMaps};
+    my $insCount        = $self->{insCount};
+    my $autoCfgDocRoots = $self->{autoCfgDocRoots};
 
-    my $envName = $buildEnv->{ENV_NAME};
-
-    my $dirInfo    = DeployUtils->getDataDirStruct($buildEnv);
-    my $releaseDir = $dirInfo->{release};
-    my $mirrorDir  = $dirInfo->{mirror};
-    my $distSrc    = "$releaseDir/app";
-    my $mirrorSrc  = "$mirrorDir/app";
-    my $dbSrc      = "$releaseDir/db";
-
-    $buildEnv->{autoCfg} = convertCfgMapCharset( $buildEnv->{autoCfg}, $charset );
-    my $packCfgMap = $buildEnv->{autoCfg};
-    my ( $insCfgMaps, @instances ) = getInsCfgMaps( $buildEnv, $charset );
-    my $insCount = scalar(@instances);
-
-    my @autoCfgDocRoots;
-
-    if ( -d $distSrc and defined( scalar( bsd_glob("$distSrc/*") ) ) ) {
-        push( @autoCfgDocRoots, $distSrc );
-    }
-
-    if ( -d $mirrorSrc and defined( scalar( bsd_glob("$mirrorSrc/*") ) ) ) {
-        push( @autoCfgDocRoots, $mirrorSrc );
-    }
-
-    if ( -d $dbSrc and defined( scalar( bsd_glob("$dbSrc/*") ) ) ) {
-        push( @autoCfgDocRoots, $dbSrc );
-    }
-
-    foreach my $autoCfgDocRoot (@autoCfgDocRoots) {
+    foreach my $autoCfgDocRoot (@$autoCfgDocRoots) {
         if ( -d $autoCfgDocRoot ) {
 
             print("INFO: begin to auto config $autoCfgDocRoot========.\n");
 
             #清理实例差异配置
-            for my $ins (@instances) {
+            for my $ins (@$instances) {
                 rmtree("$autoCfgDocRoot.ins/$ins") if ( -d "$autoCfgDocRoot.ins/$ins" );
             }
 
             my $rplOrgFiles = {};
             my $pkgFiles    = {};
             my $cfgFiles;
+            my $dbSrc = $self->{dbSrc};
             if ( $autoCfgDocRoot !~ /^$dbSrc\// ) {
                 $cfgFiles = $orgCfgFiles;
             }
@@ -1237,7 +1351,7 @@ sub config {
                 print("INFO:begin to find *.$suffix files--------.\n");
 
                 my $cfgFilesFinded = {};
-                findFilesInDir( $autoCfgDocRoot, $envName, $autoCfgDocRoot, $pkgFiles, $rplOrgFiles, $cfgFilesFinded, $charset, $followZip, $followTar, $pureDir );
+                $self->findFilesInDir( $autoCfgDocRoot, $autoCfgDocRoot, $pkgFiles, $rplOrgFiles, $cfgFilesFinded );
 
                 @$cfgFiles = keys(%$cfgFilesFinded);
 
@@ -1252,20 +1366,20 @@ sub config {
                 }
             }
             else {
-                $cfgFiles = parsePreDefinedCfgFiles( $autoCfgDocRoot, $envName, $cfgFiles, $pkgFiles, $rplOrgFiles );
+                $cfgFiles = $self->parsePreDefinedCfgFiles( $autoCfgDocRoot, $cfgFiles, $pkgFiles, $rplOrgFiles );
             }
 
             print("INFO: find $suffix finished--------.\n");
 
             #print("DEBUG:all $suffix files==========\n");
             #print Dumper $pkgFiles;
-            my $dirsMap = toDirsMap($cfgFiles);
+            my $dirsMap = $self->toDirsMap($cfgFiles);
 
             #print Dumper $dirsMap;
             #exit(1);
 
             if ( $hasError == 0 ) {
-                updateConfig( $autoCfgDocRoot, '', $pkgFiles, $rplOrgFiles, $dirsMap, $charset, $envName, \@instances, $packCfgMap, $insCfgMaps, $cleanAutoCfgFiles, $checkOrg );
+                $self->updateConfig( $autoCfgDocRoot, '', $pkgFiles, $rplOrgFiles, $dirsMap );
 
                 eval {
                     my $md5ListFileName = $FileUtils::md5ListFileName;
@@ -1274,13 +1388,13 @@ sub config {
                         if ( -d "$autoCfgDocRoot.ins" ) {
                             foreach my $insDir ( glob("$autoCfgDocRoot.ins/*") ) {
                                 FileUtils::genMd5($insDir);
-                                mergeMd5SumList( "$autoCfgDocRoot/$md5ListFileName", "$insDir/$md5ListFileName" );
+                                $self->mergeMd5SumList( "$autoCfgDocRoot/$md5ListFileName", "$insDir/$md5ListFileName" );
                             }
                         }
                     }
                 };
                 if ($@) {
-                    $hasError = 1;
+                    $hasError = $hasError + 1;
                     my $errMsg = $@;
                     $errMsg =~ s/ at\s*.*$//;
                     print($errMsg );

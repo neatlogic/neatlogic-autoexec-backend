@@ -136,7 +136,7 @@ sub main {
     my $insId = $nodeInfo->{resourceId};
 
     #my $insName     = $nodeInfo->{nodeName};
-    my $insUniqName = $nodeInfo->{nodeUniqueName};
+    my $insUniqName = $nodeInfo->{nodeUniqName};
 
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
