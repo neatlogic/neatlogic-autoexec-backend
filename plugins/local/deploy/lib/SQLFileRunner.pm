@@ -552,6 +552,7 @@ sub execSqlFiles {
 
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
+            saveToServer => 1,
             jobId        => $self->{jobId},
             deployEnv    => $self->{deployEnv},
             dbInfo       => $self->_getSqlDbInfo($sqlFile),
@@ -586,6 +587,7 @@ sub execSqlFileSets {
             my $dbInfo        = $self->_getSqlDbInfo($sqlFile);
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
+                saveToServer => 1,
                 jobId        => $self->{jobId},
                 deployEnv    => $self->{deployEnv},
                 dbInfo       => $dbInfo,
@@ -719,6 +721,7 @@ sub checkSqlFiles {
         if ( -e "$sqlFileDir/$sqlFile" ) {
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
+                saveToServer => 0,
                 jobId        => $self->{jobId},
                 deployEnv    => $self->{deployEnv},
                 dbInfo       => $self->_getSqlDbInfo($sqlFile),
@@ -749,6 +752,7 @@ sub restoreSqlStatuses {
         my $md5           = $sqlInfo->{md5};
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
+            saveToServer => 0,
             jobId        => $self->{jobId},
             deployEnv    => $self->{deployEnv},
             sqlStatusDir => $self->{sqlStatusDir}

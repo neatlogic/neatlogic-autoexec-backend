@@ -24,6 +24,7 @@ sub new {
 
     my $self = {
         sqlFile      => $sqlFile,
+        saveToServer => $args{saveToServer},
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
         dbInfo       => $args{dbInfo},
@@ -181,7 +182,7 @@ sub updateStatus {
     $self->_saveStatus();
 
     my $newStatus = $args{status};
-    if ( defined( $newStatus and $preStatus ne $newStatus ) ) {
+    if ( $self->{saveToServer} and defined($newStatus) and $preStatus ne $newStatus ) {
 
         #如果sql状态发生了切变，则调用服务端接口更新sql状态
         my $serverAdapter = $self->{serverAdapter};
