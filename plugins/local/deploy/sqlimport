@@ -25,8 +25,7 @@ sub main {
     my $isHelp    = 0;
     my $isVerbose = 0;
 
-    my $dbArgs;
-    my $dbName;
+    my $targetPhase;
     my $dbNodeJson;
     my $sqlFileJson;
 
@@ -34,6 +33,7 @@ sub main {
         'help'          => \$isHelp,
         'node=s'        => \$node,
         'v|verbose=i'   => \$isVerbose,
+        'targetphase=s' => \$targetPhase,
         'sqlfilejson=s' => \$sqlFileJson
     );
 
@@ -134,7 +134,7 @@ sub main {
     my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
 
     my $dbExtArgs = {};
-    my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
+    my $dbInfo    = DBInfo->new( $dbNode, $dbExtArgs );
 
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
@@ -155,7 +155,7 @@ sub main {
 
     my $sqlFileInfos  = $sqlFileRunner->{sqlFileInfos};
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->checkInSqlFiles( $jobId, $sqlFileInfos );
+    $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos );
 
     return $ret;
 }

@@ -570,7 +570,7 @@ sub getSqlFileStatuses {
 }
 
 sub checkInSqlFiles {
-    my ( $self, $jobId, $sqlInfoList, $deployEnv ) = @_;
+    my ( $self, $jobId, $targetPhase, $sqlInfoList, $deployEnv ) = @_;
 
     #TODO: uncomment after test
 
@@ -632,6 +632,11 @@ sub checkInSqlFiles {
 
     $params->{jobId}       = $jobId;
     $params->{sqlInfoList} = $sqlInfoList;
+
+    if ( not defined($targetPhase) ) {
+        $targetPhase = $params->{phaseName};
+    }
+    $params->{targetPhaseName} = $targetPhase;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('checkInSqlFiles');

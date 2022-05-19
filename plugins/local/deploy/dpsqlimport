@@ -19,9 +19,11 @@ use SQLFileRunner;
 sub usage {
     my $pname = $FindBin::Script;
     print("Usage: $pname [--verbose 0|1] \n");
+    print("              [--targetphase TargetPhaseName]\n");
     print("              [--extnames SqlExtNames] [--rollback 0|1]\n");
     print("              [--index IndexFileNames] [--filter SqlFileNamePattern]\n");
     print("\n");
+    print("       --targetphase: Import to which phase.\n");
     print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
     print("       --filter:      sql file name pattern, just execute matched sql file\n");
     print("       --index:       index file names, example:index.txt\n");
@@ -34,6 +36,7 @@ sub main {
 
     my $envPath;
     my $version;
+    my $targetPhase;
     my $sqlExtNamesStr = '';
     my $isHelp         = 0;
     my $isVerbose      = 0;
@@ -42,14 +45,15 @@ sub main {
     my $index;
 
     GetOptions(
-        'help'        => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'envpath=s'   => \$envPath,
-        'version=s'   => \$version,
-        'extnames=s'  => \$sqlExtNamesStr,
-        'rollback=i'  => \$isRollback,
-        'filter=s'    => \$filter,
-        'index=s'     => \$index
+        'help'          => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'targetphase=s' => \$targetPhase,
+        'extnames=s'    => \$sqlExtNamesStr,
+        'rollback=i'    => \$isRollback,
+        'filter=s'      => \$filter,
+        'index=s'       => \$index
     );
 
     my $optionError = 0;
@@ -186,7 +190,7 @@ sub main {
     $hasError = $hasError + $ret;
 
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    $serverAdapter->checkInSqlFiles( $jobId, $sqlFileInfos, $deployEnv );
+    $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
 
     return $hasError;
 }
