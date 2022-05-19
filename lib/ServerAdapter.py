@@ -465,6 +465,7 @@ class ServerAdapter:
 
     def fetchScript(self, savePath, opId):
         params = {
+            'jobId': self.context.jobId,
             'operationId': opId
         }
 
