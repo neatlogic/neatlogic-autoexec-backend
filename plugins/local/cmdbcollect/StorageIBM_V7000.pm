@@ -3,7 +3,7 @@ use FindBin;
 use Cwd qw(abs_path);
 use lib abs_path("$FindBin::Bin/lib");
 use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5");
+use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
 
 package StorageIBM_V7000;
 use strict;
