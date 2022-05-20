@@ -671,8 +671,8 @@ class RunNode:
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
         environment['PERL5LIB'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PERL5LIB'))
-        environment['RUNNER_ID'] = self.context.runnerId
-        environment['AUTOEXEC_JOBID'] = self.context.jobId
+        #environment['RUNNER_ID'] = self.context.runnerId
+        #environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
         environment['AUTOEXEC_NODE'] = json.dumps(self.node)
@@ -735,8 +735,8 @@ class RunNode:
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
         environment['PERL5LIB'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PERL5LIB'))
-        environment['RUNNER_ID'] = self.context.runnerId
-        environment['AUTOEXEC_JOBID'] = self.context.jobId
+        #environment['RUNNER_ID'] = str(self.context.runnerId)
+        #environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
         environment['NODE_HOST'] = self.host
