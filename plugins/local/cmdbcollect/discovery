@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+use strict;
+use IPC::Open2;
+use JSON;
+
+sub detectObjInfo {
+    my ($hostInfo) = @_;
+    my $objInfo;
+
+    my $typesDef = [
+        {
+            key           => 'Linux',
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'Linux'
+        },
+        {
+            key           => 'Windows',
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'Windows'
+        },
+        {
+            key           => 'AIX',
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'AIX'
+        },
+        {
+            key           => 'SunOS',
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'SunOS'
+        },
+        {
+            key           => 'FreeBSD',
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'FreeBSD'
+        },
+        {
+            key           => 'CISCO',
+            _OBJ_CATEGORY => 'SWITCH',
+            _OBJ_TYPE     => undef
+        },
+        {
+            key           => 'Huawei',
+            _OBJ_CATEGORY => 'SWITCH',
+            _OBJ_TYPE     => undef
+        },
+        {
+            key           => 'Juniper',
+            _OBJ_CATEGORY => 'SWITCH',
+            _OBJ_TYPE     => undef
+        },
+        {
+            key           => 'Ruijie',
+            _OBJ_CATEGORY => 'SWITCH',
+            _OBJ_TYPE     => undef
+        },
+        {
+            key           => 'H3C',
+            _OBJ_CATEGORY => 'SWITCH',
+            _OBJ_TYPE     => undef
+        },
+        {
+            pattern       => qr/Google Android/,
+            _OBJ_CATEGORY => 'MOBILE',
+            _OBJ_TYPE     => 'Android'
+        }
+    ];
+
+    my $OSDesc = $hostInfo->{OS};
+
+    foreach my $matchItem (@$typesDef) {
+        my $key     = $matchItem->{key};
+        my $pattern = $matchItem->{pattern};
+
+        if ( defined($key) ) {
+            if ( index( $OSDesc, $key ) >= 0 ) {
+                $objInfo = {
+                    _OBJ_CATEGORY => $matchItem->{_OBJ_CATEGORY},
+                    _OBJ_TYPE     => $matchItem->{_OBJ_TYPE},
+                    MGMT_IP       => $hostInfo->{IP}
+                };
+                last;
+            }
+        }
+        elsif ( defined($pattern) ) {
+            if ( $OSDesc =~ /$pattern/ ) {
+                $objInfo = {
+                    _OBJ_CATEGORY => $matchItem->{_OBJ_CATEGORY},
+                    _OBJ_TYPE     => $matchItem->{_OBJ_TYPE},
+                    MGMT_IP       => $hostInfo->{IP}
+                };
+                last;
+            }
+        }
+    }
+
+    return $objInfo;
+}
+
+sub netScan {
+    my ( $net, $ports, $timingTmpl ) = @_;
+
+    if ( defined($ports) ) {
+        $ports = '22,161,135,139,445,3389';
+    }
+
+    # nmap -oG - 192.168.0.1/24,192.168.1.1/24 -p 22,161,135,139,445,3389 -T5 -sSU --top-ports 100 -n -O > /tmp/nmap.txt
+    my $nmapCmd = qq{nmap -oG - '$net' -p '$ports' -T$timingTmpl -O -n -sSU --top-ports 5};
+
+    my $result = {};
+    my ( $pid, $chldOut, $chldIn );
+    if ( $pid = open2( $chldOut, $chldIn, "$nmapCmd 2>\&1" ) ) {
+        my $line;
+        while ( $line = <$chldOut> ) {
+            my $hostInfo;
+            $line =~ s/^\s+|\s+$//g;
+            if ( $line =~ /^#/ ) {
+                next;
+            }
+
+            foreach my $field ( split( '\t', $line ) ) {
+                my ( $name, $val ) = split( ': ', $field );
+
+                if ( $name eq 'Host' ) {
+                    if ( $val =~ /^(.*?)\s+\((.*?)\)/ ) {
+                        my $ip  = $1;
+                        my $dns = $2;
+
+                        $hostInfo = $result->{$ip};
+                        if ( not defined($hostInfo) ) {
+                            $hostInfo = {};
+                            $result->{$ip} = $hostInfo;
+                        }
+                        $hostInfo->{IP}   = $ip;
+                        $hostInfo->{Name} = $dns;
+                    }
+                }
+                elsif ( $name eq 'Ports' ) {
+                    foreach my $portSeg ( split( '/, ', $val ) ) {
+                        my $portsInfo = $hostInfo->{'Ports'};
+                        if ( not defined($portsInfo) ) {
+                            $portsInfo = {};
+                            $hostInfo->{Ports} = $portsInfo;
+                        }
+
+                        #(port, state, protocol, owner, service, rpc_info, version)
+                        my @portParts = split( '/', $portSeg );
+                        if ( $portParts[1] eq 'open' ) {
+                            $portsInfo->{ $portParts[0] } = {
+                                port     => $portParts[0],
+                                state    => $portParts[1],
+                                protocol => $portParts[2],
+                                owner    => $portParts[3],
+                                service  => $portParts[4],
+                                rpc_info => $portParts[5],
+                                version  => $portParts[6]
+                            };
+                        }
+
+                    }
+                }
+                elsif ( $name eq 'Protocols' ) {
+                    foreach my $protocolSeg ( split( '/, ', $val ) ) {
+                        my $protocolsInfo = $hostInfo->{Protocols};
+                        if ( defined($protocolsInfo) ) {
+                            my $protocolsInfo = {};
+                            $hostInfo->{Protocols} = $protocolsInfo;
+                        }
+
+                        #(port, state, protocol, owner, service, rpc_info, version)
+                        my @protocolParts = split( '/', $protocolSeg );
+                        $protocolsInfo->{ $protocolParts[2] } = {
+                            number => $protocolParts[0],
+                            state  => $protocolParts[1],
+                            name   => $protocolParts[2]
+                        };
+                    }
+                }
+                elsif ( $name eq 'Status' ) {
+                    $val =~ s/^\s+|\s+$//g;
+                    $hostInfo->{Status} = $val;
+                }
+                else {
+                    $val =~ s/^\s+|\s+$//g;
+                    $hostInfo->{$name} = $val;
+                }
+            }
+        }
+
+        waitpid( $pid, 0 );
+        my $exitCode = $?;
+
+        if ( $exitCode != 0 ) {
+            print("ERROR: Excute nmap failed.\n");
+        }
+
+        close($chldIn);
+        close($chldOut);
+    }
+
+    return $result;
+}
+
+sub main {
+    my $ports      = '22,161,135,139,445,3389';
+    my $timingTmpl = 5;
+    my $result     = netScan( '192.168.0.26/30', $ports, $timingTmpl );
+
+    my $collectData = [];
+    while ( my ( $ip, $hostInfo ) = each(%$result) ) {
+        my $objInfo = detectObjInfo($hostInfo);
+        if ( defined($objInfo) ) {
+            print( to_json( $objInfo, { pretty => 1 } ) );
+        }
+    }
+}
+
+exit main();
