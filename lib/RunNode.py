@@ -662,7 +662,7 @@ class RunNode:
         orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False)
 
         cmdline = 'exec {}'.format(orgCmdLine)
-        environment = {}
+        environment = os.environ.copy()
         environment['TERM'] = 'dumb'
         environment['AUTOEXEC_TENANT'] = os.getenv('AUTOEXEC_TENANT')
         environment['OUTPUT_DIR'] = self.opOutputDir
@@ -671,6 +671,7 @@ class RunNode:
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
         environment['PERL5LIB'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PERL5LIB'))
+        environment['RUNNER_ID'] = self.context.runnerId
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
@@ -725,7 +726,7 @@ class RunNode:
 
         # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
         cmdline = 'exec {}'.format(orgCmdLine)
-        environment = {}
+        environment = os.environ.copy()
         environment['TERM'] = 'dumb'
         environment['AUTOEXEC_TENANT'] = os.getenv('AUTOEXEC_TENANT')
         environment['OUTPUT_DIR'] = self.opOutputDir
@@ -734,6 +735,7 @@ class RunNode:
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
         environment['PERL5LIB'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PERL5LIB'))
+        environment['RUNNER_ID'] = self.context.runnerId
         environment['AUTOEXEC_JOBID'] = self.context.jobId
         environment['AUTOEXEC_WORK_PATH'] = self.context.runPath
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
