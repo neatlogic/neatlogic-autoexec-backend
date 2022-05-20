@@ -58,6 +58,7 @@ class VContext:
 
         if 'runnerId' in passThroughEnv:
             self.runnerId = int(passThroughEnv['runnerId'])
+            os.environ['RUNNER_ID'] = str(self.runnerId)
         elif 'RUNNER_ID' in os.environ:
             self.runnerId = int(os.getenv('RUNNER_ID'))
 
