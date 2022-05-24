@@ -52,14 +52,15 @@ if __name__ == "__main__":
                     continue
 
                 line_data = line.split(',')
-                if(len(line_data) == 5) :
+                if(len(line_data) == 6) :
                     data = {}
                     sysObjectId = line_data[0].strip()
                     data['sysObjectId']= sysObjectId
-                    data['_OBJ_CATEGORY']= line_data[1].strip()
-                    data['_OBJ_TYPE']= line_data[2].strip()
-                    data['VENDOR']= line_data[3].strip()
-                    data['MODEL']= line_data[4].strip()
+                    data['sysDescrPattern'] = line_data[1].strip()
+                    data['_OBJ_CATEGORY']= line_data[2].strip()
+                    data['_OBJ_TYPE']= line_data[3].strip()
+                    data['VENDOR']= line_data[4].strip()
+                    data['MODEL']= line_data[5].strip()
                     collection.replace_one({'sysObjectId': sysObjectId}, data, upsert=True)
                 else :
                     print("ERROR: {} feature library line {} data incomplete .\n".format(filename,line.strip()))
