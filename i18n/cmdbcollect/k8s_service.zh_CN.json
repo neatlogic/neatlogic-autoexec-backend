@@ -1,12 +1,13 @@
 {
-	"label": "K8S_SERVICE",
-	"collection": "COLLECT_K8S",
-	"docroot": "NAMESPACES.SERVICES",
-	"collection_label": "Kubernetes",
-	"filter": {
-		"_OBJ_TYPE": "K8S_SERVICE"
-	},
-	"fields": [{
+    "label": "K8S_SERVICE",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.SERVICES",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_SERVICE"
+    },
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -15,130 +16,139 @@
             "name": "_OBJ_TYPE",
             "desc": "Application Type",
             "type": "String"
-        },{
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "PROTOCOL",
+                    "desc": "协议",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "服务端口",
+                    "type": "String"
+                },
+                {
+                    "name": "TARGETPORT",
+                    "desc": "容器端口",
+                    "type": "String"
+                },
+                {
+                    "name": "NODEPORT",
+                    "desc": "操作系统端口",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTERIP",
+            "desc": "集群IP",
+            "type": "String"
+        },
+        {
+            "name": "CONTAIN_PODS",
+            "desc": "包含PODS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "EXTERNALTRAFFICPOLICY",
+            "desc": "外部流量策略",
+            "type": "String"
+        },
+        {
+            "name": "INTERNALTRAFFICPOLICY",
+            "desc": "内部流量策略",
+            "type": "String"
+        },
+        {
+            "name": "IPFAMILYPOLICY",
+            "desc": "双协议栈",
+            "type": "String"
+        },
+        {
             "name": "KIND",
             "desc": "类型",
             "type": "String"
         },
-		{
-			"name": "UID",
-			"desc": "uid",
-			"type": "String"
-		},
-		{
-			"name": "NAME",
-			"desc": "名称",
-			"type": "String"
-		},
-		{
-			"name": "NAMESPACE",
-			"desc": "命名空间",
-			"type": "String"
-		}, {
-			"name": "CLUSTERIP",
-			"desc": "集群IP",
-			"type": "String"
-		},
-		{
-			"name": "TYPE",
-			"desc": "类型",
-			"type": "String"
-		},
-		{
-			"name": "SESSIONAFFINITY",
-			"desc": "SESSION保持",
-			"type": "String"
-		},
-		{
-			"name": "IPFAMILYPOLICY",
-			"desc": "双协议栈",
-			"type": "String"
-		},
-		{
-			"name": "EXTERNALTRAFFICPOLICY",
-			"desc": "外部流量策略",
-			"type": "String"
-		},
-		{
-			"name": "INTERNALTRAFFICPOLICY",
-			"desc": "内部流量策略",
-			"type": "String"
-		},
-		{
-			"name": "PORTS",
-			"desc": "ports",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "NAME",
-					"desc": "名称",
-					"type": "String"
-				},{
-					"name": "PROTOCOL",
-					"desc": "协议",
-					"type": "String"
-				},
-				{
-					"name": "PORT",
-					"desc": "服务端口",
-					"type": "String"
-				},
-				{
-					"name": "TARGETPORT",
-					"desc": "容器端口",
-					"type": "String"
-				},
-				{
-					"name": "NODEPORT",
-					"desc": "操作系统端口",
-					"type": "String"
-				}
-			]
-		},
-		{
-			"name": "LABELS",
-			"desc": "标签",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "KEY",
-					"desc": "标签键",
-					"type": "String"
-				},
-				{
-					"name": "VALUE",
-					"desc": "标签值",
-					"type": "String"
-				}
-			]
-		}, {
-			"name": "SELECTOR",
-			"desc": "已选择标签",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "KEY",
-					"desc": "标签键",
-					"type": "String"
-				},
-				{
-					"name": "VALUE",
-					"desc": "标签值",
-					"type": "String"
-				}
-			]
-		},
-		{
-			"name": "CONTAIN_PODS",
-			"desc": "包含PODS",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "UID",
-				"desc": "uid",
-				"type": "String"
-			}, {
-				"name": "NAME",
-				"desc": "name",
-				"type": "String"
-			}]
-		}
-
-	]
+        {
+            "name": "LABELS",
+            "desc": "标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "命名空间",
+            "type": "String"
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "已选择标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SESSIONAFFINITY",
+            "desc": "SESSION保持",
+            "type": "String"
+        },
+        {
+            "name": "TYPE",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        }
+    ]
 }

@@ -33,7 +33,8 @@ def getObjCatPkDef(objCat, customPkDef):
         'LOADBALANCER': ['MGMT_IP', 'SN'],
         'STORAGE': ['MGMT_IP', 'SN'],
         'FCSWITCH': ['MGMT_IP', 'SN'],
-        'K8S' : ['MGMT_IP']
+        'K8S': ['MGMT_IP'],
+        'UNKNOWN': ['MGMT_IP']
     }
     fixPkDef = pkDefs.get(objCat)
     if fixPkDef is not None:
@@ -174,13 +175,16 @@ if __name__ == "__main__":
         else:
             collectData = None
             for key, value in outputData.items():
-                if not key.startswith("cmdbcollect/"):
-                    continue
+                if key == 'DATA':
+                    collectData = value
+                else:
+                    if not key.startswith("cmdbcollect/"):
+                        continue
 
-                collectData = value['DATA']
-                if collectData is None:
-                    print('WARN: Plugin {} did not return collect data.'.format(key))
-                    continue
+                    collectData = value['DATA']
+                    if collectData is None:
+                        print('WARN: Plugin {} did not return collect data.'.format(key))
+                        continue
 
             if collectData is None:
                 print('ERROR: Can not find any cmdb collect data.')
