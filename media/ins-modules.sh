@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 declare -a INS_SUC_PKGS
 declare -a INS_FAIL_PKGS
 
-PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pip install)
+PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp)
 
 for PKG in ${PKGS[@]}; do
     pip3 install $PKG -t $AUTOEXEC_HOME/plib

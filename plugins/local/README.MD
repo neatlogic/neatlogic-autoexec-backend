@@ -1,5 +1,15 @@
 # Plugins Local README
 ------
+## VSCode调试python和perl
+### 工具调试配置
+- 参考.vscode/lauch.example.json
+### Perl(Mac可以本地调试，Windows需要使用VScode的远程开发功能在Linux做调试)
+- 安装Perl::LanguageServer(cpan install Perl::LanguageServer)，会自动安装相关依赖
+- 在VSCode中安装Perl LanguageServer插件
+
+### Python
+- 在VSCode中安装Python插件
+
 ## 工具开发说明
 此目录用于存放本地和本地远程执行的插件，插件只支持长选项参数。
 本地运行就是在Runner节点上执行的工具，跟远程OS无关的工具存放此目录下。

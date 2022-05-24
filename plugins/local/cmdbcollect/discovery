@@ -1,217 +1,253 @@
-#!/usr/bin/perl
-use strict;
-use IPC::Open2;
-use JSON;
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+from gc import collect
+import os
+import json
+import re
+import subprocess
 
-sub detectObjInfo {
-    my ($hostInfo) = @_;
-    my $objInfo;
 
-    my $typesDef = [
-        {
-            key           => 'Linux',
-            _OBJ_CATEGORY => 'OS',
-            _OBJ_TYPE     => 'Linux'
-        },
-        {
-            key           => 'Windows',
-            _OBJ_CATEGORY => 'OS',
-            _OBJ_TYPE     => 'Windows'
-        },
-        {
-            key           => 'AIX',
-            _OBJ_CATEGORY => 'OS',
-            _OBJ_TYPE     => 'AIX'
-        },
-        {
-            key           => 'SunOS',
-            _OBJ_CATEGORY => 'OS',
-            _OBJ_TYPE     => 'SunOS'
-        },
-        {
-            key           => 'FreeBSD',
-            _OBJ_CATEGORY => 'OS',
-            _OBJ_TYPE     => 'FreeBSD'
-        },
-        {
-            key           => 'CISCO',
-            _OBJ_CATEGORY => 'SWITCH',
-            _OBJ_TYPE     => undef
-        },
-        {
-            key           => 'Huawei',
-            _OBJ_CATEGORY => 'SWITCH',
-            _OBJ_TYPE     => undef
-        },
-        {
-            key           => 'Juniper',
-            _OBJ_CATEGORY => 'SWITCH',
-            _OBJ_TYPE     => undef
-        },
-        {
-            key           => 'Ruijie',
-            _OBJ_CATEGORY => 'SWITCH',
-            _OBJ_TYPE     => undef
-        },
-        {
-            key           => 'H3C',
-            _OBJ_CATEGORY => 'SWITCH',
-            _OBJ_TYPE     => undef
-        },
-        {
-            pattern       => qr/Google Android/,
-            _OBJ_CATEGORY => 'MOBILE',
-            _OBJ_TYPE     => 'Android'
-        }
-    ];
+def detectObjInfo(hostInfo):
+    OSDesc = hostInfo.get('OS')
 
-    my $OSDesc = $hostInfo->{OS};
+    if OSDesc is None:
+        return None
 
-    foreach my $matchItem (@$typesDef) {
-        my $key     = $matchItem->{key};
-        my $pattern = $matchItem->{pattern};
+    objInfo = None
+    typesDef = [
+        {'key': 'Linux', '_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': 'Linux'},
+        {'key': 'Windows', '_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': 'Windows'},
+        {'key': 'AIX', '_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': 'AIX'},
+        {'key': 'SunOS', '_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': 'SunOS'},
+        {'key': 'FreeBSD', '_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': 'FreeBSD'},
+        {'key': 'CISCO', '_OBJ_CATEGORY': 'SWITCH', '_OBJ_TYPE': None},
+        {'key': 'Huawei', '_OBJ_CATEGORY': 'SWITCH', '_OBJ_TYPE': None},
+        {'key': 'Juniper', '_OBJ_CATEGORY': 'SWITCH', '_OBJ_TYPE': None},
+        {'key': 'Ruijie', '_OBJ_CATEGORY': 'SWITCH', '_OBJ_TYPE': None},
+        {'key': 'H3C', '_OBJ_CATEGORY': 'SWITCH', '_OBJ_TYPE': None},
+        {'pattern': re.compile(r'Google Android'), '_OBJ_CATEGORY': 'MOBILE', '_OBJ_TYPE': 'Android'}
+    ]
 
-        if ( defined($key) ) {
-            if ( index( $OSDesc, $key ) >= 0 ) {
-                $objInfo = {
-                    _OBJ_CATEGORY => $matchItem->{_OBJ_CATEGORY},
-                    _OBJ_TYPE     => $matchItem->{_OBJ_TYPE},
-                    MGMT_IP       => $hostInfo->{IP}
-                };
-                last;
-            }
-        }
-        elsif ( defined($pattern) ) {
-            if ( $OSDesc =~ /$pattern/ ) {
-                $objInfo = {
-                    _OBJ_CATEGORY => $matchItem->{_OBJ_CATEGORY},
-                    _OBJ_TYPE     => $matchItem->{_OBJ_TYPE},
-                    MGMT_IP       => $hostInfo->{IP}
-                };
-                last;
-            }
-        }
-    }
+    for matchItem in typesDef:
+        key = matchItem.get('key')
+        pattern = matchItem.get('pattern')
 
-    return $objInfo;
-}
+        if key is not None:
+            try:
+                OSDesc.index(key)
+                objInfo = {
+                    '_OBJ_CATEGORY': matchItem['_OBJ_CATEGORY'],
+                    '_OBJ_TYPE': matchItem['_OBJ_TYPE'],
+                    'MGMT_IP': hostInfo['IP']
+                }
+                break
+            except ValueError:
+                pass
+        elif pattern is not None:
+            if re.search(pattern, OSDesc):
+                objInfo = {
+                    '_OBJ_CATEGORY': matchItem['_OBJ_CATEGORY'],
+                    '_OBJ_TYPE': matchItem['_OBJ_TYPE'],
+                    'MGMT_IP': hostInfo['IP']
+                }
+                break
 
-sub netScan {
-    my ( $net, $ports, $timingTmpl ) = @_;
+    return objInfo
 
-    if ( defined($ports) ) {
-        $ports = '22,161,135,139,445,3389';
-    }
 
+def netScan(net=None, ports=None, timingTmpl=5):
+    if ports is None:
+        ports = '22,161,135,139,445,3389'
     # nmap -oG - 192.168.0.1/24,192.168.1.1/24 -p 22,161,135,139,445,3389 -T5 -sSU --top-ports 100 -n -O > /tmp/nmap.txt
-    my $nmapCmd = qq{nmap -oG - '$net' -p '$ports' -T$timingTmpl -O -n -sSU --top-ports 5};
+    nmapCmd = 'sudo nmap -oG - {} -p {} -T{} -O -n -sSU --top-ports 5'.format(net, ports, timingTmpl)
+    child = subprocess.Popen(nmapCmd, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    my $result = {};
-    my ( $pid, $chldOut, $chldIn );
-    if ( $pid = open2( $chldOut, $chldIn, "$nmapCmd 2>\&1" ) ) {
-        my $line;
-        while ( $line = <$chldOut> ) {
-            my $hostInfo;
-            $line =~ s/^\s+|\s+$//g;
-            if ( $line =~ /^#/ ) {
-                next;
-            }
+    result = {}
+    while True:
+        # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
+        line = child.stdout.readline(4096)
+        if not line:
+            break
 
-            foreach my $field ( split( '\t', $line ) ) {
-                my ( $name, $val ) = split( ': ', $field );
+        line = line.strip()
+        line = line.decode('utf-8')
+        if not line.startswith('#'):
+            hostInfo = None
+            for field in line.split('\t'):
+                (name, val) = field.split(': ', 2)
+                if name == 'Host':
+                    (ip, dns) = val.split(' ')
+                    ip = ip.strip()
+                    hostInfo = result.get(ip)
+                    if hostInfo is None:
+                        hostInfo = {}
+                        result[ip] = hostInfo
 
-                if ( $name eq 'Host' ) {
-                    if ( $val =~ /^(.*?)\s+\((.*?)\)/ ) {
-                        my $ip  = $1;
-                        my $dns = $2;
-
-                        $hostInfo = $result->{$ip};
-                        if ( not defined($hostInfo) ) {
-                            $hostInfo = {};
-                            $result->{$ip} = $hostInfo;
-                        }
-                        $hostInfo->{IP}   = $ip;
-                        $hostInfo->{Name} = $dns;
-                    }
-                }
-                elsif ( $name eq 'Ports' ) {
-                    foreach my $portSeg ( split( '/, ', $val ) ) {
-                        my $portsInfo = $hostInfo->{'Ports'};
-                        if ( not defined($portsInfo) ) {
-                            $portsInfo = {};
-                            $hostInfo->{Ports} = $portsInfo;
-                        }
+                    hostInfo['IP'] = ip
+                    hostInfo['Name'] = dns[1:-1]
+                elif name == 'Ports':
+                    for portSeg in val.split('/, '):
+                        portsInfo = hostInfo.get('Ports')
+                        if portsInfo is None:
+                            portsInfo = {}
+                            hostInfo['Ports'] = portsInfo
 
                         #(port, state, protocol, owner, service, rpc_info, version)
-                        my @portParts = split( '/', $portSeg );
-                        if ( $portParts[1] eq 'open' ) {
-                            $portsInfo->{ $portParts[0] } = {
-                                port     => $portParts[0],
-                                state    => $portParts[1],
-                                protocol => $portParts[2],
-                                owner    => $portParts[3],
-                                service  => $portParts[4],
-                                rpc_info => $portParts[5],
-                                version  => $portParts[6]
-                            };
-                        }
-
-                    }
-                }
-                elsif ( $name eq 'Protocols' ) {
-                    foreach my $protocolSeg ( split( '/, ', $val ) ) {
-                        my $protocolsInfo = $hostInfo->{Protocols};
-                        if ( defined($protocolsInfo) ) {
-                            my $protocolsInfo = {};
-                            $hostInfo->{Protocols} = $protocolsInfo;
-                        }
+                        portParts = portSeg.split('/')
+                        if portParts[1] == 'open':
+                            portsInfo[portParts[0]] = {
+                                'port': portParts[0],
+                                'state': portParts[1],
+                                'protocol': portParts[2],
+                                'owner': portParts[3],
+                                'service': portParts[4],
+                                'rpc_info': portParts[5],
+                                'version': portParts[6]
+                            }
+                elif name == 'Protocols':
+                    for protocolSeg in val.split('/, '):
+                        protocolsInfo = hostInfo.get('Protocols')
+                        if protocolsInfo is None:
+                            protocolsInfo = {}
+                            hostInfo['Protocols'] = protocolsInfo
 
                         #(port, state, protocol, owner, service, rpc_info, version)
-                        my @protocolParts = split( '/', $protocolSeg );
-                        $protocolsInfo->{ $protocolParts[2] } = {
-                            number => $protocolParts[0],
-                            state  => $protocolParts[1],
-                            name   => $protocolParts[2]
-                        };
-                    }
-                }
-                elsif ( $name eq 'Status' ) {
-                    $val =~ s/^\s+|\s+$//g;
-                    $hostInfo->{Status} = $val;
-                }
-                else {
-                    $val =~ s/^\s+|\s+$//g;
-                    $hostInfo->{$name} = $val;
-                }
-            }
-        }
+                        protocolParts = protocolSeg.split('/')
+                        protocolsInfo[portParts[2]] = {
+                            'number': portParts[0],
+                            'state': portParts[1],
+                            'name': portParts[2]
+                        }
+                elif name == 'Status':
+                    hostInfo['Status'] = val.strip()
+                else:
+                    hostInfo[name] = val
 
-        waitpid( $pid, 0 );
-        my $exitCode = $?;
+    return result
 
-        if ( $exitCode != 0 ) {
-            print("ERROR: Excute nmap failed.\n");
-        }
 
-        close($chldIn);
-        close($chldOut);
+def getCollectCmd(objInfo, nodeName, community):
+    cmd = None
+    objCat = objInfo.get('_OBJ_CATETORY')
+    objType = objInfo.get('_OBJ_TYPE')
+
+    nodeInfo = {
+        'resourceId': 0,
+        'nodeName': nodeName,
+        'host': objInfo.get('MGMT_IP'),
+        'port': None,
+        'protocol': 'snmp',
+        'protocolPort': 161,
+        'username': 'none',
+        'password': community,
+        'nodeType': objType
     }
+    os.environ['AUTOEXEC_NODE'] = json.dumps(nodeInfo, ensure_ascii=False)
 
-    return $result;
-}
+    if objCat == 'SWITCH':
+        cmd = "switchcollector --objtype {}".format(objType)
+    elif objCat == 'LOADBALANCER':
+        if objType == 'F5':
+            cmd = "f5collector"
+        elif objType == 'A10':
+            cmd = "a10collector"
+    elif objCat == 'SECDEV':
+        if objType == 'FireWall':
+            cmd = "firewallcollector --type auto"
+    elif objCat == 'FCDEV':
+        if objCat == 'FCSwitch ':
+            cmd = "storagecollector --type auto"
 
-sub main {
-    my $ports      = '22,161,135,139,445,3389';
-    my $timingTmpl = 5;
-    my $result     = netScan( '192.168.0.26/30', $ports, $timingTmpl );
+    return cmd
 
-    my $collectData = [];
-    while ( my ( $ip, $hostInfo ) = each(%$result) ) {
-        my $objInfo = detectObjInfo($hostInfo);
-        if ( defined($objInfo) ) {
-            print( to_json( $objInfo, { pretty => 1 } ) );
-        }
-    }
-}
 
-exit main();
+def saveOneNode():
+    saveCmd = 'savedata --outputfile output.json'
+    ret = os.system(saveCmd)
+    return ret
+
+
+def snmpGetSysInfo(objInfo, communities):
+    detected = False
+    ip = objInfo.get('MGMT_IP')
+    for community in communities:
+        pass
+
+    detected = True
+    return detected
+
+
+def netDevInfoCollect(objInfo, communities):
+    hasError = 0
+
+    detected = False
+    workCommunity = None
+    # Detech objType by snmp sysObjectId and sysDescr, sysName
+
+    for community in communities:
+        detected = snmpGetSysInfo(objInfo, community):
+        if detected:
+            workCommunity = community
+
+    if not detected:
+        # snmp获取sysObjectId并判断类型失败
+        return 1
+
+    objCat = objInfo['_OBJ_CATEGORY']
+    objType = objInfo['_OBJ_TYPE']
+    sysName = objInfo['DEV_NAME']
+
+    # test data
+    objCat = 'SWITCH'
+    objType = 'Switch'
+    workCommunity = 'public'
+    sysName = 'AR600'
+    # 3
+
+    # Call collect tool
+    collectCmd = getCollectCmd(objInfo, sysName, workCommunity)
+    if collectCmd is not None:
+        ret = os.system(collectCmd)
+        hasError = hasError + ret
+    else:
+        hasError = hasError + 1
+
+    # call savedata
+    if hasError == 0:
+        hasError = hasError + saveOneNode()
+
+    return hasError
+
+
+if __name__ == "__main__":
+    ports = '22,161,135,139,445,3389,3939'
+    snmpPort = '161'
+    communities = ['public']
+    result = netScan(net='192.168.0.1/24', ports=ports, timingTmpl=5)
+    #print(json.dumps(result, ensure_ascii=False, indent=4))
+
+    snmpData = []
+    osData = []
+    otherData = []
+    for ip, hostInfo in result.items():
+        print(json.dumps(hostInfo, ensure_ascii=False, indent=4))
+        objInfo = detectObjInfo(hostInfo)
+        if objInfo:
+            portsInfo = hostInfo.get('Ports')
+            if portsInfo is not None:
+                if objInfo.get('_OBJ_CATEGORY') == 'OS':
+                    osData.append(objInfo)
+                elif portsInfo.get(snmpPort) is not None:
+                    if netDevInfoCollect(objInfo, communities) == 0:
+                        snmpData.append(objInfo)
+                    else:
+                        otherData.append(objInfo)
+                else:
+                    otherData.append(objInfo)
+
+    print("================snmp=====================")
+    print(json.dumps(snmpData, ensure_ascii=False, indent=4))
+    print("================OS=====================")
+    print(json.dumps(osData, ensure_ascii=False, indent=4))
+    print("================Other=====================")
+    print(json.dumps(otherData, ensure_ascii=False, indent=4))
