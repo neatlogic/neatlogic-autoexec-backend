@@ -565,8 +565,10 @@ sub execSqlFiles {
             print("INFO: Execute sql file:$sqlFile...\n");
             my $rc        = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
-            print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
-            $hasError = $hasError + $rc;
+            if ( $rc != 0 ) {
+                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
+                $hasError = $hasError + $rc;
+            }
         }
 
         if ( $hasError != 0 ) {
