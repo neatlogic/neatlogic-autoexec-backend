@@ -835,8 +835,10 @@ class RunNode:
                     remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
                     remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
 
-                if op.hasOutput:
-                    tagent.writeFile(self.username, b'', remotePath + '/output.json')
+                if uploadRet == 0 and op.hasFileOpt:
+                    uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
+                if uploadRet == 0 and op.hasOutput:
+                    uploadRet = tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
                 if tagent.agentOsType == 'windows':
                     self.killCmd = ""
@@ -1002,6 +1004,16 @@ class RunNode:
                                 self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IXUSR)
+
+                if hasError == 0 and op.hasFileOpt:
+                    try:
+                        sftp.mkdir(os.path.join(remoteRoot + 'file'))
+                        for file in os.listdir(os.path.join(self.context.runPath + 'file')):
+                            if os.path.isfile(file):
+                                sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remoteRoot, 'file', file))
+                    except Exception as err:
+                        hasError = True
+                        self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))
 
                 if op.hasOutput:
                     ofh = sftp.file(os.path.join(remotePath, 'output.json'), 'w')

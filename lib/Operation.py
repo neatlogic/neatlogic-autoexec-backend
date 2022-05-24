@@ -23,6 +23,7 @@ class Operation:
         self.jobId = context.jobId
         self.opsParam = opsParam
         self.isScript = 0
+        self.hasFileOpt = False
         self.scriptContent = None
         self.interpreter = ''
         self.lockedFDs = []
@@ -271,6 +272,7 @@ class Operation:
                         cacheFile.close()
 
                 fileNamesArray.append(fileName)
+                self.hasFileOpt = True
 
         return fileNamesArray
 
