@@ -1,0 +1,4 @@
+#数据格式：sysObjectId,sysDescrPattern,_OBJ_CATEGORY,_OBJ_TYPE,VENDOR,MODEL
+#光纤交换机
+.1.3.6.1.4.1.1588.2.1.1.1,,FCDEV,FCSwitch,Brocade,
+.1.3.6.1.4.1.1588.2.1.1.2,,FCDEV,FCSwitch,Brocade,

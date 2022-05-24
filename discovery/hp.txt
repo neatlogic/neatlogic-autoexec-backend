@@ -1,0 +1,38 @@
+#数据格式：sysObjectId,sysDescrPattern,_OBJ_CATEGORY,_OBJ_TYPE,VENDOR,MODEL
+.1.3.6.1.4.1.11.2.3.7.11.37,,FCDEV,FCSwitch,Hp,HP Access-Point AP420WL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.38,,FCDEV,FCSwitch,Hp,HP Access-Point AP520WL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.8,,FCDEV,FCSwitch,Hp,HP ProCurve-Switch 1600M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.5,,FCDEV,FCSwitch,Hp,HP ProCurve-Switch 212M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.6,,FCDEV,FCSwitch,Hp,HP ProCurve-Switch 212M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.10,,FCDEV,FCSwitch,Hp,HP ProCurve-Switch 2400m,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.11,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2424m,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.18,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2512,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.19,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2524,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.34,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2626,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.45,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2626-CR,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.29,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2650,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.35,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2650-PWR,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.31,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2824,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.44,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2650-CR,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.32,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 2848,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.21,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 3324XL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.42,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 3400cl-24G,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.22,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 3124,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.9,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 4000m,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.27,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 4104GL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.23,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 4108GL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.43,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 3400cl-48G,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.20,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 5304XL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.30,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 6108,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.46,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 5404yl,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.17,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 5308XL,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.47,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 5408yl,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.16,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 6208M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.7,,FCDEV,FCSwitch,Hp,HP ProCurv-witch 8000M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.48,,FCDEV,FCSwitch,Hp,HP ProCurv-witch CX4 6400cl-6XG,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.49,,FCDEV,FCSwitch,Hp,HP ProCurv-witch MF 6400cl-6XG,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.15,,FCDEV,FCSwitch,Hp,HP Routing-Switch 6308m-SX,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.14,,FCDEV,FCSwitch,Hp,HP Routing-Switch 9304M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.13,,FCDEV,FCSwitch,Hp,HP Routing-Switch 9308M,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11.28,,FCDEV,FCSwitch,Hp,HP Routing-Switch 9315,HPSwitch
+.1.3.6.1.4.1.11.2.3.7.11,,FCDEV,FCSwitch,Hp,HPSwitch
