@@ -1,0 +1,70 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import os
+import argparse
+import sys
+import json
+
+binPaths = os.path.split(os.path.realpath(__file__))
+dictPath = os.path.realpath(binPaths[0])
+homePath = os.path.realpath(binPaths[0]+'/..')
+sys.path.append(homePath+'/lib')
+sys.path.append(homePath+'/plugins/local/lib')
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --action [savetodb|rebuild] ,default value: savetodb \n")
+    print("Example: {} --action savetodb ".format(pname))
+    exit(1)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--action', default='savetodb', help='Actions:（savetodb|rebuild')
+
+    args = parser.parse_args()
+    action = args.action
+
+    binPaths = os.path.split(os.path.realpath(__file__))
+    dictPath = os.path.abspath(binPaths[0])
+
+    import AutoExecUtils
+    (dbclient, db) = AutoExecUtils.getDB()
+    table = '_library'
+    collection = db[table]
+    if action == 'rebuild':
+        collection.delete_many({})
+    
+    collection.create_index([('sysObjectId', 1)], name='idx_pk', unique=True)
+
+    dirs = os.listdir(dictPath)
+    for dfile in dirs:
+        filename = dictPath + "/" + dfile
+        info = dfile.split('.')
+        if (len(info) == 2 and info[1] == 'txt'):
+            print("INFO: Try to load feature library file:", filename, "...")
+            txtfile = open(filename)
+            lines = txtfile.readlines()
+            for line in lines :
+                line = line.strip()
+                if (line.startswith('#') or line == '') :
+                    continue
+
+                line_data = line.split(',')
+                if(len(line_data) == 5) :
+                    data = {}
+                    sysObjectId = line_data[0].strip()
+                    data['sysObjectId']= sysObjectId
+                    data['_OBJ_CATEGORY']= line_data[1].strip()
+                    data['_OBJ_TYPE']= line_data[2].strip()
+                    data['VENDOR']= line_data[3].strip()
+                    data['MODEL']= line_data[4].strip()
+                    collection.replace_one({'sysObjectId': sysObjectId}, data, upsert=True)
+                else :
+                    print("ERROR: {} feature library line {} data incomplete .\n".format(filename,line.strip()))
+            print("INFO: Import feature library file:", dfile, "success.")
+            txtfile.close()
+
+    if dbclient is not None:
+        dbclient.close()
