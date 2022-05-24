@@ -38,9 +38,11 @@ sub main {
 
     my $hasOptErr = 0;
     if ( not defined($tinput) or $tinput eq '' ) {
+        print("ERROR: Option --tinput not defined.\n");
         $hasOptErr = 1;
     }
     if ( not defined($tselect) or $tselect eq '' ) {
+        print("ERROR: Option --tselect not defined.\n");
         $hasOptErr = 1;
     }
 
