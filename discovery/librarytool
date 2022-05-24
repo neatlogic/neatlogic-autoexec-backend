@@ -32,19 +32,25 @@ if __name__ == "__main__":
 
     import AutoExecUtils
     (dbclient, db) = AutoExecUtils.getDB()
-    table = '_library'
+    table = '_discovery_rule'
     collection = db[table]
     if action == 'rebuild':
-        collection.delete_many({})
+        # collection.delete_many({})
+        collection.drop()
 
-    collection.create_index([('sysObjectId', 1)], name='idx_pk', unique=True)
+    pkIdx = []
+    pkIdx.append(('sysObjectId', 1))
+    pkIdx.append(('_OBJ_CATETORY', 1))
+    pkIdx.append(('_OBJ_TYPE', 1))
+    collection.create_index(pkIdx, name='idx_pk', unique=True)
+    collection.create_index([('sysObjectId', 1)], name='idx_sysObjectId')
 
     dirs = os.listdir(dictPath)
     for dfile in dirs:
         filename = dictPath + "/" + dfile
         info = dfile.split('.')
         if (len(info) == 2 and info[1] == 'txt'):
-            print("INFO: Try to load feature library file:", filename, "...")
+            print("INFO: Try to load feature library file:", dfile, "...")
             txtfile = open(filename)
             lines = txtfile.readlines()
             for line in lines:
@@ -53,7 +59,7 @@ if __name__ == "__main__":
                     continue
 
                 line_data = line.split(',')
-                if(len(line_data) == 6):
+                if(len(line_data) >= 6):
                     data = {}
                     sysObjectId = line_data[0].strip()
                     data['sysObjectId'] = sysObjectId
@@ -64,7 +70,7 @@ if __name__ == "__main__":
                     data['MODEL'] = line_data[5].strip()
                     collection.replace_one({'sysObjectId': sysObjectId}, data, upsert=True)
                 else:
-                    print("ERROR: {} feature library line {} data incomplete .\n".format(filename, line.strip()))
+                    print("ERROR: {} feature library line: {} data incomplete .\n".format(dfile, line.strip()))
             print("INFO: Import feature library file:", dfile, "success.")
             txtfile.close()
 
