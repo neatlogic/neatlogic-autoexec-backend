@@ -56,6 +56,18 @@ cd autoexec
 cd autoexec/media
 ./ins-modules.sh
 ```
+### 升级python3第三方库
+```
+cd autoexec/media
+./upgrade-modules.sh
+```
+### 重新安装单个模块例子
+```
+cd autoexec/media
+./ins-modules.sh ijson
+./upgrade-modules.sh ijson
+```
+
 python3第三方库会安装到目录autoexec/plib下
 
 ### 安装本地工具需要的perl的第三方库
@@ -68,7 +80,7 @@ cd autoexec/plugins/local/media
 - 以安装Config-Tiny-2.28和XML-Simple-2.22.tar为例
 ```shell
 cd autoexec/plugins/local/media
-./setupone.sh Config-Tiny-2.28 XML-Simple-2.22
+./setupone.sh Net-SSLeay-1.92 Config-Tiny-2.28 XML-Simple-2.22
 ```
 perl第三方库会安装到autoexec/plugins/local/pllib
 

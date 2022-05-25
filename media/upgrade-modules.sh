@@ -12,6 +12,10 @@ declare -a INS_FAIL_PKGS
 
 PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp)
 
+if [[ $# > 0 ]]; then
+    PKGS=($*)
+fi
+
 for PKG in ${PKGS[@]}; do
     pip3 install --upgrade $PKG -t $AUTOEXEC_HOME/plib
 

@@ -1,3 +1,17 @@
+# 安装本地工具需要的perl的第三方库
+```shell
+cd autoexec/plugins/local/media
+./setup.sh
+```
+
+# 重新安装本地工具需要的perl的某些第三方库
+- 以安装Config-Tiny-2.28和XML-Simple-2.22.tar为例
+```shell
+cd autoexec/plugins/local/media
+./setupone.sh Net-SSLeay-1.92 Config-Tiny-2.28 XML-Simple-2.22
+```
+perl第三方库会安装到autoexec/plugins/local/pllib
+
 # 使用工具cpan安装perl模块到系统
 ## 例如：
 - 1) sudo cpan

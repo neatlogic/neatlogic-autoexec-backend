@@ -4,20 +4,21 @@
 import base64
 import json
 import os
+import configparser
 import ijson
 import urllib.request
 import argparse
 
 
-def exportJsonInfo(args):
-    serverUser = args.user
-    serverPass = args.password
-    tenant = args.t
-    pathStr = args.dir
-    url = 'http://' + args.host + ':' + args.port + '/develop/public/api/binary/autoexec/script/export'
+def exportJsonInfo(params):
+    serverUser = params.get('user')
+    serverPass = params.get('password')
+    tenant = params.get('tenant')
+    pathStr = params.get('destDir')
+    url = params.get('baseUrl') + '/' + tenant + '/public/api/binary/autoexec/script/export'
     # 获取json数据
-    str = serverUser + ":" + serverPass
-    Authorization = "Basic " + base64.b64encode(str.encode('utf8')).decode()
+    authStr = serverUser + ":" + serverPass
+    Authorization = "Basic " + base64.b64encode(authStr.encode('utf8')).decode()
     headers = {
         'tenant': tenant,
         'Authorization': Authorization,
@@ -107,16 +108,50 @@ def exportJsonInfo(args):
 
 def parseArgs():
     parser = argparse.ArgumentParser(description='you should add those paramete')
-    parser.add_argument("-host", help="Host of autoexec api server")
-    parser.add_argument("-port", help="port")
-    parser.add_argument("-tenant", help="Tenant")
-    parser.add_argument("-user", help="username")
-    parser.add_argument("-password", help="passWord")
-    parser.add_argument("-dir", help="Script's directory")
+    parser.add_argument("--baseurl", default='', help="Automation web console address")
+    parser.add_argument("--tenant", default='', help="Tenant")
+    parser.add_argument("--user", default='', help="username")
+    parser.add_argument("--password", default='', help="passWord")
+    parser.add_argument("--dir", default='', help="Script's directory")
     args = parser.parseArgs()
-    return args
+
+    baseUrl = args.baseurl
+    tenant = args.tenant
+    user = args.user
+    password = args.password
+    destDir = args.dir
+
+    homePath = os.path.split(os.path.realpath(__file__))[0]
+    homePath = os.path.realpath(homePath + '/..')
+    cfgPath = homePath + '/conf/config.ini'
+    if os.path.isfile(cfgPath):
+        cfg = configparser.ConfigParser()
+        cfg.optionxform = str
+        cfg.read(cfgPath)
+        if baseUrl == '':
+            baseUrl = cfg.get('server', 'server.baseurl')
+        if user == '':
+            user = cfg.get('server', 'server.username')
+        if password == '':
+            password = cfg.get('server', 'server.password')
+        if destDir == '':
+            destDir = homePath + '/scripts'
+
+    if tenant == '':
+        print("INFO: Tenant not set, use default:develop.\n", end='')
+        tenant = 'develop'
+
+    params = {
+        'baseUrl': baseUrl,
+        'tenant': tenant,
+        'user': user,
+        'password': password,
+        'destDir': destDir
+    }
+
+    return params
 
 
 if __name__ == '__main__':
-    args = parseArgs()
-    exportJsonInfo(args)
+    params = parseArgs()
+    exportJsonInfo(params)
