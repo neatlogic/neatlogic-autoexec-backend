@@ -83,8 +83,12 @@ class SnmpCollectWorker(threading.Thread):
                         objInfo['DEV_NAME'] = oidVal
 
             if snmpQuery:
+                print("INFO: Snmp get for {} success.\n".format(ip), end='')
                 if self.getObjCatByRule(objInfo):
+                    print("INFO: Device regconized rule matched for {}.\n".format(ip), end='')
                     workCommunity = community
+                else:
+                    print("INFO: There no device regconized rule matched for {}.\n".format(ip), end='')
 
         return workCommunity
 
@@ -145,6 +149,8 @@ class SnmpCollectWorker(threading.Thread):
         if workCommunity is None:
             # snmp获取sysObjectId并判断类型失败
             hasError = hasError + 1
+            objInfo['_OBJ_CATEGORY'] = 'UNKNOWN'
+            self.unknownItems.append(objInfo)
 
         if hasError == 0:
             ret = 0
@@ -156,16 +162,14 @@ class SnmpCollectWorker(threading.Thread):
                 hasError = hasError + ret
             else:
                 hasError = hasError + 1
+            if hasError != 0:
+                self.unknownItems.append(objInfo)
 
         # call savedata
         if hasError == 0:
+            #print(json.dumps(objInfo, indent=4, ensure_ascii=False), end='')
+            print("INFO: Object catetory:{} object type:{} IP:{} collected.\n".format(objInfo.get('_OBJ_CATEGORY'), objInfo.get('_OBJ_TYPE'), objInfo.get('MGMT_IP')), end='')
             hasError = hasError + self.saveOneNode(objInfo.get('MGMT_IP'))
-
-        if hasError != 0:
-            objInfo['_OBJ_CATEGORY'] = 'UNKNOWN'
-            self.unknownItems.append(objInfo)
-        else:
-            print(json.dumps(objInfo, indent=4, ensure_ascii=False), end='')
 
     def run(self):
         while not self.goToStop:
