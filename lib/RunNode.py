@@ -1007,8 +1007,8 @@ class RunNode:
 
                 if hasError == 0 and op.hasFileOpt:
                     try:
-                        sftp.mkdir(os.path.join(remoteRoot + 'file'))
-                        for file in os.listdir(os.path.join(self.context.runPath + 'file')):
+                        sftp.mkdir(os.path.join(remoteRoot, 'file'))
+                        for file in os.listdir(os.path.join(self.context.runPath, 'file')):
                             if os.path.isfile(file):
                                 sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remoteRoot, 'file', file))
                     except Exception as err:
