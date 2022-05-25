@@ -458,19 +458,22 @@ class Operation:
                     nameWithExt = self.opSubName
                     if self.opSubName.endswith(extName):
                         if self.interpreter == 'cmd':
-                            cmd = 'cmd /c {}'.format(self.opSubName)
+                            cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'cscript {}'.format(self.opSubName)
+                            cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
                         else:
-                            cmd = '{} {}'.format(self.interpreter, self.opSubName)
+                            cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
-                            cmd = 'rename {} {} & cmd /c {}'.format(self.opSubName, nameWithExt, nameWithExt)
+                            #cmd = 'cd {} & copy {} {} & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy {} {} & cmd /c {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'rename {} {} & cscript {}'.format(self.opSubName, nameWithExt, nameWithExt)
+                            #cmd = 'cd {} & copy {} {} & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy {} {} & cscript {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         else:
-                            cmd = 'rename {} {} & {} {}'.format(self.opSubName, nameWithExt, self.interpreter, nameWithExt)
+                            #cmd = 'cd {} & copy {} {} & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy {} {} & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
                         cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
@@ -493,5 +496,10 @@ class Operation:
     def getCmdLineHidePassword(self, fullPath=False, remotePath=None, osType='linux'):
         cmd = self.getCmd(fullPath=fullPath, remotePath=remotePath, osType=osType)
         cmd = self.appendCmdOpts(cmd, noPassword=True, osType=osType)
+        cmd = self.appendCmdArgs(cmd, noPassword=True, osType=osType)
+        return cmd
+
+    def getCmdOptsHidePassword(self, osType='linux'):
+        cmd = self.appendCmdOpts(self.opName, noPassword=True, osType=osType)
         cmd = self.appendCmdArgs(cmd, noPassword=True, osType=osType)
         return cmd

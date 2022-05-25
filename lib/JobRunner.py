@@ -266,6 +266,7 @@ class JobRunner:
                     failStatus = NodeStatus.paused
                 self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, failStatus)
         except:
+            endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end='')
             traceback.print_exc()
             print("\n", end='')
@@ -521,6 +522,10 @@ class JobRunner:
         if 'runFlow' in params:
             for phaseGroup in params['runFlow']:
                 groupNo = phaseGroup['groupNo']
+
+                if self.context.hasFailNodeInGlobal:
+                    break
+
                 if self.context.goToStop == True:
                     break
 

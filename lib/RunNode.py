@@ -780,12 +780,14 @@ class RunNode:
 
         remoteCmd = None
         remoteCmdHidePass = None
+        jobDir = 'autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
+        self.writeNodeLog("INFO: Job directory:{}\n".format(jobDir))
 
         ret = -1
         if self.type == 'tagent':
             scriptFile = None
             try:
-                remoteRoot = '$TMPDIR/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
+                remoteRoot = '$TMPDIR/' + jobDir
                 remotePath = remoteRoot + '/' + op.opBunddleName
                 runEnv = {
                     'AUTOEXEC_JOBID': self.context.jobId,
@@ -809,7 +811,7 @@ class RunNode:
                     scriptFile = open(op.pluginPath, 'r')
                     try:
                         fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                        uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot)
+                        uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot, dirCreate=True)
                         if tagent.agentCharset not in ['UTF-8', 'cp65001']:
                             # 如果脚本使用编码与服务端不一致，则执行转换
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
@@ -819,21 +821,21 @@ class RunNode:
                         scriptFile = None
 
                     if uploadRet == 0:
-                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot)
+                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot + '/')
 
-                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
-                    remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                    remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
-                        uploadRet = tagent.upload(self.username, srcPath, remoteRoot)
+                        uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
                         if uploadRet != 0:
                             break
                     if tagent.agentCharset not in ['UTF-8', 'cp65001']:
                         # 如果脚本使用编码与服务端不一致，则执行转换
                         uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/', convertCharset=1)
 
-                    remoteCmd = 'cd {} && {}'.format(remotePath, op.getCmdLine(remotePath=remotePath, osType=tagent.agentOsType))
-                    remoteCmdHidePass = 'cd {} && {}'.format(remotePath, op.getCmdLineHidePassword(remotePath=remotePath, osType=tagent.agentOsType))
+                    remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                    remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
 
                 if uploadRet == 0 and op.hasFileOpt:
                     uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
@@ -848,7 +850,7 @@ class RunNode:
                     if ret == 0 and op.hasOutput:
                         self._ensureOpOutputDir(op)
                         outputFilePath = self._getOpOutputPath(op)
-                        outputStatus = tagent.download(self.username, '{}/output.json'.format(remotePath), outputFilePath)
+                        outputStatus = tagent.download(self.username, '{}/output.json'.format(remotePath), outputFilePath, convertCharset=1)
                         if outputStatus != 0:
                             self.writeNodeLog("ERROR: Download output failed.\n")
                             ret = 2
@@ -883,9 +885,9 @@ class RunNode:
                     try:
                         if not self.context.devMode and ret == 0:
                             if tagent.agentOsType == 'windows':
-                                tagent.execCmd(self.username, "rd /s /q {}".format(remoteRoot), env=runEnv)
+                                tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
                             else:
-                                tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot), env=runEnv)
+                                tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
                     except Exception as ex:
                         self.writeNodeLog('ERROR: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
             except Exception as ex:
@@ -903,11 +905,11 @@ class RunNode:
 
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
-            remoteRoot = '/tmp/autoexec-{}-{}-{}'.format(self.context.jobId, self.resourceId, self.phaseIndex)
+            remoteRoot = '/tmp/' + jobDir
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
-            remoteCmd = 'cd {} && HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                remotePath, self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
-            remoteCmdHidePass = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
+            remoteCmd = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
+                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
+            remoteCmdHidePass = 'HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
@@ -976,8 +978,8 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(remotePath=remotePath))
-                    remoteCmdHidePass = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLineHidePassword(remotePath=remotePath))
+                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
+                    remoteCmdHidePass = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
@@ -1007,10 +1009,10 @@ class RunNode:
 
                 if hasError == 0 and op.hasFileOpt:
                     try:
-                        sftp.mkdir(os.path.join(remoteRoot, 'file'))
+                        sftp.mkdir(os.path.join(remotePath, 'file'))
                         for file in os.listdir(os.path.join(self.context.runPath, 'file')):
                             if os.path.isfile(file):
-                                sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remoteRoot, 'file', file))
+                                sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remotePath, 'file', file))
                     except Exception as err:
                         hasError = True
                         self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))

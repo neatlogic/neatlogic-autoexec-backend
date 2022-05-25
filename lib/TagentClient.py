@@ -459,13 +459,18 @@ class TagentClient:
         return status
 
     # 把从连接中接收的文件下载数据写入文件，用于文件的下载
-    def __writeSockToFile(self, sock, destFile, isVerbose=0):
+    def __writeSockToFile(self, sock, destFile, isVerbose=0, convertCharset=0):
+        agentCharset = self.agentCharset
+        charset = self.charset
+
         status = 0
         try:
             with open(destFile, 'wb') as f:
                 while True:
                     chunk = self.__readChunk(sock)
                     if chunk:
+                        if convertCharset == 1:
+                            chunk = chunk.decode(agentCharset).encode(charset, 'replace')
                         f.write(chunk)
                     else:
                         break
@@ -474,7 +479,7 @@ class TagentClient:
         return status
 
     # 下载文件或者目录
-    def download(self, user, src, dest, isVerbose=0, followLinks=0):
+    def download(self, user, src, dest, isVerbose=0, followLinks=0, convertCharset=0):
         src = src.replace('\\', '/')
         dest = dest.replace('\\', '/')
         sock = self.getConnection()
@@ -504,7 +509,7 @@ class TagentClient:
                 # first_part_res = re.search("^Status:200,FileType:(\w+)\r\n(.+)", buf, re.M | re.DOTALL)
                 # if first_part_res:
                 #     first_part = first_part_res.group(2)
-                status = self.__writeSockToFile(sock, dest, isVerbose)
+                status = self.__writeSockToFile(sock, dest, isVerbose=isVerbose, convertCharset=convertCharset)
 
             else:
                 if fileType == 'dir' or fileType == 'windir':
@@ -652,7 +657,7 @@ class TagentClient:
 
         return status
 
-    def upload(self, user, src, dest, isVerbose=0, convertCharset=0, followLinks=1):
+    def upload(self, user, src, dest, isVerbose=0, convertCharset=0, followLinks=1, dirCreate=False):
         src = src.replace('\\', '/')
         dest = dest.replace('\\', '/')
         ostype = self.ostype
@@ -685,11 +690,16 @@ class TagentClient:
             if fileType == 'file':
                 status = self.__readFileToSock(sock, src, isVerbose, convertCharset)
             elif fileType == 'dir' or fileType == 'windir':
-                srcDir = os.path.dirname(src)
-                src = os.path.basename(src)
-                # os.chdir(srcDir) #多线程环境不可以这样用
+                srcDir = None
+                if dirCreate:
+                    srcDir = os.path.dirname(src)
+                    src = os.path.basename(src)
+                else:
+                    srcDir = src
+                    src = '.'
+
                 if ostype == 'windows':
-                    cmd = ["7z.exe", "a", "dummy", "-ttar", "-y", "-so", src]
+                    cmd = ['7z.exe', 'a', 'dummy', '-ttar', '-y', '-so', src]
                 else:
                     tarOpt = ''
                     if isVerbose == 1:
@@ -698,7 +708,7 @@ class TagentClient:
                         tarOpt = tarOpt + 'h'
                     tarOpt = 'c' + tarOpt + 'f'
 
-                    cmd = ["tar", "-{}".format(tarOpt), '-', src]
+                    cmd = ['tar', '-{}'.format(tarOpt), '-', src]
                 status = self.__readCmdOutToSock(sock, cmd, isVerbose=isVerbose, cwd=srcDir)
             elif fileType == 'url':
                 status = self.__readUrlToSock(sock, src, isVerbose, convertCharset)
