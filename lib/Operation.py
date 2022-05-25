@@ -458,11 +458,14 @@ class Operation:
                     nameWithExt = self.opSubName
                     if self.opSubName.endswith(extName):
                         if self.interpreter == 'cmd':
-                            cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
+                            #cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
+                            cmd = 'cd {} & cmd /c {}'.format(remotePath, self.opSubName)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
+                            #cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
+                            cmd = 'cd {} & cscript {}'.format(remotePath, self.opSubName)
                         else:
-                            cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                            #cmd = '{} {}/{}'.format(self.interpreter, remotePath,  self.opSubName)
+                            cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.opSubName)
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
@@ -476,9 +479,11 @@ class Operation:
                             cmd = 'cd {} & copy {} {} & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
-                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        #cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.opSubName)
                     else:
-                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        #cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter,  self.opSubName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
