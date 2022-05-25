@@ -445,6 +445,7 @@ class ServerAdapter:
                     if not chunk:
                         break
                     cachedFileTmp.write(chunk)
+                cachedFileTmp.flush()
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
@@ -455,9 +456,8 @@ class ServerAdapter:
             raise
         finally:
             if cachedFileTmp is not None:
-                if os.path.exists(cachedFilePathTmp):
-                    os.unlink(cachedFilePathTmp)
-
+                # if os.path.exists(cachedFilePathTmp):
+                #     os.unlink(cachedFilePathTmp)
                 fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
 
@@ -495,6 +495,7 @@ class ServerAdapter:
                 scriptContent = retObj['Return']['script']
                 cachedFileTmp.truncate(0)
                 cachedFileTmp.write(scriptContent)
+                cachedFileTmp.flush()
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
@@ -503,8 +504,8 @@ class ServerAdapter:
             raise
         finally:
             if cachedFileTmp is not None:
-                if os.path.exists(cachedFilePathTmp):
-                    os.unlink(cachedFilePathTmp)
+                # if os.path.exists(cachedFilePathTmp):
+                #     os.unlink(cachedFilePathTmp)
 
                 fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
