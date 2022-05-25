@@ -49,7 +49,7 @@ optional arguments:
 执行autoexec目录下的setup.sh切换python3位默认python
 ```shell
 cd autoexec
-./setup.sh
+bin/setup.sh
 ```
 ### 安装python3第三方库
 ```
