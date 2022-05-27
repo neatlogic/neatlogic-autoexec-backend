@@ -2,6 +2,7 @@
 use strict;
 use FindBin;
 use lib "$FindBin::Bin";
+
 #use Data::Dumper;
 use Utils;
 
@@ -126,7 +127,6 @@ if ( defined($appname) and defined($appfile) ) {
             }
         }
 
-        #TODO: ear extract must to be tested.
         elsif ( index( $appfile, '.ear' ) > 0 ) {
             my $targetdir = "$wasprofile/installedApps/$cellname/$appname";
             if ( -d $targetdir ) {

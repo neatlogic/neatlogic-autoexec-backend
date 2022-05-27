@@ -177,7 +177,7 @@ sub updateBundle {
 
     my $ret = 0;
 
-    #TODO:judge if upload success
+    #judge if upload success
     while ( $content =~ /(<tr.*?<\/tr>)/gs ) {
         my $trContent = $1;
         if ( $trContent =~ /错误信息/ ) {
@@ -197,7 +197,6 @@ sub updateBundle {
 
 sub deployBundle {
 
-    #TODO: not test yet, 还没有测试
     my ( $webCtl, $consoleAddr, $bundleFile ) = @_;
 
     my $content = $webCtl->get("$consoleAddr/console/BundleDeployPre.do");

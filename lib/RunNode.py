@@ -578,7 +578,7 @@ class RunNode:
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
-                # TODO: evaluate if-block
+                # evaluate if-block
                 if op.opName == 'native/IF-Block':
                     ifOps = self.getIfBlockOps(op)
                     for ifOp in ifOps:

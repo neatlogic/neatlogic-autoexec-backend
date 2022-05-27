@@ -559,8 +559,7 @@ sub charsetConv {
 sub guessEncoding {
     my ( $self, $file ) = @_;
 
-    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
-    my $possibleEncodingConf = '';
+    my $possibleEncodingConf = $ENV{DEPLOY_POSSIBLE_ENCS};
 
     my @possibleEncodings = ( 'GBK', 'UTF-8' );
     if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {
@@ -605,7 +604,8 @@ sub guessEncoding {
         }
 
         if ( not defined($charSet) ) {
-            print("WARN: Guess file:$file encoding failed ,fallback to default value:$possibleEncodings[0]\n");
+
+            #print("WARN: Guess file:$file encoding failed ,fallback to default value:$possibleEncodings[0]\n");
             $charSet = $possibleEncodings[0];
         }
     }
@@ -616,8 +616,7 @@ sub guessEncoding {
 sub guessDataEncoding {
     my ( $self, $data ) = @_;
 
-    #my $possibleEncodingConf = getSysConf('file.possible.encodings');
-    my $possibleEncodingConf = '';
+    my $possibleEncodingConf = $ENV{DEPLOY_POSSIBLE_ENCS};
 
     my @possibleEncodings = ( 'GBK', 'UTF-8' );
     if ( defined($possibleEncodingConf) and $possibleEncodingConf ne '' ) {

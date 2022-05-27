@@ -111,6 +111,8 @@ class VContext:
         else:
             hasNoEncrypted = True
 
+        os.environ['DEPLOY_POSSIBLE_ENCS'] = config['autoexec']['deploy.possibleEncodings']
+
         if hasNoEncrypted:
             serverPass = config['server']['server.password']
             passKey = config['server']['password.key']
