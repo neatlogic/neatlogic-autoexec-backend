@@ -1,0 +1,31 @@
+{
+    "opDesc": "发布环境制品",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "发布环境制品(同步各个执行器)",
+    "enabled": 0,
+    "option": [{
+        "opt": "verbose",
+        "name": "显示明细",
+        "help": "执行日志显示详细信息",
+        "type": "radio",
+        "isConst": "false",
+        "defaultValue": [{
+                "text": "是",
+                "value": "1",
+                "selected": "true"
+            },
+            {
+                "text": "否",
+                "value": "0"
+            }
+        ],
+        "required": "true",
+        "validate": ""
+    }],
+    "argument": {},
+    "output": []
+}
