@@ -108,8 +108,6 @@ class TagentClient:
         self.port = int(port)
         self.sock = None
         self.password = password
-        self.agentCharset = agentCharset
-        self.encrypt = False
 
         if readTimeout == 0:
             readTimeout = 15
@@ -118,7 +116,8 @@ class TagentClient:
 
         self.readTimeout = readTimeout
         self.writeTimeout = writeTimeout
-
+        self.agentCharset = agentCharset
+        self.encrypt = False
         uname = platform.uname()
         ostype = uname[0].lower()
 
@@ -435,7 +434,7 @@ class TagentClient:
             envJson = json.dumps(env)
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        #sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
+        # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
         self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
         try:
             statusLine = self.__readChunk(sock).decode()
@@ -466,14 +465,34 @@ class TagentClient:
         status = 0
         try:
             with open(destFile, 'wb') as f:
-                while True:
-                    chunk = self.__readChunk(sock)
-                    if chunk:
-                        if convertCharset == 1:
+                if convertCharset == 0:
+                    while True:
+                        chunk = self.__readChunk(sock)
+                        if chunk:
+                            f.write(chunk)
+                        else:
+                            break
+                else:
+                    lineLeft = b''
+                    while True:
+                        chunk = self.__readChunk(sock)
+                        if chunk:
+                            chunk = lineLeft + chunk
+                            if chunk[-1] != b'\n':
+                                try:
+                                    lineEnd = chunk.rindex(b'\n')
+                                    lineLeft = chunk[lineEnd:]
+                                    chunk = chunk[0:lineEnd]
+                                except:
+                                    lineLeft = chunk
                             chunk = chunk.decode(agentCharset).encode(charset, 'replace')
-                        f.write(chunk)
-                    else:
-                        break
+                            f.write(chunk)
+                        else:
+                            if lineLeft != '':
+                                lineLeft = lineLeft.decode(agentCharset).encode(charset, 'replace')
+                                f.write(lineLeft)
+                            break
+
         except BaseException as errMsg:
             raise AgentError("ERROR: Write to file {} failed, {}.".format(destFile, errMsg))
         return status
@@ -608,14 +627,32 @@ class TagentClient:
         status = 0
         try:
             with open(filePath, "rb") as f:
-                while True:
-                    buf = f.read(buf_size)
-                    if not buf:
-                        break
-                    if convertCharset == 1:
-                        buf = buf.decode(charset).encode(agentCharset, 'replace')
-                    self.__writeChunk(sock, buf)
-
+                if convertCharset == 0:
+                    while True:
+                        buf = f.read(buf_size)
+                        if not buf:
+                            break
+                        self.__writeChunk(sock, buf)
+                else:
+                    lineLeft = b''
+                    while True:
+                        buf = f.read(buf_size)
+                        if buf:
+                            buf = lineLeft + buf
+                            if buf[-1] != b'\b':
+                                try:
+                                    lineEnd = buf.rindex(b'\n')
+                                    lineLeft = buf[lineEnd:]
+                                    buf = buf[0:lineEnd]
+                                except:
+                                    lineLeft = buf
+                            buf = buf.decode(charset).encode(agentCharset, 'replace')
+                            self.__writeChunk(sock, buf)
+                        else:
+                            if lineLeft != '':
+                                lineLeft = lineLeft.decode(charset).encode(agentCharset, 'replace')
+                                self.__writeChunk(sock, lineLeft)
+                            break
             if status == 0:
                 self.__writeChunk(sock)
             self.__readChunk(sock)
@@ -633,19 +670,39 @@ class TagentClient:
         file = urllib2.urlopen(url)
 
         if file.getcode() == 200:
-            while True:
-                buf = file.read(buf_size)
-                if not buf:
-                    break
-                if convertCharset == 1:
-                    contentType = file.headers.get('content-type')
-                    if contentType:
-                        tmp = re.findall(r"charset==(.*?)$", contentType)
-                        if tmp and tmp[0]:
-                            charset = tmp
-                    if charset:
-                        buf = buf.decode(charset).encode(agentCharset, 'replace')
-                self.__writeChunk(sock, buf)
+            charset = None
+            contentType = file.headers.get('content-type')
+            if contentType:
+                tmp = re.findall(r"charset==(.*?)$", contentType)
+                if tmp and tmp[0]:
+                    charset = tmp
+
+            if convertCharset == 0 or charset is None:
+                while True:
+                    buf = file.read(buf_size)
+                    if not buf:
+                        break
+                    self.__writeChunk(sock, buf)
+            else:
+                lineLeft = b''
+                while True:
+                    buf = file.read(buf_size)
+                    if buf:
+                        buf = lineLeft + buf
+                        if buf[-1] != b'\b':
+                            try:
+                                lineEnd = buf.rindex(b'\n')
+                                lineLeft = buf[lineEnd:]
+                                buf = buf[0:lineEnd]
+                            except:
+                                lineLeft = buf
+                            buf = buf.decode(charset).encode(agentCharset, 'replace')
+                        self.__writeChunk(sock, buf)
+                    else:
+                        if lineLeft != '':
+                            lineLeft = lineLeft.decode(charset).encode(agentCharset, 'replace')
+                            self.__writeChunk(sock, lineLeft)
+                        break
         else:
             status = 3
 

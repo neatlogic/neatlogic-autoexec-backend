@@ -577,7 +577,11 @@ sub guessEncoding {
             my $enc = guess_encoding( $line, @possibleEncodings );
             if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
                 $charSet = $enc->mime_name;
-                last;
+                my $newLine = Encode::encode( 'utf-8', Encode::decode( $charSet, $line ) );
+                $newLine = Encode::encode( $charSet, Encode::decode( 'utf-8', $newLine ) );
+                if ( $newLine eq $line ) {
+                    last;
+                }
             }
         }
         $fh->close();
@@ -591,7 +595,17 @@ sub guessEncoding {
             undef($charSet);
         }
 
+        if ( defined($charSet) ) {
+            my $content    = $self->getFileContent($file);
+            my $newContent = Encode::encode( 'utf-8', Encode::decode( $charSet, $content ) );
+            $newContent = Encode::encode( $charSet, Encode::decode( 'utf-8', $newContent ) );
+            if ( $newContent ne $content ) {
+                undef($charSet);
+            }
+        }
+
         if ( not defined($charSet) ) {
+            print("WARN: Guess file:$file encoding failed ,fallback to default value:$possibleEncodings[0]\n");
             $charSet = $possibleEncodings[0];
         }
     }
@@ -617,11 +631,17 @@ sub guessDataEncoding {
         my $enc = guess_encoding( $data, $encoding );
         if ( ref($enc) and $enc->mime_name ne 'US-ASCII' ) {
             $charSet = $enc->mime_name;
-            last;
+            my $newData = Encode::encode( 'utf-8', Encode::decode( $charSet, $data ) );
+            $newData = Encode::encode( $charSet, Encode::decode( 'utf-8', $newData ) );
+            if ( $newData eq $data ) {
+                last;
+            }
         }
     }
 
     if ( not defined($charSet) ) {
+
+        #print("WARN: Guess data encoding failed ,fallback to default value:$possibleEncodings[0]\n");
         $charSet = $possibleEncodings[0];
     }
 
