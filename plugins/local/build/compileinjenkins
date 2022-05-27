@@ -158,11 +158,34 @@ sub main {
         $paramStr = $paramStr . "-p $arg ";
     }
 
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $isRelease = $buildEnv->{IS_RELEASE};
+    if ( $isRelease == 1 ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'compiling'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my $cmd       = "java -jar '$jenkinsCliJar' -s '$baseUrl' -auth '$user':'$pass' build '$jobName' $jenkinsOpts $paramStr";
     my $cmd2Print = $cmd;
     $cmd2Print =~ s/$pass/******/g;
     print("$cmd2Print\n");
     my $hasError = system($cmd);
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'succeed';
+    }
+    else {
+        $versionInfo->{status} = 'failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $hasError;
 }

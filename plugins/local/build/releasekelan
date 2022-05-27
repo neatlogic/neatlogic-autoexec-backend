@@ -126,6 +126,15 @@ sub main {
         print("==============================================================\n");
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my $hasError = 0;
     if ( $ret != 0 ) {
         $hasError = $hasError + 1;
@@ -153,6 +162,14 @@ sub main {
             $hasError = $hasError + $ret;
         }
     }
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'released';
+    }
+    else {
+        $versionInfo->{status} = 'release-failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $hasError;
 }

@@ -132,7 +132,8 @@ sub main {
 
     my $desc = "Get version for $namePath version:$version";
     if ( $ret eq 0 ) {
-        $serverAdapter->updateVer($versionInfo);
+        $versionInfo->{status} = 'pending';
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
         print("FINEST: $desc success.\n");
     }
     else {

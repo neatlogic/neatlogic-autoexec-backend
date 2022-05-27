@@ -225,6 +225,8 @@ sub main {
         }
     }
 
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+
     my $autocfg = AutoCfg->new(
         buildEnv   => $buildEnv,
         autoCfg    => $autoCfg,
@@ -241,20 +243,16 @@ sub main {
         md5Check   => $md5Check
     );
 
-    my $isFail = $autocfg->config();
+    my $hasError = $autocfg->config();
 
-    if ( $isFail == 0 ) {
-        my $buildUtils = BuildUtils->new();
-        $isFail = $buildUtils->release2Env($buildEnv);
-    }
-    if ( $isFail != 0 ) {
+    if ( $hasError != 0 ) {
         print("ERROR: Auto config $namePath version:$version failed.\n");
     }
     else {
         print("FINEST: Auto config $namePath version:$version success.\n");
     }
 
-    return $isFail;
+    return $hasError;
 }
 
 exit main();

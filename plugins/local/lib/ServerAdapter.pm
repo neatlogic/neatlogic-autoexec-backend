@@ -30,10 +30,14 @@ sub new {
         $self->{serverConf} = ServerConf->new();
 
         $self->{apiMap} = {
-            'getIdPath'             => '',
-            'getVer'                => '',
-            'updateVer'             => '',
-            'releaseVer'            => '',
+            'getIdPath' => '',
+
+            #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
+            'getVer'    => '',
+            'updateVer' => '',
+
+            #环境制品状态：pending|succeed｜failed
+            'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',
@@ -247,8 +251,8 @@ sub updateVer {
     return;
 }
 
-sub releaseVer {
-    my ( $self, $buildEnv, $version, $buildNo ) = @_;
+sub releaseVerToEnv {
+    my ( $self, $buildEnv, $status, $isMirror ) = @_;
 
     #TODO: uncomment after test
     return;
@@ -257,15 +261,15 @@ sub releaseVer {
 
     #更新某个version的buildNo的release状态为1，build成功
     my $params = $self->_getParams($buildEnv);
-    if ( defined($version) and $version ne '' ) {
-        $params->{version} = $version;
-    }
-    if ( defined($buildNo) and $buildNo ne '' ) {
-        $params->{buildNo} = $buildNo;
+
+    #status: pending|success|failed
+    $params->{status} = $status;
+    if ( defined($isMirror) and $isMirror == 1 ) {
+        $params->{isMirror} = 1;
     }
 
     my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('releaseVer');
+    my $url     = $self->_getApiUrl('releaseVerToEnv');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 

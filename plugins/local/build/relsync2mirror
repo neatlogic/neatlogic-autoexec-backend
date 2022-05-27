@@ -192,6 +192,10 @@ sub main {
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName(mirror)...\n");
+
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending', 1 );
+
     my $isFail      = 0;
     my $insDiffDest = "$dest.ins";
     eval {
@@ -276,7 +280,7 @@ sub main {
     }
 
     if ( $isFail != 0 ) {
-        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName(mirror) faled.\n");
+        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName(mirror) failed.\n");
     }
     else {
         print("FINEST: Release(sync) $namePath $version build:$buildNo to $envName(mirror) success.\n");

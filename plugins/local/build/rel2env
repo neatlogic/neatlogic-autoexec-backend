@@ -121,31 +121,49 @@ sub main {
         }
     }
 
-    my $relItemCount = 0;
-    print("INFO: Try to release $namePath $version build:$buildNo to $envName...\n");
-    if ( -d "$releaseDir/app" ) {
-        $deployUtils->copyTree( "$releaseDir/app", "$distDir/" );
-        $relItemCount = $relItemCount + 1;
-        print("INFO: Release application to $envName success.\n");
+    print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+
+    eval {
+        my $relItemCount = 0;
+        print("INFO: Try to release $namePath $version build:$buildNo to $envName...\n");
+        if ( -d "$releaseDir/app" ) {
+            $deployUtils->copyTree( "$releaseDir/app", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release application to $envName success.\n");
+        }
+
+        if ( -d "$releaseDir/db" ) {
+            $deployUtils->copyTree( "$releaseDir/db", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release DB scripts to $envName success.\n");
+        }
+
+        if ( -d "$releaseDir/doc" ) {
+            $deployUtils->copyTree( "$releaseDir/doc", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release documents to $envName success.\n");
+        }
+
+        if ( $relItemCount == 0 ) {
+            print("WARN: Artifacts of $namePath $version build:$buildNo are empty.\n");
+        }
+    };
+    if ($@) {
+        $hasError = 1;
+        print($@);
     }
 
-    if ( -d "$releaseDir/db" ) {
-        $deployUtils->copyTree( "$releaseDir/db", "$distDir/" );
-        $relItemCount = $relItemCount + 1;
-        print("INFO: Release DB scripts to $envName success.\n");
+    if ( $hasError == 0 ) {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+        print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
+    }
+    else {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
+        print("ERROR: Release $namePath $version build:$buildNo to $envName failed.\n");
     }
 
-    if ( -d "$releaseDir/doc" ) {
-        $deployUtils->copyTree( "$releaseDir/doc", "$distDir/" );
-        $relItemCount = $relItemCount + 1;
-        print("INFO: Release documents to $envName success.\n");
-    }
-
-    if ( $relItemCount == 0 ) {
-        print("WARN: Artifacts of $namePath $version build:$buildNo are empty.\n");
-    }
-
-    print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
     return $hasError;
 }
 

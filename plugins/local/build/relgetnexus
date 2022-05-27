@@ -14,6 +14,7 @@ use File::Basename;
 
 use DeployUtils;
 use DeployLock;
+use BuildUtils;
 use FileUtils;
 
 sub usage {
@@ -184,6 +185,15 @@ sub main {
         }
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my @downFiles = ();
     my $headers   = { Authorization => $authToken };
     my $http      = HTTP::Tiny->new();
@@ -226,6 +236,26 @@ sub main {
             }
         }
     }
+
+    if ( $hasError == 0 ) {
+        eval {
+            my $buildUtils = BuildUtils->new();
+            $buildUtils->release( $buildEnv, $version, $buildNo );
+        };
+        if ($@) {
+            $hasError = 1;
+            print("ERRROR: $@\n");
+        }
+    }
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'released';
+    }
+    else {
+        $versionInfo->{status} = 'release-failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     return $hasError;
 }
 

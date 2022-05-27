@@ -23,9 +23,15 @@ lib/ServerAdapter.py 里有getDeployIdPath的方法，与SeverAdapter.pm的getId
 ```perl
         $self->{apiMap} = {
             'getIdPath'             => '',
+            #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
+            #版本状态：创建|编译中|已编译｜编译失败｜发布中｜发布失败｜已发布
             'getVer'                => '',
             'updateVer'             => '',
-            'releaseVer'            => '',
+
+            #环境制品状态：pending|succeed｜failed
+            #环境制品状态：发布中|已发布｜发布失败
+            'releaseVerToEnv'        => '',
+
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',
@@ -99,6 +105,7 @@ Tenant信息在HTTP header中
         isFreeze => 0,
         startRev => 'bda9fb6f',
         endRev   => 'f2a9c727',
+        status   => 'pending'
     }
 
     SVN工程样例：
@@ -114,6 +121,7 @@ Tenant信息在HTTP header中
         isFreeze => 0,
         startRev => '0',
         endRev   => '32',
+        status   => 'released'
     }
 
 ### - updateVer
@@ -135,13 +143,14 @@ Tenant信息在HTTP header中
             isFreeze => 0,
             startRev => 'bda9fb6f',
             endRev   => 'f2a9c727',
+            status   => pending|compiling|compiled|compile-failed|releasing|release-failed|released
         }
     }
 #### 输出(JSON):
     无
 
-### - releaseVer
-#### 功能：更新某个version的buildNo的release状态为1，build成功
+### - releaseVerToEnv
+#### 功能：生成或更新环境制品表数据（状态）相比版本制品多了两个属性：1）环境，2）is_mirror(镜像发布)
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
@@ -154,7 +163,9 @@ Tenant信息在HTTP header中
         moduleName => 模块名,
         envName    => 环境名,
         version    => 版本号,
-        buildNo    => BuildNo
+        buildNo    => BuildNo,
+        isMirror   => 0|1,
+        status     => pending|failed|succeed
     }
 #### 输出(JSON):
     无

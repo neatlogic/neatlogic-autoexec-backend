@@ -123,6 +123,15 @@ sub main {
         }
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my $destDir = "$releasePath/app";
     if ( -e $destDir ) {
         if ( not rmtree($destDir) ) {
@@ -337,21 +346,28 @@ sub main {
     }
 
     if ( $hasError ne 0 ) {
-        print("ERROR: Get build target for $namePath version:$version failed.\n");
+        print("ERROR: Release $namePath version:$version failed.\n");
     }
     else {
         eval {
             my $buildUtils = BuildUtils->new();
             $buildUtils->release( $buildEnv, $version, $buildNo );
-            $serverAdapter->releaseVer( $buildEnv, $version, $buildNo );
         };
         if ($@) {
             print("ERRROR: $@\n");
         }
         else {
-            print("FINEST: Get build target for $namePath version:$version success.\n");
+            print("FINEST: Release $namePath version:$version success.\n");
         }
     }
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'released';
+    }
+    else {
+        $versionInfo->{status} = 'release-failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $hasError;
 }

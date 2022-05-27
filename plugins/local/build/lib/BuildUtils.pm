@@ -254,7 +254,7 @@ sub release2Env {
     my $cwd = getcwd();
     chdir($dataPath);
 
-    my $dirInfo = DeployUtils->getDataDirStruct( $buildEnv, 1 );
+    my $dirInfo      = DeployUtils->getDataDirStruct( $buildEnv, 1 );
     my $envBuildRoot = $dirInfo->{distribute};
 
     my $ret = 0;

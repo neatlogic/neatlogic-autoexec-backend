@@ -192,6 +192,9 @@ sub main {
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+
     eval {
         my $syncExec = new SyncLocalFile(
             version => $version,
@@ -281,7 +284,7 @@ sub main {
     }
 
     if ( $hasError != 0 ) {
-        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName faled.\n");
+        print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName failed.\n");
     }
     else {
         print("FINEST: Release(sync) $namePath $version build:$buildNo to $envName success.\n");

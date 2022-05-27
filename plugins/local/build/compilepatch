@@ -176,6 +176,15 @@ sub main {
         exit(-1);
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'compiling'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my $buildUtils = BuildUtils->new();
     my $isFail     = 0;
     if ( $isFail eq 0 ) {
@@ -319,11 +328,14 @@ sub main {
     }
 
     if ( $isFail eq 0 ) {
+        $versionInfo->{status} = 'succeed';
         print("FINEST:build $envPath $version success.\n");
     }
     else {
+        $versionInfo->{status} = 'failed';
         print("ERROR:build $envPath $version failed.\n");
     }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $isFail;
 }

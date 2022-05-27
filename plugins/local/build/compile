@@ -97,6 +97,15 @@ sub main {
         }
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'compiling'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     my $opts = {
         buildEnv    => $buildEnv,
         version     => $version,
@@ -111,8 +120,17 @@ sub main {
         makeToolVer => $makeToolVer
     };
 
-    my $buildUtils = BuildUtils->new();
+    my $buildUtils = BuildUtils->new( buildEnv => $buildEnv );
     my $hasError   = $buildUtils->compile($opts);
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'succeed';
+    }
+    else {
+        $versionInfo->{status} = 'failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
     return $hasError;
 }
 

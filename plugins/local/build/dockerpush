@@ -127,6 +127,9 @@ sub main {
         return $hasError;
     }
 
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+
     my $cmd = "sudo docker push $registry/$project/$image:$tagname";
     print("INFO:execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
@@ -137,6 +140,13 @@ sub main {
     }
     else {
         print("ERROR: push image $registry/$project/$image:$tagname failed!\n");
+    }
+
+    if ( $hasError == 0 ) {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+    }
+    else {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
     }
 
     return $hasError;

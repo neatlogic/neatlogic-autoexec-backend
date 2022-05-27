@@ -223,6 +223,9 @@ sub main {
     my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
     $authToken =~ s/\s*$//;
 
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+
     my $ua = LWP::UserAgent->new( timeout => 600 );
 
     #Content_Type是multipart/form-data;boundary就会触发LWP执行上传逻辑，使用multipart上传相关的属性和文件
@@ -235,11 +238,13 @@ sub main {
     my $statusCode = $response->code();
     if ( $statusCode == 200 ) {
         print("FINEST: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
     }
     else {
         $hasError = $hasError + 1;
         my $content = $response->content();
         print("ERROR: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version faiiled.\n$content\n");
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
     }
 
     return $hasError;
