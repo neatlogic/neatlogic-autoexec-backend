@@ -432,18 +432,24 @@ class Operation:
                 if osType == 'windows':
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
                     if self.interpreter == 'cmd':
-                        cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
+                        #cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
+                        cmd = 'cd {} & cmd /c {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                        cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
+                        #cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
+                        cmd = 'cd {} & cscript {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'powershell':
-                        cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}/{}'.format(remotePath, self.scriptFileName)
+                        #cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}/{}'.format(remotePath, self.scriptFileName)
+                        cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}'.format(remotePath, self.scriptFileName)
                     else:
-                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                        # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName):
+                        cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
-                        cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                        #cmd = '{} -l {}/{}'.format(self.interpreter,  remotePath, self.scriptFileName)
+                        cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.scriptFileName)
                     else:
-                        cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                        #cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                        cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
