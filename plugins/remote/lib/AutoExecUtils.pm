@@ -21,7 +21,7 @@ sub hidePwdInCmdLine {
     my $arg;
     for ( my $i = 0 ; $i <= $#ARGV ; $i++ ) {
         $arg = $ARGV[$i];
-        if ( $arg =~ /[-]+\w*pass\w*[^=]/ or  $arg =~ /[-]+\w*account\w*[^=]/ ) {
+        if ( $arg =~ /[-]+\w*pass\w*[^=]/ or $arg =~ /[-]+\w*account\w*[^=]/ ) {
             push( @args, $arg );
             push( @args, '******' );
             $i = $i + 1;
@@ -41,7 +41,7 @@ sub saveOutput {
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
-            print $fh ( to_json( $outputData, { utf8 => 0 } ) );
+            print $fh ( to_json( $outputData, { utf8 => 0, pretty => 1 } ) );
             $fh->close();
         }
         else {

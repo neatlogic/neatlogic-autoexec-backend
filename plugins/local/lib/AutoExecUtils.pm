@@ -64,7 +64,7 @@ sub saveOutput {
 
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
-            print $fh ( to_json( $outputData, { utf8 => 0 } ) );
+            print $fh ( to_json( $outputData, { utf8 => 0, pretty => 1 } ) );
             $fh->close();
         }
         else {

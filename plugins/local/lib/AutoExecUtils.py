@@ -79,7 +79,7 @@ def saveOutput(outputData):
                 os.mkdir(outputPDir)
             os.mkdir(outputDir)
         outputFile = open(outputPath, 'w')
-        outputFile.write(json.dumps(outputData, ensure_ascii=False))
+        outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))
         outputFile.close()
     else:
         print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n")

@@ -480,13 +480,15 @@ class TagentClient:
                             chunk = lineLeft + chunk
                             if chunk[-1] != b'\n':
                                 try:
-                                    lineEnd = chunk.rindex(b'\n')
+                                    lineEnd = chunk.rindex(b'\n') + 1
                                     lineLeft = chunk[lineEnd:]
                                     chunk = chunk[0:lineEnd]
                                 except:
                                     lineLeft = chunk
-                            chunk = chunk.decode(agentCharset).encode(charset, 'replace')
-                            f.write(chunk)
+                                    chunk = ''
+                            if chunk != '':
+                                chunk = chunk.decode(agentCharset).encode(charset, 'replace')
+                                f.write(chunk)
                         else:
                             if lineLeft != '':
                                 lineLeft = lineLeft.decode(agentCharset).encode(charset, 'replace')
@@ -641,13 +643,15 @@ class TagentClient:
                             buf = lineLeft + buf
                             if buf[-1] != b'\b':
                                 try:
-                                    lineEnd = buf.rindex(b'\n')
+                                    lineEnd = buf.rindex(b'\n') + 1
                                     lineLeft = buf[lineEnd:]
                                     buf = buf[0:lineEnd]
                                 except:
                                     lineLeft = buf
-                            buf = buf.decode(charset).encode(agentCharset, 'replace')
-                            self.__writeChunk(sock, buf)
+                                    buf = ''
+                            if buf != '':
+                                buf = buf.decode(charset).encode(agentCharset, 'replace')
+                                self.__writeChunk(sock, buf)
                         else:
                             if lineLeft != '':
                                 lineLeft = lineLeft.decode(charset).encode(agentCharset, 'replace')
@@ -691,13 +695,16 @@ class TagentClient:
                         buf = lineLeft + buf
                         if buf[-1] != b'\b':
                             try:
-                                lineEnd = buf.rindex(b'\n')
+                                lineEnd = buf.rindex(b'\n') + 1
                                 lineLeft = buf[lineEnd:]
                                 buf = buf[0:lineEnd]
                             except:
                                 lineLeft = buf
-                            buf = buf.decode(charset).encode(agentCharset, 'replace')
-                        self.__writeChunk(sock, buf)
+                                buf = ''
+                            if buf != '':
+                                buf = buf.decode(charset).encode(agentCharset, 'replace')
+                        if buf != '':
+                            self.__writeChunk(sock, buf)
                     else:
                         if lineLeft != '':
                             lineLeft = lineLeft.decode(charset).encode(agentCharset, 'replace')

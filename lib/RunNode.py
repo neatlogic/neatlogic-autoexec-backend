@@ -358,7 +358,7 @@ class RunNode:
             try:
                 outputFile = open(self.outputPath, 'w')
                 fcntl.lockf(outputFile, fcntl.LOCK_EX)
-                outputFile.write(json.dumps(self.output))
+                outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
                 self.outputStore.saveOutput(self.output)
             except Exception as ex:
                 self.writeNodeLog('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
@@ -399,7 +399,7 @@ class RunNode:
             opOutPutPath = self._getOpOutputPath(op)
             try:
                 opOutputFile = open(opOutPutPath, 'w')
-                opOutputFile.write(json.dumps(opOutput))
+                opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
             except Exception as ex:
                 self.writeNodeLog('ERROR: Save operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
             finally:
@@ -408,10 +408,11 @@ class RunNode:
 
     def _getOpFileOutMap(self, op):
         fileOutMap = {}
-        opOutput = self.output[op.opId]
-        for fileOpt in op.outputFiles:
-            fileOutMap[fileOpt] = opOutput[fileOpt]
-        return fileOutMap
+        opOutput = self.output.get(op.opId)
+        if opOutput is not None:
+            for fileOpt in op.outputFiles:
+                fileOutMap[fileOpt] = opOutput[fileOpt]
+            return fileOutMap
 
     def _removeOpOutput(self, op):
         opOutputFile = None
