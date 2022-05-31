@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 PROG_PATH=${BASH_SOURCE[0]}
 echo $PROG_PATH
 AUTOEXEC_DIR=$(cd $(dirname "$PROG_PATH")/.. && pwd)
