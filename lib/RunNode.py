@@ -824,8 +824,8 @@ class RunNode:
                     if uploadRet == 0:
                         uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot + '/')
 
-                    remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
-                    remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
+                    #remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                    #remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
@@ -835,8 +835,8 @@ class RunNode:
                         # 如果脚本使用编码与服务端不一致，则执行转换
                         uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/', convertCharset=1)
 
-                    remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
-                    remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
+                remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
 
                 if uploadRet == 0 and op.hasFileOpt:
                     uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
@@ -908,10 +908,10 @@ class RunNode:
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/' + jobDir
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
-            remoteCmd = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
-            remoteCmdHidePass = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
+            remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
+                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword))
+            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
+            remoteCmdHidePass = op.getCmdOptsHidePassword()
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
@@ -980,10 +980,8 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    remoteCmd = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                        self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
-                    remoteCmdHidePass = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
-                        self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
+                    #remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
+                    #remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
