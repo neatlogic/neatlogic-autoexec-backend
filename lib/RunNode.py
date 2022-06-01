@@ -910,7 +910,8 @@ class RunNode:
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteCmd = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
                 self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
-            remoteCmdHidePass = 'HISTSIZE=0 AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
+            remoteCmdHidePass = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
+                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
@@ -979,8 +980,10 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IXUSR)
 
-                    remoteCmd = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
-                    remoteCmdHidePass = 'AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
+                    remoteCmd = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
+                        self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdLine(fullPath=True, remotePath=remotePath))
+                    remoteCmdHidePass = 'HISTSIZE=0 NODE_HOST={} NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(
+                        self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword), op.getCmdOptsHidePassword())
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
