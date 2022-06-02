@@ -285,7 +285,7 @@ sub execOneSqlFile {
         binmode( STDERR, 'encoding(UTF-8)' );
 
         DeployUtils->sigHandler(
-            'TERM', 'INT', 'HUP', 'ABRT',
+            'TERM', 'INT', 'ABRT',
             sub {
                 $sqlFileStatus->_loadStatus();
                 my $status = $sqlFileStatus->{status};
@@ -296,6 +296,7 @@ sub execOneSqlFile {
                     }
                 }
                 $sqlFileStatus->updateStatus( status => 'aborted', warnCount => $ENV{WARNING_COUNT}, endTime => time() );
+                print("ERROR: Received kill signal, sql executing aborted.\n");
                 return -1;
             }
         );
