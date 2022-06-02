@@ -208,6 +208,10 @@ sub execOneSqlFile {
 
     my $pid = fork();
     if ( $pid > 0 ) {
+        $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = sub {
+            kill( 'TERM', $pid );
+        };
+
         close($fromParent);
         close($toParent);
         close($toChild);
@@ -215,7 +219,7 @@ sub execOneSqlFile {
         END {
             local $?;
             if ( defined($sqlFileStatus) ) {
-                my $endStatus     = $sqlFileStatus->getStatusValue('status');
+                my $endStatus     = $sqlFileStatus->loadAndGetStatusValue('status');
                 my $newHisLogName = $hisLogName;
                 $newHisLogName =~ s/-running-/-$endStatus-/;
                 my $newHisLogPath = "$hisLogDir/$newHisLogName";
