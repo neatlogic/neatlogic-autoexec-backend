@@ -186,10 +186,10 @@ sub execOneSqlFile {
     if ( not defined($fileCharset) ) {
         $fileCharset = DeployUtils->guessEncoding($sqlFilePath);
         if ( defined($fileCharset) ) {
-            print("INFO: Detech charset $fileCharset.\n");
+            print("INFO: Detect file:$sqlFile charset $fileCharset.\n");
         }
         else {
-            print("ERROR: Can not detect $sqlFilePath charset.\n");
+            print("ERROR: Can not detect $sqlFile charset.\n");
             $hasError = 1;
         }
     }
@@ -309,6 +309,7 @@ sub execOneSqlFile {
         print("#***************************************\n");
         print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
         print("# FILE=$sqlFile\n");
+        print("# Encoding=$fileCharset\n");
         print("# Status=$sqlFileStatus->{status}->{status}\n");
         print("# MD5=$sqlFileStatus->{status}->{md5}\n");
         print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
