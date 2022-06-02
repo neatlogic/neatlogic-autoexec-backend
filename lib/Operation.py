@@ -71,13 +71,12 @@ class Operation:
         # 把runner、target、runner_target、sqlfile转换为local、remote、localremote
         if self.opType == 'runner':
             self.opType = 'local'
-
         elif self.opType == 'target':
             self.opType = 'remote'
         elif self.opType == 'runner_target':
             self.opType = 'localremote'
         elif self.opType == 'sqlfile':
-            self.opType = 'localremote'
+            self.opType = 'local'
         ##############
 
         if 'isScript' in param:
