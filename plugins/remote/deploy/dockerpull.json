@@ -7,8 +7,7 @@
     "defaultProfile": "docker-args",
     "description": "拉取Docker镜像到当前主机",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "registry",
             "name": "镜像仓库",
             "help": "镜像仓库地址，例如：10.0.1.13:8080",
@@ -54,9 +53,9 @@
             "help": "Docker的镜像仓库登录用户名",
             "type": "text",
             "isConst": "false",
-            "defaultValue": "",
+            "defaultValue": "${global:docker.reg.user}",
             "required": "true",
-            "validate": "${global:docker.reg.user}"
+            "validate": ""
         },
         {
             "opt": "password",

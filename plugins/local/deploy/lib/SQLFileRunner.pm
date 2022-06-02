@@ -278,11 +278,8 @@ sub execOneSqlFile {
 
         select($toParent);
         open( STDERR, ">&STDOUT" );
-
-        #open( STDOUT, '>&', $toParent );
-        #open( STDERR, '>&', $toParent );
-        binmode( STDOUT, 'encoding(UTF-8)' );
-        binmode( STDERR, 'encoding(UTF-8)' );
+        binmode(STDERR);
+        binmode(STDOUT);
 
         DeployUtils->sigHandler(
             'TERM', 'INT', 'ABRT',
@@ -362,7 +359,9 @@ sub execOneSqlFile {
             $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
             eval { $hasError = $handler->run(); };
             if ($@) {
-                print("ERROR: Unknow error ocurred.\n$@\n");
+                my $errMsg = $@;
+                $errMsg =~ s/at.*$//;
+                print("ERROR: Some error ocurred.\n$errMsg\n");
                 $hasError = 1;
             }
         }
