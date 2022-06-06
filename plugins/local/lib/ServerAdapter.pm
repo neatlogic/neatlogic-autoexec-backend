@@ -37,6 +37,7 @@ sub new {
             'updateVer' => '',
 
             #环境制品状态：pending|succeed｜failed
+            'getAccount'            => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
@@ -461,6 +462,29 @@ sub addBuildQuality {
 
     #TODO: 测试 提交sonarqube扫描结果数据到后台，老版本有相应的实现
     return;
+}
+
+sub getAccountPwd {
+    my ( $self, %args ) = @_;
+
+    my $params = {
+        jobId      => $args{jobId},
+        resourceId => $args{resourceId},
+        host       => $args{host},
+        port       => $args{port},
+        username   => $args{username},
+        protocol   => $args{protocol},
+        accountId  => $args{accountId}
+    };
+
+    my $webCtl     = $self->{webCtl};
+    my $url        = $self->_getApiUrl('getAccount');
+    my $content    = $webCtl->postJson( $url, $params );
+    my $pass       = $self->_getReturn($content);
+    my $serverConf = $self->{serverConf};
+    $pass = $serverConf->decryptPwd($pass);
+
+    return $pass;
 }
 
 sub getAppPassWord {

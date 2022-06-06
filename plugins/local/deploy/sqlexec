@@ -167,6 +167,31 @@ sub main {
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
 
     foreach my $sqlNodeInfo (@$sqlInfoInServer) {
+        my $sqlFile  = $sqlNodeInfo->{sqlFile};
+        my $host     = $sqlNodeInfo->{host};
+        my $port     = $sqlNodeInfo->{port};
+        my $userName = $sqlNodeInfo->{unsername};
+
+        eval {
+            my $pass = $serverAdapter->getAccountPwd(
+                jobId      => $jobId,
+                resourceid => $sqlNodeInfo->{resourceId},
+                username   => $userName,
+                protocol   => 'database',
+                host       => $host,
+                port       => $port
+            );
+            $sqlNodeInfo->{password} = $pass;
+        };
+        if ($@) {
+            my $errMsg = $@;
+            $errMsg =~ s/ at .*$//;
+            print("ERROR: Can not find password for $userName@$host:$port.\n$errMsg\n");
+            $hasError = $hasError + 1;
+            last;
+        }
+
+        print("INFO: Execute sql $sqlFile -> $userName@$host:$port\n");
         my $dbInfo = DBInfo->new( $sqlNodeInfo, $dbExtArgs );
 
         my $sqlFileRunner = SQLFileRunner->new(
@@ -197,7 +222,11 @@ sub main {
 
         if ( $rc != 0 ) {
             $hasError = $hasError + 1;
+            print("ERROR: Execute sql $sqlFile -> $userName@$host:$port failed.\n");
             last;
+        }
+        else {
+            print("INFO: Execute sql $sqlFile -> $userName@$host:$port success.\n");
         }
     }
 
