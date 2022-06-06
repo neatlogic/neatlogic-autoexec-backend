@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于telnet对交换机配置备份",
-    "desc": [
+    "option": [
         {
             "opt": "ip",
             "name": "Switch IP",
