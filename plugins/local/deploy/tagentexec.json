@@ -13,72 +13,69 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ],
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "timeout",
-            "name": "超时时间",
-            "help": "调用超时时间（秒）",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "15",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "eofstr",
-            "name": "结束字串",
-            "help": "对于不会结束的命令，当输出此字串时，成功并结束执行",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "async",
-            "name": "异步执行",
-            "help": "异步执行，不等待执行结束",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "1"
                 },
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 }
-            ],
+            ]
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "调用超时时间（秒）",
+            "type": "text",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "15"
+        },
+        {
+            "opt": "eofstr",
+            "name": "结束字串",
+            "help": "对于不会结束的命令，当输出此字串时，成功并结束执行",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "async",
+            "name": "异步执行",
+            "help": "异步执行，不等待执行结束",
+            "type": "radio",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ]
         },
         {
             "opt": "agentcharset",
             "name": "服务端字符集",
             "help": "指定服务端的执行字符集",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "en_US.UTF-8",
@@ -88,9 +85,7 @@
                     "text": "zh_CN.GBK",
                     "value": "zh_CN.GBK"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

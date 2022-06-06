@@ -12,50 +12,47 @@
             "name": "详细输出",
             "help": "显示匹配的详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "checkexp",
             "name": "数量表达式",
             "help": "进程数量的不等式，例如：'>10'或者'==10'或者'<10'或者'>=10'",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "op",
             "name": "多关键字",
             "help": "多个关键字的操作符号",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "or",
+            "dataSource": [
                 {
                     "text": "OR",
-                    "value": "or",
-                    "selected": "true"
+                    "value": "or"
                 },
                 {
                     "text": "AND",
                     "value": "and"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

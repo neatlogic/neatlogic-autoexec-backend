@@ -13,32 +13,32 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "jdk",
             "name": "JDK版本",
             "help": "JDK版本",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "jdk1.8",
@@ -56,89 +56,81 @@
                     "text": "jdk1.5",
                     "value": "jdk1.5"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "jenkins",
             "name": "Jenkins版本",
             "help": "Jenkins版本",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "jenkins1.8",
                     "value": "jdk1.8"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "baseurl",
             "name": "Jenkins地址",
             "help": "Jenkins调用URL地址，例如：",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:jenkins.baseurl}",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:jenkins.baseurl}"
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "Jenkins用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:jenkins.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:jenkins.user}"
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "Jinkins用户密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:jenkins.password}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:jenkins.password}"
         },
         {
             "opt": "pipeline",
             "name": "流水线名",
             "help": "Jenkins流水线名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "wait",
             "name": "等待完成",
             "help": "等待Jenkins作业运行完",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

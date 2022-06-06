@@ -13,40 +13,38 @@
             "name": "源编码",
             "help": "目录或文件名的源编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "GBK",
+            "dataSource": [
                 {
                     "text": "UTF-8",
                     "value": "UTF-8"
                 },
                 {
                     "text": "GBK",
-                    "value": "GBK",
-                    "selected": "true"
+                    "value": "GBK"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "to",
             "name": "目标编码",
             "help": "目录或文件名的目标编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "UTF-8",
+            "dataSource": [
                 {
                     "text": "UTF-8",
-                    "value": "UTF-8",
-                    "selected": "true"
+                    "value": "UTF-8"
                 },
                 {
                     "text": "GBK",
                     "value": "GBK"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "output": []

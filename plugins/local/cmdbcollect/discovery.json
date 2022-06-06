@@ -6,63 +6,62 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "使用SNMP协议查询线上设备,识别设备类型并采集信息",
-    "option": [{
+    "option": [
+        {
             "opt": "nets",
             "name": "网段",
             "help": "扫描的网段, 例如: 192.168.0.1/24,192.168.1.1/24",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "192.168.0.1/24,192.168.1.1/24",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "192.168.0.1/24,192.168.1.1/24"
         },
         {
             "opt": "ports",
             "name": "端口列表",
             "help": "扫描的的端口列表, 例如: 22,161,135,139,445,3389,3939",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "22,161,135,139,445,3389,3939",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "22,161,135,139,445,3389,3939"
         },
         {
             "opt": "snmpport",
             "name": "SNMP端口",
             "help": "SNMP端口号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "161",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "161"
         },
         {
             "opt": "communities",
             "name": "团体字",
             "help": "扫描用的SNMP团体字JSON数组",
             "type": "json",
-            "isConst": "false",
-            "defaultValue": "[\"public\",\"mary\"]",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "[\"public\",\"mary\"]"
         },
         {
             "opt": "workercount",
             "name": "WORKER数量",
             "help": "WOKER线程数量",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "16",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "16"
         },
         {
             "opt": "timingtmpl",
             "name": "速度级别",
             "help": "1最慢,5最快",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [{
+            "required": "false",
+            "validate": "",
+            "defaultValue": "4",
+            "dataSource": [
+                {
                     "text": "1",
                     "value": "1"
                 },
@@ -76,22 +75,21 @@
                 },
                 {
                     "text": "4",
-                    "value": "4",
-                    "selected": "true"
+                    "value": "4"
                 },
                 {
                     "text": "5",
                     "value": "5"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         }
     ],
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

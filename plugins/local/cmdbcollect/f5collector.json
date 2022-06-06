@@ -12,40 +12,37 @@
             "name": "默认团体字",
             "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",
             "name": "超时时间",
             "help": "单次SNMP查询超时时间，单位秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "10",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "10"
         },
         {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "不回显",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "回显",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "output": [

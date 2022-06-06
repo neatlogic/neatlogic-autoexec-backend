@@ -13,52 +13,51 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "lang",
             "name": "语言",
             "help": "工程代码的语言和编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "en_US.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "type",
             "name": "编译类型",
             "help": "编译类型",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "maven",
+            "dataSource": [
                 {
                     "text": "maven",
-                    "value": "maven",
-                    "selected": "true"
+                    "value": "maven"
                 },
                 {
                     "text": "ant",
@@ -72,21 +71,20 @@
                     "text": "npm",
                     "value": "npm"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "jdk",
             "name": "JDK版本",
             "help": "JDK版本",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "jdk1.8",
@@ -104,29 +102,25 @@
                     "text": "jdk1.5",
                     "value": "jdk1.5"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "args",
             "name": "自定义参数",
             "help": "编译工具的自定义参数（譬如：ant或mvn的参数）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "startpath",
             "name": "起始子目录",
             "help": "编译配置所在子目录（相对于工程根）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

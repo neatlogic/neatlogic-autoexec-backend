@@ -12,40 +12,37 @@
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "dbname",
             "name": "DB库名",
             "help": "库名，主备是一致的",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "israc",
             "name": "是否是RAC",
             "help": "当前节点是否是ORACLE RAC的成员",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "output": []

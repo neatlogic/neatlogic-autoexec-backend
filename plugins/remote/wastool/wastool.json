@@ -13,37 +13,36 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "LANG",
             "name": "LANG",
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "zh_CN.GBK",
@@ -53,26 +52,24 @@
                     "text": "zh_CN.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "LC_ALL",
             "name": "LC_ALL",
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "zh_CN.GBK",
@@ -82,31 +79,29 @@
                     "text": "zh_CN.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "umask",
             "name": "umask",
             "help": "umask设置，如果留空则不对umask进行修改，例如：0022",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "0022",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "0022"
         },
         {
             "opt": "action",
             "name": "动作",
             "help": "WAS操作动作",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "app-start",
+            "dataSource": [
                 {
                     "text": "app-start",
-                    "value": "app-start",
-                    "selected": "true"
+                    "value": "app-start"
                 },
                 {
                     "text": "app-stop",
@@ -168,220 +163,197 @@
                     "text": "update",
                     "value": "update"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "was_profile",
             "name": "Profile目录",
             "help": "WAS的AppSrv则配置WAS的profile目录",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "admin_url",
             "name": "Admin URL",
             "help": "WAS管理控制台URL，用于访问/ibm/console/，例如：http://127.0.0.1:9060",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "was_user",
             "name": "WAS用户名",
             "help": "WAS用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "wasadmin",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "wasadmin"
         },
         {
             "opt": "was_pwd",
             "name": "WAS密码",
             "help": "WAS密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "dmgr_profile",
             "name": "DMGR Profile",
             "help": "DMRG的Profile目录，如果没有部署则留空，例如：/opt/IBM/WebSphere/profiles/dmgr",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/opt/IBM/WebSphere/profiles/dmgr",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "/opt/IBM/WebSphere/profiles/dmgr"
         },
         {
             "opt": "start_timeout",
             "name": "启动超时",
             "help": "启动超时时间（秒），默认180秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "180",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "180"
         },
         {
             "opt": "stop_timeout",
             "name": "停止超时",
             "help": "停止超时时间（秒），默认180秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "180",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "180"
         },
         {
             "opt": "standalone",
             "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false"
+            ]
         },
         {
             "opt": "need_deploy",
             "name": "新应用自动部署",
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false"
+            ]
         },
         {
             "opt": "cellname",
             "name": "Cell名称",
             "help": "Cell名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "demoCell01",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "demoCell01"
         },
         {
             "opt": "nodename",
             "name": "Node名称",
             "help": "Node名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "demoNode01",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "demoNode01"
         },
         {
             "opt": "servername",
             "name": "Server名称",
             "help": "Server名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "server1",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "server1"
         },
         {
             "opt": "clustername",
             "name": "Cluster名",
             "help": "Cluster名, 如果没有配置cluster或者不使用cluster部署则留空",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "appname",
             "name": "部署名",
             "help": "在WAS console上看到的应用的部署名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "demo_war",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "demo_war"
         },
         {
             "opt": "appfile",
             "name": "包路径",
             "help": "包路径",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/tmp/demo.war",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "/tmp/demo.war"
         },
         {
             "opt": "contextroot",
             "name": "WEB上下文根",
             "help": "每个war应用都要配置，WAR的Context Root",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/demo",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "/demo"
         },
         {
             "opt": "targetdir",
             "name": "应用安装目录",
             "help": "应用安装目录，在websphere console安装时，指定的安装路径，留空，则采用默认值",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/opt/IBM/deploy/demo",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "/opt/IBM/deploy/demo"
         },
         {
             "opt": "checkurl",
             "name": "检测URL",
             "help": "应用访问URL，注意端口，例如：http://127.0.0.1:9082/demo/",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true"
+            "required": "true",
+            "defaultValue": ""
         },
         {
             "opt": "ihs_dir",
             "name": "IHS安装目录",
             "help": "IHS的安装目录，如果没有部署则留空，例如：/opt/IBM/HTTPServer",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "ihs_docroot",
             "name": "IHS WEB目录",
             "help": "IHS的html根目录，如果没有部署则留空，例如：/opt/IBM/HTTPServer/htdocs/demo",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "options",
             "name": "其他选项",
             "help": "其他选项",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         }
     ],
     "output": []

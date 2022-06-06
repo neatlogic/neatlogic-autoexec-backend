@@ -12,80 +12,75 @@
             "name": "详细输出",
             "help": "显示匹配的详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "maxsize",
             "name": "最大检查量(MB)",
             "help": "从日志文件末尾开始检查的最大的大小，单位MB",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "16",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "16"
         },
         {
             "opt": "failcheck",
             "name": "检测方向",
             "help": "出现关键字是成功还是失败",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "失败",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "成功",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "pattern",
             "name": "关键字",
             "help": "关键字，支持正则表达式",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "ERROR",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "ERROR"
         },
         {
             "opt": "op",
             "name": "多关键字",
             "help": "多个关键字的操作符号",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "or",
+            "dataSource": [
                 {
                     "text": "OR",
-                    "value": "or",
-                    "selected": "true"
+                    "value": "or"
                 },
                 {
                     "text": "AND",
                     "value": "and"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

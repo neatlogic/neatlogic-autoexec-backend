@@ -12,22 +12,22 @@
             "name": "超时时间",
             "help": "查询超时时间，单位秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "10",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "10"
         },
         {
             "opt": "type",
             "name": "光交类别",
             "help": "光交的类别型号",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "auto",
+            "dataSource": [
                 {
                     "text": "自动选择",
-                    "value": "auto",
-                    "selected": "true"
+                    "value": "auto"
                 },
                 {
                     "text": "Brocade",
@@ -49,29 +49,26 @@
                     "text": "Huawei",
                     "value": "Brocade"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "不回显",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "回显",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "output": [

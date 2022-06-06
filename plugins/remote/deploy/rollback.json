@@ -13,60 +13,55 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "ins",
             "name": "实例名",
             "help": "实例名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$INS_NAME",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$INS_NAME"
         },
         {
             "opt": "version",
             "name": "版本",
             "help": "版本号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$VERSION",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$VERSION"
         },
         {
             "opt": "backupdir",
             "name": "保存备份目录",
             "help": "保存备份的目录，例如：/app/backup",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "targetdir",
             "name": "应用目录",
             "help": "版本物料更新到的目录目录，例如：/app/myapp",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

@@ -13,22 +13,22 @@
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",
             "type": "file",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "encoding",
             "name": "SQL文件编码",
             "help": "SQL文件的编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "",
+            "dataSource": [
                 {
                     "text": "自动识别",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "UTF-8",
@@ -38,79 +38,73 @@
                     "text": "GBK",
                     "value": "GBK"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "dryrun",
             "name": "测试运行",
             "help": "测试运行，并没有真正执行SQL",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "force",
             "name": "强制运行",
             "help": "不管SQL处于什么状态，重复强制执行SQL文件",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "autocommit",
             "name": "自动提交",
             "help": "SQL执行，每执行一条SQL自动提交",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "dbargs",
             "name": "DB自定义参数",
             "help": "数据库执行工具的自定义参数",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

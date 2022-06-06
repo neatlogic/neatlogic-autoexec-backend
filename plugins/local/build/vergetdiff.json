@@ -13,80 +13,73 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "diffsavedir",
             "name": "增量保存目录",
             "help": "抽取的增量代码保存的子目录（工程内的相对目录）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "master",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "master"
         },
         {
             "opt": "excludedirs",
             "name": "排除目录",
             "help": "增量抽取排除的子目录，逗号相隔（工程内的相对目录）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${VERSION}",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${VERSION}"
         },
         {
             "opt": "basetag",
             "name": "基线标签",
             "help": "diff比较的基线标签名或者SVN的标签子目录",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "baseline",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "baseline"
         },
         {
             "opt": "baserev",
             "name": "比较Revision",
             "help": "diff比较的Revision号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:git.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.user}"
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "访问仓库的密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:git.password}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.password}"
         }
     ],
     "output": []

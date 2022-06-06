@@ -13,140 +13,131 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "maxparallel",
             "name": "最大并行",
             "help": "可以同时运行的SQL的最大并行运行数量",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "1",
             "required": "",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "1"
         },
         {
             "opt": "extnames",
             "name": "扩展名",
             "help": "逗号相隔的SQL扩展名，例如：sql,prc,pck,pkg,pkgh,pkgb",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:sql.extnames}",
             "required": "",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:sql.extnames}"
         },
         {
             "opt": "dryrun",
             "name": "测试运行",
             "help": "测试运行，并没有真正执行SQL",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "1"
                 },
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "force",
             "name": "强制运行",
             "help": "不管SQL处于什么状态，重复强制执行SQL文件",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "autocommit",
             "name": "自动提交",
             "help": "SQL执行，每执行一条SQL自动提交",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "rollback",
             "name": "回退",
             "help": "检入回退用的SQL脚本",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "1"
                 },
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "filter",
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "index",
             "name": "SQL顺序文件",
             "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "index.txt",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "index.txt"
         }
     ],
     "output": []

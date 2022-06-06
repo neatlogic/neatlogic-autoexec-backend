@@ -12,70 +12,64 @@
             "name": "停止命令",
             "help": "停止应用所需要的Shell命令",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "addr",
             "name": "服务地址",
             "help": "URL或者IP:PORT，例如：http://127.0.0.1:8080",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "eofstr",
             "name": "停止成功字串",
             "help": "出现此字串即停止成功，尽量留空少用，少用服务地址检测替代",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",
             "name": "超时(秒)",
             "help": "停止超时的秒数，超时后停止失败",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "300",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "300"
         },
         {
             "opt": "postscript",
             "name": "停止后置命令",
             "help": "应用停止，检测成功停止后执行此命令",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "endprescript",
             "name": "Kill停止命令",
             "help": "用于某些停止命令停止成功后，需要Ctrl+C的情况",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

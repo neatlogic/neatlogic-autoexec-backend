@@ -12,60 +12,54 @@
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "dbname",
             "name": "DB库名",
             "help": "库名，主备是一致的",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "primaryuniquename",
             "name": "主库DB唯一名",
             "help": "原来主库的DB唯一名，主备名称不一样",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "standbyuniquename",
             "name": "备库DB唯一名",
             "help": "原来备库的DB唯一名，主备名称不一样",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "primarysequence",
             "name": "主库Log Sequence号",
             "help": "Archive Log同步，主库的Log Sequence号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "standbysequence",
             "name": "备库Log Sequence号",
             "help": "Archive Log同步，备库的Log Sequence号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

@@ -13,100 +13,92 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "lang",
             "name": "语言",
             "help": "工程代码的语言和编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "en_US.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "repo",
             "name": "仓库地址",
             "help": "GIT的仓库地址",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:git.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.user}"
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "访问仓库的密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:git.password}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.password}"
         },
         {
             "opt": "trunk",
             "name": "主干",
             "help": "GIT的主干分支名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "master",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "master"
         },
         {
             "opt": "branch",
             "name": "版本分支",
             "help": "GIT的版本分支",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${VERSION}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${VERSION}"
         },
         {
             "opt": "tag",
             "name": "标签",
             "help": "GIT的版本标签名，如配置了tag则会优先使用tag获取代码",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "V${VERSION}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "V${VERSION}"
         }
     ],
     "output": []

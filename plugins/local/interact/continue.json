@@ -12,10 +12,9 @@
             "name": "交互说明",
             "help": "交互主体中显示的说明文案",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

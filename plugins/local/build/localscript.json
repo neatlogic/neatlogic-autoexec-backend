@@ -7,64 +7,66 @@
     "defaultProfile": null,
     "description": "执行本地脚本，可以对系统的工程、制品进行客户化处理",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [{
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
+                {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "lang",
             "name": "语言",
             "help": "工程代码的语言和编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [{
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
+                {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "en_US.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "basedir",
             "name": "可写目录",
             "help": "相对于系统数据目录的子目录（留空代表以系统物料目录作为可写入的目录）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "interpreter",
             "name": "脚本语言",
             "help": "编写脚本的语言",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [{
+            "required": "true",
+            "validate": "",
+            "defaultValue": "sh",
+            "dataSource": [
+                {
                     "text": "bash",
-                    "value": "sh",
-                    "selected": "true"
+                    "value": "sh"
                 },
                 {
                     "text": "perl",
@@ -74,19 +76,16 @@
                     "text": "python",
                     "value": "python"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "script",
             "name": "命令",
             "help": "本地执行的命令",
             "type": "textarea",
-            "isConst": "false",
-            "defaultValue": "${global:git.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.user}"
         }
     ],
     "argument": {

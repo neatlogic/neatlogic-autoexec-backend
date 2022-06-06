@@ -13,150 +13,138 @@
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "其他发布系统的登录用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "其他发布系统的登录用户密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "targetenvpath",
             "name": "目标路径",
             "help": "需要创建作业的应用系统路径, 例如: MY-SYS/MY-MODULE/SIT",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${NAME_PATH}",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${NAME_PATH}"
         },
         {
             "opt": "targetversion",
             "name": "目标版本",
             "help": "需要创建作业的应用系统目标版本",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${VERSION}",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${VERSION}"
         },
         {
             "opt": "runnow",
             "name": "立即执行",
             "help": "创建作业后马上执行",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ],
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "plantime",
-            "name": "计划执行",
-            "help": "作业计划执行时间",
-            "type": "datetime",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "auto",
-            "name": "自动执行",
-            "help": "计划作业创建后, 到计划时间自动执行",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "wait",
-            "name": "等作业完成",
-            "help": "等待作业执行完成",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "1"
                 },
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 }
-            ],
+            ]
+        },
+        {
+            "opt": "plantime",
+            "name": "计划执行",
+            "help": "作业计划执行时间",
+            "type": "datetime",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "auto",
+            "name": "自动执行",
+            "help": "计划作业创建后, 到计划时间自动执行",
+            "type": "radio",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ]
+        },
+        {
+            "opt": "wait",
+            "name": "等作业完成",
+            "help": "等待作业执行完成",
+            "type": "radio",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ]
         },
         {
             "opt": "round",
             "name": "轮次",
             "help": "如作业存在多实例, 分多少轮执行完",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "1",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "1"
         },
         {
             "opt": "senrio",
             "name": "场景",
             "help": "作业场景",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "1",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "1"
         },
         {
             "opt": "instances",
             "name": "实例IP端口",
             "help": "实例的IP端口列表, 例如: 192.168.0.1:8080,192.168.0.2:8080",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "1",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "1"
         }
     ],
     "output": []

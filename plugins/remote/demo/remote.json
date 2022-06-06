@@ -20,47 +20,45 @@
             "name": "普通输入",
             "help": "普通输入测试",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "测试1",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "测试1"
         },
         {
             "opt": "tjson",
             "name": "json输入",
             "help": "json输入测试",
             "type": "json",
-            "isConst": "false",
-            "defaultValue": "测试1",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "测试1"
         },
         {
             "opt": "tselect",
             "name": "单选输入",
             "help": "单选输入测试",
             "type": "select",
-            "isConst": "true",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "sel1",
+            "dataSource": [
                 {
                     "text": "选择1",
-                    "value": "sel1",
-                    "selected": "true"
+                    "value": "sel1"
                 },
                 {
                     "text": "选择2",
                     "value": "sel2"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         },
         {
             "opt": "tmultiselect",
             "name": "多选输入",
             "help": "多选输入测试",
             "type": "multiselect",
-            "isConst": "false",
+            "required": "false",
+            "validate": "",
             "defaultValue": [
                 {
                     "text": "选择1",
@@ -75,68 +73,74 @@
                     "value": "sel3"
                 }
             ],
-            "required": "false",
-            "validate": ""
+            "dataSource": [
+                {
+                    "text": "选择1",
+                    "value": "sel1"
+                },
+                {
+                    "text": "选择2",
+                    "value": "sel2"
+                },
+                {
+                    "text": "选择3",
+                    "value": "sel3"
+                }
+            ]
         },
         {
             "opt": "tpassword",
             "name": "密码输入",
             "help": "密码输入测试",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "tfile",
             "name": "文件输入",
             "help": "文件输入测试",
             "type": "file",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "tnode",
             "name": "节点参数",
             "help": "节点输入测试",
             "type": "node",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "tdate",
             "name": "日期输入",
             "help": "日期输入测试",
             "type": "date",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "ttime",
             "name": "时间输入",
             "help": "时间输入测试",
             "type": "time",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "tdatetime",
             "name": "日期时间输入",
             "help": "日期时间输入测试",
             "type": "datetime",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": [

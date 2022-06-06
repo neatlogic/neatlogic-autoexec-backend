@@ -13,50 +13,47 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "libs",
             "name": "AS400LIB",
             "help": "AS400的LIB名称, 多个逗号相隔, 例如: USRLIB,SYSLIB",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "USRLIB",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "USRLIB"
         },
         {
             "opt": "ccsid",
             "name": "字符集",
             "help": "远端OS的字符集",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1208",
+            "dataSource": [
                 {
                     "text": "UTF-8",
-                    "value": "1208",
-                    "selected": "true"
+                    "value": "1208"
                 },
                 {
                     "text": "GBK",
                     "value": "1386"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "argument": {

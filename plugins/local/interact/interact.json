@@ -12,12 +12,13 @@
             "name": "交互类型",
             "help": "选择交互的类型",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "button",
+            "dataSource": [
                 {
                     "text": "按钮",
-                    "value": "button",
-                    "selected": "true"
+                    "value": "button"
                 },
                 {
                     "text": "下拉选择",
@@ -31,49 +32,43 @@
                     "text": "输入",
                     "value": "input"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "optionsjson",
             "name": "输入选项",
             "help": "输入选项的JSON数组，例如：[\"Yes\",\"No\"], 如果输入类型是input，则设置为[]",
             "type": "json",
-            "isConst": "false",
-            "defaultValue": "[]",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "[]"
         },
         {
             "opt": "role",
             "name": "操作角色",
             "help": "允许操作的角色",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "title",
             "name": "标题",
             "help": "交互标题",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "Please Select",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "Please Select"
         },
         {
             "opt": "message",
             "name": "交互说明",
             "help": "交互主体中显示的说明文案",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": [

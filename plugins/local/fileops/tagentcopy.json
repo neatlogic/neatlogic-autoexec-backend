@@ -12,120 +12,113 @@
             "name": "输出详细信息",
             "help": "",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         },
         {
             "opt": "direction",
             "name": "拷贝方向",
             "help": "拷贝方向",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "pull",
+            "dataSource": [
                 {
                     "text": "远程到本地",
-                    "value": "pull",
-                    "selected": "true"
+                    "value": "pull"
                 },
                 {
                     "text": "本地到远程",
                     "value": "push"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "src",
             "name": "源目录",
             "help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "dest",
             "name": "目标目录",
             "help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "np",
             "name": "不保留文件信息",
             "help": "不保留文件/目录的时间、权限",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         },
         {
             "opt": "followlinks",
             "name": "追踪软连接",
             "help": "把软连接当成普通文件和目录看待",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         },
         {
             "opt": "cpifexists",
             "name": "文件不存在不报错",
             "help": "仅当文件存在才执行拷贝",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false",
-            "validate": ""
+            ]
         }
     ],
     "output": []

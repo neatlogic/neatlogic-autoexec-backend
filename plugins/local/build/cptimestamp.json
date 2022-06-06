@@ -13,40 +13,37 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "src",
             "name": "源目录",
             "help": "源目录（相对于当前系统存储物料的根目录）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "dest",
             "name": "目标目录",
             "help": "目标目录（相对于当前系统存储物料的根目录）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:git.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.user}"
         }
     ],
     "output": []

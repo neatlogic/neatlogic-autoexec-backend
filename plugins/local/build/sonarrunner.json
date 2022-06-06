@@ -13,72 +13,68 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "baseurl",
             "name": "API地址",
             "help": "SonarQube地址，例如：http://192.168.0.26:9000",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:sonar.url}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:sonar.url}"
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:sonar.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:sonar.user}"
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "访问仓库的密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:sonar.password}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:sonar.password}"
         },
         {
             "opt": "prefix",
             "name": "工程子目录",
             "help": "需要扫描的工程下的子目录",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "language",
             "name": "编程语言",
             "help": "本工程使用的程序语言",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "Java",
+            "dataSource": [
                 {
                     "text": "Java",
-                    "value": "Java",
-                    "selected": "true"
+                    "value": "Java"
                 },
                 {
                     "text": "C",
@@ -88,129 +84,117 @@
                     "text": "C++",
                     "value": "C++"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "编码",
             "name": "文件编码",
             "help": "工程中程序文件的字符编码",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "GBK",
+            "dataSource": [
                 {
                     "text": "UTF-8",
                     "value": "UTF-8"
                 },
                 {
                     "text": "GBK",
-                    "value": "GBK",
-                    "selected": "true"
+                    "value": "GBK"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "level",
             "name": "告警级别",
             "help": "触发告警的Level",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "critical",
+            "dataSource": [
                 {
                     "text": "critical",
-                    "value": "critical",
-                    "selected": "true"
+                    "value": "critical"
                 },
                 {
                     "text": "blocker",
                     "value": "blocker"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "threshold",
             "name": "门限值",
             "help": "扫描通过的最高门限值",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "80",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "80"
         },
         {
             "opt": "src",
             "name": "源代码目录",
             "help": "相对于工程的相对目录",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "80",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "80"
         },
         {
             "opt": "bin",
             "name": "二进制目录",
             "help": "编译结果文件，需要分析的Target(如果没编译可以不写)",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "80",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "80"
         },
         {
             "opt": "tmout",
             "name": "超时时间",
             "help": "扫描超时时间（秒）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "600",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "600"
         },
         {
             "opt": "projectKey",
             "name": "项目Key",
             "help": "SonarQube里的工程Key",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$SYS_NAME.$MODULE_NAME",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$SYS_NAME.$MODULE_NAME"
         },
         {
             "opt": "projectName",
             "name": "项目名称",
             "help": "SonarQube里的项目的名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$MODULE_NAME",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$MODULE_NAME"
         },
         {
             "opt": "projectVersion",
             "name": "项目的版本",
             "help": "SonarQube里的项目的版本号",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$VERSION",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$VERSION"
         },
         {
             "opt": "modules",
             "name": "项目的模块",
             "help": "SonarQube里的项目的模块，例如：module1,module2",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "$VERSION",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "$VERSION"
         }
     ],
     "output": []

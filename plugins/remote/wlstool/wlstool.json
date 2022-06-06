@@ -13,37 +13,36 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "LANG",
             "name": "LANG",
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "zh_CN.GBK",
@@ -53,26 +52,24 @@
                     "text": "zh_CN.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "LC_ALL",
             "name": "LC_ALL",
             "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "en_US.UTF-8",
+            "dataSource": [
                 {
                     "text": "自动",
-                    "value": "",
-                    "selected": "true"
+                    "value": ""
                 },
                 {
                     "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8",
-                    "selected": "true"
+                    "value": "en_US.UTF-8"
                 },
                 {
                     "text": "zh_CN.GBK",
@@ -82,31 +79,29 @@
                     "text": "zh_CN.GB18030",
                     "value": "en_US.GB18030"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "umask",
             "name": "umask",
             "help": "umask设置，如果留空则不对umask进行修改，例如：0022",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "0022",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "0022"
         },
         {
             "opt": "action",
             "name": "动作",
             "help": "WAS操作动作",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "admin-start",
+            "dataSource": [
                 {
                     "text": "admin-start",
-                    "value": "admin-start",
-                    "selected": "true"
+                    "value": "admin-start"
                 },
                 {
                     "text": "admin-stop",
@@ -168,241 +163,217 @@
                     "text": "unpatch",
                     "value": "unpatch"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "java_home",
             "name": "JAVA_HOME",
             "help": "JAVA HOME目录",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/app/serverware/jdk",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "/app/serverware/jdk"
         },
         {
             "opt": "wls_home",
             "name": "WLS_HOME",
             "help": "Weblogic的安装目录，例如：/app/serverware/wls/wls1036",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/app/serverware/wls/wls1036",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/wls1036"
         },
         {
             "opt": "domain_home",
             "name": "DOMAIN_HOME",
             "help": "Weblogic的Domain目录，例如：/app/serverware/wls/domains/tsdomain",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/app/serverware/wls/domains/tsdomain",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/domains/tsdomain"
         },
         {
             "opt": "admin_url",
             "name": "Admin URL",
             "help": "Weblogic当前domain的admin server访问地址，例如：http://127.0.0.1:7001",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "http://127.0.0.1:7001",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "http://127.0.0.1:7001"
         },
         {
             "opt": "wls_user",
             "name": "WLS用户名",
             "help": "Weblogic用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "weblogic",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "weblogic"
         },
         {
             "opt": "start_timeout",
             "name": "启动超时",
             "help": "启动超时时间（秒），默认180秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "180",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "180"
         },
         {
             "opt": "stop_timeout",
             "name": "停止超时",
             "help": "停止超时时间（秒），默认180秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "180",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "180"
         },
         {
             "opt": "standalone",
             "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false"
+            ]
         },
         {
             "opt": "need_deploy",
             "name": "新应用自动部署",
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "false",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "false"
+            ]
         },
         {
             "opt": "servername",
             "name": "Server名称",
             "help": "Server名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "server1",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "server1"
         },
         {
             "opt": "appname",
             "name": "部署名",
             "help": "在Weblogic console上看到的应用的部署名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "demo_war",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "demo_war"
         },
         {
             "opt": "appfile",
             "name": "包路径",
             "help": "包路径",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/tmp/demo.war",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "/tmp/demo.war"
         },
         {
             "opt": "source-path",
             "name": "安装路径",
             "help": "在weblogic console安装时，指定的目录或包的路径",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "/app/systems/test/sample/sample.war",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "/app/systems/test/sample/sample.war"
         },
         {
             "opt": "target",
             "name": "部署目标",
             "help": "应用部署的目标weblogic实例名或者Cluster名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "myserver",
-            "required": "true"
+            "required": "true",
+            "defaultValue": "myserver"
         },
         {
             "opt": "staging-mode",
             "name": "Staging Mode",
             "help": "部署模式，nostage代表Managed server不会从admin server下载应用，而是需要在所有Server上同构的目录上上传应用，建议使用nostage模式，否则每次重启都要从Admin Server下载应用",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "defaultValue": "nostage",
+            "dataSource": [
                 {
                     "text": "nostage",
-                    "value": "nostage",
-                    "selected": "true"
+                    "value": "nostage"
                 },
                 {
                     "text": "stage",
                     "value": "stage"
                 }
-            ],
-            "required": "true"
+            ]
         },
         {
             "opt": "checkurl",
             "name": "检测URL",
             "help": "应用访问URL，注意端口，例如：http://127.0.0.1:9082/demo/",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true"
+            "required": "true",
+            "defaultValue": ""
         },
         {
             "opt": "custom_stdoutfiles",
             "name": "客户化日志路径",
             "help": "可以设置多个路径，逗号相隔，第一个路径是标准输出文件路径",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "max_logsize",
             "name": "日志单文件大小",
             "help": "控制台输出日志，单文件最大的大小（单位M），默认是2048M",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "2048",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "2048"
         },
         {
             "opt": "max_logfiles",
             "name": "最大日志数量",
             "help": "控制台输出日志最大的文件数，超过会自动清理",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "123",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "123"
         },
         {
             "opt": "max_logdays",
             "name": "日志最大保留天数",
             "help": "控制台输出日志最大保留天数，超过会自动清理",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "93",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "93"
         },
         {
             "opt": "USER_MEM_ARGS",
             "name": "JAVA内存参数",
             "help": "JAVA内存参数，用于设置内存相关参数，例如：-Xms256m -Xmx1024m -XX:MaxPermSize=256m",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false"
+            "required": "false",
+            "defaultValue": ""
         },
         {
             "opt": "JAVA_EXT_OPTS",
             "name": "JAVA参数",
             "help": "JAVA扩展参数，用于设置JAVA扩展参数",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "-Djava.security.egd=file:/dev/./urandom",
-            "required": "false"
+            "required": "false",
+            "defaultValue": "-Djava.security.egd=file:/dev/./urandom"
         }
     ],
     "output": []

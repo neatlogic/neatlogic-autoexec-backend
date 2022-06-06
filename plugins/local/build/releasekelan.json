@@ -13,70 +13,64 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "user",
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${global:git.user}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.user}"
         },
         {
             "opt": "password",
             "name": "密码",
             "help": "访问仓库的密码",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:git.password}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:git.password}"
         },
         {
             "opt": "dbdir",
             "name": "DB目录",
             "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "db",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "db"
         },
         {
             "opt": "docdir",
             "name": "DOC目录",
             "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "doc",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "doc"
         },
         {
             "opt": "exp",
             "name": "排除目录",
             "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "argument": {

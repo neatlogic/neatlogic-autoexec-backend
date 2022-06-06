@@ -7,44 +7,43 @@
     "defaultProfile": null,
     "description": "SQL文件导入工具（非自动发布）",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [{
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
+                {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "targetphase",
             "name": "目标阶段",
             "help": "SQL导入的目标执行阶段",
             "type": "phase",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "sqlfilejson",
             "name": "SQL文件",
             "help": "上传到系统的多个SQL文件",
             "type": "file",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

@@ -6,25 +6,24 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "设置全局环境变量",
-    "option": [{
+    "option": [
+        {
             "opt": "name",
             "name": "变量名",
             "help": "在环境变量中的名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "value",
             "name": "变量值",
             "help": "环境变量的值",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ]
 }

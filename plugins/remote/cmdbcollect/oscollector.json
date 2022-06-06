@@ -12,120 +12,111 @@
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "Mysql",
             "name": "Mysql账户",
             "help": "例如：采集数据需要用到的Mysql的只读用户",
             "type": "account",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "Postgresql",
             "name": "Postgresql账户",
             "help": "例如：采集数据需要用到的Postgresql的只读用户",
             "type": "account",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "MSSQLServer",
             "name": "MSSQLServer账户",
             "help": "例如：采集数据需要用到的MSSQLServer的只读用户",
             "type": "account",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "Mongodb",
             "name": "Mongdb账户",
             "help": "例如：采集数据需要用到的MongoDB的只读用户",
             "type": "account",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "defaultpassconf",
             "name": "默认密码设置",
             "help": "如没有选择账号，请输入，例如：Mysql:root/pass1234,Postgresql:demo/test1234",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "inspect",
             "name": "巡检检查",
             "help": "采集更详细的巡检数据",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "不采集",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "采集",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "不回显",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "回显",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "debug",
             "name": "显示明细",
             "help": "显示命令执行的详细信息",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 },
                 {
                     "text": "是",
                     "value": "1"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         }
     ],
     "output": [

@@ -13,80 +13,74 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "1",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ],
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "dbdir",
-            "name": "DB目录",
-            "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "db",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "docdir",
-            "name": "DOC目录",
-            "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "doc",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "packexts",
-            "name": "包制品扩展名",
-            "help": "如果是非代码工程，可能对zip包等进行解压抽取，例如：zip,tar,tgz,tar.gz",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "false",
-            "validate": ""
-        },
-        {
-            "opt": "exp",
-            "name": "排除目录",
-            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
-            "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "md5check",
-            "name": "生成文件MD5",
-            "help": "生成制品中文件的md5 checksum（正常不需要，除非客户要求）",
-            "type": "select",
-            "isConst": "false",
-            "defaultValue": [
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "1"
                 },
                 {
                     "text": "否",
-                    "value": "0",
-                    "selected": "true"
+                    "value": "0"
                 }
-            ],
+            ]
+        },
+        {
+            "opt": "dbdir",
+            "name": "DB目录",
+            "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "db"
+        },
+        {
+            "opt": "docdir",
+            "name": "DOC目录",
+            "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "doc"
+        },
+        {
+            "opt": "packexts",
+            "name": "包制品扩展名",
+            "help": "如果是非代码工程，可能对zip包等进行解压抽取，例如：zip,tar,tgz,tar.gz",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exp",
+            "name": "排除目录",
+            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "type": "text",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "md5check",
+            "name": "生成文件MD5",
+            "help": "生成制品中文件的md5 checksum（正常不需要，除非客户要求）",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "1"
+                },
+                {
+                    "text": "否",
+                    "value": "0"
+                }
+            ]
         }
     ],
     "argument": {

@@ -13,140 +13,131 @@
             "name": "显示明细",
             "help": "执行日志显示详细信息",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
                 {
                     "text": "是",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 },
                 {
                     "text": "否",
                     "value": "0"
                 }
-            ],
-            "required": "true",
-            "validate": ""
+            ]
         },
         {
             "opt": "blacklist",
             "name": "排除DBSchema",
             "help": "不Rlease某些DB Schema到环境制品，例如：myadb.myauser,mybdb.mybuser",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "false",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "nomd5",
             "name": "文件MD5",
             "help": "同步时比较文件的MD5",
             "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "0",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ],
             "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "nodelete",
-            "name": "删除多出内容",
-            "help": "删除目标目录多出的文件或子目录",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "0",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "noattrs",
-            "name": "同步文件权限",
-            "help": "把源目录下的文件和子目录的权限同步到目标目录",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
-                {
-                    "text": "是",
-                    "value": "0",
-                    "selected": "true"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ],
-            "required": "true",
-            "validate": ""
-        },
-        {
-            "opt": "notime",
-            "name": "比较修改时间",
-            "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
-            "type": "radio",
-            "isConst": "false",
-            "defaultValue": [
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
                 {
                     "text": "是",
                     "value": "0"
                 },
                 {
                     "text": "否",
-                    "value": "1",
-                    "selected": "true"
+                    "value": "1"
                 }
-            ],
+            ]
+        },
+        {
+            "opt": "nodelete",
+            "name": "删除多出内容",
+            "help": "删除目标目录多出的文件或子目录",
+            "type": "radio",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "0"
+                },
+                {
+                    "text": "否",
+                    "value": "1"
+                }
+            ]
+        },
+        {
+            "opt": "noattrs",
+            "name": "同步文件权限",
+            "help": "把源目录下的文件和子目录的权限同步到目标目录",
+            "type": "radio",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "0"
+                },
+                {
+                    "text": "否",
+                    "value": "1"
+                }
+            ]
+        },
+        {
+            "opt": "notime",
+            "name": "比较修改时间",
+            "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
+            "type": "radio",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1",
+            "dataSource": [
+                {
+                    "text": "是",
+                    "value": "0"
+                },
+                {
+                    "text": "否",
+                    "value": "1"
+                }
+            ]
         },
         {
             "opt": "exp",
             "name": "排除目录",
             "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "src",
             "name": "源目录",
             "help": "相对于版本制品目录的相对目录（留空代表默认使用版本制品目录根）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "dest",
             "name": "目标目录",
             "help": "相对于环境制品目录的相对目录（留空代表默认使用环境制品目录根）",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []

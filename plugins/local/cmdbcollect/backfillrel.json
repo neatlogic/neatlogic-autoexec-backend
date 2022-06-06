@@ -12,7 +12,8 @@
             "name": "关系类别",
             "help": "关系类别[OS|NET]",
             "type": "select",
-            "isConst": "false",
+            "required": "true",
+            "validate": "",
             "defaultValue": [
                 {
                     "text": "操作系统相关",
@@ -23,8 +24,16 @@
                     "value": "NET"
                 }
             ],
-            "required": "true",
-            "validate": ""
+            "dataSource": [
+                {
+                    "text": "操作系统相关",
+                    "value": "OS"
+                },
+                {
+                    "text": "网络相关",
+                    "value": "NET"
+                }
+            ]
         }
     ],
     "output": []

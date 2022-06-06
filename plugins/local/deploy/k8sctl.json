@@ -7,99 +7,93 @@
     "defaultProfile": "k8s-args",
     "description": "K8S应用的部署",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "host",
             "name": "管理IP或域名",
             "help": "K8S 管理IP或域名，例如：192.168.99.100",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "apiport",
             "name": "API端口",
             "help": "K8S API端口，例如:8443",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "8443",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "8443"
         },
         {
             "opt": "mgmtport",
             "name": "k8s管理端口",
             "help": "K8S 管理端口，例如：30001",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "30001",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "30001"
         },
         {
             "opt": "token",
             "name": "验证TOKEN",
             "help": "K8S API服务的验证TOKEN",
             "type": "password",
-            "isConst": "false",
-            "defaultValue": "${global:k8s.token}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${global:k8s.token}"
         },
         {
             "opt": "action",
             "name": "动作",
             "help": "执行的动作",
             "type": "select",
-            "isConst": "false",
-            "defaultValue": [{
-                "text": "更新",
-                "value": "patch",
-                "selected": "true"
-            }],
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "patch",
+            "dataSource": [
+                {
+                    "text": "更新",
+                    "value": "patch"
+                }
+            ]
         },
         {
             "opt": "image",
             "name": "镜像",
             "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}"
         },
         {
             "opt": "name",
             "name": "应用名",
             "help": "K8S中定义的应用名",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "${SYS_NAME}-${MODULE_NAME}",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
         },
         {
             "opt": "namespace",
             "name": "命令空间",
             "help": "应用所在的K8S命令空间",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "deployment",
             "name": "部署名",
             "help": "K8S中定义的deployment名称",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []
