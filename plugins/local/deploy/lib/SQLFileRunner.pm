@@ -590,6 +590,12 @@ sub execSqlFileSets {
     my $hasError = 0;
     foreach my $sqlFiles (@$sqlFileSets) {
         my $runnerPidsMap = {};
+        $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = sub {
+            foreach my $chldPid ( keys(%$runnerPidsMap) ) {
+                kill( 'TERM', $chldPid );
+            }
+        };
+
         foreach my $sqlFile (@$sqlFiles) {
             my $dbInfo        = $self->_getSqlDbInfo($sqlFile);
             my $sqlFileStatus = SQLFileStatus->new(
@@ -607,6 +613,7 @@ sub execSqlFileSets {
                 print("INFO: Execute sql file:$sqlFile...\n");
                 my $pid = fork();
                 if ( $pid == 0 ) {
+                    $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = 'DEFAULT';
                     $self->{logFileDir} = $self->{logFileDir} . "/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
                     my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
                     exit $rc;
