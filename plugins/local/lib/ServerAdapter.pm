@@ -37,6 +37,7 @@ sub new {
             'updateVer' => '',
 
             #环境制品状态：pending|succeed｜failed
+            'getAccount'            => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
@@ -463,6 +464,29 @@ sub addBuildQuality {
     return;
 }
 
+sub getAccountPwd {
+    my ( $self, %args ) = @_;
+
+    my $params = {
+        jobId      => $args{jobId},
+        resourceId => $args{resourceId},
+        host       => $args{host},
+        port       => $args{port},
+        username   => $args{username},
+        protocol   => $args{protocol},
+        accountId  => $args{accountId}
+    };
+
+    my $webCtl     = $self->{webCtl};
+    my $url        = $self->_getApiUrl('getAccount');
+    my $content    = $webCtl->postJson( $url, $params );
+    my $pass       = $self->_getReturn($content);
+    my $serverConf = $self->{serverConf};
+    $pass = $serverConf->decryptPwd($pass);
+
+    return $pass;
+}
+
 sub getAppPassWord {
     my ( $self, $buildEnv, $appUrl, $userName ) = @_;
 
@@ -527,20 +551,24 @@ sub getSqlFileStatuses {
     # [
     # {
     #     resourceId     => $nodeInfo->{resourceId},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
     #     port           => $nodeInfo->{port},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     username       => $nodeInfo->{username},
     #     sqlFile        => $sqlFile,
     #     status         => $preStatus,
     #     md5            => $md5Sum
     # },
     # {
     #     resourceId     => $nodeInfo->{resourceId},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
     #     port           => $nodeInfo->{port},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     username       => $nodeInfo->{username},
     #     sqlFile        => $sqlFile,
     #     status         => $preStatus,
     #     md5            => $md5Sum
@@ -598,20 +626,24 @@ sub checkInSqlFiles {
     # [
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
     #         port           => $nodeInfo->{port},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         username       => $nodeInfo->{username},
     #         sqlFile        => $sqlFile,
     #         status         => $preStatus,
     #         md5            => $md5Sum
     #     },
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
     #         port           => $nodeInfo->{port},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         username       => $nodeInfo->{username},
     #         sqlFile        => $sqlFile,
     #         status         => $preStatus,
     #         md5            => $md5Sum

@@ -161,35 +161,100 @@ sub main {
         args        => $dbArgs
     };
 
-    my $dbInfo = DBInfo->new( $dbNode, $dbExtArgs );
+    my $hasError = 0;
 
-    my $sqlFileRunner = SQLFileRunner->new(
-        jobId        => $jobId,
-        jobPath      => $jobPath,
-        deployEnv    => undef,
-        toolsDir     => $toolsDir,
-        tmpDir       => "$autoexecHome/tmp",
-        dbInfo       => $dbInfo,               #单DB目标执行需要的特有的属性
-        nodeInfo     => $dbNode,
-        sqlUploadDir => $sqlUploadDir,         #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
+    my $serverAdapter   = ServerAdapter->new();
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
 
-        sqlFileDir   => $sqlFileDir,
-        sqlStatusDir => $sqlStatusDir,
-        logFileDir   => $logFileDir,
-        sqlFiles     => $sqlFiles,
-        isForce      => $isForce,
-        isDryRun     => $isDryRun,
-        istty        => 0,
-        isInteract   => 1
-    );
-    my $rc = 0;
-    $rc = $sqlFileRunner->checkSqlFiles();
+    my $sqlNodesMap = {};
+    foreach my $sqlInfo (@$sqlInfoInServer) {
+        my $resourceId = $sqlInfo->{resourceId};
+        if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
+            my $host     = $sqlInfo->{host};
+            my $port     = $sqlInfo->{port};
+            my $userName = $sqlInfo->{unsername};
 
-    if ( $rc == 0 ) {
-        $rc = $sqlFileRunner->execSqlFiles();
+            my $sqlNodeInfo = {
+                resourceId     => $sqlInfo->{resourceId},
+                nodeName       => $sqlInfo->{nodeName},
+                nodeType       => $sqlInfo->{nodeType},
+                host           => $host,
+                port           => $port,
+                username       => $userName,
+                accessEndpoint => $sqlInfo->{accessEndpoint}
+            };
+
+            eval {
+                my $pass = $serverAdapter->getAccountPwd(
+                    jobId      => $jobId,
+                    resourceid => $resourceId,
+                    username   => $userName,
+                    protocol   => 'database',
+                    host       => $host,
+                    port       => $port
+                );
+                $sqlNodeInfo->{password} = $pass;
+            };
+            if ($@) {
+                my $errMsg = $@;
+                $errMsg =~ s/ at .*$//;
+                print("ERROR: Can not find password for $userName@$host:$port.\n$errMsg\n");
+                $hasError = $hasError + 1;
+            }
+            $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
+        }
     }
 
-    return $rc;
+    if ( $hasError > 0 ) {
+        return $hasError;
+    }
+
+    foreach my $sqlNodeInfo ( keys(%$sqlNodesMap) ) {
+        my $sqlFile  = $sqlNodeInfo->{sqlFile};
+        my $host     = $sqlNodeInfo->{host};
+        my $port     = $sqlNodeInfo->{port};
+        my $userName = $sqlNodeInfo->{unsername};
+
+        print("INFO: Execute sql $sqlFile -> $userName@$host:$port\n");
+        my $dbInfo = DBInfo->new( $sqlNodeInfo, $dbExtArgs );
+
+        my $sqlFileRunner = SQLFileRunner->new(
+            jobId        => $jobId,
+            jobPath      => $jobPath,
+            deployEnv    => undef,
+            toolsDir     => $toolsDir,
+            tmpDir       => "$autoexecHome/tmp",
+            dbInfo       => $dbInfo,               #单DB目标执行需要的特有的属性
+            nodeInfo     => $sqlNodeInfo,
+            sqlUploadDir => $sqlUploadDir,         #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
+
+            sqlFileDir   => $sqlFileDir,
+            sqlStatusDir => $sqlStatusDir,
+            logFileDir   => $logFileDir,
+            sqlFiles     => $sqlFiles,
+            isForce      => $isForce,
+            isDryRun     => $isDryRun,
+            istty        => 0,
+            isInteract   => 1
+        );
+        my $rc = 0;
+        $rc = $sqlFileRunner->checkSqlFiles();
+
+        if ( $rc == 0 ) {
+            $rc = $sqlFileRunner->execSqlFiles();
+        }
+
+        if ( $rc != 0 ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Execute sql $sqlFile -> $userName@$host:$port failed.\n");
+            last;
+        }
+        else {
+            print("INFO: Execute sql $sqlFile -> $userName@$host:$port success.\n");
+        }
+    }
+
+    return $hasError;
 }
 
 exit main();
