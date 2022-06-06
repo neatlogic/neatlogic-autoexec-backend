@@ -685,6 +685,7 @@ sub checkOneSqlFile {
         nodeName       => $nodeInfo->{nodeName},
         host           => $nodeInfo->{host},
         port           => $nodeInfo->{port},
+        username       => $nodeInfo->{username},
         accessEndpoint => $nodeInfo->{accessEndpoint},
         sqlFile        => $sqlFile,
         status         => $preStatus,

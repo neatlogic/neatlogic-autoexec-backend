@@ -527,20 +527,24 @@ sub getSqlFileStatuses {
     # [
     # {
     #     resourceId     => $nodeInfo->{resourceId},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
     #     port           => $nodeInfo->{port},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     username       => $nodeInfo->{username},
     #     sqlFile        => $sqlFile,
     #     status         => $preStatus,
     #     md5            => $md5Sum
     # },
     # {
     #     resourceId     => $nodeInfo->{resourceId},
+    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
     #     port           => $nodeInfo->{port},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     username       => $nodeInfo->{username},
     #     sqlFile        => $sqlFile,
     #     status         => $preStatus,
     #     md5            => $md5Sum
@@ -598,20 +602,24 @@ sub checkInSqlFiles {
     # [
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
     #         port           => $nodeInfo->{port},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         username       => $nodeInfo->{username},
     #         sqlFile        => $sqlFile,
     #         status         => $preStatus,
     #         md5            => $md5Sum
     #     },
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
+    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
     #         port           => $nodeInfo->{port},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         username       => $nodeInfo->{username},
     #         sqlFile        => $sqlFile,
     #         status         => $preStatus,
     #         md5            => $md5Sum
