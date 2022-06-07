@@ -40,9 +40,14 @@
 			"rule": "$.MOUNT_POINTS.USED_PCT >= 95"
 		},
 		{
-			"name": "进程资源消耗超过95%",
+			"name": "进程CPU消耗超过30%",
 			"level": "WARN",
-			"rule": "$.TOP_MEM_PROCESSES.MEM_USAGE >= 95 or $.TOP_CPU_RPOCESSES.CPU_USAGE >= 95"
+			"rule": "$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30"
+		},
+		{
+			"name": "进程内存消耗超过75%",
+			"level": "WARN",
+			"rule": "$.TOP_MEM_PROCESSES.MEM_USAGE >= 75"
 		},
 		{
 			"name": "IOWAIT超过20%",
