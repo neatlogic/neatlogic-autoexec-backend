@@ -242,11 +242,12 @@ class Interpreter(object):
                 operandsVal.append(self.resolveValueQuery(operand))
             elif operand[0] == 'OPERATOR':
                 # 如果是嵌套的操作，则拼装参数调用 resolveValueQueryOper
-                nextOperateStr = operand[1]
-                subOperands = [operand[2], operand[3]]
+                operand.pop(0)  # 去掉'OPERATOR'标记符
+                nextOperateStr = operand.pop(0)  # 取出操作符
+                subOperands = operand  # 剩下的就是操作数
                 operandsVal.append(self.resolveValueQueryOper(fieldValue, nextOperateStr, subOperands))
             else:
-                raise DSLError("Invalid AST node type {} in: {}".format(operand[0], json.dumps(self.AST)))
+                raise DSLError("Invalid AST node type {} in: {}".format(operand[0], json.dumps(operand)))
 
         if operateStr in self.operators:
             op = self.getOperator(operateStr)
