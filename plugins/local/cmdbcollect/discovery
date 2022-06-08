@@ -368,7 +368,7 @@ def discovery(snmpPort, workerCount, net, ports, timingTmpl):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--nets', default='192.168.0.1/30,192.168.1.140/30', help='Discovery nets, example:192.168.0.1/24,192.168.1.1/24')
+    parser.add_argument('--nets', default='192.168.0.1/24', help='Discovery nets, example:192.168.0.1/24,192.168.1.1/24')
     parser.add_argument('--ports', default='22,161,135,139,445,3389,3939', help='Scan ports, default:22,161,135,139,445,3389,3939')
     parser.add_argument('--snmpport', default=161, help='Snmp Port')
     parser.add_argument('--communities', default='["public"]', help='Snmp Communities(JSON Array), ecample:["public","mary"]')
