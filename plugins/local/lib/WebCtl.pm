@@ -7,7 +7,7 @@ use IO::Socket::SSL;
 use Encode;
 use REST::Client;
 use HTTP::Cookies;
-use Mojo::JSON qw(to_json from_json);
+use JSON qw(to_json from_json);
 use Data::UUID;
 use URI::Escape;
 use Digest::SHA qw(hmac_sha1_base64);
