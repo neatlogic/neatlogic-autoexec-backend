@@ -81,20 +81,37 @@ class QueryTerm(object):
         return AST
 
 
+class FieldCalcTerm(object):
+    def __init__(self, tokens):
+        self.AST_TYPE = 'FIELD_CALC'
+        self.AST = tokens
+
+    def __repr__(self):
+        return "FIELD_CALC:(%s)" % (",".join(str(a) for a in self.AST))
+
+    def asList(self):
+        AST = ['FIELD_CALC']
+        for a in self.AST:
+            AST.append(a.asList())
+        return AST
+
+
 def Parser(ruleTxt):
     DOT = pp.Suppress('.')
-    LPAREN = pp.Suppress('(')
-    RPAREN = pp.Suppress(')')
     LBRACK = pp.Suppress('[')
     RBRACK = pp.Suppress(']')
+    LCURLY = pp.Suppress('{')
+    RCURLY = pp.Suppress('}')
     CURRDOC = pp.Literal('$')
+    this = pp.CaselessKeyword("$this")
 
     number = pp.pyparsing_common.integer | pp.pyparsing_common.real
     string = pp.QuotedString('"') | pp.QuotedString("'")
     value = number | string
     fieldName = pp.pyparsing_common.identifier | string
 
-    cmpOperator = pp.oneOf('= == != >= <= < > + - * / contains startswith')
+    cmpOperator = pp.oneOf('= == != >= <= < > contains startswith')
+    calcOperator = pp.oneOf('+ - * / %')
     AND = pp.CaselessLiteral("and")
     OR = pp.CaselessLiteral("or")
     NOT = pp.CaselessLiteral("not")
@@ -106,18 +123,35 @@ def Parser(ruleTxt):
         (OR, 2, pp.opAssoc.LEFT, BinaryOperation)
     ]
 
-    fieldFilter = LBRACK - pp.infixNotation(fieldName | value, oplist) - RBRACK
-    emptyFilter = LBRACK - RBRACK
+    calcOpList = [
+        (calcOperator, 2, pp.opAssoc.LEFT, BinaryOperation)
+    ]
 
-    thisDoc = CURRDOC - pp.Optional(fieldFilter | emptyFilter)
+    fieldFilter = LBRACK + pp.infixNotation(fieldName | value, oplist) + RBRACK
+    emptyFilter = LBRACK + RBRACK
+
+    thisDoc = CURRDOC + pp.Optional(fieldFilter | emptyFilter)
     thisDoc.setParseAction(FieldTerm)
 
-    fieldDef = fieldName - pp.Optional(fieldFilter | emptyFilter)
+    bareField = DOT + fieldName
+    bareField.setParseAction(FieldTerm)
+
+    fieldDef = DOT + fieldName + pp.Optional(fieldFilter | emptyFilter)
     fieldDef.setParseAction(FieldTerm)
 
-    query = thisDoc - pp.OneOrMore(DOT - fieldDef)
-    query.setParseAction(QueryTerm)
-    ruleDef = pp.infixNotation(query | value, oplist)
+    pureQuery = thisDoc + pp.ZeroOrMore(fieldDef)
+    pureQuery.setParseAction(QueryTerm)
+
+    fieldCalc = LCURLY - pp.infixNotation(this | pureQuery | value, calcOpList) - RCURLY
+    fieldCalc.setParseAction(FieldCalcTerm)
+
+    lastField = DOT + fieldName + fieldCalc
+    lastField.setParseAction(FieldTerm)
+
+    calcQuery = thisDoc + pp.ZeroOrMore(fieldDef, stopOn=lastField) + lastField
+    calcQuery.setParseAction(QueryTerm)
+
+    ruleDef = pp.infixNotation(calcQuery | pureQuery | value, oplist)
 
     try:
         ret = ruleDef.parseString(ruleTxt)
@@ -171,6 +205,7 @@ class Interpreter(object):
             '-': operator.sub,
             '*': operator.mul,
             '/': operator.truediv,
+            '%': operator.mod,
             'contains': operator.contains,
             'startswith': _startswith,
             'and': _and,
@@ -184,8 +219,119 @@ class Interpreter(object):
         else:
             raise DSLError("Operation '{}' not supported.".format(operName))
 
+    # operateStr：顶层操作符号，查询出的属性比较计算的操作符号子串
+    # operands：操作符号设计的操作数的列表，可能是QUERY，也可能是嵌套的操作符结构
+
+    def resolveValueQueryOper(self, fieldValue, operateStr, operands):
+        result = None
+
+        operandsVal = []
+        for operand in operands:
+            if operand == '$this':
+                operandsVal.append(fieldValue)
+                continue
+
+            elif not isinstance(operand, list):
+                operandsVal.append(operand)
+                continue
+
+            if operand[0] == 'QUERY':
+                operandsVal.append(self.resolveValueQuery(operand))
+            elif operand[0] == 'OPERATOR':
+                # 如果是嵌套的操作，则拼装参数调用 resolveValueQueryOper
+                operand.pop(0)  # 去掉'OPERATOR'标记符
+                nextOperateStr = operand.pop(0)  # 取出操作符
+                subOperands = operand  # 剩下的就是操作数
+                operandsVal.append(self.resolveValueQueryOper(fieldValue, nextOperateStr, subOperands))
+            else:
+                raise DSLError("Invalid AST node type {} in: {}".format(operand[0], json.dumps(operand)))
+
+        if operateStr in self.operators:
+            op = self.getOperator(operateStr)
+            operandsLen = len(operandsVal)
+            if operandsLen == 1:
+                result = op(operandsVal[0])
+            else:
+                result = op(operandsVal[0], operandsVal[1])
+
+        return result
+
+    # 右操作数的json字段值查询
+    # fields：查询的字段列表，第一个元素是"QUERY",第二个元素开始才是字段的描述
+    def resolveValueQuery(self, fields):
+        return self.resolveFieldValue(self.data, '', fields, 1)
+
+    # 右操作数的json字段值查询
+    # parentDoc：上级数据（包含当前field属性）
+    # jsonPath：上级数据的jsonPath，格式$.ATTR1.ATTR2[2].ATTR3
+    # fields：当前Query查询的字段列表
+    # idx：当前字段在字段列表中的下标
+    def resolveFieldValue(self, parentDoc, jsonPath, fields, idx):
+        fieldsCount = len(fields)
+        field = fields[idx]
+
+        if len(field) < 3 and field[0] != 'FIELD':
+            raise DSLError("Invalid field node {} in: {}".format(json.dumps(field), json.dumps(self.AST)))
+
+        fieldName = field[1]
+        fieldValue = None
+
+        if fieldName == '$' and jsonPath == '':
+            fieldValue = parentDoc
+        elif fieldName in parentDoc:
+            fieldValue = parentDoc[fieldName]
+
+        jsonPath = jsonPath + '.' + fieldName
+
+        if idx >= fieldsCount - 1:
+            # 最后一个属性字段，取出值返回
+            if fieldValue is not None:
+                return fieldValue
+            else:
+                warnings.warn("Data field not found: " + jsonPath[1:], category=Warning)
+                return None
+
+        if fieldValue is not None:
+            resolvedValue = None
+
+            fieldFilter = field[2]
+            if fieldFilter is None:
+                # 如果属性字段没有配置filter
+                if isinstance(fieldValue, list):
+                    # for record in fieldValue:
+                    for k in range(len(fieldValue)):
+                        record = fieldValue[k]
+                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
+                        if resolvedValue is not None:
+                            break
+                elif isinstance(fieldValue, dict):
+                    resolvedValue = self.resolveFieldValue(fieldValue, jsonPath, fields, idx + 1)
+            else:
+                # 属性存在filter设置
+                matched = False
+                if isinstance(fieldValue, list):
+                    for k in range(len(fieldValue)):
+                        record = fieldValue[k]
+                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        matched = self.resolveFilter(record, fieldFilter)
+                        if matched:
+                            resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
+                            if resolvedValue is not None:
+                                break
+                elif isinstance(fieldValue, dict):
+                    matched = self.resolveFilter(fieldValue, fieldFilter)
+                    if matched:
+                        resolvedValue = self.resolveFieldValue(fieldValue, jsonPath, fields, idx + 1)
+
+            return resolvedValue
+        else:
+            warnings.warn("Data field not found: " + jsonPath[1:], category=Warning)
+            return None
+
     # operate：顶层操作符号，查询出的属性比较计算的操作符号子串
     # operands：操作符号设计的操作数的列表，可能是QUERY，也可能是嵌套的操作符结构
+
     def resolveQueryOper(self, operateStr, operands):
         result = None
 
@@ -208,7 +354,7 @@ class Interpreter(object):
                     # 如果是嵌套的操作，则拼装参数调用resolveQueryOper
                     subOperands = [operand[2]]
                     if nextOperateStr not in ('not', '!'):
-                        subOperands.append[operand[3]]
+                        subOperands.append(operand[3])
                     operandsVal.append(self.resolveQueryOper(nextOperateStr, subOperands))
                 else:
                     raise DSLError("Invalid AST node type {} in: {}".format(operand[2][0], json.dumps(self.AST)))
@@ -249,6 +395,7 @@ class Interpreter(object):
     # value：与最终匹配出的属性值比较的值
     # fields：当前Query查询的字段列表
     # idx：当前字段在字段列表中的下标
+
     def resolveField(self, parentDoc, jsonPath, op, value, fields, idx):
         matchedRecord = 0
         fieldsCount = len(fields)
@@ -270,8 +417,20 @@ class Interpreter(object):
         if idx >= fieldsCount - 1:
             # 最后一个属性字段，取出值返回
             if fieldValue is not None:
+                resultFieldVal = fieldValue
+                fieldCalc = field[2]
+                if fieldCalc is not None and fieldCalc[0] == 'FIELD_CALC':
+                    filedCalcAST = fieldCalc[1]
+                    if filedCalcAST[0] == 'OPERATOR':
+                        operate = filedCalcAST[1]
+                        # 嵌套操作符号
+                        operands = [filedCalcAST[2], filedCalcAST[3]]
+                        resultFieldVal = self.resolveValueQueryOper(fieldValue, operate, operands)
+                    else:
+                        raise DSLError("Invalid AST node type {} in: {}".format(filedCalcAST[0], json.dumps(filedCalcAST)))
+
                 try:
-                    if op(fieldValue, value):
+                    if op(resultFieldVal, value):
                         matchedField = {
                             'jsonPath': jsonPath[1:],
                             'ruleName': self.ruleName,
@@ -409,10 +568,10 @@ class Interpreter(object):
 if __name__ == "__main__":
     print("Test...")
     print("----------------------------\n")
-    txt = '''$.DISK[name == "/home" or not (name contains "/boot" and size > 100)].SIZE > 1000
-        and ($.DISK[name == "/home" or name contains '/boot' ].SIZE > 1500 and $.DISK[name == "/home" or name contains "/boot" ].SIZE < 99999)
+    txt = '''$.DISKS[name == "/home" or not (name contains "/boot" and size > 100)].CAPACITY{$this/$.CPU_LOGIC_CORES} > 1000
+        and ($.DISKS[name == "/home" or name contains '/boot' ].CAPACITY > 1500 and $.DISKS[name == "/home" or name contains "/boot" ].CAPACITY {$this/$.CPU_LOGIC_CORES} < 99999)
         '''
-    #txt = '''$[IS_VERTUAL==1].DISK[name == "/home"].SIZE > 1000 and $.DISK[].SIZE[] > 1500 or $.DISK[name == "/home1"].SIZE < 99999'''
+    #txt = '''$[IS_VERTUAL==1].DISKS[name == "/home"].CAPACITY > 1000 and $.DISKS[].CAPACITY[] > 1500 or $.DISKS[name == "/home1"].CAPACITY < 99999'''
 
     #ast = Parser(txt)
     #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
@@ -421,8 +580,10 @@ if __name__ == "__main__":
         data = json.load(f)
         f.close()
 
-    rule = '$.DISKS["USE%" contains "/dev/"].CAPACITY > 10'
-    ast = Parser(rule)
+    rule = '$.DISKS["NAME" contains "/dev/"].CAPACITY {$this/$.CPU_LOGIC_CORES} > 5 or $.MEM_AVAILABLE{$this/1000}>2'
+    rule1 = '$.MOUNT_POINTS.USED_PCT >= 80'
+    rule2 = '$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30'
+    ast = Parser(rule1)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
     interpreter = Interpreter(AST=ast.asList(), ruleName="测试", ruleLevel="L1", data=data)

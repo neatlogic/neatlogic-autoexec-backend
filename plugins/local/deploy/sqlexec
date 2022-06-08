@@ -149,11 +149,6 @@ sub main {
         $ENV{TOOLS_PATH}    = $toolsDir;
     }
 
-    my $sqlUploadDir = "$jobPath/file";
-    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
-    my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
-    my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
-
     my $dbExtArgs = {
         fileCharset => $charSet,
         autocommit  => $isAutoCommit,
@@ -172,7 +167,7 @@ sub main {
         if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
             my $host     = $sqlInfo->{host};
             my $port     = $sqlInfo->{port};
-            my $userName = $sqlInfo->{unsername};
+            my $userName = $sqlInfo->{username};
 
             my $sqlNodeInfo = {
                 resourceId     => $sqlInfo->{resourceId},
@@ -198,7 +193,7 @@ sub main {
             if ($@) {
                 my $errMsg = $@;
                 $errMsg =~ s/ at .*$//;
-                print("ERROR: Can not find password for $userName@$host:$port.\n$errMsg\n");
+                print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
                 $hasError = $hasError + 1;
             }
             $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
@@ -209,13 +204,19 @@ sub main {
         return $hasError;
     }
 
-    foreach my $sqlNodeInfo ( keys(%$sqlNodesMap) ) {
-        my $sqlFile  = $sqlNodeInfo->{sqlFile};
-        my $host     = $sqlNodeInfo->{host};
-        my $port     = $sqlNodeInfo->{port};
-        my $userName = $sqlNodeInfo->{unsername};
+    my $sqlUploadDir = "$jobPath/file";
+    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
 
-        print("INFO: Execute sql $sqlFile -> $userName@$host:$port\n");
+    foreach my $sqlNodeInfo ( values(%$sqlNodesMap) ) {
+        my $resourceId = $sqlNodeInfo->{resourceId};
+        my $host       = $sqlNodeInfo->{host};
+        my $port       = $sqlNodeInfo->{port};
+        my $userName   = $sqlNodeInfo->{username};
+
+        my $logFileDir   = "$jobPath/log/$phaseName/$host-$port-$resourceId";
+        my $sqlStatusDir = "$jobPath/status/$phaseName/$host-$port-$resourceId";
+
+        print("INFO: Execute sql filels -> $userName\@$host:$port\n");
         my $dbInfo = DBInfo->new( $sqlNodeInfo, $dbExtArgs );
 
         my $sqlFileRunner = SQLFileRunner->new(
@@ -246,11 +247,11 @@ sub main {
 
         if ( $rc != 0 ) {
             $hasError = $hasError + 1;
-            print("ERROR: Execute sql $sqlFile -> $userName@$host:$port failed.\n");
+            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n");
             last;
         }
         else {
-            print("INFO: Execute sql $sqlFile -> $userName@$host:$port success.\n");
+            print("INFO: Execute sql files -> $userName\@$host:$port success.\n");
         }
     }
 
