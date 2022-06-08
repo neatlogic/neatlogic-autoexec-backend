@@ -136,22 +136,19 @@ def Parser(ruleTxt):
     bareField = DOT + fieldName
     bareField.setParseAction(FieldTerm)
 
-    fieldDef = DOT + fieldName + pp.OneOrMore(fieldFilter | emptyFilter)
+    fieldDef = DOT + fieldName + pp.Optional(fieldFilter | emptyFilter)
     fieldDef.setParseAction(FieldTerm)
 
-    #query = thisDoc - pp.OneOrMore(DOT - fieldDef)
-    # query.setParseAction(QueryTerm)
-
-    pureQuery = thisDoc + pp.ZeroOrMore(fieldDef) + bareField
+    pureQuery = thisDoc + pp.ZeroOrMore(fieldDef)
     pureQuery.setParseAction(QueryTerm)
 
     fieldCalc = LCURLY - pp.infixNotation(this | pureQuery | value, calcOpList) - RCURLY
     fieldCalc.setParseAction(FieldCalcTerm)
 
-    lastField = DOT + fieldName + pp.Optional(fieldCalc)
+    lastField = DOT + fieldName + fieldCalc
     lastField.setParseAction(FieldTerm)
 
-    calcQuery = thisDoc + pp.ZeroOrMore(fieldDef) + lastField
+    calcQuery = thisDoc + pp.ZeroOrMore(fieldDef, stopOn=lastField) + lastField
     calcQuery.setParseAction(QueryTerm)
 
     ruleDef = pp.infixNotation(calcQuery | pureQuery | value, oplist)
@@ -584,7 +581,9 @@ if __name__ == "__main__":
         f.close()
 
     rule = '$.DISKS["NAME" contains "/dev/"].CAPACITY {$this/$.CPU_LOGIC_CORES} > 5 or $.MEM_AVAILABLE{$this/1000}>2'
-    ast = Parser(rule)
+    rule1 = '$.MOUNT_POINTS.USED_PCT >= 80'
+    rule2 = '$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30'
+    ast = Parser(rule1)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
     interpreter = Interpreter(AST=ast.asList(), ruleName="测试", ruleLevel="L1", data=data)
