@@ -25,7 +25,7 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
-        myDir        => $FindBin::Bin,
+        myDir        => $FindBin::Bin . '/lib',
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
         toolsDir     => $args{toolsDir},
