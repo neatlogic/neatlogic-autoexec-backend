@@ -25,6 +25,7 @@ sub new {
     my ( $type, %args ) = @_;
 
     my $self = {
+        myDir        => $FindBin::Bin,
         jobId        => $args{jobId},
         deployEnv    => $args{deployEnv},
         toolsDir     => $args{toolsDir},
@@ -305,9 +306,6 @@ sub execOneSqlFile {
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
 
-        my $handlerName = uc($dbType) . 'SQLRunner';
-        my $requireName = $handlerName . '.pm';
-
         print("#***************************************\n");
         print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
         print("# FILE=$sqlFile\n");
@@ -316,6 +314,25 @@ sub execOneSqlFile {
         print("# MD5=$sqlFileStatus->{status}->{md5}\n");
         print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
         print("#***************************************\n\n");
+
+        my $handlerName = $dbType . 'SQLRunner';
+        my $requireName = $handlerName . '.pm';
+
+        if ( not -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
+            if ( $dbType =~ s/DB$// ) {
+                if ( -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
+                    $dbInfo->{dbType} = $dbType;
+                    $handlerName      = $dbType . 'SQLRunner';
+                    $requireName      = $handlerName . '.pm';
+                }
+            }
+        }
+
+        if ( not -f $self->{myDir} . "/$requireName" ) {
+            $hasError = 2;
+            print("ERROR: Can not find runner ${dbType}SQLRunner or ${dbType}DBSQLRunner.\n");
+            exit($hasError);
+        }
 
         my $startTime = time();
         my $handler;
