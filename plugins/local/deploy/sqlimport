@@ -129,7 +129,7 @@ sub main {
     }
 
     my $sqlUploadDir = "$jobPath/file";
-    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
+    my $sqlFileDir   = "$jobPath/sqlfile/$targetPhase";
     my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
     my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
 

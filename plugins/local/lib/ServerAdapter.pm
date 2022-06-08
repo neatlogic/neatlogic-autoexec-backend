@@ -541,9 +541,9 @@ sub getSqlFileStatuses {
 
     #TODO: delete follow test lines
     #格式：
-    my $sqlInfoList = [];
+    #my $sqlInfoList = [];
 
-    return $sqlInfoList;
+    #return $sqlInfoList;
 
     #TODO: test lines end#####################3
 
