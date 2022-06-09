@@ -183,6 +183,8 @@ sub main {
                 my $pass = $serverAdapter->getAccountPwd(
                     jobId      => $jobId,
                     resourceid => $resourceId,
+                    nodeType   => $sqlInfo->{nodeType},
+                    nodeName   => $sqlInfo->{nodeName},
                     username   => $userName,
                     protocol   => 'database',
                     host       => $host,

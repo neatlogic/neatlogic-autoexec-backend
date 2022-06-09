@@ -1,5 +1,5 @@
 {
-    "opName": "演示Remote",
+    "opDesc": "演示Remote",
     "opType": "remote",
     "typeName": "BASIC",
     "riskName": "LOW",
@@ -14,8 +14,7 @@
         "isConst": "false",
         "required": "true"
     },
-    "option": [
-        {
+    "option": [{
             "opt": "tinput",
             "name": "普通输入",
             "help": "普通输入测试",
@@ -41,8 +40,7 @@
             "required": "false",
             "validate": "",
             "defaultValue": "sel1",
-            "dataSource": [
-                {
+            "dataSource": [{
                     "text": "选择1",
                     "value": "sel1"
                 },
@@ -59,8 +57,7 @@
             "type": "multiselect",
             "required": "false",
             "validate": "",
-            "defaultValue": [
-                {
+            "defaultValue": [{
                     "text": "选择1",
                     "value": "sel1"
                 },
@@ -73,8 +70,7 @@
                     "value": "sel3"
                 }
             ],
-            "dataSource": [
-                {
+            "dataSource": [{
                     "text": "选择1",
                     "value": "sel1"
                 },
@@ -143,8 +139,7 @@
             "defaultValue": ""
         }
     ],
-    "output": [
-        {
+    "output": [{
             "opt": "outtext",
             "name": "普通输出1",
             "help": "普通输出测试",

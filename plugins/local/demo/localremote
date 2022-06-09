@@ -37,12 +37,19 @@ sub main {
     );
 
     my $hasOptErr = 0;
+
     my $nodeObj;
-    if ( not defined($node) or $node eq '' ) {
-        $hasOptErr = 1;
+    if ( defined($node) and $node ne '' ) {
+        $nodeObj = from_json($node);
     }
     else {
-        $nodeObj = from_json($node);
+        my $nodeJson = $ENV{AUTOEXEC_NODE};
+        if ( defined($nodeJson) and $nodeJson ne '' ) {
+            $nodeObj = from_json($nodeJson);
+        }
+    }
+    if ( not defined($nodeObj) ) {
+        $hasOptErr = 1;
     }
 
     if ( not defined($tinput) or $tinput eq '' ) {
@@ -58,7 +65,8 @@ sub main {
 
     print("=========GetOptions:\n");
     if ( defined($nodeObj) ) {
-        print( "node:", to_json($nodeObj), "\n" );
+        $nodeObj->{password} = '********';
+        print( "execute for node:", to_json( $nodeObj, { pretty => 1 } ), "\n" );
     }
 
     print("tinput:$tinput\n");

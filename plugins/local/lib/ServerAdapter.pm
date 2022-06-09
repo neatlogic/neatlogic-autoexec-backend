@@ -37,7 +37,7 @@ sub new {
             'updateVer' => '',
 
             #环境制品状态：pending|succeed｜failed
-            'getAccount'            => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
+            'getAccountPwd'         => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
@@ -470,6 +470,8 @@ sub getAccountPwd {
     my $params = {
         jobId      => $args{jobId},
         resourceId => $args{resourceId},
+        nodeName   => $args{nodeName},
+        nodeType   => $args{nodeType},
         host       => $args{host},
         port       => $args{port},
         username   => $args{username},
@@ -478,7 +480,7 @@ sub getAccountPwd {
     };
 
     my $webCtl     = $self->{webCtl};
-    my $url        = $self->_getApiUrl('getAccount');
+    my $url        = $self->_getApiUrl('getAccountPwd');
     my $content    = $webCtl->postJson( $url, $params );
     my $pass       = $self->_getReturn($content);
     my $serverConf = $self->{serverConf};
