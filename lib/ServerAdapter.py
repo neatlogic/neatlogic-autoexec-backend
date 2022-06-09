@@ -120,7 +120,7 @@ class ServerAdapter:
                    'Tenant': self.context.tenant,
                    'Authorization': authToken, }
 
-        req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
+        req = urllib.request.Request(url, bytes(json.dumps(params, ensure_ascii=False), 'utf-8'))
         self.addHeaders(req, headers)
 
         try:

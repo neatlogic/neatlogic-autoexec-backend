@@ -265,7 +265,7 @@ if __name__ == "__main__":
     rule = '$MYVAR == "hello" and (-f "/tmp/test.txt" or -d "/tmp/tt")'
     ast = Parser(rule)
     if isinstance(ast, Operation):
-        print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+        print(json.dumps(ast.asList(), sort_keys=True, indent=4, ensure_ascii=False))
 
         interpreter = Interpreter()
         result = interpreter.resolve({}, AST=ast.asList())

@@ -340,7 +340,7 @@ class Operation:
 
             if val is not None:
                 if not isinstance(val, str):
-                    val = json.dumps(val)
+                    val = json.dumps(val, ensure_ascii=False)
                 optValue = optValue.replace(exp, val)
 
         return optValue

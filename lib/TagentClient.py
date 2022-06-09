@@ -371,7 +371,7 @@ class TagentClient:
 
         envJson = ''
         if env is not None:
-            envJson = json.dumps(env)
+            envJson = json.dumps(env, ensure_ascii=False)
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
@@ -431,7 +431,7 @@ class TagentClient:
 
         envJson = ''
         if env is not None:
-            envJson = json.dumps(env)
+            envJson = json.dumps(env, ensure_ascii=False)
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))

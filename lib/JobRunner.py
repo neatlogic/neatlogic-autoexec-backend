@@ -83,7 +83,7 @@ class ListenWorkThread(threading.Thread):
             return {'lockId': 0}
         else:
             lockInfo = self.globalLock.doLock(lockParams)
-            self.server.sendto(json.dumps(lockInfo), addr)
+            self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
@@ -167,7 +167,7 @@ class JobRunner:
             dstPath = '{}/nodes.json'.format(self.context.runPath)
             nodesFile = open(dstPath, 'w')
             for node in context.params['runNode']:
-                nodesFile.write(json.dumps(node))
+                nodesFile.write(json.dumps(node, ensure_ascii=False))
             nodesFile.close()
         elif nodesFile is None or nodesFile == '':
             # 如果命令行没有指定nodesfile参数，则通过作业id到服务端下载节点参数文件

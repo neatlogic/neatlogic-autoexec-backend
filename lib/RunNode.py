@@ -210,7 +210,7 @@ class RunNode:
             if self.statusFile is None:
                 self.statusFile = open(self.statusPath, 'a+')
             self.statusFile.truncate(0)
-            self.statusFile.write(json.dumps(self.statuses))
+            self.statusFile.write(json.dumps(self.statuses, ensure_ascii=False))
             self.statusFile.flush()
             self.outputStore.saveStatus(self.statuses)
         except Exception as ex:
@@ -230,7 +230,7 @@ class RunNode:
                         if retObj['Return']['hasFailNode'] == 1:
                             self.context.hasFailNodeInGlobal = True
                 else:
-                    self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj)))
+                    self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj, ensure_ascii=False)))
             except Exception as ex:
                 self.writeNodeLog('ERROR: Push status:{} to server, failed {}\n'.format(self.statusPath, ex))
 
@@ -674,7 +674,7 @@ class RunNode:
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
         environment['PERL5LIB'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PERL5LIB'))
         environment['AUTOEXEC_PHASE_NAME'] = self.phaseName
-        environment['AUTOEXEC_NODE'] = json.dumps(self.node)
+        environment['AUTOEXEC_NODE'] = json.dumps(self.node, ensure_ascii=False)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
         scriptFile = None
@@ -723,7 +723,7 @@ class RunNode:
         orgCmdLine = op.getCmdLine(fullPath=True)
         orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False)
 
-        # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node))
+        # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node, ensure_ascii=False))
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = os.environ.copy()
         environment['TERM'] = 'dumb'
@@ -737,7 +737,7 @@ class RunNode:
         environment['NODE_HOST'] = self.host
         environment['NODE_PORT'] = str(self.port)
         environment['NODE_NAME'] = self.name
-        environment['AUTOEXEC_NODE'] = json.dumps(self.node)
+        environment['AUTOEXEC_NODE'] = json.dumps(self.node, ensure_ascii=False)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
         scriptFile = None
@@ -794,7 +794,7 @@ class RunNode:
                 remotePath = remoteRoot + '/' + op.opBunddleName
                 runEnv = {
                     'AUTOEXEC_JOBID': self.context.jobId,
-                    'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword),
+                    'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                     'HISTSIZE': '0',
                     'NODE_HOST': self.host,
                     'NODE_PORT': str(self.port),
@@ -911,7 +911,7 @@ class RunNode:
             remoteRoot = '/tmp/' + jobDir
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
             remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
-                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword))
+                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
             remoteCmdHidePass = op.getCmdOptsHidePassword()
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
