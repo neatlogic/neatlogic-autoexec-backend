@@ -59,7 +59,9 @@ sub saveOutput {
             if ( $outputPDir ne '' and not -e $outputPDir ) {
                 mkdir($outputPDir);
             }
-            mkdir($outputDir);
+            if ( $outputDir ne '' ) {
+                mkdir($outputDir);
+            }
         }
 
         my $fh = IO::File->new(">$outputPath");

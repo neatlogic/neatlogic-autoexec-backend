@@ -77,7 +77,8 @@ def saveOutput(outputData):
             outputPDir = os.path.dirname(outputDir)
             if outputPDir != '' and not os.path.exists(outputPDir):
                 os.mkdir(outputPDir)
-            os.mkdir(outputDir)
+            if outputDir != '':
+                os.mkdir(outputDir)
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))
         outputFile.close()
