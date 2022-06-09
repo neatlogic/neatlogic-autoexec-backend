@@ -627,7 +627,8 @@ class RunNode:
                     hintKey = 'ERROR:'
 
             self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
-            self.writeNodeLog("{} ======[{}]{}:{} Ended, duration:{:.2f} second status:{}======\n".format(hintKey, self.id, self.host, self.port, nodeConsumeTime, finalStatus))
+            self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
+            self.writeNodeLog("======[{}]{}:{} Ended, duration:{:.2f} second ======\n".format(self.id, self.host, self.port, nodeConsumeTime))
 
             # 创建带时间戳的日志文件名
             finalLogPathWithTime = logPathWithTime
