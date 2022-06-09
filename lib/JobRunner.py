@@ -54,6 +54,7 @@ class ListenWorkThread(threading.Thread):
                         for phaseStatus in self.context.phases.values():
                             if phaseStatus.executor is not None:
                                 phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData['interact'])
+                                print("INFO: Node interact event recieved, processed.\n", end='')
                     elif actionData['action'] == 'informRoundContinue':
                         if 'phaseName' in actionData:
                             phaseName = actionData['phaseName']
@@ -61,17 +62,21 @@ class ListenWorkThread(threading.Thread):
                             if phaseName in self.context.phases:
                                 phaseStatus = self.context.phases[phaseName]
                                 phaseStatus.setGlobalRoundFinEvent(roundNo)
+                            print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end='')
                     elif actionData['action'] == 'setEnv':
                         self.context.setEnv(actionData['name'], actionData['value'])
+                        print("INFO: Set ENV variable({}) event recieved, processed.\n".format(actionData['name']), end='')
                     elif actionData['action'] == 'golbalLock':
                         _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
+                        print("INFO: Lock event recieved, lock params:{}.\n".format(actionData['lockParams']), end='')
                     elif actionData['action'] == 'golbalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
+                        print("INFO: Lock notify event recieved, lockId:{}.\n".format(actionData['lockId']), end='')
                     elif actionData['action'] == 'exit':
                         self.runnerListener.stop()
                         break
             except Exception as ex:
-                print('ERROR: Inform node status to waitInput failed, {}\n{}\n'.format(actionData, ex), end='')
+                print('ERROR: Process event:{} failed,\n{}\n'.format(actionData, ex), end='')
 
     def doLock(self, lockParams, addr):
         if self.context.devMode:
