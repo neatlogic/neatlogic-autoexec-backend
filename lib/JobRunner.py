@@ -50,7 +50,7 @@ class ListenWorkThread(threading.Thread):
                 actionData = json.loads(datagram.decode('utf-8'))
                 if actionData:
                     if actionData['action'] == 'informNodeWaitInput':
-                        resourceId = actionData['resourceId']
+                        resourceId = actionData.get('resourceId')
                         for phaseStatus in self.context.phases.values():
                             if phaseStatus.executor is not None:
                                 phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData['interact'])

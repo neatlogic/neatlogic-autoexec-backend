@@ -234,7 +234,7 @@ sub informNodeWaitInput {
 
     my $sockPath   = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
     my $phaseName  = $args{phaseName};
-    my $resoruceId = $args{resoruceId};
+    my $resourceId = $args{resourceId};
 
     if ( -e $sockPath ) {
         eval {
@@ -247,7 +247,7 @@ sub informNodeWaitInput {
             my $request = {};
             $request->{action}     = 'informNodeWaitInput';
             $request->{phaseName}  = $phaseName;
-            $request->{resoruceId} = $resoruceId;
+            $request->{resourceId} = $resourceId;
 
             if (    %args
                 and defined( $args{pipeFile} )

@@ -88,6 +88,10 @@ sub main {
         usage();
     }
 
+    if ( not defined( $nodeInfo->{resourceId} ) ) {
+        $nodeInfo->{resourceId} = 0;
+    }
+
     my $pipeFile = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
 
     AutoExecUtils::informNodeWaitInput(
