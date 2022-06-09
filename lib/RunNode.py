@@ -508,8 +508,8 @@ class RunNode:
                 opFinalStatus = NodeStatus.failed
                 hintKey = 'ERROR:'
 
-        self.writeNodeLog("{} Execute operation {} succeed.\n".format(hintKey, op.opName))
-        self.writeNodeLog("------END--[{}] {} execution -- duration: {:.2f} second Execute {} {}.\n\n".format(op.opId, op.opType, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
+        self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc[op.opType], opFinalStatus))
+        self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
         return opFinalStatus
 
