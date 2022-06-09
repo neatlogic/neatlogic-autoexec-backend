@@ -117,9 +117,8 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         self.server.bind(socketPath)
 
         while not self.goToStop:
-            actionData = None
             try:
-                datagram, addr = self.server.recv(8192)
+                datagram, addr = self.server.recvfrom(8192)
                 self.workQueue.put([datagram, addr])
 
                 if not datagram:
