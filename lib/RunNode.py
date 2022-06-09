@@ -439,7 +439,7 @@ class RunNode:
                 return
 
             startTime = time.time()
-            self.writeNodeLog("------START-- {} operation {}[{}] to be start...\n".format(op.opType, op.opName, op.opId))
+            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
 
             if op.opBunddleName == 'setenv':
                 if op.opSubName == 'export':
@@ -508,7 +508,8 @@ class RunNode:
                 opFinalStatus = NodeStatus.failed
                 hintKey = 'ERROR:'
 
-        self.writeNodeLog("{} ------END-- {} operation {}[{}] -- duration: {:.2f} second Execute {} {}.\n\n".format(hintKey, op.opType, op.opName, op.opId, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
+        self.writeNodeLog("{} Execute operation {} succeed.\n".format(hintKey, op.opName))
+        self.writeNodeLog("------END--[{}] {} execution {} -- duration: {:.2f} second Execute {} {}.\n\n".format(op.opId, op.opType, timeConsume, op.opTypeDesc[op.opType], opFinalStatus))
 
         return opFinalStatus
 
