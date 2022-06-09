@@ -56,7 +56,7 @@ sub saveOutput {
         my $outputDir = dirname($outputPath);
         if ( not -e $outputDir ) {
             my $outputPDir = dirname($outputDir);
-            if ( not -e $outputPDir ) {
+            if ( $outputPDir ne '' and not -e $outputPDir ) {
                 mkdir($outputPDir);
             }
             mkdir($outputDir);

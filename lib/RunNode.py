@@ -95,7 +95,7 @@ class RunNode:
         if 'resourceId' in node:
             self.resourceId = node['resourceId']
         else:
-            self.resourceId = ''
+            self.resourceId = 0
 
         if 'nodeName' in node:
             self.name = node['nodeName']
@@ -112,7 +112,8 @@ class RunNode:
             self.protocolPort = node['protocolPort']
         else:
             self.protocolPort = ''
-        self.id = node['resourceId']
+
+        self.id = self.resourceId
         self.username = node['username']
         self.password = node['password']
 

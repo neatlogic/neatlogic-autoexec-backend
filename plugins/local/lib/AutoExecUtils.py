@@ -75,7 +75,7 @@ def saveOutput(outputData):
         outputDir = os.path.dirname(outputPath)
         if not os.path.exists(outputDir):
             outputPDir = os.path.dirname(outputDir)
-            if not os.path.exists(outputPDir):
+            if outputPDir != '' and not os.path.exists(outputPDir):
                 os.mkdir(outputPDir)
             os.mkdir(outputDir)
         outputFile = open(outputPath, 'w')
