@@ -21,7 +21,7 @@
             "name": "超时时间",
             "help": "查询超时时间，单位秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "10"
         },
@@ -32,122 +32,67 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": [
-                {
-                    "text": "EMC_Vnx",
-                    "value": "EMC_Vnx"
-                },
-                {
-                    "text": "EMC_Vplex",
-                    "value": "EMC_Vplex"
-                },
-                {
-                    "text": "EMC_RPA",
-                    "value": "EMC_RPA"
-                },
-                {
-                    "text": "HP_3PAR",
-                    "value": "HP_3PAR"
-                },
-                {
-                    "text": "HDS_AMS",
-                    "value": "HDS_AMS"
-                },
-                {
-                    "text": "HDS_VSP",
-                    "value": "HDS_VSP"
-                },
-                {
-                    "text": "HuaWei",
-                    "value": "HuaWei"
-                },
-                {
-                    "text": "IBM_DS",
-                    "value": "IBM_DS"
-                },
-                {
-                    "text": "IBM_F900",
-                    "value": "IBM_F900"
-                },
-                {
-                    "text": "IBM_Flash",
-                    "value": "IBM_Flash"
-                },
-                {
-                    "text": "IBM_SVC",
-                    "value": "IBM_SVC"
-                },
-                {
-                    "text": "IBM_V7000",
-                    "value": "IBM_V7000"
-                },
-                {
-                    "text": "NetApp",
-                    "value": "NetApp"
-                },
-                {
-                    "text": "FUJITSU/浪潮OEM",
-                    "value": "FUJITSU"
-                }
-            ],
-            "dataSource": [
-                {
-                    "text": "EMC_Vnx",
-                    "value": "EMC_Vnx"
-                },
-                {
-                    "text": "EMC_Vplex",
-                    "value": "EMC_Vplex"
-                },
-                {
-                    "text": "EMC_RPA",
-                    "value": "EMC_RPA"
-                },
-                {
-                    "text": "HP_3PAR",
-                    "value": "HP_3PAR"
-                },
-                {
-                    "text": "HDS_AMS",
-                    "value": "HDS_AMS"
-                },
-                {
-                    "text": "HDS_VSP",
-                    "value": "HDS_VSP"
-                },
-                {
-                    "text": "HuaWei",
-                    "value": "HuaWei"
-                },
-                {
-                    "text": "IBM_DS",
-                    "value": "IBM_DS"
-                },
-                {
-                    "text": "IBM_F900",
-                    "value": "IBM_F900"
-                },
-                {
-                    "text": "IBM_Flash",
-                    "value": "IBM_Flash"
-                },
-                {
-                    "text": "IBM_SVC",
-                    "value": "IBM_SVC"
-                },
-                {
-                    "text": "IBM_V7000",
-                    "value": "IBM_V7000"
-                },
-                {
-                    "text": "NetApp",
-                    "value": "NetApp"
-                },
-                {
-                    "text": "FUJITSU/浪潮OEM",
-                    "value": "FUJITSU"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "EMC_Vnx",
+                        "value": "EMC_Vnx"
+                    },
+                    {
+                        "text": "EMC_Vplex",
+                        "value": "EMC_Vplex"
+                    },
+                    {
+                        "text": "EMC_RPA",
+                        "value": "EMC_RPA"
+                    },
+                    {
+                        "text": "HP_3PAR",
+                        "value": "HP_3PAR"
+                    },
+                    {
+                        "text": "HDS_AMS",
+                        "value": "HDS_AMS"
+                    },
+                    {
+                        "text": "HDS_VSP",
+                        "value": "HDS_VSP"
+                    },
+                    {
+                        "text": "HuaWei",
+                        "value": "HuaWei"
+                    },
+                    {
+                        "text": "IBM_DS",
+                        "value": "IBM_DS"
+                    },
+                    {
+                        "text": "IBM_F900",
+                        "value": "IBM_F900"
+                    },
+                    {
+                        "text": "IBM_Flash",
+                        "value": "IBM_Flash"
+                    },
+                    {
+                        "text": "IBM_SVC",
+                        "value": "IBM_SVC"
+                    },
+                    {
+                        "text": "IBM_V7000",
+                        "value": "IBM_V7000"
+                    },
+                    {
+                        "text": "NetApp",
+                        "value": "NetApp"
+                    },
+                    {
+                        "text": "FUJITSU/浪潮OEM",
+                        "value": "FUJITSU"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "inspect",
@@ -156,17 +101,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "不采集",
-                    "value": "0"
-                },
-                {
-                    "text": "采集",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "verbose",
@@ -175,17 +122,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "不回显",
-                    "value": "0"
-                },
-                {
-                    "text": "回显",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": [

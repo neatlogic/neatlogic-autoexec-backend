@@ -40,7 +40,7 @@
             "name": "目标路径",
             "help": "需要创建作业的应用系统路径, 例如: MY-SYS/MY-MODULE/SIT",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${NAME_PATH}"
         },
@@ -49,7 +49,7 @@
             "name": "目标版本",
             "help": "需要创建作业的应用系统目标版本",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${VERSION}"
         },
@@ -60,17 +60,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "plantime",
@@ -88,17 +90,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "wait",
@@ -107,17 +111,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "round",

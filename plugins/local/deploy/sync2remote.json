@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "ostype",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "windows",
-            "dataSource": [
-                {
-                    "text": "Unix｜Linux",
-                    "value": "unix"
-                },
-                {
-                    "text": "Windows",
-                    "value": "windows"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Unix｜Linux",
+                        "value": "unix"
+                    },
+                    {
+                        "text": "Windows",
+                        "value": "windows"
+                    }
+                ]
+            },
+            "defaultValue": "windows"
         },
         {
             "opt": "agenttype",
@@ -53,143 +57,157 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "agentless",
-            "dataSource": [
-                {
-                    "text": "无Agent",
-                    "value": "agentless"
-                },
-                {
-                    "text": "Tagent",
-                    "value": "tagent"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "无Agent",
+                        "value": "agentless"
+                    },
+                    {
+                        "text": "Tagent",
+                        "value": "tagent"
+                    }
+                ]
+            },
+            "defaultValue": "agentless"
         },
         {
             "opt": "pdir",
             "name": "基础目录",
             "help": "相对于应用数据目录的基础目录类别",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "distribute",
-            "dataSource": [
-                {
-                    "text": "环境制品目录",
-                    "value": "distribute"
-                },
-                {
-                    "text": "版本制品目录",
-                    "value": "release"
-                },
-                {
-                    "text": "环境镜像制品",
-                    "value": "mirror"
-                },
-                {
-                    "text": "工程目录",
-                    "value": "project"
-                },
-                {
-                    "text": "根目录",
-                    "value": "approot"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "环境制品目录",
+                        "value": "distribute"
+                    },
+                    {
+                        "text": "版本制品目录",
+                        "value": "release"
+                    },
+                    {
+                        "text": "环境镜像制品",
+                        "value": "mirror"
+                    },
+                    {
+                        "text": "工程目录",
+                        "value": "project"
+                    },
+                    {
+                        "text": "根目录",
+                        "value": "approot"
+                    }
+                ]
+            },
+            "defaultValue": "distribute"
         },
         {
             "opt": "nodelete",
             "name": "删除多出内容",
             "help": "删除目标目录多出的文件或子目录",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "noattrs",
             "name": "同步文件权限",
             "help": "把源目录下的文件和子目录的权限同步到目标目录",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "followlinks",
             "name": "FollowLinks",
             "help": "把软连接当作普通目录文件",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "addexecfornewfile",
             "name": "加执行权限",
             "help": "对新增的文件，主动赋予执行权限",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "pull",
             "name": "拷贝方式",
             "help": "拷贝方向",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "远程拷贝到本地",
-                    "value": "1"
-                },
-                {
-                    "text": "本地拷贝到远程",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "远程拷贝到本地",
+                        "value": "1"
+                    },
+                    {
+                        "text": "本地拷贝到远程",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "exp",

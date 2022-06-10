@@ -12,30 +12,27 @@
             "name": "node",
             "help": "",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "must",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "backupdir",
             "name": "备份存放目录",
             "help": "如：/tmp/config,目录不存在会自动创建",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "",
             "required": "true",
-            "validate": ""
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",
             "name": "连接超时时间",
             "help": "默认是3秒",
             "type": "text",
-            "isConst": "false",
-            "defaultValue": "3",
-            "required": "false",
-            "validate": ""
+            "required": "true",
+            "validate": "",
+            "defaultValue": "3"
         }
     ],
     "output": []

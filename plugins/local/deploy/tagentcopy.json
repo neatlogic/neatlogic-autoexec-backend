@@ -15,124 +15,136 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "pdir",
             "name": "基础目录",
             "help": "相对于应用数据目录的基础目录类别",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "distribute",
-            "dataSource": [
-                {
-                    "text": "环境制品目录",
-                    "value": "distribute"
-                },
-                {
-                    "text": "版本制品目录",
-                    "value": "release"
-                },
-                {
-                    "text": "环境镜像制品",
-                    "value": "mirror"
-                },
-                {
-                    "text": "工程目录",
-                    "value": "project"
-                },
-                {
-                    "text": "根目录",
-                    "value": "approot"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "环境制品目录",
+                        "value": "distribute"
+                    },
+                    {
+                        "text": "版本制品目录",
+                        "value": "release"
+                    },
+                    {
+                        "text": "环境镜像制品",
+                        "value": "mirror"
+                    },
+                    {
+                        "text": "工程目录",
+                        "value": "project"
+                    },
+                    {
+                        "text": "根目录",
+                        "value": "approot"
+                    }
+                ]
+            },
+            "defaultValue": "distribute"
         },
         {
             "opt": "cpifexists",
             "name": "当文件存在时才拷贝",
             "help": "当本地文件存在时，才执行拷贝",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "pull",
             "name": "拷贝方向",
             "help": "拷贝方向",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "远程到本地",
-                    "value": "1"
-                },
-                {
-                    "text": "本地到远程",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "远程到本地",
+                        "value": "1"
+                    },
+                    {
+                        "text": "本地到远程",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "followlinks",
             "name": "FollowLinks",
             "help": "把软连接当作普通目录文件",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "np",
             "name": "保留权限属性",
             "help": "同时拷贝文件的属性和权限",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "exp",

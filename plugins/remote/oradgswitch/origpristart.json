@@ -32,17 +32,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": []

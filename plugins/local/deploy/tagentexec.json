@@ -15,24 +15,26 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "timeout",
             "name": "超时时间",
             "help": "调用超时时间（秒）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "15"
         },
@@ -50,42 +52,46 @@
             "name": "异步执行",
             "help": "异步执行，不等待执行结束",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "agentcharset",
             "name": "服务端字符集",
             "help": "指定服务端的执行字符集",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "zh_CN.GBK",
-                    "value": "zh_CN.GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "zh_CN.GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
         }
     ],
     "argument": {

@@ -50,17 +50,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "不回显",
-                    "value": "0"
-                },
-                {
-                    "text": "回显",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": [

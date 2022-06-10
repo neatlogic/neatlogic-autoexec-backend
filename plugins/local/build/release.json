@@ -15,24 +15,26 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "dbdir",
             "name": "DB目录",
             "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "db"
         },
@@ -41,7 +43,7 @@
             "name": "DOC目录",
             "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "doc"
         },
@@ -70,17 +72,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "argument": {

@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "LANG",
@@ -34,25 +36,27 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "zh_CN.GBK",
-                    "value": "en_US.GBK"
-                },
-                {
-                    "text": "zh_CN.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "LC_ALL",
@@ -61,32 +65,34 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "zh_CN.GBK",
-                    "value": "en_US.GBK"
-                },
-                {
-                    "text": "zh_CN.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "umask",
             "name": "umask",
             "help": "umask设置，如果留空则不对umask进行修改，例如：0022",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "0022"
         },
@@ -97,73 +103,75 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "admin-start",
-            "dataSource": [
-                {
-                    "text": "admin-start",
-                    "value": "admin-start"
-                },
-                {
-                    "text": "admin-stop",
-                    "value": "admin-stop"
-                },
-                {
-                    "text": "app-start",
-                    "value": "app-start"
-                },
-                {
-                    "text": "app-stop",
-                    "value": "app-stop"
-                },
-                {
-                    "text": "check",
-                    "value": "check"
-                },
-                {
-                    "text": "clean",
-                    "value": "clean"
-                },
-                {
-                    "text": "clean-extract",
-                    "value": "clean-extract"
-                },
-                {
-                    "text": "deploy",
-                    "value": "deploy"
-                },
-                {
-                    "text": "extract",
-                    "value": "extract"
-                },
-                {
-                    "text": "node-start",
-                    "value": "node-start"
-                },
-                {
-                    "text": "node-stop",
-                    "value": "node-stop"
-                },
-                {
-                    "text": "patch",
-                    "value": "patch"
-                },
-                {
-                    "text": "start",
-                    "value": "start"
-                },
-                {
-                    "text": "stop",
-                    "value": "stop"
-                },
-                {
-                    "text": "undeploy",
-                    "value": "undeploy"
-                },
-                {
-                    "text": "unpatch",
-                    "value": "unpatch"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "admin-start",
+                        "value": "admin-start"
+                    },
+                    {
+                        "text": "admin-stop",
+                        "value": "admin-stop"
+                    },
+                    {
+                        "text": "app-start",
+                        "value": "app-start"
+                    },
+                    {
+                        "text": "app-stop",
+                        "value": "app-stop"
+                    },
+                    {
+                        "text": "check",
+                        "value": "check"
+                    },
+                    {
+                        "text": "clean",
+                        "value": "clean"
+                    },
+                    {
+                        "text": "clean-extract",
+                        "value": "clean-extract"
+                    },
+                    {
+                        "text": "deploy",
+                        "value": "deploy"
+                    },
+                    {
+                        "text": "extract",
+                        "value": "extract"
+                    },
+                    {
+                        "text": "node-start",
+                        "value": "node-start"
+                    },
+                    {
+                        "text": "node-stop",
+                        "value": "node-stop"
+                    },
+                    {
+                        "text": "patch",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "stop",
+                        "value": "stop"
+                    },
+                    {
+                        "text": "undeploy",
+                        "value": "undeploy"
+                    },
+                    {
+                        "text": "unpatch",
+                        "value": "unpatch"
+                    }
+                ]
+            },
+            "defaultValue": "admin-start"
         },
         {
             "opt": "java_home",
@@ -214,7 +222,7 @@
             "name": "启动超时",
             "help": "启动超时时间（秒），默认180秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "180"
         },
         {
@@ -222,7 +230,7 @@
             "name": "停止超时",
             "help": "停止超时时间（秒），默认180秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "180"
         },
         {
@@ -230,36 +238,40 @@
             "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
             "type": "radio",
-            "required": "false",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "need_deploy",
             "name": "新应用自动部署",
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "radio",
-            "required": "false",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "servername",
@@ -307,17 +319,19 @@
             "help": "部署模式，nostage代表Managed server不会从admin server下载应用，而是需要在所有Server上同构的目录上上传应用，建议使用nostage模式，否则每次重启都要从Admin Server下载应用",
             "type": "select",
             "required": "true",
-            "defaultValue": "nostage",
-            "dataSource": [
-                {
-                    "text": "nostage",
-                    "value": "nostage"
-                },
-                {
-                    "text": "stage",
-                    "value": "stage"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "nostage",
+                        "value": "nostage"
+                    },
+                    {
+                        "text": "stage",
+                        "value": "stage"
+                    }
+                ]
+            },
+            "defaultValue": "nostage"
         },
         {
             "opt": "checkurl",
@@ -340,7 +354,7 @@
             "name": "日志单文件大小",
             "help": "控制台输出日志，单文件最大的大小（单位M），默认是2048M",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "2048"
         },
         {
@@ -348,7 +362,7 @@
             "name": "最大日志数量",
             "help": "控制台输出日志最大的文件数，超过会自动清理",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "123"
         },
         {
@@ -356,7 +370,7 @@
             "name": "日志最大保留天数",
             "help": "控制台输出日志最大保留天数，超过会自动清理",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "93"
         },
         {
@@ -372,7 +386,7 @@
             "name": "JAVA参数",
             "help": "JAVA扩展参数，用于设置JAVA扩展参数",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "-Djava.security.egd=file:/dev/./urandom"
         }
     ],

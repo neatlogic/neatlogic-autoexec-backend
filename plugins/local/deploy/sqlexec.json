@@ -24,21 +24,23 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动识别",
-                    "value": ""
-                },
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GBK",
-                    "value": "GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动识别",
+                        "value": ""
+                    },
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "dryrun",
@@ -47,17 +49,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "force",
@@ -66,17 +70,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "autocommit",
@@ -85,17 +91,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "dbargs",

@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "baseurl",
@@ -61,17 +63,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "tags",
-            "dataSource": [
-                {
-                    "text": "tags",
-                    "value": "tags"
-                },
-                {
-                    "text": "branches",
-                    "value": "branches"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "tags",
+                        "value": "tags"
+                    },
+                    {
+                        "text": "branches",
+                        "value": "branches"
+                    }
+                ]
+            },
+            "defaultValue": "tags"
         },
         {
             "opt": "pattern",
@@ -89,17 +93,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "add",
-            "dataSource": [
-                {
-                    "text": "添加",
-                    "value": "add"
-                },
-                {
-                    "text": "删除",
-                    "value": "delete"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "添加",
+                        "value": "add"
+                    },
+                    {
+                        "text": "删除",
+                        "value": "delete"
+                    }
+                ]
+            },
+            "defaultValue": "add"
         }
     ],
     "output": []

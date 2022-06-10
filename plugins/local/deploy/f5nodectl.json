@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "baseurl",
@@ -41,7 +43,7 @@
             "name": "用户名",
             "help": "访问仓库的用户名",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${global:git.user}"
         },
@@ -50,7 +52,7 @@
             "name": "密码",
             "help": "访问仓库的密码",
             "type": "password",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${global:git.password}"
         },
@@ -70,17 +72,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "disable",
-            "dataSource": [
-                {
-                    "text": "Disable",
-                    "value": "disable"
-                },
-                {
-                    "text": "enable",
-                    "value": "enable"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Disable",
+                        "value": "disable"
+                    },
+                    {
+                        "text": "enable",
+                        "value": "enable"
+                    }
+                ]
+            },
+            "defaultValue": "disable"
         },
         {
             "opt": "waitdisconnected",
@@ -89,24 +93,26 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "timeout",
             "name": "超时",
             "help": "调用超时时间（秒）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "15"
         }

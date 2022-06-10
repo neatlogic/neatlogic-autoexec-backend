@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "jdk",
@@ -34,29 +36,31 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "jdk1.8",
-                    "value": "jdk1.8"
-                },
-                {
-                    "text": "jdk1.7",
-                    "value": "jdk1.7"
-                },
-                {
-                    "text": "jdk1.6",
-                    "value": "jdk1.6"
-                },
-                {
-                    "text": "jdk1.5",
-                    "value": "jdk1.5"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "jenkins",
@@ -65,24 +69,26 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "jenkins1.8",
-                    "value": "jdk1.8"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jenkins1.8",
+                        "value": "jdk1.8"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "baseurl",
             "name": "Jenkins地址",
             "help": "Jenkins调用URL地址，例如：",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${global:jenkins.baseurl}"
         },
@@ -120,17 +126,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         }
     ],
     "argument": {

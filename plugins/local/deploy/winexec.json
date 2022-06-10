@@ -15,36 +15,40 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "protocol",
             "name": "协议",
             "help": "WinRM使用的协议",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "https",
-            "dataSource": [
-                {
-                    "text": "http",
-                    "value": "http"
-                },
-                {
-                    "text": "https",
-                    "value": "https"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "http",
+                        "value": "http"
+                    },
+                    {
+                        "text": "https",
+                        "value": "https"
+                    }
+                ]
+            },
+            "defaultValue": "https"
         }
     ],
     "argument": {

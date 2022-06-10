@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "baseurl",
@@ -70,21 +72,23 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "Java",
-            "dataSource": [
-                {
-                    "text": "Java",
-                    "value": "Java"
-                },
-                {
-                    "text": "C",
-                    "value": "C"
-                },
-                {
-                    "text": "C++",
-                    "value": "C++"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Java",
+                        "value": "Java"
+                    },
+                    {
+                        "text": "C",
+                        "value": "C"
+                    },
+                    {
+                        "text": "C++",
+                        "value": "C++"
+                    }
+                ]
+            },
+            "defaultValue": "Java"
         },
         {
             "opt": "编码",
@@ -93,17 +97,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "GBK",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GBK",
-                    "value": "GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "GBK"
         },
         {
             "opt": "level",
@@ -112,17 +118,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "critical",
-            "dataSource": [
-                {
-                    "text": "critical",
-                    "value": "critical"
-                },
-                {
-                    "text": "blocker",
-                    "value": "blocker"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "critical",
+                        "value": "critical"
+                    },
+                    {
+                        "text": "blocker",
+                        "value": "blocker"
+                    }
+                ]
+            },
+            "defaultValue": "critical"
         },
         {
             "opt": "threshold",

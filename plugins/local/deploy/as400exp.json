@@ -15,24 +15,26 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "libs",
             "name": "AS400LIB",
             "help": "AS400的LIB名称, 多个逗号相隔, 例如: USRLIB,SYSLIB",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "USRLIB"
         },
@@ -43,24 +45,26 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "1208",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "1208"
-                },
-                {
-                    "text": "GBK",
-                    "value": "1386"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "1208"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "1386"
+                    }
+                ]
+            },
+            "defaultValue": "1208"
         },
         {
             "opt": "timeout",
             "name": "超时时间",
             "help": "调用超时时间（秒）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "15"
         }

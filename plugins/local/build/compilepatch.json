@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "lang",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "en_US.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "type",
@@ -53,25 +57,27 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "maven",
-            "dataSource": [
-                {
-                    "text": "maven",
-                    "value": "maven"
-                },
-                {
-                    "text": "ant",
-                    "value": "ant"
-                },
-                {
-                    "text": "gradle",
-                    "value": "gradle"
-                },
-                {
-                    "text": "npm",
-                    "value": "npm"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "maven",
+                        "value": "maven"
+                    },
+                    {
+                        "text": "ant",
+                        "value": "ant"
+                    },
+                    {
+                        "text": "gradle",
+                        "value": "gradle"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    }
+                ]
+            },
+            "defaultValue": "maven"
         },
         {
             "opt": "jdk",
@@ -80,29 +86,31 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "jdk1.8",
-                    "value": "jdk1.8"
-                },
-                {
-                    "text": "jdk1.7",
-                    "value": "jdk1.7"
-                },
-                {
-                    "text": "jdk1.6",
-                    "value": "jdk1.6"
-                },
-                {
-                    "text": "jdk1.5",
-                    "value": "jdk1.5"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "args",
@@ -154,7 +162,7 @@
             "name": "增量保存目录",
             "help": "相对工程根的子目录，用于保存diff出来的文件和目录",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "build.diff"
         },
@@ -163,7 +171,7 @@
             "name": "Java代码目录",
             "help": "例如：src,*/src",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "src"
         },
@@ -172,7 +180,7 @@
             "name": "测试Java代码目录",
             "help": "例如：src/test",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "src/test"
         },
@@ -181,7 +189,7 @@
             "name": "WEB代码目录",
             "help": "存放WEB源码的目录，例如：src/main/webapp",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "src/main/webapp"
         },
@@ -190,7 +198,7 @@
             "name": "WEB发布目录",
             "help": "WEB文件最终打包的目录，例如：WebContent",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "src/main/webapp"
         },
@@ -199,7 +207,7 @@
             "name": "编译输出目录",
             "help": "例如：target/webapp/WEB-INF/classes,*/target/webapp/WEB-INF/classes",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "target/webapp/WEB-INF/classes"
         },
@@ -208,19 +216,21 @@
             "name": "强制编译",
             "help": "不管是否有增量修改，都执行编译",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": []

@@ -14,25 +14,27 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "button",
-            "dataSource": [
-                {
-                    "text": "按钮",
-                    "value": "button"
-                },
-                {
-                    "text": "下拉选择",
-                    "value": "select"
-                },
-                {
-                    "text": "下拉多项选择",
-                    "value": "mselect"
-                },
-                {
-                    "text": "输入",
-                    "value": "input"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "按钮",
+                        "value": "button"
+                    },
+                    {
+                        "text": "下拉选择",
+                        "value": "select"
+                    },
+                    {
+                        "text": "下拉多项选择",
+                        "value": "mselect"
+                    },
+                    {
+                        "text": "输入",
+                        "value": "input"
+                    }
+                ]
+            },
+            "defaultValue": "button"
         },
         {
             "opt": "optionsjson",

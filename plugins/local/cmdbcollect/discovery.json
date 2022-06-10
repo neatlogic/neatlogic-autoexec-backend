@@ -21,7 +21,7 @@
             "name": "端口列表",
             "help": "扫描的的端口列表, 例如: 22,161,135,139,445,3389,3939",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "22,161,135,139,445,3389,3939"
         },
@@ -30,7 +30,7 @@
             "name": "SNMP端口",
             "help": "SNMP端口号",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "161"
         },
@@ -39,7 +39,7 @@
             "name": "团体字",
             "help": "扫描用的SNMP团体字JSON数组",
             "type": "json",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "[\"public\",\"mary\"]"
         },
@@ -48,7 +48,7 @@
             "name": "WORKER数量",
             "help": "WOKER线程数量",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "16"
         },
@@ -57,31 +57,33 @@
             "name": "速度级别",
             "help": "1最慢,5最快",
             "type": "select",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "4",
-            "dataSource": [
-                {
-                    "text": "1",
-                    "value": "1"
-                },
-                {
-                    "text": "2",
-                    "value": "2"
-                },
-                {
-                    "text": "3",
-                    "value": "3"
-                },
-                {
-                    "text": "4",
-                    "value": "4"
-                },
-                {
-                    "text": "5",
-                    "value": "5"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "1",
+                        "value": "1"
+                    },
+                    {
+                        "text": "2",
+                        "value": "2"
+                    },
+                    {
+                        "text": "3",
+                        "value": "3"
+                    },
+                    {
+                        "text": "4",
+                        "value": "4"
+                    },
+                    {
+                        "text": "5",
+                        "value": "5"
+                    }
+                ]
+            },
+            "defaultValue": "4"
         }
     ],
     "output": [

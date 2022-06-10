@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "nomd5",
@@ -34,17 +36,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "nodelete",
@@ -53,17 +57,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "noattrs",
@@ -72,17 +78,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "notime",
@@ -91,17 +99,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "0"
-                },
-                {
-                    "text": "否",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "exp",

@@ -15,24 +15,26 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "maxparallel",
             "name": "最大并行",
             "help": "可以同时运行的SQL的最大并行运行数量",
             "type": "text",
-            "required": "",
+            "required": "true",
             "validate": "",
             "defaultValue": "1"
         },
@@ -41,7 +43,7 @@
             "name": "扩展名",
             "help": "逗号相隔的SQL扩展名，例如：sql,prc,pck,pkg,pkgh,pkgb",
             "type": "text",
-            "required": "",
+            "required": "true",
             "validate": "",
             "defaultValue": "${global:sql.extnames}"
         },
@@ -52,17 +54,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "force",
@@ -71,17 +75,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "autocommit",
@@ -90,17 +96,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "rollback",
@@ -109,17 +117,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "filter",
@@ -135,7 +145,7 @@
             "name": "SQL顺序文件",
             "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "index.txt"
         }

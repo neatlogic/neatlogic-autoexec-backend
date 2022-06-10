@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "lang",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "en_US.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "type",
@@ -53,25 +57,27 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "maven",
-            "dataSource": [
-                {
-                    "text": "maven",
-                    "value": "maven"
-                },
-                {
-                    "text": "ant",
-                    "value": "ant"
-                },
-                {
-                    "text": "gradle",
-                    "value": "gradle"
-                },
-                {
-                    "text": "npm",
-                    "value": "npm"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "maven",
+                        "value": "maven"
+                    },
+                    {
+                        "text": "ant",
+                        "value": "ant"
+                    },
+                    {
+                        "text": "gradle",
+                        "value": "gradle"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    }
+                ]
+            },
+            "defaultValue": "maven"
         },
         {
             "opt": "jdk",
@@ -80,29 +86,31 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "jdk1.8",
-                    "value": "jdk1.8"
-                },
-                {
-                    "text": "jdk1.7",
-                    "value": "jdk1.7"
-                },
-                {
-                    "text": "jdk1.6",
-                    "value": "jdk1.6"
-                },
-                {
-                    "text": "jdk1.5",
-                    "value": "jdk1.5"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
         },
         {
             "opt": "args",

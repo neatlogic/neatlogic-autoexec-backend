@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "LANG",
@@ -34,25 +36,27 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "zh_CN.GBK",
-                    "value": "en_US.GBK"
-                },
-                {
-                    "text": "zh_CN.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "LC_ALL",
@@ -61,32 +65,34 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "自动",
-                    "value": ""
-                },
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "zh_CN.GBK",
-                    "value": "en_US.GBK"
-                },
-                {
-                    "text": "zh_CN.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "umask",
             "name": "umask",
             "help": "umask设置，如果留空则不对umask进行修改，例如：0022",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "0022"
         },
@@ -97,73 +103,75 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "app-start",
-            "dataSource": [
-                {
-                    "text": "app-start",
-                    "value": "app-start"
-                },
-                {
-                    "text": "app-stop",
-                    "value": "app-stop"
-                },
-                {
-                    "text": "check",
-                    "value": "check"
-                },
-                {
-                    "text": "clean-extract",
-                    "value": "clean-extract"
-                },
-                {
-                    "text": "cluster-start",
-                    "value": "cluster-start"
-                },
-                {
-                    "text": "cluster-stop",
-                    "value": "cluster-stop"
-                },
-                {
-                    "text": "dmgr-start",
-                    "value": "dmgr-start"
-                },
-                {
-                    "text": "dmgr-stop",
-                    "value": "dmgr-stop"
-                },
-                {
-                    "text": "extract",
-                    "value": "extract"
-                },
-                {
-                    "text": "node-start",
-                    "value": "node-start"
-                },
-                {
-                    "text": "node-stop",
-                    "value": "node-stop"
-                },
-                {
-                    "text": "patch",
-                    "value": "patch"
-                },
-                {
-                    "text": "start",
-                    "value": "start"
-                },
-                {
-                    "text": "stop",
-                    "value": "stop"
-                },
-                {
-                    "text": "unpatch",
-                    "value": "unpatch"
-                },
-                {
-                    "text": "update",
-                    "value": "update"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "app-start",
+                        "value": "app-start"
+                    },
+                    {
+                        "text": "app-stop",
+                        "value": "app-stop"
+                    },
+                    {
+                        "text": "check",
+                        "value": "check"
+                    },
+                    {
+                        "text": "clean-extract",
+                        "value": "clean-extract"
+                    },
+                    {
+                        "text": "cluster-start",
+                        "value": "cluster-start"
+                    },
+                    {
+                        "text": "cluster-stop",
+                        "value": "cluster-stop"
+                    },
+                    {
+                        "text": "dmgr-start",
+                        "value": "dmgr-start"
+                    },
+                    {
+                        "text": "dmgr-stop",
+                        "value": "dmgr-stop"
+                    },
+                    {
+                        "text": "extract",
+                        "value": "extract"
+                    },
+                    {
+                        "text": "node-start",
+                        "value": "node-start"
+                    },
+                    {
+                        "text": "node-stop",
+                        "value": "node-stop"
+                    },
+                    {
+                        "text": "patch",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "stop",
+                        "value": "stop"
+                    },
+                    {
+                        "text": "unpatch",
+                        "value": "unpatch"
+                    },
+                    {
+                        "text": "update",
+                        "value": "update"
+                    }
+                ]
+            },
+            "defaultValue": "app-start"
         },
         {
             "opt": "was_profile",
@@ -188,7 +196,7 @@
             "name": "WAS用户名",
             "help": "WAS用户名",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "wasadmin"
         },
         {
@@ -204,7 +212,7 @@
             "name": "DMGR Profile",
             "help": "DMRG的Profile目录，如果没有部署则留空，例如：/opt/IBM/WebSphere/profiles/dmgr",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "/opt/IBM/WebSphere/profiles/dmgr"
         },
         {
@@ -212,7 +220,7 @@
             "name": "启动超时",
             "help": "启动超时时间（秒），默认180秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "180"
         },
         {
@@ -220,7 +228,7 @@
             "name": "停止超时",
             "help": "停止超时时间（秒），默认180秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "180"
         },
         {
@@ -228,36 +236,40 @@
             "name": "独立运行",
             "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
             "type": "radio",
-            "required": "false",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "need_deploy",
             "name": "新应用自动部署",
             "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
             "type": "radio",
-            "required": "false",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "cellname",
@@ -320,7 +332,7 @@
             "name": "应用安装目录",
             "help": "应用安装目录，在websphere console安装时，指定的安装路径，留空，则采用默认值",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "defaultValue": "/opt/IBM/deploy/demo"
         },
         {

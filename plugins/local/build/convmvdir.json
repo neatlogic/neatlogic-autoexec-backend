@@ -15,17 +15,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "GBK",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GBK",
-                    "value": "GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "GBK"
         },
         {
             "opt": "to",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "UTF-8",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GBK",
-                    "value": "GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
         }
     ],
     "output": []

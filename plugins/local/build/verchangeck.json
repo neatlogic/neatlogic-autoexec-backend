@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "lang",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "en_US.UTF-8",
-            "dataSource": [
-                {
-                    "text": "en_US.UTF-8",
-                    "value": "en_US.UTF-8"
-                },
-                {
-                    "text": "en_US.GB18030",
-                    "value": "en_US.GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         },
         {
             "opt": "user",

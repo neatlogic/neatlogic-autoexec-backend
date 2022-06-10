@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "baseurl",
@@ -41,7 +43,7 @@
             "name": "验证令牌",
             "help": "访问Appolo接口的访问令牌",
             "type": "password",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${global:apollo.token}"
         },

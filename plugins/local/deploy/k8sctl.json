@@ -51,13 +51,15 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "patch",
-            "dataSource": [
-                {
-                    "text": "更新",
-                    "value": "patch"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "更新",
+                        "value": "patch"
+                    }
+                ]
+            },
+            "defaultValue": "patch"
         },
         {
             "opt": "image",

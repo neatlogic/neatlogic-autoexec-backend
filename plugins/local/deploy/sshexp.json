@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "o",
@@ -41,7 +43,7 @@
             "name": "超时时间",
             "help": "调用超时时间（秒）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "15"
         },
@@ -52,17 +54,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "UTF-8",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GB18030",
-                    "value": "GB18030"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GB18030",
+                        "value": "GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
         }
     ],
     "argument": {

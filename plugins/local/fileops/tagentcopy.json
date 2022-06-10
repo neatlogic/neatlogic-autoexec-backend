@@ -12,19 +12,21 @@
             "name": "输出详细信息",
             "help": "",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "direction",
@@ -33,17 +35,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "pull",
-            "dataSource": [
-                {
-                    "text": "远程到本地",
-                    "value": "pull"
-                },
-                {
-                    "text": "本地到远程",
-                    "value": "push"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "远程到本地",
+                        "value": "pull"
+                    },
+                    {
+                        "text": "本地到远程",
+                        "value": "push"
+                    }
+                ]
+            },
+            "defaultValue": "pull"
         },
         {
             "opt": "src",
@@ -68,57 +72,63 @@
             "name": "不保留文件信息",
             "help": "不保留文件/目录的时间、权限",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "followlinks",
             "name": "追踪软连接",
             "help": "把软连接当成普通文件和目录看待",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
             "opt": "cpifexists",
             "name": "文件不存在不报错",
             "help": "仅当文件存在才执行拷贝",
             "type": "radio",
-            "required": "false",
+            "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "否",
-                    "value": "0"
-                },
-                {
-                    "text": "是",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": []

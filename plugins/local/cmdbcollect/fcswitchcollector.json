@@ -12,7 +12,7 @@
             "name": "超时时间",
             "help": "查询超时时间，单位秒",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "10"
         },
@@ -23,33 +23,35 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "auto",
-            "dataSource": [
-                {
-                    "text": "自动选择",
-                    "value": "auto"
-                },
-                {
-                    "text": "Brocade",
-                    "value": "Brocade"
-                },
-                {
-                    "text": "IBM",
-                    "value": "Brocade"
-                },
-                {
-                    "text": "EMC",
-                    "value": "Brocade"
-                },
-                {
-                    "text": "HP",
-                    "value": "Brocade"
-                },
-                {
-                    "text": "Huawei",
-                    "value": "Brocade"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动选择",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "Brocade",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "IBM",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "EMC",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "HP",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "Huawei",
+                        "value": "Brocade"
+                    }
+                ]
+            },
+            "defaultValue": "auto"
         },
         {
             "opt": "verbose",
@@ -58,17 +60,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "0",
-            "dataSource": [
-                {
-                    "text": "不回显",
-                    "value": "0"
-                },
-                {
-                    "text": "回显",
-                    "value": "1"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": [

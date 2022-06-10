@@ -15,17 +15,19 @@
             "type": "radio",
             "required": "true",
             "validate": "",
-            "defaultValue": "1",
-            "dataSource": [
-                {
-                    "text": "是",
-                    "value": "1"
-                },
-                {
-                    "text": "否",
-                    "value": "0"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         },
         {
             "opt": "destencoding",
@@ -34,17 +36,19 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "UTF-8",
-            "dataSource": [
-                {
-                    "text": "UTF-8",
-                    "value": "UTF-8"
-                },
-                {
-                    "text": "GBK",
-                    "value": "GBK"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
         },
         {
             "opt": "o",
@@ -60,7 +64,7 @@
             "name": "超时时间",
             "help": "调用超时时间（秒）",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "15"
         },
@@ -89,33 +93,35 @@
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "sh",
-            "dataSource": [
-                {
-                    "text": "bash",
-                    "value": "sh"
-                },
-                {
-                    "text": "perl",
-                    "value": "perl"
-                },
-                {
-                    "text": "python",
-                    "value": "python"
-                },
-                {
-                    "text": "cmd",
-                    "value": "cmd"
-                },
-                {
-                    "text": "powershell",
-                    "value": "powershell"
-                },
-                {
-                    "text": "vbscript",
-                    "value": "vbscript"
-                }
-            ]
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "bash",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    }
+                ]
+            },
+            "defaultValue": "sh"
         },
         {
             "opt": "script",
