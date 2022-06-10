@@ -1,6 +1,6 @@
 {
     "opName": "OS和应用CMDB",
-    "opType": "remote",
+    "opType": "target",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",

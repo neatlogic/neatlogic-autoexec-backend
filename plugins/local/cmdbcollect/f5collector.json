@@ -1,6 +1,6 @@
 {
     "opName": "F5CMDB采集",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",

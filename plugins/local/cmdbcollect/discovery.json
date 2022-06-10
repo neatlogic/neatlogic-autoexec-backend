@@ -1,6 +1,6 @@
 {
     "opName": "CMDB自动发现",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",

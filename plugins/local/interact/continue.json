@@ -1,6 +1,6 @@
 {
     "opDesc": "是否继续",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",

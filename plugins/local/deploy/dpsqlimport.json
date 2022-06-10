@@ -1,6 +1,6 @@
 {
     "opDesc": "SQL发布检查并导入",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

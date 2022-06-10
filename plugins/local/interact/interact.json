@@ -1,6 +1,6 @@
 {
     "opDesc": "执行交互工具",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",

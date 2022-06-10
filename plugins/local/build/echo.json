@@ -1,6 +1,6 @@
 {
     "opDesc": "echo",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

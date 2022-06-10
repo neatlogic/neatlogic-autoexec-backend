@@ -1,6 +1,6 @@
 {
     "opDesc": "执行远程Windows命令",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

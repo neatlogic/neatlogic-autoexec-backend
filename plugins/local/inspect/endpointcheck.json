@@ -1,6 +1,6 @@
 {
     "opName": "访问入口检查",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "python",

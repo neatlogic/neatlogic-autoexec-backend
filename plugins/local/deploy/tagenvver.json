@@ -1,6 +1,6 @@
 {
     "opDesc": "更新环境版本号",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

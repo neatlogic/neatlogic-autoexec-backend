@@ -1,6 +1,6 @@
 {
     "opName": "防火墙信息采集",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",

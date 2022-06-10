@@ -1,6 +1,6 @@
 {
     "opDesc": "回退版本",
-    "opType": "remote",
+    "opType": "target",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

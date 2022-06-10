@@ -1,6 +1,6 @@
 {
     "opDesc": "SQL文件导入",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

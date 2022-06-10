@@ -1,6 +1,6 @@
 {
     "opDesc": "TELNET Expect工具",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

@@ -1,6 +1,6 @@
 {
     "opDesc": "同步环境制品",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

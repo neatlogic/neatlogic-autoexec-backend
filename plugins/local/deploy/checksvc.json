@@ -1,6 +1,6 @@
 {
     "opDesc": "服务检查",
-    "opType": "local",
+    "opType": "runner",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

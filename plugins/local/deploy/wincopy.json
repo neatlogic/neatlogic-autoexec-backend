@@ -1,6 +1,6 @@
 {
     "opDesc": "Windows拷贝文件",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

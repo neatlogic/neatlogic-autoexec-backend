@@ -1,6 +1,6 @@
 {
     "opName": "交换机CMDB采集",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "perl",

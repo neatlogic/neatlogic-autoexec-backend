@@ -1,6 +1,6 @@
 {
     "opDesc": "更新实例版本号",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

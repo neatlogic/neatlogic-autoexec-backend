@@ -1,6 +1,6 @@
 {
     "opDesc": "Weblogic发布",
-    "opType": "remote",
+    "opType": "target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

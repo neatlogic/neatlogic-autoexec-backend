@@ -1,6 +1,6 @@
 {
     "opDesc": "配置文件适配",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",

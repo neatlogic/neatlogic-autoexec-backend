@@ -1,6 +1,6 @@
 {
     "opDesc": "拉取Docker镜像",
-    "opType": "remote",
+    "opType": "target",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

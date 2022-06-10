@@ -1,6 +1,6 @@
 {
     "opName": "Tagent登录检查",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "perl",

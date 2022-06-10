@@ -1,6 +1,6 @@
 {
     "opDesc": "更新应用文件",
-    "opType": "remote",
+    "opType": "target",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",

@@ -250,9 +250,10 @@ class JobRunner:
 
     def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap):
         serverAdapter = self.context.serverAdapter
+        endStatus = NodeStatus.aborted
         phaseStatus = self.context.phases[phaseName]
         try:
-            self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+            serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
                 endStatus = NodeStatus.succeed
@@ -260,20 +261,20 @@ class JobRunner:
                     endStatus = NodeStatus.aborted
                 elif phaseStatus.ignoreFailNodeCount > 0:
                     endStatus = NodeStatus.completed
-                self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
             else:
                 self.context.hasFailNodeInGlobal = True
-                failStatus = NodeStatus.failed
+                endStatus = NodeStatus.failed
                 if phaseStatus.isAborting:
-                    failStatus = NodeStatus.aborted
+                    endStatus = NodeStatus.aborted
                 elif phaseStatus.isPausing:
-                    failStatus = NodeStatus.paused
-                self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, failStatus)
+                    endStatus = NodeStatus.paused
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end='')
             traceback.print_exc()
             print("\n", end='')
+        finally:
+            serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
         groupNo = phaseGroup['groupNo']

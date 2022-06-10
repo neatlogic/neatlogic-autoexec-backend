@@ -1,6 +1,6 @@
 {
     "opDesc": "A10 POOL节点控制",
-    "opType": "localremote",
+    "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
