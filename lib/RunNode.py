@@ -683,7 +683,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
-        self.writeNodeLog("INFO: Begin to execute local operation...\n")
+        self.writeNodeLog("INFO: Execute -> {}\n".format(orgCmdLineHidePassword))
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
         if scriptFile is not None:
@@ -707,11 +707,6 @@ class RunNode:
         lastContent = child.stdout.read()
         if lastContent is not None:
             self.writeNodeLog(lastContent)
-
-        if ret == 0:
-            self.writeNodeLog("INFO: Execute local command succeed:{}\n".format(orgCmdLineHidePassword))
-        else:
-            self.writeNodeLog("ERROR: Execute local command failed(exit status:{}):{}\n".format(ret, orgCmdLineHidePassword))
 
         return ret
 
@@ -771,11 +766,6 @@ class RunNode:
         lastContent = child.stdout.read()
         if lastContent is not None:
             self.writeNodeLog(lastContent)
-
-        if ret == 0:
-            self.writeNodeLog("INFO: Execute local-remote command succeed: {}\n".format(orgCmdLineHidePassword))
-        else:
-            self.writeNodeLog("ERROR: Execute local-remote command failed(exit status:{}): {}\n".format(ret, orgCmdLineHidePassword))
 
         return ret
 
