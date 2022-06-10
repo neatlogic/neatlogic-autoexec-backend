@@ -495,7 +495,7 @@ class RunNode:
         except:
             ret = 3
             timeConsume = time.time() - startTime
-            self.writeNodeLog("ERROR: Unknow error ocurred.\n{}\n".format(traceback.format_exc()))
+            self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
 
         hintKey = 'FINEST:'
         opFinalStatus = NodeStatus.succeed
@@ -746,7 +746,7 @@ class RunNode:
             scriptFile = open(op.pluginPath, 'r')
             fcntl.flock(scriptFile, fcntl.LOCK_SH)
 
-        self.writeNodeLog("INFO: Begin to execute local-remote operation...\n")
+        self.writeNodeLog("INFO: Execute -> {}\n".format(orgCmdLineHidePassword))
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
 
@@ -793,6 +793,9 @@ class RunNode:
             try:
                 remoteRoot = '$TMPDIR/' + jobDir
                 remotePath = remoteRoot + '/' + op.opBunddleName
+                if op.opBunddleName == '':
+                    remotePath = remoteRoot
+
                 runEnv = {
                     'AUTOEXEC_JOBID': self.context.jobId,
                     'AUTOEXEC_NODE': json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
@@ -814,21 +817,14 @@ class RunNode:
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
                     try:
-                        fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                        uploadRet = tagent.upload(self.username, op.pluginParentPath, remoteRoot, dirCreate=True)
-                        if tagent.agentCharset not in ['UTF-8', 'cp65001']:
-                            # 如果脚本使用编码与服务端不一致，则执行转换
+                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot + '/')
+                        if uploadRet == 0:
+                            fcntl.flock(scriptFile, fcntl.LOCK_SH)
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
-                        fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                            fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     finally:
                         scriptFile.close()
                         scriptFile = None
-
-                    if uploadRet == 0:
-                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot + '/')
-
-                    #remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
-                    #remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
@@ -849,7 +845,7 @@ class RunNode:
                 if tagent.agentOsType == 'windows':
                     self.killCmd = ""
                 if uploadRet == 0 and not self.context.goToStop:
-                    self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
+                    self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
                         self._ensureOpOutputDir(op)
@@ -902,15 +898,13 @@ class RunNode:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
 
-            if ret == 0:
-                self.writeNodeLog("INFO: Execute remote command by agent succeed: {}\n".format(remoteCmdHidePass))
-            else:
-                self.writeNodeLog("ERROR: Execute remote command by agent failed: {}\n".format(remoteCmdHidePass))
-
         elif self.type == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             remoteRoot = '/tmp/' + jobDir
             remotePath = '{}/{}'.format(remoteRoot, op.opBunddleName)
+            if op.opBunddleName == '':
+                remotePath = remoteRoot
+
             remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
                 self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
@@ -1041,7 +1035,7 @@ class RunNode:
                     scriptFile.close()
 
             if uploaded and not self.context.goToStop:
-                self.writeNodeLog("INFO: Upload success, begin to execute remote operation...\n")
+                self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 ssh = None
                 try:
                     ret = 0

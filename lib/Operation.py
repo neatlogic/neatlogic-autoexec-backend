@@ -38,10 +38,7 @@ class Operation:
         self.opSubName = os.path.basename(opFullName)
 
         opBunddleName = os.path.dirname(opFullName)
-        if opBunddleName == '':
-            self.opBunddleName = self.opName
-        else:
-            self.opBunddleName = opBunddleName
+        self.opBunddleName = opBunddleName
 
         # opType有三种
         # remote：推送到远程主机上运行，每个目标节点调用一次
@@ -130,11 +127,16 @@ class Operation:
             if not self.opName.isascii():
                 # 如果脚本名不是ascii的，则只使用其id来作为脚本名
                 scriptName = self.opId.split('_')[-1]
-                self.opBunddleName = scriptName
 
-            scriptFileName = scriptName + self.extNameMap[self.interpreter]
+            scriptFileName = scriptName
+            extName = self.extNameMap[self.interpreter]
+            if not scriptFileName.endswith(extName):
+                scriptFileName = scriptFileName + extName
+
             self.scriptFileName = scriptFileName
-            self.pluginParentPath = '{}/script/{}'.format(self.context.runPath, self.opBunddleName)
+            self.pluginParentPath = '{}/script'.format(self.context.runPath)
+            if self.opBunddleName != '':
+                self.pluginParentPath = self.pluginParentPath + '/' + self.opBunddleName
             if not os.path.exists(self.pluginParentPath):
                 os.mkdir(self.pluginParentPath)
             self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
@@ -214,7 +216,7 @@ class Operation:
 
         if 'arg' in self.param and 'values' in self.param['arg']:
             opArgs = self.param['arg']
-            argType = self.param['arg']['type']
+            argType = self.param['arg'].get('type')
             argValues = []
             for argValue in opArgs['values']:
                 if(argType == 'password' and argValue[0:11] == '{ENCRYPTED}'):
@@ -437,8 +439,8 @@ class Operation:
                         #cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & cscript {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'powershell':
-                        #cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}/{}'.format(remotePath, self.scriptFileName)
-                        cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" && powershell {}'.format(remotePath, self.scriptFileName)
+                        #cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell {}/{}'.format(remotePath, self.scriptFileName)
+                        cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.scriptFileName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName):
                         cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
@@ -468,6 +470,8 @@ class Operation:
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
                             #cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
                             cmd = 'cd {} & cscript {}'.format(remotePath, self.opSubName)
+                        elif self.interpreter == 'powershell':
+                            cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.opSubName)
                         else:
                             #cmd = '{} {}/{}'.format(self.interpreter, remotePath,  self.opSubName)
                             cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.opSubName)
