@@ -54,10 +54,8 @@ sub saveOutput {
     print("INFO: Try to save output to $outputPath.\n");
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $outputDir = dirname($outputPath);
-        if ( not -e $outputDir ) {
-            if ( $outputDir ne '' ) {
-                mkpath($outputDir);
-            }
+        if ( $outputDir ne '' and not -e $outputDir ) {
+            mkpath($outputDir);
         }
 
         my $fh = IO::File->new(">$outputPath");

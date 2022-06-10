@@ -1,7 +1,7 @@
 {
     "opDesc": "建立巡检目标跟作业的关联",
     "opType": "localremote",
-    "typeName": "INSPECTION",
+    "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,

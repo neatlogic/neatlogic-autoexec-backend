@@ -1,7 +1,7 @@
 {
     "opDesc": "分析CMDB采集输出数据",
     "opType": "localremote",
-    "typeName": "INSPECTION",
+    "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,

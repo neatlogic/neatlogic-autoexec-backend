@@ -100,6 +100,11 @@ echo "======Save output to output file"
 outtext="This the outText"
 outfile="testfile.txt"
 
+OUT_DIR=$(dirname "$OUTPUT_PATH")
+if [ ! -e "$OUT_DIR" ]; then
+    mkdir -p "$OUT_DIR"
+fi
+
 if [ ! -z "$OUTPUT_PATH" ]; then
     cat <<EOF >"$OUTPUT_PATH"
 {
