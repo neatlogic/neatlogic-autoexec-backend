@@ -22,7 +22,7 @@ import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
 
-import AutoExecError
+from AutoExecError import AutoExecError
 import Operation
 import ConditionDSL
 import NodeStatus
@@ -214,8 +214,7 @@ class RunNode:
             self.statusFile.flush()
             self.outputStore.saveStatus(self.statuses)
         except Exception as ex:
-            self.writeNodeLog('ERROR: Save status file:{}, failed {}\n'.format(self.statusPath, ex))
-            raise
+            raise AutoExecError('Save status file:{}, failed {}'.format(self.statusPath, ex))
 
         if op is None:
             try:
@@ -232,7 +231,7 @@ class RunNode:
                 else:
                     self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj, ensure_ascii=False)))
             except Exception as ex:
-                self.writeNodeLog('ERROR: Push status:{} to server, failed {}\n'.format(self.statusPath, ex))
+                raise AutoExecError('Push status:{} to server, failed {}'.format(self.statusPath, ex))
 
     def _loadNodeStatus(self):
         status = NodeStatus.pending
@@ -250,8 +249,7 @@ class RunNode:
 
             self.statuses = statuses
         except Exception as ex:
-            self.writeNodeLog('ERROR: Load status file:{}, failed {}\n'.format(self.statusPath, ex))
-            raise
+            raise AutoExecError('Load status file:{}, failed {}'.format(self.statusPath, ex))
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
@@ -312,7 +310,7 @@ class RunNode:
                 if content:
                     output = json.loads(content)
             except Exception as ex:
-                self.writeNodeLog('ERROR: Load operation output file:{}, failed {}\n'.format(self.outputPath, ex))
+                raise AutoExecError('Load operation output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
@@ -339,7 +337,7 @@ class RunNode:
                     output = json.loads(content)
                     self.output = output
             except Exception as ex:
-                self.writeNodeLog('ERROR: Load output file:{}, failed {}\n'.format(self.outputPath, ex))
+                raise AutoExecError('Load output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
@@ -362,7 +360,7 @@ class RunNode:
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
                 self.outputStore.saveOutput(self.output)
             except Exception as ex:
-                self.writeNodeLog('ERROR: Save output file:{}, failed {}\n'.format(self.outputPath, ex))
+                raise AutoExecError('Save output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
                     fcntl.lockf(outputFile, fcntl.LOCK_UN)
@@ -383,11 +381,11 @@ class RunNode:
                 # 根据output的定义填入工具没有输出的output属性
                 for outOptName, outOpt in op.outputDesc.items():
                     if outOptName not in opOutput:
-                        opOutput[outOptName] = outOpt['defaultValue']
+                        opOutput[outOptName] = outOpt.get('defaultValue')
 
                 self.output[op.opId] = opOutput
             except Exception as ex:
-                self.writeNodeLog('ERROR: Load operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
+                raise AutoExecError('Load operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:
                 if opOutputFile:
                     opOutputFile.close()
@@ -402,7 +400,7 @@ class RunNode:
                 opOutputFile = open(opOutPutPath, 'w')
                 opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
             except Exception as ex:
-                self.writeNodeLog('ERROR: Save operation {} output file:{}, failed {}\n'.format(op.opId, opOutPutPath, ex))
+                raise AutoExecError('Save operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:
                 if opOutputFile:
                     opOutputFile.close()
@@ -879,10 +877,9 @@ class RunNode:
                             else:
                                 tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
                     except Exception as ex:
-                        self.writeNodeLog('ERROR: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
+                        self.writeNodeLog('WARN: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
             except Exception as ex:
                 self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
-                raise ex
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -1085,7 +1082,7 @@ class RunNode:
                         if not self.context.devMode and ret == 0:
                             ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
                     except Exception as ex:
-                        self.writeNodeLog("ERROR: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
+                        self.writeNodeLog("WARN: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
 
                 except Exception as err:
                     self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
@@ -1096,11 +1093,6 @@ class RunNode:
                         scp.close()
                     if ssh:
                         ssh.close()
-
-            if ret == 0:
-                self.writeNodeLog("INFO: Execute remote command by ssh succeed:{}\n".format(remoteCmdHidePass))
-            else:
-                self.writeNodeLog("ERROR: Execute remote command by ssh failed:{}\n".format(remoteCmdHidePass))
 
         return ret
 

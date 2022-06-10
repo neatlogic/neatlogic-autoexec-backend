@@ -700,6 +700,7 @@ sub checkOneSqlFile {
         jobId          => $self->{jobId},
         resourceId     => $nodeInfo->{resourceId},
         nodeName       => $nodeInfo->{nodeName},
+        nodeType       => $nodeInfo->{nodeType},
         host           => $nodeInfo->{host},
         port           => $nodeInfo->{port},
         username       => $nodeInfo->{username},
