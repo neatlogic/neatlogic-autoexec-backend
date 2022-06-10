@@ -807,7 +807,7 @@ class RunNode:
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
                     try:
-                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot + '/')
+                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot, dirCreate=True)
                         if uploadRet == 0:
                             fcntl.flock(scriptFile, fcntl.LOCK_SH)
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
