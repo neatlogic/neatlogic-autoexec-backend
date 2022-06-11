@@ -55,7 +55,7 @@ class ServerAdapter:
 
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii'))
+        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -156,7 +156,7 @@ class ServerAdapter:
 
             response = self.httpJSON(self.apiMap['getParams'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -248,7 +248,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -275,7 +275,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             # 如果更新阶段状态失败，很可能是因为节点和阶段对应关系存在问题，更新节点文件的时间到1970-1-1
@@ -316,7 +316,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -337,7 +337,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -360,7 +360,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -380,7 +380,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -400,7 +400,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -490,7 +490,7 @@ class ServerAdapter:
 
             if response.status == 200:
                 charset = response.info().get_content_charset()
-                content = response.read().decode(charset)
+                content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
                 cachedFileTmp.truncate(0)
@@ -524,7 +524,7 @@ class ServerAdapter:
 
             if response.status == 200:
                 charset = response.info().get_content_charset()
-                content = response.read().decode(charset)
+                content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 return retObj['Return']
         except:
@@ -536,7 +536,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
         except:
             raise
@@ -567,7 +567,7 @@ class ServerAdapter:
 
         try:
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if retObj['Status'] == 'OK':
                 lockInfo = retObj['Return']
@@ -612,7 +612,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['getAccount'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -639,7 +639,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['getInspectConf'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -667,7 +667,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['updateInspectStatus'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -693,7 +693,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['setResourceInspectJobId'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -718,7 +718,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['getCmdbCiAttrs'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -755,7 +755,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['getAccessEndpoint'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':
@@ -779,7 +779,7 @@ class ServerAdapter:
         try:
             response = self.httpJSON(self.apiMap['getDeployIdPath'], self.authToken, params)
             charset = response.info().get_content_charset()
-            content = response.read().decode(charset)
+            content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj['Status'] == 'OK':

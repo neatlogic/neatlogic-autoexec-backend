@@ -248,7 +248,7 @@ class TagentClient:
 
         # 读取agent服务端发来的"ostype|charset|challenge",
         # agent os类型|agent 字符集|加密的验证挑战token, '|'相隔
-        challenge = self.__readChunk(sock, False).decode()
+        challenge = self.__readChunk(sock, False).decode(errors='ignore')
         agentOsType, agentCharset, challenge, protocolVer = challenge.split('|')
         if protocolVer == SECURE_PROTOCOL_VER:
             self.encrypt = True
@@ -279,7 +279,7 @@ class TagentClient:
         reverseChlg = str(int(factor1) * int(factor2)) + ',' + serverTime
         encryptChlg = _rc4_encrypt_hex(authKey, reverseChlg.encode('latin-1', 'replace'))
         self.__writeChunk(sock, encryptChlg.encode(encoding='utf-8'))
-        authResult = self.__readChunk(sock).decode()
+        authResult = self.__readChunk(sock).decode(errors='ignore')
         # 如果返回内容中不出现auth succeed，则验证失败
         if authResult != "auth succeed":
             return 0
@@ -295,7 +295,7 @@ class TagentClient:
             try:
                 self.__writeChunk(sock, "none|updatecred|{}|{}".format(agentCharset, bytesEncodeToHex(cred.encode())))
                 status = 0
-                statusLine = self.__readChunk(sock).decode()
+                statusLine = self.__readChunk(sock).decode(errors='ignore')
                 if statusLine:
                     status = -1
                     if isVerbose == 1:
@@ -325,7 +325,7 @@ class TagentClient:
         agentCharset = self.agentCharset
         self.__writeChunk(sock, "none|reload|{}".format(agentCharset).encode(agentCharset, 'replace'))
         try:
-            buf = self.__readChunk(sock).decode()
+            buf = self.__readChunk(sock).decode(errors='ignore')
             if buf.startswith("Status:200"):
                 status = 0
                 if isVerbose == 1:
@@ -350,7 +350,7 @@ class TagentClient:
         agentCharset = self.agentCharset
         self.__writeChunk(sock, "none|echo|{}|{}".format(agentCharset, bytesEncodeToHex(data.encode())).encode(agentCharset, 'replace'))
         try:
-            buf = self.__readChunk(sock).decode()
+            buf = self.__readChunk(sock).decode(errors='ignore')
             print(buf)
         except ExecError as msg:
             if isVerbose == 1:
@@ -388,7 +388,7 @@ class TagentClient:
                 if detectEnc is not None:
                     line = line.decode(detectEnc, 'ignore')
                 else:
-                    line = line.decode()
+                    line = line.decode(errors='ignore')
                 if isVerbose == 1:
                     print(line.strip())
                 if callback:
@@ -441,7 +441,7 @@ class TagentClient:
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
         self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
         try:
-            statusLine = self.__readChunk(sock).decode()
+            statusLine = self.__readChunk(sock).decode(errors='ignore')
             if statusLine:
                 status = -1
                 if isVerbose == 1:
@@ -493,11 +493,11 @@ class TagentClient:
                                 chunk = ''
 
                             if chunk != '':
-                                chunk = chunk.decode(agentCharset).encode(charset, 'replace')
+                                chunk = chunk.decode(agentCharset, 'ignore').encode(charset, 'replace')
                                 f.write(chunk)
                         else:
                             if lineLeft != '':
-                                lineLeft = lineLeft.decode(agentCharset).encode(charset, 'replace')
+                                lineLeft = lineLeft.decode(agentCharset, 'ignore').encode(charset, 'replace')
                                 f.write(lineLeft)
                             break
 
@@ -515,7 +515,7 @@ class TagentClient:
 
         try:
             self.__writeChunk(sock, "{}|download|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))
-            statusLine = self.__readChunk(sock).decode()
+            statusLine = self.__readChunk(sock).decode(errors='ignore')
             status = 0
             fileType = 'file'
 
@@ -695,11 +695,11 @@ class TagentClient:
                             lineLeft = buf
                             buf = ''
                         if buf != '':
-                            buf = buf.decode(charset).encode(agentCharset, 'replace')
+                            buf = buf.decode(charset, 'ignore').encode(agentCharset, 'replace')
                             self.__writeChunk(sock, buf)
                     else:
                         if lineLeft != '':
-                            lineLeft = lineLeft.decode(charset).encode(agentCharset, 'replace')
+                            lineLeft = lineLeft.decode(charset, 'ignore').encode(agentCharset, 'replace')
                             self.__writeChunk(sock, lineLeft)
                         break
         else:
@@ -735,7 +735,7 @@ class TagentClient:
 
             self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset, 'replace'))
 
-            preStatus = self.__readChunk(sock).decode(agentCharset)
+            preStatus = self.__readChunk(sock).decode(agentCharset, 'ignore')
             if not preStatus.lstrip().startswith('Status:200'):
                 raise AgentError("ERROR: Upload failed:{}.".format(preStatus))
 
@@ -795,12 +795,12 @@ class TagentClient:
             charset = self.charset
             if agentCharset != charset:
                 if convertCharset == 1:
-                    content = content.decode(charset).encode(agentCharset, 'replace')
+                    content = content.decode(charset, 'ignore').encode(agentCharset, 'replace')
 
             param = "{}|{}|{}|{}".format(bytesEncodeToHex(b'file'), bytesEncodeToHex(destName.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), '00')
             self.__writeChunk(sock, "{}|upload|{}|{}".format(user, agentCharset, param).encode(agentCharset, 'replace'))
 
-            preStatus = self.__readChunk(sock).decode()
+            preStatus = self.__readChunk(sock).decode(errors='ignore')
             if not preStatus.lstrip().startswith("Status:200"):
                 raise AgentError("ERROR: Upload failed:{}.".format(preStatus))
             if isVerbose == 1:

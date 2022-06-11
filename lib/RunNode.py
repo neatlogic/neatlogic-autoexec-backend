@@ -1155,7 +1155,7 @@ class RunNode:
 
                     r, w, x = select.select([channel], [], [])
                     if len(r) > 0:
-                        self.writeNodeLog(channel.recv(1024).decode() + "\n")
+                        self.writeNodeLog(channel.recv(1024).decode(errors='ignore') + "\n")
 
                 self.updateNodeStatus(NodeStatus.aborted)
                 self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))

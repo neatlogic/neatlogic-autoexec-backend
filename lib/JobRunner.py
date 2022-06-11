@@ -47,7 +47,7 @@ class ListenWorkThread(threading.Thread):
 
             actionData = None
             try:
-                actionData = json.loads(datagram.decode('utf-8'))
+                actionData = json.loads(datagram.decode('utf-8', 'ignore'))
                 if actionData:
                     if actionData['action'] == 'informNodeWaitInput':
                         resourceId = int(actionData.get('resourceId'))
