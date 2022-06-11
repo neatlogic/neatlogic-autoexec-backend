@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 declare -a INS_SUC_PKGS
 declare -a INS_FAIL_PKGS
 
-PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp sqlparse)
+PKGS=(virtualenv pymongo paramiko python-dateutil pyVim bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp sqlparse chardet)
 
 if [[ $# > 0 ]]; then
     PKGS=($*)

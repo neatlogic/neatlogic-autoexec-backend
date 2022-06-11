@@ -14,6 +14,7 @@ import time
 import traceback
 import subprocess
 import json
+import chardet
 
 try:
     import urllib2
@@ -381,8 +382,11 @@ class TagentClient:
                 line = self.__readChunk(sock)
                 if not line:
                     break
-                if agentCharset != '':
-                    line = line.decode(agentCharset, 'ignore')
+
+                detectInfo = chardet.detect(line)
+                detectEnc = detectInfo['encoding']
+                if detectEnc is not None:
+                    line = line.decode(detectEnc, 'ignore')
                 else:
                     line = line.decode()
                 if isVerbose == 1:
