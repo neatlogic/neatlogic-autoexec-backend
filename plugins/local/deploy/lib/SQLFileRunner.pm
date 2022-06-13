@@ -654,17 +654,21 @@ sub execSqlFileSets {
                 $rc = $rc >> 8;
             }
 
+            if ( $rc ne 0 ) {
+                $hasError = $hasError + 1;
+            }
+
             my $sqlInfoArray  = $runnerPidsMap->{$pid};
             my $sqlFile       = $$sqlInfoArray[0];
             my $sqlFileStatus = $$sqlInfoArray[1];
             my $sqlStatus     = $sqlFileStatus->loadAndGetStatusValue('status');
             delete( $runnerPidsMap->{$pid} );
-            if ( $rc ne 0 ) {
-                $hasError = $hasError + 1;
-                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
+
+            if ( $hasError == 0 ) {
+                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
-                print("INFO: Execute $sqlFile return status:$sqlStatus.\n");
+                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
         }
 

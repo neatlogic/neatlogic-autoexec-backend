@@ -263,11 +263,11 @@ sub main {
 
         if ( $rc != 0 ) {
             $hasError = $hasError + 1;
-            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n");
+            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
             last;
         }
         else {
-            print("INFO: Execute sql files -> $userName\@$host:$port success.\n");
+            print("FINEST: Execute sql files -> $userName\@$host:$port success.\n\n");
         }
     }
 
