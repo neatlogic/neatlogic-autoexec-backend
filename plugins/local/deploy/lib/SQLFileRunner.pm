@@ -592,15 +592,15 @@ sub execSqlFiles {
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
             if ( $rc != 0 ) {
                 $hasError = $hasError + $rc;
+                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
+            }
+            else {
+                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
         }
 
         if ( $hasError != 0 ) {
-            print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             last;
-        }
-        else {
-            print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
         }
     }
 
