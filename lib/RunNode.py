@@ -15,6 +15,7 @@ import subprocess
 import select
 import json
 import logging
+import chardet
 import traceback
 
 from setuptools import find_namespace_packages
@@ -35,6 +36,7 @@ class LogFile:
     def __init__(self, fileHandle):
         self.foreLine = b''
         self.fileHandle = fileHandle
+        self.srcEncoding = None
 
     def write(self, text):
         if not text:
@@ -42,6 +44,12 @@ class LogFile:
 
         if not isinstance(text, bytes):
             text = text.encode()
+
+        if self.srcEncoding is None:
+            detectInfo = chardet.detect(text)
+            detectEnc = detectInfo['encoding']
+            if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
+                self.srcEncoding = detectEnc
 
         timeBytes = Utils.getTimeStr().encode()
         text = self.foreLine + text
@@ -51,7 +59,11 @@ class LogFile:
         try:
             while True:
                 end = text.index(b"\n", start)
-                self.fileHandle.write(timeBytes + text[start:end+1])
+                if self.srcEncoding is None:
+                    self.fileHandle.write(timeBytes + text[start:end+1])
+                else:
+                    line = text[start:end+1].decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
+                    self.fileHandle.write(timeBytes + line)
                 start = end + 1
         except ValueError:
             if start >= 0:
@@ -60,6 +72,9 @@ class LogFile:
     def close(self):
         if self.foreLine != b'':
             timeBytes = Utils.getTimeStr().encode()
+            if self.srcEncoding is not None:
+                self.foreLine = self.foreLine.decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
+
             self.fileHandle.write(timeBytes + self.foreLine)
 
         self.fileHandle.close()

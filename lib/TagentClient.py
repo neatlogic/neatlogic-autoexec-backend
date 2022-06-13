@@ -383,13 +383,13 @@ class TagentClient:
                 if not line:
                     break
 
-                detectInfo = chardet.detect(line)
-                detectEnc = detectInfo['encoding']
-                if detectEnc is not None:
-                    line = line.decode(detectEnc, 'ignore')
-                else:
-                    line = line.decode(errors='ignore')
                 if isVerbose == 1:
+                    detectInfo = chardet.detect(line)
+                    detectEnc = detectInfo['encoding']
+                    if detectEnc is not None:
+                        line = line.decode(detectEnc, 'ignore')
+                    else:
+                        line = line.decode(errors='ignore')
                     print(line.strip())
                 if callback:
                     callback(line, *cbparams)
