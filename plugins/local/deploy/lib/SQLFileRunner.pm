@@ -372,7 +372,8 @@ sub execOneSqlFile {
                 $spawn->log_file(
                     sub {
                         if ( $handler->{hasLogon} == 1 ) {
-                            print($_);
+                            my $content = shift;
+                            print($content);
                         }
                     }
                 );
