@@ -313,8 +313,8 @@ sub run {
             #对象名 'test12' 无效。
             qr/(?<=\n)Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+,[^\n]+\n[^\n]+(?=\n)/ => sub {
                 my $matchContent = $spawn->match();
-                my $nwPos = index( $matchContent, "\n" );
-                $sqlError = substr( $matchContent, 0, $nwPos - 1 );
+                my $nwPos        = index( $matchContent, "\n" );
+                $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                 $sqlErrMsg = substr( $matchContent, $nwPos + 1 );
 
                 #如果session被kill则自行退出并返回错误
@@ -406,8 +406,8 @@ sub run {
                 #对象名 'test12' 无效。
                 qr/\nMsg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+,[^\n]+\n[^\n]+(?=\n)/ => sub {
                     my $matchContent = $spawn->match();
-                    my $nwPos = index( $matchContent, "\r\n" );
-                    $sqlError = substr( $matchContent, 0, $nwPos - 1 );
+                    my $nwPos        = index( $matchContent, "\r\n" );
+                    $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = substr( $matchContent, $nwPos + 1 );
 
                     $warningCount = $warningCount + 1;

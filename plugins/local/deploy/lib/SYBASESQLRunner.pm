@@ -86,7 +86,7 @@ sub new {
     my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
-    my $tmp = File::Temp->new( DIR => $tmpDir, UNLINK => 1, SUFFIX => '.sybase' );
+    my $tmp     = File::Temp->new( DIR => $tmpDir, UNLINK => 1, SUFFIX => '.sybase' );
     my $content = "SYBASEDB\n\tmaster tcp ether $host $port\n\tquery tcp ether $host $port\n";
     print $tmp ($content);
     my $interfaceFile = $tmp->filename;
@@ -314,7 +314,6 @@ sub run {
     );
 
     if ( $hasLogon == 1 ) {
-        $self->{hasLogon} = 1;
         print("Execution start > ");
 
         if ( $isAutoCommit == 1 ) {
@@ -328,6 +327,8 @@ sub run {
         $spawn->send("go\n");
 
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
+
+        $self->{hasLogon} = 1;
         $spawn->send(":r $sqlFile\n");
         $spawn->expect( undef, [ qr/\d+> $/ => sub { } ] );
         $spawn->send("go\n");
@@ -345,8 +346,8 @@ sub run {
                 #qr/(?<=\n)Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\n.*?\n(?=1>\s)/is => sub {
                 qr/Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\s*\n.*?(?=\d>\s)/is => sub {
                     my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
-                    my $nwPos = index( $matchContent, "\n" );
-                    $sqlError = substr( $matchContent, 0, $nwPos - 1 );
+                    my $nwPos        = index( $matchContent, "\n" );
+                    $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = $matchContent;
                     if ( $charSet ne 'UTF-8' ) {
                         $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );

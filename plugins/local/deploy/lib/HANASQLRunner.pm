@@ -365,7 +365,6 @@ sub run {
         );
 
         if ( $hasLogon == 1 ) {
-            $self->{hasLogon} = 1;
             print("Execution start > ");
 
             if ( $isAutoCommit == 1 ) {
@@ -392,6 +391,7 @@ sub run {
             }
         }
 
+        $self->{hasLogon} = 1;
         if ( $hasError != 1 and $hasHardError != 1 ) {
             $spawn->send("read $sqlFileName");
             $spawn->expect(

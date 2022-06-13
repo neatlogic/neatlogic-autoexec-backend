@@ -311,9 +311,9 @@ sub execOneSqlFile {
         print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
         print("# FILE=$sqlFile\n");
         print("# Encoding=$fileCharset\n");
-        print("# Status=$sqlFileStatus->{status}->{status}\n");
+        print("# PreStatus=$sqlFileStatus->{status}->{status}\n");
         print("# MD5=$sqlFileStatus->{status}->{md5}\n");
-        print( "# $dbType/$dbName Begin\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
+        print( "# $dbType/$dbName BeginExec\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
         print("#***************************************\n\n");
 
         my $handlerName = $dbType . 'SQLRunner';

@@ -279,7 +279,6 @@ sub run {
 
     if ( $hasLogon == 1 ) {
         print("Execution start > ");
-        $self->{hasLogon} = 1;
 
         if ( $isAutoCommit == 1 ) {
             $spawn->send("SET AUTOCOMMIT ON;\n");
@@ -297,6 +296,7 @@ sub run {
         $spawn->send("SET ECHO ON;\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
 
+        $self->{hasLogon} = 1;
         $spawn->send("\`$sqlFileName\n");
         $spawn->expect(
             undef,
