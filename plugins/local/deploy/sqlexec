@@ -232,7 +232,7 @@ sub main {
         my $logFileDir   = "$jobPath/log/$phaseName/$host-$port-$resourceId";
         my $sqlStatusDir = "$jobPath/status/$phaseName/$host-$port-$resourceId";
 
-        print("INFO: Execute sql filels -> $userName\@$host:$port\n");
+        print("INFO: Execute sql files -> $userName\@$host:$port\n");
         my $dbInfo = DBInfo->new( $sqlNodeInfo, $dbExtArgs );
 
         my $sqlFileRunner = SQLFileRunner->new(

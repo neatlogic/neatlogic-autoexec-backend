@@ -262,7 +262,8 @@ sub execOneSqlFile {
         if ( $rc > 0 ) {
             $hasError = 1;
             if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
-                $sqlFileStatus->updateStatus( status => 'aborted' );
+                $sqlStatus = 'aborted';
+                $sqlFileStatus->updateStatus( status => $sqlStatus );
             }
         }
         else {
@@ -573,6 +574,7 @@ sub execSqlFiles {
     my $hasError = 0;
 
     foreach my $sqlFile (@$sqlFiles) {
+        print("INFO: Execute sql file:$sqlFile...\n");
 
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
@@ -586,17 +588,19 @@ sub execSqlFiles {
         my $checkRet = $self->needExecute( $sqlFile, $sqlFileStatus );
 
         if ( $checkRet == 1 ) {
-            print("INFO: Execute sql file:$sqlFile...\n");
             my $rc        = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
             if ( $rc != 0 ) {
-                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n");
                 $hasError = $hasError + $rc;
             }
         }
 
         if ( $hasError != 0 ) {
+            print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             last;
+        }
+        else {
+            print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
         }
     }
 
@@ -665,10 +669,10 @@ sub execSqlFileSets {
             delete( $runnerPidsMap->{$pid} );
 
             if ( $hasError == 0 ) {
-                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
+                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
-                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
+                print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
         }
 
