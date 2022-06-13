@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser.add_argument('--phasegroups', default='', help='Just execute specify group')
     parser.add_argument('--phases', default='', help='Just execute defined phases, Example:phase1,phase2')
     parser.add_argument('--nodes', default='', help='Just execute defined node ids, Example:463104705880067,463104705880068')
-    parser.add_argument('--sqlfiles', default='', help='Just execute defined sql files, Example:["mydb.myuser/1.test.sql","mydb.myuser1/2.test.sql"]')
+    parser.add_argument('--sqlfiles', default='', help='Just execute defined sql files, Example:[{"sqlFile":"mydb.myuser/1.test.sql","nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"},...]')
 
     os.environ['TERM'] = 'dumb'
     args = parser.parse_args()
