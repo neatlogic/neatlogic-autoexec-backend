@@ -365,7 +365,7 @@ sub run {
                 $PROMPT => sub {
                     if ( $hasError == 0 and $hasSendSql == 0 ) {
                         $self->{hasLogon} = 1;
-                        print("Exection start > ");
+                        print("Execution start > ");
 
                         $spawn->send("begin work;\n");
                         $spawn->expect( undef, [ $PROMPT => sub { } ] );

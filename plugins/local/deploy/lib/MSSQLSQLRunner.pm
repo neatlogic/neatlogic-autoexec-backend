@@ -378,7 +378,7 @@ sub run {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("Exection start > ");
+        print("Execution start > ");
 
         #$spawn->send("BEGIN TRANSACTION\n");
         if ( $isAutoCommit == 1 ) {

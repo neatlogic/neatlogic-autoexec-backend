@@ -366,7 +366,7 @@ sub run {
 
         if ( $hasLogon == 1 ) {
             $self->{hasLogon} = 1;
-            print("Exection start > ");
+            print("Execution start > ");
 
             if ( $isAutoCommit == 1 ) {
                 $spawn->send("\\a ON\n");

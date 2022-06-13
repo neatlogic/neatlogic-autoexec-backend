@@ -281,8 +281,9 @@ sub execOneSqlFile {
         close($fromChild);
         close($fromParent);
 
-        select($toParent);
-        open( STDERR, ">&STDOUT" );
+        #select($toParent);
+        open( STDERR, '>&', $toParent );
+        open( STDOUT, '>&', $toParent );
         binmode(STDERR);
         binmode(STDOUT);
 

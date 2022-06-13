@@ -447,7 +447,7 @@ sub run {
 
             if ( $hasLogon == 1 ) {
                 $self->{hasLogon} = 1;
-                print("Exection start > \n");
+                print("Execution start > \n");
 
                 my $ret = 0;
 

@@ -290,7 +290,8 @@ sub run {
     );
 
     if ( $hasLogon == 1 ) {
-        print("Exection start > ");
+        print("Execution start > ");
+        $self->{hasLogon} = 1;
 
         $spawn->send("set lc_messages='en_US.UTF-8';\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
@@ -299,7 +300,6 @@ sub run {
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
 
         #$spawn->expect( undef, '-re', $PROMPT );
-        $self->{hasLogon} = 1;
         $spawn->send("\\i '$sqlFileName'\n");
 
         $spawn->expect(

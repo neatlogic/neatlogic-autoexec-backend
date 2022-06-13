@@ -288,7 +288,8 @@ sub run {
     );
 
     if ( $hasLogon == 1 ) {
-        print("Exection start > ");
+        print("Execution start > ");
+        $self->{hasLogon} = 1;
 
         if ( $isAutoCommit == 1 ) {
             $spawn->send("!autocommit on\n");
@@ -301,7 +302,6 @@ sub run {
         #$sqlEncoding = 'UTF8' if ( $charSet eq 'UTF-8' );
         #$spawn->send("SET NAMES '$sqlEncoding';\n");
         #$spawn->expect( undef, [ $PROMPT => sub { } ] );
-        $self->{hasLogon} = 1;
 
         $spawn->send("!run $sqlFileName\n");
         $spawn->expect(

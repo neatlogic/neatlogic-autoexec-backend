@@ -550,7 +550,7 @@ sub run {
             $spawn->clear_accum();
 
             #$self->{hasLogon} = 1;
-            #print("Exection start > ");
+            #print("Execution start > ");
             #$spawn->send("SET SQLP ''\r");
             #$spawn->send("select 'x' from dual;\r");
             $spawn->send(" SET TRIM ON\r");
