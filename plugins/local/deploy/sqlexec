@@ -89,8 +89,15 @@ sub main {
 
     my $sqlFiles         = [];
     my $sqlFileArrayJson = $ENV{_SQL_FILES};
+    my $sqlInfosInArg;
     if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
-        $sqlFiles = from_json($sqlFileArrayJson);
+        $sqlInfosInArg = from_json($sqlFileArrayJson);
+        my $sqlFilesMap = {};
+        foreach my $sqlInfo (@$sqlInfosInArg) {
+            $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
+        }
+        my @sqlFilesArray = keys(%$sqlFilesMap);
+        $sqlFiles = \@sqlFilesArray;
     }
     elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
         my $sqlFileArray = from_json($sqlFileJson);
@@ -158,25 +165,40 @@ sub main {
 
     my $hasError = 0;
 
-    my $sqlNodesMap   = {};
     my $serverAdapter = ServerAdapter->new();
+    my $sqlNodesMap   = {};
 
-    my $sqlFileNodesArrayJson = $ENV{_SQL_NODES};
-    if ( defined($sqlFileNodesArrayJson) and $sqlFileNodesArrayJson ne '' ) {
-        my $sqlFileNodes = from_json($sqlFileNodesArrayJson);
+    my $sqlInfoInServer;
+    if ( defined($sqlInfosInArg) ) {
+        $sqlInfoInServer = $sqlInfosInArg;
+    }
+    else {
+        $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+    }
 
-        foreach my $sqlNodeInfo (@$sqlFileNodes) {
-            my $resourceId = $sqlNodeInfo->{resourceId};
-            my $host       = $sqlNodeInfo->{host};
-            my $port       = $sqlNodeInfo->{port};
-            my $userName   = $sqlNodeInfo->{userName};
+    foreach my $sqlInfo (@$sqlInfoInServer) {
+        my $resourceId = $sqlInfo->{resourceId};
+        if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
+            my $host     = $sqlInfo->{host};
+            my $port     = $sqlInfo->{port};
+            my $userName = $sqlInfo->{username};
+
+            my $sqlNodeInfo = {
+                resourceId     => $sqlInfo->{resourceId},
+                nodeName       => $sqlInfo->{nodeName},
+                nodeType       => $sqlInfo->{nodeType},
+                host           => $host,
+                port           => $port,
+                username       => $userName,
+                accessEndpoint => $sqlInfo->{accessEndpoint}
+            };
 
             eval {
                 my $pass = $serverAdapter->getAccountPwd(
                     jobId      => $jobId,
                     resourceid => $resourceId,
-                    nodeType   => $sqlNodeInfo->{nodeType},
-                    nodeName   => $sqlNodeInfo->{nodeName},
+                    nodeType   => $sqlInfo->{nodeType},
+                    nodeName   => $sqlInfo->{nodeName},
                     username   => $userName,
                     protocol   => 'database',
                     host       => $host,
@@ -190,51 +212,7 @@ sub main {
                 print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
                 $hasError = $hasError + 1;
             }
-
             $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
-        }
-    }
-    else {
-        my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
-
-        foreach my $sqlInfo (@$sqlInfoInServer) {
-            my $resourceId = $sqlInfo->{resourceId};
-            if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
-                my $host     = $sqlInfo->{host};
-                my $port     = $sqlInfo->{port};
-                my $userName = $sqlInfo->{username};
-
-                my $sqlNodeInfo = {
-                    resourceId     => $sqlInfo->{resourceId},
-                    nodeName       => $sqlInfo->{nodeName},
-                    nodeType       => $sqlInfo->{nodeType},
-                    host           => $host,
-                    port           => $port,
-                    username       => $userName,
-                    accessEndpoint => $sqlInfo->{accessEndpoint}
-                };
-
-                eval {
-                    my $pass = $serverAdapter->getAccountPwd(
-                        jobId      => $jobId,
-                        resourceid => $resourceId,
-                        nodeType   => $sqlInfo->{nodeType},
-                        nodeName   => $sqlInfo->{nodeName},
-                        username   => $userName,
-                        protocol   => 'database',
-                        host       => $host,
-                        port       => $port
-                    );
-                    $sqlNodeInfo->{password} = $pass;
-                };
-                if ($@) {
-                    my $errMsg = $@;
-                    $errMsg =~ s/ at .*$//;
-                    print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
-                    $hasError = $hasError + 1;
-                }
-                $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
-            }
         }
     }
 

@@ -152,7 +152,14 @@ sub main {
 
     my $sqlFiles = [];
     if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
-        $sqlFiles = from_json($sqlFilesJson);
+        my $sqlInfosInArg = from_json($sqlFilesJson);
+
+        my $sqlFilesMap = {};
+        foreach my $sqlInfo (@$sqlInfosInArg) {
+            $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
+        }
+        my @sqlFilesArray = keys($sqlFilesMap);
+        my $sqlFiles      = \@sqlFilesArray;
     }
     else {
         if ( defined($index) and $index ne '' ) {
