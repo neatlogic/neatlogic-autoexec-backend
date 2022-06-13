@@ -158,33 +158,25 @@ sub main {
 
     my $hasError = 0;
 
-    my $serverAdapter   = ServerAdapter->new();
-    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+    my $sqlNodesMap   = {};
+    my $serverAdapter = ServerAdapter->new();
 
-    my $sqlNodesMap = {};
-    foreach my $sqlInfo (@$sqlInfoInServer) {
-        my $resourceId = $sqlInfo->{resourceId};
-        if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
-            my $host     = $sqlInfo->{host};
-            my $port     = $sqlInfo->{port};
-            my $userName = $sqlInfo->{username};
+    my $sqlFileNodesArrayJson = $ENV{_SQL_NODES};
+    if ( defined($sqlFileNodesArrayJson) and $sqlFileNodesArrayJson ne '' ) {
+        my $sqlFileNodes = from_json($sqlFileNodesArrayJson);
 
-            my $sqlNodeInfo = {
-                resourceId     => $sqlInfo->{resourceId},
-                nodeName       => $sqlInfo->{nodeName},
-                nodeType       => $sqlInfo->{nodeType},
-                host           => $host,
-                port           => $port,
-                username       => $userName,
-                accessEndpoint => $sqlInfo->{accessEndpoint}
-            };
+        foreach my $sqlNodeInfo (@$sqlFileNodes) {
+            my $resourceId = $sqlNodeInfo->{resourceId};
+            my $host       = $sqlNodeInfo->{host};
+            my $port       = $sqlNodeInfo->{port};
+            my $userName   = $sqlNodeInfo->{userName};
 
             eval {
                 my $pass = $serverAdapter->getAccountPwd(
                     jobId      => $jobId,
                     resourceid => $resourceId,
-                    nodeType   => $sqlInfo->{nodeType},
-                    nodeName   => $sqlInfo->{nodeName},
+                    nodeType   => $sqlNodeInfo->{nodeType},
+                    nodeName   => $sqlNodeInfo->{nodeName},
                     username   => $userName,
                     protocol   => 'database',
                     host       => $host,
@@ -198,7 +190,51 @@ sub main {
                 print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
                 $hasError = $hasError + 1;
             }
+
             $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
+        }
+    }
+    else {
+        my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+
+        foreach my $sqlInfo (@$sqlInfoInServer) {
+            my $resourceId = $sqlInfo->{resourceId};
+            if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
+                my $host     = $sqlInfo->{host};
+                my $port     = $sqlInfo->{port};
+                my $userName = $sqlInfo->{username};
+
+                my $sqlNodeInfo = {
+                    resourceId     => $sqlInfo->{resourceId},
+                    nodeName       => $sqlInfo->{nodeName},
+                    nodeType       => $sqlInfo->{nodeType},
+                    host           => $host,
+                    port           => $port,
+                    username       => $userName,
+                    accessEndpoint => $sqlInfo->{accessEndpoint}
+                };
+
+                eval {
+                    my $pass = $serverAdapter->getAccountPwd(
+                        jobId      => $jobId,
+                        resourceid => $resourceId,
+                        nodeType   => $sqlInfo->{nodeType},
+                        nodeName   => $sqlInfo->{nodeName},
+                        username   => $userName,
+                        protocol   => 'database',
+                        host       => $host,
+                        port       => $port
+                    );
+                    $sqlNodeInfo->{password} = $pass;
+                };
+                if ($@) {
+                    my $errMsg = $@;
+                    $errMsg =~ s/ at .*$//;
+                    print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
+                    $hasError = $hasError + 1;
+                }
+                $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
+            }
         }
     }
 

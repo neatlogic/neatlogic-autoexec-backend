@@ -177,6 +177,9 @@ sub main {
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+    $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+
     my $rc = 0;
     if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(

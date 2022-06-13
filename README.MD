@@ -42,6 +42,7 @@ optional arguments:
   --nodes NODES         Just execute defined node ids, Example:463104705880067,463104705880068
   --sqlfiles SQLFILES   Just execute defined sql files,
                         Example:["mydb.myuser/1.test.sql","mydb.myuser1/2.test.sql"]
+  --sqlnodes SQL_NODES  Example:[{"nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"}]
 ```
 
 ## 使用
