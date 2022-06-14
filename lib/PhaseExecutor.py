@@ -85,10 +85,13 @@ class PhaseWorker(threading.Thread):
                 phaseStatus.incFailNodeCount()
                 print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port), end='')
 
-    def informNodeWaitInput(self, resourceId, interact=None):
+    def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         currentNode = self.currentNode
         if currentNode is not None and currentNode.resourceId == resourceId:
-            currentNode.updateNodeStatus('waitInput', interact=interact)
+            if clean is None:
+                currentNode.updateNodeStatus('waitInput', interact=interact)
+            elif clean == 1:
+                currentNode.updateNodeStatus('running', interact=None)
             return True
         else:
             return False
@@ -224,10 +227,10 @@ class PhaseExecutor:
 
         return phaseStatus.failNodeCount
 
-    def informNodeWaitInput(self, resourceId, interact=None):
+    def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         hasInformed = False
         for worker in self.workers:
-            if (worker.informNodeWaitInput(resourceId, interact=interact)):
+            if (worker.informNodeWaitInput(resourceId, interact=interact, clean=clean)):
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)

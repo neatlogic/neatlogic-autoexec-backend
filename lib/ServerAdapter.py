@@ -63,10 +63,10 @@ class ServerAdapter:
 
     def httpPOST(self, apiUri, authToken, params):
         url = self.serverBaseUrl + apiUri
-        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        #userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-                   'User-Agent': userAgent,
+                   # 'User-Agent': userAgent,
                    'Tenant': self.context.tenant,
                    'Authorization': authToken}
 

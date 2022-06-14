@@ -29,7 +29,8 @@ sub new {
 
     my $ua = $client->getUseragent();    #返回LWP::UserAgent对象
     $ua->ssl_opts( verify_hostname => 0, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE, SSL_use_cert => 0 );
-    $ua->agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36');
+
+    #$ua->agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36');
     $ua->max_redirect(100);
 
     #save cookies

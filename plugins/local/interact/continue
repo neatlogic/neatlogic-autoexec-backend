@@ -89,6 +89,12 @@ sub main {
         pipeFile => $pipeFile
     );
 
+    AutoExecUtils::informNodeWaitInput(
+        phaseName  => $phaseName,
+        resourceId => $nodeInfo->{resourceId},
+        clean      => 1
+    );
+
     my $out = {};
 
     $out->{interactOut} = $enter;

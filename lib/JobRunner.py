@@ -52,9 +52,10 @@ class ListenWorkThread(threading.Thread):
                     if actionData['action'] == 'informNodeWaitInput':
                         resourceId = int(actionData.get('resourceId'))
                         phaseName = actionData['phaseName']
+                        clean = actionData.get('clean')
                         phaseStatus = self.context.phases.get(phaseName)
                         if phaseStatus is not None and phaseStatus.executor is not None:
-                            phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData['interact'])
+                            phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData.get('interact'), clean=clean)
                             print("INFO: Node interact event recieved, processed.\n", end='')
                     elif actionData['action'] == 'informRoundContinue':
                         phaseName = actionData['phaseName']
