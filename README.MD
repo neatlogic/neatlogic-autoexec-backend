@@ -509,6 +509,41 @@ python3 dicttool
 - "username": 在目标节点运行工具的OS用户s
 - "password": 连接目标节点的密码
 
- 
+## 安装Agent工具
+sshcmd
+### 单个目标
+```shell
+python3 bin/sshcmd --host 192.168.0.26 --port 2020 --user root --password ********  ls -l /tmp
+python3 bin/sshcmd --host 192.168.0.26 --user root --password ********  ls -l /tmp
+```
 
+### 多个目标
+编写文件/tmp/hosts.txt
+```shell
+192.168.0.26:22 root password
+192.168.0.25:22 root password
+```
 
+```shell
+python3 bin/sshcmd --hostsfile /tmp/hosts.txt ls -l /tmp
+```
+
+编写文件/tmp/hosts1.txt
+```shell
+192.168.0.26:22 password
+192.168.0.25:22 password
+```
+
+```shell
+python3 bin/sshcmd --user root --hostsfile /tmp/hosts1.txt ls -l /tmp
+```
+
+编写文件/tmp/hosts2.txt
+```shell
+192.168.0.26:22
+192.168.0.25:22
+```
+
+```shell
+python3 bin/sshcmd --user root --password ****** --hostsfile /tmp/hosts1.txt ls -l /tmp
+```
