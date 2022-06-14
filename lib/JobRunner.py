@@ -51,16 +51,16 @@ class ListenWorkThread(threading.Thread):
                 if actionData:
                     if actionData['action'] == 'informNodeWaitInput':
                         resourceId = int(actionData.get('resourceId'))
-                        for phaseStatus in self.context.phases.values():
-                            if phaseStatus.executor is not None:
-                                phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData['interact'])
-                                print("INFO: Node interact event recieved, processed.\n", end='')
+                        phaseStatus = self.context.phases.get(phaseName)
+                        if phaseStatus is not None and phaseStatus.executor is not None:
+                            phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData['interact'])
+                            print("INFO: Node interact event recieved, processed.\n", end='')
                     elif actionData['action'] == 'informRoundContinue':
                         if 'phaseName' in actionData:
                             phaseName = actionData['phaseName']
                             roundNo = actionData['roundNo']
-                            if phaseName in self.context.phases:
-                                phaseStatus = self.context.phases[phaseName]
+                            phaseStatus = self.context.phases.get(phaseName)
+                            if phaseStatus is not None:
                                 phaseStatus.setGlobalRoundFinEvent(roundNo)
                             print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end='')
                     elif actionData['action'] == 'setEnv':
