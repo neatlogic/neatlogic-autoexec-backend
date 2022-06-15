@@ -88,7 +88,7 @@ class PhaseWorker(threading.Thread):
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         currentNode = self.currentNode
         if currentNode is not None and currentNode.resourceId == resourceId:
-            if clean is None:
+            if clean is None or clean == 0:
                 currentNode.updateNodeStatus('waitInput', interact=interact)
             elif clean == 1:
                 currentNode.updateNodeStatus('running', interact=None)
@@ -234,7 +234,10 @@ class PhaseExecutor:
                 hasInformed = True
         if hasInformed:
             self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-            print("INFO: Update runner node status to waitInput succeed.\n", end='')
+            if clean == 1:
+                print("INFO: Update runner node status to running succeed.\n", end='')
+            else:
+                print("INFO: Update runner node status to waitInput succeed.\n", end='')
 
     def pause(self):
         self.context.goToStop = True
@@ -260,6 +263,7 @@ class PhaseExecutor:
         for t in pauseWorkers:
             t.join()
 
+        #self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.paused)
         print("INFO: Try to pause job complete.\n", end='')
 
     def kill(self):
@@ -286,4 +290,5 @@ class PhaseExecutor:
         for t in killWorkers:
             t.join()
 
+        #self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.aborted)
         print("INFO: Try to kill phase:{} complete.\n".format(self.phaseName), end='')

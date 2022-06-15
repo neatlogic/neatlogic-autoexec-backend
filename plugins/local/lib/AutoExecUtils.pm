@@ -248,6 +248,13 @@ sub informNodeWaitInput {
     my $phaseName  = $args{phaseName};
     my $resourceId = $args{resourceId};
 
+    my $destStatus = 'waitInput';
+    my $doClean;
+    if ( defined( $args{clean} ) and $args{clean} == 1 ) {
+        $destStatus = 'running';
+        $doClean    = 1;
+    }
+
     if ( -e $sockPath ) {
         eval {
             my $client = IO::Socket::UNIX->new(
@@ -260,6 +267,7 @@ sub informNodeWaitInput {
             $request->{action}     = 'informNodeWaitInput';
             $request->{phaseName}  = $phaseName;
             $request->{resourceId} = $resourceId;
+            $request->{clean}      = $doClean;
 
             if (    %args
                 and defined( $args{pipeFile} )
@@ -288,14 +296,14 @@ sub informNodeWaitInput {
 
             $client->send( to_json($request) );
             $client->close();
-            print("INFO: Inform runner udpate status to waitInput success.\n");
+            print("INFO: Inform runner udpate status to $destStatus success.\n");
         };
         if ($@) {
-            print("WARN: Inform runner udpate status to waitInput failed, $@\n");
+            print("WARN: Inform runner udpate status to $destStatus failed, $@\n");
         }
     }
     else {
-        print("WARN: Inform runner update status to waitInput failed:socket file $sockPath not exist.\n");
+        print("WARN: Inform runner update status to $destStatus failed:socket file $sockPath not exist.\n");
     }
     return;
 }
