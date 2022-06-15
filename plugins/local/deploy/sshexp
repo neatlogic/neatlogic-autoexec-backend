@@ -8,6 +8,7 @@ use Getopt::Long;
 use File::Path;
 use IPC::Open3;
 use Encode;
+use JSON;
 use Cwd;
 
 my $CHARSET    = 'utf-8';
