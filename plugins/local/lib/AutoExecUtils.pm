@@ -192,7 +192,7 @@ sub doInteract {
                 if ( $enter eq 'force-exit' ) {
                     $hasGetInput = 1;
                 }
-                elsif ( $opType eq 'mslelect' ) {
+                elsif ( $opType eq 'mselect' ) {
                     my $selVals = from_json($enter);
                     $hasGetInput = 1;
                     if ( scalar(@$selVals) == 0 ) {
@@ -210,9 +210,6 @@ sub doInteract {
                 }
 
                 if ( $hasGetInput == 0 ) {
-                    last;
-                }
-                else {
                     print("WARN: Invalid input value:$enter, try again.\n");
                 }
             }
