@@ -192,7 +192,7 @@ sub doInteract {
                 if ( $enter eq 'force-exit' ) {
                     $hasGetInput = 1;
                 }
-                elsif ( $optType eq 'mslelect' ) {
+                elsif ( $opType eq 'mslelect' ) {
                     my $selVals = from_json($enter);
                     $hasGetInput = 1;
                     if ( scalar(@$selVals) == 0 ) {
