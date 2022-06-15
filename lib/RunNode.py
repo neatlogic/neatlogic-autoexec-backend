@@ -729,8 +729,8 @@ class RunNode:
         # os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False)
+        orgCmdLine = op.getCmdLine(fullPath=True, osType='Linux')
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False, osType='Linux')
 
         # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node, ensure_ascii=False))
         cmdline = 'exec {}'.format(orgCmdLine)
