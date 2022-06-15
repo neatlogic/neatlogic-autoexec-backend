@@ -420,7 +420,7 @@ class Operation:
 
         return optDef
 
-    def appendCmdOpts(self, cmd, noPassword=False, osType='linux'):
+    def appendCmdOpts(self, cmd, noPassword=False, osType='Linux'):
         for k, v in self.options.items():
             if v == "" or v is None:
                 continue
@@ -430,9 +430,8 @@ class Operation:
                 kDesc = self.param['desc'][k].lower()
 
             isObject = False
-            if not isinstance(v, str):
+            if kDesc in self.JSON_TYPES:
                 isObject = True
-                v = json.dumps(v, ensure_ascii=False)
 
             isPassword = False
             if kDesc in self.PWD_TYPES or k.endswith('account'):
