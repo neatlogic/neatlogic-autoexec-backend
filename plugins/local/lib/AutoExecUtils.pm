@@ -159,7 +159,7 @@ sub doInteract {
     if ( defined($pipe) ) {
         my $hasGetInput = 0;
         while ( $hasGetInput == 0 ) {
-            print("[wait interact]$message\n");
+            print("[Wait Interact]$message\n");
             STDOUT->flush();
 
             my $select       = IO::Select->new( $pipe, \*STDIN );
@@ -189,8 +189,27 @@ sub doInteract {
                 }
                 print("INFO: Get input:$enter\n");
 
-                if ( $opType eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
+                if ( $enter eq 'force-exit' ) {
                     $hasGetInput = 1;
+                }
+                elsif ( $optType eq 'mslelect' ) {
+                    my $selVals = from_json($enter);
+                    $hasGetInput = 1;
+                    if ( scalar(@$selVals) == 0 ) {
+                        $hasGetInput = 0;
+                    }
+                    foreach my $selVal (@$selVals) {
+                        if ( not $optsMap->{$selVal} ) {
+                            $hasGetInput = 0;
+                            last;
+                        }
+                    }
+                }
+                elsif ( $opType eq 'input' or $optsMap->{$enter} == 1 ) {
+                    $hasGetInput = 1;
+                }
+
+                if ( $hasGetInput == 0 ) {
                     last;
                 }
                 else {

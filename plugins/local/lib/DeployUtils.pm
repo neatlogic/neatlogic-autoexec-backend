@@ -650,104 +650,14 @@ sub guessDataEncoding {
 sub doInteract {
     my ( $self, $pipeFile, %args ) = @_;
 
-    my $message = $args{message};    # 交互操作文案
-    my $opType  = $args{opType};     # 类型：button|input|select|mselect
-    my $title   = $args{title};      # 交互操作标题
-    my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
-    my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
+    #my $message = $args{message};    # 交互操作文案
+    #my $opType  = $args{opType};     # 类型：button|input|select|mselect
+    #my $title   = $args{title};      # 交互操作标题
+    #my $opts    = $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
+    #my $role    = $args{role};       # 可以操作此操作的角色，如果空代表不控制
     $args{pipeFile} = $pipeFile;
 
-    my $optsMap = {};
-
-    for my $opt (@$opts) {
-        $optsMap->{$opt} = 1;
-    }
-    my $pipeDescFile = "$pipeFile.json";
-
-    my $pipe;
-
-    END {
-        local $?;
-        if ( defined($pipe) ) {
-            $pipe->close();
-        }
-        unlink($pipeFile);
-        unlink($pipeDescFile);
-    }
-
-    my $userId;
-    my $enter;
-
-    if ( -e $pipeFile ) {
-        unlink($pipeFile);
-    }
-
-    my $pipeDescFH = IO::File->new(">$pipeDescFile");
-    if ( not defined($pipeDescFH) ) {
-        die("ERROR: Create file $pipeDescFile failed $!\n");
-    }
-    print $pipeDescFH ( to_json( \%args ) );
-    close($pipeDescFH);
-
-    POSIX::mkfifo( $pipeFile, 0700 );
-    $pipe = IO::File->new("+<$pipeFile");
-
-    if ( defined($pipe) ) {
-        my $hasGetInput = 0;
-        while ( $hasGetInput == 0 ) {
-            print("$message\n");
-
-            my $select       = IO::Select->new( $pipe, \*STDIN );
-            my @inputHandles = $select->can_read($READ_TMOUT);
-
-            if ( not @inputHandles ) {
-                $enter = 'force-exit';
-                if ( defined($pipe) ) {
-                    $pipe->close();
-                }
-                unlink($pipeFile);
-                die("ERROR: Read intput failed.\n");
-            }
-
-            foreach my $inputHandle (@inputHandles) {
-                $enter = $inputHandle->getline();
-
-                if ( not defined($enter) ) {
-                    $enter = 'force-exit';
-                }
-
-                $enter =~ s/^\s*|\s*$//g;
-                if ( $enter =~ /^\[(.*?)\]# (.*)$/ ) {
-                    $userId = $1;
-                    $enter  = $2;
-                }
-                print("INFO: Get input:$enter\n");
-
-                if ( $opType eq 'input' or $optsMap->{$enter} == 1 or $enter eq 'force-exit' ) {
-                    $hasGetInput = 1;
-                    last;
-                }
-                else {
-                    print("WARN: Invalid input value:$enter, try again.\n");
-                }
-            }
-        }
-    }
-    else {
-        die("ERROR: Can not get input $!\n");
-    }
-
-    if ( defined($pipe) ) {
-        $pipe->close();
-    }
-    unlink($pipeFile);
-    unlink($pipeDescFile);
-
-    if ( $enter eq 'force-exit' ) {
-        undef($enter);
-    }
-
-    return ( $userId, $enter );
+    AutoExecUtils::doInteract(%args);
 }
 
 sub decideOption {
