@@ -245,7 +245,7 @@ sub waitInput {
     $self->updateStatus( interact => $pipeDescJson, status => 'waitInput' );
 
     my $selOptVal = DeployUtils->decideOption( $msg, $pipeFile, $role );
-    $self->updateStatus( interact => undef );
+    $self->updateStatus( interact => undef, status => 'running' );
     return $selOptVal;
 }
 

@@ -6,6 +6,7 @@
  文件参数转换为对当前file子目录下文件路径名
  密码参数进行解密
 """
+from email.errors import HeaderMissingRequiredValue
 import os
 import fcntl
 import re
@@ -174,45 +175,47 @@ class Operation:
         opOpts = self.param['opt']
 
         for optName, optValue in opOpts.items():
-            if optName in opDesc:
-                optType = opDesc[optName]
-                if optType == 'password' and optValue[0:11] == '{ENCRYPTED}':
+            optType = opDesc.get(optName)
+            if optType is None:
+                continue
+
+            if optType == 'password' and optValue[0:11] == '{ENCRYPTED}':
+                try:
+                    optValue = Utils._rc4_decrypt_hex(self.KEY, optValue[11:])
+                except:
+                    self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
+            elif optType == 'account' and resourceId != '':
+                # format username/accountId
+                if optValue is not None and optValue != '':
+                    accountDesc = optValue.split('/')
+                    retObj = {}
                     try:
-                        optValue = Utils._rc4_decrypt_hex(self.KEY, optValue[11:])
-                    except:
-                        self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
-                elif optType == 'account' and resourceId != '':
-                    # format username/accountId
-                    if optValue is not None and optValue != '':
-                        accountDesc = optValue.split('/')
-                        retObj = {}
-                        try:
-                            username = accountDesc[0]
-                            accountId = accountDesc[1]
-                            protocol = accountDesc[2]
-                            password = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
-                            optValue = username + '/' + Utils._rc4_decrypt_hex(self.KEY, password[11:])
-                        except Exception as err:
-                            self.writeLog("WARN: {}\n".format(err.value))
+                        username = accountDesc[0]
+                        accountId = accountDesc[1]
+                        protocol = accountDesc[2]
+                        password = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
+                        optValue = username + '/' + Utils._rc4_decrypt_hex(self.KEY, password[11:])
+                    except Exception as err:
+                        self.writeLog("WARN: {}\n".format(err.value))
 
-                elif optType == 'file':
-                    matchObj = re.match(r'^\s*\$\{', str(optValue))
-                    if matchObj:
-                        optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
-                        optValue = json.loads(optValueStr)
+            elif optType == 'file':
+                matchObj = re.match(r'^\s*\$\{', str(optValue))
+                if matchObj:
+                    optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                    optValue = json.loads(optValueStr)
 
-                    fileNames = self.fetchFile(optName, optValue)
-                    fileNamesJson = []
-                    for fileName in fileNames:
-                        fileNamesJson.append('file/' + fileName)
-                    optValue = json.dumps(fileNamesJson, ensure_ascii=False)
-                else:
-                    if optType == 'textarea':
-                        optValue = {"content": optValue}
+                fileNames = self.fetchFile(optName, optValue)
+                fileNamesJson = []
+                for fileName in fileNames:
+                    fileNamesJson.append('file/' + fileName)
+                optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+            else:
+                if optType == 'textarea':
+                    optValue = {"content": optValue}
 
-                    optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
 
-                self.options[optName] = optValue
+            self.options[optName] = optValue
 
         if 'arg' in self.param and 'values' in self.param['arg']:
             opArgs = self.param['arg']
@@ -306,7 +309,7 @@ class Operation:
         matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', optValue)
         for matchObj in matchObjs:
             # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
-            #matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
+            # matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
             exp = matchObj[0]
             paramName = matchObj[1]
             val = None
@@ -347,41 +350,75 @@ class Operation:
 
         return optValue
 
+    def getOneArgDef(self, val, hideValue=False, quota='"'):
+        argDef = ''
+        if hideValue:
+            val = '******'
+
+        if self.interpreter != 'cmd':
+            if quota == '"':
+                val = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', val)
+                val = re.sub(r'(?<=\\\\)+"', '\\"', val)
+            elif quota == "'":
+                val = val.replace("'", "'\\''")
+
+        if self.interpreter == 'cmd':
+            argDef = ' %s ' % (val)
+        else:
+            argDef = ' %s%s%s ' % (quota, val, quota)
+
+        return argDef
+
     def appendCmdArgs(self, cmd, noPassword=False, osType='linux'):
         argDesc = 'input'
         if 'arg' in self.param and 'type' in self.param['arg']:
             argDesc = self.param['arg']['type'].lower()
 
-        if noPassword and argDesc in self.PWD_TYPES:
-            for argValue in self.arguments:
-                cmd = cmd + ' "******"'
-        elif argDesc in self.JSON_TYPES:
-            for argValue in self.arguments:
-                jsonStr = argValue
-                if (osType == 'windows'):
-                    jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                    jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
-                    jsonStr = re.sub(r'(?<!\\)"', '\\"', jsonStr)
-                    cmd = cmd + ' "{}"'.format(jsonStr)
-                else:
-                    jsonStr = jsonStr.replace("'", "'\\''")
-                    cmd = cmd + " '{}'".format(jsonStr)
-        elif argDesc in self.PWD_TYPES:
-            for argValue in self.arguments:
-                if osType == 'windows':
-                    argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
-                    argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
-                    cmd = cmd + ' "{}"'.format(argValue)
-                else:
-                    argValue = argValue.replace("'", "'\\''")
-                    cmd = cmd + " '{}'".format(argValue)
-        else:
-            for argValue in self.arguments:
-                argValue = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', argValue)
-                argValue = re.sub(r'(?<=\\\\)+"', '\\"', argValue)
-                cmd = cmd + ' "{}"'.format(argValue)
+        isObject = False
+        if argDesc in self.JSON_TYPES:
+            isObject = True
 
+        isPassword = False
+        if argDesc in self.PWD_TYPES:
+            isPassword = True
+
+        hideValue = False
+        if noPassword and isPassword:
+            hideValue = True
+
+        for argValue in self.arguments:
+            if (isObject or isPassword) and osType != 'windows':
+                cmd = cmd + self.getOneArgDef(argValue, hideValue=hideValue, quota="'")
+            else:
+                cmd = cmd + self.getOneArgDef(argValue, hideValue=hideValue, quota='"')
         return cmd
+
+    def getOneOptDef(self, key, val, hideValue=False, quota='"'):
+        optDef = ''
+        if hideValue:
+            val = '******'
+
+        if self.interpreter != 'cmd':
+            if quota == '"':
+                val = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', val)
+                val = re.sub(r'(?<=\\\\)+"', '\\"', val)
+            elif quota == "'":
+                val = val.replace("'", "'\\''")
+
+        if self.interpreter == 'cmd':
+            optDef = ' /%s:%s ' % (key, val)
+        elif self.interpreter == 'vbscript':
+            optDef = ' /%s:%s%s%s ' % (key, quota, val, quota)
+        elif self.interpreter == 'powershell':
+            optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
+        else:
+            keyLen = len(key)
+            if keyLen == 1:
+                optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
+            else:
+                optDef = ' --%s %s%s%s ' % (key, quota, val, quota)
+
+        return optDef
 
     def appendCmdOpts(self, cmd, noPassword=False, osType='linux'):
         for k, v in self.options.items():
@@ -392,34 +429,23 @@ class Operation:
             if 'desc' in self.param and k in self.param['desc']:
                 kDesc = self.param['desc'][k].lower()
 
-            if noPassword and (kDesc in self.PWD_TYPES or k.endswith('account')):
-                cmd = cmd + ' --{} "{}" '.format(k, '******')
+            isObject = False
+            if not isinstance(v, str):
+                isObject = True
+                v = json.dumps(v, ensure_ascii=False)
+
+            isPassword = False
+            if kDesc in self.PWD_TYPES or k.endswith('account'):
+                isPassword = True
+
+            hideValue = False
+            if noPassword and isPassword:
+                hideValue = True
+
+            if (isObject or isPassword) and osType != 'windows':
+                cmd = cmd + self.getOneOptDef(k, v, hideValue=hideValue, quota="'")
             else:
-                if kDesc in self.JSON_TYPES:
-                    jsonStr = v
-                    if osType == 'windows':
-                        jsonStr = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', jsonStr)
-                        jsonStr = re.sub(r'(?<=\\\\)+"', '\\"', jsonStr)
-                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
-                    else:
-                        jsonStr = jsonStr.replace("'", "'\\''")
-                        cmd = cmd + " --{} '{}' ".format(k, jsonStr)
-                elif kDesc in self.PWD_TYPES or k.endswith('account'):
-                    if osType == 'windows':
-                        v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
-                        v = re.sub(r'(?<=\\\\)+"', '\\"', v)
-                        cmd = cmd + ' --{} "{}" '.format(k, v)
-                    else:
-                        v = v.replace("'", "'\\''")
-                        cmd = cmd + " --{} '{}' ".format(k, v)
-                elif len(k) == 1:
-                    v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
-                    v = re.sub(r'(?<=\\\\)+"', '\\"', v)
-                    cmd = cmd + ' -{} "{}" '.format(k, v)
-                else:
-                    v = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', v)
-                    v = re.sub(r'(?<=\\\\)+"', '\\"', v)
-                    cmd = cmd + ' --{} "{}" '.format(k, v)
+                cmd = cmd + self.getOneOptDef(k, v, hideValue=hideValue, quota='"')
         return cmd
 
     def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
@@ -433,23 +459,23 @@ class Operation:
                 if osType == 'windows':
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
                     if self.interpreter == 'cmd':
-                        #cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
+                        # cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & cmd /c {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                        #cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
+                        # cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & cscript {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'powershell':
-                        #cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell {}/{}'.format(remotePath, self.scriptFileName)
+                        # cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.scriptFileName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName):
                         cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
-                        #cmd = '{} -l {}/{}'.format(self.interpreter,  remotePath, self.scriptFileName)
+                        # cmd = '{} -l {}/{}'.format(self.interpreter,  remotePath, self.scriptFileName)
                         cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.scriptFileName)
                     else:
-                        #cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
+                        # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
                         cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
             else:
                 if fullPath:
@@ -465,33 +491,33 @@ class Operation:
                     nameWithExt = self.opSubName
                     if self.opSubName.endswith(extName):
                         if self.interpreter == 'cmd':
-                            #cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
+                            # cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
                             cmd = 'cd {} & cmd /c {}'.format(remotePath, self.opSubName)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            #cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
+                            # cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
                             cmd = 'cd {} & cscript {}'.format(remotePath, self.opSubName)
                         elif self.interpreter == 'powershell':
                             cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.opSubName)
                         else:
-                            #cmd = '{} {}/{}'.format(self.interpreter, remotePath,  self.opSubName)
+                            # cmd = '{} {}/{}'.format(self.interpreter, remotePath,  self.opSubName)
                             cmd = 'cd {} & {} {}'.format(remotePath, self.interpreter, self.opSubName)
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
-                            #cmd = 'cd {} & copy {} {} & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            # cmd = 'cd {} & copy {} {} & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
                             cmd = 'cd {} & copy {} {} & cmd /c {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            #cmd = 'cd {} & copy {} {} & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            # cmd = 'cd {} & copy {} {} & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
                             cmd = 'cd {} & copy {} {} & cscript {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         else:
-                            #cmd = 'cd {} & copy {} {} & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
+                            # cmd = 'cd {} & copy {} {} & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
                             cmd = 'cd {} & copy {} {} & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
-                        #cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.opSubName)
                     else:
-                        #cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
+                        # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter,  self.opSubName)
             else:
                 if fullPath:
