@@ -910,7 +910,7 @@ class RunNode:
             remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
                 self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
-            remoteCmdHidePass = op.getCmdOptsHidePassword()
+            remoteCmdHidePass = op.getCmdOptsHidePassword(osType='Unix')
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
