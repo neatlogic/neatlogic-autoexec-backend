@@ -675,8 +675,8 @@ class RunNode:
         # os.chdir(self.runPath)
         ret = -1
         # 本地执行，则使用管道启动运行插件
-        orgCmdLine = op.getCmdLine(fullPath=True)
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False)
+        orgCmdLine = op.getCmdLine(fullPath=True, osType='Linux')
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False, osType='Linux')
 
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = os.environ.copy()
@@ -909,7 +909,7 @@ class RunNode:
 
             remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
                 self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
-            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
+            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
             remoteCmdHidePass = op.getCmdOptsHidePassword()
             self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
             scriptFile = None
