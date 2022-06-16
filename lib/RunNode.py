@@ -663,7 +663,9 @@ class RunNode:
                 self.writeNodeLog("\n")
             except Exception as ex:
                 print("ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()), end='')
-
+        finally:
+            phaseStatus = self.context.phases[self.phaseName]
+            phaseStatus.incWarnCount(self.warnCount)
         self.killCmd = None
         self.childPid = None
 
