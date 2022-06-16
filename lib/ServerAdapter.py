@@ -227,7 +227,7 @@ class ServerAdapter:
                 nodesFile.close()
 
     # 更新运行阶段某个节点的状态到服务端
-    def pushNodeStatus(self, groupNo, phaseName, runNode, status, failIgnore=0):
+    def pushNodeStatus(self, groupNo, phaseName, runNode, status, failIgnore=0, warnCount=0):
         if self.context.devMode:
             return {}
 
@@ -240,6 +240,7 @@ class ServerAdapter:
             'port': runNode.port,
             'status': status,
             'failIgnore': failIgnore,
+            'warnCount': warnCount,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }

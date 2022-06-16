@@ -23,6 +23,7 @@ class PhaseStatus:
         self.isPausing = 0
         # 用于标记当前runner的node的失败数量
         self.couterLock = threading.Lock()
+        self.warnCountLock = threading.Lock()
         self.roundNo = 0
         self.execNodeCount = 0
         self.leftNodeCount = 0
@@ -95,8 +96,7 @@ class PhaseStatus:
             self.produceEvent()
             return self.skipNodeCount
 
-    def incWarnCount(self):
-        with self.couterLock:
-            self.warnCount += 1
-            self.produceEvent()
+    def incWarnCount(self, warCount):
+        with self.warnCountLock:
+            self.warnCount += warCount
             return self.warnCount

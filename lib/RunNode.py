@@ -235,7 +235,7 @@ class RunNode:
             try:
                 serverAdapter = self.context.serverAdapter
                 # 当status为failed，但是failIgnore为1，不影响继续执行
-                retObj = serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, self, status, failIgnore)
+                retObj = serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, self, status, failIgnore=failIgnore, warnCount=self.warnCount)
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
