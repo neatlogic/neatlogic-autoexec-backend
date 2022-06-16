@@ -557,9 +557,18 @@ sub run {
                                 print("ERROR: error ocurred, see detail in pre line.\n");
                             }
                         }
-                        elsif ( $tLine = /^SQL0911N The current transaction has been rolled back/ ) {
+                        elsif ( $tLine =~ /^SQL0911N The current transaction has been rolled back/ ) {
                             $warningCount = $warningCount + 1;
                             $toBeRollback = 1;
+                        }
+                        elsif ( $tLine =~ /^SQL\d+N/ ) {
+                            print("ERROR: $tLine\n");
+                            $hasError = 1;
+                        }
+                        elsif ( $tLine =~ /^SQL\d+W/ ) {
+                            print("WARN: $tLine\n");
+                            $warningCount = $warningCount + 1;
+                            $hasWarn      = 1;
                         }
                     }
                 }
