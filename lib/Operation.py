@@ -363,7 +363,10 @@ class Operation:
                 val = val.replace("'", "'\\''")
 
         if self.interpreter == 'cmd':
-            argDef = ' %s ' % (val)
+            if re.search('\s', val):
+                argDef = ' "%s" ' % (val)
+            else:
+                argDef = ' %s ' % (val)
         else:
             argDef = ' %s%s%s ' % (quota, val, quota)
 
@@ -406,7 +409,10 @@ class Operation:
                 val = val.replace("'", "'\\''")
 
         if self.interpreter == 'cmd':
-            optDef = ' /%s:%s ' % (key, val)
+            if re.search('\s', val):
+                optDef = ' /%s:"%s" ' % (key, val)
+            else:
+                optDef = ' /%s:%s ' % (key, val)
         elif self.interpreter == 'vbscript':
             optDef = ' /%s:%s%s%s ' % (key, quota, val, quota)
         elif self.interpreter == 'powershell':
