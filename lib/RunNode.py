@@ -979,7 +979,7 @@ class RunNode:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
                     scriptFile = None
-                    sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+                    sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IRWXU)
 
                     #remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
                     #remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
@@ -1008,7 +1008,7 @@ class RunNode:
                                 hasError = True
                                 self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
-                    sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+                    sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IRWXU)
 
                 if hasError == 0 and op.hasFileOpt:
                     try:

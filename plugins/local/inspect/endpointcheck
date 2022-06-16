@@ -1,4 +1,5 @@
 #!/bin/bash
 BIN_DIR=$(dirname $0)
 BIN_DIR=$(cd "$BIN_DIR" && pwd)
-sudo -u root PYTHONPATH="$PYTHONPATH" python3 "$BIN_DIR/endpointcheck.py" $*
+
+sudo -E -u root AUTOEXEC_JOBID=$AUTOEXEC_JOBID OUTPUT_PATH="$OUTPUT_PATH" PYTHONPATH="$PYTHONPATH" AUTOEXEC_NODE="$AUTOEXEC_NODE" python3 "$BIN_DIR/endpointcheck.py" $*

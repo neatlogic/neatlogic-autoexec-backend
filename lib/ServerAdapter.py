@@ -59,7 +59,10 @@ class ServerAdapter:
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
-            request.add_header(k, v)
+            if isinstance(v, str):
+                request.add_header(k, v)
+            else:
+                request.add_header(k, str(v))
 
     def httpPOST(self, apiUri, authToken, params):
         url = self.serverBaseUrl + apiUri
@@ -481,7 +484,6 @@ class ServerAdapter:
 
         cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
-        cachedFile = None
         response = None
         try:
             cachedFileTmp = open(cachedFilePathTmp, 'a+')
