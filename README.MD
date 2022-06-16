@@ -53,6 +53,7 @@ bin/setup.sh
 ### 设置安装用户免密码sudo
 使用root用户编辑/etc/sudoers文件，增加以下内容
 需要sudo到root执行python3执行fast ping（自动发现的IP扫描和巡检的ping检测会用到）
+以autoexec runner的执行用户位app用户为例
 ```
 app ALL=(root) NOPASSWD:ALL
 ```
