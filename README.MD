@@ -50,6 +50,12 @@ optional arguments:
 cd autoexec
 bin/setup.sh
 ```
+### 设置安装用户免密码sudo
+使用root用户编辑/etc/sudoers文件，增加以下内容：
+```
+app ALL=(root) NOPASSWD:ALL
+```
+
 ### 安装python3第三方库
 ```
 cd autoexec/media
