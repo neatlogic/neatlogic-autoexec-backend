@@ -9,6 +9,7 @@ import stat
 import traceback
 import argparse
 import json
+import chardet
 import socket
 import re
 from http import cookiejar
@@ -232,6 +233,14 @@ class EndPointCheck:
         return (ret, errorMsg)
 
     def getOutputLine(self, line):
+        if not isinstance(line, bytes):
+            line = line.encode()
+
+        detectInfo = chardet.detect(line)
+        detectEnc = detectInfo['encoding']
+        if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
+            line = line.decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
+
         print(line)
         self.output = self.output + line
         outLen = len(self.output)
@@ -252,17 +261,14 @@ class EndPointCheck:
 
         scriptCmd = None
         remoteCmd = None
-        killCmd = None
 
         ret = -1
         if protocol == 'tagent':
-            scriptFile = None
             try:
                 jobSubDir = 'autoexec-{}-{}'.format(jobId, resourceId)
                 remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(jobId, resourceId)
                 remotePath = remoteRoot
                 runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
-                killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
                 uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
@@ -299,8 +305,6 @@ class EndPointCheck:
             remoteRoot = '/tmp/autoexec-{}-{}'.format(jobId, resourceId)
             remotePath = remoteRoot
             remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}'.format(remotePath, jobId, scriptName)
-            killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
-            scriptFile = None
             uploaded = False
             hasError = False
             scp = None
