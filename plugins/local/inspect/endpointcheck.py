@@ -426,26 +426,23 @@ class EndPointCheck:
             print("WARN: Can not determine script file extension name.")
             scriptFileName = scriptDef['config']['scriptName']
         else:
-            scriptFileName = scriptDef['config']['scriptName'] + extNameMap[interpreter]
+            scriptFileName = scriptDef['config']['scriptName']
+            if not scriptFileName.endswith(extNameMap[interpreter]):
+                scriptFileName = scriptFileName + extNameMap[interpreter]
         return scriptFileName
 
     def getScriptCmd(self, scriptDef, osType, remotePath):
         scriptFileName = self.getScriptFileName(scriptDef)
         interpreter = scriptDef['config']['parser']
 
-        if osType == 'windows':
-            # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
-            if interpreter == 'cmd':
-                cmd = 'cmd /c {}/{}'.format(remotePath, scriptFileName)
-            elif interpreter == 'vbscript' or interpreter == 'javascript':
-                cmd = 'cscript {}/{}'.format(remotePath, scriptFileName)
-            else:
-                cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
+        if interpreter == 'cmd':
+            cmd = 'cmd /c {}/{}'.format(remotePath, scriptFileName)
+        elif interpreter in ('sh', 'bash', 'csh'):
+            cmd = '{} -l {}/{}'.format(interpreter, remotePath, scriptFileName)
+        elif interpreter == 'vbscript' or interpreter == 'javascript':
+            cmd = 'cscript {}/{}'.format(remotePath, scriptFileName)
         else:
-            if interpreter in ('sh', 'bash', 'csh'):
-                cmd = '{} -l {}/{}'.format(interpreter, remotePath, scriptFileName)
-            else:
-                cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
+            cmd = '{} {}/{}'.format(interpreter, remotePath, scriptFileName)
 
         return cmd
 
