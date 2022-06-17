@@ -23,14 +23,14 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my ( $node, $objType, $community, $timeout );
+    my ( $node, $objType, $defaultCommunity, $timeout );
 
     my $isVerbose = 0;
 
     GetOptions(
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
-        'community=s' => \$community,
+        'community=s' => \$defaultCommunity,
         'objtype=s'   => \$objType,
         'timeout=i'   => \$timeout
     );
@@ -58,10 +58,10 @@ sub main {
         $timeout = 10;
     }
 
-    my $hostname = $nodeInfo->{host};
-    my $community;
+    my $hostname  = $nodeInfo->{host};
+    my $community = $node->{password};
     if ( not defined($community) or $community eq '' ) {
-        $community = $nodeInfo->{password};
+        $community = $defaultCommunity;
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';

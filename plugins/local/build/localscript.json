@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "执行本地脚本，可以对系统的工程、制品进行客户化处理",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -35,7 +37,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "en_US.UTF-8",
                         "value": "en_US.UTF-8"
                     },
@@ -64,7 +67,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "bash",
                         "value": "sh"
                     },

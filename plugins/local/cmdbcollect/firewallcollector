@@ -34,7 +34,7 @@ sub main {
 
     my ( $node, $type );
 
-    my $community;
+    my $defaultCommunity;
     my $timeout   = 10;
     my $isVerbose = 0;
 
@@ -42,7 +42,7 @@ sub main {
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'type=s'      => \$type,
-        'community=s' => \$community,
+        'community=s' => \$defaultCommunity,
         'timeout=i'   => \$timeout
     );
 
@@ -67,9 +67,10 @@ sub main {
         $timeout = 10;
     }
 
-    my $hostname = $nodeInfo->{host};
+    my $hostname  = $nodeInfo->{host};
+    my $community = $node->{password};
     if ( not defined($community) or $community eq '' ) {
-        $community = $nodeInfo->{password};
+        $community = $defaultCommunity;
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';
@@ -77,7 +78,7 @@ sub main {
 
     my $isFailed = 0;
 
-    my $brand = $type;
+    my $brand        = $type;
     my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
         $brand = $firewallBase->getBrand();

@@ -8,6 +8,15 @@
     "description": "采集光交设备信息,支持基于Brocade的类型",
     "option": [
         {
+            "opt": "community",
+            "name": "默认团体字",
+            "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "public"
+        },
+        {
             "opt": "timeout",
             "name": "超时时间",
             "help": "查询超时时间，单位秒",

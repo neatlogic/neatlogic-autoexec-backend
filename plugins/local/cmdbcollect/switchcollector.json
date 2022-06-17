@@ -14,7 +14,7 @@
             "type": "password",
             "required": "false",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "public"
         },
         {
             "opt": "timeout",

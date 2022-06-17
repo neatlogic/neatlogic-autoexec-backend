@@ -27,7 +27,7 @@ sub main {
     my ( $node, $type );
 
     my $isVerbose = 0;
-    my $community;
+    my $defaultCommunity;
     my $timeout = 10;
     my $inspect = 0;
 
@@ -36,7 +36,7 @@ sub main {
         'node=s'      => \$node,
         'type=s'      => \$type,
         'inspect=i'   => \$inspect,
-        'community=s' => \$community,
+        'community=s' => \$defaultCommunity,
         'timeout=i'   => \$timeout
     );
 
@@ -61,9 +61,10 @@ sub main {
         $timeout = 10;
     }
 
-    my $hostname = $nodeInfo->{host};
+    my $hostname  = $nodeInfo->{host};
+    my $community = $node->{password};
     if ( not defined($community) or $community eq '' ) {
-        $community = $nodeInfo->{password};
+        $community = $defaultCommunity;
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';
@@ -71,8 +72,8 @@ sub main {
 
     my $isFailed = 0;
 
-    my $brand = $type;
-    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect=>$inspect );
+    my $brand       = $type;
+    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
         $brand = $storageBase->getBrand();
     }
@@ -85,10 +86,10 @@ sub main {
         print("INFO: Storage brand: $brand.\n");
     }
 
-    if ( $brand eq 'EMC_Vplex' ){
+    if ( $brand eq 'EMC_Vplex' ) {
         exec(qq{$FindBin::Bin/vplexunitycollector --node '$node' --inspect $inspect --timeout $timeout --verbose $isVerbose});
     }
-    elsif( $brand eq 'HP_3PAR' ){
+    elsif ( $brand eq 'HP_3PAR' ) {
         exec(qq{$FindBin::Bin/hp3parcollector --node '$node' --inspect $inspect --timeout $timeout --verbose $isVerbose});
     }
 
@@ -98,7 +99,7 @@ sub main {
         print("INFO: Has defined class $storageClass, try to load it.\n");
         eval {
             require "$storageClass.pm";
-            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect=>$inspect );
+            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
         };
         if ($@) {
             $isFailed = 1;
@@ -120,16 +121,16 @@ sub main {
     my $data = $storageIns->collect();
 
     $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
-    if ( not defined($data->{_OBJ_TYPE}) ){
-        $data->{_OBJ_TYPE}     = 'Storage';
+    if ( not defined( $data->{_OBJ_TYPE} ) ) {
+        $data->{_OBJ_TYPE} = 'Storage';
     }
-    if ( not defined($data->{_APP_TYPE}) ){
-        $data->{_APP_TYPE}     = $brand;
+    if ( not defined( $data->{_APP_TYPE} ) ) {
+        $data->{_APP_TYPE} = $brand;
     }
-    
-    $data->{MGMT_IP}       = $nodeInfo->{host};
-    $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
+
+    $data->{MGMT_IP}     = $nodeInfo->{host};
+    $data->{PK}          = ['MGMT_IP'];
+    $data->{RESOURCE_ID} = $nodeInfo->{resourceId};
 
     my $out = {};
     $out->{DATA} = [$data];
