@@ -84,7 +84,7 @@ def genInsRel(db):
                                      }
             })
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(str(ex)))
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
 
 def genDBInsRel(db):
@@ -131,7 +131,7 @@ def genDBInsRel(db):
                                     }
             })
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(str(ex)))
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
 
 def genOSSwitchRel(db):
@@ -182,7 +182,7 @@ def genOSSwitchRel(db):
                                         {'ETH_INTERFACES': nics}
                                         })
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(str(ex)))
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
 
 def genSwitchRel(db):
@@ -227,7 +227,7 @@ def genSwitchRel(db):
                                              {'PORTS': ports}
                                               })
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(str(ex)))
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
 
 if __name__ == "__main__":
