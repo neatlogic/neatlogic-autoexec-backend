@@ -646,12 +646,22 @@ sub main {
     my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
-        if ( $classDef ne 'OS' ) {
-            $ignoreOsInfo = 1;
+        $collectClassMap = {};
+
+        if ( $classDef =~ /^\[/ ) {
+            my $classes = from_json($classDef);
+            foreach my $class (@$classes) {
+                $collectClassMap->{$class} = 1;
+            }
+        }
+        else {
+            map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
         }
 
-        $collectClassMap = { OS => 1 };
-        map { $collectClassMap->{$_} = 1 } ( split( /\s*,\s*/, $classDef ) );
+        if ( not defined( $collectClassMap->{OS} ) ) {
+            $ignoreOsInfo    = 1;
+            $collectClassMap = { OS => 1 };
+        }
     }
 
     #拼装账户参数
