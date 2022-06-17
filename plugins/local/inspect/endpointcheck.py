@@ -239,7 +239,9 @@ class EndPointCheck:
         detectInfo = chardet.detect(line)
         detectEnc = detectInfo['encoding']
         if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
-            line = line.decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
+            line = line.decode(self.srcEncoding, 'ignore')
+
+        line = line.encode('utf-8', errors='ignore')
 
         print(line)
         self.output = self.output + line
