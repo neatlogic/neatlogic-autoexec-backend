@@ -46,6 +46,7 @@ optional arguments:
 ## 使用
 ### python3 在Linux上的安装后，更改python3位默认的python执行程序
 执行autoexec目录下的setup.sh切换python3位默认python
+如果目标机器无法联通互联网，则在一个同样版本的Linux上使用yum等包管理工具下载rpm包极其依赖rpm包，拷贝到目标机器上进行安装
 ```shell
 cd autoexec
 bin/setup.sh
@@ -59,6 +60,7 @@ app ALL=(root) NOPASSWD:ALL
 ```
 
 ### 安装python3第三方库
+如果目标安装机器无法联通互联网，则在一个同样版本的linux上执行安装，然后把autoexec/plib目录打包拷贝到目标机器上
 ```
 cd autoexec/media
 ./ins-modules.sh
