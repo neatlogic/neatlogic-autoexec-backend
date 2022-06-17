@@ -6,14 +6,156 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
-    "option": [
-        {
+    "option": [{
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
-            "type": "text",
+            "type": "mselect",
             "required": "false",
             "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "全部",
+                        "value": ""
+                    },
+                    {
+                        "text": "操作系统",
+                        "value": "OS"
+                    },
+                    {
+                        "text": "Informix",
+                        "value": "Informix"
+                    },
+                    {
+                        "value": "IIS",
+                        "text": "IIS"
+                    },
+                    {
+                        "value": "Elasticsearch",
+                        "text": "Elasticsearch"
+                    },
+                    {
+                        "text": "Hadoop",
+                        "value": "Hadoop"
+                    },
+                    {
+                        "text": "Java",
+                        "value": "Java"
+                    },
+                    {
+                        "text": "JBoss",
+                        "value": "JBoss"
+                    },
+                    {
+                        "text": "Jetty",
+                        "value": "Jetty"
+                    },
+                    {
+                        "value": "Kafka",
+                        "text": "Kafka"
+                    },
+                    {
+                        "value": "Keepalived",
+                        "text": "Keepalived"
+                    },
+                    {
+                        "value": "Lighttpd",
+                        "text": "Lighttpd"
+                    },
+                    {
+                        "value": "Memcached",
+                        "text": "Memcached"
+                    },
+                    {
+                        "value": "Mongodb",
+                        "text": "Mongodb"
+                    },
+                    {
+                        "value": "MSSQLServer",
+                        "text": "MSSQLServer"
+                    },
+                    {
+                        "value": "Mysql",
+                        "text": "Mysql"
+                    },
+                    {
+                        "value": "Nginx",
+                        "text": "Nginx"
+                    },
+                    {
+                        "value": "Oracle",
+                        "text": "Oracle"
+                    },
+                    {
+                        "text": "OracleRAC",
+                        "value": "OracleRAC"
+                    },
+                    {
+                        "value": "PHP",
+                        "text": "PHP"
+                    },
+                    {
+                        "value": "Postgresql",
+                        "text": "Postgresql"
+                    },
+                    {
+                        "value": "Python",
+                        "text": "Python"
+                    },
+                    {
+                        "value": "RabbitMQ",
+                        "text": "RabbitMQ"
+                    },
+                    {
+                        "value": "Redis",
+                        "text": "Redis"
+                    },
+                    {
+                        "text": "Resin",
+                        "value": "Resin"
+                    },
+                    {
+                        "value": "Sybase",
+                        "text": "Sybase"
+                    },
+                    {
+                        "value": "ActiveMQ",
+                        "text": "ActiveMQ"
+                    },
+                    {
+                        "value": "Apache",
+                        "text": "Apache"
+                    },
+                    {
+                        "value": "DB2",
+                        "text": "DB2"
+                    },
+                    {
+                        "text": "Tomcat",
+                        "value": "Tomcat"
+                    },
+                    {
+                        "text": "Tuxedo",
+                        "value": "Tuxedo"
+                    },
+                    {
+                        "text": "Weblogic",
+                        "value": "Weblogic"
+                    },
+                    {
+                        "text": "WebSphere",
+                        "value": "WebSphere"
+                    },
+                    {
+                        "text": "WebSphereMQ",
+                        "value": "WebSphereMQ"
+                    },
+                    {
+                        "text": "Zookeeper",
+                        "value": "Zookeeper"
+                    }
+                ]
+            },
             "defaultValue": ""
         },
         {
@@ -69,8 +211,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "不采集",
                         "value": "0"
                     },
@@ -90,8 +231,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "不回显",
                         "value": "0"
                     },
@@ -111,8 +251,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "否",
                         "value": "0"
                     },
@@ -125,12 +264,10 @@
             "defaultValue": "0"
         }
     ],
-    "output": [
-        {
-            "opt": "DATA",
-            "name": "JSON数据",
-            "help": "采集到的数据",
-            "type": "json"
-        }
-    ]
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
 }
