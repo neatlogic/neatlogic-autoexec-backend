@@ -10,7 +10,7 @@
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
-            "type": "mselect",
+            "type": "multiselect",
             "required": "false",
             "validate": "",
             "dataSource": {
