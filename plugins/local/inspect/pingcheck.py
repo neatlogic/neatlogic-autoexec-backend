@@ -16,7 +16,7 @@ def usage():
     exit(-1)
 
 
-def pingCheck(self, host, timeOut):
+def pingCheck(host, timeOut):
     second = ping(dest_addr=host, timeout=timeOut)
     second = round(second, 4)
     if second:
