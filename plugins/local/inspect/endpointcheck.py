@@ -240,8 +240,8 @@ class EndPointCheck:
         detectEnc = detectInfo['encoding']
         if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
             line = line.decode(self.srcEncoding, 'ignore')
-
-        line = line.encode('utf-8', errors='ignore')
+        else:
+            line = line.decode('utf-8', errors='ignore')
 
         print(line)
         self.output = self.output + line
