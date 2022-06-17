@@ -7,13 +7,10 @@ import os
 import tempfile
 import stat
 import traceback
-import datetime
 import argparse
-import sys
 import json
 import socket
 import re
-import requests
 from http import cookiejar
 import urllib
 from urllib import request, parse, error

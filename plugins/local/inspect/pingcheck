@@ -3,17 +3,38 @@
 
 import argparse
 import os
-import time
 import traceback
+import time
 import json
+from ping3 import ping
 import AutoExecUtils
-import TagentClient
 
 
 def usage():
     pname = os.path.basename(__file__)
     print("{} --node <node> --timeout <timeout seconds> .\n".format(pname))
     exit(-1)
+
+
+def pingCheck(self, host, timeOut):
+    second = ping(dest_addr=host, timeout=timeOut)
+    second = round(second, 4)
+    if second:
+        print('INFO: {} is reachable, took {} second'.format(host, second))
+        return (True, None)
+    else:
+        loopCount = 2
+        while not second and loopCount > 0:
+            second = ping(dest_addr=host, timeout=5)
+            second = round(second, 4)
+            loopCount = loopCount - 1
+        if second:
+            print('INFO: {} is reachable, took {} second'.format(host, second))
+            return (True, None)
+        else:
+            errorMsg = 'ERROR: {} is unreachable, took {} second'.format(host, second)
+            print(errorMsg)
+            return (False, errorMsg)
 
 
 if __name__ == "__main__":
@@ -44,9 +65,8 @@ if __name__ == "__main__":
             timeout = 10
 
         errMsg = None
-        print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo['host'], nodeInfo['protocolPort']))
+        print("INFO: Try to ping {}.\n".format(nodeInfo['host']))
         startTime = time.time()
-        tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
 
         port = nodeInfo.get('port')
         if port is not None:
@@ -59,22 +79,28 @@ if __name__ == "__main__":
                 }
 
         try:
-            tagent.echo(None, "Agent logon success.\n", 1)
+            (ret, errMsg) = pingCheck(nodeInfo.get('host'), timeout)
             timeConsume = round(time.time() - startTime, 4)
-            data['AVAILABILITY'] = 1
-            data['ERROR_MESSAGE'] = ''
             data['RESPONSE_TIME'] = timeConsume
-            print("FINEST: Tagent logon succeed.\n")
+            if ret:
+                data['AVAILABILITY'] = 1
+                data['ERROR_MESSAGE'] = ''
+                print("FINEST: Ping success.\n")
+            else:
+                data['AVAILABILITY'] = 0
+                data['ERROR_MESSAGE'] = errMsg
+                print("ERROR: Ping failed.\n")
         except Exception as ex:
             timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
             data['AVAILABILITY'] = 0
             data['ERROR_MESSAGE'] = errMsg
             data['RESPONSE_TIME'] = timeConsume
-            print("FINEST: Tagent logon failed.\n")
+            print("ERROR: Ping failed.\n")
+            exit(2)
 
         out = {'DATA': data}
         AutoExecUtils.saveOutput(out)
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
-        exit(-1)
+        exit(2)
