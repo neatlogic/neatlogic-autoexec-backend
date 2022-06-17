@@ -66,8 +66,8 @@ def genInsRel(db):
                 refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
-                           'VIP': cluster['VIP'],
-                           'PORT': cluster['PORT'],
+                           'VIP': cluster.get('VIP'),
+                           'PORT': cluster.get('PORT'),
                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
                            'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
                            }
