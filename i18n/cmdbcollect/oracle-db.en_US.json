@@ -90,6 +90,23 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -102,21 +119,6 @@
         {
             "name": "DB_NAME",
             "desc": "DB Name",
-            "type": "String"
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_ADDR",
-            "desc": "Service Address",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
             "type": "String"
         },
         {
@@ -165,6 +167,75 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "Service Address",
+            "type": "String"
+        },
+        {
+            "name": "TABLE_SPACESES",
+            "desc": "Table Space List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "AUTOEXTENSIBLE",
+                    "desc": "Auto Extensible",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "Data File List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "FILE_NAME",
+                            "desc": "File Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SIZE",
+                            "desc": "File Size(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AUTOEXTENSIBLE",
+                            "desc": "Auto Extensible",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
         }
     ]
 }

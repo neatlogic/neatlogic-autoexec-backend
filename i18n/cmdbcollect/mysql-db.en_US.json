@@ -115,21 +115,6 @@
             "type": "String"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_ADDR",
-            "desc": "Service Address",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
-            "type": "String"
-        },
-        {
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",
@@ -175,6 +160,21 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "Service Address",
+            "type": "String"
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
         }
     ]
 }

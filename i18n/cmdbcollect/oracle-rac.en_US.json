@@ -130,23 +130,6 @@
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "Default Table Space",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTER_NAME",
             "desc": "Cluster Name",
             "type": "String"
@@ -506,60 +489,6 @@
             "name": "SLAVE_IPS",
             "desc": "Slave IP Addrs",
             "type": "array"
-        },
-        {
-            "name": "TABLE_SPACESES",
-            "desc": "Table Space List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "TABLESPACE_NAME",
-                    "desc": "Table Space Name",
-                    "type": "String"
-                },
-                {
-                    "name": "TOTAL_GB",
-                    "desc": "Capacity(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_GB",
-                    "desc": "Used(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "FREE_GB",
-                    "desc": "Free(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "Used%",
-                    "type": "Float"
-                },
-                {
-                    "name": "DATA_FILES",
-                    "desc": "Data File List",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "FILE_NAME",
-                            "desc": "File Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SIZE",
-                            "desc": "File Size(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "AUTOEXTENSIBLE",
-                            "desc": "Auto Extensible",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
         }
     ]
 }

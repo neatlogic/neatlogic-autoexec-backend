@@ -1,914 +1,1036 @@
 {
-	"label": "K8S",
-	"collection": "COLLECT_K8S",
-	"docroot": null,
-	"collection_label": "Kubernetes",
-	"filter": {
-		"_OBJ_TYPE": "K8S"
-	},
-	"fields": [{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Type",
-			"type": "String"
-		},
-		{
-			"name": "_OBJ_TYPE",
-			"desc": "Application Type",
-			"type": "String"
-		},
-		{
-			"name": "MGMT_IP",
-			"desc": "Managment IP",
-			"type": "String"
-		},
-		{
-			"name": "MGMT_PORT",
-			"desc": "Managment Port",
-			"type": "Int"
-		},
-		{
-			"name": "VERSION",
-			"desc": "Version",
-			"type": "String"
-		},
-		{
-			"name": "URL",
-			"desc": "api base url",
-			"type": "String"
-		},
-		{
-			"name": "GOVERSION",
-			"desc": "Go Version",
-			"type": "String"
-		},
-		{
-			"name": "PLATFORM",
-			"desc": "Platform",
-			"type": "String"
-		},
-		{
-			"name": "BUILDDATE",
-			"desc": "BuildDate",
-			"type": "String"
-		},
-		{
-			"name": "NODES",
-			"desc": "Nodes",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "UID",
-					"desc": "Uid",
-					"type": "String"
-				},
-				{
-					"name": "NAME",
-					"desc": "Name",
-					"type": "String"
-				},
-				{
-					"name": "CREATEDATA",
-					"desc": "CreateData",
-					"type": "String"
-				},
-				{
-					"name": "ROLE",
-					"desc": "Role",
-					"type": "String"
-				},
-				{
-					"name": "MACHINEID",
-					"desc": "MachineId",
-					"type": "String"
-				},
-				{
-					"name": "SYSTEMUUID",
-					"desc": "System Uuid",
-					"type": "String"
-				},
-				{
-					"name": "BOOTID",
-					"desc": "Boot ID",
-					"type": "String"
-				},
-				{
-					"name": "KERNELVERSION",
-					"desc": "Kernel Version",
-					"type": "String"
-				},
-				{
-					"name": "OPERATINGSYSTEM",
-					"desc": "Operating System",
-					"type": "String"
-				},
-				{
-					"name": "CONTAINERRUNTIMEVERSION",
-					"desc": "Docker Version",
-					"type": "String"
-				},
-				{
-					"name": "KUBELETVERSION",
-					"desc": "Kubelet Version",
-					"type": "String"
-				},
-				{
-					"name": "KUBEPROXYVERSION",
-					"desc": "Kubeproxy Version",
-					"type": "String"
-				},
-				{
-					"name": "ARCHITECTURE",
-					"desc": "Architecture",
-					"type": "String"
-				},
-				{
-					"name": "PODCIDR",
-					"desc": "Pod Cidr",
-					"type": "String"
-				},
-				{
-					"name": "PODCIDRS",
-					"desc": "Pod Cidrs",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "NAME",
-						"desc": "Name",
-						"type": "String"
-					}]
-				}, {
-					"name": "LABELS",
-					"desc": "Labels",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "KEY",
-						"desc": "Key",
-						"type": "String"
-					}, {
-						"name": "VALUE",
-						"desc": "Value",
-						"type": "String"
-					}]
-				}, {
-					"name": "ANNOTATIONS",
-					"desc": "Annotations",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "KEY",
-						"desc": "Key",
-						"type": "String"
-					}, {
-						"name": "VALUE",
-						"desc": "Value",
-						"type": "String"
-					}]
-				}, {
-					"name": "CAPACITY",
-					"desc": "Capacity",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "CPU",
-						"desc": "Cpu",
-						"type": "String"
-					}, {
-						"name": "MEMORY",
-						"desc": "Memory",
-						"type": "String"
-					}, {
-						"name": "PODS",
-						"desc": "Pods",
-						"type": "Int"
-					}, {
-						"name": "EPHEMERAL-STORAGE",
-						"desc": "Ephemeral Storage",
-						"type": "String"
-					}, {
-						"name": "HUGEPPAGES-1GI",
-						"desc": "Hugeppages 1GI",
-						"type": "String"
-					}, {
-						"name": "HUGEPPAGES-2MI",
-						"desc": "Hugeppages 2MI",
-						"type": "String"
-					}]
-				}, {
-					"name": "ALLOCATABLE",
-					"desc": "Allocatable",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "CPU",
-						"desc": "Cpu",
-						"type": "String"
-					}, {
-						"name": "MEMORY",
-						"desc": "Memory",
-						"type": "String"
-					}, {
-						"name": "PODS",
-						"desc": "Pods",
-						"type": "Int"
-					}, {
-						"name": "EPHEMERAL-STORAGE",
-						"desc": "Ephemeral Storage ",
-						"type": "String"
-					}, {
-						"name": "HUGEPPAGES-1GI",
-						"desc": "Hugeppages 1GI",
-						"type": "String"
-					}, {
-						"name": "HUGEPPAGES-2MI",
-						"desc": "Hugeppages 2MI",
-						"type": "String"
-					}]
-				}, {
-					"name": "ADDRESS",
-					"desc": "Address",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "TYPE",
-						"desc": "Type",
-						"type": "String"
-					}, {
-						"name": "ADDRESS",
-						"desc": "Address",
-						"type": "String"
-					}]
-				}, {
-					"name": "CONDITIONS",
-					"desc": "Conditions",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "TYPE",
-						"desc": "Type",
-						"type": "String"
-					}, {
-						"name": "STATUS",
-						"desc": "Status",
-						"type": "String"
-					}, {
-						"name": "LASTHEARTBEATTIME",
-						"desc": "LastheartbeatTime",
-						"type": "String"
-					}, {
-						"name": "LASTTRANSITIONTIME",
-						"desc": "LasttransitionTime",
-						"type": "String"
-					}, {
-						"name": "REASON",
-						"desc": "Reason",
-						"type": "String"
-					}, {
-						"name": "MESSAGE",
-						"desc": "Message",
-						"type": "String"
-					}]
-				}, {
-					"name": "RUN_OS",
-					"desc": "Run Os",
-					"type": "JsonArray",
-					"subset": [{
-						"name": "MGMT_IP",
-						"desc": "Managment Ip",
-						"type": "String"
-					}]
-				}
-			]
-		},
-		{
-			"name": "NAMESPACES",
-			"desc": "Namespaces",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "UID",
-					"desc": "uid",
-					"type": "String"
-				},
-				{
-					"name": "NAME",
-					"desc": "Name",
-					"type": "String"
-				},
-				{
-					"name": "CREATEDATA",
-					"desc": "CreateData",
-					"type": "String"
-				},
-				{
-					"name": "STATUS",
-					"desc": "Status",
-					"type": "String"
-				},
-				{
-					"name": "DEPLOYMENTS",
-					"desc": "Deployments",
-					"type": "JsonArray",
-					"subset": [{
-							"name": "UID",
-							"desc": "uid",
-							"type": "String"
-						},
-						{
-							"name": "NAME",
-							"desc": "Name",
-							"type": "String"
-						},
-						{
-							"name": "NAMESPACE",
-							"desc": "Namespace",
-							"type": "String"
-						}, {
-							"name": "GENERATION",
-							"desc": "Generation",
-							"type": "Int"
-						}, {
-							"name": "REPLICAS",
-							"desc": "Replicas",
-							"type": "Int"
-						}, {
-							"name": "REVISIONHISTORYLIMIT",
-							"desc": "RevisionHistoryLimit",
-							"type": "Int"
-						}, {
-							"name": "PROGRESSDEADLINESECONDS",
-							"desc": "ProgressDeadlineSeconds",
-							"type": "Int"
-						}, {
-							"name": "STRATEGY",
-							"desc": "Strategy",
-							"type": "String"
-						}, {
-							"name": "OBSERVEDGENERATION",
-							"desc": "ObservedGeneration",
-							"type": "Int"
-						}, {
-							"name": "UPDATEDREPLICAS",
-							"desc": "UpdatedReplicas",
-							"type": "Int"
-						}, {
-							"name": "READYREPLICAS",
-							"desc": "ReadyReplicas",
-							"type": "Int"
-						}, {
-							"name": "AVAILABLEREPLICAS",
-							"desc": "AvailableReplicas",
-							"type": "Int"
-						},
-						{
-							"name": "LABELS",
-							"desc": "Labels",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "ANNOTATIONS",
-							"desc": "Annotations",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						}, {
-							"name": "CONDITIONS",
-							"desc": "Conditions",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "TYPE",
-								"desc": "Type",
-								"type": "String"
-							}, {
-								"name": "STATUS",
-								"desc": "Status",
-								"type": "String"
-							}, {
-								"name": "LASTHEARTBEATTIME",
-								"desc": "LastheartbeatTime",
-								"type": "String"
-							}, {
-								"name": "LASTTRANSITIONTIME",
-								"desc": "LasttransitionTime",
-								"type": "String"
-							}, {
-								"name": "REASON",
-								"desc": "Reason",
-								"type": "String"
-							}, {
-								"name": "MESSAGE",
-								"desc": "Message",
-								"type": "String"
-							}]
-						}
-
-					]
-				}, {
-					"name": "REPLICASETS",
-					"desc": "replicasets",
-					"type": "JsonArray",
-					"subset": [{
-							"name": "UID",
-							"desc": "uid",
-							"type": "String"
-						},
-						{
-							"name": "NAME",
-							"desc": "Name",
-							"type": "String"
-						},
-						{
-							"name": "NAMESPACE",
-							"desc": "Namespace",
-							"type": "String"
-						}, {
-							"name": "GENERATION",
-							"desc": "Generation",
-							"type": "Int"
-						}, {
-							"name": "REPLICAS",
-							"desc": "Replicas",
-							"type": "Int"
-						}, {
-							"name": "FULLYLABELEDREPLICAS",
-							"desc": "FullylabeledReplicas",
-							"type": "Int"
-						}, {
-							"name": "OBSERVEDGENERATION",
-							"desc": "ObservedGeneration",
-							"type": "Int"
-						}, {
-							"name": "READYREPLICAS",
-							"desc": "ReadyReplicas",
-							"type": "Int"
-						}, {
-							"name": "AVAILABLEREPLICAS",
-							"desc": "AvailableReplicas",
-							"type": "Int"
-						},
-						{
-							"name": "LABELS",
-							"desc": "Labels",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "ANNOTATIONS",
-							"desc": "Annotations",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "SELECTOR",
-							"desc": "Selector",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "OWNERREFERENCES",
-							"desc": "OwnerReferences",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "UID",
-									"desc": "Uid",
-									"type": "String"
-								}, {
-									"name": "NAME",
-									"desc": "Name",
-									"type": "String"
-								},
-								{
-									"name": "KIND",
-									"desc": "Kind",
-									"type": "String"
-								}
-							]
-						}
-					]
-				}, {
-					"name": "PODS",
-					"desc": "pods",
-					"type": "JsonArray",
-					"subset": [{
-							"name": "UID",
-							"desc": "Uid",
-							"type": "String"
-						},
-						{
-							"name": "NAME",
-							"desc": "Name",
-							"type": "String"
-						},
-						{
-							"name": "NAMESPACE",
-							"desc": "Namespace",
-							"type": "String"
-						}, {
-							"name": "GENERATENAME",
-							"desc": "Generatename",
-							"type": "Int"
-						}, {
-							"name": "RESTARTPOLICY",
-							"desc": "RestartPolicy",
-							"type": "String"
-						}, {
-							"name": "TERMINATIONGRACEPERIODSECONDS",
-							"desc": "TerminationGraceperiodSeconds",
-							"type": "Int"
-						}, {
-							"name": "DNSPOLICY",
-							"desc": "Dns Policy",
-							"type": "String"
-						}, {
-							"name": "SERVICEACCOUNTNAME",
-							"desc": "ServiceAccountname",
-							"type": "String"
-						}, {
-							"name": "SERVICEACCOUNT",
-							"desc": "ServiceAccount",
-							"type": "String"
-						}, {
-							"name": "NODENAME",
-							"desc": "NodeName",
-							"type": "String"
-						}, {
-							"name": "PRIORITY",
-							"desc": "Priority",
-							"type": "Int"
-						}, {
-							"name": "SCHEDULERNAME",
-							"desc": "SchedulerName",
-							"type": "String"
-						},
-						{
-							"name": "PHASE",
-							"desc": "Phase",
-							"type": "String"
-						},
-						{
-							"name": "HOSTIP",
-							"desc": "HostIp",
-							"type": "String"
-						},
-						{
-							"name": "PODIP",
-							"desc": "Pod IP",
-							"type": "String"
-						},
-						{
-							"name": "STARTTIME",
-							"desc": "StartTime",
-							"type": "String"
-						},
-						{
-							"name": "PODIPS",
-							"desc": "Pod IPS",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "NAME",
-								"desc": "IP",
-								"type": "String"
-							}]
-						},
-						{
-							"name": "LABELS",
-							"desc": "Labels",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "OWNERREFERENCES",
-							"desc": "OwnerReferences",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "UID",
-									"desc": "Uid",
-									"type": "String"
-								},
-								{
-									"name": "NAME",
-									"desc": "Name",
-									"type": "String"
-								},
-								{
-									"name": "KIND",
-									"desc": "Kind",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "RUN_NODE",
-							"desc": "Run Node",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "UID",
-								"desc": "Node Uid",
-								"type": "String"
-							}]
-						},
-						{
-							"name": "CONDITIONS",
-							"desc": "Conditions",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "TYPE",
-								"desc": "Type",
-								"type": "String"
-							}, {
-								"name": "STATUS",
-								"desc": "Status",
-								"type": "String"
-							}, {
-								"name": "LASTPROBETIME",
-								"desc": "Lastprobetime",
-								"type": "String"
-							}, {
-								"name": "LASTTRANSITIONTIME",
-								"desc": "Lasttransitiontime",
-								"type": "String"
-							}]
-						}
-
-					]
-				}, {
-					"name": "SERVICES",
-					"desc": "services",
-					"type": "JsonArray",
-					"subset": [{
-							"name": "UID",
-							"desc": "Uid",
-							"type": "String"
-						},
-						{
-							"name": "NAME",
-							"desc": "Name",
-							"type": "String"
-						},
-						{
-							"name": "NAMESPACE",
-							"desc": "Namespace",
-							"type": "String"
-						}, {
-							"name": "CLUSTERIP",
-							"desc": "Cluster Ip",
-							"type": "String"
-						},
-						{
-							"name": "TYPE",
-							"desc": "Type",
-							"type": "String"
-						},
-						{
-							"name": "SESSIONAFFINITY",
-							"desc": "Session Affinity",
-							"type": "String"
-						},
-						{
-							"name": "IPFAMILYPOLICY",
-							"desc": "Ipfamily Policy",
-							"type": "String"
-						},
-						{
-							"name": "EXTERNALTRAFFICPOLICY",
-							"desc": "Externaltraffic Policy",
-							"type": "String"
-						},
-						{
-							"name": "INTERNALTRAFFICPOLICY",
-							"desc": "Internaltraffic Policy",
-							"type": "String"
-						},
-						{
-							"name": "PORTS",
-							"desc": "ports",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "NAME",
-									"desc": "Name",
-									"type": "String"
-								}, {
-									"name": "PROTOCOL",
-									"desc": "Protocol",
-									"type": "String"
-								},
-								{
-									"name": "PORT",
-									"desc": "Port",
-									"type": "String"
-								},
-								{
-									"name": "TARGETPORT",
-									"desc": "TargetPort",
-									"type": "String"
-								},
-								{
-									"name": "NODEPORT",
-									"desc": "NodePort",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "LABELS",
-							"desc": "Labels",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						}, {
-							"name": "SELECTOR",
-							"desc": "Selector",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "CONTAIN_PODS",
-							"desc": "Contain Pods",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "UID",
-								"desc": "Uid",
-								"type": "String"
-							}, {
-								"name": "NAME",
-								"desc": "Name",
-								"type": "String"
-							}]
-						}
-					]
-				}, {
-					"name": "INGRESS",
-					"desc": "ingress",
-					"type": "JsonArray",
-					"subset": [{
-							"name": "UID",
-							"desc": "Uid",
-							"type": "String"
-						},
-						{
-							"name": "NAME",
-							"desc": "Name",
-							"type": "String"
-						},
-						{
-							"name": "NAMESPACE",
-							"desc": "Namespace",
-							"type": "String"
-						},
-						{
-							"name": "CREATEDATE",
-							"desc": "CreateDate",
-							"type": "String"
-						},
-						{
-							"name": "ANNOTATIONS",
-							"desc": "Annotations",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						}, {
-							"name": "SELECTOR",
-							"desc": "Selector",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "KEY",
-									"desc": "Key",
-									"type": "String"
-								},
-								{
-									"name": "VALUE",
-									"desc": "Value",
-									"type": "String"
-								}
-							]
-						},
-						{
-							"name": "CONTAIN_SERVICES",
-							"desc": "Contain Services",
-							"type": "JsonArray",
-							"subset": [{
-								"name": "NAME",
-								"desc": "name",
-								"type": "String"
-							}, {
-								"name": "NAME",
-								"desc": "name",
-								"type": "String"
-							}]
-						}, {
-							"name": "RULES",
-							"desc": "Rules",
-							"type": "JsonArray",
-							"subset": [{
-									"name": "HOST",
-									"desc": "Host",
-									"type": "String"
-								}, {
-									"name": "METHOD",
-									"desc": "Method",
-									"type": "String"
-								}, {
-									"name": "PATH",
-									"desc": "Path",
-									"type": "String"
-								}, {
-									"name": "PATHTYPE",
-									"desc": "type",
-									"type": "String"
-								}, {
-									"name": "NAME",
-									"desc": "Name",
-									"type": "String"
-								},
-								{
-									"name": "PORT",
-									"desc": "Port",
-									"type": "String"
-								}
-							]
-						}
-					]
-				}
-			]
-		}
-	]
+    "label": "K8S",
+    "collection": "COLLECT_K8S",
+    "docroot": null,
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "Int"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "BUILDDATE",
+            "desc": "BuildDate",
+            "type": "String"
+        },
+        {
+            "name": "GOVERSION",
+            "desc": "Go Version",
+            "type": "String"
+        },
+        {
+            "name": "NAMESPACES",
+            "desc": "Namespaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CREATEDATA",
+                    "desc": "CreateData",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "DEPLOYMENTS",
+                    "desc": "Deployments",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UID",
+                            "desc": "uid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAMESPACE",
+                            "desc": "Namespace",
+                            "type": "String"
+                        },
+                        {
+                            "name": "GENERATION",
+                            "desc": "Generation",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "REPLICAS",
+                            "desc": "Replicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "REVISIONHISTORYLIMIT",
+                            "desc": "RevisionHistoryLimit",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "PROGRESSDEADLINESECONDS",
+                            "desc": "ProgressDeadlineSeconds",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "STRATEGY",
+                            "desc": "Strategy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "OBSERVEDGENERATION",
+                            "desc": "ObservedGeneration",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "UPDATEDREPLICAS",
+                            "desc": "UpdatedReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "READYREPLICAS",
+                            "desc": "ReadyReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "AVAILABLEREPLICAS",
+                            "desc": "AvailableReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "LABELS",
+                            "desc": "Labels",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "ANNOTATIONS",
+                            "desc": "Annotations",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONDITIONS",
+                            "desc": "Conditions",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "TYPE",
+                                    "desc": "Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "Status",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "LASTHEARTBEATTIME",
+                                    "desc": "LastheartbeatTime",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "LASTTRANSITIONTIME",
+                                    "desc": "LasttransitionTime",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "REASON",
+                                    "desc": "Reason",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "MESSAGE",
+                                    "desc": "Message",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "REPLICASETS",
+                    "desc": "replicasets",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UID",
+                            "desc": "uid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAMESPACE",
+                            "desc": "Namespace",
+                            "type": "String"
+                        },
+                        {
+                            "name": "GENERATION",
+                            "desc": "Generation",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "REPLICAS",
+                            "desc": "Replicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "FULLYLABELEDREPLICAS",
+                            "desc": "FullylabeledReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "OBSERVEDGENERATION",
+                            "desc": "ObservedGeneration",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "READYREPLICAS",
+                            "desc": "ReadyReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "AVAILABLEREPLICAS",
+                            "desc": "AvailableReplicas",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "LABELS",
+                            "desc": "Labels",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "ANNOTATIONS",
+                            "desc": "Annotations",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SELECTOR",
+                            "desc": "Selector",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "OWNERREFERENCES",
+                            "desc": "OwnerReferences",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UID",
+                                    "desc": "Uid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "KIND",
+                                    "desc": "Kind",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "PODS",
+                    "desc": "pods",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UID",
+                            "desc": "Uid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAMESPACE",
+                            "desc": "Namespace",
+                            "type": "String"
+                        },
+                        {
+                            "name": "GENERATENAME",
+                            "desc": "Generatename",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "RESTARTPOLICY",
+                            "desc": "RestartPolicy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TERMINATIONGRACEPERIODSECONDS",
+                            "desc": "TerminationGraceperiodSeconds",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "DNSPOLICY",
+                            "desc": "Dns Policy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SERVICEACCOUNTNAME",
+                            "desc": "ServiceAccountname",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SERVICEACCOUNT",
+                            "desc": "ServiceAccount",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NODENAME",
+                            "desc": "NodeName",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PRIORITY",
+                            "desc": "Priority",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "SCHEDULERNAME",
+                            "desc": "SchedulerName",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PHASE",
+                            "desc": "Phase",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOSTIP",
+                            "desc": "HostIp",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PODIP",
+                            "desc": "Pod IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STARTTIME",
+                            "desc": "StartTime",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PODIPS",
+                            "desc": "Pod IPS",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "IP",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "LABELS",
+                            "desc": "Labels",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "OWNERREFERENCES",
+                            "desc": "OwnerReferences",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UID",
+                                    "desc": "Uid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "KIND",
+                                    "desc": "Kind",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "RUN_NODE",
+                            "desc": "Run Node",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UID",
+                                    "desc": "Node Uid",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONDITIONS",
+                            "desc": "Conditions",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "TYPE",
+                                    "desc": "Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "Status",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "LASTPROBETIME",
+                                    "desc": "Lastprobetime",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "LASTTRANSITIONTIME",
+                                    "desc": "Lasttransitiontime",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "SERVICES",
+                    "desc": "services",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UID",
+                            "desc": "Uid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAMESPACE",
+                            "desc": "Namespace",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CLUSTERIP",
+                            "desc": "Cluster Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SESSIONAFFINITY",
+                            "desc": "Session Affinity",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IPFAMILYPOLICY",
+                            "desc": "Ipfamily Policy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "EXTERNALTRAFFICPOLICY",
+                            "desc": "Externaltraffic Policy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "INTERNALTRAFFICPOLICY",
+                            "desc": "Internaltraffic Policy",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORTS",
+                            "desc": "ports",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PROTOCOL",
+                                    "desc": "Protocol",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PORT",
+                                    "desc": "Port",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "TARGETPORT",
+                                    "desc": "TargetPort",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NODEPORT",
+                                    "desc": "NodePort",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "LABELS",
+                            "desc": "Labels",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SELECTOR",
+                            "desc": "Selector",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONTAIN_PODS",
+                            "desc": "Contain Pods",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UID",
+                                    "desc": "Uid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "INGRESS",
+                    "desc": "ingress",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UID",
+                            "desc": "Uid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAMESPACE",
+                            "desc": "Namespace",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CREATEDATE",
+                            "desc": "CreateDate",
+                            "type": "String"
+                        },
+                        {
+                            "name": "ANNOTATIONS",
+                            "desc": "Annotations",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SELECTOR",
+                            "desc": "Selector",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "KEY",
+                                    "desc": "Key",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "VALUE",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "CONTAIN_SERVICES",
+                            "desc": "Contain Services",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "name",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "RULES",
+                            "desc": "Rules",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "HOST",
+                                    "desc": "Host",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "METHOD",
+                                    "desc": "Method",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PATH",
+                                    "desc": "Path",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PATHTYPE",
+                                    "desc": "type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "NAME",
+                                    "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PORT",
+                                    "desc": "Port",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NODES",
+            "desc": "Nodes",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "Uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CREATEDATA",
+                    "desc": "CreateData",
+                    "type": "String"
+                },
+                {
+                    "name": "ROLE",
+                    "desc": "Role",
+                    "type": "String"
+                },
+                {
+                    "name": "MACHINEID",
+                    "desc": "MachineId",
+                    "type": "String"
+                },
+                {
+                    "name": "SYSTEMUUID",
+                    "desc": "System Uuid",
+                    "type": "String"
+                },
+                {
+                    "name": "BOOTID",
+                    "desc": "Boot ID",
+                    "type": "String"
+                },
+                {
+                    "name": "KERNELVERSION",
+                    "desc": "Kernel Version",
+                    "type": "String"
+                },
+                {
+                    "name": "OPERATINGSYSTEM",
+                    "desc": "Operating System",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTAINERRUNTIMEVERSION",
+                    "desc": "Docker Version",
+                    "type": "String"
+                },
+                {
+                    "name": "KUBELETVERSION",
+                    "desc": "Kubelet Version",
+                    "type": "String"
+                },
+                {
+                    "name": "KUBEPROXYVERSION",
+                    "desc": "Kubeproxy Version",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCHITECTURE",
+                    "desc": "Architecture",
+                    "type": "String"
+                },
+                {
+                    "name": "PODCIDR",
+                    "desc": "Pod Cidr",
+                    "type": "String"
+                },
+                {
+                    "name": "PODCIDRS",
+                    "desc": "Pod Cidrs",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "LABELS",
+                    "desc": "Labels",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "KEY",
+                            "desc": "Key",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VALUE",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ANNOTATIONS",
+                    "desc": "Annotations",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "KEY",
+                            "desc": "Key",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VALUE",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "CPU",
+                            "desc": "Cpu",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMORY",
+                            "desc": "Memory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PODS",
+                            "desc": "Pods",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "EPHEMERAL-STORAGE",
+                            "desc": "Ephemeral Storage",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HUGEPPAGES-1GI",
+                            "desc": "Hugeppages 1GI",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HUGEPPAGES-2MI",
+                            "desc": "Hugeppages 2MI",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ALLOCATABLE",
+                    "desc": "Allocatable",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "CPU",
+                            "desc": "Cpu",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMORY",
+                            "desc": "Memory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PODS",
+                            "desc": "Pods",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "EPHEMERAL-STORAGE",
+                            "desc": "Ephemeral Storage ",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HUGEPPAGES-1GI",
+                            "desc": "Hugeppages 1GI",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HUGEPPAGES-2MI",
+                            "desc": "Hugeppages 2MI",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ADDRESS",
+                    "desc": "Address",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "ADDRESS",
+                            "desc": "Address",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONDITIONS",
+                    "desc": "Conditions",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "LASTHEARTBEATTIME",
+                            "desc": "LastheartbeatTime",
+                            "type": "String"
+                        },
+                        {
+                            "name": "LASTTRANSITIONTIME",
+                            "desc": "LasttransitionTime",
+                            "type": "String"
+                        },
+                        {
+                            "name": "REASON",
+                            "desc": "Reason",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MESSAGE",
+                            "desc": "Message",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "RUN_OS",
+                    "desc": "Run Os",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managment Ip",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PLATFORM",
+            "desc": "Platform",
+            "type": "String"
+        },
+        {
+            "name": "URL",
+            "desc": "api base url",
+            "type": "String"
+        }
+    ]
 }

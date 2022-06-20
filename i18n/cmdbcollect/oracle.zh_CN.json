@@ -396,17 +396,17 @@
                 },
                 {
                     "name": "SERVICE_NAMES",
-                    "desc": "监听地址",
+                    "desc": "服务名列表",
                     "type": "array"
                 },
                 {
                     "name": "LISTEN_ADDRS",
-                    "desc": "监听地址",
+                    "desc": "监听地址列表",
                     "type": "array"
                 },
                 {
                     "name": "LISTEN_PORTS",
-                    "desc": "监听地址",
+                    "desc": "监听端口列表",
                     "type": "array"
                 }
             ]

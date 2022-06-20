@@ -1,234 +1,277 @@
 {
-	"label": "K8S_NODE",
-	"collection": "COLLECT_K8S",
-	"docroot": "NODES",
-	"collection_label": "Kubernetes",
-	"filter": {
-		"_OBJ_TYPE": "K8S_NODE"
-	},
-	"fields": [{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Type",
-			"type": "String"
-		},
-		{
-			"name": "_OBJ_TYPE",
-			"desc": "Application Type",
-			"type": "String"
-		}, {
-			"name": "UID",
-			"desc": "Uid",
-			"type": "String"
-		},
-		{
-			"name": "NAME",
-			"desc": "Name",
-			"type": "String"
-		},
-		{
-			"name": "CREATEDATA",
-			"desc": "CreateData",
-			"type": "String"
-		},
-		{
-			"name": "ROLE",
-			"desc": "Role",
-			"type": "String"
-		},
-		{
-			"name": "MACHINEID",
-			"desc": "MachineId",
-			"type": "String"
-		},
-		{
-			"name": "SYSTEMUUID",
-			"desc": "System Uuid",
-			"type": "String"
-		},
-		{
-			"name": "BOOTID",
-			"desc": "Boot ID",
-			"type": "String"
-		},
-		{
-			"name": "KERNELVERSION",
-			"desc": "Kernel Version",
-			"type": "String"
-		},
-		{
-			"name": "OPERATINGSYSTEM",
-			"desc": "Operating System",
-			"type": "String"
-		},
-		{
-			"name": "CONTAINERRUNTIMEVERSION",
-			"desc": "Docker Version",
-			"type": "String"
-		},
-		{
-			"name": "KUBELETVERSION",
-			"desc": "Kubelet Version",
-			"type": "String"
-		},
-		{
-			"name": "KUBEPROXYVERSION",
-			"desc": "Kubeproxy Version",
-			"type": "String"
-		},
-		{
-			"name": "ARCHITECTURE",
-			"desc": "Architecture",
-			"type": "String"
-		},
-		{
-			"name": "PODCIDR",
-			"desc": "Pod Cidr",
-			"type": "String"
-		},
-		{
-			"name": "PODCIDRS",
-			"desc": "Pod Cidrs",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "NAME",
-				"desc": "Name",
-				"type": "String"
-			}]
-		}, {
-			"name": "LABELS",
-			"desc": "Labels",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "KEY",
-				"desc": "Key",
-				"type": "String"
-			}, {
-				"name": "VALUE",
-				"desc": "Value",
-				"type": "String"
-			}]
-		}, {
-			"name": "ANNOTATIONS",
-			"desc": "Annotations",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "KEY",
-				"desc": "Key",
-				"type": "String"
-			}, {
-				"name": "VALUE",
-				"desc": "Value",
-				"type": "String"
-			}]
-		}, {
-			"name": "CAPACITY",
-			"desc": "Capacity",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "CPU",
-				"desc": "Cpu",
-				"type": "String"
-			}, {
-				"name": "MEMORY",
-				"desc": "Memory",
-				"type": "String"
-			}, {
-				"name": "PODS",
-				"desc": "Pods",
-				"type": "Int"
-			}, {
-				"name": "EPHEMERAL-STORAGE",
-				"desc": "Ephemeral Storage",
-				"type": "String"
-			}, {
-				"name": "HUGEPPAGES-1GI",
-				"desc": "Hugeppages 1GI",
-				"type": "String"
-			}, {
-				"name": "HUGEPPAGES-2MI",
-				"desc": "Hugeppages 2MI",
-				"type": "String"
-			}]
-		}, {
-			"name": "ALLOCATABLE",
-			"desc": "Allocatable",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "CPU",
-				"desc": "Cpu",
-				"type": "String"
-			}, {
-				"name": "MEMORY",
-				"desc": "Memory",
-				"type": "String"
-			}, {
-				"name": "PODS",
-				"desc": "Pods",
-				"type": "Int"
-			}, {
-				"name": "EPHEMERAL-STORAGE",
-				"desc": "Ephemeral Storage ",
-				"type": "String"
-			}, {
-				"name": "HUGEPPAGES-1GI",
-				"desc": "Hugeppages 1GI",
-				"type": "String"
-			}, {
-				"name": "HUGEPPAGES-2MI",
-				"desc": "Hugeppages 2MI",
-				"type": "String"
-			}]
-		}, {
-			"name": "ADDRESS",
-			"desc": "Address",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "TYPE",
-				"desc": "Type",
-				"type": "String"
-			}, {
-				"name": "ADDRESS",
-				"desc": "Address",
-				"type": "String"
-			}]
-		}, {
-			"name": "CONDITIONS",
-			"desc": "Conditions",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "TYPE",
-				"desc": "Type",
-				"type": "String"
-			}, {
-				"name": "STATUS",
-				"desc": "Status",
-				"type": "String"
-			}, {
-				"name": "LASTHEARTBEATTIME",
-				"desc": "LastheartbeatTime",
-				"type": "String"
-			}, {
-				"name": "LASTTRANSITIONTIME",
-				"desc": "LasttransitionTime",
-				"type": "String"
-			}, {
-				"name": "REASON",
-				"desc": "Reason",
-				"type": "String"
-			}, {
-				"name": "MESSAGE",
-				"desc": "Message",
-				"type": "String"
-			}]
-		}, {
-			"name": "RUN_OS",
-			"desc": "Run Os",
-			"type": "JsonArray",
-			"subset": [{
-				"name": "MGMT_IP",
-				"desc": "Managment Ip",
-				"type": "String"
-			}]
-		}
-	]
+    "label": "K8S_NODE",
+    "collection": "COLLECT_K8S",
+    "docroot": "NODES",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_NODE"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "ADDRESS",
+            "desc": "Address",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "ADDRESS",
+                    "desc": "Address",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ALLOCATABLE",
+            "desc": "Allocatable",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CPU",
+                    "desc": "Cpu",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "Memory",
+                    "type": "String"
+                },
+                {
+                    "name": "PODS",
+                    "desc": "Pods",
+                    "type": "Int"
+                },
+                {
+                    "name": "EPHEMERAL-STORAGE",
+                    "desc": "Ephemeral Storage ",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-1GI",
+                    "desc": "Hugeppages 1GI",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-2MI",
+                    "desc": "Hugeppages 2MI",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "Annotations",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ARCHITECTURE",
+            "desc": "Architecture",
+            "type": "String"
+        },
+        {
+            "name": "BOOTID",
+            "desc": "Boot ID",
+            "type": "String"
+        },
+        {
+            "name": "CAPACITY",
+            "desc": "Capacity",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CPU",
+                    "desc": "Cpu",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "Memory",
+                    "type": "String"
+                },
+                {
+                    "name": "PODS",
+                    "desc": "Pods",
+                    "type": "Int"
+                },
+                {
+                    "name": "EPHEMERAL-STORAGE",
+                    "desc": "Ephemeral Storage",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-1GI",
+                    "desc": "Hugeppages 1GI",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-2MI",
+                    "desc": "Hugeppages 2MI",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONDITIONS",
+            "desc": "Conditions",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTHEARTBEATTIME",
+                    "desc": "LastheartbeatTime",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTTRANSITIONTIME",
+                    "desc": "LasttransitionTime",
+                    "type": "String"
+                },
+                {
+                    "name": "REASON",
+                    "desc": "Reason",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "Message",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAINERRUNTIMEVERSION",
+            "desc": "Docker Version",
+            "type": "String"
+        },
+        {
+            "name": "CREATEDATA",
+            "desc": "CreateData",
+            "type": "String"
+        },
+        {
+            "name": "KERNELVERSION",
+            "desc": "Kernel Version",
+            "type": "String"
+        },
+        {
+            "name": "KUBELETVERSION",
+            "desc": "Kubelet Version",
+            "type": "String"
+        },
+        {
+            "name": "KUBEPROXYVERSION",
+            "desc": "Kubeproxy Version",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "Labels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MACHINEID",
+            "desc": "MachineId",
+            "type": "String"
+        },
+        {
+            "name": "OPERATINGSYSTEM",
+            "desc": "Operating System",
+            "type": "String"
+        },
+        {
+            "name": "PODCIDR",
+            "desc": "Pod Cidr",
+            "type": "String"
+        },
+        {
+            "name": "PODCIDRS",
+            "desc": "Pod Cidrs",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ROLE",
+            "desc": "Role",
+            "type": "String"
+        },
+        {
+            "name": "RUN_OS",
+            "desc": "Run Os",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managment Ip",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SYSTEMUUID",
+            "desc": "System Uuid",
+            "type": "String"
+        },
+        {
+            "name": "UID",
+            "desc": "Uid",
+            "type": "String"
+        }
+    ]
 }

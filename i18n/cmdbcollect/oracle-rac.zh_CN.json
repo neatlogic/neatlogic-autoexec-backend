@@ -120,23 +120,6 @@
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "用户列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "默认表空间",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTER_NAME",
             "desc": "集群名",
             "type": "String"
@@ -445,7 +428,7 @@
                 },
                 {
                     "name": "SERVICE_NAMES",
-                    "desc": "服务名",
+                    "desc": "服务名列表",
                     "type": "array"
                 },
                 {
@@ -455,7 +438,7 @@
                 },
                 {
                     "name": "LISTEN_ADDRS",
-                    "desc": "监听地址",
+                    "desc": "监听地址列表",
                     "type": "array"
                 }
             ]
@@ -496,60 +479,6 @@
             "name": "SLAVE_IPS",
             "desc": "其他IP",
             "type": "array"
-        },
-        {
-            "name": "TABLE_SPACESES",
-            "desc": "表空间列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "TABLESPACE_NAME",
-                    "desc": "表空间名",
-                    "type": "String"
-                },
-                {
-                    "name": "TOTAL_GB",
-                    "desc": "容量(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_GB",
-                    "desc": "使用(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "FREE_GB",
-                    "desc": "空闲(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "使用%",
-                    "type": "Float"
-                },
-                {
-                    "name": "DATA_FILES",
-                    "desc": "数据文件列表",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "FILE_NAME",
-                            "desc": "文件名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SIZE",
-                            "desc": "大小(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "AUTOEXTENSIBLE",
-                            "desc": "自动扩展",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
         }
     ]
 }

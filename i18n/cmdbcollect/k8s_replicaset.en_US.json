@@ -1,126 +1,139 @@
 {
-	"label": "K8S_REPLICASET",
-	"collection": "COLLECT_K8S",
-	"docroot": "NAMESPACES.REPLICASETS",
-	"collection_label": "Kubernetes",
-	"filter": {
-		"_OBJ_TYPE": "K8S_REPLICASET"
-	},
-	"fields": [{
-			"name": "_OBJ_CATEGORY",
-			"desc": "Object Type",
-			"type": "String"
-		},
-		{
-			"name": "_OBJ_TYPE",
-			"desc": "Application Type",
-			"type": "String"
-		}, {
-			"name": "UID",
-			"desc": "uid",
-			"type": "String"
-		},
-		{
-			"name": "NAME",
-			"desc": "Name",
-			"type": "String"
-		},
-		{
-			"name": "NAMESPACE",
-			"desc": "Namespace",
-			"type": "String"
-		}, {
-			"name": "GENERATION",
-			"desc": "Generation",
-			"type": "Int"
-		}, {
-			"name": "REPLICAS",
-			"desc": "Replicas",
-			"type": "Int"
-		}, {
-			"name": "FULLYLABELEDREPLICAS",
-			"desc": "FullylabeledReplicas",
-			"type": "Int"
-		}, {
-			"name": "OBSERVEDGENERATION",
-			"desc": "ObservedGeneration",
-			"type": "Int"
-		}, {
-			"name": "READYREPLICAS",
-			"desc": "ReadyReplicas",
-			"type": "Int"
-		}, {
-			"name": "AVAILABLEREPLICAS",
-			"desc": "AvailableReplicas",
-			"type": "Int"
-		},
-		{
-			"name": "LABELS",
-			"desc": "Labels",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "KEY",
-					"desc": "Key",
-					"type": "String"
-				},
-				{
-					"name": "VALUE",
-					"desc": "Value",
-					"type": "String"
-				}
-			]
-		},
-		{
-			"name": "ANNOTATIONS",
-			"desc": "Annotations",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "KEY",
-					"desc": "Key",
-					"type": "String"
-				},
-				{
-					"name": "VALUE",
-					"desc": "Value",
-					"type": "String"
-				}
-			]
-		},
-		{
-			"name": "SELECTOR",
-			"desc": "Selector",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "KEY",
-					"desc": "Key",
-					"type": "String"
-				},
-				{
-					"name": "VALUE",
-					"desc": "Value",
-					"type": "String"
-				}
-			]
-		},
-		{
-			"name": "OWNERREFERENCES",
-			"desc": "OwnerReferences",
-			"type": "JsonArray",
-			"subset": [{
-					"name": "UID",
-					"desc": "Uid",
-					"type": "String"
-				}, {
-					"name": "NAME",
-					"desc": "Name",
-					"type": "String"
-				},
-				{
-					"name": "KIND",
-					"desc": "Kind",
-					"type": "String"
-				}
-			]
-		}
-	]
+    "label": "K8S_REPLICASET",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.REPLICASETS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_REPLICASET"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "Annotations",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "AVAILABLEREPLICAS",
+            "desc": "AvailableReplicas",
+            "type": "Int"
+        },
+        {
+            "name": "FULLYLABELEDREPLICAS",
+            "desc": "FullylabeledReplicas",
+            "type": "Int"
+        },
+        {
+            "name": "GENERATION",
+            "desc": "Generation",
+            "type": "Int"
+        },
+        {
+            "name": "LABELS",
+            "desc": "Labels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "Namespace",
+            "type": "String"
+        },
+        {
+            "name": "OBSERVEDGENERATION",
+            "desc": "ObservedGeneration",
+            "type": "Int"
+        },
+        {
+            "name": "OWNERREFERENCES",
+            "desc": "OwnerReferences",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "Uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "KIND",
+                    "desc": "Kind",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "READYREPLICAS",
+            "desc": "ReadyReplicas",
+            "type": "Int"
+        },
+        {
+            "name": "REPLICAS",
+            "desc": "Replicas",
+            "type": "Int"
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "Selector",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        }
+    ]
 }
