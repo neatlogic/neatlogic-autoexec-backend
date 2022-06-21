@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "UNIQUE_NAME",
+            "desc": "唯一名",
+            "type": "String"
+        },
+        {
             "name": "VIP",
             "desc": "VIP",
             "type": "String"

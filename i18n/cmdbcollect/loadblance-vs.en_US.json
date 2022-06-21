@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "LoadBlancer-VS"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -31,6 +30,11 @@
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -71,8 +75,7 @@
             "name": "MEMBERS",
             "desc": "Members",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"
