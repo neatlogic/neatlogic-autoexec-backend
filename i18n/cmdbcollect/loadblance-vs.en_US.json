@@ -27,6 +27,11 @@
             "type": "String"
         },
         {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "Int"

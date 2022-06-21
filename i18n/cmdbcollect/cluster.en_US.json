@@ -4,8 +4,7 @@
     "docroot": null,
     "collection_label": "Cluster",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -13,11 +12,6 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Cluster Type",
-            "type": "String"
-        },
-        {
-            "name": "UNIQUE_NAME",
-            "desc": "Unique Name",
             "type": "String"
         },
         {
@@ -29,6 +23,16 @@
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -69,8 +73,7 @@
             "name": "MEMBERS",
             "desc": "Members",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Category",
                     "type": "String"

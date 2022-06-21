@@ -4,8 +4,7 @@
     "docroot": null,
     "collection_label": "集群",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -29,6 +28,16 @@
             "name": "PORT",
             "desc": "端口",
             "type": "Int"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "唯一名",
+            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -69,8 +78,7 @@
             "name": "MEMBERS",
             "desc": "成员",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类型",
                     "type": "String"

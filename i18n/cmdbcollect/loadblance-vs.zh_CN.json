@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "LoadBlancer-VS"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -30,6 +29,11 @@
         {
             "name": "VIP",
             "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
             "type": "String"
         },
         {
@@ -76,8 +80,7 @@
             "name": "MEMBERS",
             "desc": "成员",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类型",
                     "type": "String"
