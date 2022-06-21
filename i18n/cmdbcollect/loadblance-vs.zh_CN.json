@@ -28,6 +28,11 @@
             "type": "String"
         },
         {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
