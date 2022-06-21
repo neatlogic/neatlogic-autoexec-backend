@@ -42,6 +42,8 @@ if __name__ == "__main__":
 
         if timeout == '':
             timeout = 10
+        else:
+            timeout = int(timeout)
 
         errMsg = None
         print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo['host'], nodeInfo['protocolPort']))
