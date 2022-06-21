@@ -659,8 +659,8 @@ sub main {
         }
 
         if ( not defined( $collectClassMap->{OS} ) ) {
-            $ignoreOsInfo    = 1;
-            $collectClassMap = { OS => 1 };
+            $ignoreOsInfo = 1;
+            $collectClassMap->{OS} = 1;
         }
     }
 
