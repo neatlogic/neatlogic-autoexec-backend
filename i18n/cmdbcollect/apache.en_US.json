@@ -363,47 +363,47 @@
         },
         {
             "name": "BELONG_CLUSTER",
-            "desc": "调用的集群",
+            "desc": "Belong to Cluster",
             "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
+                    "desc": "Object Category",
                     "type": "String"
                 },
                 {
                     "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
+                    "desc": "Object Type",
                     "type": "String"
                 },
                 {
                     "name": "PRIMARY_IP",
-                    "desc": "主IP",
+                    "desc": "Primary IP(not LB)",
                     "type": "String"
                 },
                 {
                     "name": "VIP",
-                    "desc": "服务IP",
+                    "desc": "VIP",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
-                    "desc": "端口",
+                    "desc": "Port",
                     "type": "Int"
                 },
                 {
                     "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
+                    "desc": "Unique Name",
                     "type": "String"
                 },
                 {
                     "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
+                    "desc": "Cluster Mode",
                     "type": "String"
                 },
                 {
                     "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
+                    "desc": "Cluster Software",
                     "type": "String"
                 }
             ]
