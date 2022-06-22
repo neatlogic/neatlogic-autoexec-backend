@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "LoadBlancer-VS"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -27,19 +28,9 @@
             "type": "String"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
-        },
-        {
-            "name": "UNIQUE_NAME",
-            "desc": "Unique Name",
-            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -77,40 +68,19 @@
             "type": "String"
         },
         {
-            "name": "MEMBERS",
-            "desc": "Members",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
             "type": "array"
+        },
+        {
+            "name": "Name",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
         }
     ]
 }

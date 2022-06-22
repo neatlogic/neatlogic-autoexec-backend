@@ -18,8 +18,8 @@
             "type": "String"
         },
         {
-            "name": "INSTANCE_NAME",
-            "desc": "实例名",
+            "name": "NAME",
+            "desc": "集群名",
             "type": "String"
         },
         {
@@ -40,11 +40,6 @@
         {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
             "type": "String"
         },
         {
@@ -120,11 +115,6 @@
             "type": "String"
         },
         {
-            "name": "CLUSTER_NAME",
-            "desc": "集群名",
-            "type": "String"
-        },
-        {
             "name": "CLUSTER_SOFTWARE",
             "desc": "集群软件",
             "type": "String"
@@ -161,7 +151,7 @@
                 },
                 {
                     "name": "PRIMARY_IP",
-                    "desc": "主IP",
+                    "desc": "主IP(非LB)",
                     "type": "String"
                 },
                 {

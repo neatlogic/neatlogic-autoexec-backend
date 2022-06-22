@@ -111,11 +111,12 @@ sub main {
         $data->{VENDOR} = $data->{BRAND};
     }
 
-    $data->{_OBJ_CATEGORY} = CollectObjCat->get('FCDEV');
+    my $objCat = CollectObjCat->get('FCDEV');
+    $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'FCSwitch';
     $data->{_APP_TYPE}     = $brand;
     $data->{MGMT_IP}       = $nodeInfo->{host};
-    $data->{PK}            = ['MGMT_IP'];
+    $data->{PK}            = CollectObjCat->getPK($objCat);
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
 
     my $out = {};

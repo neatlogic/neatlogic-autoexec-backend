@@ -15,7 +15,7 @@ our $TYPES = {
     SECDEV       => 'SECDEV',          #安全设备，_OBJ_TYPE:各个品牌名
     VIRTUALIZED  => 'VIRTUALIZED',     #虚拟化管理服务
     SWITCH       => 'SWITCH',          #交换机，_OBJ_TYPE:各个品牌名
-    FIREWALL     => 'FIREWALL',        #防火墙，_OBJ_TYPE:各个品牌名
+    FIREWALL     => 'SECDEV',          #防火墙，_OBJ_TYPE:各个品牌名
     LOADBALANCER => 'LOADBALANCER',    #负载均衡设备，_OBJ_TYPE:各个品牌名
     STORAGE      => 'STORAGE',         #存储， _OBJ_TYPE:各个品牌名
     FCSWITCH     => 'FCSWITCH',        #SAN光交， _OBJ_TYPE:各个品牌名
@@ -24,10 +24,10 @@ our $TYPES = {
 
 #Deprecated，废弃，改为在local/cmdbcollect/savedata里声明每个类别的主键定义
 our $PK_CONFIG = {
-    INS     => [ 'MGMT_IP',       'PORT' ],
-    DB      => [ 'NAME',          'PRIMARY_IP', 'PORT' ],
-    CLUSTER => [ 'NAME',          'PRIMARY_IP' ],
-    DBINS   => [ 'INSTANCE_NAME', 'MGMT_IP', 'PORT' ],
+    INS          => [ 'MGMT_IP',       'PORT' ],
+    DB           => [ 'NAME',          'PRIMARY_IP', 'PORT' ],
+    CLUSTER      => [ 'NAME',          'UNIQUE_NAME' ],
+    DBINS        => [ 'INSTANCE_NAME', 'MGMT_IP', 'PORT' ],
     OS           => ['MGMT_IP'],
     HOST         => [ 'MGMT_IP', 'BOARD_SERIAL' ],
     NETDEV       => [ 'MGMT_IP', 'SN' ],

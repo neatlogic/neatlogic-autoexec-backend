@@ -4,7 +4,8 @@
     "docroot": null,
     "collection_label": "集群",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -15,8 +16,13 @@
             "type": "String"
         },
         {
-            "name": "SERVER_NAME",
-            "desc": "服务名",
+            "name": "NAME",
+            "desc": "集群名",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "唯一名",
             "type": "String"
         },
         {
@@ -28,16 +34,6 @@
             "name": "PORT",
             "desc": "端口",
             "type": "Int"
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
-            "name": "UNIQUE_NAME",
-            "desc": "唯一名",
-            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -75,40 +71,14 @@
             "type": "String"
         },
         {
-            "name": "MEMBERS",
-            "desc": "成员",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "实例名",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
             "type": "array"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP(非LB)",
+            "type": "String"
         }
     ]
 }

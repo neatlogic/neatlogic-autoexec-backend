@@ -57,6 +57,7 @@ def genInsRel(db):
                                                    {'$in': peer}
                                                    }, {'UNIQUE_NAME': 1,
                                                        'VIP': 1,
+                                                       'PRIMARY_IP': 1,
                                                        'PORT': 1,
                                                        '_OBJ_CATEGORY': 1,
                                                        '_OBJ_TYPE': 1,
@@ -66,6 +67,7 @@ def genInsRel(db):
                 refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                           'PRIMARY_IP': cluster['PRIMARY_IP'],
                            'VIP': cluster.get('VIP'),
                            'PORT': cluster.get('PORT'),
                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
@@ -73,16 +75,42 @@ def genInsRel(db):
                            }
                 refCls.append(refInfo)
 
+            bind = ins['BIND']
+            belongCls = []
+            for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                   {'$in': bind}
+                                                   }, {'UNIQUE_NAME': 1,
+                                                       'VIP': 1,
+                                                       'PRIMARY_IP': 1,
+                                                       'PORT': 1,
+                                                       '_OBJ_CATEGORY': 1,
+                                                       '_OBJ_TYPE': 1,
+                                                       'CLUSTER_MODE': 1,
+                                                       'CLUSTER_SOFTWARE': 1}
+                                                  ).batch_size(500):
+                belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                            'PRIMARY_IP': cluster['PRIMARY_IP'],
+                            'VIP': cluster.get('VIP'),
+                            'PORT': cluster.get('PORT'),
+                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                            'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                            }
+                belongCls.append(belongCl)
+
             insCollection.update_one({'OS_ID': ins['OS_ID'],
                                       'MGMT_IP': ins['MGMT_IP'],
                                       'PORT': ins['PORT']},
                                      {'$set':
                                      {
+                                         'BELONG_CLUSTER': belongCls,
                                          'REF_DB': refDbs,
-                                         'REF_CLUSTER': refCls,
-                                         'REF_INS': refIns
+                                         'REF_INS': refIns,
+                                         'REF_CLUSTER': refCls
                                      }
             })
+
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
@@ -106,6 +134,7 @@ def genDBInsRel(db):
                                                    {'$in': peer}
                                                    }, {'UNIQUE_NAME': 1,
                                                        'VIP': 1,
+                                                       'PRIMARY_IP': 1,
                                                        'PORT': 1,
                                                        '_OBJ_CATEGORY': 1,
                                                        '_OBJ_TYPE': 1,
@@ -115,6 +144,7 @@ def genDBInsRel(db):
                 refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                           'PRIMARY_IP': cluster['PRIMARY_IP'],
                            'VIP': cluster.get('VIP'),
                            'PORT': cluster.get('PORT'),
                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
@@ -122,11 +152,36 @@ def genDBInsRel(db):
                            }
                 refCls.append(refInfo)
 
+            bind = db['BIND']
+            belongCls = []
+            for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                   {'$in': bind}
+                                                   }, {'UNIQUE_NAME': 1,
+                                                       'VIP': 1,
+                                                       'PRIMARY_IP': 1,
+                                                       'PORT': 1,
+                                                       '_OBJ_CATEGORY': 1,
+                                                       '_OBJ_TYPE': 1,
+                                                       'CLUSTER_MODE': 1,
+                                                       'CLUSTER_SOFTWARE': 1}
+                                                  ).batch_size(500):
+                belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                            'PRIMARY_IP': cluster['PRIMARY_IP'],
+                            'VIP': cluster.get('VIP'),
+                            'PORT': cluster.get('PORT'),
+                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                            'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                            }
+                belongCls.append(belongCl)
+
             dbCollection.update_one({'OS_ID': db['OS_ID'],
                                     'MGMT_IP': db['MGMT_IP'],
                                      'PORT': db['PORT']},
                                     {'$set':
                                     {
+                                        'BELONG_CLUSTER': belongCls,
                                         'REF_CLUSTER': refCls
                                     }
             })
@@ -134,11 +189,12 @@ def genDBInsRel(db):
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
 
-def genOSSwitchRel(db):
+def genOSRel(db):
     # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
     osCollection = db['COLLECT_OS']
     macTblCollection = db['RELATION_NET_MACTABLE']
     osUpdCollection = db['COLLECT_OS']
+    clusterCollection = db['COLLECT_CLUSTER']
 
     for os in osCollection.find({},
                                 {'OS_ID': 1,
@@ -176,6 +232,28 @@ def genOSSwitchRel(db):
                     refSwPorts.append(refSwPort)
 
                 nic['REMOTE_PORTS'] = refSwPorts
+
+            belongCls = []
+            for cluster in clusterCollection.find({'MEMBER_PEER': os['MGMT_IP']
+                                                   }, {'UNIQUE_NAME': 1,
+                                                       'VIP': 1,
+                                                       'PRIMARY_IP': 1,
+                                                       'PORT': 1,
+                                                       '_OBJ_CATEGORY': 1,
+                                                       '_OBJ_TYPE': 1,
+                                                       'CLUSTER_MODE': 1,
+                                                       'CLUSTER_SOFTWARE': 1}
+                                                  ).batch_size(500):
+                belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                            'PRIMARY_IP': cluster['PRIMARY_IP'],
+                            'VIP': cluster.get('VIP'),
+                            'PORT': cluster.get('PORT'),
+                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                            'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                            }
+                belongCls.append(belongCl)
 
             osUpdCollection.update_one({'OS_ID': os['OS_ID'], 'MGMT_IP': os['MGMT_IP']},
                                        {'$set':
@@ -241,7 +319,7 @@ if __name__ == "__main__":
         if args.type == 'OS' or args.type is None:
             genInsRel(db)
             genDBInsRel(db)
-            genOSSwitchRel(db)
+            genOSRel(db)
         elif args.type == 'NET' or args.type is None:
             genSwitchRel(db)
     except Exception as ex:

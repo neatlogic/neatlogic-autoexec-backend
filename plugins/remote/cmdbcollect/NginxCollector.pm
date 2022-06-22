@@ -58,7 +58,7 @@ sub collect {
         }
         if ( $line =~ /configure arguments:/ ) {
             my @values = split( /:/, $line );
-            my $cfg = $values[1];
+            my $cfg    = $values[1];
             $cfg =~ s/^\s+|\s+$//g;
             if ( $cfg =~ /--prefix=/ ) {
                 my @values = split( /=/, $cfg );
@@ -116,23 +116,26 @@ sub collect {
         $nginxInfo->{PORTS}    = $ports;
     }
 
-    my $clusterInfo = {
-        _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-        _OBJ_TYPE     => 'NginxCluster',
-        INDEX_FIELDS  => ['MEMBER_PEER'],
-        MEMBERS       => []
-    };
-    my $clusterMembers = [];
-    my $MGMT_IP = $procInfo->{MGMT_IP};
-    $clusterInfo->{UNIQUE_NAME}      = "$MGMT_IP:$port";
-    $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
-    $clusterInfo->{CLUSTER_SOFTWARE} = 'Nginx';
-    $clusterInfo->{CLUSTER_VERSION}  = $version;
-    $clusterInfo->{NAME} =  "$MGMT_IP:$port";
-    push( @$clusterMembers, "$MGMT_IP:$port" );
-    $clusterInfo->{MEMBER_PEER}     = $clusterMembers;
+    my $clusterInfo;
 
-    return ($nginxInfo , $clusterInfo) ;
+    # my $objCat      = CollectObjCat->get('CLUSTER');
+    # $clusterInfo = {
+    #     _OBJ_CATEGORY => $objCat,
+    #     _OBJ_TYPE     => 'NginxCluster',
+    #     INDEX_FIELDS  => CollectObjCat->getIndexFields($objCat),
+    #     MEMBERS       => []
+    # };
+    # my $clusterMembers = [];
+    # my $MGMT_IP        = $procInfo->{MGMT_IP};
+    # $clusterInfo->{UNIQUE_NAME}      = "Nginx:$MGMT_IP:$port";
+    # $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
+    # $clusterInfo->{CLUSTER_SOFTWARE} = 'Nginx';
+    # $clusterInfo->{CLUSTER_VERSION}  = $version;
+    # $clusterInfo->{NAME}             = "$MGMT_IP:$port";
+    # push( @$clusterMembers, "$MGMT_IP:$port" );
+    # $clusterInfo->{MEMBER_PEER} = $clusterMembers;
+
+    return ( $nginxInfo, $clusterInfo );
 }
 
 sub parseConfigServer {
@@ -179,7 +182,7 @@ sub parseConfigInclude {
             $path =~ s/include//;
             $path =~ s/;//;
             $path =~ s/^\s+|\s+$//g;
-            my $e = rindex( $path, '/' );
+            my $e    = rindex( $path, '/' );
             my $dir  = substr( $path, 0,      $e );
             my $file = substr( $path, $e + 1, length($path) );
             if ( -d $dir ) {
@@ -250,7 +253,7 @@ sub parseConfigParam {
 
 sub parseConfig {
     my ( $self, $conf_path ) = @_;
-    my @includes = parseConfigInclude( $self, $conf_path );
+    my @includes      = parseConfigInclude( $self, $conf_path );
     my @nginx_servers = ();
     foreach my $cfg (@includes) {
         my $serverCfg = parseConfigServer( $self, $cfg );

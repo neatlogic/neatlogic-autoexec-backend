@@ -81,7 +81,7 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
 
-    my $pos = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
+    my $pos      = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
     my $confPath = substr( $cmdLine, $pos );
 
     my $realConfPath = $confPath;
@@ -116,6 +116,10 @@ sub collect {
         if ( $line !~ /^#/ ) {
             my ( $key, $val ) = split( /\s*=\s*/, $line );
             $confMap->{$key} = $val;
+
+            # server.1=192.168.1.122:2182:2183
+            # server.2=192.168.1.123:2182:2183
+            # server.3=192.168.1.124:2182:2183
             if ( $key =~ /server\.\d+/ ) {
                 push( @members, { NAME => $key, VALUE => $val } );
                 my @ipInfos = split( ':', $val );
@@ -124,33 +128,35 @@ sub collect {
             }
         }
     }
-
-    @members                 = sort(@members);
-    $appInfo->{DATA_DIR}     = $confMap->{dataDir};
-    $appInfo->{PORT}         = $confMap->{clientPort};
-    $appInfo->{ADMIN_PORT}   = $confMap->{'admin.serverPort'};
-    $appInfo->{ADMIN_ENABLE} = $confMap->{'admin.enableServer'};
-    $appInfo->{MEMBERS}      = \@members;
-
+    my @sortedMembers = sort (@$clusterMembers);
+    @members                   = sort(@members);
+    $appInfo->{DATA_DIR}       = $confMap->{dataDir};
+    $appInfo->{PORT}           = $confMap->{clientPort};
+    $appInfo->{ADMIN_PORT}     = $confMap->{'admin.serverPort'};
+    $appInfo->{ADMIN_ENABLE}   = $confMap->{'admin.enableServer'};
+    $appInfo->{MEMBERS}        = \@members;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
-    $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
+    $appInfo->{NAME} = $procInfo->{HOST_NAME};
 
     my $clusterInfo = undef;
     if ( scalar(@$clusterMembers) > 1 ) {
+        my $objCat      = CollectObjCat->get('CLUSTER');
         my $clusterInfo = {
-            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+            _OBJ_CATEGORY => $objCat,
             _OBJ_TYPE     => 'ZookeeperCluster',
-            INDEX_FIELDS  => ['MEMBER_PEER'],
+            INDEX_FIELDS  => CollectObjCat->getIndexFields($objCat),
             MEMBERS       => []
         };
-        $clusterInfo->{UNIQUE_NAME}      = join( ',', @members );
+        my $uniqName = 'Zookeeper:' . $members[0];
+        $clusterInfo->{UNIQUE_NAME}      = $uniqName;
+        $clusterInfo->{NAME}             = $uniqName;
         $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
         $clusterInfo->{CLUSTER_VERSION}  = $version;
-        $clusterInfo->{MEMBER_PEER}     = $clusterMembers;
+        $clusterInfo->{MEMBER_PEER}      = $clusterMembers;
     }
 
     return ( $appInfo, $clusterInfo );

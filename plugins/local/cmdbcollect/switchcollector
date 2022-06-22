@@ -111,10 +111,11 @@ sub main {
     #my $collector = SwitchSnmp->new( hostname => $hostname, community => $community, timeout => $timeout );
     #my $data = $collector->collect();
 
-    $data->{_OBJ_CATEGORY} = CollectObjCat->get('SWITCH');
+    my $objCat = CollectObjCat->get('SWITCH');
+    $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = $objType;
     $data->{_APP_TYPE}     = $brand;
-    $data->{PK}            = ['MGMT_IP'];
+    $data->{PK}            = CollectObjCat->getPK($objCat);
     $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
     $data->{MGMT_IP}       = $hostname;
 

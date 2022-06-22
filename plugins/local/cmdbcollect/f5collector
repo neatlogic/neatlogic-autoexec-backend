@@ -60,7 +60,8 @@ sub main {
 
     my $collector = F5Snmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
     my $data      = $collector->collect();
-    $data->{_OBJ_CATEGORY} = CollectObjCat->get('LOADBALANCER');
+    my $objCat    = CollectObjCat->get('LOADBALANCER');
+    $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'F5';
     $data->{PK}            = ['MGMT_IP'];
     $data->{RESOURCE_ID}   = $node->{resourceId};
@@ -74,9 +75,9 @@ sub main {
     my $virtualServers = $data->{VIRTUAL_SERVERS};
     foreach my $vsInfo (@$virtualServers) {
         my $clusterInfo = {
-            'PK'               => ['UNIQUE_NAME'],
-            'INDEX_FIELDS'     => ['MEMBER_PEER'],
-            '_OBJ_CATEGORY'    => 'CLUSTER',
+            'PK'               => CollectObjCat->getPK($objCat),
+            'INDEX_FIELDS'     => CollectObjCat->getIndexFields($objCat),
+            '_OBJ_CATEGORY'    => CollectObjCat->get('CLUSTER'),
             '_OBJ_TYPE'        => 'LoadBlancer-VS',
             'CLUSTER_MODE'     => 'LoadBlance',
             'CLUSTER_SOFTWARE' => 'F5',
@@ -95,7 +96,7 @@ sub main {
         $clusterInfo->{PRIMARY_IP}  = $vsInfo->{IP};
         $clusterInfo->{PORT}        = $vsInfo->{PORT};
         $clusterInfo->{BIND}        = [$bind];
-        $clusterInfo->{UNIQUE_NAME} = $bind;
+        $clusterInfo->{UNIQUE_NAME} = "F5:$bind";
 
         my @memberPeer = ();
         my $members    = $vsInfo->{POOL}->{MEMBERS};

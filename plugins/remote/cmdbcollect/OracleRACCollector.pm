@@ -321,9 +321,12 @@ sub getClusterNodes {
         }
     }
 
-    $racInfo->{NODES}      = \@dbNodes;
-    $racInfo->{PRIMARY_IP} = shift(@nodePubIps);
-    $racInfo->{SLAVE_IPS}  = \@nodePubIps;
+    $racInfo->{NODES} = \@dbNodes;
+    my $primaryIp = $nodePubIps[0];
+    $racInfo->{PRIMARY_IP}  = $primaryIp;
+    $racInfo->{PORT}        = undef;
+    $racInfo->{UNIQUE_NAME} = "Oracle-RAC:$primaryIp";
+    $racInfo->{SLAVE_IPS}   = \@nodePubIps;
 
     return $dbNodesMap;
 }

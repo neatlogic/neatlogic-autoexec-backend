@@ -4,7 +4,8 @@
     "docroot": null,
     "collection_label": "Cluster",
     "filter": {},
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Category",
             "type": "String"
@@ -12,6 +13,16 @@
         {
             "name": "_OBJ_TYPE",
             "desc": "Cluster Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "集群名",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
             "type": "String"
         },
         {
@@ -23,16 +34,6 @@
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
-            "name": "UNIQUE_NAME",
-            "desc": "Unique Name",
-            "type": "String"
         },
         {
             "name": "AVAILABILITY",
@@ -70,40 +71,14 @@
             "type": "String"
         },
         {
-            "name": "MEMBERS",
-            "desc": "Members",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
             "type": "array"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
         }
     ]
 }

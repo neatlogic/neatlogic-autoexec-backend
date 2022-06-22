@@ -19,17 +19,7 @@
         },
         {
             "name": "NAME",
-            "desc": "DB Name",
-            "type": "String"
-        },
-        {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
+            "desc": "Cluster Name",
             "type": "String"
         },
         {
@@ -50,11 +40,6 @@
         {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
             "type": "String"
         },
         {
@@ -130,11 +115,6 @@
             "type": "String"
         },
         {
-            "name": "CLUSTER_NAME",
-            "desc": "Cluster Name",
-            "type": "String"
-        },
-        {
             "name": "CLUSTER_SOFTWARE",
             "desc": "Cluster Software",
             "type": "String"
@@ -171,7 +151,7 @@
                 },
                 {
                     "name": "PRIMARY_IP",
-                    "desc": "Primary IP",
+                    "desc": "Primary IP(Not LB)",
                     "type": "String"
                 },
                 {

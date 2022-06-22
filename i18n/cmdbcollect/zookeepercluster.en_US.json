@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
             "name": "UNIQUE_NAME",
             "desc": "Unique Name",
             "type": "String"
@@ -26,11 +31,6 @@
             "name": "VIP",
             "desc": "VIP",
             "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
         },
         {
             "name": "AVAILABILITY",
@@ -66,38 +66,6 @@
             "name": "CLUSTER_VERSION",
             "desc": "Cluster Version",
             "type": "String"
-        },
-        {
-            "name": "MEMBERS",
-            "desc": "Members",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "MEMBER_PEER",

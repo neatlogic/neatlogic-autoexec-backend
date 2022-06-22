@@ -120,7 +120,8 @@ sub main {
 
     my $data = $storageIns->collect();
 
-    $data->{_OBJ_CATEGORY} = CollectObjCat->get('STORAGE');
+    my $objCat = CollectObjCat->get('STORAGE');
+    $data->{_OBJ_CATEGORY} = $objCat;
     if ( not defined( $data->{_OBJ_TYPE} ) ) {
         $data->{_OBJ_TYPE} = 'Storage';
     }
@@ -129,7 +130,7 @@ sub main {
     }
 
     $data->{MGMT_IP}     = $nodeInfo->{host};
-    $data->{PK}          = ['MGMT_IP'];
+    $data->{PK}          = CollectObjCat->getPK($objCat);
     $data->{RESOURCE_ID} = $nodeInfo->{resourceId};
 
     my $out = {};
