@@ -437,6 +437,53 @@
             "type": "Int"
         },
         {
+            "name": "BELONG_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
