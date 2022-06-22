@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-DB"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -48,6 +47,21 @@
             "type": "Int"
         },
         {
+            "name": "IS_RAC",
+            "desc": "是否RAC",
+            "type": "Int"
+        },
+        {
+            "name": "IS_CDB",
+            "desc": "是否CDB",
+            "type": "Int"
+        },
+        {
+            "name": "CDB",
+            "desc": "所属CDB",
+            "type": "Int"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -66,18 +80,15 @@
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "监听地址",
                     "type": "Int"
@@ -93,8 +104,7 @@
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USERNAME",
                     "desc": "用户名",
                     "type": "String"
@@ -125,8 +135,7 @@
             "name": "INSTANCES",
             "desc": "关联实例",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "归属类型",
                     "type": "String"
@@ -182,8 +191,7 @@
             "name": "TABLE_SPACESES",
             "desc": "表空间列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "表空间名",
                     "type": "String"
@@ -217,8 +225,7 @@
                     "name": "DATA_FILES",
                     "desc": "数据文件列表",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "FILE_NAME",
                             "desc": "文件名",
                             "type": "String"

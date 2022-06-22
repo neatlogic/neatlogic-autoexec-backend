@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Oracle-DB"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -48,6 +47,21 @@
             "type": "Int"
         },
         {
+            "name": "IS_RAC",
+            "desc": "Is RAC",
+            "type": "Int"
+        },
+        {
+            "name": "IS_CDB",
+            "desc": "Is CDB",
+            "type": "Int"
+        },
+        {
+            "name": "CDB",
+            "desc": "Belong CDB",
+            "type": "Int"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -66,18 +80,15 @@
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
+            "subset": [{
+                "type": "Int"
+            }]
         },
         {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ADDR",
                     "desc": "Listen Addr",
                     "type": "Int"
@@ -93,8 +104,7 @@
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "USERNAME",
                     "desc": "User Name",
                     "type": "String"
@@ -125,8 +135,7 @@
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "_OBJ_CATEGORY",
                     "desc": "Object Type",
                     "type": "String"
@@ -182,8 +191,7 @@
             "name": "TABLE_SPACESES",
             "desc": "Table Space List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "AUTOEXTENSIBLE",
                     "desc": "Auto Extensible",
                     "type": "String"
@@ -212,8 +220,7 @@
                     "name": "DATA_FILES",
                     "desc": "Data File List",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "FILE_NAME",
                             "desc": "File Name",
                             "type": "String"

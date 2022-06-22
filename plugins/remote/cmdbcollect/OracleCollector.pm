@@ -178,9 +178,9 @@ sub getTableSpaceInfo {
 
             my $tableSpace = $tableSpaces->{$tableSpaceName};
             if ( not defined($tableSpace) ) {
-                $tableSpace = { NAME => $tableSpaceName, DATA_FILES => [] };
+                $tableSpace                     = { NAME => $tableSpaceName, DATA_FILES => [] };
                 $tableSpaces->{$tableSpaceName} = $tableSpace;
-                $tableSpace->{AUTOEXTENSIBLE} = 'NO';
+                $tableSpace->{AUTOEXTENSIBLE}   = 'NO';
             }
             if ( $isAutoExtended eq 'YES' ) {
                 $tableSpace->{AUTOEXTENSIBLE} = 'YES';
@@ -431,6 +431,8 @@ sub collectCDB {
     $dbInfo->{_OBJ_CATEGORY} = 'DB';
     $dbInfo->{_OBJ_TYPE}     = 'Oracle-DB';
     $dbInfo->{_APP_TYPE}     = 'DB';
+    $dbInfo->{IS_RAC}        = $insInfo->{IS_RAC};
+    $dbInfo->{CDB}           = undef;
     $dbInfo->{NOT_PROCESS}   = 1;
     $dbInfo->{RUN_ON}        = [];
 
@@ -439,6 +441,10 @@ sub collectCDB {
     #采集instance对应的DB，可能是CDB或者是普通的DB
     if ( $insInfo->{IS_CDB} ) {
         $dbInfo->{_APP_TYPE} = 'CDB';
+        $dbInfo->{IS_CDB}    = 1;
+    }
+    else {
+        $dbInfo->{IS_CDB} = 0;
     }
 
     if ( $insInfo->{IS_RAC} == 1 ) {
@@ -530,6 +536,7 @@ sub collectPDB {
             $pdb->{ORACLE_SID}  = $insInfo->{ORACLE_SID};
             $pdb->{ORACLE_HOME} = $insInfo->{ORACLE_HOME};
             $pdb->{ORACLE_BASE} = $insInfo->{ORACLE_BASE};
+            $pdb->{IS_RAC}      = $insInfo->{IS_RAC};
 
             $pdb->{NAME}   = $row->{NAME};
             $pdb->{DBID}   = $row->{DBID};
@@ -538,6 +545,7 @@ sub collectPDB {
             $pdb->{_OBJ_CATEGORY} = 'DB';
             $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
             $pdb->{_APP_TYPE}     = 'PDB';
+            $pdb->{IS_CDB}        = 0;
             $pdb->{CDB}           = $dbName;
 
             $pdb->{NOT_PROCESS} = 1;
