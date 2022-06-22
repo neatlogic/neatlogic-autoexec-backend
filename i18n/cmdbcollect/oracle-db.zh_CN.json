@@ -59,7 +59,7 @@
         {
             "name": "CDB",
             "desc": "所属CDB",
-            "type": "Int"
+            "type": "String"
         },
         {
             "name": "AVAILABILITY",
