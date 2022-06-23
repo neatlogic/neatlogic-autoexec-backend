@@ -561,6 +561,7 @@ sub doDetailCollect {
                     {
                         _OBJ_CATEGORY  => 'APPLICATION',
                         _OBJ_TYPE      => 'APPLICATION_MODULE',
+                        APP_NAME       => $insPaths[0],
                         APPMODULE_NAME => $insPaths[1],
                     }
                 ];

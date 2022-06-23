@@ -113,6 +113,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "APP_NAME",
+                    "desc": "应用名",
+                    "type": "String"
+                },
+                {
                     "name": "APPMODULE_NAME",
                     "desc": "应用模块名",
                     "type": "String"
