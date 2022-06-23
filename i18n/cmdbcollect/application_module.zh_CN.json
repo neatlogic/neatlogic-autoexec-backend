@@ -18,6 +18,16 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "模块名",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -34,7 +44,12 @@
         },
         {
             "name": "APPMODULE_NAME",
-            "desc": "应用模块简称",
+            "desc": "模块简称",
+            "type": "String"
+        },
+        {
+            "name": "APP_NAME",
+            "desc": "应用简称",
             "type": "String"
         }
     ]

@@ -225,7 +225,7 @@ sub collect {
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                 _OBJ_TYPE     => 'Mysql',
-                INSTANCE_NAME => '-',
+                INSTANCE_NAME => $procInfo->{HOST_NAME},
                 MGMT_IP       => $mysqlInfo->{MGMT_IP},
                 PORT          => $port
             }
@@ -303,7 +303,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $mysqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
-    $mysqlInfo->{INSTANCE_NAME} = '-';
+    $mysqlInfo->{INSTANCE_NAME} = $procInfo->{HOST_NAME};
 
     my @collectSet = ();
     push( @collectSet, $mysqlInfo );

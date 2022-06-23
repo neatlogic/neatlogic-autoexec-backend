@@ -18,6 +18,16 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "Module Name",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -34,7 +44,12 @@
         },
         {
             "name": "APPMODULE_NAME",
-            "desc": "Application Module Name",
+            "desc": "Module Abbr Name",
+            "type": "String"
+        },
+        {
+            "name": "APP_NAME",
+            "desc": "App Abbr Name",
             "type": "String"
         }
     ]

@@ -26,6 +26,11 @@
             "type": "String"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
             "name": "VIP",
             "desc": "VIP",
             "type": "String"

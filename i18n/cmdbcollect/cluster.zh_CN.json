@@ -26,6 +26,11 @@
             "type": "String"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "VIP",
             "desc": "VIP",
             "type": "String"

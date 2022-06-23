@@ -65,6 +65,7 @@ sub getCPUInfo {
     $osInfo->{BOARD_SERIAL}         = $prtConfInfo->{'Machine Serial Number'};
     $osInfo->{CPU_MODEL}            = $prtConfInfo->{'System Model'};
     $osInfo->{CPU_CORES}            = int( $prtConfInfo->{'Number Of Processors'} );
+    $osInfo->{CPU_LOGIC_CORES}      = $osInfo->{CPU_CORES};
     $osInfo->{CPU_BITS}             = int( $prtConfInfo->{'CPU Type'} );
     $osInfo->{CPU_ARCH}             = $prtConfInfo->{'Processor Type'};
     $osInfo->{CPU_VERSION}          = $prtConfInfo->{'Processor Version'};
@@ -970,6 +971,7 @@ sub collect {
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
     $hostInfo->{CPU_MODEL}            = $osInfo->{CPU_MODEL};
     $hostInfo->{CPU_CORES}            = $osInfo->{CPU_CORES};
+    $hostInfo->{CPU_LOGIC_CORES}      = $osInfo->{CPU_CORES};
     $hostInfo->{CPU_BITS}             = $osInfo->{CPU_BITS};
     $hostInfo->{CPU_ARCH}             = $osInfo->{CPU_ARCH};
     $hostInfo->{CPU_VERSION}          = $osInfo->{CPU_VERSION};

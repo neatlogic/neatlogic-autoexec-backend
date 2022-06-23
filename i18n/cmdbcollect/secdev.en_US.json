@@ -64,6 +64,11 @@
             "name": "DEV_NAME",
             "desc": "Device Name",
             "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS Info",
+            "type": "String"
         }
     ]
 }
