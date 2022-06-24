@@ -335,51 +335,9 @@
             ]
         },
         {
-            "name": "BELONG_CLUSTER",
-            "desc": "Belong to Cluster",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "PRIMARY_IP",
-                    "desc": "Primary IP(not LB)",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
         },
         {
             "name": "CLUSTER_NAME",
@@ -479,6 +437,11 @@
             "type": "String"
         },
         {
+            "name": "NODE_NAME",
+            "desc": "Node Name",
+            "type": "String"
+        },
+        {
             "name": "NODE_VIP",
             "desc": "Node VIP",
             "type": "String"
@@ -497,6 +460,38 @@
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
+        },
+        {
+            "name": "RAC_CLUSTER",
+            "desc": "Belong to RAC Cluster",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Cluster Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "RUN_ON",

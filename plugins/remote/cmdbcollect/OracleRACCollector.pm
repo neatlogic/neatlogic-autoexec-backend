@@ -203,7 +203,7 @@ sub getClusterDB {
                     push(
                         @instances,
                         {
-                            _OBJ_CATEGORY => 'DBINS',
+                            _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                             _OBJ_TYPE     => 'Oracle',
                             NAME          => $instanceName,
                             INSTANCE_NAME => $instanceName,
@@ -211,7 +211,14 @@ sub getClusterDB {
                             MGMT_IP       => $nodeInfo->{IP},
                             VIP           => $nodeInfo->{VIP},
                             PORT          => $miniPort,
-                            SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort
+                            SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort,
+                            RAC_CLUSTER   => [
+                                _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+                                _OBJ_TYPE     => 'DBCluster',
+                                _APP_TYPE     => 'Oracle',
+                                UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
+                                NAME          => $racInfo->{NAME}
+                            ]
                         }
                     );
                 }
@@ -325,7 +332,7 @@ sub getClusterNodes {
     my $primaryIp = $nodePubIps[0];
     $racInfo->{PRIMARY_IP}  = $primaryIp;
     $racInfo->{PORT}        = undef;
-    $racInfo->{UNIQUE_NAME} = "Oracle-RAC:$primaryIp";
+    $racInfo->{UNIQUE_NAME} = 'RAC:' . $racInfo->{CLUSTER_NAME} . ':' . $primaryIp;
     $racInfo->{SLAVE_IPS}   = \@nodePubIps;
 
     return $dbNodesMap;
@@ -723,6 +730,8 @@ sub collectRAC {
 
     $self->{srvctlPath} = File::Spec->canonpath("$gridHome/bin/srvctl");
 
+    $self->getClusterName($racInfo);
+
     my $dbNodesMap = $self->getClusterNodes($racInfo);
     my $localNode  = $self->getClusterLocalNode($racInfo);
 
@@ -732,7 +741,6 @@ sub collectRAC {
         return undef;
     }
 
-    $self->getClusterName($racInfo);
     $self->getGridVersion($racInfo);
     $self->getClusterActiveVersion($racInfo);
     $self->getScanInfo($racInfo);

@@ -791,12 +791,17 @@ sub getClusterDB {
                             _OBJ_TYPE     => 'Oracle',
                             INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
-
-                            #MGMT_IP       => $procInfo->{MGMT_IP},
-                            MGMT_IP      => $nodeInfo->{IP},
-                            VIP          => $nodeInfo->{VIP},
-                            PORT         => $miniPort,
-                            SERVICE_ADDR => $nodeInfo->{IP} . ':' . $miniPort
+                            MGMT_IP       => $nodeInfo->{IP},
+                            VIP           => $nodeInfo->{VIP},
+                            PORT          => $miniPort,
+                            SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort,
+                            RAC_CLUSTER   => [
+                                _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+                                _OBJ_TYPE     => 'DBCluster',
+                                _APP_TYPE     => 'Oracle',
+                                UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
+                                NAME          => $racInfo->{NAME}
+                            ]
                         }
                     );
                 }
@@ -1333,6 +1338,7 @@ sub collectRAC {
     if ( defined($scanIps) and (@$scanIps) > 0 ) {
         $racInfo->{PRIMARY_IP} = $$scanIps[0];
     }
+    $racInfo->{UNIQUE_NAME} = 'RAC:' . $racInfo->{CLUSTER_NAME} . ':' . $racInfo->{PRIMARY_IP};
 
     my $svcNameToLsnrMap     = $self->getListenerInfo($racInfo);
     my $svcNameToScanLsnrMap = $self->getScanListenerInfo($racInfo);
@@ -1371,7 +1377,8 @@ sub collectRAC {
         foreach my $instance (@$instances) {
             my $collectInstance = {};
             map { $collectInstance->{$_} = $instance->{$_} } keys(%$instance);
-            $collectInstance->{PROC_INFO} = {
+            $collectInstance->{CLUSTER_NAME} = $racInfo->{CLUSTER_NAME};
+            $collectInstance->{PROC_INFO}    = {
                 PID  => $collectDatabase->{PROC_INFO}->{PID},
                 PPID => $collectDatabase->{PROC_INFO}->{PPID}
             };
@@ -1491,6 +1498,10 @@ sub collect {
     if ( defined($insInfo) ) {
         if ( defined($racInfo) ) {
             $insInfo->{CLUSTER_NAME} = $racInfo->{CLUSTER_NAME};
+            $insInfo->{CLUSTER_MODE} = 'RAC';
+            $insInfo->{NODE_VIP}     = $racInfo->{LOCAL_NODE_VIP};
+            $insInfo->{NODE_PUB_IP}  = $racInfo->{LOCAL_NODE_PUB_IP};
+            $insInfo->{NODE_NAME}    = $racInfo->{LOCAL_NODE};
         }
 
         #ORACLE实例信息采集完成
