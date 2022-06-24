@@ -385,13 +385,18 @@
                             "type": "String"
                         },
                         {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
                             "name": "MGMT_IP",
-                            "desc": "管理Ip",
+                            "desc": "交换机管理Ip",
                             "type": "String"
                         },
                         {
                             "name": "SN",
-                            "desc": "序列号",
+                            "desc": "交换机序列号",
                             "type": "String"
                         },
                         {

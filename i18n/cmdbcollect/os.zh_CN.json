@@ -140,6 +140,11 @@
             "type": "Int"
         },
         {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "CPU逻辑核数",
+            "type": "Int"
+        },
+        {
             "name": "IOWAIT_PCT",
             "desc": "IOWait百分比",
             "type": "Float"
@@ -393,13 +398,18 @@
                             "type": "String"
                         },
                         {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
                             "name": "MGMT_IP",
-                            "desc": "管理Ip",
+                            "desc": "交换机管理Ip",
                             "type": "String"
                         },
                         {
                             "name": "SN",
-                            "desc": "序列号",
+                            "desc": "交换机序列号",
                             "type": "String"
                         },
                         {
@@ -482,7 +492,7 @@
         },
         {
             "name": "HOST_ON",
-            "desc": "Run On Host",
+            "desc": "所属主机",
             "type": "JsonArray",
             "subset": [
                 {

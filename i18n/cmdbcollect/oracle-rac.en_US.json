@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "UNIQUE_NAME",
+            "desc": "RAC Unique Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -155,16 +160,16 @@
                     "type": "String"
                 },
                 {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
                     "name": "SERVICE_ADDR",
                     "desc": "Service Addr",
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "DBID",
-            "desc": "DBID",
-            "type": "String"
         },
         {
             "name": "DISK_GROUPS",

@@ -385,13 +385,18 @@
                             "type": "String"
                         },
                         {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
                             "name": "MGMT_IP",
-                            "desc": "Management Ip",
+                            "desc": "Switch Ip",
                             "type": "String"
                         },
                         {
                             "name": "SN",
-                            "desc": "Serial Number",
+                            "desc": "Switch SN",
                             "type": "String"
                         },
                         {

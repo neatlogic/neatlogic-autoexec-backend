@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "UNIQUE_NAME",
+            "desc": "集群唯一名",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -155,16 +160,16 @@
                     "type": "String"
                 },
                 {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
                     "name": "SERVICE_ADDR",
                     "desc": "服务地址",
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "DBID",
-            "desc": "DBID",
-            "type": "String"
         },
         {
             "name": "DISK_GROUPS",
