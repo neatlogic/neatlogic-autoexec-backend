@@ -17,7 +17,7 @@ def usage():
     pname = os.path.basename(__file__)
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
     print("         --mode <mode> eg : truncate or append ,default value truncate.\n")
-    print(" --action [beautify|remove|append|savetodb|dropcollection] \n")
+    print(" --action [beautify|remove|append|savetodb|dropcollection｜cleancollection] \n")
     print("Examples:")
     print("Remove field:")
     print('dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION')
@@ -486,14 +486,24 @@ if __name__ == "__main__":
                 import AutoExecUtils
                 (dbclient, db) = AutoExecUtils.getDB()
                 colName = args.content
-                col = db[colName]
-                col.drop()
+                if colName == 'all':
+                    for colName in ('ACCESSENDPOINT', 'APPLICATION', 'CLUSTER', 'DB', 'DBINS', 'EMPTY', 'FCDEV', 'HOST', 'INS', 'K8S', 'LOADBALANCER', 'NETDEV', 'OS', 'SECDEV', 'STORAGE', 'UNKNOWN', 'VIRTUALIZED'):
+                        col = db[colName]
+                        col.drop()
+                else:
+                    col = db[colName]
+                    col.drop()
             elif action == 'clearcollection':
                 import AutoExecUtils
                 (dbclient, db) = AutoExecUtils.getDB()
                 colName = args.content
-                col = db[colName]
-                col.delete_many({})
+                if colName == 'all':
+                    for colName in ('ACCESSENDPOINT', 'APPLICATION', 'CLUSTER', 'DB', 'DBINS', 'EMPTY', 'FCDEV', 'HOST', 'INS', 'K8S', 'LOADBALANCER', 'NETDEV', 'OS', 'SECDEV', 'STORAGE', 'UNKNOWN', 'VIRTUALIZED'):
+                        col = db[colName]
+                        col.delete_many({})
+                else:
+                    col = db[colName]
+                    col.delete_many({})
             else:
                 print("ERROR: Action " + action + "not supported.")
     # 关闭连接
