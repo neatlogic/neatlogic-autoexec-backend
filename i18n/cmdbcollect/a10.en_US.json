@@ -24,17 +24,12 @@
         },
         {
             "name": "VERSION",
-            "desc": "Version",
+            "desc": "IOS Version",
             "type": "String"
         },
         {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "IP",
-            "desc": "IP",
             "type": "String"
         },
         {

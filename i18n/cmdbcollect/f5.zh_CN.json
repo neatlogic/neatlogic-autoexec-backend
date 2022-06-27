@@ -33,11 +33,6 @@
             "type": "String"
         },
         {
-            "name": "IP",
-            "desc": "IP",
-            "type": "String"
-        },
-        {
             "name": "UPTIME",
             "desc": "Up Time(Days)",
             "type": "String"

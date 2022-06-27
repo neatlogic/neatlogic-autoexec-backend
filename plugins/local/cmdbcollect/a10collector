@@ -79,7 +79,8 @@ sub main {
             'CLUSTER_VERSION'  => $data->{VERSION},
             'HOST_ON'          => {
                 '_OBJ_CATEGORY' => 'LOADBALANCER',
-                '_OBJ_TYPE'     => 'F5',
+                '_OBJ_TYPE'     => 'A10',
+                'DEV_NAME'      => $data->{DEV_NAME},
                 'SN'            => $data->{SN},
                 'MGMT_IP'       => $node->{host},
                 'RESOURCE_ID'   => $node->{resourceId}

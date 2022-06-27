@@ -73,6 +73,43 @@
             "type": "String"
         },
         {
+            "name": "HOST_ON",
+            "desc": "Host On Dev",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Os Type",
+                    "type": "String"
+                },
+                {
+                    "name": "DEV_NAME",
+                    "desc": "Device Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Management IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "RESOURCE_ID",
+                    "desc": "CMDB ID",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
             "type": "array"

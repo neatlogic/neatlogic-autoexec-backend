@@ -1,11 +1,9 @@
 {
-    "label": "F5",
+    "label": "LoadBlancer",
     "collection": "COLLECT_LOADBALANCER",
     "docroot": null,
     "collection_label": "Loadbalancer",
-    "filter": {
-        "_OBJ_TYPE": "F5"
-    },
+    "filter": {},
     "fields": [
         {
             "name": "_OBJ_CATEGORY",

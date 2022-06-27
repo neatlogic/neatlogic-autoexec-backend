@@ -1,35 +1,33 @@
 {
-    "label": "F5",
+    "label": "负载均衡",
     "collection": "COLLECT_LOADBALANCER",
     "docroot": null,
-    "collection_label": "Loadbalancer",
-    "filter": {
-        "_OBJ_TYPE": "F5"
-    },
+    "collection_label": "负载均衡",
+    "filter": {},
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "归属对象类型",
             "type": "String"
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "Object Type",
+            "desc": "对象类型",
             "type": "String"
         },
         {
             "name": "MGMT_IP",
-            "desc": "Managment IP",
+            "desc": "管理IP",
             "type": "String"
         },
         {
             "name": "VERSION",
-            "desc": "IOS Version",
+            "desc": "IOS版本",
             "type": "String"
         },
         {
             "name": "STATE",
-            "desc": "Use State",
+            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -39,52 +37,52 @@
         },
         {
             "name": "AVAILABILITY",
-            "desc": "Availability flag",
+            "desc": "可用性",
             "type": "Int"
         },
         {
             "name": "RESPONSE_TIME",
-            "desc": "Response Time",
+            "desc": "响应时间",
             "type": "Float"
         },
         {
             "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
+            "desc": "错误信息",
             "type": "String"
         },
         {
             "name": "VENDOR",
-            "desc": "Vendor",
+            "desc": "厂商",
             "type": "String"
         },
         {
             "name": "SN",
-            "desc": "Chassis Serial",
+            "desc": "序列号",
             "type": "String"
         },
         {
             "name": "MODEL",
-            "desc": "Device Model",
+            "desc": "设备型号",
             "type": "String"
         },
         {
             "name": "DEV_NAME",
-            "desc": "Device Name",
+            "desc": "设备名",
             "type": "String"
         },
         {
             "name": "IOS_INFO",
-            "desc": "IOS Info",
+            "desc": "IOS信息",
             "type": "String"
         },
         {
             "name": "VIRTUAL_SERVERS",
-            "desc": "Virtual Server List",
+            "desc": "VS服务",
             "type": "JsonArray",
             "subset": [
                 {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "名称",
                     "type": "String"
                 },
                 {
@@ -94,12 +92,12 @@
                 },
                 {
                     "name": "PORT",
-                    "desc": "Port",
+                    "desc": "端口",
                     "type": "String"
                 },
                 {
                     "name": "POOL_NAME",
-                    "desc": "Pool Name",
+                    "desc": "POOL名",
                     "type": "String"
                 },
                 {
@@ -109,34 +107,34 @@
                     "subset": [
                         {
                             "name": "NAME",
-                            "desc": "Name",
+                            "desc": "名称",
                             "type": "String"
                         },
                         {
                             "name": "LB_MODE",
-                            "desc": "LB Mode",
+                            "desc": "均衡模式",
                             "type": "String"
                         },
                         {
                             "name": "MONITOR_RULE",
-                            "desc": "Monitor Rule",
+                            "desc": "监控规则",
                             "type": "String"
                         }
                     ]
                 },
                 {
                     "name": "MEMBERS",
-                    "desc": "Member List",
+                    "desc": "成员列表",
                     "type": "JsonArray",
                     "subset": [
                         {
                             "name": "NAME",
-                            "desc": "Name",
+                            "desc": "名称",
                             "type": "String"
                         },
                         {
                             "name": "POOL_NAME",
-                            "desc": "Pool Name",
+                            "desc": "POOL名称",
                             "type": "String"
                         },
                         {
@@ -146,7 +144,7 @@
                         },
                         {
                             "name": "PORT",
-                            "desc": "Port",
+                            "desc": "端口",
                             "type": "String"
                         }
                     ]

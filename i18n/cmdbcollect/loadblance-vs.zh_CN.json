@@ -78,6 +78,43 @@
             "type": "String"
         },
         {
+            "name": "HOST_ON",
+            "desc": "运行于设备",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "DEV_NAME",
+                    "desc": "设备名",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "序列号",
+                    "type": "String"
+                },
+                {
+                    "name": "RESOURCE_ID",
+                    "desc": "CMDB ID",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
             "type": "array"
