@@ -103,7 +103,7 @@ class RunNodeFactory:
                 nodeObj['password'] = ''
 
             if 'username' not in nodeObj:
-                nodeObj['username'] = 'anonymous'
+                nodeObj['username'] = 'undefined'
 
             if 'protocolPort' not in nodeObj or nodeObj['protocolPort'] == '':
                 if 'port' in nodeObj:
