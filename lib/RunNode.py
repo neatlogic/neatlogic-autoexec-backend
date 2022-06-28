@@ -107,30 +107,17 @@ class RunNode:
         self.nodeWithoutPassword = copy.copy(node)
         self.nodeWithoutPassword['password'] = ''
 
-        if 'resourceId' in node:
-            self.resourceId = node['resourceId']
-        else:
-            self.resourceId = 0
+        self.resourceId = node.get('resourceId', 0)
 
-        if 'nodeName' in node:
-            self.name = node['nodeName']
-        else:
-            self.name = ''
-
-        self.type = node['protocol']
-        self.host = node['host']
-        if 'port' in node:
-            self.port = node['port']
-        else:
-            self.port = ''
-        if 'protocolPort' in node:
-            self.protocolPort = node['protocolPort']
-        else:
-            self.protocolPort = ''
+        self.name = node.get('nodeName', '')
+        self.type = node.get('protocol', '')
+        self.host = node.get('host', '')
+        self.port = node.get('port', '')
+        self.protocolPort = node.get('protocolPort', '')
 
         self.id = self.resourceId
-        self.username = node['username']
-        self.password = node['password']
+        self.username = node.get('username', 'none')
+        self.password = node.get('password', '')
 
         self.nodeEnv['RESOURCE_ID'] = self.resourceId
         self.nodeEnv['NODE_NAME'] = self.name
@@ -578,7 +565,7 @@ class RunNode:
             nodeStartTime = time.time()
 
             # 第一次写入日志才会触发日志初始化，日志初始化后才能进行历史日志的生成
-            self.writeNodeLog("======[{}]{}:{} Launched with {}@{}:{}======\n".format(self.id, self.host, self.port,  self.username, self.host, self.protocolPort))
+            self.writeNodeLog("======[{}]{}:{} Launched by {}://{}@{}:{}======\n".format(self.id, self.host, self.port, self.type, self.username, self.host, self.protocolPort))
 
             # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
             logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
