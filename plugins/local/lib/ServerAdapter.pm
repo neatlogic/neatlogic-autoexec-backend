@@ -46,6 +46,7 @@ sub new {
             'getSqlFileStatuses'    => 'codedriver/public/api/rest/autoexec/job/sql/list',
             'checkInSqlFiles'       => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
             'pushSqlStatus'         => 'codedriver/public/api/rest/autoexec/job/sql/update',
+            'updatePhaseStatus'     => 'codedriver/public/api/rest/autoexec/job/phase/status/update',
             'creatJob'              => '',
             'getJobStatus'          => '',
             'saveVersionDependency' => '',
@@ -103,6 +104,7 @@ sub _getParams {
 
 sub _getReturn {
     my ( $self, $content ) = @_;
+
     my $rcJson = from_json($content);
 
     my $rcObj;
@@ -689,14 +691,6 @@ sub checkInSqlFiles {
 sub pushSqlStatus {
     my ( $self, $jobId, $sqlStatus, $deployEnv ) = @_;
 
-    #TODO: Delete follow test lines
-    # print("DEBUG: update sql status to server.\n");
-    # print Dumper($sqlStatusList);
-
-    # return;
-
-    #TODO: Test ended#############################
-
     #$jobId: 324234
     #$sqlInfo = {
     #     jobId          => 83743,
@@ -730,6 +724,43 @@ sub pushSqlStatus {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('pushSqlStatus');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    return;
+}
+
+sub updatePhaseStatus {
+    my ( $self, $jobId, $phaseStatus ) = @_;
+
+    #$jobId: 324234
+    # params = {
+    #     'jobId': self.context.jobId,
+    #     'groupNo': groupNo,
+    #     'phase': phaseName,
+    #     'status': phaseStatus,
+    #     'passThroughEnv': self.context.passThroughEnv
+    # }
+
+    if ( not $phaseStatus ) {
+        return;
+    }
+
+    my $passThroughEnv = {};
+    if ( $ENV{PASSTHROUGH_ENV} ){
+        $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
+    }
+
+    my $params = {
+        jobId          => $jobId,
+        groupNo        => $ENV{GROUP_NO},
+        phase          => $ENV{AUTOEXEC_PHASE_NAME},
+        status         => $phaseStatus,
+        passThroughEnv => $passThroughEnv
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('updatePhaseStatus');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 

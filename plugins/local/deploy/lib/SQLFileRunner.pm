@@ -288,6 +288,8 @@ sub execOneSqlFile {
         binmode(STDERR);
         binmode(STDOUT);
 
+        $ENV{LANG} = "en_US.$fileCharset";
+        
         DeployUtils->sigHandler(
             'TERM', 'INT', 'ABRT',
             sub {

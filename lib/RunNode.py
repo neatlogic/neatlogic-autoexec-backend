@@ -670,6 +670,7 @@ class RunNode:
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = os.environ.copy()
         environment['TERM'] = 'dumb'
+        environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
@@ -725,6 +726,7 @@ class RunNode:
         cmdline = 'exec {}'.format(orgCmdLine)
         environment = os.environ.copy()
         environment['TERM'] = 'dumb'
+        environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath

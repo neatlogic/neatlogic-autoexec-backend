@@ -209,6 +209,7 @@ if __name__ == "__main__":
 
     passThroughEnv = {}
     if args.passthroughenv != '{}':
+        os.environ['PASSTHROUGH_ENV'] = args.passthroughenv
         passThroughEnv = json.loads(args.passthroughenv)
     else:
         passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
