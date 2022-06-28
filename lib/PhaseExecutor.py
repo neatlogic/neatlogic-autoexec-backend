@@ -42,7 +42,7 @@ class PhaseWorker(threading.Thread):
             self.currentNode = node
 
             nodeStatus = node.getNodeStatus()
-            if nodeStatus == NodeStatus.succeed:
+            if nodeStatus == NodeStatus.succeed and not self.context.isForce:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
                 print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
@@ -51,7 +51,7 @@ class PhaseWorker(threading.Thread):
                 except Exception as ex:
                     logging.error("RePush node status to server failed, {}\n".format(ex))
                 continue
-            elif nodeStatus == NodeStatus.running:
+            elif nodeStatus == NodeStatus.running and not self.context.isForce:
                 if node.ensureNodeIsRunning():
                     print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
                     phaseStatus.incFailNodeCount()
