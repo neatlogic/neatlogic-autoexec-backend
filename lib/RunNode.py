@@ -578,7 +578,7 @@ class RunNode:
             nodeStartTime = time.time()
 
             # 第一次写入日志才会触发日志初始化，日志初始化后才能进行历史日志的生成
-            self.writeNodeLog("======[{}]{}:{} Launched======\n".format(self.id, self.host, self.port))
+            self.writeNodeLog("======{}@{}:{}[{}] Launched======\n".format(self.username, self.host, self.port, self.id))
 
             # 创建历史日志，文件名中的状态标记置为running，在一开始创建，是为了避免中间kill掉后导致历史日志丢失
             logPathWithTime = '{}/{}.{}.{}.txt'.format(self.hisLogDir, nodeBeginDateTimeFN, NodeStatus.running, self.context.execUser)
@@ -641,7 +641,7 @@ class RunNode:
 
             self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
             self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
-            self.writeNodeLog("======[{}]{}:{} Ended, duration:{:.2f} second ======\n".format(self.id, self.host, self.port, nodeConsumeTime))
+            self.writeNodeLog("======{}@{}:{}[{}] Ended, duration:{:.2f} second ======\n".format(self.username, self.host, self.port, self.id, nodeConsumeTime))
 
             # 创建带时间戳的日志文件名
             finalLogPathWithTime = logPathWithTime
