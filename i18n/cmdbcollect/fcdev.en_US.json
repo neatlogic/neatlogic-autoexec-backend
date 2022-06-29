@@ -123,6 +123,11 @@
             "type": "Int"
         },
         {
+            "name": "WWNN",
+            "desc": "Node WWN",
+            "type": "String"
+        },
+        {
             "name": "ZONES",
             "desc": "Zone List",
             "type": "JsonArray",

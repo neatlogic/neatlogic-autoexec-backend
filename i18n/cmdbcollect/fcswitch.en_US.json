@@ -68,8 +68,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWN",
+                    "name": "WWPN",
+                    "desc": "Port WWN",
                     "type": "String"
                 },
                 {
@@ -142,9 +142,46 @@
             "type": "String"
         },
         {
+            "name": "LINK_TABLE",
+            "desc": "Link Table",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PORT_NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWNN",
+                    "desc": "Local Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "Local Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "PEER_WWNN",
+                    "desc": "Peer Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "Peer Port WWN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "Node WWN",
+            "type": "String"
         },
         {
             "name": "ZONES",

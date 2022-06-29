@@ -41,9 +41,12 @@ our $PK_CONFIG = {
 };
 
 our $INDEX_FIELDS = {
-    DBINS => [ 'IP', 'VIP' ],
-    HOST  => ['OS_ID'],
-    OS    => ['OS_ID'],
+    DBINS    => [ 'IP', 'VIP' ],
+    HOST     => ['OS_ID'],
+    SWITCH   => ['DEV_NAME'],
+    OS       => [ 'OS_ID',               'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
+    STORAGE  => [ 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
+    FCSWITCH => [ 'WWNN',                'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN' ]
 };
 
 sub get {

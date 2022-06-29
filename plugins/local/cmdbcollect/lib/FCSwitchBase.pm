@@ -16,26 +16,34 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => '1.3.6.1.2.1.1.5.0',                                                                                                                                                                   #sysName
-        SN       => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
-        MODEL    => [ '1.3.6.1.2.1.47.1.1.1.1.2.1', '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ],
-        FIRMWARE_VERSION => [ '1.3.6.1.4.1.1588.2.1.1.1.1.6.0', '1.3.6.1.2.1.47.1.1.1.1.8.22' ],                                                                                                           #sysProductVersion
+        DEV_NAME         => '1.3.6.1.2.1.1.5.0',                                                                                   #sysName
+        SN               => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
+        WWN              => '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.6',
+        MODEL            => [ '1.3.6.1.2.1.47.1.1.1.1.2.1',     '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ],
+        FIRMWARE_VERSION => [ '1.3.6.1.4.1.1588.2.1.1.1.1.6.0', '1.3.6.1.2.1.47.1.1.1.1.8.22' ],                                   #sysProductVersion
         BOOT_DATE        => '1.3.6.1.4.1.1588.2.1.1.1.1.2.0',
+        OPER_STATUS      => '1.3.6.1.4.1.1588.2.1.1.1.1.7.0',
+        ADMIN_STATUS     => '1.3.6.1.4.1.1588.2.1.1.1.1.8.0',
         UPTIME           => '1.3.6.1.2.1.1.3.0',
         DOMAIN_ID        => '1.3.6.1.4.1.1588.2.1.1.1.2.1.0',
         PORTS_COUNT      => '1.3.6.1.2.1.2.1.0'
+
+            #IP => '1.3.6.1.4.1.1588.2.1.1.1.1.25.0', #swEtherIPAddress
+            #NETMASK => '1.3.6.1.4.1.1588.2.1.1.1.1.26.0' #swEtherIPMask
     };
 
     my $tableOidDef = {
         PORTS => {
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',                                                                                                                                                         #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',                                                                                                                                                         #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',                                                                                                                                                         #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',                                                                                                                                                         #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',                                                                                                                                                         #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',                                                                                                                                                         #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',                                                                                                                                                         #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',                                                                                                                                                         #ifMTU
+
+            #1.3.6.1.4.1.1588.2.1.1.1.0.3 #swFCPortScn
+            INDEX        => '1.3.6.1.2.1.2.2.1.1',    #ifIndex
+            NAME         => '1.3.6.1.2.1.2.2.1.2',    #ifDescr
+            TYPE         => '1.3.6.1.2.1.2.2.1.3',    #ifType
+            WWN          => '1.3.6.1.2.1.2.2.1.6',    #ifPhysAddress
+            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',    #ifAdminStatus
+            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',    #ifOperStatus
+            SPEED        => '1.3.6.1.2.1.2.2.1.5',    #ifSpeed
+            MTU          => '1.3.6.1.2.1.2.2.1.4',    #ifMTU
         },
         ZONES => {
             INDEX => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.1',
@@ -44,6 +52,12 @@ sub new {
         IP_ADDRS => {
             IP      => '1.3.6.1.2.1.4.20.1.1',
             NETMASK => '1.3.6.1.2.1.4.20.1.3'
+        },
+        LINK_TABLE => {
+            LOCAL_NODE_WWN => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
+            LOCAL_PORT_WWN => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortNumberX
+            PEER_NODE_WWN  => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
+            PEER_PORT_WWN  => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
         }
     };
 
@@ -172,7 +186,12 @@ sub _getScalar {
     #$scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$scalarData) ) {
-        $data->{$key} = $val;
+        if ( $key eq 'ADMIN_STATUS' or $key eq 'OPER_STATUS' ) {
+            $data->{$key} = $snmpHelper->getPortStatus($val);
+        }
+        else {
+            $data->{$key} = $val;
+        }
     }
 
     return $data;
@@ -185,13 +204,31 @@ sub _getTable {
     my $snmpHelper  = $self->{snmpHelper};
 
     my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+
+    my $portsMap  = {};
     my $portsData = $tableData->{PORTS};
     foreach my $portInfo (@$portsData) {
-        $portInfo->{WWN}          = $snmpHelper->hex2mac( $portInfo->{WWN} );
-        $portInfo->{ADMIN_STATUS} = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{TYPE}         = $snmpHelper->getPortType( $portInfo->{TYPE} );
-        $portInfo->{SPEED}        = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
+        $portInfo->{WWN}                = $snmpHelper->hex2mac( $portInfo->{WWN} );
+        $portInfo->{ADMIN_STATUS}       = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
+        $portInfo->{OPER_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
+        $portInfo->{TYPE}               = $snmpHelper->getPortType( $portInfo->{TYPE} );
+        $portInfo->{SPEED}              = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
+        $portsMap->{ $portInfo->{WWN} } = $portInfo;
+    }
+
+    my $linkTable = $tableData->{LINK_TABLE};
+    foreach my $linkInfo (@$linkTable) {
+        $linkInfo->{LOCAL_NODE_WWN} = $snmpHelper->hex2mac( $linkInfo->{LOCAL_NODE_WWN} );
+        $linkInfo->{LOCAL_PORT_WWN} = $snmpHelper->hex2mac( $linkInfo->{LOCAL_PORT_WWN} );
+        $linkInfo->{PEER_NODE_WWN}  = $snmpHelper->hex2mac( $linkInfo->{PEER_NODE_WWN} );
+        $linkInfo->{PEER_PORT_WWN}  = $snmpHelper->hex2mac( $linkInfo->{PEER_PORT_WWN} );
+        my $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_PORT_WWN} };
+        if ( defined($localPortInfo) ) {
+            $linkInfo->{PORT_NAME} = $localPortInfo->{NAME};
+        }
+        else {
+            $linkInfo->{PORT_NAME} = undef;
+        }
     }
 
     my $data = $self->{DATA};

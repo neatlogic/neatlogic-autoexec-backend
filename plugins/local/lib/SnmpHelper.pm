@@ -8,7 +8,11 @@ use JSON;
 my $PORT_STATUS_MAP = {
     1 => 'up',
     2 => 'down',
-    3 => 'testing'
+    3 => 'testing',
+    4 => 'faulty',
+    5 => 'reboot',
+    6 => 'fastboot',
+    7 => 'switchReboot'
 };
 
 my $PORT_TYPES_MAP = {

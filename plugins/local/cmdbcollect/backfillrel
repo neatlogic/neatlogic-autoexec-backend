@@ -31,6 +31,8 @@ def genInsRel(db):
             refIns = []
             refDbs = []
             refCls = []
+
+            # 计算调用的应用实例
             for rel in relDestCollection.find({'BIND':
                                                {'$in': peer}
                                                },
@@ -53,6 +55,7 @@ def genInsRel(db):
                 else:
                     refIns.append(refInfo)
 
+            # 计算调用的集群
             for cluster in clusterCollection.find({'MEMBER_PEER':
                                                    {'$in': peer}
                                                    }, {'UNIQUE_NAME': 1,
@@ -75,6 +78,7 @@ def genInsRel(db):
                            }
                 refCls.append(refInfo)
 
+            # 计算属于哪个集群
             bind = ins['BIND']
             belongCls = []
             for cluster in clusterCollection.find({'MEMBER_PEER':
@@ -127,8 +131,8 @@ def genDBInsRel(db):
                                          'PEER': 1}).batch_size(500):
         try:
             # print(dumps(ins))
+            # 计算DB调用哪个DB集群
             peer = db['PEER']
-
             refCls = []
             for cluster in clusterCollection.find({'MEMBER_PEER':
                                                    {'$in': peer}
@@ -152,6 +156,7 @@ def genDBInsRel(db):
                            }
                 refCls.append(refInfo)
 
+            # 计算DB属于哪个集群
             bind = db['BIND']
             belongCls = []
             for cluster in clusterCollection.find({'MEMBER_PEER':
@@ -193,6 +198,7 @@ def genOSRel(db):
     # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
     osCollection = db['COLLECT_OS']
     macTblCollection = db['RELATION_NET_MACTABLE']
+    fcSwCollection = db['COLLECT_FCDEV']
     osUpdCollection = db['COLLECT_OS']
     clusterCollection = db['COLLECT_CLUSTER']
 
@@ -202,13 +208,10 @@ def genOSRel(db):
                                  'ETH_INTERFACES': 1
                                  }).batch_size(500):
         try:
-            if 'ETH_INTERFACES' not in os:
-                continue
-
-            nics = os['ETH_INTERFACES']
+            # 计算网卡连接的交换机端口信息
+            nics = os.get('ETH_INTERFACES', [])
             for nic in nics:
-                macCount = sys.maxsize
-                remotePort = None
+                #macCount = sys.maxsize
                 remotePort = macTblCollection.find_one({'MAC_TABLE.MACS': nic['MAC'],
                                                         'MAC_TABLE.MAC_COUNT': 1},
                                                        {'_OBJ_CATEGORY': 1,
@@ -233,6 +236,37 @@ def genOSRel(db):
 
                 nic['REMOTE_PORTS'] = refSwPorts
 
+            # 计算HBA卡连接的光交
+            hbas = os.get('HBA_INTERFACES', [])
+            for hba in hbas:
+                wwpn = hba.get('WWPN')
+                if wwpn is None:
+                    continue
+
+                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE.PEER_WWPN': wwpn,
+                                                        'LINK_TABLE.LINK_COUNT': 1},
+                                                       {'_OBJ_CATEGORY': 1,
+                                                        '_OBJ_TYPE': 1,
+                                                        'MGMT_IP': 1,
+                                                        'SN': 1,
+                                                        'LINK_TABLE': {
+                                                            '$elemMatch': {'PEER_WWPN': wwpn,
+                                                                           'LINK_COUNT': 1}
+                                                        },
+                                                        })
+                refFcPorts = []
+                refFcPort = {}
+                if remoteFcPort is not None and 'LINK_TABLE' in remoteFcPort:
+                    refFcPort = {'_OBJ_CATEGORY': remoteFcPort['_OBJ_CATEGORY'],
+                                 '_OBJ_TYPE': remoteFcPort['_OBJ_TYPE'],
+                                 'MGMT_IP': remoteFcPort['MGMT_IP'],
+                                 'SN': remoteFcPort['SN'],
+                                 'PORT': remoteFcPort['LINK_TABLE'][0]['PORT_NAME']}
+                    refFcPorts.append(refFcPort)
+
+                hba['REMOTE_PORTS'] = refFcPorts
+
+            # 计算操作系统属于哪个操作系统集群
             belongCls = []
             for cluster in clusterCollection.find({'MEMBER_PEER': os['MGMT_IP']
                                                    }, {'UNIQUE_NAME': 1,
@@ -247,18 +281,72 @@ def genOSRel(db):
                 belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
                             '_OBJ_TYPE': cluster['_OBJ_TYPE'],
                             'UNIQUE_NAME': cluster['UNIQUE_NAME'],
-                            'PRIMARY_IP': cluster['PRIMARY_IP'],
-                            'VIP': cluster.get('VIP'),
-                            'PORT': cluster.get('PORT'),
+                            # 'PRIMARY_IP': cluster['PRIMARY_IP'],
+                            # 'VIP': cluster.get('VIP'),
+                            # 'PORT': cluster.get('PORT'),
                             'CLUSTER_MODE': cluster['CLUSTER_MODE'],
                             'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
                             }
                 belongCls.append(belongCl)
 
-            osUpdCollection.update_one({'OS_ID': os['OS_ID'], 'MGMT_IP': os['MGMT_IP']},
+            osUpdCollection.update_one({'MGMT_IP': os['MGMT_IP']},
                                        {'$set':
-                                        {'ETH_INTERFACES': nics}
+                                        {
+                                            'ETH_INTERFACES': nics,
+                                            'HBA_INTERFACES': hbas,
+                                            'BELONG_CLUSTER': belongCls
+                                        }
                                         })
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+def genStorageRel(db):
+    storageCollection = db['COLLECT_STORAGE']
+    storUpdCollection = db['COLLECT_STORAGE']
+    fcSwCollection = db['COLLECT_FCDEV']
+    for storage in storageCollection.find({},
+                                          {'SN': 1,
+                                           'MGMT_IP': 1,
+                                           'HBA_INTERFACES': 1
+                                           }).batch_size(500):
+        try:
+            # 计算HBA卡连接的光交
+            hbas = storage.get('HBA_INTERFACES', [])
+            for hba in hbas:
+                wwpn = hba.get('WWPN')
+                if wwpn is None:
+                    continue
+
+                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE.PEER_WWPN': wwpn,
+                                                        'LINK_TABLE.LINK_COUNT': 1},
+                                                       {'_OBJ_CATEGORY': 1,
+                                                        '_OBJ_TYPE': 1,
+                                                        'MGMT_IP': 1,
+                                                        'SN': 1,
+                                                        'LINK_TABLE': {
+                                                            '$elemMatch': {'PEER_WWPN': wwpn,
+                                                                           'LINK_COUNT': 1}
+                                                        },
+                                                        })
+                refFcPorts = []
+                refFcPort = {}
+                if remoteFcPort is not None and 'LINK_TABLE' in remoteFcPort:
+                    refFcPort = {'_OBJ_CATEGORY': remoteFcPort['_OBJ_CATEGORY'],
+                                 '_OBJ_TYPE': remoteFcPort['_OBJ_TYPE'],
+                                 'MGMT_IP': remoteFcPort['MGMT_IP'],
+                                 'SN': remoteFcPort['SN'],
+                                 'PORT': remoteFcPort['LINK_TABLE'][0]['PORT_NAME']}
+                    refFcPorts.append(refFcPort)
+
+                hba['REMOTE_PORTS'] = refFcPorts
+
+                storUpdCollection.update_one({'MGMT_IP': os['MGMT_IP']},
+                                             {'$set':
+                                              {
+                                                  'HBA_INTERFACES': hbas
+                                              }
+                                              })
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
@@ -320,6 +408,7 @@ if __name__ == "__main__":
             genInsRel(db)
             genDBInsRel(db)
             genOSRel(db)
+            genSwitchRel(db)
         elif args.type == 'NET' or args.type is None:
             genSwitchRel(db)
     except Exception as ex:

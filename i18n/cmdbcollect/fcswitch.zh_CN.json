@@ -63,8 +63,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWM",
+                    "name": "WWPN",
+                    "desc": "端口WWM",
                     "type": "String"
                 },
                 {
@@ -142,9 +142,46 @@
             "type": "String"
         },
         {
+            "name": "LINK_TABLE",
+            "desc": "链接列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PORT_NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWNN",
+                    "desc": "本地设备WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "本地端口WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "PEER_WWNN",
+                    "desc": "对端设备WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "对端端口WWN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "PORTS_COUNT",
             "desc": "端口数量",
             "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "设备WWN",
+            "type": "String"
         },
         {
             "name": "ZONES",

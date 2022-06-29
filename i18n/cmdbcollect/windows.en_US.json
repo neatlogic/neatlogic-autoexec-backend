@@ -441,6 +441,38 @@
             ]
         },
         {
+            "name": "BELONG_CLUSTER",
+            "desc": "Belong to Cluster",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
@@ -451,8 +483,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWN",
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
                     "type": "String"
                 },
                 {
@@ -464,6 +501,43 @@
                     "name": "SPEED",
                     "desc": "Speed",
                     "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Connted FC Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Cat",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

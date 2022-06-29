@@ -123,6 +123,11 @@
             "type": "Int"
         },
         {
+            "name": "WWNN",
+            "desc": "设备WWN",
+            "type": "String"
+        },
+        {
             "name": "ZONES",
             "desc": "Zone列表",
             "type": "JsonArray",

@@ -441,6 +441,38 @@
             ]
         },
         {
+            "name": "BELONG_CLUSTER",
+            "desc": "所属集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -451,8 +483,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWN",
+                    "name": "WWNN",
+                    "desc": "节点WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "端口WWN",
                     "type": "String"
                 },
                 {
@@ -464,6 +501,43 @@
                     "name": "SPEED",
                     "desc": "速率",
                     "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接光交端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "光交名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "光交管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "光交序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
