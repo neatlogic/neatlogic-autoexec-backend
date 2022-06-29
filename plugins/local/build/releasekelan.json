@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "git-args",
-    "description": "从编译目录中抽取文件生成版本制品",
+    "description": "从编译目录中抽取文件生成版本制品(科蓝网银)",
     "enabled": 0,
     "option": [
         {
