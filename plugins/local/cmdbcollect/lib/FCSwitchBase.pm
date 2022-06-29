@@ -53,6 +53,8 @@ sub new {
             IP      => '1.3.6.1.2.1.4.20.1.1',
             NETMASK => '1.3.6.1.2.1.4.20.1.3'
         },
+
+        #TODO: 需要测试关系WWN的采集，验证LINK TABLE的形式，跟交换机的MAC TABLE是有区别的
         LINK_TABLE => {
             LOCAL_NODE_WWN => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
             LOCAL_PORT_WWN => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortNumberX
