@@ -235,14 +235,22 @@ sub updateVer {
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
     my $params = $self->_getParams($buildEnv);
 
-    if ( defined( $verInfo->{version} ) and $verInfo->{version} ne '' ) {
-        $params->{version} = $verInfo->{version};
-    }
-    if ( defined( $verInfo->{buildNo} ) and $verInfo->{buildNo} ne '' ) {
-        $params->{buildNo} = $verInfo->{buildNo};
+    my $uptVerInfo = {};
+    while ( my ( $key, $val ) = each(%$verInfo) ) {
+        if ( $key eq 'version' ) {
+            $params->{version} = $val;
+        }
+        elsif ( $key eq 'buildNo' ) {
+            if ( defined($val) and $val ne '' ) {
+                $params->{buildNo} = $val;
+            }
+        }
+        elsif ( $key ne 'password' ) {
+            $uptVerInfo->{$key} = $val;
+        }
     }
 
-    $params->{verInfo} = $verInfo;
+    $params->{verInfo} = $uptVerInfo;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('updateVer');
@@ -747,7 +755,7 @@ sub updatePhaseStatus {
     }
 
     my $passThroughEnv = {};
-    if ( $ENV{PASSTHROUGH_ENV} ){
+    if ( $ENV{PASSTHROUGH_ENV} ) {
         $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
     }
 

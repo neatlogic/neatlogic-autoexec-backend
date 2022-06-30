@@ -140,6 +140,12 @@ Tenant信息在HTTP header中
         version    => 版本号,
         buildNo    => BuildNo,
         verInfo    => {
+            repoType => GIT｜SVN,
+            repo     => 'svn://192.168.0.88/webTest',
+            trunk    => 'master',
+            branch   => '2.0.0',
+            tagsDir  => undef|'tags',
+            tag      => undef|'2.0.0',
             isFreeze => 0,
             startRev => 'bda9fb6f',
             endRev   => 'f2a9c727',
