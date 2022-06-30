@@ -7,6 +7,7 @@ use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
 
+use ServerAdapter;
 use TarSCPExec;
 use DeployUtils;
 use DeployLock;
@@ -92,6 +93,19 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    my $namePath = $deployEnv->{NAME_PATH};
+    my $envName  = $deployEnv->{ENV_NAME};
+
+    my $serverAdapter = ServerAdapter->new();
+
+    my $verInfo   = $serverAdapter->getVer( $deployEnv, $version );
+    my $verStatus = $verInfo->{status};
+    my $buildNo   = $verInfo->{buildNo};
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath $envName version:$version build $buildNo($verStatus) is not released, can not autocfg.\n");
+        return 3;
     }
 
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);

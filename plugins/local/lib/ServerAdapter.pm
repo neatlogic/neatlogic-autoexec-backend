@@ -294,6 +294,36 @@ sub releaseVerToEnv {
     return;
 }
 
+sub getEnvVer {
+    my ( $self, $buildEnv, $version ) = @_;
+
+    #获取环境版本详细信息：version, buildNo, status
+
+    #TODO: Delete follow test lines
+    my $envVerInfo = {
+        version => $buildEnv->{VERSION},
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'released'
+    };
+
+    return $envVerInfo;
+
+    #TODO: test data ended###########################
+
+    my $param = $self->_getParams($buildEnv);
+
+    if ( defined($version) and $version ne '' ) {
+        $param->{version} = $version;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getEnvVer');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
 sub getAutoCfgConf {
     my ( $self, $buildEnv ) = @_;
 

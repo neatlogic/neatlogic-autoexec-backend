@@ -109,7 +109,15 @@ sub main {
     my $namePath = $buildEnv->{NAME_PATH};
 
     my $serverAdapter = ServerAdapter->new();
-    my $autoCfgMap    = $serverAdapter->getAutoCfgConf($buildEnv);
+
+    my $verInfo   = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    my $verStatus = $verInfo->{status};
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version build $buildNo($verStatus) is not released, can not autocfg.\n");
+        return 3;
+    }
+
+    my $autoCfgMap = $serverAdapter->getAutoCfgConf($buildEnv);
 
     my $insCfgMaps = {};
     my $autoCfg    = $autoCfgMap->{autoCfg};
