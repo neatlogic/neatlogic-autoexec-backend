@@ -115,12 +115,6 @@ sub main {
     }
 
     my $namePath  = $buildEnv->{NAME_PATH};
-    my $isRelease = $buildEnv->{IS_RELEASE};
-    if ( $isRelease == 1 ) {
-        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
-    }
-
-    my $namePath  = $buildEnv->{NAME_PATH};
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
@@ -177,8 +171,12 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo   = {
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $versionInfo = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'compiling'
@@ -214,8 +212,9 @@ sub main {
         }
 
         my $serverAdapter = ServerAdapter->new();
-        my $versionInfo   = $serverAdapter->getVer($buildEnv);
-        my $verGet        = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
+
+        #my $versionInfo   = $serverAdapter->getVer($buildEnv);
+        my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
 
         #如果没有定义$tag4CmpTo和$startRev则获取getver记录的revision的start和end
         if ( $tag4CmpTo eq '' and $startRev eq '' ) {
@@ -328,11 +327,11 @@ sub main {
     }
 
     if ( $isFail eq 0 ) {
-        $versionInfo->{status} = 'succeed';
+        $versionInfo->{status} = 'compiled';
         print("FINEST:build $envPath $version success.\n");
     }
     else {
-        $versionInfo->{status} = 'failed';
+        $versionInfo->{status} = 'compile-failed';
         print("ERROR:build $envPath $version failed.\n");
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );

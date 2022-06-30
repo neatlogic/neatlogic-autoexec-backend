@@ -71,20 +71,11 @@ sub deployInit {
         $buildNo = $ENV{_BUILD_NO};
     }
 
-    my $isRelease = $ENV{_IS_RELEASE};
-    if ( not defined($isRelease) or $isRelease eq '' ) {
-        $isRelease = 0;
-    }
-    else {
-        $isRelease = int($isRelease);
-    }
-
     my $deployEnv = {};
-    $deployEnv->{JOB_ID}     = $ENV{AUTOEXEC_JOBID};
-    $deployEnv->{RUNNER_ID}  = $ENV{RUNNER_ID};
-    $deployEnv->{SQL_FILES}  = $ENV{_SQL_FILES};
-    $deployEnv->{BUILD_NO}   = $buildNo;
-    $deployEnv->{IS_RELEASE} = $isRelease;
+    $deployEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
+    $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
+    $deployEnv->{SQL_FILES} = $ENV{_SQL_FILES};
+    $deployEnv->{BUILD_NO}  = $buildNo;
 
     if ( defined($deployConf) and $deployConf ne '' ) {
         $deployEnv->{DEPLOY_CONF} = from_json($deployConf);

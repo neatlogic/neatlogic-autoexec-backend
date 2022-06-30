@@ -99,16 +99,14 @@ sub main {
     my $releasePath = "$buildRoot/$buildNo";
 
     my $serverAdapter = ServerAdapter->new();
-
-    my $isRelease = $buildEnv->{IS_RELEASE};
-    if ( $isRelease == 1 ) {
-        print("WARN: $namePath version:$version build $buildNo is released, release again.\n");
-    }
-
-    my $verInfo = $serverAdapter->getVer( $buildEnv, $version );
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
     if ( $verInfo->{isFreeze} ne 0 ) {
         print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
         return 3;
+    }
+
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, release again.\n");
     }
 
     my $lock        = DeployLock->new($buildEnv);
@@ -123,9 +121,7 @@ sub main {
         }
     }
 
-    my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo   = {
+    my $versionInfo = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'releasing'

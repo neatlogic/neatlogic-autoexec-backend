@@ -79,11 +79,6 @@ sub main {
     }
 
     my $namePath  = $buildEnv->{NAME_PATH};
-    my $isRelease = $buildEnv->{IS_RELEASE};
-    if ( $isRelease == 1 ) {
-        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
-    }
-
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $prjPath   = $buildEnv->{PRJ_PATH};
 
@@ -98,8 +93,12 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo   = {
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $versionInfo = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'compiling'
@@ -124,10 +123,10 @@ sub main {
     my $hasError   = $buildUtils->compile($opts);
 
     if ( $hasError == 0 ) {
-        $versionInfo->{status} = 'succeed';
+        $versionInfo->{status} = 'compiled';
     }
     else {
-        $versionInfo->{status} = 'failed';
+        $versionInfo->{status} = 'compile-failed';
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 

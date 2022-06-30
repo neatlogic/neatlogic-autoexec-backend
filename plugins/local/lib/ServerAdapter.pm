@@ -186,6 +186,7 @@ sub getVer {
         isFreeze => 0,
         startRev => 'bda9fb6f',
         endRev   => 'f2a9c727',
+        status   => 'released'
     };
 
     my $svnVerInfo = {
@@ -200,6 +201,7 @@ sub getVer {
         isFreeze => 0,
         startRev => '0',
         endRev   => '32',
+        status   => 'released'
     };
 
     my $verInfo = $gitVerInfo;
@@ -274,7 +276,7 @@ sub releaseVerToEnv {
     #更新某个version的buildNo的release状态为1，build成功
     my $params = $self->_getParams($buildEnv);
 
-    #status: pending|success|failed
+    #status: pending|released|release-failed
     $params->{status} = $status;
     if ( defined($isMirror) and $isMirror == 1 ) {
         $params->{isMirror} = 1;

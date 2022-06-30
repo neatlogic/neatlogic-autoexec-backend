@@ -90,7 +90,7 @@ Tenant信息在HTTP header中
 ### 版本中心接口
 ### - getVer
 #### 功能： 获取版本详细信息
-    包括：repoType, repo, branch, tag, tagsDir, lastBuildNo, isFreeze，startRev, endRev;
+    包括：repoType, repo, branch, tag, tagsDir, lastBuildNo, isFreeze，startRev, endRev, status
     startRev: 如果是新版本，则获取同一个仓库地址和分支的所有版本最老的一次build的startRev；如果是现有的版本，则获取当前版本的startRev；如果获取不到则默认是0
 #### 输入(JSON)：
     {
@@ -189,7 +189,7 @@ Tenant信息在HTTP header中
         version    => 版本号,
         buildNo    => BuildNo,
         isMirror   => 0|1,
-        status     => pending|failed|succeed
+        status     => pending|release-failed|released
     }
 #### 输出(JSON):
     无

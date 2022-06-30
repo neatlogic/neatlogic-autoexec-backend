@@ -59,13 +59,15 @@ sub main {
         usage();
     }
 
-    my $namePath  = $buildEnv->{NAME_PATH};
-    my $dataPath  = $buildEnv->{DATA_PATH};
-    my $envName   = $buildEnv->{ENV_NAME};
-    my $isRelease = $buildEnv->{IS_RELEASE};
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
 
-    if ( $isRelease != 1 ) {
-        print("ERROR: $namePath version:$version build $buildNo is not released, can not release to env.\n");
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    my $verStatus     = $verInfo->{status};
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version build $buildNo($verStatus) is not released, can not release to env.\n");
         return 3;
     }
 
@@ -122,7 +124,6 @@ sub main {
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
-    my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
 
     eval {
@@ -156,11 +157,11 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
         print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
     }
     else {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
         print("ERROR: Release $namePath $version build:$buildNo to $envName failed.\n");
     }
 

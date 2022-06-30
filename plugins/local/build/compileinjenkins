@@ -158,15 +158,15 @@ sub main {
         $paramStr = $paramStr . "-p $arg ";
     }
 
-    my $namePath  = $buildEnv->{NAME_PATH};
-    my $isRelease = $buildEnv->{IS_RELEASE};
-    if ( $isRelease == 1 ) {
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{status} eq 'released' ) {
         print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
     }
 
-    my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo   = {
+    my $versionInfo = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'compiling'
@@ -180,10 +180,10 @@ sub main {
     my $hasError = system($cmd);
 
     if ( $hasError == 0 ) {
-        $versionInfo->{status} = 'succeed';
+        $versionInfo->{status} = 'compiled';
     }
     else {
-        $versionInfo->{status} = 'failed';
+        $versionInfo->{status} = 'compile-failed';
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
