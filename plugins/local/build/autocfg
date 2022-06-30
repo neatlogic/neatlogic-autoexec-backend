@@ -225,7 +225,7 @@ sub main {
         }
     }
 
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $autocfg = AutoCfg->new(
         buildEnv   => $buildEnv,
@@ -246,6 +246,7 @@ sub main {
     my $hasError = $autocfg->config();
 
     if ( $hasError != 0 ) {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
         print("ERROR: Auto config $namePath version:$version failed.\n");
     }
     else {

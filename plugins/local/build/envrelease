@@ -74,7 +74,7 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $hasError   = 0;
     my $buildUtils = BuildUtils->new();
@@ -82,11 +82,11 @@ sub main {
 
     if ( $hasError != 0 ) {
         print("ERROR: Auto config $namePath version:$version failed.\n");
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
     else {
         print("FINEST: Auto config $namePath version:$version success.\n");
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
 
     return $hasError;

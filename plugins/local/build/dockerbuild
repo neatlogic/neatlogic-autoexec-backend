@@ -85,17 +85,18 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $cmd = "sudo docker build -t $registry/$project/$image:$tagname $distDir/app";
     print("INFO:execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {
-        print("INFO: build success!\n");
+        print("INFO: Build success.\n");
     }
     else {
-        print("ERROR: build failed\n");
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
+        print("ERROR: Build failed.\n");
     }
     return $ret;
 }

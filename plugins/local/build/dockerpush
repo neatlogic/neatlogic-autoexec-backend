@@ -128,7 +128,7 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $cmd = "sudo docker push $registry/$project/$image:$tagname";
     print("INFO:execute->$cmd\n");
@@ -143,10 +143,10 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
     else {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
 
     return $hasError;

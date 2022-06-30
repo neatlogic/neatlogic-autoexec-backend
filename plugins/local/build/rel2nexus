@@ -224,7 +224,7 @@ sub main {
     $authToken =~ s/\s*$//;
 
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $ua = LWP::UserAgent->new( timeout => 600 );
 
@@ -238,13 +238,13 @@ sub main {
     my $statusCode = $response->code();
     if ( $statusCode == 200 ) {
         print("FINEST: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'succeed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
     else {
         $hasError = $hasError + 1;
         my $content = $response->content();
         print("ERROR: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version faiiled.\n$content\n");
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'failed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
 
     return $hasError;

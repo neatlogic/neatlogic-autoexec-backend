@@ -124,7 +124,7 @@ sub main {
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'pending' );
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     eval {
         my $relItemCount = 0;
@@ -157,7 +157,6 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
         print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
     }
     else {
