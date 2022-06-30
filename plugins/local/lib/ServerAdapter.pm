@@ -86,17 +86,18 @@ sub _getParams {
     my ( $self, $buildEnv ) = @_;
 
     my $params = {
-        runnerId   => $ENV{RUNNER_ID},
-        jobId      => $ENV{AUTOEXEC_JOBID},
-        phaseName  => $ENV{AUTOEXEC_PHASE_NAME},
-        sysId      => $buildEnv->{SYS_ID},
-        moduleId   => $buildEnv->{MODULE_ID},
-        envId      => $buildEnv->{ENV_ID},
-        sysName    => $buildEnv->{SYS_NAME},
-        moduleName => $buildEnv->{MODULE_NAME},
-        envName    => $buildEnv->{ENV_NAME},
-        version    => $buildEnv->{VERSION},
-        buildNo    => $buildEnv->{BUILD_NO}
+        runnerId    => $ENV{RUNNER_ID},
+        runnerGroup => $buildEnv->{RUNNER_GROUP},
+        jobId       => $ENV{AUTOEXEC_JOBID},
+        phaseName   => $ENV{AUTOEXEC_PHASE_NAME},
+        sysId       => $buildEnv->{SYS_ID},
+        moduleId    => $buildEnv->{MODULE_ID},
+        envId       => $buildEnv->{ENV_ID},
+        sysName     => $buildEnv->{SYS_NAME},
+        moduleName  => $buildEnv->{MODULE_NAME},
+        envName     => $buildEnv->{ENV_NAME},
+        version     => $buildEnv->{VERSION},
+        buildNo     => $buildEnv->{BUILD_NO}
     };
 
     return $params;

@@ -52,6 +52,21 @@ lib/ServerAdapter.py 里有getDeployIdPath的方法，与SeverAdapter.pm的getId
 ### Tenant信息
 Tenant信息在HTTP header中
 
+### 每个自动发布的接口都可能会带着下面的信息
+        runnerId    => 1,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
+        jobId       => 234234324,
+        phaseName   => 'build',
+        sysId       => 234324,
+        moduleId    => 5232,
+        envId       => 3,
+        sysName     => 'MySys',
+        moduleName  => 'MyModule',
+        envName     => 'SIT',
+        version     => '1.0.0',
+        buildNo     => '2'
+
+
 ### 资源中心接口
 ### - getIdPath
 #### 功能：根据应用模块的名称信息从资源中心获取ID信息
@@ -80,6 +95,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -129,6 +145,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -160,6 +177,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -182,6 +200,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -265,6 +284,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -322,6 +342,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
 
@@ -393,6 +414,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -412,6 +434,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -431,6 +454,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
@@ -451,6 +475,7 @@ Tenant信息在HTTP header中
 #### 输入(JSON)：
     {
         runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
         jobId      => 作业ID,
         phaseName  => 阶段名,
         sysId      => 应用ID,
