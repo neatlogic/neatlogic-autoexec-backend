@@ -194,6 +194,29 @@ Tenant信息在HTTP header中
 #### 输出(JSON):
     无
 
+### - getEnvVer
+#### 功能：生成或更新环境制品表数据（状态）相比版本制品多了两个属性：1）环境，2）is_mirror(镜像发布)
+#### 输入(JSON)：
+    {
+        runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
+        jobId      => 作业ID,
+        phaseName  => 阶段名,
+        sysId      => 应用ID,
+        moduleId   => 模块ID,
+        envId      => 环境ID,
+        sysName    => 应用名,
+        moduleName => 模块名,
+        envName    => 环境名,
+        version    => 版本号
+    }
+#### 输出(JSON):
+    {
+        version => '1.2.0',
+        buildNo => 3,
+        status  => 'released'
+    }
+
 ### AutoCfg配置接口
 #### - getAutoCfgConf
 #### 功能：获取某个环境的AutoCfg配置，要求在发布配置中，对每个实例重新命名（主要是为了能够按照名字排序）
