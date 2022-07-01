@@ -29,7 +29,7 @@
             "opt": "israc",
             "name": "是否是RAC",
             "help": "当前节点是否是ORACLE RAC的成员",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

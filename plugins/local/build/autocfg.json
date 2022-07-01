@@ -12,7 +12,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -33,7 +33,7 @@
             "opt": "puredir",
             "name": "目录型制品",
             "help": "目录型制品，配置文件就在目录中，不需要对任何压缩包进行处理",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -54,7 +54,7 @@
             "opt": "nozip",
             "name": "处理嵌套zip",
             "help": "制品中嵌套的zip或jar文件存在配置模版文件",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -75,7 +75,7 @@
             "opt": "followtar",
             "name": "处理嵌套tar",
             "help": "制品中嵌套的tar或tgz文件存在配置模版文件",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -96,7 +96,7 @@
             "opt": "md5check",
             "name": "文件MD5校验",
             "help": "校验制品文件的MD5 checksum（正常不需要，除非客户要求）",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -117,7 +117,7 @@
             "opt": "nocheckorgexists",
             "name": "检查模版源文件",
             "help": "检查配置文件模版文件对应的源文件是否存在",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -138,7 +138,7 @@
             "opt": "noclean",
             "name": "删除模版文件",
             "help": "处理完后删除配置文件模版",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

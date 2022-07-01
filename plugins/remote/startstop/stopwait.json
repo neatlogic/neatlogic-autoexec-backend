@@ -56,7 +56,7 @@
             "opt": "endprescript",
             "name": "Kill停止命令",
             "help": "用于某些停止命令停止成功后，需要Ctrl+C的情况",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

@@ -11,7 +11,7 @@
             "opt": "verbose",
             "name": "详细输出",
             "help": "显示匹配的详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -41,7 +41,7 @@
             "opt": "delmd5",
             "name": "删除MD5文件",
             "help": "检查成功后是否删除MD5列表文件",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

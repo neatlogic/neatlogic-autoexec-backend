@@ -12,7 +12,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -123,7 +123,7 @@
             "opt": "wait",
             "name": "等待完成",
             "help": "等待Jenkins作业运行完",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

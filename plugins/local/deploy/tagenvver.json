@@ -12,7 +12,7 @@
             "opt": "rollback",
             "name": "是否回退",
             "help": "是否回退已经标记好的版本号到上一个版本",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

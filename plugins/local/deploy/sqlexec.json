@@ -46,7 +46,7 @@
             "opt": "dryrun",
             "name": "测试运行",
             "help": "测试运行，并没有真正执行SQL",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -67,7 +67,7 @@
             "opt": "force",
             "name": "强制运行",
             "help": "不管SQL处于什么状态，重复强制执行SQL文件",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -88,7 +88,7 @@
             "opt": "autocommit",
             "name": "自动提交",
             "help": "SQL执行，每执行一条SQL自动提交",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

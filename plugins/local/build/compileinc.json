@@ -12,7 +12,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -152,7 +152,7 @@
             "opt": "skipfullcmp",
             "name": "不先执行全量编译",
             "help": "一般情况先执行一次全量编译生成所有class，再对增量文件进行编译",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -182,7 +182,7 @@
             "opt": "addlibtoclasspath",
             "name": "把lib加入CLASSPATH",
             "help": "把lib目录中的所有jar加入CLASSPATH",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

@@ -11,7 +11,7 @@
             "opt": "verbose",
             "name": "输出详细信息",
             "help": "",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

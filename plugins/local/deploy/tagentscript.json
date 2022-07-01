@@ -12,7 +12,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -51,7 +51,7 @@
             "opt": "async",
             "name": "异步执行",
             "help": "异步执行，不等待执行结束",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

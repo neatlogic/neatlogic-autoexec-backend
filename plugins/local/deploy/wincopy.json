@@ -12,7 +12,7 @@
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -66,7 +66,7 @@
             "opt": "cpifexists",
             "name": "当文件存在时才拷贝",
             "help": "当本地文件存在时，才执行拷贝",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {

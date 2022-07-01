@@ -57,7 +57,7 @@
             "opt": "runnow",
             "name": "立即执行",
             "help": "创建作业后马上执行",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -87,7 +87,7 @@
             "opt": "auto",
             "name": "自动执行",
             "help": "计划作业创建后, 到计划时间自动执行",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
@@ -108,7 +108,7 @@
             "opt": "wait",
             "name": "等作业完成",
             "help": "等待作业执行完成",
-            "type": "radio",
+            "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
