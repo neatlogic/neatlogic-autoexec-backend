@@ -22,11 +22,13 @@ sub usage {
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              [--verbose 0|1] [--protocol http|https] [--cpifexists 0|1] [--pull 0|1]\n");
     print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              --transdir SaveToFileDirectoryToBeDownlaoded");
     print("              <src> <dest>\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version: version number of sub system\n");
     print("       --protocol: WinRM protocol, http|https.\n");
+    print("       --transdir: File transition directory.\n");
     print("       --cpifexists: copy if local dir or file exists.\n");
     print("       --pull: pull from remote site to local site\n");
 
@@ -73,7 +75,7 @@ sub getCopyCmd {
 
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
-    my ( $isPull, $isPush, $cpIfExists, $protocol, $pdir, $node );
+    my ( $isPull, $isPush, $cpIfExists, $protocol, $serverPath, $pdir, $node );
 
     my $pname = $FindBin::Script;
 
@@ -90,7 +92,8 @@ sub main {
         'pull=i'         => \$isPull,
         'cpifexists=i'   => \$cpIfExists,
         'pdir=s'         => \$pdir,
-        'protocol:s'     => \$protocol,
+        'protocol=s'     => \$protocol,
+        'transdir=s'     => \$serverPath,
         'node=s'         => \$node,
         '<>'             => \&pushItems
     );
@@ -249,9 +252,7 @@ sub main {
         }
     }
 
-    my $hasError   = 0;
-    my $buildConf  = $deployEnv->{DEPLOY_CONF};
-    my $serverPath = $buildConf->{'system.filetrans.serverpath'};
+    my $hasError = 0;
 
     if ( $isPull == 1 ) {
         $dest = "$verPath/$dest";

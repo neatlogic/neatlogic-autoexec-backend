@@ -335,8 +335,6 @@ sub main {
 
     $apolloAddr =~ s/\/+$//;
 
-    my $buildConf = $deployEnv->{DEPLOY_CONF};
-
     if ( not defined($cluster) or $cluster eq '' ) {
         $cluster = $deployEnv->{ENV_NAME};
     }
@@ -354,18 +352,6 @@ sub main {
         $apolloEnv =~ s/_[^_]+$//;    #去掉最末端的_XXXX, 如果有的话
         $apolloEnv =~ s/^[^_]+_//;    #去掉最前端的XXX_，如果有的话
     }
-
-    # my $apolloAddr;
-    # my $token;
-    # eval {
-    #     $apolloAddr = $buildConf->{"$apolloEnv.apollo.url"};
-    #     $token      = $buildConf->{"$apolloEnv.apollo.token"};
-    # };
-    # if ( $@ or $apolloAddr eq '' ) {
-    #     print("WARN: $apolloEnv.apollo.url not defind in system.conf, use applo.url.\n");
-    #     $apolloAddr = $buildConf->('apollo.url');
-    #     $token      = $buildConf->('apollo.token');
-    # }
 
     my $apolloCtl = ApolloCtl->new(
         url      => $apolloAddr,
