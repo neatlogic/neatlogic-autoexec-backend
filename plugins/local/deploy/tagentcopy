@@ -18,7 +18,6 @@ sub usage {
     print("              [--pdir approot|project|release|distribute|mirror]\n");
     print("              [--np 0|1] [--followlinks 0|1]\n");
     print("              [-x ExcludeSubDirs] [--pull 0|1]\n");
-    print("              [--src SourceSubDir] [--dest ServerSitePath]\n");
     print("              <src1> <src2> <dest>\n");
     print("\n");
     print("       copy files to remote server\n");
@@ -47,7 +46,7 @@ sub main {
     my $pname             = $FindBin::Script;
 
     $isVerbose = 0;
-    $pdir      = 'distribute';
+    $pdir      = undef;
 
     GetOptions(
         'v|verbose=i'   => \$isVerbose,
@@ -117,9 +116,17 @@ sub main {
     my $verInfo   = $serverAdapter->getVer( $deployEnv, $version );
     my $verStatus = $verInfo->{status};
     my $buildNo   = $verInfo->{buildNo};
+    my $isMirror  = $verInfo->{isMirror};
     if ( $verInfo->{status} ne 'released' ) {
         print("ERROR: $namePath $envName version:$version build $buildNo($verStatus) is not released, can not autocfg.\n");
         return 3;
+    }
+
+    if ( $isMirror == 1 ) {
+        $pdir = 'mirror';
+    }
+    else {
+        $pdir = 'distribute';
     }
 
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
@@ -165,13 +172,25 @@ sub main {
 
     $port = 22 if ( not defined($port) );
 
-    my $lock      = DeployLock->new($deployEnv);
-    my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    my $lock = DeployLock->new($deployEnv);
+    my $appLockId;
+
+    if ( $isMirror == 1 ) {
+        $appLockId = $lock->lockMirror($DeployLock::WRITE);
+    }
+    else {
+        $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    }
 
     END {
         local $?;
         if ( defined($lock) ) {
-            $lock->unlockEnvApp($appLockId);
+            if ( $isMirror == 1 ) {
+                $lock->unlockMirror($appLockId);
+            }
+            else {
+                $lock->unlockEnvApp($appLockId);
+            }
         }
     }
 

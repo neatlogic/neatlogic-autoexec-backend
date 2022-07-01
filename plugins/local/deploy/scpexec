@@ -37,7 +37,7 @@ sub main {
     $isPull    = 0;
     $isPush    = 1;
     $isVerbose = 0;
-    $pdir      = 'distribute';
+    $pdir      = undef;
 
     GetOptions(
         'h|help'         => \$isHelp,
@@ -105,9 +105,17 @@ sub main {
     my $verInfo   = $serverAdapter->getVer( $deployEnv, $version );
     my $verStatus = $verInfo->{status};
     my $buildNo   = $verInfo->{buildNo};
+    my $isMirror  = $verInfo->{isMirror};
     if ( $verInfo->{status} ne 'released' ) {
         print("ERROR: $namePath $envName version:$version build $buildNo($verStatus) is not released, can not autocfg.\n");
         return 3;
+    }
+
+    if ( $isMirror == 1 ) {
+        $pdir = 'mirror';
+    }
+    else {
+        $pdir = 'distribute';
     }
 
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
@@ -158,13 +166,25 @@ sub main {
 
     $port = 22 if ( not defined($port) );
 
-    my $lock      = DeployLock->new($deployEnv);
-    my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    my $lock = DeployLock->new($deployEnv);
+    my $appLockId;
+
+    if ( $isMirror == 1 ) {
+        $appLockId = $lock->lockMirror($DeployLock::WRITE);
+    }
+    else {
+        $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    }
 
     END {
         local $?;
         if ( defined($lock) ) {
-            $lock->unlockEnvApp($appLockId);
+            if ( $isMirror == 1 ) {
+                $lock->unlockMirror($appLockId);
+            }
+            else {
+                $lock->unlockEnvApp($appLockId);
+            }
         }
     }
 
