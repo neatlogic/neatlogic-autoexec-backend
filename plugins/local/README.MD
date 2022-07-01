@@ -189,7 +189,7 @@ Tenant信息在HTTP header中
         version    => 版本号,
         buildNo    => BuildNo,
         isMirror   => 0|1,
-        status     => pending|release-failed|released
+        status     => releasing|release-failed|released
     }
 #### 输出(JSON):
     无
