@@ -519,6 +519,26 @@ python3 dicttool
 - "username": 在目标节点运行工具的OS用户s
 - "password": 连接目标节点的密码
 
+## 设置Runner的互相信任（制品互相同步需要设置SSH信任）
+### 设置步骤
+选择其中一个runner，登录app用户，使用工具ssh-keygen生成RSA公钥和私钥
+```shell
+ssh-keygen
+cd ~/.ssh
+scp id_rsa id_rsa.pub app@xx.yy.zz.w1:.ssh/
+scp id_rsa id_rsa.pub app@xx.yy.zz.w2:.ssh/
+scp id_rsa id_rsa.pub app@xx.yy.zz.w3:.ssh/
+。。。。
+
+#使用执行用户app分别登录各个runner
+#在所有runner上执行下面的命令，把公钥append到文件~/.ssh/authorized_keys里面
+cat id_rsa.pub >> authorized_keys
+chmod 600 authorized_keys
+chmod 600 id_rsa
+
+#在各个runner验证相互两两的免密登录
+```
+
 ## 安装Agent工具
 sshcmd
 ### 单个目标
