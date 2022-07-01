@@ -1,0 +1,122 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use JSON;
+use Cwd 'abs_path';
+use Getopt::Long;
+use Net::OpenSSH;
+
+use DeployUtils;
+use TagentClient;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--node NodeJson]\n");
+    print("              [--timeout TimeoutSecs]\n");
+    print("\n");
+    print("       --node:         Host node json\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+
+    exit(1);
+}
+
+# windows测试target server是否可连接
+# tagentexec --inspath "qqqq" -h 192.168.0.178 -p 3939 -u tagent --pass ts9012501  "dir C:"
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node,   $timeOut );
+
+    $isVerbose = 0;
+    $timeOut   = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'timeout=i'   => \$timeOut
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $pname = $FindBin::Script;
+
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $protocol = $nodeInfo->{protocol};
+    my $host     = $nodeInfo->{host};
+    my $port     = $nodeInfo->{protocolPort};
+    my $user     = $nodeInfo->{username};
+    my $pass     = $nodeInfo->{password};
+    my $insId    = $nodeInfo->{resourceId};
+    my $insName  = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    if ( $protocol eq 'tagent' ) {
+        print("INFO: Try to do tagent test for $host:$port...\n");
+        my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut );
+        my $ret    = $tagent->execCmd( $user, 'echo x' );
+        if ( $ret != 0 ) {
+            $hasError = 2;
+            print("ERROR: Tagent test failed.\n");
+        }
+        else {
+            print("FINEST: Tagent test succeed.\n");
+        }
+    }
+    elsif ( $protocol eq 'ssh' ) {
+        print("INFO: Try to ssh logon to $host:$port.\n");
+        my $startTime = time();
+        my $ssh       = Net::OpenSSH->new(
+            $host,
+            port        => $port,
+            user        => $user,
+            password    => $pass,
+            timeout     => $timeOut,
+            master_opts => [ -o => "StrictHostKeyChecking=no" ]
+        );
+
+        if ( not $ssh->error ) {
+            my $out = $ssh->capture("echo HEALTH_OK");
+            if ( $out =~ /HEALTH_OK/ ) {
+                print("FINEST: SSH logon succeed.\n");
+            }
+            else {
+                print("ERROR: SSH test failed.\n");
+                $hasError = 1;
+            }
+        }
+        else {
+            $hasError = 2;
+            print("ERROR: SSH logo failed.\n");
+        }
+    }
+    else {
+        print("WARN: Protocol:$protocol not supported by $pname.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+
