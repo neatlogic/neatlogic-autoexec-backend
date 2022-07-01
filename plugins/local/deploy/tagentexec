@@ -15,12 +15,12 @@ sub usage {
 
     print("Usage: $pname [--verbose 0|1]\n");
     print("              [--async 0|1] [--eofstr EOFString]\n");
-    print("              [--agentcharset ServerSideCharset] [--timeout TimeoutSecs] cmd\n");
+    print("              [--destencoding ServerSideEndoding] [--timeout TimeoutSecs] cmd\n");
     print("\n");
     print("       --node:         Host node json\n");
     print("       --async:        execute remote cmd asynchronized\n");
     print("       --eofstr:       when command outpute match eofstr, the execute will be terminated\n");
-    print("       --agentcharset: server Side charset\n");
+    print("       --destencoding: Server Side encoding\n");
     print("       --timeout:      tiemout for ssh execute\n");
     print("       cmd:            command text\n");
 
@@ -31,7 +31,7 @@ sub usage {
 # tagentexec --inspath "qqqq" -h 192.168.0.178 -p 3939 -u tagent --pass ts9012501  "dir C:"
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
-    my ( $node, $async, $cmd, $eofStr, $agentCharset, $timeOut );
+    my ( $node, $async, $cmd, $eofStr, $serverCharset, $timeOut );
 
     $isVerbose = 0;
     $async     = 0;
@@ -51,7 +51,7 @@ sub main {
         'async=i'        => \$async,
         'eofstr=s'       => \$eofStr,
         'timeout=i'      => \$timeOut,
-        'agentcharset=s' => \$agentCharset,
+        'destencoding=s' => \$serverCharset,
         '<>'             => \&addCmd
     );
 
@@ -76,11 +76,6 @@ sub main {
         usage();
     }
 
-    if ( defined($eofStr) and $eofStr =~ /^\{([\w-\d]+)\}/ ) {
-        $eofStr =~ s/^\{[\w-\d]+\}//;
-        $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
-    }
-
     my $hasError = 0;
 
     my $host    = $nodeInfo->{host};
@@ -94,7 +89,7 @@ sub main {
         $pass = $deployUtils->decryptPwd($pass);
     }
 
-    my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $agentCharset );
+    my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $serverCharset );
 
     my $ret = $tagent->execCmd( $user, 'echo x' );
     if ( $ret != 0 ) {

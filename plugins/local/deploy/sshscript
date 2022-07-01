@@ -21,7 +21,8 @@ sub usage {
     print("Usage: $pname [--verbose 0|1]\n");
     print("              [--supass SuPassword] [--eofstr EOFString] [--failstr FailString]\n");
     print("              [--timeout TimeoutSecs] [-o SSHOptions]\n");
-    print("              [--destencoding TargetOsEncoding] [--script ScriptJson]\n");
+    print("              [--destencoding TargetOsEncoding]\n");
+    print("              --interpreter sh|perl|... --script ScriptJson\n");
     print("\n");
     print("       --node:         Host node json\n");
     print("       --supass:       su execute user password\n");
@@ -30,6 +31,7 @@ sub usage {
     print("       --timeout:      tiemout for ssh execute\n");
     print("       --o:            ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
     print("       --destencoding: Target OS encoding\n");
+    print("       --interpreter:  Script interperter, such as sh|perl|vbs|powershell\n");
     print("       --script:       example: '{\"name\":\"t.bat\",\"arguments\":\"\$SYSNAME \$SUBSYSNAME\",\"content\":\"#!/bin/bash\necho helloworld!\n\"}'\n");
 
     exit(1);
@@ -39,13 +41,14 @@ sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
     my ( $node, $destCharset, $supass, $sshOpts, $scriptObj, $eofStr, $failStr, $timeOut );
     my $interpreter = 'sh';
-    $isVerbose = 0;
-    $scriptObj = '';
+    $destCharset = 'utf-8';
+    $isVerbose   = 0;
+    $scriptObj   = '';
 
     GetOptions(
         'h|help'         => \$isHelp,
         'v|verbose=i'    => \$isVerbose,
-        'destencoding:s' => \$destCharset,
+        'destencoding=s' => \$destCharset,
         'node=s'         => \$node,
         'supass=s'       => \$supass,
         'eofstr=s'       => \$eofStr,
@@ -67,13 +70,30 @@ sub main {
         print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
+    if ( $destCharset eq '' ) {
+        $destCharset = 'utf-8';
+    }
+    else {
+        $destCharset = lc($destCharset);
+    }
+
     if ( defined($eofStr) ) {
         if ( $eofStr =~ /^\{([\w-\d]+)\}/ ) {
             $eofStr =~ s/^\{[\w-\d]+\}//;
             $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
         }
-        elsif ( defined($destCharset) and $destCharset ne '' ) {
+        elsif ( $destCharset ne 'utf-8' ) {
             $eofStr = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $eofStr ) );
+        }
+    }
+
+    if ( defined($failStr) ) {
+        if ( $failStr =~ /^\{([\w-\d]+)\}/ ) {
+            $failStr =~ s/^\{[\w-\d]+\}//;
+            $failStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $failStr ) );
+        }
+        elsif ( $destCharset ne 'utf-8' ) {
+            $failStr = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $failStr ) );
         }
     }
 
@@ -120,7 +140,7 @@ sub main {
 
     #$scriptName = md5_hex($scriptContent);    # . "$scriptName";
 
-    if ( defined($destCharset) and $destCharset ne '' ) {
+    if ( $destCharset ne 'utf-8' ) {
         $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
     }
     my $TMPDIR  = $ENV{AUTOEXEC_HOME} . '/tmp';

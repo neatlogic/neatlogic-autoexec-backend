@@ -2,26 +2,28 @@
 use strict;
 use FindBin;
 use JSON;
+use Cwd 'abs_path';
 use Getopt::Long;
-Getopt::Long::Configure("pass_through");
 
 use DeployUtils;
+
+Getopt::Long::Configure("pass_through");
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              [--verbose 0|1] [--np 0|1] [--cpifexists 0|1] [--pull 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
-    print("              <src1> <src2> <dest>\n");
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--async 0|1] [--eofstr EOFString]\n");
+    print("              [--destencoding ServerSideCharset] [--timeout TimeoutSecs] cmd\n");
     print("\n");
-    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
-    print("       --version: version number of sub system\n");
-    print("       --np    : not preserve the mode of file\n");
-    print("       --cpifexists: copy if local dir or file exists.\n");
-    print("       --pull: pull from remote site to local site\n");
+    print("       --node:         Host node json\n");
+    print("       --async:        execute remote cmd asynchronized\n");
+    print("       --eofstr:       when command outpute match eofstr, the execute will be terminated\n");
+    print("       --destencoding: server Side charset\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+    print("       cmd:            command text\n");
 
-    exit(-1);
+    exit(1);
 }
 
 sub main {
@@ -37,6 +39,7 @@ sub main {
         'node=s' => \$node
     );
 
+    usage() if ( defined($isHelp) );
     my $deployUtils = DeployUtils->new();
     my $optionError = 0;
 
@@ -54,10 +57,10 @@ sub main {
 
     my $protocol = $nodeInfo->{protocol};
     if ( $protocol eq 'tagent' ) {
-        exec( "$binDir/tagentcopy", @ARGV );
+        exec( "$binDir/tagentexec", @ARGV );
     }
     elsif ( $protocol eq 'ssh' ) {
-        exec( "$binDir/scpexec", @ARGV );
+        exec( "$binDir/sshexec", @ARGV );
     }
     else {
         print("ERROR: Protolc $protocol not supported by $pname, failed.\n");
@@ -68,3 +71,4 @@ sub main {
 }
 
 exit main();
+

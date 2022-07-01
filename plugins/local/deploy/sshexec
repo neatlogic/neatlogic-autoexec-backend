@@ -18,24 +18,26 @@ sub usage {
     print("              [--supass SuPassword] [--eofstr EOFString] [--failstr FailString]\n");
     print("              [--timeout TimeoutSecs] [-o SSHOptions] cmd\n");
     print("\n");
-    print("       --node:      Host node json\n");
-    print("       --supass:    su execute user password\n");
-    print("       --eofstr:    when command outpute match eofstr, the execute will be terminated\n");
-    print("       --failstr:   when command outpute match failstr, the execute will be terminated and return faled\n");
-    print("       --timeout:   tiemout for ssh execute\n");
-    print("       --o:         ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
-    print("       cmd:         command text\n");
+    print("       --node:         Host node json\n");
+    print("       --supass:       su execute user password\n");
+    print("       --eofstr:       When command outpute match eofstr, the execute will be terminated\n");
+    print("       --failstr:      When command outpute match failstr, the execute will be terminated and return faled\n");
+    print("       --timeout:      Tiemout for ssh execute\n");
+    print("       --destencoding: Target OS encoding\n");
+    print("       --o:            SSH options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
+    print("       cmd:            command text\n");
 
     exit(1);
 }
 
 sub main {
-    my ( $isHelp, $isVerbose );
+    my ( $isHelp, $isVerbose, $destCharset );
     my ( $node, $supass, $sshOpts, $cmd, $eofStr, $failStr, $timeOut );
 
     $isVerbose = 0;
 
-    $cmd = '';
+    $destCharset = 'utf-8';
+    $cmd         = '';
 
     sub addCmd {
         my $item = shift(@_);
@@ -43,15 +45,16 @@ sub main {
     }
 
     GetOptions(
-        'h|help'      => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'node=s'      => \$node,
-        'supass=s'    => \$supass,
-        'eofstr=s'    => \$eofStr,
-        'failstr=s'   => \$failStr,
-        'timeout=i'   => \$timeOut,
-        'o=s'         => \$sshOpts,
-        '<>'          => \&addCmd
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'destencoding=s' => \$destCharset,
+        'node=s'         => \$node,
+        'supass=s'       => \$supass,
+        'eofstr=s'       => \$eofStr,
+        'failstr=s'      => \$failStr,
+        'timeout=i'      => \$timeOut,
+        'o=s'            => \$sshOpts,
+        '<>'             => \&addCmd
     );
 
     usage() if ( defined($isHelp) );
@@ -63,9 +66,37 @@ sub main {
         print("ERROR: Must defined cmd with command arguments.\n");
     }
 
-    if ( defined($eofStr) and $eofStr =~ /^\{([\w-\d]+)\}/ ) {
-        $eofStr =~ s/^\{[\w-\d]+\}//;
-        $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
+    if ( $destCharset eq '' ) {
+        $destCharset = 'utf-8';
+    }
+    else {
+        $destCharset = lc($destCharset);
+    }
+
+    if ( defined($eofStr) ) {
+        if ( $eofStr =~ /^\{([\w-\d]+)\}/ ) {
+            $eofStr =~ s/^\{[\w-\d]+\}//;
+            $eofStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $eofStr ) );
+        }
+        elsif ( $destCharset ne 'utf-8' ) {
+            $eofStr = Encode::encode( $destCharset, Encode::decode( 'utf-8', $eofStr ) );
+        }
+    }
+
+    if ( defined($failStr) ) {
+        if ( $failStr =~ /^\{([\w-\d]+)\}/ ) {
+            $failStr =~ s/^\{[\w-\d]+\}//;
+            $failStr = Encode::encode( lc($1), Encode::decode( 'utf-8', $failStr ) );
+        }
+        elsif ( $destCharset ne 'utf-8' ) {
+            $failStr = Encode::encode( $destCharset, Encode::decode( 'utf-8', $failStr ) );
+        }
+    }
+
+    if ( defined($cmd) ) {
+        if ( $destCharset ne 'utf-8' ) {
+            $cmd = Encode::encode( $destCharset, Encode::decode( 'utf-8', $cmd ) );
+        }
     }
 
     my $hasError = 0;

@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "自动识别协议并拷贝文件或目录到目标实例OS",
+    "description": "根据执行目标协议拷贝文件或目录到目标实例OS",
     "enabled": 0,
     "option": [{
             "opt": "verbose",

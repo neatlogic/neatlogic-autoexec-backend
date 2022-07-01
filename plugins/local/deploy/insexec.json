@@ -1,11 +1,11 @@
 {
-    "opDesc": "Tagent执行脚本",
+    "opDesc": "执行应用实例OS命令",
     "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "Tagent执行远程脚本",
+    "description": "根据执行目标协议执行远程命令",
     "enabled": 0,
     "option": [{
             "opt": "verbose",
@@ -88,61 +88,16 @@
                 ]
             },
             "defaultValue": ""
-        },
-        {
-            "opt": "interpreter",
-            "name": "脚本语言",
-            "help": "编写脚本的语言",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [{
-                        "text": "bash",
-                        "value": "sh"
-                    },
-                    {
-                        "text": "perl",
-                        "value": "perl"
-                    },
-                    {
-                        "text": "python",
-                        "value": "python"
-                    },
-                    {
-                        "text": "cmd",
-                        "value": "cmd"
-                    },
-                    {
-                        "text": "powershell",
-                        "value": "powershell"
-                    },
-                    {
-                        "text": "vbscript",
-                        "value": "vbscript"
-                    }
-                ]
-            },
-            "defaultValue": "sh"
-        },
-        {
-            "opt": "script",
-            "name": "脚本",
-            "help": "执行脚本内容",
-            "type": "textarea",
-            "required": "true",
-            "validate": "",
-            "defaultValue": ""
         }
     ],
     "argument": {
-        "name": "脚本参数",
-        "help": "自定义脚本执行需要的参数",
+        "name": "命令",
+        "help": "命令行内容",
         "type": "text",
-        "count": 0,
+        "count": 1,
         "isConst": "false",
         "defaultValue": "",
-        "required": "false",
+        "required": "true",
         "validate": ""
     },
     "output": []

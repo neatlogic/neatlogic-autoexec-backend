@@ -1,11 +1,11 @@
 {
-    "opDesc": "Tagent执行脚本",
+    "opDesc": "执行应用实例OS脚本",
     "opType": "runner_target",
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "Tagent执行远程脚本",
+    "description": "根据执行目标协议执行远程脚本",
     "enabled": 0,
     "option": [{
             "opt": "verbose",
