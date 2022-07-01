@@ -1,0 +1,134 @@
+{
+    "opDesc": "拷贝文件到实例OS",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "自动识别协议并拷贝文件或目录到目标实例OS",
+    "enabled": 0,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "pdir",
+            "name": "基础目录",
+            "help": "相对于应用数据目录的基础目录类别",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "环境制品目录",
+                        "value": "distribute"
+                    },
+                    {
+                        "text": "版本制品目录",
+                        "value": "release"
+                    },
+                    {
+                        "text": "环境镜像制品",
+                        "value": "mirror"
+                    },
+                    {
+                        "text": "工程目录",
+                        "value": "project"
+                    },
+                    {
+                        "text": "根目录",
+                        "value": "approot"
+                    }
+                ]
+            },
+            "defaultValue": "distribute"
+        },
+        {
+            "opt": "cpifexists",
+            "name": "当文件存在时才拷贝",
+            "help": "当本地文件存在时，才执行拷贝",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "pull",
+            "name": "拷贝方向",
+            "help": "拷贝方向",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "远程拷贝到本地",
+                        "value": "1"
+                    },
+                    {
+                        "text": "本地拷贝到远程",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "np",
+            "name": "保留权限属性",
+            "help": "同时拷贝文件的属性和权限",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "文件或目录",
+        "help": "最后一个是拷贝的目标文件或目录，类似真实的cp命令",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

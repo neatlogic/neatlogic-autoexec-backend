@@ -1,0 +1,83 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use JSON;
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--verbose 0|1] [--np 0|1] [--cpifexists 0|1] [--pull 0|1]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              <src1> <src2> <dest>\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version: version number of sub system\n");
+    print("       --np    : not preserve the mode of file\n");
+    print("       --cpifexists: copy if local dir or file exists.\n");
+    print("       --pull: pull from remote site to local site\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $isPull, $isPush, $cpIfExists, $pdir, $src, $dest, $np, $node );
+
+    my $pname  = $FindBin::Script;
+    my $binDir = $FindBin::Bin;
+
+    $isPull    = 0;
+    $isPush    = 1;
+    $isVerbose = 0;
+    $pdir      = 'distribute';
+
+    my @myOpts = @ARGV;
+    GetOptionsFromArray(
+        \@myOpts,
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'envpath=s{0,1}' => \$envPath,
+        'version=s'      => \$version,
+        'pull=i'         => \$isPull,
+        'np=i'           => \$np,
+        'cpifexists=i'   => \$cpIfExists,
+        'pdir=s'         => \$pdir,
+        'node=s'         => \$node,
+        '<>'             => \&pushItems
+    );
+
+    my $deployUtils = DeployUtils->new();
+    my $optionError = 0;
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $protocol = $nodeInfo->{protocol};
+    if ( $protocol eq 'tagent' ) {
+        exec( "$binDir/tagentcopy", @ARGV );
+    }
+    elsif ( $protocol eq 'ssh' ) {
+        exec( "$binDir/scpexec", @ARGV );
+    }
+    else {
+        print("ERROR: Protolc $protocol not supported by $pname, failed.\n");
+        $hasError = 1;
+    }
+
+    return $hasError;
+}
+
+exit main();
