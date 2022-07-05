@@ -119,7 +119,7 @@ sub getAdminServerName {
     my $domainHome = $self->{config}->{'domain_home'};
     my $configPath = "$domainHome/config/config.xml";
 
-    my $obj = xml_to_object( $configPath, { file => 1 } );
+    my $obj             = xml_to_object( $configPath, { file => 1 } );
     my $adminServerName = $obj->path('admin-server-name')->value();
 
     return $adminServerName;
@@ -145,13 +145,19 @@ sub getAppsConfig {
         }
 
         $appMap->{'sourcePath'} = $appSourcePath;
-        my $stage = $app->path('staging-mode')->value();
+
+        my $stage;
+        my $stageConf = $app->path('staging-mode');
+        if ( defined($stageConf) ) {
+            $stage = $stageConf->value();
+        }
         if ( not defined($stage) or $stage eq '' ) {
             $stage = 'stage';
         }
+
         $appMap->{'stagingMode'} = $stage;
         my $targetStr = $app->path('target')->value();
-        my @targets = split( ',', $targetStr );
+        my @targets   = split( ',', $targetStr );
         $appMap->{'target'} = \@targets;
 
         $appsMap->{$appName} = $appMap;

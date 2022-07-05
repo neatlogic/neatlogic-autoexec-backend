@@ -89,8 +89,8 @@ class Context(VContext.VContext):
         else:
             self.globalOpt = {}
 
-        if 'procEnv' in params:
-            for k, v in params['procEnv'].items():
+        if 'environment' in params:
+            for k, v in params['environment'].items():
                 os.environ[k] = str(v)
 
         if 'passThroughEnv' in params:
