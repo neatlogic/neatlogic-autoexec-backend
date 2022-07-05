@@ -84,10 +84,10 @@ sub _doLockByJob {
         my $localAddr = $self->{workPath} . "client$$.sock";
         eval {
             my $client = IO::Socket::UNIX->new(
-                LocalAddr => $localAddr,
-                Peer      => $sockPath,
-                Type      => IO::Socket::SOCK_DGRAM,
-                Timeout   => 10
+                Local   => $localAddr,
+                Peer    => $sockPath,
+                Type    => IO::Socket::SOCK_DGRAM,
+                Timeout => 10
             );
 
             my $request = {};
