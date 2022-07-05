@@ -18,11 +18,6 @@
             "type": "String"
         },
         {
-            "name": "SERVER_NAME",
-            "desc": "Server Name",
-            "type": "String"
-        },
-        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -33,6 +28,11 @@
             "type": "Int"
         },
         {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
@@ -40,11 +40,6 @@
         {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
             "type": "String"
         },
         {
@@ -68,12 +63,74 @@
             "type": "String"
         },
         {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        },
+        {
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
             "subset": [
                 {
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SERVICE_TYPE",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_STATUS",
+            "desc": "状态",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_PORT",
+            "desc": "Service Port",
+            "type": "String"
+        },
+        {
+            "name": "KEEPALIVE_TIMEOUT",
+            "desc": "Keepalive Timeout",
+            "type": "Int"
+        },{
+            "name": "LOCATION",
+            "desc": "Location",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },{
+                    "name": "ROOT",
+                    "desc": "Root Path",
+                    "type": "String"
+                },{
+                    "name": "ALIAS",
+                    "desc": "Alias Path",
+                    "type": "String"
+                },{
+                    "name": "PROXY_PASS",
+                    "desc": "Proxy Pass",
+                    "type": "String"
                 }
             ]
         },
@@ -567,41 +624,31 @@
             ]
         },
         {
-            "name": "SERVERS",
-            "desc": "Servers",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SERVICE_TYPE",
-                    "desc": "Service Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_STATUS",
-                    "desc": "Service Status",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "Service Name",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_PORT",
-                    "desc": "Service Port",
-                    "type": "String"
-                },
-                {
-                    "name": "CONFIG_PATH",
-                    "desc": "Config Path",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "SERVER_ROOT",
             "desc": "Server Root",
             "type": "String"
+        },
+        {
+            "name": "UPSTREAM",
+            "desc": "LoadBalancer",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TARGET",
+                    "desc": "Target Point",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
