@@ -69,6 +69,8 @@ sub _getParams {
 sub _doLockByJob {
     my ( $self, $params ) = @_;
 
+    my $lockRetObj;
+
     if ( $self->{devMode} ) {
         return { lockId => 0 };
     }
@@ -104,11 +106,8 @@ sub _doLockByJob {
             my $lockRet;
             $client->recv( $lockRet, 1024 );
             $client->close();
-            my $lockRetObj = from_json($lockRet);
+            $lockRetObj = from_json($lockRet);
             unlink($localAddr);
-
-            #print("INFO: $namePath $lockAction $lockTarget($lockMode) success.\n");
-            return $lockRetObj;
         };
         if ($@) {
             unlink($localAddr);
@@ -119,7 +118,7 @@ sub _doLockByJob {
         print("WARN: $lockAction $namePath $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
     }
 
-    return;
+    return $lockRetObj;
 }
 
 sub _lock {
