@@ -19,7 +19,9 @@ sub new {
 
     my $jobId = $ENV{AUTOEXEC_JOBID};
     $self->{jobId} = $jobId;
-    my $sockPath = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    my $workPath = $ENV{AUTOEXEC_WORK_PATH};
+    $self->{workPath} = $workPath;
+    my $sockPath = $workPath . '/job.sock';
     $self->{sockPath} = $sockPath;
 
     my $devMode = $ENV{DEV_MODE};
@@ -79,11 +81,13 @@ sub _doLockByJob {
     my $namePath   = $params->{lockOwnerName};
 
     if ( -e $sockPath ) {
+        my $localAddr = $self->{workPath} . "client$$.sock";
         eval {
             my $client = IO::Socket::UNIX->new(
-                Peer    => $sockPath,
-                Type    => IO::Socket::SOCK_DGRAM,
-                Timeout => 10
+                LocalAddr => $localAddr,
+                Peer      => $sockPath,
+                Type      => IO::Socket::SOCK_DGRAM,
+                Timeout   => 10
             );
 
             my $request = {};
@@ -94,14 +98,15 @@ sub _doLockByJob {
 
             my $lockRet;
             $client->recv( $lockRet, 1024 );
-            my $lockRetObj = from_json($lockRet);
-
             $client->close();
+            my $lockRetObj = from_json($lockRet);
+            unlink($localAddr);
 
             #print("INFO: $namePath $lockAction $lockTarget($lockMode) success.\n");
             return $lockRetObj;
         };
         if ($@) {
+            unlink($localAddr);
             print("WARN: $lockAction $namePath $lockTarget($lockMode) failed, $@\n");
         }
     }

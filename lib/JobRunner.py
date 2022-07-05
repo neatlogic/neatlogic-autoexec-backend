@@ -92,7 +92,7 @@ class ListenWorkThread(threading.Thread):
                     'lockId': None,
                     'message': str(ex)
                 }
-                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ignore'), addr)
+                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
