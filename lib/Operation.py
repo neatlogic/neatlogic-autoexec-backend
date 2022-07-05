@@ -338,10 +338,10 @@ class Operation:
                         if paramName in paramMap:
                             newVal = paramMap[paramName]
 
-                if newVal is not None:
-                    val = newVal
-                else:
-                    raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
+                    if newVal is not None:
+                        val = newVal
+                    else:
+                        raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
             if val is not None:
                 if not isinstance(val, str):
