@@ -97,6 +97,7 @@ sub collect {
     my $gzip                 = getStringValue($self, $http, 'gzip',                 'off' );
     my @upstream             = getUpstream( $self,$http, 'upstream' );
     
+=pod
     my $nginxInfo = {};
     $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $nginxInfo->{SERVER_NAME}   = 'nginx';
@@ -114,6 +115,7 @@ sub collect {
     $nginxInfo->{TCP_NOPUSH}  = $tcp_nopush ;
     $nginxInfo->{GZIP}  = $gzip ;
     $nginxInfo->{UPSTREAM}  = \@upstream ;
+=cut
     my $variable = getSetVariable($self ,$http , 'set');
     
     my @clusterCollect = ();
@@ -123,9 +125,25 @@ sub collect {
     
     my @serverCollect           = ();
     for my $server (@$serverRs) {
+        #扁平化处理
         my $ins = {};
         $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-        $ins->{_OBJ_TYPE}   = 'NginxServer';
+        $ins->{SERVER_NAME}   = 'nginx';
+        $ins->{EXE_PATH}     = $exePath;
+        $ins->{BIN_PATH}     = $binPath;
+        $ins->{INSTALL_PATH} = $basePath;
+        $ins->{VERSION}      = $version;
+        $ins->{PREFIX}       = $prefix;
+        $ins->{CONFIG_PATH}  = $configPath;
+        $ins->{WORKER_CONNECTIONS}  = $worker_connections ;
+        $ins->{WORKER_PROCESSES}  = $worker_processes ;
+        $ins->{DEFAULT_TYPE}  = $default_type ;
+        $ins->{CLIENT_MAX_BODY_SIZE}  = $client_max_body_size ;
+        $ins->{SENDFILE}  = $sendfile ;
+        $ins->{TCP_NOPUSH}  = $tcp_nopush ;
+        $ins->{GZIP}  = $gzip ;
+        $ins->{UPSTREAM}  = \@upstream ;
+
         $ins->{'SERVICE_NAME'} = getStringValue( $self, $server, 'server_name' );
         my $listen = getStringValue($self, $server, 'listen' );
         my $port;
@@ -134,6 +152,10 @@ sub collect {
         }
 
         $ins->{'SERVICE_PORT'} = $port;
+        $ins->{PORT}  =  $port;
+        $ins->{MON_PORT}  =  $port;
+        $ins->{ADMIN_PORT}  =  $port;
+
         my $type = 'http';
         if ( $listen =~ /ssl/ ) {
             $type = 'https';
@@ -149,7 +171,7 @@ sub collect {
         
         $clusterMember->{"$MGMT_IP:$port"} = $ins->{'MEMBER_PEER'};
     }
-    $nginxInfo->{SERVERS} = \@serverCollect;
+    #$nginxInfo->{SERVERS} = \@serverCollect;
 
     #实例集群
     while (my ($k, $v) = each %$clusterMember) {
@@ -174,7 +196,7 @@ sub collect {
         push(@clusterCollect , $clusterInfo);
     }
     
-    return ( $nginxInfo, @clusterCollect );
+    return ( @serverCollect, @clusterCollect );
 };
 
 
