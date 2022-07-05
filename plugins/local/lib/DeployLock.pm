@@ -2,6 +2,7 @@
 use strict;
 
 package DeployLock;
+use JSON;
 
 use ServerAdapter;
 
