@@ -84,9 +84,9 @@ sub main {
         $optionError = 1;
         print("ERROR: Option for repository --repo not defined.\n");
     }
-    if ( not defined($trunk) or $trunk eq '' ) {
+    if ( $repo =~ /^http/ and ( not defined($userName) or $userName eq '' ) ) {
         $optionError = 1;
-        print("ERROR: Option for baseline --trunk not defined.\n");
+        print("ERROR: UserName is empty.\n");
     }
     if ( $optionError == 1 ) {
         usage();
@@ -123,11 +123,6 @@ sub main {
     if ( defined($password) and $password ne '' ) {
         $password = $deployUtils->decryptPwd($password);
         $versionInfo->{password} = $password;
-    }
-
-    if ( $repo =~ /^http/ and ( not defined($userName) or $userName eq '' ) ) {
-        print("ERROR: UserName is empty.\n");
-        return 2;
     }
 
     my $lock        = DeployLock->new($buildEnv);
