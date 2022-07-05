@@ -91,7 +91,10 @@ class Context(VContext.VContext):
 
         if 'environment' in params:
             for k, v in params['environment'].items():
-                os.environ[k] = str(v)
+                if isinstance(v, object):
+                    os.environ[k] = json.dumps(v, ensure_ascii=False)
+                else:
+                    os.environ[k] = v
 
         if 'passThroughEnv' in params:
             passThroughInParams = params['passThroughEnv']
