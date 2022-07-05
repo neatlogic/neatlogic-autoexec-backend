@@ -81,7 +81,12 @@ sub _doLockByJob {
     my $namePath   = $params->{lockOwnerName};
 
     if ( -e $sockPath ) {
-        my $localAddr = $self->{workPath} . "client$$.sock";
+        my $localAddr = $self->{workPath} . "/client$$.sock";
+
+        END {
+            unlink($localAddr);
+        }
+
         eval {
             my $client = IO::Socket::UNIX->new(
                 Local   => $localAddr,
