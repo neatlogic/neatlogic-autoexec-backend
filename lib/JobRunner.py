@@ -6,7 +6,6 @@
 import os
 import socket
 import threading
-import _thread
 import queue
 import traceback
 import json
@@ -68,7 +67,9 @@ class ListenWorkThread(threading.Thread):
                         self.context.setEnv(actionData['name'], actionData['value'])
                         print("INFO: Set ENV variable({}) event recieved, processed.\n".format(actionData['name']), end='')
                     elif actionData['action'] == 'golbalLock':
-                        _thread.start_new_thread('GlobalLock', self.doLock, (actionData['lockParams'], addr))
+                        lockThread = threading.Thread(target=self.doLock, args=(actionData['lockParams'], addr))
+                        lockThread.setName('GlobalLock')
+                        lockThread.start()
                         print("INFO: Lock event recieved, lock params:{}.\n".format(actionData['lockParams']), end='')
                     elif actionData['action'] == 'golbalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
@@ -77,14 +78,21 @@ class ListenWorkThread(threading.Thread):
                         self.runnerListener.stop()
                         break
             except Exception as ex:
-                print('ERROR: Process event:{} failed,\n{}\n'.format(actionData, ex), end='')
+                print('ERROR: Process event:{} failed,{}\n'.format(actionData, ex), end='')
 
     def doLock(self, lockParams, addr):
         if self.context.devMode:
             return {'lockId': 0}
         else:
-            lockInfo = self.globalLock.doLock(lockParams)
-            self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
+            try:
+                lockInfo = self.globalLock.doLock(lockParams)
+                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
+            except Exception as ex:
+                lockInfo = {
+                    'lockId': None,
+                    'message': str(ex)
+                }
+                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
