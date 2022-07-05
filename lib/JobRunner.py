@@ -86,13 +86,13 @@ class ListenWorkThread(threading.Thread):
         else:
             try:
                 lockInfo = self.globalLock.doLock(lockParams)
-                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
+                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode(), addr)
             except Exception as ex:
                 lockInfo = {
                     'lockId': None,
                     'message': str(ex)
                 }
-                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False), addr)
+                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode(), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
