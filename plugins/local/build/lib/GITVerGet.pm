@@ -42,14 +42,13 @@ sub new {
 
     my $gitUser = $verInfo->{username};
     my $gitPass = $verInfo->{password};
-    if ( not defined($gitUser) or $gitUser eq '' ) {
-        $gitUser = $buildEnv->{'git.user'};
+
+    if ( defined($gitUser) ) {
+        $gitUser = quotemeta($gitUser);
     }
-    if ( not defined($gitPass) or $gitPass eq '' ) {
-        $gitPass = $buildEnv->{'git.password'};
+    if ( defined($gitPass) ) {
+        $gitPass = quotemeta($gitPass);
     }
-    $gitUser = quotemeta($gitUser);
-    $gitPass = quotemeta($gitPass);
 
     $repo =~ s/^https:\/\//https:\/\/$gitUser:$gitPass\@/;
     $repo =~ s/^http:\/\//http:\/\/$gitUser:$gitPass\@/;

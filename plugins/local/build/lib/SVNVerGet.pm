@@ -50,14 +50,12 @@ sub new {
 
     my $svnUser = $verInfo->{username};
     my $svnPass = $verInfo->{password};
-    if ( not defined($svnUser) or $svnUser eq '' ) {
-        $svnUser = $buildEnv->{'svn.user'};
+    if ( defined($svnUser) ) {
+        $svnUser = quotemeta($svnUser);
     }
-    if ( not defined($svnPass) or $svnPass eq '' ) {
-        $svnPass = $buildEnv->{'svn.password'};
+    if ( defined($svnPass) ) {
+        $svnPass = quotemeta($svnPass);
     }
-    $svnUser = quotemeta($svnUser);
-    $svnPass = quotemeta($svnPass);
 
     my $localSvnInfo = {};
     if ( -e $prjPath ) {
