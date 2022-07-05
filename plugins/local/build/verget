@@ -80,6 +80,14 @@ sub main {
         $optionError = 1;
         print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
+    if ( not defined($repo) or $repo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Option for repository --repo not defined.\n");
+    }
+    if ( not defined($trunk) or $trunk eq '' ) {
+        $optionError = 1;
+        print("ERROR: Option for baseline --trunk not defined.\n");
+    }
     if ( $optionError == 1 ) {
         usage();
     }
@@ -115,6 +123,11 @@ sub main {
     if ( defined($password) and $password ne '' ) {
         $password = $deployUtils->decryptPwd($password);
         $versionInfo->{password} = $password;
+    }
+
+    if ( $repo =~ /^http/ and ( not defined($userName) or $userName eq '' ) ) {
+        print("ERROR: UserName is empty.\n");
+        return 2;
     }
 
     my $lock        = DeployLock->new($buildEnv);
