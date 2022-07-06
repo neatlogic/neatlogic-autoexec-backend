@@ -232,11 +232,14 @@ sub isProcInDocker {
     my $fh = IO::File->new("</proc/$pid/cgroup");
 
     my $isDocker = 0;
-    my $line;
-    while ( $line = $fh->getline() ) {
-        if ( index( $line, 'docker' ) >= 0 ) {
-            $isDocker = 1;
-            last;
+
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            if ( index( $line, 'docker' ) >= 0 ) {
+                $isDocker = 1;
+                last;
+            }
         }
     }
 
