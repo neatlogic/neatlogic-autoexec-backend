@@ -55,6 +55,7 @@ class GlobalLock(object):
                 lockEvent.set()
         for lockId in list(self.holdLocks.keys()):
             lockParams = self.holdLocks[lockId]
+            lockParams['lockId'] = lockId
             lockParams['action'] = 'unlock'
             self.unlock(lockParams)
 

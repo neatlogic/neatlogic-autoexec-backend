@@ -197,7 +197,9 @@ sub lockWorkspace {
 
 sub unlockWorkspace {
     my ( $self, $lockId ) = @_;
-    $self->_unlock($lockId);
+    if ( defined($lockId) ) {
+        $self->_unlock($lockId);
+    }
 }
 
 sub lockMirror {
@@ -223,7 +225,9 @@ sub lockMirror {
 
 sub unlockMirror {
     my ( $self, $lockId ) = @_;
-    $self->_unlock($lockId);
+    if ( defined($lockId) ) {
+        $self->_unlock($lockId);
+    }
 }
 
 sub lockBuild {
@@ -249,7 +253,9 @@ sub lockBuild {
 
 sub unlockBuild {
     my ( $self, $lockId ) = @_;
-    $self->_unlock($lockId);
+    if ( defined($lockId) ) {
+        $self->_unlock($lockId);
+    }
 }
 
 sub lockEnvApp {
@@ -276,7 +282,9 @@ sub lockEnvApp {
 
 sub unlockEnvApp {
     my ( $self, $lockId ) = @_;
-    $self->_unlock($lockId);
+    if ( defined($lockId) ) {
+        $self->_unlock($lockId);
+    }
 }
 
 sub lockEnvSql {
@@ -304,7 +312,9 @@ sub lockEnvSql {
 
 sub unlockEnvSql {
     my ( $self, $lockId ) = @_;
-    $self->_unlock($lockId);
+    if ( defined($lockId) ) {
+        $self->_unlock($lockId);
+    }
 }
 
 1;
