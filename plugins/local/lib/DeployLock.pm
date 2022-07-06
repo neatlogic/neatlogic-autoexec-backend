@@ -158,6 +158,7 @@ sub _unlock {
 
     my $params = $self->_getParams();
 
+    $params->{lockId} = $lockId;
     $params->{action} = 'unlock';
 
     my $lockAction = $params->{action};
