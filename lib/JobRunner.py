@@ -100,7 +100,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         threading.Thread.__init__(self, name=name, daemon=True)
         context = jobRunner.context
         self.goToStop = False
-        self.socketPath = context.runPath + '/job.sock'
+        self.socketPath = os.getpid('AUTOEXEC_JOB_SOCK')
         context.initDB()
         self.context = context
         self.workQueue = queue.Queue(2048)

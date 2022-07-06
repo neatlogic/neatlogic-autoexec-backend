@@ -18,11 +18,9 @@ sub new {
     $self->{deployEnv} = $deployEnv;
 
     my $jobId = $ENV{AUTOEXEC_JOBID};
-    $self->{jobId} = $jobId;
-    my $workPath = $ENV{AUTOEXEC_WORK_PATH};
-    $self->{workPath} = $workPath;
-    my $sockPath = $workPath . '/job.sock';
-    $self->{sockPath} = $sockPath;
+    $self->{jobId}    = $jobId;
+    $self->{workPath} = $ENV{AUTOEXEC_WORK_PATH};
+    $self->{sockPath} = $ENV{AUTOEXEC_JOB_SOCK};
 
     my $devMode = $ENV{DEV_MODE};
     if ( not defined($devMode) ) {

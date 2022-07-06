@@ -323,6 +323,7 @@ if __name__ == "__main__":
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
         os.environ['AUTOEXEC_TENANT'] = context.tenant
+        os.environ['AUTOEXEC_JOB_SOCK'] = '{}/job{}.sock'.format(context.runPath, os.getpid())
 
         # 初始化单例的GlobalLocks
         GlobalLock.GlobalLock(context)

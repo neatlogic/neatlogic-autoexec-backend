@@ -179,7 +179,7 @@ def loadNodeOutput():
 
 
 def informNodeWaitInput(resourceId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
-    sockPath = os.getenv('AUTOEXEC_WORK_PATH') + '/job.sock'
+    sockPath = os.getenv('AUTOEXEC_JOB_SOCK')
     phaseName = os.getenv('AUTOEXEC_PHASE_NAME')
     if os.path.exists(sockPath):
         try:

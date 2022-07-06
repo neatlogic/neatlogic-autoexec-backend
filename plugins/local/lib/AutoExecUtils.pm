@@ -244,7 +244,7 @@ sub informNodeWaitInput {
     # $args{options};    # 操作列表json数组，譬如：["commit","rollback"]
     # $args{role};       # 可以操作此操作的角色，如果空代表不控制
 
-    my $sockPath   = $ENV{AUTOEXEC_WORK_PATH} . '/job.sock';
+    my $sockPath   = $ENV{AUTOEXEC_JOB_SOCK};
     my $phaseName  = $args{phaseName};
     my $resourceId = $args{resourceId};
 
