@@ -19,7 +19,7 @@ sub stripDMIComment {
     my ( $self, $str ) = @_;
 
     my $content = '';
-    my @lines = split( /\s*\n\s*/, $str );
+    my @lines   = split( /\s*\n\s*/, $str );
     foreach my $line (@lines) {
         if ( $line !~ /^\s*#/ ) {
             $content = $content . $line;
@@ -35,7 +35,7 @@ sub getUpTime {
     my ( $self, $osInfo ) = @_;
 
     my $uptimeStr = $self->getFileContent('/proc/uptime');
-    my $uptime = ( split( /\s+/, $uptimeStr ) )[0];
+    my $uptime    = ( split( /\s+/, $uptimeStr ) )[0];
 
     $osInfo->{UPTIME} = int($uptime);
 }
@@ -203,7 +203,7 @@ sub getSSHInfo {
 }
 
 sub getBondInfo {
-    my ( $self, $osInfo ) = @_;
+    my ( $self,    $osInfo )       = @_;
     my ( $bondRet, $bondInfoLine ) = $self->getCmdOut( 'cat /proc/net/dev|grep bond', undef, { nowarn => 1 } );
     if ( $bondRet == 0 ) {
         $osInfo->{NIC_BOND} = 1;
@@ -465,7 +465,7 @@ sub getDiskInfo {
         if ( defined($arrayInfoLines) and scalar(@$arrayInfoLines) > 2 ) {
             foreach my $line ( splice( @$arrayInfoLines, 2, -1 ) ) {
                 my $arrayInfo = {};
-                my @infos = split( /\s+/, $line );
+                my @infos     = split( /\s+/, $line );
                 $arrayInfo->{NAME}                     = $infos[2];
                 $arrayInfo->{SN}                       = $infos[3];
                 $arrayInfosMap->{ $arrayInfo->{NAME} } = $arrayInfo;
@@ -476,7 +476,7 @@ sub getDiskInfo {
         if ( defined($hwLunInfoLines) and @$hwLunInfoLines > 0 ) {
             foreach my $line ( splice( @$hwLunInfoLines, 2, -1 ) ) {
                 my $lunInfo = {};
-                my @infos = split( /\s+/, $line );
+                my @infos   = split( /\s+/, $line );
                 $lunInfo->{NAME}  = '/dev/' . $infos[2];
                 $lunInfo->{WWN}   = $infos[4];
                 $lunInfo->{ARRAY} = $infos[8];
@@ -637,7 +637,7 @@ sub getPerformanceInfo {
     for ( my $j = $k ; $j < $k + 10 and $j < $lineCount ; $j++ ) {
         my $line = $$topLines[$j];
         $line =~ s/^\s*|\s*$//g;
-        my @fields = split( /\s+/, $line );
+        my @fields   = split( /\s+/, $line );
         my $procInfo = {};
         for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
             if ( $fields[$i] =~ /^\d+$/ ) {
@@ -677,7 +677,7 @@ sub getPerformanceInfo {
     for ( my $j = $k ; $j < $k + 5 and $j < $lineCount ; $j++ ) {
         my $line = $$topLines[$j];
         $line =~ s/^\s*|\s*$//g;
-        my @fields = split( /\s+/, $line );
+        my @fields   = split( /\s+/, $line );
         my $procInfo = {};
         for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
             if ( $fields[$i] =~ /^\d+$/ ) {
@@ -771,7 +771,7 @@ sub getMainBoardInfo {
 
     my $utils              = $self->{collectUtils};
     my $dmidecodeInstalled = 1;
-    my ($whichDmiRet) = $self->getCmdOut( 'which dmidecode >/dev/null 2>&1', undef, { nowarn => 1 } );
+    my ($whichDmiRet)      = $self->getCmdOut( 'which dmidecode >/dev/null 2>&1', undef, { nowarn => 1 } );
     if ( $whichDmiRet != 0 ) {
         $dmidecodeInstalled = 0;
         print("WARN: Tools dmidecode not install, we use it to collect hardware information, please install it first.\n");
@@ -888,6 +888,11 @@ sub getNicInfo {
         my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
         if ( $line =~ /^\d+:\s+(\S+):/ ) {
             $ethName = $1;
+            if ( not -e "/sys/class/net/$ethName/device" ) {
+
+                #不是物理网卡
+                next;
+            }
             my ( $ethtoolState, $ethtoolLines ) = $self->getCmdOutLines("ethtool $ethName");
             if ( $ethtoolState == 0 ) {
                 foreach my $ethLine (@$ethtoolLines) {
