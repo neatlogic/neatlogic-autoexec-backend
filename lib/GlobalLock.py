@@ -82,6 +82,7 @@ class GlobalLock(object):
         # lockParams = {
         #     'lockId': None,  #如果是unlock则lockId有值，否则是空
         #     'jobId': 23434,  #作业ID，只有同一个作业ID的才可以进行相应锁ID的解锁
+        #     'pid': 9876,     #请求锁的进程ID
         #
         #     'operType': "deploy", #deploy|auto
         #     'lockOwner': "$sysId/$moduleId/",  #可以为空，lockOwner和lockOwnerName加起来确定一个锁的handle
@@ -109,9 +110,10 @@ class GlobalLock(object):
             return None
 
         # 同一个作业内部，对同一个锁发起多次请求，如果前面已经锁上则返回相应的lockId
-        lockOwner = lockParams['lockOwner']
-        lockTarget = lockParams['lockTarget']
-        lockMode = lockParams['lockMode']
+        lockOwner = lockParams.get('lockOwner', '')
+        lockTarget = lockParams.get('lockTarget', '')
+        lockMode = lockParams.get('lockMode', '')
+
         preLockId = self.lockHandles.get(lockOwner + '/' + lockTarget + '/' + lockMode)
         if preLockId is not None:
             lockInfo = {'lockId': lockId}
@@ -128,11 +130,12 @@ class GlobalLock(object):
         #     'status':'failed',#success
         #     'message':'Lock help by job:xxxxx'
         # }
-        lockId = lockInfo['lockId']
+        lockId = lockInfo.get('lockId')
         lockParams['lockId'] = lockId
         lockTarget = lockParams['lockTarget']
         namePath = lockParams['lockOwnerName']
-        if lockInfo['wait'] == 1:
+
+        if lockInfo.get('wait') == 1:
             lockEvent = threading.Event()
             self._putLock(lockId, lockParams, lockEvent)
             print("INFO: Wait because of:" + lockInfo['message'])
@@ -172,6 +175,7 @@ class GlobalLock(object):
         return lockInfo
 
     def unlock(self, lockParams):
+        lockId = lockParams.get('lockId')
         serverAdapter = self.context.serverAdapter
 
         maxTryCount = 3600/5
@@ -186,7 +190,6 @@ class GlobalLock(object):
             time.sleep(5)
             tryCount = tryCount + 1
 
-        lockId = lockInfo['lockId']
         self._removeLock(lockId)
         return lockInfo
 
@@ -206,6 +209,7 @@ class GlobalLock(object):
             time.sleep(5)
             tryCount = tryCount + 1
 
-        lockId = lockInfo['lockId']
+        lockId = lockInfo.get('lockId')
+
         self._removeLock(lockId)
         return lockInfo
