@@ -48,12 +48,12 @@ class GlobalLock(object):
 
     def stop(self):
         self.goToStop = True
-        for lockId in self.lockWaits.keys():
+        for lockId in list(self.lockWaits.keys()):
             lockEvent = self.lockWaits[lockId]
             if lockEvent is not None:
                 self.cancel(lockId)
                 lockEvent.set()
-        for lockId in self.holdLocks.keys():
+        for lockId in list(self.holdLocks.keys()):
             lockParams = self.holdLocks[lockId]
             lockParams['action'] = 'unlock'
             self.unlock(lockParams)

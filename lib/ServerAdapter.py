@@ -162,7 +162,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     params = retObj['Return']
                     paramsFile.truncate(0)
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
@@ -572,7 +572,7 @@ class ServerAdapter:
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
-            if retObj['Status'] == 'OK':
+            if retObj.get('Status') == 'OK':
                 lockInfo = retObj.get('Return')
                 return lockInfo
             else:
@@ -618,7 +618,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return retObj['Return']
                 else:
                     raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, retObj['Message']))
@@ -645,7 +645,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return retObj['Return']
                 else:
                     raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
@@ -673,7 +673,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return True
                 else:
                     raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
@@ -699,7 +699,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return True
                 else:
                     raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, {}".format(resourceId, jobId, retObj['Message']))
@@ -724,7 +724,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     attrData = retObj['Return']['attrEntityData']
                     attrsMap = {}
                     for attrInfo in attrData.values():
@@ -761,7 +761,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return retObj['Return']
                 else:
                     raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, retObj['Message']))
@@ -785,7 +785,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if response.status == 200:
-                if retObj['Status'] == 'OK':
+                if retObj.get('Status') == 'OK':
                     return retObj['Return']
                 else:
                     raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, retObj['Message']))
