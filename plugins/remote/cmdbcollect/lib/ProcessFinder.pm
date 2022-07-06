@@ -227,6 +227,22 @@ sub getProcMaxOpenFilesCount {
     return $maxCount;
 }
 
+sub isProcInDocker {
+    my ( $self, $pid ) = @_;
+    my $fh = IO::File->new("</proc/$pid/cgroup");
+
+    my $isDocker = 0;
+    my $line;
+    while ( $line = $fh->getline() ) {
+        if ( index( $line, 'docker' ) >= 0 ) {
+            $isDocker = 1;
+            last;
+        }
+    }
+
+    return $isDocker;
+}
+
 sub findProcess {
     my ($self) = @_;
     print("INFO: Begin to find and match processes.\n");
@@ -284,6 +300,11 @@ sub findProcess {
                         $matchedMap->{ $fields[$i] } = shift(@vars);
                     }
                 }
+
+                if ( $self->isProcInDocker( $matchedMap->{PID} ) ) {
+                    next;
+                }
+
                 $matchedMap->{COMMAND} = join( ' ', @vars );
                 my $envMap;
 
