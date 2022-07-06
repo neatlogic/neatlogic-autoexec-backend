@@ -90,11 +90,52 @@ class Context(VContext.VContext):
             self.globalOpt = {}
 
         if 'environment' in params:
-            for k, v in params['environment'].items():
+            procEnv = params['environment']
+            for k, v in procEnv.items():
                 if isinstance(v, object):
                     os.environ[k] = json.dumps(v, ensure_ascii=False)
                 else:
                     os.environ[k] = v
+            deployPath = procEnv.get('DEPLOY_PATH')
+            deployIdPath = procEnv.get('DEPLOY_ID_PATH')
+
+            # init deploy relative environment
+            if deployPath is not None:
+                os.environ['NAME_PATH'] = deployPath
+                nameArray = deployPath.split('/')
+                itemsCount = len(nameArray)
+                os.environ['SYS_NAME'] = nameArray[0]
+                os.environ['MODULE_NAME'] = nameArray[1]
+                if itemsCount > 2:
+                    os.environ['ENV_NAME'] = nameArray[2]
+
+            if deployIdPath is not None:
+                os.environ['ID_PATH'] = deployIdPath
+                idArray = deployIdPath.split('/')
+                itemsCount = len(idArray)
+
+                sysId = idArray[0]
+                os.environ['SYS_ID'] = sysId
+
+                moduleId = idArray[1]
+                os.environ['MODULE_ID'] = moduleId
+
+                envId = None
+                if itemsCount > 2:
+                    envId = idArray[2]
+                    os.environ['ENV_ID'] = envId
+
+                dataPath = '%s/verdata/%s/%s' % (self.dataPath, sysId, moduleId)
+                version = os.environ.get('VERSION')
+                buildNo = os.environ.get('BUILD_NO')
+                os.environ['DATA_PATH'] = dataPath
+                os.environ['VER_ROOT'] = '%s/artifact/%s' % (dataPath, version)
+                os.environ['PRJ_ROOT'] = '%s/workspace' % (dataPath)
+                os.environ['PRJ_PATH'] = '%s/workspace/project' % (dataPath)
+                os.environ['MIRROR_ROOT'] = '%s/artifact/mirror' % (dataPath)
+                os.environ['BUILD_ROOT'] = '%s/artifact/%s/build' % (dataPath, version)
+                os.environ['BUILD_PATH'] = '%s/artifact/%s/build/%s' % (dataPath, version, buildNo)
+                os.environ['DIST_ROOT'] = '%s/artifact/%s/env' % (dataPath, version)
 
         if 'passThroughEnv' in params:
             passThroughInParams = params['passThroughEnv']

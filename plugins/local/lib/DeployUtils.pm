@@ -59,41 +59,38 @@ sub deployInit {
 
     AutoExecUtils::setEnv();
 
-    my $dpPath          = $ENV{_DEPLOY_PATH};
-    my $dpIdPath        = $ENV{_DEPLOY_ID_PATH};
-    my $runnerGroupConf = $ENV{_DEPLOY_RUNNERGROUP};
+    my $dpPath          = $ENV{DEPLOY_PATH};
+    my $dpIdPath        = $ENV{DEPLOY_ID_PATH};
+    my $runnerGroupConf = $ENV{DEPLOY_RUNNERGROUP};
 
     if ( not defined($version) or $version eq '' ) {
-        $version = $ENV{_VERSION};
+        $version = $ENV{VERSION};
     }
     if ( not defined($buildNo) or $buildNo eq '' ) {
-        $buildNo = $ENV{_BUILD_NO};
+        $buildNo = $ENV{BUILD_NO};
     }
 
     my $deployEnv = {};
+    $deployEnv->{ID_PATH}   = $dpIdPath;
+    $deployEnv->{NAME_PATH} = $dpPath;
+    $deployEnv->{VERSION}   = $version;
+    $deployEnv->{BUILD_NO}  = $buildNo;
+
     $deployEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
     $deployEnv->{SQL_FILES} = $ENV{_SQL_FILES};
-    $deployEnv->{BUILD_NO}  = $buildNo;
+
+    $deployEnv->{DATA_PATH}   = $ENV{DATA_PATH};
+    $deployEnv->{VER_ROOT}    = $ENV{VER_ROOT};
+    $deployEnv->{BUILD_ROOT}  = $ENV{BUILD_ROOT};
+    $deployEnv->{BUILD_PATH}  = $ENV{BUILD_PATH};
+    $deployEnv->{PRJ_ROOT}    = $ENV{PRJ_ROOT};
+    $deployEnv->{PRJ_PATH}    = $ENV{PRJ_PATH};
+    $deployEnv->{DIST_ROOT}   = $ENV{DIST_ROOT};
+    $deployEnv->{MIRROR_ROOT} = $ENV{MIRROR_ROOT};
 
     if ( defined($runnerGroupConf) and $runnerGroupConf ne '' ) {
         $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
-    }
-
-    if ( defined($namePath) and $namePath eq '' and uc($namePath) ne 'DEFAULT' ) {
-        my $idPath = ServerAdapter->getIdPath($namePath);
-        $dpPath   = $namePath;
-        $dpIdPath = $idPath;
-    }
-
-    my @dpNames = split( '/', $dpPath );
-    my @dpIds   = split( '/', $dpIdPath );
-
-    my $idx = 0;
-    for my $level ( 'SYS', 'MODULE', 'ENV' ) {
-        $deployEnv->{ $level . "_ID" }   = $dpIds[$idx];
-        $deployEnv->{ $level . "_NAME" } = $dpNames[$idx];
-        $idx                             = $idx + 1;
     }
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
@@ -102,33 +99,6 @@ sub deployInit {
         my $toolsPath = "$autoexecHome/tools";
         $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
         $deployEnv->{TOOLS_PATH}    = $toolsPath;
-    }
-    my $dataPath   = "$autoexecHome/data/verdata/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
-    my $prjRoot    = "$dataPath/workspace";
-    my $prjPath    = "$prjRoot/project";
-    my $verRoot    = "$dataPath/artifact/$version";
-    my $distRoot   = "$verRoot/env";
-    my $mirrorRoot = "$dataPath/mirror";
-    my $buildRoot  = "$dataPath/artifact/$version/build";
-    my $buildPath  = "$buildRoot/$buildNo";
-
-    $deployEnv->{ID_PATH}     = $dpIdPath;
-    $deployEnv->{NAME_PATH}   = $dpPath;
-    $deployEnv->{DATA_PATH}   = $dataPath;
-    $deployEnv->{VERSION}     = $version;
-    $deployEnv->{VER_ROOT}    = $verRoot;
-    $deployEnv->{BUILD_ROOT}  = $buildRoot;
-    $deployEnv->{BUILD_PATH}  = $buildPath;
-    $deployEnv->{PRJ_ROOT}    = $prjRoot;
-    $deployEnv->{PRJ_PATH}    = $prjPath;
-    $deployEnv->{DIST_ROOT}   = $distRoot;
-    $deployEnv->{MIRROR_ROOT} = $mirrorRoot;
-
-    while ( my ( $name, $val ) = each(%$deployEnv) ) {
-        if ( ref($val) eq "ARRAY" or ref($val) eq 'HASH' ) {
-            $val = to_json($val);
-        }
-        $ENV{$name} = $val;
     }
 
     return $deployEnv;
