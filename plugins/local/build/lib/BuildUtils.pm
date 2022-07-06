@@ -68,7 +68,7 @@ sub compile {
             $jdk = "$toolsPath/$jdk";
         }
         else {
-            print("jdk $jdk is not supported\n");
+            print("ERROR: jdk $jdk not exists.\n");
             exit(-1);
         }
     }
