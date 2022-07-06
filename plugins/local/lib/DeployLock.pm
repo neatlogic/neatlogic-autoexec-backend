@@ -55,7 +55,7 @@ sub _getParams {
     my $params = {
         jobId         => $jobId,
         runnerId      => $runnerId,
-        pid           => $$,
+        pid           => "$$",
         lockOwner     => "$sysId/$moduleId",
         lockOwnerName => "$sysName/$moduleName",
         operType      => 'deploy',

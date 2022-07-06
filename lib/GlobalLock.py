@@ -29,10 +29,11 @@ class GlobalLock(object):
 
     def _putLock(self, lockId, lockParams, waitEvent=None):
         if waitEvent is None:
-            lockOwner = lockParams['lockOwner']
-            lockTarget = lockParams['lockTarget']
-            lockMode = lockParams['lockMode']
-            self.lockHandles[lockOwner + '/' + lockTarget + '/' + lockMode] = lockId
+            lockPid = lockParams.get('pid', '-')
+            lockOwner = lockParams.get('lockOwner', '-')
+            lockTarget = lockParams.get('lockTarget', '-')
+            lockMode = lockParams.get('lockMode', '-')
+            self.lockHandles[lockPid + ':' + lockOwner + '/' + lockTarget + '/' + lockMode] = lockId
             self.holdLocks[lockId] = lockParams
         else:
             self.lockWaits[lockId] = waitEvent
@@ -40,10 +41,11 @@ class GlobalLock(object):
     def _removeLock(self, lockId):
         lockParams = self.holdLocks.get(lockId)
         if lockParams is not None:
-            lockOwner = lockParams['lockOwner']
-            lockTarget = lockParams['lockTarget']
-            lockMode = lockParams['lockMode']
-            del(self.lockHandles[lockOwner + '/' + lockTarget + '/' + lockMode])
+            lockPid = lockParams.get('pid', '-')
+            lockOwner = lockParams.get('lockOwner', '-')
+            lockTarget = lockParams.get('lockTarget', '-')
+            lockMode = lockParams.get('lockMode', '-')
+            del(self.lockHandles[lockPid + ':' + lockOwner + '/' + lockTarget + '/' + lockMode])
             del(self.holdLocks[lockId])
 
     def stop(self):
@@ -112,11 +114,12 @@ class GlobalLock(object):
             return None
 
         # 同一个作业内部，对同一个锁发起多次请求，如果前面已经锁上则返回相应的lockId
-        lockOwner = lockParams.get('lockOwner', '')
-        lockTarget = lockParams.get('lockTarget', '')
-        lockMode = lockParams.get('lockMode', '')
+        lockPid = lockParams.get('pid', '-')
+        lockOwner = lockParams.get('lockOwner', '-')
+        lockTarget = lockParams.get('lockTarget', '-')
+        lockMode = lockParams.get('lockMode', '-')
 
-        preLockId = self.lockHandles.get(lockOwner + '/' + lockTarget + '/' + lockMode)
+        preLockId = self.lockHandles.get(lockPid + ':' + lockOwner + '/' + lockTarget + '/' + lockMode)
         if preLockId is not None:
             lockInfo = {'lockId': lockId}
             return lockInfo
