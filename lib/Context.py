@@ -92,10 +92,11 @@ class Context(VContext.VContext):
         if 'environment' in params:
             procEnv = params['environment']
             for k, v in procEnv.items():
-                if isinstance(v, object):
-                    os.environ[k] = json.dumps(v, ensure_ascii=False)
-                else:
+                if isinstance(v, str):
                     os.environ[k] = v
+                else:
+                    os.environ[k] = json.dumps(v, ensure_ascii=False)
+
             deployPath = procEnv.get('DEPLOY_PATH')
             deployIdPath = procEnv.get('DEPLOY_ID_PATH')
 
