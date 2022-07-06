@@ -281,7 +281,7 @@ sub main {
     }
 
     if ( $isFail != 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed', 1 );
         print("ERROR: Release(sync) $namePath $version build:$buildNo to $envName(mirror) failed.\n");
     }
     else {

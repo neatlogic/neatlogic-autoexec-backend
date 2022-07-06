@@ -281,9 +281,6 @@ sub releaseVerToEnv {
     if ( defined($isMirror) and $isMirror == 1 ) {
         $params->{isMirror} = 1;
     }
-    else {
-        $params->{isMirror} = 0;
-    }
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('releaseVerToEnv');
