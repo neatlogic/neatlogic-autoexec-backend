@@ -76,6 +76,13 @@ sub deployInit {
     $deployEnv->{VERSION}   = $version;
     $deployEnv->{BUILD_NO}  = $buildNo;
 
+    $deployEnv->{SYS_ID}      = $ENV{SYS_ID};
+    $deployEnv->{MODULE_ID}   = $ENV{MODULE_ID};
+    $deployEnv->{ENV_ID}      = $ENV{ENV_ID};
+    $deployEnv->{SYS_NAME}    = $ENV{SYS_NAME};
+    $deployEnv->{MODULE_NAME} = $ENV{MODULE_NAME};
+    $deployEnv->{ENV_NAME}    = $ENV{ENV_NAME};
+
     $deployEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
     $deployEnv->{SQL_FILES} = $ENV{_SQL_FILES};
