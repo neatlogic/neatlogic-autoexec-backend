@@ -185,13 +185,14 @@ class GlobalLock(object):
 
         maxTryCount = 3600/5
         tryCount = 0
-        lockInfo = None
+        lockInfo = {'lockId': lockId}
         while tryCount < maxTryCount:
             try:
-                lockInfo = serverAdapter.callGlobalLock(lockParams)
+                serverAdapter.callGlobalLock(lockParams)
                 self._removeLock(lockId)
                 break
             except Exception as ex:
+                lockInfo['message'] = str(ex)
                 print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId, str(ex)))
             time.sleep(5)
             tryCount = tryCount + 1
