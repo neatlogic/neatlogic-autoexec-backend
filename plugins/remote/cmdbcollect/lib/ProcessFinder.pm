@@ -241,6 +241,7 @@ sub isProcInDocker {
                 last;
             }
         }
+        $fh->close();
     }
 
     return $isDocker;
