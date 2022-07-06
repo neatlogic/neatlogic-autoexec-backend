@@ -185,14 +185,12 @@ class GlobalLock(object):
         while tryCount < maxTryCount:
             try:
                 lockInfo = serverAdapter.callGlobalLock(lockParams)
+                self._removeLock(lockId)
                 break
             except Exception as ex:
                 print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId. str(ex)))
             time.sleep(5)
             tryCount = tryCount + 1
-
-        if lockInfo is not None:
-            self._removeLock(lockId)
         return lockInfo
 
     def cancel(self, lockId):
@@ -205,13 +203,11 @@ class GlobalLock(object):
         while tryCount < maxTryCount:
             try:
                 lockInfo = serverAdapter.callGlobalLock(lockParams)
+                self._removeLock(lockId)
                 break
             except Exception as ex:
                 print("WARN: Cancel lockId({}) server failed, {}.\n".format(lockId. str(ex)))
             time.sleep(5)
             tryCount = tryCount + 1
 
-        lockId = lockInfo.get('lockId')
-
-        self._removeLock(lockId)
         return lockInfo
