@@ -108,7 +108,7 @@
             "name": "版本分支",
             "help": "GIT的版本分支或SVN的版本子目录",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${VERSION}"
         },
@@ -117,7 +117,7 @@
             "name": "标签",
             "help": "GIT的版本标签或SVN的版本标签子目录，如配置了tag则会优先使用tag获取代码",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "V${VERSION}"
         },
