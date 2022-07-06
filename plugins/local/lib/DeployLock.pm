@@ -43,6 +43,7 @@ sub _getParams {
     my $jobId     = $self->{jobId};
     my $deployEnv = $self->{deployEnv};
 
+    my $runnerId   = $deployEnv->{RUNNER_ID};
     my $sysId      = $deployEnv->{SYS_ID};
     my $moduleId   = $deployEnv->{MODULE_ID};
     my $envId      = $deployEnv->{ENV_ID};
@@ -53,6 +54,7 @@ sub _getParams {
 
     my $params = {
         jobId         => $jobId,
+        runnerId      => $runnerId,
         pid           => $$,
         lockOwner     => "$sysId/$moduleId",
         lockOwnerName => "$sysName/$moduleName",
