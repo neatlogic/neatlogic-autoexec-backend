@@ -67,7 +67,7 @@
             "name": "Jenkins版本",
             "help": "Jenkins版本",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [

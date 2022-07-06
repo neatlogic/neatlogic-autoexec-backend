@@ -136,7 +136,7 @@
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
             "type": "text",
-            "required": "",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
@@ -145,7 +145,7 @@
             "name": "SQL顺序文件",
             "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "index.txt"
         }

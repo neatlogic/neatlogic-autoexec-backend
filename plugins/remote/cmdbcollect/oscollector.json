@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
-    "option": [{
+    "option": [
+        {
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
@@ -14,7 +15,8 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "全部",
                         "value": ""
                     },
@@ -211,7 +213,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "不采集",
                         "value": "0"
                     },
@@ -231,7 +234,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "不回显",
                         "value": "0"
                     },
@@ -251,7 +255,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "否",
                         "value": "0"
                     },
@@ -264,10 +269,12 @@
             "defaultValue": "0"
         }
     ],
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

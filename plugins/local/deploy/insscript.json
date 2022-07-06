@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "根据执行目标协议执行远程脚本",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -53,7 +55,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -70,10 +73,11 @@
             "name": "服务端字符集",
             "help": "指定服务端的执行字符集",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "自动",
                         "value": ""
                     },
@@ -97,7 +101,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "bash",
                         "value": "sh"
                     },

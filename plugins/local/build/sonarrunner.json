@@ -146,7 +146,7 @@
             "name": "源代码目录",
             "help": "相对于工程的相对目录",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "80"
         },
@@ -155,7 +155,7 @@
             "name": "二进制目录",
             "help": "编译结果文件，需要分析的Target(如果没编译可以不写)",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "80"
         },

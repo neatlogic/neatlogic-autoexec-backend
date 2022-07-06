@@ -7,7 +7,8 @@
     "defaultProfile": "relsync-args",
     "description": "把版本制品目录同步到环境制品目录",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -44,7 +46,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -64,7 +67,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -84,7 +88,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -104,7 +109,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -121,7 +127,7 @@
             "name": "排除目录",
             "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },

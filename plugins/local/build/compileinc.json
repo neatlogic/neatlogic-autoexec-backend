@@ -84,7 +84,7 @@
             "name": "JDK版本",
             "help": "JDK版本",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [
@@ -222,7 +222,7 @@
             "name": "其他需要目录",
             "help": "为了build成功而需要的其他目录，例如：target/webapp/WEB-INF/web.xml,*/target/webapp/WEB-INF/web.xml",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "target/webapp/WEB-INF/web.xml"
         },
@@ -231,7 +231,7 @@
             "name": "CLASSPATH",
             "help": "工程下的需要加入到CLASSPATH的目录，例如：staticclasses,*/staticclasses",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "staticclasses"
         }

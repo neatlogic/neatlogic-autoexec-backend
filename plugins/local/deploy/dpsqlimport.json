@@ -73,7 +73,7 @@
             "name": "目录过滤",
             "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
             "type": "text",
-            "required": "",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },

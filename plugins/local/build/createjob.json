@@ -146,9 +146,9 @@
         {
             "opt": "instances",
             "name": "实例IP端口",
-            "help": "实例的IP端口列表, 例如: 192.168.0.1:8080,192.168.0.2:8080",
+            "help": "实例的IP端口列表, 例如: 192.168.0.1:8080,192.168.0.2:8080(留空，代表所有)",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "1"
         }

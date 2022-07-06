@@ -84,7 +84,7 @@
             "name": "JDK版本",
             "help": "JDK版本",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [

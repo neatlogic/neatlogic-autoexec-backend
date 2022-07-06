@@ -84,7 +84,7 @@
             "name": "JDK版本",
             "help": "JDK版本",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [
@@ -180,7 +180,7 @@
             "name": "测试Java代码目录",
             "help": "例如：src/test",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "src/test"
         },

@@ -32,18 +32,18 @@
         {
             "opt": "user",
             "name": "用户名",
-            "help": "访问仓库的用户名",
+            "help": "访问仓库的用户名(如GIT使用ssh方式，留空)",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${global:git.user}"
         },
         {
             "opt": "password",
             "name": "密码",
-            "help": "访问仓库的密码",
+            "help": "访问仓库的密码(如GIT使用ssh方式，留空)",
             "type": "password",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${global:git.password}"
         },
@@ -52,7 +52,7 @@
             "name": "DB目录",
             "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "db"
         },
@@ -61,7 +61,7 @@
             "name": "DOC目录",
             "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "doc"
         },
@@ -70,7 +70,7 @@
             "name": "排除目录",
             "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         }

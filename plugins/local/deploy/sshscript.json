@@ -34,10 +34,14 @@
             "name": "目标OS编码",
             "help": "目标OS执行脚本需要的编码",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
                     {
                         "text": "UTF-8",
                         "value": "UTF-8"
@@ -48,7 +52,7 @@
                     }
                 ]
             },
-            "defaultValue": "UTF-8"
+            "defaultValue": ""
         },
         {
             "opt": "o",
