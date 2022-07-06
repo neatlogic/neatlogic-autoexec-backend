@@ -137,6 +137,7 @@ class Context(VContext.VContext):
                 os.environ['BUILD_ROOT'] = '%s/artifact/%s/build' % (dataPath, version)
                 os.environ['BUILD_PATH'] = '%s/artifact/%s/build/%s' % (dataPath, version, buildNo)
                 os.environ['DIST_ROOT'] = '%s/artifact/%s/env' % (dataPath, version)
+                os.environ['TOOLS_PATH'] = '%s/tools' % (os.getenv('AUTOEXEC_HOME'))
 
         if 'passThroughEnv' in params:
             passThroughInParams = params['passThroughEnv']

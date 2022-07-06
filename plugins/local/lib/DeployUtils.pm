@@ -103,10 +103,9 @@ sub deployInit {
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
-        my $toolsPath = "$autoexecHome/tools";
-        $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
-        $deployEnv->{TOOLS_PATH}    = $toolsPath;
     }
+    $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
+    $deployEnv->{TOOLS_PATH}    = $ENV{TOOLS_PATH};
 
     return $deployEnv;
 }
