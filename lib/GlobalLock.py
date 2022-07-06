@@ -55,6 +55,7 @@ class GlobalLock(object):
                 lockEvent.set()
         for lockId in self.holdLocks.keys():
             lockParams = self.holdLocks[lockId]
+            lockParams['action'] = 'unlock'
             self.unlock(lockParams)
 
     def doLock(self, lockParams):
@@ -190,7 +191,8 @@ class GlobalLock(object):
             time.sleep(5)
             tryCount = tryCount + 1
 
-        self._removeLock(lockId)
+        if lockInfo is not None:
+            self._removeLock(lockId)
         return lockInfo
 
     def cancel(self, lockId):
