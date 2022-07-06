@@ -573,7 +573,7 @@ class ServerAdapter:
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
             if retObj['Status'] == 'OK':
-                lockInfo = retObj['Return']
+                lockInfo = retObj.get('Return')
                 return lockInfo
             else:
                 raise AutoExecError("Lock failed, {}".format(retObj['Message']))

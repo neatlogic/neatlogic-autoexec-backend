@@ -188,7 +188,7 @@ class GlobalLock(object):
                 self._removeLock(lockId)
                 break
             except Exception as ex:
-                print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId. str(ex)))
+                print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId, str(ex)))
             time.sleep(5)
             tryCount = tryCount + 1
         return lockInfo
