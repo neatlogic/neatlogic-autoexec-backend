@@ -342,6 +342,8 @@ if __name__ == "__main__":
         # 初始化运行context
         dataPath = homePath + '/data'
         runPath = dataPath + '/job/' + _getSubPath(args.jobid)
+        if not os.path.exists(runPath):
+            os.makedirs(runPath)
 
         # 初始化console日志文件
         logDir = runPath + '/log'
