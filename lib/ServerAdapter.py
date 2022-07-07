@@ -16,6 +16,7 @@ from urllib.error import URLError
 from urllib.error import HTTPError
 from hashlib import sha256
 import hmac
+import base64
 
 from AutoExecError import AutoExecError
 
@@ -27,27 +28,27 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
-            'register': 'codedriver/public/api/rest/autoexec/tool/register',
-            'getParams': 'codedriver/public/api/rest/autoexec/job/create/param/get',
-            'getNodes': 'codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': 'codedriver/public/api/binary/public/file/download',
-            'fetchScript': 'codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
-            'getScript': 'codedriver/public/api/rest/autoexec/script/active/version/get',
-            'getAccount': 'codedriver/public/api/rest/resourcecenter/resource/account/get',
-            'getInspectConf': 'codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
-            'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
-            'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
-            'fireNextGroup': 'codedriver/public/api/rest/autoexec/job/next/group/fire',
-            'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/phase/inform/round/end',
-            'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
-            'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
-            'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
-            'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
-            'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
-            'globalLock': 'codedriver/public/api/rest/global/lock',
-            'getDeployIdPath': 'codedriver/public/api/rest/ezdeploy/idpath'
+            'register': 'codedriver/api/rest/autoexec/tool/register',
+            'getParams': 'codedriver/api/rest/autoexec/job/create/param/get',
+            'getNodes': 'codedriver/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': 'codedriver/api/binary/file/download',
+            'fetchScript': 'codedriver/api/rest/autoexec/job/phase/operation/script/get',
+            'getScript': 'codedriver/api/rest/autoexec/script/active/version/get',
+            'getAccount': 'codedriver/api/rest/resourcecenter/resource/account/get',
+            'getInspectConf': 'codedriver/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': 'codedriver/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateNodeStatus': 'codedriver/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': 'codedriver/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': 'codedriver/api/rest/autoexec/job/next/group/fire',
+            'fireNextPhase': 'codedriver/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': 'codedriver/api/rest/autoexec/job/phase/inform/round/end',
+            'updateJobStatus': 'codedriver/api/rest/autoexec/job/status/update',
+            'exportJobEnv': 'codedriver/api/rest/autoexec/job/env/update',
+            'setResourceInspectJobId': 'codedriver/api/rest/autoexec/job/resource/inspect/update',
+            'getCmdbCiAttrs': 'codedriver/api/rest/cmdb/cientity/attrentity/get',
+            'getAccessEndpoint': 'codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
+            'globalLock': 'codedriver/api/rest/global/lock',
+            'getDeployIdPath': 'codedriver/api/rest/ezdeploy/idpath'
         }
 
         self.context = context
@@ -69,7 +70,7 @@ class ServerAdapter:
     def signRequest(self, request, apiUri, postBody=None):
         signContent = self.serverUserName + '#' + apiUri
         if postBody is not None and postBody != '':
-            signContent = signContent + '#' + postBody
+            signContent = signContent + '#' + base64.b64encode(postBody.encode('utf-8'))
         digest = 'Hmac ' + hmac.new(self.serverPassword.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
         request.add_header('Tenant', self.context.tenant)
         request.add_header('AuthType', 'hmac')
