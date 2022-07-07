@@ -119,7 +119,7 @@ class VContext:
             autoexecDBPass = config['autoexec']['db.password']
 
             if not passKey.startswith('{ENCRYPTED}'):
-                cfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.MY_KEY, passKey))
+                cfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(MY_KEY, self.passKey))
 
             if not serverPass.startswith('{ENCRYPTED}'):
                 cfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.passKey, serverPass))
