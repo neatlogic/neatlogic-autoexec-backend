@@ -10,6 +10,8 @@ use Cwd;
 use Config::Tiny;
 use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
+use Digest::SHA;
+use MIME::Base64;
 
 use WebCtl;
 use ServerConf;
@@ -27,7 +29,8 @@ sub new {
             $self->{devMode} = 1;
         }
 
-        $self->{serverConf} = ServerConf->new();
+        my $serverConf = ServerConf->new();
+        $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
             'getIdPath' => '',
@@ -57,8 +60,32 @@ sub new {
             'getBuild'              => ''
         };
 
-        my $webCtl = WebCtl->new();
-        $webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
+        my $username    = $serverConf->{username};
+        my $password    = $serverConf->{password};
+        my $signHandler = sub {
+            my ( $client, $uri, $postBody ) = @_;
+            my $signContent = '';
+            if ( defined($postBody) ) {
+                my $postBody = MIME::Base64::encode($postBody);
+                $signContent = "$username#$uri#$postBody";
+            }
+            else {
+                $signContent = "$username#$uri";
+            }
+            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
+            $client->setHeaders(
+                {
+                    Authorization => $digest,
+                    x_accesss_key => $username
+                }
+            );
+        };
+
+        my $webCtl = WebCtl->new($signHandler);
+
+        #$webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
+        $webCtl->setHeaders( { Tenant => $ENV{AUTOEXEC_TENANT}, authType => 'hmac' } );
+
         $self->{webCtl} = $webCtl;
     }
 
