@@ -13,7 +13,7 @@ import Utils
 
 
 class VContext:
-    def __init__(self, jobId=0, execUser=None, isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
+    def __init__(self, jobId=0, execUser=None, isForce=False, devMode=False, dataPath=None, runPath=None, noFireNext=False, passThroughEnv={}):
         self.jobId = str(jobId)
         self.pid = os.getpid()
 
@@ -36,6 +36,7 @@ class VContext:
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath
+        self.runPath = runPath
         self.noFireNext = noFireNext
         self.passThroughEnv = passThroughEnv
 
@@ -133,7 +134,9 @@ class VContext:
                 fp.close()
 
         # 存放任务参数，输入输出信息，日志的目录，为了避免单目录子目录数量太多，对ID进行每3个字母分段处理
-        self.runPath = self.dataPath + '/job/' + self._getSubPath(jobId)
+        if runPath is None:
+            self.runPath = self.dataPath + '/job/' + self._getSubPath(jobId)
+
         os.environ['JOB_PATH'] = self.runPath
         self.paramsFilePath = self.runPath + '/params.json'
         os.environ['JOB_PARAMS_PATH'] = self.paramsFilePath
