@@ -30,8 +30,8 @@ class ServerAdapter:
         self.apiMap = {
             'register': '/codedriver/api/rest/autoexec/tool/register',
             'getParams': '/codedriver/api/rest/autoexec/job/create/param/get',
-            'getNodes': 'codedriver/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': 'codedriver/api/binary/file/download',
+            'getNodes': '/codedriver/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/codedriver/api/binary/file/download',
             'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get',
             'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
             'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
@@ -52,13 +52,14 @@ class ServerAdapter:
         }
 
         self.context = context
-        self.serverBaseUrl = context.config['server']['server.baseurl']
-        if(self.serverBaseUrl[-1] == '/'):
-            self.serverBaseUrl = self.serverBaseUrl[0:-1]
+        serverBaseUrl = context.config['server']['server.baseurl']
+        if(serverBaseUrl[-1] == '/'):
+            serverBaseUrl = serverBaseUrl[0:-1]
+        self.serverBaseUrl = serverBaseUrl
 
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
+        #self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -79,6 +80,9 @@ class ServerAdapter:
         request.add_header('Authorization', digest)
 
     def httpPOST(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
+
         url = self.serverBaseUrl + apiUri
         headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'}
 
@@ -100,6 +104,9 @@ class ServerAdapter:
         return response
 
     def httpGET(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
+
         data = urllib.parse.urlencode(params)
         apiUri = apiUri + '?' + data
 
@@ -122,6 +129,9 @@ class ServerAdapter:
         return response
 
     def httpJSON(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
+
         url = self.serverBaseUrl + apiUri
         headers = {'Content-Type': 'application/json; charset=utf-8'}
 
