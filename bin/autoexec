@@ -228,7 +228,7 @@ if __name__ == "__main__":
     logFilePath = '{}/logs/{}.log'.format(homePath, progName)
     logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
     logger = logging.getLogger('')
-    logger.setLevel('ERROR')
+    logger.setLevel(logging.ERROR)
     formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
     logHandler.setFormatter(formatter)
     logger.addHandler(logHandler)
