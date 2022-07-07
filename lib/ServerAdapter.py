@@ -68,9 +68,10 @@ class ServerAdapter:
                 request.add_header(k, str(v))
 
     def signRequest(self, request, apiUri, postBody=None):
-        signContent = self.serverUserName + '#' + apiUri
+        signContent = self.serverUserName + '#' + apiUri + '#'
         if postBody is not None and postBody != '':
-            signContent = signContent + '#' + base64.b64encode(postBody.encode('utf-8'))
+            signContent = signContent + base64.b64encode(postBody.encode('utf-8'))
+
         digest = 'Hmac ' + hmac.new(self.serverPassword.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
         request.add_header('Tenant', self.context.tenant)
         request.add_header('AuthType', 'hmac')

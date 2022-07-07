@@ -64,14 +64,12 @@ sub new {
         my $password    = $serverConf->{password};
         my $signHandler = sub {
             my ( $client, $uri, $postBody ) = @_;
-            my $signContent = '';
+            my $signContent = "$username#$uri#";
             if ( defined($postBody) ) {
                 my $postBody = MIME::Base64::encode($postBody);
-                $signContent = "$username#$uri#$postBody";
+                $signContent = $signContent . $postBody;
             }
-            else {
-                $signContent = "$username#$uri";
-            }
+
             my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
             $client->setHeaders(
                 {
