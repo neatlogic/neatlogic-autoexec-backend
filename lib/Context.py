@@ -17,8 +17,8 @@ import AutoExecError
 
 
 class Context(VContext.VContext):
-    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phaseGroups='', phases='', nodes='', isForce=False, devMode=False, dataPath=None, noFireNext=False, passThroughEnv={}):
-        super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
+    def __init__(self, jobId, execUser=None, paramsFile=None, firstFire=False, phaseGroups='', phases='', nodes='', isForce=False, devMode=False, dataPath=None, runPath=None, noFireNext=False, passThroughEnv={}):
+        super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, runPath=runPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.firstFire = firstFire
 
@@ -58,7 +58,7 @@ class Context(VContext.VContext):
                 fd = open(self.paramsFilePath, 'r')
                 self.params = json.loads(fd.read())
             except Exception as ex:
-                print('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex), end='')
+                raise AutoExecError('ERROR: Load params from file {} failed.\n{}\n'.format(self.paramsFilePath, ex), end='')
             finally:
                 if fd is not None:
                     fd.close()

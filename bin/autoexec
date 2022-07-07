@@ -172,6 +172,13 @@ def killProcesses(pids, sig):
             print("INFO: Process {} killed.\n".format(pid))
 
 
+def _getSubPath(jobId):
+    jobIdStr = str(jobId)
+    jobIdLen = len(jobIdStr)
+    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
+    return '/'.join(subPath)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
@@ -218,18 +225,29 @@ if __name__ == "__main__":
 
     progName = binPaths[1]
 
+    logFilePath = '{}/logs/{}.log'.format(homePath, progName)
+    logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
+    logger = logging.getLogger('')
+    logger.setLevel('ERROR')
+    formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
+    logHandler.setFormatter(formatter)
+    logger.addHandler(logHandler)
+
     if args.cleanstatus:
-        vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
-        vContext.initDB()
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            vContext.initDB()
 
-        outputStore = OutputStore.OutputStore(vContext, None, None)
-        outputStore.removeJobStatus()
+            outputStore = OutputStore.OutputStore(vContext, None, None)
+            outputStore.removeJobStatus()
 
-        statusPath = '{}/status'.format(vContext.runPath)
-        if os.path.exists(statusPath):
-            shutil.rmtree(statusPath)
-        if os.path.exists(statusPath):
-            sys.exit(1)
+            statusPath = '{}/status'.format(vContext.runPath)
+            if os.path.exists(statusPath):
+                shutil.rmtree(statusPath)
+            if os.path.exists(statusPath):
+                sys.exit(1)
+        except Exception as ex:
+            logger.error("Unknow error occurred while clean job status.\n" + traceback.format_exc())
 
     elif args.register:
         pluginsPath = homePath + '/plugins'
@@ -242,94 +260,91 @@ if __name__ == "__main__":
         registerTools(serverAdapter, pluginsPath, 'local')
         registerTools(serverAdapter, pluginsPath, 'remote')
     elif args.pause:
-        vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
-        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
-        ret = 0
-        print("INFO: try to pause job:{}\n".format(args.jobid))
-        autoexecIsPaused = False
-        autoexecPids = findJobProcesses(args.jobid)
+            ret = 0
+            print("INFO: try to pause job:{}\n".format(args.jobid))
+            autoexecIsPaused = False
+            autoexecPids = findJobProcesses(args.jobid)
 
-        if len(autoexecPids) > 0:
-            pidsStr = ','.join([str(x) for x in autoexecPids])
-            print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
-            killProcesses(autoexecPids, signal.SIGUSR1)
-
-            # for i in range(1800):
-            while len(autoexecPids) > 0:
-                killProcesses(autoexecPids, 0)
-                time.sleep(3)
+            if len(autoexecPids) > 0:
+                pidsStr = ','.join([str(x) for x in autoexecPids])
+                print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
                 killProcesses(autoexecPids, signal.SIGUSR1)
 
-            if len(autoexecPids) == 0:
-                serverAdapter.jobPaused()
-                print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
-            else:
-                ret = 1
-                print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
-        else:
-            ret = 2
-            serverAdapter.jobPaused()
-            print("INFO: Can not find job {} process.\n".format(args.jobid))
-        sys.exit(ret)
-    elif args.abort:
-        vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
-        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+                # for i in range(1800):
+                while len(autoexecPids) > 0:
+                    killProcesses(autoexecPids, 0)
+                    time.sleep(3)
+                    killProcesses(autoexecPids, signal.SIGUSR1)
 
-        ret = 0
-        print("INFO: try to kill job:{}...\n".format(args.jobid))
-        autoexecIsKilled = False
-        autoexecPids = findJobProcesses(args.jobid)
-        if len(autoexecPids) > 0:
-            pidsStr = ','.join([str(x) for x in autoexecPids])
-            print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
-            killProcesses(autoexecPids, signal.SIGTERM)
-            for i in range(15):
                 if len(autoexecPids) == 0:
-                    break
-                time.sleep(1)
-
-            if len(autoexecPids) > 0:
-                killProcesses(autoexecPids, signal.SIGKILL)
-
-            if len(autoexecPids) > 0:
-                time.sleep(1)
-                killProcesses(autoexecPids, 0)
-
-            if len(autoexecPids) == 0:
-                serverAdapter.jobKilled()
+                    serverAdapter.jobPaused()
+                    print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
+                else:
+                    ret = 1
+                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
             else:
-                ret = 1
-                print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
-        else:
-            ret = 2
-            serverAdapter.jobKilled()
-            print("INFO: Can not find job {} process.\n".format(args.jobid))
-        sys.exit(ret)
+                ret = 2
+                serverAdapter.jobPaused()
+                print("INFO: Can not find job {} process.\n".format(args.jobid))
+            sys.exit(ret)
+        except Exception as ex:
+            logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
+    elif args.abort:
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+            ret = 0
+            print("INFO: try to kill job:{}...\n".format(args.jobid))
+            autoexecIsKilled = False
+            autoexecPids = findJobProcesses(args.jobid)
+            if len(autoexecPids) > 0:
+                pidsStr = ','.join([str(x) for x in autoexecPids])
+                print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
+                killProcesses(autoexecPids, signal.SIGTERM)
+                for i in range(15):
+                    if len(autoexecPids) == 0:
+                        break
+                    time.sleep(1)
+
+                if len(autoexecPids) > 0:
+                    killProcesses(autoexecPids, signal.SIGKILL)
+
+                if len(autoexecPids) > 0:
+                    time.sleep(1)
+                    killProcesses(autoexecPids, 0)
+
+                if len(autoexecPids) == 0:
+                    serverAdapter.jobKilled()
+                else:
+                    ret = 1
+                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
+            else:
+                ret = 2
+                serverAdapter.jobKilled()
+                print("INFO: Can not find job {} process.\n".format(args.jobid))
+            sys.exit(ret)
+        except Exception as ex:
+            logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
     elif args.purgejobdata != '0':
         # purge expired job
-        vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
-        purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
-        purger.purge()
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
+            purger.purge()
+        except Exception as ex:
+            logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
     else:
-        sqlFilesJson = args.sqlfiles
-        if sqlFilesJson is not None and sqlFilesJson != '':
-            os.environ['_SQL_FILES'] = sqlFilesJson
-
         # 初始化运行context
         dataPath = homePath + '/data'
-        context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases,
-                                  nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
-        os.environ['AUTOEXEC_JOBID'] = context.jobId
-        os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
-        os.environ['AUTOEXEC_TENANT'] = context.tenant
-        os.environ['AUTOEXEC_JOB_SOCK'] = '{}/job{}.sock'.format(context.runPath, os.getpid())
-
-        # 初始化单例的GlobalLocks
-        GlobalLock.GlobalLock(context)
+        runPath = dataPath + '/job/' + _getSubPath(args.jobid)
 
         # 初始化console日志文件
-        logDir = context.runPath + '/log'
+        logDir = runPath + '/log'
         consoleLogPath = logDir + '/console.txt'
 
         consoleLogFile = None
@@ -353,16 +368,19 @@ if __name__ == "__main__":
         sys.stdout = ConsoleLog(consoleLogFile)
         sys.stderr = ConsoleLog(consoleLogFile)
 
-        # 初始化全局Logger
-        loggingLevel = context.config[progName]['logging.level']
+        sqlFilesJson = args.sqlfiles
+        if sqlFilesJson is not None and sqlFilesJson != '':
+            os.environ['_SQL_FILES'] = sqlFilesJson
 
-        logFilePath = '{}/logs/{}.log'.format(homePath, progName)
-        logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
-        logger = logging.getLogger('')
-        logger.setLevel(loggingLevel)
-        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
-        logHandler.setFormatter(formatter)
-        logger.addHandler(logHandler)
+        context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases,
+                                  nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, runPath=runPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
+        os.environ['AUTOEXEC_JOBID'] = context.jobId
+        os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
+        os.environ['AUTOEXEC_TENANT'] = context.tenant
+        os.environ['AUTOEXEC_JOB_SOCK'] = '{}/job{}.sock'.format(context.runPath, os.getpid())
+
+        # 初始化单例的GlobalLocks
+        GlobalLock.GlobalLock(context)
 
         # Java启动的进程，SIGQUIT信号被block了，所以设置所有信号handler前，unblock那些用到的信号
         signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGQUIT, signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGUSR1])
