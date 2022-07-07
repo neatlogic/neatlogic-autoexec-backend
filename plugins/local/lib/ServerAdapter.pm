@@ -40,16 +40,16 @@ sub new {
             'updateVer' => '',
 
             #环境制品状态：pending|succeed｜failed
-            'getAccountPwd'         => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
+            'getAccountPwd'         => '/codedriver/public/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',
             'getAppPassWord'        => '',
-            'getSqlFileStatuses'    => 'codedriver/public/api/rest/autoexec/job/sql/list',
-            'checkInSqlFiles'       => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
-            'pushSqlStatus'         => 'codedriver/public/api/rest/autoexec/job/sql/update',
-            'updatePhaseStatus'     => 'codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'getSqlFileStatuses'    => '/codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'       => '/codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'         => '/codedriver/public/api/rest/autoexec/job/sql/update',
+            'updatePhaseStatus'     => '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'creatJob'              => '',
             'getJobStatus'          => '',
             'saveVersionDependency' => '',
@@ -102,7 +102,7 @@ sub _getAuthToken() {
 
 sub _getApiUrl {
     my ( $self, $apiName ) = @_;
-    my $url = $self->{serverConf}->{baseurl} . '/' . $self->{apiMap}->{$apiName};
+    my $url = $self->{serverConf}->{baseurl} . $self->{apiMap}->{$apiName};
 
     return $url;
 }
