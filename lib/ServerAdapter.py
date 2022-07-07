@@ -28,33 +28,33 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
-            'register': 'codedriver/api/rest/autoexec/tool/register',
-            'getParams': 'codedriver/api/rest/autoexec/job/create/param/get',
+            'register': '/codedriver/api/rest/autoexec/tool/register',
+            'getParams': '/codedriver/api/rest/autoexec/job/create/param/get',
             'getNodes': 'codedriver/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': 'codedriver/api/binary/file/download',
-            'fetchScript': 'codedriver/api/rest/autoexec/job/phase/operation/script/get',
-            'getScript': 'codedriver/api/rest/autoexec/script/active/version/get',
-            'getAccount': 'codedriver/api/rest/resourcecenter/resource/account/get',
-            'getInspectConf': 'codedriver/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': 'codedriver/api/rest/cmdb/cientity/updateinspectstatus',
-            'updateNodeStatus': 'codedriver/api/rest/autoexec/job/phase/node/status/update',
-            'updatePhaseStatus': 'codedriver/api/rest/autoexec/job/phase/status/update',
-            'fireNextGroup': 'codedriver/api/rest/autoexec/job/next/group/fire',
-            'fireNextPhase': 'codedriver/api/rest/autoexec/job/next/phase/fire',
-            'informRoundEnded': 'codedriver/api/rest/autoexec/job/phase/inform/round/end',
-            'updateJobStatus': 'codedriver/api/rest/autoexec/job/status/update',
-            'exportJobEnv': 'codedriver/api/rest/autoexec/job/env/update',
-            'setResourceInspectJobId': 'codedriver/api/rest/autoexec/job/resource/inspect/update',
-            'getCmdbCiAttrs': 'codedriver/api/rest/cmdb/cientity/attrentity/get',
-            'getAccessEndpoint': 'codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
-            'globalLock': 'codedriver/api/rest/global/lock',
-            'getDeployIdPath': 'codedriver/api/rest/ezdeploy/idpath'
+            'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get',
+            'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
+            'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
+            'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
+            'fireNextPhase': '/codedriver/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': '/codedriver/api/rest/autoexec/job/phase/inform/round/end',
+            'updateJobStatus': '/codedriver/api/rest/autoexec/job/status/update',
+            'exportJobEnv': '/codedriver/api/rest/autoexec/job/env/update',
+            'setResourceInspectJobId': '/codedriver/api/rest/autoexec/job/resource/inspect/update',
+            'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
+            'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
+            'globalLock': '/codedriver/api/rest/global/lock',
+            'getDeployIdPath': '/codedriver/api/rest/ezdeploy/idpath'
         }
 
         self.context = context
         self.serverBaseUrl = context.config['server']['server.baseurl']
-        if(self.serverBaseUrl[-1] != '/'):
-            self.serverBaseUrl = self.serverBaseUrl + '/'
+        if(self.serverBaseUrl[-1] == '/'):
+            self.serverBaseUrl = self.serverBaseUrl[0:-1]
 
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
