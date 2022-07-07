@@ -10,7 +10,7 @@ use Cwd;
 use Config::Tiny;
 use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
-use Digest::SHA;
+use Digest::SHA qw(hmac_sha256_hex);
 use MIME::Base64;
 
 use WebCtl;
