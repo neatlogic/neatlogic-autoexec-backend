@@ -122,7 +122,7 @@ class Interpreter(object):
                     Interpreter._instance = object.__new__(cls)
         return Interpreter._instance
 
-    def __init__(self, serverAdapter=None):
+    def __init__(self):
         self.operators = {
             '=': operator.eq,
             '==': operator.eq,
@@ -147,38 +147,10 @@ class Interpreter(object):
         }
 
         # 初始化计算条件需要的发布相关的进程环境变量
-        self.serverAdapter = serverAdapter
         gEnv = {}
+        for key, value in os.environ.items():
+            gEnv[key] = value
         self.gEnv = gEnv
-        dpNamePath = os.getenv('_DEPLOY_PATH')
-        if dpNamePath is not None and dpNamePath != '':
-            for key, value in os.environ.items():
-                gEnv[key] = value
-
-            parts = ('SYS', 'MODULE', 'ENV')
-
-            if serverAdapter is not None:
-                rcObj = serverAdapter.getDeployIdPath(dpNamePath)
-                gEnv['SYS_ID'] = str(rcObj.get('sysId'))
-                gEnv['MODULE_ID'] = str(rcObj.get('moduleId'))
-                gEnv['ENV_ID'] = str(rcObj.get('envId'))
-
-            dpNames = dpNamePath.split('/')
-            for idx in range(0, len(dpNames)):
-                gEnv[parts[idx] + '_NAME'] = dpNames[idx]
-
-            autoexecHome = os.getenv('AUTOEXEC_HOME')
-            if autoexecHome is not None and autoexecHome != '':
-                version = os.getenv('_VERSION')
-                buildNo = os.getenv('_BUILD_NO')
-                gEnv['DATA_PATH'] = dataPath = autoexecHome + '/data/verdata/' + gEnv['SYS_ID'] + '/' + gEnv['MODULE_ID']
-                gEnv['PRJ_ROOT'] = prjRoot = dataPath + '/workspace'
-                gEnv['PRJ_PATH'] = prjRoot + '/project'
-                gEnv['VER_ROOT'] = verRoot = dataPath + '/artifact/'
-                gEnv['DIST_ROOT'] = verRoot + "/env"
-                gEnv['MIRROR_ROOT'] = dataPath + "/mirror"
-                gEnv['BUILD_ROOT'] = buildRoot = dataPath + '/artifact/' + version + '/build'
-                gEnv['BUILD_PATH'] = buildRoot + '/' + buildNo
 
     def getOperator(self, operName):
         if operName in self.operators:

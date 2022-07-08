@@ -522,7 +522,7 @@ class RunNode:
         condition = opParams['condition']
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
-            interpreter = ConditionDSL.Interpreter(self.context.serverAdapter)
+            interpreter = ConditionDSL.Interpreter()
             result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
             raise AutoExecError("Parse error, syntax error at char 0\n")
