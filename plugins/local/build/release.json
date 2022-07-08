@@ -7,8 +7,7 @@
     "defaultProfile": "release-args",
     "description": "从编译目录中抽取文件生成版本制品",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -16,8 +15,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -28,6 +26,33 @@
                 ]
             },
             "defaultValue": "1"
+        },
+        {
+            "opt": "buildresv",
+            "name": "Build保留数量",
+            "help": "Build的保留数量，超过此数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verttl",
+            "name": "版本保留天数",
+            "help": "版本的保留天数，超过保留天数和保留数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "90"
+        },
+        {
+            "opt": "verresv",
+            "name": "版本保留数量",
+            "help": "版本的保留数量，超过保留天数和保留数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "6"
         },
         {
             "opt": "dbdir",
@@ -73,8 +98,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },

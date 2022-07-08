@@ -38,6 +38,8 @@ sub new {
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
             'getVer'    => '',
             'updateVer' => '',
+            'delBuild'  => '',
+            'delVer'    => '',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/public/api/rest/resourcecenter/resource/account/get',
@@ -282,6 +284,54 @@ sub updateVer {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('updateVer');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO: 测试通过接口更新版本信息
+
+    return;
+}
+
+sub delVer {
+    my ( $self, $buildEnv, $version ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #Test end########################
+
+    #getver之后update版本信息，更新版本的相关属性
+    #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
+    my $params = $self->_getParams($buildEnv);
+    $params->{version} = $version;
+    $params->{buildNo} = 0;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('delVer');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO: 测试通过接口更新版本信息
+
+    return;
+}
+
+sub delBuild {
+    my ( $self, $buildEnv, $version, $buildNo ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #Test end########################
+
+    #getver之后update版本信息，更新版本的相关属性
+    #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
+    my $params = $self->_getParams($buildEnv);
+    $params->{version} = $version;
+    $params->{buildNo} = $buildNo;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('delBuild');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 

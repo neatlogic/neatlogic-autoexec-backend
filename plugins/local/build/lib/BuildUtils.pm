@@ -3,7 +3,10 @@ use strict;
 
 package BuildUtils;
 use Cwd;
+use File::Path;
+use File::Basename;
 
+use ServerAdapter;
 use DeployUtils;
 
 sub new {
@@ -11,6 +14,8 @@ sub new {
 
     my $self = \%args;
     bless( $self, $pkg );
+
+    $self->{ServerAdapter} = ServerAdapter->new();
     return $self;
 }
 
@@ -278,4 +283,106 @@ sub release2Env {
 
     return $ret;
 }
+
+sub cleanExpiredBuild {
+    my ( $self, $buildEnv, $maxBuildCount ) = @_;
+
+    my $dirInfo = DeployUtils->getDataDirStruct( $buildEnv, 1 );
+    my $relRoot = $dirInfo->{releaseRoot};
+
+    my @buildDirs       = glob("$relRoot/*/app");
+    my @sortedBuildDirs = sort { ( stat("$relRoot/$a") )[9] <=> ( stat("$relRoot/$b") )[9] } @buildDirs;
+
+    my $buildCount = length(@sortedBuildDirs);
+    my $maxIdx     = $buildCount - $maxBuildCount;
+
+    my $serverAdapter = $self->{serverAdapter};
+
+    for ( my $i = 0 ; $i < $maxIdx ; $i++ ) {
+        my $buildDir = dirname( $sortedBuildDirs[$i] );
+        eval {
+            $serverAdapter->delBuild( $buildEnv, $buildEnv->{VERSION}, basename($buildDir) );
+            rmtree($buildDir);
+        };
+        if ($@) {
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print("WARN: Remove expired build artifact:$buildDir, failed, $errMsg\n");
+        }
+    }
+}
+
+sub cleanExpiredVersion {
+    my ( $self, $buildEnv, $minVersionCount, $minLastDays ) = @_;
+
+    my $artifactDir = $buildEnv->{DATA_PATH} . '/artifact';
+    my @verDirs     = ();
+    foreach my $verDir ( glob("$artifactDir/*") ) {
+        if ( $verDir ne 'mirror' and -e "$verDir/build" ) {
+            push( @verDirs, $verDir );
+        }
+    }
+
+    my $sortVerByVerNumber = sub {
+        my $leftVer  = $a;
+        my $rightVer = $b;
+
+        $leftVer  =~ s/[^\d]+/\./g;
+        $rightVer =~ s/[^\d]+/\./g;
+        $leftVer  =~ s/^\.//;
+        $rightVer =~ s/^\.//;
+
+        my @leftNums =
+            split( /[^\d]+/, $leftVer );
+        my @rightNums =
+            split( /[^\d]+/, $rightVer );
+        my $leftLen  = scalar(@leftNums);
+        my $rightLen = scalar(@rightNums);
+
+        my $ret = 0;
+        my $i   = 0;
+
+        for ( $i = 0 ; $i < $leftLen && $i < $rightLen ; $i++ ) {
+            $ret = $leftNums[$i] <=> $rightNums[$i];
+
+            last
+                if ( $ret ne 0 );
+        }
+
+        $ret = $leftLen <=> $rightLen
+            if ( $ret eq 0 );
+
+        return $ret;
+    };
+    my @sortedVerDirsTmp = sort $sortVerByVerNumber @verDirs;
+    my @sortedVerDirs    = sort { ( stat("$a/build") )[9] <=> ( stat("$b/build") )[9] } @sortedVerDirsTmp;
+
+    my $verCount = length(@sortedVerDirs);
+    my $maxIdx   = $verCount - $minVersionCount;
+
+    my $serverAdapter = $self->{serverAdapter};
+
+    my $minLastSecs = $minLastDays * 86400;
+    my $nowTime     = time();
+    for ( my $i = 0 ; $i < $maxIdx ; $i++ ) {
+        my $verDir   = $sortedVerDirs[$i];
+        my $verMtime = ( stat($verDir) )[9];
+
+        if ( $nowTime - $verMtime > $minLastSecs ) {
+            eval {
+                $serverAdapter->delVer( $buildEnv, basename($verDir) );
+                rmtree($verDir);
+            };
+            if ($@) {
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print("WARN: Remove expired version artifact:$verDir, failed, $errMsg\n");
+            }
+        }
+        else {
+            last;
+        }
+    }
+}
+
 1;
