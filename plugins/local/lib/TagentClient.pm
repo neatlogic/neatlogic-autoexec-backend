@@ -25,6 +25,8 @@ use Crypt::RC4;
 my $PROTOCOL_VER        = 'Tagent1.1';
 my $SECURE_PROTOCOL_VER = 'Tagent1.1s';
 
+$ENV{PERL5LIB} = Cwd::abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5") . ':' . Cwd::abs_path("$FindBin::Bin/../lib");
+
 sub _rc4_encrypt_hex ($$) {
     my ( $key, $data ) = ( $_[0], $_[1] );
     return join( '', unpack( 'H*', RC4( $key, $data ) ) );
@@ -58,7 +60,7 @@ sub auth {
     }
     elsif ( $self->{protocolVer} ne $protocolVer ) {
         $socket->shutdown(2);
-        die( "ERROR: Server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
+        die( "ERROR: server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
     }
     $self->{protocolVer} = $protocolVer;
 
@@ -238,7 +240,7 @@ sub getConnection {
             my $ret = $self->auth( $socket, $password, $isVerbose );
 
             if ( $ret != 1 ) {
-                die("Authenticate failed while connect to $host:$port.\n");
+                die("ERROR: Authenticate failed while connect to $host:$port.\n");
                 return;
             }
             $self->{socket} = $socket;
@@ -874,7 +876,7 @@ sub _writeSockToFile {
 #下载文件或者目录
 sub download {
     my ( $self, $user, $src, $dest, $isVerbose, $followLinks ) = @_;
-    $src =~ s/[\/\\]+/\//g;
+    $src  =~ s/[\/\\]+/\//g;
     $dest =~ s/[\/\\]+/\//g;
 
     $src =~ s/^\s+//;
@@ -1007,7 +1009,7 @@ sub download {
                             $wrtLen = syswrite( $pipe, $chunk );
                             if ( not defined($wrtLen) ) {
                                 $status = -1;
-                                print("ERROR: $!\n");
+                                die("Untar failed, $!\n");
                             }
                         }
                     } while ( defined($chunk) );
@@ -1215,7 +1217,11 @@ sub _readUrlToSock {
     if ( not defined($isVerbose) ) {
         $isVerbose = 0;
     }
+    if ( not defined($convertCharset) ) {
+        $convertCharset = 0;
+    }
 
+    my $lineLeft     = '';
     my $agentCharset = $self->{agentCharset};
     my $httpCharset;
 
@@ -1226,26 +1232,52 @@ sub _readUrlToSock {
     $args->{data_callback} = sub {
         my ( $data, $res ) = @_;
         if ( $res->{status} == 200 ) {
-            if ( defined($convertCharset) and $convertCharset == 1 ) {
+            if ( $convertCharset == 1 ) {
                 if ( not defined($httpCharset) ) {
                     my $contentType = $res->{headers}->{'content-type'};
                     if ( defined($contentType) and $contentType =~ /charset=(.*?)$/ ) {
                         $httpCharset = $1;
                     }
+                    else {
+                        $httpCharset = '';
+                    }
                 }
-                if ( defined($httpCharset) and $httpCharset ne '' and $httpCharset ne $agentCharset and defined($convertCharset) and $convertCharset == 1 ) {
+                if ( $httpCharset ne '' and $httpCharset ne $agentCharset ) {
+                    $data = $lineLeft . $data;
+                    my $lineEnd = rindex( $data, "\n" );
+                    if ( $lineEnd >= 0 ) {
+                        $lineEnd  = $lineEnd + 1;
+                        $lineLeft = substr( $data, $lineEnd );
+                        $data     = substr( $data, 0, $lineEnd );
+                    }
+                    else {
+                        $lineLeft = $data;
+                        $data     = '';
+                    }
                     $data = Encode::encode( $agentCharset, Encode::decode( $httpCharset, $data ) );
                 }
+                if ( $data ne '' ) {
+                    $self->_writeChunk( $socket, $data );
+                }
             }
-
-            $self->_writeChunk( $socket, $data );
+            else {
+                $self->_writeChunk( $socket, $data );
+            }
         }
         else {
             $status = 3;
         }
     };
 
-    eval { my $response = $http->request( 'GET', $url, $args ); };
+    eval {
+        my $response = $http->request( 'GET', $url, $args );
+        if ( $convertCharset == 1 and $lineLeft ne '' ) {
+            if ( $httpCharset ne '' and $httpCharset ne $agentCharset ) {
+                $lineLeft = Encode::encode( $agentCharset, Encode::decode( $httpCharset, $lineLeft ) );
+            }
+            $self->_writeChunk( $socket, $lineLeft );
+        }
+    };
 
     if ( $status == 0 ) {
         eval { $self->_writeChunk( $socket, undef, 0 ) };
@@ -1387,7 +1419,7 @@ sub writeFile {
 #上传文件或者目录
 sub upload {
     my ( $self, $user, $src, $dest, $isVerbose, $convertCharset, $followLinks ) = @_;
-    $src =~ s/\\/\//g;
+    $src  =~ s/\\/\//g;
     $dest =~ s/\\/\//g;
 
     $src =~ s/^\s+//;
