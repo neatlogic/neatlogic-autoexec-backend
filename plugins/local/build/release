@@ -23,30 +23,40 @@ sub usage {
     print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames]\n");
     print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
     print("\n");
-    print("       --envpath: system envpath, example:ATM/ATMP/PRD\n");
-    print("       --version: versoin number\n");
-    print("       --buildno: Build number\n");
-    print("       --dbdir:   db resource start directory(relative to project directory)\n");
-    print("       --docdir:  doc resource start diretory(relative to project directory)\n");
-    print("       --prefix:   target prefix\n");
-    print("       --packexts: package extention names, example:zip,tar,tgz\n");
-    print("       --exp: which dirs not to be copy, please use | symbol as the delimiter.\n");
+    print("       --envpath:   system envpath, example:ATM/ATMP/PRD\n");
+    print("       --version:   versoin number\n");
+    print("       --buildno:   build number\n");
+    print("       --buildresv: build reserved count\n");
+    print("       --verttl:    version artifact ttl days\n");
+    print("       --verresv:   version reserved count\n");
+    print("       --dbdir:     db resource start directory(relative to project directory)\n");
+    print("       --docdir:    doc resource start diretory(relative to project directory)\n");
+    print("       --prefix:    target prefix\n");
+    print("       --packexts:  package extention names, example:zip,tar,tgz\n");
+    print("       --exp:       which dirs not to be copy, please use | symbol as the delimiter.\n");
     print("       target: Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $envPath, $version, $buildNo );
-    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $isVerbose, @targetFiles );
+    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, @targetFiles );
     my $pname = $FindBin::Script;
 
-    $isVerbose = 0;
+    my $buildResvCount = 10;
+    my $verTTL         = 90;
+    my $verResvCount   = 6;
+    my $isVerbose      = 0;
+
     GetOptions(
         'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
+        'buildresv=i' => \$buildResvCount,
+        'verttl=i'    => \$verTTL,
+        'verresv=i'   => \$verResvCount,
         'dbdir=s'     => \$dbDir,
         'docdir=s'    => \$docDir,
         'prefix=s'    => \$prefix,
@@ -341,14 +351,15 @@ sub main {
         }
     }
 
+    my $buildUtils = BuildUtils->new();
+    $buildUtils->cleanExpiredBuild( $buildEnv, $buildResvCount );
+    $buildUtils->cleanExpiredVersion( $buildEnv, $verResvCount, $verTTL );
+
     if ( $hasError ne 0 ) {
         print("ERROR: Release $namePath version:$version failed.\n");
     }
     else {
-        eval {
-            my $buildUtils = BuildUtils->new();
-            $buildUtils->release( $buildEnv, $version, $buildNo );
-        };
+        eval { $buildUtils->release( $buildEnv, $version, $buildNo ); };
         if ($@) {
             print("ERRROR: $@\n");
         }
