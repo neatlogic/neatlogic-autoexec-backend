@@ -217,11 +217,12 @@ class Operation:
 
             self.options[optName] = optValue
 
-        if 'arg' in self.param and 'values' in self.param['arg']:
-            opArgs = self.param['arg']
-            argType = self.param['arg'].get('type')
-            argValues = []
-            for argValue in opArgs['values']:
+        opArgs = self.param.get('arg')
+        if opArgs is not None:
+            args = []
+            for opArg in opArgs:
+                argType = opArg.get('type')
+                argValue = opArg.get('value')
                 if(argType == 'password' and argValue[0:11] == '{ENCRYPTED}'):
                     try:
                         argValue = Utils._rc4_decrypt_hex(self.KEY, argValue[11:])
@@ -240,8 +241,8 @@ class Operation:
                     argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
                     argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
-                argValues.append(argValue)
-            self.arguments = argValues
+                args.append({'type': argType, 'value': argValue})
+            self.arguments = args
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
     def fetchFile(self, optName, fileIds):
@@ -373,23 +374,21 @@ class Operation:
         return argDef
 
     def appendCmdArgs(self, cmd, noPassword=False, osType='linux'):
-        argDesc = 'input'
-        if 'arg' in self.param and 'type' in self.param['arg']:
-            argDesc = self.param['arg']['type'].lower()
+        for arg in self.arguments:
+            argDesc = arg.get('type')
+            isObject = False
+            if argDesc in self.JSON_TYPES:
+                isObject = True
 
-        isObject = False
-        if argDesc in self.JSON_TYPES:
-            isObject = True
+            isPassword = False
+            if argDesc in self.PWD_TYPES:
+                isPassword = True
 
-        isPassword = False
-        if argDesc in self.PWD_TYPES:
-            isPassword = True
+            hideValue = False
+            if noPassword and isPassword:
+                hideValue = True
 
-        hideValue = False
-        if noPassword and isPassword:
-            hideValue = True
-
-        for argValue in self.arguments:
+            argValue = arg.get('value')
             if (isObject or isPassword) and osType != 'windows':
                 cmd = cmd + self.getOneArgDef(argValue, hideValue=hideValue, quota="'")
             else:

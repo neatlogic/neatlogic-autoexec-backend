@@ -444,8 +444,10 @@ class RunNode:
 
             if op.opBunddleName == 'setenv':
                 if op.opSubName == 'export':
-                    for envName in op.arguments:
-                        self.context.exportEnv(envName)
+                    for arg in op.arguments:
+                        envName = arg.get('value', '')
+                        if envName != '':
+                            self.context.exportEnv(envName)
                 elif op.opSubName == 'setenv':
                     envName = op.options['name']
                     envValue = op.options['value']
