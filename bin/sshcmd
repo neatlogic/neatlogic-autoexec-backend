@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 if errCode != 0:
                     hasError = 1
     else:
-        errCode = execOneHost(args.host, args.port, args.user, args.password, cmdList)
+        errCode = execOneHost(args.host, port, args.user, args.password, cmdList)
         if errCode != 0:
             hasError = 1
 
