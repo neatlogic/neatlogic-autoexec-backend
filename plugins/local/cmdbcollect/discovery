@@ -248,7 +248,7 @@ class NmapScan:
 
             line = line.strip()
             line = line.decode('utf-8')
-            if line != '' and not line.startswith('#'):
+            if line != '' and not line.startswith('#') and not line.startswith('RTTVAR has grown to over'):
                 hostInfo = None
                 for field in line.split('\t'):
                     name = None
