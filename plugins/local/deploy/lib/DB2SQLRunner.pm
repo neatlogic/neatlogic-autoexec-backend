@@ -294,17 +294,38 @@ sub new {
 
 sub test {
     my ($self) = @_;
+	
+	my $host   = $self->{host};
+    my $port   = $self->{port};
+    my $dbName = $self->{dbName};
+    my $user   = $self->{user};
 
     my $hasLogon = 0;
 
+    eval {
+        my $socket = IO::Socket::INET->new(
+            PeerHost => $host,
+            PeerPort => $port,
+            Timeout  => 5
+        );
+
+        if ( defined($socket) ) {
+            $socket->close();
+        }
+        else {
+            print("ERROR: Can not connect to $host:$port, $!\n");
+            return 0;
+        }
+    };
+    if ($@) {
+        print("ERROR: Can not connect to $host:$port, $!\n");
+        return 0;
+    }
+	
     my $tmpDir      = $self->{tmpDir};
     my $tmp         = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $tmpDir, UNLINK => 1, SUFFIX => '' );
     my $catalogName = basename( $tmp->filename );
 
-    my $host   = $self->{host};
-    my $port   = $self->{port};
-    my $dbName = $self->{dbName};
-    my $user   = $self->{user};
 
     END {
         #local $?是为了END的执行不影响进程返回值
@@ -411,13 +432,24 @@ sub run {
             }
         }
 
+        my ( $parentRdr, $childWtr );
+        my ( $childRdr,  $parentWtr );
+
+        pipe( $parentRdr, $childWtr );
+        pipe( $childRdr,  $parentWtr );
+        $childWtr->autoflush(1);
+        $parentWtr->autoflush(1);
+
         my $pid = fork();
         if ( $pid == 0 ) {
+            $childRdr->close();
+            $childWtr->close();
 
             #注意因为db2的命令需要在同一个父进程下，所以，system调用的写法特别关键
             #不能含有任何bash的操作符号，否则会导致system启动shell来运行命令，导致db2的父进程发生变化
             open( STDOUT, sprintf( ">&=%d", $catalogFH->fileno() ) );
             open( STDERR, sprintf( ">&=%d", $catalogFH->fileno() ) );
+            $| = 1;
 
             my $ret = 0;
             $ret = system("db2 CATALOG TCPIP NODE $catalogName REMOTE $host SERVER $port");
@@ -427,7 +459,6 @@ sub run {
             }
 
             if ( $ret ne 0 ) {
-                $hasError = 1;
                 my $errMsg = "ERROR: catalog $host:$port/$dbName with node name $catalogName failed.\n";
                 print($errMsg);
             }
@@ -437,7 +468,6 @@ sub run {
 
                 $ret = system("db2 CONNECT TO $catalogName USER $user USING '$pass'");
                 if ( $ret ne 0 ) {
-                    $hasError = 1;
                     print("ERROR: connect to $host:$port/$dbName with name $catalogName failed.\n");
                 }
                 else {
@@ -462,11 +492,25 @@ sub run {
                     $ret = $ret >> 8;
                 }
 
+                $catalogFH->flush();
+
+                print $parentWtr ("done\n");
+                my $logCheckRet = <$parentRdr>;
+                $logCheckRet =~ s/^\s*|\s*$//g;
+
                 if ( $ret eq 1 or $ret eq 2 ) {
-                    print("WARN: some warn occurred, check the log for detail.\n");
-                    $ret = system('db2 commit');
+                    if ( $logCheckRet ne 'success' ) {
+                        $hasError = 1;
+                    }
+                    else {
+                        print("WARN: some warn occurred, check the log for detail.\n");
+                    }
                 }
-                elsif ( $ret ne 0 ) {
+                elsif ( $ret ne 0 or $logCheckRet ne 'success' ) {
+                    $hasError = 1;
+                }
+
+                if ( $hasError == 1 ) {
 
                     #SQL 错误
                     my $opt;
@@ -501,11 +545,13 @@ sub run {
                 }
                 else {
                     $ret = system('db2 commit');
+                    if ( $ret ne 0 ) {
+                        $isFail = 1;
+                    }
                 }
 
-                if ( $ret ne 0 ) {
-                    $isFail = 1;
-                }
+                $parentWtr->close();
+                $parentRdr->close();
 
                 open( STDOUT, '/dev/null' );
                 open( STDERR, '/dev/null' );
@@ -521,6 +567,10 @@ sub run {
             exit($isFail);
         }
         else {
+            $parentRdr->close();
+            $parentWtr->close();
+
+            my $sel = new IO::Select($childRdr);
 
             #等待执行子进程结束，并循环读取子进程的输出
             my $execOut = IO::File->new("<$catalogFile");
@@ -561,18 +611,15 @@ sub run {
                             $warningCount = $warningCount + 1;
                             $toBeRollback = 1;
                         }
-                        elsif ( $tLine =~ /^SQL\d+N/ ) {
+                        elsif ( $tLine =~ /^SQL0803N/ or $tLine =~ /^SQL3550W/ ) {
                             print("ERROR: $tLine\n");
                             $hasError = 1;
-                        }
-                        elsif ( $tLine =~ /^SQL\d+W/ ) {
-                            print("WARN: $tLine\n");
-                            $warningCount = $warningCount + 1;
-                            $hasWarn      = 1;
                         }
                     }
                 }
             };
+
+            my $childDone = 0;
 
             #循环检测子进程是否在运行
             while ( waitpid( $pid, 1 ) == 0 ) {
@@ -585,7 +632,20 @@ sub run {
                     }
                 }
 
-                sleep(2);
+                if ( $childDone == 0 and $sel->can_read(2) ) {
+                    my $childRet = <$childRdr>;
+                    $childDone = 1;
+                    &$getLines();
+                    if ( $hasError == 1 ) {
+                        print $childWtr ("failed\n");
+                    }
+                    else {
+                        print $childWtr ("success\n");
+                    }
+                }
+                else {
+                    sleep(2);
+                }
             }
             my $exitCode = $?;
             if ( $exitCode > 255 ) {
@@ -599,6 +659,9 @@ sub run {
             }
 
             $self->{warningCount} = $warningCount;
+			
+            $childWtr->close();
+            $childRdr->close();
         }
     }
 
