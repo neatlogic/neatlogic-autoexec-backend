@@ -115,6 +115,8 @@ export PERL5LIB=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/plugins/local/li
 
 ```shell
 #使用devmode则不会回调服务端更新或者获取数据，仅仅使用作业目录下的nodes.json，params.json文件里的信息执行作业
+$ python3 bin/autoexec --jobid 3247896236758
+
 $ python3 bin/autoexec --devmode --paramsfile test/params.json --n test/nodes.json
 
 $ python3 bin/autoexec --devmode --jobid 97867868 --n test/nodes.json

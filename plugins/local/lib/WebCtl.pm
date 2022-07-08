@@ -16,9 +16,9 @@ use File::Basename;
 use MIME::Base64;
 
 sub new {
-    my ($type) = @_;
+    my ( $type, $signHandler ) = @_;
 
-    my $self = {};
+    my $self = { signHandler => $signHandler };
 
     #$self->{$_} = $attrs->{$_} for keys(%$attrs);
     bless( $self, $type );
@@ -187,6 +187,19 @@ sub setHeaders {
     }
 }
 
+sub signRequest {
+    my ( $self, $url, $params ) = @_;
+
+    my $signHandler = $self->{signHandler};
+    if ( defined($signHandler) ) {
+        my $client = $self->{restClient};
+        my $uri    = substr( $url, index( $url, '/', 8 ) );
+
+        &$signHandler( $client, $uri, $params );
+    }
+    return;
+}
+
 sub get {
     my ( $self, $url, $headers ) = @_;
 
@@ -194,6 +207,7 @@ sub get {
 
     $self->setHeaders($headers);
 
+    $self->signRequest($url);
     $client->GET($url);
 
     my $content = $self->convCharSet( $client->responseContent() );
@@ -210,6 +224,7 @@ sub doPost {
     my ( $self, $url, $params ) = @_;
 
     my $client = $self->{restClient};
+    $self->signRequest( $url, $params );
     $client->POST( $url, $params );
 
     my $content = $self->convCharSet( $client->responseContent() );
@@ -235,7 +250,6 @@ sub post {
     $self->setHeaders($headers);
 
     my $params = $self->buildData($data);
-
     return $self->doPost( $url, $params );
 }
 
@@ -247,7 +261,6 @@ sub postJson {
     $self->setHeaders($headers);
 
     my $params = to_json( $data, { utf8 => 1 } );
-
     return $self->doPost( $url, $params );
 }
 
@@ -262,6 +275,7 @@ sub doRest {
     my $client = $self->{restClient};
     $client->addHeader( 'Content-Type', 'application/json;charset=UTF-8' );
 
+    $self->signRequest( $url, $params );
     if ( defined($headers) ) {
         $client->request( $method, $url, $params, %$headers );
     }

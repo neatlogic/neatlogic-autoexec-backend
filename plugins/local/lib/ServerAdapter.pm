@@ -10,6 +10,8 @@ use Cwd;
 use Config::Tiny;
 use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
+use Digest::SHA qw(hmac_sha256_hex);
+use MIME::Base64;
 
 use WebCtl;
 use ServerConf;
@@ -27,7 +29,8 @@ sub new {
             $self->{devMode} = 1;
         }
 
-        $self->{serverConf} = ServerConf->new();
+        my $serverConf = ServerConf->new();
+        $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
             'getIdPath' => '',
@@ -39,16 +42,16 @@ sub new {
             'delVer'    => '',
 
             #环境制品状态：pending|succeed｜failed
-            'getAccountPwd'         => 'codedriver/public/api/rest/resourcecenter/resource/account/get',
+            'getAccountPwd'         => '/codedriver/public/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',
             'getAppPassWord'        => '',
-            'getSqlFileStatuses'    => 'codedriver/public/api/rest/autoexec/job/sql/list',
-            'checkInSqlFiles'       => 'codedriver/public/api/rest/autoexec/job/sql/checkin',
-            'pushSqlStatus'         => 'codedriver/public/api/rest/autoexec/job/sql/update',
-            'updatePhaseStatus'     => 'codedriver/public/api/rest/autoexec/job/phase/status/update',
+            'getSqlFileStatuses'    => '/codedriver/public/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'       => '/codedriver/public/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'         => '/codedriver/public/api/rest/autoexec/job/sql/update',
+            'updatePhaseStatus'     => '/codedriver/public/api/rest/autoexec/job/phase/status/update',
             'creatJob'              => '',
             'getJobStatus'          => '',
             'saveVersionDependency' => '',
@@ -59,8 +62,30 @@ sub new {
             'getBuild'              => ''
         };
 
-        my $webCtl = WebCtl->new();
-        $webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
+        my $username    = $serverConf->{username};
+        my $password    = $serverConf->{password};
+        my $signHandler = sub {
+            my ( $client, $uri, $postBody ) = @_;
+            my $signContent = "$username#$uri#";
+            if ( defined($postBody) ) {
+                my $postBody = MIME::Base64::encode($postBody);
+                $signContent = $signContent . $postBody;
+            }
+
+            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
+            $client->setHeaders(
+                {
+                    Authorization => $digest,
+                    x_accesss_key => $username
+                }
+            );
+        };
+
+        my $webCtl = WebCtl->new($signHandler);
+
+        #$webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
+        $webCtl->setHeaders( { Tenant => $ENV{AUTOEXEC_TENANT}, authType => 'hmac' } );
+
         $self->{webCtl} = $webCtl;
     }
 
@@ -79,7 +104,7 @@ sub _getAuthToken() {
 
 sub _getApiUrl {
     my ( $self, $apiName ) = @_;
-    my $url = $self->{serverConf}->{baseurl} . '/' . $self->{apiMap}->{$apiName};
+    my $url = $self->{serverConf}->{baseurl} . $self->{apiMap}->{$apiName};
 
     return $url;
 }

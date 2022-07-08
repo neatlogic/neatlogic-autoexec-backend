@@ -14,6 +14,9 @@ import urllib.request
 import urllib.parse
 from urllib.error import URLError
 from urllib.error import HTTPError
+from hashlib import sha256
+import hmac
+import base64
 
 from AutoExecError import AutoExecError
 
@@ -25,37 +28,38 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
-            'register': 'codedriver/public/api/rest/autoexec/tool/register',
-            'getParams': 'codedriver/public/api/rest/autoexec/job/create/param/get',
-            'getNodes': 'codedriver/public/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': 'codedriver/public/api/binary/public/file/download',
-            'fetchScript': 'codedriver/public/api/rest/autoexec/job/phase/operation/script/get',
-            'getScript': 'codedriver/public/api/rest/autoexec/script/active/version/get',
-            'getAccount': 'codedriver/public/api/rest/resourcecenter/resource/account/get',
-            'getInspectConf': 'codedriver/public/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': 'codedriver/public/api/rest/cmdb/cientity/updateinspectstatus',
-            'updateNodeStatus': 'codedriver/public/api/rest/autoexec/job/phase/node/status/update',
-            'updatePhaseStatus': 'codedriver/public/api/rest/autoexec/job/phase/status/update',
-            'fireNextGroup': 'codedriver/public/api/rest/autoexec/job/next/group/fire',
-            'fireNextPhase': 'codedriver/public/api/rest/autoexec/job/next/phase/fire',
-            'informRoundEnded': 'codedriver/public/api/rest/autoexec/job/phase/inform/round/end',
-            'updateJobStatus': 'codedriver/public/api/rest/autoexec/job/status/update',
-            'exportJobEnv': 'codedriver/public/api/rest/autoexec/job/env/update',
-            'setResourceInspectJobId': 'codedriver/public/api/rest/autoexec/job/resource/inspect/update',
-            'getCmdbCiAttrs': 'codedriver/public/api/rest/cmdb/cientity/attrentity/get',
-            'getAccessEndpoint': 'codedriver/public/api/rest/resourcecenter/resource/accessendpoint/get',
-            'globalLock': 'codedriver/public/api/rest/global/lock',
-            'getDeployIdPath': 'codedriver/public/api/rest/ezdeploy/idpath'
+            'register': '/codedriver/api/rest/autoexec/tool/register',
+            'getParams': '/codedriver/api/rest/autoexec/job/create/param/get',
+            'getNodes': '/codedriver/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/codedriver/api/binary/file/download',
+            'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get',
+            'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
+            'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
+            'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
+            'fireNextPhase': '/codedriver/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': '/codedriver/api/rest/autoexec/job/phase/inform/round/end',
+            'updateJobStatus': '/codedriver/api/rest/autoexec/job/status/update',
+            'exportJobEnv': '/codedriver/api/rest/autoexec/job/env/update',
+            'setResourceInspectJobId': '/codedriver/api/rest/autoexec/job/resource/inspect/update',
+            'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
+            'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
+            'globalLock': '/codedriver/api/rest/global/lock',
+            'getDeployIdPath': '/codedriver/api/rest/ezdeploy/idpath'
         }
 
         self.context = context
-        self.serverBaseUrl = context.config['server']['server.baseurl']
-        if(self.serverBaseUrl[-1] != '/'):
-            self.serverBaseUrl = self.serverBaseUrl + '/'
+        serverBaseUrl = context.config['server']['server.baseurl']
+        if(serverBaseUrl[-1] == '/'):
+            serverBaseUrl = serverBaseUrl[0:-1]
+        self.serverBaseUrl = serverBaseUrl
 
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
-        self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
+        #self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -64,19 +68,29 @@ class ServerAdapter:
             else:
                 request.add_header(k, str(v))
 
-    def httpPOST(self, apiUri, authToken, params):
+    def signRequest(self, request, apiUri, postBody=None):
+        signContent = self.serverUserName + '#' + apiUri + '#'
+        if postBody is not None and postBody != '':
+            signContent = signContent + base64.b64encode(postBody.encode('utf-8')).decode('utf-8')
+
+        digest = 'Hmac ' + hmac.new(self.serverPassword.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
+        request.add_header('Tenant', self.context.tenant)
+        request.add_header('AuthType', 'hmac')
+        request.add_header('x-access-key', self.serverUserName)
+        request.add_header('Authorization', digest)
+
+    def httpPOST(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
+
         url = self.serverBaseUrl + apiUri
-        #userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'}
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-                   # 'User-Agent': userAgent,
-                   'Tenant': self.context.tenant,
-                   'Authorization': authToken}
-
-        data = urllib.parse.urlencode(params)
-        req = urllib.request.Request(url, bytes(data, 'utf-8'))
+        postBody = json.dumps(params, ensure_ascii=False)
+        req = urllib.request.Request(url, postBody.encode('utf-8'))
         self.addHeaders(req, headers)
         try:
+            self.signRequest(req, apiUri, postBody)
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
             errMsg = ex.code
@@ -89,19 +103,18 @@ class ServerAdapter:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
         return response
 
-    def httpGET(self, apiUri, authToken, params):
-        url = self.serverBaseUrl + apiUri
-        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        headers = {'User-Agent': userAgent,
-                   'Tenant': self.context.tenant,
-                   'Authorization': authToken}
+    def httpGET(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
 
         data = urllib.parse.urlencode(params)
-        url = url + '?' + data
+        apiUri = apiUri + '?' + data
+
+        url = self.serverBaseUrl + apiUri
         req = urllib.request.Request(url)
-        self.addHeaders(req, headers)
 
         try:
+            self.signRequest(req, apiUri)
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
             errMsg = ex.code
@@ -115,18 +128,18 @@ class ServerAdapter:
 
         return response
 
-    def httpJSON(self, apiUri, authToken, params):
+    def httpJSON(self, apiUri, params):
+        if apiUri[0] != "/":
+            apiUri = '/' + apiUri
+
         url = self.serverBaseUrl + apiUri
-        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        headers = {'Content-Type': 'application/json; charset=utf-8',
-                   'User-Agent': userAgent,
-                   'Tenant': self.context.tenant,
-                   'Authorization': authToken, }
+        headers = {'Content-Type': 'application/json; charset=utf-8'}
 
-        req = urllib.request.Request(url, bytes(json.dumps(params, ensure_ascii=False), 'utf-8'))
+        postBody = json.dumps(params, ensure_ascii=False)
+        req = urllib.request.Request(url, postBody.encode('utf-8'))
         self.addHeaders(req, headers)
-
         try:
+            self.signRequest(req, apiUri, postBody)
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
             errMsg = ex.code
@@ -157,7 +170,7 @@ class ServerAdapter:
             paramsFile = open(paramsFilePath, 'a+')
             fcntl.lockf(paramsFile, fcntl.LOCK_EX)
 
-            response = self.httpJSON(self.apiMap['getParams'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getParams'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -204,8 +217,7 @@ class ServerAdapter:
 
         nodesFile = None
         try:
-            # response = self.httpPOST(self.apiMap['getNodes'], self.authToken, params)
-            response = self.httpGET(self.apiMap['getNodes'], self.authToken, params)
+            response = self.httpGET(self.apiMap['getNodes'],  params)
 
             if response.status == 200:
                 nodesFile = open(nodesFilePath, 'a+')
@@ -248,7 +260,7 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
 
-        response = self.httpJSON(self.apiMap['updateNodeStatus'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['updateNodeStatus'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -277,7 +289,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['updatePhaseStatus'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['updatePhaseStatus'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             return json.loads(content)
@@ -316,7 +328,7 @@ class ServerAdapter:
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['fireNextGroup'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['fireNextGroup'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -337,7 +349,7 @@ class ServerAdapter:
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['fireNextPhase'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['fireNextPhase'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -360,7 +372,7 @@ class ServerAdapter:
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['informRoundEnded'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['informRoundEnded'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -380,7 +392,7 @@ class ServerAdapter:
             'status': 'paused',
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['updateJobStatus'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['updateJobStatus'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -400,7 +412,7 @@ class ServerAdapter:
             'status': 'aborted',
             'passThroughEnv': self.context.passThroughEnv
         }
-        response = self.httpJSON(self.apiMap['updateJobStatus'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['updateJobStatus'],  params)
 
         try:
             charset = response.info().get_content_charset()
@@ -432,7 +444,7 @@ class ServerAdapter:
             cachedFileTmp = open(cachedFilePathTmp, 'ab+')
             fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
 
-            response = self.httpGET(self.apiMap['fetchFile'], self.authToken, params)
+            response = self.httpGET(self.apiMap['fetchFile'],  params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
             resHeaders = response.info()
             contentDisposition = resHeaders['Content-Disposition']
@@ -489,7 +501,7 @@ class ServerAdapter:
             cachedFileTmp = open(cachedFilePathTmp, 'a+')
             fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
 
-            response = self.httpGET(self.apiMap['fetchScript'], self.authToken, params)
+            response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
                 charset = response.info().get_content_charset()
@@ -523,7 +535,7 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + self.apiMap['getScript']
         try:
-            response = self.httpGET(self.apiMap['getScript'], self.authToken, params)
+            response = self.httpGET(self.apiMap['getScript'],  params)
 
             if response.status == 200:
                 charset = response.info().get_content_charset()
@@ -535,7 +547,7 @@ class ServerAdapter:
 
     # 注册native工具到服务端工具库
     def registerTool(self, toolObj):
-        response = self.httpJSON(self.apiMap['register'], self.authToken, toolObj)
+        response = self.httpJSON(self.apiMap['register'],  toolObj)
 
         try:
             charset = response.info().get_content_charset()
@@ -566,7 +578,7 @@ class ServerAdapter:
         # lockParams = {
         #     'lockId': 83205734845,
         # }
-        response = self.httpJSON(self.apiMap['globalLock'], self.authToken, lockParams)
+        response = self.httpJSON(self.apiMap['globalLock'],  lockParams)
 
         try:
             charset = response.info().get_content_charset()
@@ -592,7 +604,7 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
 
-        response = self.httpJSON(self.apiMap['exportJobEnv'], self.authToken, params)
+        response = self.httpJSON(self.apiMap['exportJobEnv'],  params)
 
         return
 
@@ -613,7 +625,7 @@ class ServerAdapter:
             username = 'none'
 
         try:
-            response = self.httpJSON(self.apiMap['getAccount'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getAccount'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -640,7 +652,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['getInspectConf'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getInspectConf'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -668,7 +680,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['updateInspectStatus'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['updateInspectStatus'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -694,7 +706,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['setResourceInspectJobId'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['setResourceInspectJobId'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -719,7 +731,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['getCmdbCiAttrs'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getCmdbCiAttrs'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -756,7 +768,7 @@ class ServerAdapter:
         }
 
         try:
-            response = self.httpJSON(self.apiMap['getAccessEndpoint'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getAccessEndpoint'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -780,7 +792,7 @@ class ServerAdapter:
         params['tenant'] = self.context.tenant
 
         try:
-            response = self.httpJSON(self.apiMap['getDeployIdPath'], self.authToken, params)
+            response = self.httpJSON(self.apiMap['getDeployIdPath'],  params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
