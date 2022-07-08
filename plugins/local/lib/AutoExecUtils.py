@@ -73,7 +73,7 @@ def saveOutput(outputData):
     print("INFO: Try save output to {}.\n".format(outputPath))
     if outputPath is not None and outputPath != '':
         outputDir = os.path.dirname(outputPath)
-        if not os.path.exists(outputDir):
+        if not outputDir == '' and not os.path.exists(outputDir):
             os.makedirs(outputDir)
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))

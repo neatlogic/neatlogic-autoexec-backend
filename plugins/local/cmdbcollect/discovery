@@ -392,6 +392,8 @@ if __name__ == "__main__":
     ports = args.ports
     communities = json.loads(args.communities)
 
+    autoexecHome = os.environ.get('AUTOEXEC_HOME')
+    os.environ['PATH'] = '%s:%s/tools' % (os.environ['PATH'], autoexecHome)
     os.environ['OUTPUT_PATH'] = 'output.json'
     os.chdir(os.environ.get('AUTOEXEC_WORK_PATH'))
 

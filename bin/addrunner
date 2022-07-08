@@ -73,9 +73,9 @@ if __name__ == "__main__":
         sys.exit(2)
 
     sshConfPath = '%s/.ssh' % (HOME)
-    if os.path.exists(sshConfPath):
+    if not os.path.exists(sshConfPath):
         os.makedirs(sshConfPath)
-        os.chmod(sshConfPath, stat.S_IRWXU)
+    os.chmod(sshConfPath, stat.S_IRWXU)
 
     identiyPath = '%s/.ssh/id_rsa' % (HOME)
     pubKeyPath = '%s/.ssh/id_rsa.pub' % (HOME)
@@ -87,25 +87,45 @@ if __name__ == "__main__":
 
     pubKey = ''
     privateKey = ''
-    with open(identiyPath, 'rb') as f:
+    with open(identiyPath, 'r') as f:
         privateKey = f.read()
-    with open(pubKeyPath, 'rb') as f:
+        privateKey = privateKey.strip()
+    with open(pubKeyPath, 'r') as f:
         pubKey = f.read()
+        pubKey = pubKey.strip()
 
-    cmdList = []
+    cmdList = ['sh', '-c']
+
     cmd = '''
-    if [ ! -e "~/.ssh" ];then
-        mkdir ~/.ssh;
-        chmod 700 ~/.ssh;
-    fi;
-    echo "%s" > ~/.ssh/id_rsa;
-    echo "%s" > ~/.ssh/id_rsa.pub;
-    grep "%s" ~/.ssh/authorized_keys;
-    if [ ! "$?" = "0" ]; then;
-        cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys;
-    fi;
-    chmod 600 ~/.ssh/*;
-    '''.format(privateKey, pubKey)
+if [ ! -e "$HOME/.ssh" ];then
+    mkdir "$HOME/.ssh";
+fi;
+chmod 700 "$HOME/.ssh";
+
+cd "$HOME/.ssh" || echo "ERROR: Directory .ssh create failed."
+
+cat <<EOF > id_rsa;
+%s
+EOF
+
+cat <<EOF > id_rsa.pub;
+%s
+EOF
+
+KEYCONF=""
+if [ -e "authorized_keys" ]; then
+    KEYCONF=$(grep "%s" authorized_keys 2>/dev/null);
+fi
+
+if [ "$KEYCONF" = "" ]; then
+    cat id_rsa.pub >> authorized_keys;
+fi;
+
+chmod 600 id_rsa id_rsa.pub authorized_keys;
+echo "Config %s@%s complete"
+
+    ''' % (privateKey, pubKey, pubKey, args.user, args.host)
+
     cmdList.append(cmd)
 
     errCode = execOneHost(args.host, port, args.user, password, cmdList)
