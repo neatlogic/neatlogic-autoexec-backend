@@ -1,7 +1,7 @@
 {
     "opDesc": "创建作业",
     "opType": "runner",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,

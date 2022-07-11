@@ -1,7 +1,7 @@
 {
     "opDesc": "更新应用（补丁）",
     "opType": "target",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "backup-args",

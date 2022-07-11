@@ -1,7 +1,7 @@
 {
     "opDesc": "回退版本",
     "opType": "target",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "backup-args",

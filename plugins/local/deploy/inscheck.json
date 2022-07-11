@@ -1,7 +1,7 @@
 {
     "opName": "实例主机登录检查",
     "opType": "runner_target",
-    "typeName": "INSPECT",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,

@@ -1,7 +1,7 @@
 {
     "opDesc": "echo",
-    "opType": "runner",
-    "typeName": "BUILD",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,

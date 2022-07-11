@@ -1,7 +1,7 @@
 {
     "opDesc": "拉取Docker镜像",
     "opType": "target",
-    "typeName": "BUILD",
+    "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
