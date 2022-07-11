@@ -294,8 +294,8 @@ sub new {
 
 sub test {
     my ($self) = @_;
-	
-	my $host   = $self->{host};
+
+    my $host   = $self->{host};
     my $port   = $self->{port};
     my $dbName = $self->{dbName};
     my $user   = $self->{user};
@@ -321,11 +321,10 @@ sub test {
         print("ERROR: Can not connect to $host:$port, $!\n");
         return 0;
     }
-	
+
     my $tmpDir      = $self->{tmpDir};
     my $tmp         = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => $tmpDir, UNLINK => 1, SUFFIX => '' );
     my $catalogName = basename( $tmp->filename );
-
 
     END {
         #local $?是为了END的执行不影响进程返回值
@@ -538,6 +537,9 @@ sub run {
                         $opt = 'rollback' if ( not defined($opt) );
 
                         $ret = system("db2 $opt");
+                        if ( $ret ne 0 ) {
+                            $isFail = 1;
+                        }
                         if ( $opt eq 'rollback' ) {
                             $isFail = 1;
                         }
@@ -593,27 +595,31 @@ sub run {
                             $tLine = $line;
                         }
 
-                        print($tLine);
+                        #print($tLine);
 
                         if ( $tLine =~ /SQLSTATE=(\d+)\s*$/ ) {
                             $sqlError     = $1;
                             $warningCount = $warningCount + 1;
                             if ( $sqlError eq '02000' or $ignoreErrors =~ /$sqlError/ ) {
                                 $hasWarn = 1;
-                                print("WARN: error ocurred, see detail in pre line.\n");
+                                print("WARN: $tLine");
                             }
                             else {
                                 $hasError = 1;
-                                print("ERROR: error ocurred, see detail in pre line.\n");
+                                print("ERROR: $tLine");
                             }
                         }
                         elsif ( $tLine =~ /^SQL0911N The current transaction has been rolled back/ ) {
                             $warningCount = $warningCount + 1;
                             $toBeRollback = 1;
+                            print("WARN: $tLine");
                         }
                         elsif ( $tLine =~ /^SQL0803N/ or $tLine =~ /^SQL3550W/ ) {
-                            print("ERROR: $tLine\n");
+                            print("ERROR: $tLine");
                             $hasError = 1;
+                        }
+                        else {
+                            print($tLine);
                         }
                     }
                 }
@@ -659,7 +665,7 @@ sub run {
             }
 
             $self->{warningCount} = $warningCount;
-			
+
             $childWtr->close();
             $childRdr->close();
         }
