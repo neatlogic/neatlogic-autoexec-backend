@@ -30,7 +30,7 @@ class OutputStore:
             return
 
         collection = db['_node_output']
-        pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
+        pk = {'jobId': self.jobId, 'resourceId': self.node.get('resourceId', 0)}
         outData = {}
         outData['host'] = self.node['host']
         outData['port'] = self.port
@@ -53,7 +53,7 @@ class OutputStore:
         collection = db['_node_output']
 
         try:
-            pk = {'jobId': self.jobId, 'resourceId': self.node['resourceId']}
+            pk = {'jobId': self.jobId, 'resourceId': self.node.get('resourceId', 0)}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 output = outData['data']
@@ -71,7 +71,7 @@ class OutputStore:
             return
 
         collection = db['_node_status']
-        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId']}
+        pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node.get('resourceId', 0)}
         outData = {}
         outData['host'] = self.node['host']
         outData['port'] = self.port
@@ -97,7 +97,7 @@ class OutputStore:
         collection = db['_node_status']
 
         try:
-            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node['resourceId']}
+            pk = {'jobId': self.jobId, 'phase': self.phaseName, 'resourceId': self.node.get('resourceId', 0)}
             outData = collection.find_one(pk, {'data': True})
             if outData is not None:
                 status = outData['data']

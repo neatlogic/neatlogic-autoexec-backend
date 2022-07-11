@@ -80,7 +80,7 @@ class RunNodeFactory:
                 if runnerId is None:
                     nodeObj = json.loads(line)
                     if self.context.nodesToRun is not None:
-                        if nodeObj['resourceId'] in self.context.nodesToRun:
+                        if nodeObj.get('resourceId') in self.context.nodesToRun:
                             break
                     else:
                         break
@@ -88,7 +88,7 @@ class RunNodeFactory:
                     nodeObj = json.loads(line)
                     if nodeObj['runnerId'] == runnerId:
                         if self.context.nodesToRun is not None:
-                            if nodeObj['resourceId'] in self.context.nodesToRun:
+                            if nodeObj.get('resourceId') in self.context.nodesToRun:
                                 break
                         else:
                             break
