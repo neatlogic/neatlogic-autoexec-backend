@@ -47,9 +47,9 @@ class Operation:
         # local：在本地运行，与运行节点无关，只会运行一次
         self.opType = param['opType']
         self.opTypeDesc = {
-            "local": "Runner本地执行",
-            "remote": "远程执行",
-            "localremote": "Runner本地连接远程执行"
+            "local": "on runner",
+            "remote": "on remote OS",
+            "localremote": "on runner to target"
         }
 
         self.extNameMap = {
@@ -462,6 +462,25 @@ class Operation:
                 cmd = cmd + self.getOneOptDef(k, v, hideValue=hideValue, quota='"')
         return cmd
 
+    def getOpNameWithExt(self, osType='linux'):
+        nameWithExt = None
+        if self.isScript:
+            if self.opType == 'remote':
+                nameWithExt = self.scriptFileName
+            else:
+                nameWithExt = self.opName
+        else:
+            if self.opType == 'remote':
+                extName = self.extNameMap[self.interpreter]
+                if self.opSubName.endswith(extName):
+                    nameWithExt = self.opSubName
+                else:
+                    nameWithExt = self.opSubName + extName
+            else:
+                nameWithExt = self.opName
+
+        return nameWithExt
+
     def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
         cmd = None
         if remotePath is None or fullPath == False:
@@ -554,6 +573,7 @@ class Operation:
         return cmd
 
     def getCmdOptsHidePassword(self, osType='linux'):
-        cmd = self.appendCmdOpts(self.opName, noPassword=True, osType=osType)
+        cmd = self.getOpNameWithExt(osType=osType)
+        cmd = self.appendCmdOpts(cmd, noPassword=True, osType=osType)
         cmd = self.appendCmdArgs(cmd, noPassword=True, osType=osType)
         return cmd
