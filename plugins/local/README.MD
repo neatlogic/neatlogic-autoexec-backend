@@ -256,6 +256,7 @@ Tenant信息在HTTP header中
     {
         version => '1.2.0',
         buildNo => 3,
+        isMirror => 0,
         status  => 'released'
     }
 

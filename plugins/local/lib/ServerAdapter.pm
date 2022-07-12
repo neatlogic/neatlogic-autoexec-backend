@@ -373,9 +373,10 @@ sub getEnvVer {
 
     #TODO: Delete follow test lines
     my $envVerInfo = {
-        version => $buildEnv->{VERSION},
-        buildNo => $buildEnv->{BUILD_NO},
-        status  => 'released'
+        version  => $buildEnv->{VERSION},
+        buildNo  => $buildEnv->{BUILD_NO},
+        isMirror => 0,
+        status   => 'released'
     };
 
     return $envVerInfo;
