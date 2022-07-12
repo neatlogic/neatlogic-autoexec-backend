@@ -245,6 +245,18 @@ class JobRunner:
 
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
+            if op.opType == 'native' and op.opName == 'native/IF-Block':
+                for ifOp in op['if']:
+                    if ifOp.opType in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
+                for ifOp in op['else']:
+                    if ifOp.opType in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
+
             # 如果有本地操作，则在context中进行标记
             if op.opType in ('local', 'runner'):
                 phaseStatus.hasLocal = True
@@ -524,7 +536,7 @@ class JobRunner:
             for k, v in params.items():
                 os.environ[k] = str(v)
 
-        parallelCount = 0
+        #parallelCount = 0
         roundCount = 0
         if 'roundCount' in params:
             roundCount = int(params['roundCount'])
