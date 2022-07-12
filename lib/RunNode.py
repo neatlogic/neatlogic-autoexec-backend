@@ -159,6 +159,11 @@ class RunNode:
         self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
 
+        if not os.path.exists(self.outputDir):
+            os.makedirs(self.outputDir)
+        if not os.path.exists(self.opOutputDir):
+            os.makedirs(self.opOutputDir)
+
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
         self._loadNodeStatus()
