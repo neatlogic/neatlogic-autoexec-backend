@@ -245,7 +245,7 @@ sub fetch {
 
     if ( $ret ne 0 ) {
         print("WARN: Fetch failed, clean local repo and fetch again...\n");
-        if ( rmtree($prjPath) == 0 ) {
+        if ( -e $prjPath and rmtree($prjPath) == 0 ) {
             print("ERROR: Remove directory $prjPath failed.\n");
             $ret = -1;
         }

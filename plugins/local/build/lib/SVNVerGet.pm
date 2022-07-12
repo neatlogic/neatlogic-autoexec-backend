@@ -167,7 +167,7 @@ sub checkout {
 
         if ( $ret ne 0 ) {
             print("INFO: Checkout failed, clean the project directory will take a few minutes, please wait...\n");
-            if ( rmtree($prjPath) == 0 ) {
+            if ( -e $prjPath and rmtree($prjPath) == 0 ) {
                 $ret = 3;
                 print("ERROR:Remove directory $prjPath failed.\n");
             }
