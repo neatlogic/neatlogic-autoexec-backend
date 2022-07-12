@@ -243,19 +243,19 @@ class JobRunner:
             else:
                 opArgsRefMap[operation['opId']] = {}
 
-            op = Operation.Operation(self.context, opArgsRefMap, operation)
+            if operation.get('opType') == 'native' and operation.get('opName') == 'native/IF-Block':
+                for ifOp in operation.get('if', []):
+                    if ifOp.get('opType') in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
+                for ifOp in operation.get('else', []):
+                    if ifOp.get('opType') in ('local', 'runner'):
+                        phaseStatus.hasLocal = True
+                    else:
+                        phaseStatus.hasRemote = True
 
-            if op.opType == 'native' and op.opName == 'native/IF-Block':
-                for ifOp in op['if']:
-                    if ifOp.opType in ('local', 'runner'):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
-                for ifOp in op['else']:
-                    if ifOp.opType in ('local', 'runner'):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
+            op = Operation.Operation(self.context, opArgsRefMap, operation)
 
             # 如果有本地操作，则在context中进行标记
             if op.opType in ('local', 'runner'):
