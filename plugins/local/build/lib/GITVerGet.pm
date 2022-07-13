@@ -50,8 +50,8 @@ sub new {
         $gitPass = quotemeta($gitPass);
     }
 
-    $repo =~ s/^https:\/\//https:\/\/$gitUser:$gitPass\@/;
-    $repo =~ s/^http:\/\//http:\/\/$gitUser:$gitPass\@/;
+    #$repo =~ s/^https:\/\//https:\/\/$gitUser:$gitPass\@/;
+    #$repo =~ s/^http:\/\//http:\/\/$gitUser:$gitPass\@/;
 
     my $confGitBranch = $verInfo->{branch};
     my $gitBranch     = $confGitBranch;
@@ -97,6 +97,10 @@ sub new {
         mkpath($prjPath);
     }
 
+    $ENV{GIT_USER}    = $gitUser;
+    $ENV{GIT_PWD}     = $gitPass;
+    $ENV{GIT_ASKPASS} = 'git-askpass';
+
     $self->setGitEnv();
 
     return $self;
@@ -110,6 +114,10 @@ sub setGitEnv {
     $ENV{LD_LIBRARY_PATH}   = "$gitHome/lib64:" . $ENV{LD_LIBRARY_PATH};
     $ENV{PATH}              = "$gitHome/bin:" . "$gitHome/libexec/git-core:" . $ENV{PATH};
     $ENV{GIT_SSL_NO_VERIFY} = 'true';
+
+    my $gitUser = $self->{gitUser};
+    my $gitPass = $self->{gitPass};
+    my $repo    = $self->{repo};
 }
 
 sub tagRepo {

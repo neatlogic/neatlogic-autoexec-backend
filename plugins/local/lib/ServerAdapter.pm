@@ -73,12 +73,8 @@ sub new {
             }
 
             my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
-            $client->setHeaders(
-                {
-                    Authorization => $digest,
-                    x_accesss_key => $username
-                }
-            );
+            $client->addHeader( 'Authorization', $digest );
+            $client->addHeader( 'x_accesss_key', $username );
         };
 
         my $webCtl = WebCtl->new($signHandler);
