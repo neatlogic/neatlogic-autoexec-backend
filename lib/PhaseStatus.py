@@ -21,6 +21,7 @@ class PhaseStatus:
         # 用于标记当前phase是否在pause或者abort状态中
         self.isAborting = 0
         self.isPausing = 0
+        self.isComplete = 0
         # 用于标记当前runner的node的失败数量
         self.couterLock = threading.Lock()
         self.warnCountLock = threading.Lock()

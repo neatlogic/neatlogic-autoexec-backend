@@ -297,6 +297,8 @@ class JobRunner:
             traceback.print_exc()
             print("\n", end='')
         finally:
+            self.isComplete = 1
+            print("INFO: Execute phase:{} complete, status:{}.\n".format(phaseName, endStatus), end='')
             serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
@@ -607,7 +609,7 @@ class JobRunner:
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
             print("INFO: Try to kill phase:{}...\n".format(phaseStatus.phaseName), end='')
-            if phaseStatus.executor is not None:
+            if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
                 phaseStatus.executor.kill()
         self.context.serverAdapter.jobKilled()
         print("INFO: Job killed.\n", end='')
@@ -621,7 +623,7 @@ class JobRunner:
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
             print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName), end='')
-            if phaseStatus.executor is not None:
+            if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
                 phaseStatus.executor.pause()
         self.context.serverAdapter.jobPaused()
         print("INFO: Job paused.\n", end='')
