@@ -105,8 +105,8 @@ sub new {
 sub setGitEnv {
     my ($self) = @_;
 
-    my $pluginHome = Cwd::abs_path("$FindBin::Bin/..");
-    my $gitHome    = "$pluginHome/tools/git";
+    my $toolsPath = $ENV{TOOLS_PATH};
+    my $gitHome   = "$toolsPath/git";
     $ENV{LD_LIBRARY_PATH}   = "$gitHome/lib64:" . $ENV{LD_LIBRARY_PATH};
     $ENV{PATH}              = "$gitHome/bin:" . $ENV{PATH};
     $ENV{GIT_SSL_NO_VERIFY} = 'true';

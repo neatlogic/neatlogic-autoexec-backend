@@ -106,7 +106,6 @@ sub deployInit {
     }
     $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
     $deployEnv->{TOOLS_PATH}    = $ENV{TOOLS_PATH};
-    $ENV{PATH}                  = $ENV{TOOLS_PATH} . ':' . $ENV{PATH};
 
     return $deployEnv;
 }
