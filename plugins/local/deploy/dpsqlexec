@@ -184,9 +184,6 @@ sub main {
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
-    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
-    $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
-
     my $rc = 0;
     if ( scalar(@$sqlFileSets) > 0 ) {
         my $sqlFileRunner = SQLFileRunner->new(
@@ -208,6 +205,8 @@ sub main {
             isInteract   => 1
         );
 
+        my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+
         my $lock      = DeployLock->new($deployEnv);
         my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
 
@@ -218,6 +217,7 @@ sub main {
             }
         }
 
+        $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
 

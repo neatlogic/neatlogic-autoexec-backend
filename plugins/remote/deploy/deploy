@@ -43,7 +43,7 @@ sub main {
 
     GetOptions(
         'h|help'           => \$isHelp,
-        'v｜verbose=i'    => \$isVerbose,
+        'v｜verbose=i'      => \$isVerbose,
         'ins=s'            => \$insName,
         'version=s'        => \$version,
         'backupcount=i'    => \$backupCount,
@@ -103,7 +103,7 @@ sub main {
     }
 
     my $patcher = Patcher->new( $homePath, $backupDir, $backupCount, $backupLastDays );
-    my $status = 0;
+    my $status  = 0;
     $status = $patcher->backup( $insName, $version, $patchSrcPath, $targetDir, $backupType );
 
     if ( $status == 0 ) {

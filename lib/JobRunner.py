@@ -295,7 +295,8 @@ class JobRunner:
             traceback.print_exc()
             print("\n", end='')
         finally:
-            serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
+            if not self.context.goToStop:
+                serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
         groupNo = phaseGroup['groupNo']
