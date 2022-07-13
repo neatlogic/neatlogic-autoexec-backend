@@ -1,8 +1,10 @@
 #!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
 use IO::File;
 use strict;
-use FindBin;
-use lib "$FindBin::Bin";
 use Getopt::Long;
 use Cwd 'abs_path';
 use File::Basename;
