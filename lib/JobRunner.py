@@ -297,7 +297,7 @@ class JobRunner:
             traceback.print_exc()
             print("\n", end='')
         finally:
-            self.isComplete = 1
+            phaseStatus.isComplete = 1
             print("INFO: Execute phase:{} complete, status:{}.\n".format(phaseName, endStatus), end='')
             serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
@@ -612,8 +612,8 @@ class JobRunner:
             phaseStatus.isAborting = 1
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
-            print("INFO: Try to kill phase:{}...\n".format(phaseStatus.phaseName), end='')
             if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
+                print("INFO: Try to kill phase:{}...\n".format(phaseStatus.phaseName), end='')
                 phaseStatus.executor.kill()
         self.context.serverAdapter.jobKilled()
         print("INFO: Job killed.\n", end='')
@@ -626,8 +626,8 @@ class JobRunner:
             phaseStatus.isPausing = 1
             phaseStatus.setGlobalRoundFinEvent()
             phaseStatus.setRoundFinEvent()
-            print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName), end='')
             if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
+                print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName), end='')
                 phaseStatus.executor.pause()
         self.context.serverAdapter.jobPaused()
         print("INFO: Job paused.\n", end='')

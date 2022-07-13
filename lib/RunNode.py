@@ -1038,7 +1038,7 @@ class RunNode:
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 ssh = None
                 try:
-                    ret = 0
+                    #ret = 0
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     ssh.connect(self.host, self.protocolPort, self.username, self.password)
