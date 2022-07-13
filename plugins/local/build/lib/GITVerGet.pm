@@ -204,7 +204,7 @@ sub getBranches {
     my $branches = {};
     my $fh;
     open( $fh, "cd '$prjPath'; git branch -r |" )
-        or die "ERROR:get tag list failed:$!";
+        or die "ERROR:get branche list failed:$!";
     while ( my $line = <$fh> ) {
         $line =~ s/^.*origin\///;
         $line =~ s/\s+.*?$//;
