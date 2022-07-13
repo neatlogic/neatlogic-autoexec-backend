@@ -108,7 +108,7 @@ sub setGitEnv {
     my $toolsPath = $ENV{TOOLS_PATH};
     my $gitHome   = "$toolsPath/git";
     $ENV{LD_LIBRARY_PATH}   = "$gitHome/lib64:" . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}              = "$gitHome/bin:" . $ENV{PATH};
+    $ENV{PATH}              = "$gitHome/bin:" . "$gitHome/libexec/git-core:" . $ENV{PATH};
     $ENV{GIT_SSL_NO_VERIFY} = 'true';
 }
 
