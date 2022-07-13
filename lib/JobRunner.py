@@ -282,6 +282,8 @@ class JobRunner:
                     endStatus = NodeStatus.aborted
                 elif phaseStatus.ignoreFailNodeCount > 0:
                     endStatus = NodeStatus.completed
+                elif self.context.goToStop or self.context.hasFailNodeInGlobal:
+                    endStatus == NodeStatus.paused
             else:
                 self.context.hasFailNodeInGlobal = True
                 endStatus = NodeStatus.failed
@@ -295,8 +297,7 @@ class JobRunner:
             traceback.print_exc()
             print("\n", end='')
         finally:
-            if not self.context.goToStop:
-                serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
+            serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
     def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
         groupNo = phaseGroup['groupNo']
