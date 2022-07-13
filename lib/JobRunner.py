@@ -470,6 +470,8 @@ class JobRunner:
                             runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, node)
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
+                    if lastRound:
+                        phaseNodeFactory.putRunNode(None)
 
                 loopCount = self.context.maxExecSecs / 3
                 while not self.context.goToStop:
