@@ -367,6 +367,7 @@ class JobRunner:
         if not self.localDefinedNodes:
             serverAdapter.getNodes(groupNo=groupNo)
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
+
         # 获取分组运行的最大的并行线程数
         parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
 
@@ -423,6 +424,9 @@ class JobRunner:
                     break
                 if node['runnerId'] == self.context.runnerId:
                     oneRoundNodes.append(node)
+
+            if curRoundNodes == 0:
+                lastRound = True
 
             lastPhase = None
             phaseIndex = 0

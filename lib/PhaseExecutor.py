@@ -37,7 +37,6 @@ class PhaseWorker(threading.Thread):
             phaseStatus = self.context.phases[self.phaseName]
             if node is None:
                 phaseStatus.setRoundFinEvent()
-
                 break
             self.currentNode = node
 
