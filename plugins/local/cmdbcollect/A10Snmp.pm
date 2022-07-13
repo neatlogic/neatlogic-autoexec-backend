@@ -20,39 +20,39 @@ sub new {
 
     my $scalarOidDef = {
         DEV_NAME => [ '1.3.6.1.2.1.1.5', '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.1' ],    #sysName
-        UPTIME => '1.3.6.1.2.1.1.3.0',
-        SN      => '1.3.6.1.4.1.22610.2.4.1.6.2',                                  #axSysSerialNumber
-        IP      => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',                            #axServerAddress
-        MODEL   => '1.3.6.1.2.1.1.1',                                              #sysDescr
-        VENDOR  => '1.3.6.1.4.1.3375.2.1.4.1.0',                                   #sysProductName
-        VERSION => '1.3.6.1.4.1.22610.2.4.1.1.1'                                   #axSysPrimaryVersionOnDisk
+        UPTIME   => '1.3.6.1.2.1.1.3.0',
+        SN       => '1.3.6.1.4.1.22610.2.4.1.6.2',                                 #axSysSerialNumber
+        IP       => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',                           #axServerAddress
+        MODEL    => '1.3.6.1.2.1.1.1',                                             #sysDescr
+        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',                                  #sysProductName
+        VERSION  => '1.3.6.1.4.1.22610.2.4.1.1.1'                                  #axSysPrimaryVersionOnDisk
     };
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.1',                      #axVirtualServerName
-            IP        => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.2',                      #ltmVirtualServAddr
-            POOL_NAME => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.6'                       #axVirtualServerPortServiceGroup
+            NAME      => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.1',    #axVirtualServerName
+            IP        => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.2',    #ltmVirtualServAddr
+            POOL_NAME => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.6'     #axVirtualServerPortServiceGroup
         },
 
         POOL => {
-            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.1',                   #axServiceGroupName
+            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.1',    #axServiceGroupName
             MONITOR_RULE => undef,
-            LB_MODE      => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.3'                    #axServiceGroupLbAlgorithm
+            LB_MODE      => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.3'     #axServiceGroupLbAlgorithm
         },
 
         MEMBER => {
-            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.3',                   #axServerNameInServiceGroupMember
-            POOL_NAME    => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.1',                   #axServiceGroupNameInMember
-            IP           => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',                   #axServerAddress
-            PORT         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.4',                   #axServerPortNumInServiceGroupMember
-            MONITOR_RULE => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.4'                    #axServerHealthMonitor
+            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.3',    #axServerNameInServiceGroupMember
+            POOL_NAME    => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.1',    #axServiceGroupNameInMember
+            IP           => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',    #axServerAddress
+            PORT         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.4',    #axServerPortNumInServiceGroupMember
+            MONITOR_RULE => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.4'     #axServerHealthMonitor
         }
     };
 
     my $snatOidDef = {
         SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                                 #ltmTransAddrAddr
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                  #ltmTransAddrAddr
             }
 
             #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName
@@ -89,7 +89,9 @@ sub new {
 
     END {
         local $?;
-        $session->close();
+        if ( defined($session) ) {
+            $session->close();
+        }
     }
 
     return $self;

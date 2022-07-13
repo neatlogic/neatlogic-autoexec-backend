@@ -35,29 +35,29 @@ sub new {
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',             #ltmVirtualServName
-            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',             #ltmVirtualServAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',             #ltmVirtualServPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'             #ltmVirtualServDefaultPool
+            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',    #ltmVirtualServName
+            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',    #ltmVirtualServAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',    #ltmVirtualServPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'    #ltmVirtualServDefaultPool
         },
 
         POOL => {
-            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',           #ltmPoolName
-            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',          #ltmPoolMonitorRule
-            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'            #ltmPoolLbMode
+            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',     #ltmPoolName
+            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',    #ltmPoolMonitorRule
+            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'      #ltmPoolLbMode
         },
 
         MEMBER => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',             #ltmPoolMemberNodeName
-            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',              #ltmPoolMemberAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',              #ltmPoolMemberPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'               #ltmPoolMemberPoolName
+            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',       #ltmPoolMemberNodeName
+            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',        #ltmPoolMemberAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',        #ltmPoolMemberPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'         #ltmPoolMemberPoolName
         }
     };
 
     my $snatOidDef = {
         SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                      #ltmTransAddrAddr
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                #ltmTransAddrAddr
             }
 
             #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName
@@ -94,7 +94,9 @@ sub new {
 
     END {
         local $?;
-        $session->close();
+        if ( defined($session) ) {
+            $session->close();
+        }
     }
 
     return $self;
@@ -140,7 +142,7 @@ sub _getVS {
     my $vsOidDef = $self->{vsOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $vsOidDef );
+    my $tableData  = $snmpHelper->getTable( $snmp, $vsOidDef );
 
     my $vsData     = $tableData->{VS};
     my $poolData   = $tableData->{POOL};
@@ -182,7 +184,7 @@ sub _getSnatIp {
     my $snatOidDef = $self->{snatOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $snatOidDef );
+    my $tableData  = $snmpHelper->getTable( $snmp, $snatOidDef );
 
     my $snatIpData = $tableData->{SNAT_IP};
 
