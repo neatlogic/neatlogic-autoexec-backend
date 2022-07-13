@@ -260,7 +260,7 @@ sub postJson {
     $client->addHeader( 'Content-Type', 'application/json;charset=UTF-8' );
     $self->setHeaders($headers);
 
-    my $params = to_json( $data, { utf8 => 1 } );
+    my $params = to_json( $data );
     return $self->doPost( $url, $params );
 }
 
@@ -269,7 +269,7 @@ sub doRest {
     my $params;
 
     if ( defined($data) ) {
-        $params = to_json( $data, { utf8 => 1 } );
+        $params = to_json( $data );
     }
 
     my $client = $self->{restClient};

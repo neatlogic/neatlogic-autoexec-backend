@@ -68,8 +68,7 @@ sub new {
             my ( $client, $uri, $postBody ) = @_;
             my $signContent = "$username#$uri#";
             if ( defined($postBody) ) {
-                my $postBody = MIME::Base64::encode($postBody);
-                $signContent = $signContent . $postBody;
+                $signContent = $signContent . MIME::Base64::encode($postBody, '');
             }
 
             my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
@@ -94,7 +93,7 @@ sub _getAuthToken() {
     my $username   = $serverConf->{username};
     my $password   = $serverConf->{password};
 
-    my $authToken = 'Basic ' . MIME::Base64::encode( $username . ':' . $password );
+    my $authToken = 'Basic ' . MIME::Base64::encode( $username . ':' . $password, '' );
     return $authToken;
 }
 
