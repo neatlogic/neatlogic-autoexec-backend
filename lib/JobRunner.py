@@ -403,6 +403,9 @@ class JobRunner:
             threads.append(thread)
 
         maxRoundNo = roundCount
+        if nodesFactory.nodesCount < maxRoundNo:
+            maxRoundNo = nodesFactory.nodesCount
+            
         firstRound = True
         midRound = False
         lastRound = False
@@ -424,9 +427,6 @@ class JobRunner:
                     break
                 if node['runnerId'] == self.context.runnerId:
                     oneRoundNodes.append(node)
-
-            if curRoundNodes == 0:
-                lastRound = True
 
             lastPhase = None
             phaseIndex = 0
