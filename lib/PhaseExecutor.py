@@ -74,6 +74,8 @@ class PhaseWorker(threading.Thread):
                 if opsStatus is None:
                     opsStatus = NodeStatus.failed
                 print("ERROR: Unknow error occurred.{}\n{}\n".format(str(ex), traceback.format_exc), end='')
+            finally:
+                self.currentNode = None
 
             if opsStatus == NodeStatus.ignored:
                 phaseStatus.incIgnoreFailNodeCount()
