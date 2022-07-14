@@ -121,15 +121,17 @@ sub main {
         }
     }
 
+    $SIG{CHLD} = 'IGNORE';
     if ( defined($preScript) and $preScript ne '' ) {
         print("INFO: execte script:$preScript\n");
         my $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
-            my $ret = system($preScript);
-            if ( $ret ne 0 ) {
-                print("WARN: execute pre script:$preScript failed.\n");
-            }
-            exit($ret);
+            #my $ret = system($preScript);
+            #if ( $ret ne 0 ) {
+            #    print("WARN: execute pre script:$preScript failed.\n");
+            #}
+            #exit($ret);
+            exec($preScript);
         }
 
         END {
@@ -152,26 +154,12 @@ sub main {
         }
     }
 
-    my $isStopped = 0;
-
-    #if ( $addr =~ /https?:\/\// ) {
-    #    $isStopped = LogTailer::checkUrlUnAvailable( $addr, $eofStr, 'GET', $timeout, \@serverLogInfos );
-    #}
-    #elsif ( $addr =~ /([\d\.\w\-]+):(\d+)/ ) {
-    #    my $host = $1;
-    #    my $port = int($2);
-    #    $isStopped = LogTailer::checkServiceUnAvailable( $host, $port, $eofStr, $timeout, \@serverLogInfos );
-    #}
-    #elsif ( defined($eofStr) and $eofStr ne '' ) {
-    #    $isStopped = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
-    #}
-
+    my $svcStatus = 1;
     if ( defined($addr) and $addr ne '' ) {
-        my $isUp = LogTailer::checkUntilServiceDown( $addr, $eofStr, $timeout, \@serverLogInfos );
-        $isStopped = $isUp ^ 1;
+        $svcStatus = LogTailer::checkUntilServiceDown( $addr, $eofStr, $timeout, \@serverLogInfos );
     }
     elsif ( defined($eofStr) and $eofStr ne '' ) {
-        $isStopped = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+        $svcStatus = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
     }
 
     if ( defined($postScript) and $postScript ne '' ) {
@@ -182,29 +170,16 @@ sub main {
         }
     }
 
-    if ( $isStopped ne 1 ) {
-
-        #if ( $addr =~ /https?:\/\// ) {
-        #    $isStopped = LogTailer::checkUrlUnAvailable( $addr, $eofStr, 'GET', $timeout, \@serverLogInfos );
-        #}
-        #elsif ( $addr =~ /([\d\.\w\-]+):(\d+)/ ) {
-        #    my $host = $1;
-        #    my $port = int($2);
-        #    $isStopped = LogTailer::checkServiceUnAvailable( $host, $port, $eofStr, $timeout, \@serverLogInfos );
-        #}
-        #elsif ( defined($eofStr) and $eofStr ne '' ) {
-        #    $isStopped = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
-        #}
+    if ( $svcStatus != 0 ) {
         if ( defined($addr) and $addr ne '' ) {
-            my $isUp = LogTailer::checkUntilServiceDown( $addr, $eofStr, 10, \@serverLogInfos );
-            $isStopped = $isUp ^ 1;
+            $svcStatus = LogTailer::checkUntilServiceDown( $addr, $eofStr, 10, \@serverLogInfos );
         }
         elsif ( defined($eofStr) and $eofStr ne '' ) {
-            $isStopped = LogTailer::checkEofstr( $eofStr, 10, \@serverLogInfos );
+            $svcStatus = LogTailer::checkEofstr( $eofStr, 10, \@serverLogInfos );
         }
     }
 
-    if ( $isStopped ne 1 ) {
+    if ( $svcStatus != 0 ) {
         $rc = 1;
     }
 
