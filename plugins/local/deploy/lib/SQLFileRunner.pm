@@ -57,7 +57,7 @@ sub new {
     # ignoreErrors => $args{ignoreErrors}
     bless( $self, $type );
 
-    $self->{usedSchemas}  = [];
+    $self->{usedSchemas}  = {};
     $self->{sqlFileInfos} = [];
 
     if ( defined( $args{autocommit} ) and defined( $self->{dbInfo} ) ) {
@@ -289,7 +289,7 @@ sub execOneSqlFile {
         binmode(STDOUT);
 
         $ENV{LANG} = "en_US.$fileCharset";
-        
+
         DeployUtils->sigHandler(
             'TERM', 'INT', 'ABRT',
             sub {
@@ -747,7 +747,7 @@ sub checkSqlFiles {
             #如果有dbSchemasMap属性，代表是自动发布批量运行SQL，区别于基于单一DB运行SQL
             my @sqlDirSegments = split( '/', $sqlFile );
             my $dbSchema       = lc( $sqlDirSegments[0] );
-            push( @$usedSchemas, $dbSchema );
+            $usedSchemas->{$dbSchema} = 1;
             my $dbInfo = $dbSchemasMap->{$dbSchema};
             $nodeInfo = $dbInfo->{node};
         }
@@ -814,8 +814,13 @@ sub checkDBSchemas {
     my $dbSchemasMap = $self->{dbSchemasMap};
     my $usedSchemas  = $self->{usedSchemas};
 
-    foreach my $dbSchema (@$usedSchemas) {
+    foreach my $dbSchema ( keys(%$usedSchemas) ) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
+        if ( not defined($dbInfo) ) {
+            $hasError = $hasError + 1;
+            print("ERROR: DB schema $dbSchema not defined.\n");
+            next;
+        }
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
 

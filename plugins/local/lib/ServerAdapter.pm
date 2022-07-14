@@ -68,7 +68,7 @@ sub new {
             my ( $client, $uri, $postBody ) = @_;
             my $signContent = "$username#$uri#";
             if ( defined($postBody) ) {
-                $signContent = $signContent . MIME::Base64::encode($postBody, '');
+                $signContent = $signContent . MIME::Base64::encode( $postBody, '' );
             }
 
             my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
@@ -471,7 +471,55 @@ sub getDBConf {
     #TODO: Delete follow test lines
     #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
     my $dbConf = {
-        'mydb.myuser' => {
+        'bsm.root' => {
+            node => {
+                resourceId     => 9823748347,
+                nodeName       => 'bsm',
+                accessEndpoint => '192.168.0.26:3306',
+                nodeType       => 'Mysql',
+                host           => '192.168.0.26',
+                port           => 3306,
+                username       => 'root',
+                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+            },
+            args => {
+                locale            => 'en_US.UTF-8',
+                fileCharset       => 'UTF-8',
+                autocommit        => 0,
+                dbVersion         => '10.3',
+                dbArgs            => '',
+                ignoreErrors      => 'ORA-403',
+                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+                oraWallet         => '',              #只有oracle需要
+                db2SqlTerminator  => '',              #只有DB2需要
+                db2ProcTerminator => ''               #只有DB2需要
+            }
+        },
+        'postgresql.root' => {
+            node => {
+                resourceId     => 9823748347,
+                nodeName       => 'bsm',
+                accessEndpoint => '192.168.0.26:3306',
+                nodeType       => 'Mysql',
+                host           => '192.168.0.26',
+                port           => 3306,
+                username       => 'root',
+                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+            },
+            args => {
+                locale            => 'en_US.UTF-8',
+                fileCharset       => 'UTF-8',
+                autocommit        => 0,
+                dbVersion         => '10.3',
+                dbArgs            => '',
+                ignoreErrors      => 'ORA-403',
+                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+                oraWallet         => '',              #只有oracle需要
+                db2SqlTerminator  => '',              #只有DB2需要
+                db2ProcTerminator => ''               #只有DB2需要
+            }
+        },
+        'oracle.techsure' => {
             node => {
                 resourceId     => 9823748347,
                 nodeName       => 'bsm',

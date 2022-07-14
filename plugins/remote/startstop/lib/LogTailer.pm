@@ -319,12 +319,12 @@ sub _checkService {
 
 sub checkUntilServiceUp {
     my ( $addrDef, $eofStr, $timeout, $logInfos ) = @_;
-    _checkService( $addrDef, $eofStr, $timeout, $logInfos, 1 );
+    return _checkService( $addrDef, $eofStr, $timeout, $logInfos, 1 );
 }
 
 sub checkUntilServiceDown {
     my ( $addrDef, $eofStr, $timeout, $logInfos ) = @_;
-    _checkService( $addrDef, $eofStr, $timeout, $logInfos, 0 );
+    return _checkService( $addrDef, $eofStr, $timeout, $logInfos, 0 );
 }
 
 sub checkEofstr {
