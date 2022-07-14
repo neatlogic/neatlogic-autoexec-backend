@@ -206,8 +206,11 @@ class RunNode:
         self.statuses['pid'] = self.context.pid
         self.statuses['interact'] = interact
 
+        needUpdate = False
         if op is None:
-            self.statuses['status'] = status
+            if self.statuses.get('status') != status:
+                needUpdate = True
+                self.statuses['status'] = status
             self.statuses['warnCount'] = self.warnCount
         else:
             self.statuses[op.opId] = status
@@ -224,7 +227,7 @@ class RunNode:
         except Exception as ex:
             raise AutoExecError('Save status file:{}, failed {}'.format(self.statusPath, ex))
 
-        if op is None:
+        if needUpdate:
             try:
                 serverAdapter = self.context.serverAdapter
                 # 当status为failed，但是failIgnore为1，不影响继续执行
