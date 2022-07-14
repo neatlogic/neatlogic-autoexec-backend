@@ -21,7 +21,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              [--verbose 0|1] [--protocol http|https] [--cpifexists 0|1] [--pull 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
     print("              --transdir SaveToFileDirectoryToBeDownlaoded");
     print("              <src> <dest>\n");
     print("\n");
@@ -82,7 +82,7 @@ sub main {
     $isPull    = 0;
     $isVerbose = 0;
     $protocol  = 'https';
-    $pdir      = 'distribute';
+    $pdir      = 'appdist';
 
     GetOptions(
         'envpath=s{0,1}' => \$envPath,

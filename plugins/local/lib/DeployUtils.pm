@@ -123,7 +123,8 @@ sub getDataDirStruct {
     my $verRoot       = "artifact/$version";
     my $relRoot       = "$verRoot/build";
     my $relPath       = "$relRoot/$buildNo";
-    my $distPath      = "$verRoot/env/$envName/app";
+    my $distPath      = "$verRoot/env/$envName";
+    my $appDistPath   = "$verRoot/env/$envName/app";
     my $dbDistPath    = "$verRoot/env/$envName/db";
     my $mirrorPath    = "artifact/mirror/$envName";
     my $envresPath    = "envres/$envName";
@@ -137,7 +138,9 @@ sub getDataDirStruct {
             project     => $prjPath,
             release     => $relPath,
             releaseRoot => $relRoot,
+            disroot     => $distRoot,
             distribute  => $distPath,
+            appdist     => $appDistPath,
             dbscript    => $dbDistPath,
             mirror      => $mirrorPath,
             envres      => $envresPath
@@ -151,7 +154,9 @@ sub getDataDirStruct {
             project     => "$dataPath/$prjPath",
             release     => "$dataPath/$relPath",
             releaseRoot => "$dataPath/$relRoot",
+            disroot     => "$dataPath/$distRoot",
             distribute  => "$dataPath/$distPath",
+            appdist     => "$dataPath/$appDistPath",
             dbscript    => "$dataPath/$dbDistPath",
             mirror      => "$dataPath/$mirrorPath",
             envres      => "$dataPath/$envresPath"

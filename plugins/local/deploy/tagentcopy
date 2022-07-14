@@ -15,7 +15,7 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--verbose 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
     print("              [--np 0|1] [--followlinks 0|1]\n");
     print("              [-x ExcludeSubDirs] [--pull 0|1]\n");
     print("              <src1> <src2> <dest>\n");
@@ -126,7 +126,7 @@ sub main {
         $pdir = 'mirror';
     }
     else {
-        $pdir = 'distribute';
+        $pdir = 'appdist';
     }
 
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);

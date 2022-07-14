@@ -17,7 +17,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              [--verbose 0|1] [--cpifexists 0|1] [--followlinks 0|1] [--pull 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
     print("              <src> <dest>\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
@@ -37,7 +37,7 @@ sub main {
     $isPull      = 0;
     $isVerbose   = 0;
     $followLinks = 0;
-    $pdir        = 'distribute';
+    $pdir        = 'appdist';
 
     GetOptions(
         'h|help'         => \$isHelp,

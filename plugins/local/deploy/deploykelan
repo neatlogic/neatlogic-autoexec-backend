@@ -246,15 +246,15 @@ sub main {
 
     $consoleAddr =~ s/\/$//;
 
-    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
-    my $distDir = $dirInfo->{distribute};
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
+    my $appDistDir = $dirInfo->{appDist};
 
     if ( -d $distDir ) {
         my $webCtl = WebCtl->new();
         login( $webCtl, $consoleAddr, $serverName, $user, $pass );
 
         #chdir($distDir);
-        my @jarFiles = bsd_glob("$distDir/app/*.jar");
+        my @jarFiles = bsd_glob("$appDistDir/*.jar");
 
         my $bundleSeqsMap  = getBundleSeqAndIds( $webCtl, $consoleAddr, \@jarFiles );
         my @sortedJarFiles = sort { sortBundleFiles { $a, $b, $bundleSeqsMap } } @jarFiles;

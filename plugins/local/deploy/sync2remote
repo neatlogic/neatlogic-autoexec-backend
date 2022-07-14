@@ -17,7 +17,7 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--verbose 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
     print("              [--ostype windows|unix] [--agenttype agentless|tagent]\n");
     print("              [--nodelete 0|1] [--noattrs 0|1] [--followlinks 0|1]\n");
     print("              [--addexecfornewfile 0|1] [-x ExcludeSubDirs] [--pull 0|1]\n");
@@ -111,7 +111,7 @@ sub main {
             $pdir = 'mirror';
         }
         else {
-            $pdir = 'distribute';
+            $pdir = 'appdist';
         }
     }
 
@@ -195,7 +195,7 @@ sub main {
         $src = $verPath;
         if ( defined($insId) and $insId ne '' ) {
             my $insDiff = $insDiffPath . '/' . $insUniqName;
-            if ( ( $pdir eq 'distribute' or $pdir eq 'mirror' ) and -d $insDiff ) {
+            if ( ( $pdir eq 'appdist' or $pdir eq 'mirror' ) and -d $insDiff ) {
                 $src = "$src,$insDiff";
             }
         }

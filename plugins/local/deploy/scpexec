@@ -16,7 +16,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              [--verbose 0|1] [--np 0|1] [--cpifexists 0|1] [--pull 0|1]\n");
-    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
     print("              <src1> <src2> <dest>\n");
     print("\n");
     print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
@@ -115,7 +115,7 @@ sub main {
         $pdir = 'mirror';
     }
     else {
-        $pdir = 'distribute';
+        $pdir = 'appdist';
     }
 
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
