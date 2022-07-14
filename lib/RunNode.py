@@ -206,10 +206,11 @@ class RunNode:
         self.statuses['pid'] = self.context.pid
         self.statuses['interact'] = interact
 
-        isReUpdate = False
         if op is None:
             if self.statuses.get('status') == status:
-                isReUpdate = True
+                # If reupdate return
+                return
+
             self.statuses['status'] = status
             self.statuses['warnCount'] = self.warnCount
         else:
@@ -235,8 +236,7 @@ class RunNode:
 
                 # 如果update 节点状态返回当前phase是失败的状态，代表全局有节点是失败的，这个时候需要标记全局存在失败的节点
                 if 'Status' in retObj and retObj['Status'] == 'OK':
-                    if not isReUpdate:
-                        self.writeNodeLog("INFO: Change node status to " + status + ".\n")
+                    self.writeNodeLog("INFO: Change node status to " + status + ".\n")
                     if 'Return' in retObj and 'hasFailNode' in retObj['Return']:
                         if retObj['Return']['hasFailNode'] == 1:
                             self.context.hasFailNodeInGlobal = True
@@ -1083,7 +1083,9 @@ class RunNode:
                         r, w, x = select.select([channel], [], [], 10)
                         # if len(r) > 0:
                         while channel.recv_ready():
-                            self.writeNodeLog(channel.recv(4096))
+                            remoteOut = channel.recv(4096)
+                            if remoteOut:
+                                self.writeNodeLog(remoteOut)
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
