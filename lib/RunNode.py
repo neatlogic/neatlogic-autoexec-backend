@@ -642,9 +642,9 @@ class RunNode:
             finalLogPathWithTime = logPathWithTime
             finalLogPathWithTime = finalLogPathWithTime.replace('.{}.'.format(NodeStatus.running), '.{}.'.format(finalStatus))
             if finalLogPathWithTime != logPathWithTime:
-                if self.logHandle is not None:
-                    self.logHandle.close()
-                    self.logHandle = None
+                # if self.logHandle is not None:
+                #     self.logHandle.close()
+                #     self.logHandle = None
                 os.rename(self.logPathWithTime, finalLogPathWithTime)
 
         except Exception as ex:
