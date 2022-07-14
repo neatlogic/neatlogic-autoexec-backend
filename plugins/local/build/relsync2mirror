@@ -139,7 +139,7 @@ sub main {
     my $distDir    = $dirInfo->{distribute};
     my $mirrorDir  = $dirInfo->{mirror};
 
-    my $dbSrc  = "$releaseDir/db";
+    my $dbSrc  = "$releaseDir/db/$version";
     my $docSrc = "$releaseDir/doc";
 
     my ( $dbDest, $docDest );
