@@ -165,6 +165,7 @@ class PhaseExecutor:
                             print("INFO: Local phase:{} is no need to execute in current runner.\n".format(self.phaseName), end='')
                         elif not self.isRunning:
                             self.isRunning = True
+                            self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, phaseStatus, NodeStatus.running)
                             print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end='')
 
                         # 需要执行的节点实例加入等待执行队列
@@ -195,6 +196,7 @@ class PhaseExecutor:
                         if self.context.goToStop == False:
                             if not self.isRunning:
                                 self.isRunning = True
+                                self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, phaseStatus, NodeStatus.running)
                                 print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end='')
 
                             # 需要执行的节点实例加入等待执行队列

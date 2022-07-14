@@ -274,7 +274,7 @@ class JobRunner:
         endStatus = NodeStatus.aborted
         phaseStatus = self.context.phases[phaseName]
         try:
-            serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+            #serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
                 endStatus = NodeStatus.succeed
@@ -283,7 +283,7 @@ class JobRunner:
                 elif phaseStatus.ignoreFailNodeCount > 0:
                     endStatus = NodeStatus.completed
                 elif self.context.goToStop or self.context.hasFailNodeInGlobal:
-                    endStatus == NodeStatus.paused
+                    endStatus = NodeStatus.paused
             else:
                 self.context.hasFailNodeInGlobal = True
                 endStatus = NodeStatus.failed
@@ -337,6 +337,7 @@ class JobRunner:
                 parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
 
                 lastPhase = phaseName
+                serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
                 thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
                 thread.name = 'PhaseExecutor-' + phaseName
                 threads.append(thread)
@@ -495,7 +496,7 @@ class JobRunner:
                 if self.context.hasFailNodeInGlobal:
                     nodeStatus = NodeStatus.failed
                     if phaseStatus.isAborting:
-                       nodeStatus = NodeStatus.aborted
+                        nodeStatus = NodeStatus.aborted
                     self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
@@ -528,6 +529,7 @@ class JobRunner:
                 continue
             phaseNodeFactory = phaseNodeFactorys[phaseName]
             phaseNodeFactory.putRunNode(None)
+            phaseNodeFactory.putLocalRunNode(None)
 
         for thread in threads:
             thread.join()
