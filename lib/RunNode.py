@@ -15,6 +15,7 @@ import subprocess
 import select
 import json
 import logging
+import re
 import chardet
 import traceback
 
@@ -805,7 +806,7 @@ class RunNode:
                     'NODE_PORT': str(self.port),
                     'NODE_NAME': self.name
                 }
-                self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
+                self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password, readTimeout=360, writeTimeout=10)
                 self.tagent = tagent
@@ -844,7 +845,36 @@ class RunNode:
                     uploadRet = tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
                 if tagent.agentOsType == 'windows':
-                    self.killCmd = ""
+                    killCmd = '''
+                        function KillProcTree {
+                            Param([int]$ppid);
+                            Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ppid } | ForEach-Object { Kill-Tree $_.ProcessId };
+                            Stop-Process -Id $ppid;
+                        };
+
+                        Function killProcessByEnv($env){
+                            foreach($process in Get-Process){
+                                $processId = $process.id;
+                                $wmiObj = Get-WmiObject Win32_Process -Filter "ProcessId=$processId";
+                                $cmdLine = $wmiObj.CommandLine
+                                if ($cmdLine -Match $env){
+                                    KillProcTree $processId;
+                                }
+                                else{
+                                    foreach($entry in $process.StartInfo.EnvironmentVariables){
+                                        $name = $entry.Name;
+                                        $val = $entry.Value;
+                                        if ("$name=$val" -eq $env){
+                                            KillProcTree $processId;
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    '''
+                    killCmd = killCmd.replace('"', '\\"')
+                    killCmd = re.sub(r'\\s+', ' ', killCmd)
+                    self.killCmd = 'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"' % (killCmd, self.context.jobId)
                 if uploadRet == 0 and not self.context.goToStop:
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
@@ -909,7 +939,7 @@ class RunNode:
                 self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType='Unix')
-            self.killCmd = "kill -9 `ps aux |grep '" + remoteRoot + "'|grep -v grep|awk '{print $2}'`"
+            self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
             scriptFile = None
             uploaded = False
             hasError = False
@@ -1143,8 +1173,8 @@ class RunNode:
             if killCmd is not None:
                 tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
-                    self.updateNodeStatus(NodeStatus.aborted)
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                    self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
                 else:
                     self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
@@ -1170,8 +1200,8 @@ class RunNode:
                     if len(r) > 0:
                         self.writeNodeLog(channel.recv(1024).decode(errors='ignore') + "\n")
 
-                self.updateNodeStatus(NodeStatus.aborted)
                 self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                self.updateNodeStatus(NodeStatus.aborted)
                 self.isKilled = True
             except Exception as err:
                 self.writeNodeLog("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
