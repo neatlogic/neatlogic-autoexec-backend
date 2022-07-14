@@ -1084,8 +1084,7 @@ class RunNode:
                         # if len(r) > 0:
                         while channel.recv_ready():
                             remoteOut = channel.recv(4096)
-                            if remoteOut:
-                                self.writeNodeLog(remoteOut)
+                            self.writeNodeLog(remoteOut)
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
