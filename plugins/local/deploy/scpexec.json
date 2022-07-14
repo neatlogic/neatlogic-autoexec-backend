@@ -7,8 +7,7 @@
     "defaultProfile": null,
     "description": "通过SCP拷贝文件或目录",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -16,8 +15,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -37,10 +35,13 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "环境制品目录",
                         "value": "distribute"
+                    },
+                    {
+                        "text": "DB脚本目录",
+                        "value": "dbscript"
                     },
                     {
                         "text": "版本制品目录",
@@ -70,8 +71,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -91,8 +91,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "远程拷贝到本地",
                         "value": "1"
                     },
@@ -112,8 +111,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
