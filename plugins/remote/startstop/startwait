@@ -127,6 +127,7 @@ sub main {
         }
     }
 
+    $SIG{CHLD} = 'IGNORE';
     if ( defined($preScript) and $preScript ne '' ) {
         print("INFO: execte script:$preScript\n");
         my $ppid = $$;
@@ -173,28 +174,16 @@ sub main {
         }
     }
 
-    my $isSuccess = 0;
-
-    #if ( $addr =~ /https?:\/\// ) {
-    #    $isSuccess = LogTailer::checkUrlAvailable( $addr, $eofStr, 'GET', $timeout, \@serverLogInfos );
-    #}
-    #elsif ( $addr =~ /([\d\.\w\-]+):(\d+)/ ) {
-    #    my $host = $1;
-    #    my $port = int($2);
-    #    $isSuccess = LogTailer::checkServiceAvailable( $host, $port, $eofStr, $timeout, \@serverLogInfos );
-    #}
-    #elsif ( defined($eofStr) and $eofStr ne '' ) {
-    #    $isSuccess = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
-    #}
+    my $svcStatus = 0;
 
     if ( defined($addr) and $addr ne '' ) {
-        $isSuccess = LogTailer::checkUntilServiceUp( $addr, $eofStr, $timeout, \@serverLogInfos );
+        $svcStatus = LogTailer::checkUntilServiceUp( $addr, $eofStr, $timeout, \@serverLogInfos );
     }
     elsif ( defined($eofStr) and $eofStr ne '' ) {
-        $isSuccess = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+        $svcStatus = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
     }
 
-    if ( $isSuccess ne 1 ) {
+    if ( $svcStatus != 1 ) {
         $rc = 1;
     }
 

@@ -119,7 +119,7 @@ sub _tailLogs {
 
 sub _checkUrl {
     my ( $url, $method, $timeout, $checkType, $loopNo ) = @_;
-    my $isSuccess = 0;
+    my $svcStatus = 0;
 
     if ( not defined($method) or $method eq '' ) {
         $method = 'GET';
@@ -147,7 +147,7 @@ sub _checkUrl {
             if ( $checkType eq 'start' ) {
                 print("INFO: URL checking URL:$url, status code $statusCode, is started.\n");
             }
-            $isSuccess = 1;
+            $svcStatus = 1;
         }
         else {
             if ( $loopNo % 10 == 0 and $checkType eq 'start' ) {
@@ -163,13 +163,13 @@ sub _checkUrl {
         print("ERROR:$@\n");
     }
 
-    return $isSuccess;
+    return $svcStatus;
 }
 
 sub _checkTcp {
     my ( $host, $port, $timeout, $checkType, $loopNo ) = @_;
 
-    my $isSuccess = 0;
+    my $svcStatus = 0;
 
     eval {
         my $socket = IO::Socket::INET->new(
@@ -179,7 +179,7 @@ sub _checkTcp {
         );
 
         if ( defined($socket) ) {
-            $isSuccess = 1;
+            $svcStatus = 1;
             $socket->close();
 
             if ( $loopNo % 10 == 0 and $checkType eq 'stop' ) {
@@ -204,7 +204,7 @@ sub _checkTcp {
         print("ERROR:$@\n");
     }
 
-    return $isSuccess;
+    return $svcStatus;
 }
 
 sub _checkService {
@@ -219,7 +219,7 @@ sub _checkService {
         $addrStatusMap->{$addr} = $upOrDown ^ 1;
     }
 
-    my $isSuccess = 0;
+    my $svcStatus = $upOrDown ^ 1;
     my $step      = 3;
     my $stepCount = $timeout / $step;
 
@@ -228,7 +228,7 @@ sub _checkService {
         $callback = sub {
             my ($line) = @_;
             if ( $line =~ /$eofStr/ ) {
-                $isSuccess = $upOrDown;
+                $svcStatus = $upOrDown;
             }
         };
     }
@@ -254,42 +254,43 @@ sub _checkService {
     my $startTime   = time();
     for ( my $i = 0 ; $i <= $stepCount ; $i++ ) {
 
-        $isSuccess = $upOrDown;
+        $svcStatus = $upOrDown;
         foreach my $addr (@addrs) {
             if ( $addrStatusMap->{$addr} == $upOrDown ) {
                 next;
             }
 
-            if ( index( $addr, 'http' ) >= 0 ) {
+            if ( index( $addr, 'http' ) == 0 ) {
                 $url = $addr;
-                if ( _checkUrl( $url, 'GET', $step * 3, $checkType, $i ) != $upOrDown ) {
-                    $isSuccess = $upOrDown ^ 1;
+                $svcStatus = _checkUrl( $url, 'GET', $step * 3, $checkType, $i );
+                if ( $svcStatus != $upOrDown ) {
                     last;
                 }
                 else {
-                    $addrStatusMap->{$addr} = $upOrDown;
+                    $addrStatusMap->{$addr} = $svcStatus;
                 }
             }
             else {
                 ( $host, $port ) = split( /\s*:\s*/, $addr );
-                if ( _checkTcp( $host, $port, $step * 3, $checkType, $i ) != $upOrDown ) {
-                    $isSuccess = $upOrDown ^ 1;
+                $svcStatus = _checkTcp( $host, $port, $step * 3, $checkType, $i );
+                if ( $svcStatus != $upOrDown ) {
                     last;
                 }
                 else {
-                    $addrStatusMap->{$addr} = $upOrDown;
+                    $addrStatusMap->{$addr} = $svcStatus;
                 }
             }
         }
 
         _tailLogs( $logInfos, $callback );
-
-        if ( $isSuccess == $upOrDown ) {
+        
+        if ( $svcStatus == $upOrDown ) {
             last;
         }
 
         $timeConsume = time() - $startTime;
         if ( $timeConsume >= $timeout ) {
+            undef($svcStatus);
             print("WARN: Check timeout($timeout)\n");
             last;
         }
@@ -298,7 +299,7 @@ sub _checkService {
     }
 
     if ( $upOrDown == 1 ) {
-        if ( $isSuccess == 0 ) {
+        if ( $svcStatus == 0 ) {
             print("WARN: Service $addrDef is down.\n");
         }
         else {
@@ -306,7 +307,7 @@ sub _checkService {
         }
     }
     else {
-        if ( $isSuccess == 0 ) {
+        if ( $svcStatus == 0 ) {
             print("INFO: Service $addrDef is stopped.\n");
         }
         else {
@@ -314,7 +315,7 @@ sub _checkService {
         }
     }
 
-    return $isSuccess;
+    return $svcStatus;
 }
 
 sub checkUntilServiceUp {
