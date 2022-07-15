@@ -84,7 +84,7 @@ sub main {
     foreach my $logPattern (@logPatterns) {
         if ( $ostype !~ /Windows/i ) {
             my $pipe;
-            my $pid = open( $pipe, "echo \"$logPattern\" |" );
+            my $pid        = open( $pipe, "echo \"$logPattern\" |" );
             my $logPattern = <$pipe>;
             close($pipe);
             if ( $? == 0 ) {
@@ -136,8 +136,6 @@ sub main {
             my $OLDSTDOUT;
             open( $OLDSTDOUT, '>&', STDOUT );
             eval {
-                #my @uname  = POSIX::uname();
-                #my $ostype = $uname[0];
                 if ( $ostype !~ /Windows/i ) {
                     open( STDIN,  '/dev/null' );
                     open( STDOUT, '>>/dev/null' );
