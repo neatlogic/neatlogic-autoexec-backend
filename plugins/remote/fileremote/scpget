@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
+use strict;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Cwd;
+
+use SCPExec;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--addr SCPAddress] [--dest DestinationDirectory] \n");
+    print("              [--user username] [--pass password] \n");
+    print("\n");
+    print("       --addr:      SCP address, example:192.168.0.222:/tmp/test.tgz\n");
+    print("       --dir:       Remote target path .\n");
+    print("       --pass:      Password .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $addr, $remoteDir, $localDir, $user, $pass );
+
+    my $pname = $FindBin::Script;
+    $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'addr=s'      => \$addr,
+        'remotedir=s' => \$remoteDir,
+        'dir=s'       => \$localDir,
+        'user=s'      => \$user,
+        'pass=s'      => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($addr) or $addr eq '' ) {
+        print("ERROR: Must define scp address by option --addr.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($localDir) or $localDir eq '' ) {
+        print("ERROR: Must define local directory by option --dir.\n");
+        $optionError = 1;
+    }
+
+    if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
+        print("ERROR: Local directory path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my ( $host, $port ) = split( ':', $addr );
+    if ( not defined($port) ) {
+        $port = 22;
+    }
+
+    my $errorCode = 0;
+
+    my $scpPath = "$user\@$host:$remoteDir";
+    $errorCode = myExec(
+        host        => $host,
+        port        => $port,
+        username    => $user,
+        password    => $pass,
+        source      => $scpPath,
+        destination => $localDir,
+        verbose     => $isVerbose,
+        notpreserve => 0
+    );
+    if ( $errorCode ne 0 ) {
+        last;
+    }
+
+    if ( $errorCode ne 0 ) {
+        print("ERROR: Download $scpPath to $localDir failed.\n");
+    }
+    else {
+        print("INFO: Download $scpPath to $localDir success.\n");
+    }
+    return $errorCode;
+}
+
+sub myExec {
+    my (%args)    = @_;
+    my $host      = $args{host};
+    my $port      = $args{port};
+    my $user      = $args{username};
+    my $pass      = $args{password};
+    my $src       = $args{source};
+    my $localDir  = $args{destination};
+    my $isVerbose = $args{verbose};
+    my $np        = $args{notpreserve};
+
+    my $scpExec = new SCPExec(
+        host        => $host,
+        port        => $port,
+        username    => $user,
+        password    => $pass,
+        source      => $src,
+        destination => $localDir,
+        verbose     => $isVerbose,
+        notpreserve => $np
+    );
+
+    my $rc = $scpExec->exec();
+    return $rc;
+}
+
+exit( main() );

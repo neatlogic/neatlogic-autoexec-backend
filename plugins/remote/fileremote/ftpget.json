@@ -1,0 +1,47 @@
+{
+    "opDesc": "FTP下载",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "基于FTP下载文件",
+    "option": [{
+            "opt": "addr",
+            "name": "FTP地址",
+            "help": "FTP文件地址, 例如: ftp://192.168.0.222/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dir",
+            "name": "本地目录",
+            "help": "本地目录，例如：/tmp/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "登录用户",
+            "help": "用户名, 如不需要, 留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pass",
+            "name": "登录密码",
+            "help": "密码, 如不需要, 留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -92,9 +92,11 @@ sub main {
 
     my $isSuccess = 0;
     my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
-    $ftp->login( $user, $pass ) or die "ERROR::$user login failed.\n";
+    if ( defined($user) and $user ne '' ) {
+        $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
+    }
     $ftp->binary();
-    print("INFO:login ftp success.\n");
+    print("INFO: Login ftp success.\n");
 
     my @src_dirs = split( /,/, $src );
     if ( $direction eq 'push' ) {
@@ -102,7 +104,7 @@ sub main {
             my $isFile = 0;
             if ( !-d $target and !-e $target ) {
                 $isSuccess = 1;
-                print("ERROR:: src path $target not exists.\n");
+                print("ERROR: Local directory $target not exists.\n");
                 last;
             }
             if ( -d $target ) {
@@ -113,7 +115,7 @@ sub main {
             }
             if ( $isFile == 0 ) {
                 my $target_name = basename($target);
-                print("INFO::upload folder $target.\n");
+                print("INFO: Upload folder $target.\n");
 
                 #切换目标根路径
                 $ftp->cwd($dest);
@@ -123,7 +125,7 @@ sub main {
                 $ftp->rput($target);
             }
             else {
-                print("INFO::upload file $target.\n");
+                print("INFO: Upload file $target.\n");
                 $ftp->put($target);
             }
         }
@@ -131,7 +133,7 @@ sub main {
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
             $isSuccess = 1;
-            print("ERROR:: dest path $dest not exists.\n");
+            print("ERROR: Local directory $dest not exists.\n");
         }
         else {
             foreach my $target (@src_dirs) {
@@ -144,7 +146,7 @@ sub main {
                 }
                 chdir($dest);
                 if ( $isFile == 0 ) {
-                    print("INFO::download folder $target.\n");
+                    print("INFO: Download folder $target.\n");
                     my $folder = File::Spec->catfile( $dest, $target );
                     if ( !-d $folder ) {
                         system("mkdir -p $folder");
@@ -153,19 +155,14 @@ sub main {
                     $ftp->rget( $target, $folder );
                 }
                 else {
-                    print("INFO::download file $target.\n");
+                    print("INFO: Download file $target.\n");
                     $ftp->get($target);
                 }
             }
         }
     }
     $ftp->quit;
-    if ( $isSuccess ne 0 ) {
-        print("ERROR: $pname --$direction $src $dest failed.\n");
-    }
-    else {
-        print("INFO: $pname --$direction $src $dest success.\n");
-    }
+
     return $isSuccess;
 }
 
