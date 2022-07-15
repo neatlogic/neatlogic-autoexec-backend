@@ -23,11 +23,12 @@ sub usage {
     print("              [--extnames SqlExtNames] [--rollback 0|1]\n");
     print("              [--index IndexFileNames] [--filter SqlFileNamePattern]\n");
     print("\n");
-    print("       --targetphase: Import to which phase.\n");
-    print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
-    print("       --filter:      sql file name pattern, just execute matched sql file\n");
-    print("       --index:       index file names, example:index.txt\n");
-    print("       --rollback:    execute sql files in sub directory:rollback\n");
+    print("       --targetphase:   Import sql to which phase.\n");
+    print("       --rbtargetphase: Import rollback sql to which phase.\n");
+    print("       --extnames:      sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
+    print("       --filter:        sql file name pattern, just execute matched sql file\n");
+    print("       --index:         index file names, example:index.txt\n");
+    print("       --rollback:      execute sql files in sub directory:rollback\n");
     exit(1);
 }
 
@@ -37,6 +38,7 @@ sub main {
     my $envPath;
     my $version;
     my $targetPhase;
+    my $rbTargetPhase;
     my $sqlExtNamesStr = '';
     my $isHelp         = 0;
     my $isVerbose      = 0;
@@ -45,15 +47,16 @@ sub main {
     my $index;
 
     GetOptions(
-        'help'          => \$isHelp,
-        'v|verbose=i'   => \$isVerbose,
-        'envpath=s'     => \$envPath,
-        'version=s'     => \$version,
-        'targetphase=s' => \$targetPhase,
-        'extnames=s'    => \$sqlExtNamesStr,
-        'rollback=i'    => \$isRollback,
-        'filter=s'      => \$filter,
-        'index=s'       => \$index
+        'help'            => \$isHelp,
+        'v|verbose=i'     => \$isVerbose,
+        'envpath=s'       => \$envPath,
+        'version=s'       => \$version,
+        'targetphase=s'   => \$targetPhase,
+        'rbtargetphase=s' => \$rbTargetPhase,
+        'extnames=s'      => \$sqlExtNamesStr,
+        'rollback=i'      => \$isRollback,
+        'filter=s'        => \$filter,
+        'index=s'         => \$index
     );
 
     my $optionError = 0;
@@ -136,14 +139,6 @@ sub main {
         dirInfo     => $dirInfo
     );
 
-    my $sqlFiles = [];
-    if ( defined($index) and $index ne '' ) {
-        $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
-    }
-    else {
-        $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
-    }
-
     my $serverAdapter = ServerAdapter->new();
     my $dbSchemasMap  = {};
     my $dbConf        = $serverAdapter->getDBConf($deployEnv);
@@ -152,6 +147,18 @@ sub main {
         $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
     }
 
+    my $sqlFiles         = [];
+    my $rollbackSqlFiles = [];
+    if ( defined($index) and $index ne '' ) {
+        $sqlFiles         = $batchUtils->getSqlFilePathByIdx( $index, $filter, 0 );
+        $rollbackSqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, 1 );
+    }
+    else {
+        $sqlFiles         = $batchUtils->getSqlFilePath( $filter, 0 );
+        $rollbackSqlFiles = $batchUtils->getSqlFilePath( $filter, 1 );
+    }
+
+    #普通SQL的导入
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
         jobPath      => $jobPath,
@@ -164,6 +171,21 @@ sub main {
         sqlStatusDir => $sqlStatusDir,
         logFileDir   => $logFileDir,
         sqlFiles     => $sqlFiles
+    );
+
+    #回退SQL的导入
+    my $rbSqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        jobPath      => $jobPath,
+        deployEnv    => $deployEnv,
+        toolsDir     => $deployEnv->{TOOLS_PATH},
+        tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
+        dbSchemasMap => $dbSchemasMap,
+        nodeInfo     => { resourceId => 0 },
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $rollbackSqlFiles
     );
 
     my $hasError = 0;
@@ -185,12 +207,21 @@ sub main {
     $ret      = $sqlFileRunner->checkSqlFiles();
     $hasError = $hasError + $ret;
 
-    #在检查SQL脚本后，抽取了schema信息，马上进行db schema的连通性检查
-    $ret      = $sqlFileRunner->checkDBSchemas();
+    $ret      = $rbSqlFileRunner->checkSqlFiles();
     $hasError = $hasError + $ret;
 
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
     $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
+
+    my $rbSqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
+
+    $lock->unlockEnvSql($sqlLockId);
+    undef($lock);
+
+    #在检查SQL脚本后，抽取了schema信息，进行db schema的连通性检查
+    $ret      = $sqlFileRunner->checkDBSchemas();
+    $hasError = $hasError + $ret;
 
     return $hasError;
 }
