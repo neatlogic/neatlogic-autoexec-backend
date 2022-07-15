@@ -5,6 +5,7 @@
 """
 import os
 import sys
+import atexit
 import traceback
 import threading
 import subprocess
@@ -380,7 +381,16 @@ if __name__ == "__main__":
         os.environ['AUTOEXEC_JOBID'] = context.jobId
         os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
         os.environ['AUTOEXEC_TENANT'] = context.tenant
-        os.environ['AUTOEXEC_JOB_SOCK'] = '{}/job{}.sock'.format(context.runPath, os.getpid())
+        jobSock = '{}/job{}.sock'.format(context.runPath, os.getpid())
+        os.environ['AUTOEXEC_JOB_SOCK'] = jobSock
+
+        def removeJobSock(sockPath):
+            try:
+                if os.path.exists(sockPath):
+                    os.unlink(sockPath)
+            except:
+                pass
+        atexit.register(removeJobSock, jobSock)
 
         # 初始化单例的GlobalLocks
         GlobalLock.GlobalLock(context)
