@@ -210,9 +210,8 @@ class JobRunner:
         elif remainder > 0:
             parallelCount = parallelCount + 1
 
-        if parallelCount < totalNodeCount:
+        if parallelCount > totalNodeCount:
             parallelCount = totalNodeCount
-            roundCount = 1
 
         return parallelCount
 
