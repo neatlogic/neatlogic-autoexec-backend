@@ -33,13 +33,13 @@ sub new {
         $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
-            'getIdPath' => '',
+            'getIdPath' => '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
-            'getVer'    => '',
-            'updateVer' => '',
-            'delBuild'  => '',
-            'delVer'    => '',
+            'getVer'    => '/codedriver/api/rest/deploy/version/config/get',
+            'updateVer' => '/codedriver/api/rest/deploy/version/config/update',
+            'delBuild'  => '/codedriver/api/rest/deploy/version/buildNo/delete',
+            'delVer'    => '/codedriver/api/rest/deploy/version/delete',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
