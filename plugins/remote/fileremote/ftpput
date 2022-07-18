@@ -86,10 +86,6 @@ sub main {
         $errorCode = 1;
         print("ERROR: Directory $localDir not exists.\n");
     }
-    elsif ( !-d $localDir ) {
-        $errorCode = 1;
-        print("ERROR: $localDir is not a directory.\n");
-    }
     else {
         my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
         if ( defined($user) and $user ne '' ) {
@@ -104,12 +100,10 @@ sub main {
         else {
             $isFile = 1;
         }
+        $ftp->cwd($srvDir);
         if ( $isFile == 0 ) {
             my $target_name = basename($localDir);
             print("INFO: Upload folder $localDir.\n");
-
-            #切换目标根路径
-            $ftp->cwd($localDir);
             $ftp->mkdir($target_name);
             $ftp->cwd($target_name);
             chdir($localDir);
