@@ -45,7 +45,7 @@ sub new {
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
             'getAutoCfgConf'        => '',
-            'getDBConf'             => '',
+            'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
             'addBuildQulity'        => '',
             'getAppPassWord'        => '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getSqlFileStatuses'    => '/codedriver/api/rest/autoexec/job/sql/list',
@@ -150,14 +150,6 @@ sub getIdPath {
     #ret: idPath of operate enviroment, example:100/200/3
     #-----------------------
 
-    #TODO: Delete follow test line
-    my $idPath = '0/0/0';    #测试用数据
-
-    return $idPath;
-
-    #Test end########################################
-
-    #TODO: check call api convert namePath to idPath
     $namePath =~ s/^\/+|\/+$//g;
     my @dpNames   = split( '/', $namePath );
     my @partsName = ( 'sysName', 'moduleName', 'envName' );
@@ -290,11 +282,6 @@ sub updateVer {
 sub delVer {
     my ( $self, $buildEnv, $version ) = @_;
 
-    #TODO: uncomment after test
-    return;
-
-    #Test end########################
-
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
     my $params = $self->_getParams($buildEnv);
@@ -313,11 +300,6 @@ sub delVer {
 
 sub delBuild {
     my ( $self, $buildEnv, $version, $buildNo ) = @_;
-
-    #TODO: uncomment after test
-    return;
-
-    #Test end########################
 
     #getver之后update版本信息，更新版本的相关属性
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
@@ -470,90 +452,90 @@ sub getDBConf {
 
     #TODO: Delete follow test lines
     #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
-    my $dbConf = {
-        'bsm.root' => {
-            node => {
-                resourceId  => 9823748347,
-                nodeName    => 'bsm',
-                serviceAddr => '192.168.0.26:3306',
-                nodeType    => 'Mysql',
-                host        => '192.168.0.26',
-                port        => 3306,
-                username    => 'root',
-                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-            },
-            args => {
-                locale            => 'en_US.UTF-8',
-                fileCharset       => 'UTF-8',
-                autocommit        => 0,
-                dbVersion         => '10.3',
-                dbArgs            => '',
-                ignoreErrors      => 'ORA-403',
-                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-                oraWallet         => '',              #只有oracle需要
-                db2SqlTerminator  => '',              #只有DB2需要
-                db2ProcTerminator => ''               #只有DB2需要
-            }
-        },
-        'postgresql.root' => {
-            node => {
-                resourceId  => 9823748347,
-                nodeName    => 'bsm',
-                serviceAddr => '192.168.0.26:3306',
-                nodeType    => 'Mysql',
-                host        => '192.168.0.26',
-                port        => 3306,
-                username    => 'root',
-                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-            },
-            args => {
-                locale            => 'en_US.UTF-8',
-                fileCharset       => 'UTF-8',
-                autocommit        => 0,
-                dbVersion         => '10.3',
-                dbArgs            => '',
-                ignoreErrors      => 'ORA-403',
-                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-                oraWallet         => '',              #只有oracle需要
-                db2SqlTerminator  => '',              #只有DB2需要
-                db2ProcTerminator => ''               #只有DB2需要
-            }
-        },
-        'oracle.techsure' => {
-            node => {
-                resourceId  => 9823748347,
-                nodeName    => 'bsm',
-                serviceAddr => '192.168.0.26:3306',
-                nodeType    => 'Mysql',
-                host        => '192.168.0.26',
-                port        => 3306,
-                username    => 'root',
-                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-            },
-            args => {
-                locale            => 'en_US.UTF-8',
-                fileCharset       => 'UTF-8',
-                autocommit        => 0,
-                dbVersion         => '10.3',
-                dbArgs            => '',
-                ignoreErrors      => 'ORA-403',
-                dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-                oraWallet         => '',              #只有oracle需要
-                db2SqlTerminator  => '',              #只有DB2需要
-                db2ProcTerminator => ''               #只有DB2需要
-            }
-        }
-    };
+    # my $dbConf = {
+    #     'bsm.root' => {
+    #         node => {
+    #             resourceId  => 9823748347,
+    #             nodeName    => 'bsm',
+    #             serviceAddr => '192.168.0.26:3306',
+    #             nodeType    => 'Mysql',
+    #             host        => '192.168.0.26',
+    #             port        => 3306,
+    #             username    => 'root',
+    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
+    #         },
+    #         args => {
+    #             locale            => 'en_US.UTF-8',
+    #             fileCharset       => 'UTF-8',
+    #             autocommit        => 0,
+    #             dbVersion         => '10.3',
+    #             dbArgs            => '',
+    #             ignoreErrors      => 'ORA-403',
+    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+    #             oraWallet         => '',              #只有oracle需要
+    #             db2SqlTerminator  => '',              #只有DB2需要
+    #             db2ProcTerminator => ''               #只有DB2需要
+    #         }
+    #     },
+    #     'postgresql.root' => {
+    #         node => {
+    #             resourceId  => 9823748347,
+    #             nodeName    => 'bsm',
+    #             serviceAddr => '192.168.0.26:3306',
+    #             nodeType    => 'Mysql',
+    #             host        => '192.168.0.26',
+    #             port        => 3306,
+    #             username    => 'root',
+    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
+    #         },
+    #         args => {
+    #             locale            => 'en_US.UTF-8',
+    #             fileCharset       => 'UTF-8',
+    #             autocommit        => 0,
+    #             dbVersion         => '10.3',
+    #             dbArgs            => '',
+    #             ignoreErrors      => 'ORA-403',
+    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+    #             oraWallet         => '',              #只有oracle需要
+    #             db2SqlTerminator  => '',              #只有DB2需要
+    #             db2ProcTerminator => ''               #只有DB2需要
+    #         }
+    #     },
+    #     'oracle.techsure' => {
+    #         node => {
+    #             resourceId  => 9823748347,
+    #             nodeName    => 'bsm',
+    #             serviceAddr => '192.168.0.26:3306',
+    #             nodeType    => 'Mysql',
+    #             host        => '192.168.0.26',
+    #             port        => 3306,
+    #             username    => 'root',
+    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
+    #         },
+    #         args => {
+    #             locale            => 'en_US.UTF-8',
+    #             fileCharset       => 'UTF-8',
+    #             autocommit        => 0,
+    #             dbVersion         => '10.3',
+    #             dbArgs            => '',
+    #             ignoreErrors      => 'ORA-403',
+    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
+    #             oraWallet         => '',              #只有oracle需要
+    #             db2SqlTerminator  => '',              #只有DB2需要
+    #             db2ProcTerminator => ''               #只有DB2需要
+    #         }
+    #     }
+    # };
 
-    my $serverConf = $self->{serverConf};
-    while ( my ( $schema, $conf ) = each(%$dbConf) ) {
-        my $nodeInfo = $conf->{node};
-        my $password = $nodeInfo->{password};
-        if ( defined($password) ) {
-            $nodeInfo->{password} = $serverConf->decryptPwd($password);
-        }
-    }
-    return $dbConf;
+    # my $serverConf = $self->{serverConf};
+    # while ( my ( $schema, $conf ) = each(%$dbConf) ) {
+    #     my $nodeInfo = $conf->{node};
+    #     my $password = $nodeInfo->{password};
+    #     if ( defined($password) ) {
+    #         $nodeInfo->{password} = $serverConf->decryptPwd($password);
+    #     }
+    # }
+    # return $dbConf;
 
     #TODO:Test end##################################3
 
