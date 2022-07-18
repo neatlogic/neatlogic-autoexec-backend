@@ -123,6 +123,29 @@ sub _initDir {
     return;
 }
 
+sub _getHandlerName {
+    my ( $self, $dbInfo, $dbType );
+    my $handlerName = $dbType . 'SQLRunner';
+    my $requireName = $handlerName . '.pm';
+
+    if ( not -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
+        if ( $dbType =~ s/DB$// ) {
+            if ( -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
+                $dbInfo->{dbType} = $dbType;
+                $handlerName      = $dbType . 'SQLRunner';
+                $requireName      = $handlerName . '.pm';
+            }
+        }
+    }
+
+    if ( not -f $self->{myDir} . "/$requireName" ) {
+        print("ERROR: Can not find runner ${dbType}SQLRunner or ${dbType}DBSQLRunner.\n");
+        exit(2);
+    }
+
+    return $requireName;
+}
+
 sub execOneSqlFile {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
 
@@ -320,23 +343,7 @@ sub execOneSqlFile {
         print("#***************************************\n\n");
 
         my $handlerName = $dbType . 'SQLRunner';
-        my $requireName = $handlerName . '.pm';
-
-        if ( not -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
-            if ( $dbType =~ s/DB$// ) {
-                if ( -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
-                    $dbInfo->{dbType} = $dbType;
-                    $handlerName      = $dbType . 'SQLRunner';
-                    $requireName      = $handlerName . '.pm';
-                }
-            }
-        }
-
-        if ( not -f $self->{myDir} . "/$requireName" ) {
-            $hasError = 2;
-            print("ERROR: Can not find runner ${dbType}SQLRunner or ${dbType}DBSQLRunner.\n");
-            exit($hasError);
-        }
+        my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
 
         my $startTime = time();
         my $handler;
@@ -832,7 +839,7 @@ sub checkDBSchemas {
         my $dbName = $dbInfo->{dbName};
 
         my $handlerName = uc($dbType) . 'SQLRunner';
-        my $requireName = $handlerName . '.pm';
+        my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
 
         my $handler;
         eval {
@@ -884,7 +891,7 @@ sub testByIpPort {
     }
 
     my $handlerName = uc($dbType) . 'SQLRunner';
-    my $requireName = $handlerName . '.pm';
+    my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
 
     my $hasLogon = 0;
     my $handler;
