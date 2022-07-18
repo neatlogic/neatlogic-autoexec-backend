@@ -9,7 +9,6 @@ use Encode;
 use File::Basename;
 use File::Temp;
 use Cwd;
-use Expect;
 
 use DeployUtils;
 use SQLFileStatus;
@@ -130,7 +129,8 @@ sub new {
     }
 
     $ENV{TERM} = 'vt100';
-    my $spawn;
+    my $spawn = Expect->new();
+    $spawn->log_stdout(0);
 
     my $sqlDir      = dirname($sqlFile);
     my $sqlFileName = basename($sqlFile);
@@ -149,11 +149,11 @@ sub new {
         #my $sqlFileName = basename($sqlFile);
         if ( $addrsCount == 1 ) {
             print("INFO: sqlldr userid=$user/******\@//$host:$port/$dbName $dbArgs control='$sqlFileName'\n");
-            $spawn = Expect->spawn("sqlldr userid='$user/\"$pass\"'\@//$host:$port/$dbName $dbArgs control='$sqlFileName'");
+            $spawn->spawn("sqlldr userid='$user/\"$pass\"'\@//$host:$port/$dbName $dbArgs control='$sqlFileName'");
         }
         else {
             print("INFO: sqlldr userid=$user/******\@orcl $dbArgs control='$sqlFileName'\n");
-            $spawn = Expect->spawn("sqlldr userid='$user/\"$pass\"'\@orcl $dbArgs control='$sqlFileName'");
+            $spawn->spawn("sqlldr userid='$user/\"$pass\"'\@orcl $dbArgs control='$sqlFileName'");
         }
     }
     elsif ( $sqlFile =~ /\.dmp/i ) {
@@ -166,11 +166,11 @@ sub new {
         # oracle import
         if ( $addrsCount == 1 ) {
             print("INFO: imp $user/******\@//$host:$port/$dbName $dbArgs file=$sqlFileName\n");
-            $spawn = Expect->spawn("imp '$user/\"$pass\"'\@//$host:$port/$dbName $dbArgs file='$sqlFileName'");
+            $spawn->spawn("imp '$user/\"$pass\"'\@//$host:$port/$dbName $dbArgs file='$sqlFileName'");
         }
         else {
             print("INFO: imp $user/******\@orcl $dbArgs file=$sqlFileName\n");
-            $spawn = Expect->spawn("imp '$user/\"$pass\"'\@orcl $dbArgs file='$sqlFileName'");
+            $spawn->spawn("imp '$user/\"$pass\"'\@orcl $dbArgs file='$sqlFileName'");
         }
     }
     else {
@@ -180,11 +180,11 @@ sub new {
             print("INFO: $sqlRunner -R 1 -L $user/******\@//$host:$port/$dbName \@$sqlFileName\n");
 
             #print( "$sqlRunner -R 1 -L '$user/\"$pass\"'\@//$host:$port/$dbName", "\n" );
-            $spawn = Expect->spawn("$sqlRunner -R 1 -L '$user/\"$pass\"'\@//$host:$port/$dbName");
+            $spawn->spawn("$sqlRunner -R 1 -L '$user/\"$pass\"'\@//$host:$port/$dbName");
         }
         else {
             print("INFO: $sqlRunner -R 1 -L $user/******\@orcl \@$sqlFileName\n");
-            $spawn = Expect->spawn("$sqlRunner -R 1 -L '$user/\"$pass\"'\@orcl");
+            $spawn->spawn("$sqlRunner -R 1 -L '$user/\"$pass\"'\@orcl");
         }
     }
 
@@ -569,6 +569,7 @@ sub run {
             $spawn->expect( undef, [ $PROMPT => sub { } ] );
             $spawn->send("SET SQLP ''\r");
             $self->{hasLogon} = 1;
+            $spawn->log_stdout(1);
             print("SQL> ");
             $spawn->send(" \@$sqlFileName\r");
 
