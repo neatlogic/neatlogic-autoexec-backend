@@ -234,14 +234,13 @@ sub test {
     $spawn->expect(
         15,
         [
-            qr/(?<=\n)Usage(\s*\d*):\s*SQLPLUS.*?(?=\n)/i => sub {
+            qr/Usage(\s*\d*):\s*SQLPLUS/i => sub {
                 $spawn->send("\cC\cC\n");
             }
         ],
         [
             qr/ORA-\d+.*(?=\n)/i => sub {
                 $spawn->send("\cC\cC\n");
-                print( $spawn->match() );
             }
         ],
         [
