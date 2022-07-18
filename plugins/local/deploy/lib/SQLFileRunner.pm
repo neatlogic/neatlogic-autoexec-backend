@@ -123,7 +123,7 @@ sub _initDir {
     return;
 }
 
-sub _getRequireName {
+sub _getHandlerName {
     my ( $self, $dbInfo, $dbType ) = @_;
     my $handlerName = $dbType . 'SQLRunner';
     my $requireName = $handlerName . '.pm';
@@ -143,7 +143,7 @@ sub _getRequireName {
         exit(2);
     }
 
-    return $requireName;
+    return $handlerName;
 }
 
 sub execOneSqlFile {
@@ -342,8 +342,8 @@ sub execOneSqlFile {
         print( "# $dbType/$dbName BeginExec\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
         print("#***************************************\n\n");
 
-        my $handlerName = $dbType . 'SQLRunner';
-        my $requireName = $self->_getRequireName( $dbInfo, $dbType );
+        my $handlerName = $self->_getHandlerName( $dbInfo, $dbType );
+        my $requireName = "$handlerName.pm";
 
         my $startTime = time();
         my $handler;
@@ -838,8 +838,8 @@ sub checkDBSchemas {
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
 
-        my $handlerName = uc($dbType) . 'SQLRunner';
-        my $requireName = $self->_getRequireName( $dbInfo, $dbType );
+        my $handlerName = $self->_getHandlerName( $dbInfo, $dbType );
+        my $requireName = "$handlerName.pm";
 
         my $handler;
         eval {
@@ -891,8 +891,8 @@ sub testByIpPort {
         exit(-1);
     }
 
-    my $handlerName = uc($dbType) . 'SQLRunner';
-    my $requireName = $self->_getRequireName( $dbInfo, $dbType );
+    my $handlerName = $self->_getHandlerName( $dbInfo, $dbType );
+    my $requireName = "$handlerName.pm";
 
     my $hasLogon = 0;
     my $handler;
