@@ -473,14 +473,14 @@ sub getDBConf {
     my $dbConf = {
         'bsm.root' => {
             node => {
-                resourceId     => 9823748347,
-                nodeName       => 'bsm',
-                accessEndpoint => '192.168.0.26:3306',
-                nodeType       => 'Mysql',
-                host           => '192.168.0.26',
-                port           => 3306,
-                username       => 'root',
-                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+                resourceId  => 9823748347,
+                nodeName    => 'bsm',
+                serviceAddr => '192.168.0.26:3306',
+                nodeType    => 'Mysql',
+                host        => '192.168.0.26',
+                port        => 3306,
+                username    => 'root',
+                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
             },
             args => {
                 locale            => 'en_US.UTF-8',
@@ -497,14 +497,14 @@ sub getDBConf {
         },
         'postgresql.root' => {
             node => {
-                resourceId     => 9823748347,
-                nodeName       => 'bsm',
-                accessEndpoint => '192.168.0.26:3306',
-                nodeType       => 'Mysql',
-                host           => '192.168.0.26',
-                port           => 3306,
-                username       => 'root',
-                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+                resourceId  => 9823748347,
+                nodeName    => 'bsm',
+                serviceAddr => '192.168.0.26:3306',
+                nodeType    => 'Mysql',
+                host        => '192.168.0.26',
+                port        => 3306,
+                username    => 'root',
+                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
             },
             args => {
                 locale            => 'en_US.UTF-8',
@@ -521,14 +521,14 @@ sub getDBConf {
         },
         'oracle.techsure' => {
             node => {
-                resourceId     => 9823748347,
-                nodeName       => 'bsm',
-                accessEndpoint => '192.168.0.26:3306',
-                nodeType       => 'Mysql',
-                host           => '192.168.0.26',
-                port           => 3306,
-                username       => 'root',
-                password       => '{ENCRYPTED}05a90b9d7fcd2449928041'
+                resourceId  => 9823748347,
+                nodeName    => 'bsm',
+                serviceAddr => '192.168.0.26:3306',
+                nodeType    => 'Mysql',
+                host        => '192.168.0.26',
+                port        => 3306,
+                username    => 'root',
+                password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
             },
             args => {
                 locale            => 'en_US.UTF-8',
@@ -563,7 +563,7 @@ sub getDBConf {
     #         node => {
     #             resourceId     => 9823748347,
     #             nodeName       => 'bsm',
-    #             accessEndpoint => '192.168.0.26:3306',
+    #             serviceAddr => '192.168.0.26:3306',
     #             nodeType       => 'Mysql',
     #             host           => '192.168.0.26',
     #             port           => 3306,
@@ -588,7 +588,7 @@ sub getDBConf {
     my $params = $self->_getParams($buildEnv);
 
     my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('getAutoCfgConf');
+    my $url     = $self->_getApiUrl('getDBConf');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
@@ -715,7 +715,7 @@ sub getSqlFileStatuses {
     # [
     # {
     #     resourceId     => $nodeInfo->{resourceId},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     serviceAddr => $nodeInfo->{serviceAddr},
     #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
@@ -727,7 +727,7 @@ sub getSqlFileStatuses {
     # },
     # {
     #     resourceId     => $nodeInfo->{resourceId},
-    #     accessEndpoint => $nodeInfo->{accessEndpoint},
+    #     serviceAddr => $nodeInfo->{serviceAddr},
     #     nodeType       => $nodeInfo->{nodeType},
     #     nodeName       => $nodeInfo->{nodeName},
     #     host           => $nodeInfo->{host},
@@ -790,7 +790,7 @@ sub checkInSqlFiles {
     # [
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         serviceAddr => $nodeInfo->{serviceAddr},
     #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
@@ -802,7 +802,7 @@ sub checkInSqlFiles {
     #     },
     #     {
     #         resourceId     => $nodeInfo->{resourceId},
-    #         accessEndpoint => $nodeInfo->{accessEndpoint},
+    #         serviceAddr => $nodeInfo->{serviceAddr},
     #         nodeType       => $nodeInfo->{nodeType},
     #         nodeName       => $nodeInfo->{nodeName},
     #         host           => $nodeInfo->{host},
@@ -858,7 +858,7 @@ sub pushSqlStatus {
     #     nodeName       => 'mydb',
     #     host           => '192.168.0.2',
     #     port           => 3306,
-    #     accessEndpoint => '192.168.0.2:3306',
+    #     serviceAddr => '192.168.0.2:3306',
     #     sqlFile        => 'mydb.myuser/1.test.sql',
     #     status         => 'success'
     # };

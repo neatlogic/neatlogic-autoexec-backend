@@ -11,7 +11,7 @@ sub new {
     my ( $type, $nodeInfo, $args ) = @_;
 
     my $self = {
-        dbStr             => $nodeInfo->{accessEndpoint},
+        dbStr             => $nodeInfo->{serviceAddr},
         dbType            => $nodeInfo->{nodeType},
         host              => $nodeInfo->{host},
         port              => $nodeInfo->{port},
@@ -34,17 +34,20 @@ sub new {
 
     $self->{node} = $nodeInfo;
 
-    my @addrs;
-    my $accessEndpoint = $nodeInfo->{accessEndpoint};
-    if ( defined($accessEndpoint) ) {
+    my $addrsMap    = {};
+    my $serviceAddr = $nodeInfo->{serviceAddr};
+    if ( defined($serviceAddr) ) {
 
         #为了兼容IPV6，更改为后面的匹配方式
-        # while ( $accessEndpoint =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
+        # while ( $serviceAddr =~ /(\d+\.\d+\.\d+\.\d+):(\d+)/g ) {
         #     push( @addrs, { host => $1, port => int($2) } );
         # }
-        while ( $accessEndpoint =~ /([^\/\s,]+):(\d+)/g ) {
-            push( @addrs, { host => $1, port => int($2) } );
+        while ( $serviceAddr =~ /([^\/\s,]+):(\d+)/g ) {
+            my $host = $1;
+            my $port = $2;
+            $addrsMap->{"$host:$port"} = { host => $host, port => int($port) };
         }
+        my @addrs = values(%$addrsMap);
         $self->{addrs} = \@addrs;
     }
 
