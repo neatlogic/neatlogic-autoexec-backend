@@ -47,7 +47,7 @@ sub new {
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',
-            'getAppPassWord'        => '',
+            'getAppPassWord'        => '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getSqlFileStatuses'    => '/codedriver/api/rest/autoexec/job/sql/list',
             'checkInSqlFiles'       => '/codedriver/api/rest/autoexec/job/sql/checkin',
             'pushSqlStatus'         => '/codedriver/api/rest/autoexec/job/sql/update',
