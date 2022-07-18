@@ -232,15 +232,16 @@ sub test {
     $spawn->log_stdout(0);
 
     $spawn->expect(
-        undef,
+        15,
         [
             qr/(?<=\n)Usage(\s*\d*):\s*SQLPLUS.*?(?=\n)/i => sub {
                 $spawn->send("\cC\cC\n");
             }
         ],
         [
-            qr/ORA-28001/i => sub {
+            qr/ORA-\d+.*(?=\n)/i => sub {
                 $spawn->send("\cC\cC\n");
+                print( $spawn->match() );
             }
         ],
         [
@@ -251,8 +252,6 @@ sub test {
         ],
         [
             eof => sub {
-
-                #print( DeployUtils->convToUTF8( $spawn->before() ) );
             }
         ]
     );
