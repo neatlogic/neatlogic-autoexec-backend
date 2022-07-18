@@ -560,3 +560,14 @@ Tenant信息在HTTP header中
 ### 跨环境（生产到测试）下载版本build物料接口
 - getBuild
 #### 移植老版本的表结构和接口
+#### 输入：
+    {
+        namePath   => ‘MYSYS/MYMODULE/SIT,
+        sysName    => ’MYSYS',
+        moduleName => 'MYMODULE',
+        envName    => 'SIT',
+        authToken  => 'Basic Xkiekdjfkdfdf==',
+        baseUrl    => 'https://192.168.0.3:8080'
+    };
+注意：版本状态通过Header：Build-Status，返回
+状态跟环境制品状态一致

@@ -76,25 +76,15 @@ sub new {
             $client->addHeader( 'x-access-key',  $username );
         };
 
+        $self->{signHandler} = $signHandler;
         my $webCtl = WebCtl->new($signHandler);
 
-        #$webCtl->setHeaders( { Authorization => $self->_getAuthToken(), Tenant => $ENV{AUTOEXEC_TENANT} } );
         $webCtl->setHeaders( { Tenant => $ENV{AUTOEXEC_TENANT}, authType => 'hmac' } );
 
         $self->{webCtl} = $webCtl;
     }
 
     return $instance;
-}
-
-sub _getAuthToken() {
-    my ($self)     = @_;
-    my $serverConf = $self->{serverConf};
-    my $username   = $serverConf->{username};
-    my $password   = $serverConf->{password};
-
-    my $authToken = 'Basic ' . MIME::Base64::encode( $username . ':' . $password, '' );
-    return $authToken;
 }
 
 sub _getApiUrl {
@@ -912,16 +902,6 @@ sub updatePhaseStatus {
 sub createJob {
     my ( $self, $jobId, $buildEnv, %args ) = @_;
 
-    my $baseUrl   = $args{baseUrl};
-    my $authToken = $args{authToken};
-    if ( not defined($authToken) ) {
-        $authToken = $self->_getAuthToken();
-    }
-
-    #因为需要指向其他的控制端，所以不能用公用的webCtl实例
-    my $webCtl = WebCtl->new();
-    $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
-
     my $params = {
         jobId         => $jobId,
         targetEnvPath => $args{targetEnvPath},
@@ -950,15 +930,6 @@ sub createJob {
 
 sub getJobStatus {
     my ( $self, $jobId, %args ) = @_;
-    my $baseUrl   = $args{baseUrl};
-    my $authToken = $args{authToken};
-    if ( not defined($authToken) ) {
-        $authToken = $self->_getAuthToken();
-    }
-
-    #因为需要指向其他的控制端，所以不能用公用的webCtl实例
-    my $webCtl = WebCtl->new();
-    $webCtl->setHeaders( { Authorization => $authToken, Tenant => $ENV{AUTOEXEC_TENANT} } );
 
     my $params = { jobId => $jobId };
 
@@ -980,8 +951,6 @@ sub saveVersionDependency {
     my $params = $self->_getParams($buildEnv);
     $params->{data} = $data;
 
-    my $webCtl = WebCtl->new();
-
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('saveVersionDependency');
     my $content = $webCtl->postJson( $url, $params );
@@ -995,7 +964,6 @@ sub setEnvVersion ($deployEnv) {
 
     my $params = $self->_getParams($buildEnv);
 
-    my $webCtl  = WebCtl->new();
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('setEnvVersion');
     my $content = $webCtl->postJson( $url, $params );
@@ -1010,7 +978,6 @@ sub rollbackEnvVersion ($deployEnv) {
 
     my $params = $self->_getParams($buildEnv);
 
-    my $webCtl  = WebCtl->new();
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('rollbackEnvVersion');
     my $content = $webCtl->postJson( $url, $params );
@@ -1026,7 +993,6 @@ sub setInsVersion ( $deployEnv, $nodeInfo ) {
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
 
-    my $webCtl  = WebCtl->new();
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('setInsVersion');
     my $content = $webCtl->postJson( $url, $params );
@@ -1042,7 +1008,6 @@ sub rollbackInsVersion ( $deployEnv, $nodeInfo ) {
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
 
-    my $webCtl  = WebCtl->new();
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('rollbackInsVersion');
     my $content = $webCtl->postJson( $url, $params );
@@ -1167,13 +1132,15 @@ sub getBuild {
 
     my $params = $client->buildQuery($pdata);
     $url = $url . $params;
+    my $signHandler = $self->{signHandler};
+    &$signHandler( $client, $url );
 
     #$url = $url . "?agentId=$agentId&action=getappbuild&sysId=$sysId&subSysId=$subSysId&version=$version";
 
     $client->getUseragent()->ssl_opts( verify_hostname => 0 );
     $client->getUseragent()->ssl_opts( SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE );
     $client->getUseragent()->timeout(1200);
-    $client->addHeader( 'Authorization', $self->_getAuthToken() );
+
     $client->setFollow(1);
     $client->setContentFile( \&$callback );
 
