@@ -7,8 +7,7 @@
     "defaultProfile": "getres-args",
     "description": "用户跨多套环境获取制品，例如: 生产从测试下载版本制品",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "baseurl",
             "name": "制品库地址",
             "help": "制品库地址，例如：https://192.168.0.8:8443",
@@ -28,8 +27,8 @@
         },
         {
             "opt": "password",
-            "name": "密码",
-            "help": "制品库登录用户密码",
+            "name": "访问Token",
+            "help": "制品库登录用户Token",
             "type": "password",
             "required": "true",
             "validate": "",
