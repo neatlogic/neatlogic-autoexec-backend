@@ -86,10 +86,6 @@ sub main {
         $errorCode = 1;
         print("ERROR: Directory $localDir not exists.\n");
     }
-    elsif ( !-d $localDir ) {
-        $errorCode = 1;
-        print("ERROR: $localDir is not a directory.\n");
-    }
     else {
         my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
         if ( defined($user) and $user ne '' ) {
