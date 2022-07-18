@@ -123,8 +123,8 @@ sub _initDir {
     return;
 }
 
-sub _getHandlerName {
-    my ( $self, $dbInfo, $dbType );
+sub _getRequireName {
+    my ( $self, $dbInfo, $dbType ) = @_;
     my $handlerName = $dbType . 'SQLRunner';
     my $requireName = $handlerName . '.pm';
 
@@ -343,7 +343,7 @@ sub execOneSqlFile {
         print("#***************************************\n\n");
 
         my $handlerName = $dbType . 'SQLRunner';
-        my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
+        my $requireName = $self->_getRequireName( $dbInfo, $dbType );
 
         my $startTime = time();
         my $handler;
@@ -832,14 +832,14 @@ sub checkDBSchemas {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         if ( not defined($dbInfo) ) {
             $hasError = $hasError + 1;
-            print("ERROR: DB schema $dbSchema not defined.\n");
+            print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
             next;
         }
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
 
         my $handlerName = uc($dbType) . 'SQLRunner';
-        my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
+        my $requireName = $self->_getRequireName( $dbInfo, $dbType );
 
         my $handler;
         eval {
@@ -870,6 +870,7 @@ sub checkDBSchemas {
 sub testByIpPort {
     my ( $self, $dbType, $host, $port, $dbName, $user, $pass ) = @_;
 
+    $dbType = uc($dbType);
     my $node = {
         nodeType => $dbType,
         nodeName => $dbName,
@@ -891,7 +892,7 @@ sub testByIpPort {
     }
 
     my $handlerName = uc($dbType) . 'SQLRunner';
-    my $requireName = $self->_getHandlerName( $dbInfo, $dbType );
+    my $requireName = $self->_getRequireName( $dbInfo, $dbType );
 
     my $hasLogon = 0;
     my $handler;
