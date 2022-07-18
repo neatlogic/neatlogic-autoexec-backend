@@ -63,8 +63,9 @@ class LogFile:
                 if self.srcEncoding is None:
                     self.fileHandle.write(timeBytes + text[start:end+1])
                 else:
+                    line = text[start:end+1]
                     try:
-                        line = text[start:end+1].decode(self.srcEncoding).encode('utf-8')
+                        line = line.decode(self.srcEncoding).encode('utf-8')
                         self.fileHandle.write(timeBytes + line)
                     except:
                         self.fileHandle.write(timeBytes + line)
