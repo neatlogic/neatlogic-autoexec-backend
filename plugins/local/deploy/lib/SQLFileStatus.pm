@@ -190,15 +190,15 @@ sub updateStatus {
 
         my $nodeInfo = $dbInfo->{node};
         my $sqlInfo  = {
-            resourceId     => $nodeInfo->{resourceId},
-            nodeName       => $nodeInfo->{nodeName},
-            host           => $nodeInfo->{host},
-            port           => $nodeInfo->{port},
-            accessEndpoint => $nodeInfo->{accessEndpoint},
-            sqlFile        => $self->{sqlFile},
-            status         => $newStatus,
-            md5            => $self->{status}->{md5},
-            interact       => $self->{status}->{interact}
+            resourceId  => $nodeInfo->{resourceId},
+            nodeName    => $nodeInfo->{nodeName},
+            host        => $nodeInfo->{host},
+            port        => $nodeInfo->{port},
+            serviceAddr => $nodeInfo->{serviceAddr},
+            sqlFile     => $self->{sqlFile},
+            status      => $newStatus,
+            md5         => $self->{status}->{md5},
+            interact    => $self->{status}->{interact}
         };
 
         $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );

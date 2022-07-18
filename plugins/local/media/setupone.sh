@@ -37,11 +37,18 @@ done
 
 echo "Extrace perl packages in $PERL_MEDIA_HOME..."
 for file in $*; do
-        file="$file.tar.gz"
-        echo -e "${BLUE}Extract file $file${NC}"
-        tar -xzf $file
+        tarFile="$file.tar.gz"
+        echo -e "${BLUE}Extract file '$tarFile'${NC}"
+        tar -xzf "$tarFile"
         if [[ $? != 0 ]]; then
-                echo -e "${RED}ERROR: Extract $file failed.${NC}"
+                echo -e "${RED}ERROR: Extract $tarFile failed.${NC}"
+        else
+                if [ ! -e "$file" ]; then
+                        unTarFile=${file%-[.0-9]*}
+                        if [ -e "$unTarFile" ]; then
+                                mv $unTarFile $file
+                        fi
+                fi
         fi
 done
 

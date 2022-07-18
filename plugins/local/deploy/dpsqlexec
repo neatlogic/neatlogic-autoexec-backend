@@ -158,7 +158,7 @@ sub main {
         foreach my $sqlInfo (@$sqlInfosInArg) {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
-        my @sqlFilesArray = keys($sqlFilesMap);
+        my @sqlFilesArray = keys(@$sqlFilesMap);
         my $sqlFiles      = \@sqlFilesArray;
     }
     else {

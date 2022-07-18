@@ -184,13 +184,13 @@ sub main {
             my $userName = $sqlInfo->{username};
 
             my $sqlNodeInfo = {
-                resourceId     => $sqlInfo->{resourceId},
-                nodeName       => $sqlInfo->{nodeName},
-                nodeType       => $sqlInfo->{nodeType},
-                host           => $host,
-                port           => $port,
-                username       => $userName,
-                accessEndpoint => $sqlInfo->{accessEndpoint}
+                resourceId  => $sqlInfo->{resourceId},
+                nodeName    => $sqlInfo->{nodeName},
+                nodeType    => $sqlInfo->{nodeType},
+                host        => $host,
+                port        => $port,
+                username    => $userName,
+                serviceAddr => $sqlInfo->{serviceAddr}
             };
 
             eval {

@@ -709,17 +709,17 @@ sub checkOneSqlFile {
     }
 
     my $sqlInfo = {
-        jobId          => $self->{jobId},
-        resourceId     => $nodeInfo->{resourceId},
-        nodeName       => $nodeInfo->{nodeName},
-        nodeType       => $nodeInfo->{nodeType},
-        host           => $nodeInfo->{host},
-        port           => $nodeInfo->{port},
-        username       => $nodeInfo->{username},
-        accessEndpoint => $nodeInfo->{accessEndpoint},
-        sqlFile        => $sqlFile,
-        status         => $preStatus,
-        md5            => $md5Sum
+        jobId       => $self->{jobId},
+        resourceId  => $nodeInfo->{resourceId},
+        nodeName    => $nodeInfo->{nodeName},
+        nodeType    => $nodeInfo->{nodeType},
+        host        => $nodeInfo->{host},
+        port        => $nodeInfo->{port},
+        username    => $nodeInfo->{username},
+        serviceAddr => $nodeInfo->{serviceAddr},
+        sqlFile     => $sqlFile,
+        status      => $preStatus,
+        md5         => $md5Sum
     };
 
     return $sqlInfo;
