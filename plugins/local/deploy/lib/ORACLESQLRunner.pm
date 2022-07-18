@@ -129,6 +129,7 @@ sub new {
     }
 
     $ENV{TERM} = 'vt100';
+    $Expect::Log_Stdout = 0;
     my $spawn = Expect->new();
     $spawn->log_stdout(0);
 
