@@ -63,8 +63,11 @@ class LogFile:
                 if self.srcEncoding is None:
                     self.fileHandle.write(timeBytes + text[start:end+1])
                 else:
-                    line = text[start:end+1].decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
-                    self.fileHandle.write(timeBytes + line)
+                    try:
+                        line = text[start:end+1].decode(self.srcEncoding).encode('utf-8')
+                        self.fileHandle.write(timeBytes + line)
+                    except:
+                        self.fileHandle.write(timeBytes + line)
                 start = end + 1
         except ValueError:
             if start >= 0:
@@ -74,9 +77,11 @@ class LogFile:
         if self.foreLine != b'':
             timeBytes = Utils.getTimeStr().encode()
             if self.srcEncoding is not None:
-                self.foreLine = self.foreLine.decode(self.srcEncoding, 'ignore').encode('utf-8', errors='ignore')
-
-            self.fileHandle.write(timeBytes + self.foreLine)
+                try:
+                    self.foreLine = self.foreLine.decode(self.srcEncoding).encode('utf-8')
+                    self.fileHandle.write(timeBytes + self.foreLine)
+                except:
+                    self.fileHandle.write(timeBytes + self.foreLine)
 
         self.fileHandle.close()
 
