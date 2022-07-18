@@ -236,17 +236,11 @@ sub test {
         [
             qr/(?<=\n)Usage(\s*\d*):\s*SQLPLUS.*?(?=\n)/i => sub {
                 $spawn->send("\cC\cC\n");
-                print( $spawn->before() );
-                print( $spawn->match() );
-                print( $spawn->after() );
             }
         ],
         [
             qr/ORA-28001/i => sub {
                 $spawn->send("\cC\cC\n");
-                print( $spawn->before() );
-                print( $spawn->match() );
-                print( $spawn->after() );
             }
         ],
         [
