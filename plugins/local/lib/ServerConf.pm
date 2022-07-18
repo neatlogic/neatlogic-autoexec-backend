@@ -58,6 +58,12 @@ sub decryptPwd {
     if ( $data =~ s/^\{ENCRYPTED\}// ) {
         return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
     }
+    elsif ( $data =~ s/^\{RC4\}// ) {
+        return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
+    }
+    elsif ( $data =~ s/^RC4:// ) {
+        return $self->_rc4_decrypt_hex( $self->{passKey}, $data );
+    }
     else {
         return $data;
     }
