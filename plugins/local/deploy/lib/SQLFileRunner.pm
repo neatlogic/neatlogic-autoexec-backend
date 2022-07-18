@@ -749,6 +749,13 @@ sub checkSqlFiles {
             my $dbSchema       = lc( $sqlDirSegments[0] );
             $usedSchemas->{$dbSchema} = 1;
             my $dbInfo = $dbSchemasMap->{$dbSchema};
+
+            if ( not defined($dbInfo) ) {
+                $hasError = $hasError + 1;
+                print("ERROR: Schema $dbSchema not defined in deploy config.\n");
+                next;
+            }
+
             $nodeInfo = $dbInfo->{node};
         }
         else {
