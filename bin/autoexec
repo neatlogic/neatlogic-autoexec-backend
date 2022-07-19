@@ -93,13 +93,12 @@ def registerTools(serverAdapter, pluginsPath, opType):
                     toolSubName = os.path.basename(descPath)[:-5]
                     opName = entry.name + '/' + toolSubName
                     if entry.name == 'native' or toolSubName.startswith(entry.name) or os.path.isfile(opName):
+                        print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
                         descFile = open(descPath, 'r')
                         pluginObj = json.loads(descFile.read())
                         if 'enabled' in pluginObj and pluginObj['enabled'] == 0:
                             # 如果工具没有enabled，则略过注册
                             continue
-
-                        print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
                         pluginObj['opName'] = opName
                         # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
                         if opType == 'local':

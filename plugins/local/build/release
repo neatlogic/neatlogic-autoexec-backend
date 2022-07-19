@@ -294,41 +294,46 @@ sub main {
         rename( "$releasePath/app/db", "$releasePath/db" );
     }
 
-    if ( defined($dbDir) and $dbDir ne '' ) {
-        my $dbCopied  = 0;
-        my $realDbDir = $dbDir;
-
-        my $ret = 0;
-        if ( -d "$prjPath/$realDbDir" ) {
-            $ret      = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
-            $dbCopied = 1;
-        }
-        else {
-            if ( -d "$prjPath/$realDbDir" ) {
-                $ret      = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
-                $dbCopied = 1;
-            }
-        }
-        if ( $ret != 0 ) {
-            $hasError = 1;
-        }
-
-        if ( $dbCopied == 1 ) {
-            print("INFO: Get db scripts in $realDbDir\n");
-        }
-        else {
-            print("WARN: There are no db scripts in $dbDir or $realDbDir\n");
-        }
+    my $realDbDir;
+    if ( not defined($dbDir) and $dbDir ne '' ) {
+        $realDbDir = "$dbDir/$version";
+    }
+    else {
+        $realDbDir = $dbDir;
     }
 
-    if ( defined($docDir) and $docDir ne '' ) {
-        my $ret = 0;
-        if ( -d "$prjPath/$docDir" ) {
-            $ret = copyTarget( "$prjPath/$docDir", "$releasePath/doc", undef, $md5Check );
-        }
-        if ( $ret != 0 ) {
-            $hasError = 1;
-        }
+    my $dbCopied = 0;
+
+    my $ret = 0;
+    if ( -d "$prjPath/$realDbDir" ) {
+        $ret      = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
+        $dbCopied = 1;
+    }
+    if ( $ret != 0 ) {
+        $hasError = 1;
+    }
+
+    if ( $dbCopied == 1 ) {
+        print("INFO: Get db scripts in $realDbDir\n");
+    }
+    else {
+        print("WARN: There are no db scripts in $dbDir or $realDbDir\n");
+    }
+
+    my $realDocDir;
+    if ( not defined($docDir) and $docDir ne '' ) {
+        $realDocDir = "$docDir/$version";
+    }
+    else {
+        $realDocDir = $docDir;
+    }
+
+    my $ret = 0;
+    if ( -d "$prjPath/$realDocDir" ) {
+        $ret = copyTarget( "$prjPath/$realDocDir", "$releasePath/doc", undef, $md5Check );
+    }
+    if ( $ret != 0 ) {
+        $hasError = 1;
     }
 
     if ( defined($md5Check) ) {

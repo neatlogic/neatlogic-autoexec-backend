@@ -197,7 +197,13 @@ class Operation:
                         accountId = accountDesc[1]
                         protocol = accountDesc[2]
                         password = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
-                        optValue = username + '/' + Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
+                        if password[0:11] == '{ENCRYPTED}':
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
+                        elif password[0:5] == '{RC4}':
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[5:])
+                        elif password[0:4] == 'RC4:':
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
+                        optValue = username + '/' + password
                     except Exception as err:
                         self.writeLog("WARN: {}\n".format(err.value))
 
