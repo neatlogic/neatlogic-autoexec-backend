@@ -33,7 +33,7 @@ sub new {
     my $dbVersion    = $dbInfo->{version};
     my $dbArgs       = $dbInfo->{args};
 
-    my $DeployUtils = DeployUtils->new();
+    my $deployUtils = DeployUtils->new();
     $user = $deployUtils->escapeQuote($user);
     $pass = $deployUtils->escapeQuote($pass);
 
