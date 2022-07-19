@@ -212,7 +212,7 @@ sub get {
 
     my $content = $self->convCharSet( $client->responseContent() );
     if ( $client->responseCode() eq 500 or $client->responseCode() eq 404 or $client->responseCode() eq 401 ) {
-        die( "GET $url failed," . $content . "\n" );
+        die( "ERROR: GET $url failed," . $content . "\n" );
     }
 
     #print( "DEBUG: \n", $content, "\n" );
@@ -229,7 +229,7 @@ sub doPost {
 
     my $content = $self->convCharSet( $client->responseContent() );
     if ( $client->responseCode() >= 400 ) {
-        die( "POST $url failed," . $content . "\n" );
+        die( "ERROR: POST $url failed," . $content . "\n" );
     }
 
     if ( $client->responseCode() eq 302 or $client->responseCode() eq 301 ) {
@@ -285,7 +285,7 @@ sub doRest {
 
     my $content = $self->convCharSet( $client->responseContent() );
     if ( $client->responseCode() eq 500 or $client->responseCode() eq 404 or $client->responseCode() eq 401 ) {
-        die( "Do REST $url failed," . $content . "\n" );
+        die( "ERROR: Do REST $url failed," . $content . "\n" );
     }
 
     if ( $client->responseCode() eq 302 or $client->responseCode() eq 301 ) {
@@ -335,7 +335,7 @@ sub upload {
     my $content = $self->convCharSet( $response->content, $contentEncoding );
 
     if ( $response->code() eq 500 or $response->code() eq 404 or $response->code() eq 401 ) {
-        die( "Upload failed:$url," . $content . "\n" );
+        die( "ERROR: Upload failed:$url," . $content . "\n" );
     }
 
     if ( $response->code() eq 302 or $response->code() eq 301 ) {
@@ -444,7 +444,7 @@ sub download {
                 $client->setContentFile($saveToFile);
             }
             else {
-                die("Directory $saveToFileDir not exists.");
+                die("ERROR: Directory $saveToFileDir not exists.");
             }
         }
     }

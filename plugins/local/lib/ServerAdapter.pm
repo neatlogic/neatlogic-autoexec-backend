@@ -125,7 +125,7 @@ sub _getReturn {
         $rcObj = $rcJson->{Return};
     }
     else {
-        die( $rcJson->{Message} );
+        die( 'ERROR: ' . $rcJson->{Message} );
     }
 
     return $rcObj;
@@ -917,7 +917,7 @@ sub getBuild {
     my $fh;
     sysopen( $fh, "$buildPath.lock", O_RDWR | O_CREAT | O_SYNC );
     if ( not defined($fh) ) {
-        die("Can not open or create file $buildPath.lock, $!\n");
+        die("ERROR: Can not open or create file $buildPath.lock, $!\n");
     }
 
     my $gzMagicNum  = "\x1f\x8b";
@@ -942,14 +942,14 @@ sub getBuild {
                                 if ( -e $dir ) {
 
                                     #print("INFO: clean dir:$dir\n");
-                                    rmtree($dir) or die("remove $dir failed.\n");
+                                    rmtree($dir) or die("ERROR: Remove $dir failed.\n");
                                 }
                             }
                         }
                     }
                     else {
                         if ( -e $buildPath ) {
-                            rmtree($buildPath) or die("remove $buildPath failed.\n");
+                            rmtree($buildPath) or die("ERROR: Remove $buildPath failed.\n");
                             mkdir($buildPath);
                         }
                     }
@@ -959,7 +959,7 @@ sub getBuild {
                     if ( $contentDisposition =~ /\.gz"?$/ or $magicNum eq $gzMagicNum ) {
                         $cmd = "| tar -C '$buildPath' -xzf -";
                     }
-                    $pid = open( $writer, $cmd ) or die("open tar cmd failed:$!");
+                    $pid = open( $writer, $cmd ) or die("ERROR: Open tar cmd failed:$!");
                     binmode($writer);
                 }
             }
@@ -1041,7 +1041,7 @@ sub getBuild {
 
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
-        die("Get build namePath Version:$version build$buildNo failed with status:$releaseStatus, cause by:$errMsg\n");
+        die("ERROR: Get build namePath Version:$version build$buildNo failed with status:$releaseStatus, cause by:$errMsg\n");
     }
 
     if ( $releaseStatus ne 'released' ) {
@@ -1049,19 +1049,19 @@ sub getBuild {
         my $errMsg = $client->responseContent();
         if ( defined($releaseStatus) and $releaseStatus ne '' ) {
             if ( $releaseStatus eq 'null' ) {
-                die("$namePath Version:$version build$buildNo not exists.\n");
+                die("ERROR: $namePath Version:$version build$buildNo not exists.\n");
             }
             else {
-                die("Version $version build$buildNo in error status:$releaseStatus.\n");
+                die("ERROR: Version $version build$buildNo in error status:$releaseStatus.\n");
             }
         }
         else {
-            die("Get resources failed: $errMsg\n");
+            die("ERROR: Get resources failed: $errMsg\n");
         }
     }
 
     if ( $untarCode ne 0 ) {
-        die("Get resources failed with status:$releaseStatus, build resource is empty or data corrupted because of network timeout problem.\n");
+        die("ERROR: Get resources failed with status:$releaseStatus, build resource is empty or data corrupted because of network timeout problem.\n");
     }
 
     #TODO: 通过getres测试检查
