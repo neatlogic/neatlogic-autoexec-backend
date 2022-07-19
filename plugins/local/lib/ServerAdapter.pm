@@ -914,11 +914,11 @@ sub getBuild {
         mkpath($buildPath);
     }
 
-    my $fh;
-    sysopen( $fh, "$buildPath.lock", O_RDWR | O_CREAT | O_SYNC );
-    if ( not defined($fh) ) {
-        die("ERROR: Can not open or create file $buildPath.lock, $!\n");
-    }
+    #my $fh;
+    #sysopen( $fh, "$buildPath.lock", O_RDWR | O_CREAT | O_SYNC );
+    #if ( not defined($fh) ) {
+    #    die("ERROR: Can not open or create file $buildPath.lock, $!\n");
+    #}
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
@@ -932,9 +932,9 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
                 if ( $releaseStatus eq 'released' ) {
                     print("INFO: Build-Status:$releaseStatus\n");
-                    print("INFO: Try to lock directory $buildPath");
-                    flock( $fh, LOCK_EX );
-                    print("INFO: Locked.\n");
+                    #print("INFO: Try to lock directory $buildPath");
+                    #flock( $fh, LOCK_EX );
+                    #print("INFO: Locked.\n");
                     $builded = 1;
                     if ( $cleanSubDirs == 1 ) {
                         foreach my $subDir (@$subDirs) {
@@ -1037,7 +1037,7 @@ sub getBuild {
         #print("DEBUG: untar return code:$untarCode\n");
     }
 
-    flock( $fh, LOCK_UN );
+    #flock( $fh, LOCK_UN );
 
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();

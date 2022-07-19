@@ -132,7 +132,7 @@ sub _lock {
     my $lockMode   = $params->{lockMode};
     my $namePath   = $params->{lockOwnerName};
 
-    print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
+    #print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
     my $lockInfo = $self->_doLockByJob($params);
     my $lockId   = $lockInfo->{lockId};
 
