@@ -80,10 +80,6 @@ sub main {
         $errorCode = 1;
         print("ERROR: Directory $localDir not exists.\n");
     }
-    elsif ( !-d $localDir ) {
-        $errorCode = 1;
-        print("ERROR: $localDir is not a directory.\n");
-    }
     else {
         my $webCtl = WebCtl->new();
         if ( defined($user) and $user ne '' ) {

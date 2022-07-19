@@ -94,7 +94,7 @@ sub main {
         my $http = HTTP::Tiny->new();
 
         my $localFile;
-        if ( $localDir =~ /\/$/ ) {
+        if ( -d $localDir  ) {
             $localFile = "$localDir/" . basename($addr);
         }
         else {

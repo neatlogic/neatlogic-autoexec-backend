@@ -84,9 +84,6 @@ sub main {
         verbose     => $isVerbose,
         notpreserve => 0
     );
-    if ( $errorCode ne 0 ) {
-        last;
-    }
 
     if ( $errorCode ne 0 ) {
         print("ERROR: Download $scpPath to $localDir failed.\n");
