@@ -57,7 +57,7 @@
         {
             "opt": "dbdir",
             "name": "DB目录",
-            "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db）",
+            "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db/${VERSION}）",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -66,7 +66,7 @@
         {
             "opt": "docdir",
             "name": "DOC目录",
-            "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc）",
+            "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc/${VERSION}）",
             "type": "text",
             "required": "false",
             "validate": "",
