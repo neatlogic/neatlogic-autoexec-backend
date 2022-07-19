@@ -51,7 +51,7 @@ def getAutoexecContext():
         passKey = config['server']['password.key']
         autoexecDBPass = config['autoexec']['db.password']
 
-        MY_KEY = 'c3H002LGZRrseEPc'
+        MY_KEY = 'c3H002LGZRrseEPck9tsNgfXHJcl0USJ'
         if passKey.startswith('{ENCRYPTED}'):
             passKey = _rc4_decrypt_hex(MY_KEY, passKey[11:])
             config['server']['password.key'] = passKey

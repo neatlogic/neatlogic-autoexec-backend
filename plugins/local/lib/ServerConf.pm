@@ -21,7 +21,7 @@ sub new {
         my $password = $config->{server}->{'server.password'};
         my $passKey  = $config->{server}->{'password.key'};
 
-        my $MY_KEY = 'c3H002LGZRrseEPc';
+        my $MY_KEY = 'c3H002LGZRrseEPck9tsNgfXHJcl0USJ';
         if ( $passKey =~ s/^\{ENCRYPTED\}// ) {
             $passKey = $pkg->_rc4_decrypt_hex( $MY_KEY, $passKey );
         }

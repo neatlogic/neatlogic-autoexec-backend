@@ -32,7 +32,7 @@ sub new {
     my $self = {};
     bless( $self, $pkg );
 
-    $self->{MY_KEY} = '#ts9!08=9^0$1';
+    $self->{MY_KEY} = 'f6I7wXKpleT1khAOp8NvKdifBhJnI2Zi';
     $self->{path}   = $configPath;
     $self->{file}   = $configFile;
     $self->{config} = {};

@@ -150,8 +150,6 @@ class Operation:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opSubName)
 
-        self.KEY = 'E!YO@JyjD^RIwe*OE739#Sdk%'
-
     def __del__(self):
         for fd in self.lockedFDs:
             fcntl.flock(fd, fcntl.LOCK_UN)
@@ -179,9 +177,14 @@ class Operation:
             if optType is None:
                 continue
 
-            if optType == 'password' and optValue[0:11] == '{ENCRYPTED}':
+            if optType == 'password':
                 try:
-                    optValue = Utils._rc4_decrypt_hex(self.KEY, optValue[11:])
+                    if optValue[0:11] == '{ENCRYPTED}':
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[11:])
+                    elif optValue[0:5] == '{RC4}':
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[5:])
+                    elif optValue[0:4] == 'RC4:':
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[4:])
                 except:
                     self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
             elif optType == 'account' and resourceId != '':
@@ -194,7 +197,7 @@ class Operation:
                         accountId = accountDesc[1]
                         protocol = accountDesc[2]
                         password = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
-                        optValue = username + '/' + Utils._rc4_decrypt_hex(self.KEY, password[11:])
+                        optValue = username + '/' + Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
                     except Exception as err:
                         self.writeLog("WARN: {}\n".format(err.value))
 
@@ -228,9 +231,14 @@ class Operation:
             for opArg in opArgs:
                 argType = opArg.get('type')
                 argValue = opArg.get('value')
-                if(argType == 'password' and argValue[0:11] == '{ENCRYPTED}'):
+                if argType == 'password':
                     try:
-                        argValue = Utils._rc4_decrypt_hex(self.KEY, argValue[11:])
+                        if argValue[0:11] == '{ENCRYPTED}':
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[11:])
+                        elif argValue[0:5] == '{RC4}':
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[5:])
+                        elif argValue[0:4] == 'RC4:':
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[4:])
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif(argType == 'file'):
