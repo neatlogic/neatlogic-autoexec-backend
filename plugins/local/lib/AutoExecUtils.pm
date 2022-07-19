@@ -166,13 +166,13 @@ sub doInteract {
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {
-                print("\nWARN:wait user input timeout.\n");
+                print("\nWARN: Wait user input timeout or execution aborted.\n");
                 $enter = 'force-exit';
                 if ( defined($pipe) ) {
                     $pipe->close();
                 }
                 unlink($pipeFile);
-                die("ERROR: Read time out");
+                die("ERROR: Read from input aborted.");
             }
 
             foreach my $inputHandle (@inputHandles) {
