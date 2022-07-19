@@ -34,6 +34,10 @@ sub new {
     my $dbArgs       = $dbInfo->{args};
     my $dbLocale     = $dbInfo->{locale};
 
+    my $DeployUtils = DeployUtils->new();
+    $user = $deployUtils->escapeQuote($user);
+    $pass = $deployUtils->escapeQuote($pass);
+
     my $self = {};
     bless( $self, $pkg );
 
@@ -80,7 +84,7 @@ sub new {
 
     print("INFO: obclient -vs -h$host -P$port -u$user -p'*******' -A -D$dbName\n");
 
-    my $spawn = Expect->spawn("obclient -vs -h$host -P$port -u$user -p'$pass' -A -D$dbName");
+    my $spawn = Expect->spawn("obclient -vs -h$host -P$port -u$user -p$pass -A -D$dbName");
 
     if ( not defined($spawn) ) {
         die("launch obclient failed, check if it exists and it's permission.\n");

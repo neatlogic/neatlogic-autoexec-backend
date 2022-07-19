@@ -33,6 +33,10 @@ sub new {
     my $dbVersion    = $dbInfo->{version};
     my $dbArgs       = $dbInfo->{args};
 
+    my $DeployUtils = DeployUtils->new();
+    $user = $deployUtils->escapeQuote($user);
+    $pass = $deployUtils->escapeQuote($pass);
+
     my $self = {};
     bless( $self, $pkg );
 
@@ -97,7 +101,7 @@ sub new {
 
     print("INFO: isql -e -I $interfaceFile -U '$user' -P '*******' -S SYBASEDB -D $dbName\n");
 
-    my $spawn = Expect->spawn("isql -e -I $interfaceFile -U '$user' -P '$pass' -S SYBASEDB -D $dbName\n");
+    my $spawn = Expect->spawn("isql -e -I $interfaceFile -U $user -P $pass -S SYBASEDB -D $dbName\n");
 
     if ( not defined($spawn) ) {
         die("launch sybase client isql failed, check if it exists and it's permission.\n");

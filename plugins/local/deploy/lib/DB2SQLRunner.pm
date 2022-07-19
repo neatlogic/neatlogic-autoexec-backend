@@ -179,6 +179,10 @@ sub new {
     my $dbArgs         = $dbInfo->{args};
     my $dbServerLocale = $dbInfo->{locale};
 
+    my $DeployUtils = DeployUtils->new();
+    $user = $deployUtils->escapeQuote($user);
+    $pass = $deployUtils->escapeQuote($pass);
+
     my $self = {};
     bless( $self, $pkg );
 
@@ -355,7 +359,7 @@ sub test {
 
         #open( STDOUT, ">&CPOUT" );
         print("INFO: db2 CONNECT TO $catalogName($host:$port/$dbName) USER $user USING '******'\n");
-        $ret = system("db2 CONNECT TO $catalogName USER $user USING '$pass' > /dev/null");
+        $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass" > /dev/null});
 
         if ( $ret ne 0 ) {
             print("ERROR: db2 $user\@//$host:$port/$dbName connection test failed.\n");
@@ -465,7 +469,7 @@ sub run {
                 my $user = $self->{user};
                 my $pass = $self->{pass};
 
-                $ret = system("db2 CONNECT TO $catalogName USER $user USING '$pass'");
+                $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass"});
                 if ( $ret ne 0 ) {
                     print("ERROR: connect to $host:$port/$dbName with name $catalogName failed.\n");
                 }

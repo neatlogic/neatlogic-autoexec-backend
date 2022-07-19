@@ -121,7 +121,7 @@ sub new {
     my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
-    my $tmp = File::Temp->new( DIR => $tmpDir, UNLINK => 1, SUFFIX => '.informix' );
+    my $tmp     = File::Temp->new( DIR => $tmpDir, UNLINK => 1, SUFFIX => '.informix' );
     my $content = "$serverName onsoctcp $host $port\n";
     print $tmp ($content);
     my $sqlHostFile = $tmp->filename;
@@ -329,7 +329,7 @@ sub run {
                     my $matchContent = $spawn->match();
                     $matchContent =~ s/^\s+//s;
                     my $nwPos = index( $matchContent, "\n" );
-                    $sqlError = substr( $matchContent, 0, $nwPos - 1 );
+                    $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = $sqlError;
 
                     if ( $charSet ne 'UTF-8' ) {

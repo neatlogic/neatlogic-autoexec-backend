@@ -32,6 +32,10 @@ sub new {
     my $dbArgs       = $dbInfo->{args};
     my $dbLocale     = $dbInfo->{locale};
 
+    my $DeployUtils = DeployUtils->new();
+    $user = $deployUtils->escapeQuote($user);
+    $pass = $deployUtils->escapeQuote($pass);
+
     my $self = {};
     bless( $self, $pkg );
 
@@ -79,7 +83,8 @@ sub new {
 
     print("INFO: disql -L '$user/\"******\"\@$host:$port'\n");
 
-    my $spawn = Expect->spawn("disql -L '$user/\"$pass\"\@$host:$port'");
+    #my $spawn = Expect->spawn("disql -L '$user/\"$pass\"\@$host:$port'");
+    my $spawn = Expect->spawn(qq{disql -L "$user/$pass\@$host:$port"});
 
     if ( not defined($spawn) ) {
         die("launch disql failed, check if it exists and it's permission.\n");
