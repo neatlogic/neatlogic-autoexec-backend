@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use POSIX qw(uname);
+
+use ServerConf;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("       --username:  Username \n");
+    print("       --password:  Password\n");
+    print("       --iocharset: Default utf8\n");
+    print("       --addr:      Remote address path .\n");
+    print("       --target:    Local mount path .\n");
+    print("       --type:      Mount filesystem types.\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $username, $password, $iocharset, $type, $addr, $target );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'username=s'  => \$username,
+        'password=s'  => \$password,
+        'iocharset=s' => \$iocharset,
+        'type=s'      => \$type,
+        'addr=s'      => \$addr,
+        'target=s'    => \$target
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($addr) or $addr eq '' ) {
+        print("ERROR: must define nas path.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($target) or $target eq '' ) {
+        print("ERROR: must define local mount path.\n");
+        usage();
+    }
+    if ( !-d $target ) {
+        system("mkdir -p $target ; chmod 777 $target");
+    }
+    else {
+        system("chmod 777 $target");
+    }
+    if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
+        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( defined($password) and $password ne '' ) {
+        my $serverConf = ServerConf->new();
+        $password = $serverConf->decryptPwd($password);
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
+    #mount -o username=flt,password=a^6r9SDy,iocharset=utf8 //192.168.2.90/data /mnt/nas
+    #mount -t nfs 192.168.10.204:/DataVolume/Public /mnt/Public
+    #mount -t cifs -o username=Everyone //192.168.199.123/win  /home/sk/win
+    my $cmd = "mount";
+    if ( defined($type) and $type ne '' and  $osType eq 'Linux') {
+        $cmd = $cmd . " -t $type";
+    }
+    if ( defined($username) and $username ne '' ) {
+        $cmd = $cmd . " -o username=$username";
+        if ( defined($password) and $password ne '' ) {
+            $cmd = $cmd . ",password=$password";
+        }
+        if ( defined($iocharset) and $iocharset ne '' ) {
+            $cmd = $cmd . ",iocharset=$iocharset";
+        }
+    }
+
+    if ( $isVerbose == 1 ) {
+        $cmd = $cmd . ' --verbose';
+    }
+    $cmd = $cmd . " $addr $target";
+    my $ret = `$cmd`;
+    
+    if ( $? == 0 ) {
+        print("FINEST: Mount $addr to $target success.\n");
+    }
+    else {
+        print("ERROR: Mount $addr to $target failed.\n");
+    }
+
+    my $out = {};
+    $out->{PATH} = $target;
+    AutoExecUtils::saveOutput($out);
+    return $ret;
+}
+
+exit main();
+
