@@ -44,7 +44,7 @@ sub new {
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
             'releaseVerToEnv'       => '',
-            'getAutoCfgConf'        => '',
+            'getAutoCfgConf'        => '/codedriver/api/rest/deploy/app/env/all/autoconfig/get',
             'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
             'addBuildQulity'        => '',
             'getAppPassWord'        => '/codedriver/api/rest/resourcecenter/resource/account/get',
@@ -175,41 +175,41 @@ sub getVer {
     #               如果获取不到则默认是0
 
     #TODO: check call api get verInfo by param
-    my $verInfo;
+    #my $verInfo;
 
     #TODO: Delete follow test lines
-    my $gitVerInfo = {
-        version  => $buildEnv->{VERSION},
-        buildNo  => $buildEnv->{BUILD_NO},
-        repoType => 'GIT',
-        repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
-        trunk    => 'master',
-        branch   => '2.0.0',
-        tag      => '',
-        tagsDir  => undef,
-        isFreeze => 0,
-        startRev => 'bda9fb6f',
-        endRev   => 'f2a9c727',
-        status   => 'released'
-    };
+    # my $gitVerInfo = {
+    #     version  => $buildEnv->{VERSION},
+    #     buildNo  => $buildEnv->{BUILD_NO},
+    #     repoType => 'GIT',
+    #     repo     => 'http://192.168.0.82:7070/luoyu/webTest.git',
+    #     trunk    => 'master',
+    #     branch   => '2.0.0',
+    #     tag      => '',
+    #     tagsDir  => undef,
+    #     isFreeze => 0,
+    #     startRev => 'bda9fb6f',
+    #     endRev   => 'f2a9c727',
+    #     status   => 'released'
+    # };
 
-    my $svnVerInfo = {
-        version  => $buildEnv->{VERSION},
-        buildNo  => $buildEnv->{BUILD_NO},
-        repoType => 'SVN',
-        repo     => 'svn://192.168.0.88/webTest',
-        trunk    => 'trunk',
-        branch   => 'branches/1.0.0',
-        tag      => undef,
-        tagsDir  => 'tags',
-        isFreeze => 0,
-        startRev => '0',
-        endRev   => '32',
-        status   => 'released'
-    };
+    # my $svnVerInfo = {
+    #     version  => $buildEnv->{VERSION},
+    #     buildNo  => $buildEnv->{BUILD_NO},
+    #     repoType => 'SVN',
+    #     repo     => 'svn://192.168.0.88/webTest',
+    #     trunk    => 'trunk',
+    #     branch   => 'branches/1.0.0',
+    #     tag      => undef,
+    #     tagsDir  => 'tags',
+    #     isFreeze => 0,
+    #     startRev => '0',
+    #     endRev   => '32',
+    #     status   => 'released'
+    # };
 
-    my $verInfo = $gitVerInfo;
-    return $verInfo;
+    # my $verInfo = $gitVerInfo;
+    # return $verInfo;
 
     #TODO: test data ended###########################
 
@@ -234,7 +234,7 @@ sub updateVer {
     my ( $self, $buildEnv, $verInfo ) = @_;
 
     #TODO: uncomment after test
-    return;
+    #return;
 
     #Test end########################
 
@@ -370,37 +370,6 @@ sub getAutoCfgConf {
     #TODO: delete follow test lines
     #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
 
-    my $autoCfgMap = {
-        autoCfg => {
-            basic    => 'mybasicval',
-            password => 'mypasswd'
-        },
-        insCfgList => [
-            {
-                nodeName => 'server1',
-                host     => '192.168.0.2',
-                port     => 8080,
-                autoCfg  => {
-                    basic    => 'ins1-mybasicval',
-                    password => 'ins1-mypasswd'
-                }
-            },
-            {
-                nodeName => 'server2',
-                host     => '192.168.0.3',
-                port     => 8080,
-                autoCfg  => {
-                    basic    => 'ins2-mybasicval',
-                    password => 'ins2-mypasswd'
-                }
-            }
-        ]
-    };
-
-    return $autoCfgMap;
-
-    #TODO: test end###############################################33
-
     #数据格式
     # {
     #     autoCfg => {
@@ -439,95 +408,6 @@ sub getAutoCfgConf {
 
 sub getDBConf {
     my ( $self, $buildEnv ) = @_;
-
-    #TODO: Delete follow test lines
-    #TODO: dbConf配置的获取，获取环境下的DB的IP端口用户密码等配置信息
-    # my $dbConf = {
-    #     'bsm.root' => {
-    #         node => {
-    #             resourceId  => 9823748347,
-    #             nodeName    => 'bsm',
-    #             serviceAddr => '192.168.0.26:3306',
-    #             nodeType    => 'Mysql',
-    #             host        => '192.168.0.26',
-    #             port        => 3306,
-    #             username    => 'root',
-    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-    #         },
-    #         args => {
-    #             locale            => 'en_US.UTF-8',
-    #             fileCharset       => 'UTF-8',
-    #             autocommit        => 0,
-    #             dbVersion         => '10.3',
-    #             dbArgs            => '',
-    #             ignoreErrors      => 'ORA-403',
-    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-    #             oraWallet         => '',              #只有oracle需要
-    #             db2SqlTerminator  => '',              #只有DB2需要
-    #             db2ProcTerminator => ''               #只有DB2需要
-    #         }
-    #     },
-    #     'postgresql.root' => {
-    #         node => {
-    #             resourceId  => 9823748347,
-    #             nodeName    => 'bsm',
-    #             serviceAddr => '192.168.0.26:3306',
-    #             nodeType    => 'Mysql',
-    #             host        => '192.168.0.26',
-    #             port        => 3306,
-    #             username    => 'root',
-    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-    #         },
-    #         args => {
-    #             locale            => 'en_US.UTF-8',
-    #             fileCharset       => 'UTF-8',
-    #             autocommit        => 0,
-    #             dbVersion         => '10.3',
-    #             dbArgs            => '',
-    #             ignoreErrors      => 'ORA-403',
-    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-    #             oraWallet         => '',              #只有oracle需要
-    #             db2SqlTerminator  => '',              #只有DB2需要
-    #             db2ProcTerminator => ''               #只有DB2需要
-    #         }
-    #     },
-    #     'oracle.techsure' => {
-    #         node => {
-    #             resourceId  => 9823748347,
-    #             nodeName    => 'bsm',
-    #             serviceAddr => '192.168.0.26:3306',
-    #             nodeType    => 'Mysql',
-    #             host        => '192.168.0.26',
-    #             port        => 3306,
-    #             username    => 'root',
-    #             password    => '{ENCRYPTED}05a90b9d7fcd2449928041'
-    #         },
-    #         args => {
-    #             locale            => 'en_US.UTF-8',
-    #             fileCharset       => 'UTF-8',
-    #             autocommit        => 0,
-    #             dbVersion         => '10.3',
-    #             dbArgs            => '',
-    #             ignoreErrors      => 'ORA-403',
-    #             dbaRole           => undef,           #DBA角色，如果只允许DBA操作SQL执行才需要设置这个角色名
-    #             oraWallet         => '',              #只有oracle需要
-    #             db2SqlTerminator  => '',              #只有DB2需要
-    #             db2ProcTerminator => ''               #只有DB2需要
-    #         }
-    #     }
-    # };
-
-    # my $serverConf = $self->{serverConf};
-    # while ( my ( $schema, $conf ) = each(%$dbConf) ) {
-    #     my $nodeInfo = $conf->{node};
-    #     my $password = $nodeInfo->{password};
-    #     if ( defined($password) ) {
-    #         $nodeInfo->{password} = $serverConf->decryptPwd($password);
-    #     }
-    # }
-    # return $dbConf;
-
-    #TODO:Test end##################################3
 
     #数据格式
     # {
