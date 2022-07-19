@@ -645,7 +645,7 @@ sub execSqlFileSets {
                 print("INFO: Execute sql file:$sqlFile...\n");
                 my $pid = fork();
                 if ( $pid == 0 ) {
-                    $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = 'DEFAULT';
+                    $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = undef;
                     $self->{logFileDir} = $self->{logFileDir} . "/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
                     my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
                     exit $rc;
