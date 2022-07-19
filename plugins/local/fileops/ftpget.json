@@ -37,7 +37,7 @@ c{
             "opt": "pass",
             "name": "登录密码",
             "help": "密码, 如不需要, 留空",
-d            "type": "password",
+            "type": "password",
             "required": "false",
             "validate": "",
             "defaultValue": ""
