@@ -4,6 +4,7 @@ use FindBin;
 use IO::File;
 use Getopt::Long;
 use File::Basename;
+use POSIX qw(uname);
 
 use ServerConf;
 use AutoExecUtils;
@@ -74,11 +75,13 @@ sub main {
         usage();
     }
 
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
     #mount -o username=flt,password=a^6r9SDy,iocharset=utf8 //192.168.2.90/data /mnt/nas
     #mount -t nfs 192.168.10.204:/DataVolume/Public /mnt/Public
     #mount -t cifs -o username=Everyone //192.168.199.123/win  /home/sk/win
     my $cmd = "mount";
-    if ( defined($type) and $type ne '' ) {
+    if ( defined($type) and $type ne '' and  $osType eq 'Linux') {
         $cmd = $cmd . " -t $type";
     }
     if ( defined($username) and $username ne '' ) {

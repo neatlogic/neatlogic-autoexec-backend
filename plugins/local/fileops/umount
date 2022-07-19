@@ -52,7 +52,7 @@ sub main {
     if ( $isVerbose == 1 ) {
         $cmd = $cmd . ' --verbose';
     }
-    $cmd = $cmd . " -l $target";
+    $cmd = $cmd . " $target";
     my $ret = `$cmd`;
     
     if ( $? == 0 ) {
