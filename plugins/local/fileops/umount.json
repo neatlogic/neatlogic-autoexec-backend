@@ -1,0 +1,21 @@
+{
+    "opDesc": "Umount卸载",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Unix环境卸载NAS",
+    "option": [
+        {
+            "opt": "target",
+            "name": "卸载目录",
+            "help": "卸载目录，例如：/mnt/nas",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}
