@@ -129,7 +129,6 @@ sub new {
     }
 
     $ENV{TERM} = 'vt100';
-    $Expect::Log_Stdout = 0;
     my $spawn = Expect->new();
     $spawn->log_stdout(0);
 
@@ -263,7 +262,6 @@ sub test {
         print("INFO: oracle $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
-        print( $spawn->before() );
         print("ERROR: oracle $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
