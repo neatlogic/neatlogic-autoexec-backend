@@ -559,7 +559,7 @@ sub guessEncoding {
         $charSet = `file -b --mime-encoding "$file"`;
         $charSet =~ s/^\s*|\s*$//g;
         $charSet = uc($charSet);
-        if ( $charSet =~ /ERROR:/ or $charSet eq 'US-ASCII' or $charSet eq 'BINARY' ) {
+        if ( $charSet =~ /ERROR:/ or $charSet eq 'BINARY' ) {
             undef($charSet);
         }
 
