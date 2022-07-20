@@ -311,7 +311,9 @@ sub execOneSqlFile {
         binmode(STDERR);
         binmode(STDOUT);
 
-        $ENV{LANG} = "en_US.$fileCharset";
+        $ENV{LANG}        = "en_US.$fileCharset";
+        $ENV{LC_ALL}      = "en_US.$fileCharset";
+        $ENV{LC_MESSAGES} = "en_US.$fileCharset";
 
         DeployUtils->sigHandler(
             'TERM', 'INT', 'ABRT',

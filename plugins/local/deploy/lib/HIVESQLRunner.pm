@@ -81,7 +81,8 @@ sub new {
         $hiveHome = "$hiveHome-$dbVersion";
     }
     my $hadoopHome = "$toolsDir/hadoop-client";
-    $ENV{LC_MESSAGES}        = 'en_US.UTF-8';
+
+    #$ENV{LC_MESSAGES}        = 'en_US.UTF-8';
     $ENV{PATH}               = "$hiveHome/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH}    = "$hiveHome/lib:" . $ENV{LD_LIBRARY_PATH};
     $ENV{HADOOP_HOME}        = $hadoopHome;
