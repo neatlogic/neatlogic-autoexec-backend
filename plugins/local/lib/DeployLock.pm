@@ -132,7 +132,7 @@ sub _lock {
     my $lockMode   = $params->{lockMode};
     my $namePath   = $params->{lockOwnerName};
 
-    print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
+    #print("INFO: Try to $lockAction $namePath $lockTarget($lockMode).\n");
     my $lockInfo = $self->_doLockByJob($params);
     my $lockId   = $lockInfo->{lockId};
 
@@ -141,7 +141,7 @@ sub _lock {
         die("ERROR: $lockAction $namePath $lockTarget($lockMode) failed, $errMsg.\n");
     }
     else {
-        print("INFO: $lockAction $namePath $lockTarget($lockMode) success.\n");
+        #print("INFO: $lockAction $namePath $lockTarget($lockMode) success.\n");
     }
 
     return $lockId;
@@ -171,7 +171,7 @@ sub _unlock {
         print("WARN: $lockAction $namePath failed, $errMsg.\n");
     }
     else {
-        print("INFO: $lockAction $namePath success.\n");
+        #print("INFO: $lockAction $namePath success.\n");
     }
 }
 

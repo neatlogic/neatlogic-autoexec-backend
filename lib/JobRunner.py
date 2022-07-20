@@ -70,7 +70,11 @@ class ListenWorkThread(threading.Thread):
                         lockThread = threading.Thread(target=self.doLock, args=(actionData['lockParams'], addr))
                         lockThread.setName('GlobalLock')
                         lockThread.start()
-                        print("INFO: Lock event recieved, lock params:{}.\n".format(actionData['lockParams']), end='')
+                        lockParams = actionData['lockParams']
+                        lockMode = lockParams.get('lockMode')
+                        if lockMode is None:
+                            lockMode = ''
+                        print("INFO: Lock event recieved, PID({}) {} {} for {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName')), end='')
                     elif actionData['action'] == 'golbalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
                         print("INFO: Lock notify event recieved, lockId:{}.\n".format(actionData['lockId']), end='')
@@ -84,14 +88,19 @@ class ListenWorkThread(threading.Thread):
         if self.context.devMode:
             return {'lockId': 0}
         else:
+            lockMode = lockParams.get('lockMode')
+            if lockMode is None:
+                lockMode = ''
             try:
                 lockInfo = self.globalLock.doLock(lockParams)
+                print("INFO: PID({}) {} {} lockId({}) for {} success.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockInfo.get('lockId'), lockParams.get('lockOwnerName')), end='')
                 self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
             except Exception as ex:
                 lockInfo = {
                     'lockId': None,
                     'message': str(ex)
                 }
+                print("INFO: PID({}) {} {} for {} failed, {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName'), str(ex)), end='')
                 self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
 
 
