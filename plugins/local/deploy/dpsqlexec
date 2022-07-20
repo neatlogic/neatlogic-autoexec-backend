@@ -132,6 +132,14 @@ sub main {
     my $logFileDir   = "$jobPath/log/$phaseName";
     my $sqlStatusDir = "$distPath/db.status";
 
+    if ( -d $sqlFileDir ) {
+        my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
+        if ( not -e "$jobPath/sqlfile" ) {
+            mkdir("$jobPath/sqlfile");
+        }
+        symlink( $sqlFileDir, $jobSqlFileDir );
+    }
+
     my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
     if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
         @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
@@ -189,6 +197,7 @@ sub main {
         my $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
             jobPath      => $jobPath,
+            phaseName    => $phaseName,
             deployEnv    => $deployEnv,
             toolsDir     => $deployEnv->{TOOLS_PATH},
             tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',

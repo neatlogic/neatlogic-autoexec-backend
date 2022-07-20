@@ -646,7 +646,20 @@ sub execSqlFileSets {
                 my $pid = fork();
                 if ( $pid == 0 ) {
                     $SIG{TERM} = $SIG{ABRT} = $SIG{INT} = undef;
+
+                    #调整SQL日志到作业日志路径下
                     $self->{logFileDir} = $self->{logFileDir} . "/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
+
+                    #创建SQL制品状态路径到作业路径的symbolic link
+                    if ( -d $self->{sqlStatusDir} ) {
+                        my $phStatusPath = "$self->{jobPath}/status/$self->{phaseName}";
+                        if ( not -e $phStatusPath ) {
+                            mkpath($phStatusPath);
+                        }
+                        my $jobSqlStatusDir = "$phStatusPath/$dbInfo->{host}-$dbInfo->{port}-$dbInfo->{resourceId}";
+                        symlink( $self->{sqlStatusDir}, $jobSqlStatusDir );
+                    }
+
                     my $rc = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
                     exit $rc;
                 }
