@@ -88,6 +88,7 @@ sub new {
     $self->{dbArgs}       = $dbArgs;
     $self->{ignoreErros}  = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -226,17 +227,18 @@ sub test {
 
     my $hasLogon = 0;
 
-    my $spawn  = $self->{spawn};
-    my $PROMPT = $self->{PROMPT};
-    my $host   = $self->{host};
-    my $port   = $self->{port};
-    my $dbName = $self->{dbName};
-    my $user   = $self->{user};
+    my $spawn        = $self->{spawn};
+    my $PROMPT       = $self->{PROMPT};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $dbName       = $self->{dbName};
+    my $user         = $self->{user};
+    my $logonTimeout = $self->{logonTimeout};
 
     $spawn->log_stdout(0);
 
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             qr/Usage(\s*\d*):\s*SQLPLUS/i => sub {
                 $spawn->send("\cC\cC\n");
@@ -251,6 +253,11 @@ sub test {
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
             }
         ],
         [
@@ -489,8 +496,9 @@ sub run {
         #7）session killed
         #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
 
-        my $sqlFileName = $self->{sqlFileName};
-        my $hasLogon    = 0;
+        my $logonTimeout = $self->{logonTimeout};
+        my $sqlFileName  = $self->{sqlFileName};
+        my $hasLogon     = 0;
 
         my $sqlFH = IO::File->new("<$sqlFileName");
 
@@ -502,7 +510,7 @@ sub run {
             $sqlFH->close();
 
             $spawn->expect(
-                undef,
+                $logonTimeout,
                 [
                     qr/(?<=\n)Usage(\s*\d*):\s*SQLPLUS.*?(?=\n)/i => sub {
                         my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
@@ -522,8 +530,16 @@ sub run {
                         #$hasError = 1;
                         $hasHardError = 1;
                         $isFail       = 1;
+                        $spawn->send("\cC\cC\n");
                         print("\nERROR: $SPError\n");
                         $spawn->exp_continue;
+                    }
+                ],
+                [
+                    timeout => sub {
+                        print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                        $spawn->send("\cC\cC\n");
+                        $hasHardError = 1;
                     }
                 ],
                 [

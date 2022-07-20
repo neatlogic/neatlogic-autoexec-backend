@@ -57,6 +57,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -152,26 +153,27 @@ sub new {
 sub test {
     my ($self) = @_;
 
-    my $host     = $self->{host};
-    my $port     = $self->{port};
-    my $user     = $self->{user};
-    my $password = $self->{pass};
-    my $dbName   = $self->{dbName};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $user         = $self->{user};
+    my $password     = $self->{pass};
+    my $dbName       = $self->{dbName};
+    my $logonTimeout = $self->{logonTimeout};
 
     my $PROMPT = $self->{PROMPT};
 
     my $spawn = $self->{spawn};
     $spawn->log_stdout(0);
 
-    $spawn->expect( 3, [ qr/> $/is => sub { } ] );
+    $spawn->expect( $logonTimeout, [ qr/> $/is => sub { } ] );
     $spawn->send("connect to '$dbName' user '$user';\n");
-    $spawn->expect( 3, [ qr/PASSWORD:/is => sub { } ] );
+    $spawn->expect( $logonTimeout, [ qr/PASSWORD:/is => sub { } ] );
     $spawn->send("$password\n");
 
     my $hasLogon = 0;
 
     $spawn->expect(
-        10,
+        $logonTimeout,
         [
 
             #  951: Incorrect password or user wenhb1@sit_deploy_24 is not known on the database server.
@@ -197,7 +199,7 @@ sub test {
         ],
         [
             timeout => sub {
-                print("ERROR: connection timeout.\n");
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
                 $spawn->send("\cc");
                 $hasLogon = 0;
             }
@@ -312,10 +314,10 @@ sub run {
         #6) sql脚本不存在
         #7）session killed
         #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
-
-        $spawn->expect( 3, [ qr/> $/is => sub { } ] );
+        my $logonTimeout = $self->{logonTimeout};
+        $spawn->expect( $logonTimeout, [ qr/> $/is => sub { } ] );
         $spawn->send("connect to '$dbName' user '$user';\n");
-        $spawn->expect( 3, [ qr/PASSWORD:/is => sub { } ] );
+        $spawn->expect( $logonTimeout, [ qr/PASSWORD:/is => sub { } ] );
         $spawn->send("$password\n");
 
         $spawn->expect(

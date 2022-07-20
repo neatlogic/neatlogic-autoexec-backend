@@ -86,6 +86,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -131,21 +132,28 @@ sub test {
     my $hasLogon     = 0;
     my $hasHardError = 0;
 
-    my $spawn  = $self->{spawn};
-    my $PROMPT = $self->{PROMPT};
-    my $host   = $self->{host};
-    my $port   = $self->{port};
-    my $dbName = $self->{dbName};
-    my $user   = $self->{user};
+    my $spawn        = $self->{spawn};
+    my $PROMPT       = $self->{PROMPT};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $dbName       = $self->{dbName};
+    my $user         = $self->{user};
+    my $logonTimeout = $self->{logonTimeout};
 
     $spawn->log_stdout(0);
 
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             qr/$PROMPT/ => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                $hasHardError = 1;
             }
         ],
         [
@@ -340,12 +348,12 @@ sub run {
         #6) sql脚本不存在
         #7）session killed
         #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
-
-        my $sqlFileName = $self->{sqlFileName};
+        my $logonTimeout = $self->{logonTimeout};
+        my $sqlFileName  = $self->{sqlFileName};
 
         my $hasLogon = 0;
         $spawn->expect(
-            20,
+            $logonTimeout,
             [
                 qr/$PROMPT/ => sub {
                     $hasLogon = 1;
@@ -353,7 +361,7 @@ sub run {
             ],
             [
                 timeout => sub {
-                    print("ERROR: connection timeout.\n");
+                    print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
                     $hasHardError = 1;
                     &$execEnded();
                 }

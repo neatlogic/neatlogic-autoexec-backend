@@ -239,6 +239,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -299,10 +300,11 @@ sub new {
 sub test {
     my ($self) = @_;
 
-    my $host   = $self->{host};
-    my $port   = $self->{port};
-    my $dbName = $self->{dbName};
-    my $user   = $self->{user};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $dbName       = $self->{dbName};
+    my $user         = $self->{user};
+    my $logonTimeout = $self->{logonTimeout};
 
     my $hasLogon = 0;
 
@@ -310,7 +312,7 @@ sub test {
         my $socket = IO::Socket::INET->new(
             PeerHost => $host,
             PeerPort => $port,
-            Timeout  => 5
+            Timeout  => $logonTimeout
         );
 
         if ( defined($socket) ) {
@@ -383,6 +385,7 @@ sub run {
     my $catalogFile  = $self->{catalogFile};
     my $catalogFH    = $self->{catalogFH};
     my $isAutoCommit = $self->{isAutoCommit};
+    my $logonTimeout = $self->{logonTimeout};
 
     my $pipeFile = $logFilePath;
     $pipeFile =~ s/\.log$//;

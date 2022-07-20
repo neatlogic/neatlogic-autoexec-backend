@@ -60,6 +60,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -118,11 +119,12 @@ sub new {
 sub test {
     my ($self) = @_;
 
-    my $host     = $self->{host};
-    my $port     = $self->{port};
-    my $user     = $self->{user};
-    my $password = $self->{pass};
-    my $dbName   = $self->{dbName};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $user         = $self->{user};
+    my $password     = $self->{pass};
+    my $dbName       = $self->{dbName};
+    my $logonTimeout = $self->{logonTimeout};
 
     my $PROMPT = $self->{PROMPT};
 
@@ -131,12 +133,17 @@ sub test {
 
     my $hasLogon = 0;
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             qr/Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\s*\n.*?(?=\d>\s)/is => sub {
                 print( $spawn->before() );
                 print( $spawn->match() );
                 $spawn->send("quit\n");
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
             }
         ],
         [
@@ -279,9 +286,10 @@ sub run {
     #6) sql脚本不存在
     #7）session killed
     #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
-    my $hasLogon = 0;
+    my $logonTimeout = $self->{logonTimeout};
+    my $hasLogon     = 0;
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             qr/Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\s*\n.*?(?=\d>\s)/is => sub {
                 $hasHardError = 1;
@@ -307,6 +315,14 @@ sub run {
                 }
                 $sqlErrMsg =~ s/\r|\n/ /g;
 
+                &$execEnded();
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                $hasHardError = 1;
+                $hasError     = 1;
                 &$execEnded();
             }
         ],

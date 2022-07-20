@@ -60,6 +60,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrors} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -108,22 +109,29 @@ sub test {
 
     my $spawn = $self->{spawn};
 
-    my $host     = $self->{host};
-    my $port     = $self->{port};
-    my $dbName   = $self->{dbName};
-    my $user     = $self->{user};
-    my $password = $self->{pass};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $dbName       = $self->{dbName};
+    my $user         = $self->{user};
+    my $password     = $self->{pass};
+    my $logonTimeout = $self->{logonTimeout};
 
     $spawn->log_stdout(0);
 
     my $hasLogon = 0;
 
     $spawn->expect(
-        undef,
+        $logonTimeout,
         [
             qr/Password:\s+/is => sub {
                 $spawn->send("$password\n");
                 $spawn->exp_continue;
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                $spawn->hard_close();
             }
         ],
         [
@@ -300,11 +308,11 @@ sub run {
     #6) sql脚本不存在
     #7）session killed
     #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
-
-    my $hasLogon = 0;
+    my $logonTimeout = $self->{logonTimeout};
+    my $hasLogon     = 0;
 
     $spawn->expect(
-        undef,
+        $logonTimeout,
         [
 
             #Msg 911, Level 16, State 1, Server DESKTOP-3QFCLMR, Line 1
@@ -364,6 +372,13 @@ sub run {
         [
             $PROMPT1 => sub {
                 $hasLogon = 1;
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                $hasHardError = 1;
+                &$execEnded();
             }
         ],
         [

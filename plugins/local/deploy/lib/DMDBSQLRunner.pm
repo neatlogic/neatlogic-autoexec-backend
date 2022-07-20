@@ -60,6 +60,7 @@ sub new {
     $self->{hasLogon}     = 0;
     $self->{ignoreErrros} = $dbInfo->{ignoreErrors};
     $self->{warningCount} = 0;
+    $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
     if ( not defined($isInteract) ) {
         $isInteract = 0;
@@ -103,11 +104,12 @@ sub test {
     my $spawn = $self->{spawn};
     $spawn->log_stdout(0);
 
-    my $dbType = $self->{dbType};
-    my $host   = $self->{host};
-    my $port   = $self->{port};
-    my $user   = $self->{user};
-    my $dbName = $self->{dbName};
+    my $dbType       = $self->{dbType};
+    my $host         = $self->{host};
+    my $port         = $self->{port};
+    my $user         = $self->{user};
+    my $dbName       = $self->{dbName};
+    my $logonTimeout = $self->{logonTimeout};
 
     my $hasHardError = 0;
     my $hasLogon     = 0;
@@ -115,11 +117,17 @@ sub test {
     my $PROMPT = $self->{PROMPT};
 
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
+            }
+        ],
+        [
+            timeout => sub {
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
+                $hasHardError = 1;
             }
         ],
         [
@@ -256,10 +264,10 @@ sub run {
     #6) sql脚本不存在
     #7）session killed
     #8）执行sql的命令不存在（譬如：sqlplus(oracle)不存在，clpplus(db2)不存在）
-
-    my $hasLogon = 0;
+    my $logonTimeout = $self->{logonTimeout};
+    my $hasLogon     = 0;
     $spawn->expect(
-        15,
+        $logonTimeout,
         [
             $PROMPT => sub {
                 $hasLogon = 1;
@@ -267,7 +275,7 @@ sub run {
         ],
         [
             timeout => sub {
-                print("ERROR: connection timeout.\n");
+                print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
                 $hasHardError = 1;
                 &$execEnded();
             }

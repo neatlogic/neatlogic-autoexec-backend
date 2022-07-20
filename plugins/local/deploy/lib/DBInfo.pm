@@ -32,6 +32,18 @@ sub new {
         db2ProcTerminator => $args->{db2ProcTerminator}
     };
 
+    my $logonTimeout = $args->{logonTimeout};
+    if ( not defined($logonTimeout) ) {
+        $logonTimeout = 5;
+    }
+
+    $logonTimeout = int($logonTimeout);
+    if ( $logonTimeout == 0 ) {
+        $logonTimeout = 5;
+    }
+
+    $self->{logonTimeout} = $logonTimeout;
+
     $self->{node} = $nodeInfo;
 
     my $addrsMap    = {};
