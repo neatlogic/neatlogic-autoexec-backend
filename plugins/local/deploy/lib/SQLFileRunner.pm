@@ -143,6 +143,7 @@ sub _getHandlerName {
         exit(2);
     }
 
+    print("INFO: Try to use SQLRunner $handlerName.\n");
     return $handlerName;
 }
 
@@ -357,7 +358,6 @@ sub execOneSqlFile {
         }
         else {
             eval {
-                print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
                 require $requireName;
 
                 $handler = $handlerName->new(
@@ -858,7 +858,6 @@ sub checkDBSchemas {
 
         my $handler;
         eval {
-            print( "INFO: Try to use SQLRunner " . uc($dbType) . " to test.\n" );
             require $requireName;
 
             $handler = $handlerName->new(
