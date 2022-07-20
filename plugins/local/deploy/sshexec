@@ -126,11 +126,11 @@ sub main {
         }
     }
 
-    my $namePath = $ENV{_DEPLOY_PATH};
-    my $idPath   = $ENV{_DEPLOY_ID_PATH};
+    my $namePath = $ENV{DEPLOY_PATH};
+    my $idPath   = $ENV{DEPLOY_ID_PATH};
     if ( defined($namePath) and $namePath ne '' ) {
-        $ENV{_INS_ID_PATH} = "$idPath/$insId";
-        $ENV{_INS_PATH}    = "$namePath/$insName";
+        $ENV{INS_ID_PATH} = "$idPath/$insId";
+        $ENV{INS_PATH}    = "$namePath/$insName";
     }
 
     my $sshExec = new SSHRemoteExec(

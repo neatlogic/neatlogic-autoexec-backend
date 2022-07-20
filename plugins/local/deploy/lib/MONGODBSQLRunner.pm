@@ -90,7 +90,7 @@ sub new {
         $cmd = "mongo mongodb://$dbStr";
     }
     else {
-        $cmd = "mongo mongodb://$user:$pass\@$dbStr";
+        $cmd = qq{mongo "mongodb://$user:$pass\@$dbStr"};
     }
 
     my $spawn = Expect->spawn($cmd);

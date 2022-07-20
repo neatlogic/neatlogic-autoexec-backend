@@ -113,8 +113,8 @@ sub new {
         $self->{fileType} = 'SQL';
 
         print("INFO: filetype:sql\n");
-        print("INFO: hdbsql -u $user -p ******* -n $host:$port -d $dbName $dbArgs\n");
-        $spawn = Expect->spawn("hdbsql -u $user -p $pass -n $host:$port -d $dbName $dbArgs");
+        print(qq{INFO: hdbsql -u "$user" -p "******" -n $host:$port -d "$dbName" $dbArgs\n});
+        $spawn = Expect->spawn(qq{hdbsql -u "$user" -p "$pass" -n $host:$port -d "$dbName" $dbArgs});
         if ( not defined($spawn) ) {
             die("launch hana client failed, check if it exists and it's permission.\n");
         }

@@ -89,7 +89,7 @@ sub getFileMd5 {
 sub mkShadowPath {
     my ( $self, $shadowDir, $targetDir, $relativePath ) = @_;
 
-    return if ( $relativePath eq '' );
+    return             if ( $relativePath eq '' );
     mkpath($shadowDir) if ( not -e $shadowDir );
 
     my @subdirs = split( '/', $relativePath );
@@ -235,8 +235,8 @@ sub allLocalFiles {
 
 #更新到发布目录
 sub upgradeFiles {
-    my ( $self, $sourcePath, $targetPath, $inExceptDirs, $noDelete, $noAttrs ) = @_;
-    my ( $allSrcFiles, $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile, $srcDir, $tgtFile, $tgtDir, $hasTar );
+    my ( $self,              $sourcePath, $targetPath,  $inExceptDirs, $noDelete, $noAttrs ) = @_;
+    my ( $allSrcFiles,       $allSrcDirs, $allTgtFiles, $allTgtDirs,   $srcFile,  $srcDir, $tgtFile, $tgtDir, $hasTar );
     my ( $allSrcFilesPrefix, $allSrcDirsPrefix );
 
     my $cmd           = '';
@@ -370,7 +370,7 @@ sub upgradeFiles {
         foreach $tgtFile ( keys(%$allTgtFiles) ) {
             if ( not exists( $$allSrcFiles{$tgtFile} ) ) {
                 push( @delFiles, $tgtFile );
-                $delFileCmdStr = "${delFileCmdStr}rm -f " . $deployUtils->escapeQuote($tgtFile) . "\n";
+                $delFileCmdStr = qq{${delFileCmdStr}rm -f "} . $deployUtils->escapeQuote($tgtFile) . qq{"\n};
                 $tgtStat       = $$allTgtFiles{$tgtFile};
                 $tgtMode       = $$tgtStat[1];
 
@@ -412,7 +412,7 @@ sub upgradeFiles {
                 push( @delDirs, $tgtDir );
                 $tgtStat      = $$allTgtDirs{$tgtDir};
                 $tgtMode      = $$tgtStat[1];
-                $delDirCmdStr = "${delDirCmdStr}if [ -e '$tgtDir' ]; then  rm -rf " . $deployUtils->escapeQuote($tgtDir) . "; fi\n";
+                $delDirCmdStr = qq{${delDirCmdStr}if [ -e '$tgtDir' ]; then  rm -rf "} . $deployUtils->escapeQuote($tgtDir) . qq{"; fi\n};
 
                 #print("预删除目录 $targetPath/$tgtDir\n");
                 if ( $self->{backup} ) {
@@ -470,7 +470,7 @@ sub upgradeFiles {
                 if ( not defined($noAttrs) or $noAttrs eq 0 ) {
 
                     #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                    $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
+                    $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{"\n$chmodCmdStr};
                 }
             }
 
@@ -494,7 +494,7 @@ sub upgradeFiles {
                         }
 
                         #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . "\n$chmodCmdStr";
+                        $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{"\n$chmodCmdStr};
                     }
                 }
             }
@@ -562,7 +562,7 @@ sub upgradeFiles {
                     if ( $$srcStat[1] ne $tgtMode ) {
 
                         #print("预更改$srcFile权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "$chmodCmdStr\nchmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcFile);
+                        $chmodCmdStr = "$chmodCmdStr\nchmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcFile) . '"';
 
                         if ( $self->{backup} ) {
                             if ( not print $journalFh ("f:m:$tgtMode:$srcFile\n") ) {
@@ -586,7 +586,7 @@ sub upgradeFiles {
         $hasTar = 1;
         my $cmd = "tar rf $tarPath/$tarFileName";
         foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
-            $cmd = $cmd . ' ' . $deployUtils->escapeQuote($file);
+            $cmd = $cmd . ' "' . $deployUtils->escapeQuote($file) . '"';
         }
         my $rc = $deployUtils->execmd($cmd);
         if ( $rc ne 0 ) {

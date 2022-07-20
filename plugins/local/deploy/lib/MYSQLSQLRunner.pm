@@ -83,8 +83,8 @@ sub new {
     $ENV{LD_LIBRARY_PATH} = "$mysqlHome/lib:" . $ENV{LD_LIBRARY_PATH};
     $ENV{MYSQL_HISTFILE}  = '/dev/null';
 
-    print("INFO: mysql -v -h$host -P$port -u$user -p******* -A -D$dbName\n");
-    my $spawn = Expect->spawn("mysql -v -h$host -P$port -u$user -p$pass -A -D$dbName");
+    print(qq{INFO: mysql -v -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
+    my $spawn = Expect->spawn(qq{mysql -v -h$host -P$port -u"$user" -p"$pass" -A -D"$dbName"});
 
     if ( not defined($spawn) ) {
         die("launch mysql client failed, check if it exists and it's permission.\n");

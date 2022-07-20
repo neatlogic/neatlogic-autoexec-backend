@@ -135,6 +135,8 @@ class RunNode:
         self.nodeEnv['INS_HOST'] = self.host
         self.nodeEnv['INS_PORT'] = self.port
         self.nodeEnv['INS_PROTOCOL_PORT'] = self.protocolPort
+        self.nodeEnv['INS_PATH'] = '%s/%s' % (os.getenv('NAME_PATH'), self.name)
+        self.nodeEnv['INS_ID_PATH'] = '%s/%s' % (os.getenv('ID_PATH'), self.id)
 
         self.phaseLogDir = '{}/log/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.phaseLogDir):
@@ -816,6 +818,12 @@ class RunNode:
                     'NODE_PORT': str(self.port),
                     'NODE_NAME': self.name
                 }
+                insPath = os.getenv('INS_PATH')
+                insIdPath = os.getenv('INS_ID_PATH')
+                if insPath:
+                    runEnv['INS_PATH'] = insPath
+                    runEnv['INS_ID_PATH'] = insIdPath
+
                 self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
 
                 tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password, readTimeout=360, writeTimeout=10)
@@ -945,8 +953,15 @@ class RunNode:
             if op.opBunddleName == '':
                 remotePath = remoteRoot
 
-            remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
-                self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
+            remoteEnv = ''
+            insPath = os.getenv('INS_PATH')
+            insIdPath = os.getenv('INS_ID_PATH')
+            if insPath:
+                remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} INS_PATH=\'{}\' INS_ID_PATH={} AUTOEXEC_NODE=\'{}\' '.format(
+                    self.host, str(self.port), self.name, self.context.jobId, insPath, insIdPath, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
+            else:
+                remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
+                    self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType='Unix')
             self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"

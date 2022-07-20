@@ -81,10 +81,10 @@ sub new {
     $ENV{PATH}            = "$dmdbHome/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$dmdbHome/bin:$dmdbHome/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    print("INFO: disql -L '$user/\"******\"\@$host:$port'\n");
+    print(qq{INFO: disql -L "$user"/"******"\@$host:$port\n});
 
     #my $spawn = Expect->spawn("disql -L '$user/\"$pass\"\@$host:$port'");
-    my $spawn = Expect->spawn(qq{disql -L "$user/$pass\@$host:$port"});
+    my $spawn = Expect->spawn(qq{disql -L "$user"/"$pass"\@$host:$port});
 
     if ( not defined($spawn) ) {
         die("launch disql failed, check if it exists and it's permission.\n");

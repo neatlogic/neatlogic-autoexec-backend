@@ -99,9 +99,9 @@ sub new {
 
     chdir($sqlDir);
 
-    print("INFO: isql -e -I $interfaceFile -U '$user' -P '*******' -S SYBASEDB -D $dbName\n");
+    print(qq{INFO: isql -e -I $interfaceFile -U "$user" -P "******" -S SYBASEDB -D "$dbName"\n});
 
-    my $spawn = Expect->spawn("isql -e -I $interfaceFile -U $user -P $pass -S SYBASEDB -D $dbName\n");
+    my $spawn = Expect->spawn(qq{isql -e -I $interfaceFile -U "$user" -P "$pass" -S SYBASEDB -D "$dbName"});
 
     if ( not defined($spawn) ) {
         die("launch sybase client isql failed, check if it exists and it's permission.\n");

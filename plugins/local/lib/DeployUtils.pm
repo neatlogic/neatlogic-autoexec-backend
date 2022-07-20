@@ -474,13 +474,13 @@ sub getDateTimeForLog {
 
 sub escapeQuote {
     my ( $self, $line ) = @_;
-    $line =~ s/([\s\{\}\(\)\[\]\'\"\$\s\&\!])/\\$1/g;
+    $line =~ s/([\"\$\`\\])/\\$1/g;
     return $line;
 }
 
 sub escapeQuoteWindows {
     my ( $self, $line ) = @_;
-    $line =~ s/([\s\'\"\$\&\^\%])/^$1/g;
+    $line =~ s/([\"\^\%])/^$1/g;
     return $line;
 }
 

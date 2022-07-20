@@ -108,7 +108,7 @@ sub exec {
     my $sshCmd;
     if ( defined($sshOpts) and $sshOpts ne '' ) {
         my @sshOptsArray = split( /\s*;\s*/, $sshOpts );
-        my $sshOptsStr = '';
+        my $sshOptsStr   = '';
         foreach my $sshOpt (@sshOptsArray) {
             $sshOptsStr = $sshOptsStr . "-o $sshOpt ";
         }
@@ -234,7 +234,7 @@ sub exec {
                 if ( $isVerbose == 1 ) {
                     my $content = shift;
                     $content = $lastLine . $content;
-                    my @lines = split( "\n", $content );
+                    my @lines     = split( "\n", $content );
                     my $lineCount = scalar(@lines);
 
                     for ( my $i = 0 ; $i < $lineCount ; $i++ ) {
@@ -262,9 +262,9 @@ sub exec {
         );
 
         my $envLine = '';
-        if ( defined( $ENV{_INS_PATH} ) and $ENV{_INS_PATH} ne '' ) {
-            my $insIdPath   = $ENV{_INS_ID_PATH};
-            my $insNamePath = DeployUtils->escapeQuote( $ENV{_INS_PATH} );
+        if ( defined( $ENV{INS_PATH} ) and $ENV{INS_PATH} ne '' ) {
+            my $insIdPath   = $ENV{INS_ID_PATH};
+            my $insNamePath = DeployUtils->escapeQuote( $ENV{INS_PATH} );
             $envLine = "export TS_INSNAME=\"$insNamePath\" || setenv TS_INSNAME \"$insNamePath\"; export TS_INSID=$insIdPath || setenv TS_INSID $insIdPath \&\& ";
         }
         $spawn->send("$envLine$cmd;exit \$?\n");

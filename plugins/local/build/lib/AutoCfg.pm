@@ -793,17 +793,18 @@ sub checkAndRecordFile {
             my $tmp       = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
             my $zipTmpDir = $tmp->newdir( DIR => $TMPDIR, CLEANUP => 1 );
 
-            my $nameMeta = DeployUtils->escapeQuote($name);
+            my $filePathEsc = DeployUtils->escapeQuote($filePath);
+            my $nameEsc     = DeployUtils->escapeQuote($name);
 
             my $unzipCmd;
             if ( $parentZipType eq 'zip' ) {
-                $unzipCmd = sprintf( "unzip -qo -d '%s' '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($filePath), DeployUtils->escapeQuote($name) );
+                $unzipCmd = sprintf( qq{unzip -qo -d "%s" "%s" "%s" >/dev/null}, $zipTmpDir, $filePathEsc, $nameEsc );
             }
             elsif ( $parentZipType eq 'tgz' ) {
-                $unzipCmd = sprintf( "tar -C '%s' -xzvf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($filePath), DeployUtils->escapeQuote($name) );
+                $unzipCmd = sprintf( qq{tar -C "%s" -xzvf "%s" "%s" >/dev/null}, $zipTmpDir, $filePathEsc, $nameEsc );
             }
             elsif ( $parentZipType eq 'tar' ) {
-                $unzipCmd = sprintf( "tar -C '%s' -xvf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($filePath), DeployUtils->escapeQuote($name) );
+                $unzipCmd = sprintf( qq{tar -C "%s" -xvf "%s" "%s" >/dev/null}, $zipTmpDir, $filePathEsc, $nameEsc );
             }
 
             my $unzipRet = DeployUtils->execmd($unzipCmd);
@@ -1028,6 +1029,8 @@ sub updateConfigInZip {
     my $tmp       = File::Temp->new( DIR => $TMPDIR, CLEANUP => 1 );
     my $zipTmpDir = $tmp->newdir( DIR => $TMPDIR, CLEANUP => 1 );
 
+    my $preZipDirEsc = DeployUtils->escapeQuote($preZipDir);
+
     foreach my $subFile (@$subFiles) {
         my $nextCwd = "$cwd/$subFile";
         if ( not defined($cwd) or $cwd eq '' ) {
@@ -1043,14 +1046,16 @@ sub updateConfigInZip {
 
         my $unzipCmd;
         if ( $pkgFiles->{$nextCwd} eq 1 ) {
+            my $pathInZipEsc = DeployUtils->escapeQuote($pathInZip);
+
             if ( $zipType eq 'zip' ) {
-                $unzipCmd = sprintf( "unzip -qo -d '%s' '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZip) );
+                $unzipCmd = sprintf( qq{unzip -qo -d "%s" "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipEsc );
             }
             elsif ( $zipType eq 'tar' ) {
-                $unzipCmd = sprintf( "tar -C '%s' -xf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZip) );
+                $unzipCmd = sprintf( qq{tar -C "%s" -xf "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipEsc );
             }
             elsif ( $zipType eq 'tgz' ) {
-                $unzipCmd = sprintf( "tar -C '%s' -xzf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZip) );
+                $unzipCmd = sprintf( qq{tar -C "%s" -xzf "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipEsc );
             }
         }
         else {
@@ -1068,14 +1073,16 @@ sub updateConfigInZip {
             }
 
             if ( $unzipedMap->{$pathInZipPat} != 1 ) {
+                my $pathInZipPatEsc = DeployUtils->escapeQuote($pathInZipPat);
+
                 if ( $zipType eq 'zip' ) {
-                    $unzipCmd = sprintf( "unzip -o -d '%s' '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZipPat) );
+                    $unzipCmd = sprintf( qq{unzip -o -d "%s" "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipPatEsc );
                 }
                 elsif ( $zipType eq 'tar' ) {
-                    $unzipCmd = sprintf( "tar -C '%s' -xf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZipPat) );
+                    $unzipCmd = sprintf( qq{tar -C "%s" -xf "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipPatEsc );
                 }
                 elsif ( $zipType eq 'tgz' ) {
-                    $unzipCmd = sprintf( "tar -C '%s' -xzf '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZipPat) );
+                    $unzipCmd = sprintf( qq{tar -C "%s" -xzf "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $pathInZipPatEsc );
                 }
                 $unzipedMap->{$pathInZipPat} = 1;
             }
@@ -1110,17 +1117,17 @@ sub updateConfigInZip {
                 my $delZipCmd;
                 my $tmpTarDir;
 
+                my $pathInZipEsc = DeployUtils->escapeQuote($pathInZip);
+
                 if ( $zipType eq 'zip' ) {
-                    $delZipCmd = sprintf( "zip -qd '%s' '%s' /dev/null", DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZip) );
+                    $delZipCmd = sprintf( qq{zip -qd "%s" "%s" /dev/null}, $preZipDirEsc, $pathInZipEsc );
                 }
                 elsif ( $zipType eq 'tar' ) {
-                    $delZipCmd = sprintf( "tar -f '%s' --delete '%s' >/dev/null", DeployUtils->escapeQuote($preZipDir), DeployUtils->escapeQuote($pathInZip) );
+                    $delZipCmd = sprintf( qq{tar -f "%s" --delete "%s" >/dev/null}, $preZipDirEsc, $pathInZipEsc );
                 }
                 elsif ( $zipType eq 'tgz' ) {
-                    my $quotePreZipDir = DeployUtils->escapeQuote($preZipDir);
-
                     $tmpTarDir = $tmp->new( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.tar' );
-                    $delZipCmd = sprintf( "gunzip -f -c '%s' > '$tmpTarDir' && tar -f '$tmpTarDir' --delete '%s' && gzip -f -c '$tmpTarDir' > '%s'", $quotePreZipDir, DeployUtils->escapeQuote($pathInZip), $quotePreZipDir );
+                    $delZipCmd = sprintf( qq{gunzip -f -c "%s" > '$tmpTarDir' && tar -f '$tmpTarDir' --delete "%s" && gzip -f -c '$tmpTarDir' > "%s"}, $preZipDirEsc, $pathInZipEsc, $preZipDirEsc );
                 }
 
                 #print("DEBUG:=-=-=-=-=-=-=-=-=$delZipCmd\n");
@@ -1151,12 +1158,14 @@ sub updateConfigInZip {
                             my $fileName = $File::Find::name;
                             $fileName = substr( $fileName, 2 );
 
+                            my $fileNameEsc = DeployUtils->escapeQuote($fileName);
+
                             my $aZipCmd;
                             if ( $self->getZipType($aFile) eq 'zip' ) {
-                                $aZipCmd = sprintf( "cd '%s' && zip -q0 '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), $fileName );
+                                $aZipCmd = sprintf( qq{cd '%s' && zip -q0 "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $fileNameEsc );
                             }
                             else {
-                                $aZipCmd = sprintf( "cd '%s' && zip -q '%s' '%s' >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir), $fileName );
+                                $aZipCmd = sprintf( qq{cd '%s' && zip -q "%s" "%s" >/dev/null}, $zipTmpDir, $preZipDirEsc, $fileNameEsc );
                             }
 
                             if ( $rc eq 0 ) {
@@ -1172,16 +1181,13 @@ sub updateConfigInZip {
             );
 
             chdir($cwd);
-
-            #$zipCmd = sprintf( "cd '%s' && zip -qr '%s' . >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir) );
         }
         elsif ( $zipType eq 'tar' ) {
-            $zipCmd = sprintf( "cd '%s' && tar -rf '%s' * >/dev/null", $zipTmpDir, DeployUtils->escapeQuote($preZipDir) );
+            $zipCmd = sprintf( qq{cd '%s' && tar -rf "%s" * >/dev/null}, $zipTmpDir, $preZipDirEsc );
         }
         elsif ( $zipType eq 'tgz' ) {
-            my $quotePreZipDir = DeployUtils->escapeQuote($preZipDir);
             $tmpTarDir = $tmp->new( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.tar' );
-            $zipCmd    = sprintf( "gunzip -f -c '%s' > '$tmpTarDir' && cd '%s' && tar -rf '$tmpTarDir' * && gzip -f -c '$tmpTarDir' > '%s'", $quotePreZipDir, $zipTmpDir, $quotePreZipDir );
+            $zipCmd    = sprintf( qq{gunzip -f -c "%s" > '$tmpTarDir' && cd "%s" && tar -rf '$tmpTarDir' * && gzip -f -c '$tmpTarDir' > "%s"}, $preZipDirEsc, $zipTmpDir, $preZipDirEsc );
         }
 
         if ( $zipType ne 'zip' ) {

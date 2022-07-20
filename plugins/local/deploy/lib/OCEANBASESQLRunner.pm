@@ -82,9 +82,9 @@ sub new {
 
     $ENV{MYSQL_HISTFILE} = '/dev/null';
 
-    print("INFO: obclient -vs -h$host -P$port -u$user -p'*******' -A -D$dbName\n");
+    print(qq{INFO: obclient -vs -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
 
-    my $spawn = Expect->spawn("obclient -vs -h$host -P$port -u$user -p$pass -A -D$dbName");
+    my $spawn = Expect->spawn(qq{obclient -vs -h$host -P$port -u"$user" -p"$pass" -A -D"$dbName"});
 
     if ( not defined($spawn) ) {
         die("launch obclient failed, check if it exists and it's permission.\n");

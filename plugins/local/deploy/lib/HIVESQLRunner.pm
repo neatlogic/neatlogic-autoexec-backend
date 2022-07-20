@@ -89,14 +89,14 @@ sub new {
     $ENV{PATH}            = "$hadoopHome/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$hadoopHome/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    my $cmd    = "beeline -u jdbc:hive2://$host:$port/$dbName -n $user -p $pass";
+    my $cmd    = qq{beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" -p "$pass"};
     my $extOpt = "--autoCommit=false";
 
     if ( $isAutoCommit == 1 ) {
         $extOpt = "--autoCommit=true";
     }
 
-    print("INFO: beeline -u jdbc:hive2://$host:$port/$dbName -n $user -p ***** \n");
+    print(qq{INFO: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" -p "******"\n});
 
     my $spawn = Expect->spawn("$cmd $extOpt");
 
@@ -148,11 +148,11 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: beeline -u jdbc:hive2://$host:$port/$dbName -n $user connection test success.\n");
+        print(qq{INFO: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test success.\n});
     }
     else {
         print( $spawn->before() );
-        print("ERROR: beeline -u jdbc:hive2://$host:$port/$dbName -n $user connection test failed.\n");
+        print(qq{ERROR: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test failed.\n});
     }
 
     return $hasLogon;

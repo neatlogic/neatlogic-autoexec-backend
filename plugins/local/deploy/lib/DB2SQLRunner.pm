@@ -358,7 +358,7 @@ sub test {
         my $pass = $self->{pass};
 
         #open( STDOUT, ">&CPOUT" );
-        print("INFO: db2 CONNECT TO $catalogName($host:$port/$dbName) USER $user USING '******'\n");
+        print(qq{INFO: db2 CONNECT TO $catalogName($host:$port/$dbName) USER "$user" USING "******"\n});
         $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass" > /dev/null});
 
         if ( $ret ne 0 ) {

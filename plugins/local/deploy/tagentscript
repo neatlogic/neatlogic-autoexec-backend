@@ -133,8 +133,8 @@ sub main {
     my $agentOsType = $tagent->{agentOsType};
     my $envLine     = '';
 
-    my $namePath = $ENV{_DEPLOY_PATH};
-    my $idPath   = $ENV{_DEPLOY_ID_PATH};
+    my $namePath = $ENV{DEPLOY_PATH};
+    my $idPath   = $ENV{DEPLOY_ID_PATH};
     if ( defined($namePath) and $namePath ne '' ) {
         my $insIdPath   = "$idPath/$insId";
         my $insNamePath = "$namePath/$insName";

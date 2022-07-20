@@ -469,7 +469,7 @@ sub spawnSCP {
 sub execRemoteCmd {
     my ( $self, $agentType, $inUser, $inPwd, $inIP, $inCmd, $isVerbose, $callback, @cbparams ) = @_;
     if ( $agentType eq 'tagent' ) {
-        my $port = $self->{'port'};
+        my $port   = $self->{'port'};
         my $tagent = new TagentClient( $inIP, $port, $inPwd );
         if ( defined($callback) ) {
             $inCmd = qq{perl -e '$inCmd'};
@@ -516,7 +516,7 @@ sub convertFileEncoding {
     my $srcFh = IO::File->new("<$srcFile");
     if ( defined($srcFh) ) {
         my $tmpdir = Cwd::abs_path("$FindBin::Bin/../tmp");
-        my $tmp = File::Temp->new( DIR => $tmpdir, UNLINK => 1, SUFFIX => '.syncfile.cmd' );
+        my $tmp    = File::Temp->new( DIR => $tmpdir, UNLINK => 1, SUFFIX => '.syncfile.cmd' );
         if ( defined($tmp) ) {
             my $line;
             while ( $line = $srcFh->getline() ) {
@@ -578,10 +578,10 @@ sub remoteCopy {
 
 #更新到发布目录
 sub upgradeFiles {
-    my ( $self, $ostype, $sourcePaths, $targetUser, $targetPwd, $targetIP, $instanceName, $targetPath, $inExceptDirs, $noDelete, $noAttrs, $followLinks, $addExeModForNewFile, $agentType ) = @_;
-    my ( $allSrcFiles, $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile, $srcDir, $tgtFile, $tgtDir, $hasTar );
+    my ( $self,              $ostype,     $sourcePaths, $targetUser, $targetPwd, $targetIP, $instanceName, $targetPath, $inExceptDirs, $noDelete, $noAttrs, $followLinks, $addExeModForNewFile, $agentType ) = @_;
+    my ( $allSrcFiles,       $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile,   $srcDir,   $tgtFile, $tgtDir, $hasTar );
     my ( $allSrcFilesPrefix, $allSrcDirsPrefix );
-    my ( $srcStat, $tgtStat, $srcMode, $tgtMode );
+    my ( $srcStat,           $tgtStat, $srcMode, $tgtMode );
 
     my $deployUtils = $self->{deployUtils};
     my $nowdate     = $deployUtils->getDate();
@@ -633,7 +633,7 @@ sub upgradeFiles {
         }
     }
 
-    my $TMPDIR = $self->{tmpDir};
+    my $TMPDIR  = $self->{tmpDir};
     my $tarPath = File::Temp->newdir( DIR => $TMPDIR, CLEANUP => 1, SUFFIX => '.sync' );
 
     #my $tarPath     = realpath( $allSrcPath[0] . '/..' );
@@ -734,7 +734,7 @@ sub upgradeFiles {
                             if ( $$srcStat[1] ne $$tgtStat[1] and $ostype ne 'windows' ) {
 
                                 #print("预更改$srcFile权限为", $$srcStat[1], "\n");
-                                $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcFile) . " || exit 1\n$chmodCmdStr";
+                                $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcFile) . qq{" || exit 1\n$chmodCmdStr};
                             }
                         }
                     }
@@ -763,7 +763,7 @@ sub upgradeFiles {
                     if ( ( not defined($noAttrs) or $noAttrs eq 0 ) and $ostype ne 'windows' ) {
 
                         #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                        $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{" || exit 1\n$chmodCmdStr};
                     }
                 }
                 else {
@@ -773,7 +773,7 @@ sub upgradeFiles {
                             push( @modDirs, $srcDir );
 
                             #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                            $chmodCmdStr = "chmod " . $$srcStat[1] . " " . $deployUtils->escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                            $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{" || exit 1\n$chmodCmdStr};
                         }
                         else {
                             my $mode = oct( $$tgtStat[1] );
@@ -797,7 +797,7 @@ sub upgradeFiles {
             my $hasTarFile = 0;
             foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
                 $hasTarFile = 1;
-                $cmd        = $cmd . ' ' . $deployUtils->escapeQuote($file);
+                $cmd        = $cmd . ' "' . $deployUtils->escapeQuote($file) . '"';
             }
             my $rc = 0;
             if ( $hasTarFile == 1 ) {
@@ -831,7 +831,7 @@ sub upgradeFiles {
                         if ( $tmp_tgtFile ne $shFileName );    #防止在bat文件中出现删掉它自己的命令
                 }
                 else {
-                    $cmdStr = "${cmdStr}if [ -e " . $deployUtils->escapeQuote($tgtFile) . " ]; then rm -f " . $deployUtils->escapeQuote($tgtFile) . " || exit 1; fi\n";
+                    $cmdStr = qq{${cmdStr}if [ -e "} . $deployUtils->escapeQuote($tgtFile) . qq{" ]; then rm -f "} . $deployUtils->escapeQuote($tgtFile) . qq{" || exit 1; fi\n};
                 }
                 push( @delFiles, $tgtFile );
 
@@ -846,7 +846,7 @@ sub upgradeFiles {
                     $cmdStr = "${cmdStr}if exist \"" . $tmp_tgtDir . "\" rmdir /s /q \"" . $tmp_tgtDir . "\"\n";
                 }
                 else {
-                    $cmdStr = "${cmdStr}if [ -e " . $deployUtils->escapeQuote($tgtDir) . " ]; then  rm -rf " . $deployUtils->escapeQuote($tgtDir) . " || exit 1; fi\n";
+                    $cmdStr = qq{${cmdStr}if [ -e "} . $deployUtils->escapeQuote($tgtDir) . qq{" ]; then  rm -rf "} . $deployUtils->escapeQuote($tgtDir) . qq{" || exit 1; fi\n};
                 }
                 push( @delDirs, $tgtDir );
 

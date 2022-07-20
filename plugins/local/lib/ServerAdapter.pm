@@ -905,7 +905,7 @@ sub getBuild {
     my $checked = 0;
     my $builded = 0;
 
-    my $namePath  = $deployEnv->{_DEPLOY_PATH};
+    my $namePath  = $deployEnv->{DEPLOY_PATH};
     my $version   = $deployEnv->{version};
     my $buildNo   = $deployEnv->{buildNo};
     my $buildPath = $deployEnv->{BUILD_PATH};

@@ -82,9 +82,9 @@ sub new {
     $ENV{PATH}            = "$gbaseHome/gcluster/server/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$gbaseHome/gcluster/server/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    print("INFO: gccli -u$user -p$pass -D$dbName -h$host -p***** \n");
+    print(qq{INFO: gccli -u"$user" -p"******" -D"$dbName" -h$host -P$port\n});
 
-    my $spawn = Expect->spawn("gccli -u$user -p$pass -D$dbName -h$host -P$port");
+    my $spawn = Expect->spawn(qq{gccli -u"$user" -p"$pass" -D"$dbName" -h$host -P$port});
 
     if ( not defined($spawn) ) {
         die("launch gccli client failed, check if it exists and it's permission.\n");
