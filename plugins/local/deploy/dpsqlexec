@@ -217,7 +217,10 @@ sub main {
 
         my $sqlInfoInServer;
         if ( defined($sqlInfosInArg) ) {
-            $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv, $sqlFiles );
+            $sqlInfoInServer = $sqlInfosInArg;
+
+            #当接口支持只返回部分sql时
+            #$sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv, $sqlFiles );
         }
         else {
             $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
