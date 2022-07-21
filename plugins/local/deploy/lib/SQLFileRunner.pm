@@ -188,7 +188,7 @@ sub execOneSqlFile {
         }
     }
     my $dateTimeStr    = strftime( "%Y%m%d-%H%M%S", localtime() );
-    my $hisLogName     = "$dateTimeStr-running-$ENV{AUTOEXEC_USER}.txt";
+    my $hisLogName     = "$dateTimeStr.running.$ENV{AUTOEXEC_USER}.txt";
     my $hisLogFilePath = "$hisLogDir/$hisLogName";
 
     if ( -e $logFilePath ) {
@@ -245,7 +245,7 @@ sub execOneSqlFile {
             if ( defined($sqlFileStatus) ) {
                 my $endStatus     = $sqlFileStatus->loadAndGetStatusValue('status');
                 my $newHisLogName = $hisLogName;
-                $newHisLogName =~ s/-running-/-$endStatus-/;
+                $newHisLogName =~ s/.running./.$endStatus./;
                 my $newHisLogPath = "$hisLogDir/$newHisLogName";
                 rename( $hisLogFilePath, $newHisLogPath );
             }
