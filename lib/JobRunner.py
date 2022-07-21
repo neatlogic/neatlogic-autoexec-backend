@@ -579,7 +579,7 @@ class JobRunner:
                     continue
 
                 groupLastPhase = None
-                if self.context.phasesToRun is not None and len(self.context.phaseToRun) == 1:
+                if self.context.phasesToRun is not None and len(self.context.phasesToRun) == 1:
                     groupLastPhase = self.execOneShotGroup(phaseGroup, roundCount, opArgsRefMap)
                 elif 'execStrategy' in phaseGroup and phaseGroup['execStrategy'] == 'grayScale':
                     groupLastPhase = self.execGrayscaleGroup(phaseGroup, roundCount, opArgsRefMap)
