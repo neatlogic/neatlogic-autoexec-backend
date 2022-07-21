@@ -72,7 +72,7 @@ sub new {
         $pgHome = "$pgHome-$dbVersion";
     }
 
-    $ENV{LC_MESSAGES}     = 'en_US.UTF-8';
+    #$ENV{LC_MESSAGES}     = 'en_US.UTF-8';
     $ENV{PATH}            = "$pgHome/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$pgHome/lib:" . $ENV{LD_LIBRARY_PATH};
 

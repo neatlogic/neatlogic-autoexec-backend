@@ -54,18 +54,18 @@ sub main {
     my $index;
 
     GetOptions(
-        'help'         => \$isHelp,
-        'v|verbose=i'  => \$isVerbose,
-        'envpath=s'    => \$envPath,
-        'version=s'    => \$version,
-        'maxparall=i'  => \$maxParallelCount,
-        'extnames=s'   => \$sqlExtNamesStr,
-        'force=i'      => \$isForce,
-        'dryrun=i'     => \$isDryRun,
-        'autocommit=i' => \$isAutoCommit,
-        'rollback=i'   => \$isRollback,
-        'filter=s'     => \$filter,
-        'index=s'      => \$index
+        'help'          => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'maxparallel=i' => \$maxParallelCount,
+        'extnames=s'    => \$sqlExtNamesStr,
+        'force=i'       => \$isForce,
+        'dryrun=i'      => \$isDryRun,
+        'autocommit=i'  => \$isAutoCommit,
+        'rollback=i'    => \$isRollback,
+        'filter=s'      => \$filter,
+        'index=s'       => \$index
     );
 
     #$ENV{IS_INTERACT} = 1;
@@ -156,11 +156,12 @@ sub main {
         dirInfo     => $dirInfo
     );
 
-    my $sqlFilesJson = $deployEnv->{SQL_FILES};
+    my $sqlFilesJson = $deployEnv->{_SQL_FILES};
 
     my $sqlFiles = [];
+    my $sqlInfosInArg;
     if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
-        my $sqlInfosInArg = from_json($sqlFilesJson);
+        $sqlInfosInArg = from_json($sqlFilesJson);
 
         my $sqlFilesMap = {};
         foreach my $sqlInfo (@$sqlInfosInArg) {
@@ -214,7 +215,13 @@ sub main {
             isInteract   => 1
         );
 
-        my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+        my $sqlInfoInServer;
+        if ( defined($sqlInfosInArg) ) {
+            $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv, $sqlFiles );
+        }
+        else {
+            $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+        }
 
         my $lock      = DeployLock->new($deployEnv);
         my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
@@ -226,7 +233,9 @@ sub main {
             }
         }
 
-        $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+        if ( not defined($sqlInfosInArg) ) {
+            $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+        }
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
 

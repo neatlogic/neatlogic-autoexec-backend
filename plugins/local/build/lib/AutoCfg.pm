@@ -969,7 +969,7 @@ sub convertInsCfgListCharset {
 
     foreach my $insInfo (@$insCfgList) {
         my $insCfgMap = $insInfo->{autoCfg};
-        if ( defined($insCfgMap) ) {
+        if (%$insCfgMap) {
             $insCfgMap = $self->convertCfgMapCharset( $insCfgMap, $encoding );
         }
     }
@@ -1242,7 +1242,7 @@ sub updateConfig {
 
                 #如果没有定义instance的key value，则判断包下是否有整体替换的instance配置文件
                 my $hasInsCfg = 0;
-                if ($insCfgMap) {
+                if (%$insCfgMap) {
                     $hasInsCfg = 1;
                 }
                 else {
@@ -1349,7 +1349,7 @@ sub updateConfig {
                     $insInfo->{expectIns} = $expectIns;
                 }
 
-                if ( $insCfgMap or defined($expectIns) ) {
+                if ( %$insCfgMap or defined($expectIns) ) {
                     if ( not defined($expectIns) ) {
                         $expectIns = $insUniqName;
                     }

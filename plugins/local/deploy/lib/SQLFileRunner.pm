@@ -143,6 +143,7 @@ sub _getHandlerName {
         exit(2);
     }
 
+    print("INFO: Try to use SQLRunner $handlerName.\n");
     return $handlerName;
 }
 
@@ -311,7 +312,9 @@ sub execOneSqlFile {
         binmode(STDERR);
         binmode(STDOUT);
 
-        $ENV{LANG} = "en_US.$fileCharset";
+        $ENV{LANG}        = "en_US.$fileCharset";
+        $ENV{LC_ALL}      = "en_US.$fileCharset";
+        $ENV{LC_MESSAGES} = "en_US.$fileCharset";
 
         DeployUtils->sigHandler(
             'TERM', 'INT', 'ABRT',
@@ -355,7 +358,6 @@ sub execOneSqlFile {
         }
         else {
             eval {
-                print( "INFO: Try to use SQLRunner " . uc($dbType) . ".\n" );
                 require $requireName;
 
                 $handler = $handlerName->new(
@@ -856,7 +858,6 @@ sub checkDBSchemas {
 
         my $handler;
         eval {
-            print( "INFO: Try to use SQLRunner " . uc($dbType) . " to test.\n" );
             require $requireName;
 
             $handler = $handlerName->new(
