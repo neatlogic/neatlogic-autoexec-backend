@@ -553,7 +553,7 @@ sub getAppPassWord {
 }
 
 sub getSqlFileStatuses {
-    my ( $self, $jobId, $deployEnv ) = @_;
+    my ( $self, $jobId, $deployEnv, $sqlFiles ) = @_;
 
     #TODO: delete follow test lines
     #格式：
@@ -605,6 +605,13 @@ sub getSqlFileStatuses {
         $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
+    }
+
+    if ( defined($sqlFiles) ) {
+        $params->{sqlFiles} = $sqlFiles;
+    }
+    else {
+        $params->{sqlFiles} = undef;
     }
 
     my $webCtl  = $self->{webCtl};
@@ -932,6 +939,7 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
                 if ( $releaseStatus eq 'released' ) {
                     print("INFO: Build-Status:$releaseStatus\n");
+
                     #print("INFO: Try to lock directory $buildPath");
                     #flock( $fh, LOCK_EX );
                     #print("INFO: Locked.\n");
