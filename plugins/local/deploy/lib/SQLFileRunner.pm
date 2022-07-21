@@ -261,9 +261,11 @@ sub execOneSqlFile {
             $line =~ s/\x0D//g;
             @nowTime = localtime();
             $timeStr = sprintf( "%02d:%02d:%02d", $nowTime[2], $nowTime[1], $nowTime[0] );
-            if ( $fileCharset ne 'UTF-8' ) {
-                $line = Encode::encode( 'utf-8', Encode::decode( $fileCharset, $line ) );
-            }
+
+            #界面支持切换编码，不自动转码了
+            #if ( $fileCharset ne 'UTF-8' ) {
+            #    $line = Encode::encode( 'utf-8', Encode::decode( $fileCharset, $line ) );
+            #}
             if ( not $self->{istty} ) {
                 print $logFH ( $timeStr, ' ', $line );
             }
