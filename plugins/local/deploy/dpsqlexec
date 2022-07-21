@@ -54,18 +54,18 @@ sub main {
     my $index;
 
     GetOptions(
-        'help'         => \$isHelp,
-        'v|verbose=i'  => \$isVerbose,
-        'envpath=s'    => \$envPath,
-        'version=s'    => \$version,
-        'maxparall=i'  => \$maxParallelCount,
-        'extnames=s'   => \$sqlExtNamesStr,
-        'force=i'      => \$isForce,
-        'dryrun=i'     => \$isDryRun,
-        'autocommit=i' => \$isAutoCommit,
-        'rollback=i'   => \$isRollback,
-        'filter=s'     => \$filter,
-        'index=s'      => \$index
+        'help'          => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'maxparallel=i' => \$maxParallelCount,
+        'extnames=s'    => \$sqlExtNamesStr,
+        'force=i'       => \$isForce,
+        'dryrun=i'      => \$isDryRun,
+        'autocommit=i'  => \$isAutoCommit,
+        'rollback=i'    => \$isRollback,
+        'filter=s'      => \$filter,
+        'index=s'       => \$index
     );
 
     #$ENV{IS_INTERACT} = 1;
@@ -217,7 +217,7 @@ sub main {
 
         my $sqlInfoInServer;
         if ( defined($sqlInfosInArg) ) {
-            $sqlInfoInServer = $sqlInfosInArg;
+            $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv, $sqlFiles );
         }
         else {
             $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
