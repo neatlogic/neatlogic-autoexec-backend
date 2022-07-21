@@ -391,7 +391,7 @@ class JobRunner:
 
             phaseStatus = self.context.phases[phaseName]
             if 'phaseType' in phaseConfig:
-                if phaseConfig['phaseType'] in ('local', 'runner'):
+                if phaseConfig['phaseType'] in ('local', 'runner', 'sqlfile'):
                     phaseStatus.hasLocal = True
                 else:
                     phaseStatus.hasRemote = True
@@ -399,7 +399,7 @@ class JobRunner:
                 for operation in phaseConfig['operations']:
                     # 如果有本地操作，则在context中进行标记
                     opType = operation['opType']
-                    if opType in ('local', 'runner'):
+                    if opType in ('local', 'runner', 'sqlfile'):
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True
