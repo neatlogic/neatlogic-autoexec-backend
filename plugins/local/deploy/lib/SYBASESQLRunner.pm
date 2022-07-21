@@ -310,9 +310,6 @@ sub run {
                 #CT-LIBRARY error:
                 #        ct_results(): network packet layer: internal net library error: Net-Library operation terminated due to disconnect
                 $hasHardError = 1 if ( $sqlErrMsg =~ /^CT-LIBRARY error:/is );
-                if ( $charSet ne 'UTF-8' ) {
-                    $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                }
                 $sqlErrMsg =~ s/\r|\n/ /g;
 
                 &$execEnded();
@@ -369,9 +366,6 @@ sub run {
                     my $nwPos        = index( $matchContent, "\n" );
                     $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = $matchContent;
-                    if ( $charSet ne 'UTF-8' ) {
-                        $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                    }
                     $sqlErrMsg =~ s/\r|\n/ /g;
 
                     $warningCount = $warningCount + 1;

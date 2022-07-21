@@ -595,38 +595,29 @@ sub run {
                             $lastLine = $line;
                         }
 
-                        if ( $charSet ne 'UTF-8' ) {
-                            $tLine = Encode::encode( "utf-8", Encode::decode( lc($charSet), $line ) );
-                        }
-                        else {
-                            $tLine = $line;
-                        }
-
-                        #print($tLine);
-
-                        if ( $tLine =~ /SQLSTATE=(\d+)\s*$/ ) {
+                        if ( $line =~ /SQLSTATE=(\d+)\s*$/ ) {
                             $sqlError     = $1;
                             $warningCount = $warningCount + 1;
                             if ( $sqlError eq '02000' or $ignoreErrors =~ /$sqlError/ ) {
                                 $hasWarn = 1;
-                                print("WARN: $tLine");
+                                print("WARN: $line");
                             }
                             else {
                                 $hasError = 1;
-                                print("ERROR: $tLine");
+                                print("ERROR: $line");
                             }
                         }
-                        elsif ( $tLine =~ /^SQL0911N The current transaction has been rolled back/ ) {
+                        elsif ( $line =~ /^SQL0911N The current transaction has been rolled back/ ) {
                             $warningCount = $warningCount + 1;
                             $toBeRollback = 1;
-                            print("WARN: $tLine");
+                            print("WARN: $line");
                         }
-                        elsif ( $tLine =~ /^SQL0803N/ or $tLine =~ /^SQL3550W/ ) {
-                            print("ERROR: $tLine");
+                        elsif ( $line =~ /^SQL0803N/ or $line =~ /^SQL3550W/ ) {
+                            print("ERROR: $line");
                             $hasError = 1;
                         }
                         else {
-                            print($tLine);
+                            print($line);
                         }
                     }
                 }

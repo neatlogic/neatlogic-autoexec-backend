@@ -334,10 +334,6 @@ sub run {
                     $sqlError  = substr( $matchContent, 0, $nwPos - 1 );
                     $sqlErrMsg = $sqlError;
 
-                    if ( $charSet ne 'UTF-8' ) {
-                        $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                    }
-
                     #dbName错误
                     if ( index( $sqlError, '329: Database not found or no system permission' ) >= 0 ) {
                         $hasHardError = 1;
@@ -423,9 +419,6 @@ sub run {
                     #CT-LIBRARY error:
                     #        ct_results(): network packet layer: internal net library error: Net-Library operation terminated due to disconnect
                     #$hasHardError = 1 if ( $sqlErrMsg =~ /\s*\d+:.*?\nError in line \d+\s*\nNear character position \d+\s*\n/is );
-                    #if ( $charSet ne 'UTF-8' ) {
-                    #    $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                    #}
                     #$sqlErrMsg =~ s/\r|\n/ /g;
                     $hasHardError = 1;
                     $hasError     = 1;

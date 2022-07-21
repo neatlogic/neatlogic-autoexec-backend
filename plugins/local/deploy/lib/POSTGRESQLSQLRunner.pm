@@ -325,12 +325,8 @@ sub run {
                 qr/\n(psql:)?($sqlFile:\d+:)?\s*(ERROR|FATAL):\s*(.*?)(?=\n)/ => sub {
                     my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                     $matchContent =~ /(ERROR|FATAL):(.*?)\s*$/s;
-                    $sqlError  = $1;
-                    $sqlErrMsg = $2;
-                    if ( $charSet ne 'UTF-8' ) {
-                        $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                    }
-
+                    $sqlError     = $1;
+                    $sqlErrMsg    = $2;
                     $warningCount = $warningCount + 1;
 
                     #如果session被kill则自行推出并返回错误

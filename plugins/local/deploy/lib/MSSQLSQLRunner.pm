@@ -16,16 +16,11 @@ sub new {
 
     my $sqlFileStatus = $args{sqlFileStatus};
     my $dbInfo        = $args{dbInfo};
-    my $charSet       = $args{charSet};
+    my $charSet       = 'UTF-8';
     my $logFilePath   = $args{logFilePath};
     my $toolsDir      = $args{toolsDir};
     my $tmpDir        = $args{tmpDir};
     my $isInteract    = $args{isInteract};
-
-    my $dbInfo      = $args{dbInfo};
-    my $charSet     = $args{charSet};
-    my $logFilePath = $args{logFilePath};
-    my $toolsDir    = $args{toolsDir};
 
     my $dbType       = $dbInfo->{dbType};
     my $dbName       = $dbInfo->{sid};

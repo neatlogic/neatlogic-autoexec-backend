@@ -318,9 +318,6 @@ sub run {
                 #[-2106]:Error in line: 1
                 qr/(?<=\n)\[-\d+\]:Error in line: \d+/ => sub {
                     my $matchContent = $spawn->match();
-                    if ( $charSet ne 'UTF-8' ) {
-                        $matchContent = Encode::encode( "utf-8", Encode::decode( $charSet, $matchContent ) );
-                    }
 
                     $matchContent =~ /^(\[-\d+\]):.*$/s;
                     $sqlError = $1;

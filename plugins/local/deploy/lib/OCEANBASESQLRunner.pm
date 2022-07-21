@@ -311,12 +311,8 @@ sub run {
                 qr/(?<=\n)ERROR\s*[^:]*?:.*?(?=\n)|(?<=\n)ERROR.*?:.*?\n.*?(?=\n)/ => sub {
                     my $matchContent = $spawn->match();
                     $matchContent =~ /^(ERROR\s*[^:]*?):\s*(.*?)\s*$/s;
-                    $sqlError  = $1;
-                    $sqlErrMsg = $2;
-                    if ( $charSet ne 'UTF-8' ) {
-                        $sqlErrMsg = Encode::encode( "utf-8", Encode::decode( $charSet, $sqlErrMsg ) );
-                    }
-
+                    $sqlError     = $1;
+                    $sqlErrMsg    = $2;
                     $warningCount = $warningCount + 1;
 
                     #如果session被kill则自行退出并返回错误
