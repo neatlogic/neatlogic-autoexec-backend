@@ -579,6 +579,10 @@ sub guessEncoding {
         }
     }
 
+    if ( $charSet eq 'US-ASCII' ) {
+        $charSet = 'UTF-8';
+    }
+
     return $charSet;
 }
 
