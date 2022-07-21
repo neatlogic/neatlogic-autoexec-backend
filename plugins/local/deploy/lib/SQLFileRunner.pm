@@ -246,7 +246,7 @@ sub execOneSqlFile {
             if ( defined($sqlFileStatus) ) {
                 my $endStatus     = $sqlFileStatus->loadAndGetStatusValue('status');
                 my $newHisLogName = $hisLogName;
-                $newHisLogName =~ s/.running./.$endStatus./;
+                $newHisLogName =~ s/\.running\./.$endStatus./;
                 my $newHisLogPath = "$hisLogDir/$newHisLogName";
                 rename( $hisLogFilePath, $newHisLogPath );
             }
