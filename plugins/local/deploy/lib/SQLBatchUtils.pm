@@ -98,8 +98,8 @@ sub getSqlFilePathByIdx {
                     $line =~ s/^\@//;
                     if ( $line !~ /^--/ and $line !~ /^#/ ) {
                         $line =~ s/^\@//;
-                        my $fileName = substr( File::Spec->canonpath("$idxDir/$line"), $rootPathLen );
-                        my $idxFileName = substr( $idxFile, $rootPathLen );
+                        my $fileName    = substr( File::Spec->canonpath("$idxDir/$line"), $rootPathLen );
+                        my $idxFileName = substr( $idxFile,                               $rootPathLen );
                         if ( $fileName eq $idxFileName ) {
                             next;
                         }
@@ -268,6 +268,7 @@ sub getRunRoundSets {
     my ( $self, $sqlFiles, $parallelCount ) = @_;
 
     my $parCount = 0;
+    my $prefix   = 0;
     my ( $prefix, @runSqlSet, @runSqlSets );
     my $oneSqlFile;
     foreach $oneSqlFile (@$sqlFiles) {

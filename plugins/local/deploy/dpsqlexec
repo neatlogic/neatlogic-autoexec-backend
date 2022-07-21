@@ -168,7 +168,7 @@ sub main {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
         my @sqlFilesArray = keys(%$sqlFilesMap);
-        my $sqlFiles      = \@sqlFilesArray;
+        $sqlFiles = \@sqlFilesArray;
     }
     else {
         if ( defined($index) and $index ne '' ) {
