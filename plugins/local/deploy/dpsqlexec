@@ -156,7 +156,7 @@ sub main {
         dirInfo     => $dirInfo
     );
 
-    my $sqlFilesJson = $deployEnv->{_SQL_FILES};
+    my $sqlFilesJson = $deployEnv->{SQL_FILES};
 
     my $sqlFiles = [];
     my $sqlInfosInArg;
