@@ -113,9 +113,9 @@ sub main {
     #|   `-- phase-db
     #|       `-- asm.root
     #|          |-- 2.sql.hislog
-    #|          |   |-- 20210625-163515-failed-anonymous.txt
-    #|          |   |-- 20210625-163607-failed-anonymous.txt
-    #|          |   `-- 20210625-164543-failed-anonymous.txt
+    #|          |   |-- 20210625-163515.failed.anonymous.txt
+    #|          |   |-- 20210625-163607.failed.anonymous.txt
+    #|          |   `-- 20210625-164543.failed.anonymous.txt
     #|          `-- 2.sql.txt
 
     #环境制品目录，sql文件和sql执行状态
