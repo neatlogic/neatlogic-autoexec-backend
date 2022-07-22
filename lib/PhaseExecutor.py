@@ -15,10 +15,11 @@ import NodeStatus
 
 
 class PhaseWorker(threading.Thread):
-    def __init__(self, context, groupNo, phaseName, operations, execQueue):
+    def __init__(self, context, groupNo, phaseName, phaseType, operations, execQueue):
         threading.Thread.__init__(self)
         self.groupNo = groupNo
         self.phaseName = phaseName
+        self.phaseType = phaseType
         self.context = context
         self._queue = execQueue
         self.operations = operations
@@ -41,7 +42,10 @@ class PhaseWorker(threading.Thread):
             self.currentNode = node
 
             nodeStatus = node.getNodeStatus()
-            if nodeStatus == NodeStatus.succeed and not self.context.isForce:
+
+            if self.context.goToStop == False and self.phaseType == 'sqlfile':
+                print("INFO: SQL file execute begin...\n", end='')
+            elif nodeStatus == NodeStatus.succeed and not self.context.isForce:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
                 print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
@@ -109,9 +113,10 @@ class PhaseWorker(threading.Thread):
 
 
 class PhaseExecutor:
-    def __init__(self, context, groupNo, phaseName, operations, nodesFactory, parallelCount=25):
+    def __init__(self, context, groupNo, phaseName, phaseType, operations, nodesFactory, parallelCount=25):
         self.groupNo = groupNo
         self.phaseName = phaseName
+        self.phaseType = phaseType
         self.phaseStatus = context.phases[self.phaseName]
         self.context = context
         self.operations = operations
@@ -125,7 +130,7 @@ class PhaseExecutor:
     def _buildWorkerPool(self, execQueue):
         workers = []
         for i in range(self.parallelCount):
-            worker = PhaseWorker(self.context, self.groupNo, self.phaseName, self.operations, execQueue)
+            worker = PhaseWorker(self.context, self.groupNo, self.phaseName, self.phaseType, self.operations, execQueue)
             worker.start()
             worker.setName('Worker-{}'.format(i))
             workers.append(worker)

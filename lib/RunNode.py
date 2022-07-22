@@ -89,7 +89,7 @@ class LogFile:
 
 class RunNode:
 
-    def __init__(self, context, groupNo, phaseIndex, phaseName, node):
+    def __init__(self, context, groupNo, phaseIndex, phaseName, phaseType, node):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
         self.nodeEnv = {}
@@ -100,6 +100,7 @@ class RunNode:
         self.groupNo = groupNo
         self.phaseIndex = phaseIndex
         self.phaseName = phaseName
+        self.phaseType = phaseType
         self.runPath = context.runPath
         self.node = node
         self.warnCount = 0
@@ -452,7 +453,7 @@ class RunNode:
             opStatus = self.getNodeStatus(op)
             op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
 
-            if not self.context.isForce and opStatus == NodeStatus.succeed:
+            if not self.context.isForce and opStatus == NodeStatus.succeed and not self.phaseType != 'sqlfile':
                 self._loadOpOutput(op)
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 return

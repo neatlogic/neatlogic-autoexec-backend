@@ -133,11 +133,13 @@ sub main {
     my $sqlStatusDir = "$distPath/db.status";
 
     if ( -d $sqlFileDir ) {
-        my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
         if ( not -e "$jobPath/sqlfile" ) {
             mkdir("$jobPath/sqlfile");
         }
-        symlink( $sqlFileDir, $jobSqlFileDir );
+        my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
+        if ( not -e $jobSqlFileDir ) {
+            symlink( $sqlFileDir, $jobSqlFileDir );
+        }
     }
 
     my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );

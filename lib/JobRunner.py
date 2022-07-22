@@ -253,12 +253,12 @@ class JobRunner:
 
             if operation.get('opType') == 'native' and operation.get('opName') == 'native/IF-Block':
                 for ifOp in operation.get('if', []):
-                    if ifOp.get('opType') in ('local', 'runner'):
+                    if ifOp.get('opType') in ('local', 'runner', 'sqlfie'):
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True
                 for ifOp in operation.get('else', []):
-                    if ifOp.get('opType') in ('local', 'runner'):
+                    if ifOp.get('opType') in ('local', 'runner', 'sqlfile'):
                         phaseStatus.hasLocal = True
                     else:
                         phaseStatus.hasRemote = True
@@ -266,14 +266,15 @@ class JobRunner:
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
             # 如果有本地操作，则在context中进行标记
-            if op.opType in ('local', 'runner'):
+            if op.opType in ('local', 'runner', 'sqlfile'):
                 phaseStatus.hasLocal = True
             else:
                 phaseStatus.hasRemote = True
 
             operations.append(op)
 
-        executor = PhaseExecutor.PhaseExecutor(self.context, groupNo, phaseName, operations, nodesFactory, parallelCount)
+        phaseType = phaseConfig.get('phaseType')
+        executor = PhaseExecutor.PhaseExecutor(self.context, groupNo, phaseName, phaseType, operations, nodesFactory, parallelCount)
         phaseStatus.executor = executor
         return executor.execute()
 
@@ -317,6 +318,7 @@ class JobRunner:
         # 每个group有多个phase，使用线程并发执行
         phaseIndex = 0
         for phaseConfig in phaseGroup['phases']:
+            phaseType = phaseConfig.get('phaseType')
             phaseName = phaseConfig['phaseName']
             phaseIndex = phaseIndex + 1
 
@@ -330,18 +332,18 @@ class JobRunner:
                 # 初始化phase的节点信息
                 self.context.addPhase(phaseName)
                 phaseStatus = self.context.phases[phaseName]
-                if 'phaseType' in phaseConfig:
-                    if phaseConfig['phaseType'] in ('local', 'runner'):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
+
+                if phaseType in ('local', 'runner', 'sqlfile'):
+                    phaseStatus.hasLocal = True
+                else:
+                    phaseStatus.hasRemote = True
 
                 serverAdapter = self.context.serverAdapter
                 if not self.localDefinedNodes:
                     serverAdapter.getNodes(phase=phaseName)
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
-                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, groupNo=groupNo)
+                nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
                 parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
 
                 lastPhase = phaseName
@@ -443,6 +445,7 @@ class JobRunner:
                 if self.context.goToStop:
                     break
 
+                phaseType = phaseConfig.get('phaseType')
                 phaseName = phaseConfig['phaseName']
                 if self.context.phasesToRun is not None and phaseName not in self.context.phasesToRun:
                     continue
@@ -471,7 +474,7 @@ class JobRunner:
                         phaseNodeFactory = phaseNodeFactorys[phaseName]
                         if not self.context.goToStop == True:
                             localNode = nodesFactory.localNode()
-                            localRunNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, localNode)
+                            localRunNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, phaseType, localNode)
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
 
@@ -482,7 +485,7 @@ class JobRunner:
                             phaseNodeFactory.putRunNode(None)
                             break
                         if self.context.runnerId == node['runnerId']:
-                            runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, node)
+                            runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, phaseType, node)
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
                     if lastRound:

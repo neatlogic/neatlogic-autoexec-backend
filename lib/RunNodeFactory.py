@@ -12,11 +12,12 @@ import RunNode
 
 class RunNodeFactory:
 
-    def __init__(self, context, phaseIndex=0, phaseName=None, groupNo=None):
+    def __init__(self, context, phaseIndex=0, phaseName=None, phaseType=None, groupNo=None):
         self.context = context
         self.groupNo = groupNo
         self.phaseIndex = phaseIndex
         self.phaseName = phaseName
+        self.phaseType = phaseType
         self.nodesFile = None
 
         nodesFilePath = context.getNodesFilePath(phaseName=phaseName, groupNo=groupNo)
@@ -51,14 +52,14 @@ class RunNodeFactory:
         localRunNode = None
         localNode = self.localNode()
         if localNode is not None:
-            localRunNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, localNode)
+            localRunNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, localNode)
         return localRunNode
 
     def nextRunNode(self):
         runNode = None
         nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
-            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, nodeObj)
+            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj)
         return runNode
 
     def localNode(self):

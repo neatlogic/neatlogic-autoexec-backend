@@ -210,6 +210,24 @@ sub main {
     $ret      = $rbSqlFileRunner->checkSqlFiles();
     $hasError = $hasError + $ret;
 
+    #创建sqlfiles软链接
+    if ( -d $sqlFileDir ) {
+        if ( not -e "$jobPath/sqlfile" ) {
+            mkdir("$jobPath/sqlfile");
+        }
+
+        my $jobSqlFileDir = "$jobPath/sqlfile/$targetPhase";
+        if ( not -e $jobSqlFileDir ) {
+            symlink( $sqlFileDir, $jobSqlFileDir );
+        }
+
+        my $jobRbSqlFileDir = "$jobPath/sqlfile/$rbTargetPhase";
+
+        if ( not -e $jobRbSqlFileDir ) {
+            symlink( $sqlFileDir, $jobRbSqlFileDir );
+        }
+    }
+
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
     $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
 
