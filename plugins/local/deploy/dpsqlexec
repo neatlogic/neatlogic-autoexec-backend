@@ -203,7 +203,7 @@ sub main {
             phaseName    => $phaseName,
             deployEnv    => $deployEnv,
             toolsDir     => $deployEnv->{TOOLS_PATH},
-            tmpdir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
+            tmpDir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
             dbSchemasMap => $dbSchemasMap,
             nodeInfo     => { resourceId => 0 },
             sqlFiles     => $sqlFiles,

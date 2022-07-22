@@ -74,7 +74,7 @@ sub main() {
 
     my $sqlFileRunner = SQLFileRunner->new(
         toolsDir => $autoexecHome . '/tools',
-        tmpdir   => $autoexecHome . '/tmp'
+        tmpDir   => $autoexecHome . '/tmp'
     );
 
     my $hasLogon = $sqlFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );

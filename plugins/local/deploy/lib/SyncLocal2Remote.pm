@@ -25,7 +25,6 @@ sub new {
 
     my $self = {
         port        => $args{port},
-        tmpdir      => $args{tmpDir},
         tmpDir      => $args{tmpDir},
         deployUtils => DeployUtils->new()
     };
@@ -515,7 +514,7 @@ sub convertFileEncoding {
 
     my $srcFh = IO::File->new("<$srcFile");
     if ( defined($srcFh) ) {
-        my $tmpdir = Cwd::abs_path("$FindBin::Bin/../tmp");
+        my $tmpdir = $self->{tmpDir};
         my $tmp    = File::Temp->new( DIR => $tmpdir, UNLINK => 1, SUFFIX => '.syncfile.cmd' );
         if ( defined($tmp) ) {
             my $line;
