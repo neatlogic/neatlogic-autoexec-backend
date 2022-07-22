@@ -107,7 +107,7 @@ sub main {
                 if ( -f $sourcePath ) {
                     if ( $sourceName eq $appfileName ) {
                         if ( $sourcePath ne $appfilePath ) {
-                            my $tmp = File::Temp->new( DIR => "$homePath/tmp", CLEANUP => 1 );
+                            my $tmp    = File::Temp->new( DIR => "$homePath/tmp", CLEANUP => 1 );
                             my $tmpDir = File::Temp->newdir();
 
                             my $ret = 1;
@@ -136,10 +136,7 @@ sub main {
                             }
                         }
                         else {
-                            print(
-                                "WARN: appfile:$appfilePath is equal to source-path:$sourcePath, no need to deploy, please chec
-k the config.\n"
-                            );
+                            print("WARN: appfile:$appfilePath is equal to source-path:$sourcePath, no need to deploy, please check the config.\n");
                         }
                     }
                     else {
