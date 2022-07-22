@@ -293,7 +293,7 @@ sub spawnSCP {
 
 sub execRemoteCmd {
     my ( $self, $agentType, $inUser, $inPwd, $inIP, $inCmd, $isVerbose, $callback, @cbparams ) = @_;
-    if ( $agentType eq 'agentless' ) {
+    if ( $agentType eq 'ssh' ) {
         $self->spawnSSHCmd( $inUser, $inPwd, $inIP, $inCmd, $isVerbose, $callback, @cbparams );
     }
     elsif ( $agentType eq 'tagent' ) {
@@ -309,7 +309,7 @@ sub execRemoteCmd {
 sub remoteCopy {
     my ( $self, $agentType, $inUser, $inPwd, $inIP, $inFiles, $inDir, $opType, $isVerbose ) = @_;
 
-    if ( $agentType eq 'agentless' ) {
+    if ( $agentType eq 'ssh' ) {
         if ( $opType eq 'upload' ) {
             my $scpSrc = "";
             foreach my $scpItem (@$inFiles) {
@@ -326,7 +326,7 @@ sub remoteCopy {
         }
     }
     elsif ( $agentType eq 'tagent' ) {
-        my $port = $self->{'port'};
+        my $port   = $self->{'port'};
         my $tagent = new TagentClient( $inIP, $port, $inPwd );
 
         my $ret = 0;

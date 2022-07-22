@@ -48,26 +48,6 @@
             "defaultValue": "unix"
         },
         {
-            "opt": "agenttype",
-            "name": "Agent类型",
-            "help": "Agent的类型",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [{
-                        "text": "无Agent",
-                        "value": "agentless"
-                    },
-                    {
-                        "text": "Tagent",
-                        "value": "tagent"
-                    }
-                ]
-            },
-            "defaultValue": "agentless"
-        },
-        {
             "opt": "pdir",
             "name": "基础目录",
             "help": "相对于应用数据目录的基础目录类别",

@@ -551,7 +551,7 @@ sub convertFileEncoding {
 
 sub remoteCopy {
     my ( $self, $agentType, $inUser, $inPwd, $inIP, $inFiles, $inDir, $isVerbose, $convertCharset ) = @_;
-    if ( $agentType eq 'agentless' ) {
+    if ( $agentType eq 'ssh' ) {
         $self->spawnSCP( $inUser, $inPwd, $inIP, $inFiles, $inDir, $isVerbose );
     }
     elsif ( $agentType eq 'tagent' ) {

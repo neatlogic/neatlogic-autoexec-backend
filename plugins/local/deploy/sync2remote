@@ -18,7 +18,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION] [--verbose 0|1]\n");
     print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
-    print("              [--ostype windows|unix] [--agenttype agentless|tagent]\n");
+    print("              [--ostype windows|unix]\n");
     print("              [--nodelete 0|1] [--noattrs 0|1] [--followlinks 0|1]\n");
     print("              [--addexecfornewfile 0|1] [-x ExcludeSubDirs] [--pull 0|1]\n");
     print("              [--src SourceSubDir] [--dest ServerSitePath]\n");
@@ -41,8 +41,8 @@ sub usage {
 
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version, $node );
-    my ( $ostype, $agentType, $pdir );
-    my ( $host,   $port,      $user, $pass, $src, $dest, $expDir );
+    my ( $ostype, $pdir );
+    my ( $host,   $port, $user, $pass, $src, $dest, $expDir );
     my $isPull            = 0;
     my $noDelete          = 0;
     my $noAttrs           = 0;
@@ -57,7 +57,6 @@ sub main {
         'v|verbose=i'         => \$isVerbose,
         'h|help'              => \$isHelp,
         'ostype=s'            => \$ostype,
-        'agenttype=s'         => \$agentType,
         'envpath=s'           => \$envPath,
         'version=s'           => \$version,
         'pdir=s'              => \$pdir,
@@ -140,10 +139,6 @@ sub main {
         $ostype = 'unix';
     }
 
-    if ( not defined($agentType) or $agentType eq '' ) {
-        $agentType = 'agentless';
-    }
-
     $src    = $deployUtils->charsetConv( $src,    'utf-8' );
     $dest   = $deployUtils->charsetConv( $dest,   'utf-8' );
     $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
@@ -215,6 +210,7 @@ sub main {
 
     my $hasError = 0;
 
+    my $agentType  = $nodeInfo->{protocol};
     my $desc       = "$user\@$host:$dest";
     my $directDesc = 'to';
     print("INFO: Begin sync $src $directDesc $desc \n");
