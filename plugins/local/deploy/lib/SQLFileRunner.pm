@@ -13,11 +13,11 @@ use File::Path;
 use File::Basename;
 use Getopt::Long;
 use JSON;
-use Digest::MD5;
 
 use DBInfo;
 use AutoExecUtils;
 use DeployUtils;
+use ServerAdapter;
 
 use SQLFileStatus;
 
@@ -55,10 +55,11 @@ sub new {
     # locale       => $args{locale},
     # autocommit   => $args{autocommit},
     # ignoreErrors => $args{ignoreErrors}
-    bless( $self, $type );
+    $self->{serverAdapter} = ServerAdapter->new();
+    $self->{usedSchemas}   = {};
+    $self->{sqlFileInfos}  = [];
 
-    $self->{usedSchemas}  = {};
-    $self->{sqlFileInfos} = [];
+    bless( $self, $type );
 
     if ( defined( $args{autocommit} ) and defined( $self->{dbInfo} ) ) {
         $self->{dbInfo}->{autocommit} = $args{autocommit};
@@ -393,7 +394,7 @@ sub execOneSqlFile {
                 );
             }
 
-            $sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
+            #$sqlFileStatus->updateStatus( interact => undef, status => 'running', startTime => time(), endTime => undef );
             eval { $hasError = $handler->run(); };
             if ($@) {
                 my $errMsg = $@;
@@ -530,23 +531,41 @@ sub needExecute {
 
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
 
-    my $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
+    my $preStatus = $sqlFileStatus->{status};
+    my $preMd5Sum = $sqlFileStatus->{md5};
+    my $md5Sum    = $self->_getFileMd5Sum($sqlFilePath);
+
+    my $serverAdapter = $self->{serverAdapter};
+    my $sqlStatuses   = $serverAdapter->getSqlFileStatuses( $self->{jobId}, $self->{deployEnv}, [$sqlFile] );
+    if ( scalar(@$sqlStatuses) == 1 ) {
+        my $sqlStatus  = $$sqlStatuses[0];
+        my $selfStatus = $sqlFileStatus->{status};
+        $preStatus            = $sqlStatus->{status};
+        $preMd5Sum            = $sqlStatus->{md5};
+        $selfStatus->{status} = $preStatus;
+        $selfStatus->{md5}    = $preMd5Sum;
+    }
 
     if ( $self->{isForce} == 1 ) {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum );
         $ret = 1;
     }
-    elsif ( $md5Sum eq $sqlFileStatus->getStatusValue('md5') ) {
-        if ( $sqlFileStatus->getStatusValue('status') eq 'succeed' ) {
+    elsif ( $md5Sum eq $preMd5Sum ) {
+        if ( $preStatus eq 'succeed' ) {
             print("INFO: Sql file:$sqlFile has been executed succeed, ignore.\n");
+        }
+        elsif ( $preStatus eq 'running' ) {
+            print("INFO: Sql file:$sqlFile is running, ignore.\n");
         }
         else {
             $ret = 1;
         }
     }
     else {
-        $sqlFileStatus->updateStatus( md5 => $md5Sum );
         $ret = 1;
+    }
+
+    if ( $ret == 1 ) {
+        $sqlFileStatus->updateStatus( status => 'running', md5 => $md5Sum, interact => undef, startTime => time(), endTime => undef );
     }
 
     return $ret;
@@ -719,19 +738,11 @@ sub checkOneSqlFile {
 
     $self->_checkAndDelBom($sqlFilePath);
 
-    my $preStatus;
-    my $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
-    if ( $sqlFileStatus->getStatusValue('md5') eq '' ) {
-        $preStatus = $sqlFileStatus->updateStatus( md5 => $md5Sum, status => "pending", warnCount => 0, interact => undef, startTime => undef, endTime => undef );
+    my $isModified = 0;
+    my $md5Sum     = $self->_getFileMd5Sum($sqlFilePath);
+    if ( $md5Sum ne $sqlFileStatus->getStatusValue('md5') ) {
+        $isModified = 1;
     }
-    elsif ( $md5Sum ne $sqlFileStatus->getStatusValue('md5') ) {
-        $preStatus = $sqlFileStatus->updateStatus( md5 => $md5Sum, isModifed => 1, warnCount => 0, interact => undef, startTime => undef, endTime => undef );
-    }
-
-    if ( not defined($preStatus) or $preStatus eq '' ) {
-        $preStatus = 'pending';
-    }
-
     my $sqlInfo = {
         jobId       => $self->{jobId},
         resourceId  => $nodeInfo->{resourceId},
@@ -742,7 +753,7 @@ sub checkOneSqlFile {
         username    => $nodeInfo->{username},
         serviceAddr => $nodeInfo->{serviceAddr},
         sqlFile     => $sqlFile,
-        status      => $preStatus,
+        isModified  => $isModified,
         md5         => $md5Sum
     };
 

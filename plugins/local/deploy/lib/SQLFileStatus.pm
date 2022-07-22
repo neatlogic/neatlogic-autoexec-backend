@@ -48,8 +48,9 @@ sub new {
         }
     }
 
-    $self->{sqlPath}       = "$sqlFileDir/$sqlFile";
-    $self->{statusPath}    = "$statusDir/$sqlFile.txt";
+    $self->{sqlPath}    = "$sqlFileDir/$sqlFile";
+    $self->{statusPath} = "$statusDir/$sqlFile.txt";
+
     $self->{serverAdapter} = ServerAdapter->new();
 
     bless( $self, $type );
@@ -68,11 +69,16 @@ sub new {
     $fh->autoflush(1);
     $self->{statusFH} = $fh;
 
+    my $statusUpdated = 0;
     if ( $newSqlFile == 0 ) {
         $self->_loadStatus();
     }
     else {
-        $self->{status} = { "status" => "pending", "isModified" => 0, "warnCount" => 0, "md5" => '', "interact" => undef };
+        $statusUpdated = 1;
+        $self->{status} = { "status" => 'pending', "isModified" => 0, "warnCount" => 0, "md5" => '', "interact" => undef };
+    }
+
+    if ($statusUpdated) {
         $self->_saveStatus();
     }
 
@@ -84,6 +90,22 @@ sub new {
     }
 
     return $self;
+}
+
+sub _getFileMd5Sum {
+    my ( $self, $filePath ) = @_;
+    my $fileFH = new IO::File("<$filePath");
+
+    my $md5Hash = '';
+    if ( defined($fileFH) ) {
+        $md5Hash = Digest::MD5->new->addfile(*$fileFH)->hexdigest();
+        $fileFH->close();
+    }
+    else {
+        die("ERROR: Get md5sum of file:$filePath failed, $!\n");
+    }
+
+    return $md5Hash;
 }
 
 sub getFileContent {
@@ -174,11 +196,13 @@ sub _setStatus {
 sub updateStatus {
     my ( $self, %args ) = @_;
 
-    my $preStatus = $self->{status}->{status};
+    my $selfStatus = $self->{status};
+    my $preStatus  = $selfStatus->{status};
 
     foreach my $key ( keys(%args) ) {
-        $self->{status}->{$key} = $args{$key};
+        $selfStatus->{$key} = $args{$key};
     }
+
     $self->_saveStatus();
 
     my $newStatus = $args{status};
@@ -197,8 +221,8 @@ sub updateStatus {
             serviceAddr => $nodeInfo->{serviceAddr},
             sqlFile     => $self->{sqlFile},
             status      => $newStatus,
-            md5         => $self->{status}->{md5},
-            interact    => $self->{status}->{interact}
+            md5         => $selfStatus->{md5},
+            interact    => $selfStatus->{interact}
         };
 
         $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );
