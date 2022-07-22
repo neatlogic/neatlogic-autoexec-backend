@@ -453,7 +453,7 @@ class RunNode:
             opStatus = self.getNodeStatus(op)
             op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
 
-            if not self.context.isForce and opStatus == NodeStatus.succeed and not self.phaseType != 'sqlfile':
+            if not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != 'sqlfile':
                 self._loadOpOutput(op)
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 return
