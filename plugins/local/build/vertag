@@ -113,6 +113,12 @@ sub main {
         print("FINEST: $desc success.\n");
     }
     else {
+        my $versionInfo = {
+            version => $version,
+            buildNo => $buildEnv->{BUILD_NO},
+            status  => 'release-failed'
+        };
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
         print("ERROR: $desc failed.\n");
     }
 

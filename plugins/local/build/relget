@@ -138,8 +138,9 @@ sub main {
 
     print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
     my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo   = {
+
+    #my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'releasing'

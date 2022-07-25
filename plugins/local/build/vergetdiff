@@ -184,6 +184,12 @@ sub main {
         print("FINEST: $namePath version:$version diff $tag4CmpTo success.\n");
     }
     else {
+        my $versionInfo = {
+            version => $version,
+            buildNo => $buildEnv->{BUILD_NO},
+            status  => 'release-failed'
+        };
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
         print("ERROR: $namePath version:$version diff $tag4CmpTo failed.\n");
     }
 

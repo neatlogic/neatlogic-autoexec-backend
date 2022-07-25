@@ -31,7 +31,7 @@ lib/ServerAdapter.py 里有getDeployIdPath的方法，与SeverAdapter.pm的getId
             #环境制品状态：pending|succeed｜failed
             #环境制品状态：发布中|已发布｜发布失败
             'releaseVerToEnv'        => '',
-
+            'getEnvVer'             => '',
             'getAutoCfgConf'        => '',
             'getDBConf'             => '',
             'addBuildQulity'        => '',

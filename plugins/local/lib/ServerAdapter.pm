@@ -43,7 +43,8 @@ sub new {
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'releaseVerToEnv'       => '',
+            'releaseVerToEnv'       => '/codedriver/api/rest/deploy/version/env/update/forautoexec',
+            'getEnvVer'             => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
             'getAutoCfgConf'        => '/codedriver/api/rest/deploy/app/env/all/autoconfig/get',
             'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
             'addBuildQulity'        => '',
@@ -52,8 +53,8 @@ sub new {
             'checkInSqlFiles'       => '/codedriver/api/rest/autoexec/job/sql/checkin',
             'pushSqlStatus'         => '/codedriver/api/rest/autoexec/job/sql/update',
             'updatePhaseStatus'     => '/codedriver/api/rest/autoexec/job/phase/status/update',
-            'creatJob'              => '',
-            'getJobStatus'          => '',
+            'createJob'             => '/codedriver/api/rest/autoexec/job/from/deploy/create',
+            'getJobStatus'          => '/codedriver/api/rest/autoexec/job/status/get',
             'saveVersionDependency' => '',
             'setEnvVersion'         => '',
             'rollbackEnvVersion'    => '',
@@ -310,11 +311,6 @@ sub delBuild {
 sub releaseVerToEnv {
     my ( $self, $buildEnv, $status, $isMirror ) = @_;
 
-    #TODO: uncomment after test
-    return;
-
-    #Test end############################
-
     #更新某个version的buildNo的release状态为1，build成功
     my $params = $self->_getParams($buildEnv);
 
@@ -329,7 +325,6 @@ sub releaseVerToEnv {
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
-    #TODO: 测试 发布版本，更新版本某个buildNo的release的状态为1
     return;
 }
 
@@ -337,19 +332,6 @@ sub getEnvVer {
     my ( $self, $buildEnv, $version ) = @_;
 
     #获取环境版本详细信息：version, buildNo, status
-
-    #TODO: Delete follow test lines
-    my $envVerInfo = {
-        version  => $buildEnv->{VERSION},
-        buildNo  => $buildEnv->{BUILD_NO},
-        isMirror => 0,
-        status   => 'released'
-    };
-
-    return $envVerInfo;
-
-    #TODO: test data ended###########################
-
     my $param = $self->_getParams($buildEnv);
 
     if ( defined($version) and $version ne '' ) {
@@ -366,9 +348,6 @@ sub getEnvVer {
 
 sub getAutoCfgConf {
     my ( $self, $buildEnv ) = @_;
-
-    #TODO: delete follow test lines
-    #TODO: autocfg配置的获取，获取环境和实例的autocfg的配置存放到buildEnv之中传递给autocfg程序
 
     #数据格式
     # {
@@ -458,11 +437,6 @@ sub getDBConf {
 
 sub addBuildQuality {
     my ( $self, $buildEnv, $measures ) = @_;
-
-    #TODO: uncomment after test
-    return;
-
-    #TODO:Test end#################
 
     my $params = $self->_getParams($buildEnv);
     while ( my ( $key, $val ) = each(%$measures) ) {
@@ -555,14 +529,6 @@ sub getAppPassWord {
 sub getSqlFileStatuses {
     my ( $self, $jobId, $deployEnv, $sqlFiles ) = @_;
 
-    #TODO: delete follow test lines
-    #格式：
-    #my $sqlInfoList = [];
-
-    #return $sqlInfoList;
-
-    #TODO: test lines end#####################3
-
     #返回数据格式
     # [
     # {
@@ -626,23 +592,6 @@ sub getSqlFileStatuses {
 
 sub checkInSqlFiles {
     my ( $self, $jobId, $targetPhase, $sqlInfoList, $deployEnv ) = @_;
-
-    #TODO: uncomment after test
-
-    # if ( defined($deployEnv) ) {
-    #     my $params = $self->_getParams($deployEnv);
-    #     foreach my $sqlInfo (@$sqlInfoList) {
-    #         while ( my ( $k, $v ) = each(%$params) ) {
-    #             $sqlInfo->{$k} = $v;
-    #             $sqlInfo->{operType} = 'deploy';
-    #         }
-    #     }
-    # }
-
-    # print Dumper ($sqlInfoList);
-    # return;
-
-    #TODO:Test end#################
 
     #$sqlInfoList格式
     #服务端接受到次信息，只需要增加不存在的SQL记录即可，已经存在的不需要更新
@@ -789,19 +738,32 @@ sub updatePhaseStatus {
 sub createJob {
     my ( $self, $jobId, $buildEnv, %args ) = @_;
 
+    # %args说明
+    # {
+    #     name => 'xxxxx', #作业名
+    #     version => 'xxxxx', #目标版本号
+    #     nodeList => [{ip=>'xxxxx', port=>dddd}], #节点列表，默认空就是全部
+    #     scenarioName => 'xxxxx', #场景名
+    #     roudnCount => 2, #分组运行组的数量
+    #     param => {key => 'value',....} #扩展参数
+    # }
+
     my $params = {
-        jobId         => $jobId,
-        targetEnvPath => $args{targetEnvPath},
-        targetVersion => $args{targetVersion},
-        senario       => $args{senario},
-        isRunNow      => $args{isRunNow},
-        isAuto        => $args{isAuto},
-        waitJob       => $args{waitJob},
-        planTime      => $args{planTime},
+        parentJobId => $jobId,
+        source      => 'deploy',
+        name        => $args{name},
+        moduleList  => [
+            {
+                name           => $buildEnv->{MODULE_NAME},
+                version        => $buildEnv->{VERSION},
+                selectNodeList => $args{nodeList}
+            }
+        ],
+        scenarioName  => $args{scenarioName},
+        appSystemName => $buildEnv->{SYS_NAME},
+        envName       => $args{envName},
         roundCount    => $args{roundCount},
-        jobUser       => $args{jobUser},
-        instances     => $args{instances},
-        jobArgs       => $args{jobArgs}
+        param         => $args{param}
     };
 
     my $webCtl  = $self->{webCtl};
@@ -846,10 +808,10 @@ sub saveVersionDependency {
     return;
 }
 
-sub setEnvVersion ($deployEnv) {
-    my ( $self, $buildEnv ) = @_;
+sub setEnvVersion {
+    my ( $self, $deployEnv ) = @_;
 
-    my $params = $self->_getParams($buildEnv);
+    my $params = $self->_getParams($deployEnv);
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('setEnvVersion');
@@ -860,10 +822,10 @@ sub setEnvVersion ($deployEnv) {
     return;
 }
 
-sub rollbackEnvVersion ($deployEnv) {
-    my ( $self, $buildEnv ) = @_;
+sub rollbackEnvVersion {
+    my ( $self, $deployEnv ) = @_;
 
-    my $params = $self->_getParams($buildEnv);
+    my $params = $self->_getParams($deployEnv);
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('rollbackEnvVersion');
@@ -874,11 +836,12 @@ sub rollbackEnvVersion ($deployEnv) {
     return;
 }
 
-sub setInsVersion ( $deployEnv, $nodeInfo ) {
-    my ( $self, $buildEnv, $nodeInfo ) = @_;
+sub setInsVersion {
+    my ( $self, $buildEnv, $nodeInfo, $status ) = @_;
 
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
+    $params->{status}     = $status;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('setInsVersion');
@@ -889,11 +852,12 @@ sub setInsVersion ( $deployEnv, $nodeInfo ) {
     return;
 }
 
-sub rollbackInsVersion ( $deployEnv, $nodeInfo ) {
-    my ( $self, $buildEnv, $nodeInfo ) = @_;
+sub rollbackInsVersion {
+    my ( $self, $buildEnv, $nodeInfo, $status ) = @_;
 
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
+    $params->{status}     = $status;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('rollbackInsVersion');

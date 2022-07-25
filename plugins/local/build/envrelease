@@ -60,6 +60,7 @@ sub main {
     }
 
     my $namePath = $buildEnv->{NAME_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
 
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
@@ -81,11 +82,11 @@ sub main {
     $hasError = $buildUtils->release2Env($buildEnv);
 
     if ( $hasError != 0 ) {
-        print("ERROR: Auto config $namePath version:$version failed.\n");
+        print("ERROR: Release $namePath version:$version build($buildNo) to $envName failed.\n");
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
     else {
-        print("FINEST: Auto config $namePath version:$version success.\n");
+        print("ERROR: Release $namePath version:$version build($buildNo) to $envName success.\n");
         $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
 

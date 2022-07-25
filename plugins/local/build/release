@@ -361,15 +361,15 @@ sub main {
     $buildUtils->cleanExpiredVersion( $buildEnv, $verResvCount, $verTTL );
 
     if ( $hasError ne 0 ) {
-        print("ERROR: Release $namePath version:$version failed.\n");
+        print("ERROR: Release $namePath version:$version with build($buildNo) failed.\n");
     }
     else {
         eval { $buildUtils->release( $buildEnv, $version, $buildNo ); };
         if ($@) {
-            print("ERRROR: $@\n");
+            print("ERROR: $@\n");
         }
         else {
-            print("FINEST: Release $namePath version:$version success.\n");
+            print("FINEST: Release $namePath version:$version with build($buildNo) success.\n");
         }
     }
 

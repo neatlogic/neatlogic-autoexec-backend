@@ -102,12 +102,12 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
 
-    my $verInfo   = $serverAdapter->getVer( $deployEnv, $version );
+    my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
     my $verStatus = $verInfo->{status};
     my $buildNo   = $verInfo->{buildNo};
     my $isMirror  = $verInfo->{isMirror};
     if ( $verInfo->{status} ne 'released' ) {
-        print("ERROR: $namePath $envName version:$version build $buildNo($verStatus) is not released, can not autocfg.\n");
+        print("ERROR: $namePath version:$version is not released to $envName.\n");
         return 3;
     }
 

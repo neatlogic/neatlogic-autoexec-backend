@@ -109,6 +109,12 @@ sub main {
         print("FINEST: Merge baseline changes to version:$version success.\n");
     }
     else {
+        my $versionInfo = {
+            version => $version,
+            buildNo => $buildEnv->{BUILD_NO},
+            status  => 'release-failed'
+        };
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
         print("ERROR: Merge baseline changes to version:$version failed.\n");
     }
 

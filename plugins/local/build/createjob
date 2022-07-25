@@ -41,9 +41,9 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,        $envPath,  $version, $buildNo );
-    my ( $baseUrl,       $userName, $password );
-    my ( $targetEnvPath, $targetVer );
+    my ( $isHelp,        $envPath,   $version, $buildNo );
+    my ( $baseUrl,       $userName,  $token );
+    my ( $targetEnvPath, $targetVer, $targetBuildNo );
 
     my $pname = $FindBin::Script;
     my $senario;
@@ -64,9 +64,10 @@ sub main {
         'buildno=s'     => \$buildNo,
         'baseurl=s'     => \$baseUrl,
         'user=s'        => \$userName,
-        'password=s'    => \$password,
+        'token=s'       => \$token,
         'targetenvpath' => \$targetEnvPath,
         'targetver'     => \$targetVer,
+        'targetBuildNo' => \$targetBuildNo,
         'runnow=i'      => \$isRunNow,
         'plantime=s'    => \$planTime,
         'auto=i'        => \$isAuto,
@@ -88,7 +89,7 @@ sub main {
 
     my $optionError = 0;
 
-    my $args = {};
+    my $jobParams = {};
 
     sub pushItems {
         my ($item) = @_;
@@ -103,7 +104,7 @@ sub main {
             usage();
         }
 
-        $args->{ $arg[0] } = $arg[1];
+        $jobParams->{ $arg[0] } = $arg[1];
     }
 
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -131,10 +132,13 @@ sub main {
     if ( not defined($targetVer) or $targetVer eq '' ) {
         $targetVer = $version;
     }
+    if ( not defined($targetBuildNo) or $targetBuildNo eq '' ) {
+        $targetBuildNo = $buildNo;
+    }
 
     my $authToken;
     if ( defined($baseUrl) ) {
-        my $authToken = 'Basic ' . MIME::Base64::encode( $userName . ':' . $password );
+        my $authToken = 'Basic ' . MIME::Base64::encode( $userName . ':' . $token );
         $authToken =~ s/\s*$//;
     }
 
@@ -148,24 +152,46 @@ sub main {
         $jobId = 0;
     }
 
-    my @insArray = split( /\s*,\s*/, $instances );
+    my ( $targetSysName, $targetModuleName, $targetEnvName ) = split( '/', $targetEnvPath );
+
+    my @nodeList = ();
+    foreach my $insLine ( split( /\s*,\s*/, $instances ) ) {
+        my @nodeInfo = split( /\s*:\s*/, $insLine );
+        push( @nodeList, { ip => $nodeInfo[0], port => $nodeInfo[1] } );
+    }
+
+    # %args说明
+    # {
+    #     name => 'xxxxx', #作业名
+    #     version => 'xxxxx', #目标版本号
+    #     nodeList => [{ip=>'xxxxx', port=>dddd}], #节点列表，默认空就是全部
+    #     scenarioName => 'xxxxx', #场景名
+    #     roudnCount => 2, #分组运行组的数量
+    #     param => {key => 'value',....} #扩展参数
+    # }
 
     my $createdJobId;
     eval {
         $createdJobId = $serverAdapter->createJob(
             $jobId,
             $buildEnv,
-            targetEnvPath => $targetEnvPath,
-            targetVersion => $targetVer,
-            senario       => $senario,
-            baseUrl       => $baseUrl,
-            isRunNow      => $isRunNow,
-            isAuto        => $isAuto,
-            waitJob       => $waitJob,
-            planTime      => $planTime,
-            roundCount    => $roundCount,
-            jobUser       => $jobUser,
-            instances     => \@insArray
+            sysName      => $targetSysName,
+            moduleName   => $targetModuleName,
+            envName      => $targetEnvName,
+            version      => $targetVer,
+            buildNo      => $targetBuildNo,
+            scenarioName => $senario,
+            baseUrl      => $baseUrl,
+            user         => $userName,
+            token        => $token,
+            isRunNow     => $isRunNow,
+            isAuto       => $isAuto,
+            waitJob      => $waitJob,
+            planTime     => $planTime,
+            roundCount   => $roundCount,
+            jobUser      => $jobUser,
+            nodeList     => \@nodeList,
+            params       => $jobParams
         );
     };
     if ( $@ or not defined($createdJobId) ) {

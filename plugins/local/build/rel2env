@@ -157,6 +157,8 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
+
+        #此处不需要更新环境版本状态为成功，需要通过工具envrelease进行最后成功的更新
         print("FINEST: Release $namePath $version build:$buildNo to $envName success.\n");
     }
     else {
