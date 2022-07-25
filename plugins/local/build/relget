@@ -24,8 +24,6 @@ sub usage {
     print("       --version:    Version number of module version\n");
     print("       --buildno:    Build number\n");
     print("       --baseurl:    Resource server base url, example:http://192.168.0.13:8080/nexus\n");
-    print("       --user:       User name to login nexus\n");
-    print("       --password:   User password to login nexus\n");
     print("       --srcenvpath: Source env path, example:MY-SYS/MY-MODULE/UAT.\n");
 
     exit(-1);
@@ -45,8 +43,6 @@ sub main {
         'version=s'    => \$version,
         'buildno=s'    => \$buildNo,
         'baseurl=s'    => \$baseUrl,
-        'user=s'       => \$user,
-        'password=s'   => \$pass,
         'srcenvpath:s' => \$srcEnvPath,
         '<>'           => \&pushItems
     );
@@ -107,8 +103,6 @@ sub main {
 
     my $hasError = 0;
 
-    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
-
     my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $releaseDir = $dirInfo->{release};
     my $prjDir     = $buildEnv->{PRJ_PATH};
@@ -120,7 +114,6 @@ sub main {
         sysName    => $srcPathSegs[0],
         moduleName => $srcPathSegs[1],
         envName    => $srcPathSegs[2],
-        authToken  => $authToken,
         baseUrl    => $baseUrl
     };
 
@@ -147,7 +140,7 @@ sub main {
     };
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
-    eval { $serverAdapter->getBuild( $buildEnv, $srcEnvInfo, \@subDirs, 1 ); };
+    eval { $serverAdapter->getBuild( $buildEnv, $baseUrl, $srcEnvInfo, \@subDirs, 1 ); };
     if ($@) {
         $hasError = $hasError + 1;
         print("ERROR: $@");

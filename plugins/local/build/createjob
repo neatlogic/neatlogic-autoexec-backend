@@ -20,29 +20,28 @@ sub usage {
     print("              --createuser JobUser --instances IP:PORT1,IP:PORT2\n");
     print("              arg1=value1 arg2=value2");
     print("\n");
-    print("       --envpath:    Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
-    print("       --version:    Version number of sub system\n");
-    print("       --buildno:    Build number\n");
+    print("       --envpath:       Env path in the data directory, example:10.10.0.0/16,10.20.0.0/24\n");
+    print("       --version:       Version number of sub system\n");
+    print("       --buildno:       Build number\n");
     print("       --targetenvpath: Target EnvPath\n");
-    print("       --targetver: Target version\n");
-    print("       --baseurl:    If cross deploy system, need to defined the target deploy system url\n");
-    print("       --user:       If create job in other system, defined the login user\n");
-    print("       --password:   Password for the login user\n");
-    print("       --runnow:     Create job and execute the job\n");
-    print("       --plantime:   Job executeion plan time，example: 2022-2-22 17:00:00\n");
-    print("       --auto:       If define plantime, auto=0, mean juse create the job\n");
-    print("       --wait:       Wait the job complete\n");
-    print("       --round:      Execution round for job\n");
-    print("       --senario:    Senario for system\n");
-    print("       --jobuser:    Job user\n");
-    print("       --instances:  Instances for job, example:192.168.0.1:8080,192.168.0.2:8080\n");
+    print("       --targetver:     Target version\n");
+    print("       --targetbuildno: Target build no\n");
+    print("       --baseurl:       If cross deploy system, need to defined the target deploy system url\n");
+    print("       --runnow:        Create job and execute the job\n");
+    print("       --plantime:      Job executeion plan time，example: 2022-2-22 17:00:00\n");
+    print("       --auto:          If define plantime, auto=0, mean juse create the job\n");
+    print("       --wait:          Wait the job complete\n");
+    print("       --round:         Execution round for job\n");
+    print("       --senario:       Senario for system\n");
+    print("       --jobuser:       Job user\n");
+    print("       --instances:     Instances for job, example:192.168.0.1:8080,192.168.0.2:8080\n");
 
     exit(-1);
 }
 
 sub main {
-    my ( $isHelp,        $envPath,   $version, $buildNo );
-    my ( $baseUrl,       $userName,  $token );
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ($baseUrl);
     my ( $targetEnvPath, $targetVer, $targetBuildNo );
 
     my $pname = $FindBin::Script;
@@ -63,8 +62,6 @@ sub main {
         'version=s'     => \$version,
         'buildno=s'     => \$buildNo,
         'baseurl=s'     => \$baseUrl,
-        'user=s'        => \$userName,
-        'token=s'       => \$token,
         'targetenvpath' => \$targetEnvPath,
         'targetver'     => \$targetVer,
         'targetBuildNo' => \$targetBuildNo,
@@ -136,12 +133,6 @@ sub main {
         $targetBuildNo = $buildNo;
     }
 
-    my $authToken;
-    if ( defined($baseUrl) ) {
-        my $authToken = 'Basic ' . MIME::Base64::encode( $userName . ':' . $token );
-        $authToken =~ s/\s*$//;
-    }
-
     my $serverAdapter = ServerAdapter->new();
     print("INFO: begin to add job...\n");
 
@@ -174,7 +165,6 @@ sub main {
     eval {
         $createdJobId = $serverAdapter->createJob(
             $jobId,
-            $buildEnv,
             sysName      => $targetSysName,
             moduleName   => $targetModuleName,
             envName      => $targetEnvName,
@@ -182,8 +172,6 @@ sub main {
             buildNo      => $targetBuildNo,
             scenarioName => $senario,
             baseUrl      => $baseUrl,
-            user         => $userName,
-            token        => $token,
             isRunNow     => $isRunNow,
             isAuto       => $isAuto,
             waitJob      => $waitJob,
@@ -206,7 +194,7 @@ sub main {
     if ( $isRunNow eq 1 and $waitJob eq 1 ) {
         my $jobStatus;
         my $loopCount = 0;
-        while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, baseUrl => $baseUrl, authToken => $authToken ) ) {
+        while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, baseUrl => $baseUrl ) ) {
             if ( not defined($jobStatus) ) {
                 print("ERROR: can not get job status for jobId:$createdJobId on $baseUrl\n");
             }

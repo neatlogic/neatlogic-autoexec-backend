@@ -736,7 +736,7 @@ sub updatePhaseStatus {
 }
 
 sub createJob {
-    my ( $self, $jobId, $buildEnv, %args ) = @_;
+    my ( $self, $jobId, %args ) = @_;
 
     # %args说明
     # {
@@ -749,18 +749,19 @@ sub createJob {
     # }
 
     my $params = {
+        baseUrl     => $args{baseUrl},
         parentJobId => $jobId,
         source      => 'deploy',
         name        => $args{name},
         moduleList  => [
             {
-                name           => $buildEnv->{MODULE_NAME},
-                version        => $buildEnv->{VERSION},
+                name           => $args{moduleName},
+                version        => $args{version},
                 selectNodeList => $args{nodeList}
             }
         ],
         scenarioName  => $args{scenarioName},
-        appSystemName => $buildEnv->{SYS_NAME},
+        appSystemName => $args{sysName},
         envName       => $args{envName},
         roundCount    => $args{roundCount},
         param         => $args{param}
@@ -773,14 +774,16 @@ sub createJob {
 
     my $chldJobId = $rcObj->{jobId};
 
-    #TODO: test createJob
     return $chldJobId;
 }
 
 sub getJobStatus {
     my ( $self, $jobId, %args ) = @_;
 
-    my $params = { jobId => $jobId };
+    my $params = {
+        jobId   => $jobId,
+        baseUrl => $args{baseUrl}
+    };
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getJobStatus');
@@ -789,7 +792,6 @@ sub getJobStatus {
 
     my $jobStatus = $rcObj->{status};
 
-    #TODO: test getJobStatus
     return $jobStatus;
 }
 
@@ -869,7 +871,7 @@ sub rollbackInsVersion {
 }
 
 sub getBuild {
-    my ( $self, $deployEnv, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
+    my ( $self, $deployEnv, $baseUrl, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
 
@@ -981,6 +983,8 @@ sub getBuild {
     if ( defined($subDirs) and scalar($subDirs) > 0 ) {
         $pdata->{'subDirs'} = join( ',', @$subDirs );
     }
+
+    $pdata->{baseUrl} = $baseUrl;
 
     my $params = $client->buildQuery($pdata);
     $url = $url . $params;

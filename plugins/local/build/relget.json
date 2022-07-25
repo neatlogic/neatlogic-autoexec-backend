@@ -17,31 +17,13 @@
             "defaultValue": "${global:getres.baseurl}"
         },
         {
-            "opt": "user",
-            "name": "用户名",
-            "help": "制品库登录用户名",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": "${global:getres.user}"
-        },
-        {
-            "opt": "password",
-            "name": "访问Token",
-            "help": "制品库登录用户Token",
-            "type": "password",
-            "required": "true",
-            "validate": "",
-            "defaultValue": "${global:getres.password}"
-        },
-        {
             "opt": "srcenvpath",
             "name": "源环境路径",
             "help": "获取版本的源头环境路径,例如:MY-SYS/MY-MODULE/UAT",
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "${NAME_PATH}"
         }
     ],
     "argument": {
@@ -50,11 +32,8 @@
         "type": "text",
         "count": 0,
         "isConst": "false",
-        "defaultValue": [
-            "app",
-            "db"
-        ],
-        "required": "true",
+        "defaultValue": "",
+        "required": "false",
         "validate": ""
     },
     "output": []

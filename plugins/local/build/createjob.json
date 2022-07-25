@@ -7,31 +7,12 @@
     "defaultProfile": null,
     "description": "创建作业",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "baseurl",
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",
             "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
-            "opt": "user",
-            "name": "用户名",
-            "help": "其他发布系统的登录用户名",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
-            "opt": "password",
-            "name": "密码",
-            "help": "其他发布系统的登录用户密码",
-            "type": "password",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
@@ -61,8 +42,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -91,8 +71,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -112,8 +91,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
