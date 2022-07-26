@@ -1,0 +1,20 @@
+{
+    "opName": "网路设备配置备份",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "拷贝远程交换机的配置到本地并备份到文件服务",
+    "enabled": 0,
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": "10"
+    }],
+    "output": []
+}
