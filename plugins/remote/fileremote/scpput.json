@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "基于SCP上传文件到服务端",
+    "description": "基于SCP上传本地文件到服务端",
     "option": [{
             "opt": "addr",
             "name": "SCP地址",

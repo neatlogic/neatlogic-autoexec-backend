@@ -7,8 +7,7 @@ use strict;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
 use Cwd;
-
-use SCPExec;
+use POSIX;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -28,8 +27,14 @@ sub main {
     my ( $node, $direction, $addr, $remoteDir, $localDir, $user, $pass );
 
     my $pname = $FindBin::Script;
-    $isVerbose = 0;
 
+    my $askPass = $ENV{'SSH_ASKPASS_PASSWORD'};
+    if ( defined($askPass) and $askPass ne '' ) {
+        print($askPass);
+        exit(0);
+    }
+
+    $isVerbose = 0;
     GetOptions(
         'h|help'      => \$isHelp,
         'v|verbose=i' => \$isVerbose,
@@ -71,20 +76,29 @@ sub main {
     my $errorCode = 0;
 
     my $scpPath = "$user\@$host:$remoteDir";
-    $errorCode = myExec(
-        host        => $host,
-        port        => $port,
-        username    => $user,
-        password    => $pass,
-        source      => $localDir,
-        destination => $scpPath,
-        verbose     => $isVerbose,
-        notpreserve => 0
-    );
-    if ( $errorCode ne 0 ) {
-        last;
-    }
+    my $quietOpt = '';
+    my $notpreserve = 0 ;
+    $quietOpt = 'q' if ( $isVerbose == 0 );
+    my $preserveOpt = 'p';
+    $preserveOpt = '' if ($notpreserve);
 
+    my $cmd ="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $localDir $scpPath ";
+    my $pid = fork;
+    if ( $pid == 0 ) {
+        setsid();
+        $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+	        kill( 'TERM', $pid ); 
+        };
+        $ENV{SSH_ASKPASS}          = $ENV{'PWD'} . "/" . $pname;
+        $ENV{SSH_ASKPASS_PASSWORD} = $pass;
+        $ENV{DISPLAY}              = ':0';
+        open( STDIN, '<', '/dev/null' );
+        exec("$cmd");
+        die "Can't exec $pname: $!\n";
+    }
+    waitpid( $pid, 0 );
+
+    my $errorCode = $? ;
     if ( $errorCode ne 0 ) {
         print("ERROR: Upload $localDir to $scpPath failed.\n");
     }
@@ -92,32 +106,6 @@ sub main {
         print("INFO: Upload $localDir to $scpPath success.\n");
     }
     return $errorCode;
-}
-
-sub myExec {
-    my (%args)    = @_;
-    my $host      = $args{host};
-    my $port      = $args{port};
-    my $user      = $args{username};
-    my $pass      = $args{password};
-    my $src       = $args{source};
-    my $localDir  = $args{destination};
-    my $isVerbose = $args{verbose};
-    my $np        = $args{notpreserve};
-
-    my $scpExec = new SCPExec(
-        host        => $host,
-        port        => $port,
-        username    => $user,
-        password    => $pass,
-        source      => $src,
-        destination => $localDir,
-        verbose     => $isVerbose,
-        notpreserve => $np
-    );
-
-    my $rc = $scpExec->exec();
-    return $rc;
 }
 
 exit( main() );
