@@ -19,8 +19,9 @@ from ping3 import ping
 
 
 class RemoteConfBackup:
-    def __init__(self, nodeInfo):
+    def __init__(self, nodeInfo, maxSize):
         self.nodeInfo = nodeInfo
+        self.maxSize = maxSize
         self.jobId = os.getenv('AUTOEXEC_JOBID')
         self.filePatterns = []
         self.filePaths = []
@@ -188,7 +189,10 @@ class RemoteConfBackup:
             try:
                 savePath = '{}/{}'.format(localDir, os.basename(remotePath))
                 self.copyRemoteFile(remotePath, savePath)
-                self.storeFile(remotePath, savePath)
+                if os.path.getsize(savePath) > self.maxSize * 1024:
+                    print("ERROR: File {} exceed maxSize:{}K, store file failed.\n".format(remotePath, self.maxSize), end='')
+                else:
+                    self.storeFile(remotePath, savePath)
             except Exception as err:
                 self.IS_FAIELD = True
                 print('ERROR: Save file:{} to backup server failed, {}\n'.format(remotePath, err), end='')
@@ -206,9 +210,14 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--maxsize', default=32, help='Maximum file size, unit:K')
     parser.add_argument('--timeout', default=10, help='Timeout value')
     parser.add_argument('remotefiles', nargs=argparse.REMAINDER, help="Remote files to backup")
     args = parser.parse_args()
+
+    maxSize = int(args.maxSize)
+    if maxSize == 0:
+        maxSize = 32
 
     timeOut = int(args.timeout)
     if timeOut == 0:
@@ -236,7 +245,7 @@ if __name__ == "__main__":
 
         hasError = False
 
-        confBackup = RemoteConfBackup(nodeInfo)
+        confBackup = RemoteConfBackup(nodeInfo, maxSize)
 
         ip = nodeInfo['host']
         port = nodeInfo['port']

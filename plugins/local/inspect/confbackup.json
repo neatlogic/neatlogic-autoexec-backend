@@ -8,6 +8,14 @@
     "description": "拷贝远程OS的文件到本地并备份到文件服务",
     "enabled": 0,
     "option": [{
+        "opt": "maxsize",
+        "name": "最大Size",
+        "help": "最大文件大小，单位:K",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": "32"
+    }, {
         "opt": "timeout",
         "name": "超时时间",
         "help": "查询超时时间，单位秒",
