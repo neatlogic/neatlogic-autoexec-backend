@@ -75,30 +75,51 @@ sub main {
 
     my $errorCode = 0;
 
-    my $scpPath = "$user\@$host:$remoteDir";
-    my $quietOpt = '';
-    my $notpreserve = 0 ;
+    my $scpPath     = "$user\@$host:$remoteDir";
+    my $quietOpt    = '';
+    my $notpreserve = 0;
     $quietOpt = 'q' if ( $isVerbose == 0 );
     my $preserveOpt = 'p';
     $preserveOpt = '' if ($notpreserve);
 
-    my $cmd ="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $localDir $scpPath ";
-    my $pid = fork;
-    if ( $pid == 0 ) {
+    my $cmd = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $localDir $scpPath ";
+    my $pid = fork();
+    if ( not defined($pid) ) {
+        die("ERROP: Fork failed, $!\n");
+    }
+    elsif ( $pid == 0 ) {
+
+        #child process
         setsid();
-        $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
-	        kill( 'TERM', $pid ); 
-        };
+
         $ENV{SSH_ASKPASS}          = $ENV{'PWD'} . "/" . $pname;
         $ENV{SSH_ASKPASS_PASSWORD} = $pass;
         $ENV{DISPLAY}              = ':0';
         open( STDIN, '<', '/dev/null' );
-        exec("$cmd");
+        exec($cmd);
         die "Can't exec $pname: $!\n";
     }
+
+    #parent process
+    $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+        kill( 'TERM', $pid );
+
+        my $maxWait = 5;
+        my $loop    = 0;
+        while ( $loop < $maxWait and kill( 0, $pid ) ) {
+            $loop = $loop + 1;
+            sleep(1);
+        }
+
+        if ( $loop >= $maxWait ) {
+            kill( 'KILL', $pid );
+        }
+    };
+
+    #wait child process exit
     waitpid( $pid, 0 );
 
-    my $errorCode = $? ;
+    my $errorCode = $?;
     if ( $errorCode ne 0 ) {
         print("ERROR: Upload $localDir to $scpPath failed.\n");
     }
