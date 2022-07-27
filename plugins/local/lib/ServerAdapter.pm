@@ -47,7 +47,7 @@ sub new {
             'getEnvVer'             => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
             'getAutoCfgConf'        => '/codedriver/api/rest/deploy/app/env/all/autoconfig/get',
             'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
-            'addBuildQulity'        => '',
+            'addBuildQuality'       => '/codedriver/api/rest/deploy/versoin/build/quality/save',
             'getAppPassWord'        => '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getSqlFileStatuses'    => '/codedriver/api/rest/autoexec/job/sql/list',
             'checkInSqlFiles'       => '/codedriver/api/rest/autoexec/job/sql/checkin',
@@ -55,7 +55,7 @@ sub new {
             'updatePhaseStatus'     => '/codedriver/api/rest/autoexec/job/phase/status/update',
             'createJob'             => '/codedriver/api/rest/autoexec/job/from/deploy/create',
             'getJobStatus'          => '/codedriver/api/rest/autoexec/job/status/get',
-            'saveVersionDependency' => '',
+            'saveVersionDependency' => '/codedriver/api/rest/deploy/versoin/dependency/save/forautoexec',
             'setEnvVersion'         => '',
             'rollbackEnvVersion'    => '',
             'setInsVersion'         => '',
@@ -800,7 +800,7 @@ sub saveVersionDependency {
 
     #TODO： save jar dependency infomations
     my $params = $self->_getParams($buildEnv);
-    $params->{data} = $data;
+    $params->{dependenceList} = $data;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('saveVersionDependency');
