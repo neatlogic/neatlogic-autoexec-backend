@@ -81,20 +81,37 @@ sub main {
     $preserveOpt = '' if ($notpreserve);
 
     my $cmd ="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $scpPath $localDir  ";
-    my $pid = fork;
-    if ( $pid == 0 ) {
+    my $pid = fork();
+    if(not defined($pid)){
+        die("ERROR::Fork failed:$!\n");
+    }elsif ( $pid == 0 ) {
         setsid();
-        $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
-	        kill( 'TERM', $pid ); 
-        };
-        $ENV{SSH_ASKPASS}          = $ENV{'PWD'} . "/" . $pname;
+       
+        $ENV{SSH_ASKPASS}          = "$FindBin::Bin/$pname";;
         $ENV{SSH_ASKPASS_PASSWORD} = $pass;
         $ENV{DISPLAY}              = ':0';
         open( STDIN, '<', '/dev/null' );
-        exec("$cmd");
+        exec($cmd);
         die "Can't exec $pname: $!\n";
     }
+
+    $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+        kill( 'TERM', $pid ); 
+
+        my $maxWait = 5;
+        my $loop    = 0;
+        while ( $loop < $maxWait and kill( 0, $pid ) ) {
+            $loop = $loop + 1;
+            sleep(1);
+        }
+
+        if ( $loop >= $maxWait ) {
+            kill( 'KILL', $pid );
+        }
+    };
+
     waitpid( $pid, 0 );
+    
     my $errorCode = $? ;
     if ( $errorCode > 0 ) {
         print("ERROR: Download $scpPath to $localDir failed.\n");

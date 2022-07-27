@@ -92,7 +92,7 @@ sub main {
         #child process
         setsid();
 
-        $ENV{SSH_ASKPASS}          = $ENV{'PWD'} . "/" . $pname;
+        $ENV{SSH_ASKPASS}          = "$FindBin::Bin/$pname";
         $ENV{SSH_ASKPASS_PASSWORD} = $pass;
         $ENV{DISPLAY}              = ':0';
         open( STDIN, '<', '/dev/null' );
