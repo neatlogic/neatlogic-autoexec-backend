@@ -60,7 +60,7 @@ sub new {
             'rollbackEnvVersion'    => '',
             'setInsVersion'         => '',
             'rollbackInsVersion'    => '',
-            'getBuild'              => ''
+            'getBuild'              => '/codedriver/api/binary/deploy/appbuild/download'
         };
 
         my $username    = $serverConf->{username};
@@ -106,6 +106,7 @@ sub _getParams {
         sysId       => $buildEnv->{SYS_ID},
         moduleId    => $buildEnv->{MODULE_ID},
         envId       => $buildEnv->{ENV_ID},
+        namePath    => $buildEnv->{NAME_PATH},
         sysName     => $buildEnv->{SYS_NAME},
         moduleName  => $buildEnv->{MODULE_NAME},
         envName     => $buildEnv->{ENV_NAME},
@@ -884,14 +885,10 @@ sub getBuild {
     my $buildPath = $deployEnv->{BUILD_PATH};
 
     if ( not -e $buildPath ) {
-        mkpath($buildPath);
+        if ( not mkpath($buildPath) ) {
+            die("ERROR: Can not create directory $buildPath, $!\n");
+        }
     }
-
-    #my $fh;
-    #sysopen( $fh, "$buildPath.lock", O_RDWR | O_CREAT | O_SYNC );
-    #if ( not defined($fh) ) {
-    #    die("ERROR: Can not open or create file $buildPath.lock, $!\n");
-    #}
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
@@ -905,10 +902,6 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
                 if ( $releaseStatus eq 'released' ) {
                     print("INFO: Build-Status:$releaseStatus\n");
-
-                    #print("INFO: Try to lock directory $buildPath");
-                    #flock( $fh, LOCK_EX );
-                    #print("INFO: Locked.\n");
                     $builded = 1;
                     if ( $cleanSubDirs == 1 ) {
                         foreach my $subDir (@$subDirs) {
@@ -949,19 +942,23 @@ sub getBuild {
     };
 
     my $client = REST::Client->new();
-    my $url    = $self->_getApiUrl('getBuild');
+    $client->addHeader( 'Content-Type', 'application/json;charset=UTF-8' );
 
-    my $pdata = $self->_getParams($deployEnv);
+    my $url = $self->_getApiUrl('getBuild');
+
+    my $params = $self->_getParams($deployEnv);
+    my $pdata  = {
+        namePath   => $params->{namePath},
+        sysName    => $params->{sysName},
+        moduleName => $params->{moduleName},
+        envName    => $params->{envName},
+        version    => $params->{version},
+        buildNo    => $params->{buildNo},
+        subDirs    => $subDirs,
+        proxyToUrl => $baseUrl
+    };
 
     #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准
-    # {
-    #     namePath   => ‘MYSYS/MYMODULE/SIT,
-    #     sysName    => ’MYSYS',
-    #     moduleName => 'MYMODULE',
-    #     envName    => 'SIT',
-    #     authToken  => 'Basic Xkiekdjfkdfdf==',
-    #     baseUrl    => 'https://192.168.0.3:8080'
-    # };
     if ($srcEnvInfo) {
         my $srcNamePath = $srcEnvInfo->{namePath};
         if ( defined($srcNamePath) ) {
@@ -980,18 +977,10 @@ sub getBuild {
         }
     }
 
-    if ( defined($subDirs) and scalar($subDirs) > 0 ) {
-        $pdata->{'subDirs'} = join( ',', @$subDirs );
-    }
-
-    $pdata->{baseUrl} = $baseUrl;
-
-    my $params = $client->buildQuery($pdata);
-    $url = $url . $params;
+    my $paramsJson  = to_json($pdata);
     my $signHandler = $self->{signHandler};
-    &$signHandler( $client, $url );
-
-    #$url = $url . "?agentId=$agentId&action=getappbuild&sysId=$sysId&subSysId=$subSysId&version=$version";
+    my $uri         = substr( $url, index( $url, '/', 8 ) );
+    &$signHandler( $client, $uri, $paramsJson );
 
     $client->getUseragent()->ssl_opts( verify_hostname => 0 );
     $client->getUseragent()->ssl_opts( SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE );
@@ -1000,20 +989,14 @@ sub getBuild {
     $client->setFollow(1);
     $client->setContentFile( \&$callback );
 
-    $client->GET($url);
+    $client->POST( $url, $paramsJson );
     $releaseStatus = $client->responseHeader('Build-Status');
 
     my $untarCode = -1;
     if ( defined($writer) ) {
         close($writer);
-
-        #waitpid( $pid, 0 );
         $untarCode = $?;
-
-        #print("DEBUG: untar return code:$untarCode\n");
     }
-
-    #flock( $fh, LOCK_UN );
 
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
