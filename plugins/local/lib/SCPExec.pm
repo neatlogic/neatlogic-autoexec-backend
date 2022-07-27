@@ -43,7 +43,6 @@ sub exec {
 
     #here can use max_accum, because scp only use in password input, juse expect in the beginning
     $spawn->max_accum(2048);
-
     my $quietOpt = '';
     $quietOpt = 'q' if ( $isVerbose == 0 );
     my $preserveOpt = 'p';
