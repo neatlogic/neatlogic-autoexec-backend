@@ -28,7 +28,7 @@
     ],
     "argument": {
         "name": "抽取子目录",
-        "help": "从release的版本目录中抽取的子目录",
+        "help": "从release的版本目录中抽取的子目录，留空代表所有",
         "type": "text",
         "count": 0,
         "isConst": "false",
