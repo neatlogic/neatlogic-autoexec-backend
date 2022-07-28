@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use Cwd 'abs_path';
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -29,7 +30,7 @@ sub main {
     my ( $isHelp, $node );
 
     my $pname  = $FindBin::Script;
-    my $binDir = $FindBin::Bin;
+    my $binDir = abs_path("$FindBin::Bin/../build");
 
     my @myOpts = @ARGV;
     GetOptionsFromArray(
