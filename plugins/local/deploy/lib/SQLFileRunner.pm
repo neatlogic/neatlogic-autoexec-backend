@@ -818,7 +818,7 @@ sub checkSqlFiles {
 
             my $sqlInfo = $self->checkOneSqlFile( $sqlFile, $nodeInfo, $sqlFileStatus );
             push( @$sqlFileInfos, $sqlInfo );
-            print("INFO: Sql file:$sqlFile checked.\n");
+            print("INFO: Sql file:$sqlFile checked in.\n");
         }
         else {
             $hasError = $hasError + 1;
