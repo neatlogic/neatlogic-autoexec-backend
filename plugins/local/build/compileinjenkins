@@ -13,7 +13,6 @@ use Getopt::Long;
 use File::Basename;
 
 use DeployUtils;
-use FileUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
