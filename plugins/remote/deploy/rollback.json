@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "backup-args",
     "description": "把应用回退到版本发布前状态",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "Unix环境挂载NAS",
-    "option": [{
+    "option": [
+        {
             "opt": "addr",
             "name": "NAS地址",
             "help": "NAS地址, 例如: 192.168.0.222:/DataVolume/Public",

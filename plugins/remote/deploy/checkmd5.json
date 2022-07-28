@@ -1,7 +1,7 @@
 {
     "opDesc": "MD5检查",
     "opType": "target",
-    "typeName": "DEPLOY",
+    "typeName": "BASIC",
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,

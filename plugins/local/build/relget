@@ -138,9 +138,11 @@ sub main {
         buildNo => $buildEnv->{BUILD_NO},
         status  => 'releasing'
     };
+
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
-    eval { $serverAdapter->getBuild( $buildEnv, $baseUrl, $srcEnvInfo, \@subDirs, 1 ); };
+    my $buildNo;
+    eval { $buildNo = $serverAdapter->getBuild( $buildEnv, $baseUrl, $srcEnvInfo, \@subDirs, 1 ); };
     if ($@) {
         $hasError = $hasError + 1;
         print("ERROR: $@");

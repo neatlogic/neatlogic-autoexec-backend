@@ -7,7 +7,8 @@
     "defaultProfile": "sync2remote-args",
     "description": "同步本地环境制品到远程服务器上",
     "enabled": 0,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -35,7 +37,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "Unix｜Linux",
                         "value": "unix"
                     },
@@ -55,7 +58,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "环境制品目录",
                         "value": "appdist"
                     },
@@ -91,7 +95,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -111,7 +116,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "0"
                     },
@@ -131,7 +137,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -151,7 +158,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -171,7 +179,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "远程拷贝到本地",
                         "value": "1"
                     },

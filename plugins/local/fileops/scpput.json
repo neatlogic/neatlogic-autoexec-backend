@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于SCP上传本地文件到服务端",
-    "option": [{
+    "option": [
+        {
             "opt": "addr",
             "name": "SCP地址",
             "help": "SCP文件地址, 例如: 192.168.0.222:22",

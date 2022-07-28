@@ -7,7 +7,8 @@
     "defaultProfile": "sqlexec-args",
     "description": "自动发布SQL文件检查并导入",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -53,7 +55,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },

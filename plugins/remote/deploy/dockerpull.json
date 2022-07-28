@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "docker-args",
     "description": "拉取Docker镜像到当前主机",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "registry",

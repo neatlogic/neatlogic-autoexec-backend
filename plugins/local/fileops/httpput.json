@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于HTTP上传文件到服务端",
-    "option": [{
+    "option": [
+        {
             "opt": "addr",
             "name": "HTTP地址",
             "help": "HTTP文件地址, 例如: http://192.168.0.222/test.tgz",

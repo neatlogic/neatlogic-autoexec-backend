@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "backup-args",
     "description": "更新目标应用文件",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

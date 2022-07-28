@@ -1,7 +1,7 @@
 {
     "opDesc": "日志检查",
     "opType": "target",
-    "typeName": "DEPLOY",
+    "typeName": "START_STOP",
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,

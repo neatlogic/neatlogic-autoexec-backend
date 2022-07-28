@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于FTP上载文件到服务端",
-    "option": [{
+    "option": [
+        {
             "opt": "addr",
             "name": "FTP地址",
             "help": "FTP文件地址, 例如: ftp://192.168.0.222/test.tgz",

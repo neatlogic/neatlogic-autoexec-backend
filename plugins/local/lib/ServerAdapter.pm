@@ -53,7 +53,7 @@ sub new {
             'checkInSqlFiles'       => '/codedriver/api/rest/autoexec/job/sql/checkin',
             'pushSqlStatus'         => '/codedriver/api/rest/autoexec/job/sql/update',
             'updatePhaseStatus'     => '/codedriver/api/rest/autoexec/job/phase/status/update',
-            'createJob'             => '/codedriver/api/rest/autoexec/job/from/deploy/create',
+            'createJob'             => '/codedriver/api/rest/deploy/job/create',
             'getJobStatus'          => '/codedriver/api/rest/autoexec/job/status/get',
             'saveVersionDependency' => '/codedriver/api/rest/deploy/versoin/dependency/save/forautoexec',
             'setEnvVersion'         => '',
@@ -752,7 +752,11 @@ sub createJob {
     my $params = {
         baseUrl     => $args{baseUrl},
         parentJobId => $jobId,
+        jobUser     => $args{jobUser},
         source      => 'deploy',
+        isRrunNow   => $args{isRunNow},
+        isAuto      => $args{isAuto},
+        planTime    => $args{planTime},
         name        => $args{name},
         moduleList  => [
             {
@@ -990,6 +994,7 @@ sub getBuild {
     $client->setContentFile( \&$callback );
 
     $client->POST( $url, $paramsJson );
+    my $buildNo = $client->responseHeader('Build-NO');
     $releaseStatus = $client->responseHeader('Build-Status');
 
     my $untarCode = -1;
@@ -1024,7 +1029,7 @@ sub getBuild {
     }
 
     #TODO: 通过getres测试检查
-    return $releaseStatus;
+    return $buildNo;
 }
 
 1;

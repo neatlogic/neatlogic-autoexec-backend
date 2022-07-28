@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "backup-args",
     "description": "更新应用补丁到目标应用",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",
