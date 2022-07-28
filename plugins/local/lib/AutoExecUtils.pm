@@ -308,6 +308,40 @@ sub informNodeWaitInput {
     return;
 }
 
+sub setJobEnv {
+    my ( $onlyInProcess, $items ) = @_;
+
+    if ( not %$items ) {
+        return;
+    }
+
+    my $sockPath = $ENV{AUTOEXEC_JOB_SOCK};
+
+    if ( -e $sockPath ) {
+        eval {
+            my $client = IO::Socket::UNIX->new(
+                Peer    => $sockPath,
+                Type    => IO::Socket::SOCK_DGRAM,
+                Timeout => 10
+            );
+
+            my $request = {};
+            $request->{action}        = 'setEnv';
+            $request->{onlyInProcess} = $onlyInProcess;
+
+            $request->{items} = $items;
+
+            $client->send( to_json($request) );
+            $client->close();
+        };
+        if ($@) {
+            die("ERROR: Set job enviroment failed, $@\n");
+        }
+    }
+
+    return;
+}
+
 sub getNodes {
     my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
 

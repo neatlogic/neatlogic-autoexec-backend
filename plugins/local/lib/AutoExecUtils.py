@@ -212,6 +212,27 @@ def informNodeWaitInput(resourceId, title=None, opType='button', message='Please
     return
 
 
+def setJobEnv(onlyInProcess, items):
+    if not items:
+        return
+
+    sockPath = os.getenv('AUTOEXEC_JOB_SOCK')
+    if os.path.exists(sockPath):
+        try:
+            client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+            client.connect(sockPath)
+            request = {}
+            request['action'] = 'setEnv'
+            request['onlyInProcess'] = onlyInProcess
+            request['items'] = items
+
+            client.send(json.dumps(request))
+            client.close()
+        except Exception as ex:
+            raise Exception('ERROR: Set job env failed, {}.\n'.format(str(ex)))
+    return
+
+
 def getNodes():
     nodesMap = {}
 

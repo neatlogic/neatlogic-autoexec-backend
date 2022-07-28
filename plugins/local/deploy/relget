@@ -7,6 +7,7 @@ use Getopt::Long;
 use TarSCPExec;
 use File::Path;
 
+use AutoExecUtils;
 use DeployUtils;
 use DeployLock;
 use BuildUtils;
@@ -55,11 +56,11 @@ sub main {
     usage() if ( defined($isHelp) );
 
     my $deployUtils = DeployUtils->new();
-    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
-    $envPath = $buildEnv->{NAME_PATH};
-    $version = $buildEnv->{VERSION};
-    $buildNo = $buildEnv->{BUILD_NO};
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+    $buildNo = $deployEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -70,11 +71,6 @@ sub main {
     if ( not defined($version) or $version eq '' ) {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
-    }
-
-    if ( not defined($buildNo) or $buildNo eq '' ) {
-        $optionError = 1;
-        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
     }
 
     if ( not defined($srcEnvPath) or $srcEnvPath eq '' ) {
@@ -103,10 +99,6 @@ sub main {
 
     my $hasError = 0;
 
-    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
-    my $releaseDir = $dirInfo->{release};
-    my $prjDir     = $buildEnv->{PRJ_PATH};
-
     $srcEnvPath =~ s/^\s*\/|\/\s*$//g;
     my @srcPathSegs = split( '\/', $srcEnvPath );
     my $srcEnvInfo  = {
@@ -119,40 +111,29 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
 
-    my $lock      = DeployLock->new($buildEnv);
-    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
-
-    END {
-        local $?;
-        if ( defined($lock) ) {
-            $lock->unlockBuild($buildLock);
-        }
-    }
-
     print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
     my $serverAdapter = ServerAdapter->new();
 
-    #my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
-    my $versionInfo = {
-        version => $version,
-        buildNo => $buildEnv->{BUILD_NO},
-        status  => 'releasing'
-    };
-
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
-
-    my $buildNo;
-    eval { $buildNo = $serverAdapter->getBuild( $buildEnv, $baseUrl, $srcEnvInfo, \@subDirs, 1 ); };
+    #my $verInfo       = $serverAdapter->getVer( $deployEnv, $version );
+    my $isMirror = 0;
+    eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, $buildNo, $baseUrl, $srcEnvInfo, \@subDirs, 1 ); };
     if ($@) {
         $hasError = $hasError + 1;
         print("ERROR: $@");
         print("ERROR: $pname $envPath $version failed.\n");
     }
 
+    my $versionInfo = {
+        version => $version,
+        buildNo => $buildNo,
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $deployEnv, $versionInfo );
+
     if ( $hasError == 0 ) {
         eval {
             my $buildUtils = BuildUtils->new();
-            $buildUtils->release( $buildEnv, $version, $buildNo );
+            $buildUtils->release( $deployEnv, $version, $buildNo );
         };
         if ($@) {
             $hasError = 1;
@@ -168,7 +149,15 @@ sub main {
         $versionInfo->{status} = 'release-failed';
         print("ERROR: $pname $envPath $version failed.\n");
     }
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    $serverAdapter->updateVer( $deployEnv, $versionInfo );
+
+    if ( defined( $ENV{BUILD_ROOT} ) and $ENV{BUILD_ROOT} ne '' ) {
+        AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo", BUILD_PATH => "$ENV{BUILD_ROOT}/$buildNo" } );
+    }
+    else {
+        AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo" } );
+    }
 
     return $hasError;
 }

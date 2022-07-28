@@ -2,9 +2,8 @@
 use strict;
 
 package DeployLock;
+use IO::Socket;
 use JSON;
-
-use ServerAdapter;
 
 our $READ  = 'read';
 our $WRITE = 'write';

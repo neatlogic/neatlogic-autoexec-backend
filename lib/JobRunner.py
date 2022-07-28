@@ -64,8 +64,13 @@ class ListenWorkThread(threading.Thread):
                             phaseStatus.setGlobalRoundFinEvent(roundNo)
                         print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end='')
                     elif actionData['action'] == 'setEnv':
-                        self.context.setEnv(actionData['name'], actionData['value'])
-                        print("INFO: Set ENV variable({}) event recieved, processed.\n".format(actionData['name']), end='')
+                        onlyInProcess = actionData.get('onlyInProcess')
+                        for name, value in actionData('items').items():
+                            if onlyInProcess:
+                                os.environ[name] = value
+                            else:
+                                self.context.setEnv(name, value)
+                            print("INFO: Set ENV variable({}) event recieved, processed.\n".format(name), end='')
                     elif actionData['action'] == 'golbalLock':
                         lockThread = threading.Thread(target=self.doLock, args=(actionData['lockParams'], addr))
                         lockThread.setName('GlobalLock')

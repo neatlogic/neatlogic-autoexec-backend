@@ -15,6 +15,7 @@ use MIME::Base64;
 
 use WebCtl;
 use ServerConf;
+use DeployLock;
 use Data::Dumper;
 
 sub new {
@@ -330,10 +331,10 @@ sub releaseVerToEnv {
 }
 
 sub getEnvVer {
-    my ( $self, $buildEnv, $version ) = @_;
+    my ( $self, $deployEnv, $version ) = @_;
 
     #获取环境版本详细信息：version, buildNo, status
-    my $param = $self->_getParams($buildEnv);
+    my $param = $self->_getParams($deployEnv);
 
     if ( defined($version) and $version ne '' ) {
         $param->{version} = $version;
@@ -341,6 +342,25 @@ sub getEnvVer {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getEnvVer');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub getOtherSiteEnvVer {
+    my ( $self, $buildEnv, $baseUrl, $version ) = @_;
+
+    #获取环境版本详细信息：version, buildNo, status
+    my $param = $self->_getParams($buildEnv);
+
+    if ( defined($version) and $version ne '' ) {
+        $param->{version} = $version;
+        $param->{baseUrl} = $baseUrl;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getOtherSiteEnvVer');
     my $content = $webCtl->postJson( $url, $param );
     my $rcObj   = $self->_getReturn($content);
 
@@ -876,7 +896,7 @@ sub rollbackInsVersion {
 }
 
 sub getBuild {
-    my ( $self, $deployEnv, $baseUrl, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
+    my ( $self, $deployUtils, $deployEnv, $buildNo, $baseUrl, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
 
@@ -885,7 +905,6 @@ sub getBuild {
 
     my $namePath  = $deployEnv->{DEPLOY_PATH};
     my $version   = $deployEnv->{version};
-    my $buildNo   = $deployEnv->{buildNo};
     my $buildPath = $deployEnv->{BUILD_PATH};
 
     if ( not -e $buildPath ) {
@@ -896,17 +915,41 @@ sub getBuild {
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
-    my ( $pid, $reader, $writer, $releaseStatus, $contentDisposition, $magicNum, $firstChunk );
+    my ( $pid, $reader, $writer, $releaseStatus, $isMirror, $contentDisposition, $magicNum, $firstChunk );
     my $callback = sub {
         my ( $chunk, $res ) = @_;
         if ( $checked == 0 ) {
             $checked = 1;
             if ( $res->code eq 200 ) {
+                $buildNo            = $res->header('Build-No');
                 $releaseStatus      = $res->header('Build-Status');
+                $isMirror           = $res->header('isMirror');
                 $contentDisposition = $res->header('Content-Disposition');
                 if ( $releaseStatus eq 'released' ) {
                     print("INFO: Build-Status:$releaseStatus\n");
                     $builded = 1;
+
+                    my $buildEnv = $deployUtils->deployInit( $deployEnv->{NAME_PATH}, $deployEnv->{VERSION}, $buildNo );
+
+                    #gen Version info
+                    my $versionInfo = {
+                        version => $version,
+                        buildNo => $buildNo,
+                        status  => 'releasing'
+                    };
+                    $self->updateVer( $buildEnv, $versionInfo );
+
+                    #lockBuild
+                    my $lock      = DeployLock->new($buildEnv);
+                    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
+
+                    END {
+                        local $?;
+                        if ( defined($lock) ) {
+                            $lock->unlockBuild($buildLock);
+                        }
+                    }
+
                     if ( $cleanSubDirs == 1 ) {
                         foreach my $subDir (@$subDirs) {
                             foreach my $dir ( glob("$buildPath/$subDir") ) {
@@ -994,7 +1037,6 @@ sub getBuild {
     $client->setContentFile( \&$callback );
 
     $client->POST( $url, $paramsJson );
-    my $buildNo = $client->responseHeader('Build-NO');
     $releaseStatus = $client->responseHeader('Build-Status');
 
     my $untarCode = -1;
@@ -1029,7 +1071,7 @@ sub getBuild {
     }
 
     #TODO: 通过getres测试检查
-    return $buildNo;
+    return ( $isMirror, $buildNo );
 }
 
 1;

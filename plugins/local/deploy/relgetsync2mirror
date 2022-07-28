@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use File::Path;
+use Getopt::Long;
+
+use SyncLocalFile;
+use FileUtils;
+use DeployLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--blacklist BlackList] [-exp ExcludeDirs]\n");
+    print("              [--nodelete 0|1] [--noattrs 0|1] [--md5check 0|1]\n");
+    print("              [--src SyncSourceDir] [--dest SyncDestDir]\n");
+    print("              [--nomd5 0|1] [--notime 0|1] \n");
+    print("\n");
+    print("       sync files from  build to ENV/app, doc/db to ENV/db\n");
+    print("       --envpath:    env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version:    version number\n");
+    print("       --buildno:    Build number\n");
+    print("       --blalcklist: blakck list for db schemas, example:mydb.myuser,myadb.myauser\n");
+    print("       --src:        relative path for <sys>/<subsys>/<ver number>/appbuild/app\n");
+    print("       --dest:       releative path for <sys>/<subsys>/<ver number>/<env>/appsync\n");
+    print("       --exp:        which dirs not to be sync.\n");
+    print("       --nomd5:      do not compare file md5, only compare size and mtime of file\n");
+    print("       --notime:     do not compare file mtime, only compare size of file\n");
+    print("       --nodelete:   do not delete the files in the destination direcotry\n");
+    print("       --noattrs:    do not preserve the attributes of the source files\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $node );
+
+    my $pname  = $FindBin::Script;
+    my $binDir = $FindBin::Bin;
+
+    my @myOpts = @ARGV;
+    GetOptionsFromArray(
+        \@myOpts,
+        'h|help' => \$isHelp,
+        'node=s' => \$node
+    );
+
+    my $deployUtils = DeployUtils->new();
+    my $optionError = 0;
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 or defined($isHelp) ) {
+        usage();
+    }
+
+    exec( "$binDir/relsync2mirror", @ARGV );
+}
+
+exit main();
