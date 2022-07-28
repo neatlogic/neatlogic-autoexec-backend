@@ -461,8 +461,14 @@ class RunNode:
             startTime = time.time()
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
 
-            if op.opBunddleName == 'setenv':
-                if op.opSubName == 'export':
+            if op.opBunddleName == 'native':
+                if op.opSubName == 'echo':
+                    msgLine = ''
+                    for arg in op.arguments:
+                        msg = arg.get('value', '')
+                        msgLine = msgLine + msg
+                    self.writeNodeLog(msgLine + "\n")
+                elif op.opSubName == 'export':
                     for arg in op.arguments:
                         envName = arg.get('value', '')
                         if envName != '':

@@ -1,12 +1,11 @@
 {
     "opDesc": "echo",
-    "opType": "runner",
-    "typeName": "DEPLOY",
+    "opType": "native",
+    "typeName": "NATIVE",
     "riskName": "LOW",
-    "interpreter": "perl",
+    "interpreter": "python",
     "defaultProfile": null,
     "description": "回显文本",
-    "enabled": 0,
     "option": [],
     "argument": {
         "name": "回显内容",
@@ -17,6 +16,5 @@
         "defaultValue": "",
         "required": "true",
         "validate": ""
-    },
-    "output": []
+    }
 }
