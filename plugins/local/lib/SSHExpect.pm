@@ -10,22 +10,19 @@ sub new {
     $| = 1;
 
     my $self   = {};
-    my $PROMPT = '[\]\$\>\#]\s*$';
-    if ( defined( $attr{PROMPT} ) ) {
-        $PROMPT = $attr{PROMPT};
-    }
-    $self->{exitCmd} = 'exit';
-    if ( defined( $attr{exitCmd} ) ) {
-        $self->{exitCmd} = $attr{exitCmd};
-    }
-
-    $self->{PROMPT} = $PROMPT;
-
-    $self->{host}     = $attr{host};
-    $self->{port}     = $attr{port};
-    $self->{username} = $attr{username};
-    $self->{password} = $attr{password};
-    $self->{timeout}  = $attr{timeout};
+    my $prompt = '[\]\$\>\#]\s*$';
+    $self->{prompt}    = $attr{prompt};
+    $self->{host}      = $attr{host};
+    $self->{port}      = $attr{port};
+    $self->{username}  = $attr{username};
+    $self->{password}  = $attr{password};
+    $self->{timeout}   = $attr{timeout};
+    $self->{startLine} = $attr{startLine};
+    $self->{verbose}   = $attr{verbose};
+    $self->{exitCmd}   = $attr{exitCmd};
+    $self->{clsCmd}    = $attr{clsCmd};
+    $self->{cfgCmd}    = $attr{cfgCmd};
+    $self->{cmds}      = $attr{cmds};
 
     bless( $self, $type );
 
@@ -35,14 +32,22 @@ sub new {
 sub login {
     my ($self) = @_;
 
-    my $PROMPT   = $self->{PROMPT};
+    my $prompt   = $self->{prompt};
     my $host     = $self->{host};
     my $port     = $self->{port};
     my $username = $self->{username};
     my $password = $self->{password};
+    my $verbose  = $self->{verbose};
+    my $timeout  = $self->{timeout};
 
     my $spawn = Expect->new();
-    $spawn->log_stdout(0);    #if debug the ssh interact, change to log_stdout(1)
+    if ( $verbose == 1 ) {
+        $spawn->log_stdout(1);
+    }
+    else {
+        $spawn->log_stdout(0);
+    }
+
     $spawn->raw_pty(1);
     $spawn->restart_timeout_upon_receive(1);
     $spawn->max_accum(512);
@@ -55,18 +60,24 @@ sub login {
     $spawn->slave->stty(qw(raw -echo));
 
     $spawn->expect(
-        3,
+        $timeout,
         [
             qr/password:/i => sub {
                 $spawn->send("$password\n");
+            }
+        ],
+        [
+            qr/\(yes\/no\)\?\s*$/ => sub {
+                $spawn->send("yes\n");
+                $spawn->exp_continue;
             }
         ]
     );
 
     $spawn->expect(
-        5,
+        $timeout,
         [
-            qr/$PROMPT/ => sub {
+            qr/$prompt/ => sub {
                 print("INFO: login $username\@$host:$port success.\n");
             }
         ],
@@ -74,6 +85,20 @@ sub login {
             qr/password:/i => sub {
                 print( $spawn->before() );
                 print("ERROR: login $username\@$host:$port failed.\n");
+                $spawn->hard_close();
+                exit(2);
+            }
+        ],
+        [
+            qr/(ssh: connect to host .*)$/ => sub {
+                print( "ERROR: login failed. " . $spawn->match() . "\n" );
+                $spawn->hard_close();
+                exit(2);
+            }
+        ],
+        [
+            qr/\nPermission denied, please try again\.\s*/i => sub {
+                print( "ERROR: login failed. " . $spawn->match() . "\n" );
                 $spawn->hard_close();
                 exit(2);
             }
@@ -87,48 +112,42 @@ sub login {
         ]
     );
 
-    END {
-        local $?;
-        if ( defined($spawn) ) {
-            $spawn->send( $self->{exitCmd} . "\n" );
-            $spawn->soft_close();
-        }
-    }
-
     $self->{spawn} = $spawn;
+    return $spawn;
 }
 
 sub configTerminal {
-    my ( $self, $command ) = @_;
-    my $spawn  = $self->{spawn};
-    my $PROMPT = $self->{PROMPT};
+    my ($self)  = @_;
+    my $spawn   = $self->{spawn};
+    my $prompt  = $self->{prompt};
+    my $timeout = $self->{timeout};
+    my $clsCmd  = $self->{clsCmd};
 
     if ( not defined($spawn) ) {
         $self->login();
     }
 
-    $spawn->send("$command\n");
-    $spawn->expect( 3, '-re', $PROMPT );
+    $spawn->send("$clsCmd\n");
+    $spawn->expect( $timeout, '-re', qr/$prompt/ );
 }
 
 sub runCmd {
-    my ( $self, $cmd, $leadingLineCount ) = @_;
+    my ( $self, $cmd ) = @_;
 
-    my $timeout = $self->{timeout};
-    my $spawn   = $self->{spawn};
-    my $PROMPT  = $self->{PROMPT};
+    my $timeout   = $self->{timeout};
+    my $spawn     = $self->{spawn};
+    my $timeout   = $self->{timeout};
+    my $startLine = $self->{startLine};
 
-    if ( not defined($spawn) ) {
-        print("ERROR: not login yet.\n");
-        exit(2);
+    if ( not defined($cmd) or $cmd eq '' ) {
+        $cmd = $self->{cfgCmd};
     }
 
-    if ( not defined($leadingLineCount) ) {
-        $leadingLineCount = 1;
+    if ( not defined($spawn) ) {
+        $self->login();
     }
 
     my $cmdOut = '';
-
     $spawn->log_file(
         sub {
             my $content = shift;
@@ -137,14 +156,17 @@ sub runCmd {
     );
 
     $spawn->send("$cmd\n");
-    $spawn->expect( $timeout, '-re', $PROMPT );
-    $spawn->log_file(undef);
+
+    #等待结束
+    $spawn->expect( $timeout, '-re', eof => sub { } );
+
+    #$spawn->log_file(undef);
 
     #去掉最后一行的命令提示行
     $cmdOut = substr( $cmdOut, 0, rindex( $cmdOut, "\n" ) + 1 );
 
     #去掉命令输出的头几行
-    for ( my $i = 0 ; $i < $leadingLineCount ; $i++ ) {
+    for ( my $i = 0 ; $i < $startLine ; $i++ ) {
         $cmdOut = substr( $cmdOut, index( $cmdOut, "\n" ) + 1 );
     }
 
@@ -152,7 +174,9 @@ sub runCmd {
 }
 
 sub runCmds {
-    my ( $self, $cmds, $leadingLineCount ) = @_;
+    my ($self) = @_;
+
+    my $cmds = $self->{cmds};
 
     my $cmdsOut = '';
     foreach my $cmd (@$cmds) {
@@ -160,6 +184,17 @@ sub runCmds {
     }
 
     return $cmdsOut;
+}
+
+sub close {
+    my ($self) = @_;
+    my $spawn = $self->{spawn};
+
+    if ( defined($spawn) ) {
+        $spawn->send( $self->{exitCmd} . "\n" );
+        $spawn->soft_close();
+    }
+    exit(0);
 }
 
 1;
