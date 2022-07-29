@@ -12,7 +12,7 @@ use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
-    print("$pname --node <node> --vendor --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
+    print("$pname --node <node> --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
     exit(1);
 }
 
@@ -157,7 +157,7 @@ sub main {
         my $rsConfig = $ssh->runCmd();
         saveCfg( $backupdir, $host, $rsConfig );
         $ssh->close();
-        print("INFO::config backup done.\n");
+        print("INFO:: $vendor config backup success.\n");
     }
 }
 

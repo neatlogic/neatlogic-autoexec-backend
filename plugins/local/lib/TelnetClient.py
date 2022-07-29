@@ -6,95 +6,87 @@
 import os
 import telnetlib
 import time
-from datetime import date
+import traceback
 
 class TelnetClient():
 
-    def __init__(self, ip , port , username , password , timeout , backupdir):
-        self.tn = telnetlib.Telnet()
-        if port == None or port == '' :
-            port = 23
-        if timeout == None or timeout == '' :
-            timeout = 3
-        self.port = port
-        self.ip = ip 
-        self.timeout = timeout 
-        self.username = username
-        self.password = password
-        backupdir = backupdir + '/' + ip 
-        self.path = backupdir
-        today = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
-        filename = today + ".txt"
-        self.filename = filename
-        #执行cmd,等待返回的等待时间
-        self.sleep = 3 
+    def __init__(self, args ):
+        self.telnet = telnetlib.Telnet()
+        self.ip = args['ip'] 
+        self.username = args['user']
+        self.password = args['password']
+        self.timeout = int(args['timeout'])
+        self.port = int(args['port'])
+        self.backupdir = args['backupdir']
+        self.startLine = int(args['startLine'])
+        self.verbose = int(args['verbose'])
+        self.clsCmd = args['clsCmd']
+        self.cfgCmd = args['cfgCmd']
+        self.exitCmd = args['exitCmd']
+        self.sleep = 2
+        self.encode = 'utf-8'
+        self.decode = 'utf-8'
 
     # 此函数实现telnet登录主机
     def login( self ):
         try:
-            self.tn.open( self.ip , self.port)
+            self.telnet.open( self.ip , self.port , self.timeout)
         except:
-            print('ERROR:: %s connect failed.' %self.ip )
+            if(self.telnet != None) :
+                self.telnet.close()
+            print('ERROR:: {} connect failed,reason:{}'.format(self.ip , traceback.print_exc()) )
             return False
 
-        self.tn.read_until(b'login: ',self.timeout )
-        self.tn.write(self.username.encode('ascii') + b'\n')
+        self.telnet.read_until(b'login: ',self.timeout )
+        self.telnet.write(self.username.encode(self.encode) + b'\n')
 
-        self.tn.read_until(b'Password: ',self.timeout )
-        self.tn.write(self.password.encode('ascii') + b'\n')
+        self.telnet.read_until(b'Password: ',self.timeout )
+        self.telnet.write(self.password.encode(self.encode) + b'\n')
 
         time.sleep(self.sleep)
         # read_very_eager()获取到的是的是上次获取之后本次获取之前的所有输出
-        result = self.tn.read_very_eager().decode('ascii')
+        result = self.telnet.read_very_eager().decode(self.decode)
         if 'Login incorrect' not in result:
             print('INFO:: %s login success .'%self.ip)
             return True
         else:
             print('ERROR:: %s login failed ，maybe wrong username or password.' %self.ip)
+            if(self.telnet != None) :
+                self.telnet.close()
             return False
 
-    #保存文件
-    def saveCfg(self , content):
-        filename = self.filename
-        path = self.path
-        if( os.path.exists(path) == False ):
-            os.makedirs(path)
-        os.chdir(path)
-        f = open( filename , 'w' ,encoding='utf-8')
-        f.write(content)
-        f.close()
-
+    def configTerminal(self):
+        command = self.clsCmd
+        self.telnet.write(command.encode(self.encode)+b'\n')
+        result = self.telnet.read_until(b'eof' ,self.timeout)
+        result = result.decode(self.decode)
+        if( self.verbose == 1) :
+            print('INFO:: %s' % result)
+            
     #执行命令
-    def execCmd( self , command ):
-        self.tn.write(command.encode('ascii')+b'\n')
-        time.sleep(self.sleep)
-        result = self.tn.read_very_eager().decode('ascii')
-        print('INFO:: cmd result:%s' % result)
+    def execCmd(self,command=None):
+        if(command == None or command == ''):
+            command = self.cfgCmd
+        self.telnet.write(command.encode(self.encode)+b'\n')
+        result = self.telnet.read_until(b'eof' ,self.timeout)
+        result = result.decode(self.decode)
+        output = ''
+        content = result.split("\r\n")
+        count = 0 
+        for line in content :
+            count = count + 1
+            if ( (self.startLine > 0 and count <= self.startLine) or  count == len(content)) :
+                continue 
+            else:
+               output = output + line + '\n' 
 
-
-    # 执行备份命令，并保存到文件
-    def backupCfg(self, command ):
-        # 执行命令
-        self.tn.write(command.encode('ascii')+b'\n')
-        time.sleep(self.sleep)
-        # 获取命令结果
-        line = self.tn.read_very_eager().decode('ascii')
-        print('INFO:: %s' % line)
-        result = line 
-        while( 'More' in line ):
-            self.tn.write(" ".encode('ascii')+b'\n')
-            time.sleep(self.sleep)
-            line = self.tn.read_very_eager().decode('ascii')
-            print('INFO:: %s' % line)
-            result += line
-        results = result.split('\n')
-        content = ''
-        for rs in results :
-            if 'More' not in rs :
-                content += rs + '\n'
-        self.saveCfg(content)
+            if( self.verbose == 1) :
+                print(line)
+        return output
  
     # 退出telnet
     def logout( self ) :
-        self.tn.write(b"quit\n")
-
+        exitCmd = self.exitCmd
+        self.telnet.write(exitCmd.encode(self.encode)+b'\n')
+        if(self.telnet != None) :
+            self.telnet.close()

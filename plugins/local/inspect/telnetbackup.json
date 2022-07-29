@@ -1,5 +1,5 @@
 {
-    "opDesc": "ssh配置备份",
+    "opDesc": "telnet配置备份",
     "opType": "runner_target",
     "typeName": "BACKUP",
     "riskName": "HIGH",
@@ -15,8 +15,7 @@
             "required": "false",
             "validate": "",
             "defaultValue": ""
-        },
-        {
+        },{
             "opt": "vendor",
             "name": "厂商",
             "help": "厂商",
@@ -78,13 +77,12 @@
         {
             "opt": "timeout",
             "name": "连接超时时间",
-            "help": "默认是10秒",
+            "help": "默认是3秒",
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "10"
-        },
-        {
+            "defaultValue": "3"
+        },{
             "opt": "startLine",
             "name": "移除行",
             "help": "归档的配置文件的内容移除前面x行无效输出",
