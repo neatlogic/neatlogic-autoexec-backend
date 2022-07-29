@@ -23,7 +23,6 @@ sub usage {
     print("\n");
     print("       --envpath:    Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version:    Version number of module version\n");
-    print("       --buildno:    Build number\n");
     print("       --baseurl:    Resource server base url, example:http://192.168.0.13:8080/nexus\n");
     print("       --srcenvpath: Source env path, example:MY-SYS/MY-MODULE/UAT.\n");
 
