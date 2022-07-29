@@ -1,0 +1,119 @@
+{
+    "opDesc": "ssh配置备份",
+    "opType": "runner_target",
+    "typeName": "BACKUP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "基于telnet对交换机配置备份",
+    "option": [
+        {
+            "opt": "node",
+            "name": "node",
+            "help": "",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "vendor",
+            "name": "厂商",
+            "help": "厂商",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "华为",
+                        "value": "huawei"
+                    },
+                    {
+                        "text": "华三",
+                        "value": "h3c"
+                    },
+                    {
+                        "text": "思科",
+                        "value": "cisco"
+                    },
+                    {
+                        "text": "山石",
+                        "value": "hillstone"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "backupdir",
+            "name": "备份存放目录",
+            "help": "如：/tmp/config,目录不存在会自动创建",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exitCmd",
+            "name": "退出命令",
+            "help": "退出命令,如quit、exit",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "exit",
+                        "value": "exit"
+                    }, 
+                    {
+                        "text": "quit",
+                        "value": "quit"
+                    }
+                ]
+            },
+            "defaultValue": "exit"
+        },
+        {
+            "opt": "timeout",
+            "name": "连接超时时间",
+            "help": "默认是10秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "startLine",
+            "name": "移除行",
+            "help": "归档的配置文件的内容移除前面x行无效输出",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0"
+        },
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "打印明细日志",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "0",
+                        "value": "否"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

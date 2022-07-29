@@ -1,0 +1,165 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Getopt::Long;
+use JSON;
+use AutoExecUtils;
+use SSHExpect;
+use File::Spec;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --vendor --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
+    exit(1);
+}
+
+sub saveCfg {
+    my ( $path, $host, $result ) = @_;
+    my $time = `date +%Y-%m-%d_%H:%M:%S`;
+    chomp($time);
+    my $dir = File::Spec->catfile( $path, $host );
+    if ( !-e $dir ) {
+        mkdir $dir;
+    }
+    my $fileName = File::Spec->catfile( $dir, "$time.txt" );
+    open( my $fh, '>', $fileName ) or die "can't open $fileName $!";
+    print $fh $result;
+    close $fh;
+    print("INFO::save backup file: $fileName done.\n");
+}
+
+sub defindVendor {
+    my ($vendor) = @_;
+    ###############################
+    #cfgCmd : 查看交换机配置命令
+    #clsCmd : 全屏打印（不出现 ----  More ----）
+    ##############################
+    my $vendorInfo = {
+        "h3c"       => { "cfgCmd" => "display current-configuration", "clsCmd" => 'screen-length disable' },
+        "cisco"     => { "cfgCmd" => "show run",                      "clsCmd" => 'terminal length 0' },
+        "hillstone" => { "cfgCmd" => "show configuration",            "clsCmd" => 'terminal length 0' },
+        "huawei"    => { "cfgCmd" => "display current-configuration", "clsCmd" => 'screen-length 0 temporary' }
+    };
+    my $info = $vendorInfo->{$vendor};
+    return $info;
+}
+
+sub main {
+    $| = 1;
+    AutoExecUtils::setEnv();
+    my ( $ishelp, $isVerbose );
+    my ( $node, $vendor, $backupdir, $timeout, $startLine, $exitCmd );
+
+    usage() if ( defined($ishelp) );
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'node:s'      => \$node,
+        'vendor:s'    => \$vendor,
+        'backupdir:s' => \$backupdir,
+        'timeout:i'   => \$timeout,
+        'startLine:i' => \$startLine,
+        'v|verbose=i' => \$isVerbose,
+        'exitCmd:s'   => \$exitCmd
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' or not defined($vendor) or $vendor eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($vendor) or $vendor eq '' ) {
+        print("ERROR: Must define vendor by option --vendor.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($backupdir) or $backupdir eq '' ) {
+        print("ERROR: Must define backup directory by option --backupdir.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( $backupdir =~ /\/\.\.\// or $backupdir =~ /^\.\.\// or $backupdir =~ /\/\.\.$/ ) {
+        print("ERROR: backup directory path can not has parent dir opertor:\"..\".\n");
+        $hasOptErr = 1;
+    }
+
+    if ( !-d $backupdir ) {
+        print("ERROR: backup directory not exists.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($timeout) or $timeout == 0 ) {
+        $timeout = 10;
+    }
+
+    if ( not defined($startLine) or $startLine == 0 ) {
+        $startLine = 0;
+    }
+
+    if ( not defined($exitCmd) or $exitCmd eq '' ) {
+        $exitCmd = 'exit';
+    }
+
+    my $vendorInfo = defindVendor($vendor);
+    if ( not defined($vendorInfo) ) {
+        print("ERROR:: $vendor model not support .\n");
+        $hasOptErr = 1;
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my ( $host, $port, $username, $password );
+    $host     = $nodeInfo->{'host'};
+    $port     = $nodeInfo->{'port'};
+    $username = $nodeInfo->{'username'};
+    $password = $nodeInfo->{'password'};
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = $nodeInfo->{'protocolPort'};
+    }
+
+    my $clsCmd = $vendorInfo->{clsCmd};
+    my $cfgCmd = $vendorInfo->{cfgCmd};
+
+    print("INFO::config back start.\n");
+    my $ssh = SSHExpect->new(
+        host      => $host,
+        port      => $port,
+        username  => $username,
+        password  => $password,
+        startLine => $startLine,
+        timeout   => $timeout,
+        verbose   => $isVerbose,
+        clsCmd    => $clsCmd,
+        cfgCmd    => $cfgCmd,
+        exitCmd   => $exitCmd
+    );
+    my $spawn = $ssh->login();
+    if ( not defined($spawn) ) {
+        print("ERROR:: $vendor config backup failed.\n");
+    }
+    else {
+        $ssh->configTerminal();
+        my $rsConfig = $ssh->runCmd();
+        saveCfg( $backupdir, $host, $rsConfig );
+        $ssh->close();
+        print("INFO::config backup done.\n");
+    }
+}
+
+exit main();
+
