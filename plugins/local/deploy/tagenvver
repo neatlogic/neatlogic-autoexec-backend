@@ -53,12 +53,13 @@ sub main {
         usage();
     }
 
+    my $execUser      = $ENV{AUTOEXEC_USER};
     my $serverAdapter = ServerAdapter->new();
     if ( $isRollback == 0 ) {
-        $serverAdapter->setEnvVersion($deployEnv);
+        $serverAdapter->setEnvVersion( $deployEnv, $execUser, time() );
     }
     else {
-        $serverAdapter->rollbackEnvVersion($deployEnv);
+        $serverAdapter->rollbackEnvVersion( $deployEnv, $execUser, time() );
     }
 }
 

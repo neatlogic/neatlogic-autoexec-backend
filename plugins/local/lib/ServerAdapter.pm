@@ -837,9 +837,11 @@ sub saveVersionDependency {
 }
 
 sub setEnvVersion {
-    my ( $self, $deployEnv ) = @_;
+    my ( $self, $deployEnv, $execUser, $epochTime ) = @_;
 
     my $params = $self->_getParams($deployEnv);
+    $params->{execUser}   = $execUser;
+    $params->{deployTime} = $epochTime;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('setEnvVersion');
@@ -851,9 +853,11 @@ sub setEnvVersion {
 }
 
 sub rollbackEnvVersion {
-    my ( $self, $deployEnv ) = @_;
+    my ( $self, $deployEnv, $execUser, $epochTime ) = @_;
 
     my $params = $self->_getParams($deployEnv);
+    $params->{execUser}   = $execUser;
+    $params->{deployTime} = $epochTime;
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('rollbackEnvVersion');
@@ -865,10 +869,12 @@ sub rollbackEnvVersion {
 }
 
 sub setInsVersion {
-    my ( $self, $buildEnv, $nodeInfo, $status ) = @_;
+    my ( $self, $buildEnv, $nodeInfo, $execUser, $epochTime, $status ) = @_;
 
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
+    $params->{execUser}   = $execUser;
+    $params->{deployTime} = $epochTime;
     $params->{status}     = $status;
 
     my $webCtl  = $self->{webCtl};
@@ -881,10 +887,12 @@ sub setInsVersion {
 }
 
 sub rollbackInsVersion {
-    my ( $self, $buildEnv, $nodeInfo, $status ) = @_;
+    my ( $self, $buildEnv, $nodeInfo, $execUser, $epochTime, $status ) = @_;
 
     my $params = $self->_getParams($buildEnv);
     $params->{resourceId} = $nodeInfo->{resourceId};
+    $params->{execUser}   = $execUser;
+    $params->{deployTime} = $epochTime;
     $params->{status}     = $status;
 
     my $webCtl  = $self->{webCtl};
