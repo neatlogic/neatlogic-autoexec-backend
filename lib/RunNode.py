@@ -461,31 +461,33 @@ class RunNode:
             startTime = time.time()
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
 
-            if op.opBunddleName == 'native':
-                if op.opSubName == 'echo':
-                    msgLine = ''
-                    for arg in op.arguments:
-                        msg = arg.get('value', '')
-                        msgLine = msgLine + msg
-                    self.writeNodeLog(msgLine + "\n")
-                elif op.opSubName == 'export':
-                    for arg in op.arguments:
-                        envName = arg.get('value', '')
-                        if envName != '':
-                            self.context.exportEnv(envName)
-                elif op.opSubName == 'setenv':
-                    envName = op.options['name']
-                    envValue = op.options['value']
-                    self.context.setEnv(envName, envValue)
-                    self.context.exportEnv(envName)
-                return
-
-            elif not os.path.exists(op.pluginPath):
+            if op.opBunddleName != 'native' and not os.path.exists(op.pluginPath):
                 ret = 1
                 self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
 
             if ret == 0:
-                if self.host == 'local':
+                if op.opBunddleName == 'native':
+                    try:
+                        if op.opSubName == 'echo':
+                            msgLine = ''
+                            for arg in op.arguments:
+                                msg = arg.get('value', '')
+                                msgLine = msgLine + msg
+                            self.writeNodeLog(msgLine + "\n")
+                        elif op.opSubName == 'export':
+                            for arg in op.arguments:
+                                envName = arg.get('value', '')
+                                if envName != '':
+                                    self.context.exportEnv(envName)
+                        elif op.opSubName == 'setenv':
+                            envName = op.options['name']
+                            envValue = op.options['value']
+                            self.context.setEnv(envName, envValue)
+                            self.context.exportEnv(envName)
+                    except Exception as ex:
+                        ret = 1
+                        self.writeNodeLog('ERROR: Execute native plugin {} failed, {}\n'.format(op.opFullName, str(ex)))
+                elif self.host == 'local':
                     if op.opType == 'local':
                         # 本地执行
                         # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
