@@ -37,15 +37,16 @@ sub new {
             'getIdPath' => '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
-            'getVer'    => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
-            'updateVer' => '/codedriver/api/rest/deploy/version/info/update/forautoexec',
-            'delBuild'  => '/codedriver/api/rest/deploy/version/buildNo/delete',
-            'delVer'    => '/codedriver/api/rest/deploy/version/delete',
+            'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
+            'updateVer'          => '/codedriver/api/rest/deploy/version/info/update/forautoexec',
+            'delBuild'           => '/codedriver/api/rest/deploy/version/buildNo/delete',
+            'delVer'             => '/codedriver/api/rest/deploy/version/delete',
+            'releaseVerToEnv'    => '/codedriver/api/rest/deploy/version/env/update/forautoexec',
+            'getEnvVer'          => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
+            'getOtherSiteEnvVer' => '',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'releaseVerToEnv'       => '/codedriver/api/rest/deploy/version/env/update/forautoexec',
-            'getEnvVer'             => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
             'getAutoCfgConf'        => '/codedriver/api/rest/deploy/app/env/all/autoconfig/get',
             'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
             'addBuildQuality'       => '/codedriver/api/rest/deploy/versoin/build/quality/save',
@@ -57,8 +58,8 @@ sub new {
             'createJob'             => '/codedriver/api/rest/deploy/job/create',
             'getJobStatus'          => '/codedriver/api/rest/autoexec/job/status/get',
             'saveVersionDependency' => '/codedriver/api/rest/deploy/versoin/dependency/save/forautoexec',
-            'setEnvVersion'         => '',
-            'rollbackEnvVersion'    => '',
+            'setEnvVersion'         => '/codedriver/api/rest/deploy/env/version/save',
+            'rollbackEnvVersion'    => '/codedriver/api/rest/deploy/env/version/rollback',
             'setInsVersion'         => '',
             'rollbackInsVersion'    => '',
             'getBuild'              => '/codedriver/api/binary/deploy/appbuild/download'
@@ -349,7 +350,7 @@ sub getEnvVer {
 }
 
 sub getOtherSiteEnvVer {
-    my ( $self, $buildEnv, $baseUrl, $version ) = @_;
+    my ( $self, $baseUrl, $buildEnv, $version ) = @_;
 
     #获取环境版本详细信息：version, buildNo, status
     my $param = $self->_getParams($buildEnv);
@@ -896,7 +897,7 @@ sub rollbackInsVersion {
 }
 
 sub getBuild {
-    my ( $self, $deployUtils, $deployEnv, $buildNo, $baseUrl, $srcEnvInfo, $subDirs, $cleanSubDirs ) = @_;
+    my ( $self, $deployUtils, $deployEnv, $buildNo, $baseUrl, $srcEnvInfo, $destDir, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
 
@@ -911,6 +912,10 @@ sub getBuild {
         if ( not mkpath($buildPath) ) {
             die("ERROR: Can not create directory $buildPath, $!\n");
         }
+    }
+
+    if ( defined($destDir) and $destDir ne '' ) {
+        $buildPath = Cwd::abs_path("$buildPath/$destDir");
     }
 
     my $gzMagicNum  = "\x1f\x8b";

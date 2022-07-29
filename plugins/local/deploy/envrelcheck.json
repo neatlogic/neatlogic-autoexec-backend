@@ -1,0 +1,30 @@
+{
+    "opDesc": "制品状态检查",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "envrelcheck-args",
+    "description": "环境制品状态检查，支持跨环境监察",
+    "enabled": 0,
+    "option": [{
+            "opt": "baseurl",
+            "name": "制品库地址",
+            "help": "制品库地址，例如：https://192.168.0.8:8443，留空代表本地环境",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "srcenvpath",
+            "name": "源环境路径",
+            "help": "获取版本的源头环境路径,例如:MY-SYS/MY-MODULE/SIT",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}/${MODULE_NAME}/SIT"
+        }
+    ],
+    "output": []
+}

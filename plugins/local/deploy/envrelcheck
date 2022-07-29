@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::Socket::INET;
+use File::Basename;
+use Getopt::Long;
+use TarSCPExec;
+use File::Path;
+
+use AutoExecUtils;
+use DeployUtils;
+use DeployLock;
+use BuildUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl ResourceServerBaseUrl --user UserName --password Password\n");
+    print("              --srcenvpath SourceEnvPath\n");
+    print("              subDir1 subDir2 ...\n");
+    print("\n");
+    print("       --envpath:    Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:    Version number of module version\n");
+    print("       --buildno:    Build number\n");
+    print("       --baseurl:    Resource server base url, example:http://192.168.0.13:8080/nexus\n");
+    print("       --srcenvpath: Source env path, example:MY-SYS/MY-MODULE/UAT.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp,     $envPath, $version );
+    my ( $baseUrl,    $user,    $pass );
+    my ( $srcEnvPath, @subDirs );
+    my $isVerbose = 0;
+    my $pname     = $FindBin::Script;
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'v|verbose'    => \$isVerbose,
+        'envpath=s'    => \$envPath,
+        'version=s'    => \$version,
+        'baseurl=s'    => \$baseUrl,
+        'srcenvpath:s' => \$srcEnvPath,
+        '<>'           => \&pushItems
+    );
+
+    sub pushItems {
+        my ($item) = @_;
+        push( @subDirs, $item );
+    }
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    if ( not defined($srcEnvPath) or $srcEnvPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: Source Env Path not defined by option --srcenvpath\n");
+    }
+
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Web console url not defined by option --baseurl\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    $srcEnvPath =~ s/^\s*\/|\/\s*$//g;
+    my @srcPathSegs = split( '\/', $srcEnvPath );
+    my $srcEnvInfo  = {
+        namePath   => $srcEnvPath,
+        sysName    => $srcPathSegs[0],
+        moduleName => $srcPathSegs[1],
+        envName    => $srcPathSegs[2],
+        baseUrl    => $baseUrl
+    };
+
+    my $serverAdapter = ServerAdapter->new();
+
+    my $verInfo;
+    if ( not defined($baseUrl) ) {
+        $verInfo = $serverAdapter->getEnvVer( $srcEnvInfo, $version );
+    }
+    else {
+        $verInfo = $serverAdapter->getOtherSiteEnvVer( $baseUrl, $srcEnvInfo, $version );
+    }
+    my $isMirror  = $verInfo->{isMirror};
+    my $buildNo   = $verInfo->{buildNo};
+    my $verStatus = $verInfo->{status};
+
+    if ( $verStatus ne 'released' ) {
+        print("ERROR: $srcEnvPath version $version(build$buildNo) status is $verStatus, it is not released.\n");
+        $hasError = 1;
+    }
+    else {
+        print("INFO: $srcEnvPath version $version(build$buildNo) status is $verStatus.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
