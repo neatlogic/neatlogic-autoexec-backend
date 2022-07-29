@@ -112,7 +112,6 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
 
     print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
-    my $serverAdapter = ServerAdapter->new();
 
     #my $verInfo       = $serverAdapter->getVer( $deployEnv, $version );
     my $isMirror = 0;
@@ -123,12 +122,19 @@ sub main {
         print("ERROR: $pname $envPath $version failed.\n");
     }
 
+    $deployEnv->{BUILD_NO} = $buildNo;
+
     my $versionInfo = {
         version => $version,
         buildNo => $buildNo,
         status  => 'releasing'
     };
     $serverAdapter->updateVer( $deployEnv, $versionInfo );
+
+    my $envName = $deployEnv->{ENV_NAME};
+    print("INFO: Try to release(sync) $version build:$buildNo to $envName...\n");
+
+    $serverAdapter->releaseVerToEnv( $deployEnv, 'releasing' );
 
     if ( $hasError == 0 ) {
         eval {

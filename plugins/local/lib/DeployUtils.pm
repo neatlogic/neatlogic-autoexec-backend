@@ -74,7 +74,12 @@ sub deployInit {
     $deployEnv->{ID_PATH}   = $dpIdPath;
     $deployEnv->{NAME_PATH} = $dpPath;
     $deployEnv->{VERSION}   = $version;
-    $deployEnv->{BUILD_NO}  = $buildNo;
+
+    $deployEnv->{BUILD_ROOT} = $ENV{BUILD_ROOT};
+    $deployEnv->{BUILD_NO}   = $buildNo;
+    if ( defined($buildNo) ) {
+        $deployEnv->{BUILD_PATH} = "$ENV{BUILD_ROOT}/$buildNo";
+    }
 
     $deployEnv->{SYS_ID}      = $ENV{SYS_ID};
     $deployEnv->{MODULE_ID}   = $ENV{MODULE_ID};
@@ -89,8 +94,6 @@ sub deployInit {
 
     $deployEnv->{DATA_PATH}   = $ENV{DATA_PATH};
     $deployEnv->{VER_ROOT}    = $ENV{VER_ROOT};
-    $deployEnv->{BUILD_ROOT}  = $ENV{BUILD_ROOT};
-    $deployEnv->{BUILD_PATH}  = $ENV{BUILD_PATH};
     $deployEnv->{PRJ_ROOT}    = $ENV{PRJ_ROOT};
     $deployEnv->{PRJ_PATH}    = $ENV{PRJ_PATH};
     $deployEnv->{DIST_ROOT}   = $ENV{DIST_ROOT};

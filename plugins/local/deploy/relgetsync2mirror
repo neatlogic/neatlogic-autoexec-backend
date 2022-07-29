@@ -3,6 +3,9 @@ use strict;
 use FindBin;
 use Cwd 'abs_path';
 
+use DeployUtils;
+use ServerAdapter;
+
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -33,12 +36,15 @@ sub main {
 
     my $pname  = $FindBin::Script;
     my $binDir = abs_path("$FindBin::Bin/../build");
+    my ( $envPath, $version );
 
     my @myOpts = @ARGV;
     GetOptionsFromArray(
         \@myOpts,
-        'h|help' => \$isHelp,
-        'node=s' => \$node
+        'h|help'    => \$isHelp,
+        'node=s'    => \$node,
+        'envpath=s' => \$envPath,
+        'version=s' => \$version
     );
 
     my $deployUtils = DeployUtils->new();
@@ -52,6 +58,20 @@ sub main {
 
     if ( $optionError == 1 or defined($isHelp) ) {
         usage();
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
+    $version = $deployEnv->{VERSION};
+
+    my $namePath = $deployEnv->{NAME_PATH};
+    my $envName  = $deployEnv->{ENV_NAME};
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getEnvVer( $deployEnv, $version );
+    if ( not defined($verInfo) or not defined( $verInfo->{status} ) ) {
+        print("ERROR: $namePath version:$version is not releasing to $envName.\n");
+        return 3;
     }
 
     exec( "$binDir/relsync2mirror", @ARGV );
