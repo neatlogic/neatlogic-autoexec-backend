@@ -60,8 +60,8 @@ sub new {
             'saveVersionDependency' => '/codedriver/api/rest/deploy/versoin/dependency/save/forautoexec',
             'setEnvVersion'         => '/codedriver/api/rest/deploy/env/version/save',
             'rollbackEnvVersion'    => '/codedriver/api/rest/deploy/env/version/rollback',
-            'setInsVersion'         => '',
-            'rollbackInsVersion'    => '',
+            'setInsVersion'         => '/codedriver/api/rest/deploy/instance/version/save',
+            'rollbackInsVersion'    => '/codedriver/api/rest/deploy/instance/version/rollback',
             'getBuild'              => '/codedriver/api/binary/deploy/appbuild/download'
         };
 
