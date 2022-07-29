@@ -915,18 +915,19 @@ sub getBuild {
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
-    my ( $pid, $reader, $writer, $releaseStatus, $isMirror, $contentDisposition, $magicNum, $firstChunk );
+    my ( $pid, $reader, $writer, $relStatus, $envRelStatus, $isMirror, $contentDisposition, $magicNum, $firstChunk );
     my $callback = sub {
         my ( $chunk, $res ) = @_;
         if ( $checked == 0 ) {
             $checked = 1;
             if ( $res->code eq 200 ) {
                 $buildNo            = $res->header('Build-No');
-                $releaseStatus      = $res->header('Build-Status');
+                $relStatus          = $res->header('Build-Status');
+                $envRelStatus       = $res->header('Build-Env-Status');
                 $isMirror           = $res->header('isMirror');
                 $contentDisposition = $res->header('Content-Disposition');
-                if ( $releaseStatus eq 'released' ) {
-                    print("INFO: Build-Status:$releaseStatus\n");
+                if ( $relStatus eq 'released' ) {
+                    print("INFO: Build-Status:$relStatus\n");
                     $builded = 1;
 
                     my $buildEnv = $deployUtils->deployInit( $deployEnv->{NAME_PATH}, $deployEnv->{VERSION}, $buildNo );
@@ -1037,7 +1038,7 @@ sub getBuild {
     $client->setContentFile( \&$callback );
 
     $client->POST( $url, $paramsJson );
-    $releaseStatus = $client->responseHeader('Build-Status');
+    $relStatus = $client->responseHeader('Build-Status');
 
     my $untarCode = -1;
     if ( defined($writer) ) {
@@ -1047,18 +1048,18 @@ sub getBuild {
 
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
-        die("ERROR: Get build namePath Version:$version build$buildNo failed with status:$releaseStatus, cause by:$errMsg\n");
+        die("ERROR: Get build namePath Version:$version build$buildNo failed with status:$relStatus, cause by:$errMsg\n");
     }
 
-    if ( $releaseStatus ne 'released' ) {
+    if ( $relStatus ne 'released' ) {
 
         my $errMsg = $client->responseContent();
-        if ( defined($releaseStatus) and $releaseStatus ne '' ) {
-            if ( $releaseStatus eq 'null' ) {
+        if ( defined($relStatus) and $relStatus ne '' ) {
+            if ( $relStatus eq 'null' ) {
                 die("ERROR: $namePath Version:$version build$buildNo not exists.\n");
             }
             else {
-                die("ERROR: Version $version build$buildNo in error status:$releaseStatus.\n");
+                die("ERROR: Version $version build$buildNo in error status:$relStatus.\n");
             }
         }
         else {
@@ -1067,7 +1068,7 @@ sub getBuild {
     }
 
     if ( $untarCode ne 0 ) {
-        die("ERROR: Get resources failed with status:$releaseStatus, build resource is empty or data corrupted because of network timeout problem.\n");
+        die("ERROR: Get resources failed with status:$relStatus, build resource is empty or data corrupted because of network timeout problem.\n");
     }
 
     #TODO: 通过getres测试检查
