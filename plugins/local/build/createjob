@@ -4,7 +4,7 @@ use FindBin;
 use IO::Socket::INET;
 use File::Basename;
 use Getopt::Long;
-use TarSCPExec;
+use Time::Local;
 use File::Path;
 
 use DeployUtils;
@@ -15,7 +15,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              --proxytourl BaseURLForConsole --user UserName --password Password\n");
-    print("              --runnow 0|1 --user --auto 0|1 --wait 0|1\n");
+    print("              --runnow 0|1 --user --trigtype auto|manual --wait 0|1\n");
     print("              --plantime PlanTime --round RoundCount --senario Senario\n");
     print("              --createuser JobUser --instances IP:PORT1,IP:PORT2\n");
     print("              arg1=value1 arg2=value2");
@@ -29,11 +29,11 @@ sub usage {
     print("       --proxytourl:    If cross deploy system, need to defined the target deploy system url\n");
     print("       --runnow:        Create job and execute the job\n");
     print("       --plantime:      Job executeion plan time，example: 2022-2-22 17:00:00\n");
-    print("       --auto:          If define plantime, auto=0, mean juse create the job\n");
+    print("       --trigtype:      Trigger type at plan time, auto|manual\n");
     print("       --wait:          Wait the job complete\n");
     print("       --round:         Execution round for job\n");
     print("       --senario:       Senario for system\n");
-    print("       --jobuser:       Job user\n");
+    print("       --execuser:       Job user\n");
     print("       --instances:     Instances for job, example:192.168.0.1:8080,192.168.0.2:8080\n");
 
     exit(-1);
@@ -48,7 +48,7 @@ sub main {
     my $senario;
     my $isVerbose  = 0;
     my $isRunNow   = 0;
-    my $isAuto     = 0;
+    my $trigType   = 0;
     my $waitJob    = 1;
     my $roundCount = 1;
     my $planTime   = '';
@@ -67,11 +67,11 @@ sub main {
         'targetBuildNo' => \$targetBuildNo,
         'runnow=i'      => \$isRunNow,
         'plantime=s'    => \$planTime,
-        'auto=i'        => \$isAuto,
+        'trigtype=s'    => \$trigType,
         'wait=i'        => \$waitJob,
         'round=i'       => \$roundCount,
         'senario:s'     => \$senario,
-        'jobuser:s'     => \$jobUser,
+        'execuser:s'    => \$jobUser,
         'instances:s'   => \$instances,
         '<>'            => \&pushItems
     );
@@ -112,10 +112,7 @@ sub main {
         $optionError = 1;
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
-    if ( not defined($buildNo) or $buildNo eq '' ) {
-        $optionError = 1;
-        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
-    }
+
     if ( not defined($isRunNow) and not defined($planTime) ) {
         print("ERROR: must define option --plantime while without option --runnow.\n");
         $optionError = 1;
@@ -160,26 +157,46 @@ sub main {
     #     roudnCount => 2, #分组运行组的数量
     #     param => {key => 'value',....} #扩展参数
     # }
+    my $planStartTime;
+    if ( defined($planTime) and $planTime ne '' ) {
+
+        #2022-2-22 17:00:00
+        my ( $year, $month, $day, $hour, $minute, $second );
+
+        if ( $planTime =~ /^\s*(\d{1,4})\W*0*(\d{1,2})\W*0*(\d{1,2})\W*0*(\d{0,2})\W*0*(\d{0,2})\W*0*(\d{0,2})/ ) {
+            $year   = $1;
+            $month  = $2;
+            $day    = $3;
+            $hour   = $4;
+            $minute = $5;
+            $second = $6;
+            $hour   |= 0;
+            $minute |= 0;
+            $second |= 0;
+            $year          = ( $year < 100 ? ( $year < 70 ? 2000 + $year : 1900 + $year ) : $year );
+            $planStartTime = timelocal( $second, $minute, $hour, $day, $month - 1, $year ) * 1000;
+        }
+    }
 
     my $createdJobId;
     eval {
         $createdJobId = $serverAdapter->createJob(
             $jobId,
-            sysName      => $targetSysName,
-            moduleName   => $targetModuleName,
-            envName      => $targetEnvName,
-            version      => $targetVer,
-            buildNo      => $targetBuildNo,
-            scenarioName => $senario,
-            proxyToUrl   => $proxyToUrl,
-            isRunNow     => $isRunNow,
-            isAuto       => $isAuto,
-            waitJob      => $waitJob,
-            planTime     => $planTime,
-            roundCount   => $roundCount,
-            jobUser      => $jobUser,
-            nodeList     => \@nodeList,
-            params       => $jobParams
+            sysName       => $targetSysName,
+            moduleName    => $targetModuleName,
+            envName       => $targetEnvName,
+            version       => $targetVer,
+            buildNo       => $targetBuildNo,
+            scenarioName  => $senario,
+            proxyToUrl    => $proxyToUrl,
+            isRunNow      => $isRunNow,
+            triggerType   => $trigType,
+            waitJob       => $waitJob,
+            planStartTime => $planStartTime,
+            roundCount    => $roundCount,
+            execUser      => $jobUser,
+            nodeList      => \@nodeList,
+            params        => $jobParams
         );
     };
     if ( $@ or not defined($createdJobId) ) {

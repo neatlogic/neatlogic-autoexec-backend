@@ -441,35 +441,40 @@ sub copyTree {
 }
 
 sub getMonth {
-    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ($self) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $nowMon = sprintf( '%4d%02d', $year + 1900, $mon + 1 );
 
     return $nowMon;
 }
 
 sub getDate {
-    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ($self) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $nowdate = sprintf( '%4d%02d%02d', $year + 1900, $mon + 1, $mday );
 
     return $nowdate;
 }
 
 sub getTimeStr {
-    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ($self) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '%4d%02d%02d_%02d%02d%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
 
     return $timeStr;
 }
 
 sub getTimeForLog {
-    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ($self) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '[%02d:%02d:%02d]', $hour, $min, $sec );
 
     return $timeStr;
 }
 
 sub getDateTimeForLog {
-    my ( $self, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
+    my ($self) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime;
     my $timeStr = sprintf( '[%4d-%02d-%02d %02d:%02d:%02d]', $year + 1900, $mon + 1, $mday, $hour, $min, $sec );
 
     return $timeStr;

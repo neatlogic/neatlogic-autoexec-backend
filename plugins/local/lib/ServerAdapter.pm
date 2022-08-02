@@ -771,18 +771,16 @@ sub createJob {
     # }
 
     my $params = {
-        proxyToUrl  => $args{proxyToUrl},
-        parentJobId => $jobId,
-        jobUser     => $args{jobUser},
-        source      => 'deploy',
-        isRrunNow   => $args{isRunNow},
-        isAuto      => $args{isAuto},
-        planTime    => $args{planTime},
-        name        => $args{name},
-        moduleList  => [
+        proxyToUrl => $args{proxyToUrl},
+        parentId   => $jobId,
+        execUser   => $args{execUser},
+        source     => 'deploy',
+        name       => $args{name},
+        moduleList => [
             {
                 name           => $args{moduleName},
                 version        => $args{version},
+                buildNo        => $args{buildNo},
                 selectNodeList => $args{nodeList}
             }
         ],
@@ -790,6 +788,9 @@ sub createJob {
         appSystemName => $args{sysName},
         envName       => $args{envName},
         roundCount    => $args{roundCount},
+        triggerType   => $args{triggerType},
+        planStartTime => $args{planStartTime},
+        isRrunNow     => $args{isRunNow},
         param         => $args{param}
     };
 

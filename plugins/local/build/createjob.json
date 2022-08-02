@@ -66,25 +66,25 @@
             "defaultValue": ""
         },
         {
-            "opt": "auto",
-            "name": "自动执行",
-            "help": "计划作业创建后, 到计划时间自动执行",
+            "opt": "trigtype",
+            "name": "触发方式",
+            "help": "计划作业创建后, 到计划时间自动执行还是手动执行",
             "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
                 "dataList": [
                     {
-                        "text": "是",
-                        "value": "1"
+                        "text": "自动",
+                        "value": "auto"
                     },
                     {
-                        "text": "否",
-                        "value": "0"
+                        "text": "手动",
+                        "value": "manual"
                     }
                 ]
             },
-            "defaultValue": "1"
+            "defaultValue": "auto"
         },
         {
             "opt": "wait",
