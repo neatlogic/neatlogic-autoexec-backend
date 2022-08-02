@@ -1084,7 +1084,7 @@ sub getBuild {
         die("ERROR: Get resources failed with status:$relStatus, build resource is empty or data corrupted because of network timeout problem.\n");
     }
 
-    #TODO: 通过getres测试检查
+    #TODO: 通过relget测试检查
     return ( $isMirror, $buildNo );
 }
 

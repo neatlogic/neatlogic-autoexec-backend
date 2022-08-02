@@ -4,7 +4,7 @@
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": "getres-args",
+    "defaultProfile": null,
     "description": "用户跨多套环境获取制品，例如: 生产从测试下载版本制品",
     "enabled": 0,
     "option": [
@@ -15,7 +15,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "${global:getres.proxytourl}"
+            "defaultValue": "${global:build.proxytourl}"
         },
         {
             "opt": "srcenvpath",

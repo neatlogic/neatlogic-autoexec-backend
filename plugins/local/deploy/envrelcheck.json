@@ -4,7 +4,7 @@
     "typeName": "DEPLOY",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": "envrelcheck-args",
+    "defaultProfile": null,
     "description": "环境制品状态检查，支持跨环境监察",
     "enabled": 0,
     "option": [
@@ -15,7 +15,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "${global:build.proxytourl}"
         },
         {
             "opt": "srcenvpath",

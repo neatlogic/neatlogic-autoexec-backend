@@ -15,7 +15,7 @@
             "type": "text",
             "required": "false",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "${global:build.proxytourl}"
         },
         {
             "opt": "targetenvpath",
