@@ -95,6 +95,8 @@ sub hex2ip {
 
     my $ip;
 
+    $hexIp =~ s/\s+//g;
+
     #每两个字符作为一个数组元素
     my @array = ( $hexIp =~ m/../g );
     if ( $#array >= 3 ) {
@@ -108,7 +110,7 @@ sub hex2ip {
 
             #4个字节，IPV4
             @array = map { hex($_) } @array;
-            $ip = join( '.', @array );
+            $ip    = join( '.', @array );
         }
         else {
             #IPV6
