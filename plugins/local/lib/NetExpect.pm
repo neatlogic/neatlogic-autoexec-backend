@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package SSHExpect;
+package NetExpect;
 use strict;
 use Expect;
 
