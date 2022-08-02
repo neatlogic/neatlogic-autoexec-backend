@@ -217,7 +217,7 @@ sub main {
                 print("ERROR: can not get job status for jobId:$createdJobId on $proxyToUrl\n");
             }
             elsif ( $jobStatus eq 'completed' or $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
-                print("FINEST: job:$createdJobId on $proxyToUrl succeed.\n");
+                print("FINEST: job:$createdJobId status:$jobStatus.\n");
                 last;
             }
             elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
