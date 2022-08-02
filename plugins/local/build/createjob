@@ -47,7 +47,6 @@ sub main {
     my $pname = $FindBin::Script;
     my $senario;
     my $isVerbose  = 0;
-    my $isRunNow   = 0;
     my $trigType   = 0;
     my $waitJob    = 1;
     my $roundCount = 1;
@@ -65,14 +64,13 @@ sub main {
         'targetenvpath' => \$targetEnvPath,
         'targetver'     => \$targetVer,
         'targetBuildNo' => \$targetBuildNo,
-        'runnow=i'      => \$isRunNow,
         'plantime=s'    => \$planTime,
         'trigtype=s'    => \$trigType,
         'wait=i'        => \$waitJob,
         'round=i'       => \$roundCount,
-        'senario:s'     => \$senario,
-        'execuser:s'    => \$jobUser,
-        'instances:s'   => \$instances,
+        'senario=s'     => \$senario,
+        'execuser=s'    => \$jobUser,
+        'instances=s'   => \$instances,
         '<>'            => \&pushItems
     );
 
@@ -113,8 +111,13 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    if ( not defined($isRunNow) and not defined($planTime) ) {
-        print("ERROR: must define option --plantime while without option --runnow.\n");
+    if ( not defined($trigType) ) {
+        print("ERROR: must define option --trigtype.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($planTime) and $trigType ne 'now' ) {
+        print("ERROR: must define option --plantime.\n");
         $optionError = 1;
     }
 
@@ -131,7 +134,7 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    print("INFO: begin to add job...\n");
+    print("INFO: begin to create job...\n");
 
     my $hasError = 0;
 
@@ -189,9 +192,7 @@ sub main {
             buildNo       => $targetBuildNo,
             scenarioName  => $senario,
             proxyToUrl    => $proxyToUrl,
-            isRunNow      => $isRunNow,
             triggerType   => $trigType,
-            waitJob       => $waitJob,
             planStartTime => $planStartTime,
             roundCount    => $roundCount,
             execUser      => $jobUser,
@@ -205,10 +206,10 @@ sub main {
         print("ERROR: $pname $envPath $version $senario failed.\n");
     }
     else {
-        print("INFO: JOBADDED $createdJobId\n");
+        print("INFO: Job $createdJobId created.\n");
     }
 
-    if ( $isRunNow eq 1 and $waitJob eq 1 ) {
+    if ( $hasError == 0 and $trigType eq 'now' and $waitJob eq 1 ) {
         my $jobStatus;
         my $loopCount = 0;
         while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, proxyToUrl => $proxyToUrl ) ) {

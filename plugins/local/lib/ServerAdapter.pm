@@ -788,18 +788,27 @@ sub createJob {
         appSystemName => $args{sysName},
         envName       => $args{envName},
         roundCount    => $args{roundCount},
-        triggerType   => $args{triggerType},
         planStartTime => $args{planStartTime},
         isRrunNow     => $args{isRunNow},
         param         => $args{param}
     };
+
+    if ( $args{triggerType} ne 'now' ) {
+        $params->{triggerType} = $args{triggerType};
+    }
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createJob');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
-    my $chldJobId = $rcObj->{jobId};
+    my $chldJobId;
+    if ( scalar(@$rcObj) > 0 ) {
+        $chldJobId = $$rcObj[0]->{jobId};
+        if ( not defined($chldJobId) ) {
+            die( $$rcObj[0]->{errorMsg} . "\n" );
+        }
+    }
 
     return $chldJobId;
 }

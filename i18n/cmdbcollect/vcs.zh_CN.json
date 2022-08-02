@@ -1,5 +1,5 @@
 {
-    "label": "Vcs",
+    "label": "VCS",
     "collection": "COLLECT_INS",
     "docroot": null,
     "collection_label": "应用实例",
@@ -96,33 +96,38 @@
             "name": "CLUSTER_IP",
             "desc": "集群IP",
             "type": "String"
-        },{
+        },
+        {
             "name": "CLUSTER_NAME",
             "desc": "集群名称",
             "type": "String"
-        },{
+        },
+        {
             "name": "CLUSTER_STATE",
             "desc": "节点集群状态",
             "type": "String"
         },
-		{
+        {
             "name": "CLUSTER_HOST",
             "desc": "集群列表",
             "type": "JsonArray",
             "subset": [
-				{
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "GROUP",
                     "desc": "分组",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "STATE",
                     "desc": "状态",
                     "type": "String"

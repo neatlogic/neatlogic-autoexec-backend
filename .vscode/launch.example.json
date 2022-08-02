@@ -26,7 +26,7 @@
                 "TENANT": "develop",
             },
             "args": ["--jobid",
-                "625229218766859",
+                "634675546349605",
                 "--firstfire",
                 "--execuser",
                 "fccf704231734072a1bf80d90b2d1de2",
@@ -120,12 +120,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--node",
@@ -153,12 +153,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--node",
@@ -186,12 +186,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -216,12 +216,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--maxparall",
@@ -255,20 +255,21 @@
                 "DEV_MODE": "1",
                 "RUNNER_ID": "1",
                 "AUTOEXEC_TENANT": "develop",
-                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_JOBID": "644887049199624",
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--node",
-                "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+                //"{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"zanyue$2012\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}",
+                "{\"nodeName\":\"mysql集群1\",\"protocol\":\"database\",\"password\":\"{ENCRYPTED}05a90b9d7fcd2449928041\",\"resourceId\":511517041303553,\"port\":3306,\"host\":\"192.168.1.135\",\"runnerId\":1,\"nodeType\":\"mysqlCluster\",\"username\":\"root\"}",
                 "--sqlfilejson",
                 "[\"1.test.sql\",\"1.test1.sql\",\"2.test.sql\"]"
             ],
@@ -294,12 +295,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--node",
@@ -329,12 +330,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -359,12 +360,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--repotype",
@@ -404,12 +405,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--username",
@@ -439,12 +440,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--username",
@@ -474,12 +475,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--username",
@@ -509,12 +510,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--username",
@@ -544,12 +545,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--username",
@@ -579,12 +580,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--from",
@@ -614,12 +615,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--src",
@@ -649,12 +650,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--basedir",
@@ -684,12 +685,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--basedir",
@@ -719,12 +720,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -749,12 +750,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--tag4cmpto",
@@ -782,12 +783,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--tag4cmpto",
@@ -815,12 +816,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "--baseurl",
@@ -864,12 +865,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [
                 "target/*.war",
@@ -897,12 +898,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -927,12 +928,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -957,12 +958,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
             },
             "args": [],
             "reloadModules": true,
@@ -987,12 +988,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1023,12 +1024,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1057,12 +1058,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1091,12 +1092,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1127,12 +1128,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1162,12 +1163,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1198,12 +1199,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"ssh\",\"password\":\"techsure\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":22,\"username\":\"root\"}"
             },
             "args": [
@@ -1234,12 +1235,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
             },
             "args": [
@@ -1270,12 +1271,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
             },
             "args": [
@@ -1305,12 +1306,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
             },
             "args": [
@@ -1341,12 +1342,12 @@
                 "AUTOEXEC_PHASE_NAME": "run-sql",
                 "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-                "_DEPLOY_PATH": "mysys/mymodule/SIT",
-                "_DEPLOY_ID_PATH": "0/0/0",
-                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
-                "_VERSION": "2.0.0",
-                "_BUILD_NO": "1",
-                "_IS_RELEASE": "1",
+                "DEPLOY_PATH": "mysys/mymodule/SIT",
+                "DEPLOY_ID_PATH": "0/0/0",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.0.26\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
                 "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
             },
             "args": [
@@ -1354,6 +1355,155 @@
                 "10",
                 "http://192.168.0.88",
                 "192.168.0.88:80"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "discovery",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/cmdbcollect/discovery",
+            "env": {
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "OUTPUT_PATH": "/Users/wenhb/git/autoexec/data/job/0/output.json"
+            },
+            "args": ["--nets",
+                "192.168.0.26/30,192.168.1.0/30",
+                "--ports",
+                "22,161,135,139,445,3389",
+                "--timingtmpl",
+                "5",
+                "--communities",
+                "[\"TsSWpwd\"]"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "pysnmptest",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/pysnmptest.py",
+            "env": {
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "OUTPUT_PATH": "/Users/wenhb/git/autoexec/data/job/0/output.json"
+            },
+            "args": ["--nets",
+                "192.168.0.26/30,192.168.0.1/30",
+                "--ports",
+                "22,161,135,139,445,3389",
+                "--timingtmpl",
+                "5",
+                "--communities",
+                "[\"TsSWpwd\"]"
+            ],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "test.pl",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/test.pl",
+            "env": {
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "OUTPUT_PATH": "/Users/wenhb/git/autoexec/data/job/0/output.json"
+            },
+            "args": []
+        },
+        {
+            "name": "dsltest",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/DSLTools.py",
+            "env": {},
+            "args": [],
+
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "createjob",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/createjob",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "681767220338913",
+                "AUTOEXEC_USER": "fccf704231734072a1bf80d90b2d1de2",
+                "AUTOEXEC_PHASE_NAME": "构建",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "DEPLOY_PATH": "DEMO/WebTest/SIT",
+                "DEPLOY_ID_PATH": "669482179420161/669491121676288/481856650534925",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.1.140\"}",
+                "VERSION": "2.0.0",
+                "BUILD_NO": "1"
+
+            },
+            "args": [
+                "--senario",
+                "部署准备",
+                "--trigtype",
+                "now",
+                "--round",
+                "2"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "relget",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/build/relget",
+            "inc": [
+                "${workspaceFolder}/plugins/local/build/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "681767220338913",
+                "AUTOEXEC_USER": "fccf704231734072a1bf80d90b2d1de2",
+                "AUTOEXEC_PHASE_NAME": "构建",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "DEPLOY_PATH": "DEMO/WebTest/SIT",
+                "DEPLOY_ID_PATH": "669482179420161/669491121676288/481856650534925",
+                "DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.1.140\"}",
+                "VERSION": "2.0.0"
+            },
+            "args": [
+                "--envpath",
+                "DEMO/WebTest/UAT",
+                "--version",
+                "2.0.0",
+                "--srcenvpath",
+                "DEMO/WebTest/SIT"
             ],
             "reloadModules": true,
             "stopOnEntry": false,

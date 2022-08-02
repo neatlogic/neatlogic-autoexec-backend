@@ -101,7 +101,8 @@
             "name": "KEEPALIVE_TIMEOUT",
             "desc": "Keepalive Timeout",
             "type": "Int"
-        },{
+        },
+        {
             "name": "LOCATION",
             "desc": "Location",
             "type": "JsonArray",
@@ -115,19 +116,23 @@
                     "name": "_OBJ_TYPE",
                     "desc": "Application Type",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "ROOT",
                     "desc": "Root Path",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "ALIAS",
                     "desc": "Alias Path",
                     "type": "String"
-                },{
+                },
+                {
                     "name": "PROXY_PASS",
                     "desc": "Proxy Pass",
                     "type": "String"

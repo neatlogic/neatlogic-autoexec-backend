@@ -7,8 +7,7 @@
     "defaultProfile": null,
     "description": "创建作业",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "proxytourl",
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",
@@ -36,27 +35,6 @@
             "defaultValue": "${VERSION}"
         },
         {
-            "opt": "runnow",
-            "name": "立即执行",
-            "help": "创建作业后马上执行",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [
-                    {
-                        "text": "是",
-                        "value": "1"
-                    },
-                    {
-                        "text": "否",
-                        "value": "0"
-                    }
-                ]
-            },
-            "defaultValue": "1"
-        },
-        {
             "opt": "plantime",
             "name": "计划执行",
             "help": "作业计划执行时间",
@@ -73,18 +51,21 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
+                "dataList": [{
+                        "text": "立刻执行",
+                        "value": "now"
+                    },
                     {
-                        "text": "自动",
+                        "text": "自动执行",
                         "value": "auto"
                     },
                     {
-                        "text": "手动",
+                        "text": "手动执行",
                         "value": "manual"
                     }
                 ]
             },
-            "defaultValue": "auto"
+            "defaultValue": "now"
         },
         {
             "opt": "wait",
@@ -94,8 +75,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
