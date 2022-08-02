@@ -9,7 +9,7 @@
     "enabled": 0,
     "option": [
         {
-            "opt": "baseurl",
+            "opt": "proxytourl",
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",
             "type": "text",

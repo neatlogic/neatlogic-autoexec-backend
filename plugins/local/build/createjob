@@ -14,7 +14,7 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              --baseurl BaseURLForConsole --user UserName --password Password\n");
+    print("              --proxytourl BaseURLForConsole --user UserName --password Password\n");
     print("              --runnow 0|1 --user --auto 0|1 --wait 0|1\n");
     print("              --plantime PlanTime --round RoundCount --senario Senario\n");
     print("              --createuser JobUser --instances IP:PORT1,IP:PORT2\n");
@@ -26,7 +26,7 @@ sub usage {
     print("       --targetenvpath: Target EnvPath\n");
     print("       --targetver:     Target version\n");
     print("       --targetbuildno: Target build no\n");
-    print("       --baseurl:       If cross deploy system, need to defined the target deploy system url\n");
+    print("       --proxytourl:    If cross deploy system, need to defined the target deploy system url\n");
     print("       --runnow:        Create job and execute the job\n");
     print("       --plantime:      Job executeion plan time，example: 2022-2-22 17:00:00\n");
     print("       --auto:          If define plantime, auto=0, mean juse create the job\n");
@@ -41,7 +41,7 @@ sub usage {
 
 sub main {
     my ( $isHelp, $envPath, $version, $buildNo );
-    my ($baseUrl);
+    my ($proxyToUrl);
     my ( $targetEnvPath, $targetVer, $targetBuildNo );
 
     my $pname = $FindBin::Script;
@@ -61,7 +61,7 @@ sub main {
         'envpath=s'     => \$envPath,
         'version=s'     => \$version,
         'buildno=s'     => \$buildNo,
-        'baseurl=s'     => \$baseUrl,
+        'proxytourl=s'  => \$proxyToUrl,
         'targetenvpath' => \$targetEnvPath,
         'targetver'     => \$targetVer,
         'targetBuildNo' => \$targetBuildNo,
@@ -171,7 +171,7 @@ sub main {
             version      => $targetVer,
             buildNo      => $targetBuildNo,
             scenarioName => $senario,
-            baseUrl      => $baseUrl,
+            proxyToUrl   => $proxyToUrl,
             isRunNow     => $isRunNow,
             isAuto       => $isAuto,
             waitJob      => $waitJob,
@@ -194,12 +194,12 @@ sub main {
     if ( $isRunNow eq 1 and $waitJob eq 1 ) {
         my $jobStatus;
         my $loopCount = 0;
-        while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, baseUrl => $baseUrl ) ) {
+        while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, proxyToUrl => $proxyToUrl ) ) {
             if ( not defined($jobStatus) ) {
-                print("ERROR: can not get job status for jobId:$createdJobId on $baseUrl\n");
+                print("ERROR: can not get job status for jobId:$createdJobId on $proxyToUrl\n");
             }
             elsif ( $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
-                print("FINEST: job:$createdJobId on $baseUrl succeed.\n");
+                print("FINEST: job:$createdJobId on $proxyToUrl succeed.\n");
                 last;
             }
             elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
@@ -212,7 +212,7 @@ sub main {
             }
             else {
                 $hasError = $hasError + 1;
-                print("ERROR: job:$createdJobId on $baseUrl $jobStatus.\n");
+                print("ERROR: job:$createdJobId on $proxyToUrl $jobStatus.\n");
                 last;
             }
         }

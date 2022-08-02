@@ -350,14 +350,14 @@ sub getEnvVer {
 }
 
 sub getOtherSiteEnvVer {
-    my ( $self, $baseUrl, $buildEnv, $version ) = @_;
+    my ( $self, $proxyToUrl, $buildEnv, $version ) = @_;
 
     #获取环境版本详细信息：version, buildNo, status
     my $param = $self->_getParams($buildEnv);
 
     if ( defined($version) and $version ne '' ) {
-        $param->{version} = $version;
-        $param->{baseUrl} = $baseUrl;
+        $param->{version}    = $version;
+        $param->{proxyToUrl} = $proxyToUrl;
     }
 
     my $webCtl  = $self->{webCtl};
@@ -771,7 +771,7 @@ sub createJob {
     # }
 
     my $params = {
-        baseUrl     => $args{baseUrl},
+        proxyToUrl  => $args{proxyToUrl},
         parentJobId => $jobId,
         jobUser     => $args{jobUser},
         source      => 'deploy',
@@ -807,8 +807,8 @@ sub getJobStatus {
     my ( $self, $jobId, %args ) = @_;
 
     my $params = {
-        jobId   => $jobId,
-        baseUrl => $args{baseUrl}
+        jobId      => $jobId,
+        proxyToUrl => $args{proxyToUrl}
     };
 
     my $webCtl  = $self->{webCtl};
@@ -905,7 +905,7 @@ sub rollbackInsVersion {
 }
 
 sub getBuild {
-    my ( $self, $deployUtils, $deployEnv, $buildNo, $baseUrl, $srcEnvInfo, $destDir, $subDirs, $cleanSubDirs ) = @_;
+    my ( $self, $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
 
@@ -1016,7 +1016,7 @@ sub getBuild {
         version    => $params->{version},
         buildNo    => $params->{buildNo},
         subDirs    => $subDirs,
-        proxyToUrl => $baseUrl
+        proxyToUrl => $proxyToUrl
     };
 
     #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准

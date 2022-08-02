@@ -7,8 +7,9 @@
     "defaultProfile": "envrelcheck-args",
     "description": "环境制品状态检查，支持跨环境监察",
     "enabled": 0,
-    "option": [{
-            "opt": "baseurl",
+    "option": [
+        {
+            "opt": "proxytourl",
             "name": "制品库地址",
             "help": "制品库地址，例如：https://192.168.0.8:8443，留空代表本地环境",
             "type": "text",

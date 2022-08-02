@@ -17,13 +17,13 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
-    print("              --baseurl ResourceServerBaseUrl --user UserName --password Password\n");
+    print("              --proxytourl ResourceServerBaseUrl --user UserName --password Password\n");
     print("              --srcenvpath SourceEnvPath\n");
     print("              subDir1 subDir2 ...\n");
     print("\n");
     print("       --envpath:    Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version:    Version number of module version\n");
-    print("       --baseurl:    Resource server base url, example:http://192.168.0.13:8080/nexus\n");
+    print("       --proxytourl: Resource server base url, example:http://192.168.0.13:8080/nexus\n");
     print("       --srcenvpath: Source env path, example:MY-SYS/MY-MODULE/UAT.\n");
 
     exit(-1);
@@ -31,7 +31,7 @@ sub usage {
 
 sub main {
     my ( $isHelp,     $envPath, $version );
-    my ( $baseUrl,    $user,    $pass );
+    my ( $proxyToUrl, $user,    $pass );
     my ( $srcEnvPath, @subDirs );
     my $isVerbose = 0;
     my $pname     = $FindBin::Script;
@@ -41,7 +41,7 @@ sub main {
         'v|verbose'    => \$isVerbose,
         'envpath=s'    => \$envPath,
         'version=s'    => \$version,
-        'baseurl=s'    => \$baseUrl,
+        'proxytourl=s' => \$proxyToUrl,
         'srcenvpath:s' => \$srcEnvPath,
         '<>'           => \&pushItems
     );
@@ -75,9 +75,9 @@ sub main {
         print("ERROR: Source Env Path not defined by option --srcenvpath\n");
     }
 
-    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+    if ( not defined($proxyToUrl) or $proxyToUrl eq '' ) {
         $optionError = 1;
-        print("ERROR: Web console url not defined by option --baseurl\n");
+        print("ERROR: Web console url not defined by option --proxytourl\n");
     }
 
     if ( $optionError == 1 ) {
@@ -93,17 +93,17 @@ sub main {
         sysName    => $srcPathSegs[0],
         moduleName => $srcPathSegs[1],
         envName    => $srcPathSegs[2],
-        baseUrl    => $baseUrl
+        proxyToUrl => $proxyToUrl
     };
 
     my $serverAdapter = ServerAdapter->new();
 
     my $verInfo;
-    if ( not defined($baseUrl) ) {
+    if ( not defined($proxyToUrl) ) {
         $verInfo = $serverAdapter->getEnvVer( $srcEnvInfo, $version );
     }
     else {
-        $verInfo = $serverAdapter->getOtherSiteEnvVer( $baseUrl, $srcEnvInfo, $version );
+        $verInfo = $serverAdapter->getOtherSiteEnvVer( $proxyToUrl, $srcEnvInfo, $version );
     }
     my $isMirror  = $verInfo->{isMirror};
     my $buildNo   = $verInfo->{buildNo};

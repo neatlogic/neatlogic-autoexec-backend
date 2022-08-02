@@ -9,13 +9,13 @@
     "enabled": 0,
     "option": [
         {
-            "opt": "baseurl",
+            "opt": "proxytourl",
             "name": "制品库地址",
             "help": "制品库地址，例如：https://192.168.0.8:8443",
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "${global:getres.baseurl}"
+            "defaultValue": "${global:getres.proxytourl}"
         },
         {
             "opt": "srcenvpath",
