@@ -216,7 +216,7 @@ sub main {
             if ( not defined($jobStatus) ) {
                 print("ERROR: can not get job status for jobId:$createdJobId on $proxyToUrl\n");
             }
-            elsif ( $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
+            elsif ( $jobStatus eq 'completed' or $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
                 print("FINEST: job:$createdJobId on $proxyToUrl succeed.\n");
                 last;
             }
@@ -230,17 +230,22 @@ sub main {
             }
             else {
                 $hasError = $hasError + 1;
-                print("ERROR: job:$createdJobId on $proxyToUrl $jobStatus.\n");
+                if ( defined($proxyToUrl) and $proxyToUrl ne '' ) {
+                    print("ERROR: job:$createdJobId on $proxyToUrl $jobStatus.\n");
+                }
+                else {
+                    print("ERROR: job:$createdJobId $jobStatus.\n");
+                }
                 last;
             }
         }
     }
 
     if ( $hasError == 0 ) {
-        print("FINEST: $pname $envPath $version $senario succeed.\n");
+        print("FINEST: $envPath $version $senario succeed.\n");
     }
     else {
-        print("ERROR: $pname $envPath $version $senario failed.\n");
+        print("ERROR: $envPath $version $senario failed.\n");
     }
 
     return $hasError;
