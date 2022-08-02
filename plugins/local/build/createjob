@@ -134,7 +134,7 @@ sub main {
     }
 
     my $serverAdapter = ServerAdapter->new();
-    print("INFO: begin to create job...\n");
+    print("INFO: Begin to create job...\n");
 
     my $hasError = 0;
 
