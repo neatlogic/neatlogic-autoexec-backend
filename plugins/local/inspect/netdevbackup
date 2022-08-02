@@ -7,16 +7,16 @@ use strict;
 use Getopt::Long;
 use JSON;
 use AutoExecUtils;
-use SSHExpect;
+use NetExpect;
 use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
-    print("$pname --node <node> --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
+    print("$pname --node <node> --protocol <protocol> --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
     exit(1);
 }
 
-sub saveCfg {
+sub storeFile {
     my ( $path, $host, $result ) = @_;
     my $time = `date +%Y-%m-%d_%H:%M:%S`;
     chomp($time);
@@ -26,22 +26,22 @@ sub saveCfg {
     }
     my $fileName = File::Spec->catfile( $dir, "$time.txt" );
     open( my $fh, '>', $fileName ) or die "can't open $fileName $!";
-    print $fh $result;
-    close $fh;
+    print($fh $result);
+    close($fh);
     print("INFO::save backup file: $fileName done.\n");
 }
 
 sub defindVendor {
     my ($vendor) = @_;
     ###############################
-    #cfgCmd : 查看交换机配置命令
-    #clsCmd : 全屏打印（不出现 ----  More ----）
+    #configCmd : 查看交换机配置命令
+    #fullPageCmd : 全屏打印（不出现 ----  More ----）
     ##############################
     my $vendorInfo = {
-        "h3c"       => { "cfgCmd" => "display current-configuration", "clsCmd" => 'screen-length disable' },
-        "cisco"     => { "cfgCmd" => "show run",                      "clsCmd" => 'terminal length 0' },
-        "hillstone" => { "cfgCmd" => "show configuration",            "clsCmd" => 'terminal length 0' },
-        "huawei"    => { "cfgCmd" => "display current-configuration", "clsCmd" => 'screen-length 0 temporary' }
+        "h3c"       => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length disable' },
+        "cisco"     => { "configCmd" => "show run",                      "fullPageCmd" => 'terminal length 0' },
+        "hillstone" => { "configCmd" => "show configuration",            "fullPageCmd" => 'terminal length 0' },
+        "huawei"    => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length 0 temporary' }
     };
     my $info = $vendorInfo->{$vendor};
     return $info;
@@ -51,7 +51,7 @@ sub main {
     $| = 1;
     AutoExecUtils::setEnv();
     my ( $ishelp, $isVerbose );
-    my ( $node, $vendor, $backupdir, $timeout, $startLine, $exitCmd );
+    my ( $node, $vendor, $protocol, $backupdir, $timeout, $exitCmd );
 
     usage() if ( defined($ishelp) );
     $isVerbose = 0;
@@ -59,10 +59,10 @@ sub main {
     GetOptions(
         'help'        => \$ishelp,
         'node:s'      => \$node,
+        'protocol:s'  => \$protocol,
         'vendor:s'    => \$vendor,
         'backupdir:s' => \$backupdir,
         'timeout:i'   => \$timeout,
-        'startLine:i' => \$startLine,
         'v|verbose=i' => \$isVerbose,
         'exitCmd:s'   => \$exitCmd
     );
@@ -100,64 +100,59 @@ sub main {
         $hasOptErr = 1;
     }
 
-    if ( not defined($timeout) or $timeout == 0 ) {
-        $timeout = 10;
+    if ( not defined($protocol) or $protocol eq '' ) {
+        $protocol = 'ssh';
     }
 
-    if ( not defined($startLine) or $startLine == 0 ) {
-        $startLine = 0;
+    if ( not defined($timeout) or $timeout == 0 ) {
+        $timeout = 10;
     }
 
     if ( not defined($exitCmd) or $exitCmd eq '' ) {
         $exitCmd = 'exit';
     }
 
-    my $vendorInfo = defindVendor($vendor);
-    if ( not defined($vendorInfo) ) {
-        print("ERROR:: $vendor model not support .\n");
-        $hasOptErr = 1;
-    }
-
     if ( $hasOptErr == 1 ) {
         usage();
     }
 
+    my $vendorInfo = defindVendor($vendor);
+    if ( not defined($vendorInfo) ) {
+        print("ERROR:: $vendor model not support .\n");
+        exit(1);
+    }
+
     my ( $host, $port, $username, $password );
     $host     = $nodeInfo->{'host'};
-    $port     = $nodeInfo->{'port'};
+    $port     = $nodeInfo->{'protocolPort'};
     $username = $nodeInfo->{'username'};
     $password = $nodeInfo->{'password'};
 
-    if ( not defined($port) or $port eq '' ) {
-        $port = $nodeInfo->{'protocolPort'};
-    }
-
-    my $clsCmd = $vendorInfo->{clsCmd};
-    my $cfgCmd = $vendorInfo->{cfgCmd};
+    my $fullPageCmd = $vendorInfo->{fullPageCmd};
+    my $configCmd   = $vendorInfo->{configCmd};
 
     print("INFO::config back start.\n");
-    my $ssh = SSHExpect->new(
-        host      => $host,
-        port      => $port,
-        username  => $username,
-        password  => $password,
-        startLine => $startLine,
-        timeout   => $timeout,
-        verbose   => $isVerbose,
-        clsCmd    => $clsCmd,
-        cfgCmd    => $cfgCmd,
-        exitCmd   => $exitCmd
+    my $sep = NetExpect->new(
+        host     => $host,
+        port     => $port,
+        protocol => $protocol,
+        username => $username,
+        password => $password,
+        timeout  => $timeout,
+        verbose  => $isVerbose
     );
-    my $spawn = $ssh->login();
+    my $spawn = $sep->login();
+
     if ( not defined($spawn) ) {
         print("ERROR:: $vendor config backup failed.\n");
+        exit(1);
     }
     else {
-        $ssh->configTerminal();
-        my $rsConfig = $ssh->runCmd();
-        saveCfg( $backupdir, $host, $rsConfig );
-        $ssh->close();
+        my $rsConfig = $sep->backup( $fullPageCmd, $configCmd, $exitCmd );
+        storeFile( $backupdir, $host, $rsConfig );
+        $sep->close($exitCmd);
         print("INFO:: $vendor config backup success.\n");
+        exit(0);
     }
 }
 
