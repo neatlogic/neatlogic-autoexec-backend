@@ -1,21 +1,130 @@
 {
-    "opName": "网路设备配置备份",
+    "opDesc": "网路设备配置备份",
     "opType": "runner_target",
-    "typeName": "INSPECT",
-    "riskName": "LOW",
-    "interpreter": "python",
+    "typeName": "BACKUP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
     "defaultProfile": null,
-    "description": "拷贝远程交换机的配置到本地并备份到文件服务",
-    "enabled": 0,
+    "description": "网路设备配置备份",
     "option": [
         {
+            "opt": "node",
+            "name": "node",
+            "help": "",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "protocol",
+            "name": "连接协议",
+            "help": "连接协议",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "ssh",
+                        "value": "ssh"
+                    },
+                    {
+                        "text": "telnet",
+                        "value": "telnet"
+                    }
+                ]
+            },
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "vendor",
+            "name": "厂商",
+            "help": "厂商",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "华为",
+                        "value": "huawei"
+                    },
+                    {
+                        "text": "华三",
+                        "value": "h3c"
+                    },
+                    {
+                        "text": "思科",
+                        "value": "cisco"
+                    },
+                    {
+                        "text": "山石",
+                        "value": "hillstone"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "backupdir",
+            "name": "备份存放目录",
+            "help": "如：/tmp/config,目录不存在会自动创建",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exitCmd",
+            "name": "退出命令",
+            "help": "退出命令,如quit、exit",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "exit",
+                        "value": "exit"
+                    }, 
+                    {
+                        "text": "quit",
+                        "value": "quit"
+                    }
+                ]
+            },
+            "defaultValue": "exit"
+        },
+        {
             "opt": "timeout",
-            "name": "超时时间",
-            "help": "查询超时时间，单位秒",
+            "name": "连接超时时间",
+            "help": "默认是10秒",
             "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": "10"
+        },
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "打印明细日志",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "output": []
