@@ -17,7 +17,7 @@ sub new {
     my ( $class, %args ) = @_;
     my $self = {};
     $self->{brand} = $args{brand};
-    $self->{DATA} = { PK => ['MGMT_IP'] };
+    $self->{DATA}  = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -38,7 +38,7 @@ sub new {
         }
     }
     $options->{'-maxmsgsize'} = 65535;
-    $self->{snmpOptions} = $options;
+    $self->{snmpOptions}      = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
     if ( !defined $session ) {
@@ -62,7 +62,7 @@ sub new {
         IP_ADDRS => {
             IP      => '1.3.6.1.2.1.4.20.1.1',
             NETMASK => '1.3.6.1.2.1.4.20.1.3'
-            }
+        }
 
             #PORTS_TABLE_FOR_TEST => { NAME => '1.3.6.1.2.1.2.2.1.2', MAC => '1.3.6.1.2.1.2.2.1.6' }
     };
@@ -248,7 +248,7 @@ sub _getTable {
     my $tableOidDef = $self->{tableOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my $tableData  = $snmpHelper->getTable( $snmp, $tableOidDef );
 
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$tableData) ) {
@@ -263,8 +263,8 @@ sub _getPortIdx {
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
 
-    my $portIdxToNoMap = {};                                                       #序号到数字索引号的映射
-    my $portIdxInfo = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
+    my $portIdxToNoMap = {};                                                          #序号到数字索引号的映射
+    my $portIdxInfo    = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
     $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX}, 'PORT_INDEX' );
 
     #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
@@ -349,7 +349,7 @@ sub _decimalMacToHex {
     my ( $self, $decimalMac ) = @_;
 
     my @hexParts = ();
-    my @parts = split( /\./, $decimalMac );
+    my @parts    = split( /\./, $decimalMac );
     foreach my $part (@parts) {
         my $hexPart = sprintf( "%02x", $part );
         push( @hexParts, $hexPart );
@@ -411,7 +411,7 @@ sub _getMacTableWithVlan {
     my $portMacEntryMap = {};
 
     my @vlanIdArray = ();
-    my $vlanStates = $snmp->get_table( -baseoid => $commOidDef->{CISCO_VLAN_STATE} );
+    my $vlanStates  = $snmp->get_table( -baseoid => $commOidDef->{CISCO_VLAN_STATE} );
     while ( my ( $oid, $vlanState ) = each(%$vlanStates) ) {
         if ( $oid =~ /(\d+)$/ and $vlanState eq 1 ) {
             push( @vlanIdArray, $1 );
@@ -429,8 +429,8 @@ sub _getMacTableWithVlan {
             exit(-1);
         }
 
-        my $portNoToIdxMap = {};                                                           #序号到数字索引号的映射
-        my $portIdxInfo = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
+        my $portNoToIdxMap = {};                                                              #序号到数字索引号的映射
+        my $portIdxInfo    = $vlanSnmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
         $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX}, 'PORT_INDEX' );
 
         #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
@@ -486,7 +486,7 @@ sub _getLLDP {
     }
 
     #获取邻居关系的本地端口名称列表（怀疑，这里的端口的idx和port信息里是一样的，如果是这样这里就不用采了
-    my $portNoToName = {};
+    my $portNoToName  = {};
     my $localPortInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_LOCAL_PORT} );
     $self->_errCheck( $localPortInfo, $commOidDef->{LLDP_LOCAL_PORT}, 'LLDP_LOCAL_PORT' );
 
@@ -500,7 +500,7 @@ sub _getLLDP {
         }
     }
 
-    my $remoteSysInfoMap = {};
+    my $remoteSysInfoMap  = {};
     my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{LLDP_REMOTE_SYSNAME} );
     $self->_errCheck( $remoteSysNameInfo, $commOidDef->{LLDP_REMOTE_SYSNAME}, 'LLDP_REMOTE_SYSNAME' );
 
@@ -558,7 +558,7 @@ sub _getCDP {
         print("WARN: Can not get LLDP before get all ports.\n");
     }
 
-    my $remoteSysInfoMap = {};
+    my $remoteSysInfoMap  = {};
     my $remoteSysNameInfo = $snmp->get_table( -baseoid => $commOidDef->{CDP_REMOTE_SYSNAME} );
     $self->_errCheck( $remoteSysNameInfo, $commOidDef->{CDP_REMOTE_SYSNAME} );
 

@@ -78,14 +78,11 @@ sub _errCheck {
 sub hex2mac {
     my ( $self, $hexMac ) = @_;
 
-    #如果字串中含有0字节（数值为0），否则不是正常的MAC地址hex字符串
-    if ( $hexMac !~ /\x00/ ) {
-        $hexMac = substr( $hexMac, 2 );
-        $hexMac =~ s/..\K(?=.)/:/sg;
+    if ( not( $hexMac =~ s/^0x// ) ) {
+        $hexMac = unpack( 'H*', $hexMac );
     }
-    else {
-        $hexMac = '';
-    }
+
+    $hexMac =~ s/..\K(?=.)/:/sg;
 
     return $hexMac;
 }
@@ -95,17 +92,13 @@ sub hex2ip {
 
     my $ip;
 
-    $hexIp =~ s/\s+//g;
+    if ( not( $hexIp =~ s/^0x// ) ) {
+        $hexIp = unpack( 'H*', $hexIp );
+    }
 
     #每两个字符作为一个数组元素
     my @array = ( $hexIp =~ m/../g );
     if ( $#array >= 3 ) {
-        if ( lc( $array[0] ) eq '0x' ) {
-
-            #去掉开头的0x
-            shift(@array);
-        }
-
         if ( $#array == 3 ) {
 
             #4个字节，IPV4
@@ -117,6 +110,7 @@ sub hex2ip {
             $ip = join( ':', @array );
         }
     }
+
     return $ip;
 }
 
