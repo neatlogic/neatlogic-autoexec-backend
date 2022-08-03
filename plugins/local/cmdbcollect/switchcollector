@@ -59,7 +59,7 @@ sub main {
     }
 
     my $hostname  = $nodeInfo->{host};
-    my $community = $node->{password};
+    my $community = $nodeInfo->{password};
     if ( not defined($community) or $community eq '' ) {
         $community = $defaultCommunity;
     }

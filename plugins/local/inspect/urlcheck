@@ -19,7 +19,6 @@ sub main {
 
     my ($node);
 
-    my $community;
     my $timeout = 10;
 
     GetOptions(
@@ -108,7 +107,7 @@ sub main {
         my $errMsg = $@;
         $errMsg =~ s/ at\s*.*$//;
         $data->{'ERROR_MESSAGE'} = $errMsg;
-        $data->{AVAILABILITY} = 0;
+        $data->{AVAILABILITY}    = 0;
         print("ERROR: $errMsg");
     }
     else {
