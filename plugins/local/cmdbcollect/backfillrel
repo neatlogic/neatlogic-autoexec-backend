@@ -218,6 +218,9 @@ def genOSRel(db):
         try:
             # 计算网卡连接的交换机端口信息
             nics = os.get('ETH_INTERFACES', [])
+            if nics is None:
+                print("WARN: No eth interfaces found for os:{}".format(os.get('MGMT_IP')))
+                nics = []
             for nic in nics:
                 #macCount = sys.maxsize
                 remotePort = macTblCollection.find_one({'MAC_TABLE.MACS': nic['MAC'],
@@ -246,6 +249,9 @@ def genOSRel(db):
 
             # 计算HBA卡连接的光交
             hbas = os.get('HBA_INTERFACES', [])
+            if hbas is None:
+                print("INFO: No HBA interfaces found for os:{}".format(os.get('MGMT_IP')))
+                hbas = []
             for hba in hbas:
                 wwpn = hba.get('WWPN')
                 if wwpn is None:
