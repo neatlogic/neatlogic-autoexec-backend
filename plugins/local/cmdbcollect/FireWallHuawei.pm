@@ -41,7 +41,7 @@ sub after {
 
         $ssh->runCmd('screen-length 0 temporary');    #不分页
 
-        my $verLine = $ssh->runCmd( 'dis version', 0 );
+        my $verLine = $ssh->runCmd('dis version');
         print("INFO: $verLine\n");
         if ( $verLine =~ /Product\s+name:\s*(\S+)\s*S\/N:\s*(\S+)/i ) {
             $data->{DEV_NAME} = $1;

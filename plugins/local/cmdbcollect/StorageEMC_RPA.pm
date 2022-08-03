@@ -37,7 +37,7 @@ sub new {
         username => $node->{username},
         password => $node->{password},
         timeout  => $timeout,
-        PROMPT   => '[\]\$\>\#]\s*\x1b..\x1b..$',
+        prompt   => '[\]\$\>\#]\s*\x1b..\x1b..$',
         exitCmd  => 'quit',
     );
     $ssh->login();

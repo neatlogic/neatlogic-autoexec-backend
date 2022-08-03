@@ -9,9 +9,12 @@ sub new {
 
     $| = 1;
 
-    my $self   = {};
-    my $prompt = '[\]\$\>\#]\s*$';
-    $self->{prompt}   = $attr{prompt};
+    my $self = {};
+    $self->{prompt} = '[\]\$\>\#]\s*$';
+    if ( defined( $attr{prompt} ) and $attr{prompt} ne '' ) {
+        $self->{prompt} = $attr{prompt};
+    }
+
     $self->{host}     = $attr{host};
     $self->{port}     = $attr{port};
     $self->{username} = $attr{username};
