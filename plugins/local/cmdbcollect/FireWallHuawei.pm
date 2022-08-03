@@ -11,7 +11,7 @@ package FireWallHuawei;
 use FireWallBase;
 our @ISA = qw(FireWallBase);
 
-use SSHExpect;
+use NetExpect;
 
 sub before {
     my ($self) = @_;
@@ -28,16 +28,18 @@ sub after {
 
     if ( not defined( $data->{DEV_NAME} ) and defined( $nodeInfo->{username} ) and lc( $nodeInfo->{username} ) ne 'snmp' ) {
         print("INFO: Can not find DEV_NAME by snmp, try ssh.\n");
-        my $ssh = SSHExpect->new(
+        my $ssh = NetExpect->new(
             host     => $nodeInfo->{host},
             port     => $nodeInfo->{protocolPort},
+            protocol => 'ssh',
             username => $nodeInfo->{username},
             password => $nodeInfo->{password},
             timeout  => $self->{timeout}
         );
 
         $ssh->login();
-        $ssh->configTerminal();
+
+        $ssh->runCmd('screen-length 0 temporary');    #不分页
 
         my $verLine = $ssh->runCmd( 'dis version', 0 );
         print("INFO: $verLine\n");

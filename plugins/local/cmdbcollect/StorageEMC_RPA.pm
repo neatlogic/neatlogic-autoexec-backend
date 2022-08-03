@@ -7,7 +7,7 @@ use lib abs_path("$FindBin::Bin/../lib");
 
 package StorageEMC_RPA;
 
-use SSHExpect;
+use NetExpect;
 use XML::MyXML qw(xml_to_object);
 use JSON;
 use CollectUtils;
@@ -30,9 +30,10 @@ sub new {
     $self->{collectUtils} = $utils;
 
     $ENV{TERM} = 'xterm';
-    my $ssh = SSHExpect->new(
+    my $ssh = NetExpect->new(
         host     => $node->{host},
         port     => $node->{protocolPort},
+        protocol => 'ssh',
         username => $node->{username},
         password => $node->{password},
         timeout  => $timeout,
@@ -254,10 +255,10 @@ sub parseGroupStat {
         }
         my $linkStat = $link->path('ReplicationStatisticsOutput[name="replication"]');
         if ( defined($linkStat) ) {
-            $linkInfo->{LAG_TIME} = $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="time"]' );
-            $linkInfo->{LAG_SIZE} = $self->bytesToM( $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="bytes"]' ) );
-            $linkInfo->{LAG_WRITES} = $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="writes"]' );
-            $linkInfo->{WAN_SIZE_PER_SEC} = $self->bytesToM( $self->getValByPath( $linkStat, 'u64[name="wanBytesPerSec"]' ) );
+            $linkInfo->{LAG_TIME}           = $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="time"]' );
+            $linkInfo->{LAG_SIZE}           = $self->bytesToM( $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="bytes"]' ) );
+            $linkInfo->{LAG_WRITES}         = $self->getValByPath( $linkStat, 'LagOutput[name="lag"]/u64[name="writes"]' );
+            $linkInfo->{WAN_SIZE_PER_SEC}   = $self->bytesToM( $self->getValByPath( $linkStat, 'u64[name="wanBytesPerSec"]' ) );
             $linkInfo->{BANDWITH_RATIO}     = $self->getValByPath( $linkStat, 'double[name="currentBandwidthReductionRatio"]' );
             $linkInfo->{AVG_BANDWITH_RATIO} = $self->getValByPath( $linkStat, 'double[name="averageBandwidthReductionRatio"]' );
         }

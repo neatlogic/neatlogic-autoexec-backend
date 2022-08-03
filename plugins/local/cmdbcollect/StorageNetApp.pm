@@ -7,7 +7,7 @@ use lib abs_path("$FindBin::Bin/../lib");
 
 package StorageNetApp;
 
-use SSHExpect;
+use NetExpect;
 use JSON;
 use CollectUtils;
 use Data::Dumper;
@@ -28,9 +28,10 @@ sub new {
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
 
-    my $ssh = SSHExpect->new(
+    my $ssh = NetExpect->new(
         host     => $node->{host},
         port     => $node->{protocolPort},
+        protocol => 'ssh',
         username => $node->{username},
         password => $node->{password},
         timeout  => $timeout
@@ -65,7 +66,7 @@ sub getNicSpeedFromStr {
 sub parseCmdOut {
     my ( $self, $cmdOutLines ) = @_;
     my $linesCount = scalar(@$cmdOutLines);
-    my @header = split( '\|', $$cmdOutLines[0] );
+    my @header     = split( '\|', $$cmdOutLines[0] );
 
     my $line;
     my @records = ();
@@ -149,7 +150,7 @@ sub getIntiators {
     # FC_VM1_SVM1|ESXi248_180|fcp|vmware|51:40:2e:c0:01:7a:e3:fc,51:40:2e:c0:01:7a:e5:b0|
     # FC_VM1_SVM1|ESXi248_181|fcp|vmware|51:40:2e:c0:01:7a:e2:90,51:40:2e:c0:01:7a:e6:b4|
 
-    my $cmd = 'igroup show -fields vserver,igroup,protocol,ostype,initiator';
+    my $cmd             = 'igroup show -fields vserver,igroup,protocol,ostype,initiator';
     my @initiatorGroups = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@initiatorGroups );
 
@@ -174,7 +175,7 @@ sub getPoolInfo {
     # aggr0_VMcDot1_01|VMcDot1-01|VMcDot1-01|17GB|95%|368GB|online|350GB|
     # aggr0_VMcDot1_02|VMcDot1-02|VMcDot1-02|17GB|95%|368GB|online|350GB|
 
-    my $cmd = 'aggr show -fields aggregate,node,availsize,size,state,usedsize,percent-used,raidtype,volcount';
+    my $cmd   = 'aggr show -fields aggregate,node,availsize,size,state,usedsize,percent-used,raidtype,volcount';
     my @aggrs = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@aggrs );
 
@@ -210,7 +211,7 @@ sub getVolumeInfo {
     # FC_VM1_SVM1|FC_VM_SVM1_root|aggr1_VMcDot1_01|online|0GB|0GB|0GB|5%|VMcDot1-01|
     # FC_VM1_SVM1|Mgmt_VMcDot1_01_vol|aggr1_VMcDot1_01|online|4221GB|4222GB|0GB|0%|VMcDot1-01|
 
-    my $cmd = 'vol show -fields volume,aggregate,total,used,available,percent-used,state';
+    my $cmd  = 'vol show -fields volume,aggregate,total,used,available,percent-used,state';
     my @vols = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@vols );
 
@@ -280,7 +281,7 @@ sub getLunInfo {
         if ( defined($lunInfo) ) {
             my $vGroups    = $lunInfo->{VISABLE_GROUPS};
             my $initiators = $lunInfo->{VISABLE_INITIATORS};
-            push( @$vGroups, $record->{'igroup'} );
+            push( @$vGroups,    $record->{'igroup'} );
             push( @$initiators, split( ',', $record->{'initiators'} ) );
         }
     }
@@ -295,7 +296,7 @@ sub getHealthInfo {
     my $ssh    = $self->{ssh};
     my $data   = $self->{data};
 
-    my $cmd = 'system health alert show -fields  alerting-resource,indication-time,perceived-severity,probable-cause,probable-cause-description,corrective-action';
+    my $cmd         = 'system health alert show -fields  alerting-resource,indication-time,perceived-severity,probable-cause,probable-cause-description,corrective-action';
     my @healthLines = split( "\n", $ssh->runCmd($cmd) );
 
     my $healthContent = '';
@@ -320,7 +321,7 @@ sub getEthInfo {
     # VMcDot1-01|e0M|1000|00:a0:98:bc:0e:85|-|healthy|
     # VMcDot1-01|e0a|10000|00:a0:98:bc:0e:75|VMcDot1-02|healthy|
     # VMcDot1-01|e0b|10000|00:a0:98:bc:0e:76|VMcDot1-02|healthy|
-    my $cmd = 'network port show -fields port,mac,speed-oper,remote-device-id,health-status';
+    my $cmd      = 'network port show -fields port,mac,speed-oper,remote-device-id,health-status';
     my @ethLines = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@ethLines );
 
@@ -350,7 +351,7 @@ sub getFcInfo {
     # Node|Adapter|Description|Maximum Speed|Host Port Address|Configured Speed|Adapter WWNN|Adapter WWPN|
     # VMcDot1-01|0e|"Fibre Channel Target Adapter 0e (QLogic 8324 (8362), rev. 2, 16G)"|16|155600|16|50:0a:09:80:80:b3:9e:f7|50:0a:09:82:80:b3:9e:f7|
     # VMcDot1-01|0f|"Fibre Channel Target Adapter 0f (QLogic 8324 (8362), rev. 2, 16G)"|16|165600|auto|50:0a:09:80:80:b3:9e:f7|50:0a:09:81:80:b3:9e:f7|
-    my $cmd = 'fcp adapter show -fields node,adapter,description,speed,max-speed,portaddr,fc-wwnn,fc-wwpn,status';
+    my $cmd      = 'fcp adapter show -fields node,adapter,description,speed,max-speed,portaddr,fc-wwnn,fc-wwpn,status';
     my @hbaLines = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@hbaLines );
 
@@ -381,7 +382,7 @@ sub getIPAddrs {
     # Vserver Name|Vserver Name|Logical Interface Name|Logical Interface Name|Network Address|
     # Cluster|Cluster|VMcDot1-01_clus1|VMcDot1-01_clus1|169.254.96.23|
     # Cluster|Cluster|VMcDot1-01_clus2|VMcDot1-01_clus2|169.254.252.58|
-    my $cmd = 'network interface show -fields server,address,netmask,lif';
+    my $cmd      = 'network interface show -fields server,address,netmask,lif';
     my @ethLines = split( "\n", $ssh->runCmd($cmd) );
     my ( $header, $records ) = $self->parseCmdOut( \@ethLines );
 
