@@ -20,13 +20,14 @@ def genInsRel(db):
     relDestCollection = db['RELATION_INS_NETCONN']
     clusterCollection = db['COLLECT_CLUSTER']
 
-    for ins in relSrcCollection.find({}, {'_OBJ_CATEGORY': 1,
-                                          '_OBJ_TYPE': 1,
-                                          'OS_ID': 1,
-                                          'MGMT_IP': 1,
-                                          'PORT': 1,
-                                          'BIND': 1,
-                                          'PEER': 1}).batch_size(500):
+    for ins in relSrcCollection.find({'_OBJ_CATEGORY': 'INS'},
+                                     {'_OBJ_CATEGORY': 1,
+                                      '_OBJ_TYPE': 1,
+                                      'OS_ID': 1,
+                                      'MGMT_IP': 1,
+                                      'PORT': 1,
+                                      'BIND': 1,
+                                      'PEER': 1}).batch_size(500):
         try:
             # print(dumps(ins))
             refIns = []
@@ -132,12 +133,14 @@ def genDBInsRel(db):
     relSrcCollection = db['RELATION_INS_NETCONN']
     clusterCollection = db['COLLECT_CLUSTER']
 
-    for db in relSrcCollection.find({}, {'_OBJ_CATEGORY': 1,
-                                         '_OBJ_TYPE': 1,
-                                         'OS_ID': 1,
-                                         'MGMT_IP': 1,
-                                         'PORT': 1,
-                                         'PEER': 1}).batch_size(500):
+    for db in relSrcCollection.find({'_OBJ_CATEGORY': 'DBINS'},
+                                    {'_OBJ_CATEGORY': 1,
+                                     '_OBJ_TYPE': 1,
+                                     'OS_ID': 1,
+                                     'MGMT_IP': 1,
+                                     'PORT': 1,
+                                     'BIND': 1,
+                                     'PEER': 1}).batch_size(500):
         try:
             # print(dumps(ins))
             # 计算DB调用哪个DB集群
