@@ -657,7 +657,7 @@ class RunNode:
 
             self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
             self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
-            self.writeNodeLog("======[{}]{}:{} Ended, duration:{:.2f} second ======\n".format(self.id, self.host, self.port, nodeConsumeTime))
+            self.writeNodeLog("======[{}]{}:{} executed by {}://{}@{}:{} dnded, duration:{:.2f} second ======\n".format(self.id, self.host, self.port, self.type, self.username, self.host, self.protocolPort, nodeConsumeTime))
 
             # 创建带时间戳的日志文件名
             finalLogPathWithTime = logPathWithTime
