@@ -81,12 +81,12 @@ def saveAppConnData(db, existsCollections, data):
             connInfo['BIND'] = []
             connInfo['PEER'] = []
 
-        primaryKey = {'OS_ID': connInfo['OS_ID'], 'MGMT_IP': connInfo['MGMT_IP'], 'PORT': connInfo['PORT']}
+        primaryKey = {'MGMT_IP': connInfo['MGMT_IP'], 'PORT': connInfo['PORT']}
         collection = db['RELATION_INS_NETCONN']
         # BIND和PEER都是简单数组，建立索引后，可以使用$in操作符进行配合，结合$elemMatch可以过滤命中的BIND和PEER
         collection.replace_one(primaryKey, connInfo, upsert=True)
         if 'RELATION_INS_NETCONN' not in existsCollections:
-            collection.create_index([('OS_ID', 1), ('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
+            collection.create_index([('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
             collection.create_index([('BIND', 1)], name='idx_bind')
             collection.create_index([('PEER', 1)], name='idx_peer')
             collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)

@@ -111,17 +111,16 @@ def genInsRel(db):
             else:
                 print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
 
-            insCollection.update_one({'OS_ID': ins['OS_ID'],
-                                      'MGMT_IP': ins['MGMT_IP'],
-                                      'PORT': ins['PORT']},
-                                     {'$set':
-                                      {
-                                          'BELONG_CLUSTER': belongCls,
-                                          'REF_DB': refDbs,
-                                          'REF_INS': refIns,
-                                          'REF_CLUSTER': refCls
-                                      }
-                                      })
+            insCollection.update({'MGMT_IP': ins['MGMT_IP'],
+                                  'PORT': ins['PORT']},
+                                 {'$set':
+                                  {
+                                      'BELONG_CLUSTER': belongCls,
+                                      'REF_DB': refDbs,
+                                      'REF_INS': refIns,
+                                      'REF_CLUSTER': refCls
+                                  }
+                                  })
 
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
@@ -198,8 +197,7 @@ def genDBInsRel(db):
             else:
                 print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(db.get('_OBJ_CATEGORY'), db.get('_OBJ_TYPE'), db.get('MGMT_IP'), db.get('PORT')))
 
-            dbCollection.update_one({'OS_ID': db['OS_ID'],
-                                     'MGMT_IP': db['MGMT_IP'],
+            dbCollection.update_one({'MGMT_IP': db['MGMT_IP'],
                                      'PORT': db['PORT']},
                                     {'$set':
                                      {
