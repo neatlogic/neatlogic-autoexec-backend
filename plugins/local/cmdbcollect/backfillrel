@@ -111,16 +111,16 @@ def genInsRel(db):
             else:
                 print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
 
-            insCollection.update({'MGMT_IP': ins['MGMT_IP'],
-                                  'PORT': ins['PORT']},
-                                 {'$set':
-                                  {
-                                      'BELONG_CLUSTER': belongCls,
-                                      'REF_DB': refDbs,
-                                      'REF_INS': refIns,
-                                      'REF_CLUSTER': refCls
-                                  }
-                                  })
+            insCollection.update_many({'MGMT_IP': ins['MGMT_IP'],
+                                       'PORT': ins['PORT']},
+                                      {'$set':
+                                       {
+                                           'BELONG_CLUSTER': belongCls,
+                                           'REF_DB': refDbs,
+                                           'REF_INS': refIns,
+                                           'REF_CLUSTER': refCls
+                                       }
+                                       })
 
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
