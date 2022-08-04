@@ -20,7 +20,9 @@ def genInsRel(db):
     relDestCollection = db['RELATION_INS_NETCONN']
     clusterCollection = db['COLLECT_CLUSTER']
 
-    for ins in relSrcCollection.find({}, {'OS_ID': 1,
+    for ins in relSrcCollection.find({}, {'_OBJ_CATEGORY': 1,
+                                          '_OBJ_TYPE': 1,
+                                          'OS_ID': 1,
                                           'MGMT_IP': 1,
                                           'PORT': 1,
                                           'BIND': 1,
@@ -131,7 +133,9 @@ def genDBInsRel(db):
     relSrcCollection = db['RELATION_INS_NETCONN']
     clusterCollection = db['COLLECT_CLUSTER']
 
-    for db in relSrcCollection.find({}, {'OS_ID': 1,
+    for db in relSrcCollection.find({}, {'_OBJ_CATEGORY': 1,
+                                         '_OBJ_TYPE': 1,
+                                         'OS_ID': 1,
                                          'MGMT_IP': 1,
                                          'PORT': 1,
                                          'PEER': 1}).batch_size(500):
@@ -165,7 +169,7 @@ def genDBInsRel(db):
                                }
                     refCls.append(refInfo)
             else:
-                print("WARN: Object(DB {}:{}) Key 'PEER' not defined.".format(db.get('MGMT_IP'), db.get('PORT')))
+                print("WARN: Object({}/{} {}:{}) Key 'PEER' not defined.".format(db.get('_OBJ_CATEGORY'), db.get('_OBJ_TYPE'), db.get('MGMT_IP'), db.get('PORT')))
 
             # 计算DB属于哪个集群
             bind = db.get('BIND')
@@ -192,7 +196,7 @@ def genDBInsRel(db):
                                 }
                     belongCls.append(belongCl)
             else:
-                print("WARN: Object(DB {}:{}) Key 'BIND' not defined.".format(db.get('MGMT_IP'), db.get('PORT')))
+                print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(db.get('_OBJ_CATEGORY'), db.get('_OBJ_TYPE'), db.get('MGMT_IP'), db.get('PORT')))
 
             dbCollection.update_one({'OS_ID': db['OS_ID'],
                                      'MGMT_IP': db['MGMT_IP'],
