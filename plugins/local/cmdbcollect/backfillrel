@@ -23,6 +23,7 @@ def genInsRel(db):
     for ins in relSrcCollection.find({}, {'OS_ID': 1,
                                           'MGMT_IP': 1,
                                           'PORT': 1,
+                                          'BIND': 1,
                                           'PEER': 1}).batch_size(500):
         try:
             # print(dumps(ins))
@@ -79,6 +80,7 @@ def genInsRel(db):
                     refCls.append(refInfo)
             else:
                 print("WARN: Object({}/{} {}:{}) Key 'PEER' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
+
             # 计算属于哪个集群
             bind = ins.get('BIND')
             if bind is not None:
@@ -104,20 +106,21 @@ def genInsRel(db):
                                 'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
                                 }
                     belongCls.append(belongCl)
-
-                insCollection.update_one({'OS_ID': ins['OS_ID'],
-                                          'MGMT_IP': ins['MGMT_IP'],
-                                          'PORT': ins['PORT']},
-                                         {'$set':
-                                         {
-                                             'BELONG_CLUSTER': belongCls,
-                                             'REF_DB': refDbs,
-                                             'REF_INS': refIns,
-                                             'REF_CLUSTER': refCls
-                                         }
-                })
             else:
                 print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
+
+            insCollection.update_one({'OS_ID': ins['OS_ID'],
+                                      'MGMT_IP': ins['MGMT_IP'],
+                                      'PORT': ins['PORT']},
+                                     {'$set':
+                                      {
+                                          'BELONG_CLUSTER': belongCls,
+                                          'REF_DB': refDbs,
+                                          'REF_INS': refIns,
+                                          'REF_CLUSTER': refCls
+                                      }
+                                      })
+
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
@@ -135,9 +138,11 @@ def genDBInsRel(db):
         try:
             # print(dumps(ins))
             # 计算DB调用哪个DB集群
+            refCls = []
+            belongCls = []
+
             peer = db.get('PEER')
             if peer is not None:
-                refCls = []
                 for cluster in clusterCollection.find({'MEMBER_PEER':
                                                        {'$in': peer}
                                                        }, {'UNIQUE_NAME': 1,
@@ -161,10 +166,10 @@ def genDBInsRel(db):
                     refCls.append(refInfo)
             else:
                 print("WARN: Object(DB {}:{}) Key 'PEER' not defined.".format(db.get('MGMT_IP'), db.get('PORT')))
+
             # 计算DB属于哪个集群
             bind = db.get('BIND')
             if bind is not None:
-                belongCls = []
                 for cluster in clusterCollection.find({'MEMBER_PEER':
                                                        {'$in': bind}
                                                        }, {'UNIQUE_NAME': 1,
@@ -186,18 +191,18 @@ def genDBInsRel(db):
                                 'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
                                 }
                     belongCls.append(belongCl)
-
-                dbCollection.update_one({'OS_ID': db['OS_ID'],
-                                        'MGMT_IP': db['MGMT_IP'],
-                                         'PORT': db['PORT']},
-                                        {'$set':
-                                        {
-                                            'BELONG_CLUSTER': belongCls,
-                                            'REF_CLUSTER': refCls
-                                        }
-                })
             else:
                 print("WARN: Object(DB {}:{}) Key 'BIND' not defined.".format(db.get('MGMT_IP'), db.get('PORT')))
+
+            dbCollection.update_one({'OS_ID': db['OS_ID'],
+                                     'MGMT_IP': db['MGMT_IP'],
+                                     'PORT': db['PORT']},
+                                    {'$set':
+                                     {
+                                         'BELONG_CLUSTER': belongCls,
+                                         'REF_CLUSTER': refCls
+                                     }
+                                     })
         except Exception as ex:
             print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
 
