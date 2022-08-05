@@ -6,8 +6,17 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "拷贝远程OS的文件到本地并备份到文件服务",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
+        {
+            "opt": "backupdir",
+            "name": "备份存放目录",
+            "help": "如：/tmp/config",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
         {
             "opt": "maxsize",
             "name": "最大Size",
@@ -29,7 +38,7 @@
     ],
     "argument": {
         "name": "需备份文件",
-        "help": "需要备份的文件",
+        "help": "需要备份的文件表达式，忽略目录只会备份文件。如：/opt/tagent/conf/*.conf,/tmp/*",
         "type": "text",
         "count": 0,
         "isConst": "false",
@@ -37,5 +46,12 @@
         "required": "false",
         "validate": ""
     },
-    "output": []
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "文件备份路径",
+            "help": "文件备份路径",
+            "type": "json"
+        }
+    ]
 }

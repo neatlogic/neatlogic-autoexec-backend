@@ -127,5 +127,12 @@
             "defaultValue": "0"
         }
     ],
-    "output": []
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "文件备份路径",
+            "help": "文件备份路径",
+            "type": "json"
+        }
+    ]
 }

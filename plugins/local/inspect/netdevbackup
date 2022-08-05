@@ -29,6 +29,7 @@ sub storeFile {
     print($fh $result);
     close($fh);
     print("INFO::save backup file: $fileName done.\n");
+    return $fileName;
 }
 
 sub defindVendor {
@@ -149,8 +150,13 @@ sub main {
     }
     else {
         my $rsConfig = $sep->backup( $fullPageCmd, $configCmd, $exitCmd );
-        storeFile( $backupdir, $host, $rsConfig );
+        my $filePath = storeFile( $backupdir, $host, $rsConfig );
         $sep->close($exitCmd);
+
+        my $out = {};
+        $out->{DATA} = $filePath;
+        AutoExecUtils::saveOutput($out);
+
         print("INFO:: $vendor config backup success.\n");
         exit(0);
     }
