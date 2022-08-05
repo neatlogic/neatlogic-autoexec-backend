@@ -77,8 +77,8 @@ sub main {
             'PK'               => CollectObjCat->getPK($objCat),
             'INDEX_FIELDS'     => CollectObjCat->getIndexFields($objCat),
             '_OBJ_CATEGORY'    => CollectObjCat->get('CLUSTER'),
-            '_OBJ_TYPE'        => 'LoadBlancer-VS',
-            'CLUSTER_MODE'     => 'LoadBlance',
+            '_OBJ_TYPE'        => 'LoadBalancer-VS',
+            'CLUSTER_MODE'     => 'LoadBalance',
             'CLUSTER_SOFTWARE' => 'A10',
             'CLUSTER_VERSION'  => $data->{VERSION},
             'HOST_ON'          => {
