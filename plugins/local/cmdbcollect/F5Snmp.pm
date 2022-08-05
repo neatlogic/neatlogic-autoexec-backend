@@ -202,7 +202,7 @@ sub collect {
     my $version = $devInfo->{PRODUCT_NAME} . ' ' . $devInfo->{PRODUCT_VERSION} . ' Build ' . $devInfo->{PRODUCT_BUILD} . ' ' . $devInfo->{PRODUCT_EDITION};
 
     $devInfo->{VERSION}       = $version;
-    $devInfo->{_OBJ_CATEGORY} = 'LOADBLANCER';
+    $devInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
     $devInfo->{_OBJ_TYPE}     = 'F5';
 
     my $vsArray = $self->_getVS();

@@ -221,7 +221,7 @@ sub collect {
     my ($self) = @_;
 
     my $devInfo = $self->_getScalar();
-    $devInfo->{_OBJ_CATEGORY} = 'LOADBLANCER';
+    $devInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
     $devInfo->{_OBJ_TYPE}     = 'A10';
 
     #$devInfo->{MGMT_IP} =  $nodeIp;
