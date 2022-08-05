@@ -12,24 +12,27 @@ use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
-    print("$pname --node <node> --protocol <protocol> --backupdir <backupdir path> --vendor <vendor> --timeout <timeout> \n");
+    print("$pname --node <node> --protocol <protocol> --vendor <vendor> --timeout <timeout> \n");
     exit(1);
 }
 
 sub storeFile {
-    my ( $path, $host, $result ) = @_;
-    my $time = `date +%Y-%m-%d_%H:%M:%S`;
-    chomp($time);
-    my $dir = File::Spec->catfile( $path, $host );
-    if ( !-e $dir ) {
-        mkdir $dir;
+    my ( $host, $result ) = @_;
+    my $jobPath = $ENV{'JOB_PATH'};
+    $jobPath = File::Spec->catfile($jobPath ,'output');
+    if ( !-e $jobPath ) {
+        mkdir $jobPath;
     }
-    my $fileName = File::Spec->catfile( $dir, "$time.txt" );
+    my $fileName = File::Spec->catfile( $jobPath, "$host.txt" );
     open( my $fh, '>', $fileName ) or die "can't open $fileName $!";
     print($fh $result);
     close($fh);
     print("INFO::save backup file: $fileName done.\n");
-    return $fileName;
+    my $res = {};
+    $res->{'fullPath'} = $fileName ; 
+    $res->{'serverPath'} = "$host.txt";
+    $res->{'fileName'} = "$host.txt";
+    return $res;
 }
 
 sub defindVendor {
@@ -62,7 +65,6 @@ sub main {
         'node:s'      => \$node,
         'protocol:s'  => \$protocol,
         'vendor:s'    => \$vendor,
-        'backupdir:s' => \$backupdir,
         'timeout:i'   => \$timeout,
         'v|verbose=i' => \$isVerbose,
         'exitCmd:s'   => \$exitCmd
@@ -83,21 +85,6 @@ sub main {
 
     if ( not defined($vendor) or $vendor eq '' ) {
         print("ERROR: Must define vendor by option --vendor.\n");
-        $hasOptErr = 1;
-    }
-
-    if ( not defined($backupdir) or $backupdir eq '' ) {
-        print("ERROR: Must define backup directory by option --backupdir.\n");
-        $hasOptErr = 1;
-    }
-
-    if ( $backupdir =~ /\/\.\.\// or $backupdir =~ /^\.\.\// or $backupdir =~ /\/\.\.$/ ) {
-        print("ERROR: backup directory path can not has parent dir opertor:\"..\".\n");
-        $hasOptErr = 1;
-    }
-
-    if ( !-d $backupdir ) {
-        print("ERROR: backup directory not exists.\n");
         $hasOptErr = 1;
     }
 
@@ -150,13 +137,11 @@ sub main {
     }
     else {
         my $rsConfig = $sep->backup( $fullPageCmd, $configCmd, $exitCmd );
-        my $filePath = storeFile( $backupdir, $host, $rsConfig );
+        my $filePath = storeFile( $host, $rsConfig );
         $sep->close($exitCmd);
-
         my $out = {};
-        $out->{DATA} = $filePath;
+        $out->{DATA} = [$filePath];
         AutoExecUtils::saveOutput($out);
-
         print("INFO:: $vendor config backup success.\n");
         exit(0);
     }

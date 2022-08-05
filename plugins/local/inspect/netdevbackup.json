@@ -2,7 +2,7 @@
     "opDesc": "网路设备配置备份",
     "opType": "runner_target",
     "typeName": "BACKUP",
-    "riskName": "HIGH",
+    "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "网路设备配置备份",
@@ -64,15 +64,6 @@
                     }
                 ]
             },
-            "defaultValue": ""
-        },
-        {
-            "opt": "backupdir",
-            "name": "备份存放目录",
-            "help": "如：/tmp/config,目录不存在会自动创建",
-            "type": "text",
-            "required": "true",
-            "validate": "",
             "defaultValue": ""
         },
         {

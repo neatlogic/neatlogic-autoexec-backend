@@ -16,14 +16,13 @@ from paramiko.ssh_exception import SSHException
 
 
 class RemoteConfBackup:
-    def __init__(self, nodeInfo, maxSize,backupdir):
+    def __init__(self, nodeInfo, maxSize):
         self.nodeInfo = nodeInfo
-        self.backupdir = backupdir
         self.maxSize = maxSize
         self.jobId = os.getenv('AUTOEXEC_JOBID')
         self.filePatterns = []
         self.filePaths = []
-        self.outputPaths =[]
+        self.outputFiles =[]
         self.output = ''
         self.IS_FAIELD = False
         self.remoteOsType = 'Linux'
@@ -143,19 +142,24 @@ class RemoteConfBackup:
       
         lastindex = remotePath.rindex('/')
         path = remotePath[:lastindex]
-        dirname = os.path.basename(path)
+        filename = os.path.basename(remotePath)
         savePath = savePath + '/' + path 
 
         if not os.path.exists(savePath):
             os.makedirs(savePath)
         savePath = savePath +'/'+ os.path.basename(remotePath)
-         
+
+        fileJson = {}
+        fileJson['fullPath'] = os.environ.get('JOB_PATH')+'/'+savePath
+        fileJson['fileName'] = filename
+        fileJson['serverPath'] = path
+ 
         if protocol == 'tagent':
             try:
                 tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
                 status = tagent.download(username, remotePath, savePath)
                 if status == 0:
-                    self.addOutputPath(savePath)
+                    self.addOutputFiles(fileJson)
                     print('FINEST: Download file:{} success.\n'.format(remotePath), end='')
                 else:
                     self.IS_FAIELD = True
@@ -177,7 +181,7 @@ class RemoteConfBackup:
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
                 sftp = paramiko.SFTPClient.from_transport(scp)
                 sftp.get(remotePath, savePath)
-                self.addOutputPath(savePath)
+                self.addOutputFiles(fileJson)
                 print('FINEST: Download file:{} success.\n'.format(remotePath), end='')
             except Exception as err:
                 self.IS_FAIELD = True
@@ -187,25 +191,25 @@ class RemoteConfBackup:
         if os.path.getsize(savePath) > self.maxSize * 1024:
             print("ERROR: File {} exceed maxSize:{}K, store file failed.\n".format(remotePath, self.maxSize), end='')
 
-
-    def storeFile(self, remotePath, savePath):
-        # use server api save file to server
-        # 跟文件服务进行对接，计算MD5等
-        pass
-
     def addBackupFile(self, filePath):
         self.filePaths.append(filePath)
 
     def addBackupPattern(self, filePath):
         self.filePatterns.append(filePath)
 
-    def addOutputPath(self,filePath):
-        if( filePath not in self.outputPaths):
-            self.outputPaths.append(filePath)
-
+    def addOutputFiles(self,fileJson):
+        fullPath = fileJson['fullPath']
+        exist = 0 
+        for fi in( self.outputFiles):
+            if( fullPath in fi ):
+                exist = 1
+                break 
+        if( exist == 0):
+            self.outputFiles.append(fileJson)
+            
     def backup(self):
         host = self.nodeInfo['host']
-        localDir = '{}/{}'.format(self.backupdir,host)
+        localDir = 'output/{}'.format(host)
     
         for pattern in (self.filePatterns): 
             self.getRemoteFilePath(pattern)
@@ -232,7 +236,6 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--backupdir', default='', help='backup dir')
     parser.add_argument('--maxsize', default=32, help='Maximum file size, unit:K')
     parser.add_argument('--timeout', default=10, help='Timeout value')
     parser.add_argument('remotefiles', nargs=argparse.REMAINDER, help="Remote files to backup")
@@ -247,15 +250,6 @@ if __name__ == "__main__":
         timeOut = 5
 
     node = args.node
-    backupdir = args.backupdir
-    if(backupdir == None or backupdir == ''):
-        print("ERROR: backupdir path not defined.\n", end='')
-        exit(2)
-
-    if(not os.path.exists(backupdir)):
-        print("ERROR: backupdir path not exists.\n", end='')
-        exit(2)
-
     remoteFilePatterns = args.remotefiles
     if len(remoteFilePatterns) == 0:
         print("ERROR: Remote files not defined.\n", end='')
@@ -277,7 +271,7 @@ if __name__ == "__main__":
 
         hasError = False
 
-        confBackup = RemoteConfBackup(nodeInfo, maxSize,backupdir)
+        confBackup = RemoteConfBackup(nodeInfo, maxSize)
 
         ip = nodeInfo['host']
         port = nodeInfo['protocolPort']
@@ -303,7 +297,7 @@ if __name__ == "__main__":
             confBackup.backup()
 
             out = {}
-            out['DATA'] = confBackup.outputPaths
+            out['DATA'] = confBackup.outputFiles
             AutoExecUtils.saveOutput(out)
 
             if (confBackup.IS_FAIELD):

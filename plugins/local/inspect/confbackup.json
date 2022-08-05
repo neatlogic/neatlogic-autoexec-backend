@@ -9,15 +9,6 @@
     "enabled": 1,
     "option": [
         {
-            "opt": "backupdir",
-            "name": "备份存放目录",
-            "help": "如：/tmp/config",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
             "opt": "maxsize",
             "name": "最大Size",
             "help": "最大文件大小，单位:K",
