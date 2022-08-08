@@ -294,22 +294,21 @@ sub parse {
             $o->{was_slash} = 1; # do not print current slash, but wait for the next char
             next;
 
-        } elsif ($c eq '*') {
-            next if ($o->{mode} == $LINE_COMMENT);
-
-            if ($o->{mode} == $BLOCK_COMMENT) {
-                $o->{was_asterisk} = 1;
-                next;
-            } else {
-                if ($o->{was_slash}) {
-                    $o->{was_slash} = undef;
-                    $o->{previous_mode} = $o->{mode};
-                    $o->{mode} = $BLOCK_COMMENT;
-                    next;
-                }
-
-                process_char($o);
-            }
+#        } elsif ($c eq '*') {
+#            next if ($o->{mode} == $LINE_COMMENT);
+#            if ($o->{mode} == $BLOCK_COMMENT) {
+#                $o->{was_asterisk} = 1;
+#                next;
+#            } else {
+#                if ($o->{was_slash}) {
+#                    $o->{was_slash} = undef;
+#                    $o->{previous_mode} = $o->{mode};
+#                    $o->{mode} = $BLOCK_COMMENT;
+#                    next;
+#                }
+#
+#                process_char($o);
+#            }
 
         } elsif ($c eq '`') {
             next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
