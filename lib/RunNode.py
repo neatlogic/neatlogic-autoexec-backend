@@ -34,10 +34,66 @@ import OutputStore
 
 
 class LogFile:
-    def __init__(self, fileHandle):
+    def __init__(self, fileHandle, runNode):
         self.foreLine = b''
         self.fileHandle = fileHandle
+        self.runNode = runNode
         self.srcEncoding = None
+        self.failPats = []
+        self.failPatsOp = 'and'
+        self.failExpPat = None
+
+    def setFailPattern(self, operator, patOpts, exPatOpt):
+        self.failPatsOp = operator
+        for reOpt in patOpts:
+            if reOpt is not None and reOpt != '':
+                try:
+                    self.failPats.append(re.compile(reOpt.get('value')))
+                except Exception as ex:
+                    self.write("WARN: Log fail pattern not a regexp:{}, {}, ignore.\n".format(reOpt.get('value'), str(ex)))
+        try:
+            if exPatOpt is not None and exPatOpt != '':
+                self.failExpPat = re.compile(exPatOpt)
+        except Exception as ex:
+            self.write("WARN: Log fail except pattern not a regexp:{}, {}, ignore.\n".format(exPatOpt, str(ex)))
+
+    def clearFailPattern(self):
+        self.failPats = []
+        self.failPatsOp = 'and'
+        self.failExpPat = None
+
+    def checkFailLog(self, line):
+        if not self.failPats:
+            return False
+
+        if self.failExpPat is not None:
+            if self.failExpPat.search(line):
+                return False
+
+        if self.failPatsOp == 'and':
+            matched = True
+            for pat in self.failPats:
+                if not pat.search(line):
+                    matched = False
+                    break
+            if matched:
+                self.runNode.hasFailLog = True
+                pats = str(self.failPats[0])
+                for pat in self.failPats[1:]:
+                    pats = pats + 'and ' + pat
+                timeBytes = Utils.getTimeStr().encode()
+                self.fileHandle.write(timeBytes + 'ERROR: Fail pattern {} matched for pre line.\n'.format(pats).encode())
+        else:
+            matched = False
+            for pat in self.failPats:
+                if pat.search(line):
+                    self.runNode.hasFailLog = True
+                    matched = True
+                    timeBytes = Utils.getTimeStr().encode()
+                    self.fileHandle.write(timeBytes + 'ERROR: Fail pattern {} matched for pre line.\n'.format(pat).encode())
+                    break
+
+        return matched
 
     def write(self, text):
         if not text:
@@ -45,12 +101,6 @@ class LogFile:
 
         if not isinstance(text, bytes):
             text = text.encode()
-
-        if self.srcEncoding is None:
-            detectInfo = chardet.detect(text)
-            detectEnc = detectInfo['encoding']
-            if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
-                self.srcEncoding = detectEnc
 
         timeBytes = Utils.getTimeStr().encode()
         text = self.foreLine + text
@@ -60,29 +110,46 @@ class LogFile:
         try:
             while True:
                 end = text.index(b"\n", start)
+                line = text[start:end+1]
+                decodeLine = None
                 if self.srcEncoding is None:
-                    self.fileHandle.write(timeBytes + text[start:end+1])
-                else:
-                    line = text[start:end+1]
+                    detectInfo = chardet.detect(text)
+                    detectEnc = detectInfo['encoding']
+                    if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
+                        self.srcEncoding = detectEnc
+                    else:
+                        decodeLine = line.decode()
+                if self.srcEncoding is not None:
                     try:
-                        line = line.decode(self.srcEncoding).encode('utf-8')
-                        self.fileHandle.write(timeBytes + line)
+                        decodeLine = line.decode(self.srcEncoding)
+                        line = decodeLine.encode('utf-8')
                     except:
-                        self.fileHandle.write(timeBytes + line)
+                        pass
+
+                self.fileHandle.write(timeBytes + line)
                 start = end + 1
+
+                self.checkFailLog(decodeLine)
+
         except ValueError:
             if start >= 0:
                 self.foreLine = text[start:]
 
     def close(self):
         if self.foreLine != b'':
+            decodeLine = None
             timeBytes = Utils.getTimeStr().encode()
             if self.srcEncoding is not None:
                 try:
-                    self.foreLine = self.foreLine.decode(self.srcEncoding).encode('utf-8')
-                    self.fileHandle.write(timeBytes + self.foreLine)
+                    decodeLine = self.foreLine.decode(self.srcEncoding)
+                    self.foreLine = decodeLine.encode('utf-8')
                 except:
-                    self.fileHandle.write(timeBytes + self.foreLine)
+                    pass
+            else:
+                decodeLine = self.foreLine.decode()
+            self.fileHandle.write(timeBytes + self.foreLine)
+
+            self.checkFailLog(decodeLine)
 
         self.fileHandle.close()
 
@@ -105,6 +172,7 @@ class RunNode:
         self.node = node
         self.warnCount = 0
         self.isAborting = False
+        self.hasFailLog = False
 
         self.tagent = None
         self.childPid = None
@@ -179,20 +247,17 @@ class RunNode:
         self._loadNodeStatus()
         self._loadOutput()
 
+        if self.logHandle is None:
+            # 如果文件存在，则删除重建
+            if os.path.exists(self.logPath):
+                os.unlink(self.logPath)
+            self.logHandle = LogFile(open(self.logPath, 'wb').detach(), self)
+
     def __del__(self):
         if self.logHandle is not None:
             self.logHandle.close()
 
     def writeNodeLog(self, msg):
-        logHandle = self.logHandle
-
-        if logHandle is None:
-            # 如果文件存在，则删除重建
-            if os.path.exists(self.logPath):
-                os.unlink(self.logPath)
-
-            logHandle = LogFile(open(self.logPath, 'wb').detach())
-            self.logHandle = logHandle
         if isinstance(msg, bytes):
             if msg.startswith(b'ERROR:') or msg.startswith(b'WARN:'):
                 self.warnCount = self.warnCount + 1
@@ -200,7 +265,7 @@ class RunNode:
             if msg.startswith('ERROR:') or msg.startswith('WARN:'):
                 self.warnCount = self.warnCount + 1
 
-        logHandle.write(msg)
+        self.logHandle.write(msg)
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
@@ -484,6 +549,8 @@ class RunNode:
                             envValue = op.options['value']
                             self.context.setEnv(envName, envValue)
                             self.context.exportEnv(envName)
+                        elif op.opSubName == 'failkeys':
+                            self.logHandle.setFailPattern(op.options.get('operator'), op.arguments, op.options.get('exclude'))
                     except Exception as ex:
                         ret = 1
                         self.writeNodeLog('ERROR: Execute native plugin {} failed, {}\n'.format(op.opFullName, str(ex)))
@@ -528,7 +595,7 @@ class RunNode:
 
         hintKey = 'FINEST:'
         opFinalStatus = NodeStatus.succeed
-        if ret != 0:
+        if ret != 0 or self.hasFailLog:
             if op.failIgnore:
                 hasIgnoreFail = 1
                 opFinalStatus = NodeStatus.ignored
@@ -603,6 +670,8 @@ class RunNode:
             self.logPathWithTime = logPathWithTime
 
             self.updateNodeStatus(NodeStatus.running)
+
+            self.logHandle.clearFailPattern()
 
             for op in ops:
                 if self.context.goToStop:
@@ -1041,8 +1110,8 @@ class RunNode:
                     scriptFile = None
                     sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IRWXU)
 
-                    #remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
-                    #remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
+                    # remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
+                    # remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
@@ -1102,7 +1171,7 @@ class RunNode:
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 ssh = None
                 try:
-                    #ret = 0
+                    # ret = 0
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     ssh.connect(self.host, self.protocolPort, self.username, self.password)
