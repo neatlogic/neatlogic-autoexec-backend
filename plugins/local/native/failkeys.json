@@ -1,0 +1,50 @@
+{
+    "opDesc": "错误日志检测",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "在某些特殊情形下，需要对输出日志按行进行错误检测",
+    "enabled": 1,
+    "option": [{
+            "opt": "operator",
+            "name": "操作符",
+            "help": "是否同时满足多个正则表达式的",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "and",
+                        "value": "and"
+                    },
+                    {
+                        "text": "or",
+                        "value": "or"
+                    }
+                ]
+            },
+            "defaultValue": "and"
+        },
+        {
+            "opt": "exclude",
+            "name": "排除正则",
+            "help": "排除匹配此正则表达式的行",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "检测正则",
+        "help": "一个或多个错误检测的正则表达式",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }
+}
