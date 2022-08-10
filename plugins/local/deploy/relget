@@ -76,11 +76,6 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
-    if ( not defined($buildNo) or $buildNo eq '' ) {
-        $optionError = 1;
-        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
-    }
-
     if ( not defined($srcEnvPath) or $srcEnvPath eq '' ) {
         $optionError = 1;
         print("ERROR: Source Env Path not defined by option --srcenvpath\n");
@@ -107,6 +102,12 @@ sub main {
         proxyToUrl => $proxyToUrl
     };
 
+    my $versionInfo = {
+        version => $version,
+        buildNo => $buildNo,
+        status  => 'releasing'
+    };
+
     my $serverAdapter = ServerAdapter->new();
 
     if ( defined($proxyToUrl) and $proxyToUrl ne '' ) {
@@ -114,13 +115,11 @@ sub main {
         #Get build resource from other site
         print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
 
-        #my $verInfo       = $serverAdapter->getVer( $deployEnv, $version );
         my $isMirror = 0;
         eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };
         if ($@) {
             $hasError = $hasError + 1;
             print($@);
-            print("ERROR: $pname $envPath $version failed.\n");
         }
     }
     else {
@@ -136,43 +135,51 @@ sub main {
         my $srcEnvName = $srcEnvInfo->{envName};
 
         my $verInfo = $serverAdapter->getEnvVer( $srcEnvInfo, $version );
+
         if ( $verInfo->{status} ne 'released' ) {
             print("ERROR: $srcEnvPath version $version not released to env:$srcEnvName.\n");
             return 3;
         }
 
-        $buildNo = $verInfo->{buildNo};
+        $buildNo                = $verInfo->{buildNo};
+        $versionInfo->{buildNo} = $buildNo;
+        $versionInfo->{status}  = 'releasing';
+
         my $srcBuildPath  = "$dataPath/$sysId/$moduleId/artifact/$version/build/$buildNo";
         my $destBuildPath = $deployEnv->{BUILD_ROOT} . "/$buildNo";
         if ( defined($destDir) and $destDir ne '' ) {
             $destBuildPath = "$destBuildPath/$destDir";
         }
 
-        my $subDestBuildPath = "$destBuildPath/";
-        if ( scalar(@subDirs) == 0 ) {
-            foreach my $subDir ( globs("$srcBuildPath/*") ) {
-                $deployUtils->copyTree( $subDir, $subDestBuildPath );
+        $serverAdapter->updateVer( $deployEnv, $versionInfo );
+        eval {
+            my $subDestBuildPath = "$destBuildPath/";
+            if ( scalar(@subDirs) == 0 ) {
+                foreach my $subDir ( globs("$srcBuildPath/*") ) {
+                    $deployUtils->copyTree( $subDir, $subDestBuildPath );
+                }
             }
-        }
-        else {
-            foreach my $subDir (@subDirs) {
-                my $subSrcBuildPath = "$srcBuildPath/$subDir";
-                $deployUtils->copyTree( $subSrcBuildPath, $subDestBuildPath );
+            else {
+                foreach my $subDir (@subDirs) {
+                    my $subSrcBuildPath = "$srcBuildPath/$subDir";
+                    $deployUtils->copyTree( $subSrcBuildPath, $subDestBuildPath );
+                }
             }
+        };
+        if ($@) {
+            $hasError = $hasError + 1;
+            print($@);
+            $versionInfo->{status} = 'release-failed';
+            $serverAdapter->updateVer( $deployEnv, $versionInfo );
         }
+
+        $versionInfo->{status} = 'released';
+        $serverAdapter->updateVer( $deployEnv, $versionInfo );
     }
 
     $deployEnv->{BUILD_NO} = $buildNo;
 
-    my $versionInfo = {
-        version => $version,
-        buildNo => $buildNo,
-        status  => 'releasing'
-    };
-
     if ( $hasError == 0 ) {
-        $serverAdapter->updateVer( $deployEnv, $versionInfo );
-
         my $envName = $deployEnv->{ENV_NAME};
         print("INFO: Try to release(sync) $version build:$buildNo to $envName...\n");
         $serverAdapter->releaseVerToEnv( $deployEnv, 'releasing' );
@@ -180,23 +187,22 @@ sub main {
         eval {
             my $buildUtils = BuildUtils->new();
             $buildUtils->release( $deployEnv, $version, $buildNo );
+            $serverAdapter->releaseVerToEnv( $deployEnv, 'released' );
+            print("INFO: Release(sync) $version build:$buildNo to $envName success.\n");
         };
         if ($@) {
             $hasError = 1;
-            print("ERRROR: $@\n");
+            print("ERROR: $@\n");
+            $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
         }
     }
 
     if ( $hasError == 0 ) {
-        $versionInfo->{status} = 'released';
         print("FINEST: $pname $envPath $version success.\n");
     }
     else {
-        $versionInfo->{status} = 'release-failed';
         print("ERROR: $pname $envPath $version failed.\n");
     }
-
-    $serverAdapter->updateVer( $deployEnv, $versionInfo );
 
     if ( defined( $deployEnv->{BUILD_ROOT} ) and $deployEnv->{BUILD_ROOT} ne '' ) {
         AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo", BUILD_PATH => "$ENV{BUILD_ROOT}/$buildNo" } );

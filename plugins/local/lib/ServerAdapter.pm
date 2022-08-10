@@ -919,23 +919,43 @@ sub getBuild {
     my ( $self, $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, $subDirs, $cleanSubDirs ) = @_;
 
     #download某个版本某个buildNo的版本制品到当前节点
+    my $params = $self->_getParams($deployEnv);
+    my $pdata  = {
+        namePath   => $params->{namePath},
+        sysName    => $params->{sysName},
+        moduleName => $params->{moduleName},
+        envName    => $params->{envName},
+        version    => $params->{version},
+        buildNo    => $params->{buildNo},
+        subDirs    => $subDirs,
+        proxyToUrl => $proxyToUrl
+    };
 
-    my $checked = 0;
-    my $builded = 0;
+    #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准
+    if ($srcEnvInfo) {
+        my $srcNamePath = $srcEnvInfo->{namePath};
+        if ( defined($srcNamePath) ) {
+            if ( $srcNamePath eq $deployEnv->{NAME_PATH} ) {
+                print("WARN: No need to get resource from the same environment.\n");
+                return;
+            }
+        }
+        else {
+            print("WARN: No need to get resource from the same environment.\n");
+            return;
+        }
 
-    my $namePath  = $deployEnv->{DEPLOY_PATH};
-    my $version   = $deployEnv->{version};
-    my $buildPath = $deployEnv->{BUILD_PATH};
-
-    if ( not -e $buildPath ) {
-        if ( not mkpath($buildPath) ) {
-            die("ERROR: Can not create directory $buildPath, $!\n");
+        while ( my ( $key, $val ) = each(%$srcEnvInfo) ) {
+            $pdata->{$key} = $val;
         }
     }
 
-    if ( defined($destDir) and $destDir ne '' ) {
-        $buildPath = Cwd::abs_path("$buildPath/$destDir");
-    }
+    my $checked    = 0;
+    my $builded    = 0;
+    my $buildLocal = 'false';
+
+    my $namePath = $deployEnv->{DEPLOY_PATH};
+    my $version  = $deployEnv->{VERSION};
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
@@ -948,21 +968,37 @@ sub getBuild {
                 $buildNo            = $res->header('Build-No');
                 $relStatus          = $res->header('Build-Status');
                 $envRelStatus       = $res->header('Build-Env-Status');
+                $buildLocal         = $res->header('Build-Local');
                 $isMirror           = $res->header('isMirror');
                 $contentDisposition = $res->header('Content-Disposition');
-                if ( $relStatus eq 'released' ) {
-                    print("INFO: Build-Status:$relStatus\n");
-                    $builded = 1;
 
-                    my $buildEnv = $deployUtils->deployInit( $deployEnv->{NAME_PATH}, $deployEnv->{VERSION}, $buildNo );
+                if ( defined($buildNo) and $buildNo ne '' ) {
+                    $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'releasing' } );
+                }
 
-                    #gen Version info
-                    my $versionInfo = {
-                        version => $version,
-                        buildNo => $buildNo,
-                        status  => 'releasing'
-                    };
-                    $self->updateVer( $buildEnv, $versionInfo );
+                print("INFO: Build-Status:$relStatus\n");
+                print("INFO: Build-Env-Status:$envRelStatus\n");
+                print("INFO: Build-Local:$buildLocal\n");
+
+                if ( $relStatus eq 'released' and $envRelStatus eq 'released' ) {
+                    if ( $buildLocal ne 'true' ) {
+                        $builded = 1;
+                    }
+
+                    $deployEnv->{BUILD_NO} = $buildNo;
+                    my $buildEnv = $deployEnv;
+
+                    my $buildPath = $deployEnv->{BUILD_ROOT} . "/$buildNo";
+                    $buildEnv->{BUILD_PATH} = $buildPath;
+
+                    if ( not -e $buildPath ) {
+                        if ( not mkpath($buildPath) ) {
+                            die("ERROR: Can not create directory $buildPath, $!\n");
+                        }
+                    }
+                    if ( defined($destDir) and $destDir ne '' ) {
+                        $buildPath = Cwd::abs_path("$buildPath/$destDir");
+                    }
 
                     #lockBuild
                     my $lock      = DeployLock->new($buildEnv);
@@ -1002,6 +1038,9 @@ sub getBuild {
                     binmode($writer);
                 }
             }
+            else {
+                $buildNo = $res->header('Build-No');
+            }
         }
 
         if ( $builded == 1 ) {
@@ -1020,37 +1059,6 @@ sub getBuild {
 
     my $url = $self->_getApiUrl('getBuild');
 
-    my $params = $self->_getParams($deployEnv);
-    my $pdata  = {
-        namePath   => $params->{namePath},
-        sysName    => $params->{sysName},
-        moduleName => $params->{moduleName},
-        envName    => $params->{envName},
-        version    => $params->{version},
-        buildNo    => $params->{buildNo},
-        subDirs    => $subDirs,
-        proxyToUrl => $proxyToUrl
-    };
-
-    #如果srcEnvInfo定义了相应的系统、模块、环境名则使用它为准
-    if ($srcEnvInfo) {
-        my $srcNamePath = $srcEnvInfo->{namePath};
-        if ( defined($srcNamePath) ) {
-            if ( $srcNamePath eq $deployEnv->{NAME_PATH} ) {
-                print("WARN: No need to get resource from the same environment.\n");
-                return;
-            }
-        }
-        else {
-            print("WARN: No need to get resource from the same environment.\n");
-            return;
-        }
-
-        while ( my ( $key, $val ) = each(%$srcEnvInfo) ) {
-            $pdata->{$key} = $val;
-        }
-    }
-
     my $paramsJson  = to_json($pdata);
     my $signHandler = $self->{signHandler};
     my $uri         = substr( $url, index( $url, '/', 8 ) );
@@ -1066,26 +1074,50 @@ sub getBuild {
     $client->POST( $url, $paramsJson );
     $relStatus = $client->responseHeader('Build-Status');
 
-    my $untarCode = -1;
+    my $untarCode = 0;
     if ( defined($writer) ) {
+        $untarCode = 1;
         close($writer);
         $untarCode = $?;
     }
 
     if ( $client->responseCode() ne 200 ) {
+        if ( defined($buildNo) and $buildNo ne '' ) {
+            $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'release-failed' } );
+        }
+
         my $errMsg = $client->responseContent();
-        die("ERROR: Get build namePath Version:$version build$buildNo failed with status:$relStatus, cause by:$errMsg\n");
+        if ( defined($relStatus) ) {
+            die("ERROR: Get build namePath Version:$version build$buildNo failed with status:$relStatus, cause by:$errMsg\n");
+        }
+        else {
+            die("ERROR: Get build namePath Version:$version build$buildNo failed, cause by:$errMsg\n");
+        }
     }
 
-    if ( $relStatus ne 'released' ) {
+    if ( $relStatus ne 'released' or $envRelStatus ne 'released' ) {
+
+        my $namePath = $pdata->{namePath};
+        if ( defined($buildNo) and $buildNo ne '' ) {
+            $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'release-failed' } );
+        }
 
         my $errMsg = $client->responseContent();
+
         if ( defined($relStatus) and $relStatus ne '' ) {
             if ( $relStatus eq 'null' ) {
-                die("ERROR: $namePath Version:$version build$buildNo not exists.\n");
+                die("ERROR: $namePath Version:$version\_build$buildNo not exists.\n");
             }
             else {
-                die("ERROR: Version $version build$buildNo in error status:$relStatus.\n");
+                die("ERROR: $namePath Version:$version\_build$buildNo in error status:$relStatus.\n");
+            }
+        }
+        elsif ( defined($envRelStatus) and $envRelStatus ne '' ) {
+            if ( $envRelStatus eq 'null' ) {
+                die("ERROR: $namePath ENV artifact Version:$version not exists.\n");
+            }
+            else {
+                die("ERROR: $namePath ENV artifact Version:$version in error status:$envRelStatus.\n");
             }
         }
         else {
@@ -1093,11 +1125,16 @@ sub getBuild {
         }
     }
 
-    if ( $untarCode ne 0 ) {
+    if ( $untarCode eq 0 ) {
+        if ( defined($buildNo) and $buildNo ne '' ) {
+            $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'released' } );
+        }
+    }
+    else {
+        $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'release-failed' } );
         die("ERROR: Get resources failed with status:$relStatus, build resource is empty or data corrupted because of network timeout problem.\n");
     }
 
-    #TODO: 通过relget测试检查
     return ( $isMirror, $buildNo );
 }
 
