@@ -12,6 +12,7 @@ use MIME::Base64;
 use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
 use Digest::SHA qw(hmac_sha256_hex);
 use MIME::Base64;
+use File::Path;
 
 use WebCtl;
 use ServerConf;
@@ -1014,6 +1015,8 @@ sub getBuild {
 
     my $client = REST::Client->new();
     $client->addHeader( 'Content-Type', 'application/json;charset=UTF-8' );
+    $client->addHeader( 'Tenant',       $ENV{AUTOEXEC_TENANT} );
+    $client->addHeader( 'authType',     'hmac' );
 
     my $url = $self->_getApiUrl('getBuild');
 

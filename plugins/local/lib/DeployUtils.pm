@@ -71,44 +71,87 @@ sub deployInit {
     }
 
     my $deployEnv = {};
+
     $deployEnv->{ID_PATH}   = $dpIdPath;
     $deployEnv->{NAME_PATH} = $dpPath;
     $deployEnv->{VERSION}   = $version;
-
-    $deployEnv->{BUILD_ROOT} = $ENV{BUILD_ROOT};
-    $deployEnv->{BUILD_NO}   = $buildNo;
-    if ( defined($buildNo) ) {
-        $deployEnv->{BUILD_PATH} = "$ENV{BUILD_ROOT}/$buildNo";
-    }
-
-    $deployEnv->{SYS_ID}      = $ENV{SYS_ID};
-    $deployEnv->{MODULE_ID}   = $ENV{MODULE_ID};
-    $deployEnv->{ENV_ID}      = $ENV{ENV_ID};
-    $deployEnv->{SYS_NAME}    = $ENV{SYS_NAME};
-    $deployEnv->{MODULE_NAME} = $ENV{MODULE_NAME};
-    $deployEnv->{ENV_NAME}    = $ENV{ENV_NAME};
+    $deployEnv->{BUILD_NO}  = $buildNo;
 
     $deployEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
     $deployEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
     $deployEnv->{SQL_FILES} = $ENV{_SQL_FILES};
-
-    $deployEnv->{DATA_PATH}   = $ENV{DATA_PATH};
-    $deployEnv->{VER_ROOT}    = $ENV{VER_ROOT};
-    $deployEnv->{PRJ_ROOT}    = $ENV{PRJ_ROOT};
-    $deployEnv->{PRJ_PATH}    = $ENV{PRJ_PATH};
-    $deployEnv->{DIST_ROOT}   = $ENV{DIST_ROOT};
-    $deployEnv->{MIRROR_ROOT} = $ENV{MIRROR_ROOT};
-
-    if ( defined($runnerGroupConf) and $runnerGroupConf ne '' ) {
-        $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
-    }
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
     }
     $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
-    $deployEnv->{TOOLS_PATH}    = $ENV{TOOLS_PATH};
+
+    if ( not defined( $ENV{SYS_NAME} ) and not defined( $ENV{SYS_ID} ) ) {
+        my @pathLevels = ( 'SYS', 'MODULE', 'ENV' );
+        my @pathIds    = split( '/', $dpIdPath );
+        for ( my $i = 0 ; $i <= $#pathIds ; $i++ ) {
+            $deployEnv->{ $pathLevels[$i] . '_ID' } = $pathIds[$i];
+        }
+        my @pathNames = split( '/', $dpPath );
+        for ( my $i = 0 ; $i <= $#pathNames ; $i++ ) {
+            $deployEnv->{ $pathLevels[$i] . '_NAME' } = $pathNames[$i];
+        }
+
+        my $dataPath   = "$autoexecHome/data/verdata/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
+        my $prjRoot    = "$dataPath/workspace";
+        my $prjPath    = "$prjRoot/project";
+        my $verRoot    = "$dataPath/artifact/$version";
+        my $distRoot   = "$verRoot/env";
+        my $mirrorRoot = "$dataPath/mirror";
+        my $buildRoot  = "$dataPath/artifact/$version/build";
+
+        $deployEnv->{TOOLS_PATH}  = "$autoexecHome/tools";
+        $deployEnv->{DATA_PATH}   = $dataPath;
+        $deployEnv->{VER_ROOT}    = $verRoot;
+        $deployEnv->{PRJ_ROOT}    = $prjRoot;
+        $deployEnv->{PRJ_PATH}    = $prjPath;
+        $deployEnv->{DIST_ROOT}   = $distRoot;
+        $deployEnv->{MIRROR_ROOT} = $mirrorRoot;
+
+        $deployEnv->{BUILD_ROOT} = $buildRoot;
+        if ( defined($buildNo) ) {
+            $deployEnv->{BUILD_PATH} = "$buildRoot/$buildNo";
+        }
+
+        while ( my ( $name, $val ) = each(%$deployEnv) ) {
+            if ( ref($val) eq "ARRAY" or ref($val) eq 'HASH' ) {
+                $val = to_json($val);
+            }
+            $ENV{$name} = $val;
+        }
+    }
+    else {
+        $deployEnv->{TOOLS_PATH} = $ENV{TOOLS_PATH};
+
+        $deployEnv->{SYS_NAME}    = $ENV{SYS_NAME};
+        $deployEnv->{MODULE_NAME} = $ENV{MODULE_NAME};
+        $deployEnv->{ENV_NAME}    = $ENV{ENV_NAME};
+        $deployEnv->{SYS_ID}      = $ENV{SYS_ID};
+        $deployEnv->{MODULE_ID}   = $ENV{MODULE_ID};
+        $deployEnv->{ENV_ID}      = $ENV{ENV_ID};
+
+        $deployEnv->{DATA_PATH}   = $ENV{DATA_PATH};
+        $deployEnv->{VER_ROOT}    = $ENV{VER_ROOT};
+        $deployEnv->{PRJ_ROOT}    = $ENV{PRJ_ROOT};
+        $deployEnv->{PRJ_PATH}    = $ENV{PRJ_PATH};
+        $deployEnv->{DIST_ROOT}   = $ENV{DIST_ROOT};
+        $deployEnv->{MIRROR_ROOT} = $ENV{MIRROR_ROOT};
+
+        $deployEnv->{BUILD_ROOT} = $ENV{BUILD_ROOT};
+        if ( defined($buildNo) ) {
+            $deployEnv->{BUILD_PATH} = "$deployEnv->{BUILD_ROOT}/$buildNo";
+        }
+    }
+
+    if ( defined($runnerGroupConf) and $runnerGroupConf ne '' ) {
+        $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
+    }
 
     return $deployEnv;
 }

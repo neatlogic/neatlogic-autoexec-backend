@@ -13,6 +13,8 @@ use DeployLock;
 use BuildUtils;
 use ServerAdapter;
 
+use Data::Dumper;
+
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -74,6 +76,11 @@ sub main {
         print("ERROR: Version not defined by option --version or Environment:VERSION\n");
     }
 
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+
     if ( not defined($srcEnvPath) or $srcEnvPath eq '' ) {
         $optionError = 1;
         print("ERROR: Source Env Path not defined by option --srcenvpath\n");
@@ -112,7 +119,7 @@ sub main {
         eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };
         if ($@) {
             $hasError = $hasError + 1;
-            print("ERROR: $@");
+            print($@);
             print("ERROR: $pname $envPath $version failed.\n");
         }
     }
@@ -162,14 +169,14 @@ sub main {
         buildNo => $buildNo,
         status  => 'releasing'
     };
-    $serverAdapter->updateVer( $deployEnv, $versionInfo );
-
-    my $envName = $deployEnv->{ENV_NAME};
-    print("INFO: Try to release(sync) $version build:$buildNo to $envName...\n");
-
-    $serverAdapter->releaseVerToEnv( $deployEnv, 'releasing' );
 
     if ( $hasError == 0 ) {
+        $serverAdapter->updateVer( $deployEnv, $versionInfo );
+
+        my $envName = $deployEnv->{ENV_NAME};
+        print("INFO: Try to release(sync) $version build:$buildNo to $envName...\n");
+        $serverAdapter->releaseVerToEnv( $deployEnv, 'releasing' );
+
         eval {
             my $buildUtils = BuildUtils->new();
             $buildUtils->release( $deployEnv, $version, $buildNo );
