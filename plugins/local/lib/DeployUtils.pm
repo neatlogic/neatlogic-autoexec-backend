@@ -57,9 +57,6 @@ sub hidePwdInCmdLine {
 sub deployInit {
     my ( $self, $namePath, $version, $buildNo ) = @_;
 
-    #set umask to 022
-    umask(022);
-
     AutoExecUtils::setEnv();
 
     my $dpPath          = $ENV{DEPLOY_PATH};
