@@ -12,6 +12,7 @@ use IO::File;
 use JSON qw(to_json from_json encode_json);
 
 sub setEnv {
+    umask(022);
     hidePwdInCmdLine();
     $ENV{OUTPUT_PATH} = "$FindBin::Bin/output.json";
 }

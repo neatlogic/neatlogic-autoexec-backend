@@ -24,6 +24,7 @@ my $READ_TMOUT = 86400;
 my $TERM_CHARSET;
 
 sub setEnv {
+    umask(022);
 
     #hide password in command line
     hidePwdInCmdLine();
