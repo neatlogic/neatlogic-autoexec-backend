@@ -44,7 +44,11 @@ sub new {
             'delVer'             => '/codedriver/api/rest/deploy/version/delete',
             'releaseVerToEnv'    => '/codedriver/api/rest/deploy/version/env/update/forautoexec',
             'getEnvVer'          => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
-            'getOtherSiteEnvVer' => '',
+            'getOtherSiteEnvVer' => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
+
+            #autocfg和DB配置自动生成
+            'addAutoCfgKeys' => '',
+            'addDBSchemas'   => '',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
@@ -363,6 +367,50 @@ sub getOtherSiteEnvVer {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('getOtherSiteEnvVer');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub addAutoCfgKeys {
+    my ( $self, $deployEnv, $autoCfgKeys ) = @_;
+
+    #remove after TEST
+    return;
+    ############
+
+    if ( not defined($autoCfgKeys) or scalar(@$autoCfgKeys) == 0 ) {
+        return;
+    }
+
+    my $param = $self->_getParams($deployEnv);
+    $param->{autoCfgKeys} = $autoCfgKeys;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('addAutoCfgKeys');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub addDBSchemas {
+    my ( $self, $deployEnv, $dbSchemas ) = @_;
+
+    #remove after TEST
+    return;
+    ############
+
+    if ( not defined($dbSchemas) or scalar(@$dbSchemas) == 0 ) {
+        return;
+    }
+
+    my $param = $self->_getParams($deployEnv);
+    $param->{dbSchemas} = $dbSchemas;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('addDBSchemas');
     my $content = $webCtl->postJson( $url, $param );
     my $rcObj   = $self->_getReturn($content);
 

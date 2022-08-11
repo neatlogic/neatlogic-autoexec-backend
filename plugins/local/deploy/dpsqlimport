@@ -241,6 +241,12 @@ sub main {
     $ret      = $sqlFileRunner->checkDBSchemas();
     $hasError = $hasError + $ret;
 
+    my $schemasNotDefined = $sqlFileRunner->{schemasNotDefined};
+    my @schemasToAdd      = keys(%$schemasNotDefined);
+    if (@schemasToAdd) {
+        $serverAdapter->addDBSchemas( $deployEnv, \@schemasToAdd );
+    }
+
     return $hasError;
 }
 

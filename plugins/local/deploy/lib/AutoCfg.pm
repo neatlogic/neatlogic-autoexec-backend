@@ -44,6 +44,8 @@ sub new {
     $self->{pureDir}           = $args{pureDir};
     $self->{md5Check}          = $args{md5Check};
 
+    $self->{keysNotConf} = {};
+
     if ( not defined( $self->{followZip} ) ) {
         $self->{followZip} = 1;
     }
@@ -135,7 +137,7 @@ sub mergeMd5SumList {
     my $updateMap = {};
 
     if ( not defined($updateFh) ) {
-        die("ERROR: open file $updateMd5List failed, $!\n");
+        die("ERROR: Open file $updateMd5List failed, $!\n");
     }
     my $line;
     my $md5Sum;
@@ -149,12 +151,12 @@ sub mergeMd5SumList {
 
     my $newFh = IO::File->new(">$updateMd5List");
     if ( not defined($newFh) ) {
-        die("ERROR: create file $updateMd5List failed, $!\n");
+        die("ERROR: Create file $updateMd5List failed, $!\n");
     }
 
     my $fullFh = IO::File->new("<$fullMd5List");
     if ( not defined($fullFh) ) {
-        die("ERROR: open file $fullMd5List failed, $!\n");
+        die("ERROR: Open file $fullMd5List failed, $!\n");
     }
     my $line;
     my $md5Sum;
@@ -449,7 +451,7 @@ sub replacePlaceHolder {
 
                 if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
                     $self->{hasError} = $self->{hasError} + 1;
-                    print("ERROR: copy $fileName to $orgFileName.$suffix failed:$!\n");
+                    print("ERROR: Copy $fileName to $orgFileName.$suffix failed:$!\n");
                 }
                 chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
                 if ( $cleanAutoCfgFiles == 1 ) {
@@ -465,7 +467,7 @@ sub replacePlaceHolder {
                 DeployUtils->copyTree( $fileName, $orgFileName );
             }
             elsif ( not -e $fileName ) {
-                print("ERROR: $cfgName not found.\n");
+                print("ERROR: Config file $cfgName not found.\n");
                 $self->{hasError} = $self->{hasError} + 1;
             }
 
@@ -478,7 +480,7 @@ sub replacePlaceHolder {
         $orgCfgName  =~ s/\.$env//i;
 
         if ( $checkOrg == 1 and not( -e $orgFileName or -e "$autoCfgDocRoot/$orgCfgName" ) ) {
-            print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
+            print("ERROR: Original file:$orgCfgName for $cfgName not found.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
 
@@ -491,7 +493,7 @@ sub replacePlaceHolder {
 
             if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
                 $self->{hasError} = $self->{hasError} + 1;
-                print("ERROR: copy $fileName to $orgFileName.$suffix failed:$!\n");
+                print("ERROR: Copy $fileName to $orgFileName.$suffix failed:$!\n");
             }
             chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
             if ( $cleanAutoCfgFiles == 1 ) {
@@ -507,7 +509,7 @@ sub replacePlaceHolder {
             DeployUtils->copyTree( $fileName, $orgFileName );
         }
         elsif ( not -e $fileName ) {
-            print("ERROR: $cfgName not found.\n");
+            print("ERROR: Config file $cfgName not found.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
 
@@ -533,7 +535,7 @@ sub replacePlaceHolder {
         $orgCfgName4 =~ s/\.[^\.]+\.[^\.]+$//;
 
         if ( not -e $fileName ) {
-            print("ERROR: $cfgName not found.\n");
+            print("ERROR: Config file $cfgName not found.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
 
@@ -541,7 +543,7 @@ sub replacePlaceHolder {
             and not( -f $orgFileName or -f "$autoCfgDocRoot/$orgCfgName" or -f $orgFileName3 or -f "$autoCfgDocRoot/$orgCfgName3" or -f $orgFileName4 or -f "$autoCfgDocRoot/$orgCfgName4" ) )
         {
             $orgCfgName =~ s/\.$suffix$//i;
-            print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
+            print("ERROR: Original file:$orgCfgName for $cfgName not found.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
 
@@ -556,6 +558,7 @@ sub replacePlaceHolder {
             )
             )
         {
+            my $keysNotConf = $self->{keysNotConf};
 
             my $sfh = IO::File->new("<$fileName");
 
@@ -590,11 +593,14 @@ sub replacePlaceHolder {
                         my $key = $1;
                         if ( not defined( $notPlaceholders->{$key} ) ) {
                             if ( $key =~ /^[\w\-\.]+$/ ) {
-                                print("ERROR:config place holder:$key value not found.\n");
                                 $self->{hasError} = $self->{hasError} + 1;
+                                if ( not defined( $keysNotConf->{$key} ) ) {
+                                    $keysNotConf->{$key} = 1;
+                                    print("ERROR: Config place holder:$key value not found.\n");
+                                }
                             }
                             else {
-                                print("WARN:malform place holder:$key value not found(the key has special characters).\n");
+                                print("WARN: Malform place holder:$key value not found(the key has special characters).\n");
                             }
                         }
                     }
@@ -611,7 +617,7 @@ sub replacePlaceHolder {
                     }
                     else {
                         $self->{hasError} = $self->{hasError} + 1;
-                        print("ERROR:can not rewrite file $orgFileName while modify config file.\n");
+                        print("ERROR: Can not rewrite file $orgFileName while modify config file.\n");
                     }
 
                     if ( $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
@@ -621,20 +627,20 @@ sub replacePlaceHolder {
             }
             else {
                 $self->{hasError} = $self->{hasError} + 1;
-                print("ERROR:can not read file $orgFileName while modify config file.\n");
+                print("ERROR: Can not read file $orgFileName while modify config file.\n");
             }
         }
     }
     elsif ( $recfgAgain == 1 and -f $fileName ) {
         if ( $checkOrg == 1 and $rplOrgFiles->{$orgFileName} == 1 and not( -f $orgFileName or -f "$autoCfgDocRoot/$orgCfgName" ) ) {
             $orgCfgName =~ s/\.$suffix$//i;
-            print("ERROR: original file:$orgCfgName for $cfgName not found.\n");
+            print("ERROR: Original file:$orgCfgName for $cfgName not found.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
 
         if ( not copy( $fileName, $orgFileName ) ) {
             $self->{hasError} = $self->{hasError} + 1;
-            print("ERROR: copy file $fileName to $orgFileName failed:$!\n");
+            print("ERROR: Copy file $fileName to $orgFileName failed:$!\n");
         }
 
         if ( $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
@@ -727,7 +733,8 @@ sub findFilesInDir {
     while ( $dir = pop(@dirs) ) {
         local *DH;
         if ( !opendir( DH, $dir ) ) {
-            die("ERROR: Cannot opendir $dir: $! $^E");
+            $self->{hasError} = $self->{hasError} + 1;
+            print("ERROR: Cannot opendir $dir: $! $^E");
             next;
         }
         foreach ( readdir(DH) ) {
@@ -887,7 +894,7 @@ sub findFilesInZip {
 
         if ( not defined($pid) or $exitCode != 0 ) {
             $self->{hasError} = $self->{hasError} + 1;
-            print("ERROR: read zip content failed:$pkgPath, $!\n");
+            print("ERROR: Read zip content failed:$pkgPath, $!\n");
         }
 
         #use perl IO::Uncompress.Unzip to read zip entry
@@ -956,7 +963,7 @@ sub findFilesInZip {
 
             if ( not defined($pid) or $exitCode != 0 ) {
                 $self->{hasError} = $self->{hasError} + 1;
-                print("ERROR: read tar content failed:$pkgPath, $!\n");
+                print("ERROR: Read tar content failed:$pkgPath, $!\n");
             }
         }
     }
@@ -1093,7 +1100,7 @@ sub updateConfigInZip {
             #print("DEBUG: *-*-*-*-*-*-*-$unzipCmd\n");
             my $rc = DeployUtils->execmd($unzipCmd);
             if ( $rc ne 0 ) {
-                print("ERROR: get $pathInZipPat from $preZipDir failed.\n");
+                print("ERROR: Get $pathInZipPat from $preZipDir failed.\n");
                 $self->{hasError} = $self->{hasError} + 1;
             }
         }
@@ -1195,7 +1202,7 @@ sub updateConfigInZip {
         }
 
         if ( $rc ne 0 ) {
-            print("ERROR: update config to $preZipDir failed.\n");
+            print("ERROR: Update config to $preZipDir failed.\n");
             $self->{hasError} = $self->{hasError} + 1;
         }
     }

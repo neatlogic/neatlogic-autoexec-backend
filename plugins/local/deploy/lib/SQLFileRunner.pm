@@ -55,9 +55,10 @@ sub new {
     # locale       => $args{locale},
     # autocommit   => $args{autocommit},
     # ignoreErrors => $args{ignoreErrors}
-    $self->{serverAdapter} = ServerAdapter->new();
-    $self->{usedSchemas}   = {};
-    $self->{sqlFileInfos}  = [];
+    $self->{serverAdapter}     = ServerAdapter->new();
+    $self->{usedSchemas}       = {};
+    $self->{schemasNotDefined} = {};
+    $self->{sqlFileInfos}      = [];
 
     bless( $self, $type );
 
@@ -773,7 +774,9 @@ sub checkSqlFiles {
     my $sqlFileInfos = $self->{sqlFileInfos};
     my $hasError     = 0;
 
-    my $usedSchemas = $self->{usedSchemas};
+    my $usedSchemas       = $self->{usedSchemas};
+    my $schemasNotDefined = $self->{schemasNotDefined};
+
     foreach my $sqlFile (@$sqlFiles) {
 
         my $nodeInfo;
@@ -787,7 +790,10 @@ sub checkSqlFiles {
 
             if ( not defined($dbInfo) ) {
                 $hasError = $hasError + 1;
-                print("ERROR: Schema $dbSchema not defined in deploy config.\n");
+                if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
+                    $schemasNotDefined->{$dbSchema} = 1;
+                    print("ERROR: Schema $dbSchema not defined in deploy config.\n");
+                }
                 next;
             }
 

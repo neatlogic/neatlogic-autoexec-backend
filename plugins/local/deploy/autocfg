@@ -252,6 +252,12 @@ sub main {
         print("FINEST: Auto config $namePath version:$version success.\n");
     }
 
+    my $keysNotConf = $autocfg->{keysNotConf};
+    my @keysToAdd   = keys(%$keysNotConf);
+    if (@keysToAdd) {
+        $serverAdapter->addAutoCfgKeys( $buildEnv, \@keysToAdd );
+    }
+
     return $hasError;
 }
 
