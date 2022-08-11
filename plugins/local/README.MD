@@ -571,3 +571,44 @@ Tenant信息在HTTP header中
     };
 注意：版本状态通过Header：Build-Status，返回
 状态跟环境制品状态一致
+
+
+### 自动增加autocfg的key配置
+- addAutoCfgKeys
+#### 移植老版本的表结构和接口
+#### 输入：
+    {
+        runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
+        jobId      => 作业ID,
+        phaseName  => 阶段名,
+        sysId      => 应用ID,
+        moduleId   => 模块ID,
+        envId      => 环境ID,
+        sysName    => 应用名,
+        moduleName => 模块名,
+        envName    => 环境名,
+        autoCfgKeys => ['key1', 'key2']
+    }
+### 输出：
+    无
+
+### 自动增加DB schema
+- addDBSchemas
+#### 移植老版本的表结构和接口
+#### 输入：
+    {
+        runnerId   => Runner的ID,
+        runnerGroup => [1=>"192.168.1.140", 2=>"192.168.0.104"],
+        jobId      => 作业ID,
+        phaseName  => 阶段名,
+        sysId      => 应用ID,
+        moduleId   => 模块ID,
+        envId      => 环境ID,
+        sysName    => 应用名,
+        moduleName => 模块名,
+        envName    => 环境名,
+        dbSchemas  => ['bsm.root', 'mydb.myuser']
+    }
+### 输出：
+    无
