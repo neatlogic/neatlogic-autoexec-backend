@@ -76,7 +76,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '' or not defined($vendor) or $vendor eq '' ) {
+    if ( not defined($node) or $node eq '') {
         $hasOptErr = 1;
     }
     else {

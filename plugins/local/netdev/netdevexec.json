@@ -1,0 +1,102 @@
+{
+    "opDesc": "网路设备命令下发",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "网路设备命令下发",
+    "option": [
+        {
+            "opt": "node",
+            "name": "node",
+            "help": "",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "protocol",
+            "name": "连接协议",
+            "help": "连接协议",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "ssh",
+                        "value": "ssh"
+                    },
+                    {
+                        "text": "telnet",
+                        "value": "telnet"
+                    }
+                ]
+            },
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "exitCmd",
+            "name": "退出命令",
+            "help": "退出命令,如quit、exit",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "exit",
+                        "value": "exit"
+                    }, 
+                    {
+                        "text": "quit",
+                        "value": "quit"
+                    }
+                ]
+            },
+            "defaultValue": "exit"
+        },
+        {
+            "opt": "timeout",
+            "name": "连接超时时间",
+            "help": "默认是10秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "打印明细日志",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }, 
+	{
+            "opt": "cmd",
+            "name": "命令",
+            "help": "下发命令，支持多行批量命令",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+
+    ]
+}

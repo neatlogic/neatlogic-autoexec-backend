@@ -30,27 +30,6 @@
             "defaultValue": "1"
         },
         {
-            "opt": "lang",
-            "name": "语言",
-            "help": "工程代码的语言和编码",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [
-                    {
-                        "text": "en_US.UTF-8",
-                        "value": "en_US.UTF-8"
-                    },
-                    {
-                        "text": "en_US.GB18030",
-                        "value": "en_US.GB18030"
-                    }
-                ]
-            },
-            "defaultValue": "en_US.UTF-8"
-        },
-        {
             "opt": "repotype",
             "name": "仓库类型",
             "help": "代码仓库的类型",
@@ -112,7 +91,7 @@
             "name": "版本分支",
             "help": "GIT的版本分支或SVN的版本子目录",
             "type": "text",
-            "required": "false",
+            "required": "true",
             "validate": "",
             "defaultValue": "${VERSION}"
         },
@@ -130,9 +109,30 @@
             "name": "SVN标签目录",
             "help": "只有SVN需要配置，SVN存放标签的仓库子目录",
             "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }, 
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "tags"
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
         }
     ],
     "output": []
