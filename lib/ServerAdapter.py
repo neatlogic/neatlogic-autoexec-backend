@@ -473,8 +473,6 @@ class ServerAdapter:
             raise
         finally:
             if cachedFileTmp is not None:
-                # if os.path.exists(cachedFilePathTmp):
-                #     os.unlink(cachedFilePathTmp)
                 fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
 
@@ -496,15 +494,12 @@ class ServerAdapter:
         url = self.serverBaseUrl + self.apiMap['fetchScript']
 
         cachedFilePathTmp = cachedFilePath + '.tmp'
-        lockFilePath = cachedFilePath + '.lock'
-        lockFile = None
         cachedFileTmp = None
         response = None
         try:
-            lockFile = open(lockFilePath, 'a+')
-            fcntl.lockf(lockFile, fcntl.LOCK_EX)
-
             cachedFileTmp = open(cachedFilePathTmp, 'a+')
+            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
@@ -518,7 +513,7 @@ class ServerAdapter:
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
-                os.rename(cachedFilePathTmp, cachedFilePath)
+                os.link(cachedFilePathTmp, cachedFilePath)
         except:
             self.writeNodeLog("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
             try:
@@ -527,12 +522,9 @@ class ServerAdapter:
                 pass
         finally:
             if cachedFileTmp is not None:
-                # if os.path.exists(cachedFilePathTmp):
-                #     os.unlink(cachedFilePathTmp)
-                cachedFileTmp.close()
                 os.chmod(cachedFilePath, stat.S_IRWXU)
-            if lockFile is not None:
-                fcntl.lockf(lockFile, fcntl.LOCK_UN)
+                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
+                cachedFileTmp.close()
 
         return cachedFilePath
 
