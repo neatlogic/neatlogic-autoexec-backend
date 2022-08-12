@@ -16,6 +16,7 @@ use File::Temp qw(tempdir);
 
 sub main {
     my $rc = 0;
+    umask(022);
 
     my @uname    = uname();
     my $ostype   = $uname[0];
@@ -223,7 +224,7 @@ sub main {
         if ( -f $appfilePath ) {
             my $uploadPath = "$domainHome/servers/$serverName/upload/$packName/app/$packName";
             if ( -f $uploadPath ) {
-                if ( copy( $appfilePath, $uploadPath ) ) {
+                if ( File::Copy::cp( $appfilePath, $uploadPath ) ) {
                     print("INFO: copy $appfilePath to upload path:$uploadPath success.\n");
                 }
                 else {

@@ -15,7 +15,7 @@ use POSIX qw(uname);
 
 sub main {
     my $rc = 0;
-
+    umask(022);
     my @uname    = uname();
     my $ostype   = $uname[0];
     my $shellExt = 'sh';
@@ -102,7 +102,7 @@ sub main {
                 if ( -f $sourcePath ) {
                     if ( $sourceName eq $appfileName ) {
                         if ( $sourcePath ne $appfilePath ) {
-                            if ( not copy( $appfilePath, $sourcePath ) ) {
+                            if ( not File::Copy::cp( $appfilePath, $sourcePath ) ) {
                                 print("ERROR: copy $appfilePath to $sourcePath failed.\n");
                                 $rc = 2;
                                 exit(-1);
@@ -200,7 +200,7 @@ sub main {
         if ( -f $appfilePath ) {
             my $uploadPath = "$domainHome/servers/$serverName/upload/$packName/app/$packName";
             if ( -f $uploadPath ) {
-                if ( copy( $appfilePath, $uploadPath ) ) {
+                if ( File::Copy::cp( $appfilePath, $uploadPath ) ) {
                     print("INFO: copy $appfilePath to upload path:$uploadPath success.\n");
                 }
                 else {

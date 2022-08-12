@@ -143,7 +143,7 @@ sub CheckUrl {
             $statusCode = $response->code;
         }
         else {
-            my $http = HTTP::Tiny->new();
+            my $http     = HTTP::Tiny->new();
             my $response = $http->request( 'GET', $url );
             $statusCode = $response->{status};
         }
@@ -237,8 +237,8 @@ sub copyDeployDesc {
             foreach my $jar (@jars) {
 
                 #system("unzip -qo -d $jar.extract $jar && cd $jar.extract && zip -qor ../../$appname.org.extract/$jar *");
-                my $unzipCmd = getFileOPCmd( $jar, "$jar.extract", $ostype, 'unzip' );
-                my $zipCmd = getFileOPCmd( "../../$appname.org.extract/$jar", "*", $ostype, 'zip' );
+                my $unzipCmd = getFileOPCmd( $jar,                              "$jar.extract", $ostype, 'unzip' );
+                my $zipCmd   = getFileOPCmd( "../../$appname.org.extract/$jar", "*",            $ostype, 'zip' );
 
                 #system("cmd /c $unzipCmd && cd $jar.extract && $zipCmd");
                 if ( system($unzipCmd) eq 0 ) {
@@ -283,17 +283,17 @@ sub copyDeployDesc {
                 mkpath($descdir);
             }
             if ( -f $descfile ) {
-                copy( $descfile, $descdest );
+                File::Copy::cp( $descfile, $descdest );
                 print("INFO: Update descriptor file:$descfile to $descdest\n");
             }
 
             if ( $descname eq 'web.xml' ) {
                 if ( -f "$descdir/web_merged.xml" ) {
-                    copy( $descfile, "$descdir/web_merged.xml" );
+                    File::Copy::cp( $descfile, "$descdir/web_merged.xml" );
                     print("INFO: Update descriptor file:$descfile to $descdir/web_merged.xml\n");
                 }
                 elsif ( -f "$targetdir/web_merged.xml" ) {
-                    copy( $descfile, "$descdir/web_merged.xml" );
+                    File::Copy::cp( $descfile, "$descdir/web_merged.xml" );
                     print("INFO: Update descriptor file:$descfile to $descdir/web_merged.xml\n");
                 }
             }

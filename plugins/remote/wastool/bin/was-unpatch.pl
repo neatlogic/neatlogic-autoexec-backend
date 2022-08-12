@@ -16,6 +16,7 @@ use POSIX qw(uname);
 use Patcher;
 
 my $rc = 0;
+umask(022);
 
 my @uname    = uname();
 my $ostype   = $uname[0];
@@ -79,6 +80,7 @@ my $wasPwd      = $sectionConfig->{"was_pwd"};
 my $needDeploy  = $sectionConfig->{"need_deploy"};
 my $backupDir   = $sectionConfig->{"backup_dir"};
 my $backupCount = int( $sectionConfig->{"backup_count"} );
+
 if ( not defined($needDeploy) or $needDeploy =~ /[1|true]/i ) {
     $needDeploy = 1;
 }
@@ -182,7 +184,7 @@ if ( $needDeploy == 1 ) {
                 #foreach my $warDesc (@warDescs) {
                 #    my $warDescFile = basename($warDesc);
                 #    if ( -f "$targetDir/WEB-INF/$warDescFile" ) {
-                #        copy( "$targetDir/WEB-INF/$warDescFile", $warDesc );
+                #        File::Copy::cp( "$targetDir/WEB-INF/$warDescFile", $warDesc );
                 #        print("INFO: Update descriptor file:$warDesc\n");
                 #    }
                 #}

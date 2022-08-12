@@ -303,7 +303,7 @@ sub backup {
             return 0;
         }
         else {
-            if ( not copy( $target, $backupFile ) ) {
+            if ( not File::Copy::cp( $target, $backupFile ) ) {
                 $status = -1;
                 print("ERROR: copy $target to $backupFile failed.\n");
                 unlink($backupFile) if ( -f $backupFile );
@@ -548,7 +548,7 @@ sub deploy {
         my $ret = 1;
 
         if ( $fullDeploy == 1 ) {
-            if ( copy( $packFile, $target ) ) {
+            if ( File::Copy::cp( $packFile, $target ) ) {
                 $ret = 0;
                 print("INFO: Copy $packFile to $target success.\n");
             }
@@ -559,7 +559,7 @@ sub deploy {
         }
         else {
             print("INFO: Begin merge $packFile to $target...\n");
-            my $tmp = File::Temp->new( DIR => "$homePath/tmp", CLEANUP => 1 );
+            my $tmp    = File::Temp->new( DIR => "$homePath/tmp", CLEANUP => 1 );
             my $tmpDir = File::Temp->newdir();
 
             if ( chdir($tmpDir) ) {
@@ -785,7 +785,7 @@ sub rollback {
                 }
             }
             else {
-                if ( copy( $backup, $targetPath ) ) {
+                if ( File::Copy::cp( $backup, $targetPath ) ) {
                     $status = 0;
                     print("INFO: Copy backup:$backup to application directory:$targetPath success.\n");
                 }

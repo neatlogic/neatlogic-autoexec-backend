@@ -450,7 +450,7 @@ sub copyTree {
     if ( not -d $src ) {
         my $dir = dirname($dest);
         mkpath($dir) if ( not -e $dir );
-        copy( $src, $dest ) || die("ERROR: copy $src to $dest failed:$!");
+        File::Copy::cp( $src, $dest ) || die("ERROR: copy $src to $dest failed:$!");
         chmod( ( stat($src) )[2], $dest );
     }
     else {
@@ -470,7 +470,7 @@ sub copyTree {
 
                         #print("copy $_ $dest/$fileName\n");
                         my $destFile = "$dest/$fileName";
-                        copy( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                        File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
                         chmod( ( stat($srcFile) )[2], $destFile );
                     }
                 },

@@ -437,14 +437,14 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            copy( $srcFile, $destFile )                              || die("ERROR: copy class $srcFile to $destFile failed, $!");
+                            File::Copy::cp( $srcFile, $destFile )                    || die("ERROR: copy class $srcFile to $destFile failed, $!");
                             print $updateListFH ("$cmpOutPath/$destRelPath.class\n") || die("ERROR: write $cmpOutPath/$destRelPath.class to file:$updateListFile failed, $!");
 
                             #拷贝同一个主类下的内嵌类
                             foreach my $aClassPath ( glob("$srcPathPrefix\$*.class") ) {
                                 $srcFile  = $aClassPath;
                                 $destFile = "$destDir/";
-                                copy( $srcFile, $destFile ) || die("ERROR: copy class $srcFile to $destFile failed:$!");
+                                File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy class $srcFile to $destFile failed:$!");
                                 my $innerClass = dirname($destRelPath) + '/' + basename($aClassPath);
                                 print $updateListFH ("$cmpOutPath/$innerClass\n") || die("ERROR: write $cmpOutPath/$innerClass.class to file:$updateListFile failed, $!");
                             }
@@ -458,7 +458,7 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            copy( $file, $destFile )                           || die("ERROR: copy file $file to $destFile failed:$!");
+                            File::Copy::cp( $file, $destFile )                 || die("ERROR: copy file $file to $destFile failed:$!");
                             print $updateListFH ("$cmpOutPath/$destRelPath\n") || die("ERROR: write $cmpOutPath/$destRelPath to file:$updateListFile failed, $!");
                         }
                     }
@@ -471,7 +471,7 @@ sub makePatch {
                         if ( not -f $destFile ) {
                             print $updateListFH ("$webDistPath/$destRelPath\n") || die("ERROR: write $webDistPath/$destRelPath to file:$updateListFile failed, $!");
                         }
-                        copy( $file, $destFile ) || die("ERROR: copy web $file to $destFile failed:$!");
+                        File::Copy::cp( $file, $destFile ) || die("ERROR: copy web $file to $destFile failed:$!");
                     }
                     else {
                         #如果不是编译输出目录则直接拷贝
@@ -490,7 +490,7 @@ sub makePatch {
                             mkpath($destDir);
                         }
                         if ( not -f $destFile ) {    #这个判断，防止通过java文件拷贝到目标的class被checkin到仓库的编译输出目录的class覆盖
-                            copy( $file, $destFile )            || die("ERROR: copy $srcFile to $destFile failed:$!");
+                            File::Copy::cp( $file, $destFile )  || die("ERROR: copy $srcFile to $destFile failed:$!");
                             print $updateListFH ("$filePath\n") || die("ERROR: write $filePath to file:$updateListFile failed, $!");
                         }
                     }

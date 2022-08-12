@@ -443,7 +443,7 @@ sub copyPrj {
                     my $isExclude = 0;
                     my $destFile  = "$diffDir/$fileName";
 
-                    copy( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                    File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
                     chmod( ( stat($srcFile) )[2], $destFile );
                 }
             },

@@ -535,7 +535,7 @@ sub convertFileEncoding {
             }
             $srcFh->close();
             $tmp->close();
-            copy( $tmp->filename, $srcFile );
+            File::Copy::cp( $tmp->filename, $srcFile );
         }
         else {
             die("ERROR: convert command file to charset:$toCharset failed, cause:create tmp file in $tmpdir failed $!.\n");

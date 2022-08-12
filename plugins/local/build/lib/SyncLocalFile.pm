@@ -386,7 +386,7 @@ sub upgradeFiles {
                             $self->mkShadowPath( $shadowDir, $targetPath, dirname($tgtFile) ) if ( not -e $bakDirPath );
 
                             if ( -f $tgtFile and -d $bakDirPath ) {
-                                if ( not copy( $tgtFile, $shadowPath ) ) {
+                                if ( not File::Copy::cp( $tgtFile, $shadowPath ) ) {
                                     die("ERROR: Backup failed, can not create backup directory:$shadowPath, $!.");
                                 }
                                 else {
@@ -543,7 +543,7 @@ sub upgradeFiles {
                                 #eval { mkpath( $bakDirPath, 0, 0775 ) if ( not -e $bakDirPath ); };
                                 $self->mkShadowPath( $shadowDir, $targetPath, dirname($srcFile) );
                                 if ( -d $bakDirPath ) {
-                                    if ( not copy( "$targetPath/$srcFile", $shadowPath ) ) {
+                                    if ( not File::Copy::cp( "$targetPath/$srcFile", $shadowPath ) ) {
                                         die("ERROR: Backup failed, can not create backup directory:$shadowPath:$!.");
                                     }
                                     else {

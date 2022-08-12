@@ -401,7 +401,7 @@ sub copyTarget {
     elsif ( -f $src ) {
         if ( defined($excludeMap) and not defined( $excludeMap->{$src} ) ) {
 
-            if ( not copy( $src, $dest ) ) {
+            if ( not File::Copy::cp( $src, $dest ) ) {
                 $hasError = 1;
                 print("ERROR: copy $src to $dest failed, $!\n");
             }
@@ -471,7 +471,7 @@ sub copyTarget {
                         else {
                             mkdir($targetDir);
 
-                            if ( not copy( $srcFile, $destFile ) ) {
+                            if ( not File::Copy::cp( $srcFile, $destFile ) ) {
                                 $hasError = 1;
                                 print("ERROR: copy $srcFile to $destFile failed, $!\n");
                             }

@@ -14,6 +14,7 @@ use Utils;
 use POSIX qw(uname);
 
 my $rc = 0;
+umask(022);
 
 my @uname    = uname();
 my $ostype   = $uname[0];
@@ -171,7 +172,7 @@ if ( $needDeploy == 1 ) {
                 #foreach my $warDesc (@warDescs) {
                 #    my $warDescFile = basename($warDesc);
                 #    if ( -f "$targetDir/WEB-INF/$warDescFile" ) {
-                #        copy( "$targetDir/WEB-INF/$warDescFile", $warDesc );
+                #        File::Copy::cp( "$targetDir/WEB-INF/$warDescFile", $warDesc );
                 #        print("INFO: Update descriptor file:$warDesc\n");
                 #    }
                 #}
@@ -250,8 +251,8 @@ if ( $needDeploy == 1 ) {
                 my @jarFiles = glob("*.jar");
                 for my $jarFile (@jarFiles) {
                     print("INFO: pack $jarFile to $targetDir.\n");
-                    my $unzipCmd = Utils::getFileOPCmd( $jarFile, "$jarFile.extract", $ostype, 'unzip' );
-                    my $zipCmd = Utils::getFileOPCmd( "$targetDir/$jarFile", "*", $ostype, 'zip' );
+                    my $unzipCmd = Utils::getFileOPCmd( $jarFile,              "$jarFile.extract", $ostype, 'unzip' );
+                    my $zipCmd   = Utils::getFileOPCmd( "$targetDir/$jarFile", "*",                $ostype, 'zip' );
 
                     #system("$unzipCmd && cd $jarFile.extract && $zipCmd");
                     #if ( system($unzipCmd) eq 0 ) {

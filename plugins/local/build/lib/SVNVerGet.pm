@@ -839,7 +839,7 @@ sub _getDiff {
                     }
 
                     if ( -f $filePath ) {
-                        if ( not copy( $filePath, $savePath ) ) {
+                        if ( not File::Copy::cp( $filePath, $savePath ) ) {
                             die("ERROR: copy $filePath to $savePath failed:$!\n");
                         }
 

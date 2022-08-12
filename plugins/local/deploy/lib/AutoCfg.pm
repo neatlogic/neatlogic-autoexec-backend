@@ -449,7 +449,7 @@ sub replacePlaceHolder {
                     $recfgAgainAdded = 1;
                 }
 
-                if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
+                if ( not File::Copy::cp( $fileName, "$orgFileName.$suffix" ) ) {
                     $self->{hasError} = $self->{hasError} + 1;
                     print("ERROR: Copy $fileName to $orgFileName.$suffix failed:$!\n");
                 }
@@ -491,7 +491,7 @@ sub replacePlaceHolder {
                 $recfgAgainAdded = 1;
             }
 
-            if ( not copy( $fileName, "$orgFileName.$suffix" ) ) {
+            if ( not File::Copy::cp( $fileName, "$orgFileName.$suffix" ) ) {
                 $self->{hasError} = $self->{hasError} + 1;
                 print("ERROR: Copy $fileName to $orgFileName.$suffix failed:$!\n");
             }
@@ -638,7 +638,7 @@ sub replacePlaceHolder {
             $self->{hasError} = $self->{hasError} + 1;
         }
 
-        if ( not copy( $fileName, $orgFileName ) ) {
+        if ( not File::Copy::cp( $fileName, $orgFileName ) ) {
             $self->{hasError} = $self->{hasError} + 1;
             print("ERROR: Copy file $fileName to $orgFileName failed:$!\n");
         }

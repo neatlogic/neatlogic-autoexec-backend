@@ -71,7 +71,7 @@ sub CheckUrl {
     eval {
         my $statusCode = 500;
 
-        my $http = HTTP::Tiny->new();
+        my $http     = HTTP::Tiny->new();
         my $response = $http->request( 'GET', $url );
         $statusCode = $response->{status};
 
@@ -195,7 +195,7 @@ sub copyDeployDesc {
                 mkpath($descdir);
             }
             if ( -f $descfile ) {
-                copy( $descfile, $descdest );
+                File::Copy::cp( $descfile, $descdest );
                 print("INFO: Update descriptor file:$descfile to $descdest\n");
             }
         }
