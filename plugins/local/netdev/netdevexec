@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Getopt::Long;
+use JSON;
+use AutoExecUtils;
+use NetExpect;
+use File::Spec;
+use Data::Dumper;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --protocol <protocol> --cmd <cmd> --timeout <timeout> \n");
+    exit(1);
+}
+
+sub main {
+    $| = 1;
+    AutoExecUtils::setEnv();
+    my ( $ishelp, $isVerbose );
+    my ( $node, $cmd, $protocol, $timeout, $exitCmd );
+
+    usage() if ( defined($ishelp) );
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'node:s'      => \$node,
+        'protocol:s'  => \$protocol,
+        'cmd:s'       => \$cmd,
+        'timeout:i'   => \$timeout,
+        'v|verbose=i' => \$isVerbose,
+        'exitCmd:s'   => \$exitCmd
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($cmd) or $cmd eq '' ) {
+        print("ERROR: Must define cmd by option --cmd.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($protocol) or $protocol eq '' ) {
+        $protocol = 'ssh';
+    }
+
+    if ( not defined($timeout) or $timeout == 0 ) {
+        $timeout = 10;
+    }
+
+    if ( not defined($exitCmd) or $exitCmd eq '' ) {
+        $exitCmd = 'exit';
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my ( $host, $port, $username, $password );
+    $host     = $nodeInfo->{'host'};
+    $port     = $nodeInfo->{'protocolPort'};
+    $username = $nodeInfo->{'username'};
+    $password = $nodeInfo->{'password'};
+
+    print("INFO::command exec start.\n");
+    my $sep = NetExpect->new(
+        host     => $host,
+        port     => $port,
+        protocol => $protocol,
+        username => $username,
+        password => $password,
+        timeout  => $timeout,
+        verbose  => $isVerbose
+    );
+    my $spawn = $sep->login();
+
+    if ( not defined($spawn) ) {
+        print("ERROR::command exec failed.\n");
+        exit(1);
+    }
+    else {
+        my $cmdObj = from_json($cmd);
+        my @cmds   = split( /\n/, $cmdObj->{'content'} );
+        foreach my $line (@cmds) {
+            $line =~ s/^\s+|\s+$//g;
+            if ( $line ne '' ) {
+                print("INFO:: exec $line .\n");
+                $sep->runCmd($line);
+            }
+        }
+        $sep->close($exitCmd);
+        print("INFO::command exec success.\n");
+        exit(0);
+    }
+}
+
+exit main();
+
