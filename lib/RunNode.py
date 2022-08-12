@@ -514,17 +514,19 @@ class RunNode:
         timeConsume = None
         startTime = time.time()
         try:
+            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)
             op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
 
+            startTime = time.time()
             if not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != 'sqlfile':
                 self._loadOpOutput(op)
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                timeConsume = time.time() - startTime
+                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
                 return
-
-            startTime = time.time()
-            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
 
             if op.opBunddleName != 'native' and not os.path.exists(op.pluginPath):
                 ret = 1

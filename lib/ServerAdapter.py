@@ -4,6 +4,7 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
 import os
+import traceback
 import stat
 import fcntl
 import ssl
@@ -495,12 +496,15 @@ class ServerAdapter:
         url = self.serverBaseUrl + self.apiMap['fetchScript']
 
         cachedFilePathTmp = cachedFilePath + '.tmp'
+        lockFilePath = cachedFilePath + '.lock'
+        lockFile = None
         cachedFileTmp = None
         response = None
         try:
-            cachedFileTmp = open(cachedFilePathTmp, 'a+')
-            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+            lockFile = open(lockFilePath, 'a+')
+            fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
+            cachedFileTmp = open(cachedFilePathTmp, 'a+')
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
@@ -516,15 +520,19 @@ class ServerAdapter:
                     os.unlink(cachedFilePath)
                 os.rename(cachedFilePathTmp, cachedFilePath)
         except:
-            raise
+            self.writeNodeLog("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
+            try:
+                os.unlink(cachedFilePath)
+            except:
+                pass
         finally:
             if cachedFileTmp is not None:
                 # if os.path.exists(cachedFilePathTmp):
                 #     os.unlink(cachedFilePathTmp)
-
-                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
                 os.chmod(cachedFilePath, stat.S_IRWXU)
+            if lockFile is not None:
+                fcntl.lockf(lockFile, fcntl.LOCK_UN)
 
         return cachedFilePath
 
