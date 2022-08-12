@@ -429,13 +429,6 @@ class ServerAdapter:
         }
 
         cachedFilePath = '{}/{}'.format(savePath, fileId)
-        lastModifiedTime = 0
-        if os.path.exists(cachedFilePath):
-            lastModifiedTime = os.path.getmtime(cachedFilePath)
-
-        params['lastModified'] = lastModifiedTime
-
-        url = self.serverBaseUrl + self.apiMap['fetchFile']
 
         cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
@@ -444,6 +437,11 @@ class ServerAdapter:
         try:
             cachedFileTmp = open(cachedFilePathTmp, 'ab+')
             fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+
+            lastModifiedTime = 0
+            if os.path.exists(cachedFilePath):
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
+            params['lastModified'] = lastModifiedTime
 
             response = self.httpGET(self.apiMap['fetchFile'],  params)
             # 获取下载文件的文件名，服务端通过header传送文件名, 例如：'Content-Disposition: attachment; filename="myfile.tar.gz"'
@@ -486,12 +484,6 @@ class ServerAdapter:
 
         cachedFilePath = savePath
         lastModifiedTime = 0
-        if os.path.exists(cachedFilePath):
-            lastModifiedTime = os.path.getmtime(cachedFilePath)
-
-        params['lastModified'] = lastModifiedTime
-
-        url = self.serverBaseUrl + self.apiMap['fetchScript']
 
         cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
@@ -499,6 +491,10 @@ class ServerAdapter:
         try:
             cachedFileTmp = open(cachedFilePathTmp, 'a+')
             fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
+
+            if os.path.exists(cachedFilePath):
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
+            params['lastModified'] = lastModifiedTime
 
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
