@@ -542,7 +542,7 @@ class RunNode:
                         elif op.opSubName == 'export':
                             for arg in op.arguments:
                                 envName = arg.get('value', '')
-                                if envName != '':
+                                if envName != '' and os.getenv(envName) is not None:
                                     self.context.exportEnv(envName)
                         elif op.opSubName == 'setenv':
                             envName = op.options['name']
