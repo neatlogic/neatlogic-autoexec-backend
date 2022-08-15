@@ -15,7 +15,7 @@ sub new {
     my $self = \%args;
     bless( $self, $pkg );
 
-    $self->{ServerAdapter} = ServerAdapter->new();
+    $self->{serverAdapter} = ServerAdapter->new();
     return $self;
 }
 
@@ -287,22 +287,26 @@ sub release2Env {
 sub cleanExpiredBuild {
     my ( $self, $buildEnv, $maxBuildCount ) = @_;
 
-    my $dirInfo = DeployUtils->getDataDirStruct( $buildEnv, 1 );
+    my $dirInfo = DeployUtils->getDataDirStruct($buildEnv);
     my $relRoot = $dirInfo->{releaseRoot};
 
     my @buildDirs       = glob("$relRoot/*/app");
-    my @sortedBuildDirs = sort { ( stat("$relRoot/$a") )[9] <=> ( stat("$relRoot/$b") )[9] } @buildDirs;
+    my @sortedBuildDirs = sort { ( stat($a) )[9] <=> ( stat($b) )[9] } @buildDirs;
 
-    my $buildCount = length(@sortedBuildDirs);
+    my $buildCount = scalar(@sortedBuildDirs);
     my $maxIdx     = $buildCount - $maxBuildCount;
 
     my $serverAdapter = $self->{serverAdapter};
 
+    my $version = $buildEnv->{VERSION};
+
     for ( my $i = 0 ; $i < $maxIdx ; $i++ ) {
         my $buildDir = dirname( $sortedBuildDirs[$i] );
+        my $buildNo  = basename($buildDir);
         eval {
-            $serverAdapter->delBuild( $buildEnv, $buildEnv->{VERSION}, basename($buildDir) );
+            $serverAdapter->delBuild( $buildEnv, $version, $buildNo );
             rmtree($buildDir);
+            print("INFO: Remove expired build $version\_build$buildNo success.\n");
         };
         if ($@) {
             my $errMsg = $@;
@@ -357,7 +361,7 @@ sub cleanExpiredVersion {
     my @sortedVerDirsTmp = sort $sortVerByVerNumber @verDirs;
     my @sortedVerDirs    = sort { ( stat("$a/build") )[9] <=> ( stat("$b/build") )[9] } @sortedVerDirsTmp;
 
-    my $verCount = length(@sortedVerDirs);
+    my $verCount = scalar(@sortedVerDirs);
     my $maxIdx   = $verCount - $minVersionCount;
 
     my $serverAdapter = $self->{serverAdapter};
@@ -367,11 +371,13 @@ sub cleanExpiredVersion {
     for ( my $i = 0 ; $i < $maxIdx ; $i++ ) {
         my $verDir   = $sortedVerDirs[$i];
         my $verMtime = ( stat($verDir) )[9];
+        my $version  = basename($verDir);
 
         if ( $nowTime - $verMtime > $minLastSecs ) {
             eval {
-                $serverAdapter->delVer( $buildEnv, basename($verDir) );
+                $serverAdapter->delVer( $buildEnv, $version );
                 rmtree($verDir);
+                print("INFO: Remove expired version $version success.\n");
             };
             if ($@) {
                 my $errMsg = $@;
