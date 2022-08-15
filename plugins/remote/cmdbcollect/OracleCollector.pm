@@ -1392,7 +1392,7 @@ sub collectRAC {
     push( @collectSet, @collectDatabases );
     push( @collectSet, @collectInstances );
 
-    return @collectSet;
+    return \@collectSet;
 }
 
 sub getGridProc {

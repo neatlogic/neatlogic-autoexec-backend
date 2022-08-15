@@ -785,7 +785,7 @@ sub collectRAC {
     push( @collectSet, @collectDatabases );
     push( @collectSet, @collectInstances );
 
-    return @collectSet;
+    return \@collectSet;
 }
 
 sub collect {
@@ -793,9 +793,9 @@ sub collect {
 
     my $racInfo = {};
     $racInfo->{PROC_INFO} = $self->{procInfo};
-    my @collectSet = $self->collectRAC($racInfo);
+    my $collectSet = $self->collectRAC($racInfo);
 
-    return @collectSet;
+    return @$collectSet;
 }
 
 1;

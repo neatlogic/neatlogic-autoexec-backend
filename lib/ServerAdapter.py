@@ -430,13 +430,18 @@ class ServerAdapter:
 
         cachedFilePath = '{}/{}'.format(savePath, fileId)
 
+        lockFilePath = cachedFilePath + '.lock'
+        lockFile = None
+
         cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
         fileName = None
         response = None
         try:
+            lockFile = open(lockFilePath, 'ab+')
+            fcntl.lockf(lockFile, fcntl.LOCK_EX)
+
             cachedFileTmp = open(cachedFilePathTmp, 'ab+')
-            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
 
             lastModifiedTime = 0
             if os.path.exists(cachedFilePath):
@@ -468,11 +473,17 @@ class ServerAdapter:
 
             return fileName
         except:
-            raise
+            self.writeNodeLog("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
+            try:
+                os.unlink(cachedFilePath)
+            except:
+                pass
         finally:
             if cachedFileTmp is not None:
-                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
+            if lockFile is not None:
+                fcntl.lockf(lockFile, fcntl.LOCK_UN)
+                lockFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
 
@@ -485,12 +496,17 @@ class ServerAdapter:
         cachedFilePath = savePath
         lastModifiedTime = 0
 
+        lockFilePath = cachedFilePath + '.lock'
+        lockFile = None
+
         cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
         response = None
         try:
+            lockFile = open(lockFilePath, 'ab+')
+            fcntl.lockf(lockFile, fcntl.LOCK_EX)
+
             cachedFileTmp = open(cachedFilePathTmp, 'a+')
-            fcntl.lockf(cachedFileTmp, fcntl.LOCK_EX)
 
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -519,8 +535,10 @@ class ServerAdapter:
         finally:
             if cachedFileTmp is not None:
                 os.chmod(cachedFilePath, stat.S_IRWXU)
-                fcntl.lockf(cachedFileTmp, fcntl.LOCK_UN)
                 cachedFileTmp.close()
+            if lockFile is not None:
+                fcntl.lockf(lockFile, fcntl.LOCK_UN)
+                lockFile.close()
 
         return cachedFilePath
 
