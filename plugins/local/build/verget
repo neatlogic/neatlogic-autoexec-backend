@@ -118,6 +118,9 @@ sub main {
         $versionInfo->{startRev} = $verInfo->{startRev};
         $versionInfo->{endRev}   = $verInfo->{endRev};
     }
+    else {
+        $serverAdapter->addVer( $buildEnv, $versionInfo );
+    }
 
     if ( defined($userName) and $userName ne '' ) {
         $versionInfo->{username} = $userName;

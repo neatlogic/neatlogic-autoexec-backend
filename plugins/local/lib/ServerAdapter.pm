@@ -39,6 +39,7 @@ sub new {
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
             'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
+            'addVer'             => '/codedriver/api/rest/deploy/version/info/add/forautoexec',
             'updateVer'          => '/codedriver/api/rest/deploy/version/info/update/forautoexec',
             'delBuild'           => '/codedriver/api/rest/deploy/version/buildNo/delete',
             'delVer'             => '/codedriver/api/rest/deploy/version/delete',
@@ -237,6 +238,45 @@ sub getVer {
     my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;
+}
+
+sub addVer {
+    my ( $self, $buildEnv, $verInfo ) = @_;
+
+    #TODO: uncomment after test
+    return;
+
+    #Test end########################
+
+    #getver之后update版本信息，更新版本的相关属性
+    #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
+    my $params = $self->_getParams($buildEnv);
+
+    my $uptVerInfo = {};
+    while ( my ( $key, $val ) = each(%$verInfo) ) {
+        if ( $key eq 'version' ) {
+            $params->{version} = $val;
+        }
+        elsif ( $key eq 'buildNo' ) {
+            if ( defined($val) and $val ne '' ) {
+                $params->{buildNo} = $val;
+            }
+        }
+        elsif ( $key ne 'password' ) {
+            $uptVerInfo->{$key} = $val;
+        }
+    }
+
+    $params->{verInfo} = $uptVerInfo;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('addVer');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    #TODO: 测试通过接口更新版本信息
+
+    return;
 }
 
 sub updateVer {
