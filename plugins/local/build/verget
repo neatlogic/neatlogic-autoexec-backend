@@ -97,6 +97,7 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     my $versionInfo   = {
         version  => $version,
+        buildNo  => $buildNo,
         repoType => uc($repoType),
         repo     => $repo,
         trunk    => $trunk,
@@ -117,6 +118,7 @@ sub main {
         $versionInfo->{startRev} = $verInfo->{startRev};
         $versionInfo->{endRev}   = $verInfo->{endRev};
     }
+
     if ( defined($userName) and $userName ne '' ) {
         $versionInfo->{username} = $userName;
     }
