@@ -7,7 +7,8 @@
     "defaultProfile": null,
     "description": "在某些特殊情形下，需要对输出日志按行进行错误检测",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "operator",
             "name": "操作符",
             "help": "是否同时满足多个正则表达式的",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "and",
                         "value": "and"
                     },

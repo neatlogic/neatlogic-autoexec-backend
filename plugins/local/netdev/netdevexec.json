@@ -49,7 +49,7 @@
                     {
                         "text": "exit",
                         "value": "exit"
-                    }, 
+                    },
                     {
                         "text": "quit",
                         "value": "quit"
@@ -87,8 +87,8 @@
                 ]
             },
             "defaultValue": "0"
-        }, 
-	{
+        },
+        {
             "opt": "cmd",
             "name": "命令",
             "help": "下发命令，支持多行批量命令",
@@ -97,6 +97,5 @@
             "validate": "",
             "defaultValue": ""
         }
-
     ]
 }

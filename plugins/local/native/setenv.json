@@ -6,7 +6,8 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "设置全局环境变量并导出, 提供给外部流程工具引用",
-    "option": [{
+    "option": [
+        {
             "opt": "name",
             "name": "变量名",
             "help": "在环境变量中的名称",

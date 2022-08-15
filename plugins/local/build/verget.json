@@ -112,7 +112,7 @@
             "required": "false",
             "validate": "",
             "defaultValue": ""
-        }, 
+        },
         {
             "opt": "lang",
             "name": "语言",
