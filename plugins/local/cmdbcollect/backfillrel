@@ -18,6 +18,7 @@ def genInsRel(db):
     insCollection = db['COLLECT_INS']
     relSrcCollection = db['RELATION_INS_NETCONN']
     relDestCollection = db['RELATION_INS_NETCONN']
+    dbInsCollection = db['COLLECT_DBINS']
     clusterCollection = db['COLLECT_CLUSTER']
 
     for ins in relSrcCollection.find({'_OBJ_CATEGORY': 'INS'},
@@ -47,16 +48,31 @@ def genInsRel(db):
                                                    '_OBJ_TYPE': 1}
                                                   ).batch_size(500):
 
-                    refInfo = {'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
-                               '_OBJ_TYPE': rel['_OBJ_TYPE'],
-                               'OS_ID': rel['OS_ID'],
-                               'MGMT_IP': rel['MGMT_IP'],
-                               'PORT': rel['PORT']
-                               }
-
                     if rel['_OBJ_CATEGORY'] == 'DBINS':
-                        refDbs.append(refInfo)
+                        for dbIns in dbInsCollection.find({'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']},
+                                                          {'OS_ID': 1,
+                                                           'MGMT_IP': 1,
+                                                           'PORT': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1}
+                                                          ).batch_size(500):
+
+                            refInfo = {'_OBJ_CATEGORY': dbIns['_OBJ_CATEGORY'],
+                                       '_OBJ_TYPE': dbIns['_OBJ_TYPE'],
+                                       'OS_ID': dbIns['OS_ID'],
+                                       'MGMT_IP': dbIns['MGMT_IP'],
+                                       'PORT': dbIns['PORT'],
+                                       'INSTANCE_NAME': dbIns['INSTANCE_NAME']
+                                       }
+                            refDbs.append(refInfo)
+
                     else:
+                        refInfo = {'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
+                                   '_OBJ_TYPE': rel['_OBJ_TYPE'],
+                                   'OS_ID': rel['OS_ID'],
+                                   'MGMT_IP': rel['MGMT_IP'],
+                                   'PORT': rel['PORT']
+                                   }
                         refIns.append(refInfo)
 
                 # 计算调用的集群

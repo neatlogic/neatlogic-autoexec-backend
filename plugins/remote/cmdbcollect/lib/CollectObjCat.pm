@@ -24,10 +24,10 @@ our $TYPES = {
 
 #Deprecated，废弃，改为在local/cmdbcollect/savedata里声明每个类别的主键定义
 our $PK_CONFIG = {
-    INS          => [ 'MGMT_IP',       'PORT' ],
-    DB           => [ 'NAME',          'PRIMARY_IP', 'PORT' ],
-    CLUSTER      => [ 'NAME',          'UNIQUE_NAME' ],
-    DBINS        => [ 'INSTANCE_NAME', 'MGMT_IP', 'PORT' ],
+    INS          => [ 'MGMT_IP',     'PORT' ],
+    DB           => [ 'PRIMARY_IP',  'PORT', 'NAME' ],
+    CLUSTER      => [ 'UNIQUE_NAME', 'NAME' ],
+    DBINS        => [ 'MGMT_IP',     'PORT', 'INSTANCE_NAME' ],
     OS           => ['MGMT_IP'],
     HOST         => [ 'MGMT_IP', 'BOARD_SERIAL' ],
     NETDEV       => [ 'MGMT_IP', 'SN' ],

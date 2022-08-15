@@ -789,6 +789,7 @@ sub getClusterDB {
                         {
                             _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                             _OBJ_TYPE     => 'Oracle',
+                            _APP_TYPE     => 'Oracle',
                             INSTANCE_NAME => $instanceName,
                             NODE_NAME     => $nodeName,
                             MGMT_IP       => $nodeInfo->{IP},
@@ -1512,18 +1513,6 @@ sub collect {
         if ( defined($CDBS) and scalar(@$CDBS) > 0 ) {
             foreach my $CDB (@$CDBS) {
                 push( @collectSet, $CDB );
-
-                # push(
-                #     @databases,
-                #     {
-                #         _OBJ_CATEGORY => $CDB->{_OBJ_CATEGORY},
-                #         _OBJ_TYPE     => $CDB->{_OBJ_TYPE},
-                #         _APP_TYPE     => $CDB->{_APP_TYPE},
-                #         NAME          => $CDB->{NAME},
-                #         PRIMARY_IP    => $CDB->{PRIMARY_IP},
-                #         PORT          => $CDB->{PORT},
-                #     }
-                # );
             }
         }
 
@@ -1534,18 +1523,6 @@ sub collect {
             if ( defined($PDBS) ) {
                 foreach my $PDB (@$PDBS) {
                     push( @collectSet, $PDB );
-
-                    # push(
-                    #     @databases,
-                    #     {
-                    #         _OBJ_CATEGORY => $PDB->{_OBJ_CATEGORY},
-                    #         _OBJ_TYPE     => $PDB->{_OBJ_TYPE},
-                    #         _APP_TYPE     => $PDB->{_APP_TYPE},
-                    #         NAME          => $PDB->{NAME},
-                    #         PRIMARY_IP    => $PDB->{PRIMARY_IP},
-                    #         PORT          => $PDB->{PORT},
-                    #     }
-                    # );
                 }
             }
         }
