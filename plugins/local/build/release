@@ -38,6 +38,45 @@ sub usage {
     exit(1);
 }
 
+sub copyPerm {
+    my ( $from, $to ) = @_;
+
+    my (@fromstat) = stat($from);
+    my (@tostat)   = stat($to);
+
+    my $perm = $fromstat[2] & ~( umask || 0 );
+    @tostat = stat($to);
+
+    # Might be more robust to look for S_I* in Fcntl, but we're
+    # trying to avoid dependence on any XS-containing modules,
+    # since File::Copy is used during the Perl build.
+    $perm &= 07777;
+    if ( $perm & 06000 ) {
+        croak("Unable to check setuid/setgid permissions for $to: $!")
+            unless @tostat;
+
+        if (
+            $perm & 04000 and    # setuid
+            $fromstat[4] != $tostat[4]
+            )
+        {                        # owner must match
+            $perm &= ~06000;
+        }
+
+        if ( $perm & 02000 && $> != 0 ) {    # if not root, setgid
+            my $ok = $fromstat[5] == $tostat[5];    # group must match
+            if ($ok) {                              # and we must be in group
+                $ok = grep { $_ == $fromstat[5] } split /\s+/, $);
+            }
+            $perm &= ~06000 unless $ok;
+        }
+    }
+
+    return 0 unless @tostat;
+    return 1 if $perm == ( $tostat[2] & 07777 );
+    return eval { chmod $perm, $to; } ? 1 : 0;
+}
+
 sub main {
     my ( $isHelp, $envPath, $version, $buildNo );
     my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, @targetFiles );
@@ -291,7 +330,10 @@ sub main {
         rmtree("$releasePath/doc");
     }
     if ( -d "$releasePath/app/db" and defined($packExt) ) {
-        rename( "$releasePath/app/db", "$releasePath/db" );
+        if ( not rename( "$releasePath/app/db", "$releasePath/db" ) ) {
+            $hasError = 1;
+            print("ERROR: Move $releasePath/app/db to $releasePath/db failed.\n");
+        }
     }
 
     my $realDbDir;
@@ -395,15 +437,33 @@ sub copyTarget {
 
     if ( -l $src ) {
         if ( defined($excludeMap) and not defined( $excludeMap->{$src} ) ) {
+            if ( substr( $dest, -1 ) eq '/' ) {
+                if ( not -e $dest ) {
+                    mkdir($dest);
+                }
+                my $fileName = basename($src);
+                $dest = "$dest/$fileName";
+            }
+
             symlink( readlink($src), $dest );
         }
     }
     elsif ( -f $src ) {
         if ( defined($excludeMap) and not defined( $excludeMap->{$src} ) ) {
+            if ( substr( $dest, -1 ) eq '/' ) {
+                if ( not -e $dest ) {
+                    mkdir($dest);
+                }
+                my $fileName = basename($src);
+                $dest = "$dest/$fileName";
+            }
 
-            if ( not File::Copy::cp( $src, $dest ) ) {
+            if ( not copy( $src, $dest ) ) {
                 $hasError = 1;
                 print("ERROR: copy $src to $dest failed, $!\n");
+            }
+            else {
+                copyPerm( $src, $dest );
             }
         }
     }
@@ -471,9 +531,12 @@ sub copyTarget {
                         else {
                             mkdir($targetDir);
 
-                            if ( not File::Copy::cp( $srcFile, $destFile ) ) {
+                            if ( not copy( $srcFile, $destFile ) ) {
                                 $hasError = 1;
                                 print("ERROR: copy $srcFile to $destFile failed, $!\n");
+                            }
+                            else {
+                                copyPerm( $srcFile, $destFile );
                             }
                         }
                     },
