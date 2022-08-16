@@ -254,7 +254,14 @@ if __name__ == "__main__":
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         vContext = VContext.VContext(0, execUser=execUser, passThroughEnv=passThroughEnv)
-        vContext.tenant = args.register
+
+        tenant = args.register
+        if tenant is None:
+            tenant = vContext.config['server']['tenant']
+        if tenant is None:
+            tenant = 'none'
+
+        vContext.tenant = tenant
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         registerTools(serverAdapter, pluginsPath, 'local')

@@ -23,6 +23,9 @@ if __name__ == "__main__":
     if tenant is None:
         tenant = vContext.config['server']['tenant']
 
+    if tenant is None:
+        tenant = 'none'
+
     vContext.tenant = tenant
     serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
