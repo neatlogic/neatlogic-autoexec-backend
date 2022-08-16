@@ -5,17 +5,19 @@ AUTOEXEC_DIR=$(
     pwd
 )
 DEPLOY_PATH=$1
-DEPLOY_ID_PATH=$1
+DEPLOY_ID_PATH=$(./pconv "$DEPLOY_PATH")
 DEPLOY_DATA_PATH="$AUTOEXEC_DIR/data/verdata/$DEPLOY_ID_PATH"
 
 if [ -e "$DEPLOY_DATA_PATH" ]; then
     cd "$DEPLOY_DATA_PATH"
 else
-    DEPLOY_DATA_PATH=$(echo $1 | perl -e 's/\/[^\/]+$//')
+    DEPLOY_DATA_PATH=${DEPLOY_DATA_PATH%/*}
+
     if [ -e "$DEPLOY_DATA_PATH" ]; then
         cd "$DEPLOY_DATA_PATH"
     else
         echo "ERROR: Directory $DEPLOY_DATA_PATH not exists."
+        exit 2
     fi
 fi
 
