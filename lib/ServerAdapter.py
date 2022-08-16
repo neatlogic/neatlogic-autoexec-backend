@@ -49,7 +49,7 @@ class ServerAdapter:
             'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
             'globalLock': '/codedriver/api/rest/global/lock',
-            'getDeployIdPath': '/codedriver/api/rest/ezdeploy/idpath'
+            'getDeployIdPath': '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get'
         }
 
         self.context = context

@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+"""
+import os
+import sys
+import argparse
+
+import initenv
+import VContext
+import ServerAdapter
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--tenant', '-t', default='develop', help='tenant')
+    parser.add_argument('rest', nargs=argparse.REMAINDER, help="name path")
+    args = parser.parse_args()
+
+    vContext = VContext.VContext(0, execUser='anonymouse', passThroughEnv={})
+    vContext.tenant = args.tenant
+    serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+    namePaths = args.rest
+    for namePath in namePaths:
+        idInfo = serverAdapter.getDeployIdPath(namePath)
+        sysId = idInfo.get('sysId')
+        moduleId = idInfo.get('moduleId')
+        envId = idInfo.get('envId')
+        print('{} -> {}/{}/{}' % (namePath, sysId, moduleId, envId))
