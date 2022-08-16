@@ -27,4 +27,4 @@ if __name__ == "__main__":
         sysId = idInfo.get('sysId')
         moduleId = idInfo.get('moduleId')
         envId = idInfo.get('envId')
-        print('{} -> {}/{}/{}' % (namePath, sysId, moduleId, envId))
+        print('%s -> %s/%s/%s' % (namePath, sysId, moduleId, envId))
