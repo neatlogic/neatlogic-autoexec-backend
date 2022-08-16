@@ -22,7 +22,7 @@
             "name": "SQL文件编码",
             "help": "SQL文件的编码",
             "type": "select",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "dataSource": {
                 "dataList": [
