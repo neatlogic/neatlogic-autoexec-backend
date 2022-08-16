@@ -1145,7 +1145,7 @@ class RunNode:
                     try:
                         sftp.mkdir(os.path.join(remotePath, 'file'))
                         for file in os.listdir(os.path.join(self.context.runPath, 'file')):
-                            if os.path.isfile(file):
+                            if os.path.isfile(os.path.join(self.context.runPath, 'file', file)):
                                 sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remotePath, 'file', file))
                     except Exception as err:
                         hasError = True

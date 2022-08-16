@@ -9,7 +9,6 @@ use JSON;
 use AutoExecUtils;
 use NetExpect;
 use File::Spec;
-use Data::Dumper;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -97,7 +96,7 @@ sub main {
         foreach my $line (@cmds) {
             $line =~ s/^\s+|\s+$//g;
             if ( $line ne '' ) {
-                print("INFO:: exec $line .\n");
+                print("\nINFO:: exec $line .\n");
                 $sep->runCmd($line);
             }
         }
