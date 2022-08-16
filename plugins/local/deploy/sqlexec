@@ -91,7 +91,7 @@ sub main {
     my $sqlFileArrayJson = $ENV{_SQL_FILES};
     my $sqlInfosInArg;
     if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
-        $sqlInfosInArg = split(/,/,$sqlFileArrayJson);
+        $sqlInfosInArg = from_json($sqlFileArrayJson);
         my $sqlFilesMap = {};
         foreach my $sqlInfo (@$sqlInfosInArg) {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
@@ -100,7 +100,7 @@ sub main {
         $sqlFiles = \@sqlFilesArray;
     }
     elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
-        my @sqlFileArray = split(/,/,$sqlFileJson);
+        my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
         foreach my $sqlFile (@sqlFileArray) {
             $sqlFile =~ s/^\/?file\///;
             push( @$sqlFiles, $sqlFile );

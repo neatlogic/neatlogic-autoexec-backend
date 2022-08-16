@@ -376,12 +376,12 @@ class Operation:
 
         return optValue
 
-    def getOneArgDef(self, val,desc=None, hideValue=False, quota='"'):
+    def getOneArgDef(self, val, desc=None, hideValue=False, quota='"'):
         argDef = ''
         if hideValue:
             val = '******'
-        
-        if desc is not None and desc in self.FILE_TYPES :
+
+        if desc is not None and desc in self.FILE_TYPES:
             files = json.loads(val)
             val = ','.join(files)
 
@@ -419,9 +419,9 @@ class Operation:
 
             argValue = arg.get('value')
             if (isObject or isPassword) and osType != 'windows':
-                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue , quota="'")
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota="'")
             else:
-                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue , quota='"')
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota='"')
         return cmd
 
     def getOneOptDef(self, key, val, desc=None, hideValue=False, quota='"'):
@@ -429,7 +429,7 @@ class Operation:
         if hideValue:
             val = '******'
 
-        if desc is not None and desc in self.FILE_TYPES :
+        if desc is not None and desc in self.FILE_TYPES:
             files = json.loads(val)
             val = ','.join(files)
 

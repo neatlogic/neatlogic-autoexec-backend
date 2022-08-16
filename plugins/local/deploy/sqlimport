@@ -73,7 +73,7 @@ sub main {
 
     my $sqlFiles = [];
     if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
-        my @sqlFileArray = split(/,/,$sqlFileJson);
+        my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
         foreach my $sqlFile (@sqlFileArray) {
             $sqlFile =~ s/^\/?file\///;
             push( @$sqlFiles, $sqlFile );
