@@ -526,6 +526,11 @@
                     "type": "Int"
                 },
                 {
+                    "name": "INSTANCE_NAME",
+                    "desc": "Instance Name",
+                    "type": "String"
+                },
+                {
                     "name": "OS_ID",
                     "desc": "OS ID",
                     "type": "String"

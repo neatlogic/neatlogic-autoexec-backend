@@ -491,6 +491,11 @@
                     "type": "Int"
                 },
                 {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
                     "name": "OS_ID",
                     "desc": "OS ID",
                     "type": "String"

@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -28,11 +33,6 @@
             "type": "Int"
         },
         {
-            "name": "NAME",
-            "desc": "Name",
-            "type": "String"
-        },
-        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
@@ -40,6 +40,11 @@
         {
             "name": "STATE",
             "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
             "type": "String"
         },
         {
@@ -63,74 +68,12 @@
             "type": "String"
         },
         {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "String"
-        },
-        {
             "name": "PORTS",
             "desc": "Port List",
             "type": "Array",
             "subset": [
                 {
                     "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "VCS_HOME",
-            "desc": "Vcs Home",
-            "type": "String"
-        },
-        {
-            "name": "VCS_BIN",
-            "desc": "Vcs Bin",
-            "type": "String"
-        },
-        {
-            "name": "VCS_CONF",
-            "desc": "Vcs Conf",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_IP",
-            "desc": "Cluster IP",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_NAME",
-            "desc": "Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_STATE",
-            "desc": "Cluster State",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_HOST",
-            "desc": "Cluster Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "GROUP",
-                    "desc": "Group",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "State",
-                    "type": "String"
                 }
             ]
         },
@@ -456,6 +399,48 @@
             "type": "String"
         },
         {
+            "name": "CLUSTER_HOST",
+            "desc": "Cluster Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "GROUP",
+                    "desc": "Group",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTER_IP",
+            "desc": "Cluster IP",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_STATE",
+            "desc": "Cluster State",
+            "type": "String"
+        },
+        {
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
@@ -543,6 +528,11 @@
                     "type": "Int"
                 },
                 {
+                    "name": "INSTANCE_NAME",
+                    "desc": "Instance Name",
+                    "type": "String"
+                },
+                {
                     "name": "OS_ID",
                     "desc": "OS ID",
                     "type": "String"
@@ -607,6 +597,21 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "VCS_BIN",
+            "desc": "Vcs Bin",
+            "type": "String"
+        },
+        {
+            "name": "VCS_CONF",
+            "desc": "Vcs Conf",
+            "type": "String"
+        },
+        {
+            "name": "VCS_HOME",
+            "desc": "Vcs Home",
+            "type": "String"
         }
     ]
 }

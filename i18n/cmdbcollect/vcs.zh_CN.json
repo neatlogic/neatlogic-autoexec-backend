@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -28,11 +33,6 @@
             "type": "Int"
         },
         {
-            "name": "NAME",
-            "desc": "名称",
-            "type": "String"
-        },
-        {
             "name": "VERSION",
             "desc": "版本",
             "type": "String"
@@ -41,6 +41,11 @@
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
         },
         {
             "name": "UPTIME",
@@ -63,74 +68,12 @@
             "type": "String"
         },
         {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "PORTS",
             "desc": "端口列表",
             "type": "Array",
             "subset": [
                 {
                     "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "VCS_HOME",
-            "desc": "安装目录",
-            "type": "String"
-        },
-        {
-            "name": "VCS_BIN",
-            "desc": "Bin目录",
-            "type": "String"
-        },
-        {
-            "name": "VCS_CONF",
-            "desc": "配置目录",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_IP",
-            "desc": "集群IP",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_NAME",
-            "desc": "集群名称",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_STATE",
-            "desc": "节点集群状态",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_HOST",
-            "desc": "集群列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "GROUP",
-                    "desc": "分组",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "状态",
-                    "type": "String"
                 }
             ]
         },
@@ -451,6 +394,48 @@
             ]
         },
         {
+            "name": "CLUSTER_HOST",
+            "desc": "集群列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "GROUP",
+                    "desc": "分组",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTER_IP",
+            "desc": "集群IP",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "集群名称",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_STATE",
+            "desc": "节点集群状态",
+            "type": "String"
+        },
+        {
             "name": "COMMAND",
             "desc": "命令行",
             "type": "Text"
@@ -523,6 +508,11 @@
                     "type": "Int"
                 },
                 {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
                     "name": "OS_ID",
                     "desc": "OS ID",
                     "type": "String"
@@ -587,6 +577,21 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "VCS_BIN",
+            "desc": "Bin目录",
+            "type": "String"
+        },
+        {
+            "name": "VCS_CONF",
+            "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "VCS_HOME",
+            "desc": "安装目录",
+            "type": "String"
         }
     ]
 }
