@@ -4,8 +4,9 @@ AUTOEXEC_DIR=$(
     cd $GOSYS_DIR/..
     pwd
 )
+
 DEPLOY_PATH=$1
-DEPLOY_ID_PATH=$(./pconv "$DEPLOY_PATH")
+DEPLOY_ID_PATH=$($GOSYS_DIR/pconv "$DEPLOY_PATH")
 DEPLOY_DATA_PATH="$AUTOEXEC_DIR/data/verdata/$DEPLOY_ID_PATH"
 
 if [ -e "$DEPLOY_DATA_PATH" ]; then
