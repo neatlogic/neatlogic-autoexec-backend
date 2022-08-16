@@ -44,8 +44,8 @@
         },
         {
             "opt": "dryrun",
-            "name": "测试运行",
-            "help": "测试运行，并没有真正执行SQL",
+            "name": "是否执行SQL",
+            "help": "默认是测试运行，并没有真正执行SQL",
             "type": "select",
             "required": "true",
             "validate": "",

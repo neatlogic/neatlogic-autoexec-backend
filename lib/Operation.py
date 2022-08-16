@@ -30,6 +30,7 @@ class Operation:
         self.lockedFDs = []
 
         self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "checkbox": 1, "textarea": 1}
+        self.FILE_TYPES = {"file": 1}
         self.PWD_TYPES = {"password": 1, "account": 1}
 
         self.opId = param['opId']
@@ -375,10 +376,14 @@ class Operation:
 
         return optValue
 
-    def getOneArgDef(self, val, hideValue=False, quota='"'):
+    def getOneArgDef(self, val,desc=None, hideValue=False, quota='"'):
         argDef = ''
         if hideValue:
             val = '******'
+        
+        if desc is not None and desc in self.FILE_TYPES :
+            files = json.loads(val)
+            val = ','.join(files)
 
         if self.interpreter != 'cmd':
             if quota == '"':
@@ -414,15 +419,19 @@ class Operation:
 
             argValue = arg.get('value')
             if (isObject or isPassword) and osType != 'windows':
-                cmd = cmd + self.getOneArgDef(argValue, hideValue=hideValue, quota="'")
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue , quota="'")
             else:
-                cmd = cmd + self.getOneArgDef(argValue, hideValue=hideValue, quota='"')
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue , quota='"')
         return cmd
 
-    def getOneOptDef(self, key, val, hideValue=False, quota='"'):
+    def getOneOptDef(self, key, val, desc=None, hideValue=False, quota='"'):
         optDef = ''
         if hideValue:
             val = '******'
+
+        if desc is not None and desc in self.FILE_TYPES :
+            files = json.loads(val)
+            val = ','.join(files)
 
         if self.interpreter != 'cmd':
             if quota == '"':
@@ -471,9 +480,9 @@ class Operation:
                 hideValue = True
 
             if (isObject or isPassword) and osType != 'windows':
-                cmd = cmd + self.getOneOptDef(k, v, hideValue=hideValue, quota="'")
+                cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota="'")
             else:
-                cmd = cmd + self.getOneOptDef(k, v, hideValue=hideValue, quota='"')
+                cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota='"')
         return cmd
 
     def getOpNameWithExt(self, osType='linux'):
