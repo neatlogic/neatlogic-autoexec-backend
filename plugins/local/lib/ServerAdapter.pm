@@ -860,12 +860,12 @@ sub createJob {
     # }
 
     my $params = {
-        proxyToUrl => $args{proxyToUrl},
-        parentId   => $jobId,
-        execUser   => $args{execUser},
-        source     => 'deploy',
-        name       => $args{name},
-        moduleList => [
+        proxyToUrl     => $args{proxyToUrl},
+        parentId       => $jobId,
+        assignExecUser => $args{execUser},
+        source         => 'deploy',
+        name           => $args{name},
+        moduleList     => [
             {
                 name           => $args{moduleName},
                 version        => $args{version},
