@@ -44,20 +44,20 @@
         },
         {
             "opt": "dryrun",
-            "name": "是否执行SQL",
-            "help": "默认是测试运行，并没有真正执行SQL",
+            "name": "测试运行",
+            "help": "测试运行，并没有真正执行SQL",
             "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
                 "dataList": [
                     {
-                        "text": "否",
-                        "value": "0"
-                    },
-                    {
                         "text": "是",
                         "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
                     }
                 ]
             },
