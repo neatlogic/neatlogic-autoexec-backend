@@ -545,13 +545,16 @@ class RunNode:
                             for arg in op.arguments:
                                 envName = arg.get('value', '')
                                 if envName != '' and os.getenv(envName) is not None:
+                                    self.writeNodeLog('INFO: Execute -> {} {}\n'.format(op.opFullName, envName))
                                     self.context.exportEnv(envName)
                         elif op.opSubName == 'setenv':
                             envName = op.options['name']
                             envValue = op.options['value']
+                            self.writeNodeLog('INFO: Execute -> {} {}={}\n'.format(op.opFullName, envName, envValue))
                             self.context.setEnv(envName, envValue)
                             self.context.exportEnv(envName)
                         elif op.opSubName == 'failkeys':
+                            self.writeNodeLog('INFO: Execute -> {} --operator "{}" --exclude "{}"\n'.format(op.opFullName, op.options.get('operator'), op.options.get('exclude'), ' '.join(op.arguments)))
                             self.logHandle.setFailPattern(op.options.get('operator'), op.arguments, op.options.get('exclude'))
                     except Exception as ex:
                         ret = 1
