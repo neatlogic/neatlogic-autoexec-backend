@@ -429,7 +429,9 @@ sub execOneSqlFile {
         if ( $hasError == 0 ) {
             my $preStatus = $sqlFileStatus->getStatusValue('status');
             if ( $preStatus eq 'waitInput' ) {
-                $endStatus = 'ignored';
+
+                #正常来说，waitInput的下一个状态是running，或者是aborted，succeed和failed前置状态不可能是waitInput，如果是那肯定是有未知错误
+                $endStatus = 'failed';
             }
             else {
                 $endStatus = 'succeed';
@@ -551,8 +553,8 @@ sub needExecute {
         $ret = 1;
     }
     elsif ( $md5Sum eq $preMd5Sum ) {
-        if ( $preStatus eq 'succeed' ) {
-            print("INFO: Sql file:$sqlFile has been executed succeed, ignore.\n");
+        if ( $preStatus eq 'succeed' or $preStatus eq 'ignored' ) {
+            print("INFO: Sql file:$sqlFile has been executed $preStatus, ignore.\n");
         }
         elsif ( $preStatus eq 'running' ) {
             print("INFO: Sql file:$sqlFile is running, ignore.\n");

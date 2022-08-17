@@ -45,10 +45,10 @@ class PhaseWorker(threading.Thread):
 
             if self.context.goToStop == False and self.phaseType == 'sqlfile':
                 print("INFO: SQL file execute begin...\n", end='')
-            elif nodeStatus == NodeStatus.succeed and not self.context.isForce:
+            elif (nodeStatus == NodeStatus.succeed or nodeStatus == NodeStatus.ignored) and not self.context.isForce:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
-                print("INFO: Node({}) status:{} {}:{} had been execute succeed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
+                print("INFO: Node({}) status:{} {}:{} had been executed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
                 try:
                     self.context.serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, node, nodeStatus)
                 except Exception as ex:
