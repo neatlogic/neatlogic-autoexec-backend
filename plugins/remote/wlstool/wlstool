@@ -16,7 +16,6 @@ sub usage {
     my $pname = basename($0);
 
     print("Usage: $pname [--insname instanceName] [--verbose 0|1] [--action ActionName] <wls options...>\n");
-    print("       --insname:     instance name\n");
     print("       --action:      start|stop|deploy|undeploy|patch|unpatch..., see document\n");
     print("       wls options:   weblogic config options, see document\n");
 
@@ -28,12 +27,9 @@ sub main {
 
     my $pname = basename($0);
 
-    Utils::setEnv();
-
     $isVerbose = 0;
 
     my %opts = (
-        insname              => '',
         action               => '',
         inspath              => '',
         verbose              => '',
@@ -70,7 +66,6 @@ sub main {
 
     GetOptions(
         \%opts, qw(
-            insname=s
             action=s
             verbose=i
             java_home=s
@@ -102,18 +97,20 @@ sub main {
             custom_stdoutfiles=s
             USER_MEM_ARGS=s
             JAVA_EXT_OPTS=s
-            )
+        )
     ) || exit(1);
 
-    $insName   = $opts{insname};
+    $insName   = $opts{servername};
     $isVerbose = $opts{verbose};
     $action    = $opts{action};
 
     my $optionError = 0;
     if ( not defined($action) or $action eq '' ) {
+        print("ERROR: Must define action by option --action.\n");
         $optionError = 1;
     }
     if ( not defined($insName) or $insName eq '' ) {
+        print("ERROR: Must define servername by option --servername.\n");
         $optionError = 1;
     }
 
