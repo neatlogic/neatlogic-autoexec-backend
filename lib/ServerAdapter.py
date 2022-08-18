@@ -632,7 +632,8 @@ class ServerAdapter:
             'host': host,
             'port': port,
             'username': username,
-            'accountId': accountId
+            'accountId': accountId,
+            'protocol' : protocol
         }
 
         if username is None:
