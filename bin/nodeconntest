@@ -1,0 +1,150 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+"""
+import os
+import sys
+import json
+import argparse
+import paramiko
+from pysnmp.hlapi import *
+
+import initenv
+import VContext
+import Utils
+import TagentClient
+
+if __name__ == "__main__":
+    # 参数处理
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='{}', help='Json, example:{"nodeName":"myNode","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544471568384,"host":"192.168.0.101","nodeType":"Linux","protocolPort":22,"username":"root"}')
+
+    args = parser.parse_args()
+
+    node = args.node
+    if args.node is None:
+        node = os.getenv('AUTOEXEC_NODE')
+
+    if node is None or node == '':
+        print("ERROR: Node not defined by option --node or enviroment variable AUTOEXEC_NODE")
+        exitCode = 3
+        os.exit(exitCode)
+
+    nodeInfo = json.loads(node)
+
+    password = nodeInfo['password']
+    if password.startswith('{ENCRYPTED}'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
+    elif password.startswith('{RC4}'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[5:])
+    if password.startswith('RC:'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[3:])
+
+    nodeInfo['password'] = password
+
+    protocol = nodeInfo.get('protocol')
+
+    nodeName = None
+    nodeType = None
+    host = None
+    port = None
+    protocolPort = None
+    username = None
+    password = None
+
+    try:
+        nodeName = nodeInfo['nodeName']
+        nodeType = nodeInfo['nodeType']
+        host = nodeInfo['host']
+        port = nodeInfo['port']
+        protocolPort = nodeInfo['protocolPort']
+        username = nodeInfo['username']
+        password = nodeInfo['password']
+    except Exception as ex:
+        exitCode = 3
+        print("ERROR: %s" % (str(ex)))
+        os.exit(exitCode)
+
+    exitCode = 0
+
+    if protocol == 'ssh':
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        sys.tracebacklimit = -1
+        try:
+            ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10)
+            print("INFO: Connect to {}@{}:{} success.".format(username, host, protocolPort))
+        except BaseException as ex:
+            exitCode = 1
+            print("ERROR: Connect to {}@{}:{} failed, {}".format(username, host, protocolPort, ex))
+        finally:
+            if ssh is not None:
+                ssh.close()
+    elif protocol == 'tagent':
+        tagent = TagentClient.TagentClient(host, protocolPort, password=password, readTimeout=360, writeTimeout=10)
+        exitCode = tagent.execCmd('echo test')
+        if exitCode != 0:
+            exitCode = 1
+    elif protocol == 'database':
+        binPaths = os.path.split(os.path.realpath(__file__))
+        homePath = os.path.realpath(binPaths[0]+'/..')
+        os.environ['AUTOEXEC_HOME'] = homePath
+        os.environ['PERL5LIB'] = '%s/plugins/local/deploy/lib:%s/plugins/local/lib:%s/plugins/local/pllib/lib/perl5' % (homePath, homePath, homePath)
+        cmd = '%s/plugins/local/deploy/dbconntest' % (homePath)
+        os.execl(cmd, '--dbtype', nodeType, '--host', host, '--port', port, '--dbname', nodeName, '--username', username, '--password', password)
+    elif protocol == 'snmp':
+        iterator = getCmd(
+            SnmpEngine(),
+            # UsmUserData(
+            #     'usr-sha-aes128', 'authkey1', 'privkey1',
+            #     authProtocol=USM_AUTH_HMAC96_SHA,
+            #     privProtocol=USM_PRIV_CFB128_AES
+            # ),
+            CommunityData(password),
+            UdpTransportTarget((host, protocolPort)),
+            ContextData(),
+            ObjectType(ObjectIdentity('1.3.6.1.2.1.1.2.0'))
+        )
+
+        errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
+
+        if errorIndication:
+            exitCode = 1
+            print(errorIndication)
+
+        elif errorStatus:
+            exitCode = 1
+            print('%s at %s' % (errorStatus.prettyPrint(),
+                                errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+    elif protocol == 'snmpv3':
+        iterator = getCmd(
+            SnmpEngine(),
+            UsmUserData(
+                userName=username, authKey=password, privKey=password,  # 第一个为snmp用户名，第二个为认证密码，第三个为加密密码
+                authProtocol=usmHMACSHAAuthProtocol,
+                privProtocol=usmDESPrivProtocol
+            ),
+            UdpTransportTarget((host, protocolPort)),
+            ContextData(),
+            ObjectType(ObjectIdentity('1.3.6.1.2.1.1.2.0'))
+        )
+
+        errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
+
+        if errorIndication:
+            exitCode = 1
+            print(errorIndication)
+
+        elif errorStatus:
+            exitCode = 1
+            print('%s at %s' % (errorStatus.prettyPrint(),
+                                errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+    else:
+        print("ERROR: Connection test for rotocol %s not support." % (protocol))
+        exitCode = 2
+
+    exit(exitCode)
