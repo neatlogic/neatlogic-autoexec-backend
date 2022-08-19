@@ -75,8 +75,8 @@
         }
     ],
     "argument": {
-        "name": "日志",
-        "help": "日志路径，支持通配符和反引号，多个pattern逗号相隔",
+        "name": "日志路径",
+        "help": "日志路径，支持通配符和反引号，用于执行启动命令后展示启动日志",
         "type": "text",
         "count": 0,
         "isConst": "false",
