@@ -9,7 +9,6 @@ use Encode;
 use Getopt::Long;
 use File::Basename;
 use LogTailer;
-use ArgTokenizer;
 
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
