@@ -134,8 +134,14 @@ sub main {
         my $tokenizer = ArgTokenizer->new();
         my $argList   = $tokenizer->tokenize($preScript);
         if ( $argList[0] eq 'bash' or $argList[0] eq 'sh' ) {
-            if ( not -e $argList[1] ) {
-                print("WARN: File '$argList[1]' not exists.\n");
+            my $argCount = scalar(@$argList);
+            for ( my $i = 1 ; $i < $argCount ; $i++ ) {
+                if ( $argList[$i] !~ /^-/ ) {
+                    if ( not -e $argList[$i] ) {
+                        print("WARN: File '$argList[$i]' not exists.\n");
+                    }
+                    last;
+                }
             }
         }
         elsif ( not -x $argList[0] ) {
