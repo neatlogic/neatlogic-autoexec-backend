@@ -1,8 +1,4 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-
 use strict;
 
 package LogTailer;
@@ -15,8 +11,20 @@ use Cwd;
 use IO::Socket::INET;
 use HTTP::Tiny;
 
+sub new {
+    my ( $pkg, $preScript, $pid ) = @_;
+
+    my $self = {
+        preScript => $preScript,
+        procPid   => $pid
+    };
+    bless( $self, $pkg );
+
+    return $self;
+}
+
 sub _tailLog {
-    my ( $logInfo, $callback ) = @_;
+    my ( $self, $logInfo, $callback ) = @_;
     $| = 1;
 
     my $serverName = $logInfo->{server};
@@ -69,7 +77,7 @@ sub _tailLog {
 }
 
 sub globPatterns {
-    my ( $logPatterns, $logPaths, $logInfos ) = @_;
+    my ( $self, $logPatterns, $logPaths, $logInfos ) = @_;
 
     foreach my $logPattern ( keys(%$logPatterns) ) {
         my @logFiles      = glob($logPattern);
@@ -104,22 +112,22 @@ sub globPatterns {
 }
 
 sub _tailLogs {
-    my ( $logInfos, $callback ) = @_;
+    my ( $self, $logInfos, $callback ) = @_;
 
     my $logPatterns = $$logInfos[0];
     my $logPaths    = $$logInfos[1];
 
-    globPatterns( $logPatterns, $logPaths, $logInfos );
+    $self->globPatterns( $logPatterns, $logPaths, $logInfos );
 
     my $logsCount = scalar(@$logInfos);
     for ( my $i = 2 ; $i < $logsCount ; $i++ ) {
         my $logInfo = $$logInfos[$i];
-        my $newPos  = _tailLog( $logInfo, $callback );
+        my $newPos  = $self->_tailLog( $logInfo, $callback );
     }
 }
 
 sub _checkUrl {
-    my ( $url, $method, $timeout, $checkType, $loopNo ) = @_;
+    my ( $self, $url, $method, $timeout, $checkType, $loopNo ) = @_;
     my $svcStatus = 0;
 
     if ( not defined($method) or $method eq '' ) {
@@ -168,7 +176,7 @@ sub _checkUrl {
 }
 
 sub _checkTcp {
-    my ( $host, $port, $timeout, $checkType, $loopNo ) = @_;
+    my ( $self, $host, $port, $timeout, $checkType, $loopNo ) = @_;
 
     my $svcStatus = 0;
 
@@ -209,7 +217,7 @@ sub _checkTcp {
 }
 
 sub _checkService {
-    my ( $addrDef, $eofStr, $timeout, $logInfos, $upOrDown ) = @_;
+    my ( $self, $addrDef, $eofStr, $timeout, $logInfos, $upOrDown ) = @_;
 
     $| = 1;
 
@@ -234,7 +242,7 @@ sub _checkService {
         };
     }
 
-    _tailLogs( $logInfos, $callback );
+    $self->_tailLogs( $logInfos, $callback );
 
     my $checkType;
 
@@ -263,7 +271,7 @@ sub _checkService {
 
             if ( index( $addr, 'http' ) == 0 ) {
                 $url       = $addr;
-                $svcStatus = _checkUrl( $url, 'GET', $step * 3, $checkType, $i );
+                $svcStatus = $self->_checkUrl( $url, 'GET', $step * 3, $checkType, $i );
                 if ( $svcStatus != $upOrDown ) {
                     last;
                 }
@@ -273,7 +281,7 @@ sub _checkService {
             }
             else {
                 ( $host, $port ) = split( /\s*:\s*/, $addr );
-                $svcStatus = _checkTcp( $host, $port, $step * 3, $checkType, $i );
+                $svcStatus = $self->_checkTcp( $host, $port, $step * 3, $checkType, $i );
                 if ( $svcStatus != $upOrDown ) {
                     last;
                 }
@@ -283,7 +291,7 @@ sub _checkService {
             }
         }
 
-        _tailLogs( $logInfos, $callback );
+        $self->_tailLogs( $logInfos, $callback );
 
         if ( $svcStatus == $upOrDown ) {
             last;
@@ -294,6 +302,17 @@ sub _checkService {
             undef($svcStatus);
             print("WARN: Check timeout($timeout)\n");
             last;
+        }
+
+        my $procPid = $self->{procPid};
+        if ( defined($procPid) ) {
+            my $rc = waitpid( $procPid, 1 );
+            if ( $rc > 0 ) {
+                my $chldExitCode = $?;
+                if ( $chldExitCode != 0 ) {
+                    print("WARN: Execute command failed:$self->{preScript}\n");
+                }
+            }
         }
 
         sleep($step);
@@ -320,17 +339,17 @@ sub _checkService {
 }
 
 sub checkUntilServiceUp {
-    my ( $addrDef, $eofStr, $timeout, $logInfos ) = @_;
-    return _checkService( $addrDef, $eofStr, $timeout, $logInfos, 1 );
+    my ( $self, $addrDef, $eofStr, $timeout, $logInfos ) = @_;
+    return $self->_checkService( $addrDef, $eofStr, $timeout, $logInfos, 1 );
 }
 
 sub checkUntilServiceDown {
-    my ( $addrDef, $eofStr, $timeout, $logInfos ) = @_;
-    return _checkService( $addrDef, $eofStr, $timeout, $logInfos, 0 );
+    my ( $self, $addrDef, $eofStr, $timeout, $logInfos ) = @_;
+    return $self->_checkService( $addrDef, $eofStr, $timeout, $logInfos, 0 );
 }
 
 sub checkEofstr {
-    my ( $eofStr, $timeout, $logInfos ) = @_;
+    my ( $self, $eofStr, $timeout, $logInfos ) = @_;
 
     $| = 1;
 
@@ -343,7 +362,7 @@ sub checkEofstr {
         }
     };
 
-    _tailLogs( $logInfos, $callback );
+    $self->_tailLogs( $logInfos, $callback );
 
     my $step      = 3;
     my $stepCount = $timeout / $step;
@@ -355,7 +374,7 @@ sub checkEofstr {
             print("INFO:waiting for '$eofStr'....\n");
         }
 
-        _tailLogs( $logInfos, $callback );
+        $self->_tailLogs( $logInfos, $callback );
 
         if ( $isSuccess == 1 ) {
             last;

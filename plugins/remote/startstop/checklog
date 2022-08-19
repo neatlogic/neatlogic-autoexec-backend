@@ -6,7 +6,6 @@ use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 use strict;
 use Getopt::Long;
 use File::Basename;
-use LogTailer;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -97,7 +96,7 @@ sub main {
         'logpath:s'   => \$logPathPattern,
         'maxsize:i'   => \$maxLogSize,
         'op:s'        => \$patternOp,
-        '<>'        => sub { my $item = shift(@_); push( @patterns, $item ); }
+        '<>'          => sub { my $item = shift(@_); push( @patterns, $item ); }
     );
 
     my $optError = 0;

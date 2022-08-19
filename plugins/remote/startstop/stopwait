@@ -126,6 +126,7 @@ sub main {
         print("INFO: execte script:$preScript\n");
         my $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
+
             #my $ret = system($preScript);
             #if ( $ret ne 0 ) {
             #    print("WARN: execute pre script:$preScript failed.\n");
@@ -155,11 +156,13 @@ sub main {
     }
 
     my $svcStatus = 1;
+    my $logTailer = LogTailer->new( $preScript, $pid );
+
     if ( defined($addr) and $addr ne '' ) {
-        $svcStatus = LogTailer::checkUntilServiceDown( $addr, $eofStr, $timeout, \@serverLogInfos );
+        $svcStatus = $logTailer->checkUntilServiceDown( $addr, $eofStr, $timeout, \@serverLogInfos );
     }
     elsif ( defined($eofStr) and $eofStr ne '' ) {
-        $svcStatus = LogTailer::checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+        $svcStatus = $logTailer->checkEofstr( $eofStr, $timeout, \@serverLogInfos );
     }
 
     if ( defined($postScript) and $postScript ne '' ) {
@@ -172,10 +175,10 @@ sub main {
 
     if ( $svcStatus != 0 ) {
         if ( defined($addr) and $addr ne '' ) {
-            $svcStatus = LogTailer::checkUntilServiceDown( $addr, $eofStr, 10, \@serverLogInfos );
+            $svcStatus = $logTailer->checkUntilServiceDown( $addr, $eofStr, 10, \@serverLogInfos );
         }
         elsif ( defined($eofStr) and $eofStr ne '' ) {
-            $svcStatus = LogTailer::checkEofstr( $eofStr, 10, \@serverLogInfos );
+            $svcStatus = $logTailer->checkEofstr( $eofStr, 10, \@serverLogInfos );
         }
     }
 
