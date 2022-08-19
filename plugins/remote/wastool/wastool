@@ -121,9 +121,6 @@ sub main {
         $hasError = 1;
     }
 
-    my $deploysysHome = $ENV{DEPLOYSYS_HOME};
-    my $logger        = Logger->new("$deploysysHome/logs");
-
     my $appname = '';
     foreach my $key ( keys(%opts) ) {
         if ( $key eq "appname" ) {
