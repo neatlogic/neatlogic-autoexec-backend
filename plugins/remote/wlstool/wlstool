@@ -167,9 +167,9 @@ sub execAction {
             $envParams = '"' . join( '" "', @$envArgs ) . '"';
         }
 
-        my $confFH = IO::File->new(">conf/wls.ini");
+        my $confFH = IO::File->new(">conf/wlstool.ini");
         if ( not defined($confFH) ) {
-            print("ERROR: Can not open file conf/was.ini to write, $!\n");
+            print("ERROR: Can not open file conf/wastool.ini to write, $!\n");
             exit(2);
         }
         else {
