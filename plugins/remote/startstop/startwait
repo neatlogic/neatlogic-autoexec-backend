@@ -146,7 +146,9 @@ sub main {
                 }
             };
 
-            exec($preScript);
+            if ( not exec($preScript) ) {
+                exit(2);
+            }
         }
 
         END {

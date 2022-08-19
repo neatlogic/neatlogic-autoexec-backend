@@ -133,7 +133,9 @@ sub main {
             #    print("WARN: execute pre script:$preScript failed.\n");
             #}
             #exit($ret);
-            exec($preScript);
+            if ( not exec($preScript) ) {
+                exit(2);
+            }
         }
 
         END {
