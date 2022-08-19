@@ -121,10 +121,11 @@ sub main {
         }
     }
 
+    my $pid;
     $SIG{CHLD} = 'IGNORE';
     if ( defined($preScript) and $preScript ne '' ) {
         print("INFO: execte script:$preScript\n");
-        my $pid = fork();
+        $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
 
             #my $ret = system($preScript);

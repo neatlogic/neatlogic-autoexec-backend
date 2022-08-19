@@ -128,11 +128,11 @@ sub main {
         }
     }
 
+    my $pid;
     $SIG{CHLD} = 'IGNORE';
     if ( defined($preScript) and $preScript ne '' ) {
         print("INFO: execte script:$preScript\n");
-        my $ppid = $$;
-        my $pid  = fork();
+        $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
             my $OLDSTDOUT;
             open( $OLDSTDOUT, '>&', STDOUT );
@@ -174,14 +174,6 @@ sub main {
                 }
                 close(STDIN);
                 close(STDOUT);
-            }
-        }
-
-        my $chldPid = waitpid( $pid, 1 );
-        if ( $chldPid > 0 ) {
-            my $chldExitCode = $?;
-            if ( $chldExitCode != 0 ) {
-                print("WARN: Execute command failed:$preScript\n");
             }
         }
     }
