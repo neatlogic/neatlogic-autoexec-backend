@@ -17,9 +17,10 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --addr <url | host:port> --eofstr <eof string pattern> [--timeout <seconds>] [--prescript <script to execute>] [--endprescript <0|1>] [--postscript <script to execute> <log file pattern1>,<log file pattern2> ...\n");
+    print("Usage: $pname --addr <url | host:port> --eofstr <eof string pattern> [--timeout <seconds>] [--prescript <script to execute>] [--closetty 0|1] [--endprescript 0|1] [--postscript <script to execute> <log file pattern1>,<log file pattern2> ...\n");
     print("       url | host:port: example: http://10.0.0.1:8080/test or 10.0.0.1:8080\n");
     print("       eof string pattern: end tail log while match this pattern, low priority\n");
+    print("       closetty:          close start script process tty\n");
     print("       timeout:           timeout seconds\n");
     print("       prescript:         script to be execute before tail log\n");
     print("       postscript:        script to be execute after tail log ended\n");
@@ -36,17 +37,19 @@ sub main {
 
     my $pname = $FindBin::Script;
 
-    my ( $isVerbose, $addr, $eofStr, $timeout, $preScript, $postScript, $endPreScript, @logPatterns );
-    $timeout = 300;
+    my ( $isVerbose, $addr, $eofStr, $timeout, $preScript, $closeTTY, $postScript, $endPreScript, @logPatterns );
+    $timeout  = 300;
+    $closeTTY = 0;
 
     GetOptions(
-        'verbose:i'      => \$isVerbose,
-        'addr:s'         => \$addr,
-        'eofstr:s'       => \$eofStr,
-        'timeout:i'      => \$timeout,
-        'prescript:s'    => \$preScript,
-        'postscript:s'   => \$postScript,
-        'endprescript:i' => \$endPreScript,
+        'verbose=i'      => \$isVerbose,
+        'addr=s'         => \$addr,
+        'eofstr=s'       => \$eofStr,
+        'timeout=i'      => \$timeout,
+        'prescript=s'    => \$preScript,
+        'closetty=i'     => \$closeTTY,
+        'postscript=s'   => \$postScript,
+        'endprescript=i' => \$endPreScript,
         '<>'             => sub { my $item = shift(@_); push( @logPatterns, $item ); }
     );
 
@@ -133,16 +136,18 @@ sub main {
         print("INFO: execte script:$preScript\n");
         $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
-            my $OLDSTDOUT;
-            open( $OLDSTDOUT, '>&', STDOUT );
+
             eval {
                 if ( $ostype !~ /Windows/i ) {
-                    open( STDIN,  '/dev/null' );
-                    open( STDOUT, '>>/dev/null' );
-                    open( STDERR, '>>/dev/null' );
+                    if ( $closeTTY == 1 ) {
+                        open( STDIN,  '/dev/null' );
+                        open( STDOUT, '>>/dev/null' );
+                        open( STDERR, '>>/dev/null' );
+                    }
                     POSIX::setsid();
-                    chdir('/');
                 }
+
+                chdir('/');
             };
 
             $SIG{CHLD} = 'IGNORE';

@@ -17,6 +17,27 @@
             "defaultValue": ""
         },
         {
+            "opt": "closetty",
+            "name": "关闭TTY",
+            "help": "关闭标准输入输出，对于启动后因父进程退出而退出的应用需要启用此选项",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
             "opt": "addr",
             "name": "服务地址",
             "help": "URL或者IP:PORT，例如：http://127.0.0.1:8080",
@@ -54,7 +75,7 @@
         },
         {
             "opt": "endprescript",
-            "name": "Kill启动命令",
+            "name": "终止启动命令",
             "help": "用于某些启动命令启动成功后，需要Ctrl+C的情况",
             "type": "select",
             "required": "true",

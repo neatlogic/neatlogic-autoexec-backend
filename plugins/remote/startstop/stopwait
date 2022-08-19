@@ -38,13 +38,13 @@ sub main {
     $timeout = 300;
 
     GetOptions(
-        'verbose:i'      => \$isVerbose,
-        'addr:s'         => \$addr,
-        'eofstr:s'       => \$eofStr,
-        'timeout:i'      => \$timeout,
-        'prescript:s'    => \$preScript,
-        'postscript:s'   => \$postScript,
-        'endprescript:i' => \$endPreScript,
+        'verbose=i'      => \$isVerbose,
+        'addr=s'         => \$addr,
+        'eofstr=s'       => \$eofStr,
+        'timeout=i'      => \$timeout,
+        'prescript=s'    => \$preScript,
+        'postscript=s'   => \$postScript,
+        'endprescript=i' => \$endPreScript,
         '<>'             => sub { my $item = shift(@_); push( @logPatterns, $item ); }
     );
 
