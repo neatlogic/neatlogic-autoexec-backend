@@ -16,7 +16,7 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname [--insname instanceName] [--verbos 0|1] [--action ActionName] <was options...>\n");
+    print("Usage: $pname [--verbos 0|1] [--action ActionName] <was options...>\n");
     print("       --action:    start|stop|deploy|undeploy|patch|unpatch..., see document\n");
     print("       was options: webshpere application server config options, see document\n");
 

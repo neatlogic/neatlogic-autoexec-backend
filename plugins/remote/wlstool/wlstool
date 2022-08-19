@@ -15,7 +15,7 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = basename($0);
 
-    print("Usage: $pname [--insname instanceName] [--verbose 0|1] [--action ActionName] <wls options...>\n");
+    print("Usage: $pname [--verbose 0|1] [--action ActionName] <wls options...>\n");
     print("       --action:      start|stop|deploy|undeploy|patch|unpatch..., see document\n");
     print("       wls options:   weblogic config options, see document\n");
 
