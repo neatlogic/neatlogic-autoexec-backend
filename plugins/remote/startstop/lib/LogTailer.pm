@@ -3,9 +3,10 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
+use strict;
+
 package LogTailer;
 
-use strict;
 use File::Copy;
 use File::Path;
 use File::Basename;
@@ -261,7 +262,7 @@ sub _checkService {
             }
 
             if ( index( $addr, 'http' ) == 0 ) {
-                $url = $addr;
+                $url       = $addr;
                 $svcStatus = _checkUrl( $url, 'GET', $step * 3, $checkType, $i );
                 if ( $svcStatus != $upOrDown ) {
                     last;
@@ -283,7 +284,7 @@ sub _checkService {
         }
 
         _tailLogs( $logInfos, $callback );
-        
+
         if ( $svcStatus == $upOrDown ) {
             last;
         }

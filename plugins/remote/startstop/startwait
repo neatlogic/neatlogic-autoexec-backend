@@ -9,6 +9,7 @@ use Encode;
 use Getopt::Long;
 use File::Basename;
 use LogTailer;
+use ArgTokenizer;
 
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
@@ -130,6 +131,17 @@ sub main {
     $SIG{CHLD} = 'IGNORE';
     if ( defined($preScript) and $preScript ne '' ) {
         print("INFO: execte script:$preScript\n");
+        my $tokenizer = ArgTokenizer->new();
+        my $argList   = $tokenizer->tokenize($preScript);
+        if ( $argList[0] eq 'bash' or $argList[0] eq 'sh' ) {
+            if ( not -e $argList[1] ) {
+                print("WARN: File '$argList[1]' not exists.\n");
+            }
+        }
+        elsif ( not -x $argList[0] ) {
+            print("WARN: Can not execute file '$argList[0]', permission denied.\n");
+        }
+
         my $ppid = $$;
         my $pid  = fork();
         if ( defined($pid) and $pid == 0 ) {
@@ -141,15 +153,11 @@ sub main {
                     open( STDOUT, '>>/dev/null' );
                     open( STDERR, '>>/dev/null' );
                     POSIX::setsid();
+                    chdir('/');
                 }
             };
 
-            my $ret = system($preScript);
-            if ( $ret ne 0 ) {
-                print $OLDSTDOUT ("ERROR: execute pre script:$preScript failed.\n");
-                kill( 'INT', $ppid );
-            }
-            exit($ret);
+            exec($preScript);
         }
 
         END {
