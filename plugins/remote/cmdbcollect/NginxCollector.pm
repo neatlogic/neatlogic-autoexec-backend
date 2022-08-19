@@ -25,6 +25,27 @@ sub getConfig {
     };
 }
 
+sub getMasterProc {
+    my ($self) = @_;
+
+    my $procInfo;
+    my $pFinder = $self->{pFinder};
+
+    my $pid;
+    my $masterPsLines = $self->getCmdOutLines('ps -eo pid,args |grep nginx |grep master');
+    foreach my $line (@$masterPsLines) {
+        if ( $line !~ /grep/ and $line =~ /^\s*(\d+)/ ) {
+            $pid = $1;
+            last;
+        }
+    }
+    if ( defined($pid) ) {
+        $procInfo = $pFinder->getProcess($pid);
+    }
+
+    return $procInfo;
+}
+
 sub collect {
     my ($self) = @_;
 
@@ -34,8 +55,8 @@ sub collect {
     }
     my $procInfo = $self->{procInfo};
     my $command  = $procInfo->{COMMAND};
-
     my $exePath = $procInfo->{EXECUTABLE_FILE};
+
     if ( $command =~ /^.*?(\/.*?\/nginx)(?=\s)/ or $command =~ /^.*?(\/.*?\/nginx)$/ ) {
         $exePath = $1;
     }
@@ -78,6 +99,31 @@ sub collect {
         $configPath = File::Spec->catfile( $basePath,   "conf" );
         $configFile = File::Spec->catfile( $configPath, "nginx.conf" );
     }
+
+    #nginx子进程读取配置文件目录，子进程读取不到配置就读取父进程的配置，如读取不到直接return
+    if (! -e $configFile ){
+        my $masterProcInfo = $self->getMasterProc();
+        if ( defined($masterProcInfo) ) {
+            my $pprocInfo = $masterProcInfo->{procInfo};
+            my $pcommand  = $pprocInfo->{COMMAND};
+            my $ppid      = $pprocInfo->{PID};
+            my $pworkPath = readlink("/proc/$ppid/cwd");
+
+            if ( $pcommand =~ /\s-c\s+(.*?)\s+-/ or $pcommand =~ /\s-c\s+(.*?)\s*$/ ) {
+                $configFile = $1;
+                if ( $configFile !~ /^\// ) {
+                    $configFile = "$pworkPath/$configFile";
+                }
+                $configPath = dirname($configFile);
+            }           
+            if(! -e $configFile ) {
+                return undef;
+            }
+        }else{
+            return undef;
+        }
+    }
+
     $self->{'configPath'} = $configPath;
     $self->{'configFile'} = $configFile;
 
@@ -245,11 +291,15 @@ sub getIncludeFiles {
         if ( $file =~ /\*/ ) {
             my @rexfiles = glob("$file");
             foreach my $conf (@rexfiles) {
-                push( @confFiles, $conf );
+                if(-e $conf){
+                    push( @confFiles, $conf );
+                }
             }
         }
         else {
-            push( @confFiles, $file );
+            if(-e $file){
+                push( @confFiles, $file );
+            }
         }
     }
     return \@confFiles;
