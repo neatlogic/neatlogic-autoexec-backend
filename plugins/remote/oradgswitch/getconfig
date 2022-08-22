@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 
 use strict;
 use Getopt::Long;
@@ -105,7 +106,7 @@ sub main {
     GetOptions(
         $opts, qw{
             sid=s
-            }
+        }
     );
 
     my ( $dbName, $isRAC, $dbUniqueName, $dbSequence, $tempFilesCount ) = getConfig( $opts->{sid} );

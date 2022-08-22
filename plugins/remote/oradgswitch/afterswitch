@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 
 use strict;
 use Getopt::Long;
@@ -87,7 +88,7 @@ sub main {
         $opts, qw{
             sid=s
             primaryuniquename=s
-            }
+        }
     );
 
     my $hasError = afterSwitchCheck($opts);

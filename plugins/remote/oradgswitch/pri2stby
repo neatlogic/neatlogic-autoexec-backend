@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use FindBin;
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 
 use strict;
 use Getopt::Long;
@@ -27,7 +28,7 @@ sub switchToStandby {
 
     #alter database commit to switchover to physical standby with session shutdown;
     my $hasError = 0;
-    my $sqlplus = SqlplusExec->new( sid => $sid );
+    my $sqlplus  = SqlplusExec->new( sid => $sid );
 
     print("INFO: Try to switch to standby...\n");
     $sqlplus->do(
@@ -68,7 +69,7 @@ sub main {
     GetOptions(
         $opts, qw{
             sid=s
-            }
+        }
     );
 
     my $hasError = switchToStandby( $opts->{sid} );
