@@ -20,9 +20,9 @@ def usage():
 def getObjCatPkDef(objCat, customPkDef):
     pkDefs = {
         'INS': ['MGMT_IP',       'PORT'],
-        'DB': ['NAME',          'PRIMARY_IP', 'PORT'],
-        'CLUSTER': ['NAME',          'PRIMARY_IP', 'PORT'],
-        'DBINS': ['INSTANCE_NAME', 'MGMT_IP', 'PORT'],
+        'DB': ['PRIMARY_IP', 'PORT', 'NAME'],
+        'CLUSTER': ['PRIMARY_IP', 'PORT', 'NAME'],
+        'DBINS': ['MGMT_IP', 'PORT', 'INSTANCE_NAME'],
         'OS': ['MGMT_IP'],
         'HOST': ['MGMT_IP', 'BOARD_SERIAL'],
         'NETDEV': ['MGMT_IP', 'SN'],

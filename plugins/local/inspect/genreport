@@ -18,6 +18,32 @@ def usage():
     exit(1)
 
 
+def getObjCatPkDef(objCat, customPkDef):
+    pkDefs = {
+        'INS': ['MGMT_IP',       'PORT'],
+        'DB': ['PRIMARY_IP', 'PORT', 'NAME'],
+        'CLUSTER': ['PRIMARY_IP', 'PORT', 'NAME'],
+        'DBINS': ['MGMT_IP', 'PORT', 'INSTANCE_NAME'],
+        'OS': ['MGMT_IP'],
+        'HOST': ['MGMT_IP', 'BOARD_SERIAL'],
+        'NETDEV': ['MGMT_IP', 'SN'],
+        'SECDEV': ['MGMT_IP', 'SN'],
+        'VIRTUALIZED': ['MGMT_IP'],
+        'SWITCH': ['MGMT_IP', 'SN'],
+        'FIREWALL': ['MGMT_IP', 'SN'],
+        'LOADBALANCER': ['MGMT_IP', 'SN'],
+        'STORAGE': ['MGMT_IP', 'SN'],
+        'FCSWITCH': ['MGMT_IP', 'SN'],
+        'K8S': ['MGMT_IP'],
+        'UNKNOWN': ['MGMT_IP']
+    }
+    fixPkDef = pkDefs.get(objCat)
+    if fixPkDef is not None:
+        return fixPkDef
+
+    return customPkDef
+
+
 def getLevelNo(level):
     levelNo = 0
     if level.upper() == 'WARN':
@@ -117,10 +143,9 @@ def getMetricsDef(db, objCat, objType):
 
 
 def getInspectData(nodeInfo):
-    ip = nodeInfo['host']
-    port = None
-    if 'port' in nodeInfo:
-        port = nodeInfo['port']
+    ip = nodeInfo.get('host')
+    port = nodeInfo.get('port')
+    nodeName = nodeInfo.get('nodeName')
 
     dataRecords = []
     inspectData = {}
@@ -157,10 +182,8 @@ def getInspectData(nodeInfo):
 
         for data in collectData:
             isMalformData = 0
-            if 'PK' not in data:
-                isMalformData = 1
-                print('WARN: Data not defined PK.')
-            if '_OBJ_CATEGORY' not in data:
+            objCat = data.get('_OBJ_CATEGORY')
+            if objCat is None:
                 isMalformData = 1
                 print('WARN: Data not defined _OBJ_CATEGORY.')
             if isMalformData == 1:
@@ -168,7 +191,7 @@ def getInspectData(nodeInfo):
                 continue
 
             # 如果数据的归属类别跟定义和节点信息一致，则抽取并返回数据记录
-            if data['MGMT_IP'] == ip:
+            if data.get('MGMT_IP') == ip or data.get('PRIMARY_IP') == ip:
                 if port is not None:
                     if 'PORT' not in data:
                         print('WARN: Data has no port.')
@@ -177,8 +200,12 @@ def getInspectData(nodeInfo):
                     if int(data['PORT']) != port:
                         print('WARN: Data not match port:{} but:{}.'.format(port, data['PORT']))
                         continue
+                if objCat == 'DBINS' and data.get('INSTANCE_NAME') != nodeName:
+                    continue
+                elif objCat == 'DB' and data.get('NAME') != nodeName:
+                    continue
 
-                print("INFO: Data matched {}:{}.".format(ip, port))
+                print("INFO: Data matched {}:{}/{}.".format(ip, port, nodeName))
                 nodeData = data
                 nodeData.update(inspectData)
                 dataRecords.append(nodeData)
