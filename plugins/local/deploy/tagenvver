@@ -31,10 +31,16 @@ sub main {
 
     my $deployUtils = DeployUtils->new();
     my $deployEnv   = $deployUtils->deployInit( $envPath, $version, $buildNo );
-
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
     $buildNo = $deployEnv->{BUILD_NO};
+
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        my $serverAdapter = ServerAdapter->new();
+        my $verInfo       = $serverAdapter->getEnvVer( $deployEnv, $version );
+        $buildNo = $verInfo->{buildNo};
+        $deployEnv->{BUILD_NO} = $buildNo;
+    }
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -47,7 +53,7 @@ sub main {
     }
     if ( not defined($buildNo) or $buildNo eq '' ) {
         $optionError = 1;
-        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
     }
     if ( $optionError == 1 ) {
         usage();
