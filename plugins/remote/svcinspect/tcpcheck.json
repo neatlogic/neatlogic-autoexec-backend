@@ -1,11 +1,11 @@
 {
-    "opName": "TCP连通性检查",
-    "opType": "runner_target",
+    "opName": "TCP检查",
+    "opType": "target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "在Runner上检查是否可以建立TCP连接到目标",
+    "description": "在服务端OS内检查TCP监听",
     "option": [
         {
             "opt": "timeout",

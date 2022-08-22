@@ -1,11 +1,11 @@
 {
-    "opName": "TCP连通性检查",
+    "opName": "URL序列检查",
     "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "在Runner上检查是否可以建立TCP连接到目标",
+    "description": "检查多个URL是否可以正常访问",
     "option": [
         {
             "opt": "timeout",
@@ -17,6 +17,16 @@
             "defaultValue": "10"
         }
     ],
+    "argument": {
+        "name": "HTTP请求",
+        "help": "例如：GET, http://${host}:${port}/console",
+        "isConst": "false",
+        "type": "text",
+        "count": 0,
+        "defaultValue": "GET, http://${host}:${port}/",
+        "required": "true",
+        "validate": ""
+    },
     "output": [
         {
             "opt": "DATA",
