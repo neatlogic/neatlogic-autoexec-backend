@@ -523,9 +523,12 @@ sub getTopasOut {
         my $line;
         my $count = 22;
         while ( $line = <$fromChild> ) {
-            $line =~ s/\e\[[\d,\s]+[A-Z]/ /ig;
-            $line =~ s/\e\[.*$//g;
+            $line =~ s/\e\[[\d,\s]*[a-zA-Z]/ /g;
+            $line =~ s/\e\][\d];/ /g;
+            $line =~ s/[\000-\011]/ /g;
+            $line =~ s/[\013-\037]/ /g;
             $line =~ s/^\s*|\s*$//g;
+
             push( @lines, $line );
             $count--;
             if ( $count <= 0 ) {
@@ -595,7 +598,7 @@ sub getPerformanceInfo {
     for ( my $j = $k ; $j < $k + 10 and $j < $lineCount ; $j++ ) {
         my $line = $$topLines[$j];
         $line =~ s/^\s*|\s*$//g;
-        my @fields = split( /\s+/, $line );
+        my @fields   = split( /\s+/, $line );
         my $procInfo = {};
         for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
             if ( $fields[$i] =~ /^\d+$/ ) {
@@ -629,7 +632,7 @@ sub getPerformanceInfo {
     for ( my $j = $k ; $j < $k + 5 and $j < $lineCount ; $j++ ) {
         my $line = $$psLines[$j];
         $line =~ s/^\s*|\s*$//g;
-        my @fields = split( /\s+/, $line );
+        my @fields   = split( /\s+/, $line );
         my $procInfo = {};
         for ( my $i = 0 ; $i <= $#fields ; $i++ ) {
             if ( $fields[$i] =~ /^\d+$/ ) {
@@ -773,7 +776,7 @@ sub getHostNicInfo {
 
     my $nicInfosMap = {};
     for ( my $i = 1 ; $i < $nicInfoLineCount ; $i++ ) {
-        my $line = $$nicInfoLines[$i];
+        my $line    = $$nicInfoLines[$i];
         my @nicSegs = split( /\s+/, $line );
 
         my $ethName = $nicSegs[0];
