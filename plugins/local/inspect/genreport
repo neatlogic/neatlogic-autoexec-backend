@@ -132,7 +132,7 @@ def getInspectData(nodeInfo):
     else:
         collectData = []
         for key, value in outputData.items():
-            if key.startswith("inspect/"):
+            if key.startswith("inspect/") or key.startswith("svcinspect/"):
                 # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
                 aInspectData = value['DATA']
                 inspectData.update(aInspectData)
