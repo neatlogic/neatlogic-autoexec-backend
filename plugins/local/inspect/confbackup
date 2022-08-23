@@ -96,7 +96,7 @@ class RemoteConfBackup:
                 ssh.connect(host, protocolPort, username, password)
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
-                print('INFO: Try to execute remote command:{}'.format(remoteCmd))
+                #print('INFO: Try to execute remote command:{}'.format(remoteCmd))
                 channel.exec_command(remoteCmd)
                 while True:
                     r, w, x = select.select([channel], [], [], 10)
@@ -282,8 +282,10 @@ if __name__ == "__main__":
 
         # 获取CMDB里CI项的配置文件目录和自定义需要备份的文件列表，加入备份类的属性中
         txtFilePathList = AutoExecUtils.getCITxtFilePathList(resourceId)
-        for confPath in txtFilePathList:
-            confBackup.addBackupPattern(confPath)
+        for confPathInfo in txtFilePathList:
+            confPath = confPathInfo.get('path')
+            if confPath is not None and confPath != '':
+                confBackup.addBackupPattern(confPath)
 
         try:
             print('--------------------------------------------------------------------')
