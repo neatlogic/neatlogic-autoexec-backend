@@ -306,3 +306,27 @@ def getScript(scriptId):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.getScript(scriptId)
+
+
+def getCITxtFilePathList(resoruceId):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getCITxtFilePathList(resoruceId)
+
+
+def uploadFile(filePath, fileType):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.uploadFile(filePath, fileType)
+
+
+def removeUploadedFile(fileId):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.removeUploadedFile(fileId)
+
+
+def txtFileInspectSave(params):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.txtFileInspectSave(params)

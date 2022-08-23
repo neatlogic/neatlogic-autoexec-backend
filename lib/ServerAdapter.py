@@ -11,6 +11,7 @@ import ssl
 import time
 import json
 import base64
+import requests
 import urllib.request
 import urllib.parse
 from urllib.error import URLError
@@ -49,7 +50,11 @@ class ServerAdapter:
             'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
             'globalLock': '/codedriver/api/rest/global/lock',
-            'getDeployIdPath': '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get'
+            'getDeployIdPath': '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
+            'getCITxtFilePathList': '/codedriver/api/rest/inspect/configfile/resource/path/list',
+            'uploadFile': '/codedriver/api/binary/file/upload',
+            'removeUploadedFile': '/codedriver/api/rest/file/delete',
+            'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save'
         }
 
         self.context = context
@@ -633,7 +638,7 @@ class ServerAdapter:
             'port': port,
             'username': username,
             'accountId': accountId,
-            'protocol' : protocol
+            'protocol': protocol
         }
 
         if username is None:
@@ -820,3 +825,51 @@ class ServerAdapter:
                 raise AutoExecError("Get deploy id path for {} failed, status code:{} {}".format(namePath, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, ex))
+
+    def getCITxtFilePathList(self, resourceId):
+        try:
+            response = self.httpJSON(self.apiMap['getCITxtFilePathList'],  {'resourceId': resourceId})
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj['Return'].get('tbodyList')
+                else:
+                    raise AutoExecError("Get config file list for ci:{} failed, {}".format(resourceId, retObj.get('Message')))
+            else:
+                raise AutoExecError("Get config file list for ci:{} failed, status code:{} {}".format(resourceId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get config file list for ci:{} failed, {}".format(resourceId, ex))
+
+    def uploadFile(self, filePath, fileType='inspectconfigfile'):
+        pass
+
+    def removeUploadedFile(self, fileId):
+        try:
+            response = self.httpJSON(self.apiMap['removeUploadedFile'],  {'fileId': fileId})
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("Remove uploaded file(fileId={}) failed, {}".format(fileId, retObj.get('Message')))
+            else:
+                raise AutoExecError("Remove uploaded file(fileId={}) failed, status code:{} {}".format(fileId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Remove uploaded file(fileId={}) failed, {}".format(fileId, ex))
+
+    def txtFileInspectSave(self, params):
+        try:
+            objHint = 'CI(%s) file(%s):%s' % (params.get('resourceId'), params.get('pathId'), params.get('path'))
+            response = self.httpJSON(self.apiMap['txtFileInspectSave'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, retObj.get('Message')))
+            else:
+                raise AutoExecError("Save Inspect for {} failed, status code:{} {}".format(objHint, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, ex))

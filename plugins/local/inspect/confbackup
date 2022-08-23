@@ -22,7 +22,7 @@ class RemoteConfBackup:
         self.jobId = os.getenv('AUTOEXEC_JOBID')
         self.filePatterns = []
         self.filePaths = []
-        self.outputFiles =[]
+        self.outputFiles = []
         self.output = ''
         self.IS_FAIELD = False
         self.remoteOsType = 'Linux'
@@ -62,19 +62,19 @@ class RemoteConfBackup:
                 runEnv = {'AUTOEXEC_JOBID': jobId, 'HISTSIZE': '0'}
                 tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
                 tagent.getConnection(1)
-                if tagent.agentOsType == None :
+                if tagent.agentOsType == None:
                     self.IS_FAIELD = True
-                    print("ERROR: Connection remote {}:{} failed .".format(host,protocolPort))
+                    print("ERROR: Connection remote {}:{} failed .".format(host, protocolPort))
                     raise ex
 
                 if tagent.agentOsType == 'windows':
                     self.resetOutput()
-                    remoteCmd = remoteCmd.replace("\"","\\\"")
+                    remoteCmd = remoteCmd.replace("\"", "\\\"")
                     remoteCmd = 'perl -e "' + remoteCmd + '"'
                     ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
                 else:
-                   remoteCmd ='perl -e \''+ remoteCmd +'\''
-                   ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)   
+                    remoteCmd = 'perl -e \'' + remoteCmd + '\''
+                    ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
             except Exception as ex:
                 self.IS_FAIELD = True
                 print("ERROR: Execute remote command {} failed, {}".format(remoteCmd, ex))
@@ -86,7 +86,7 @@ class RemoteConfBackup:
         elif protocol == 'ssh':
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             scp = None
-            remoteCmd ='perl -e \'' + remoteCmd + '\''
+            remoteCmd = 'perl -e \'' + remoteCmd + '\''
             remoteCmd = 'AUTOEXEC_JOBID={} {}'.format(jobId, remoteCmd)
             ssh = None
             try:
@@ -139,21 +139,21 @@ class RemoteConfBackup:
         protocolPort = self.nodeInfo['protocolPort']
         username = self.nodeInfo['username']
         password = self.nodeInfo['password']
-      
+
         lastindex = remotePath.rindex('/')
         path = remotePath[:lastindex]
         filename = os.path.basename(remotePath)
-        savePath = savePath + '/' + path 
+        savePath = savePath + '/' + path
 
         if not os.path.exists(savePath):
             os.makedirs(savePath)
-        savePath = savePath +'/'+ os.path.basename(remotePath)
+        savePath = savePath + '/' + os.path.basename(remotePath)
 
         fileJson = {}
         fileJson['fullPath'] = os.environ.get('JOB_PATH')+'/'+savePath
         fileJson['fileName'] = filename
         fileJson['serverPath'] = path
- 
+
         if protocol == 'tagent':
             try:
                 tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
@@ -197,27 +197,27 @@ class RemoteConfBackup:
     def addBackupPattern(self, filePath):
         self.filePatterns.append(filePath)
 
-    def addOutputFiles(self,fileJson):
+    def addOutputFiles(self, fileJson):
         fullPath = fileJson['fullPath']
-        exist = 0 
-        for fi in( self.outputFiles):
-            if( fullPath in fi ):
+        exist = 0
+        for fi in (self.outputFiles):
+            if(fullPath in fi):
                 exist = 1
-                break 
-        if( exist == 0):
+                break
+        if(exist == 0):
             self.outputFiles.append(fileJson)
-            
+
     def backup(self):
         host = self.nodeInfo['host']
         localDir = 'output/{}'.format(host)
-    
-        for pattern in (self.filePatterns): 
+
+        for pattern in (self.filePatterns):
             self.getRemoteFilePath(pattern)
 
         os.chdir(os.environ.get('AUTOEXEC_WORK_PATH'))
         if not os.path.exists(localDir):
             os.makedirs(localDir)
-     
+
         for remotePath in self.filePaths:
             savePath = None
             try:
@@ -281,17 +281,10 @@ if __name__ == "__main__":
             confBackup.addBackupPattern(remotePattern)
 
         # 获取CMDB里CI项的配置文件目录和自定义需要备份的文件列表，加入备份类的属性中
-        ciAttrs = AutoExecUtils.getCmdbCiAttrs(resourceId, ['config_path', 'backup_confs'])
-        confPath = ciAttrs.get('config_path')
-        if confPath is not None:
-            confBackup.addBackupPattern('{}/*'.format(confPath))
-        backupConfs = ciAttrs.get('backup_confs')
-        if backupConfs is not None:
-            if backupConfs.isinstance(str):
-                confBackup.addBackupFile(backupConfs)
-            else:
-                for backupConf in backupConfs:
-                    confBackup.addBackupFile(backupConfs)
+        txtFilePathList = AutoExecUtils.getCITxtFilePathList(resourceId)
+        for confPath in txtFilePathList:
+            confBackup.addBackupPattern(confPath)
+
         try:
             print('--------------------------------------------------------------------')
             confBackup.backup()
