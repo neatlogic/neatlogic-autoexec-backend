@@ -75,6 +75,7 @@ if __name__ == "__main__":
         fileId = None
         for fileInfo in filesList:
             try:
+                fileId = None
                 fullPath = fileInfo['fullPath']
                 serverPath = fileInfo['serverPath']
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
-                        "inspectTime": time(),
+                        "inspectTime": int(time.time()),
                         "md5": fileMd5,
                         "fileId": fileId
                     })
@@ -107,14 +108,19 @@ if __name__ == "__main__":
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
-                        "inspectTime": time(),
+                        "inspectTime": int(time.time()),
                         "md5": None,
                         "fileId": None
                     })
                     print("INFO: Save file %s inspect information success." % (serverPath))
             except Exception as ex:
                 hasError = 2
-                print('ERROR: Save file({}) failed, {}'.format(json.dumps(fileInfo), str(ex)))
+                if fileId is not None:
+                    try:
+                        AutoExecUtils.removeUploadedFile(fileId)
+                    except:
+                        pass
+                print('ERROR: Save file({}) failed, {}, {}'.format(json.dumps(fileInfo), str(ex), traceback.format_exc()))
 
             exit(hasError)
     except Exception as ex:

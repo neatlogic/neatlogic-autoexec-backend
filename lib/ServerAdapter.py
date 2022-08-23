@@ -854,23 +854,24 @@ class ServerAdapter:
         try:
             apiUri = self.apiMap['uploadFile']
             if apiUri[0] != "/":
-                apiUri = '/' + apiUri
+                apiUri = '/' + apiUri + '?param=file&type=%s' % (fileType)
 
-            url = self.serverBaseUrl + apiUri + '?param=file&type=%s' % (fileType)
+            url = self.serverBaseUrl + apiUri
             headers = self.getSignHeaders(apiUri)
-            myFile = {'file': (filePath, open(filePath, 'rb'), 'text/plain')}
+            myFile = {'param': (None, 'file'),
+                      'type': (None, fileType),
+                      'file': (filePath, open(filePath, 'rb'), 'text/plain')}
+
             response = requests.post(url, files=myFile, headers=headers)
 
-            charset = response.info().get_content_charset()
-            content = response.read().decode(charset, errors='ignore')
-            retObj = json.loads(content)
-            if response.status == 200:
+            retObj = response.json()
+            if response.status_code == 200:
                 if retObj.get('Status') == 'OK':
                     return retObj['Return']
                 else:
                     raise AutoExecError("Upload file:{} failed, {}".format(filePath, retObj.get('Message')))
             else:
-                raise AutoExecError("Upload file:{} failed, status code:{} {}".format(filePath, response.status, content))
+                raise AutoExecError("Upload file:{} failed, status code:{} {}".format(filePath, response.status_code, json.dumps(retObj)))
         except Exception as ex:
             raise AutoExecError("Upload file:{} failed, {}".format(filePath, ex))
 
