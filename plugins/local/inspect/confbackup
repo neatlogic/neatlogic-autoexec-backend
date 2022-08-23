@@ -142,11 +142,11 @@ class RemoteConfBackup:
 
         path = os.path.dirname(remotePath)
         filename = os.path.basename(remotePath)
-        savePath = os.path.join(savePath, path)
+        savePath = savePath + '/' + path
 
         if not os.path.exists(savePath):
             os.makedirs(savePath)
-        savePath = os.path.join(savePath, os.path.basename(remotePath))
+        savePath = savePath + '/' + filename
 
         fileJson = {}
         fileJson['fullPath'] = os.path.join(os.environ.get('JOB_PATH'), savePath)
