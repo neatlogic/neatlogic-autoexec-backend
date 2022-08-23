@@ -74,16 +74,24 @@ class ServerAdapter:
             else:
                 request.add_header(k, str(v))
 
-    def signRequest(self, request, apiUri, postBody=None):
+    def getSignHeaders(self, apiUri, postBody=None):
         signContent = self.serverUserName + '#' + apiUri + '#'
         if postBody is not None and postBody != '':
             signContent = signContent + base64.b64encode(postBody.encode('utf-8')).decode('utf-8')
 
         digest = 'Hmac ' + hmac.new(self.serverPassword.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
-        request.add_header('Tenant', self.context.tenant)
-        request.add_header('AuthType', 'hmac')
-        request.add_header('x-access-key', self.serverUserName)
-        request.add_header('Authorization', digest)
+        headers = {
+            'Tenant': self.context.tenant,
+            'AuthType': 'hmac',
+            'x-access-key': self.serverUserName,
+            'Authorization': digest
+        }
+        return headers
+
+    def signRequest(self, request, apiUri, postBody=None):
+        headers = self.getSignHeaders(apiUri, postBody)
+        for k, v in headers.items():
+            request.add_header(k, v)
 
     def httpPOST(self, apiUri, params):
         if apiUri[0] != "/":
@@ -843,7 +851,28 @@ class ServerAdapter:
             raise AutoExecError("Get config file list for ci:{} failed, {}".format(resourceId, ex))
 
     def uploadFile(self, filePath, fileType='inspectconfigfile'):
-        pass
+        try:
+            apiUri = self.apiMap['uploadFile']
+            if apiUri[0] != "/":
+                apiUri = '/' + apiUri
+
+            url = self.serverBaseUrl + apiUri + '?param=file&type=%s' % (fileType)
+            headers = self.getSignHeaders(apiUri)
+            myFile = {'file': (filePath, open(filePath, 'rb'), 'text/plain')}
+            response = requests.post(url, files=myFile, headers=headers)
+
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj['Return']
+                else:
+                    raise AutoExecError("Upload file:{} failed, {}".format(filePath, retObj.get('Message')))
+            else:
+                raise AutoExecError("Upload file:{} failed, status code:{} {}".format(filePath, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Upload file:{} failed, {}".format(filePath, ex))
 
     def removeUploadedFile(self, fileId):
         try:
