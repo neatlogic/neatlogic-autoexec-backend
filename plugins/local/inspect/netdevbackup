@@ -21,11 +21,12 @@ sub storeFile {
     my $jobPath = $ENV{'JOB_PATH'};
     $jobPath = File::Spec->catfile( $jobPath, 'output' );
     if ( !-e $jobPath ) {
-        mkdir $jobPath;
+        mkdir($jobPath);
     }
     my $fileName = File::Spec->catfile( $jobPath, "$host.txt" );
-    open( my $fh, '>', $fileName ) or die "can't open $fileName $!";
-    print( $fh $result );
+    my $fh;
+    open( $fh, '>', $fileName ) or die "can't open $fileName $!";
+    print $fh ($result);
     close($fh);
     print("INFO::save backup file: $fileName done.\n");
     my $res = {};
