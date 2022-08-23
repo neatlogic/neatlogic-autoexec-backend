@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 ssh.close()
     elif protocol == 'tagent':
         tagent = TagentClient.TagentClient(host, protocolPort, password=password, readTimeout=360, writeTimeout=10)
-        exitCode = tagent.execCmd('echo test')
+        exitCode = tagent.execCmd('root', 'echo test')
         if exitCode != 0:
             exitCode = 1
     elif protocol == 'database':
