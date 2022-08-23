@@ -130,8 +130,7 @@ class RemoteConfBackup:
                 filePathCount = filePathCount + 1
                 self.filePaths.append(filePath)
         if filePathCount == 0:
-            self.IS_FAIELD = True
-            print("ERROR: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
+            print("WARN: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
 
     def copyRemoteFile(self, remotePath, savePath):
         host = self.nodeInfo['host']
@@ -288,7 +287,6 @@ if __name__ == "__main__":
                 confBackup.addBackupPattern(confPath)
 
         try:
-            print('--------------------------------------------------------------------')
             confBackup.backup()
 
             out = {}
@@ -303,5 +301,3 @@ if __name__ == "__main__":
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
-    finally:
-        print('--------------------------------------------------------------------')
