@@ -159,8 +159,9 @@ def getInspectData(nodeInfo):
         for key, value in outputData.items():
             if key.startswith("inspect/") or key.startswith("svcinspect/"):
                 # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
-                aInspectData = value['DATA']
-                inspectData.update(aInspectData)
+                aInspectData = value.get('DATA')
+                if aInspectData is not None:
+                    inspectData.update(aInspectData)
                 continue
             elif not key.startswith("cmdbcollect/"):
                 continue

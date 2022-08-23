@@ -120,7 +120,7 @@
     ],
     "output": [
         {
-            "opt": "DATA",
+            "opt": "fileList",
             "name": "文件备份路径",
             "help": "文件备份路径",
             "type": "json"

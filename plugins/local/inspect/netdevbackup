@@ -19,19 +19,19 @@ sub usage {
 sub storeFile {
     my ( $host, $result ) = @_;
     my $jobPath = $ENV{'JOB_PATH'};
-    $jobPath = File::Spec->catfile($jobPath ,'output');
+    $jobPath = File::Spec->catfile( $jobPath, 'output' );
     if ( !-e $jobPath ) {
         mkdir $jobPath;
     }
     my $fileName = File::Spec->catfile( $jobPath, "$host.txt" );
     open( my $fh, '>', $fileName ) or die "can't open $fileName $!";
-    print($fh $result);
+    print( $fh $result );
     close($fh);
     print("INFO::save backup file: $fileName done.\n");
     my $res = {};
-    $res->{'fullPath'} = $fileName ; 
+    $res->{'fullPath'}   = $fileName;
     $res->{'serverPath'} = "$host.txt";
-    $res->{'fileName'} = "$host.txt";
+    $res->{'fileName'}   = "$host.txt";
     return $res;
 }
 
@@ -76,7 +76,7 @@ sub main {
         $node = $ENV{AUTOEXEC_NODE};
     }
 
-    if ( not defined($node) or $node eq '') {
+    if ( not defined($node) or $node eq '' ) {
         $hasOptErr = 1;
     }
     else {
@@ -140,7 +140,7 @@ sub main {
         my $filePath = storeFile( $host, $rsConfig );
         $sep->close($exitCmd);
         my $out = {};
-        $out->{DATA} = [$filePath];
+        $out->{fileList} = [$filePath];
         AutoExecUtils::saveOutput($out);
         print("INFO:: $vendor config backup success.\n");
         exit(0);

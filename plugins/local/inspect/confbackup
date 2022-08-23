@@ -290,7 +290,7 @@ if __name__ == "__main__":
             confBackup.backup()
 
             out = {}
-            out['DATA'] = confBackup.outputFiles
+            out['fileList'] = confBackup.outputFiles
             AutoExecUtils.saveOutput(out)
 
             if (confBackup.IS_FAIELD):
