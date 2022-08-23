@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         filesList = []
         if fileListJson is not None and fileListJson != '':
-            fileList = json.loads(fileListJson)
+            filesList = json.loads(fileListJson)
 
         if len(filesList) == 0:
             print("WARN: No files to save.")
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             }
 
         fileId = None
-        for fileInfo in fileList:
+        for fileInfo in filesList:
             try:
                 fullPath = '%s/%s' % (fileInfo['fullPath'], fileInfo['fileName'])
                 serverPath = fileInfo['serverPath']
