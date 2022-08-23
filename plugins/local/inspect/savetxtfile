@@ -75,8 +75,8 @@ if __name__ == "__main__":
         fileId = None
         for fileInfo in filesList:
             try:
-                fullPath = '%s/%s' % (fileInfo['fullPath'], fileInfo['fileName'])
-                serverPath = fileInfo['serverPath']
+                fullPath = fileInfo['fullPath']
+                serverPath = os.path.join(fileInfo['serverPath'], fileInfo['fileName'])
 
                 print("INFO: Backup and inspect file %s begin..." % (serverPath))
 
