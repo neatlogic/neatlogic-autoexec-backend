@@ -1,12 +1,12 @@
 {
-    "opName": "配置文件备份",
+    "opDesc": "上传文本文件到仓库",
     "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "拷贝远程OS的文件到本地并备份到文件服务",
-    "enabled": 0,
+    "description": "上传文本文件到仓库",
+    "enabled": 1,
     "option": [{
             "opt": "fileslist",
             "name": "文件信息列表",

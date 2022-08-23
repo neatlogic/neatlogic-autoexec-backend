@@ -1,5 +1,5 @@
 {
-    "opName": "配置文件备份",
+    "opDesc": "配置文件备份",
     "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
