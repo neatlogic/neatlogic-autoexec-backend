@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
-import AutoExecUtils
 import os
 import chardet
 import traceback
@@ -13,6 +12,8 @@ import select
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
+
+import AutoExecUtils
 
 
 class RemoteConfBackup:
