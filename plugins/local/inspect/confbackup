@@ -131,7 +131,7 @@ class RemoteConfBackup:
                 self.filePaths.append(filePath)
         if filePathCount == 0:
             self.IS_FAIELD = True
-            print("WARN: Can not find any file for {} on host:{}.\n".format(pattern, host))
+            print("ERROR: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
 
     def copyRemoteFile(self, remotePath, savePath):
         host = self.nodeInfo['host']
