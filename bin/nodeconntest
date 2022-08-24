@@ -94,7 +94,7 @@ if __name__ == "__main__":
         homePath = os.path.realpath(binPaths[0]+'/..')
         os.environ['AUTOEXEC_HOME'] = homePath
         os.environ['PERL5LIB'] = '%s/plugins/local/deploy/lib:%s/plugins/local/lib:%s/plugins/local/pllib/lib/perl5' % (homePath, homePath, homePath)
-        cmdPath = '%s/plugins/local/deploy' % (homePath)
+        cmdPath = '%s/plugins/local/deploy/dbconntest' % (homePath)
         os.execl(cmdPath, 'dbconntest', '--dbtype', nodeType, '--host', host, '--port', port, '--dbname', nodeName, '--username', username, '--password', password)
     elif protocol == 'snmp':
         iterator = getCmd(
