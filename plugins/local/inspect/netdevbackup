@@ -33,6 +33,7 @@ sub storeFile {
     $res->{'fullPath'}   = $fileName;
     $res->{'serverPath'} = "$host.txt";
     $res->{'fileName'}   = "$host.txt";
+    $res->{'modifyTime'} = undef;
     return $res;
 }
 

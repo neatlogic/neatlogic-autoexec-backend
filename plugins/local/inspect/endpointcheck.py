@@ -478,7 +478,7 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--timeout', default=10, help='Timeout value')
+    parser.add_argument('--timeout', default=10, help='Timeout seconds')
     args = parser.parse_args()
 
     timeOut = int(args.timeout)

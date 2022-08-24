@@ -28,8 +28,8 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--fileslist', default=32, help='Maximum file size, unit:K')
-    parser.add_argument('--timeout', default=60, help='Timeout value')
+    parser.add_argument('--fileslist', default='[]', help='File list json string')
+    parser.add_argument('--timeout', default=60, help='Timeout seconds')
     args = parser.parse_args()
 
     timeOut = int(args.timeout)
@@ -38,6 +38,8 @@ if __name__ == "__main__":
 
     node = args.node
     fileListJson = args.fileslist
+
+    hasError = 0
 
     try:
         nodeInfo = {}
@@ -61,8 +63,6 @@ if __name__ == "__main__":
         if hasOptError:
             usage()
 
-        hasError = False
-
         resourceId = nodeInfo['resourceId']
 
         fileInfoDict = {}
@@ -78,6 +78,13 @@ if __name__ == "__main__":
                 fileId = None
                 fullPath = fileInfo['fullPath']
                 serverPath = fileInfo['serverPath']
+                modifyTime = fileInfo.get('modifyTime')
+
+                nowTime = int(time.time() * 1000)
+                if modifyTime is None:
+                    modifyTime = nowTime
+                else:
+                    modifyTime = modifyTime * 1000
 
                 print("INFO: Backup and inspect file %s begin..." % (serverPath))
 
@@ -98,21 +105,22 @@ if __name__ == "__main__":
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
-                        "inspectTime": int(time.time()),
+                        "inspectTime": nowTime,
+                        "modifyTime": modifyTime,
                         "md5": fileMd5,
                         "fileId": fileId
                     })
-                    print("INFO: Save file %s inspect information success." % (serverPath))
                 else:
                     result = AutoExecUtils.txtFileInspectSave({
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
-                        "inspectTime": int(time.time()),
+                        "inspectTime": nowTime,
+                        'modifyTime': None,
                         "md5": None,
                         "fileId": None
                     })
-                    print("INFO: Save file %s inspect information success." % (serverPath))
+                print("INFO: Save file %s inspect information success." % (serverPath))
             except Exception as ex:
                 hasError = 2
                 if fileId is not None:
@@ -121,8 +129,8 @@ if __name__ == "__main__":
                     except:
                         pass
                 print('ERROR: Save file({}) failed, {}, {}'.format(json.dumps(fileInfo), str(ex), traceback.format_exc()))
-
-            exit(hasError)
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
         exit(-1)
+
+    exit(hasError)

@@ -42,7 +42,7 @@ class RemoteConfBackup:
         else:
             line = line.decode('utf-8', errors='ignore')
 
-        print(line)
+        print(line, end='')
         self.output = self.output + line
         outLen = len(self.output)
         if (outLen > 4906):
@@ -56,7 +56,7 @@ class RemoteConfBackup:
         username = self.nodeInfo['username']
         password = self.nodeInfo['password']
 
-        remoteCmd = 'my @files=glob("%s");foreach my $file (@files){if(-f $file){print("$file\\n");}} ' % (pattern)
+        remoteCmd = 'my @files=glob("%s");foreach my $file (@files){if(-f $file){my $mt=(stat($file))[9]; print("$mt $file\\n");}} ' % (pattern)
         ret = -1
         if protocol == 'tagent':
             try:
@@ -103,7 +103,7 @@ class RemoteConfBackup:
                     r, w, x = select.select([channel], [], [], 10)
                     while channel.recv_ready():
                         out = channel.recv(4096).decode()
-                        print(out)
+                        print(out, end='')
                         self.output = self.output + out
                         outLen = len(self.output)
                         if (outLen > 4906):
@@ -126,14 +126,15 @@ class RemoteConfBackup:
         self.resetOutput()
 
         filePathCount = 0
-        for filePath in filesPathsTxt.split("\n"):
-            if(filePath != ''):
+        for fileInfoLine in filesPathsTxt.split("\n"):
+            if(fileInfoLine != ''):
+                mtime, filePath = fileInfoLine.split(' ', 1)
                 filePathCount = filePathCount + 1
-                self.filePaths[filePath] = 1
+                self.filePaths[filePath] = int(mtime)
         if filePathCount == 0:
             print("WARN: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
 
-    def copyRemoteFile(self, remotePath, savePath):
+    def copyRemoteFile(self, remotePath, savePath, modifyTime=None):
         host = self.nodeInfo['host']
         protocol = self.nodeInfo['protocol']
         protocolPort = self.nodeInfo['protocolPort']
@@ -152,6 +153,7 @@ class RemoteConfBackup:
         fileJson['fullPath'] = os.path.realpath(os.environ.get('JOB_PATH') + '/' + savePath)
         fileJson['fileName'] = filename
         fileJson['serverPath'] = remotePath
+        fileJson['modifyTime'] = modifyTime
 
         if protocol == 'tagent':
             try:
@@ -190,9 +192,6 @@ class RemoteConfBackup:
         if os.path.getsize(savePath) > self.maxSize * 1024:
             print("ERROR: File {} exceed maxSize:{}K, store file failed.\n".format(remotePath, self.maxSize), end='')
 
-    def addBackupFile(self, filePath):
-        self.filePaths[filePath] = 1
-
     def addBackupPattern(self, filePath):
         self.filePatterns[filePath] = 1
 
@@ -212,7 +211,6 @@ class RemoteConfBackup:
             os.makedirs(localDir)
 
         for remotePath in self.filePaths.keys():
-            savePath = None
             try:
                 self.copyRemoteFile(remotePath, localDir)
             except Exception as err:
@@ -230,7 +228,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('--maxsize', default=32, help='Maximum file size, unit:K')
-    parser.add_argument('--timeout', default=10, help='Timeout value')
+    parser.add_argument('--timeout', default=10, help='Timeout seconds')
     parser.add_argument('remotefiles', nargs=argparse.REMAINDER, help="Remote files to backup")
     args = parser.parse_args()
 
