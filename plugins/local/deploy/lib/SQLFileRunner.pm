@@ -794,7 +794,7 @@ sub checkSqlFiles {
                 $hasError = $hasError + 1;
                 if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
                     $schemasNotDefined->{$dbSchema} = 1;
-                    print("ERROR: Schema $dbSchema not defined in deploy config.\n");
+                    print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
                 }
                 next;
             }
@@ -860,15 +860,19 @@ sub restoreSqlStatuses {
 sub checkDBSchemas {
     my ($self) = @_;
 
-    my $hasError     = 0;
-    my $dbSchemasMap = $self->{dbSchemasMap};
-    my $usedSchemas  = $self->{usedSchemas};
+    my $hasError          = 0;
+    my $dbSchemasMap      = $self->{dbSchemasMap};
+    my $usedSchemas       = $self->{usedSchemas};
+    my $schemasNotDefined = $self->{schemasNotDefined};
 
     foreach my $dbSchema ( keys(%$usedSchemas) ) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         if ( not defined($dbInfo) ) {
             $hasError = $hasError + 1;
-            print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
+            if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
+                $schemasNotDefined->{$dbSchema} = 1;
+                print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
+            }
             next;
         }
         my $dbType = uc( $dbInfo->{dbType} );
