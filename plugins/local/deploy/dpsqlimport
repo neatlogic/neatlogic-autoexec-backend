@@ -245,6 +245,7 @@ sub main {
     my @schemasToAdd      = keys(%$schemasNotDefined);
     if (@schemasToAdd) {
         $serverAdapter->addDBSchemas( $deployEnv, \@schemasToAdd );
+        print( 'WARN: Unknown DB schemas:' . join( ',', @schemasToAdd ) . " are added to config panel, please go to the config panel and do the configuration.\n" );
     }
 
     return $hasError;

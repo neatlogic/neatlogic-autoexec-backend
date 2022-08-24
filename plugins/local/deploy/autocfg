@@ -256,6 +256,7 @@ sub main {
     my @keysToAdd   = keys(%$keysNotConf);
     if (@keysToAdd) {
         $serverAdapter->addAutoCfgKeys( $buildEnv, \@keysToAdd );
+        print( 'WARN: Unknown AutoCfg keys:' . join( ',', @keysToAdd ) . " are added to config panel, please go to the config panel and do the configuration.\n" );
     }
 
     return $hasError;
