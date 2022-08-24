@@ -225,7 +225,7 @@ sub exec {
 
     if ($logonSucceed) {
         if ( $isVerbose == 1 ) {
-            print("INFO: Ssh logon succeed.\n");
+            print("INFO: SSH logon succeed.\n");
         }
 
         my $lastLine = '';
