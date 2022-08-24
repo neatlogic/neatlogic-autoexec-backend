@@ -343,17 +343,17 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get source file info for:$sourcePath...\n" );
+    print("INFO: Begin get source file info for:$sourcePath...\n");
     my ( $srcFiles, $srcDirs ) = $self->allLocalFiles( $sourcePath, $inExceptDirs );
     map { $$allSrcFiles{$_} = $$srcFiles{$_}; $$allSrcFilesPrefix{$_} = $sourcePath; } ( keys(%$srcFiles) );
     map { $$allSrcDirs{$_}  = $$srcDirs{$_};  $$allSrcDirsPrefix{$_}  = $sourcePath; } ( keys(%$srcDirs) );
-    print( "INFO: " . $deployUtils->getTimeForLog() . "get source file info complete.\n" );
+    print("INFO: Get source file info complete.\n");
 
     #mkdir($targetPath) if ( not -e $targetPath );
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get target file info for:$targetPath...\n" );
+    print("INFO: Begin get target file info for:$targetPath...\n");
     ( $allTgtFiles, $allTgtDirs ) = $self->allLocalFiles( $targetPath, $inExceptDirs );
-    print( "INFO: " . $deployUtils->getTimeForLog() . "get target file info complete.\n" );
+    print("INFO: Get target file info complete.\n");
 
     chdir($sourcePath);
 
@@ -444,7 +444,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "find deleted files and dirs complete.\n" );
+    print("INFO: Find deleted files and dirs complete.\n");
 
     #找出新增的目录
     my ( @newDirs, @modDirs );
@@ -501,7 +501,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "find new dirs complete.\n" );
+    print("INFO: Find new dirs complete.\n");
 
     #找出新增的文件和更改过的文件
     chdir($sourcePath);
@@ -575,7 +575,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "find modified files complete.\n" );
+    print("INFO: Find modified files complete.\n");
 
     $cmdStr = "${delFileCmdStr}${addDirCmdStr}${delDirCmdStr}";
 
@@ -601,7 +601,7 @@ sub upgradeFiles {
         print("Create $tarPath/$tarFileName complete.\n");
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "tar modified files and dirs complete.\n" );
+    print("INFO: Tar modified files and dirs complete.\n");
 
     #如果有更新的文件则将文件拷贝到远程端
     if ( $hasTar == 1 ) {
@@ -616,7 +616,7 @@ sub upgradeFiles {
         $cmdStr = "${cmdStr}$chmodCmdStr\n";
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "untar complete.\n" );
+    print("INFO: Untar complete.\n");
 
     chdir($sourcePath);
 
@@ -642,7 +642,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "execute update script complete.\n" );
+    print("INFO: Execute update script complete.\n");
 
     #将更新情况输出
     my ( $file, $diffCmd, $diffContent );

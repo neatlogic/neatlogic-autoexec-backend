@@ -221,7 +221,7 @@ sub refreshFilesMd5 {
                 my $filePath = substr( $prefixDir, $prefixLen + 1 );
                 if ( not defined( $processed->{$filePath} ) ) {
                     $hasMd5 = 1;
-                    print("INFO: refresh file:$filePath md5.\n");
+                    print("INFO: Refresh file:$filePath md5.\n");
                     my $md5Sum = FileUtils::getFileMd5($prefixDir);
                     $processed->{$prefixDir} = $md5Sum;
                 }
@@ -710,7 +710,7 @@ sub checkMagicNumber {
         }
 
         if ( $magicBytes ne $magicNumbers->{$fileType} ) {
-            print("WARN: file $file is not a $fileType file, wrong magic number, executable archive not supported.\n");
+            print("WARN: File $file is not a $fileType file, wrong magic number, executable archive not supported.\n");
             $checkRet = 0;
         }
     }
@@ -820,7 +820,7 @@ sub checkAndRecordFile {
             }
             else {
                 $self->{hasError} = $self->{hasError} + 1;
-                print("ERROR: unzip file $preName$name failed.\n");
+                print("ERROR: Unzip file $preName$name failed.\n");
             }
         }
     }
@@ -866,7 +866,7 @@ sub findFilesInZip {
     $pkgPath =~ s/\/$//;
     $pkgFiles->{$pkgPath} = 1;
 
-    printf( "INFO: try to find $suffix resource in pkg %s.\n", $pkgPath );
+    printf( "INFO: Try to find $suffix resource in pkg %s.\n", $pkgPath );
 
     if ( $self->checkMagicNumber( '', $filePath, $zipType ) == 0 ) {
         return;
@@ -1113,10 +1113,10 @@ sub updateConfigInZip {
         }
         else {
             if ( defined($insInfo) ) {
-                printf( "INFO: auto config file in pkg %s (%s).\n", Encode::encode( 'utf-8', Encode::decode( $charset, $nextCwd ) ), $insInfo->{uniqName} );
+                printf( "INFO: Auto config file in pkg %s (%s).\n", Encode::encode( 'utf-8', Encode::decode( $charset, $nextCwd ) ), $insInfo->{uniqName} );
             }
             else {
-                printf( "INFO: auto config file in pkg %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $nextCwd ) ) );
+                printf( "INFO: Auto config file in pkg %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $nextCwd ) ) );
             }
 
             ( $cfgCount, $insCfgCount ) = $self->replacePlaceHolder( $autoCfgDocRoot, "$zipTmpDir/$subFile", $nextCwd, $rplOrgFiles, $insInfo );
@@ -1140,7 +1140,7 @@ sub updateConfigInZip {
                 #print("DEBUG:=-=-=-=-=-=-=-=-=$delZipCmd\n");
                 my $rc = DeployUtils->execmd($delZipCmd);
                 if ( $rc ne 0 ) {
-                    print("WARN: delete file($pathInZip) in pkg($preZipDir) failed, maybe file not exists, error:$!\n");
+                    print("WARN: Delete file($pathInZip) in pkg($preZipDir) failed, maybe file not exists, error:$!\n");
                 }
             }
         }
@@ -1361,7 +1361,7 @@ sub updateConfig {
                         $expectIns = $insUniqName;
                     }
 
-                    printf( "INFO: auto config file %s (%s).\n", Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ), $expectIns );
+                    printf( "INFO: Auto config file %s (%s).\n", Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ), $expectIns );
 
                     my $src = $cfgFilePath;
                     $src =~ s/\/$//;
@@ -1390,7 +1390,7 @@ sub updateConfig {
             }
 
             if ( $diffInsCount < scalar(@$insCfgList) or scalar(@$insCfgList) == 0 ) {
-                printf( "INFO: auto config file %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ) );
+                printf( "INFO: Auto config file %s.\n", Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ) );
                 $self->replacePlaceHolder( $autoCfgDocRoot, $cfgFilePath, $cfgFile, $rplOrgFiles, undef );
             }
 
@@ -1425,7 +1425,7 @@ sub config {
     foreach my $autoCfgDocRoot (@$autoCfgDocRoots) {
         if ( -d $autoCfgDocRoot ) {
 
-            print("INFO: begin to auto config $autoCfgDocRoot========.\n");
+            print("INFO: Begin to auto config $autoCfgDocRoot========.\n");
 
             #清理实例差异配置
             for my $insInfo (@$insCfgList) {
@@ -1445,8 +1445,8 @@ sub config {
 
             if ( not defined($cfgFiles) or scalar(@$cfgFiles) == 0 ) {
                 $cfgFiles = [];
-                print("INFO: config files list not provided.\n");
-                print("INFO: begin to find *.$suffix files--------.\n");
+                print("INFO: Config files list not provided.\n");
+                print("INFO: Begin to find *.$suffix files--------.\n");
 
                 my $cfgFilesFinded = {};
                 $self->findFilesInDir( $autoCfgDocRoot, $autoCfgDocRoot, $pkgFiles, $rplOrgFiles, $cfgFilesFinded );
@@ -1454,20 +1454,20 @@ sub config {
                 @$cfgFiles = keys(%$cfgFilesFinded);
 
                 if ( scalar(@$cfgFiles) > 0 ) {
-                    print("INFO: find config files to be auto config:\n");
+                    print("INFO: Find config files to be auto config:\n");
                     foreach my $cfgFile ( sort sortByLen (@$cfgFiles) ) {
                         print( '->', Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ), "\n" );
                     }
                 }
                 else {
-                    print("INFO: can not find any *.$suffix files.\n");
+                    print("INFO: Can not find any *.$suffix files.\n");
                 }
             }
             else {
                 $cfgFiles = $self->parsePreDefinedCfgFiles( $autoCfgDocRoot, $cfgFiles, $pkgFiles, $rplOrgFiles );
             }
 
-            print("INFO: find $suffix finished--------.\n");
+            print("INFO: Find $suffix finished--------.\n");
 
             #print("DEBUG:all $suffix files==========\n");
             #print Dumper $pkgFiles;
