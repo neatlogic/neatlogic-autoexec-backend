@@ -48,8 +48,8 @@ sub new {
             'getOtherSiteEnvVer' => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
 
             #autocfg和DB配置自动生成
-            'addAutoCfgKeys' => '/codedriver/api/rest/deploy/app/config/env/db/config/autoCfgKeys/save/forautoexec',
-            'addDBSchemas'   => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
+            'addAutoCfgKeys' => '/codedriver/api/rest/deploy/app/config/env/autoCfgKeys/save/forautoexec',
+            'addDBSchemas'   => '/codedriver/api/rest/deploy/app/config/env/db/config/schemas/save/forautoexec',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
