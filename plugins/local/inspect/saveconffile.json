@@ -1,21 +1,20 @@
 {
-    "opDesc": "上传文本文件到仓库",
+    "opDesc": "保存文本文件到仓库",
     "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "上传文本文件到仓库",
+    "description": "保存文本文件到仓库",
     "enabled": 1,
-    "option": [
-        {
+    "option": [{
             "opt": "fileslist",
             "name": "文件信息列表",
             "help": "文件信息列表，[{'fileName':'xxx', 'fullPath':'yyyy', 'serverPath':'zzz'}]",
             "type": "json",
             "required": "true",
             "validate": "",
-            "defaultValue": "{}"
+            "defaultValue": "[]"
         },
         {
             "opt": "timeout",

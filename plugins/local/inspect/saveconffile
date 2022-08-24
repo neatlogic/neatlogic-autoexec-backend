@@ -69,7 +69,7 @@ if __name__ == "__main__":
         for fileInfo in AutoExecUtils.getCITxtFilePathList(resourceId):
             fileInfoDict[fileInfo['path']] = {
                 'id': fileInfo['id'],
-                'md5': fileInfo['md5']
+                'md5': fileInfo.get('md5')
             }
 
         fileId = None

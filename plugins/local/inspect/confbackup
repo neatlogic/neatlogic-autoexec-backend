@@ -21,9 +21,9 @@ class RemoteConfBackup:
         self.nodeInfo = nodeInfo
         self.maxSize = maxSize
         self.jobId = os.getenv('AUTOEXEC_JOBID')
-        self.filePatterns = []
-        self.filePaths = []
-        self.outputFiles = []
+        self.filePatterns = {}
+        self.filePaths = {}
+        self.outputFiles = {}
         self.output = ''
         self.IS_FAIELD = False
         self.remoteOsType = 'Linux'
@@ -129,7 +129,7 @@ class RemoteConfBackup:
         for filePath in filesPathsTxt.split("\n"):
             if(filePath != ''):
                 filePathCount = filePathCount + 1
-                self.filePaths.append(filePath)
+                self.filePaths[filePath] = 1
         if filePathCount == 0:
             print("WARN: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
 
@@ -149,7 +149,7 @@ class RemoteConfBackup:
         savePath = savePath + '/' + filename
 
         fileJson = {}
-        fileJson['fullPath'] = os.path.join(os.environ.get('JOB_PATH'), savePath)
+        fileJson['fullPath'] = os.path.realpath(os.environ.get('JOB_PATH') + '/' + savePath)
         fileJson['fileName'] = filename
         fileJson['serverPath'] = remotePath
 
@@ -191,33 +191,27 @@ class RemoteConfBackup:
             print("ERROR: File {} exceed maxSize:{}K, store file failed.\n".format(remotePath, self.maxSize), end='')
 
     def addBackupFile(self, filePath):
-        self.filePaths.append(filePath)
+        self.filePaths[filePath] = 1
 
     def addBackupPattern(self, filePath):
-        self.filePatterns.append(filePath)
+        self.filePatterns[filePath] = 1
 
     def addOutputFiles(self, fileJson):
-        fullPath = fileJson['fullPath']
-        exist = 0
-        for fi in (self.outputFiles):
-            if(fullPath in fi):
-                exist = 1
-                break
-        if(exist == 0):
-            self.outputFiles.append(fileJson)
+        serverPath = fileJson['serverPath']
+        self.outputFiles[serverPath] = fileJson
 
     def backup(self):
         host = self.nodeInfo['host']
         localDir = 'output/{}'.format(host)
 
-        for pattern in (self.filePatterns):
+        for pattern in (self.filePatterns.keys()):
             self.getRemoteFilePath(pattern)
 
         os.chdir(os.environ.get('AUTOEXEC_WORK_PATH'))
         if not os.path.exists(localDir):
             os.makedirs(localDir)
 
-        for remotePath in self.filePaths:
+        for remotePath in self.filePaths.keys():
             savePath = None
             try:
                 self.copyRemoteFile(remotePath, localDir)
@@ -288,9 +282,8 @@ if __name__ == "__main__":
 
         try:
             confBackup.backup()
-
             out = {}
-            out['fileList'] = confBackup.outputFiles
+            out['fileList'] = list(confBackup.outputFiles.values())
             AutoExecUtils.saveOutput(out)
 
             if (confBackup.IS_FAIELD):
