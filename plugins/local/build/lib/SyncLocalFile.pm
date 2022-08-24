@@ -598,7 +598,7 @@ sub upgradeFiles {
     #更改tar文件权限
     if ( -e "$tarPath/$tarFileName" ) {
         $deployUtils->execmd("chmod 664 $tarPath/$tarFileName");
-        print("Create $tarPath/$tarFileName complete.\n");
+        print("INFO: Create $tarPath/$tarFileName complete.\n");
     }
 
     print("INFO: Tar modified files and dirs complete.\n");
