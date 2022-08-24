@@ -55,7 +55,7 @@ sub collect {
     my ( $status, $verInfo ) = $self->getCmdOut( 'tmadmin -v', $user );
 
     if ( $status ne 0 ) {
-        print("WARN: process $cmdLine is not a tuxedo process, because of execute tmadmin in user $user failed.\n");
+        print("WARN: Process $cmdLine is not a tuxedo process, because of execute tmadmin in user $user failed.\n");
         return;
     }
 

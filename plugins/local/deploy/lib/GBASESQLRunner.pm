@@ -83,7 +83,7 @@ sub new {
     $ENV{PATH}            = "$gbaseHome/gcluster/server/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$gbaseHome/gcluster/server/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    print(qq{INFO: gccli -u"$user" -p"******" -D"$dbName" -h$host -P$port\n});
+    print(qq{INFO: Gccli -u"$user" -p"******" -D"$dbName" -h$host -P$port\n});
 
     my $spawn = Expect->spawn(qq{gccli -u"$user" -p"$pass" -D"$dbName" -h$host -P$port});
 
@@ -142,12 +142,12 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: gccli -u$user -D$dbName -h$host connection test success.\n");
+        print("INFO: Gccli -u$user -D$dbName -h$host connection test success.\n");
     }
     else {
         my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
         print($errMsg );
-        print("ERROR: gccli -u$user -D$dbName -h$host connection test failed.\n");
+        print("ERROR: Gccli -u$user -D$dbName -h$host connection test failed.\n");
     }
 
     return $hasLogon;
@@ -197,11 +197,11 @@ sub run {
         elsif ( $hasError == 1 ) {
             print($errMsg) if ( $errMsg ne "\n" );
 
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -245,7 +245,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: gccli exit abnormal.\n");
+            print("ERROR: Gccli exit abnormal.\n");
 
             $isFail = 1;
         }

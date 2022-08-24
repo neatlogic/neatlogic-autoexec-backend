@@ -95,7 +95,7 @@ sub main {
         my @arg = split( /\s*=\s*/, $item, 2 );
 
         if ( not defined( $arg[0] ) or $arg[0] eq '' or not defined( $arg[0] ) or $arg[1] eq '' ) {
-            print("ERROR: invalid args format: '$item', valid format is 'name=value'\n");
+            print("ERROR: Invalid args format: '$item', valid format is 'name=value'\n");
             usage();
         }
 
@@ -112,12 +112,12 @@ sub main {
     }
 
     if ( not defined($trigType) ) {
-        print("ERROR: must define option --trigtype.\n");
+        print("ERROR: Must define option --trigtype.\n");
         $optionError = 1;
     }
 
     if ( not defined($planTime) and $trigType ne 'now' ) {
-        print("ERROR: must define option --plantime.\n");
+        print("ERROR: Must define option --plantime.\n");
         $optionError = 1;
     }
 
@@ -214,15 +214,15 @@ sub main {
         my $loopCount = 0;
         while ( $jobStatus = $serverAdapter->getJobStatus( $createdJobId, proxyToUrl => $proxyToUrl ) ) {
             if ( not defined($jobStatus) ) {
-                print("ERROR: can not get job status for jobId:$createdJobId on $proxyToUrl\n");
+                print("ERROR: Can not get job status for jobId:$createdJobId on $proxyToUrl\n");
             }
             elsif ( $jobStatus eq 'completed' or $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
-                print("FINE: job:$createdJobId status:$jobStatus.\n");
+                print("FINE: Job:$createdJobId status:$jobStatus.\n");
                 last;
             }
             elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
                 if ( $loopCount % 5 eq 0 ) {
-                    print("INFO: job:$createdJobId status:$jobStatus, wait...\n");
+                    print("INFO: Job:$createdJobId status:$jobStatus, wait...\n");
                 }
                 $loopCount = $loopCount + 1;
                 sleep(3);
@@ -231,10 +231,10 @@ sub main {
             else {
                 $hasError = $hasError + 1;
                 if ( defined($proxyToUrl) and $proxyToUrl ne '' ) {
-                    print("ERROR: job:$createdJobId on $proxyToUrl $jobStatus.\n");
+                    print("ERROR: Job:$createdJobId on $proxyToUrl $jobStatus.\n");
                 }
                 else {
-                    print("ERROR: job:$createdJobId $jobStatus.\n");
+                    print("ERROR: Job:$createdJobId $jobStatus.\n");
                 }
                 last;
             }

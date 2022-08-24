@@ -79,7 +79,7 @@ sub getWinPSCmdOut {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("WARN: execute powershell script:$psScript failed.\n");
+        print("WARN: Execute powershell script:$psScript failed.\n");
     }
 
     chomp($out);
@@ -112,7 +112,7 @@ sub getWinPSCmdOutLines {
 
     my $status = $?;
     if ( $status ne 0 ) {
-        print("WARN: execute powershell script:$psScript failed.\n");
+        print("WARN: Execute powershell script:$psScript failed.\n");
     }
 
     return ( $status, \@outLines );
@@ -127,7 +127,7 @@ sub getCmdOut {
     }
 
     if ( $opts->{verbose} == 1 ) {
-        print("INFO:$cmd\n");
+        print("INFO: $cmd\n");
     }
 
     my $out   = '';
@@ -181,7 +181,7 @@ sub getCmdOut {
     }
 
     if ( $opts->{verbose} == 1 ) {
-        print("INFO:$cmd finished.\n");
+        print("INFO: $cmd finished.\n");
     }
 
     chomp($out);
@@ -197,7 +197,7 @@ sub getCmdOutLines {
     }
 
     if ( $opts->{verbose} == 1 ) {
-        print("INFO:$cmd\n");
+        print("INFO: $cmd\n");
     }
 
     my @out   = ();
@@ -254,7 +254,7 @@ sub getCmdOutLines {
     }
 
     if ( $opts->{verbose} == 1 ) {
-        print("INFO:$cmd finished.\n");
+        print("INFO: $cmd finished.\n");
     }
 
     return ( $status, \@out );

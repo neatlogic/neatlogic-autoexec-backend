@@ -32,7 +32,7 @@ sub build {
     #$ENV{CLASSPATH} = '';
     my $gradleHome = "$toolsPath/gradle$makeToolVer";
     if ( not -e $gradleHome ) {
-        print("ERROR: gradle not found in dir:$gradleHome, check if gradle version $makeToolVer is installed.\n");
+        print("ERROR: Gradle not found in dir:$gradleHome, check if gradle version $makeToolVer is installed.\n");
     }
 
     $ENV{JAVA_HOME} = $jdk;
@@ -48,17 +48,17 @@ sub build {
     }
 
     my $cmd = "gradle $silentOpt clean";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     my $ret = DeployUtils->execmd($cmd);
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "gradle $silentOpt assemble";
-        print("INFO:execute->$cmd\n");
+        print("INFO: Execute->$cmd\n");
         $ret = DeployUtils->execmd($cmd);
     }
     else {
         $cmd = "gradle $silentOpt $args";
-        print("INFO:execute->$cmd\n");
+        print("INFO: Execute->$cmd\n");
         $ret = DeployUtils->execmd($cmd);
     }
 

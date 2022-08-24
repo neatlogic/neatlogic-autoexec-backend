@@ -47,12 +47,12 @@ sub main {
     my $optionError = 0;
 
     if ( not defined($addr) or $addr eq '' ) {
-        print("ERROR: must define nas path.\n");
+        print("ERROR: Must define nas path.\n");
         $optionError = 1;
     }
 
     if ( not defined($target) or $target eq '' ) {
-        print("ERROR: must define local mount path.\n");
+        print("ERROR: Must define local mount path.\n");
         usage();
     }
     if ( !-d $target ) {
@@ -62,7 +62,7 @@ sub main {
         system("chmod 777 $target");
     }
     if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 

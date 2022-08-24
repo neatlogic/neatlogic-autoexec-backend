@@ -408,7 +408,7 @@ sub doDetailCollect {
     my $osInfo           = $pFinder->{osInfo};
     my $connGather       = $pFinder->{connGather};
 
-    print("INFO: os type:$osType\n");
+    print("INFO: Os type:$osType\n");
 
     my $isMatched = 0;
     my $objCat;

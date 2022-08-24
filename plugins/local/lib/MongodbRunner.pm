@@ -77,7 +77,7 @@ sub find {
         @content = $collection->find( $filter, $options )->all;
     }
     catch {
-        print("ERROR: cmdb query table $table failed ,reason:$_ .\n");
+        print("ERROR: Cmdb query table $table failed ,reason:$_ .\n");
     };
     return @content;
 }
@@ -100,7 +100,7 @@ sub count {
         $count = $collection->count_documents( $filter, $options );
     }
     catch {
-        print("ERROR: cmdb query table $table failed ,reason:$_ .\n");
+        print("ERROR: Cmdb query table $table failed ,reason:$_ .\n");
     };
     return $count;
 }
@@ -117,7 +117,7 @@ sub insert {
         $isSuccess = 0;
     }
     catch {
-        print("ERROR: cmdb insert table $table failed ,reason:$_ .\n");
+        print("ERROR: Cmdb insert table $table failed ,reason:$_ .\n");
         $isSuccess = 1;
     };
     return $isSuccess;
@@ -137,7 +137,7 @@ sub update {
         $isSuccess = 0;
     }
     catch {
-        print("ERROR: cmdb update table $table failed ,reason:$_ .\n");
+        print("ERROR: Cmdb update table $table failed ,reason:$_ .\n");
         $isSuccess = 1;
     };
     return $isSuccess;
@@ -155,7 +155,7 @@ sub delete {
         $isSuccess = 0;
     }
     catch {
-        print("ERROR: cmdb delete table $table failed ,reason:$_ .\n");
+        print("ERROR: Cmdb delete table $table failed ,reason:$_ .\n");
         $isSuccess = 1;
     };
     return $isSuccess;
@@ -168,7 +168,7 @@ sub close {
         $dbclient->disconnect;
     }
     catch {
-        print("ERROR: cmdb close dbclient failed ,reason:$_ .\n");
+        print("ERROR: Cmdb close dbclient failed ,reason:$_ .\n");
     };
 }
 

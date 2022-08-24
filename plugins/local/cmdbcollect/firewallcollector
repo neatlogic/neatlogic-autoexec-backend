@@ -16,7 +16,7 @@ use CollectObjCat;
 
 sub usage {
     my $pname = $FindBin::Script;
-    print("INFO::option --node or --type not defined.\n");
+    print("INFO: :option --node or --type not defined.\n");
     print("$pname --node <node> --type <type> .\n");
     exit(0);
 }

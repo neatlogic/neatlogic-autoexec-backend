@@ -54,25 +54,25 @@ sub main {
     }
 
     if ( not defined($direction) or $direction eq '' ) {
-        print("ERROR: must define direction value pull or push .\n");
+        print("ERROR: Must define direction value pull or push .\n");
         $optionError = 1;
     }
 
     if ( not defined($src) or $src eq '' ) {
-        print("ERROR: must define src path.\n");
+        print("ERROR: Must define src path.\n");
         $optionError = 1;
     }
     if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
-        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Src path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 
     if ( not defined($dest) or $dest eq '' ) {
-        print("ERROR: must define src path.\n");
+        print("ERROR: Must define src path.\n");
         $optionError = 1;
     }
     if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 

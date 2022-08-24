@@ -104,8 +104,8 @@ sub main {
         $prjDir = $prjDir . "/" . $prefix;
     }
 
-    print("INFO: encode:$encode \n");
-    print("INFO: sonar-scanner code start, it will take a few minutes, please wait...\n");
+    print("INFO: Encode:$encode \n");
+    print("INFO: Sonar-scanner code start, it will take a few minutes, please wait...\n");
 
     $ENV{SONAR_SCANNER_OPTS} = '-Xss8m';
     $ENV{PATH}               = "$toolsPath/node/bin:" . $ENV{PATH};
@@ -126,7 +126,7 @@ sub main {
         . " -Dsonar.projectVersion='$projectVersion'"
         . " -Dsonar.modules='$modules'";
 
-    print("INFO: begin to execute cmd:\n");
+    print("INFO: Begin to execute cmd:\n");
     print("INFO: $cmd\n");
 
     my $hasError = 0;
@@ -134,7 +134,7 @@ sub main {
     $hasError = $hasError + $ret;
 
     if ( $ret ne 0 ) {
-        print "ERROR: sonar-scanner failed, return code:$ret.\n";
+        print "ERROR: Sonar-scanner failed, return code:$ret.\n";
     }
     else {
         eval {
@@ -144,10 +144,10 @@ sub main {
         };
         if ($@) {
             $hasError = $hasError + 1;
-            print("ERROR:$@");
+            print("ERROR: $@");
         }
         else {
-            print("FINE: sonar-scanner code end .\r\n");
+            print("FINE: Sonar-scanner code end .\r\n");
             print("<a target=\"_blank\" style=\"color:white;font-size:16px;\"  href=\"$sonarUrl/dashboard?id=$projectKey\">---&gt;点击查看代码扫描报告</a>\n");
         }
     }

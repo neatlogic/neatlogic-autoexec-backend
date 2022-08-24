@@ -66,7 +66,7 @@ sub new {
 
     if ( not defined($dbServerLocale) ) {
         $self->{hasError} = 1;
-        print("ERROR: informix database server locale not set in config, config example:<dbalias>.locale=zh_CN.utf8.\n");
+        print("ERROR: Informix database server locale not set in config, config example:<dbalias>.locale=zh_CN.utf8.\n");
     }
 
     my $serverName;
@@ -75,7 +75,7 @@ sub new {
     }
     else {
         $self->{hasError} = 1;
-        print("ERROR: informix database name:$dbName, malform format, example:dbname\@servername\n");
+        print("ERROR: Informix database name:$dbName, malform format, example:dbname\@servername\n");
     }
 
     #export INFORMIXDIR=/app/ezdeploy/tools/informix-client
@@ -132,7 +132,7 @@ sub new {
 
     chdir($sqlDir);
 
-    print("INFO: dbaccess - - #connect to '$dbName' user '$user'\n");
+    print("INFO: Dbaccess - - #connect to '$dbName' user '$user'\n");
 
     my $spawn = Expect->spawn("dbaccess - -\n");
 
@@ -217,11 +217,11 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: informix $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Informix $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
         print( $spawn->before() );
-        print("ERROR: informix $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Informix $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -267,7 +267,7 @@ sub run {
 
         #ORA 错误
         elsif ( $hasError == 1 ) {
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $self->{isInteract} == 1 ) {
@@ -297,7 +297,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( not defined($sqlexecStatus) or $sqlexecStatus != 0 ) {
-            print("ERROR: dbaccess exit abnormal.\n");
+            print("ERROR: Dbaccess exit abnormal.\n");
 
             $isFail = 1;
         }
@@ -372,7 +372,7 @@ sub run {
                         my $fh = IO::File->new("<$sqlFile");
                         if ( not defined($fh) ) {
                             $hasHardError = 1;
-                            print("ERROR: open file $sqlFile failed, file not exists or permission denied.\n");
+                            print("ERROR: Open file $sqlFile failed, file not exists or permission denied.\n");
                         }
                         else {
                             my ( $line, $expContent );

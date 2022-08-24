@@ -1084,7 +1084,7 @@ sub getBuild {
                             foreach my $dir ( glob("$buildPath/$subDir") ) {
                                 if ( -e $dir ) {
 
-                                    #print("INFO: clean dir:$dir\n");
+                                    #print("INFO: Clean dir:$dir\n");
                                     rmtree($dir) or die("ERROR: Remove $dir failed.\n");
                                 }
                             }

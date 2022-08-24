@@ -33,7 +33,7 @@ sub main {
 
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
     my $cmd = "docker rm -vf $name";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
 
     if ( $ret eq 0 ) {
@@ -46,7 +46,7 @@ sub main {
     my $cmd = "docker run -d --name=$name @ARGV $image:$tagName";
 
     #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     $ret = system($cmd );
 
     if ( $ret eq 0 ) {

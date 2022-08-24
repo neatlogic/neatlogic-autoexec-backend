@@ -53,14 +53,14 @@ sub auth {
 
     #if ( $self->{protocolVer} ne $protocolVer ) {
     #    $socket->shutdown(2);
-    #    die( "ERROR: server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
+    #    die( "ERROR: Server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
     #}
     if ( $protocolVer eq $SECURE_PROTOCOL_VER ) {
         $self->{encrypt} = 1;
     }
     elsif ( $self->{protocolVer} ne $protocolVer ) {
         $socket->shutdown(2);
-        die( "ERROR: server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
+        die( "ERROR: Server protocol version is $protocolVer, not match client protocol version " . $self->{protocolVer} );
     }
     $self->{protocolVer} = $protocolVer;
 
@@ -95,7 +95,7 @@ sub auth {
             my $agentCharset = $self->{agentCharset};
             my $charset      = $self->{charset};
             if ( $charset ne $agentCharset ) {
-                print( "ERROR:" . Encode::encode( $charset, Encode::decode( $agentCharset, $authResult ) ) . "\n" );
+                print( "ERROR: " . Encode::encode( $charset, Encode::decode( $agentCharset, $authResult ) ) . "\n" );
             }
 
         }
@@ -784,7 +784,7 @@ sub reload {
     else {
         $status = 0;
         if ( $isVerbose == 1 ) {
-            print("INFO: reload succeed.\n");
+            print("INFO: Reload succeed.\n");
         }
     }
 
@@ -817,7 +817,7 @@ sub echo {
     }
     else {
         if ( $isVerbose == 1 ) {
-            print("INFO: echo back:\"$feedBack\".\n");
+            print("INFO: Echo back:\"$feedBack\".\n");
         }
 
     }
@@ -943,7 +943,7 @@ sub download {
         if ( $charset ne $agentCharset ) {
             $statusLine = Encode::encode( $charset, Encode::decode( $agentCharset, $statusLine ) );
         }
-        print("ERROR:  Download $fileType $src to $dest failed.\n");
+        print("ERROR: Download $fileType $src to $dest failed.\n");
         close($socket);
         return $status;
     }
@@ -969,7 +969,7 @@ sub download {
         my $destDir = dirname($dest);
         if ( not -d $destDir ) {
             $status = -1;
-            print("ERROR: directory $destDir not exists.\n");
+            print("ERROR: Directory $destDir not exists.\n");
             close($socket);
             return $status;
         }
@@ -977,7 +977,7 @@ sub download {
         if ( not -d $dest and not mkdir($dest) ) {
             $status = -1;
 
-            print("ERROR: create directory $dest failed: $!\n");
+            print("ERROR: Create directory $dest failed: $!\n");
 
             close($socket);
             return $status;
@@ -1018,7 +1018,7 @@ sub download {
                     $status = -1;
                     my $errMsg = $@;
                     $errMsg =~ s/\sat\s.*$//;
-                    print("ERROR: download failed, $errMsg\n");
+                    print("ERROR: Download failed, $errMsg\n");
                 }
 
                 close($pipe);
@@ -1035,7 +1035,7 @@ sub download {
             chdir($curDir);
         }
         else {
-            print("ERROR: can not cd directory $dest:$!.\n");
+            print("ERROR: Can not cd directory $dest:$!.\n");
             $status = -1;
         }
 
@@ -1094,7 +1094,7 @@ sub _readCmdOutToSock {
         my $exitStatus = $?;
         if ( $exitStatus ne 0 ) {
             $status = 1;
-            print("ERROR: request ended with status:$exitStatus.\n");
+            print("ERROR: Request ended with status:$exitStatus.\n");
         }
         else {
             eval { $self->_writeChunk( $socket, undef, 0 ); };
@@ -1367,13 +1367,13 @@ sub writeFile {
     if ( $preStatus !~ /^\s*Status:200/ ) {
         close($socket);
         if ( $isVerbose == 1 ) {
-            print("ERROR: write file failed:$preStatus.\n");
+            print("ERROR: Write file failed:$preStatus.\n");
         }
         return -1;
     }
 
     if ( $isVerbose == 1 ) {
-        print("INFO: write reomte file:$dest begin...\n");
+        print("INFO: Write reomte file:$dest begin...\n");
     }
 
     my $status = 0;
@@ -1405,10 +1405,10 @@ sub writeFile {
 
     if ( $isVerbose == 1 ) {
         if ( $status == 0 ) {
-            print("INFO: write remote file:$dest succeed.\n");
+            print("INFO: Write remote file:$dest succeed.\n");
         }
         else {
-            print("ERROR: write remote file:$dest failed.\n");
+            print("ERROR: Write remote file:$dest failed.\n");
         }
     }
 

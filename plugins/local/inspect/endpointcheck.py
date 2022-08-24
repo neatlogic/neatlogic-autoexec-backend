@@ -328,11 +328,11 @@ class EndPointCheck:
                 except SFTPError as err:
                     self.IS_FAIELD = True
                     hasError = True
-                    print("ERROR: mkdir {} failed: {}".format(remoteRoot, err))
+                    print("ERROR: Mkdir {} failed: {}".format(remoteRoot, err))
 
                 tmp = tempfile.NamedTemporaryFile(delete=False)
                 try:
-                    #print("WARN:DEBUG:" + tmp.name + ":" + scriptContent)
+                    #print("WARN: DEBUG:" + tmp.name + ":" + scriptContent)
                     tmp.write(scriptContent.encode())
                     tmp.close()
                     sftp.put(tmp.name, os.path.join(remotePath, scriptName))

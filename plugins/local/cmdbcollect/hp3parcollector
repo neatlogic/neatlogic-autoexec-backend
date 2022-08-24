@@ -507,5 +507,5 @@ if __name__ == "__main__":
             print(json.dumps(data, ensure_ascii=True, indent=4))
     except Exception as ex:
         errorMsg = str(ex)
-        print("ERROR:", errorMsg)
+        print("ERROR: ", errorMsg)
         traceback.print_exc()

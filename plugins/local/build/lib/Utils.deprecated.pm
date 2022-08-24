@@ -97,7 +97,7 @@ sub getPipeOut {
             print($line);
         }
         print("...\n");
-        die("ERROR: execute '$cmd' failed.\n");
+        die("ERROR: Execute '$cmd' failed.\n");
     }
 
     return \@outArray;
@@ -146,10 +146,10 @@ sub handlePipeOut {
 
     if ( not defined($pid) or $exitCode != 0 ) {
         if ( defined($execDesc) and $execDesc ne '' ) {
-            die("ERROR: execute '$execDesc' failed.\n");
+            die("ERROR: Execute '$execDesc' failed.\n");
         }
         else {
-            die("ERROR: execute '$cmd' failed.\n");
+            die("ERROR: Execute '$cmd' failed.\n");
         }
     }
 
@@ -231,7 +231,7 @@ sub doInteract {
             my @inputHandles = $select->can_read($READ_TMOUT);
 
             if ( not @inputHandles ) {
-                print("\nWARN:wait user input timeout.\n");
+                print("\nWARN: Wait user input timeout.\n");
                 $enter = 'force-exit';
                 if ( defined($pipe) ) {
                     $pipe->close();
@@ -347,7 +347,7 @@ sub initENV {
         $fh->close();
     }
     else {
-        print STDERR ("ERROR: cant not open env file:$envFile\n");
+        print STDERR ("ERROR: Cant not open env file:$envFile\n");
     }
 }
 
@@ -506,7 +506,7 @@ sub getFileContent {
             $fh->close();
         }
         else {
-            print("WARN: file:$filePath not found or can not be readed.\n");
+            print("WARN: File:$filePath not found or can not be readed.\n");
         }
     }
 

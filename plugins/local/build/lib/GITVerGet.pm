@@ -129,7 +129,7 @@ sub tagRepo {
     my ( $self, $branchName, $tagName ) = @_;
 
     if ( $branchName eq $tagName ) {
-        print("WARN:tag:$tagName and branch:$branchName is same, tag abort.\n");
+        print("WARN: Tag:$tagName and branch:$branchName is same, tag abort.\n");
         return 0;
     }
 
@@ -187,7 +187,7 @@ sub getTags {
     my $tags = {};
     my $fh;
     open( $fh, "cd '$prjPath'&& git tag |" )
-        or die "ERROR:get tag list failed:$!";
+        or die "ERROR: Get tag list failed:$!";
     if ( defined($tagPrefix) ) {
         while ( my $line = <$fh> ) {
             $line =~ s/%\s*//;
@@ -217,7 +217,7 @@ sub getBranches {
     my $branches = {};
     my $fh;
     open( $fh, "cd '$prjPath'; git branch -r |" )
-        or die "ERROR:get branche list failed:$!";
+        or die "ERROR: Get branche list failed:$!";
     while ( my $line = <$fh> ) {
         $line =~ s/^.*origin\///;
         $line =~ s/\s+.*?$//;
@@ -272,7 +272,7 @@ sub fetch {
     if ( $ret eq 0 ) {
         DeployUtils->execmd("cd '$prjPath' && git config user.name '$gitUser'");
         DeployUtils->execmd("cd '$prjPath' && git config user.email '$gitUser\@techsure.com.cn'");
-        print("FINE: fetch $repoDesc success.\n");
+        print("FINE: Fetch $repoDesc success.\n");
     }
 
     return $ret;
@@ -479,7 +479,7 @@ sub checkBaseLineMerged {
 
     my $repoDesc = $self->{repoDesc};
 
-    print("INFO:Check if version $version has merged the master branch:$masterBranch\'s modification.\n");
+    print("INFO: Check if version $version has merged the master branch:$masterBranch\'s modification.\n");
     my $ret = 0;
 
     if ( not defined($masterBranch) or $masterBranch eq '' ) {
@@ -497,12 +497,12 @@ sub checkBaseLineMerged {
             if ( $ret == 0 ) {
                 print("INFO: Check merge for: $srcBranch <- $masterBranch\n");
 
-                #print("INFO:cd $prjPath && git merge --no-commit --no-ff $masterBranch\n");
+                #print("INFO: cd $prjPath && git merge --no-commit --no-ff $masterBranch\n");
                 $ret = DeployUtils->execmd("cd '$prjPath' && git merge --no-commit --no-ff '$masterBranch'");
 
                 if ( $ret == 0 ) {
 
-                    #print("INFO:cd $prjPath && git diff --cached | wc -l\n");
+                    #print("INFO: cd $prjPath && git diff --cached | wc -l\n");
                     my $lines = DeployUtils->getPipeOut("cd '$prjPath' && git diff --stat-count 100 --cached 2>&1");
 
                     if ( scalar(@$lines) > 0 ) {
@@ -511,7 +511,7 @@ sub checkBaseLineMerged {
                         $ret = 3;
                         DeployUtils->execmd("cd $prjPath && git diff --stat --cached");
 
-                        #print("INFO:cd $prjPath && git merge --abort\n");
+                        #print("INFO: cd $prjPath && git merge --abort\n");
                         my $rstRet = DeployUtils->execmd("cd '$prjPath' && git merge --abort");
                         print("ERROR: Version $version has not merge master branch:$masterBranch modifications.\n");
                         print("ERROR: 未从master分支:$masterBranch合并最新代码，请合并至版本$version后再重新提交!\n");
@@ -665,10 +665,10 @@ sub _getDiff {
         $diffListFH = IO::File->new(">$diffListFile");
 
         if ( not defined($delListFH) ) {
-            die("ERROR:Create $delListFile failed.\n");
+            die("ERROR: Create $delListFile failed.\n");
         }
         if ( not defined($diffListFH) ) {
-            die("ERROR:Create $diffListFile failed.\n");
+            die("ERROR: Create $diffListFile failed.\n");
         }
     }
 
@@ -699,38 +699,38 @@ sub _getDiff {
                     my $saveDir  = dirname($savePath);
                     if ( not -e $saveDir ) {
                         if ( not mkpath($saveDir) ) {
-                            die("ERROR: mkpath $saveDir failed:$!\n");
+                            die("ERROR: Mkpath $saveDir failed:$!\n");
                         }
                     }
 
                     if ( -f $filePath ) {
                         if ( not File::Copy::cp( $filePath, $savePath ) ) {
-                            die("ERROR: copy $filePath to $savePath failed:$!\n");
+                            die("ERROR: Copy $filePath to $savePath failed:$!\n");
                         }
                         if ( defined($diffListFH) ) {
                             if ( not print $diffListFH ( $filePath, "\n" ) ) {
-                                die("ERROR: write $filePath to $diffListFile failed.");
+                                die("ERROR: Write $filePath to $diffListFile failed.");
                             }
                         }
                     }
                     elsif ( -d $filePath ) {
                         if ( not mkdir($savePath) ) {
-                            die("ERROR: mkdir $savePath failed:$!\n");
+                            die("ERROR: Mkdir $savePath failed:$!\n");
                         }
                     }
                     elsif ( -l $filePath ) {
                         if ( not symlink( $savePath, readlink($filePath) ) ) {
-                            die("ERROR: symlink $savePath to $filePath failed:$!\n");
+                            die("ERROR: Symlink $savePath to $filePath failed:$!\n");
                         }
                     }
                     elsif ( not -e $filePath ) {
-                        die("ERROR: file $filePath not exits, check if the svn work copy have been updated.\n");
+                        die("ERROR: File $filePath not exits, check if the svn work copy have been updated.\n");
                     }
                 }
                 elsif ( $flag =~ /^D/ ) {
                     if ( defined($delListFH) ) {
                         if ( not print $delListFH ( $filePath, "\n" ) ) {
-                            die("ERROR: write $filePath to $delListFile failed.");
+                            die("ERROR: Write $filePath to $delListFile failed.");
                         }
                     }
                 }

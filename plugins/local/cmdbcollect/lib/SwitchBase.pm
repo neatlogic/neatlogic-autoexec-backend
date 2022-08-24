@@ -42,7 +42,7 @@ sub new {
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
     if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{hostname} failed, $error\n");
+        print("ERROR: Create snmp session to $args{hostname} failed, $error\n");
         exit(-1);
     }
 
@@ -425,7 +425,7 @@ sub _getMacTableWithVlan {
         $options->{'-community'} = "$comunity\@$vlanId";
         my ( $vlanSnmp, $error ) = Net::SNMP->session(%$options);
         if ( !defined $vlanSnmp ) {
-            print("ERROR:Create snmp session to $options->{'-host'} failed, $error\n");
+            print("ERROR: Create snmp session to $options->{'-host'} failed, $error\n");
             exit(-1);
         }
 

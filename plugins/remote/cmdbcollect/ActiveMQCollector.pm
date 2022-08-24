@@ -63,7 +63,7 @@ sub collect {
     my $javaHome = $appInfo->{JAVA_HOME};
 
     if ( not -e "$installPath/bin/activemq" ) {
-        print("WARN: activemq not found in $installPath.\n");
+        print("WARN: Activemq not found in $installPath.\n");
         return undef;
     }
 

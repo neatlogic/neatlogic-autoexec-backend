@@ -37,7 +37,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -95,7 +95,7 @@ $appFile =~ s/\s*//g;
 my @appFiles = split( ",", $appFile );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -109,7 +109,7 @@ if ( $needDeploy = 1 and -d $wasprofile ) {
         my $precheckUrl = $sectionConfig->{"$appname.precheckurl"};
         if ( defined($precheckUrl) and $precheckUrl ne '' ) {
             if ( not Utils::CheckUrlAvailable( $precheckUrl, "GET", $timeout ) ) {
-                print("ERROR: pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
+                print("ERROR: Pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
                 exit(1);
             }
         }
@@ -146,7 +146,7 @@ if ( $needDeploy = 1 and -d $wasprofile ) {
     my $ret = system($deployCmd);
 
     if ( $ret != 0 and $standalone eq 1 ) {
-        print("INFO: autodeploy failed, maybe the server not started, restart it and try again.\n");
+        print("INFO: Autodeploy failed, maybe the server not started, restart it and try again.\n");
         my $stopSrvCmd = "$homePath/bin/was-stop.pl $mainName $insName";
         $stopSrvCmd = "\"$homePath/bin/was-stop.pl $mainName $insName\"" if ( $ostype eq 'windows' );
 
@@ -191,10 +191,10 @@ if ( $needDeploy = 1 and -d $wasprofile ) {
             my $checkUrl = $sectionConfig->{"$appname.checkurl"};
             if ( defined($checkUrl) and $checkUrl ne '' ) {
                 if ( Utils::CheckUrlAvailable( $checkUrl, "GET", 300, \@serverLogInfos ) ) {
-                    print("INFO: app $appname started.\n");
+                    print("INFO: App $appname started.\n");
                 }
                 else {
-                    print("ERROR: app $appname start failed.\n");
+                    print("ERROR: App $appname start failed.\n");
                     $rc = 2;
                 }
             }
@@ -206,10 +206,10 @@ if ( $needDeploy = 1 and -d $wasprofile ) {
             my $checkUrl = $sectionConfig->{"$appname.checkurl"};
             if ( defined($checkUrl) and $checkUrl ne '' ) {
                 if ( Utils::CheckUrlAvailable( $checkUrl, "GET", 300, \@serverLogInfos ) ) {
-                    print("INFO: app $appname started.\n");
+                    print("INFO: App $appname started.\n");
                 }
                 else {
-                    print("ERROR: app $appname start failed.\n");
+                    print("ERROR: App $appname start failed.\n");
                     $rc = 3;
                 }
             }
@@ -301,7 +301,7 @@ if ( $needDeploy == 1 and defined($ihsRoot) and $ihsRoot ne '' and -d $ihsRoot )
         }
         else {
             my $suffix = $appFile;
-            print("ERROR: file type of $appFile is not supported.\n");
+            print("ERROR: File type of $appFile is not supported.\n");
             $rc = 1;
         }
     }

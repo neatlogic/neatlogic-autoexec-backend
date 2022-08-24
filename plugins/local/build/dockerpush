@@ -85,7 +85,7 @@ sub main {
     my $hasError = 0;
 
     # check if project exists on remote repository
-    print("INFO:checking if project exists...\n");
+    print("INFO: Checking if project exists...\n");
 
     my $projectCheckCmd     = "curl -s -u '$username:$password' -X GET --header  'Accept: application/json' 'http://$registry/api/projects?name=$project'";
     my $projectCheckRes     = $deployUtils->getPipeOut($projectCheckCmd);
@@ -98,10 +98,10 @@ sub main {
         # my $projectCreateCmd = "curl -s -u '$username:$password' -X POST --header  'Content-Type:application/json' 'http://$registry/api/projects' -d '{\"project_name\": \"$project\"}'";
         # my $projectCreateRet = $deployUtils->execmd($projectCreateCmd);
         # if ( $projectCreateRet eq 0 ) {
-        #     print("INFO: create project $project on $registry success!\n");
+        #     print("INFO: Create project $project on $registry success!\n");
         # }
         # else {
-        #     print("ERROR: create project $project on $registry failed!\n");
+        #     print("ERROR: Create project $project on $registry failed!\n");
         #     exit(-1);
         # }
     }
@@ -113,14 +113,14 @@ sub main {
     # login first
     my $loginCmd      = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
     my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
-    print("INFO:execute->$loginCmdPrint\n");
+    print("INFO: Execute->$loginCmdPrint\n");
     my $loginRet = $deployUtils->execmd($loginCmd);
     if ( $loginRet eq 0 ) {
-        print("INFO: docker login success!\n");
+        print("INFO: Docker login success!\n");
     }
     else {
         $hasError = $hasError + 1;
-        print("ERROR: docker login failed!\n");
+        print("ERROR: Docker login failed!\n");
     }
 
     if ( $hasError > 0 ) {
@@ -131,15 +131,15 @@ sub main {
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $cmd = "sudo docker push $registry/$project/$image:$tagname";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {
         $hasError = $hasError + 1;
-        print("INFO: push image $registry/$project/$image:$tagname success!\n");
+        print("INFO: Push image $registry/$project/$image:$tagname success!\n");
     }
     else {
-        print("ERROR: push image $registry/$project/$image:$tagname failed!\n");
+        print("ERROR: Push image $registry/$project/$image:$tagname failed!\n");
     }
 
     if ( $hasError == 0 ) {

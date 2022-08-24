@@ -50,7 +50,7 @@ sub exec {
 
     my $cmd = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $src $dest";
     if ($isVerbose) {
-        print("INFO:$cmd\n");
+        print("INFO: $cmd\n");
     }
 
     $spawn->spawn($cmd);
@@ -78,7 +78,7 @@ sub exec {
                 my $lastLine = $spawn->before();
                 $spawn->soft_close();
                 if ( $spawn->exitstatus() != 0 and $lastLine =~ /lost connection/ ) {
-                    print("ERROR: connect to server failed, $lastLine");
+                    print("ERROR: Connect to server failed, $lastLine");
                 }
             }
         ]

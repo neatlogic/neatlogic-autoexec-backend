@@ -47,7 +47,7 @@ sub build {
     my $ret = 0;
 
     if ( not -e $nodejsPath ) {
-        print("ERROR: node.js path($nodejsPath) not exists.\n");
+        print("ERROR: Node.js path($nodejsPath) not exists.\n");
         $ret = -1;
     }
     else {
@@ -58,12 +58,12 @@ sub build {
 
         if ( not defined($args) or $args eq '' ) {
             $cmd = "npm ci && npm run build";
-            print("INFO:execute->$cmd\n");
+            print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
         else {
             $cmd = "npm ci && npm $args";
-            print("INFO:execute->$cmd\n");
+            print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
     }

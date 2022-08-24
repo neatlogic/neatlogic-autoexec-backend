@@ -139,23 +139,23 @@ sub main {
     }
 
     if ( $action eq "delete" ) {
-        print("INFO: withdraw $object protect: $pattern\n");
-        print("INFO: check if $object protect exists: $pattern\n");
+        print("INFO: Withdraw $object protect: $pattern\n");
+        print("INFO: Check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
         my @protects        = @{ from_json($protectsJsonStr) };
         if (@protects) {
             foreach my $protect (@protects) {
                 if ( $protect->{name} eq $pattern ) {
                     apicall( "DELETE", "$protectApiUrl/$pattern", $token, "204" );
-                    print("INFO: withdraw $object protect: $pattern success\n");
+                    print("INFO: Withdraw $object protect: $pattern success\n");
                 }
             }
         }
 
     }
     elsif ( $action eq "add" ) {
-        print("INFO: add protect\n");
-        print("INFO: check if $object protect exists: $pattern\n");
+        print("INFO: Add protect\n");
+        print("INFO: Check if $object protect exists: $pattern\n");
         my $protectsJsonStr = apicall( "GET", "$protectApiUrl", $token, "200" );
         my @protects        = @{ from_json($protectsJsonStr) };
         if (@protects) {
@@ -168,7 +168,7 @@ sub main {
         }
         my $protectRulesStr = apicall( "POST", "$protectApiUrl?name=$pattern", $token, "201" );
         my $protectRules    = from_json($protectRulesStr);
-        print("INFO: add protect: $protectRules->{name} success\n") if defined( $protectRules->{name} );
+        print("INFO: Add protect: $protectRules->{name} success\n") if defined( $protectRules->{name} );
     }
 
 }

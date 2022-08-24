@@ -73,7 +73,7 @@ sub new {
     my ( $session, $error ) = Net::SNMP->session(%$options);
 
     if ( !defined $session ) {
-        print("ERROR:Create snmp session to $args{host} failed, $error\n");
+        print("ERROR: Create snmp session to $args{host} failed, $error\n");
         exit(-1);
     }
 

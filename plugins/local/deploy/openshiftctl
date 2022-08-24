@@ -41,27 +41,27 @@ sub main {
 
     if ( not defined($baseUrl) or $baseUrl eq '' ) {
         $hasOptError = 1;
-        print("ERROR: must define base url by option --baseurl.\n");
+        print("ERROR: Must define base url by option --baseurl.\n");
     }
 
     if ( not defined($deployment) or $deployment eq '' ) {
         $hasOptError = 1;
-        print("ERROR: must define deployment by option --deployment.\n");
+        print("ERROR: Must define deployment by option --deployment.\n");
     }
 
     if ( not defined($project) or $project eq '' ) {
         $hasOptError = 1;
-        print("ERROR: must define project by option --project.\n");
+        print("ERROR: Must define project by option --project.\n");
     }
 
     if ( not defined($image) or $image eq '' ) {
         $hasOptError = 1;
-        print("ERROR: must define image by option --image.\n");
+        print("ERROR: Must define image by option --image.\n");
     }
 
     if ( not defined($action) or $action eq '' ) {
         $hasOptError = 1;
-        print("ERROR: must define action by option --action.\n");
+        print("ERROR: Must define action by option --action.\n");
     }
 
     if ( $hasOptError == 1 ) {

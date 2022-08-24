@@ -70,7 +70,7 @@ sub login {
     $ret = $spawn->expect( 10, '-re', "^$PROMPT" );
     exitIfFail( $ret, "timeout" );
 
-    print("INFO: login successful.\n");
+    print("INFO: Login successful.\n");
 }
 
 sub closeSpawn {
@@ -96,7 +96,7 @@ sub dispatchCmd {
     }
     elsif ( $cmd !~ /^#/ and $cmd ne '' ) {
         if ( $cmd ne '' ) {
-            print("INFO:$cmd\n");
+            print("INFO: $cmd\n");
         }
     }
 }
@@ -104,7 +104,7 @@ sub dispatchCmd {
 sub ftpCmd {
     my ( $spawn, $cmd ) = @_;
 
-    #print("INFO: exec ftp cmd:$cmd\n");
+    #print("INFO: Exec ftp cmd:$cmd\n");
     my @nextCmds = split( /\@/, $cmd );
     shift(@nextCmds);
 
@@ -146,7 +146,7 @@ sub ftpCmd {
 sub compoundCmd {
     my ( $spawn, $cmd ) = @_;
 
-    print("\nINFO: exec compoundCmd $cmd\n");
+    print("\nINFO: Exec compoundCmd $cmd\n");
 
     my ( $pid, $cmdPipe );
     if ( $pid = open( $cmdPipe, "$cmd |" ) ) {
@@ -160,14 +160,14 @@ sub compoundCmd {
 
         if ( $exitCode != 0 and $cmd !~ /^sleep/ ) {
             print("\n\n");
-            print("ERROR:execute compound command:$cmd failed, Pid:$pid, waitpid return:$ret exit code:$exitCode\n");
+            print("ERROR: Execute compound command:$cmd failed, Pid:$pid, waitpid return:$ret exit code:$exitCode\n");
             exit(-1);
         }
         close($cmdPipe);
     }
     else {
         print("\n\n");
-        print("ERROR: can not execute command $cmd\n");
+        print("ERROR: Can not execute command $cmd\n");
         exit(-1);
     }
 }
@@ -233,7 +233,7 @@ sub main {
     $exp->log_stdout($isVerbose);
     $exp->max_accum(512);
 
-    print("INFO:execute ftp cmd\n");
+    print("INFO: Execute ftp cmd\n");
     my $spawn = $exp->spawn("ftp");
     login( $spawn, $host, $port, $user, $pass );
 

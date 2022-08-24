@@ -37,7 +37,7 @@ sub getFileMd5 {
             $fileFH->close();
         }
         else {
-            die("ERROR: get file:$filePath md5 failed, $!\n");
+            die("ERROR: Get file:$filePath md5 failed, $!\n");
         }
     }
     else {
@@ -46,7 +46,7 @@ sub getFileMd5 {
             $md5Hash = substr( $md5Hash, 0, index( $md5Hash, ' ' ) );
         }
         else {
-            print("ERROR: execute md5sum failed, $!.\n");
+            print("ERROR: Execute md5sum failed, $!.\n");
             exit(-1);
         }
     }
@@ -61,13 +61,13 @@ sub checkOneDir {
 
     my $md5SumList = "$dest/$md5ListFileName";
     if ( not -f $md5SumList ) {
-        die("ERROR: md5 sum list file:$md5SumList not exists.\n");
+        die("ERROR: Md5 sum list file:$md5SumList not exists.\n");
     }
 
     my $fh = IO::File->new("<$md5SumList");
 
     if ( not defined($fh) ) {
-        die("ERROR: open file $md5SumList failed, $!\n");
+        die("ERROR: Open file $md5SumList failed, $!\n");
     }
 
     chdir($dest);
@@ -95,13 +95,13 @@ sub checkOneDir {
     }
 
     if ( $hasError == 1 ) {
-        die("ERROR: check md5 for $dest failed.\n");
+        die("ERROR: Check md5 for $dest failed.\n");
     }
     else {
         if ( defined($delMd5) ) {
             unlink($md5SumList);
         }
-        print("INFO: check md5 for $dest success.\n");
+        print("INFO: Check md5 for $dest success.\n");
     }
 }
 
@@ -120,7 +120,7 @@ sub main {
     usage() if ( defined($isHelp) );
 
     if ( scalar(@dirPatterns) == 0 ) {
-        print("ERROR: no directory pattern specified.\n");
+        print("ERROR: No directory pattern specified.\n");
         usage();
     }
 

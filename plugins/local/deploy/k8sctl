@@ -44,7 +44,7 @@ sub doGet {
     my $data;
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
-        print("ERROR: get restful api:$url failed, cause by:$errMsg\n");
+        print("ERROR: Get restful api:$url failed, cause by:$errMsg\n");
     }
     else {
         my $content = $client->responseContent();
@@ -70,7 +70,7 @@ sub doPost {
     my $data;
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
-        print("ERROR: get restful api:$url failed, cause by:$errMsg\n");
+        print("ERROR: Get restful api:$url failed, cause by:$errMsg\n");
     }
     else {
         my $content = $client->responseContent();

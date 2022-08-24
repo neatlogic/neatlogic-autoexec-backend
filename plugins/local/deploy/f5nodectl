@@ -50,28 +50,28 @@ sub main {
     my $optionError = 0;
     if ( not defined($f5Url) or $f5Url eq '' ) {
         $optionError = 1;
-        print("ERROR: must define --baseurl.\n");
+        print("ERROR: Must define --baseurl.\n");
     }
 
     if ( not defined($user) or $user eq '' ) {
         $optionError = 1;
-        print("ERROR: must define --username.\n");
+        print("ERROR: Must define --username.\n");
     }
 
     if ( not defined($pool) or $pool eq '' ) {
         $optionError = 1;
-        print("ERROR: must define --pool.\n");
+        print("ERROR: Must define --pool.\n");
     }
 
     if ( $action ne 'disable' and $action ne 'enable' ) {
         $optionError = 1;
-        print("ERROR: action must to be enabled or disabled.\n");
+        print("ERROR: Action must to be enabled or disabled.\n");
     }
 
     if ( $action ne 'disable' ) {
         if ( defined $waitDisConnected ) {
             $optionError = 1;
-            print("ERROR: when --action defined disable, should be define --waitdisconnected. \n");
+            print("ERROR: When --action defined disable, should be define --waitdisconnected. \n");
         }
     }
 
@@ -156,11 +156,11 @@ sub main {
 
                 if ( $curConns > 0 ) {
                     if ( $loopCount % 5 == 0 ) {
-                        print("INFO: node $lbNode current connections is $curConns, waiting... \n");
+                        print("INFO: Node $lbNode current connections is $curConns, waiting... \n");
                     }
                 }
                 else {
-                    print("INFO: connections for node $lbNode is disconnected. \n");
+                    print("INFO: Connections for node $lbNode is disconnected. \n");
                     $nodeDisconnected->{$lbNode} = 1;
                 }
             };
@@ -169,7 +169,7 @@ sub main {
                 $hasError = 1;
                 my $msg = $@;
                 $msg =~ s/ at .*?$//;
-                print("WARN: get $pool member $lbNode stats failed, api return:$content\n");
+                print("WARN: Get $pool member $lbNode stats failed, api return:$content\n");
                 print("$msg\n");
             }
             if ( $curConns == 0 ) {
@@ -178,7 +178,7 @@ sub main {
             elsif ( time() - $startTime > $timeOut ) {
                 $isTimeOut = 1;
                 $hasError  = 1;
-                print("WARN: wait node connection disconnected timeout, larger than $timeOut seconds.\n");
+                print("WARN: Wait node connection disconnected timeout, larger than $timeOut seconds.\n");
             }
             else {
                 sleep(2);

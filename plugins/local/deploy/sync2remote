@@ -73,7 +73,7 @@ sub main {
 
     my $optionError = 0;
     if ( not defined($dest) ) {
-        print("ERROR: must defined option --dest.\n");
+        print("ERROR: Must defined option --dest.\n");
         $optionError = 1;
     }
 

@@ -14,7 +14,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -69,19 +69,19 @@ sub main {
                         if ( defined($checkUrl) and $checkUrl ne '' ) {
                             if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
                                 sleep(10);
-                                print("INFO: app $appName uninstalled.\n");
+                                print("INFO: App $appName uninstalled.\n");
                                 print("INFO: Sleep ten seconds wait for synchronize\n");
                             }
                             else {
-                                print("ERROR: app $appName uninstall failed.\n");
+                                print("ERROR: App $appName uninstall failed.\n");
                                 $rc = 2;
                             }
                         }
                     }
-                    print("FINE: undeploy $appName suceed.\n");
+                    print("FINE: Undeploy $appName suceed.\n");
                 }
                 else {
-                    print("ERROR: undeploy $appName failed.\n");
+                    print("ERROR: Undeploy $appName failed.\n");
                     $rc = 3;
                 }
             }

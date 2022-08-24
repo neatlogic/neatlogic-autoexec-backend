@@ -37,7 +37,7 @@ sub new {
     my $pid = open2( $childOut, $childIn, "$pipeCmd" );
 
     if ( $pid == 0 ) {
-        die("ERROR: execute $pipeCmd failed: $!\n");
+        die("ERROR: Execute $pipeCmd failed: $!\n");
     }
 
     $self->{pid} = $pid;
@@ -148,7 +148,7 @@ sub login {
 
     if ( $screen !~ /Main Menu/ ) {
         $self->dumpScreen();
-        die("ERROR: login failed\n");
+        die("ERROR: Login failed\n");
     }
 }
 

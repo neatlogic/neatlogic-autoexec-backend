@@ -103,7 +103,7 @@ sub new {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
 
         $self->{fileType} = 'CTL';
-        print("INFO:sqlldr userid=/\@$oraWallet $dbArgs control='$sqlFileName'\n");
+        print("INFO: Sqlldr userid=/\@$oraWallet $dbArgs control='$sqlFileName'\n");
         $spawn = Expect->spawn("sqlldr /\@$oraWallet $dbArgs control='$sqlFileName'");
     }
     elsif ( $sqlFile =~ /\.dmp/i ) {
@@ -114,7 +114,7 @@ sub new {
         $self->{fileType} = 'DMP';
 
         # oracle import
-        print("INFO: imp /\@$oraWallet $dbArgs file='$sqlFileName'\n");
+        print("INFO: Imp /\@$oraWallet $dbArgs file='$sqlFileName'\n");
         $spawn = Expect->spawn("imp /\@$oraWallet $dbArgs file='$sqlFileName'");
     }
     else {
@@ -122,7 +122,7 @@ sub new {
 
         #execute by wallet
         #sqlplus /@walletname @db/oratest.scott/1.a.sql
-        print("INFO: sqlplus -R 1 -L /\@$oraWallet \@'$sqlFileName'\n");
+        print("INFO: Sqlplus -R 1 -L /\@$oraWallet \@'$sqlFileName'\n");
 
         $spawn = Expect->spawn("sqlplus -R 1 -L /\@$oraWallet");
     }

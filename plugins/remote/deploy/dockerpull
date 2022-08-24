@@ -44,19 +44,19 @@ sub main {
     # login first
     my $loginCmd      = "echo  '$password' |docker login $registry --username '$username' --password-stdin";
     my $loginCmdPrint = "echo  '******' |docker login $registry --username '$username' --password-stdin";
-    print("INFO:execute->$loginCmdPrint\n");
+    print("INFO: Execute->$loginCmdPrint\n");
     my $loginRet = system($loginCmd);
     if ( $loginRet eq 0 ) {
-        print("INFO: docker login success!\n");
+        print("INFO: Docker login success!\n");
     }
     else {
         $hasError = $hasError + 1;
-        print("ERROR: docker login failed!\n");
+        print("ERROR: Docker login failed!\n");
         return $hasError;
     }
 
     my $cmd = "docker rmi $registry/$project/$image:$tagName $image:$tagName";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
 
     my $ret = system($cmd );
 
@@ -70,7 +70,7 @@ sub main {
     }
 
     $cmd = "docker pull $registry/$project/$image:$tagName";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     $ret = system($cmd );
 
     if ( $ret eq 0 ) {
@@ -84,7 +84,7 @@ sub main {
 
     #my $cmd = "docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H$host:$h_port tag $registry/library/$image:$env-$version $image:$env-$version";
     $cmd = "docker tag $registry/$project/$image:$tagName $image:$tagName";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     $ret = system($cmd );
 
     if ( $ret eq 0 ) {

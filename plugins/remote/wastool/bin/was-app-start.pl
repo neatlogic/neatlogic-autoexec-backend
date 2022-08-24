@@ -30,7 +30,7 @@ $homePath = abs_path("$homePath/..");
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 

@@ -175,7 +175,7 @@ sub checkout {
             print("INFO: Checkout failed, clean the project directory will take a few minutes, please wait...\n");
             if ( -e $prjPath and rmtree($prjPath) == 0 ) {
                 $ret = 3;
-                print("ERROR:Remove directory $prjPath failed.\n");
+                print("ERROR: Remove directory $prjPath failed.\n");
             }
             else {
                 mkdir($prjPath);
@@ -195,14 +195,14 @@ sub checkout {
         $ret = DeployUtils->execmd("cd '$prjPath' && svn cleanup . && svn revert -R . && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass update .");
 
         if ( $ret ne 0 ) {
-            print("INFO:Checkout failed, clean the project directory will take a few minutes, please wait...\n");
+            print("INFO: Checkout failed, clean the project directory will take a few minutes, please wait...\n");
             if ( rmtree($prjPath) == 0 ) {
                 $ret = 3;
-                print("ERROR:remove directory $prjPath failed.\n");
+                print("ERROR: Remove directory $prjPath failed.\n");
             }
             else {
                 mkdir($prjPath);
-                print("INFO:Checkout again, it will take a few minutes, please wait...\n");
+                print("INFO: Checkout again, it will take a few minutes, please wait...\n");
 
                 #print("svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
                 $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass co '$checkoutRepo' '$prjPath'");
@@ -279,7 +279,7 @@ sub tagRepoRev {
     my ( $self, $branch, $tag, $version, $tagRevision ) = @_;
 
     if ( $branch eq $tag ) {
-        print("WARN: branch:$branch and tag:$tag is same, tag abort.\n");
+        print("WARN: Branch:$branch and tag:$tag is same, tag abort.\n");
         return 0;
     }
 
@@ -313,10 +313,10 @@ sub tagRepoRev {
         $ret = DeployUtils->execmd($listtags);
         if ( $ret != 0 ) {
             my $createtagsdir = "svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass mkdir '$svnTagsDir' -m 'create tags dir for autodeploy'";
-            print("WARN: tags dir $svnTagsDir does not exist, creating one.\n");
+            print("WARN: Tags dir $svnTagsDir does not exist, creating one.\n");
             $ret = DeployUtils->execmd($createtagsdir);
             if ( $ret != 0 ) {
-                print("ERROR: creat tags dir $svnTagsDir failed, exiting.\n");
+                print("ERROR: Creat tags dir $svnTagsDir failed, exiting.\n");
                 return $ret;
             }
         }
@@ -354,7 +354,7 @@ sub getTags {
 
         my $fh;
         open( $fh, "svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass ls  '$svnTagsDir' |" )
-            or die "ERROR:get tag list failed:$!";
+            or die "ERROR: Get tag list failed:$!";
         if ( defined($tagPrefix) ) {
             while ( my $line = <$fh> ) {
                 $line =~ s/^\s*//;
@@ -467,7 +467,7 @@ sub checkBaseLineMerged {
     };
 
     #print("cd $prjPath && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass merge $trunkRepo");
-    print("INFO:cd '$prjPath' && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' merge '$trunkRepo'\n");
+    print("INFO: cd '$prjPath' && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' merge '$trunkRepo'\n");
     my $output;
     eval {
         my $mergeCmd = "cd '$prjPath' && svn --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass merge '$trunkRepo'";
@@ -723,7 +723,7 @@ sub checkChangedAfterCompiled {
             my $line = $$lines[0];
             if ( $line =~ /^\s*M\s+/ and $line =~ /\s+$checkoutRepo\s*$/ ) {
                 $ret = 0;
-                print("WARN:$line\n");
+                print("WARN: $line\n");
             }
             else {
                 print("WARN: Version:$version has been changed after compiled, End Revision:$endRev.\n");
@@ -798,10 +798,10 @@ sub _getDiff {
         $diffListFH = IO::File->new(">$diffListFile");
 
         if ( not defined($delListFH) ) {
-            die("ERROR:Create $delListFile failed.\n");
+            die("ERROR: Create $delListFile failed.\n");
         }
         if ( not defined($diffListFH) ) {
-            die("ERROR:Create $diffListFile failed.\n");
+            die("ERROR: Create $diffListFile failed.\n");
         }
     }
 
@@ -840,39 +840,39 @@ sub _getDiff {
                     my $saveDir  = dirname($savePath);
                     if ( not -e $saveDir ) {
                         if ( not mkpath($saveDir) ) {
-                            die("ERROR: mkpath $saveDir failed:$!\n");
+                            die("ERROR: Mkpath $saveDir failed:$!\n");
                         }
                     }
 
                     if ( -f $filePath ) {
                         if ( not File::Copy::cp( $filePath, $savePath ) ) {
-                            die("ERROR: copy $filePath to $savePath failed:$!\n");
+                            die("ERROR: Copy $filePath to $savePath failed:$!\n");
                         }
 
                         if ( defined($diffListFH) ) {
                             if ( not print $diffListFH ( $filePath, "\n" ) ) {
-                                die("ERROR: write $filePath to $diffListFile failed.");
+                                die("ERROR: Write $filePath to $diffListFile failed.");
                             }
                         }
                     }
                     elsif ( -d $filePath ) {
                         if ( not -e $savePath and not mkdir($savePath) ) {
-                            die("ERROR: mkdir $savePath failed:$!\n");
+                            die("ERROR: Mkdir $savePath failed:$!\n");
                         }
                     }
                     elsif ( -l $filePath ) {
                         if ( not symlink( $savePath, readlink($filePath) ) ) {
-                            die("ERROR: symlink $savePath to $filePath failed:$!\n");
+                            die("ERROR: Symlink $savePath to $filePath failed:$!\n");
                         }
                     }
                     elsif ( not -e $filePath ) {
-                        die("ERROR: file $filePath not exits, check if the svn work copy have been updated.\n");
+                        die("ERROR: File $filePath not exits, check if the svn work copy have been updated.\n");
                     }
                 }
                 elsif ( $flag =~ /^D/ ) {
                     if ( defined($delListFH) ) {
                         if ( not print $delListFH ( $filePath, "\n" ) ) {
-                            die("ERROR: write $filePath to $delListFile failed.");
+                            die("ERROR: Write $filePath to $delListFile failed.");
                         }
                     }
                 }

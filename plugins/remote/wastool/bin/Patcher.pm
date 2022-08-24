@@ -64,11 +64,11 @@ sub _walkDir {
 
     my $status = 0;
     if ( not -d $startPath ) {
-        die("ERROR: destination path:$startPath not a directory.");
+        die("ERROR: Destination path:$startPath not a directory.");
     }
     my $curDir = getcwd();
     if ( not chdir($startPath) ) {
-        die("ERROR: can not list dir:$startPath.");
+        die("ERROR: Can not list dir:$startPath.");
     }
 
     my @dirs = ("./");
@@ -134,7 +134,7 @@ sub _backupFiles {
             my $status = system("tar -cvf '$backupFile' '$file'");
 
             if ( $status != 0 ) {
-                print("ERROR: tar '$file' to $backupFile failed.\n");
+                print("ERROR: Tar '$file' to $backupFile failed.\n");
                 unlink($backupFile);
                 return -1;
             }
@@ -161,7 +161,7 @@ sub _backupPackFiles {
             }
 
             if ( $status != 0 ) {
-                print("ERROR: tar '$file' to '$backupFile' failed.\n");
+                print("ERROR: Tar '$file' to '$backupFile' failed.\n");
                 unlink($backupFile);
                 return -1;
             }
@@ -231,7 +231,7 @@ sub _backupDelFiles {
                         $status = system("tar -cvf '$backupFile' '$file'");
                     }
                     if ( $status != 0 ) {
-                        print("ERROR: tar $file to $backupFile failed.\n");
+                        print("ERROR: Tar $file to $backupFile failed.\n");
                         unlink($backupFile);
                         return -1;
                     }
@@ -305,7 +305,7 @@ sub backup {
         else {
             if ( not File::Copy::cp( $target, $backupFile ) ) {
                 $status = -1;
-                print("ERROR: copy $target to $backupFile failed.\n");
+                print("ERROR: Copy $target to $backupFile failed.\n");
                 unlink($backupFile) if ( -f $backupFile );
             }
             else {
@@ -313,7 +313,7 @@ sub backup {
 
                 $status = _writePatchDesc( $ins, $version, $packFile, 'file', $target, $backupType, $backupFile );
                 if ( $status != 0 ) {
-                    print("ERROR: can not write backup desc file to $backupFile.desc.txt.\n");
+                    print("ERROR: Can not write backup desc file to $backupFile.desc.txt.\n");
                     unlink($backupFile) if ( -f $backupFile );
                 }
             }
@@ -337,7 +337,7 @@ sub backup {
                     }
 
                     if ( $status != 0 ) {
-                        print("ERROR: tar $target to $backupFile failed.\n");
+                        print("ERROR: Tar $target to $backupFile failed.\n");
                         unlink($backupFile) if ( -f $backupFile );
                     }
                     else {
@@ -346,7 +346,7 @@ sub backup {
                 }
                 else {
                     $status = -1;
-                    print("ERROR: deltabackup not supported.\n");
+                    print("ERROR: Deltabackup not supported.\n");
 
                     #$status = $self->_backupDelFiles( $ins, $version, $backupFile, $packFile, $target );
                     #if ( $status == 0 ) {
@@ -357,7 +357,7 @@ sub backup {
                 if ( $status == 0 ) {
                     $status = _writePatchDesc( $ins, $version, $packFile, 'dir', $target, $backupType, $backupFile );
                     if ( $status != 0 ) {
-                        print("ERROR: can not write backup desc file to $backupFile.desc.txt.\n");
+                        print("ERROR: Can not write backup desc file to $backupFile.desc.txt.\n");
                         unlink($backupFile) if ( -f $backupFile );
                     }
                 }
@@ -410,7 +410,7 @@ sub interpretPathchFile {
                         my $count = unlink($file);
                         if ( $count == 0 ) {
                             $hasError = 1;
-                            print("ERROR: remove $file failed.");
+                            print("ERROR: Remove $file failed.");
                         }
                     }
                     else {
@@ -429,7 +429,7 @@ sub interpretPathchFile {
                             my $count = chmod( $mode, $file );
                             if ( $count == 0 ) {
                                 $hasError = 1;
-                                print("ERROR: chmod $file failed.");
+                                print("ERROR: Chmod $file failed.");
                             }
                         }
                         else {
@@ -533,7 +533,7 @@ sub deploy {
             }
 
             if ( $status != 0 ) {
-                print("ERROR: unzip $packFile to $target failed.\n");
+                print("ERROR: Unzip $packFile to $target failed.\n");
             }
 
             if ( not interpretPathchFile( $osType, $packFile ) ) {
@@ -810,15 +810,15 @@ sub rollback {
 
     if ( $status == 0 ) {
         if ( $hasBackup == 1 ) {
-            print("INFO: rollback $ins $version success.\n");
+            print("INFO: Rollback $ins $version success.\n");
         }
         else {
             $status = -1;
-            print("ERROR: no backup for $ins $version, rollback failed.\n");
+            print("ERROR: No backup for $ins $version, rollback failed.\n");
         }
     }
     else {
-        print("ERROR: rollback $ins $version failed.\n");
+        print("ERROR: Rollback $ins $version failed.\n");
     }
 
     return $status;

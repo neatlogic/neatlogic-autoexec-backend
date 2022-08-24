@@ -20,7 +20,7 @@ class VsphereQuery:
                 port = 443
             service_instance = connect.SmartConnect(host=ip,  user=user, pwd=passwd,  port=port)
         except IOError as e:
-            print("ERROR: connection failed ,operat is  ocurred.\n{}\n".format(traceback.format_exc()))
+            print("ERROR: Connection failed ,operat is  ocurred.\n{}\n".format(traceback.format_exc()))
 
         if not service_instance:
             raise SystemExit("Unable to connect to host with supplied info.")

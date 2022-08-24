@@ -128,7 +128,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -163,7 +163,7 @@ sub main {
     my @serverNames = split( ",", $servernames );
 
     if ( scalar(@appNames) != scalar(@appFiles) ) {
-        print("ERROR: config error, appfile number is not same as appname number.\n");
+        print("ERROR: Config error, appfile number is not same as appname number.\n");
         exit(1);
     }
 
@@ -213,7 +213,7 @@ sub main {
 
                 if ( defined($pid) and $pid ne '' and $pid ne ' ' ) {
                     $pid = getServerPid( $ostype, $domainDir, $servername, $lsnPort, $pid );
-                    print("INFO: weblogic pid is:$pid\n");
+                    print("INFO: Weblogic pid is:$pid\n");
                     $pid =~ s/\s+/ /g;
                     if ( $ostype eq 'windows' ) {
                         system("taskkill /pid $pid");
@@ -226,10 +226,10 @@ sub main {
                     $pid = getServerPid( $ostype, $domainDir, $servername, $lsnPort, $pid );
                     $pid =~ s/\s+/ /g;
                     if ( not defined($pid) or $pid eq '' or $pid eq ' ' ) {
-                        print("INFO: server $servername has been stopped.\n");
+                        print("INFO: Server $servername has been stopped.\n");
                     }
                     else {
-                        print("INFO: server $servername stop failed,pid is $pid try to kill -9.\n");
+                        print("INFO: Server $servername stop failed,pid is $pid try to kill -9.\n");
                         if ( $ostype eq 'windows' ) {
                             system("taskkill /f /pid $pid");
                         }
@@ -241,7 +241,7 @@ sub main {
                 }
                 else {
                     $isStop = 1;
-                    print("INFO: server $servername  is stoped.\n");
+                    print("INFO: Server $servername  is stoped.\n");
                 }
 
                 return $isStop;
@@ -328,7 +328,7 @@ sub main {
         }
     }
     else {
-        print("ERROR: no domain dir or server name found in the config file.\n");
+        print("ERROR: No domain dir or server name found in the config file.\n");
         $rc = 1;
     }
 

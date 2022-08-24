@@ -90,7 +90,7 @@ sub allRemoteFiles {
         }
     };
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "begin sync, it will take a few minutes...\n" );
+    print("INFO: Begin sync, it will take a few minutes...\n");
 
     my $calcPerlSub = q{
     sub isExceptMatch {
@@ -134,7 +134,7 @@ sub allRemoteFiles {
     
         mkdir($startPath) if ( not -e $startPath );
         if ( not -d $startPath ){
-            print("ERROR: destination path:$startPath not a directory.");
+            print("ERROR: Destination path:$startPath not a directory.");
             return 2;
         }
         chdir($startPath);
@@ -354,7 +354,7 @@ sub spawnSSHCmd {
                 }
                 else {
                     $spawn->hard_close();
-                    die("\nERROR: login failed, check username and password.\n");
+                    die("\nERROR: Login failed, check username and password.\n");
                 }
             }
         ],
@@ -372,7 +372,7 @@ sub spawnSSHCmd {
 
                     if ( $firstLine =~ /password:\s*$/ or $firstLine =~ /^Permission denied, please try again.\s*$/ ) {
                         $spawn->hard_close();
-                        die("\nERROR: login failed, check username and password.\n");
+                        die("\nERROR: Login failed, check username and password.\n");
                     }
                 }
             }
@@ -394,7 +394,7 @@ sub spawnSSHCmd {
                 "\n" => sub {
                     if ( $isLogin == 0 ) {
                         $isLogin = 1;
-                        print( 'INFO: ' . $deployUtils->getTimeForLog() . "server $inUser\@$inIP:$port conntected.\n" );
+                        print("INFO: Server $inUser\@$inIP:$port conntected.\n");
                     }
                     $lastLine = $spawn->before();
                     $callback->( $lastLine, @cbparams ) if ( defined($callback) );
@@ -445,7 +445,7 @@ sub spawnSCP {
                 }
                 else {
                     $spawn->hard_close();
-                    die("\nERROR: login failed, check username and password.\n");
+                    die("\nERROR: Login failed, check username and password.\n");
                 }
             }
         ],
@@ -454,14 +454,14 @@ sub spawnSCP {
                 my $lastLine = $spawn->before();
                 $spawn->soft_close();
                 if ( $spawn->exitstatus() != 0 and $lastLine =~ /lost connection/ ) {
-                    die("ERROR: connect to server failed, $lastLine");
+                    die("ERROR: Connect to server failed, $lastLine");
                 }
             }
         ]
     );
 
     if ( $spawn->exitstatus() != 0 ) {
-        die("ERROR: scp $inFiles $inIP failed, check the log.");
+        die("ERROR: Scp $inFiles $inIP failed, check the log.");
     }
 }
 
@@ -476,7 +476,7 @@ sub execRemoteCmd {
         }
         my $ret = $tagent->execCmd( $inUser, $inCmd, $isVerbose, undef, $callback, @cbparams );
         if ( $ret != 0 ) {
-            die("ERROR: tagent execute remote command failed.\n");
+            die("ERROR: Tagent execute remote command failed.\n");
         }
     }
     else {
@@ -494,7 +494,7 @@ sub execRemoteCmdWindows {
         my $tagent = new TagentClient( $inIP, $port, $inPwd );
         my $ret    = $tagent->execCmd( $inUser, $inCmd, $isVerbose, undef, $callback, @cbparams );
         if ( $ret != 0 ) {
-            die("ERROR: tagent execute remote command failed.\n");
+            die("ERROR: Tagent execute remote command failed.\n");
         }
     }
     else {
@@ -538,11 +538,11 @@ sub convertFileEncoding {
             File::Copy::cp( $tmp->filename, $srcFile );
         }
         else {
-            die("ERROR: convert command file to charset:$toCharset failed, cause:create tmp file in $tmpdir failed $!.\n");
+            die("ERROR: Convert command file to charset:$toCharset failed, cause:create tmp file in $tmpdir failed $!.\n");
         }
     }
     else {
-        die("ERROR: can not open file $srcFile convert charset to $toCharset failed.\n");
+        die("ERROR: Can not open file $srcFile convert charset to $toCharset failed.\n");
     }
 
     return;
@@ -570,7 +570,7 @@ sub remoteCopy {
         }
 
         if ( $ret != 0 ) {
-            die("ERROR: tagent upload failed.\n");
+            die("ERROR: Tagent upload failed.\n");
         }
     }
 }
@@ -643,9 +643,9 @@ sub upgradeFiles {
         unlink("$tarPath/$shFileName");     #删除脚本文件
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "begin get remote files info...\n" );
+    print("INFO: Begin get remote files info...\n");
     ( $allTgtFiles, $allTgtDirs ) = $self->allRemoteFiles( $ostype, $targetUser, $targetPwd, $targetIP, $instanceName, $targetPath, $inExceptDirs, $agentType, $followLinks );
-    print( "INFO: " . $deployUtils->getTimeForLog() . "get remote files info complete.\n" );
+    print("INFO: Get remote files info complete.\n");
 
     #print BLUE "\n--------------------------------------------------- $allTgtFiles -------------------------------------------------\n";
     #for ( sort keys %$allTgtFiles ) {
@@ -670,9 +670,9 @@ sub upgradeFiles {
         if ( not -e $sourcePath ) {
             die("ERROR: Source path:$sourcePath not exists or permission deny.");
         }
-        print( "INFO: " . $deployUtils->getTimeForLog() . "begin to find file info for $sourcePath...\n" );
+        print("INFO: Begin to find file info for $sourcePath...\n");
         my ( $srcFiles, $srcDirs ) = $self->allLocalFiles( $sourcePath, $inExceptDirs );
-        print( "INFO: " . $deployUtils->getTimeForLog() . "find file info for $sourcePath complete.\n" );
+        print("INFO: Find file info for $sourcePath complete.\n");
 
         #print GREEN "\n--------------------------------------------------- $allTgtFiles -------------------------------------------------\n";
         #for ( sort keys %$srcFiles ) {
@@ -694,7 +694,7 @@ sub upgradeFiles {
         map { $$allSrcDirs{$_}  = $$srcDirs{$_};  $$allSrcDirsPrefix{$_}  = $sourcePath; } ( keys(%$srcDirs) );
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "begin to compare local and remote files info...\n" );
+    print("INFO: Begin to compare local and remote files info...\n");
     my $needCreateTar = 1;
     my ( @updatedFiles, @newFiles, @oldFiles, @delFiles, @newDirs, @modDirs, @delDirs );
     foreach $sourcePath (@allSrcPath) {
@@ -809,7 +809,7 @@ sub upgradeFiles {
         }
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "files info cmpare and delta tar file generation complete.\n" );
+    print("INFO: Files info cmpare and delta tar file generation complete.\n");
 
     #更改tar文件权限
     if ( -e "$tarPath/$tarFileName" ) {
@@ -856,12 +856,12 @@ sub upgradeFiles {
 
     if ( $ostype eq 'windows' ) { $cmdStr .= $cmdStr_forwindows }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "files delete shell script generation complete.\n" );
+    print("INFO: Files delete shell script generation complete.\n");
 
     #如果有更新的文件则将文件拷贝到远程端
     if ( $hasTar == 1 ) {
         $self->remoteCopy( $agentType, $targetUser, $targetPwd, $targetIP, "$tarPath/$tarFileName", $targetPath, 1, 0 );
-        print( "INFO: " . $deployUtils->getTimeForLog() . "$targetIP: copy tar file complete.\n" );
+        print("INFO: $targetIP: copy tar file complete.\n");
         if ( $ostype eq 'windows' ) {
             $cmdStr = $cmdStr . "7z x $tarFileName -y\n";
         }
@@ -929,7 +929,7 @@ sub upgradeFiles {
         print("Run script on $targetUser\@$targetIP complete.\n");
     }
 
-    print( "INFO: " . $deployUtils->getTimeForLog() . "execute update script complete.\n" );
+    print("INFO: Execute update script complete.\n");
 
     #将更新情况输出
     my $hasDiff = 0;

@@ -17,7 +17,7 @@ def checkUtilUrlAvaliable(checkurl):
 
 		while 1:
 			try:
-				print("INFO:App start checking URL:%s, status code %d, waiting to start....\n" % (checkurl, code))
+				print("INFO: App start checking URL:%s, status code %d, waiting to start....\n" % (checkurl, code))
 				if (waitCount <= 0):
 					break
 
@@ -29,7 +29,7 @@ def checkUtilUrlAvaliable(checkurl):
 				code,msg,headers = http.getreply()
 				
 				if (code == 200 or code == 302):
-					print("INFO:App start checking status code %d, app started.\n" % code)
+					print("INFO: App start checking status code %d, app started.\n" % code)
 					break
 				time.sleep(5)
 			except:
@@ -37,9 +37,9 @@ def checkUtilUrlAvaliable(checkurl):
 				pass
 
 		if (waitCount > 0):
-			print("INFO:App started.");
+			print("INFO: App started.");
 		else:
-			print("WARN:App url check failed.")
+			print("WARN: App url check failed.")
 
 
 def copyDeployDesc(appname, appfilePath, targetdir, desctarget):
@@ -75,7 +75,7 @@ def copyDeployDesc(appname, appfilePath, targetdir, desctarget):
 		
 		ret = os.system(cmd)
 		if (ret != 0):
-			print("ERROR: update dmgr app file for %s failed.\n" % appname)
+			print("ERROR: Update dmgr app file for %s failed.\n" % appname)
 		
 		os.utime(dmgrtargetFile, (atime, mtime))
 		os.chdir(curdir)

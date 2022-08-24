@@ -310,7 +310,7 @@ sub upgradeFiles {
 
     if ( not -e $tarPath ) {
         if ( not mkpath($tarPath) and not -e $tarPath ) {
-            die("ERROR:  Can not create backup directory:$tarPath:$!\n");
+            die("ERROR: Can not create backup directory:$tarPath:$!\n");
         }
     }
 
@@ -626,14 +626,14 @@ sub upgradeFiles {
         if ( defined($fh) ) {
             print $fh ($cmdStr);
             $fh->close();
-            print("INFO: begin to execute the sync shell script...\n");
+            print("INFO: Begin to execute the sync shell script...\n");
             $cmdStr = "umask 002;\ncd '$targetPath'\nsh '$tarPath/$shFileName'";
             if ( $deployUtils->execmd($cmdStr) ne 0 ) {
                 $HAS_ERROR = 1;
                 die("ERROR: Execute update instruction failed.");
             }
             else {
-                print("INFO: execute the sync shell script complete.\n");
+                print("INFO: Execute the sync shell script complete.\n");
             }
         }
         else {
@@ -733,7 +733,7 @@ sub oneRollback {
     my $journalPath = "$bakDir/journal";
 
     my $journalFh = IO::File->new("<$journalPath");
-    die("ERROR: can not create rollback journal file:$journalPath:$!") if ( not defined($journalFh) );
+    die("ERROR: Can not create rollback journal file:$journalPath:$!") if ( not defined($journalFh) );
 
     my $rollbackError = 0;
 

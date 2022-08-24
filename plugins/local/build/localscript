@@ -90,11 +90,11 @@ sub main {
 
     my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang, $interpreter, \@ARGV );
     if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
-        print("ERROR: exec $cmd has error.\n");
+        print("ERROR: Exec $cmd has error.\n");
         $isFail = 1;
     }
     else {
-        print("INFO: exec $cmd has successed.\n");
+        print("INFO: Exec $cmd has successed.\n");
     }
 
     return $isFail;

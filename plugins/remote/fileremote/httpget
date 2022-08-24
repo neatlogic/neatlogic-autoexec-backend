@@ -46,16 +46,16 @@ sub main {
     my $optionError = 0;
 
     if ( not defined($addr) or $addr eq '' ) {
-        print("ERROR: must define ftp url.\n");
+        print("ERROR: Must define ftp url.\n");
         $optionError = 1;
     }
 
     if ( not defined($localDir) or $localDir eq '' ) {
-        print("ERROR: must define dest path.\n");
+        print("ERROR: Must define dest path.\n");
         usage();
     }
     if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 

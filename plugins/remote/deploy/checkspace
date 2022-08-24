@@ -48,7 +48,7 @@ sub getMountPointFreeSize {
         }
 
         if ( $hasError == 1 ) {
-            print("WARN: check free space for $dir failed.\n$dfOut\n");
+            print("WARN: Check free space for $dir failed.\n$dfOut\n");
         }
     }
     else {
@@ -74,7 +74,7 @@ sub getMountPointFreeSize {
                 }
             }
             else {
-                print("WARN: check free space for $dir failed.\n$info\n");
+                print("WARN: Check free space for $dir failed.\n$info\n");
             }
         }
     }
@@ -116,12 +116,12 @@ sub getMountPointInodeUsage {
         }
 
         if ( $hasError == 1 ) {
-            print("WARN: check inode usage for $dir failed.\n$dfOut\n");
+            print("WARN: Check inode usage for $dir failed.\n$dfOut\n");
         }
     }
     else {
         $inodeUsage = 0;
-        print("INFO: windows need't to check inode usage .");
+        print("INFO: Windows need't to check inode usage .");
     }
 
     return $inodeUsage;

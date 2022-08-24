@@ -100,7 +100,7 @@ sub new {
 
     chdir($sqlDir);
 
-    print(qq{INFO: isql -e -I $interfaceFile -U "$user" -P "******" -S SYBASEDB -D "$dbName"\n});
+    print(qq{INFO: Isql -e -I $interfaceFile -U "$user" -P "******" -S SYBASEDB -D "$dbName"\n});
 
     my $spawn = Expect->spawn(qq{isql -e -I $interfaceFile -U "$user" -P "$pass" -S SYBASEDB -D "$dbName"});
 
@@ -164,10 +164,10 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: sybase $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Sybase $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
-        print("ERROR: sybase $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Sybase $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -216,12 +216,12 @@ sub run {
 
         #ORA 错误
         elsif ( $hasError == 1 ) {
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
 
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -271,7 +271,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: isql exit abnormal.\n");
+            print("ERROR: Isql exit abnormal.\n");
 
             $isFail = 1;
         }

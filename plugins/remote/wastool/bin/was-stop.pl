@@ -30,7 +30,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -80,7 +80,7 @@ $servernames =~ s/\s*//g;
 my @serverNames = split( ",", $servernames );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -141,10 +141,10 @@ if ( defined($wasprofile) and $wasprofile ne '' and defined($servernames) and $s
                 }
                 $pid =~ s/\s+/ /g;
                 if ( not defined($pid) or $pid eq '' or $pid eq ' ' ) {
-                    print("INFO: server $servername has been stopped.\n");
+                    print("INFO: Server $servername has been stopped.\n");
                 }
                 else {
-                    print("INFO: server $servername stop failed,pid is $pid try to kill -9.\n");
+                    print("INFO: Server $servername stop failed,pid is $pid try to kill -9.\n");
                     if ( $ostype eq 'windows' ) {
                         system("taskkill /f /pid $pid");
                     }
@@ -157,7 +157,7 @@ if ( defined($wasprofile) and $wasprofile ne '' and defined($servernames) and $s
                 }
             }
             else {
-                print("INFO: server $servername  is stoped.\n");
+                print("INFO: Server $servername  is stoped.\n");
             }
         };
 

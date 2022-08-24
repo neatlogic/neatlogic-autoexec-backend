@@ -75,14 +75,14 @@ sub CheckUrl {
         my $response = $http->request( 'GET', $url );
         $statusCode = $response->{status};
 
-        print("INFO:URL checking URL:$url, status code $statusCode\n");
+        print("INFO: URL checking URL:$url, status code $statusCode\n");
         if ( $statusCode == 200 or $statusCode == 302 ) {
-            print("INFO:URL checking URL:$url, status code $statusCode, started.\n");
+            print("INFO: URL checking URL:$url, status code $statusCode, started.\n");
             $isSuccess = 1;
         }
     };
     if ($@) {
-        print("ERROR:$@\n");
+        print("ERROR: $@\n");
     }
 
     return $isSuccess;
@@ -103,7 +103,7 @@ sub CheckUrlAvailable {
     my $step      = 3;
     my $stepCount = $timeout / $step;
     for ( my $i = 0 ; $i < $stepCount ; $i++ ) {
-        print("INFO:waiting app to start....\n");
+        print("INFO: Waiting app to start....\n");
         if ( defined($url) ) {
             if ( $url =~ /^http|^https/ and CheckUrl( $url, $method, $step ) == 1 ) {
                 $isSuccess = 1;
@@ -128,7 +128,7 @@ sub CheckUrlAvailable {
     }
 
     if ( $isSuccess == 0 ) {
-        print("WARN:App url check failed.\n");
+        print("WARN: App url check failed.\n");
     }
 
     return $isSuccess;
@@ -172,7 +172,7 @@ sub copyDeployDesc {
         utime( $aTime, $mTime, "$appname.ear" ) if ( -f "$appname.ear" );
 
         my $ret = system($cmd);
-        print("ERROR: update dmgr app file for $appname failed.\n") if ( $ret != 0 );
+        print("ERROR: Update dmgr app file for $appname failed.\n") if ( $ret != 0 );
 
         chdir($curdir);
     }

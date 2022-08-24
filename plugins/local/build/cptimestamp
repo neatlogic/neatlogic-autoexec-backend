@@ -125,7 +125,7 @@ sub main {
     my $appRootDir = $dirInfo->{approot};
     my $mirrorDir  = $dirInfo->{mirror};
 
-    print("INFO: begin sync $src timestamp to $dest.\n");
+    print("INFO: Begin sync $src timestamp to $dest.\n");
 
     $src  = $deployUtils->charsetConv( $src,  'utf-8' );
     $dest = $deployUtils->charsetConv( $dest, 'utf-8' );

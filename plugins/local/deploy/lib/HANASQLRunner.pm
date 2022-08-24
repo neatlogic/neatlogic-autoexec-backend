@@ -102,7 +102,7 @@ sub new {
     chdir($sqlDir);
 
     if ( $sqlFile =~ /\.model/i ) {
-        print("INFO: filetype:model\n");
+        print("INFO: Filetype:model\n");
         $ENV{REGI_HOST}   = "$host:$port";
         $ENV{REGI_USER}   = $user;
         $ENV{REGI_PASSWD} = $pass;
@@ -113,8 +113,8 @@ sub new {
     else {
         $self->{fileType} = 'SQL';
 
-        print("INFO: filetype:sql\n");
-        print(qq{INFO: hdbsql -u "$user" -p "******" -n $host:$port -d "$dbName" $dbArgs\n});
+        print("INFO: Filetype:sql\n");
+        print(qq{INFO: Hdbsql -u "$user" -p "******" -n $host:$port -d "$dbName" $dbArgs\n});
         $spawn = Expect->spawn(qq{hdbsql -u "$user" -p "$pass" -n $host:$port -d "$dbName" $dbArgs});
         if ( not defined($spawn) ) {
             die("launch hana client failed, check if it exists and it's permission.\n");
@@ -169,11 +169,11 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: hdbsql -u $user -p ******* -n $host:$port -d $dbName \n");
+        print("INFO: Hdbsql -u $user -p ******* -n $host:$port -d $dbName \n");
     }
     else {
         print( $spawn->before() );
-        print("ERROR: hdbsql -u $user -p ******* -n $host:$port -d $dbName connection test failed.\n");
+        print("ERROR: Hdbsql -u $user -p ******* -n $host:$port -d $dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -250,7 +250,7 @@ sub run {
                 $spawn->expect(undef);
             }
 
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             $isFail = 1;
         }
@@ -269,14 +269,14 @@ sub run {
         my $zipTmpDir   = $tmp->newdir( DIR => $TMPDIR );
         my $pwd         = Cwd::getcwd();
 
-        print("INFO: unzip -qd '$zipTmpDir' $zipFileName >/dev/null 2>\&1\n");
+        print("INFO: Unzip -qd '$zipTmpDir' $zipFileName >/dev/null 2>\&1\n");
         my $ret = DeployUtils->execmd("unzip -qd $zipTmpDir $sqlDir/$zipFileName >/dev/null 2>\&1");
 
         if ( $ret eq 0 ) {
-            print("INFO: zip file $zipFileName success.\n");
+            print("INFO: Zip file $zipFileName success.\n");
         }
         else {
-            print("ERROR: unzip file $zipFileName failed.\n");
+            print("ERROR: Unzip file $zipFileName failed.\n");
             $hasError = 1;
             &$execEnded();
         }
@@ -288,28 +288,28 @@ sub run {
 
         if ( $ret eq 0 ) {
             print("INFO : create workspace myWS success\n");
-            print("INFO: regi create workspace myWS\n");
+            print("INFO: Regi create workspace myWS\n");
             $cmd = "regi create workspace myWS";
             $ret = DeployUtils->execmd($cmd);
         }
         else {
-            print("ERROR: create workspace myWS failed\n");
+            print("ERROR: Create workspace myWS failed\n");
             $hasHardError = 1;
             &$execEnded();
         }
 
         if ( $ret eq 0 ) {
             foreach (@files) {
-                print("INFO: regi checkOut $_\n");
+                print("INFO: Regi checkOut $_\n");
                 $cmd = "regi checkOut $_";
                 $ret = DeployUtils->execmd($cmd);
                 if ( $ret eq 0 ) {
-                    print("INFO: checkout package $_ success\n");
-                    print("INFO: cp -r $zipTmpDir/$zipFileName/* myWS/");
+                    print("INFO: Checkout package $_ success\n");
+                    print("INFO: Cp -r $zipTmpDir/$zipFileName/* myWS/");
                     $ret = DeployUtils->execmd("cp -r $zipTmpDir/$zipFileName/* myWS/");
                 }
                 else {
-                    print("ERROR: checkout package $_ failed\n");
+                    print("ERROR: Checkout package $_ failed\n");
                     $hasHardError = 1;
                     &$execEnded();
                 }
@@ -318,12 +318,12 @@ sub run {
 
         if ( $ret eq 0 ) {
             print("INFO : copy packages to myWS success\n");
-            print("INFO: regi push\n");
+            print("INFO: Regi push\n");
             $cmd = "regi push";
             $ret = DeployUtils->execmd($cmd);
         }
         else {
-            print("ERROR: copy packages to myWS failed\n");
+            print("ERROR: Copy packages to myWS failed\n");
             $hasError = 1;
             &$execEnded();
         }
@@ -333,7 +333,7 @@ sub run {
             unlink("myWS");
         }
         else {
-            print("ERROR: activate objects failed\n");
+            print("ERROR: Activate objects failed\n");
             $hasHardError = 1;
             &$execEnded();
         }
@@ -410,14 +410,14 @@ sub run {
                 undef,
                 [
                     qr/syntax error/ => sub {
-                        print("ERROR: syntax error.\n");
+                        print("ERROR: Syntax error.\n");
                         $hasError = 1;
                         $spawn->exp_continue();
                     }
                 ],
                 [
                     qr/Cannot open/ => sub {
-                        print("ERROR: not such file.\n");
+                        print("ERROR: Not such file.\n");
                         $hasError = 1;
                         $spawn->exp_continue();
                     }

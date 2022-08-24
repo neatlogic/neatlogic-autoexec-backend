@@ -32,7 +32,7 @@ $homePath = abs_path("$homePath/..");
 
 if ( scalar(@ARGV) < 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -104,7 +104,7 @@ $servernames =~ s/\s*//g;
 my @serverNames = split( ",", $servernames );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -115,7 +115,7 @@ if ( defined($wasprofile) and $wasprofile ne '' and defined($servernames) and $s
         my $precheckUrl = $sectionConfig->{"$appname.precheckurl"};
         if ( defined($precheckUrl) and $precheckUrl ne '' ) {
             if ( not Utils::CheckUrlAvailable( $precheckUrl, "GET", $timeout ) ) {
-                print("ERROR: pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
+                print("ERROR: Pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
                 exit(1);
             }
         }
@@ -150,10 +150,10 @@ if ( defined($wasprofile) and $wasprofile ne '' and defined($servernames) and $s
         my $checkUrl = $sectionConfig->{"$appname.checkurl"};
         if ( defined($checkUrl) and $checkUrl ne '' ) {
             if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
-                print("INFO: app $appname started.\n");
+                print("INFO: App $appname started.\n");
             }
             else {
-                print("ERROR: app $appname start failed.\n");
+                print("ERROR: App $appname start failed.\n");
                 $rc = 2;
             }
         }

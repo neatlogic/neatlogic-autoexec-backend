@@ -99,7 +99,7 @@ sub main {
 
     if ( not defined($scriptObj) ) {
         $optionError = 1;
-        print("ERROR: must defined script obj with --script option.\n");
+        print("ERROR: Must defined script obj with --script option.\n");
     }
 
     if ( $optionError == 1 ) {
@@ -199,14 +199,14 @@ sub main {
     my $ret = $sshExec->exec();
     $hasError = $hasError + $ret;
     if ( $sshExec->{status} eq 'SUCCESS' ) {
-        print("FINE: ssh remote exec success.\n");
+        print("FINE: SSH remote exec success.\n");
     }
     elsif ( $sshExec->{status} eq 'WARN' ) {
-        print("WARN: ssh remote exec has warning.\n");
+        print("WARN: SSH remote exec has warning.\n");
     }
     elsif ( $sshExec->{status} eq 'ERROR' ) {
         $hasError = $hasError + 1;
-        print("ERROR: ssh remote exec has error.\n");
+        print("ERROR: SSH remote exec has error.\n");
     }
 
     return $hasError;

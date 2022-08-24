@@ -269,7 +269,7 @@ sub getFileContent {
             $fh->close();
         }
         else {
-            print("WARN: file:$filePath not found or can not be readed.\n");
+            print("WARN: File:$filePath not found or can not be readed.\n");
         }
     }
 
@@ -379,7 +379,7 @@ sub getPipeOut {
             print($line);
         }
         print("...\n");
-        die("ERROR: execute '$cmd' failed.\n");
+        die("ERROR: Execute '$cmd' failed.\n");
     }
 
     return \@outArray;
@@ -434,10 +434,10 @@ sub handlePipeOut {
 
     if ( not defined($pid) or $exitCode != 0 ) {
         if ( defined($execDesc) and $execDesc ne '' ) {
-            die("ERROR: execute '$execDesc' failed.\n");
+            die("ERROR: Execute '$execDesc' failed.\n");
         }
         else {
-            die("ERROR: execute '$cmd' failed.\n");
+            die("ERROR: Execute '$cmd' failed.\n");
         }
     }
 
@@ -450,7 +450,7 @@ sub copyTree {
     if ( not -d $src ) {
         my $dir = dirname($dest);
         mkpath($dir) if ( not -e $dir );
-        File::Copy::cp( $src, $dest ) || die("ERROR: copy $src to $dest failed:$!");
+        File::Copy::cp( $src, $dest ) || die("ERROR: Copy $src to $dest failed:$!");
         chmod( ( stat($src) )[2], $dest );
     }
     else {
@@ -470,7 +470,7 @@ sub copyTree {
 
                         #print("copy $_ $dest/$fileName\n");
                         my $destFile = "$dest/$fileName";
-                        File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                        File::Copy::cp( $srcFile, $destFile ) || die("ERROR: Copy $srcFile to $destFile failed:$!");
                         chmod( ( stat($srcFile) )[2], $destFile );
                     }
                 },

@@ -40,7 +40,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName <config-name> <instance-name> <version>\n");
+    print("ERROR: Use as $progName <config-name> <instance-name> <version>\n");
     exit(1);
 }
 
@@ -103,7 +103,7 @@ $appFile =~ s/\s*//g;
 my @appFiles = split( ",", $appFile );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -121,7 +121,7 @@ if ( $needDeploy == 1 ) {
     }
     if ( not -e $backupPath ) {
         if ( not mkpath($backupPath) ) {
-            print("ERROR: create backup dir:$backupPath failed.\n");
+            print("ERROR: Create backup dir:$backupPath failed.\n");
             exit(-1);
         }
     }
@@ -158,10 +158,10 @@ if ( $needDeploy == 1 ) {
             if ( -d $targetDir and -d $descTarget ) {
                 my $backupStatus = $patcher->backup( "$insName.$appName", $version, $appfilePath, $targetDir, 'fullbackup' );
                 if ( $backupStatus == 0 ) {
-                    print("INFO: backup $targetDir to $backupPath succeed.\n");
+                    print("INFO: Backup $targetDir to $backupPath succeed.\n");
                 }
                 else {
-                    print("INFO: backup $targetDir to $backupPath failed.\n");
+                    print("INFO: Backup $targetDir to $backupPath failed.\n");
                     exit(-1);
                 }
 
@@ -181,7 +181,7 @@ if ( $needDeploy == 1 ) {
 
                 #system($cleanCmd);
                 rmtree("$targetDir/WEB-INF/lib");
-                print("INFO: extract package to $targetDir.\n");
+                print("INFO: Extract package to $targetDir.\n");
                 mkpath($targetDir) if ( not -e $targetDir );
 
                 #my $extractCmd = "unzip -qo $appfilePath -d $targetDir";
@@ -219,10 +219,10 @@ if ( $needDeploy == 1 ) {
 
                     my $backupStatus = $patcher->backup( "$insName.$appName.warihs", $version, $appfilePath, $ihsTargetDir, 'fullback' );
                     if ( $backupStatus == 0 ) {
-                        print("INFO: backup $ihsTargetDir to $backupPath succeed.\n");
+                        print("INFO: Backup $ihsTargetDir to $backupPath succeed.\n");
                     }
                     else {
-                        print("INFO: backup $ihsTargetDir to $backupPath failed.\n");
+                        print("INFO: Backup $ihsTargetDir to $backupPath failed.\n");
                         exit(-1);
                     }
 
@@ -258,10 +258,10 @@ if ( $needDeploy == 1 ) {
             if ( -d $targetDir and -d $descTarget ) {
                 my $backupStatus = $patcher->backup( "$insName.$appName", $version, $appfilePath, $targetDir, 'fullbackup' );
                 if ( $backupStatus == 0 ) {
-                    print("INFO: backup $targetDir to $backupPath succeed.\n");
+                    print("INFO: Backup $targetDir to $backupPath succeed.\n");
                 }
                 else {
-                    print("INFO: backup $targetDir to $backupPath failed.\n");
+                    print("INFO: Backup $targetDir to $backupPath failed.\n");
                     exit(-1);
                 }
 
@@ -292,7 +292,7 @@ if ( $needDeploy == 1 ) {
 
                 my @jarFiles = glob("*.jar");
                 for my $jarFile (@jarFiles) {
-                    print("INFO: pack $jarFile to $targetDir.\n");
+                    print("INFO: Pack $jarFile to $targetDir.\n");
                     my $unzipCmd = Utils::getFileOPCmd( $jarFile,              "$jarFile.extract", $ostype, 'unzip' );
                     my $zipCmd   = Utils::getFileOPCmd( "$targetDir/$jarFile", "*",                $ostype, 'zip' );
 
@@ -309,7 +309,7 @@ if ( $needDeploy == 1 ) {
 
                     #system("rm -rf $targetDir/$warFile/WEB-INF/lib/*");
                     rmtree("$targetDir/$warFile/WEB-INF/lib");
-                    print("INFO: extract package $warFile to $targetDir.\n");
+                    print("INFO: Extract package $warFile to $targetDir.\n");
 
                     #system("unzip -qo $warFile -d $targetDir/$warFile");
                     my $unzipCmd = Utils::getFileOPCmd( $warFile, "$targetDir/$warFile", $ostype, 'unzip' );
@@ -346,10 +346,10 @@ if ( $needDeploy == 1 ) {
             if ( defined($ihsRoot) and $ihsRoot ne '' and ( -d $ihsRoot ) and $ihsRoot ne '/' ) {
                 my $backupStatus = $patcher->backup( "$insName.$appName.earihs", $version, $appfilePath, $ihsRoot, 'fullbackup' );
                 if ( $backupStatus == 0 ) {
-                    print("INFO: backup $ihsRoot to $backupPath succeed.\n");
+                    print("INFO: Backup $ihsRoot to $backupPath succeed.\n");
                 }
                 else {
-                    print("INFO: backup $ihsRoot to $backupPath failed.\n");
+                    print("INFO: Backup $ihsRoot to $backupPath failed.\n");
                     exit(-1);
                 }
 
@@ -390,7 +390,7 @@ if ( $needDeploy == 1 ) {
         }
         else {
             my $suffix = $appFile;
-            print("ERROR: file type of $appFile is not supported.\n");
+            print("ERROR: File type of $appFile is not supported.\n");
             $rc = 1;
         }
     }
@@ -424,7 +424,7 @@ if ( $needDeploy == 1 ) {
         my $ret = system($deployCmd);
 
         if ( $ret != 0 and $standalone eq 1 ) {
-            print("INFO: autodeploy failed, maybe the server not started, restart it and try again.\n");
+            print("INFO: Autodeploy failed, maybe the server not started, restart it and try again.\n");
             my $stopSrvCmd = "$homePath/bin/was-stop.pl $mainName $insName";
 
             #system("perl $stopSrvCmd");
@@ -466,10 +466,10 @@ if ( $needDeploy == 1 ) {
                 my $checkUrl = $sectionConfig->{"$appname.checkurl"};
                 if ( defined($checkUrl) and $checkUrl ne '' ) {
                     if ( Utils::CheckUrlAvailable( $checkUrl, "GET", 300, \@serverLogInfos ) ) {
-                        print("INFO: app $appname started.\n");
+                        print("INFO: App $appname started.\n");
                     }
                     else {
-                        print("ERROR: app $appname start failed.\n");
+                        print("ERROR: App $appname start failed.\n");
                         $rc = 1;
                     }
                 }
@@ -481,10 +481,10 @@ if ( $needDeploy == 1 ) {
                 my $checkUrl = $sectionConfig->{"$appname.checkurl"};
                 if ( defined($checkUrl) and $checkUrl ne '' ) {
                     if ( Utils::CheckUrlAvailable( $checkUrl, "GET", 300, \@serverLogInfos ) ) {
-                        print("INFO: app $appname started.\n");
+                        print("INFO: App $appname started.\n");
                     }
                     else {
-                        print("ERROR: app $appname start failed.\n");
+                        print("ERROR: App $appname start failed.\n");
                         $rc = 2;
                     }
                 }

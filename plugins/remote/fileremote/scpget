@@ -83,7 +83,7 @@ sub main {
     my $cmd ="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $scpPath $localDir  ";
     my $pid = fork();
     if(not defined($pid)){
-        die("ERROR::Fork failed:$!\n");
+        die("ERROR: :Fork failed:$!\n");
     }elsif ( $pid == 0 ) {
         setsid();
        

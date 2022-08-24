@@ -84,7 +84,7 @@ sub new {
     $ENV{PATH} = "$mongoHome/bin:" . $ENV{PATH};
 
     $dbStr =~ s/mongodb\///;
-    print("INFO: mongondb://$dbStr\n");
+    print("INFO: Mongondb://$dbStr\n");
 
     my $cmd;
     if ( $user eq 'anonymous' or $pass eq '' ) {
@@ -203,7 +203,7 @@ sub run {
         elsif ( $hasError == 1 ) {
             print($errMsg) if ( $errMsg ne "\n" );
             $isFail = 1;
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             if ( $autocommit == 0 ) {
                 my $opt;
@@ -249,7 +249,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: mongodb exit abnormal.\n");
+            print("ERROR: Mongodb exit abnormal.\n");
 
             $isFail = 1;
         }

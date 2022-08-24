@@ -98,7 +98,7 @@ sub main {
     };
 
     if ($isVerbose) {
-        print("INFO:========ver diff info(M:modify, A:append, D:delete)======\n");
+        print("INFO: ========ver diff info(M:modify, A:append, D:delete)======\n");
     }
 
     my $namePath      = $buildEnv->{NAME_PATH};
@@ -138,7 +138,7 @@ sub main {
     my $hasError = 0;
     if ( $ret != 0 ) {
         $hasError = $hasError + 1;
-        print("ERROR:$pname $envPath $version diff to master failed.\n");
+        print("ERROR: $pname $envPath $version diff to master failed.\n");
     }
     else {
         my @targetPatterns = keys(%$targets);

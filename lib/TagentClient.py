@@ -329,12 +329,12 @@ class TagentClient:
             if buf.startswith("Status:200"):
                 status = 0
                 if isVerbose == 1:
-                    print("INFO: reload succeed.")
+                    print("INFO: Reload succeed.")
             else:
                 status = -1
                 if isVerbose == 1:
-                    print("ERROR: reload failed.")
-                raise AgentError("ERROR: reload failed.")
+                    print("ERROR: Reload failed.")
+                raise AgentError("ERROR: Reload failed.")
         except BaseException:
             raise
         finally:
@@ -453,7 +453,7 @@ class TagentClient:
         except ExecError as errMsg:
             status = -1
             if isVerbose == 1:
-                print("ERROR:" + errMsg)
+                print("ERROR: " + errMsg)
         finally:
             try:
                 sock.shutdown(2)

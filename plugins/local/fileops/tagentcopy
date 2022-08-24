@@ -67,25 +67,25 @@ sub main {
     }
 
     if ( not defined($direction) or $direction eq '' ) {
-        print("ERROR: must define direction value pull or push .\n");
+        print("ERROR: Must define direction value pull or push .\n");
         $optionError = 1;
     }
 
     if ( not defined($src) or $src eq '' ) {
-        print("ERROR: must define src path.\n");
+        print("ERROR: Must define src path.\n");
         $optionError = 1;
     }
     if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
-        print("ERROR: src path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Src path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 
     if ( not defined($dest) or $dest eq '' ) {
-        print("ERROR: must define src path.\n");
+        print("ERROR: Must define src path.\n");
         usage();
     }
     if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 
@@ -117,7 +117,7 @@ sub main {
         foreach my $target (@src_dirs) {
             if ( !-d $target ) {
                 $isSuccess = 1;
-                print("ERROR: src path $target not exists .\n");
+                print("ERROR: Src path $target not exists .\n");
                 last;
             }
             $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
@@ -129,7 +129,7 @@ sub main {
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
             $isSuccess = 1;
-            print("ERROR: dest path $dest not exists .\n");
+            print("ERROR: Dest path $dest not exists .\n");
         }
         else {
             foreach my $target (@src_dirs) {

@@ -69,7 +69,7 @@ sub main {
 
     if ( $cmd eq '' ) {
         $optionError = 1;
-        print("ERROR: must instance path with optoin --inspath.\n");
+        print("ERROR: Must instance path with optoin --inspath.\n");
     }
 
     if ( $optionError == 1 ) {
@@ -94,7 +94,7 @@ sub main {
     my $ret = $tagent->execCmd( $user, 'echo x' );
     if ( $ret != 0 ) {
         $hasError = $hasError + $ret;
-        print("ERROR: can not connect to tagent.\n");
+        print("ERROR: Can not connect to tagent.\n");
         return $hasError;
     }
 
@@ -125,11 +125,11 @@ sub main {
     }
 
     if ( $exitStatus eq 0 ) {
-        print("FINE: tagent remote exec success.\n");
+        print("FINE: Tagent remote exec success.\n");
     }
     else {
         $hasError = $hasError + $exitStatus;
-        print("ERROR: tagent remote exec has error.\n");
+        print("ERROR: Tagent remote exec has error.\n");
     }
 
     return $hasError;

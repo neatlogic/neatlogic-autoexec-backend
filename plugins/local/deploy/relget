@@ -113,7 +113,7 @@ sub main {
     if ( defined($proxyToUrl) and $proxyToUrl ne '' ) {
 
         #Get build resource from other site
-        print( "INFO: begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
+        print( "INFO: Begin to get appbuild resource ", join( ' ', @subDirs ) . "...\n" );
 
         my $isMirror = 0;
         eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };

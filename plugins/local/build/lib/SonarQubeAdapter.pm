@@ -50,7 +50,7 @@ sub isCeFinish {
 
     $client->GET($ceUrl);
     if ( $client->responseCode() ne 200 ) {
-        die("ERROR: get Compute Engine status failed.\n");
+        die("ERROR: Get Compute Engine status failed.\n");
     }
 
     my $content = convCharSet( $client, $client->responseContent() );
@@ -58,7 +58,7 @@ sub isCeFinish {
 
     #print("DEBUG: Compute Engine status is $content\n");
     if ( $ceJson->{'pending'} gt 0 or $ceJson->{'inProgress'} gt 0 ) {
-        print("INFO: waiting sonarqube compute engine finish task...\n");
+        print("INFO: Waiting sonarqube compute engine finish task...\n");
         return 0;
     }
 
@@ -67,7 +67,7 @@ sub isCeFinish {
         #get task id
         $client->GET("$baseUrl/api/ce/activity?status=FAILED");
         if ( $client->responseCode() ne 200 ) {
-            die("ERROR: search for tasks failed.\n");
+            die("ERROR: Search for tasks failed.\n");
         }
         $content = convCharSet( $client, $client->responseContent() );
         $ceJson = from_json($content);
@@ -78,7 +78,7 @@ sub isCeFinish {
             #get error message by task id && print it
             $client->GET("$baseUrl/api/ce/task?id=$id");
             if ( $client->responseCode() ne 200 ) {
-                die("ERROR: get Compute Engine task details failed.\n");
+                die("ERROR: Get Compute Engine task details failed.\n");
             }
             $content = convCharSet( $client, $client->responseContent() );
             $ceJson = from_json($content);
@@ -269,7 +269,7 @@ sub getMeasures {
     #print("$url\n");
     $client->GET($url);
     if ( $client->responseCode() ne 200 ) {
-        die("ERROR: get Project Quality Gate Status failed.\n");
+        die("ERROR: Get Project Quality Gate Status failed.\n");
     }
     my $content           = convCharSet( $client, $client->responseContent() );
     my $ceJson            = from_json($content);
@@ -287,7 +287,7 @@ sub getMeasures {
 
     if ( $projectStatus ne "OK" ) {
         $hasError = $hasError + 1;
-        print("ERROR: project status returned from sonarqube is $projectStatus\n");
+        print("ERROR: Project status returned from sonarqube is $projectStatus\n");
     }
 
     if ( $hasError > 0 ) {

@@ -228,7 +228,7 @@ sub main {
             #通过代码仓库比较获取差异文件存放到目录$diffDir
             my $getDiffStatus = $verGet->getBuildDiff( $tag4CmpTo, $startRev, $endRev, $prjPath, "$diffDir/tmp", \@excludeDirs, $isVerbose );
             if ( $getDiffStatus ne 0 ) {
-                die("ERROR:$pname $envPath $version get diff failed.\n");
+                die("ERROR: $pname $envPath $version get diff failed.\n");
             }
 
             #全量编译, 目的是为了生成增量编译可能需要的class，不管成功失败，如果增量编译缺少了依赖的class，自然会失败
@@ -247,9 +247,9 @@ sub main {
                 }
             }
 
-            print("INFO: begin to make patch in $diffDir for this build.\n");
+            print("INFO: Begin to make patch in $diffDir for this build.\n");
             makePatch( $prjPath, $diffDir, \@allSrcPaths, $webSrcPath, $webDistPath, $cmpOutPath );
-            print("INFO: make patche complete.\n");
+            print("INFO: Make patche complete.\n");
 
             #生成del文件的shell, 用于发布时可以使用
             my $fd = IO::File->new("<$diffDir/tmp/diff-del-list.txt");
@@ -268,12 +268,12 @@ sub main {
                             if ( $destRelPath =~ /\.java/ ) {
                                 $destRelPath =~ s/\.java//;
                                 if ( not print $delShellFd ("if [ -f '$destRelPath.class' ]; then rm -f '$destRelPath.class'; rm -f '$destRelPath\$*.class' 2>/dev/null; fi\n") ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.sh failed:$!\n");
+                                    die("ERROR: Write to file $diffDir/diff-del-list.sh failed:$!\n");
                                 }
                             }
                             else {
                                 if ( not print $delShellFd ("if [ -f '$destRelPath' ]; then rm -f $destRelPath; fi\n") ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.sh failed:$!\n");
+                                    die("ERROR: Write to file $diffDir/diff-del-list.sh failed:$!\n");
                                 }
                             }
                         }
@@ -282,7 +282,7 @@ sub main {
                     $delShellFd->close();
                 }
                 else {
-                    die("ERROR: open file $diffDir/diff-del-list.sh failed:$!\n");
+                    die("ERROR: Open file $diffDir/diff-del-list.sh failed:$!\n");
                 }
 
                 $fd->seek( 0, 0 );
@@ -300,12 +300,12 @@ sub main {
                             if ( $destRelPath =~ /\.java/ ) {
                                 $destRelPath =~ s/\.java//;
                                 if ( not print $delCmdFd (qq{if exist "$destRelPath.class" (del /F "$destRelPath.class" && del /F "$destRelPath\$*" 2>nul )\n}) ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                                    die("ERROR: Write to file $diffDir/diff-del-list.cmd failed:$!\n");
                                 }
                             }
                             else {
                                 if ( not print $delCmdFd (qq{if exist "$destRelPath" (del /F "$destRelPath")\n}) ) {
-                                    die("ERROR: write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                                    die("ERROR: Write to file $diffDir/diff-del-list.cmd failed:$!\n");
                                 }
                             }
                         }
@@ -314,7 +314,7 @@ sub main {
                     $delCmdFd->close();
                 }
                 else {
-                    die("ERROR: open file $diffDir/diff-del-list.cmd failed:$!\n");
+                    die("ERROR: Open file $diffDir/diff-del-list.cmd failed:$!\n");
                 }
 
                 $fd->close();
@@ -331,14 +331,14 @@ sub main {
 
     if ( $isFail eq 0 ) {
         $versionInfo->{status} = 'compiled';
-        print("FINE:build $envPath $version success.\n");
+        print("FINE: Build $envPath $version success.\n");
         if ( $isLib == 0 ) {
             $serverAdapter->updateVer( $buildEnv, $versionInfo );
         }
     }
     else {
         $versionInfo->{status} = 'compile-failed';
-        print("ERROR:build $envPath $version failed.\n");
+        print("ERROR: Build $envPath $version failed.\n");
         $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
 
@@ -392,7 +392,7 @@ sub makePatch {
     my $updateListFH = IO::File->new(">$updateListFile");
 
     if ( not defined($updateListFH) ) {
-        die("ERROR:Create $updateListFile failed.\n");
+        die("ERROR: Create $updateListFile failed.\n");
     }
 
     my $patchFileCount = 0;
@@ -430,7 +430,7 @@ sub makePatch {
                                 if ( not -f "$srcPathPrefix.class" ) {
 
                                     #如果跟java同级目录也不存在class则报错
-                                    die("ERROR: can not find class file for java file:$filePath\n");
+                                    die("ERROR: Can not find class file for java file:$filePath\n");
                                 }
                             }
 
@@ -443,16 +443,16 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            File::Copy::cp( $srcFile, $destFile )                    || die("ERROR: copy class $srcFile to $destFile failed, $!");
-                            print $updateListFH ("$cmpOutPath/$destRelPath.class\n") || die("ERROR: write $cmpOutPath/$destRelPath.class to file:$updateListFile failed, $!");
+                            File::Copy::cp( $srcFile, $destFile )                    || die("ERROR: Copy class $srcFile to $destFile failed, $!");
+                            print $updateListFH ("$cmpOutPath/$destRelPath.class\n") || die("ERROR: Write $cmpOutPath/$destRelPath.class to file:$updateListFile failed, $!");
 
                             #拷贝同一个主类下的内嵌类
                             foreach my $aClassPath ( glob("$srcPathPrefix\$*.class") ) {
                                 $srcFile  = $aClassPath;
                                 $destFile = "$destDir/";
-                                File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy class $srcFile to $destFile failed:$!");
+                                File::Copy::cp( $srcFile, $destFile ) || die("ERROR: Copy class $srcFile to $destFile failed:$!");
                                 my $innerClass = dirname($destRelPath) + '/' + basename($aClassPath);
-                                print $updateListFH ("$cmpOutPath/$innerClass\n") || die("ERROR: write $cmpOutPath/$innerClass.class to file:$updateListFile failed, $!");
+                                print $updateListFH ("$cmpOutPath/$innerClass\n") || die("ERROR: Write $cmpOutPath/$innerClass.class to file:$updateListFile failed, $!");
                             }
                         }
                         elsif ( $destRelPath !~ /\.class$/ ) {
@@ -464,8 +464,8 @@ sub makePatch {
                                 mkpath($destDir);
                             }
 
-                            File::Copy::cp( $file, $destFile )                 || die("ERROR: copy file $file to $destFile failed:$!");
-                            print $updateListFH ("$cmpOutPath/$destRelPath\n") || die("ERROR: write $cmpOutPath/$destRelPath to file:$updateListFile failed, $!");
+                            File::Copy::cp( $file, $destFile )                 || die("ERROR: Copy file $file to $destFile failed:$!");
+                            print $updateListFH ("$cmpOutPath/$destRelPath\n") || die("ERROR: Write $cmpOutPath/$destRelPath to file:$updateListFile failed, $!");
                         }
                     }
                     elsif ( $destRelPath = isWebSrc( $webSrcPath, $filePath ) ) {
@@ -475,9 +475,9 @@ sub makePatch {
                             mkpath($destDir);
                         }
                         if ( not -f $destFile ) {
-                            print $updateListFH ("$webDistPath/$destRelPath\n") || die("ERROR: write $webDistPath/$destRelPath to file:$updateListFile failed, $!");
+                            print $updateListFH ("$webDistPath/$destRelPath\n") || die("ERROR: Write $webDistPath/$destRelPath to file:$updateListFile failed, $!");
                         }
-                        File::Copy::cp( $file, $destFile ) || die("ERROR: copy web $file to $destFile failed:$!");
+                        File::Copy::cp( $file, $destFile ) || die("ERROR: Copy web $file to $destFile failed:$!");
                     }
                     else {
                         #如果不是编译输出目录则直接拷贝
@@ -496,8 +496,8 @@ sub makePatch {
                             mkpath($destDir);
                         }
                         if ( not -f $destFile ) {    #这个判断，防止通过java文件拷贝到目标的class被checkin到仓库的编译输出目录的class覆盖
-                            File::Copy::cp( $file, $destFile )  || die("ERROR: copy $srcFile to $destFile failed:$!");
-                            print $updateListFH ("$filePath\n") || die("ERROR: write $filePath to file:$updateListFile failed, $!");
+                            File::Copy::cp( $file, $destFile )  || die("ERROR: Copy $srcFile to $destFile failed:$!");
+                            print $updateListFH ("$filePath\n") || die("ERROR: Write $filePath to file:$updateListFile failed, $!");
                         }
                     }
                 }
@@ -514,7 +514,7 @@ sub makePatch {
                     }
 
                     if ( $destPath ne '' and not -e $destPath ) {
-                        mkpath($destPath) || die("ERROR: create path $destPath failed:$!\n");
+                        mkpath($destPath) || die("ERROR: Create path $destPath failed:$!\n");
                     }
                 }
             },

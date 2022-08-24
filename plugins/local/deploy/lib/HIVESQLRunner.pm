@@ -98,7 +98,7 @@ sub new {
         $extOpt = "--autoCommit=true";
     }
 
-    print(qq{INFO: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" -p "******"\n});
+    print(qq{INFO: Beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" -p "******"\n});
 
     my $spawn = Expect->spawn("$cmd $extOpt");
 
@@ -157,11 +157,11 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print(qq{INFO: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test success.\n});
+        print(qq{INFO: Beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test success.\n});
     }
     else {
         print( $spawn->before() );
-        print(qq{ERROR: beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test failed.\n});
+        print(qq{ERROR: Beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" connection test failed.\n});
     }
 
     return $hasLogon;
@@ -211,11 +211,11 @@ sub run {
 
         #ORA 错误
         elsif ( $hasError == 1 ) {
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -259,7 +259,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: beeline exit abnormal.\n");
+            print("ERROR: Beeline exit abnormal.\n");
 
             $isFail = 1;
         }

@@ -47,7 +47,7 @@ sub main {
     }
 
     if ( not defined($node) or $node eq '' ) {
-        print("ERROR: option --node not defined.\n");
+        print("ERROR: Option --node not defined.\n");
         $hasOptErr = 1;
     }
     else {

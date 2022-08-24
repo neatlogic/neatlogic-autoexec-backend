@@ -14,7 +14,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -34,18 +34,18 @@ sub main {
     foreach my $appName (@appNames) {
         if ( $wlsDeployer->isAdminServer() ) {
             if ( $wlsDeployer->stopApp($appName) ) {
-                print("FINE: stop $appName suceed.\n");
+                print("FINE: Stop $appName suceed.\n");
 
                 #if ( $wlsDeployer->removeAppTmp( $serverName, $appName ) ) {
-                #    print("INFO: remove $appName tmp dir succeed.\n");
+                #    print("INFO: Remove $appName tmp dir succeed.\n");
                 #}
                 #else {
-                #    print("ERROR: remove $appName tmp dir failed.\n");
+                #    print("ERROR: Remove $appName tmp dir failed.\n");
                 #    $rc = 5;
                 #}
             }
             else {
-                print("ERROR: stop $appName failed.\n");
+                print("ERROR: Stop $appName failed.\n");
                 $rc = 2;
             }
 

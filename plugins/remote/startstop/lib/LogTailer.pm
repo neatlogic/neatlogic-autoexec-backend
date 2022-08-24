@@ -169,7 +169,7 @@ sub _checkUrl {
         }
     };
     if ($@) {
-        print("ERROR:$@\n");
+        print("ERROR: $@\n");
     }
 
     return $svcStatus;
@@ -210,7 +210,7 @@ sub _checkTcp {
         }
     };
     if ($@) {
-        print("ERROR:$@\n");
+        print("ERROR: $@\n");
     }
 
     return $svcStatus;
@@ -248,11 +248,11 @@ sub _checkService {
 
     if ( $upOrDown == 1 ) {
         $checkType = 'start';
-        print("INFO:waiting service to start....\n");
+        print("INFO: Waiting service to start....\n");
     }
     else {
         $checkType = 'stop';
-        print("INFO:waiting service to stop....\n");
+        print("INFO: Waiting service to stop....\n");
     }
 
     my $url;
@@ -371,7 +371,7 @@ sub checkEofstr {
     my $startTime   = time();
     for ( my $i = 0 ; $i <= $stepCount ; $i++ ) {
         if ( $i % 10 == 0 ) {
-            print("INFO:waiting for '$eofStr'....\n");
+            print("INFO: Waiting for '$eofStr'....\n");
         }
 
         $self->_tailLogs( $logInfos, $callback );
@@ -390,7 +390,7 @@ sub checkEofstr {
     }
 
     if ( $isSuccess == 0 ) {
-        print("WARN:wait to get eof string:$eofStr timeout($timeout seconds).\n");
+        print("WARN: Wait to get eof string:$eofStr timeout($timeout seconds).\n");
     }
     else {
         print("INFO: '$eofStr' matched.\n");

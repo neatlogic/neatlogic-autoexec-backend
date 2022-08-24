@@ -37,7 +37,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -99,7 +99,7 @@ $appFile =~ s/\s*//g;
 my @appFiles = split( ",", $appFile );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -193,7 +193,7 @@ if ( $needDeploy == 1 ) {
         }
         else {
             my $suffix = $appFile;
-            print("ERROR: file type of $appFile is not supported.\n");
+            print("ERROR: File type of $appFile is not supported.\n");
             $rc = 1;
         }
     }

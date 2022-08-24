@@ -14,7 +14,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -48,7 +48,7 @@ sub main {
         my $precheckUrl = $config->{"$appName.precheckurl"};
         if ( defined($precheckUrl) and $precheckUrl ne '' ) {
             if ( not Utils::CheckUrlAvailable( $precheckUrl, "GET", $timeout ) ) {
-                print("ERROR: pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
+                print("ERROR: Pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
                 $rc = 1;
                 exit(1);
             }
@@ -56,10 +56,10 @@ sub main {
 
         if ( $wlsDeployer->isAdminServer() ) {
             if ( $wlsDeployer->startApp($appName) ) {
-                print("FINE: start $appName suceed.\n");
+                print("FINE: Start $appName suceed.\n");
             }
             else {
-                print("ERROR: start $appName failed.\n");
+                print("ERROR: Start $appName failed.\n");
                 $rc = 2;
             }
         }
@@ -103,10 +103,10 @@ sub main {
             my $checkUrl = $config->{"$servername.$appName.checkurl"};
             if ( defined($checkUrl) and $checkUrl ne '' ) {
                 if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
-                    print("INFO: app $appName started.\n");
+                    print("INFO: App $appName started.\n");
                 }
                 else {
-                    print("ERROR: app $appName start failed.\n");
+                    print("ERROR: App $appName start failed.\n");
                     $rc = 2;
                 }
             }

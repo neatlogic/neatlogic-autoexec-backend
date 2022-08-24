@@ -129,7 +129,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -225,15 +225,15 @@ sub main {
         }
 
         if ( defined($pid) and $pid ne '' ) {
-            print("ERROR: stop $adminServerName failed.\n");
+            print("ERROR: Stop $adminServerName failed.\n");
             $rc = 1;
         }
         else {
-            print("INFO: stop $adminServerName succeed.\n");
+            print("INFO: Stop $adminServerName succeed.\n");
         }
     }
     else {
-        print("ERROR: no domain dir or server name found in the config file.\n");
+        print("ERROR: No domain dir or server name found in the config file.\n");
         $rc = 1;
     }
 

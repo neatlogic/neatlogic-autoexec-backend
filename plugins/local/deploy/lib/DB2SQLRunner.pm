@@ -352,7 +352,7 @@ sub test {
     }
 
     if ( $ret ne 0 ) {
-        my $errMsg = "ERROR: catalog $host:$port/$dbName with node name $catalogName failed.\n";
+        my $errMsg = "ERROR: Catalog $host:$port/$dbName with node name $catalogName failed.\n";
         print($errMsg);
     }
     else {
@@ -360,14 +360,14 @@ sub test {
         my $pass = $self->{pass};
 
         #open( STDOUT, ">&CPOUT" );
-        print(qq{INFO: db2 CONNECT TO $catalogName($host:$port/$dbName) USER "$user" USING "******"\n});
+        print(qq{INFO: Db2 CONNECT TO $catalogName($host:$port/$dbName) USER "$user" USING "******"\n});
         $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass" > /dev/null});
 
         if ( $ret ne 0 ) {
-            print("ERROR: db2 $user\@//$host:$port/$dbName connection test failed.\n");
+            print("ERROR: Db2 $user\@//$host:$port/$dbName connection test failed.\n");
         }
         else {
-            print("INFO: db2 $user\@//$host:$port/$dbName connection test success.\n");
+            print("INFO: Db2 $user\@//$host:$port/$dbName connection test success.\n");
             $hasLogon = 1;
             $self->{hasLogon} = 1;
         }
@@ -413,7 +413,7 @@ sub run {
 
     if ( not defined($sqlFH) ) {
         $isFail = 1;
-        print("ERROR: sql script file not exists:$sqlFileName.\n");
+        print("ERROR: Sql script file not exists:$sqlFileName.\n");
     }
     else {
         $sqlFH->close();
@@ -465,7 +465,7 @@ sub run {
             }
 
             if ( $ret ne 0 ) {
-                my $errMsg = "ERROR: catalog $host:$port/$dbName with node name $catalogName failed.\n";
+                my $errMsg = "ERROR: Catalog $host:$port/$dbName with node name $catalogName failed.\n";
                 print($errMsg);
             }
             else {
@@ -474,7 +474,7 @@ sub run {
 
                 $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass"});
                 if ( $ret ne 0 ) {
-                    print("ERROR: connect to $host:$port/$dbName with name $catalogName failed.\n");
+                    print("ERROR: Connect to $host:$port/$dbName with name $catalogName failed.\n");
                 }
                 else {
                     $hasLogon = 1;
@@ -509,7 +509,7 @@ sub run {
                         $hasError = 1;
                     }
                     else {
-                        print("WARN: some warn occurred, check the log for detail.\n");
+                        print("WARN: Some warn occurred, check the log for detail.\n");
                     }
                 }
                 elsif ( $ret ne 0 or $logCheckRet ne 'success' ) {
@@ -520,10 +520,10 @@ sub run {
 
                     #SQL 错误
                     my $opt;
-                    print("ERROR: some error occurred, check the log for detail.\n");
+                    print("ERROR: Some error occurred, check the log for detail.\n");
 
                     if ( $isAutoCommit == 1 ) {
-                        print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                        print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                         if ( $self->{isInteract} == 1 ) {
                             my $sqlFileStatus = $self->{sqlFileStatus};
                             $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -631,7 +631,7 @@ sub run {
                 if ( $toBeRollback == 1 and -e $pipeFile ) {
                     my $pipeFh = IO::File->new(">>$pipeFile");
                     if ( defined($pipeFh) ) {
-                        print("ERROR: detect auto rollback, rollback auto and return failed.\n");
+                        print("ERROR: Detect auto rollback, rollback auto and return failed.\n");
                         print $pipeFh ("rollback\n");
                     }
                 }

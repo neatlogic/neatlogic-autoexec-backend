@@ -32,7 +32,7 @@ sub build {
     #$ENV{CLASSPATH} = '';
     my $m2Home = "$toolsPath/maven$makeToolVer";
     if ( not -e $m2Home ) {
-        print("ERROR: maven not found in dir:$m2Home, check if maven version $makeToolVer is installed.\n");
+        print("ERROR: Maven not found in dir:$m2Home, check if maven version $makeToolVer is installed.\n");
     }
 
     my $jdkPath = $jdk;
@@ -66,19 +66,19 @@ sub build {
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "mvn $silentOpt -U clean install";
-        print("INFO:execute->$cmd\n");
+        print("INFO: Execute->$cmd\n");
         $ret = DeployUtils->execmd($cmd);
     }
     else {
         if ( $args !~ /\bclean\b/ ) {
             $cmd = "mvn $silentOpt clean";
-            print("INFO:execute->$cmd\n");
+            print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
 
         if ( $ret eq 0 ) {
             $cmd = "mvn $args";
-            print("INFO:execute->$cmd\n");
+            print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
     }

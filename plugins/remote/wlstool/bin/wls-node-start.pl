@@ -33,7 +33,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -139,10 +139,10 @@ sub main {
         }
 
         if ( Utils::CheckUrlAvailable( undef, "GET", $timeout, \@serverLogInfos, 'INFO: Plain socket listener started on port' ) ) {
-            print("INFO: nodemanager started.\n");
+            print("INFO: Nodemanager started.\n");
         }
         else {
-            print("ERROR: nodemanager start failed.\n");
+            print("ERROR: Nodemanager start failed.\n");
             $rc = 2;
         }
 

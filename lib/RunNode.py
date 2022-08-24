@@ -1072,7 +1072,7 @@ class RunNode:
                         sftp.mkdir(remoteRoot)
                 except SFTPError as err:
                     hasError = True
-                    self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remoteRoot, err))
+                    self.writeNodeLog("ERROR: Mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 absRoot = op.remotePluginRootPath
                 dirStartPos = len(absRoot) + 1
@@ -1105,7 +1105,7 @@ class RunNode:
                         sftp.mkdir(remotePath)
                     except SFTPError as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: mkdir {} failed: {}\n".format(remotePath, err))
+                        self.writeNodeLog("ERROR: Mkdir {} failed: {}\n".format(remotePath, err))
 
                     scriptFile = open(op.pluginPath, 'r')
                     fcntl.flock(scriptFile, fcntl.LOCK_SH)

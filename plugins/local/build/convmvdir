@@ -187,7 +187,7 @@ sub main {
             $hasError = 1;
         }
     }
-    print("INFO:  Transfer directory and file name complete:${from}->${to}\n");
+    print("INFO: Transfer directory and file name complete:${from}->${to}\n");
 
     return $hasError;
 }

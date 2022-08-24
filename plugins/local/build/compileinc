@@ -273,13 +273,13 @@ sub main {
                         my $line;
                         while ( $line = $fd->getline() ) {
                             if ( not print $delShellFd ("if [ -f '$line' ]; then rm -f $line; fi\n") ) {
-                                die("ERROR: write to file $diffDir/diff-del-list.sh failed:$!\n");
+                                die("ERROR: Write to file $diffDir/diff-del-list.sh failed:$!\n");
                             }
                         }
                         $delShellFd->close();
                     }
                     else {
-                        die("ERROR: open file $diffDir/diff-del-list.sh failed:$!\n");
+                        die("ERROR: Open file $diffDir/diff-del-list.sh failed:$!\n");
                     }
 
                     $fd->close();
@@ -289,13 +289,13 @@ sub main {
                         my $line;
                         while ( $line = $fd->getline() ) {
                             if ( not print $delCmdFd ("if exist '$line' (del /F '$line')\n") ) {
-                                die("ERROR: write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                                die("ERROR: Write to file $diffDir/diff-del-list.cmd failed:$!\n");
                             }
                         }
                         $delCmdFd->close();
                     }
                     else {
-                        die("ERROR: open file $diffDir/diff-del-list.cmd failed:$!\n");
+                        die("ERROR: Open file $diffDir/diff-del-list.cmd failed:$!\n");
                     }
 
                     $fd->close();
@@ -377,14 +377,14 @@ sub main {
     }
 
     if ( $isFail eq 0 ) {
-        print("FINE:build $namePath version:$version success.\n");
+        print("FINE: Build $namePath version:$version success.\n");
         $versionInfo->{status} = 'compiled';
         if ( $isLib == 0 ) {
             $serverAdapter->updateVer( $buildEnv, $versionInfo );
         }
     }
     else {
-        print("ERROR:build $namePath version:$version failed.\n");
+        print("ERROR: Build $namePath version:$version failed.\n");
         $versionInfo->{status} = 'compile-failed';
         $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
@@ -448,7 +448,7 @@ sub copyPrj {
                     my $isExclude = 0;
                     my $destFile  = "$diffDir/$fileName";
 
-                    File::Copy::cp( $srcFile, $destFile ) || die("ERROR: copy $srcFile to $destFile failed:$!");
+                    File::Copy::cp( $srcFile, $destFile ) || die("ERROR: Copy $srcFile to $destFile failed:$!");
                     chmod( ( stat($srcFile) )[2], $destFile );
                 }
             },
@@ -473,7 +473,7 @@ sub cleanSrc {
         }
 
         if ( -e "$diffDir/$aPath" ) {
-            die("ERROR: remove $diffDir/$aPath failed:$!\n");
+            die("ERROR: Remove $diffDir/$aPath failed:$!\n");
         }
     }
 }
@@ -487,7 +487,7 @@ sub cleanLibs {
         }
 
         if ( -e "$diffDir/$aPath" ) {
-            die("ERROR: remove $diffDir/$aPath failed:$!\n");
+            die("ERROR: Remove $diffDir/$aPath failed:$!\n");
         }
     }
 

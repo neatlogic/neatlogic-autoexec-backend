@@ -45,16 +45,16 @@ sub main {
     my $optionError = 0;
 
     if ( not defined($addr) or $addr eq '' ) {
-        print("ERROR: must define ftp url.\n");
+        print("ERROR: Must define ftp url.\n");
         $optionError = 1;
     }
 
     if ( not defined($localDir) or $localDir eq '' ) {
-        print("ERROR: must define dest path.\n");
+        print("ERROR: Must define dest path.\n");
         usage();
     }
     if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 
@@ -87,7 +87,7 @@ sub main {
         print("ERROR: Directory $localDir not exists.\n");
     }
     else {
-        my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR::connect ftp $host $port failed.\n";
+        my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
         if ( defined($user) and $user ne '' ) {
             $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
         }

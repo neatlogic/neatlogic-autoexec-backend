@@ -74,7 +74,7 @@ sub main {
     $username = $nodeInfo->{'username'};
     $password = $nodeInfo->{'password'};
 
-    print("INFO::command exec start.\n");
+    print("INFO: :command exec start.\n");
     my $sep = NetExpect->new(
         host     => $host,
         port     => $port,
@@ -87,7 +87,7 @@ sub main {
     my $spawn = $sep->login();
 
     if ( not defined($spawn) ) {
-        print("ERROR::command exec failed.\n");
+        print("ERROR: :command exec failed.\n");
         exit(1);
     }
     else {
@@ -96,12 +96,12 @@ sub main {
         foreach my $line (@cmds) {
             $line =~ s/^\s+|\s+$//g;
             if ( $line ne '' ) {
-                print("\nINFO:: exec $line .\n");
+                print("\nINFO: : exec $line .\n");
                 $sep->runCmd($line);
             }
         }
         $sep->close($exitCmd);
-        print("INFO::command exec success.\n");
+        print("INFO: :command exec success.\n");
         exit(0);
     }
 }

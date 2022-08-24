@@ -14,7 +14,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -45,7 +45,7 @@ sub main {
         my $precheckUrl = $config->{"$appname.precheckurl"};
         if ( defined($precheckUrl) and $precheckUrl ne '' ) {
             if ( not Utils::CheckUrlAvailable( $precheckUrl, "GET", $timeout ) ) {
-                print("ERROR: pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
+                print("ERROR: Pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
                 exit(1);
             }
         }
@@ -76,18 +76,18 @@ sub main {
                     my $checkUrl = $config->{"$target.checkurl"};
                     if ( defined($checkUrl) and $checkUrl ne '' ) {
                         if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
-                            print("INFO: app $appName installed.\n");
+                            print("INFO: App $appName installed.\n");
                         }
                         else {
-                            print("ERROR: app $appName install failed.\n");
+                            print("ERROR: App $appName install failed.\n");
                             $rc = 2;
                         }
                     }
                 }
-                print("FINE: deploy $appName suceed.\n");
+                print("FINE: Deploy $appName suceed.\n");
             }
             else {
-                print("ERROR: deploy $appName failed.\n");
+                print("ERROR: Deploy $appName failed.\n");
                 $rc = 2;
             }
         }

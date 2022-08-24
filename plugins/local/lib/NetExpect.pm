@@ -87,48 +87,48 @@ sub login {
         $timeout,
         [
             qr/$prompt/ => sub {
-                print("INFO: login $username\@$host:$port success.\n");
+                print("INFO: Login $username\@$host:$port success.\n");
             }
         ],
         [
             qr/password:/i => sub {
                 print( $spawn->before() );
-                print("ERROR: login $username\@$host:$port failed.\n");
+                print("ERROR: Login $username\@$host:$port failed.\n");
                 $spawn->hard_close();
                 exit(2);
             }
         ],
         [
             qr/(ssh: connect to host .*)$/ => sub {
-                print( "ERROR: login failed. " . $spawn->match() . "\n" );
+                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
                 $spawn->hard_close();
                 exit(2);
             }
         ],
         [
             qr/connection refused/i => sub {
-                print( "ERROR: login failed. " . $spawn->match() . "\n" );
+                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
                 $spawn->hard_close();
                 exit(2);
             }
         ],
         [
             qr/\nPermission denied, please try again\.\s*/i => sub {
-                print( "ERROR: login failed. " . $spawn->match() . "\n" );
+                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
                 $spawn->hard_close();
                 exit(2);
             }
         ],
         [
             qr/authentication failed/i => sub {
-                print( "ERROR: login failed. " . $spawn->match() . "\n" );
+                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
                 $spawn->hard_close();
                 exit(2);
             }
         ],
         [
             timeout => sub {
-                print("ERROR: login $username\@$host:$port failed.\n");
+                print("ERROR: Login $username\@$host:$port failed.\n");
                 $spawn->hard_close();
                 exit(3);
             }

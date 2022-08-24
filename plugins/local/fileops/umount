@@ -35,11 +35,11 @@ sub main {
     my $optionError = 0;
 
     if ( not defined($target) or $target eq '' ) {
-        print("ERROR: must define local mount path.\n");
+        print("ERROR: Must define local mount path.\n");
         usage();
     }
     if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
-        print("ERROR: dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 

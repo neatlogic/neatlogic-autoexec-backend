@@ -34,7 +34,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -91,10 +91,10 @@ sub main {
 
             if ( defined( $appsInfo->{$appName} ) ) {
                 if ( $appsInfo->{$appName}->{stagingMode} ne $stagingMode ) {
-                    print("WARN: application $appName in domain config.xml stagging mode is:$appsInfo->{$appName}->{stagingMode}, not equal the config value:$stagingMode.\n");
+                    print("WARN: Application $appName in domain config.xml stagging mode is:$appsInfo->{$appName}->{stagingMode}, not equal the config value:$stagingMode.\n");
                 }
                 if ( $appsInfo->{$appName}->{sourcePath} ne $sourcePath ) {
-                    print("WARN: application $appName in domain config.xml source-path is:$appsInfo->{$appName}->{sourcePath}, not equal the config value:$sourcePath.\n");
+                    print("WARN: Application $appName in domain config.xml source-path is:$appsInfo->{$appName}->{sourcePath}, not equal the config value:$sourcePath.\n");
                 }
             }
 
@@ -103,21 +103,21 @@ sub main {
                     if ( $sourceName eq $appfileName ) {
                         if ( $sourcePath ne $appfilePath ) {
                             if ( not File::Copy::cp( $appfilePath, $sourcePath ) ) {
-                                print("ERROR: copy $appfilePath to $sourcePath failed.\n");
+                                print("ERROR: Copy $appfilePath to $sourcePath failed.\n");
                                 $rc = 2;
                                 exit(-1);
                             }
                             else {
-                                print("INFO: copy $appfilePath to $sourcePath succeed.\n");
+                                print("INFO: Copy $appfilePath to $sourcePath succeed.\n");
                             }
                         }
                         else {
-                            print("WARN: appfile:$appfilePath is equal to source-path:$sourcePath, no need to deploy, please check the config.\n");
+                            print("WARN: Appfile:$appfilePath is equal to source-path:$sourcePath, no need to deploy, please check the config.\n");
                         }
                     }
                     else {
                         $rc = 3;
-                        print("ERROR: app file name:$appfileName not equal to deploy name:$sourceName.\n");
+                        print("ERROR: App file name:$appfileName not equal to deploy name:$sourceName.\n");
                     }
                 }
                 elsif ( -d $sourcePath ) {
@@ -132,10 +132,10 @@ sub main {
 
                     my $ret = system($cmd);
                     if ( $ret eq 0 ) {
-                        print("INFO: unzip $appfilePath to $sourcePath succeed.\n");
+                        print("INFO: Unzip $appfilePath to $sourcePath succeed.\n");
                     }
                     else {
-                        print("ERROR: unzip $appfilePath to $sourcePath failed.\n");
+                        print("ERROR: Unzip $appfilePath to $sourcePath failed.\n");
                         $rc = 3;
                         exit(-1);
                     }
@@ -143,7 +143,7 @@ sub main {
                 else {
                     if ( $appsInfo->{$appName}->{stagingMode} eq 'nostage' ) {
                         print("ERROR: $sourcePath is not exists, please check config.\n");
-                        print("ERROR: can not update $appfilePath to $sourcePath.\n");
+                        print("ERROR: Can not update $appfilePath to $sourcePath.\n");
                         $rc = 4;
                         exit(-1);
                     }
@@ -166,22 +166,22 @@ sub main {
 
                     my $ret = system($cmd);
                     if ( $ret eq 0 ) {
-                        print("INFO: copy $appfilePath to $sourcePath succeed.\n");
+                        print("INFO: Copy $appfilePath to $sourcePath succeed.\n");
                     }
                     else {
-                        print("ERROR: copy $appfilePath to $sourcePath failed.\n");
+                        print("ERROR: Copy $appfilePath to $sourcePath failed.\n");
                         exit(-1);
                     }
                 }
                 else {
                     if ( -f $sourcePath ) {
-                        print("INFO: src is directory:$appfilePath and dest:$sourcePath is file, please check config.\n");
-                        print("ERROR: can not update $appfilePath to $sourcePath.\n");
+                        print("INFO: Src is directory:$appfilePath and dest:$sourcePath is file, please check config.\n");
+                        print("ERROR: Can not update $appfilePath to $sourcePath.\n");
                         exit(-1);
                     }
                     elsif ( $appsInfo->{$appName}->{stagingMode} eq 'nostage' ) {
                         print("ERROR: $sourcePath is not exists, please check config.\n");
-                        print("ERROR: can not update $appfilePath to $sourcePath.\n");
+                        print("ERROR: Can not update $appfilePath to $sourcePath.\n");
                         exit(-1);
                     }
                     else {
@@ -201,17 +201,17 @@ sub main {
             my $uploadPath = "$domainHome/servers/$serverName/upload/$packName/app/$packName";
             if ( -f $uploadPath ) {
                 if ( File::Copy::cp( $appfilePath, $uploadPath ) ) {
-                    print("INFO: copy $appfilePath to upload path:$uploadPath success.\n");
+                    print("INFO: Copy $appfilePath to upload path:$uploadPath success.\n");
                 }
                 else {
                     $rc = 5;
-                    print("ERROR: copy $appfilePath to upload path:$uploadPath failed:$!.\n");
+                    print("ERROR: Copy $appfilePath to upload path:$uploadPath failed:$!.\n");
                 }
             }
 
             if ( $wlsDeployer->isAdminServer($serverName) ) {
                 if ( $wlsDeployer->removeAdminTmp($serverName) ) {
-                    print("INFO: remove admin tmp directory success.\n");
+                    print("INFO: Remove admin tmp directory success.\n");
                 }
             }
         }
@@ -222,24 +222,24 @@ sub main {
             if ( $needDeploy eq '1' and $wlsDeployer->isAppExists($appName) == 0 ) {
                 if ( $wlsDeployer->isAdminServer($serverName) ) {
                     if ( $wlsDeployer->deployApp($appName) ) {
-                        print("INFO: app $appName installed.\n");
+                        print("INFO: App $appName installed.\n");
                     }
                 }
             }
             else {
                 if ( $wlsDeployer->removeAppTmp( $serverName, $appName ) ) {
-                    print("INFO: remove $appName tmp dir succeed.\n");
+                    print("INFO: Remove $appName tmp dir succeed.\n");
                 }
                 else {
-                    print("ERROR: remove $appName tmp dir failed.\n");
+                    print("ERROR: Remove $appName tmp dir failed.\n");
                     $rc = 5;
                 }
 
                 if ( $wlsDeployer->removeAppStage( $serverName, $appName ) ) {
-                    print("INFO: remove $appName stage dir succeed.\n");
+                    print("INFO: Remove $appName stage dir succeed.\n");
                 }
                 else {
-                    print("ERROR: remove $appName stage dir failed.\n");
+                    print("ERROR: Remove $appName stage dir failed.\n");
                     $rc = 6;
                 }
             }

@@ -90,7 +90,7 @@ sub genFilesInfo {
 
     mkdir($startPath) if ( not -e $startPath );
     if ( not -d $startPath ) {
-        die("ERROR: destination path:$startPath not a directory.");
+        die("ERROR: Destination path:$startPath not a directory.");
     }
 
     chdir($startPath);
@@ -138,7 +138,7 @@ sub genFilesInfo {
         closedir(DH);
     }
 
-    print("INFO: find local file info complete.\n");
+    print("INFO: Find local file info complete.\n");
 }
 
 #执行SSH命令过程
@@ -174,7 +174,7 @@ sub spawnSSHCmd {
                 }
                 else {
                     $spawn->hard_close();
-                    die("\nERROR: login failed, check username and password.\n");
+                    die("\nERROR: Login failed, check username and password.\n");
                 }
             }
         ],
@@ -192,7 +192,7 @@ sub spawnSSHCmd {
 
                     if ( $firstLine =~ /password:\s*$/ or $firstLine =~ /^Permission denied, please try again.\s*$/ ) {
                         $spawn->hard_close();
-                        die("\nERROR: login failed, check username and password.\n");
+                        die("\nERROR: Login failed, check username and password.\n");
                     }
                 }
             }
@@ -213,7 +213,7 @@ sub spawnSSHCmd {
                 "\n" => sub {
                     if ( $isLogin == 0 ) {
                         $isLogin = 1;
-                        print( 'INFO: ' . DeployUtils->getTimeForLog() . "server $inUser\@$inIP:$port conntected.\n" );
+                        print("INFO: Server $inUser\@$inIP:$port conntected.\n");
                     }
                     $lastLine = $spawn->before();
                     $callback->( $lastLine, @cbparams ) if ( defined($callback) );
@@ -245,7 +245,7 @@ sub spawnSCP {
 
     $isVerbose = 1;
     my $spawn = new Expect;
-    print("INFO: scp $src $inUser\@$inIP:$dest \n");
+    print("INFO: Scp $src $inUser\@$inIP:$dest \n");
     my $port = $self->{'port'};
 
     #print("DEBUG:scp -q -P$port $src $dest\n");
@@ -271,7 +271,7 @@ sub spawnSCP {
                 }
                 else {
                     $spawn->hard_close();
-                    die("\nERROR: login failed, check username and password.\n");
+                    die("\nERROR: Login failed, check username and password.\n");
                 }
             }
         ],
@@ -280,14 +280,14 @@ sub spawnSCP {
                 my $lastLine = $spawn->before();
                 $spawn->soft_close();
                 if ( $spawn->exitstatus() != 0 and $lastLine =~ /lost connection/ ) {
-                    die("ERROR: connect to server failed, $lastLine");
+                    die("ERROR: Connect to server failed, $lastLine");
                 }
             }
         ]
     );
 
     if ( $spawn->exitstatus() != 0 ) {
-        die("ERROR: scp $src $inIP failed, check the log.");
+        die("ERROR: Scp $src $inIP failed, check the log.");
     }
 }
 
@@ -301,7 +301,7 @@ sub execRemoteCmd {
         my $tagent = new TagentClient( $inIP, $port, $inPwd );
         my $ret    = $tagent->execCmd( $inUser, $inCmd, $isVerbose, undef, $callback, @cbparams );
         if ( $ret != 0 ) {
-            die("ERROR: tagent execute remote command $inCmd failed.\n");
+            die("ERROR: Tagent execute remote command $inCmd failed.\n");
         }
     }
 }
@@ -349,7 +349,7 @@ sub remoteCopy {
         }
 
         if ( $ret != 0 ) {
-            die("ERROR: tagent $opType failed.\n");
+            die("ERROR: Tagent $opType failed.\n");
         }
     }
 }
@@ -547,9 +547,9 @@ sub genUpdateTar {
     if ( not -e $sourcePath ) {
         die("ERROR: Source path:$sourcePath not exists or permission deny.");
     }
-    print("INFO: begin to find file info for $sourcePath...\n");
+    print("INFO: Begin to find file info for $sourcePath...\n");
     my ( $srcFiles, $srcDirs ) = allLocalFiles( $sourcePath, $inExceptDirs, $ticket );
-    print("INFO: find file info for $sourcePath complete.\n");
+    print("INFO: Find file info for $sourcePath complete.\n");
 
     map { $$allSrcFiles{$_} = $$srcFiles{$_}; $$allSrcFilesPrefix{$_} = $sourcePath; } ( keys(%$srcFiles) );
     map { $$allSrcDirs{$_}  = $$srcDirs{$_};  $$allSrcDirsPrefix{$_}  = $sourcePath; } ( keys(%$srcDirs) );
@@ -601,7 +601,7 @@ sub genUpdateTar {
             }
             my $rc = system($cmd);
             if ( $rc ne 0 ) {
-                print("ERROR: package and update files failed.\n$cmd\n");
+                print("ERROR: Package and update files failed.\n$cmd\n");
                 exit(-1);
             }
         }
@@ -771,7 +771,7 @@ sub genUpdateTar {
         my $execCmd = "cd '$targetPath'\nsh $shFileName\nrm $shFileName";
         my $rc      = DeployUtils->execmd($execCmd);
 
-        die("ERROR:Exeucte sync failed.\n") if ( $rc ne 0 );
+        die("ERROR: Exeucte sync failed.\n") if ( $rc ne 0 );
     }
 }
 

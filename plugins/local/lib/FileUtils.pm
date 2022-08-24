@@ -23,7 +23,7 @@ sub getFileContent {
             $fh->close();
         }
         else {
-            die("ERROR: read file:$filePath failed, $!.\n");
+            die("ERROR: Read file:$filePath failed, $!.\n");
         }
     }
 
@@ -40,7 +40,7 @@ sub getFileMd5 {
         $fileFH->close();
     }
     else {
-        die("ERROR: read md5 file:$filePath failed, $!\n");
+        die("ERROR: Read md5 file:$filePath failed, $!\n");
     }
 
     return $md5Hash;
@@ -51,7 +51,7 @@ sub appendFileMd5 {
 
     my $md5Sum = getFileMd5($file);
     if ( not print $md5ListFH ( $md5Sum, "  ", $filePath, "\n" ) ) {
-        die("ERROR: write $filePath md5 to file failed, $!\n");
+        die("ERROR: Write $filePath md5 to file failed, $!\n");
     }
 }
 
@@ -67,7 +67,7 @@ sub checkFileMd5 {
         }
     }
     else {
-        die("ERROR: check file md5 failed, $file not a file.\n");
+        die("ERROR: Check file md5 failed, $file not a file.\n");
     }
 }
 
@@ -128,7 +128,7 @@ sub genMd5 {
     }
 
     if ( $hasError == 1 ) {
-        die("ERROR: generate md5 for $dest failed.\n");
+        die("ERROR: Generate md5 for $dest failed.\n");
     }
 }
 
@@ -178,10 +178,10 @@ sub checkMd5 {
     }
 
     if ( $hasError == 1 ) {
-        die("ERROR: check md5 for $dest failed.\n");
+        die("ERROR: Check md5 for $dest failed.\n");
     }
     else {
-        print("INFO: check md5 for $dest success.\n");
+        print("INFO: Check md5 for $dest success.\n");
     }
 }
 

@@ -61,13 +61,13 @@ sub main {
     my $optError = 0;
     if ( not defined($addr) and not defined($eofStr) ) {
         $optError = 1;
-        print("ERROR: option --addr not defined.\n");
+        print("ERROR: Option --addr not defined.\n");
         $rc = 1;
     }
 
     #if ( scalar(@logPatterns) == 0 ) {
     #    $optError = 1;
-    #    print("ERROR: there is no log pattern provided.\n");
+    #    print("ERROR: There is no log pattern provided.\n");
     #    $rc = 1;
     #}
 
@@ -132,7 +132,7 @@ sub main {
 
     my $pid;
     if ( defined($preScript) and $preScript ne '' ) {
-        print("INFO: execte script:$preScript\n");
+        print("INFO: Execte script:$preScript\n");
         $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
 
@@ -199,11 +199,11 @@ sub main {
     }
 
     if ( defined($postScript) and $postScript ne '' ) {
-        print("INFO: execte post script:$postScript\n");
+        print("INFO: Execte post script:$postScript\n");
         my $ret = system($postScript);
 
         if ( $ret ne 0 ) {
-            print("WARN: execute post script:$postScript failed.\n");
+            print("WARN: Execute post script:$postScript failed.\n");
         }
     }
 

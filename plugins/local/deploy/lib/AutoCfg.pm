@@ -200,7 +200,7 @@ sub refreshFilesMd5 {
             if ( -f $fullDir ) {
                 if ( not defined( $processed->{$possibleDir} ) ) {
                     $hasMd5 = 1;
-                    print("INFO: refresh file:$possibleDir md5.\n");
+                    print("INFO: Refresh file:$possibleDir md5.\n");
                     my $md5Sum = FileUtils::getFileMd5($fullDir);
                     $processed->{$possibleDir} = $md5Sum;
                     $hasRefresh = 1;
@@ -1445,8 +1445,8 @@ sub config {
 
             if ( not defined($cfgFiles) or scalar(@$cfgFiles) == 0 ) {
                 $cfgFiles = [];
-                print("INFO:config files list not provided.\n");
-                print("INFO:begin to find *.$suffix files--------.\n");
+                print("INFO: config files list not provided.\n");
+                print("INFO: begin to find *.$suffix files--------.\n");
 
                 my $cfgFilesFinded = {};
                 $self->findFilesInDir( $autoCfgDocRoot, $autoCfgDocRoot, $pkgFiles, $rplOrgFiles, $cfgFilesFinded );
@@ -1454,13 +1454,13 @@ sub config {
                 @$cfgFiles = keys(%$cfgFilesFinded);
 
                 if ( scalar(@$cfgFiles) > 0 ) {
-                    print("INFO:find config files to be auto config:\n");
+                    print("INFO: find config files to be auto config:\n");
                     foreach my $cfgFile ( sort sortByLen (@$cfgFiles) ) {
                         print( '->', Encode::encode( 'utf-8', Encode::decode( $charset, $cfgFile ) ), "\n" );
                     }
                 }
                 else {
-                    print("INFO:can not find any *.$suffix files.\n");
+                    print("INFO: can not find any *.$suffix files.\n");
                 }
             }
             else {

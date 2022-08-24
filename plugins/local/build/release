@@ -267,7 +267,7 @@ sub main {
                     }
                     else {
                         $hasError = 1;
-                        print( "ERROR: rename target failed, $filePattern match more than one targets:", join( ',', @oneTargetGlobs ), "\n" );
+                        print( "ERROR: Rename target failed, $filePattern match more than one targets:", join( ',', @oneTargetGlobs ), "\n" );
                     }
                 }
 
@@ -275,7 +275,7 @@ sub main {
                     $hasError = 1;
                 }
                 else {
-                    print("INFO: copy $subFilePath to $dest success.\n");
+                    print("INFO: Copy $subFilePath to $dest success.\n");
                 }
             }
             else {
@@ -460,7 +460,7 @@ sub copyTarget {
 
             if ( not copy( $src, $dest ) ) {
                 $hasError = 1;
-                print("ERROR: copy $src to $dest failed, $!\n");
+                print("ERROR: Copy $src to $dest failed, $!\n");
             }
             else {
                 copyPerm( $src, $dest );
@@ -521,11 +521,11 @@ sub copyTarget {
                             if ( -e $destFile ) {
                                 unlink($destFile);
                             }
-                            symlink( readlink($srcFile), $destFile ) || die("ERROR: create symbol link $destFile failed:$!\n");
+                            symlink( readlink($srcFile), $destFile ) || die("ERROR: Create symbol link $destFile failed:$!\n");
                         }
                         elsif ( -d $srcFile ) {
                             if ( not -e $destFile ) {
-                                mkdir($destFile) || die("ERROR: mkdir $destFile failed:$!\n");
+                                mkdir($destFile) || die("ERROR: Mkdir $destFile failed:$!\n");
                             }
                         }
                         else {
@@ -533,7 +533,7 @@ sub copyTarget {
 
                             if ( not copy( $srcFile, $destFile ) ) {
                                 $hasError = 1;
-                                print("ERROR: copy $srcFile to $destFile failed, $!\n");
+                                print("ERROR: Copy $srcFile to $destFile failed, $!\n");
                             }
                             else {
                                 copyPerm( $srcFile, $destFile );

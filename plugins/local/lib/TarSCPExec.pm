@@ -109,7 +109,7 @@ sub exec {
                     my $lastLine = $spawn->before();
                     $spawn->soft_close();
                     if ( $spawn->exitstatus() != 0 and $lastLine =~ /lost connection/ ) {
-                        print("ERROR: connect to server failed, $lastLine");
+                        print("ERROR: Connect to server failed, $lastLine");
                     }
                 }
             ]

@@ -96,21 +96,21 @@ sub main {
     my $codePath = $prjDir;
     if ( -e "$codePath/pom.xml" ) {
         my $cmd = "cd $prjDir && mvn org.apache.maven.plugins:maven-project-info-reports-plugin:dependencies";
-        print("INFO:execute->$cmd\n");
+        print("INFO: Execute->$cmd\n");
         $ret = $deployUtils->execmd($cmd);
         if ( $ret ne 0 ) {
-            print("ERROR:execute->$cmd failed,$!\n");
+            print("ERROR: Execute->$cmd failed,$!\n");
             exit(1);
         }
-        print("FINE:execute->$cmd success\n");
+        print("FINE: Execute->$cmd success\n");
         if ( not -e "$prjDir/$startDir/site/dependencies.html" ) {
-            print("ERROR:project dependency reports 'site/dependencies.html' at '$prjDir/$startDir' is not exist.\n");
+            print("ERROR: Project dependency reports 'site/dependencies.html' at '$prjDir/$startDir' is not exist.\n");
             exit(1);
         }
 
         $ret = $deployUtils->execmd("\\cp -rf $prjDir/$startDir/site/** $docDir/");
         if ( $ret ne 0 ) {
-            print("ERROR: cp project dependency reports to '$docDir' failed. \n");
+            print("ERROR: Cp project dependency reports to '$docDir' failed. \n");
             exit(1);
         }
 
@@ -120,13 +120,13 @@ sub main {
         my $dom = Mojo::DOM->new($content);
         my $ul  = $dom->at('div.section,section ul li ul');
         if ( !$ul ) {
-            print("ERROR:analysis dependencies.html failed,please check file: $filePath.\n");
+            print("ERROR: Analysis dependencies.html failed,please check file: $filePath.\n");
             exit(1);
         }
         my $treeDom = $ul->find('li');
         my @treeArr = @$treeDom;
         my @data;
-        print("INFO:start print version:$version dependencies\n");
+        print("INFO: Start print version:$version dependencies\n");
         for ( $a = 0 ; $a < @treeArr ; $a = $a + 1 ) {
             my @item       = split( /\:/, $treeArr[$a]->text );
             my $len        = @item;

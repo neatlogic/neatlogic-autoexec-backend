@@ -51,7 +51,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -118,10 +118,10 @@ sub main {
     }
 
     if ( not defined($pid) or $pid eq '' ) {
-        print("INFO: stop nodemanager succeed.\n");
+        print("INFO: Stop nodemanager succeed.\n");
     }
     else {
-        print("ERROR: stop nodemanager failed.\n");
+        print("ERROR: Stop nodemanager failed.\n");
         exit(-1);
     }
 

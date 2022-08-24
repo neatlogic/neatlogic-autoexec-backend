@@ -120,16 +120,16 @@ sub new {
         if ( defined($fh) ) {
             my $tnsEntry = "orcl=" . $self->getTnsDesc() . "\n";
             if ( print $fh ($tnsEntry) ) {
-                print("INFO: use tns entry: $tnsEntry\n");
+                print("INFO: Use tns entry: $tnsEntry\n");
             }
             else {
-                die("ERROR: write tns entry to file $tnsDir/tnsnames.ora failed, $!\n");
+                die("ERROR: Write tns entry to file $tnsDir/tnsnames.ora failed, $!\n");
             }
             $self->{TNSNAMES_TMPDIR} = $tmp;
             $fh->close();
         }
         else {
-            die("ERROR: create file $tnsDir/tnsnames.ora failed, $!\n");
+            die("ERROR: Create file $tnsDir/tnsnames.ora failed, $!\n");
         }
     }
 
@@ -153,11 +153,11 @@ sub new {
 
         #my $sqlFileName = basename($sqlFile);
         if ( $addrsCount == 1 ) {
-            print("INFO: sqlldr userid=$user/******\@//$host:$port/$dbName $dbArgs control='$sqlFileName'\n");
+            print("INFO: Sqlldr userid=$user/******\@//$host:$port/$dbName $dbArgs control='$sqlFileName'\n");
             $spawn->spawn(qq{sqlldr userid="$user"/\\"$pass\\"\@//$host:$port/$dbName $dbArgs control='$sqlFileName'});
         }
         else {
-            print("INFO: sqlldr userid=$user/******\@orcl $dbArgs control='$sqlFileName'\n");
+            print("INFO: Sqlldr userid=$user/******\@orcl $dbArgs control='$sqlFileName'\n");
             $spawn->spawn(qq{sqlldr userid="$user"/\\"$pass\\"\@orcl $dbArgs control='$sqlFileName'});
         }
     }
@@ -170,11 +170,11 @@ sub new {
 
         # oracle import
         if ( $addrsCount == 1 ) {
-            print("INFO: imp $user/******\@//$host:$port/$dbName $dbArgs file=$sqlFileName\n");
+            print("INFO: Imp $user/******\@//$host:$port/$dbName $dbArgs file=$sqlFileName\n");
             $spawn->spawn(qq{imp "$user"/\\"$pass\\"\@//$host:$port/$dbName $dbArgs file='$sqlFileName'});
         }
         else {
-            print("INFO: imp $user/******\@orcl $dbArgs file=$sqlFileName\n");
+            print("INFO: Imp $user/******\@orcl $dbArgs file=$sqlFileName\n");
             $spawn->spawn(qq{imp "$user"/\\"$pass\\"\@orcl $dbArgs file='$sqlFileName'});
         }
     }
@@ -270,10 +270,10 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: oracle $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Oracle $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
-        print("ERROR: oracle $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Oracle $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -323,11 +323,11 @@ sub run {
             $spawn->expect( undef, [ $PROMPT => sub { } ] );
             $spawn->clear_accum();
 
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -374,7 +374,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlplusStatus) and $sqlplusStatus != 0 ) {
-            print("ERROR: sqlplus exit abnormal.");
+            print("ERROR: Sqlplus exit abnormal.");
             $isFail = 1;
         }
     };
@@ -384,7 +384,7 @@ sub run {
         if ( $spawn->exitstatus() ne 0 ) {
             $hasError = 1;
             $isFail   = 1;
-            print("ERROR: sqlldr failed.\n");
+            print("ERROR: Sqlldr failed.\n");
         }
 
     }
@@ -399,7 +399,7 @@ sub run {
                 qr/invalid username\/password; logon deniedUsername:/ => sub {
                     $isFail = 1;
                     $spawn->send("\cd\n");
-                    print("\nERROR: username/password incorrect.\n");
+                    print("\nERROR: Username/password incorrect.\n");
                 }
             ],
             [
@@ -409,7 +409,7 @@ sub run {
                 qr/(?<=\n)Import\s+file.*?\>/ => sub {
                     $isFail = 1;
                     $spawn->send("\cd\n");
-                    print("\nERROR: open file $sqlFile failed, this file exist? has permission?\n");
+                    print("\nERROR: Open file $sqlFile failed, this file exist? has permission?\n");
                 }
             ],
             [
@@ -419,7 +419,7 @@ sub run {
                 #EXP-00000: Export terminated unsuccessfully
                 qr/TNS:could\s+not\s+resolve\s+the\s+connect\s+identifier\s+specified/ => sub {
                     $isFail = 1;
-                    print("ERROR: could not resolve connect identifier: $dbName\n");
+                    print("ERROR: Could not resolve connect identifier: $dbName\n");
                 }
             ],
             [
@@ -429,7 +429,7 @@ sub run {
                 #EXP-00000: Export terminated unsuccessfully
                 qr/no\s+listener/ => sub {
                     $isFail = 1;
-                    print("ERROR: listener not start. Try commend: lsnrctl start ?\n");
+                    print("ERROR: Listener not start. Try commend: lsnrctl start ?\n");
                 }
             ],
             [
@@ -438,7 +438,7 @@ sub run {
                 #ORA-12514: TNS:listener does not currently know of service requested in connect descriptor
                 qr/(?<=\n)ORA-12514:.*(?=\n)/ => sub {
                     $isFail = 1;
-                    print("ERROR: listener does not know service of \"$dbName\", this service already startup?\n");
+                    print("ERROR: Listener does not know service of \"$dbName\", this service already startup?\n");
                 }
             ],
             [
@@ -482,7 +482,7 @@ sub run {
         if ( $spawn->exitstatus() ne 0 ) {
             $hasError = 1;
             $isFail   = 1;
-            print("ERROR: imp failed.\n");
+            print("ERROR: Imp failed.\n");
         }
     }
     else {
@@ -504,7 +504,7 @@ sub run {
 
         if ( not defined($sqlFH) ) {
             $isFail = 1;
-            print("ERROR: sql script file not exists:$self->{sqlDir}/$sqlFileName.\n");
+            print("ERROR: Sql script file not exists:$self->{sqlDir}/$sqlFileName.\n");
         }
         else {
             $sqlFH->close();
@@ -640,7 +640,7 @@ sub run {
                         if ( $oraError =~ /ORA-00028/i ) {
                             $sessionKilled = 1;
                             $spawn->send("exit;\n");
-                            print("\nERROR: session has been killed.\n");
+                            print("\nERROR: Session has been killed.\n");
                         }
 
                         #如果错误可忽略则输出警告，否则输出错误

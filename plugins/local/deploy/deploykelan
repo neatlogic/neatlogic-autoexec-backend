@@ -56,10 +56,10 @@ sub switchServer {
     #<frame name="businessfrm"  scrolling="auto" src="welcome.do">
 
     if ( $content =~ /businessfrm/ and $content =~ /welcome.do/ ) {
-        print("INFO: switch to server $serverName success.\n");
+        print("INFO: Switch to server $serverName success.\n");
     }
     else {
-        die("ERROR: switch to server $serverName faled.\n");
+        die("ERROR: Switch to server $serverName faled.\n");
     }
 }
 
@@ -108,17 +108,17 @@ sub waitBundleStart {
             last;
         }
         elsif ( $checkCount % 5 == 0 ) {
-            print("INFO: wait bundle $bundleName to start...\n");
+            print("INFO: Wait bundle $bundleName to start...\n");
         }
         sleep(5);
         $checkCount--;
     } while ( $checkCount > 0 );
 
     if ( $isSuccess == 1 ) {
-        print("INFO: bundle $bundleName start success.\n");
+        print("INFO: Bundle $bundleName start success.\n");
     }
     else {
-        die("ERROR: bundle $bundleName start failed.\n");
+        die("ERROR: Bundle $bundleName start failed.\n");
     }
 }
 
@@ -185,11 +185,11 @@ sub updateBundle {
                 my $bundleName = $bundleFileName;
                 $bundleName =~ s/_[\d\.]+\.jar$//;
                 my ( $bundleSeq, $newBundleId ) = getBundleSeqAndId( $webCtl, $consoleAddr, $bundleName );
-                print("INFO: update bundle($bundleId) $bundleFileName to new bundleId($newBundleId) success.\n");
+                print("INFO: Update bundle($bundleId) $bundleFileName to new bundleId($newBundleId) success.\n");
                 waitBundleStart( $webCtl, $consoleAddr, $bundleName );
             }
             else {
-                die("ERROR: update bundle($bundleId) $bundleFileName failed.\n");
+                die("ERROR: Update bundle($bundleId) $bundleFileName failed.\n");
             }
         }
     }
@@ -210,11 +210,11 @@ sub deployBundle {
     my ( $bundleSeq, $bundleId ) = getBundleSeqAndId( $webCtl, $consoleAddr, $bundleName );
 
     if ( defined($bundleId) ) {
-        print("INFO: deploy bundle $bundleFileName success, bundleId=$bundleId.\n");
+        print("INFO: Deploy bundle $bundleFileName success, bundleId=$bundleId.\n");
         waitBundleStart( $webCtl, $consoleAddr, $bundleName );
     }
     else {
-        die("ERROR: deploy bundle $bundleFileName failed.\n");
+        die("ERROR: Deploy bundle $bundleFileName failed.\n");
     }
 }
 

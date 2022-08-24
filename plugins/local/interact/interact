@@ -80,7 +80,7 @@ sub main {
     my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
     if ( not defined($phaseName) or $phaseName eq '' ) {
         $hasOptError = 1;
-        print("WARN: phaseName not defined, must define environment variable AUTOEXEC_PHASE_NAME.\n");
+        print("WARN: PhaseName not defined, must define environment variable AUTOEXEC_PHASE_NAME.\n");
         $phaseName = 'run';
     }
 

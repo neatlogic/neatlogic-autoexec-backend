@@ -79,14 +79,14 @@ sub main {
     }
 
     if ( scalar(@dirs) < 2 ) {
-        print("ERROR: must define local path and remote path.\n");
+        print("ERROR: Must define local path and remote path.\n");
         $optionError = 1;
     }
 
     for ( my $i = 0 ; $i < scalar(@dirs) ; $i++ ) {
         my $dir = $dirs[$i];
         if ( $dir =~ /\/\.\.\// or $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ ) {
-            print("ERROR: path can not has parent dir opertor:\"..\".\n");
+            print("ERROR: Path can not has parent dir opertor:\"..\".\n");
             $optionError = 1;
         }
         else {
@@ -211,7 +211,7 @@ sub main {
 
             if ( scalar(@aSrcExpanded) == 0 ) {
                 if ( defined($cpIfExists) ) {
-                    print("WARN: the src $aSrc does not match any file!\n");
+                    print("WARN: The src $aSrc does not match any file!\n");
                     next;
                 }
             }

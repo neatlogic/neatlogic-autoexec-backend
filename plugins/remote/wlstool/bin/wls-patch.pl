@@ -38,7 +38,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -86,7 +86,7 @@ sub main {
     }
     if ( not -e $backupPath ) {
         if ( not mkpath($backupPath) ) {
-            print("ERROR: create backup dir:$backupPath failed.\n");
+            print("ERROR: Create backup dir:$backupPath failed.\n");
             $rc = 1;
             exit(-1);
         }
@@ -106,20 +106,20 @@ sub main {
             if ( -f $sourcePath ) {
                 my $backupStatus = $patcher->backup( "$insName.$appName", $version, $appfilePath, $sourcePath, 'fullbackkup' );
                 if ( $backupStatus == 0 ) {
-                    print("INFO: backup $sourcePath to $backupPath succeed.\n");
+                    print("INFO: Backup $sourcePath to $backupPath succeed.\n");
                 }
                 else {
-                    print("INFO: backup $sourcePath to $backupPath failed.\n");
+                    print("INFO: Backup $sourcePath to $backupPath failed.\n");
                     exit(-1);
                 }
             }
             elsif ( -d $sourcePath ) {
                 my $backupStatus = $patcher->backup( "$insName.$appName", $version, $appfilePath, $sourcePath, 'fullbackup' );
                 if ( $backupStatus == 0 ) {
-                    print("INFO: backup $sourcePath to $backupPath succeed.\n");
+                    print("INFO: Backup $sourcePath to $backupPath succeed.\n");
                 }
                 else {
-                    print("INFO: backup $sourcePath to $backupPath failed.\n");
+                    print("INFO: Backup $sourcePath to $backupPath failed.\n");
                     exit(-1);
                 }
             }
@@ -128,10 +128,10 @@ sub main {
             chdir($homePath);
 
             if ( $status eq 0 ) {
-                print("INFO: version:$version patch $appfilePath to $sourcePath succeed.\n");
+                print("INFO: Version:$version patch $appfilePath to $sourcePath succeed.\n");
             }
             else {
-                print("ERROR: version:$version patch $appfilePath to $sourcePath failed.\n");
+                print("ERROR: Version:$version patch $appfilePath to $sourcePath failed.\n");
                 exit(-1);
             }
 
@@ -145,18 +145,18 @@ sub main {
 
         foreach my $serverName (@serverNames) {
             if ( $wlsDeployer->removeAppTmp( $serverName, $appName ) ) {
-                print("INFO: remove $appName tmp dir succeed.\n");
+                print("INFO: Remove $appName tmp dir succeed.\n");
             }
             else {
-                print("ERROR: remove $appName tmp dir failed.\n");
+                print("ERROR: Remove $appName tmp dir failed.\n");
                 $rc = 2;
             }
 
             if ( $wlsDeployer->removeAppStage( $serverName, $appName ) ) {
-                print("INFO: remove $appName stage dir succeed.\n");
+                print("INFO: Remove $appName stage dir succeed.\n");
             }
             else {
-                print("ERROR: remove $appName stage dir failed.\n");
+                print("ERROR: Remove $appName stage dir failed.\n");
                 $rc = 3;
             }
         }

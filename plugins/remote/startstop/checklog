@@ -104,13 +104,13 @@ sub main {
     if ( not defined($logPathPattern) ) {
         $optError = 1;
         $rc       = 1;
-        print("ERROR: option --logpath not defined.\n");
+        print("ERROR: Option --logpath not defined.\n");
     }
 
     if ( scalar(@patterns) == 0 ) {
         $optError = 1;
         $rc       = 1;
-        print("ERROR: there is no pattern provided.\n");
+        print("ERROR: There is no pattern provided.\n");
     }
 
     if ( $optError == 1 ) {
@@ -131,20 +131,20 @@ sub main {
 
     if ($isFailCheck) {
         if ( $satisfied ne 1 ) {
-            print("INFO: log file had no fail key words.\n");
+            print("INFO: Log file had no fail key words.\n");
         }
         else {
-            print("ERROR: log file had fail key words.\n");
+            print("ERROR: Log file had fail key words.\n");
             $rc = 1;
         }
     }
     else {
         if ( $satisfied ne 1 ) {
-            print("ERROR: log file had no success key words.\n");
+            print("ERROR: Log file had no success key words.\n");
             $rc = 1;
         }
         else {
-            print("INFO: log file had success key words.\n");
+            print("INFO: Log file had success key words.\n");
         }
     }
 

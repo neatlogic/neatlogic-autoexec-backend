@@ -65,7 +65,7 @@ sub main {
 
     if ( not defined($scriptObj) ) {
         $optionError = 1;
-        print("ERROR: must defined script obj with --script option.\n");
+        print("ERROR: Must defined script obj with --script option.\n");
     }
 
     if ( $optionError == 1 ) {
@@ -127,7 +127,7 @@ sub main {
 
     my $ret = $tagent->writeFile( $user, $scriptContent, '$TMPDIR/' . $scriptName, 1, 1 );
     if ( $ret != 0 ) {
-        die("ERROR: can not connect to tagent.\n");
+        die("ERROR: Can not connect to tagent.\n");
     }
 
     my $agentOsType = $tagent->{agentOsType};
@@ -167,10 +167,10 @@ sub main {
 
     $hasError = $hasError + $exitStatus;
     if ( $exitStatus eq 0 ) {
-        print("FINE: tagent remote exec success.\n");
+        print("FINE: Tagent remote exec success.\n");
     }
     else {
-        print("ERROR: tagent remote exec has error.\n");
+        print("ERROR: Tagent remote exec has error.\n");
     }
 
     if ( defined($delCmd) ) {

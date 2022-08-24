@@ -28,7 +28,7 @@ sub storeFile {
     open( $fh, '>', $fileName ) or die "can't open $fileName $!";
     print $fh ($result);
     close($fh);
-    print("INFO::save backup file: $fileName done.\n");
+    print("INFO: :save backup file: $fileName done.\n");
     my $res = {};
     $res->{'fullPath'}   = $fileName;
     $res->{'serverPath'} = "$host.txt";
@@ -108,7 +108,7 @@ sub main {
 
     my $vendorInfo = defindVendor($vendor);
     if ( not defined($vendorInfo) ) {
-        print("ERROR:: $vendor model not support .\n");
+        print("ERROR: : $vendor model not support .\n");
         exit(1);
     }
 
@@ -121,7 +121,7 @@ sub main {
     my $fullPageCmd = $vendorInfo->{fullPageCmd};
     my $configCmd   = $vendorInfo->{configCmd};
 
-    print("INFO::config back start.\n");
+    print("INFO: :config back start.\n");
     my $sep = NetExpect->new(
         host     => $host,
         port     => $port,
@@ -134,7 +134,7 @@ sub main {
     my $spawn = $sep->login();
 
     if ( not defined($spawn) ) {
-        print("ERROR:: $vendor config backup failed.\n");
+        print("ERROR: : $vendor config backup failed.\n");
         exit(1);
     }
     else {
@@ -144,7 +144,7 @@ sub main {
         my $out = {};
         $out->{fileList} = [$filePath];
         AutoExecUtils::saveOutput($out);
-        print("INFO:: $vendor config backup success.\n");
+        print("INFO: : $vendor config backup success.\n");
         exit(0);
     }
 }

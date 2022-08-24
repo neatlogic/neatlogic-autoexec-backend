@@ -88,7 +88,7 @@ sub main {
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $cmd = "sudo docker build -t $registry/$project/$image:$tagname $distDir/app";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {

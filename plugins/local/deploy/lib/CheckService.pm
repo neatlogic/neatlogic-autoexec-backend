@@ -16,7 +16,7 @@ sub _checkTcp {
     my $isSuccess = 0;
 
     eval {
-        print("INFO:Checking $host:$port...\n");
+        print("INFO: Checking $host:$port...\n");
         my $socket = IO::Socket::INET->new(
             PeerHost => $host,
             PeerPort => $port,
@@ -25,16 +25,16 @@ sub _checkTcp {
 
         if ( defined($socket) ) {
             $isSuccess = 1;
-            print("INFO:Checking $host:$port success.\n");
+            print("INFO: Checking $host:$port success.\n");
             $socket->close();
         }
         else {
-            print("INFO:Checking $host:$port failed, $!.\n");
+            print("INFO: Checking $host:$port failed, $!.\n");
         }
 
     };
     if ($@) {
-        print("WARN:$@\n");
+        print("WARN: $@\n");
     }
 
     return $isSuccess;
@@ -65,18 +65,18 @@ sub _checkUrl {
 
         my $statusCode = $response->{status};
 
-        #print("INFO:Checking $url, status code $statusCode\n");
+        #print("INFO: Checking $url, status code $statusCode\n");
         if ( $statusCode == 200 or $statusCode == 302 ) {
             if ( defined($keyword) ) {
                 my $content = $response->content;
                 if ( $content =~ /$keyword/i ) {
                     $isSuccess = 1;
-                    print("INFO:Checking $url success.\n");
+                    print("INFO: Checking $url success.\n");
                 }
             }
             else {
                 $isSuccess = 1;
-                print("INFO:Checking $url success.\n");
+                print("INFO: Checking $url success.\n");
             }
         }
         else {
@@ -85,11 +85,11 @@ sub _checkUrl {
             if ( length($reason) > 80 ) {
                 $reason = $response->{reason};
             }
-            print("INFO:Checking $url failed, $reason.\n");
+            print("INFO: Checking $url failed, $reason.\n");
         }
     };
     if ($@) {
-        print("ERROR:$@\n");
+        print("ERROR: $@\n");
     }
 
     return $isSuccess;
@@ -107,7 +107,7 @@ sub checkServiceAvailable {
     my $isTimeout = 0;
     my $startTime = time();
     for ( my $i = 0 ; $i < $stepCount ; $i++ ) {
-        print("INFO:waiting service to start....\n");
+        print("INFO: Waiting service to start....\n");
 
         my $allSuccess = 1;
         for my $addr (@$addrs) {
@@ -148,7 +148,7 @@ sub checkServiceAvailable {
             print("WARN: Check service failed, imeout($timeout).\n");
         }
         else {
-            print("WARN:App service check failed. \n");
+            print("WARN: App service check failed. \n");
         }
     }
     else {

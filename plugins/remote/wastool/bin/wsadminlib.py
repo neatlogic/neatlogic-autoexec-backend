@@ -1454,59 +1454,59 @@ def checkProxyVirtualHostAction( action ):
 
     if "HTTPRequestHeaderAction" == type:
         if 'headerModifyAction' not in action.keys() or emptyString(action['headerModifyAction']):
-            raise m + "ERROR: missing key in action.  action=%s" % ( action )
+            raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         headerModifyAction = action['headerModifyAction']
         if headerModifyAction == 'REMOVE':
             if 'headerName' not in action.keys() or emptyString(action['headerName']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'SET':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'EDIT':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValueExpression' not in action.keys() or emptyString(action['headerValueExpression']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'APPEND':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         else:
-            raise m + "ERROR: headerModifyAction not recognized. action=%s" % ( action )
+            raise m + "ERROR: HeaderModifyAction not recognized. action=%s" % ( action )
     elif "HTTPResponseHeaderAction" == type:
         headerModifyAction = action['headerModifyAction']
         if headerModifyAction == 'REMOVE':
             if 'headerName' not in action.keys() or emptyString(action['headerName']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'SET':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'EDIT':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValueExpression' not in action.keys() or emptyString(action['headerValueExpression']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         elif headerModifyAction == 'APPEND':
             if 'headerName' not in action.keys() or emptyString(action['headerName']) or \
                'headerValue' not in action.keys() or emptyString(action['headerValue']):
-                raise m + "ERROR: missing key in action.  action=%s" % ( action )
+                raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         else:
-            raise m + "ERROR: headerModifyAction not recognized. action=%s" % ( action )
+            raise m + "ERROR: HeaderModifyAction not recognized. action=%s" % ( action )
     elif "HTTPRequestCompressionAction" == type or \
          "HTTPResponseCompressionAction" == type:
         if 'compressionType' not in action.keys() or emptyString(action['compressionType']):
-            raise m + "ERROR: missing key in action.  action=%s" % ( action )
+            raise m + "ERROR: Missing key in action.  action=%s" % ( action )
     elif "RoutingAction" == type:
         if 'routeType' not in action.keys() or emptyString(action['routeType']):
-            raise m + "ERROR: missing key in action.  action=%s" % ( action )
+            raise m + "ERROR: Missing key in action.  action=%s" % ( action )
         if 'LocalRoute' != action['routeType']:
-            raise m + "ERROR: routeType not recognized. action=%s" % ( action )
+            raise m + "ERROR: RouteType not recognized. action=%s" % ( action )
     elif "RewritingAction" == type:
         sop(m,"Ok. No checking for now...")
     else:
-        raise m + "ERROR: actionType not recognized. action=%s" % ( action )
+        raise m + "ERROR: ActionType not recognized. action=%s" % ( action )
 
     sop(m,"Exit. Success")
 
@@ -1863,7 +1863,7 @@ def setDmzProxyOverallSecurityLevel( nodename, proxyname, level ):
         raise "%s Error: Invalid level. level=%s" % ( m, level, )
     proxy_server_id = getServerId(nodename,proxyname)
     if proxy_server_id is None:
-        raise Exception("ERROR: no such proxy: node %s name %s" % (nodename,proxyname))
+        raise Exception("ERROR: No such proxy: node %s name %s" % (nodename,proxyname))
     sop(m,"proxy_server_id=%s" % ( proxy_server_id ))
     # Sample: AdminTask.setServerSecurityLevel('Proxy1(cells/firehawkDmgrCell/nodes/firehawk/servers/Proxy1|server.xml)','-proxySecurityLevel high -managementSecurityLevel high')
     rc = AdminTask.setServerSecurityLevel( proxy_server_id, '-proxySecurityLevel %s ' %  level )
@@ -2148,7 +2148,7 @@ def clearDynaCache( nodename, servername, dynacachename ):
         sop(m, "DID NOT FIND DYNACACHE MBEAN... POKING AROUND")
         foo = AdminControl.queryNames('type=DynaCache,*')
         sop(m, "all dynacaches in server = %s" % repr(foo))
-        raise "ERROR: giving up since did not find cache"
+        raise "ERROR: Giving up since did not find cache"
     sop(m,"Clearing cache. node=%s server=%s cachename=%s dynacache_mbean=%s" % ( repr(nodename), repr(servername), repr(dynacachename), repr(dynacache_mbean) ))
     return AdminControl.invoke( dynacache_mbean, 'clearCache', dynacachename )
 
@@ -2186,7 +2186,7 @@ def clearAllProxyCaches():
         proxy_settings_id = getProxySettings( nodename, proxyname )
         cache_instance_name = getObjectAttribute(proxy_settings_id, 'cacheInstanceName')
         if cache_instance_name != cachename:
-            raise "ERROR: cache_instance_name %s is not %s" % (cache_instance_name, cachename)
+            raise "ERROR: Cache_instance_name %s is not %s" % (cache_instance_name, cachename)
         clearDynaCache( nodename, proxyname, cachename )
 
 def setServletCaching( nodename, servername, enabled, ):
@@ -4753,7 +4753,7 @@ def setServerPort( nodename, servername, endPointName, port, hostname = None ):
         name = AdminConfig.showAttribute(specialEndPoint, "endPointName")
         if name != endPointName:
             # DUP!
-            raise Exception("ERROR: node %s, server %s: trying to set endpoint %s to port number %d, but endpoint %s is already using that port" % (nodename,servername,endPointName,port,name))
+            raise Exception("ERROR: Node %s, server %s: trying to set endpoint %s to port number %d, but endpoint %s is already using that port" % (nodename,servername,endPointName,port,name))
 
 
     ePoint = getEndPoint( nodename = nodename,
@@ -4841,12 +4841,12 @@ def addHostAlias( virtualhostname, aliashostname, port ):
 
     configured_port = getObjectAttribute(new_alias, 'port')
     if configured_port != port:
-        raise "ERROR: requested host alias port %s but got %s" % (port,configured_port)
+        raise "ERROR: Requested host alias port %s but got %s" % (port,configured_port)
     else:
         print "wsadmin says the configured port is %s" % configured_port
 
     if not hostAliasExists(virtualhostname, aliashostname, port):
-        raise "ERROR: host alias does not exist after creating it"
+        raise "ERROR: Host alias does not exist after creating it"
 
 def ensureHostAlias( virtualhostname, aliashostname, port ):
     """Add host alias only if not already there"""
@@ -4863,7 +4863,7 @@ def ensureHostAlias( virtualhostname, aliashostname, port ):
         host_id = createVirtualHost(virtualhostname)
     addHostAlias( virtualhostname, aliashostname, port )
     if not hostAliasExists(virtualhostname, aliashostname, port):
-        raise "ERROR: host alias does not exist after creating it"
+        raise "ERROR: Host alias does not exist after creating it"
 
 def deleteHostAlias( virtualhostname, aliashostname, port ):
     """Deletes host alias"""
@@ -4930,7 +4930,7 @@ def createChain(nodename,servername,chainname,portname,hostname,portnumber,templ
     if not server:
         server = getProxyServerByNodeAndName(nodename, servername)  # Could be a proxy too
     if not server:
-        raise "ERROR: createChain: Cannot find server or proxy on %s named %s" % (nodename,servername)
+        raise "ERROR: CreateChain: Cannot find server or proxy on %s named %s" % (nodename,servername)
     transportchannelservice = _splitlines(AdminConfig.list('TransportChannelService', server))[0]
 
     # Does the end point exist already?
@@ -5245,7 +5245,7 @@ def setChannelCustomProperty(nodename, servername, name, value, channelType, end
     m = "setChannelCustomProperty:"
 
     if not endPointName and not channelName:
-        raise Exception("ERROR: must specify endPointName or channelName")
+        raise Exception("ERROR: Must specify endPointName or channelName")
 
     sop(m,"Entry. Setting channel custom property %s=%s on %s/%s channelType=%s endPointName=%s channelName=%s" % (name,value,nodename,servername,channelType, endPointName, channelName))
 
@@ -5266,7 +5266,7 @@ def setChannelCustomProperty(nodename, servername, name, value, channelType, end
         foundChannel = channel
         break
     if not foundChannel:
-        raise Exception("ERROR: channel not found")
+        raise Exception("ERROR: Channel not found")
     #sop(m,"Found match. Setting property.")
     # Is property present already?
     properties = _splitlines(AdminConfig.list('Property', foundChannel))
@@ -5602,7 +5602,7 @@ def propsToLists(propString):
 
     # Check for leading and trailing square brackets.
     if not (propString.startswith( '[ [' ) and propString.endswith( '] ]' )):
-        raise "ERROR: propString does not start and end with two square brackets. propString=%s" % ( m, propString, )
+        raise "ERROR: PropString does not start and end with two square brackets. propString=%s" % ( m, propString, )
 
     # Strip off the leading and trailing square brackets.
     propString = propString[3:(len(propString) - 3)]
@@ -5635,7 +5635,7 @@ def propsToDictionary(propString):
 
     # Check for leading and trailing square brackets.
     if not (propString.startswith( '[ [' ) and propString.endswith( '] ]' )):
-        raise "%s ERROR: propString does not start and end with two square brackets. propString=%s" % ( m, propString, )
+        raise "%s ERROR: PropString does not start and end with two square brackets. propString=%s" % ( m, propString, )
 
     # Strip off the leading and trailing square brackets.
     propString = propString[3:(len(propString) - 3)]
@@ -5685,7 +5685,7 @@ def stringListToList(stringList):
 
     # Dummy check.
     if not (stringList.startswith( '[' ) and stringList.endswith( ']' )):
-        raise m + " ERROR: stringList does not start and end with square brackets. stringList=%s" % ( m, stringList, )
+        raise m + " ERROR: StringList does not start and end with square brackets. stringList=%s" % ( m, stringList, )
 
     # Strip off the leading and trailing square brackets.
     stringList = stringList[1:(len(stringList) - 1)]
@@ -5708,7 +5708,7 @@ def stringListListToDict(stringListList):
 
     # Dummy check.
     if not (stringListList.startswith( '[' ) and stringListList.endswith( ']' )):
-        raise m + " ERROR: stringListList does not start and end with square brackets. stringListList=%s" % ( m, stringListList, )
+        raise m + " ERROR: StringListList does not start and end with square brackets. stringListList=%s" % ( m, stringListList, )
 
     # Strip off the leading and trailing square brackets.
     stringListList = stringListList[1:(len(stringListList) - 1)].strip()
@@ -5725,14 +5725,14 @@ def stringListListToDict(stringListList):
 
         # Check first list.
         if not (firstListString.startswith( '[' ) and firstListString.endswith( ']' )):
-            raise m + " ERROR: firstListString does not start and end with square brackets. firstListString=%s" % ( m, firstListString, )
+            raise m + " ERROR: FirstListString does not start and end with square brackets. firstListString=%s" % ( m, firstListString, )
         # Strip off the leading and trailing square brackets.
         firstListString = firstListString[1:(len(firstListString) - 1)].strip()
         # sop(m,"firstListString=>>>%s<<< " % ( firstListString ))
         # Get the key and value.
         splitList = firstListString.split(' ',1)
         if 2 != len(splitList):
-            raise m + " ERROR: unexpected contents in first list. Must be of form key space value. firstListString=%s" % ( m, firstListString, )
+            raise m + " ERROR: Unexpected contents in first list. Must be of form key space value. firstListString=%s" % ( m, firstListString, )
         key = splitList[0].strip()
         value = splitList[1].strip()
         # sop(m,"key=%s value=%s" % ( key, value ))
@@ -6413,7 +6413,7 @@ def _getApplicationConfigObject(applicationname, createifneeded = True):
         AdminConfig.create('ApplicationConfig', dep,[])
         appconfs = getObjectsOfType('ApplicationConfig', dep)
     if len(appconfs) > 1:
-        raise Exception("INTERNAL ERROR: found more than one ApplicationConfig object for application %s" % applicationname)
+        raise Exception("INTERNAL ERROR: Found more than one ApplicationConfig object for application %s" % applicationname)
     return appconfs[0]
 
 def _getWebModuleConfigObject(applicationname, modulename, createifneeded = True):
@@ -6433,7 +6433,7 @@ def _getWebModuleConfigObject(applicationname, modulename, createifneeded = True
     # See if there's a WebModuleConfig object
     w = getObjectsOfType('WebModuleConfig', webmoduledeployment)
     if len(w) > 1:
-        raise Exception("INTERNAL ERROR: more than 1 web module config object found")
+        raise Exception("INTERNAL ERROR: More than 1 web module config object found")
     if len(w) == 0 and not createifneeded:
         return None
     if len(w) == 0:
@@ -6458,7 +6458,7 @@ def _getEJBModuleConfigurationObject(applicationname, modulename, createifneeded
     # See if there's a EJBModuleConfiguration object
     w = getObjectsOfType('EJBModuleConfiguration', ejbmoduledeployment)
     if len(w) > 1:
-        raise Exception("INTERNAL ERROR: more than 1 ejb module config object found")
+        raise Exception("INTERNAL ERROR: More than 1 ejb module config object found")
     if len(w) == 0 and not createifneeded:
         return None
     if len(w) == 0:

@@ -73,7 +73,7 @@ sub compile {
             $jdk = "$toolsPath/$jdk";
         }
         else {
-            print("ERROR: jdk $jdk not exists.\n");
+            print("ERROR: Jdk $jdk not exists.\n");
             exit(-1);
         }
     }
@@ -87,7 +87,7 @@ sub compile {
     if ( defined($startPath) and $startPath ne '' ) {
         $codePath = "$codePath/$startPath";
         if ( not -d $codePath ) {
-            print("ERROR: start path:$startPath($codePath) not exists.\n");
+            print("ERROR: Start path:$startPath($codePath) not exists.\n");
             exit(-1);
         }
     }
@@ -99,7 +99,7 @@ sub compile {
         my @codePaths;
 
         if ( defined($startPath) and $startPath ne '' and defined($buildType) and $buildType ne '' ) {
-            print("INFO: start path and build type defined, use $buildType to build $startPath under $prjPath.\n");
+            print("INFO: Start path and build type defined, use $buildType to build $startPath under $prjPath.\n");
             @codePaths = ($codePath);
         }
         else {

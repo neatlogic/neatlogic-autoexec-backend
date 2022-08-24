@@ -32,7 +32,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -81,12 +81,12 @@ if ( defined($appname) and defined($appfile) ) {
         print( $appfile, "\n" );
         print('appnames#####');
         print( $appname, "\n" );
-        print('ERROR: config item:appname and appfile count not match.\n');
+        print('ERROR: Config item:appname and appfile count not match.\n');
     }
 }
 
 if ( ( not defined($appname) and defined($appfile) ) or ( not defined($appname) and not defined($appfile) ) ) {
-    print('ERROR: appname and appfile must mapping correct.\n');
+    print('ERROR: Appname and appfile must mapping correct.\n');
 }
 
 my $isFirstDeploy = 1;

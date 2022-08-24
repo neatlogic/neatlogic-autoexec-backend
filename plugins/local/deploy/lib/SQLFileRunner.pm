@@ -409,19 +409,19 @@ sub execOneSqlFile {
         if ( $hasError == 0 ) {
             if ( defined($spawn) ) {
                 if ( defined( $spawn->exitstatus() ) and $spawn->exitstatus() == 0 ) {
-                    print("\nFINE:execute sql:$sqlFile success.\n");
+                    print("\nFINE: Execute sql:$sqlFile success.\n");
                 }
                 else {
-                    print("\nERROR:execute sql:$sqlFile failed.\n");
+                    print("\nERROR: Execute sql:$sqlFile failed.\n");
                     $hasError = 1;
                 }
             }
             else {
-                print("\nFINE:execute sql:$sqlFile success.\n");
+                print("\nFINE: Execute sql:$sqlFile success.\n");
             }
         }
         else {
-            print("\nERROR:execute sql:$sqlFile failed.\n");
+            print("\nERROR: Execute sql:$sqlFile failed.\n");
             $hasError = 1;
         }
 
@@ -926,7 +926,7 @@ sub testByIpPort {
     my $dbInfo = DBInfo->new( $node, $args );
 
     if ( not defined($dbType) and not defined($dbName) ) {
-        print("ERROR: can not find db type and db name, check the db configuration.\n");
+        print("ERROR: Can not find db type and db name, check the db configuration.\n");
         exit(-1);
     }
 

@@ -343,9 +343,9 @@ sub upload {
         $content = $self->get($location);
     }
 
-    #print("INFO:deploy return json=============\n");
+    #print("INFO: Deploy return json=============\n");
     #print($content, "\n");
-    #print("INFO:===============================\n");
+    #print("INFO: ===============================\n");
 
     return $content;
 }

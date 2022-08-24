@@ -58,7 +58,7 @@ sub exec {
     );
 
     unless ($winrm) {
-        print( "ERROR: can not connect to windows $user\@$host, cause:" . $winrm->errstr . "\n" );
+        print( "ERROR: Can not connect to windows $user\@$host, cause:" . $winrm->errstr . "\n" );
         return -1;
     }
 
@@ -102,8 +102,8 @@ sub exec {
                 #if ( ref($enc) ) {
                 #    $data = $enc->decode($data);
                 #}
-                #print( "ERROR:", $data, "\n" );
-                print( 'ERROR:', $self->decodeLineToUtf8($data), "\n" );
+                #print( "ERROR: ", $data, "\n" );
+                print( 'ERROR: ', $self->decodeLineToUtf8($data), "\n" );
             }
         }
         else {

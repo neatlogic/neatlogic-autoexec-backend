@@ -66,14 +66,14 @@ sub main {
     my $optionError = 0;
 
     if ( scalar(@items) < 2 ) {
-        print("ERROR: must define local path and remote path.\n");
+        print("ERROR: Must define local path and remote path.\n");
         $optionError = 1;
     }
 
     for ( my $i = 0 ; $i < scalar(@items) ; $i++ ) {
         my $dir = $items[$i];
         if ( $dir =~ /\/\.\.\// or $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ ) {
-            print("ERROR: path can not has parent dir opertor:\"..\".\n");
+            print("ERROR: Path can not has parent dir opertor:\"..\".\n");
             $optionError = 1;
         }
         else {
@@ -173,7 +173,7 @@ sub main {
 
             if ( scalar(@aSrcExpanded) == 0 ) {
                 if ( defined($cpIfExists) ) {
-                    print("WARN: the src $aSrc does not match any file!\n");
+                    print("WARN: The src $aSrc does not match any file!\n");
                     next;
                 }
             }
@@ -224,11 +224,11 @@ sub main {
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {
-                print("FINE: pull $host:$dir to $dest success.\n");
+                print("FINE: Pull $host:$dir to $dest success.\n");
             }
             else {
                 $hasError = $hasError + $rc;
-                print("ERROR: pull $host:$dir to $dest failed.\n");
+                print("ERROR: Pull $host:$dir to $dest failed.\n");
                 last;
             }
         }
@@ -237,7 +237,7 @@ sub main {
         foreach my $dir (@dirs) {
             if ( $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ or $dir =~ /\/\.\.\// ) {
                 $hasError = $hasError + 1;
-                print("ERROR: file name can not has '..':$dir.\n");
+                print("ERROR: File name can not has '..':$dir.\n");
                 exit($hasError);
             }
             my $tarScpExec = new TarSCPExec(
@@ -255,11 +255,11 @@ sub main {
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {
-                print("FINE: push $dir to $host:$dest success.\n");
+                print("FINE: Push $dir to $host:$dest success.\n");
             }
             else {
                 $hasError = $hasError + $rc;
-                print("ERROR: push $dir to $host:$dest failed.\n");
+                print("ERROR: Push $dir to $host:$dest failed.\n");
                 last;
             }
         }

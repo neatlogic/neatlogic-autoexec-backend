@@ -75,7 +75,7 @@ sub exec {
 
     if ( $cmd eq '' ) {
         $hasError = $hasError + 1;
-        print("ERROR: command for ssh remote exec not defined.\n");
+        print("ERROR: Command for ssh remote exec not defined.\n");
     }
 
     my $suUser = '';
@@ -225,7 +225,7 @@ sub exec {
 
     if ($logonSucceed) {
         if ( $isVerbose == 1 ) {
-            print("INFO: ssh logon succeed.\n");
+            print("INFO: Ssh logon succeed.\n");
         }
 
         my $lastLine = '';

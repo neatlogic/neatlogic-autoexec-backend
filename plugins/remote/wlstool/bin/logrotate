@@ -44,7 +44,7 @@ sub new {
             $self->{log_fh} = $logfh;
         }
         else {
-            die("ERROR: open log file $v failed:$!\n");
+            die("ERROR: Open log file $v failed:$!\n");
         }
     }
     else {
@@ -239,7 +239,7 @@ sub main() {
     );
 
     if ( not defined($logPath) or $logPath eq '' ){
-        print("ERROR: must defined logpath.\n");
+        print("ERROR: Must defined logpath.\n");
         print("Usage: example: logrotate --maxsize 100 --maxfiles 10 --maxdays=31 --timepat '%Y-%m-%d' /tmp/log/mylog.log\n");
         exit(-1);
     }

@@ -40,7 +40,7 @@ $ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) != 2 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName <config-name> <instance-name> <version>\n");
+    print("ERROR: Use as $progName <config-name> <instance-name> <version>\n");
     exit(1);
 }
 
@@ -103,7 +103,7 @@ $appFile =~ s/\s*//g;
 my @appFiles = split( ",", $appFile );
 
 if ( scalar(@appNames) != scalar(@appFiles) ) {
-    print("ERROR: config error, appfile number is not same as appname number.\n");
+    print("ERROR: Config error, appfile number is not same as appname number.\n");
     exit(1);
 }
 
@@ -121,7 +121,7 @@ if ( $needDeploy == 1 ) {
     }
     if ( not -e $backupPath ) {
         if ( not mkpath($backupPath) ) {
-            print("ERROR: create backup dir:$backupPath failed.\n");
+            print("ERROR: Create backup dir:$backupPath failed.\n");
             exit(-1);
         }
     }
@@ -171,10 +171,10 @@ if ( $needDeploy == 1 ) {
 
                 my $rollbackStatus = $patcher->rollback( "$insName.$appName", $version );
                 if ( $rollbackStatus == 0 ) {
-                    print("INFO: rollback $targetDir version $version succeed.\n");
+                    print("INFO: Rollback $targetDir version $version succeed.\n");
                 }
                 else {
-                    print("INFO: rollback $targetDir version $version failed.\n");
+                    print("INFO: Rollback $targetDir version $version failed.\n");
                     exit(-1);
                 }
 
@@ -206,10 +206,10 @@ if ( $needDeploy == 1 ) {
                 if ( -d $ihsTargetDir ) {
                     my $rollbackStatus = $patcher->rollback( "$insName.$appName.warihs", $version );
                     if ( $rollbackStatus == 0 ) {
-                        print("INFO: rollback $targetDir version $version succeed.\n");
+                        print("INFO: Rollback $targetDir version $version succeed.\n");
                     }
                     else {
-                        print("INFO: rollback $targetDir version $version failed.\n");
+                        print("INFO: Rollback $targetDir version $version failed.\n");
                         exit(-1);
                     }
                 }
@@ -248,10 +248,10 @@ if ( $needDeploy == 1 ) {
 
                 my $rollbackStatus = $patcher->rollback( "$insName.$appName", $version );
                 if ( $rollbackStatus == 0 ) {
-                    print("INFO: rollback $targetDir version $version succeed.\n");
+                    print("INFO: Rollback $targetDir version $version succeed.\n");
                 }
                 else {
-                    print("INFO: rollback $targetDir version $version failed.\n");
+                    print("INFO: Rollback $targetDir version $version failed.\n");
                     exit(-1);
                 }
 
@@ -266,22 +266,22 @@ if ( $needDeploy == 1 ) {
             if ( defined($ihsRoot) and $ihsRoot ne '' and ( -d $ihsRoot ) and $ihsRoot ne '/' ) {
                 my $rollbackStatus = $patcher->rollback( "$insName.$appName.earihs", $version );
                 if ( $rollbackStatus == 0 ) {
-                    print("INFO: rollback $ihsRoot version $version succeed.\n");
+                    print("INFO: Rollback $ihsRoot version $version succeed.\n");
                 }
                 else {
-                    print("INFO: rollback $ihsRoot version $version failed.\n");
+                    print("INFO: Rollback $ihsRoot version $version failed.\n");
                     exit(-1);
                 }
             }
         }
         else {
             my $suffix = $appFile;
-            print("ERROR: file type of $appFile is not supported.\n");
+            print("ERROR: File type of $appFile is not supported.\n");
             $rc = 1;
         }
     }
     if ( $isFirstDeploy == 1 and -d $wasprofile ) {
-        print("WARN: application $configName $insName not deploy yet.\n");
+        print("WARN: Application $configName $insName not deploy yet.\n");
     }
 }
 else {

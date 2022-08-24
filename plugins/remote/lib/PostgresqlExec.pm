@@ -82,7 +82,7 @@ sub new {
 
 sub _parseOutput {
     my ( $self, $output, $isVerbose ) = @_;
-    my @lines = split( /\n/, $output );
+    my @lines      = split( /\n/, $output );
     my $linesCount = scalar(@lines);
 
     my $hasError   = 0;

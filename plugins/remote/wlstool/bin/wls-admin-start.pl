@@ -34,7 +34,7 @@ sub main {
 
     if ( scalar(@ARGV) < 1 ) {
         my $progName = $FindBin::Script;
-        print("ERROR:use as $progName config-name instance-name\n");
+        print("ERROR: Use as $progName config-name instance-name\n");
         exit(1);
     }
 
@@ -115,7 +115,7 @@ sub main {
                 my $precheckUrl = $config->{"$appname.precheckurl"};
                 if ( defined($precheckUrl) and $precheckUrl ne '' ) {
                     if ( not Utils::CheckUrlAvailable( $precheckUrl, "GET", $timeout ) ) {
-                        print("ERROR: pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
+                        print("ERROR: Pre-check url $precheckUrl is not available in $timeout s, starting halt.\n");
                         exit(1);
                     }
                 }
@@ -213,10 +213,10 @@ sub main {
                     my $checkUrl = $config->{"$servername.$appname.checkurl"};
                     if ( defined($checkUrl) and $checkUrl ne '' ) {
                         if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
-                            print("INFO: app $appname started.\n");
+                            print("INFO: App $appname started.\n");
                         }
                         else {
-                            print("ERROR: app $appname start failed.\n");
+                            print("ERROR: App $appname start failed.\n");
                             $rc = 2;
                         }
                     }
@@ -228,10 +228,10 @@ sub main {
             $checkUrl =~ s/^t3/http/i;
             if ( defined($checkUrl) and $checkUrl ne '' ) {
                 if ( Utils::CheckUrlAvailable( $checkUrl, "GET", $timeout, \@serverLogInfos ) ) {
-                    print("INFO: admin $adminServerName started.\n");
+                    print("INFO: Admin $adminServerName started.\n");
                 }
                 else {
-                    print("ERROR: admin $adminServerName start failed.\n");
+                    print("ERROR: Admin $adminServerName start failed.\n");
                     $rc = 2;
                 }
             }

@@ -266,7 +266,7 @@ class PhaseExecutor:
                 pauseWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to pause woker.\n", end='')
+                print("ERROR: Unable to start thread to pause woker.\n", end='')
 
         for t in pauseWorkers:
             t.join()
@@ -293,7 +293,7 @@ class PhaseExecutor:
                 killWorkers.append(t)
                 i = i+1
             except:
-                print("ERROR: unable to start thread to kill woker.\n", end='')
+                print("ERROR: Unable to start thread to kill woker.\n", end='')
 
         for t in killWorkers:
             t.join()

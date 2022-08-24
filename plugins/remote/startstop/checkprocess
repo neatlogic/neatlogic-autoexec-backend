@@ -91,20 +91,20 @@ sub main {
     if ( not defined($countExp) ) {
         $optError = 1;
         $rc       = 1;
-        print("ERROR: option --checkexp not defined.\n");
+        print("ERROR: Option --checkexp not defined.\n");
     }
     else {
         if ( $countExp !~ />\d+|<\d+|>=\d+|<=\d+|==\d+/ ) {
             $optError = 1;
             $rc       = 1;
-            print("ERROR: malform expression for --checkexp. check arguments of option checkexp\n");
+            print("ERROR: Malform expression for --checkexp. check arguments of option checkexp\n");
         }
     }
 
     if ( scalar(@patterns) == 0 ) {
         $optError = 1;
         $rc       = 1;
-        print("ERROR: there is no pattern provided.\n");
+        print("ERROR: There is no pattern provided.\n");
     }
 
     if ( $optError == 1 ) {
@@ -119,11 +119,11 @@ sub main {
     }
     else {
         if ( $satisfied ne 1 ) {
-            print("ERROR: not passed, process count:$procCount$countExp.\n");
+            print("ERROR: Not passed, process count:$procCount$countExp.\n");
             $rc = 1;
         }
         else {
-            print("INFO: passed, process count:$procCount$countExp.\n");
+            print("INFO: Passed, process count:$procCount$countExp.\n");
         }
     }
 

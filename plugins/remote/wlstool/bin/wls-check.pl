@@ -13,7 +13,7 @@ my $rc = 0;
 
 if ( scalar(@ARGV) < 1 ) {
     my $progName = $FindBin::Script;
-    print("ERROR:use as $progName config-name instance-name\n");
+    print("ERROR: Use as $progName config-name instance-name\n");
     exit(1);
 }
 
@@ -54,7 +54,7 @@ if ( not -f "$domainHome/config/config.xml" ) {
 }
 
 if ( not defined($wls_user) or $wls_user eq '' ) {
-    print("ERROR: wls_user not defined:wls_user=$wls_user\n");
+    print("ERROR: Wls_user not defined:wls_user=$wls_user\n");
     $rc = 4;
 }
 
@@ -80,7 +80,7 @@ if ( defined($appname) ) {
             print("SUCCESS: app dir check OK, $targetDir exists.\n");
         }
         else {
-            print("INFO: app dir:$targetDir not exists, maybe app $appname not deploy yet.\n");
+            print("INFO: App dir:$targetDir not exists, maybe app $appname not deploy yet.\n");
         }
     }
 }

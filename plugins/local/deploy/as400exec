@@ -121,7 +121,7 @@ sub main {
     my $pid = open2( $cmdOut, $cmdIn, $as400JavaCmd );
 
     if ( not defined($pid) or $pid == 0 ) {
-        print("ERROR: spawn $as400JavaCmd failed.\n");
+        print("ERROR: Spawn $as400JavaCmd failed.\n");
         exit(1);
     }
 

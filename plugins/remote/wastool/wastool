@@ -117,7 +117,7 @@ sub main {
     my $hasError = 0;
 
     if ( $opts{was_profile} eq '' or $opts{admin_url} eq '' ) {
-        print("ERROR: was_profile and admin_url must to be defined.\n");
+        print("ERROR: Was_profile and admin_url must to be defined.\n");
         $hasError = 1;
     }
 

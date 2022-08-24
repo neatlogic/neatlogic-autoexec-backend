@@ -83,7 +83,7 @@ sub new {
 
     $ENV{MYSQL_HISTFILE} = '/dev/null';
 
-    print(qq{INFO: obclient -vs -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
+    print(qq{INFO: Obclient -vs -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
 
     my $spawn = Expect->spawn(qq{obclient -vs -h$host -P$port -u"$user" -p"$pass" -A -D"$dbName"});
 
@@ -141,12 +141,12 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: obclient $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Obclient $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
         my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
         print($errMsg );
-        print("ERROR: obclient $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Obclient $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -195,11 +195,11 @@ sub run {
         elsif ( $hasError == 1 ) {
             print($errMsg) if ( $errMsg ne "\n" );
 
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -243,7 +243,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: obclient exit abnormal.\n");
+            print("ERROR: Obclient exit abnormal.\n");
 
             $isFail = 1;
         }

@@ -54,7 +54,7 @@ sub login {
     $ret = $spawn->expect( 10, '-re', qr/$PROMPT/i );
     exitIfFail( $ret, "logon timeout" );
 
-    #print("INFO: login successful.\n");
+    #print("INFO: Login successful.\n");
 }
 
 sub closeSpawn {
@@ -79,7 +79,7 @@ sub dispatchCmd {
         sendCmd( $spawn, $cmd );
     }
     elsif ( $cmd !~ /^#/ and $cmd ne '' ) {
-        print("INFO:$cmd\n") if ( $IS_VERBOSE eq 0 );
+        print("INFO: $cmd\n") if ( $IS_VERBOSE eq 0 );
     }
 }
 
@@ -90,12 +90,12 @@ sub expectCmd {
     $patStrs =~ s/"\s*$//;
     my @patterns = split( /"\s*,\s*"/, $patStrs );
 
-    #print("INFO:Expect:", join(',', @patterns), "\n");
+    #print("INFO: Expect:", join(',', @patterns), "\n");
     my $ret = $spawn->expect( $TIMEOUT, @patterns );
 
     my $before = $spawn->before();
     if ( $before =~ /failed/i ) {
-        print("ERROR: run failed.\n");
+        print("ERROR: Run failed.\n");
     }
 }
 
@@ -106,7 +106,7 @@ sub sendCmd {
     my @cmds = split( /"\s*,\s*"/, $cmdStrs );
     foreach my $cmd (@cmds) {
 
-        #print("INFO: send cmd:$cmd\n");
+        #print("INFO: Send cmd:$cmd\n");
         #eval{$spawn->send("$cmd")};
         eval("\$spawn->send(\"$cmd\")");
         $spawn->expect( $TIMEOUT, '-re', '..' );
@@ -121,7 +121,7 @@ sub iconvToUtf8 {
     if ( $CHARSET ne 'utf-8' and $CHARSET ne 'utf8' ) {
         my ( $pid, $cmdPipe );
 
-        #print("INFO:sh cmd:$cmd\n");
+        #print("INFO: Sh cmd:$cmd\n");
         my ( $in, $out );
         if ( $pid = open3( \*CHLD_IN, \*CHLD_OUT, \*CHLD_ERR, "iconv -f $CHARSET -t utf-8" ) ) {
             close(CHLD_ERR);
@@ -143,11 +143,11 @@ sub iconvToUtf8 {
 sub compoundCmd {
     my ( $spawn, $cmd ) = @_;
 
-    #print("\nINFO: exec compoundCmd $cmd\n");
+    #print("\nINFO: Exec compoundCmd $cmd\n");
 
     my ( $pid, $cmdPipe );
 
-    #print("INFO:sh cmd:$cmd\n");
+    #print("INFO: Sh cmd:$cmd\n");
     if ( $pid = open( $cmdPipe, "$cmd |" ) ) {
         my $line;
         while ( $line = <$cmdPipe> ) {
@@ -162,7 +162,7 @@ sub compoundCmd {
 
         if ( $exitCode ne 0 and $cmd !~ /^sleep/ ) {
             print("\n\n");
-            print("ERROR:execute compound command:$cmd failed, it's exit code:$exitCode\n");
+            print("ERROR: Execute compound command:$cmd failed, it's exit code:$exitCode\n");
             exit(-1);
         }
 
@@ -170,7 +170,7 @@ sub compoundCmd {
     }
     else {
         print("\n\n");
-        print("ERROR: can not execute command $cmd\n");
+        print("ERROR: Can not execute command $cmd\n");
         exit(-1);
     }
 }
@@ -242,7 +242,7 @@ sub main {
     }
     $exp->max_accum(4096);
 
-    #print("INFO:execute telnet cmd with verbose:$isVerbose\n");
+    #print("INFO: Execute telnet cmd with verbose:$isVerbose\n");
     my $spawn = $exp->spawn("telnet $host $port");
     login( $spawn, $user, $pass );
 

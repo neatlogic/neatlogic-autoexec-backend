@@ -24,12 +24,12 @@ servernames = servername.split(',')
 
 deployAppnames = listApplications()
 if deployAppnames is not None:
-	print('INFO: installed apps:', deployAppnames)
+	print('INFO: Installed apps:', deployAppnames)
 else:
-	print('ERROR: call wsadmin failed, check was config items.\n')
+	print('ERROR: Call wsadmin failed, check was config items.\n')
 
 servers = listAllServers()
-print('INFO: servers:', servers)
+print('INFO: Servers:', servers)
 
 for servername in servernames:
 	nodeAndServer = None
@@ -37,5 +37,5 @@ for servername in servernames:
 		if servername in nodeAndServer:
 			print('SUCCESS: servername:%s is OK.\n')
 		else:
-			print('ERROR: config item servername:%s not exists.\n' % servername)
+			print('ERROR: Config item servername:%s not exists.\n' % servername)
 

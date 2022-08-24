@@ -79,7 +79,7 @@ sub main {
             $data->{AVAILABILITY}  = 1;
             $data->{ERROR_MESSAGE} = '';
         }
-        print("FINE: ssh logon succeed.\n");
+        print("FINE: Ssh logon succeed.\n");
     }
     else {
         $data->{ERROR_MESSAGE} = $ssh->error;

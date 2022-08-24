@@ -67,9 +67,9 @@ class K8sAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            print("ERROR::Request url:{} failed, {}".format(url, errMsg))
+            print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
         except URLError as ex:
-            print("ERROR::Request url:{} failed, {}\n".format(url, ex.reason))
+            print("ERROR: :Request url:{} failed, {}\n".format(url, ex.reason))
         return response
 
     def httpGET(self, apiUri, authToken, params=None):
@@ -91,9 +91,9 @@ class K8sAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-                print("ERROR::Request url:{} failed, {}".format(url, errMsg))
+                print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
         except URLError as ex:
-            print("ERROR::Request url:{} failed, {}".format(url, ex.reason))
+            print("ERROR: :Request url:{} failed, {}".format(url, ex.reason))
 
         return response
 
@@ -115,9 +115,9 @@ class K8sAdapter:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            print("ERROR::Request url:{} failed, {}".format(url, errMsg))
+            print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
         except URLError as ex:
-            print("ERROR::Request url:{} failed, {}".format(url, ex.reason))
+            print("ERROR: :Request url:{} failed, {}".format(url, ex.reason))
         return response
 
     def getKeyValue(self , data) : 
@@ -252,7 +252,7 @@ class K8sAdapter:
                 node['RUN_OS'] = {"_OBJ_CATEGORY" : "OS", "_OBJ_TYPE" : os_type, "MGMT_IP" : os_ip}
                 nodes.append(node)
         else:
-            print("ERROR::Request k8s nodes info failed .\n")
+            print("ERROR: :Request k8s nodes info failed .\n")
         return nodes
 
 
@@ -276,7 +276,7 @@ class K8sAdapter:
                 namespace['STATUS'] = namespaceObj['status']['phase']
                 namespaces.append(namespace)
         else:
-            print("ERROR::Request k8s namespaces failed . \n")
+            print("ERROR: :Request k8s namespaces failed . \n")
         return namespaces 
     
     def getDeployment(self , namespace) : 
@@ -371,7 +371,7 @@ class K8sAdapter:
                 
                 deployments.append(deploy)
         else:
-            print("ERROR::Request k8s deployment failed . \n")
+            print("ERROR: :Request k8s deployment failed . \n")
         return deployments
 
     def getReplicasets(self , namespace) :
@@ -448,7 +448,7 @@ class K8sAdapter:
 
                     replicasets.append(replicaset)
         else:
-            print("ERROR::Request k8s replicasets failed . \n")
+            print("ERROR: :Request k8s replicasets failed . \n")
         return replicasets
 
     def getPods(self , namespace , nodes) :
@@ -563,7 +563,7 @@ class K8sAdapter:
                 #docker containers 是否采集? 
                 pods.append(pod)
         else:
-            print("ERROR::Request k8s pods failed . \n")
+            print("ERROR: :Request k8s pods failed . \n")
         return pods
 
     def getServices(self , namespace , pods) :
@@ -665,7 +665,7 @@ class K8sAdapter:
 
                 services.append(service)
         else:
-            print("ERROR::Request k8s servicess failed . \n")
+            print("ERROR: :Request k8s servicess failed . \n")
         return services
 
     def getIngressRules(self, rule) :

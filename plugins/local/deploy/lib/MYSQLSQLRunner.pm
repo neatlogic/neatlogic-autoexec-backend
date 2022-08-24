@@ -84,7 +84,7 @@ sub new {
     $ENV{LD_LIBRARY_PATH} = "$mysqlHome/lib:" . $ENV{LD_LIBRARY_PATH};
     $ENV{MYSQL_HISTFILE}  = '/dev/null';
 
-    print(qq{INFO: mysql -v -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
+    print(qq{INFO: Mysql -v -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
     my $spawn = Expect->spawn(qq{mysql -v -h$host -P$port -u"$user" -p"$pass" -A -D"$dbName"});
 
     if ( not defined($spawn) ) {
@@ -142,12 +142,12 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: mysql $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Mysql $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
         my $errMsg = DeployUtils->convToUTF8( $spawn->before() );
         print($errMsg );
-        print("ERROR: mysql $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Mysql $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -200,11 +200,11 @@ sub run {
         elsif ( $hasError == 1 ) {
             print($errMsg) if ( $errMsg ne "\n" );
 
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -248,7 +248,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: mysql exit abnormal.\n");
+            print("ERROR: Mysql exit abnormal.\n");
 
             $isFail = 1;
         }

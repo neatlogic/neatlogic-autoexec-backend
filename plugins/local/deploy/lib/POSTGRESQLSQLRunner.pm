@@ -147,11 +147,11 @@ sub test {
 
     if ( $hasLogon == 1 ) {
         $self->{hasLogon} = 1;
-        print("INFO: postgresql $user\@//$host:$port/$dbName connection test success.\n");
+        print("INFO: Postgresql $user\@//$host:$port/$dbName connection test success.\n");
     }
     else {
         print( $spawn->before() );
-        print("ERROR: postgresql $user\@//$host:$port/$dbName connection test failed.\n");
+        print("ERROR: Postgresql $user\@//$host:$port/$dbName connection test failed.\n");
     }
 
     return $hasLogon;
@@ -205,11 +205,11 @@ sub run {
 
         #ORA 错误
         elsif ( $hasError == 1 ) {
-            print("\nERROR: some error occurred, check the log for detail.\n");
+            print("\nERROR: Some error occurred, check the log for detail.\n");
 
             my $opt;
             if ( $isAutoCommit == 1 ) {
-                print("\nWARN: autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
+                print("\nWARN: Autocommit is on, select 'ignore' to continue, 'abort' to abort the job.\n");
                 if ( $self->{isInteract} == 1 ) {
                     my $sqlFileStatus = $self->{sqlFileStatus};
                     $opt = $sqlFileStatus->waitInput( 'Execute failed, select action(ignore|abort)', $pipeFile );
@@ -256,7 +256,7 @@ sub run {
 
         #段错误, sqlplus bug
         if ( defined($sqlexecStatus) and $sqlexecStatus != 0 ) {
-            print("ERROR: postgresql exit abnormal.\n");
+            print("ERROR: Postgresql exit abnormal.\n");
 
             $isFail = 1;
         }
@@ -321,7 +321,7 @@ sub run {
             undef,
             [
 
-                #psql:pgtest.root/2.test.sql:1: ERROR:  syntax error at or near "select1"
+                #psql:pgtest.root/2.test.sql:1: ERROR: Syntax error at or near "select1"
                 qr/\n(psql:)?($sqlFile:\d+:)?\s*(ERROR|FATAL):\s*(.*?)(?=\n)/ => sub {
                     my $matchContent = DeployUtils->convToUTF8( $spawn->match() );
                     $matchContent =~ /(ERROR|FATAL):(.*?)\s*$/s;

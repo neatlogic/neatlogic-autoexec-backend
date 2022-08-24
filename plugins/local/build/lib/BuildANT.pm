@@ -35,7 +35,7 @@ sub build {
     my $antHome = "$toolsPath/ant$makeToolVer";
 
     if ( not -e $antHome ) {
-        print("ERROR: ant not found in dir:$antHome, check if ant version $makeToolVer is installed.\n");
+        print("ERROR: Ant not found in dir:$antHome, check if ant version $makeToolVer is installed.\n");
     }
 
     $ENV{ANT_HOME}  = $antHome;
@@ -52,7 +52,7 @@ sub build {
     }
 
     my $cmd = "ant $silentOpt $args";
-    print("INFO:execute->$cmd\n");
+    print("INFO: Execute->$cmd\n");
     my $ret = DeployUtils->execmd($cmd);
 
     return $ret;
