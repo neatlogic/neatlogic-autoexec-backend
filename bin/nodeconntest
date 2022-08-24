@@ -60,7 +60,7 @@ if __name__ == "__main__":
         nodeName = nodeInfo['nodeName']
         nodeType = nodeInfo['nodeType']
         host = nodeInfo['host']
-        port = nodeInfo['port']
+        port = str(nodeInfo['port'])
         protocolPort = nodeInfo['protocolPort']
         username = nodeInfo['username']
         password = nodeInfo['password']
@@ -94,8 +94,8 @@ if __name__ == "__main__":
         homePath = os.path.realpath(binPaths[0]+'/..')
         os.environ['AUTOEXEC_HOME'] = homePath
         os.environ['PERL5LIB'] = '%s/plugins/local/deploy/lib:%s/plugins/local/lib:%s/plugins/local/pllib/lib/perl5' % (homePath, homePath, homePath)
-        cmd = '%s/plugins/local/deploy/dbconntest' % (homePath)
-        os.execl(cmd, '--dbtype', nodeType, '--host', host, '--port', port, '--dbname', nodeName, '--username', username, '--password', password)
+        cmdPath = '%s/plugins/local/deploy' % (homePath)
+        os.execl(cmdPath, 'dbconntest', '--dbtype', nodeType, '--host', host, '--port', port, '--dbname', nodeName, '--username', username, '--password', password)
     elif protocol == 'snmp':
         iterator = getCmd(
             SnmpEngine(),

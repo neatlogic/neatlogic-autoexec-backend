@@ -48,8 +48,8 @@ sub new {
             'getOtherSiteEnvVer' => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
 
             #autocfg和DB配置自动生成
-            'addAutoCfgKeys' => '',
-            'addDBSchemas'   => '',
+            'addAutoCfgKeys' => '/codedriver/api/rest/deploy/app/config/env/db/config/autoCfgKeys/save/forautoexec',
+            'addDBSchemas'   => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
 
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
@@ -404,10 +404,6 @@ sub getOtherSiteEnvVer {
 sub addAutoCfgKeys {
     my ( $self, $deployEnv, $autoCfgKeys ) = @_;
 
-    #remove after TEST
-    return;
-    ############
-
     if ( not defined($autoCfgKeys) or scalar(@$autoCfgKeys) == 0 ) {
         return;
     }
@@ -425,10 +421,6 @@ sub addAutoCfgKeys {
 
 sub addDBSchemas {
     my ( $self, $deployEnv, $dbSchemas ) = @_;
-
-    #remove after TEST
-    return;
-    ############
 
     if ( not defined($dbSchemas) or scalar(@$dbSchemas) == 0 ) {
         return;
