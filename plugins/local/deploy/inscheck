@@ -81,7 +81,7 @@ sub main {
             print("ERROR: Tagent test failed.\n");
         }
         else {
-            print("FINEST: Tagent test succeed.\n");
+            print("FINE: Tagent test succeed.\n");
         }
     }
     elsif ( $protocol eq 'ssh' ) {
@@ -99,7 +99,7 @@ sub main {
         if ( not $ssh->error ) {
             my $out = $ssh->capture("echo HEALTH_OK");
             if ( $out =~ /HEALTH_OK/ ) {
-                print("FINEST: SSH logon succeed.\n");
+                print("FINE: SSH logon succeed.\n");
             }
             else {
                 print("ERROR: SSH test failed.\n");

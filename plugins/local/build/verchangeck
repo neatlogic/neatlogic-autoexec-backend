@@ -106,7 +106,7 @@ sub main {
     my $ret    = $verGet->checkChangedAfterCompiled();
 
     if ( $ret eq 0 ) {
-        print("FINEST: $namePath version:$version source code not changed after compiled.\n");
+        print("FINE: $namePath version:$version source code not changed after compiled.\n");
     }
     else {
         my $versionInfo = {

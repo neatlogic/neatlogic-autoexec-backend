@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
                 if fileMd5 != oldMd5:
                     result = AutoExecUtils.uploadFile(fullPath, 'inspectconfigfile')
-                    print("INFO: Upload file %s to storage success." % (serverPath))
+                    print("FINE: Upload file %s to storage success." % (serverPath))
                     fileId = result['id']
                     result = AutoExecUtils.txtFileInspectSave({
                         "resourceId": resourceId,
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                         "md5": None,
                         "fileId": None
                     })
-                print("INFO: Save file %s inspect information success." % (serverPath))
+                print("FINE: Save file %s inspect information success." % (serverPath))
             except Exception as ex:
                 hasError = 2
                 if fileId is not None:

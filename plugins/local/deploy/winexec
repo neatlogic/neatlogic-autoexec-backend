@@ -83,7 +83,7 @@ sub main {
     my $result = $winCmd->exec();
 
     if ( $result eq 0 ) {
-        print("FINEST: execute command: $cmd success.\n");
+        print("FINE: execute command: $cmd success.\n");
     }
     else {
         $hasError = 1;

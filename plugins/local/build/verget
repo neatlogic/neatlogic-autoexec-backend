@@ -146,7 +146,7 @@ sub main {
     my $desc = "Get version for $namePath version:$version";
     if ( $ret eq 0 ) {
         $versionInfo->{status} = 'pending';
-        print("FINEST: $desc success.\n");
+        print("FINE: $desc success.\n");
     }
     else {
         $versionInfo->{status} = 'failed';

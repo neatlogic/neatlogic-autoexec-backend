@@ -198,7 +198,7 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        print("FINEST: $pname $envPath $version success.\n");
+        print("FINE: $pname $envPath $version success.\n");
     }
     else {
         print("ERROR: $pname $envPath $version failed.\n");

@@ -239,7 +239,7 @@ sub main {
     }
 
     if ( $ret == 0 ) {
-        print("FINEST: $pname --$direction $src $dest success.\n");
+        print("FINE: $pname --$direction $src $dest success.\n");
     }
     else {
         print("ERROR: $pname --$direction $src $dest failed.\n");

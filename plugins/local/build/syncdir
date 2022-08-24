@@ -134,7 +134,7 @@ sub main {
             print("ERROR: $pname $namePath version:$version failed.\n");
         }
         else {
-            print("FINEST: $pname $namePath version:$version success.\n");
+            print("FINE: $pname $namePath version:$version success.\n");
         }
     }
 

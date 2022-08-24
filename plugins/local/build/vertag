@@ -110,7 +110,7 @@ sub main {
 
     my $desc = "Create tag for $namePath version:$version";
     if ( $ret eq 0 ) {
-        print("FINEST: $desc success.\n");
+        print("FINE: $desc success.\n");
     }
     else {
         my $versionInfo = {

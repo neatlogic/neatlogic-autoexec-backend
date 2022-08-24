@@ -54,9 +54,9 @@ sub main {
     }
     $cmd = $cmd . " $target";
     my $ret = `$cmd`;
-    
+
     if ( $? == 0 ) {
-        print("FINEST: Umount $target success.\n");
+        print("FINE: Umount $target success.\n");
     }
     else {
         print("ERROR: Umount $target failed.\n");

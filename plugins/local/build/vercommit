@@ -107,7 +107,7 @@ sub main {
 
     my $desc = "Merge $namePath version:$version to trunk";
     if ( $ret eq 0 ) {
-        print("FINEST: $desc success.\n");
+        print("FINE: $desc success.\n");
     }
     else {
         print("ERROR: $desc failed.\n");

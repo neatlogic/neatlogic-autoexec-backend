@@ -328,7 +328,7 @@ sub main {
 
     if ( $isFail eq 0 ) {
         $versionInfo->{status} = 'compiled';
-        print("FINEST:build $envPath $version success.\n");
+        print("FINE:build $envPath $version success.\n");
     }
     else {
         $versionInfo->{status} = 'compile-failed';

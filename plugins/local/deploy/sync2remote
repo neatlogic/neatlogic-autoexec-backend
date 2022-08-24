@@ -233,7 +233,7 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        print("FINEST: Sync $src $directDesc $desc success.\n");
+        print("FINE: Sync $src $directDesc $desc success.\n");
     }
     else {
         print("ERROR: Sync $src $directDesc $desc failed.\n");

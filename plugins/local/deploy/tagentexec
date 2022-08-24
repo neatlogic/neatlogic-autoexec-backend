@@ -125,7 +125,7 @@ sub main {
     }
 
     if ( $exitStatus eq 0 ) {
-        print("FINEST: tagent remote exec success.\n");
+        print("FINE: tagent remote exec success.\n");
     }
     else {
         $hasError = $hasError + $exitStatus;

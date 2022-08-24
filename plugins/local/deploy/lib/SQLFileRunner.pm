@@ -409,7 +409,7 @@ sub execOneSqlFile {
         if ( $hasError == 0 ) {
             if ( defined($spawn) ) {
                 if ( defined( $spawn->exitstatus() ) and $spawn->exitstatus() == 0 ) {
-                    print("\nFINEST:execute sql:$sqlFile success.\n");
+                    print("\nFINE:execute sql:$sqlFile success.\n");
                 }
                 else {
                     print("\nERROR:execute sql:$sqlFile failed.\n");
@@ -417,7 +417,7 @@ sub execOneSqlFile {
                 }
             }
             else {
-                print("\nFINEST:execute sql:$sqlFile success.\n");
+                print("\nFINE:execute sql:$sqlFile success.\n");
             }
         }
         else {
@@ -630,7 +630,7 @@ sub execSqlFiles {
                 print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
-                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
+                print("FINE: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
         }
 
@@ -717,7 +717,7 @@ sub execSqlFileSets {
             delete( $runnerPidsMap->{$pid} );
 
             if ( $hasError == 0 ) {
-                print("FINEST: Execute $sqlFile return status:$sqlStatus.\n\n");
+                print("FINE: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
                 print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");

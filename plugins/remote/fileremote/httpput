@@ -81,7 +81,7 @@ sub main {
         }
         eval {
             $webCtl->upload( $addr, 'file', $localDir, {}, {} );
-            print("FINEST: Upload $localDir to $addr success.\n");
+            print("FINE: Upload $localDir to $addr success.\n");
         };
         if ($@) {
             $errorCode = $errorCode + 1;

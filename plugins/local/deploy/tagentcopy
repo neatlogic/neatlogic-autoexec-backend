@@ -240,7 +240,7 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        print( "FINEST: $pname --$direction " . join( ',', @dirs ) . " $dest success.\n" );
+        print( "FINE: $pname --$direction " . join( ',', @dirs ) . " $dest success.\n" );
     }
     else {
         print( "ERROR: $pname --$direction " . join( ',', @dirs ) . " $dest failed.\n" );

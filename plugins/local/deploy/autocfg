@@ -249,7 +249,7 @@ sub main {
         print("ERROR: Auto config $namePath version:$version failed.\n");
     }
     else {
-        print("FINEST: Auto config $namePath version:$version success.\n");
+        print("FINE: Auto config $namePath version:$version success.\n");
     }
 
     my $keysNotConf = $autocfg->{keysNotConf};

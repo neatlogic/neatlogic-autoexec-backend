@@ -50,7 +50,7 @@ sub switchToStandby {
         }
         if ( $switchoverStatus eq 'TO PRIMARY' or $switchoverStatus eq 'SESSIONS ACTIVE' ) {
             $switched = 1;
-            print("FINEST: Switch success.\n");
+            print("FINE: Switch success.\n");
         }
         sleep(2);
         $loopCount--;

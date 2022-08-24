@@ -84,7 +84,7 @@ sub main {
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
     else {
-        print("FINEST: Release $namePath version:$version build($buildNo) to $envName success.\n");
+        print("FINE: Release $namePath version:$version build($buildNo) to $envName success.\n");
         $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
 

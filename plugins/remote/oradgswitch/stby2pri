@@ -50,7 +50,7 @@ sub switchToPrimary {
         }
         if ( $openMode eq 'MOUNTED' or $openMode eq 'READ WRITE' ) {
             $switched = 1;
-            print("FINEST: Switch to primary success.\n");
+            print("FINE: Switch to primary success.\n");
         }
         sleep(2);
         $loopCount--;

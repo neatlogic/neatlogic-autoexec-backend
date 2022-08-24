@@ -34,7 +34,7 @@ sub main {
     foreach my $appName (@appNames) {
         if ( $wlsDeployer->isAdminServer() ) {
             if ( $wlsDeployer->stopApp($appName) ) {
-                print("FINEST: stop $appName suceed.\n");
+                print("FINE: stop $appName suceed.\n");
 
                 #if ( $wlsDeployer->removeAppTmp( $serverName, $appName ) ) {
                 #    print("INFO: remove $appName tmp dir succeed.\n");

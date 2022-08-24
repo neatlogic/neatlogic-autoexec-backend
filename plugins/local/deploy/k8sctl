@@ -271,7 +271,7 @@ sub main {
                 my $running = $podInfo->{'running'};
                 my $failed  = $podInfo->{'failed'};
                 if ( $desired == ( $running + $failed ) ) {
-                    print("FINEST: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
+                    print("FINE: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
                     last;
                 }
                 else {
@@ -283,7 +283,7 @@ sub main {
             }
         }
         if ( defined($name) and defined($image) ) {
-            print("FINEST: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
+            print("FINE: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
         }
     }
 

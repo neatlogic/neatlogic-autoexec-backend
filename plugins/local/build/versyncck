@@ -108,7 +108,7 @@ sub main {
     my $ret    = $verGet->checkBaseLineMerged();
 
     if ( $ret eq 0 ) {
-        print("FINEST: $namePath version:$version has merged baseline changes.\n");
+        print("FINE: $namePath version:$version has merged baseline changes.\n");
     }
     else {
         my $versionInfo = {

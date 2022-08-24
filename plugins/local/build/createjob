@@ -217,7 +217,7 @@ sub main {
                 print("ERROR: can not get job status for jobId:$createdJobId on $proxyToUrl\n");
             }
             elsif ( $jobStatus eq 'completed' or $jobStatus eq 'succeed' or $jobStatus eq 'checked' ) {
-                print("FINEST: job:$createdJobId status:$jobStatus.\n");
+                print("FINE: job:$createdJobId status:$jobStatus.\n");
                 last;
             }
             elsif ( $jobStatus eq 'running' or $jobStatus eq 'waiting' or $jobStatus eq 'pending' ) {
@@ -242,7 +242,7 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        print("FINEST: $envPath $version $senario succeed.\n");
+        print("FINE: $envPath $version $senario succeed.\n");
     }
     else {
         print("ERROR: $envPath $version $senario failed.\n");

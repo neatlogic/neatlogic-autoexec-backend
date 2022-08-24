@@ -31,7 +31,7 @@ sub main {
     my $appNames   = $config->{"appname"};
     my $targets    = $config->{"$appNames.target"};
     $appNames =~ s/\s*//g;
-    $targets =~ s/\s*//g;
+    $targets  =~ s/\s*//g;
     my @appNames = split( ",", $appNames );
     my @targets  = split( ",", $targets );
 
@@ -42,7 +42,7 @@ sub main {
 
     my $timeout = int($stopTimeout);
 
-    my $outFile = "$domainDir/servers/$servername/logs/$servername.out";
+    my $outFile  = "$domainDir/servers/$servername/logs/$servername.out";
     my @logFiles = ( $outFile, "$domainDir/servers/$servername/logs/$servername.log" );
     my @serverLogInfos;
 
@@ -78,7 +78,7 @@ sub main {
                             }
                         }
                     }
-                    print("FINEST: undeploy $appName suceed.\n");
+                    print("FINE: undeploy $appName suceed.\n");
                 }
                 else {
                     print("ERROR: undeploy $appName failed.\n");

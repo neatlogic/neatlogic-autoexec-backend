@@ -237,7 +237,7 @@ sub main {
     );
     my $statusCode = $response->code();
     if ( $statusCode == 200 ) {
-        print("FINEST: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
+        print("FINE: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
         $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
     else {

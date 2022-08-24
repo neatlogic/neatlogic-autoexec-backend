@@ -374,7 +374,7 @@ sub main {
     }
 
     if ( $isFail eq 0 ) {
-        print("FINEST:build $namePath version:$version success.\n");
+        print("FINE:build $namePath version:$version success.\n");
         $versionInfo->{status} = 'compiled';
     }
     else {

@@ -164,7 +164,7 @@ sub tagRepo {
                 print("ERROR: Create $tagName of $repoDesc branch:$branchName failed.\n");
             }
             else {
-                print("FINEST: Create tag:$tagName of $repoDesc branch:$branchName success.\n");
+                print("FINE: Create tag:$tagName of $repoDesc branch:$branchName success.\n");
             }
         }
         else {
@@ -267,7 +267,7 @@ sub fetch {
     if ( $ret eq 0 ) {
         DeployUtils->execmd("cd '$prjPath' && git config user.name '$gitUser'");
         DeployUtils->execmd("cd '$prjPath' && git config user.email '$gitUser\@techsure.com.cn'");
-        print("FINEST: fetch $repoDesc success.\n");
+        print("FINE: fetch $repoDesc success.\n");
     }
 
     return $ret;

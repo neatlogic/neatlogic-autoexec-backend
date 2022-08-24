@@ -311,7 +311,7 @@ sub main {
                         unlink("$transPath.tar");
                     }
 
-                    print("FINEST: pull $host:$dir to $dest success.\n");
+                    print("FINE: pull $host:$dir to $dest success.\n");
                 }
                 else {
                     $hasError = $hasError + 1;
@@ -374,7 +374,7 @@ sub main {
             my $result = $winCmd->exec();
 
             if ( $result eq 0 ) {
-                print("FINEST: push $dir to $host:$dest success.\n");
+                print("FINE: push $dir to $host:$dest success.\n");
             }
             else {
                 $hasError = $hasError + 1;

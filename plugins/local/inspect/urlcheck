@@ -111,7 +111,7 @@ sub main {
         print("ERROR: $errMsg");
     }
     else {
-        print("FINEST: Http requests all complete succeed.\n");
+        print("FINE: Http requests all complete succeed.\n");
         $data->{ERROR_MESSAGE} = '';
         $data->{AVAILABILITY}  = 1;
     }

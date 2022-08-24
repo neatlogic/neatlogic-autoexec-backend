@@ -85,7 +85,7 @@ if __name__ == "__main__":
             if ret:
                 data['AVAILABILITY'] = 1
                 data['ERROR_MESSAGE'] = ''
-                print("FINEST: Ping success.\n")
+                print("FINE: Ping success.\n")
             else:
                 data['AVAILABILITY'] = 0
                 data['ERROR_MESSAGE'] = errMsg

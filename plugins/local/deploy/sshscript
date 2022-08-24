@@ -199,7 +199,7 @@ sub main {
     my $ret = $sshExec->exec();
     $hasError = $hasError + $ret;
     if ( $sshExec->{status} eq 'SUCCESS' ) {
-        print("FINEST: ssh remote exec success.\n");
+        print("FINE: ssh remote exec success.\n");
     }
     elsif ( $sshExec->{status} eq 'WARN' ) {
         print("WARN: ssh remote exec has warning.\n");

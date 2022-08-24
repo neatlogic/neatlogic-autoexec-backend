@@ -268,7 +268,7 @@ sub main {
             last;
         }
         else {
-            print("FINEST: Execute sql files -> $userName\@$host:$port success.\n\n");
+            print("FINE: Execute sql files -> $userName\@$host:$port success.\n\n");
         }
     }
 

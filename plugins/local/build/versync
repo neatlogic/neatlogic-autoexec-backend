@@ -106,7 +106,7 @@ sub main {
     my $ret    = $verGet->mergeBaseLine();
 
     if ( $ret eq 0 ) {
-        print("FINEST: Merge baseline changes to version:$version success.\n");
+        print("FINE: Merge baseline changes to version:$version success.\n");
     }
     else {
         my $versionInfo = {

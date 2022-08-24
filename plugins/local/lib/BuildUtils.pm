@@ -173,7 +173,7 @@ sub compile {
     }
 
     if ( $isFail eq 0 ) {
-        print("FINEST: Build $namePath version:$version success.\n");
+        print("FINE: Build $namePath version:$version success.\n");
     }
     else {
         print("ERROR: Build $namePath version:$version failed.\n");

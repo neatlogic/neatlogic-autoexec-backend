@@ -75,7 +75,7 @@ sub start {
         }
         if ( $openMode eq 'READ ONLY WITH APPLY' ) {
             $started = 1;
-            print("FINEST: Started in standby mode success.\n");
+            print("FINE: Started in standby mode success.\n");
         }
         sleep(2);
         $loopCount--;

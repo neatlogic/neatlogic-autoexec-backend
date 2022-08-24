@@ -598,7 +598,7 @@ class RunNode:
             timeConsume = time.time() - startTime
             self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
 
-        hintKey = 'FINEST:'
+        hintKey = 'FINE:'
         opFinalStatus = NodeStatus.succeed
         if ret != 0 or self.hasFailLog:
             if op.failIgnore:
@@ -711,7 +711,7 @@ class RunNode:
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime
 
-            hintKey = 'FINEST:'
+            hintKey = 'FINE:'
             if isFail == 0:
                 if hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
@@ -720,7 +720,7 @@ class RunNode:
                     hintKey = 'WARN:'
                 else:
                     finalStatus = NodeStatus.succeed
-                    hintKey = 'FINEST:'
+                    hintKey = 'FINE:'
             else:
                 if self.isKilled:
                     finalStatus = NodeStatus.aborted

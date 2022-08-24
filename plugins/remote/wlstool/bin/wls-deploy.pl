@@ -31,7 +31,7 @@ sub main {
     my $appNames   = $config->{"appname"};
     my $targets    = $config->{"$appNames.target"};
     $appNames =~ s/\s*//g;
-    $targets =~ s/\s*//g;
+    $targets  =~ s/\s*//g;
     my @appNames = split( ",", $appNames );
     my @targets  = split( ",", $targets );
 
@@ -51,7 +51,7 @@ sub main {
         }
     }
 
-    my $outFile = "$domainDir/servers/$servername/logs/$servername.out";
+    my $outFile  = "$domainDir/servers/$servername/logs/$servername.out";
     my @logFiles = ( $outFile, "$domainDir/servers/$servername/logs/$servername.log" );
     my @serverLogInfos;
 
@@ -84,7 +84,7 @@ sub main {
                         }
                     }
                 }
-                print("FINEST: deploy $appName suceed.\n");
+                print("FINE: deploy $appName suceed.\n");
             }
             else {
                 print("ERROR: deploy $appName failed.\n");

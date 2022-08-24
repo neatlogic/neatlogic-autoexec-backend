@@ -216,7 +216,7 @@ sub main {
             my $response = $http->mirror( $downUrl, "$saveDir/$fileName", { headers => $headers } );
             if ( $response->{success} ) {
                 push( @downFiles, "$saveDir/$fileName" );
-                print("FINEST: Download $downUrl to $saveDir/$fileName success.\n");
+                print("FINE: Download $downUrl to $saveDir/$fileName success.\n");
             }
             else {
                 $hasError = $hasError + 1;

@@ -36,7 +36,7 @@ def execOneHost(host, port, user, password, cmdList):
                 break
 
         if errCode == 0:
-            print("FINEST: {}@{}:{} execute success.\n\n".format(user, host, port), end='')
+            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end='')
         else:
             print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end='')
     except Exception as ex:

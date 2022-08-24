@@ -147,7 +147,7 @@ sub main {
             print("ERROR:$@");
         }
         else {
-            print("FINEST: sonar-scanner code end .\r\n");
+            print("FINE: sonar-scanner code end .\r\n");
             print("<a target=\"_blank\" style=\"color:white;font-size:16px;\"  href=\"$sonarUrl/dashboard?id=$projectKey\">---&gt;点击查看代码扫描报告</a>\n");
         }
     }

@@ -73,7 +73,7 @@ sub main {
             $data->{AVAILABILITY}  = 1;
             $data->{ERROR_MESSAGE} = '';
             $socket->close();
-            print("FINEST: TCP handshake succeed.\n");
+            print("FINE: TCP handshake succeed.\n");
         }
         else {
             my $errMsg = "Connect to $host:$port failed, $!\n";

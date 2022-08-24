@@ -161,7 +161,7 @@ class RemoteConfBackup:
                 status = tagent.download(username, remotePath, savePath)
                 if status == 0:
                     self.addOutputFiles(fileJson)
-                    print('FINEST: Download file:{} success.\n'.format(remotePath), end='')
+                    print('FINE: Download file:{} success.\n'.format(remotePath), end='')
                 else:
                     self.IS_FAIELD = True
                     print('ERROR: Download file:{} failed.\n'.format(remotePath), end='')
@@ -183,7 +183,7 @@ class RemoteConfBackup:
                 sftp = paramiko.SFTPClient.from_transport(scp)
                 sftp.get(remotePath, savePath)
                 self.addOutputFiles(fileJson)
-                print('FINEST: Download file:{} success.\n'.format(remotePath), end='')
+                print('FINE: Download file:{} success.\n'.format(remotePath), end='')
             except Exception as err:
                 self.IS_FAIELD = True
                 print('ERROR: Download file:{} failed, {}\n'.format(remotePath, err), end='')

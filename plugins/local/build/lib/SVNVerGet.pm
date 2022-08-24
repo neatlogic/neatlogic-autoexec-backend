@@ -263,7 +263,7 @@ sub tagRepo {
         print("ERROR: Create tag:$tagName $tagRepo -> $srcRepo failed.\n");
     }
     else {
-        print("FINEST: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
+        print("FINE: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
     }
 
     return $ret;
@@ -318,7 +318,7 @@ sub tagRepoRev {
         print("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'\n");
         $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass cp '$srcRepo\@$tagRevision' '$tagRepo'  -m 'copy for autodeploy.'");
         if ( $ret == 0 ) {
-            print("FINEST: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
+            print("FINE: Create tag:$tagName $tagRepo -> $srcRepo success.\n");
         }
     }
     else {
@@ -711,7 +711,7 @@ sub checkChangedAfterCompiled {
         my $lines = DeployUtils->getPipeOut("svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username '$svnUser' --password $svnPass diff --old '$checkoutRepo\@$endRev' --new '$newRepo'");
         if ( scalar(@$lines) eq '0' ) {
             $ret = 0;
-            print("FINEST: Version:$version has not changed after compiled, End Revision:$endRev.\n");
+            print("FINE: Version:$version has not changed after compiled, End Revision:$endRev.\n");
         }
         elsif ( scalar(@$lines) eq '1' ) {
             my $line = $$lines[0];

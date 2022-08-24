@@ -73,7 +73,7 @@ sub start {
         }
         if ( $openMode eq 'READ WRITE' ) {
             $started = 1;
-            print("FINEST: Started in primary mode success.\n");
+            print("FINE: Started in primary mode success.\n");
         }
         sleep(2);
         $loopCount--;

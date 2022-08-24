@@ -77,11 +77,12 @@ sub main {
 
     my $osType = ( uname() )[0];
     $osType =~ s/\s.*$//;
+
     #mount -o username=flt,password=a^6r9SDy,iocharset=utf8 //192.168.2.90/data /mnt/nas
     #mount -t nfs 192.168.10.204:/DataVolume/Public /mnt/Public
     #mount -t cifs -o username=Everyone //192.168.199.123/win  /home/sk/win
     my $cmd = "mount";
-    if ( defined($type) and $type ne '' and  $osType eq 'Linux') {
+    if ( defined($type) and $type ne '' and $osType eq 'Linux' ) {
         $cmd = $cmd . " -t $type";
     }
     if ( defined($username) and $username ne '' ) {
@@ -99,9 +100,9 @@ sub main {
     }
     $cmd = $cmd . " $addr $target";
     my $ret = `$cmd`;
-    
+
     if ( $? == 0 ) {
-        print("FINEST: Mount $addr to $target success.\n");
+        print("FINE: Mount $addr to $target success.\n");
     }
     else {
         print("ERROR: Mount $addr to $target failed.\n");

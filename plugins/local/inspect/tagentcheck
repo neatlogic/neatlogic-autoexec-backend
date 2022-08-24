@@ -66,14 +66,14 @@ if __name__ == "__main__":
             data['AVAILABILITY'] = 1
             data['ERROR_MESSAGE'] = ''
             data['RESPONSE_TIME'] = timeConsume
-            print("FINEST: Tagent logon succeed.\n")
+            print("FINE: Tagent logon succeed.\n")
         except Exception as ex:
             timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
             data['AVAILABILITY'] = 0
             data['ERROR_MESSAGE'] = errMsg
             data['RESPONSE_TIME'] = timeConsume
-            print("FINEST: Tagent logon failed.\n")
+            print("FINE: Tagent logon failed.\n")
 
         out = {'DATA': data}
         AutoExecUtils.saveOutput(out)

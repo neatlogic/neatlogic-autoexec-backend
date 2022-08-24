@@ -56,7 +56,7 @@ sub main {
 
         if ( $wlsDeployer->isAdminServer() ) {
             if ( $wlsDeployer->startApp($appName) ) {
-                print("FINEST: start $appName suceed.\n");
+                print("FINE: start $appName suceed.\n");
             }
             else {
                 print("ERROR: start $appName failed.\n");

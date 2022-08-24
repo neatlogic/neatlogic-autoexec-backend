@@ -290,7 +290,7 @@ sub main {
     }
     else {
         #此处不需要更新环境制品状态，环境制品的最后状态由envrelease来更新
-        print("FINEST: Release(sync) $namePath $version build:$buildNo to $envName success.\n");
+        print("FINE: Release(sync) $namePath $version build:$buildNo to $envName success.\n");
     }
 
     return $hasError;

@@ -94,7 +94,7 @@ sub main {
         my $http = HTTP::Tiny->new();
 
         my $localFile;
-        if ( -d $localDir  ) {
+        if ( -d $localDir ) {
             $localFile = "$localDir/" . basename($addr);
         }
         else {
@@ -103,7 +103,7 @@ sub main {
 
         my $response = $http->mirror( $addr, $localFile, { headers => $headers } );
         if ( $response->{success} ) {
-            print("FINEST: Download $addr to $localFile success.\n");
+            print("FINE: Download $addr to $localFile success.\n");
         }
         else {
             $errorCode = $errorCode + 1;

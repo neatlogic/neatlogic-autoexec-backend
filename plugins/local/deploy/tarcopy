@@ -224,7 +224,7 @@ sub main {
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {
-                print("FINEST: pull $host:$dir to $dest success.\n");
+                print("FINE: pull $host:$dir to $dest success.\n");
             }
             else {
                 $hasError = $hasError + $rc;
@@ -255,7 +255,7 @@ sub main {
             my $rc = $tarScpExec->exec();
 
             if ( $rc == 0 ) {
-                print("FINEST: push $dir to $host:$dest success.\n");
+                print("FINE: push $dir to $host:$dest success.\n");
             }
             else {
                 $hasError = $hasError + $rc;

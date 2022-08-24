@@ -411,7 +411,7 @@ sub main {
             print("ERROR: $@\n");
         }
         else {
-            print("FINEST: Release $namePath version:$version with build($buildNo) success.\n");
+            print("FINE: Release $namePath version:$version with build($buildNo) success.\n");
         }
     }
 

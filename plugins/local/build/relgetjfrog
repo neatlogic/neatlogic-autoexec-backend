@@ -173,7 +173,7 @@ sub main {
 
     my $response = $http->mirror( $pkgURL, "$saveDir/$pkgFileName", { headers => $headers } );
     if ( $response->{success} ) {
-        print("FINEST: Download $pkgURL to $saveDir/$pkgFileName success.\n");
+        print("FINE: Download $pkgURL to $saveDir/$pkgFileName success.\n");
     }
     else {
         $hasError = $hasError + 1;

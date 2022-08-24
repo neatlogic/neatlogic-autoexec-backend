@@ -31,7 +31,7 @@ sub main {
     my $appNames = $config->{"appname"};
     my $targets  = $config->{"$appNames.target"};
     $appNames =~ s/\s*//g;
-    $targets =~ s/\s*//g;
+    $targets  =~ s/\s*//g;
     my @appNames = split( ",", $appNames );
     my @targets  = split( ",", $targets );
 
@@ -98,7 +98,7 @@ sub main {
                         }
                     }
                 }
-                print("FINEST: update $appName suceed.\n");
+                print("FINE: update $appName suceed.\n");
             }
             else {
                 print("ERROR: update $appName failed.\n");
