@@ -30,7 +30,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo, $startPath );
     my ( $userName, $password );
     my $tagPrefix;
     GetOptions(
@@ -41,6 +41,7 @@ sub main {
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
         'tagprefix=s' => \$tagPrefix,
+        'startpath=s' => \$startPath,
         'user=s'      => \$userName,
         'password=s'  => \$password
     );
@@ -91,6 +92,7 @@ sub main {
     }
 
     my $verInfo = $serverAdapter->getVer($buildEnv);
+    $verInfo->{startPath} = $startPath;
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");

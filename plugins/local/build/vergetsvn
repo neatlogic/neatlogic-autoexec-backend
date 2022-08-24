@@ -21,7 +21,7 @@ sub usage {
 
 sub main() {
     my ( $isHelp,   $isVerbose, $envPath, $lang );
-    my ( $repo,     $trunk,     $branch,  $tagsDir, $tag );
+    my ( $repo,     $trunk,     $branch,  $tagsDir, $tag, $startPath );
     my ( $userName, $password );
     GetOptions(
         'h|help'      => \$isHelp,
@@ -33,13 +33,14 @@ sub main() {
         'branch=s'    => \$branch,
         'tagsdir'     => \$tagsDir,
         'tag=s'       => \$tag,
+        'startpath=s' => \$startPath,
         'user=s'      => \$userName,
         'password=s'  => \$password
     );
     usage() if ( defined($isHelp) );
 
     my $toolDir = $FindBin::Bin;
-    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype SVN --repo '$repo' --trunk '$trunk' --branch '$branch' --tagsdir '$tagsDir' --tag '$tag' --username '$userName', --password '$password'});
+    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype SVN --repo '$repo' --trunk '$trunk' --branch '$branch' --tagsdir '$tagsDir' --tag '$tag' --startpath '$startPath' --username '$userName', --password '$password'});
 }
 
 exit main();

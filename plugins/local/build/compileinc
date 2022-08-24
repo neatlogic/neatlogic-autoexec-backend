@@ -25,7 +25,7 @@ sub usage {
     print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--type ant|maven|gradle|npm] [--diffdirname DiffBuildDir] [--skipfullcmp 0|1] \n");
     print("       [--addlibtoclasspath 0|1] [--tag4cmpto TagName] [--srcpaths SourceCodePathInProject] [--libpaths LibPathInProject] \n");
     print("       [--cmpoutpaths CompileOutPathInProject] [--reservepaths ReservePathInProject] [--classpaths ClassPathInProject]  \n");
-    print("       [--jdk JDKVersion] [--startpath SubDirInProject] [--lang LANG] [--args BuildArgs] [--version VERSION]\n");
+    print("       [--jdk JDKVersion] [--startpath SubDirInProject] [--islib 0|1] [--lang LANG] [--args BuildArgs] [--version VERSION]\n");
     print("\n");
     print("       --envpath:      sub system path\n");
     print("       --version:      version number\n");
@@ -42,6 +42,7 @@ sub usage {
     print("       --cmpoutpaths:  compile output paths: example: 'target/webapp/WEB-INF/classes,*/target/webapp/WEB-INF/classes'\n");
     print("       --reservepaths: file needed for increment compile in srcpaths or libpaths or cmpoutpaths, example:'target/webapp/WEB-INF/web.xml,*/target/webapp/WEB-INF/web.xml'\n");
     print("       --classpaths:   class paths(out of cmpoutpaths) for increment compile, example: 'staticclasses,*/staticclasses'\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
     print("       --args:         arguments for ant|mvn|gradle, default is blank.\n");
 
     exit(1);
@@ -61,6 +62,7 @@ sub main {
     my $reservePaths      = '';
     my $classPaths        = '';
     my $addLibToClassPath = 0;
+    my $isLib             = 0;
 
     GetOptions(
         'h|help'              => \$isHelp,
@@ -69,6 +71,7 @@ sub main {
         'version=s'           => \$version,
         'buildno=s'           => \$buildNo,
         'startpath=s'         => \$startPath,
+        'islib=i'             => \$isLib,
         'lang=s'              => \$lang,
         'jdk=s'               => \$jdk,
         'type=s'              => \$buildType,
@@ -376,13 +379,15 @@ sub main {
     if ( $isFail eq 0 ) {
         print("FINE:build $namePath version:$version success.\n");
         $versionInfo->{status} = 'compiled';
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
     }
     else {
-        $versionInfo->{status} = 'compile-failed';
         print("ERROR:build $namePath version:$version failed.\n");
+        $versionInfo->{status} = 'compile-failed';
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
-
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $isFail;
 }

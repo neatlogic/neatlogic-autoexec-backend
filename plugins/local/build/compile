@@ -15,12 +15,13 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--type ant|maven|gradle|npm]\n");
-    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS]\n");
+    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--islib 0|1] [--lang LANG] [--args EXT_OPTIONS]\n");
     print("       --envpath:      example:SYS-A/MODULE-X/SIT\n");
     print("       --version:      version number\n");
     print("       --buildno:      Build number\n");
     print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
     print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
     print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
     print("       --type:         build type: maven|ant|gradle|npm|ant1.5, default is auto detect.\n");
     print("       --args:         arguments for ant|maven|gradle, default is blank.\n");
@@ -33,6 +34,7 @@ sub main {
     my ( $startPath, $jdk, $buildType, $args, $isUpdate );
     my $pname = $FindBin::Script;
 
+    my $isLib       = 0;
     my $makeToolVer = '';
 
     GetOptions(
@@ -44,6 +46,7 @@ sub main {
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
         'startpath=s' => \$startPath,
+        'islib=i'     => \$isLib,
         'lang=s'      => \$lang,
         'jdk=s'       => \$jdk,
 
@@ -124,11 +127,14 @@ sub main {
 
     if ( $hasError == 0 ) {
         $versionInfo->{status} = 'compiled';
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
     }
     else {
         $versionInfo->{status} = 'compile-failed';
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $hasError;
 }

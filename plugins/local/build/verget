@@ -31,10 +31,11 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,   $isVerbose, $lang,  $envPath, $version, $buildNo );
-    my ( $repoType, $repo,      $trunk, $branch,  $tagsDir, $tag );
+    my ( $isHelp,   $isVerbose, $lang, $envPath, $version, $buildNo );
+    my ( $isLib,    $repoType,  $repo, $trunk,   $branch,  $tagsDir, $tag, $startPath );
     my ( $userName, $password );
     my $pname = $FindBin::Script;
+    $isLib = 0;
 
     GetOptions(
         'h|help'      => \$isHelp,
@@ -43,6 +44,7 @@ sub main {
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
+        'islib=i'     => \$isLib,
         'repotype=s'  => \$repoType,
         'repo=s'      => \$repo,
         'trunk=s'     => \$trunk,
@@ -50,7 +52,8 @@ sub main {
         'tagsdir=s'   => \$tagsDir,
         'tag=s'       => \$tag,
         'user=s'      => \$userName,
-        'password=s'  => \$password
+        'password=s'  => \$password,
+        'startpath=s' => \$startPath
     );
 
     usage() if ( defined($isHelp) );
@@ -96,14 +99,15 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
     my $versionInfo   = {
-        version  => $version,
-        buildNo  => $buildNo,
-        repoType => uc($repoType),
-        repo     => $repo,
-        trunk    => $trunk,
-        branch   => $branch,
-        tagsDir  => $tagsDir,
-        tag      => $tag
+        version   => $version,
+        buildNo   => $buildNo,
+        repoType  => uc($repoType),
+        repo      => $repo,
+        trunk     => $trunk,
+        branch    => $branch,
+        tagsDir   => $tagsDir,
+        tag       => $tag,
+        startPath => $startPath
     };
 
     my $verInfo = $serverAdapter->getVer( $buildEnv, $version );
@@ -152,7 +156,10 @@ sub main {
         $versionInfo->{status} = 'failed';
         print("ERROR: $desc failed.\n");
     }
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    if ( $isLib == 0 ) {
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
+    }
 
     return $ret;
 }

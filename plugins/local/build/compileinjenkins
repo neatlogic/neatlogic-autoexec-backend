@@ -19,7 +19,7 @@ sub usage {
 
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
-    print("              --job JenkinsJobName --wait 0|1\n");
+    print("              --job JenkinsJobName --wait 0|1 [--islib 0|1]\n");
     print("\n");
     print("       --envpath:  Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
     print("       --version:  Version number of module version\n");
@@ -29,6 +29,7 @@ sub usage {
     print("       --password: User password to login nexus\n");
     print("       --job:      Jenkins job name, example:mysys-build.\n");
     print("       --wait:     If wait job completed\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
 
     exit(-1);
 }
@@ -39,6 +40,7 @@ sub main {
     my $jobName;
     my $isVerbose = 0;
     my $isWait    = 0;
+    my $isLib     = 0;
 
     GetOptions(
         'v|verbose=i' => \$isVerbose,
@@ -52,7 +54,8 @@ sub main {
         'user=s'      => \$user,
         'password=s'  => \$pass,
         'job=s'       => \$jobName,
-        'wait=i'      => \$isWait
+        'wait=i'      => \$isWait,
+        'islib=i'     => \$isLib
     );
 
     usage() if ( defined($isHelp) );
@@ -180,11 +183,14 @@ sub main {
 
     if ( $hasError == 0 ) {
         $versionInfo->{status} = 'compiled';
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
     }
     else {
         $versionInfo->{status} = 'compile-failed';
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $hasError;
 }

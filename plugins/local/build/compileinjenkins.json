@@ -7,8 +7,7 @@
     "defaultProfile": "jenkins-args",
     "description": "调用Jenkins进行编译打包",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -16,8 +15,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -37,8 +35,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "自动",
                         "value": ""
                     },
@@ -70,8 +67,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "自动",
                         "value": ""
                     },
@@ -127,8 +123,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -139,6 +134,26 @@
                 ]
             },
             "defaultValue": "1"
+        },
+        {
+            "opt": "islib",
+            "name": "是否子模块",
+            "help": "当前获取的代码仓库是子模块，用于多个代码仓库联合编译的情况",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ],
     "argument": {

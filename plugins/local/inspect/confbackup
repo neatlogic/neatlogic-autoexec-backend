@@ -210,9 +210,9 @@ class RemoteConfBackup:
         if not os.path.exists(localDir):
             os.makedirs(localDir)
 
-        for remotePath in self.filePaths.keys():
+        for remotePath, modifyTime in self.filePaths.items():
             try:
-                self.copyRemoteFile(remotePath, localDir)
+                self.copyRemoteFile(remotePath, localDir, modifyTime)
             except Exception as err:
                 self.IS_FAIELD = True
                 print('ERROR: Save file:{} to backup server failed, {}\n'.format(remotePath, err), end='')

@@ -20,8 +20,13 @@ sub new {
     my $buildEnv  = $args{buildEnv};
     my $verInfo   = $args{verInfo};
     my $isVerbose = $args{isVerbose};
+    my $startPath = $verInfo->{startPath};
 
     my $prjPath = $buildEnv->{PRJ_PATH};
+    if ( defined($startPath) and $startPath ne '' ) {
+        $prjPath = $prjPath . '/' . $startPath;
+    }
+
     my $version = $verInfo->{version};
 
     $self->{version}    = $version;

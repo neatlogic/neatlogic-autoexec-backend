@@ -23,13 +23,14 @@ sub usage {
     print("              [--diffdirname DiffSaveDir] [--tag4cmpto CompareTag] [--startrev Revision] [--endrev Revision]\n");
     print("              [--srcpaths SourcePathsInProject] [--cmpoutpath CompileOutPathsInProject] [--websrcpath WebSourcePathInProject]\n");
     print("              [--webdistpath WebPackagePathsInProject] \n");
-    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--lang LANG] [--args EXT_OPTIONS] [--version VERSION]\n");
+    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--islib 0|1] [--lang LANG] [--args EXT_OPTIONS] [--version VERSION]\n");
     print("\n");
     print("       --envpath:      env path, example:SYS-X/MODULE-X/SIT\n");
     print("       --version:      Version number of module version\n");
     print("       --buildno:      Build number\n");
     print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
     print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
     print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
     print("       --type:         build type: mvn|ant|gradle, default is auto detect.\n");
     print("       --diffdirname:  diff build save directory, default:build.diff.\n");
@@ -62,6 +63,7 @@ sub main {
     my $webSrcPath   = 'src/main/webapp';
     my $webDistPath  = 'WebContent';
     my $cmpOutPath   = '';
+    my $isLib        = 0;
 
     GetOptions(
         'h|help'         => \$isHelp,
@@ -70,6 +72,7 @@ sub main {
         'version=s'      => \$version,
         'buildno=s'      => \$buildNo,
         'startpath=s'    => \$startPath,
+        'islib=i'        => \$isLib,
         'lang=s'         => \$lang,
         'jdk=s'          => \$jdk,
         'type=s'         => \$buildType,
@@ -329,12 +332,15 @@ sub main {
     if ( $isFail eq 0 ) {
         $versionInfo->{status} = 'compiled';
         print("FINE:build $envPath $version success.\n");
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
     }
     else {
         $versionInfo->{status} = 'compile-failed';
         print("ERROR:build $envPath $version failed.\n");
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
-    $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     return $isFail;
 }

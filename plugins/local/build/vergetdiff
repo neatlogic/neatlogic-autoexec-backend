@@ -31,7 +31,7 @@ sub usage {
 
 sub main {
     my ( $isHelp,   $isVerbose,   $lang, $envPath, $version, $buildNo );
-    my ( $exclude,  $diffSaveDir, $tag4CmpTo, $startRev );
+    my ( $exclude,  $diffSaveDir, $tag4CmpTo, $startRev, $startPath );
     my ( $userName, $password );
 
     GetOptions(
@@ -45,6 +45,7 @@ sub main {
         'diffsavedir=s' => \$diffSaveDir,
         'basetag=s'     => \$tag4CmpTo,
         'baserev=s'     => \$startRev,
+        'startpath=s'   => \$startPath,
         'user=s'        => \$userName,
         'password=s'    => \$password
     );
@@ -123,6 +124,8 @@ sub main {
         print("ERROR: Can not find application $namePath version:$version.\n");
         return 3;
     }
+
+    $verInfo->{startPath} = $startPath;
 
     if ( defined($userName) and $userName ne '' ) {
         $verInfo->{username} = $userName;
