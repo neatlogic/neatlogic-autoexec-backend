@@ -1,0 +1,30 @@
+{
+    "opName": "扩展作业报告导出字段信息",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "扩展作业报告导出字段信息",
+    "enabled": 1,
+    "option": [
+    {
+        "opt": "node",
+        "name": "node",
+        "help": "",
+        "type": "text",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    }],
+    "argument": {
+        "name": "导出字段",
+        "help": "导出字段，需要在导出作业报告中显示的数据字段",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }
+}
