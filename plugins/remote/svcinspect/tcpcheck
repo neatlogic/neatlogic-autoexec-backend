@@ -70,6 +70,15 @@ sub main {
             Timeout  => $timeout
         );
 
+        if ( not defined($socket) ) {
+            print("INFO: Try to connect to 127.0.0.1:$port.\n");
+            $socket = IO::Socket::INET->new(
+                PeerHost => '127.0.0.1',
+                PeerPort => $port,
+                Timeout  => $timeout
+            );
+        }
+
         my $responseTime = time() - $startTime;
         $data->{RESPONSE_TIME} = $responseTime;
 
