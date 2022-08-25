@@ -29,12 +29,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('--fileslist', default='[]', help='File list json string')
+    parser.add_argument('--reservevercount', default=5, help='Reserve file version count')
+    parser.add_argument('--inspectlogttl', default=30, help='Days for inspect log ttl')
     parser.add_argument('--timeout', default=60, help='Timeout seconds')
     args = parser.parse_args()
 
     timeOut = int(args.timeout)
     if timeOut == 0:
         timeOut = 60
+
+    reserveVerCount = int(args.reservevercount)
+    inspectLogTTL = int(args.inspectlogttl)
 
     node = args.node
     fileListJson = args.fileslist
@@ -108,7 +113,9 @@ if __name__ == "__main__":
                         "inspectTime": nowTime,
                         "modifyTime": modifyTime,
                         "md5": fileMd5,
-                        "fileId": fileId
+                        "fileId": fileId,
+                        'reserveVerCount': reserveVerCount,
+                        'inspectLogTTL': inspectLogTTL
                     })
                 else:
                     result = AutoExecUtils.txtFileInspectSave({
@@ -118,7 +125,9 @@ if __name__ == "__main__":
                         "inspectTime": nowTime,
                         'modifyTime': None,
                         "md5": None,
-                        "fileId": None
+                        "fileId": None,
+                        'reserveVerCount': reserveVerCount,
+                        'inspectLogTTL': inspectLogTTL
                     })
                 print("FINE: Save file %s inspect information success." % (serverPath))
             except Exception as ex:

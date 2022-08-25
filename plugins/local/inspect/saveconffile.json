@@ -17,6 +17,24 @@
             "defaultValue": "[]"
         },
         {
+            "opt": "reservevercount",
+            "name": "保留版本数",
+            "help": "保留版本数，超过的版本将会被删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "inspectlogttl",
+            "name": "巡检记录保留时间",
+            "help": "巡检记录保留时间，单位(天)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
             "opt": "timeout",
             "name": "超时时间",
             "help": "查询超时时间，单位秒",
