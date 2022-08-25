@@ -794,8 +794,12 @@ sub collect {
     my $racInfo = {};
     $racInfo->{PROC_INFO} = $self->{procInfo};
     my $collectSet = $self->collectRAC($racInfo);
-
-    return @$collectSet;
+    if ( defined($collectSet) ) {
+        return @$collectSet;
+    }
+    else {
+        return undef;
+    }
 }
 
 1;

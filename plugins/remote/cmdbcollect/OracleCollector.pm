@@ -1481,7 +1481,9 @@ sub collect {
         $racInfo->{OS_USER}   = $gridProcInfo->{USER};
         $racInfo->{GRID_USER} = $gridProcInfo->{USER};
         my $racColletSet = $self->collectRAC($racInfo);
-        push( @collectSet, @$racColletSet );
+        if ( defined($racColletSet) ) {
+            push( @collectSet, @$racColletSet );
+        }
     }
 
     my $insInfo = {};
