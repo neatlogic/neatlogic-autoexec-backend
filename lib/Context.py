@@ -218,7 +218,7 @@ class Context(VContext.VContext):
         outData.update(pk)
 
         try:
-            collection.update(
+            collection.update_one(
                 pk,
                 {'$set':     outData},
                 upsert=True
