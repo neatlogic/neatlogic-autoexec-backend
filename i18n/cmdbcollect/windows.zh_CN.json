@@ -168,7 +168,17 @@
         },
         {
             "name": "CPU_USAGE",
-            "desc": "CPU使用率%",
+            "desc": "CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "多核平均CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_QUEUE_LEN",
+            "desc": "CPU排队数",
             "type": "Float"
         },
         {

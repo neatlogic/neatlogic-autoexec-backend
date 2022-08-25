@@ -23,6 +23,16 @@ sub getUpTime {
     }
 }
 
+sub getCpuLoad {
+    my ( $self, $osInfo ) = @_;
+    my $uptimeStr = $self->getCmdOut('LC_ALL=POSIX uptime');
+    if ( $uptimeStr =~ /load average:\s*(\d+\.?\d*),\s*(\d+\.?\d*),\s*(\d+\.?\d*)/ ) {
+        $osInfo->{'CPU_LOAD_AVG_1'}  = 0.0 + $1;
+        $osInfo->{'CPU_LOAD_AVG_5'}  = 0.0 + $2;
+        $osInfo->{'CPU_LOAD_AVG_15'} = 0.0 + $3;
+    }
+}
+
 sub getMiscInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -560,6 +570,8 @@ sub getTopasOut {
 sub getPerformanceInfo {
     my ( $self, $osInfo ) = @_;
 
+    $self->getCpuLoad($osInfo);
+
     my $hasCpuSum = 0;
 
     my $headerStr = '';
@@ -645,8 +657,9 @@ sub getPerformanceInfo {
         }
 
         if ( $procInfo->{'%MEM'} > 10 ) {
-            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
-            $procInfo->{MEM_USAGE} = delete( $procInfo->{'%MEM'} );
+            $procInfo->{CPU_USAGE}         = delete( $procInfo->{'%CPU'} );
+            $procInfo->{CPU_USAGE_PERCORE} = $procInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
+            $procInfo->{MEM_USAGE}         = delete( $procInfo->{'%MEM'} );
             push( @psProcs, $procInfo );
         }
     }
@@ -673,6 +686,7 @@ sub getPerformanceInfo {
     $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
     $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
     $osInfo->{CPU_USAGE}         = $userCpu + $sysCpu;
+    $osInfo->{CPU_USAGE_PERCORE} = $osInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
     $osInfo->{IOWAIT_PCT}        = $iowait;
 }
 
@@ -725,13 +739,20 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
+    return $osInfo;
+}
+
+sub collectOsPerfInfo {
+    my ( $self, $osInfo ) = @_;
     if ( $self->{inspect} == 1 ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+            $osInfo->{CPU_LOGIC_CORES} = 1;
+        }
+
         $self->getPerformanceInfo($osInfo);
         $self->getInspectMisc($osInfo);
         $self->getSecurityInfo($osInfo);
     }
-
-    return $osInfo;
 }
 
 sub getHostMiscInfo {
@@ -983,6 +1004,8 @@ sub collect {
     $hostInfo->{CPU_FIRMWARE_VERSION} = $osInfo->{CPU_FIRMWARE_VERSION};
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
+
+    $self->collectOsPerfInfo($osInfo);
 
     if ( $osInfo->{IS_VIRTUAL} == 0 ) {
         return ( $hostInfo, $osInfo );

@@ -172,6 +172,16 @@
             "type": "Float"
         },
         {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "Cores AVG CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_QUEUE_LEN",
+            "desc": "CPU Queue",
+            "type": "Float"
+        },
+        {
             "name": "CPU_CORES",
             "desc": "Cpu Cores",
             "type": "Int"

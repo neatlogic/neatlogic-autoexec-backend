@@ -137,6 +137,11 @@
             "type": "Float"
         },
         {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "CPU多核平均使用率%",
+            "type": "Float"
+        },
+        {
             "name": "CPU_CORES",
             "desc": "CPU核数",
             "type": "Int"
@@ -321,6 +326,26 @@
                 {
                     "name": "CPU_USAGE",
                     "desc": "%CPU",
+                    "type": "Float"
+                },
+                {
+                    "name": "CPU_USAGE_PERCORE",
+                    "desc": "多核平均CPU%",
+                    "type": "Float"
+                },
+                {
+                    "name": "CPU_LOAD_AVG_1",
+                    "desc": "CPU平均负载(1分钟)",
+                    "type": "Float"
+                },
+                {
+                    "name": "CPU_LOAD_AVG_5",
+                    "desc": "CPU平均负载(5分钟)",
+                    "type": "Float"
+                },
+                {
+                    "name": "CPU_LOAD_AVG_15",
+                    "desc": "CPU平均负载(15分钟)",
                     "type": "Float"
                 },
                 {

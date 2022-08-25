@@ -137,6 +137,26 @@
             "type": "Float"
         },
         {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "Cores AVG CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_LOAD_AVG_1",
+            "desc": "CPU AVG Load(1分钟)",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_LOAD_AVG_5",
+            "desc": "CPU AVG Load(5分钟)",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_LOAD_AVG_15",
+            "desc": "CPU AVG Load(15分钟)",
+            "type": "Float"
+        },
+        {
             "name": "CPU_CORES",
             "desc": "Cpu Cores",
             "type": "Int"
@@ -209,6 +229,11 @@
                 {
                     "name": "CPU_USAGE",
                     "desc": "CPU%",
+                    "type": "Float"
+                },
+                {
+                    "name": "CPU_USAGE_PERCORE",
+                    "desc": "Cores AVG CPU%",
                     "type": "Float"
                 },
                 {

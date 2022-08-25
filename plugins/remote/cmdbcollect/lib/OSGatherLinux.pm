@@ -40,6 +40,19 @@ sub getUpTime {
     $osInfo->{UPTIME} = int($uptime);
 }
 
+sub getCpuLoad {
+    my ( $self, $osInfo ) = @_;
+    my $procLoadAvg = IO::File->new('</proc/loadavg');
+    if ( defined($procLoadAvg) ) {
+        my $line = $procLoadAvg->getline();
+        if ( $line =~ /^(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)/ ) {
+            $osInfo->{'CPU_LOAD_AVG_1'}  = 0.0 + $1;
+            $osInfo->{'CPU_LOAD_AVG_5'}  = 0.0 + $2;
+            $osInfo->{'CPU_LOAD_AVG_15'} = 0.0 + $3;
+        }
+    }
+}
+
 sub getOsVersion {
     my ( $self, $osInfo ) = @_;
     my $osVer;
@@ -591,6 +604,8 @@ sub getPerformanceInfo {
     my ( $self, $osInfo ) = @_;
     my $utils = $self->{collectUtils};
 
+    $self->getCpuLoad($osInfo);
+
     my $hasCpuSum = 0;
     my $userCpu   = 0.0;
     my $sysCpu    = 0.0;
@@ -692,12 +707,13 @@ sub getPerformanceInfo {
         if ( $procInfo->{'%MEM'} > 10 ) {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
-            $procInfo->{COMMAND}   = $command;
-            $procInfo->{VIRT}      = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{RES}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{SHR}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
-            $procInfo->{MEM_USAGE} = delete( $procInfo->{'%MEM'} );
+            $procInfo->{COMMAND}           = $command;
+            $procInfo->{VIRT}              = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{CPU_USAGE}         = delete( $procInfo->{'%CPU'} );
+            $procInfo->{CPU_USAGE_PERCORE} = $procInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
+            $procInfo->{MEM_USAGE}         = delete( $procInfo->{'%MEM'} );
             push( @memTopProc, $procInfo );
         }
     }
@@ -705,6 +721,7 @@ sub getPerformanceInfo {
     $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
     $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
     $osInfo->{CPU_USAGE}         = $userCpu + $sysCpu;
+    $osInfo->{CPU_USAGE_PERCORE} = $osInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
     $osInfo->{IOWAIT_PCT}        = $iowait;
 }
 
@@ -757,13 +774,20 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
+    return $osInfo;
+}
+
+sub collectOsPerfInfo {
+    my ( $self, $osInfo ) = @_;
     if ( $self->{inspect} == 1 ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+            $osInfo->{CPU_LOGIC_CORES} = 1;
+        }
+
         $self->getPerformanceInfo($osInfo);
         $self->getInspectMisc($osInfo);
         $self->getSecurityInfo($osInfo);
     }
-
-    return $osInfo;
 }
 
 sub getMainBoardInfo {
@@ -1041,6 +1065,8 @@ sub collect {
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
     $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}        = $osInfo->{DISKS};
+
+    $self->collectOsPerfInfo($osInfo);
 
     if ( $osInfo->{IS_VIRTUAL} == 0 ) {
         return ( $hostInfo, $osInfo );

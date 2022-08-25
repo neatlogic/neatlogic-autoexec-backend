@@ -278,7 +278,7 @@ sub getCPUCores {
 sub getUsers {
     my ( $self, $osInfo ) = @_;
 
-    my @users = ();
+    my @users         = ();
     my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', { charset => $self->{codepage} } );
     for ( my $i = 1 ; $i < scalar(@$userInfoLines) ; $i++ ) {
         my $userInfo = {};
@@ -318,7 +318,7 @@ sub getMountPointInfo {
 
     for ( my $i = 1 ; $i < scalar(@$ldiskInfoLines) ; $i++ ) {
         my @splits = split( /\s+/, $$ldiskInfoLines[$i] );
-        my $size = int( $splits[ $ldiskFieldIdxMap->{Size} ] * 100 / 1024 / 1024 / 1024 ) / 100;
+        my $size   = int( $splits[ $ldiskFieldIdxMap->{Size} ] * 100 / 1024 / 1024 / 1024 ) / 100;
         if ( $size > 0 ) {
             my $ldiskInfo = {};
             my $free      = int( $splits[ $ldiskFieldIdxMap->{FreeSpace} ] * 100 / 1024 / 1024 / 1024 ) / 100;
@@ -344,7 +344,7 @@ sub getDiskInfo {
     # \\.\PHYSICALDRIVE0  \\.\PHYSICALDRIVE0  0                2         0             6000c29f49a80cce2b4b8dd0710281a4  85896599040
 
     #因为磁盘型号有空格，无法正确切分，所以单独查询，并通过序列号进行关联
-    my $diskSNModelMap = {};
+    my $diskSNModelMap     = {};
     my $diskModelInfoLines = $self->getCmdOutLines( 'wmic diskdrive get serialnumber,model', 'Administrator', { charset => $self->{codepage} } );
     foreach my $line (@$diskModelInfoLines) {
 
@@ -374,7 +374,7 @@ sub getDiskInfo {
         $diskFieldIdxMap->{$fieldName} = $i;
     }
     for ( my $i = 1 ; $i < scalar(@$diskInfoLines) ; $i++ ) {
-        my @splits = split( /\s+/, $$diskInfoLines[$i] );
+        my @splits  = split( /\s+/, $$diskInfoLines[$i] );
         my $sizeIdx = $diskFieldIdxMap->{Size};
         if ( not defined($sizeIdx) ) {
             next;
@@ -407,12 +407,20 @@ sub getPerformanceInfo {
     my $cpuCount = 0;
     my $cpuLoad  = 0.0;
     for my $line (@$cpuPercentInfo) {
-        if ( $line =~ /^[\s\d\.]+$/ ) {
+        if ( $line =~ /^\s*([\d\.]+)\s*$/ ) {
             $cpuCount = $cpuCount + 1;
-            $cpuLoad  = $cpuLoad + $line;
+            $cpuLoad  = $cpuLoad + $1;
         }
     }
-    $osInfo->{CPU_USAGE} = int( $cpuLoad * 100 / $cpuCount ) / 100;
+    $osInfo->{CPU_USAGE}         = int( $cpuLoad * 100 ) / 100;
+    $osInfo->{CPU_USAGE_PERCORE} = int( $cpuLoad * 100 / $cpuCount ) / 100;
+
+    my $cpuQueueInfo = $self->getCmdOutLines('wmic path Win32_PerfFormattedData_PerfOS_System get ProcessorQueueLength');
+    for my $line (@$cpuQueueInfo) {
+        if ( $line =~ /^\s*([\d\.]+)\s*$/ ) {
+            $osInfo->{CPU_QUEUE_LEN} = 0.0 + $1;
+        }
+    }
 }
 
 sub collectOsInfo {
@@ -437,9 +445,18 @@ sub collectOsInfo {
         $self->getIpAddrs($osInfo);
     }
 
-    $self->getPerformanceInfo($osInfo);
-
     return $osInfo;
+}
+
+sub collectOsPerfInfo {
+    my ( $self, $osInfo ) = @_;
+    if ( $self->{inspect} == 1 ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+            $osInfo->{CPU_LOGIC_CORES} = 1;
+        }
+
+        $self->getPerformanceInfo($osInfo);
+    }
 }
 
 sub getBoardInfo {
@@ -569,6 +586,9 @@ sub collect {
 
     $hostInfo->{MEM_TOTAL}     = $osInfo->{MEM_TOTAL};
     $hostInfo->{MEM_AVAILABLE} = $osInfo->{MEM_AVAILABLE};
+
+    $self->collectOsPerfInfo($osInfo);
+
     if ( $osInfo->{IS_VIRTUAL} == 1 ) {
         return ( undef, $osInfo );
     }
