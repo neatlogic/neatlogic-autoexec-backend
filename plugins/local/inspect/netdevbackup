@@ -6,9 +6,11 @@ use lib "$FindBin::Bin/../lib";
 use strict;
 use Getopt::Long;
 use JSON;
+use File::Spec;
+use IO::File;
+
 use AutoExecUtils;
 use NetExpect;
-use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -23,12 +25,18 @@ sub storeFile {
     if ( !-e $jobPath ) {
         mkdir($jobPath);
     }
+
     my $fileName = File::Spec->catfile( $jobPath, "$host.txt" );
-    my $fh;
-    open( $fh, '>', $fileName ) or die "can't open $fileName $!";
-    print $fh ($result);
-    close($fh);
-    print("INFO: :save backup file: $fileName done.\n");
+    my $fh       = IO::File->new(">$fileName");
+    if ( defined($fh) ) {
+        $fh->print($result);
+        $fh->close();
+    }
+    else {
+        die("can't open $fileName $!");
+    }
+    print("FINE: Save backup file: $fileName success.\n");
+
     my $res = {};
     $res->{'fullPath'}   = $fileName;
     $res->{'serverPath'} = "$host.txt";
