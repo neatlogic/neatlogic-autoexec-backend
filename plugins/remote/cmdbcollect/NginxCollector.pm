@@ -170,6 +170,16 @@ sub collect {
     my $incldes        = getIncludeContents( $self, $http, 'server' );
     my $serverRs       = transObjRef( $self, $http->{'server'}, $incldes );
 
+    #整体配置文件未定义server，全部都是include的情况
+    if(scalar(@$serverRs) == 0 ){
+        $serverRs = transObjRef( $self, $http, $incldes );
+    }
+
+    #如果主配置和include配置都未定义server，直接退出
+    if(scalar(@$serverRs) == 0){
+        return undef; 
+    }
+
     my @serverCollect = ();
     for my $server (@$serverRs) {
 
@@ -342,6 +352,9 @@ sub getIncludeContents {
 sub transObjRef {
     my ( $self, $target, $include ) = @_;
     my @list = ();
+    if(not defined($target)) {
+        return \@list;
+    }
     if ( ref($target) eq 'HASH' ) {
         push( @list, $target );
     }
