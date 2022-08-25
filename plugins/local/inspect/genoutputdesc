@@ -88,12 +88,8 @@ if __name__ == "__main__":
             except:
                 pass
 
-        collection = db['_job_output_desc']
-        if(existsCollection == False):
-            pkDef = ['jobId', 'phase', 'pluginId']
-            createPKIndex(collection , pkDef )
-
         currentTime = datetime.datetime.utcnow()
+        collection = db['_job_output_desc']
         for key in paramMap:
             insArray = key.split("-")
             data = {}
@@ -105,6 +101,11 @@ if __name__ == "__main__":
             
             primaryKey = {'jobId': jobId, 'phase': data['phase'], 'pluginId': data['pluginId']}
             collection.replace_one(primaryKey, data, upsert=True)
+
+            if(existsCollection == False):
+                pkDef = ['jobId', 'phase', 'pluginId']
+                createPKIndex(collection , pkDef )
+
             print('INFO: Update {}/{}/{} report output desc success.'.format(data['phase'], data['pluginId'], paramMap[key]))
 
         print('FINE: Save Job report output desc data success.')
