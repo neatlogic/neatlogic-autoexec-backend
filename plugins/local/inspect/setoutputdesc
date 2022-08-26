@@ -20,7 +20,7 @@ def createPKIndex(collection, pkDef):
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name='idx_pk', unique=True)
-    collection.create_index([('_renewtime', 1)],name='idx_ttl', expireAfterSeconds=15811200)
+    collection.create_index([('_updatetime', 1)],name='idx_ttl', expireAfterSeconds=15811200)
 
 
 if __name__ == "__main__":
@@ -81,7 +81,6 @@ if __name__ == "__main__":
         existsCollection = False
         for collection in db.list_collection_names():
             try:
-                collection.index('COLLECT_')
                 if(collection == '_job_output_desc'):
                     existsCollection = True
                     break 
