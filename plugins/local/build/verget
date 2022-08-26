@@ -81,7 +81,7 @@ sub main {
     }
     if ( not defined($buildNo) or $buildNo eq '' ) {
         $optionError = 1;
-        print("ERROR: Build number not defined by option --buildno or Environment:VERSION\n");
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
     }
     if ( not defined($repo) or $repo eq '' ) {
         $optionError = 1;
