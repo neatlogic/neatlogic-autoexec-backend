@@ -19,7 +19,7 @@
     }],
     "argument": {
         "name": "导出字段",
-        "help": "导出字段，需要在导出作业报告中显示的数据字段",
+        "help": "导出字段，需要在导出作业报告中显示的数据字段,如：#{test.test_699960005763109.outfile}",
         "type": "text",
         "count": 0,
         "isConst": "false",
