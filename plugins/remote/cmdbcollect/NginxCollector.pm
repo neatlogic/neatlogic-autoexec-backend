@@ -409,15 +409,19 @@ sub getSetVariable {
     }
     if ( exists( $data->{$key} ) ) {
         my $value = $data->{$key};
-        for my $ins (@$value) {
-            if ( scalar(@$ins) > 1 ) {
-                my $k = @$ins[0];
-                my $v = @$ins[1];
-                $k =~ s/^\s+|\s+$//g;
-                $k =~ s/;//;
-                $v =~ s/^\s+|\s+$//g;
-                $v =~ s/;//;
-                $variables->{$k} = $v;
+        if (not defined($value) or scalar($value) == 0 ){
+            return $variables ;
+        }else{
+            for my $ins (@$value) {
+                if ( scalar(@$ins) > 1 ) {
+                    my $k = @$ins[0];
+                    my $v = @$ins[1];
+                    $k =~ s/^\s+|\s+$//g;
+                    $k =~ s/;//;
+                    $v =~ s/^\s+|\s+$//g;
+                    $v =~ s/;//;
+                    $variables->{$k} = $v;
+                }
             }
         }
     }
@@ -435,11 +439,13 @@ sub getUpstream {
             my @upsList = ();
             my $srRs    = $ups->{'server'};
             for my $sr (@$srRs) {
-                my $target = @$sr[0];
-                if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
-                    $target = $1;
+                if (scalar(@$sr) > 0 ){
+                    my $target = @$sr[0];
+                    if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
+                        $target = $1;
+                    }
+                    push( @upsList, $target );
                 }
-                push( @upsList, $target );
             }
             $upstream->{'TARGET'} = \@upsList;
             push( @upstreamList, $upstream );
