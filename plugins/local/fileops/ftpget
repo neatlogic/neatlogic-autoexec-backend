@@ -6,6 +6,7 @@ use Getopt::Long;
 use File::Basename;
 use Net::FTP::Recursive;
 use File::Path;
+use File::Spec;
 
 use ServerConf;
 use AutoExecUtils;
@@ -52,8 +53,7 @@ sub main {
     }
 
     if ( not defined($localDir) or $localDir eq '' ) {
-        print("ERROR: Must define dest path.\n");
-        usage();
+        $localDir = '.';
     }
     if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
         print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
@@ -86,12 +86,14 @@ sub main {
         $pass = $serverConf->decryptPwd($pass);
     }
 
+    my $saveTargetPath;
     my $errorCode = 0;
 
     if ( !-e $localDir ) {
         $errorCode = 1;
         print("ERROR: Directory $localDir not exists.\n");
-    }else {
+    }
+    else {
         my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
         if ( defined($user) and $user ne '' ) {
             $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
@@ -109,21 +111,33 @@ sub main {
 
         chdir($localDir);
         if ( $isFile == 0 ) {
-            print("INFO: Download folder $srvDir.\n");
-            my $folder = File::Spec->catfile( $localDir, $srvDir );
+            my $folder = File::Spec->catfile( $localDir, basename($srvDir) );
+            print("INFO: Download folder $srvDir to $folder.\n");
+
             if ( !-d $folder ) {
                 mkpath($folder);
             }
             chdir($folder);
             $ftp->rget( $srvDir, $folder );
+            $saveTargetPath = File::Spec->canonpath($folder);
         }
         else {
             print("INFO: Download file $srvDir.\n");
             $ftp->get($srvDir);
+            my $fileName = basename($srvDir);
+            $saveTargetPath = File::Spec->canonpath("$localDir/$fileName");
         }
 
         $ftp->quit;
     }
+
+    if ( $errorCode != 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

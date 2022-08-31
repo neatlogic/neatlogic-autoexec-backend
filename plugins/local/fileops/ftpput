@@ -4,6 +4,7 @@ use FindBin;
 use IO::File;
 use Getopt::Long;
 use File::Basename;
+use File::Spec;
 use Net::FTP::Recursive;
 
 use ServerConf;
@@ -85,13 +86,15 @@ sub main {
         $pass = $serverConf->decryptPwd($pass);
     }
 
+    my $saveTargetPath;
     my $errorCode = 0;
 
     my $isFile = 0;
     if ( !-e $localDir ) {
         $errorCode = 1;
         print("ERROR: Directory $localDir not exists.\n");
-    }else {
+    }
+    else {
         my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
         if ( defined($user) and $user ne '' ) {
             $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
@@ -105,6 +108,7 @@ sub main {
         else {
             $isFile = 1;
         }
+
         #切换目标路径
         $ftp->cwd($srvDir);
         if ( $isFile == 0 ) {
@@ -114,14 +118,25 @@ sub main {
             $ftp->cwd($target_name);
             chdir($localDir);
             $ftp->rput($localDir);
+            $saveTargetPath = File::Spec->canonpath("$addr/$target_name");
         }
         else {
             print("INFO: Upload file $localDir.\n");
+            my $target_name = basename($localDir);
             $ftp->put($localDir);
+            $saveTargetPath = File::Spec->canonpath("$addr/$target_name");
         }
 
         $ftp->quit;
     }
+
+    if ( $errorCode != 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

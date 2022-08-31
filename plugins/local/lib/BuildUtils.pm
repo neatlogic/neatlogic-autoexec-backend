@@ -5,6 +5,7 @@ package BuildUtils;
 use Cwd;
 use File::Path;
 use File::Basename;
+use File::Glob qw(bsd_glob);
 
 use ServerAdapter;
 use DeployUtils;

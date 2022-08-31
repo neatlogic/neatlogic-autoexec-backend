@@ -6,6 +6,7 @@ use Getopt::Long;
 use File::Basename;
 use WebCtl;
 use File::Path;
+use File::Spec;
 
 use ServerConf;
 use AutoExecUtils;
@@ -74,6 +75,7 @@ sub main {
         $pass = $serverConf->decryptPwd($pass);
     }
 
+    my $uploadResponse;
     my $errorCode = 0;
 
     if ( !-e $localDir ) {
@@ -86,8 +88,9 @@ sub main {
             $webCtl->addCredentials( $addr, $user, $pass );
         }
         eval {
-            $webCtl->upload( $addr, 'file', $localDir, {}, {} );
+            my $content = $webCtl->upload( $addr, 'file', $localDir, {}, {} );
             print("FINE: Upload $localDir to $addr success.\n");
+            $uploadResponse = $content;
         };
         if ($@) {
             $errorCode = $errorCode + 1;
@@ -96,6 +99,10 @@ sub main {
             print("ERROR: $errMsg\n");
         }
     }
+
+    my $out = {};
+    $out->{uploadResponse} = $uploadResponse;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

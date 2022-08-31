@@ -6,6 +6,7 @@ use Getopt::Long;
 use File::Basename;
 use HTTP::Tiny;
 use File::Path;
+use File::Spec;
 
 use ServerConf;
 use AutoExecUtils;
@@ -51,9 +52,9 @@ sub main {
     }
 
     if ( not defined($localDir) or $localDir eq '' ) {
-        print("ERROR: Must define dest path.\n");
-        usage();
+        $localDir = '.';
     }
+
     if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
         print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
@@ -73,6 +74,7 @@ sub main {
         $pass = $serverConf->decryptPwd($pass);
     }
 
+    my $saveTargetPath;
     my $errorCode = 0;
 
     if ( !-e $localDir ) {
@@ -104,6 +106,7 @@ sub main {
         my $response = $http->mirror( $addr, $localFile, { headers => $headers } );
         if ( $response->{success} ) {
             print("FINE: Download $addr to $localFile success.\n");
+            $saveTargetPath = File::Spec->canonpath($localFile);
         }
         else {
             $errorCode = $errorCode + 1;
@@ -111,6 +114,10 @@ sub main {
             print("ERROR: Download $addr to $localFile failed.\n$content.\n");
         }
     }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

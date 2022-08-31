@@ -9,6 +9,7 @@ use Getopt::Long;
 use File::Basename;
 use HTTP::Tiny;
 use File::Path;
+use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -68,6 +69,7 @@ sub main {
         usage();
     }
 
+    my $saveTargetPath;
     my $errorCode = 0;
 
     if ( !-e $localDir ) {
@@ -99,6 +101,7 @@ sub main {
         my $response = $http->mirror( $addr, $localFile, { headers => $headers } );
         if ( $response->{success} ) {
             print("FINE: Download $addr to $localFile success.\n");
+            $saveTargetPath = File::Spec->canonpath($localFile);
         }
         else {
             $errorCode = $errorCode + 1;
@@ -106,6 +109,10 @@ sub main {
             print("ERROR: Download $addr to $localFile failed.\n$content.\n");
         }
     }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

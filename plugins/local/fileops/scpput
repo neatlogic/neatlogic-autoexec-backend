@@ -2,7 +2,9 @@
 use strict;
 use FindBin;
 use Getopt::Long;
+use File::Basename;
 use File::Glob qw(bsd_glob);
+use File::Spec;
 use Cwd;
 
 use ServerConf;
@@ -104,7 +106,7 @@ sub myExec {
     my $user      = $args{username};
     my $pass      = $args{password};
     my $src       = $args{source};
-    my $localDir  = $args{destination};
+    my $srvDir    = $args{destination};
     my $isVerbose = $args{verbose};
     my $np        = $args{notpreserve};
 
@@ -114,12 +116,30 @@ sub myExec {
         username    => $user,
         password    => $pass,
         source      => $src,
-        destination => $localDir,
+        destination => $srvDir,
         verbose     => $isVerbose,
         notpreserve => $np
     );
 
+    my $saveTargetPath;
+    if ( $srvDir =~ /\/$/ ) {
+        my $fileName = basename($src);
+        $saveTargetPath = "$srvDir$fileName";
+    }
+    else {
+        $saveTargetPath = $srvDir;
+    }
+
     my $rc = $scpExec->exec();
+
+    if ( $rc ne 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
     return $rc;
 }
 

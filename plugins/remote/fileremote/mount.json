@@ -6,8 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "Unix环境挂载NAS",
-    "option": [
-        {
+    "option": [{
             "opt": "addr",
             "name": "NAS地址",
             "help": "NAS地址, 例如: 192.168.0.222:/DataVolume/Public",
@@ -51,8 +50,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "默认",
                         "value": ""
                     },
@@ -80,8 +78,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "默认",
                         "value": ""
                     },
@@ -98,12 +95,10 @@
             "defaultValue": ""
         }
     ],
-    "output": [
-        {
-            "opt": "path",
-            "name": "挂载目录",
-            "help": "挂载目录",
-            "type": "text"
-        }
-    ]
+    "output": [{
+        "opt": "mountPoint",
+        "name": "挂载目录",
+        "help": "挂载目录",
+        "type": "text"
+    }]
 }

@@ -6,6 +6,8 @@ use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 use strict;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
+use File::Basename;
+use File::Spec;
 use Cwd;
 use POSIX;
 
@@ -27,13 +29,13 @@ sub main {
     my ( $node, $direction, $addr, $remoteDir, $localDir, $user, $pass );
 
     my $pname = $FindBin::Script;
-    
+
     my $askPass = $ENV{'SSH_ASKPASS_PASSWORD'};
     if ( defined($askPass) and $askPass ne '' ) {
         print($askPass);
         exit(0);
     }
-    
+
     $isVerbose = 0;
     GetOptions(
         'h|help'      => \$isHelp,
@@ -73,21 +75,31 @@ sub main {
         $port = 22;
     }
 
-    my $scpPath = "$user\@$host:$remoteDir";
-    my $quietOpt = '';
-    my $notpreserve = 0 ;
+    my $scpPath     = "$user\@$host:$remoteDir";
+    my $quietOpt    = '';
+    my $notpreserve = 0;
     $quietOpt = 'q' if ( $isVerbose == 0 );
     my $preserveOpt = 'p';
     $preserveOpt = '' if ($notpreserve);
 
-    my $cmd ="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $scpPath $localDir  ";
+    my $saveTargetPath;
+    if ( not -e $localDir and $localDir !~ /\/$/ ) {
+        $saveTargetPath = File::Spec->canonpath($localDir);
+    }
+    else {
+        my $fileName = basename($scpPath);
+        $saveTargetPath = File::Spec->canonpath("$localDir/$fileName");
+    }
+
+    my $cmd = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $scpPath $localDir  ";
     my $pid = fork();
-    if(not defined($pid)){
+    if ( not defined($pid) ) {
         die("ERROR: :Fork failed:$!\n");
-    }elsif ( $pid == 0 ) {
+    }
+    elsif ( $pid == 0 ) {
         setsid();
-       
-        $ENV{SSH_ASKPASS}          = "$FindBin::Bin/$pname";;
+
+        $ENV{SSH_ASKPASS}          = "$FindBin::Bin/$pname";
         $ENV{SSH_ASKPASS_PASSWORD} = $pass;
         $ENV{DISPLAY}              = ':0';
         open( STDIN, '<', '/dev/null' );
@@ -96,7 +108,7 @@ sub main {
     }
 
     $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
-        kill( 'TERM', $pid ); 
+        kill( 'TERM', $pid );
 
         my $maxWait = 5;
         my $loop    = 0;
@@ -111,14 +123,20 @@ sub main {
     };
 
     waitpid( $pid, 0 );
-    
-    my $errorCode = $? ;
+
+    my $errorCode = $?;
     if ( $errorCode > 0 ) {
+        undef($saveTargetPath);
         print("ERROR: Download $scpPath to $localDir failed.\n");
     }
     else {
         print("INFO: Download $scpPath to $localDir success.\n");
     }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
     return $errorCode;
 }
 

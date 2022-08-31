@@ -108,7 +108,7 @@ sub main {
     }
 
     my $out = {};
-    $out->{PATH} = $target;
+    $out->{mountPoint} = $target;
     AutoExecUtils::saveOutput($out);
     return $ret;
 }

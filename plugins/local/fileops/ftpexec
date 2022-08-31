@@ -58,11 +58,11 @@ sub main {
     }
 
     if ( not defined($dest) or $dest eq '' ) {
-        print("ERROR: Must define src path.\n");
+        print("ERROR: Must define directory in ftp server.\n");
         usage();
     }
     if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
-        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        print("ERROR: Directory in ftp server can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
 

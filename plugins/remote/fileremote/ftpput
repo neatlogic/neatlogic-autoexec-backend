@@ -8,6 +8,7 @@ use IO::File;
 use Getopt::Long;
 use File::Basename;
 use Net::FTP::Recursive;
+use File::Spec;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -79,6 +80,7 @@ sub main {
         usage();
     }
 
+    my $saveTargetPath;
     my $errorCode = 0;
 
     my $isFile = 0;
@@ -108,14 +110,25 @@ sub main {
             $ftp->cwd($target_name);
             chdir($localDir);
             $ftp->rput($localDir);
+            $saveTargetPath = File::Spec->canonpath("$addr/$target_name");
         }
         else {
             print("INFO: Upload file $localDir.\n");
+            my $target_name = basename($localDir);
             $ftp->put($localDir);
+            $saveTargetPath = File::Spec->canonpath("$addr/$target_name");
         }
 
         $ftp->quit;
     }
+
+    if ( $errorCode != 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
 
     return $errorCode;
 }

@@ -6,6 +6,8 @@ use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
 use strict;
 use Getopt::Long;
 use File::Glob qw(bsd_glob);
+use File::Basename;
+use File::Spec;
 use Cwd;
 use POSIX;
 
@@ -82,6 +84,15 @@ sub main {
     my $preserveOpt = 'p';
     $preserveOpt = '' if ($notpreserve);
 
+    my $saveTargetPath;
+    if ( $scpPath =~ /\/$/ ) {
+        my $fileName = basename($localDir);
+        $saveTargetPath = "$scpPath$fileName";
+    }
+    else {
+        $saveTargetPath = $scpPath;
+    }
+
     my $cmd = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $localDir $scpPath ";
     my $pid = fork();
     if ( not defined($pid) ) {
@@ -121,11 +132,17 @@ sub main {
 
     my $errorCode = $?;
     if ( $errorCode ne 0 ) {
+        undef($saveTargetPath);
         print("ERROR: Upload $localDir to $scpPath failed.\n");
     }
     else {
         print("INFO: Upload $localDir to $scpPath success.\n");
     }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
     return $errorCode;
 }
 

@@ -2,7 +2,9 @@
 use strict;
 use FindBin;
 use Getopt::Long;
+use File::Basename;
 use File::Glob qw(bsd_glob);
+use File::Spec;
 use Cwd;
 
 use ServerConf;
@@ -48,8 +50,7 @@ sub main {
     }
 
     if ( not defined($localDir) or $localDir eq '' ) {
-        print("ERROR: Must define local directory by option --dir.\n");
-        $optionError = 1;
+        $localDir = '.';
     }
 
     if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
@@ -116,7 +117,25 @@ sub myExec {
         notpreserve => $np
     );
 
+    my $saveTargetPath;
+    if ( not -e $localDir and $localDir !~ /\/$/ ) {
+        $saveTargetPath = File::Spec->canonpath($localDir);
+    }
+    else {
+        my $fileName = basename($src);
+        $saveTargetPath = File::Spec->canonpath("$localDir/$fileName");
+    }
+
     my $rc = $scpExec->exec();
+
+    if ( $rc ne 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
     return $rc;
 }
 
