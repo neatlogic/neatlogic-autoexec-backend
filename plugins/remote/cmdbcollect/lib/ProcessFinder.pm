@@ -34,16 +34,17 @@ sub new {
     #......
 
     my $self = {
-        callback   => $args{callback},
-        inspect    => $args{inspect},
-        connGather => $args{connGather},
-        appsMap    => {},
-        appsArray  => [],
-        osInfo     => $args{osInfo},
-        passArgs   => $args{passArgs},
-        bizIp      => $args{bizIp},
-        ipAddrs    => $args{ipAddrs},
-        ipv6Addrs  => $args{ipv6Addrs}
+        callback    => $args{callback},
+        inspect     => $args{inspect},
+        connGather  => $args{connGather},
+        appsMap     => {},
+        appsArray   => [],
+        osInfo      => $args{osInfo},
+        passArgs    => $args{passArgs},
+        bizIp       => $args{bizIp},
+        ipAddrs     => $args{ipAddrs},
+        ipv6Addrs   => $args{ipv6Addrs},
+        procEnvName => $args{procEnvName}
     };
 
     $self->{procFilters}      = $procFilters;
@@ -381,9 +382,8 @@ sub findProcess {
                         $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
                     }
                     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                    last;
                 }
-
-                last;
             }
         }
 

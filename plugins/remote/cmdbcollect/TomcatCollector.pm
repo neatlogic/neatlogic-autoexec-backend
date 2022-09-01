@@ -98,6 +98,28 @@ sub collect {
                 }
             }
 
+            if ( not defined($port) ) {
+                while ( $xml =~ /<\s*Connector\s[^>]*?>/isg ) {
+                    my $matchContent = $&;
+                    if ( $matchContent =~ /port="(.*?)"/ ) {
+                        $port = $1;
+                        if ( $port =~ /\$\{(.*?)\}/ ) {
+                            my $optName = $1;
+                            if ( $cmdLine =~ /-D$optName=(\d+)/ ) {
+                                $port = $1;
+                            }
+                        }
+
+                        if ( not defined( $lsnPortsMap->{$port} ) ) {
+                            undef($port);
+                        }
+                        else {
+                            last;
+                        }
+                    }
+                }
+            }
+
             if ( defined($port) ) {
                 push( @ports, int($port) );
             }

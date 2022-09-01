@@ -55,10 +55,14 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $envMap   = $procInfo->{ENVIRONMENT};
 
-    if ( not defined( $envMap->{TS_INSNAME} ) or $envMap->{TS_INSNAME} eq '' ) {
+    my $pFinder     = $self->{pFinder};
+    my $procEnvName = $pFinder->{procEnvName};
+    if ( defined($procEnvName) and $procEnvName eq '' ) {
+        if ( not defined( $envMap->{TS_INSNAME} ) or $envMap->{TS_INSNAME} eq '' ) {
 
-        #没有标记的Java进程，忽略
-        return undef;
+            #没有标记的Java进程，忽略
+            return undef;
+        }
     }
 
     my $cmdLine = $procInfo->{COMMAND};
