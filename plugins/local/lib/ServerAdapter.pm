@@ -247,7 +247,7 @@ sub addVer {
     #repoType, repo, trunk, branch, tag, tagsDir, buildNo, isFreeze, startRev, endRev
     my $params = $self->_getParams($buildEnv);
 
-    my $uptVerInfo = {};
+    my $uptVerInfo = { status => 'pending' };
     while ( my ( $key, $val ) = each(%$verInfo) ) {
         if ( $key eq 'version' ) {
             $params->{version} = $val;
