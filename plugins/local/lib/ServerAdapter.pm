@@ -39,7 +39,7 @@ sub new {
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
             'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
-            'addVer'             => '/codedriver/api/rest/deploy/version/info/add/forautoexec',
+            'addVer'             => '/codedriver/api/rest/deploy/version/save/forautoexec',
             'updateVer'          => '/codedriver/api/rest/deploy/version/info/update/forautoexec',
             'delBuild'           => '/codedriver/api/rest/deploy/version/buildNo/delete',
             'delVer'             => '/codedriver/api/rest/deploy/version/delete',
