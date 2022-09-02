@@ -78,7 +78,6 @@ sub collect {
     }
 
     $appInfo->{PORT}     = $port;
-    $appInfo->{PORTS}    = $ports;
     $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     $self->getServerName($appInfo);

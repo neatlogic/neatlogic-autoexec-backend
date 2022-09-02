@@ -68,12 +68,14 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
+            "name": "LISTEN",
+            "desc": "Listen Addr",
+            "type": "JsonArray",
             "subset": [
                 {
-                    "type": "Int"
+                    "name": "ADDR",
+                    "desc": "Addr",
+                    "type": "String"
                 }
             ]
         },

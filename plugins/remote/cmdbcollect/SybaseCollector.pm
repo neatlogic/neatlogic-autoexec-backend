@@ -21,9 +21,9 @@ use CollectObjCat;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps  => ['\bdataserver\b'],                       #正则表达是匹配ps输出
-        psAttrs  => { PPID => '1', COMM => 'dataserver' },    #ps的属性的精确匹配
-        envAttrs => { SYBROOT => undef, SYBASE => undef }     #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps  => ['\bdataserver\b'],                              #正则表达是匹配ps输出
+        psAttrs  => { PPID    => '1',   COMM   => 'dataserver' },    #ps的属性的精确匹配
+        envAttrs => { SYBROOT => undef, SYBASE => undef }            #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -119,15 +119,16 @@ sub collect {
     #         master tcp ether 192.168.0.24 5002
     #         query tcp ether sit_deploy_24 5002
     #         query tcp ether 192.168.0.24 5002
-    my $insInfo = $self->getFileContent("$homePath/interfaces");
+    my $insInfoLine = $self->getFileContent("$homePath/interfaces");
 
-    while ( $insInfo =~ /(\S+)\s*\n\s*master.*?(\S+)\s+(\d+)\s*\n/sg ) {
+    while ( $insInfoLine =~ /(\S+)\s*\n\s*master.*?(\S+)\s+(\d+)\s*\n/sg ) {
         my $insName = $1;
         my $ip      = $2;
         my $port    = $3;
 
         my $insInfo = {
             _OBJ_CATEGORY => $objCat,
+            _MULTI_PROC   => 1,
             SERVER_NAME   => $insName,
             INSTANCE_NAME => $insName,
             INSTALL_PATH  => $homePath,
@@ -136,7 +137,8 @@ sub collect {
             DATA_FILE     => $dataFile,
             VERSION       => $version,
             PORT          => $port,
-            SSL_PORT      => undef
+            SSL_PORT      => undef,
+            LISTEN        => { ADDR => "$port" }
         };
         if ( $ip =~ /\d+(\.\d+){3}/ ) {
             $insInfo->{IP} = $ip;

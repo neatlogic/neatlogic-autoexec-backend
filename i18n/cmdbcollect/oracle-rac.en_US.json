@@ -63,18 +63,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Port",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"

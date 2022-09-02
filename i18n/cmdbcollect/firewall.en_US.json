@@ -43,58 +43,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NO",
-                    "desc": "Port No.",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Port Name",
-                    "type": "String"
-                },
-                {
-                    "name": "INDEX",
-                    "desc": "Index",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "MAC",
-                    "type": "String"
-                },
-                {
-                    "name": "ADMIN_STATUS",
-                    "desc": "Admin Status",
-                    "type": "String"
-                },
-                {
-                    "name": "OPER_STATUS",
-                    "desc": "Operation Status",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed",
-                    "type": "Float"
-                },
-                {
-                    "name": "MTU",
-                    "desc": "MTU",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",

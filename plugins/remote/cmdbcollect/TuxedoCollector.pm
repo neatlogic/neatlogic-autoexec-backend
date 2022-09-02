@@ -43,6 +43,7 @@ sub collect {
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $appInfo->{_MULTI_PROC}   = 1;
 
     my $pid     = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};

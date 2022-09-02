@@ -55,7 +55,7 @@ sub collect {
     }
     my $procInfo = $self->{procInfo};
     my $command  = $procInfo->{COMMAND};
-    my $exePath = $procInfo->{EXECUTABLE_FILE};
+    my $exePath  = $procInfo->{EXECUTABLE_FILE};
 
     if ( $command =~ /^.*?(\/.*?\/nginx)(?=\s)/ or $command =~ /^.*?(\/.*?\/nginx)$/ ) {
         $exePath = $1;
@@ -101,7 +101,7 @@ sub collect {
     }
 
     #nginx子进程读取配置文件目录，子进程读取不到配置就读取父进程的配置，如读取不到直接return
-    if (! -e $configFile ){
+    if ( !-e $configFile ) {
         my $masterProcInfo = $self->getMasterProc();
         if ( defined($masterProcInfo) ) {
             my $pprocInfo = $masterProcInfo->{procInfo};
@@ -115,11 +115,12 @@ sub collect {
                     $configFile = "$pworkPath/$configFile";
                 }
                 $configPath = dirname($configFile);
-            }           
-            if(! -e $configFile ) {
+            }
+            if ( !-e $configFile ) {
                 return undef;
             }
-        }else{
+        }
+        else {
             return undef;
         }
     }
@@ -171,13 +172,13 @@ sub collect {
     my $serverRs       = transObjRef( $self, $http->{'server'}, $incldes );
 
     #整体配置文件未定义server，全部都是include的情况
-    if(scalar(@$serverRs) == 0 ){
+    if ( scalar(@$serverRs) == 0 ) {
         $serverRs = transObjRef( $self, $http, $incldes );
     }
 
     #如果主配置和include配置都未定义server，直接退出
-    if(scalar(@$serverRs) == 0){
-        return undef; 
+    if ( scalar(@$serverRs) == 0 ) {
+        return undef;
     }
 
     my @serverCollect = ();
@@ -186,6 +187,7 @@ sub collect {
         #扁平化处理
         my $ins = {};
         $ins->{_OBJ_CATEGORY}        = CollectObjCat->get('INS');
+        $ins->{_MULTI_PROC}          = 1;
         $ins->{SERVER_NAME}          = 'nginx';
         $ins->{EXE_PATH}             = $exePath;
         $ins->{BIN_PATH}             = $binPath;
@@ -301,13 +303,13 @@ sub getIncludeFiles {
         if ( $file =~ /\*/ ) {
             my @rexfiles = glob("$file");
             foreach my $conf (@rexfiles) {
-                if(-e $conf){
+                if ( -e $conf ) {
                     push( @confFiles, $conf );
                 }
             }
         }
         else {
-            if(-e $file){
+            if ( -e $file ) {
                 push( @confFiles, $file );
             }
         }
@@ -352,7 +354,7 @@ sub getIncludeContents {
 sub transObjRef {
     my ( $self, $target, $include ) = @_;
     my @list = ();
-    if(not defined($target)) {
+    if ( not defined($target) ) {
         return \@list;
     }
     if ( ref($target) eq 'HASH' ) {
@@ -409,9 +411,10 @@ sub getSetVariable {
     }
     if ( exists( $data->{$key} ) ) {
         my $value = $data->{$key};
-        if (not defined($value) or scalar($value) == 0 ){
-            return $variables ;
-        }else{
+        if ( not defined($value) or scalar($value) == 0 ) {
+            return $variables;
+        }
+        else {
             for my $ins (@$value) {
                 if ( scalar(@$ins) > 1 ) {
                     my $k = @$ins[0];
@@ -439,7 +442,7 @@ sub getUpstream {
             my @upsList = ();
             my $srRs    = $ups->{'server'};
             for my $sr (@$srRs) {
-                if (scalar(@$sr) > 0 ){
+                if ( scalar(@$sr) > 0 ) {
                     my $target = @$sr[0];
                     if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
                         $target = $1;

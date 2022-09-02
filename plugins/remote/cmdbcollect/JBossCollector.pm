@@ -249,7 +249,6 @@ sub collect {
         if ( defined($sslPort) ) {
             push( @ports, $sslPort );
         }
-        $appInfo->{PORTS} = \@ports;
     }
     else {
         print("WARN: Can not fand catalina.base in command:$cmdLine, failed.\n");

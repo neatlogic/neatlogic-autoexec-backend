@@ -699,6 +699,7 @@ sub collectRAC {
     $racInfo->{_OBJ_CATEGORY}    = CollectObjCat->get('CLUSTER');
     $racInfo->{_OBJ_TYPE}        = 'DBCluster';
     $racInfo->{_APP_TYPE}        = 'Oracle';
+    $racInfo->{_MULTI_PROC}      = 1;
     $racInfo->{CLUSTER_MODE}     = 'RAC';
     $racInfo->{CLUSTER_SOFTWARE} = 'Oracle Grid';
 

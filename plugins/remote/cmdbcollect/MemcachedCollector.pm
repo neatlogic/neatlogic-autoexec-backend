@@ -76,7 +76,6 @@ sub collect {
     $appInfo->{MIN_SPACE_PER_RECORD} = undef;
 
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
-    $appInfo->{PORTS} = $ports;
 
     if ( defined($homePath) or $homePath ne '' ) {
         if ( $cmdLine =~ /\s-S\s/ ) {

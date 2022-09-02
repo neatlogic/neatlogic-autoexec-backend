@@ -97,6 +97,7 @@ sub collect {
     my $appInfo  = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $appInfo->{_OBJ_TYPE}     = 'PHP';
+    $appInfo->{_MULTI_PROC}   = 1;
 
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
@@ -106,8 +107,7 @@ sub collect {
     }
 
     if ( $port < 65535 ) {
-        $appInfo->{PORT}  = $port;
-        $appInfo->{PORTS} = $ports;
+        $appInfo->{PORT} = $port;
     }
 
     $self->getServerName();

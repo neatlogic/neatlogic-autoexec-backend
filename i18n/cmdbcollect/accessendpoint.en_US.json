@@ -36,16 +36,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "ACCESS_ENDPOINT",
             "desc": "Access Endpoint",
             "type": "String"

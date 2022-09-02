@@ -167,7 +167,6 @@ sub getConfInfo {
         }
     }
 
-    $confInfo->{PORTS}      = \@listenPorts;
     $confInfo->{PORT}       = $listenPorts[0];
     $confInfo->{ADMIN_PORT} = $listenPorts[0];
     $confInfo->{MON_PORT}   = $listenPorts[0];
@@ -200,6 +199,7 @@ sub collect {
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $appInfo->{_MULTI_PROC}   = 1;
 
     my $confPath;
     my $instPath;

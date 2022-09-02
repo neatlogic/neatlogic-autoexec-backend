@@ -63,16 +63,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",

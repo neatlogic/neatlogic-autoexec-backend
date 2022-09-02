@@ -333,8 +333,12 @@ sub getTcpInfo {
     $insInfo->{LISTEN_ADDRS} = \@listenAddrs;
 
     $insInfo->{PORT} = $miniPort;
-    my @ports = sort( keys(%$allPorts) );
-    $insInfo->{PORTS} = \@ports;
+
+    my @ports = ();
+    foreach my $lsnPort ( sort( keys(%$allPorts) ) ) {
+        push( @ports, { ADDR => "$lsnPort" } );
+    }
+    $insInfo->{LISTEN} = \@ports;
 }
 
 sub collectIns {
@@ -361,6 +365,7 @@ sub collectIns {
     my $oraSid = $envMap->{ORACLE_SID};
 
     $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $insInfo->{_MULTI_PROC}   = 1;
     $insInfo->{ORACLE_HOME}   = $oraHome;
     $insInfo->{ORACLE_BASE}   = $oraBase;
     $insInfo->{ORACLE_SID}    = $oraSid;

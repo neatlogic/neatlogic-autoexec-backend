@@ -63,18 +63,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "所有端口列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "端口",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"

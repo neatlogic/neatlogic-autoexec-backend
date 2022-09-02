@@ -350,7 +350,7 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
             "OS_ID": "380303927205890"
         },
         "JVM_VERSION": "1.8.0_77-b03",
-        "PORTS": ["8080", "9345"],
+        "LISTEN": [{"ADDR":"8080"}, {"ADDR":"127.0.0.1:9345"}],
         "_OBJ_TYPE": "Tomcat",
         "OS_ID": "380303927205890",
         "SSL_PORT": "9345",

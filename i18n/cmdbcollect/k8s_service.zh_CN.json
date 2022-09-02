@@ -23,38 +23,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "ports",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "PROTOCOL",
-                    "desc": "协议",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "服务端口",
-                    "type": "String"
-                },
-                {
-                    "name": "TARGETPORT",
-                    "desc": "容器端口",
-                    "type": "String"
-                },
-                {
-                    "name": "NODEPORT",
-                    "desc": "操作系统端口",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTERIP",
             "desc": "集群IP",
             "type": "String"

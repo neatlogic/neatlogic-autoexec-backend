@@ -39,6 +39,8 @@ sub collect {
     my $appInfo  = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $appInfo->{_OBJ_TYPE}     = 'Vcs';
+    $appInfo->{_MULTI_PROC}   = 1;
+
     my $environment = $procInfo->{ENVIRONMENT};
     my $vcshome     = $environment->{VCS_HOME};
     my $vcsconf     = $environment->{VCS_CONF};
@@ -79,9 +81,9 @@ sub collect {
         if ( $line =~ /vcs-app/ ) {
             $appInfo->{PORT} = @infos[1];
         }
-        push( @ports, $infos[1] );
+        push( @ports, { ADDR => $infos[1] } );
     }
-    $appInfo->{PORTS} = \@ports;
+    $appInfo->{LISTEN} = \@ports;
 
     my $port           = $appInfo->{PORT};
     my $hagrpLines     = $self->getCmdOutLines("$vcsbin/hagrp -state");

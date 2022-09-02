@@ -101,8 +101,7 @@ sub collect {
         return undef;
     }
 
-    $appInfo->{PORTS} = $ports;
-    $appInfo->{PORT}  = $port;
+    $appInfo->{PORT} = $port;
 
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{SSL_PORT}       = undef;

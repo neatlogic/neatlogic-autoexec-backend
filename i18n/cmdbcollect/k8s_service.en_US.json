@@ -23,38 +23,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "ports",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "PROTOCOL",
-                    "desc": "Protocol",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "String"
-                },
-                {
-                    "name": "TARGETPORT",
-                    "desc": "TargetPort",
-                    "type": "String"
-                },
-                {
-                    "name": "NODEPORT",
-                    "desc": "NodePort",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTERIP",
             "desc": "Cluster Ip",
             "type": "String"

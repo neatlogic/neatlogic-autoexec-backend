@@ -66,12 +66,14 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
+            "name": "LISTEN",
             "desc": "端口列表",
-            "type": "Array",
+            "type": "JsonArray",
             "subset": [
                 {
-                    "type": "Int"
+                    "name": "ADDR",
+                    "desc": "地址",
+                    "type": "String"
                 }
             ]
         },

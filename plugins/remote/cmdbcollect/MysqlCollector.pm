@@ -65,7 +65,7 @@ sub getUser {
 sub parseCommandOpts {
     my ( $self, $command ) = @_;
 
-    my $opts = {};
+    my $opts  = {};
     my @items = split( /\s+--/, $command );
     $opts->{mysqldPath} = $items[0];
     if ( $items[0] =~ /^(.*?)\/bin\/mysqld/ or $items[0] =~ /^(.*?)\/sbin\/mysqld/ ) {
@@ -150,7 +150,6 @@ sub collect {
     $mysqlInfo->{MON_PORT}       = $port;
     $mysqlInfo->{ADMIN_PORT}     = $port;
     $mysqlInfo->{ADMIN_SSL_PORT} = undef;
-    $mysqlInfo->{PORTS}          = $ports;
 
     my ( $helpRet, $verOutLines ) = $self->getCmdOutLines( qq{"$mysqldPath" --help}, $osUser );
     if ( $helpRet ne 0 ) {

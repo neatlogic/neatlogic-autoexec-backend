@@ -153,7 +153,6 @@ sub collect {
     $appInfo->{ADMIN_SSL_PORT} = undef;
     $appInfo->{MON_PORT}       = $mngtPort;
 
-    $appInfo->{PORTS}    = $ports;
     $appInfo->{PORT}     = $port;
     $appInfo->{SSL_PORT} = undef;
 

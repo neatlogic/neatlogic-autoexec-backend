@@ -159,14 +159,21 @@ sub mergeMultiProcs {
     my @apps     = ();
     print("INFO: Begin to merge connection information with parent processes...\n");
     foreach my $pid ( keys(%$appsMap) ) {
-        my $info     = $appsMap->{$pid};
+        my $info = $appsMap->{$pid};
+        if ( not defined( $info->{_MULTI_PROC} ) ) {
+            next;
+        }
+
         my $procInfo = $info->{PROC_INFO};
 
-        my $currentInfo = $procInfo;
-        my $parentInfo  = $appsMap->{ $currentInfo->{PPID} };
+        my $parentInfo = $appsMap->{ $procInfo->{PPID} };
+
+        my $currentInfo = $info;
+        my $objCat      = $currentInfo->{_OBJ_CATEGORY};
+        my $objType     = $currentInfo->{_OBJ_TYPE};
 
         my $parentTopInfo;
-        while ( defined($parentInfo) ) {
+        while ( defined($parentInfo) and $parentInfo->{_OBJ_CATEGORY} eq $objCat and $parentInfo->{_OBJ_TYPE} eq $objType ) {
             $parentTopInfo = $parentInfo;
             $currentInfo   = $parentInfo;
             $parentInfo    = $appsMap->{ $currentInfo->{PROC_INFO}->{PPID} };
@@ -266,17 +273,21 @@ sub mergeMultiProcs {
                 $connInfo = $procInfo->{CONN_INFO};
             }
 
-            my @lsnStats = ();
-            my @lsnPorts = ();
+            my @lsnStats    = ();
+            my @lsnPorts    = ();
+            my @appLsnPorts = ();
             while ( my ( $lsnAddr, $backlogQ ) = each( %{ $connInfo->{LISTEN} } ) ) {
-                push( @lsnPorts, $lsnAddr );
-                push( @lsnStats, { 'ADDR' => $lsnAddr, 'QUEUED' => $backlogQ } );
+                push( @lsnPorts,    $lsnAddr );
+                push( @appLsnPorts, { ADDR => $lsnAddr } );
+                push( @lsnStats,    { ADDR => $lsnAddr, QUEUED => $backlogQ } );
             }
             $connInfo->{LISTEN} = \@lsnPorts;
+            if ( not defined( $appInfo->{LISTEN} ) ) {
+                $appInfo->{LISTEN} = \@appLsnPorts;
+            }
 
             my $minPort      = 65535;
             my $portsMap     = {};
-            my @portNumbers  = ();
             my $bindAddrsMap = {};
             my @bindAddrs    = ();
             foreach my $lsnPort (@lsnPorts) {
@@ -305,8 +316,7 @@ sub mergeMultiProcs {
                     $portsMap->{$myPort} = 1;
                 }
             }
-            @portNumbers      = keys(%$portsMap);
-            @bindAddrs        = keys(%$bindAddrsMap);
+            @bindAddrs = keys(%$bindAddrsMap);
             $connInfo->{BIND} = \@bindAddrs;
 
             my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
@@ -353,9 +363,7 @@ sub mergeMultiProcs {
                 $appInfo->{LISTEN_STATS} = \@lsnStats;
 
                 $appInfo->{CONN_INFO} = $connInfo;
-                if ( not defined( $appInfo->{PORTS} ) ) {
-                    $appInfo->{PORTS} = \@portNumbers;
-                }
+
                 if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
                     $appInfo->{PORT} = $minPort;
                 }

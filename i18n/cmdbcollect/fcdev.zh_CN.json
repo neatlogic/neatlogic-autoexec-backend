@@ -36,53 +36,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "端口列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "端口名",
-                    "type": "String"
-                },
-                {
-                    "name": "INDEX",
-                    "desc": "端口索引号",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "WWN",
-                    "desc": "WWM",
-                    "type": "String"
-                },
-                {
-                    "name": "ADMIN_STATUS",
-                    "desc": "管理状态",
-                    "type": "String"
-                },
-                {
-                    "name": "OPER_STATUS",
-                    "desc": "操作状态",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "带宽",
-                    "type": "Float"
-                },
-                {
-                    "name": "MTU",
-                    "desc": "MTU",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "BRAND",
             "desc": "品牌",
             "type": "String"

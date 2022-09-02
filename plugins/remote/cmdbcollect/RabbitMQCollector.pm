@@ -86,8 +86,7 @@ sub collect {
     }
 
     if ( $port < 65535 ) {
-        $appInfo->{PORT}  = $port;
-        $appInfo->{PORTS} = $ports;
+        $appInfo->{PORT} = $port;
     }
 
     $appInfo->{ADMIN_PORT}     = undef;

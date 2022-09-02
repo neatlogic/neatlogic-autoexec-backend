@@ -129,7 +129,6 @@ sub collect {
             if ( defined($sslPort) ) {
                 push( @ports, int($sslPort) );
             }
-            $appInfo->{PORTS} = \@ports;
 
             if ( not defined($port) ) {
                 print("WARN: Can not find Connector for port define in $confFile, failed.\n");

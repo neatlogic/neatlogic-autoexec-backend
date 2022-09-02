@@ -19,7 +19,7 @@ sub getConfig {
     return {
         seq      => 100,
         regExps  => ['\bdb2sysc\b'],
-        psAttrs  => { COMM => 'db2sysc' },
+        psAttrs  => { COMM     => 'db2sysc' },
         envAttrs => { DB2_HOME => undef, DB2INSTANCE => undef }
     };
 }
@@ -74,7 +74,7 @@ sub getMemInfo {
         my $line = $$memLines[$idx];
         $line =~ s/^\s*|\s*$//g;
         my @idvMemInfos = split( /\s+/, $line );
-        my $info = {
+        my $info        = {
             DB_NAME  => $idvMemInfos[0],
             MEM_USED => int( $idvMemInfos[1] * 100 / 1024 / 1024 + 0.5 ) / 100,
             HWM_USED => int( $idvMemInfos[2] * 100 / 1024 / 1024 + 0.5 ) / 100,
@@ -91,7 +91,7 @@ sub getConnManInfo {
 
     #db2 get dbm cfg
     #这里包含了DB2的大部分设置属性
-    my $dbmLines = $self->getCmdOutLines( 'db2 get dbm cfg', $insInfo->{OS_USER} );
+    my $dbmLines   = $self->getCmdOutLines( 'db2 get dbm cfg', $insInfo->{OS_USER} );
     my $linesCount = scalar(@$dbmLines);
     for ( my $idx = 0 ; $idx < $linesCount ; $idx++ ) {
         my $line = $$dbmLines[$idx];
@@ -154,14 +154,14 @@ sub getTCPInfo {
     }
 
     if ( defined($port) ) {
-        push( @ports, $port );
+        push( @ports, { LISTEN => "$port" } );
     }
     else {
         print("WARN: DB2 service $svcName not found in /etc/services.\n");
         $port = '50000';
     }
     if ( defined($sslPort) ) {
-        push( @ports, $port );
+        push( @ports, { ADDR => "$port" } );
     }
 
     my $pFinder = $self->{pFinder};
@@ -175,7 +175,7 @@ sub getTCPInfo {
     $insInfo->{MON_PORT}       = $port;
     $insInfo->{ADMIN_PORT}     = $port;
     $insInfo->{ADMIN_SSL_PORT} = $sslPort;
-    $insInfo->{PORTS}          = \@ports;
+    $insInfo->{LISTEN}         = \@ports;
 }
 
 sub getDBInfos {
@@ -256,7 +256,7 @@ sub getDBInfos {
         # 2 record(s) selected.
         my $selCmd = qq{db2 connect to "$dbName" && db2 "select distinct cast((grantee) as char(20)) as GRANTEE from syscat.tabauth" && db2 disconnect current};
 
-        my $infoLines = $self->getCmdOutLines( $selCmd, $user );
+        my $infoLines  = $self->getCmdOutLines( $selCmd, $user );
         my $linesCount = scalar(@$infoLines);
 
         my $idx  = 0;
@@ -404,7 +404,7 @@ sub collect {
     my $db2InstUser = $procInfo->{USER};
 
     my $db2InstArray = $self->getCmdOutLines( 'db2ilist', $db2InstUser );
-    my @db2Insts = grep { $_ !~ /mail/i } @$db2InstArray;
+    my @db2Insts     = grep { $_ !~ /mail/i } @$db2InstArray;
     if ( scalar(@db2Insts) == 0 ) {
         print("WARN: No db2 instance found.\n");
         return;
@@ -412,7 +412,7 @@ sub collect {
     chomp(@db2Insts);
 
     my $version;
-    my $user = $db2Insts[0];
+    my $user    = $db2Insts[0];
     my $verInfo = $self->getCmdOut( 'db2level', $user );
     if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
         $version = $1;

@@ -61,16 +61,6 @@
             "type": "String"
         },
         {
-            "name": "PORTS",
-            "desc": "Port List",
-            "type": "Array",
-            "subset": [
-                {
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",

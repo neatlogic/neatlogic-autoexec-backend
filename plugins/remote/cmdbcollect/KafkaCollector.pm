@@ -72,7 +72,7 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
 
-    my $pos = rindex( $cmdLine, 'kafka.Kafka' ) + 12;
+    my $pos      = rindex( $cmdLine, 'kafka.Kafka' ) + 12;
     my $confPath = substr( $cmdLine, $pos );
     $confPath =~ s/^\s*|\s*$//g;
 
@@ -124,8 +124,7 @@ sub collect {
         return undef;
     }
 
-    $appInfo->{PORT}  = $port;
-    $appInfo->{PORTS} = $ports;
+    $appInfo->{PORT} = $port;
 
     my @logDirs = ();
     foreach my $logDir ( split( ',', $confMap->{'log.dirs'} ) ) {

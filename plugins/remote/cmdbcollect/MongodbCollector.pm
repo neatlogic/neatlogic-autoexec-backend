@@ -94,7 +94,6 @@ sub collect {
     $mongodbInfo->{MON_PORT}       = $port;
     $mongodbInfo->{ADMIN_PORT}     = $port;
     $mongodbInfo->{ADMIN_SSL_PORT} = undef;
-    $mongodbInfo->{PORTS}          = $ports;
 
     my $version = $self->getCmdOut("$exePath --version");
     $version =~ /\"version\": (\S+)\s+/;
@@ -123,7 +122,7 @@ sub collect {
     my @dbNames = ();
     foreach my $line (@$rows) {
         my @tmp_arr = split( /\s+/, $line );
-        my $dbname = $tmp_arr[0];
+        my $dbname  = $tmp_arr[0];
         $dbname =~ s/^\s*|\s*$//g;
         if ( $dbname ne 'local' and $dbname ne 'config' ) {
             my $db = {};
@@ -241,7 +240,7 @@ sub parseConfig {
         if ( scalar(@values) > 1 ) {
             my $key   = $values[0];
             my $value = $values[1];
-            $key =~ s/^\s+|\s+$//g;
+            $key   =~ s/^\s+|\s+$//g;
             $value =~ s/^\s+['"]|['"]\s+$//g;
             if ( defined( $filter->{$key} ) ) {
                 $mongodbInfo->{ uc($key) } = $value;

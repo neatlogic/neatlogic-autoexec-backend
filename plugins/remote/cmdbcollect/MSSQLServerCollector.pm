@@ -124,7 +124,6 @@ sub collect {
     $appInfo->{VIP}        = $vip;
     $appInfo->{PORT}       = $port;
     $appInfo->{SSL_PORT}   = undef, $appInfo->{MON_PORT} = $port;
-    $appInfo->{PORTS}      = \@portNumbers;
 
     $appInfo->{DATA_FILE} = undef;
     $appInfo->{DATABASES} = [];

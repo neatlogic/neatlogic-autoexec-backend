@@ -63,7 +63,7 @@ sub parseCommandOpts {
     my ( $self, $command ) = @_;
 
     #/usr/bin/postgres -D /var/lib/pgsql/data -p 5432
-    my $opts = {};
+    my $opts  = {};
     my @items = split( /\s+-/, $command );
     $opts->{postgresqlPath} = $items[0];
     if ( $items[0] =~ /^(.*?)\/bin\/(postgres|postmaster)/ ) {
@@ -100,6 +100,7 @@ sub collect {
     my $postgresqlInfo = {};
     $postgresqlInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
     $postgresqlInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $postgresqlInfo->{_MULTI_PROC}   = 1;
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
 
@@ -131,7 +132,6 @@ sub collect {
     $postgresqlInfo->{SERVICE_ADDR} = "$vip:$port";
     $postgresqlInfo->{SSL_PORT}     = undef;
     $postgresqlInfo->{MON_PORT}     = $port;
-    $postgresqlInfo->{PORTS}        = $ports;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;
