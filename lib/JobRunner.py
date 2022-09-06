@@ -71,7 +71,7 @@ class ListenWorkThread(threading.Thread):
                             else:
                                 self.context.setEnv(name, value)
                             print("INFO: Set ENV variable({}) event recieved, processed.\n".format(name), end='')
-                    elif actionData['action'] == 'golbalLock':
+                    elif actionData['action'] == 'globalLock':
                         lockThread = threading.Thread(target=self.doLock, args=(actionData['lockParams'], addr))
                         lockThread.setName('GlobalLock')
                         lockThread.start()
@@ -80,7 +80,7 @@ class ListenWorkThread(threading.Thread):
                         if lockMode is None:
                             lockMode = ''
                         print("INFO: Lock event recieved, PID({}) {} {} for {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName')), end='')
-                    elif actionData['action'] == 'golbalLockNotify':
+                    elif actionData['action'] == 'globalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
                         print("INFO: Lock notify event recieved, lockId:{}.\n".format(actionData['lockId']), end='')
                     elif actionData['action'] == 'exit':

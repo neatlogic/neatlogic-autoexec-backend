@@ -98,7 +98,7 @@ sub _doLockByJob {
             );
 
             my $request = {};
-            $request->{action}     = 'golbalLock';
+            $request->{action}     = 'globalLock';
             $request->{lockParams} = $params;
 
             $client->send( to_json($request) );

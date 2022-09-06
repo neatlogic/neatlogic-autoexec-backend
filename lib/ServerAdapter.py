@@ -384,6 +384,7 @@ class ServerAdapter:
             'phase': phaseName,
             'roundNo': roundNo,
             'time': time.time(),
+            'pid': os.getpid(),
             'passThroughEnv': self.context.passThroughEnv
         }
         response = self.httpJSON(self.apiMap['informRoundEnded'],  params)
