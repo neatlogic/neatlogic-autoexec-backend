@@ -210,7 +210,9 @@ sub collect {
         if ( $listen =~ /(\d+)/ ) {
             $port = $1;
         }
-
+        if ( $listen eq '' or $port eq '' ) {
+            next;
+        }
         $ins->{'SERVICE_PORT'} = $port;
         $ins->{PORT}           = $port;
         $ins->{MON_PORT}       = $port;
@@ -272,7 +274,10 @@ sub getIncludeFiles {
                 for my $v (@$include) {
                     if ( $v !~ /mime.types/ and $v =~ /\.conf/ ) {
                         my $file;
-                        if ( -f $v ) {
+                        if ( $v =~ /^\// and $v =~ /\*/ ) {
+                            $file = $v;
+                        }
+                        elsif ( -f $v ) {
                             $file = $v;
                         }
                         else {
@@ -286,7 +291,10 @@ sub getIncludeFiles {
             else {
                 if ( $include !~ /mime.types/ and $include =~ /\.conf/ ) {
                     my $file;
-                    if ( -f $include ) {
+                    if ( $include =~ /^\// and $include =~ /\*/ ) {
+                        $file = $include;
+                    }
+                    elsif ( -f $include ) {
                         $file = $include;
                     }
                     else {
@@ -386,6 +394,14 @@ sub getStringValue {
     if ( exists( $data->{$key} ) ) {
         my $value = $data->{$key};
         for my $v (@$value) {
+
+            #配置文件内重复定义相同的key,取最后一个
+            #listen       [::]:10034 ssl;
+            #listen       10034 ssl;
+            if ( ref($v) =~ /Array/ ) {
+                $v = @$v[ scalar(@$v) - 1 ];
+            }
+
             if ( $v ne ';' ) {
                 $newValue = $newValue . ' ' . $v;
             }
@@ -441,9 +457,23 @@ sub getUpstream {
             $upstream->{'NAME'} = getStringValue( $self, $ups, '' );
             my @upsList = ();
             my $srRs    = $ups->{'server'};
-            for my $sr (@$srRs) {
-                if ( scalar(@$sr) > 0 ) {
-                    my $target = @$sr[0];
+            if ( not defined($srRs) ) {    #只定义upstream未定义server
+                return \@upstreamList;
+            }
+            elsif ( scalar(@$srRs) > 1 ) {    #正常定义
+                for my $sr (@$srRs) {
+                    if ( scalar(@$sr) > 0 ) {
+                        my $target = @$sr[0];
+                        if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
+                            $target = $1;
+                        }
+                        push( @upsList, $target );
+                    }
+                }
+            }
+            else {                            #upstream 只定义一个server
+                if ( scalar(@$srRs) > 0 ) {
+                    my $target = @$srRs[0];
                     if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
                         $target = $1;
                     }
