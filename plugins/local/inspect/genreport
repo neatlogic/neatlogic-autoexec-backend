@@ -420,7 +420,9 @@ if __name__ == "__main__":
             saveReport(db, ciType, resourceId, rptData)
 
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        if node.get('password'):
+            node['password'] = '******'
+        print('ERROR: Unknow Error for node {}, {}'.format(node, traceback.format_exc()))
         exit(-1)
     finally:
         if dbclient is not None:
