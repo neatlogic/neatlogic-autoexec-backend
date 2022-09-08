@@ -63,7 +63,8 @@ sub main {
 
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
-    $buildNo = $deployEnv->{BUILD_NO};
+
+    #$buildNo = $deployEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -104,8 +105,9 @@ sub main {
 
     my $versionInfo = {
         version => $version,
-        buildNo => $buildNo,
-        status  => 'releasing'
+
+        #buildNo => $buildNo,
+        status => 'releasing'
     };
 
     my $serverAdapter = ServerAdapter->new();
@@ -116,7 +118,7 @@ sub main {
         print( "INFO: Begin to download remote appbuild resource ", join( ' ', @subDirs ) . "...\n" );
 
         my $isMirror = 0;
-        eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, $buildNo, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };
+        eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, undef, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };
         if ($@) {
             $hasError = $hasError + 1;
             print($@);
