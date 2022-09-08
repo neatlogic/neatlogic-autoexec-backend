@@ -740,7 +740,7 @@ sub _getDiff {
 
     chdir($prjPath);
 
-    #[app@prd_demo_26 project]$ git diff --name-status origin/oldbase..origin/1.0.0
+    #[app@prd_demo_26 project]$ git diff --no-renames --name-status origin/oldbase..origin/1.0.0
     #M       build.xml
     #D       db/master/bsm.root/1.dml.select.sql
     #D       db/master/bsm.root/2.dml.update.sql
@@ -751,10 +751,10 @@ sub _getDiff {
     if ( $ret eq 0 ) {
         my $diffCmd;
         if ( defined($startRev) and $startRev ne '' ) {
-            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $startRev..$endRev";
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --no-renames --name-status $startRev..$endRev";
         }
         else {
-            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $baseName..HEAD";
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --no-renames --name-status $baseName..HEAD";
         }
 
         if ( defined($diffCmd) ) {
@@ -830,7 +830,7 @@ sub compare {
 
     chdir($prjPath);
 
-    #[app@prd_demo_26 project]$ git diff --name-status origin/oldbase..origin/1.0.0
+    #[app@prd_demo_26 project]$ git diff --no-renames --name-status origin/oldbase..origin/1.0.0
     #M       build.xml
     #D       db/master/bsm.root/1.dml.select.sql
     #D       db/master/bsm.root/2.dml.update.sql
@@ -841,10 +841,10 @@ sub compare {
     if ( $ret eq 0 ) {
         my $diffCmd;
         if ( defined($startRev) and $startRev ne '' ) {
-            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $startRev..$endRev";
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --no-renames --name-status $startRev..$endRev";
         }
         else {
-            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --name-status $baseName..HEAD";
+            $diffCmd = "cd '$prjPath' && git config core.quotepath false && git diff --no-renames --name-status $baseName..HEAD";
         }
 
         if ( defined($diffCmd) ) {

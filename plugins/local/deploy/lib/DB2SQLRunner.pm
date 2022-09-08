@@ -361,7 +361,7 @@ sub test {
 
         #open( STDOUT, ">&CPOUT" );
         print(qq{INFO: Db2 CONNECT TO $catalogName($host:$port/$dbName) USER "$user" USING "******"\n});
-        $ret = system(qq{db2 CONNECT TO $catalogName USER "$user" USING "$pass" > /dev/null});
+        $ret = system(qq{db2 CONNECT TO $catalogName USER '$user' USING '"$pass"' > /dev/null});
 
         if ( $ret ne 0 ) {
             print("ERROR: Db2 $user\@//$host:$port/$dbName connection test failed.\n");

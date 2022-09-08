@@ -1024,7 +1024,7 @@ sub getBuild {
         moduleName => $params->{moduleName},
         envName    => $params->{envName},
         version    => $params->{version},
-        buildNo    => $params->{buildNo},
+        buildNo    => $buildNo,
         subDirs    => $subDirs,
         proxyToUrl => $proxyToUrl
     };
