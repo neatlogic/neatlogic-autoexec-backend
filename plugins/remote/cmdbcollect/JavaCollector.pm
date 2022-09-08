@@ -28,7 +28,7 @@ sub getServerName {
     my ( $self, $appInfo ) = @_;
     my $procInfo = $self->{procInfo};
     my $cmdLine  = $procInfo->{COMMAND};
-    if ( $cmdLine =~ /\s+-jar\s+.*?([-\w]+)\.jar\b/i ) {
+    if ( $cmdLine =~ /\s+-jar\s+.*?([-\w\.]+)\.jar\b/i ) {
         my $jarName = $1;
         $jarName =~ s/^["']|["']$//g;
         my $jarName = basename($jarName);
