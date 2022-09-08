@@ -64,32 +64,30 @@ class Context(VContext.VContext):
                     fd.close()
 
         params = self.params
-        if 'jobId' in params:
-            jobId = params['jobId']
-            self.jobId = str(jobId)
+
+        self.jobId = str(params.get('jobId', '0'))
 
         if self.execUser is None:
-            if 'execUser' in params and params['execUser'] != 'system':
-                self.execUser = params['execUser']
-            else:
+            execUser = params.get('execUser', 'anonymouse')
+            if execUser == 'system':
                 self.execUser = 'anonymouse'
+            else:
+                self.execUser = execUser
 
-        if 'tenant' in params:
-            self.tenant = params['tenant']
-        if self.tenant is None:
-            self.tenant = 'none'
+        self.tenant = params.get('tenant', 'none')
+        self.opt = params.get('opt', {})
+        self.globalOpt = params.get('globalOpt', {})
 
-        if 'opt' in params:
-            self.opt = params['opt']
-        else:
-            self.opt = {}
+        jobOpt = params.get('opt', None)
+        if jobOpt is not None:
+            for k, v in jobOpt.items():
+                if isinstance(v, str):
+                    os.environ[k] = v
+                else:
+                    os.environ[k] = json.dumps(v, ensure_ascii=False)
 
-        if 'globalOpt' in params:
-            self.globalOpt = params['globalOpt']
-        else:
-            self.globalOpt = {}
-
-        if 'environment' in params:
+        procEnv = params.get('environment', None)
+        if procEnv is not None:
             procEnv = params['environment']
             for k, v in procEnv.items():
                 if isinstance(v, str):
@@ -97,51 +95,53 @@ class Context(VContext.VContext):
                 else:
                     os.environ[k] = json.dumps(v, ensure_ascii=False)
 
-            deployPath = procEnv.get('DEPLOY_PATH')
-            deployIdPath = procEnv.get('DEPLOY_ID_PATH')
+        # DEPLOY环境变量特殊处理
+        deployPath = os.getenv('DEPLOY_PATH')
+        deployIdPath = os.getenv('DEPLOY_ID_PATH')
 
-            # init deploy relative environment
-            if deployPath is not None:
-                os.environ['NAME_PATH'] = deployPath
-                nameArray = deployPath.split('/')
-                itemsCount = len(nameArray)
-                os.environ['SYS_NAME'] = nameArray[0]
-                os.environ['MODULE_NAME'] = nameArray[1]
-                if itemsCount > 2:
-                    os.environ['ENV_NAME'] = nameArray[2]
+        # init deploy relative environment
+        if deployPath is not None:
+            os.environ['NAME_PATH'] = deployPath
+            nameArray = deployPath.split('/')
+            itemsCount = len(nameArray)
+            os.environ['SYS_NAME'] = nameArray[0]
+            os.environ['MODULE_NAME'] = nameArray[1]
+            if itemsCount > 2:
+                os.environ['ENV_NAME'] = nameArray[2]
 
-            if deployIdPath is not None:
-                os.environ['ID_PATH'] = deployIdPath
-                idArray = deployIdPath.split('/')
-                itemsCount = len(idArray)
+        if deployIdPath is not None:
+            os.environ['ID_PATH'] = deployIdPath
+            idArray = deployIdPath.split('/')
+            itemsCount = len(idArray)
 
-                sysId = idArray[0]
-                os.environ['SYS_ID'] = sysId
+            sysId = idArray[0]
+            os.environ['SYS_ID'] = sysId
 
-                moduleId = idArray[1]
-                os.environ['MODULE_ID'] = moduleId
+            moduleId = idArray[1]
+            os.environ['MODULE_ID'] = moduleId
 
-                envId = None
-                if itemsCount > 2:
-                    envId = idArray[2]
-                    os.environ['ENV_ID'] = envId
+            envId = None
+            if itemsCount > 2:
+                envId = idArray[2]
+                os.environ['ENV_ID'] = envId
 
-                dataPath = '%s/verdata/%s/%s' % (self.dataPath, sysId, moduleId)
-                version = os.environ.get('VERSION')
-                buildNo = os.environ.get('BUILD_NO')
-                os.environ['DATA_PATH'] = dataPath
-                os.environ['VER_ROOT'] = '%s/artifact/%s' % (dataPath, version)
-                os.environ['PRJ_ROOT'] = '%s/workspace' % (dataPath)
-                os.environ['PRJ_PATH'] = '%s/workspace/project' % (dataPath)
-                os.environ['MIRROR_ROOT'] = '%s/artifact/mirror' % (dataPath)
-                os.environ['BUILD_ROOT'] = '%s/artifact/%s/build' % (dataPath, version)
-                os.environ['BUILD_PATH'] = '%s/artifact/%s/build/%s' % (dataPath, version, buildNo)
-                os.environ['DIST_ROOT'] = '%s/artifact/%s/env' % (dataPath, version)
-                os.environ['APP_DIST'] = '%s/artifact/%s/env/%s/app' % (dataPath, version, envId)
-                os.environ['DB_SCRIPT'] = '%s/artifact/%s/env/%s/db' % (dataPath, version, envId)
-                os.environ['TOOLS_PATH'] = '%s/tools' % (os.getenv('AUTOEXEC_HOME'))
+            dataPath = '%s/verdata/%s/%s' % (self.dataPath, sysId, moduleId)
+            version = os.environ.get('VERSION')
+            buildNo = os.environ.get('BUILD_NO')
+            os.environ['DATA_PATH'] = dataPath
+            os.environ['VER_ROOT'] = '%s/artifact/%s' % (dataPath, version)
+            os.environ['PRJ_ROOT'] = '%s/workspace' % (dataPath)
+            os.environ['PRJ_PATH'] = '%s/workspace/project' % (dataPath)
+            os.environ['MIRROR_ROOT'] = '%s/artifact/mirror' % (dataPath)
+            os.environ['BUILD_ROOT'] = '%s/artifact/%s/build' % (dataPath, version)
+            os.environ['BUILD_PATH'] = '%s/artifact/%s/build/%s' % (dataPath, version, buildNo)
+            os.environ['DIST_ROOT'] = '%s/artifact/%s/env' % (dataPath, version)
+            os.environ['APP_DIST'] = '%s/artifact/%s/env/%s/app' % (dataPath, version, envId)
+            os.environ['DB_SCRIPT'] = '%s/artifact/%s/env/%s/db' % (dataPath, version, envId)
+            os.environ['TOOLS_PATH'] = '%s/tools' % (os.getenv('AUTOEXEC_HOME'))
 
-        if 'passThroughEnv' in params:
+        passThroughInParams = params.get('passThroughEnv', None)
+        if passThroughInParams is not None:
             passThroughInParams = params['passThroughEnv']
             for key in self.passThroughEnv.keys():
                 passThroughInParams[key] = self.passThroughEnv[key]

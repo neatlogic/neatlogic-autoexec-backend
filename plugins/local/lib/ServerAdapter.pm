@@ -35,7 +35,8 @@ sub new {
         $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
-            'getIdPath' => '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get',
+            'getIdPath'         => '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get',
+            'getSysRunnerGroup' => '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
             'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
@@ -174,6 +175,35 @@ sub getIdPath {
     }
 
     return $idPath;
+}
+
+sub getSysRunnerGroup {
+    my ( $self, $idPath ) = @_;
+
+    #-----------------------
+    #getIdPath
+    #in:  $namePath  Operate enviroment path, example:mysys/mymodule/SIT
+    #ret: idPath of operate enviroment, example:100/200/3
+    #-----------------------
+
+    $idPath =~ s/^\/+|\/+$//g;
+    my @dpIds     = split( '/', $idPath );
+    my @partsName = ( 'sysId', 'moduleId', 'envId' );
+
+    my $param = {};
+    my $len   = scalar(@dpIds);
+    for ( my $idx = 0 ; $idx < $len ; $idx++ ) {
+        $param->{ $partsName[$idx] } = $dpIds[$idx];
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getSysRunnerGroup');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    my $runnerGroup = $rcObj->{runnerGroup};
+
+    return $runnerGroup;
 }
 
 sub getVer {

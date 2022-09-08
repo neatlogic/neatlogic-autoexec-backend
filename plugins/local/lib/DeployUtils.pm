@@ -59,9 +59,14 @@ sub deployInit {
 
     AutoExecUtils::setEnv();
 
-    my $dpPath          = $ENV{DEPLOY_PATH};
-    my $dpIdPath        = $ENV{DEPLOY_ID_PATH};
-    my $runnerGroupConf = $ENV{DEPLOY_RUNNERGROUP};
+    my $dpPath   = $ENV{DEPLOY_PATH};
+    my $dpIdPath = $ENV{DEPLOY_ID_PATH};
+
+    if ( not defined($dpIdPath) or $dpIdPath eq '' ) {
+        my $serverAdapter = ServerAdapter->new();
+        $dpIdPath = $serverAdapter->getIdPath($dpPath);
+        $ENV{DEPLOY_ID_PATH} = $dpIdPath;
+    }
 
     if ( not defined($version) or $version eq '' ) {
         $version = $ENV{VERSION};
@@ -71,6 +76,17 @@ sub deployInit {
     }
 
     my $deployEnv = {};
+
+    my $runnerGroupConf = $ENV{DEPLOY_RUNNERGROUP};
+    if ( not defined($runnerGroupConf) or $runnerGroupConf eq '' ) {
+        my $serverAdapter = ServerAdapter->new();
+        my $runnerGroup   = $serverAdapter->getSysRunnerGroup($dpIdPath);
+        $deployEnv->{RUNNER_GROUP} = $runnerGroup;
+        $ENV{DEPLOY_RUNNERGROUP} = to_json($runnerGroup);
+    }
+    else {
+        $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
+    }
 
     $deployEnv->{ID_PATH}   = $dpIdPath;
     $deployEnv->{NAME_PATH} = $dpPath;
@@ -147,10 +163,6 @@ sub deployInit {
         if ( defined($buildNo) ) {
             $deployEnv->{BUILD_PATH} = "$deployEnv->{BUILD_ROOT}/$buildNo";
         }
-    }
-
-    if ( defined($runnerGroupConf) and $runnerGroupConf ne '' ) {
-        $deployEnv->{RUNNER_GROUP} = from_json($runnerGroupConf);
     }
 
     return $deployEnv;
