@@ -114,11 +114,13 @@ class Context(VContext.VContext):
             envId = None
             if deployIdPath is None or deployIdPath == '':
                 idInfo = serverAdapter.getDeployIdPath(deployPath)
-                sysId = idInfo.get('sysId')
-                moduleId = idInfo.get('moduleId')
-                envId = idInfo.get('envId')
-                deployIdPath = "%s/%s/%s\n" % (sysId, moduleId, envId)
-
+                sysId = str(idInfo.get('sysId'))
+                moduleId = str(idInfo.get('moduleId'))
+                if envId is not None:
+                    envId = str(idInfo.get('envId'))
+                    deployIdPath = "%s/%s/%s" % (sysId, moduleId, envId)
+                else:
+                    deployIdPath = "%s/%s" % (sysId, moduleId)
             else:
                 idArray = deployIdPath.split('/')
                 itemsCount = len(idArray)
