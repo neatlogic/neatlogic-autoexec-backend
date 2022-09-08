@@ -51,6 +51,7 @@ class ServerAdapter:
             'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
             'globalLock': '/codedriver/api/rest/global/lock',
             'getDeployIdPath': '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
+            'getDeployRunnerGroup': '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
             'getCITxtFilePathList': '/codedriver/api/rest/inspect/configfile/resource/path/list',
             'uploadFile': '/codedriver/api/binary/file/upload',
             'removeUploadedFile': '/codedriver/api/rest/file/delete',
@@ -834,6 +835,25 @@ class ServerAdapter:
                 raise AutoExecError("Get deploy id path for {} failed, status code:{} {}".format(namePath, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, ex))
+
+    def getDeployRunnerGroup(self, sysId, moduleId, envId):
+        idPath = '%s/%s/%s' % (sysId, moduleId, envId)
+        params = {'sysId': sysId, 'moduleId': moduleId, 'envId': envId}
+        params['tenant'] = self.context.tenant
+        try:
+            response = self.httpJSON(self.apiMap['getDeployRunnerGroup'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj['Return']
+                else:
+                    raise AutoExecError("Get deploy runner group config for {} failed, {}".format(idPath, retObj['Message']))
+            else:
+                raise AutoExecError("Get deploy runner group config for {} failed, status code:{} {}".format(idPath, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get deploy runner group config for {} failed, {}".format(idPath, ex))
 
     def getCITxtFilePathList(self, resourceId):
         try:

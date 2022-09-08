@@ -35,8 +35,8 @@ sub new {
         $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
-            'getIdPath'         => '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
-            'getSysRunnerGroup' => '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
+            'getIdPath'            => '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
+            'getDeployRunnerGroup' => '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
             'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
@@ -177,7 +177,7 @@ sub getIdPath {
     return $idPath;
 }
 
-sub getSysRunnerGroup {
+sub getDeployRunnerGroup {
     my ( $self, $idPath ) = @_;
 
     #-----------------------
@@ -197,13 +197,11 @@ sub getSysRunnerGroup {
     }
 
     my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('getSysRunnerGroup');
+    my $url     = $self->_getApiUrl('getDeployRunnerGroup');
     my $content = $webCtl->postJson( $url, $param );
     my $rcObj   = $self->_getReturn($content);
 
-    my $runnerGroup = $rcObj->{runnerGroup};
-
-    return $runnerGroup;
+    return $rcObj;
 }
 
 sub getVer {

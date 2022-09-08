@@ -116,11 +116,13 @@ class Context(VContext.VContext):
                 idInfo = serverAdapter.getDeployIdPath(deployPath)
                 sysId = str(idInfo.get('sysId'))
                 moduleId = str(idInfo.get('moduleId'))
+                envId = idInfo.get('envId')
                 if envId is not None:
-                    envId = str(idInfo.get('envId'))
+                    envId = str(envId)
                     deployIdPath = "%s/%s/%s" % (sysId, moduleId, envId)
                 else:
                     deployIdPath = "%s/%s" % (sysId, moduleId)
+                os.environ['DEPLOY_ID_PATH'] = deployIdPath
             else:
                 idArray = deployIdPath.split('/')
                 itemsCount = len(idArray)
@@ -132,9 +134,12 @@ class Context(VContext.VContext):
             os.environ['ID_PATH'] = deployIdPath
             os.environ['SYS_ID'] = sysId
             os.environ['MODULE_ID'] = moduleId
-
             if envId is not None:
                 os.environ['ENV_ID'] = envId
+
+            if os.getenv('DEPLOY_RUNNERGROUP') is None:
+                runnerGroup = serverAdapter.getDeployRunnerGroup(sysId, moduleId, envId)
+                os.environ['DEPLOY_RUNNERGROUP'] = json.dumps(runnerGroup, ensure_ascii=False)
 
             dataPath = '%s/verdata/%s/%s' % (self.dataPath, sysId, moduleId)
             version = os.environ.get('VERSION')

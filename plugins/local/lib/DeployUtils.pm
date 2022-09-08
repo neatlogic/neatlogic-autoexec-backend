@@ -80,7 +80,7 @@ sub deployInit {
     my $runnerGroupConf = $ENV{DEPLOY_RUNNERGROUP};
     if ( not defined($runnerGroupConf) or $runnerGroupConf eq '' ) {
         my $serverAdapter = ServerAdapter->new();
-        my $runnerGroup   = $serverAdapter->getSysRunnerGroup($dpIdPath);
+        my $runnerGroup   = $serverAdapter->getDeployRunnerGroup($dpIdPath);
         $deployEnv->{RUNNER_GROUP} = $runnerGroup;
         $ENV{DEPLOY_RUNNERGROUP} = to_json($runnerGroup);
     }
