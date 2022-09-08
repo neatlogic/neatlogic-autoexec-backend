@@ -35,7 +35,7 @@ sub new {
         $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
-            'getIdPath'         => '/codedriver/api/rest/resourcecenter/resource/sysidmoduleidenvid/get',
+            'getIdPath'         => '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
             'getSysRunnerGroup' => '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released

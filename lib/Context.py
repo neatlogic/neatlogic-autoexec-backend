@@ -109,20 +109,29 @@ class Context(VContext.VContext):
             if itemsCount > 2:
                 os.environ['ENV_NAME'] = nameArray[2]
 
-        if deployIdPath is not None:
+            sysId = None
+            moduleId = None
+            envId = None
+            if deployIdPath is None or deployIdPath == '':
+                idInfo = serverAdapter.getDeployIdPath(deployPath)
+                sysId = idInfo.get('sysId')
+                moduleId = idInfo.get('moduleId')
+                envId = idInfo.get('envId')
+                deployIdPath = "%s/%s/%s\n" % (sysId, moduleId, envId)
+
+            else:
+                idArray = deployIdPath.split('/')
+                itemsCount = len(idArray)
+                sysId = idArray[0]
+                moduleId = idArray[1]
+                if itemsCount > 2:
+                    envId = idArray[2]
+
             os.environ['ID_PATH'] = deployIdPath
-            idArray = deployIdPath.split('/')
-            itemsCount = len(idArray)
-
-            sysId = idArray[0]
             os.environ['SYS_ID'] = sysId
-
-            moduleId = idArray[1]
             os.environ['MODULE_ID'] = moduleId
 
-            envId = None
-            if itemsCount > 2:
-                envId = idArray[2]
+            if envId is not None:
                 os.environ['ENV_ID'] = envId
 
             dataPath = '%s/verdata/%s/%s' % (self.dataPath, sysId, moduleId)
