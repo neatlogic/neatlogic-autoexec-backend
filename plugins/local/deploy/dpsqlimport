@@ -248,6 +248,9 @@ sub main {
         print( 'WARN: Unknown DB schemas:' . join( ',', @schemasToAdd ) . " are added to config panel, please go to the config panel and do the configuration.\n" );
     }
 
+    if ( $hasError != 0 ) {
+        $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
+    }
     return $hasError;
 }
 
