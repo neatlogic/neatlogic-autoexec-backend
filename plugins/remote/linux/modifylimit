@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --backup 0|1 <limits.conf content>\n");
+    exit(1);
+}
+
+sub backup {
+    my ($filePath)  = @_;
+    my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
+    my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
+    return $exitCode;
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    my $filePath = '/etc/security/limits.conf';
+
+    my $needBackup = 0;
+    my $contentJson;
+
+    GetOptions(
+        'backup:i'  => \$needBackup,
+        'content:s' => \$contentJson
+    );
+
+    if ( not defined($contentJson) or $contentJson eq '' ) {
+        print("ERROR: Must defined modify content by option --content\n");
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $scriptDir = $FindBin::Bin;
+    chdir($scriptDir);
+
+    my $confMap    = {};
+    my $contentObj = from_json($contentJson);
+    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+        $line =~ s/^\s*|\s*$//g;
+        my ( $domain, $type, $item, $val ) = split( /\s+/, $line );
+        $confMap->{"$domain $type $item"} = $val;
+    }
+
+    my $isChanged  = 0;
+    my $newContent = '';
+    my $fh         = IO::File->new("+<$filePath");
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
+                my $tmpLine = $line;
+                $tmpLine =~ s/^\s*|\s*$//g;
+                my ( $domain, $type, $item, $val ) = split( /\s+/, $tmpLine );
+                my $newVal = $confMap->{"$domain $type $item"};
+                if ( defined($newVal) ) {
+                    delete( $confMap->{"$domain $type $item"} );
+                    if ( $newVal ne $val ) {
+                        $isChanged = 1;
+                        $line =~ s/\d+$/$newVal/;
+                        print("Replace: $tmpLine -> $line");
+                    }
+                    else {
+                        print("NotChanged: $line");
+                    }
+                }
+            }
+            $newContent = $newContent . $line;
+        }
+
+        while ( my ( $key, $val ) = each(%$confMap) ) {
+            $isChanged  = 1;
+            $newContent = $newContent . "$key $val\n";
+            print("Append: $key $val\n");
+        }
+
+        if ( $isChanged == 1 ) {
+            if ( $needBackup == 1 ) {
+                my $exitCode = backup($filePath);
+                if ( $exitCode != 0 ) {
+                    print("ERROR: Backup file:$filePath failed, $!\n");
+                    $hasError = 2;
+                }
+            }
+
+            if ( $hasError == 0 ) {
+                $fh->seek( 0, 0 );
+                $fh->truncate(0);
+                $fh->write( $newContent, length($newContent) );
+            }
+        }
+
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file:$filePath, $!\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
