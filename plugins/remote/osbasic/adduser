@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --modifyifexist 0|1 --content <user config content>\n");
+    exit(1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+
+    my $modifyIfExist = 0;
+    my $contentJson;
+
+    GetOptions(
+        'content:s'       => \$contentJson,
+        'modifyifexist:i' => \$modifyIfExist
+    );
+
+    if ( not defined($contentJson) or $contentJson eq '' ) {
+        print("ERROR: Must defined modify content by option --content\n");
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $contentObj = from_json($contentJson);
+    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+        my $exitCode = 0;
+        $line =~ s/^\s*|\s*$//g;
+        my ( $name, $uid, $defaultGroup, $groups ) = split( /\s+/, $line );
+        my @groupNames = ();
+        if ( defined($groups) and $groups ne '' ) {
+            foreach my $name ( split( /\s*,\s*/, $groups ) ) {
+                if ( $name ne $defaultGroup ) {
+                    push( @groupNames, $name );
+                }
+            }
+        }
+        @groupNames = sort(@groupNames);
+        $groups     = join( ',', @groupNames );
+
+        my $existId = `id -u $name`;
+        $existId =~ s/^\s*|\s*$//g;
+        if ( $? == 0 ) {
+
+            #用户存在
+            if ( defined($uid) and $existId ne $uid ) {
+                if ( $modifyIfExist == 1 ) {
+                    $exitCode = system("usermod -u $uid $name");
+                    if ( $exitCode != 0 ) {
+                        $hasError = 1;
+                    }
+                    else {
+                        print("User $name exists with distinguish uid:$existId, change uid to:$uid\n");
+                    }
+                }
+                else {
+                    $hasError = 1;
+                    print("ERROR: User $name exists with distinguish uid:$uid\n");
+                }
+            }
+            else {
+                my $existDefaultG = `id -ng $name`;
+                $existDefaultG =~ s/^\s*|\s*$//g;
+                if ( defined($defaultGroup) and $existDefaultG ne $defaultGroup ) {
+                    if ( $modifyIfExist == 1 ) {
+                        $exitCode = system("usermod -g $defaultGroup $name");
+                        if ( $exitCode != 0 ) {
+                            $hasError = 1;
+                        }
+                        else {
+                            print("User User $name exists with distinguish default group:$existDefaultG, change group to:$defaultGroup\n");
+                        }
+                    }
+                    else {
+                        $hasError = 1;
+                        print("ERROR: User $name exists with distinguish default group:$existDefaultG\n");
+                    }
+                }
+                else {
+                    my $existsGroups = `id -nG $name`;
+                    $existsGroups =~ s/^\s*|\s*$//g;
+                    my @existGroupNames = ();
+                    foreach my $name ( split( /\s+/, $existsGroups ) ) {
+                        if ( $name ne $defaultGroup ) {
+                            push( @existGroupNames, $name );
+                        }
+                    }
+                    @existGroupNames = sort(@existGroupNames);
+                    $existDefaultG   = join( ',', @existGroupNames );
+                    if ( defined($groups) and $existDefaultG ne $groups ) {
+                        if ( $modifyIfExist == 1 ) {
+                            $exitCode = system("usermod -G '$groups' $name");
+                            if ( $exitCode != 0 ) {
+                                $hasError = 1;
+                            }
+                            else {
+                                print("User $name exists with distinguish groups:$existDefaultG, change groups to:$groups\n");
+                            }
+                        }
+                        else {
+                            $hasError = 1;
+                            print("ERROR: User $name exists with distinguish groups:$existDefaultG\n");
+                        }
+                    }
+                    else {
+                        print("WARN: User $name already exists with same groups.\n");
+                    }
+                }
+            }
+        }
+        else {
+            #用户不存在
+            my $cmd = 'useradd';
+            if ( defined($uid) and $uid ne '' ) {
+                $cmd = $cmd . " -u $uid";
+            }
+            if ( defined($defaultGroup) and $defaultGroup ne '' ) {
+                $cmd = $cmd . " -g $defaultGroup";
+            }
+            if ( defined($groups) and $groups ne '' ) {
+                $cmd = $cmd . " -G $groups";
+            }
+
+            my $exitCode = system($cmd);
+            if ( $exitCode != 0 ) {
+                $hasError = 1;
+            }
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

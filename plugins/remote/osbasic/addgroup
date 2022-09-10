@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --modifyifexist 0|1 --content <user config content>\n");
+    exit(1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+
+    my $modifyIfExist = 0;
+    my $contentJson;
+
+    GetOptions(
+        'content:s'       => \$contentJson,
+        'modifyifexist:i' => \$modifyIfExist
+    );
+
+    if ( not defined($contentJson) or $contentJson eq '' ) {
+        print("ERROR: Must defined modify content by option --content\n");
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $contentObj = from_json($contentJson);
+    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+        my $exitCode = 0;
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line =~ /^(\w+)\s+(\d+)$/ ) {
+            my $name     = $1;
+            my $gid      = $2;
+            my $existGid = `id -g $name`;
+            $existGid =~ s/^\s*|\s*$//g;
+            if ( $? != 0 ) {
+                $exitCode = system("groupadd -g $gid $name");
+            }
+            else {
+                $existGid =~ s/\s+//g;
+                if ( $gid ne $existGid ) {
+                    if ( $modifyIfExist == 1 ) {
+                        system("groupdel $name");
+                        print("WARn: Group $name exists with distinguish gid:$existGid, deleted.\n");
+                        $exitCode = system("groupadd -g $gid $name");
+                    }
+                    else {
+                        print("ERROR: Group $name exists with distinguish gid:$existGid.\n");
+                    }
+                }
+                else {
+                    print("WARN: Group $name with gid:$gid already exists.\n");
+                }
+            }
+        }
+        elsif ( $line =~ /^(\w+)$/ ) {
+            my $name     = $1;
+            my $existGid = `id -g $name`;
+            $existGid =~ s/^\s*|\s*$//g;
+            if ( $? != 0 ) {
+                $exitCode = system("groupadd $name");
+            }
+            else {
+                print("WARN: Group $name already exists.\n");
+            }
+        }
+        else {
+            print("ERROR: Malform input line: $line\n");
+            $hasError = 1;
+        }
+
+        if ( $exitCode != 0 ) {
+            $hasError = 1;
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

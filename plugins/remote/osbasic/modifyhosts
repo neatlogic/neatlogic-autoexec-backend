@@ -4,7 +4,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
 
 use strict;
-use POSIX qw(strftime);
+use POSIX qw(uname strftime);
 use IO::File;
 use JSON;
 use Getopt::Long;
@@ -27,6 +27,14 @@ sub backup {
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $filePath = '/etc/hosts';
+
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
+    if ( $osType eq 'Windows' ) {
+        my $winDir = $ENV{WINDIR};
+        $winDir =~ s/\\/\//g;
+        $filePath = "$winDir/system32/drivers/etc/hosts";
+    }
 
     my $needBackup = 0;
     my $contentJson;
