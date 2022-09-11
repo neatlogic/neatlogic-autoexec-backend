@@ -13,26 +13,23 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 --content <sysctl.conf content>\n");
+    print("$pname --filename <profile file name> --content  <environment content>\n");
     exit(1);
-}
-
-sub backup {
-    my ($filePath)  = @_;
-    my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
-    my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
-    return $exitCode;
 }
 
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
-    my $filePath = '/etc/sysctl.conf';
+    my $homePath = $ENV{HOME};
+    if ( not defined($homePath) or $homePath eq ''){
+        my $uid = $<;
+        $homePath = (getpwnam($uid))[7];
+    }
 
-    my $needBackup = 0;
+    my $fileName;
     my $contentJson;
 
     GetOptions(
-        'backup:i'  => \$needBackup,
+        'filename:i'  => \$fileName,
         'content:s' => \$contentJson
     );
 
@@ -41,16 +38,20 @@ sub main {
         usage();
     }
 
+    my $filePath = "$homePath/$fileName";
+
     my $hasError = 0;
 
-    my $scriptDir = $FindBin::Bin;
-    chdir($scriptDir);
 
+    my $exportMap = {};
     my $confMap    = {};
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line );
+        if ( $key =~ s/^export\s+// ){
+            $exportMap->{$key} = 1;
+        }
         $confMap->{$key} = $val;
     }
 
@@ -63,17 +64,34 @@ sub main {
             if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
+                
                 my ( $key, $val ) = split( /\s*=\s*/, $tmpLine );
+                
+                my $hasExport = 0;
+                if ( $key =~ s/^export\s+// ){
+                    $hasExport = 1;
+                }
+
                 my $newVal = $confMap->{$key};
                 if ( defined($newVal) ) {
                     delete( $confMap->{$key} );
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
                         $line =~ s/=.*$/=$newVal/;
+                        if ( $hasExport == 0 and $exportMap->{$key} ){
+                            $line = "export $line";
+                        }
                         print("Replace: $tmpLine -> $line");
                     }
                     else {
-                        print("NotChanged: $line");
+                        if ( $hasExport == 0 and $exportMap->{$key} ){
+                            $isChanged = 1;
+                            $line = "export $line";
+                            print("Replace: $tmpLine -> $line");
+                        }
+                        else{
+                            print("NotChanged: $line");
+                        }
                     }
                 }
             }
@@ -82,19 +100,17 @@ sub main {
 
         while ( my ( $key, $val ) = each(%$confMap) ) {
             $isChanged  = 1;
-            $newContent = $newContent . "$key=$val\n";
-            print("Append: $key=$val\n");
+            if ( $exportMap->{$key} ){
+                $newContent = $newContent . "export $key=$val\n";
+                print("Append: export $key=$val\n");
+            }
+            else{
+                $newContent = $newContent . "$key=$val\n";
+                print("Append: $key=$val\n");
+            }
         }
 
         if ( $isChanged == 1 ) {
-            if ( $needBackup == 1 ) {
-                my $exitCode = backup($filePath);
-                if ( $exitCode != 0 ) {
-                    print("ERROR: Backup file:$filePath failed, $!\n");
-                    $hasError = 2;
-                }
-            }
-
             if ( $hasError == 0 ) {
                 $fh->seek( 0, 0 );
                 $fh->truncate(0);

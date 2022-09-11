@@ -13,7 +13,7 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 <limits.conf content>\n");
+    print("$pname --backup 0|1 --content <limits.conf content>\n");
     exit(1);
 }
 
