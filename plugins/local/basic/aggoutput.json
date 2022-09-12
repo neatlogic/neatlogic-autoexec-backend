@@ -1,9 +1,9 @@
 {
     "opDesc": "输出聚合",
-    "opType": "target",
+    "opType": "runner",
     "typeName": "BASIC",
     "riskName": "HIGH",
-    "interpreter": "perl",
+    "interpreter": "python",
     "defaultProfile": null,
     "description": "对多节点输出的某个变量进行聚合",
     "option": [{

@@ -24,12 +24,13 @@ if __name__ == "__main__":
 
         for nodeOut in outCollection.find(
                 {
-                    "jobId": jobId
+                    'jobId': jobId,
+                    'data.%s' % outputKey: {'$ne': None}
                 },
                 {
-                    "host": 1,
-                    "port": 1,
-                    "data.%s" % outputKey: 1
+                    'host': 1,
+                    'port': 1,
+                    'data.%s' % outputKey: 1
                 }).batch_size(500):
 
             port = nodeOut.get('port')
