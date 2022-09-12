@@ -1,0 +1,24 @@
+{
+    "opDesc": "输出聚合",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "对多节点输出的某个变量进行聚合",
+    "option": [{
+        "opt": "outputkey",
+        "name": "变量名",
+        "help": "上游输出的变量名",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": ""
+    }],
+    "output": [{
+        "opt": "aggData",
+        "name": "聚合数据",
+        "help": "多节点输出聚合后的谁",
+        "type": "json"
+    }]
+}

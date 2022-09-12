@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --recreate 0|1 --keylen <key bits>\n");
+    exit(1);
+}
+
+sub main {
+    my $recreate = 0;
+    my $keyLen   = 2048;
+
+    GetOptions(
+        'keylen:i'   => \$keyLen,
+        'recreate:i' => \$recreate
+    );
+
+    my $homePath = $ENV{HOME};
+    if ( not defined($homePath) or $homePath eq '' ) {
+        my $uid = $<;
+        $homePath = ( getpwnam($uid) )[7];
+    }
+
+    my $pubKey;
+    my $keyPath    = "$homePath/.ssh/id_rsa";
+    my $pubKeyPath = "$homePath/.ssh/id_rsa.pub";
+    if ( -f $pubKeyPath and $recreate ) {
+        unlink($keyPath);
+        unlink($pubKeyPath);
+    }
+    if ( not -f $pubKeyPath ) {
+        system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""});
+    }
+
+    chmod( 0700, "$homePath/.ssh" );
+    chmod( 0600, $keyPath );
+
+    $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
+
+    my $out = {};
+    $out->{pubKey} = $pubKey;
+    AutoExecUtils::saveOutput($out);
+}

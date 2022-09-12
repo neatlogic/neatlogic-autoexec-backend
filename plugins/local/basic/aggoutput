@@ -1,0 +1,51 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import os
+import traceback
+import argparse
+
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--outputkey', default='', help='Output key')
+    args = parser.parse_args()
+    outputKey = args.outputkey
+
+    jobId = os.getenv('AUTOEXEC_JOBID')
+
+    out = {}
+    dbclient = None
+
+    try:
+        (dbclient, db) = AutoExecUtils.getDB()
+        outCollection = db['_node_output']
+
+        for nodeOut in outCollection.find(
+                {
+                    "jobId": jobId
+                },
+                {
+                    "host": 1,
+                    "port": 1,
+                    "data.%s" % outputKey: 1
+                }).batch_size(500):
+
+            port = nodeOut.get('port')
+            host = nodeOut.get('host')
+
+            nodeKey = host
+            if port is not None and port != '':
+                nodeKey = host + ':' + port
+
+            val = nodeOut['data'].get(outputKey)
+            out[nodeKey] = val
+
+        AutoExecUtils.saveOutput(out)
+    except:
+        print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

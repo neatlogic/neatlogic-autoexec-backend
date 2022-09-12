@@ -35,6 +35,26 @@ sub hidePwdInCmdLine {
     $0 = join( ' ', @args );
 }
 
+sub getFileContent {
+    my ($filePath) = @_;
+    my $content;
+
+    if ( -f $filePath ) {
+        my $size = -s $filePath;
+        my $fh   = new IO::File("<$filePath");
+
+        if ( defined($fh) ) {
+            $fh->read( $content, $size );
+            $fh->close();
+        }
+        else {
+            print("WARN: Open file $filePath failed $!\n");
+        }
+    }
+
+    return $content;
+}
+
 sub saveOutput {
     my ($outputData) = @_;
     my $outputPath = "$FindBin::Bin/output.json";

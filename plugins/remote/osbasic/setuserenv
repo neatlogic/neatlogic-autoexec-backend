@@ -20,17 +20,17 @@ sub usage {
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $homePath = $ENV{HOME};
-    if ( not defined($homePath) or $homePath eq ''){
+    if ( not defined($homePath) or $homePath eq '' ) {
         my $uid = $<;
-        $homePath = (getpwnam($uid))[7];
+        $homePath = ( getpwnam($uid) )[7];
     }
 
     my $fileName;
     my $contentJson;
 
     GetOptions(
-        'filename:i'  => \$fileName,
-        'content:s' => \$contentJson
+        'filename:i' => \$fileName,
+        'content:s'  => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
@@ -42,14 +42,13 @@ sub main {
 
     my $hasError = 0;
 
-
-    my $exportMap = {};
+    my $exportMap  = {};
     my $confMap    = {};
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line );
-        if ( $key =~ s/^export\s+// ){
+        if ( $key =~ s/^export\s+// ) {
             $exportMap->{$key} = 1;
         }
         $confMap->{$key} = $val;
@@ -64,11 +63,11 @@ sub main {
             if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
-                
+
                 my ( $key, $val ) = split( /\s*=\s*/, $tmpLine );
-                
+
                 my $hasExport = 0;
-                if ( $key =~ s/^export\s+// ){
+                if ( $key =~ s/^export\s+// ) {
                     $hasExport = 1;
                 }
 
@@ -78,18 +77,18 @@ sub main {
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
                         $line =~ s/=.*$/=$newVal/;
-                        if ( $hasExport == 0 and $exportMap->{$key} ){
+                        if ( $hasExport == 0 and $exportMap->{$key} ) {
                             $line = "export $line";
                         }
                         print("Replace: $tmpLine -> $line");
                     }
                     else {
-                        if ( $hasExport == 0 and $exportMap->{$key} ){
+                        if ( $hasExport == 0 and $exportMap->{$key} ) {
                             $isChanged = 1;
-                            $line = "export $line";
+                            $line      = "export $line";
                             print("Replace: $tmpLine -> $line");
                         }
-                        else{
+                        else {
                             print("NotChanged: $line");
                         }
                     }
@@ -99,12 +98,12 @@ sub main {
         }
 
         while ( my ( $key, $val ) = each(%$confMap) ) {
-            $isChanged  = 1;
-            if ( $exportMap->{$key} ){
+            $isChanged = 1;
+            if ( $exportMap->{$key} ) {
                 $newContent = $newContent . "export $key=$val\n";
                 print("Append: export $key=$val\n");
             }
-            else{
+            else {
                 $newContent = $newContent . "$key=$val\n";
                 print("Append: $key=$val\n");
             }
