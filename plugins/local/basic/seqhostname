@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
-import traceback
+import sys
 import argparse
 import json
 
 import AutoExecUtils
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -14,20 +15,38 @@ if __name__ == "__main__":
     args = parser.parse_args()
     hostNamePrefix = args.hostname
     nodesJson = args.nodes
+
+    hasOptError = False
+    if hostNamePrefix == '':
+        hasOptError = True
+        print("ERROR: Must defined hostname prefix by option --hostname")
+
+    if nodesJson == '':
+        hasOptError = True
+        print("ERROR: Must defined nodes by option --nodes")
+
+    if hasOptError:
+        sys.exit(2)
+
     nodes = json.loads(nodesJson)
 
     out = {}
-    hostIps = []
+    hostIps = {}
     for node in nodes:
-        hostIp = node.get('host')
+        hostIp = node.get('ip')
 
         if hostIp is not None and hostIp != '':
-            hostIps.append(hostIp)
+            hostIps[hostIp] = 1
 
+    sortedHostIps = list(hostIps.keys())
+    sortedHostIps.sort()
+
+    ip2Hostname = {}
     hostCount = len(hostIps)
     idx = 1
-    for hostIp in hostIps.sort():
-        out[hostIp] = hostNamePrefix + idx
+    for hostIp in sortedHostIps:
+        ip2Hostname[hostIp] = '%s%i' % (hostNamePrefix, idx)
         idx = idx + 1
+    out['ip2Hostname'] = ip2Hostname
 
     AutoExecUtils.saveOutput(out)
