@@ -355,13 +355,15 @@ sub getNodes {
             $found = 1;
         }
     }
-    elsif ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
+
+    if ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
         $nodesJsonPath = "$nodesJsonDir/nodes-gp-$groupNo.json";
         if ( -f $nodesJsonPath ) {
             $found = 1;
         }
     }
-    elsif ( $found != 1 ) {
+
+    if ( $found != 1 ) {
         $nodesJsonPath = "$nodesJsonDir/nodes.json";
     }
 
@@ -392,13 +394,15 @@ sub getNodesArray {
             $found = 1;
         }
     }
-    elsif ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
+
+    if ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
         $nodesJsonPath = "$nodesJsonDir/nodes-gp-$groupNo.json";
         if ( -f $nodesJsonPath ) {
             $found = 1;
         }
     }
-    elsif ( $found != 1 ) {
+
+    if ( $found != 1 ) {
         $nodesJsonPath = "$nodesJsonDir/nodes.json";
     }
 

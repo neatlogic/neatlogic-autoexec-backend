@@ -245,13 +245,15 @@ def getNodes(phaseName=None, groupNo=None):
         nodesJsonDir = os.path.dirname(nodesJsonPath)
         if phaseName is not None:
             nodesJsonPath = '{}/nodes-ph-{}.json'.format(nodesJsonDir, phaseName)
-            if (os.path.exists(nodesJsonPath)):
+            if os.path.exists(nodesJsonPath):
                 found = True
-        elif not found and groupNo is not None:
+
+        if not found and groupNo is not None:
             nodesJsonPath = '{}/nodes-gp-{}.json'.format(nodesJsonDir, groupNo)
-            if (os.path.exists(nodesJsonPath)):
+            if os.path.exists(nodesJsonPath):
                 found = True
-        elif not found:
+
+        if not found:
             nodesJsonPath = '{}/nodes.json'.format(nodesJsonDir)
 
         with open(nodesJsonPath, 'r') as fh:
@@ -277,13 +279,15 @@ def getNodesArray(phaseName=None, groupNo=None):
         nodesJsonDir = os.path.dirname(nodesJsonPath)
         if phaseName is not None:
             nodesJsonPath = '{}/nodes-ph-{}.json'.format(nodesJsonDir, phaseName)
-            if (os.path.exists(nodesJsonPath)):
+            if os.path.exists(nodesJsonPath):
                 found = True
-        elif not found and groupNo is not None:
+
+        if not found and groupNo is not None:
             nodesJsonPath = '{}/nodes-gp-{}.json'.format(nodesJsonDir, groupNo)
-            if (os.path.exists(nodesJsonPath)):
+            if os.path.exists(nodesJsonPath):
                 found = True
-        elif not found:
+
+        if not found:
             nodesJsonPath = '{}/nodes.json'.format(nodesJsonDir)
 
         with open(nodesJsonPath, 'r') as fh:
