@@ -1,16 +1,16 @@
 {
-    "opDesc": "输出聚合",
+    "opDesc": "获取节点信息",
     "opType": "runner",
     "typeName": "BASIC",
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "获取当前执行目标节点保存到输出参数中, 建议节点数超过32",
+    "description": "获取当前执行组某阶段执行目标信息保存到输出参数中, 建议节点数不超过32",
     "option": [],
     "output": [{
         "opt": "nodes",
         "name": "执行节点列表",
-        "help": "当前执行节点列表",
+        "help": "执行节点列表信息，不包括密码",
         "type": "json"
     }]
 }

@@ -344,20 +344,77 @@ sub setJobEnv {
 }
 
 sub getNodes {
+    my ( $phaseName, $groupNo ) = @_;
     my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
+
+    my $found        = 0;
+    my $nodesJsonDir = dirname($nodesJsonPath);
+    if ( defined($phaseName) and $phaseName ne '' ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes-ph-$phaseName.json";
+        if ( -f $nodesJsonPath ) {
+            $found = 1;
+        }
+    }
+    elsif ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes-gp-$groupNo.json";
+        if ( -f $nodesJsonPath ) {
+            $found = 1;
+        }
+    }
+    elsif ( $found != 1 ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes.json";
+    }
 
     my $nodesMap = {};
     my $fh       = IO::File->new("<$nodesJsonPath");
     if ( defined($fh) ) {
-        my $line;
+        my $line = $fh->getline();
         while ( $line = $fh->getline() ) {
             my $node = from_json($line);
+            delete( $node->{password} );
             $nodesMap->{ $node->{resourceId} } = $node;
         }
         $fh->close();
     }
 
     return $nodesMap;
+}
+
+sub getNodesArray {
+    my ( $phaseName, $groupNo ) = @_;
+    my $nodesJsonPath = $ENV{AUTOEXEC_NODES_PATH};
+
+    my $found        = 0;
+    my $nodesJsonDir = dirname($nodesJsonPath);
+    if ( defined($phaseName) and $phaseName ne '' ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes-ph-$phaseName.json";
+        if ( -f $nodesJsonPath ) {
+            $found = 1;
+        }
+    }
+    elsif ( $found != 1 and defined($groupNo) and $groupNo ne '' ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes-gp-$groupNo.json";
+        if ( -f $nodesJsonPath ) {
+            $found = 1;
+        }
+    }
+    elsif ( $found != 1 ) {
+        $nodesJsonPath = "$nodesJsonDir/nodes.json";
+    }
+
+    my @nodesArray = ();
+    my $fh         = IO::File->new("<$nodesJsonPath");
+    if ( defined($fh) ) {
+        my $line = $fh->getline();
+        while ( $line = $fh->getline() ) {
+            my $node = from_json($line);
+            delete( $node->{password} );
+            push( @nodesArray, $node );
+        }
+        $fh->close();
+    }
+
+    return \@nodesArray;
 }
 
 1;

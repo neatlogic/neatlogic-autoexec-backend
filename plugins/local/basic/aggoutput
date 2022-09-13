@@ -17,7 +17,7 @@ if __name__ == "__main__":
     hasOptError = False
     if outputKey == '':
         hasOptError = True
-        print("ERROR: Must defined output key name option --outputkey")
+        print("ERROR: Must define output key name by option --outputkey")
 
     if hasOptError:
         sys.exit(2)

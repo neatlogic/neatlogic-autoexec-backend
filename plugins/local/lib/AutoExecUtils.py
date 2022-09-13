@@ -6,6 +6,7 @@
 
 import os
 import sys
+import os.path
 import fcntl
 import socket
 import json
@@ -234,11 +235,25 @@ def setJobEnv(onlyInProcess, items):
     return
 
 
-def getNodes():
+def getNodes(phaseName=None, groupNo=None):
     nodesMap = {}
 
-    if 'AUTOEXEC_NODES_PATH' in os.environ:
-        nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
+    nodesJsonPath = os.getenv('AUTOEXEC_NODES_PATH')
+
+    if nodesJsonPath is not None:
+        found = False
+        nodesJsonDir = os.path.dirname(nodesJsonPath)
+        if phaseName is not None:
+            nodesJsonPath = '{}/nodes-ph-{}.json'.format(nodesJsonDir, phaseName)
+            if (os.path.exists(nodesJsonPath)):
+                found = True
+        elif not found and groupNo is not None:
+            nodesJsonPath = '{}/nodes-gp-{}.json'.format(nodesJsonDir, groupNo)
+            if (os.path.exists(nodesJsonPath)):
+                found = True
+        elif not found:
+            nodesJsonPath = '{}/nodes.json'.format(nodesJsonDir)
+
         with open(nodesJsonPath, 'r') as fh:
             line = fh.readline()
             while True:
@@ -252,11 +267,25 @@ def getNodes():
     return nodesMap
 
 
-def getNodesArray():
+def getNodesArray(phaseName=None, groupNo=None):
     nodesArray = []
 
-    if 'AUTOEXEC_NODES_PATH' in os.environ:
-        nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
+    nodesJsonPath = os.getenv('AUTOEXEC_NODES_PATH')
+
+    if nodesJsonPath is not None:
+        found = False
+        nodesJsonDir = os.path.dirname(nodesJsonPath)
+        if phaseName is not None:
+            nodesJsonPath = '{}/nodes-ph-{}.json'.format(nodesJsonDir, phaseName)
+            if (os.path.exists(nodesJsonPath)):
+                found = True
+        elif not found and groupNo is not None:
+            nodesJsonPath = '{}/nodes-gp-{}.json'.format(nodesJsonDir, groupNo)
+            if (os.path.exists(nodesJsonPath)):
+                found = True
+        elif not found:
+            nodesJsonPath = '{}/nodes.json'.format(nodesJsonDir)
+
         with open(nodesJsonPath, 'r') as fh:
             line = fh.readline()
             while True:
