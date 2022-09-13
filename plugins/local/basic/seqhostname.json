@@ -19,7 +19,7 @@
             "opt": "hostname",
             "name": "主机名",
             "help": "主机名前缀(不带序号部分)",
-            "type": "node",
+            "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": ""
