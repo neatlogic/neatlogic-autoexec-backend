@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对多节点输出的某个变量进行聚合",
+    "description": "对多节点输出的某个变量进行聚合,建议节点数量不超过32",
     "option": [{
         "opt": "outputkey",
         "name": "变量名",

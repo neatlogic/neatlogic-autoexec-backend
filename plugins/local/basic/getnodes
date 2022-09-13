@@ -1,0 +1,10 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+
+if __name__ == "__main__":
+    out = {}
+    out['nodes'] = AutoExecUtils.getNodesArray
+
+    AutoExecUtils.saveOutput(out)

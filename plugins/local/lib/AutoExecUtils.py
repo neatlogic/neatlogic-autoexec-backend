@@ -149,7 +149,7 @@ def getNode(resourceId):
             if not line:
                 break
             node = json.loads(line)
-            if node['resourceId'] == resourceId:
+            if node.get('resourceId') == resourceId:
                 matchNode = node
 
     return matchNode
@@ -239,16 +239,35 @@ def getNodes():
 
     if 'AUTOEXEC_NODES_PATH' in os.environ:
         nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
-        fh = open(nodesJsonPath, 'r')
-
-        while True:
+        with open(nodesJsonPath, 'r') as fh:
             line = fh.readline()
-            if not line:
-                break
-            node = json.loads(line)
-            nodesMap[node['resourceId']] = node
-
+            while True:
+                line = fh.readline()
+                if not line:
+                    break
+                node = json.loads(line)
+                del node['password']
+                nodesMap[node['resourceId']] = node
+            fh.close()
     return nodesMap
+
+
+def getNodesArray():
+    nodesArray = []
+
+    if 'AUTOEXEC_NODES_PATH' in os.environ:
+        nodesJsonPath = os.environ['AUTOEXEC_NODES_PATH']
+        with open(nodesJsonPath, 'r') as fh:
+            line = fh.readline()
+            while True:
+                line = fh.readline()
+                if not line:
+                    break
+                node = json.loads(line)
+                del node['password']
+                nodesArray.append(node)
+            fh.close()
+    return nodesArray
 
 
 def isJson(data):

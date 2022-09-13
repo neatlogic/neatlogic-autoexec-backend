@@ -1,0 +1,16 @@
+{
+    "opDesc": "输出聚合",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "获取当前执行目标节点保存到输出参数中, 建议节点数超过32",
+    "option": [],
+    "output": [{
+        "opt": "nodes",
+        "name": "执行节点列表",
+        "help": "当前执行节点列表",
+        "type": "json"
+    }]
+}

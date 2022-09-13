@@ -8,11 +8,6 @@ import argparse
 
 import AutoExecUtils
 
-
-def usage():
-    pass
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--outputkey', default='', help='Output key')
