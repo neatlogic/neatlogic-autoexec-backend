@@ -5,11 +5,11 @@
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "修改/etc/security/limit.conf设置",
+    "description": "修改/etc/security下的limit.conf或limit.d下的设置",
     "option": [{
             "opt": "backup",
             "name": "备份文件",
-            "help": "在修改前备份文件到/etc/security/limit.conf.%Y%m%d-%H%M%S",
+            "help": "修改前备份, 例如：/etc/security/limit.conf.%Y%m%d-%H%M%S",
             "type": "select",
             "required": "false",
             "validate": "",
@@ -25,6 +25,15 @@
                 ]
             },
             "defaultValue": "0"
+        },
+        {
+            "opt": "filename",
+            "name": "文件名",
+            "help": "如果修改/etc/security下的limit.conf则保持空,如需修改limit.d下的文件, 需给出文件名",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "content",

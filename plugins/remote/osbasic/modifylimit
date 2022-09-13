@@ -13,7 +13,7 @@ Getopt::Long::Configure("pass_through");
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 --content <limits.conf content>\n");
+    print("$pname --backup 0|1 --filename <limit file name> --content <limits.conf content>\n");
     exit(1);
 }
 
@@ -28,17 +28,37 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $filePath = '/etc/security/limits.conf';
 
+    my $fileName;
     my $needBackup = 0;
     my $contentJson;
 
     GetOptions(
-        'backup:i'  => \$needBackup,
-        'content:s' => \$contentJson
+        'backup:i'   => \$needBackup,
+        'filename:s' => \$fileName,
+        'content:s'  => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
         print("ERROR: Must defined modify content by option --content\n");
         usage();
+    }
+
+    if ( defined($fileName) and $fileName ne '' ) {
+        if ( index( $fileName, '/' ) ) {
+            print("ERROR: Invalid file name:$fileName, can not with directory.\n");
+            usage();
+        }
+        $filePath = "/etc/security/limit.d/$fileName";
+        if ( not -e $filePath ) {
+            my $fh = IO::File->new(">$filePath");
+            if ( defined($fh) ) {
+                $fh->close();
+            }
+            else {
+                print("ERROR: Can not create file:$filePath, $!\n");
+                exit(3);
+            }
+        }
     }
 
     my $hasError = 0;
