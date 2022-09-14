@@ -4,6 +4,7 @@ use strict;
 package AutoExecUtils;
 use FindBin;
 use POSIX;
+use Fcntl ':flock';
 use IO::Socket;
 use IO::Socket::UNIX;
 use IO::Select;
@@ -46,6 +47,26 @@ sub hidePwdInCmdLine {
         }
     }
     $0 = join( ' ', @args );
+}
+
+sub getFileContent {
+    my ($filePath) = @_;
+    my $content;
+
+    if ( -f $filePath ) {
+        my $size = -s $filePath;
+        my $fh   = new IO::File("<$filePath");
+
+        if ( defined($fh) ) {
+            $fh->read( $content, $size );
+            $fh->close();
+        }
+        else {
+            print("WARN: File:$filePath not found or can not be readed.\n");
+        }
+    }
+
+    return $content;
 }
 
 sub saveOutput {
@@ -108,6 +129,46 @@ sub getNode {
 sub getNodePipeFile {
     my ( $jobPath, $phaseName, $nodeInfo ) = @_;
     return "$jobPath/log/$phaseName/$nodeInfo->{host}-$nodeInfo->{port}-$nodeInfo->{resourceId}.txt.run.pipe";
+}
+
+sub loadNodeOutput {
+    my $output     = {};
+    my $outputPath = $ENV{NODE_OUTPUT_PATH};
+
+    # 加载操作输出并进行合并
+    if ( -f $outputPath ) {
+        my $outputFile = IO::File->new("<$outputPath");
+        if ( defined($outputFile) ) {
+            if ( flock( $outputFile, LOCK_EX ) ) {
+                my $content = getFileContent($outputPath);
+                flock( $outputFile, LOCK_UN );
+                $outputFile->close();
+                $output = from_json($content);
+            }
+        }
+    }
+    else {
+        print("WARN: Output file $outputPath not exist.\n");
+    }
+
+    return $output;
+}
+
+sub getOutput {
+    my ($varKey) = @_;
+    my $lastDotPos = rindex( $varKey, '.' );
+
+    my $varName   = substr( $varKey, $lastDotPos + 1 );
+    my $pluginId  = substr( $varKey, 0, $lastDotPos );
+    my $output    = loadNodeOutput();
+    my $pluginOut = $output->{$pluginId};
+
+    my $val;
+    if ( defined($pluginOut) ) {
+        $val = $pluginOut->{$varName};
+    }
+
+    return $val;
 }
 
 sub doInteract {

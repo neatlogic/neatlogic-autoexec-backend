@@ -180,6 +180,19 @@ def loadNodeOutput():
     return output
 
 
+def getOutput(varKey):
+    lastDotPos = varKey.rindex('.')
+    varName = varKey[lastDotPos+1:]
+    pluginId = varKey[0:lastDotPos]
+    output = loadNodeOutput()
+    pluginOut = output.get(pluginId)
+
+    val = None
+    if pluginOut is not None:
+        val = pluginOut.get(varName)
+    return val
+
+
 def informNodeWaitInput(resourceId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
     sockPath = os.getenv('AUTOEXEC_JOB_SOCK')
     phaseName = os.getenv('AUTOEXEC_PHASE_NAME')

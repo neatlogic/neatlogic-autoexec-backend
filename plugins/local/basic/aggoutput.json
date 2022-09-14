@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对多节点输出的某个变量进行聚合,建议节点数量不超过32",
+    "description": "对多节点输出的某个变量进行聚合, 如下游传值使用, 建议节点数不超过32",
     "option": [{
         "opt": "outputkey",
         "name": "变量名",
@@ -18,7 +18,7 @@
     "output": [{
         "opt": "aggData",
         "name": "聚合数据",
-        "help": "多节点输出聚合后的谁",
+        "help": "多节点输出聚合后的数据",
         "type": "json"
     }]
 }
