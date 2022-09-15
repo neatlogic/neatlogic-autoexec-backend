@@ -150,7 +150,8 @@ sub main {
         }
     }
 
-    my $out = {};
-    $out->{allIpInfo} = $ipMap;
+    my $out       = {};
+    my @allIpInfo = values(%$ipMap);
+    $out->{allIpInfo} = \@allIpInfo;
     AutoExecUtils::saveOutput($out);
 }

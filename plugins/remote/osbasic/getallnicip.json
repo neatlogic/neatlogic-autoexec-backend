@@ -10,7 +10,7 @@
     "output": [{
         "opt": "allIpInfo",
         "name": "IP信息",
-        "help": "操作系统配置的IP和网卡信息",
+        "help": "操作系统配置的IP和网卡信息列表",
         "type": "json"
     }]
 }
