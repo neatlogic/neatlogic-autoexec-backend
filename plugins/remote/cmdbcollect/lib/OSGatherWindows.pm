@@ -214,11 +214,11 @@ sub getIpAddrs {
 
     # IPAddress         IPSubnet
     # {"192.168.0.35"}  {"255.255.255.0"}
-    # IPAddress                                     IPSubnet
-    # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}
+    # IPAddress                                     IPSubnet                 MACAddress
+    # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}  00:0C:29:5E:C8:C2
     my @ipV4Addrs   = ();
     my @ipV6Addrs   = ();
-    my $ipInfoLines = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet');
+    my $ipInfoLines = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet,macaddress');
     foreach my $line (@$ipInfoLines) {
         if ( $line =~ /\{(.*?)\}\s+\{(.*?)\}/ ) {
             my @ips      = split( /\s*,\s*/, $1 );
