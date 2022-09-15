@@ -10,6 +10,8 @@ use JSON;
 use Getopt::Long;
 Getopt::Long::Configure("pass_through");
 
+use AutoExecUtils;
+
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -107,6 +109,9 @@ sub main {
                 $fh->seek( 0, 0 );
                 $fh->truncate(0);
                 $fh->write( $newContent, length($newContent) );
+
+                my $out = { hostsConf => $newContent };
+                AutoExecUtils::saveOutput($out);
             }
         }
 

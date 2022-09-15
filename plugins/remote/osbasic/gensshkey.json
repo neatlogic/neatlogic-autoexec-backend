@@ -36,5 +36,10 @@
             "defaultValue": "1"
         }
     ],
-    "output": []
+    "output": [{
+        "opt": "pubKey",
+        "name": "SSH公钥",
+        "help": "生成的SSH公钥内容",
+        "type": "text"
+    }]
 }
