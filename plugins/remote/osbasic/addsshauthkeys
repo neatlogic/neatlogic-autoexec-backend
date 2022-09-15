@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --pubkeys <pub keys json>\n");
+    exit(1);
+}
+
+sub appendPubKey {
+    my ( $keysPath, $pubKey ) = @_;
+
+    my $hasError = 0;
+    my $fh       = IO::File( $keysPath, 'r+' );
+    if ( defined($fh) ) {
+        my $exist = 0;
+        my $line;
+        while ( $line = $fh->getline() ) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line eq $pubKey ) {
+                $exist = 1;
+            }
+        }
+        if ( $exist == 0 ) {
+            $fh->seek( 0, 2 );
+            if ( not $fh->write( $pubKey . "\n", length($pubKey) + 1 ) ) {
+                $hasError = 1;
+                print("ERROR: Write to file $keysPath failed, $!\n");
+            }
+        }
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file $keysPath, $!\n");
+    }
+
+    return $hasError;
+}
+
+sub main {
+    my $pubKeysJson;
+
+    GetOptions( 'pubkeys:s' => \$pubKeysJson );
+
+    my $pubKeysSet = from_json($pubKeysJson);
+
+    my $homePath = $ENV{HOME};
+    if ( not defined($homePath) or $homePath eq '' ) {
+        my $uid = $<;
+        $homePath = ( getpwnam($uid) )[7];
+    }
+
+    my $keysPath = "$homePath/.ssh/authorized_keys";
+    chmod( 0700, "$homePath/.ssh" );
+    chmod( 0600, $keysPath );
+
+    my $hasError = 0;
+    if ( ref($pubKeysSet) eq 'HASH' ) {
+        while ( my ( $key, $val ) = each(%$pubKeysSet) ) {
+            $hasError = appendPubKey($val);
+            if ( $hasError != 0 ) {
+                last;
+            }
+        }
+    }
+    elsif ( ref($pubKeysSet) eq 'ARRAY' ) {
+        foreach my $pubKey (@$pubKeysSet) {
+            $hasError = appendPubKey($pubKey);
+            if ( $hasError != 0 ) {
+                last;
+            }
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();
+
