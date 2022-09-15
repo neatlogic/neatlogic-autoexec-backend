@@ -54,6 +54,11 @@ sub main {
 
     GetOptions( 'pubkeys:s' => \$pubKeysJson );
 
+    if ( not defined($pubKeysJson) or $pubKeysJson eq '' ) {
+        print("ERROR: Must defined pubkeys by option --pubkeys");
+        return 3;
+    }
+
     my $pubKeysSet = from_json($pubKeysJson);
 
     my $homePath = $ENV{HOME};
@@ -82,6 +87,13 @@ sub main {
                 last;
             }
         }
+    }
+    elsif ( ref($pubKeysSet) eq '' ) {
+        $hasError = appendPubKey($pubKeysSet);
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Malform pubKey options defined: $pubKeysJson\n");
     }
 
     return $hasError;
