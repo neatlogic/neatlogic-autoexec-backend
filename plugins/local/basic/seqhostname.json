@@ -2,7 +2,7 @@
     "opDesc": "生成顺序主机名",
     "opType": "runner",
     "typeName": "BASIC",
-    "riskName": "HIGH",
+    "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
     "description": "根据参数输入的多个节点的Json, 按照IP排序生成带序号的主机名",

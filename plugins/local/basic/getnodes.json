@@ -2,7 +2,7 @@
     "opDesc": "获取节点信息",
     "opType": "runner",
     "typeName": "BASIC",
-    "riskName": "HIGH",
+    "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
     "description": "获取当前执行组某阶段执行目标信息保存到输出参数中, 如下游传值使用, 建议节点数不超过32",
