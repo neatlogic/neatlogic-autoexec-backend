@@ -176,6 +176,7 @@ class Operation:
         for optName, optValue in opOpts.items():
             optType = opDesc.get(optName)
             if optType is None:
+                self.writeLog("WARN: Can not determine option {} type by params desc, it will cause none normal parameters can not be resolved.\n".format(optName))
                 continue
 
             if optType == 'password':
