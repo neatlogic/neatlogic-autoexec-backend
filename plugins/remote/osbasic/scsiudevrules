@@ -1,0 +1,200 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
+use strict;
+use IO::File;
+use File::Basename;
+
+use AutoExecUtils;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --node <node json> --aliasprefix <ASM disk prefix> --listdevcmd <command to list disk dev> --owner <Dev owner> --group <Owner group>\n");
+    exit(1);
+}
+
+sub getDiskScsiId {
+    my ($devPath) = @_;
+
+    #获取SCSI 磁盘的SCSI ID
+    my $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d DEV_NODE';
+
+    if ( $? != 0 ) {
+        die("ERROR: Can not get dev $devPath scsi id, only support scsi disk.\n");
+    }
+
+    my $cmd = $SCSI_ID_CMD;
+    $cmd =~ s/DEV_NODE/$devPath/g;
+    my $scsiId = `$cmd`;
+    $scsiId =~ s/\s+//g;
+
+    return $scsiId;
+}
+
+sub getDiskAliases {
+    my ($diskAliasPrefix) = @_;
+
+    #获取已经存在指定别名前缀的磁盘别名，返回一个从SCSI ID到设备别名的一个MAP
+    #返回的别名是去掉了/dev/前缀的
+    my $maxAliasSeqNumber = 0;
+    my $scsiIdAliasMap    = {};
+    for my $diskAliasPath ( glob("$diskAliasPrefix*") ) {
+        my $scsiId = getDiskScsiId($diskAliasPath);
+        $diskAliasPath =~ s/^\/dev\///;
+        $scsiIdAliasMap->{$scsiId} = $diskAliasPath;
+
+        if ( $diskAliasPath =~ /(\d+)$/ ) {
+            my $diskAliasSeq = int($1);
+            if ( $diskAliasSeq > $maxAliasSeqNumber ) {
+                $maxAliasSeqNumber = $diskAliasSeq;
+            }
+        }
+    }
+
+    return ( $scsiIdAliasMap, $maxAliasSeqNumber );
+}
+
+sub getDiskSize {
+    my ($devPath) = @_;
+
+    my $diskInfoTxt = `LANG=en_US.UTF-8 fdisk -l '$devPath'`;
+
+    my $diskSize = 0;
+    if ( $diskInfoTxt =~ /^Disk\s+$devPath\s+.*?(\d+)bytes/ ) {
+        $diskSize = int( $1 / 1024 / 1024 );
+    }
+
+    return $diskSize;
+}
+
+sub main {
+    AutoExecUtils::setEnv();
+
+    my ( $ishelp, $node, $diskAliasPrefix, $listDevCmd );
+    my ( $sortMethod, $owner, $group );
+    GetOptions(
+        'help'          => \$ishelp,
+        'node=s'        => \$node,
+        'aliasprefix=s' => \$diskAliasPrefix,
+        'listdevcmd=s'  => \$listDevCmd,
+        'sortmethod=s'  => \$sortMethod,
+        'owner=s'       => \$owner,
+        'group=s'       => \$group
+    );
+
+    my $hasOptErr = 0;
+
+    if ( not defined($diskAliasPrefix) or $diskAliasPrefix eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined disk alias prefix by option --aliasprefix.\n");
+    }
+
+    if ( not defined($listDevCmd) or $listDevCmd eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined list dev command by option --listdevcmd.\n");
+    }
+
+    if ( not defined($owner) or $owner eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined dev alias owner user by option --owner.\n");
+    }
+
+    if ( not defined($group) or $group eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined dev alias owner group by option --group.\n");
+    }
+
+    if ( defined($ishelp) or $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    #获取已经建立了别名的SCSI磁盘的信息，包括SCSI ID到别名的映射MAP和最大序号
+    my ( $scsiIdAliasMap, $maxAliasSeqNumber ) = getDiskAliases($diskAliasPrefix);
+
+    my $diskAliasRelPrefix = $diskAliasPrefix;
+    $diskAliasRelPrefix =~ s/^\/dev\///;
+
+    #根据提供的命令获取原始的设备列表
+    my $udevRules   = '';
+    my $diskListTxt = `$listDevCmd`;
+    $diskListTxt =~ s/^\s*|\s*$//g;
+
+    my @newDisks        = ();
+    my $scsiIdProcessed = {};
+    foreach my $diskDev ( split( /\s+/, $diskListTxt ) ) {
+        my $diskScsiId = getDiskScsiId($diskDev);
+
+        if ( defined( $scsiIdProcessed->{$diskScsiId} ) ) {
+
+            #防止存在分区的情况，同一个磁盘的多个分区，SCSI ID是一样的
+            next;
+        }
+        else {
+            $scsiIdProcessed->{$diskScsiId} = 1;
+        }
+
+        my $scsiIdAlias = $scsiIdAliasMap->{$diskScsiId};
+        if ( defined($scsiIdAlias) ) {
+
+            #如果别名已经存在，则使用原来的信息建立规则
+            my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+            print("Exist: $rule");
+            $udevRules = $udevRules . $rule;
+        }
+        else {
+            #如果是没有对应别名的磁盘，把信息存到一个数组
+            my $diskSize = getDiskSize($diskDev);
+            push( @newDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize } );
+        }
+    }
+
+    #对没有建立别名的磁盘数组进行排序
+    my @sortedDisks;
+    if ( $sortMethod eq 'size' ) {
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @newDisks;
+    }
+    elsif ( $sortMethod eq 'id' ) {
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @newDisks;
+    }
+    elsif ( $sortMethod eq 'name' ) {
+        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @newDisks;
+    }
+    elsif ( $sortMethod eq 'sizeandid' ) {
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @newDisks;
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
+    }
+    elsif ( $sortMethod eq 'sizeandname' ) {
+        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @newDisks;
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
+    }
+    else {
+        @sortedDisks = @newDisks;
+    }
+
+    my $seqNumber = $maxAliasSeqNumber + 1;
+    foreach my $diskInfo (@sortedDisks) {
+        my $diskScsiId = $diskInfo->{scsiId};
+
+        #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
+        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAliasRelPrefix$seqNumber" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+        print("Append: $rule");
+        $udevRules = $udevRules . $rule;
+        $seqNumber = $seqNumber + 1;
+    }
+
+    my $out = {};
+    $out->{udevRules} = $udevRules;
+    AutoExecUtils::saveOutput($out);
+
+    #udevadm control --reload-rules && udevadm trigger
+
+    return $hasError;
+}
+
+exit main();

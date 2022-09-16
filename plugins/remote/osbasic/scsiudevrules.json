@@ -1,0 +1,83 @@
+{
+    "opDesc": "生成SCSI磁盘Udev规则",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "多主机共享SCSI磁盘, 在其中一个主机上生成统一的Udev规则，通过其他步骤把此规则配置到其主机",
+    "option": [{
+            "opt": "aliasprefix",
+            "name": "磁盘别名前缀",
+            "help": "别名的前缀，例如：/dev/asmdisk/asm-disk-",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/dev/asmdisk/asm-disk-"
+        },
+        {
+            "opt": "listdevcmd",
+            "name": "列取磁盘命令",
+            "help": "例如：ls /dev/sd* | grep -v /dev/sda",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ls /dev/sd* | grep -v /dev/sda"
+        },
+        {
+            "opt": "sortmethod",
+            "name": "设备排序",
+            "help": "通过排序方法影响别名序号",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "默认",
+                        "value": "origin"
+                    },
+                    {
+                        "text": "大小",
+                        "value": "size"
+                    },
+                    {
+                        "text": "名称",
+                        "value": "name"
+                    },
+                    {
+                        "text": "SCSI ID",
+                        "value": "id"
+                    },
+                    {
+                        "text": "大小+ID",
+                        "value": "sizeandid"
+                    },
+                    {
+                        "text": "大小+名称",
+                        "value": "sizeandname"
+                    }
+                ]
+            },
+            "defaultValue": "sizeandid"
+        },
+        {
+            "opt": "owner",
+            "name": "设备用户",
+            "help": "设备的Owner用户",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "grid"
+        },
+        {
+            "opt": "group",
+            "name": "设备用户组",
+            "help": "设备的Owner组",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "asmadmin"
+        }
+    ],
+    "output": []
+}
