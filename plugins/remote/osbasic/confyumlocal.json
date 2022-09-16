@@ -1,0 +1,49 @@
+{
+    "opDesc": "配置本地yum源",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "配置Centos或ReadHat Linux的本地yum源",
+    "option": [{
+            "opt": "mountpoint",
+            "name": "本地目录",
+            "help": "本地目录或者ISO的挂载目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/mnt/cdrom"
+        },
+        {
+            "opt": "isofile",
+            "name": "ISO文件",
+            "help": "ISO文件所在目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "clean",
+            "name": "删除其他yum配置",
+            "help": "删除/etc/yum.repos.d下的其他配置",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}
