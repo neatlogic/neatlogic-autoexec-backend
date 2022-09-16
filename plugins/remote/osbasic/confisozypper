@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --clean <0|1> --isofile <ISO file path>\n");
+    exit(1);
+}
+
+sub main {
+    my $clean = 0;
+    my $isofile;
+    my $mountPoint;
+
+    GetOptions(
+        'isofile=i' => \$isofile,
+        'clean=i'   => \$clean
+    );
+
+    my $hasError = 0;
+
+    if ( $clean == 1 ) {
+        my @reposTxtLines = `zypper lr`;
+        foreach my $line (@reposTxtLines) {
+            if ( $line =~ /^\s*(\d+)\|(.*)\s*\|/ ) {
+                my $id   = $1;
+                my $name = $2;
+                if ( $name eq 'localISO' or $clean == 1 ) {
+                    if ( system("zypper rr $id") != 0 ) {
+                        $hasError = 1;
+                        print("ERROR: Remove repo $name failed.\n");
+                    }
+                }
+            }
+        }
+    }
+
+    my $exitCode = 0;
+
+    $exitCode = system("zypper ar -c -t yast2 'iso:/?iso=$isofile' 'localISO'");
+    if ( $exitCode != 0 ) {
+        $hasError = 1;
+        print("ERROR: Add ISO repo failed.\n");
+    }
+
+    if ( $hasError == 0 ) {
+        $exitCode = system('zypper mr -r "localISO"');
+        if ( $exitCode != 0 ) {
+            $hasError = 1;
+            print("ERROR: Enable autorefresh for repo localISO failed.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

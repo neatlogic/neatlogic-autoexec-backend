@@ -1,0 +1,40 @@
+{
+    "opDesc": "配置zypperISO源",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "配置SUSE12及以上的的本地ISO源",
+    "option": [{
+            "opt": "isofile",
+            "name": "ISO文件",
+            "help": "ISO文件所在目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "clean",
+            "name": "删除其他yum配置",
+            "help": "删除/etc/yum.repos.d下的其他配置",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}
