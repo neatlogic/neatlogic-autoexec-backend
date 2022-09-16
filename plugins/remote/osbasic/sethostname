@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --hostname <Host name> --hostnamemap <Node Ip to Host Name>\n");
+    exit(1);
+}
+
+sub main {
+    my $node;
+    my $hostName;
+    my $hostNameMapJson;
+
+    GetOptions(
+        'node=s'        => \$node,
+        'hostname=s'    => \$hostName,
+        'hostnamemap=s' => \$hostNameMapJson
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $hostNameMap;
+    if ( defined($hostNameMapJson) and $hostNameMapJson ne '' ) {
+        $hostNameMap = from_json($hostNameMapJson);
+    }
+
+    my $hasError = 0;
+
+    if ( defined($hostNameMap) ) {
+        my $ip = $nodeInfo->{ip};
+        $hostName = $hostNameMap->{$ip};
+
+        if ( not defined($hostName) or $hostName eq '' ) {
+            $hasError = 1;
+            print("ERROR: Can not find host in $hostNameMapJson for ip:$ip.\n");
+        }
+    }
+    else {
+        if ( not defined($hostName) or $hostName eq '' ) {
+            $hasError = 1;
+            print("ERROR: Must defined host name by option --hostname.\n");
+        }
+    }
+
+    if ( $hasError != 0 ) {
+        return $hasError;
+    }
+
+    $hasError = system("hostname '$hostName'");
+
+    return $hasError;
+}
+
+exit main();

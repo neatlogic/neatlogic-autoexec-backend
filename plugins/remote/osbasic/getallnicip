@@ -167,3 +167,5 @@ sub main {
 
     AutoExecUtils::saveOutput($out);
 }
+
+exit main();

@@ -8,7 +8,6 @@ use POSIX qw(uname strftime);
 use IO::File;
 use JSON;
 use Getopt::Long;
-Getopt::Long::Configure("pass_through");
 
 use AutoExecUtils;
 

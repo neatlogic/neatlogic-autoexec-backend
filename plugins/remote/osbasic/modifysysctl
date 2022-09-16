@@ -8,7 +8,6 @@ use POSIX qw(strftime);
 use IO::File;
 use JSON;
 use Getopt::Long;
-Getopt::Long::Configure("pass_through");
 
 sub usage {
     my $pname = $FindBin::Script;

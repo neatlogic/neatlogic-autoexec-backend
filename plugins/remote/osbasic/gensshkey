@@ -53,3 +53,5 @@ sub main {
     $out->{pubKey} = $pubKey;
     AutoExecUtils::saveOutput($out);
 }
+
+exit main();
