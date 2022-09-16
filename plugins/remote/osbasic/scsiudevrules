@@ -30,7 +30,7 @@ sub getDiskScsiId {
     my $cmd = $SCSI_ID_CMD;
     $cmd =~ s/DEV_NODE/$devPath/g;
     my $scsiId = `$cmd`;
-    $scsiId =~ s/\s+//g;
+    $scsiId =~ s/^\s*|\s*$//g;
 
     return $scsiId;
 }
