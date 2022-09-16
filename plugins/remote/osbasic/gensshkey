@@ -23,8 +23,8 @@ sub main {
     my $keyLen   = 2048;
 
     GetOptions(
-        'keylen:i'   => \$keyLen,
-        'recreate:i' => \$recreate
+        'keylen=i'   => \$keyLen,
+        'recreate=i' => \$recreate
     );
 
     my $homePath = $ENV{HOME};
@@ -33,25 +33,58 @@ sub main {
         $homePath = ( getpwnam($uid) )[7];
     }
 
+    my $hasError = 0;
+
     my $pubKey;
     my $keyPath    = "$homePath/.ssh/id_rsa";
     my $pubKeyPath = "$homePath/.ssh/id_rsa.pub";
-    if ( -f $pubKeyPath and $recreate ) {
-        unlink($keyPath);
-        unlink($pubKeyPath);
-    }
-    if ( not -f $pubKeyPath ) {
-        system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""});
+    if ( -f $pubKeyPath and $recreate == 1 ) {
+        if ( not unlink($keyPath) ){
+            $hasError = 1;
+            print("ERROR: Can not remove file $keyPath, $!.\n");
+        }
+        if ( not unlink($pubKeyPath) ){
+            $hasError = 1;
+            print("ERROR: Can not remove file $pubKeyPath, $!.\n");
+        }
     }
 
-    chmod( 0700, "$homePath/.ssh" );
-    chmod( 0600, $keyPath );
+    if ( not -e "$homePath/.ssh" ){
+        if ( not mkdir("$homePath/.ssh") ){
+            $hasError = 1;
+            print("ERROR: Can not create directory $homePath/.ssh, $!.\n");
+        }
+    }
+    
+    if ( not -f $pubKeyPath ) {
+        if ( system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""}) != 0 ){
+            $hasError = 1;
+            print("ERROR: Execute ssh-keygen failed.\n");
+        }
+    }
+
+    if ( not chmod( 0700, "$homePath/.ssh" ) ){
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh permission mode to 0700, $!.");
+    }
+    if ( not chmod( 0600, $keyPath ) ){
+        $hasError = 1;
+        print("ERROR: Can not change file $keyPath permission mode to 0600, $!.");        
+    }
 
     $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
+
+    if ( not defined($pubKey) or $pubKey eq '' ){
+        $hasError = 1;
+        print("ERROR: Public key is empty in file $pubKeyPath\n");
+        
+    }
 
     my $out = {};
     $out->{pubKey} = $pubKey;
     AutoExecUtils::saveOutput($out);
+
+    return $hasError;
 }
 
 exit main();
