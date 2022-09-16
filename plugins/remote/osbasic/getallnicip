@@ -50,7 +50,7 @@ sub getWindowsNicInfo {
 }
 
 sub getWindowsIpAddrs {
-    my $macsMap = getWindowsNicInfo();
+    my ($macsMap) = @_;
 
     # IPAddress         IPSubnet                 MACAddress
     # {"192.168.0.35"}  {"255.255.255.0"}        00:0C:29:5E:C8:C2
@@ -101,7 +101,12 @@ sub main {
     my $ipMap  = {};
 
     if ( $osType =~ /Windows/i ) {
-        $ipMap = getWindowsIpAddrs();
+        my $macsMap = getWindowsNicInfo();
+        $ipMap = getWindowsIpAddrs($macsMap);
+
+        while ( my ( $mac, $nicInfo ) = each(%$macsMap) ) {
+            $nicMap->{ $nicInfo->{NAME} } = $mac;
+        }
     }
     else {
 
@@ -150,8 +155,15 @@ sub main {
         }
     }
 
-    my $out       = {};
+    my $nicsTxt = '';
+    while ( my ( $name, $mac ) = each(%$nicMap) ) {
+        $nicsTxt = $nicsTxt . "$mac $name\n";
+    }
+
     my @allIpInfo = values(%$ipMap);
+    my $out       = {};
     $out->{allIpInfo} = \@allIpInfo;
+    $out->{allNics}   = $nicsTxt;
+
     AutoExecUtils::saveOutput($out);
 }
