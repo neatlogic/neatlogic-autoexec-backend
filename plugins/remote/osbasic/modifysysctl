@@ -69,7 +69,7 @@ sub main {
                     delete( $confMap->{$key} );
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
-                        $line =~ s/=.*$/=$newVal/;
+                        $line =~ s/\s*=.*$/ = $newVal/;
                         print("Replace: $tmpLine -> $line");
                     }
                     else {
@@ -82,8 +82,8 @@ sub main {
 
         while ( my ( $key, $val ) = each(%$confMap) ) {
             $isChanged  = 1;
-            $newContent = $newContent . "$key=$val\n";
-            print("Append: $key=$val\n");
+            $newContent = $newContent . "$key = $val\n";
+            print("Append: $key = $val\n");
         }
 
         if ( $isChanged == 1 ) {
