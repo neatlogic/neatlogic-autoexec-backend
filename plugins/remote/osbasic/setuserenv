@@ -46,11 +46,21 @@ sub main {
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
-        my ( $key, $val ) = split( /\s*=\s*/, $line );
+        my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
         if ( $key =~ s/^export\s+// ) {
             $exportMap->{$key} = 1;
         }
-        $confMap->{$key} = $val;
+        if ( index( $line, '=' ) > 0 ) {
+            if ( defined($val) ) {
+                $confMap->{$key} = $val;
+            }
+            else {
+                $confMap->{$key} = '';
+            }
+        }
+        else {
+            $confMap->{$key} = undef;
+        }
     }
 
     my $isChanged  = 0;
@@ -63,7 +73,7 @@ sub main {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
 
-                my ( $key, $val ) = split( /\s*=\s*/, $tmpLine );
+                my ( $key, $val ) = split( /\s*=\s*/, $tmpLine, 2 );
 
                 my $hasExport = 0;
                 if ( $key =~ s/^export\s+// ) {
@@ -103,8 +113,14 @@ sub main {
                 print("Append: export $key=$val\n");
             }
             else {
-                $newContent = $newContent . "$key=$val\n";
-                print("Append: $key=$val\n");
+                if ( defined($val) ) {
+                    $newContent = $newContent . "$key=$val\n";
+                    print("Append: $key=$val\n");
+                }
+                else {
+                    $newContent = $newContent . "$key\n";
+                    print("Append: $key\n");
+                }
             }
         }
 
