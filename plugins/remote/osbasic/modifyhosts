@@ -60,7 +60,7 @@ sub main {
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
-        my ( $ip, $name ) = split( /\s+/, $line );
+        my ( $ip, $name ) = split( /\s+/, $line, 2 );
         $confMap->{$ip} = $name;
     }
 
@@ -73,7 +73,7 @@ sub main {
             if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
-                my ( $ip, $name ) = split( /\s+/, $tmpLine );
+                my ( $ip, $name ) = split( /\s+/, $tmpLine, 2 );
                 my $newName = $confMap->{$ip};
                 if ( defined($newName) ) {
                     delete( $confMap->{$ip} );
