@@ -38,21 +38,39 @@ sub main {
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         my $exitCode = 0;
         $line =~ s/^\s*|\s*$//g;
-        my ( $name, $uid, $defaultGroup, $groups ) = split( /\s+/, $line );
-        my @groupNames = ();
-        if ( defined($groups) and $groups ne '' ) {
-            foreach my $name ( split( /\s*,\s*/, $groups ) ) {
-                if ( $name ne $defaultGroup ) {
-                    push( @groupNames, $name );
+        if ( $line eq '' ) {
+            next;
+        }
+
+        my ( $name, $uid, $defaultGroup, $groups );
+        my @inputInfo = split( /\s+/, $line, 4 );
+        $name = $inputInfo[0];
+        if ( $#inputInfo > 0 ) {
+            for ( my $i = 1 ; $i <= $#inputInfo ; $i++ ) {
+                if ( $inputInfo[$i] =~ /^\d+$/ ) {
+                    $uid = $inputInfo[$i];
+                }
+                elsif ( $inputInfo[$i] =~ /,/ ) {
+                    $groups = $inputInfo[$i];
+                }
+                else {
+                    $defaultGroup = $inputInfo[$i];
                 }
             }
         }
-        @groupNames = sort(@groupNames);
-        $groups     = join( ',', @groupNames );
 
-        my $existId = `id -u $name`;
-        $existId =~ s/^\s*|\s*$//g;
-        if ( $? == 0 ) {
+        my $groupNamesMap = { $defaultGroup => 1 };
+        if ( defined($groups) and $groups ne '' ) {
+            foreach my $name ( split( /\s*,\s*/, $groups ) ) {
+                $groupNamesMap->{$name} = 1;
+            }
+        }
+        my @groupNames = sort( keys(%$groupNamesMap) );
+        $groups = join( ',', @groupNames );
+
+        my @userInfo = getpwnam($name);
+        if (@userInfo) {
+            my $existId = $userInfo[2];
 
             #用户存在
             if ( defined($uid) and $existId ne $uid ) {
@@ -71,8 +89,7 @@ sub main {
                 }
             }
             else {
-                my $existDefaultG = `id -ng $name`;
-                $existDefaultG =~ s/^\s*|\s*$//g;
+                my $existDefaultG = $userInfo[3];
                 if ( defined($defaultGroup) and $existDefaultG ne $defaultGroup ) {
                     if ( $modifyIfExist == 1 ) {
                         $exitCode = system("usermod -g $defaultGroup $name");
@@ -91,14 +108,12 @@ sub main {
                 else {
                     my $existsGroups = `id -nG $name`;
                     $existsGroups =~ s/^\s*|\s*$//g;
-                    my @existGroupNames = ();
+                    my $existGroupNamesMap = {};
                     foreach my $name ( split( /\s+/, $existsGroups ) ) {
-                        if ( $name ne $defaultGroup ) {
-                            push( @existGroupNames, $name );
-                        }
+                        $existGroupNamesMap->{$name} = 1;
                     }
-                    @existGroupNames = sort(@existGroupNames);
-                    $existDefaultG   = join( ',', @existGroupNames );
+                    my @existGroupNames = sort( keys(%$existGroupNamesMap) );
+                    $existDefaultG = join( ',', @existGroupNames );
                     if ( defined($groups) and $existDefaultG ne $groups ) {
                         if ( $modifyIfExist == 1 ) {
                             $exitCode = system("usermod -G '$groups' $name");

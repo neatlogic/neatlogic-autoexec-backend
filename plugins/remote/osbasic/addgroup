@@ -41,13 +41,11 @@ sub main {
         if ( $line =~ /^(\w+)\s+(\d+)$/ ) {
             my $name     = $1;
             my $gid      = $2;
-            my $existGid = `id -g $name`;
-            $existGid =~ s/^\s*|\s*$//g;
-            if ( $? != 0 ) {
+            my $existGid = getgrnam($name);
+            if ( not defined($existGid) ) {
                 $exitCode = system("groupadd -g $gid $name");
             }
             else {
-                $existGid =~ s/\s+//g;
                 if ( $gid ne $existGid ) {
                     if ( $modifyIfExist == 1 ) {
                         system("groupdel $name");
@@ -65,9 +63,8 @@ sub main {
         }
         elsif ( $line =~ /^(\w+)$/ ) {
             my $name     = $1;
-            my $existGid = `id -g $name`;
-            $existGid =~ s/^\s*|\s*$//g;
-            if ( $? != 0 ) {
+            my $existGid = getgrnam($name);
+            if ( not defined($existGid) ) {
                 $exitCode = system("groupadd $name");
             }
             else {

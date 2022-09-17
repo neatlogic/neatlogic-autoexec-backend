@@ -6,10 +6,11 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "创建Unix/Linux操作系统用户",
-    "option": [{
+    "option": [
+        {
             "opt": "content",
             "name": "需修改内容",
-            "help": "支持多行, 例如：oracle soft nproc 2047",
+            "help": "支持多行, 例如：oracle oinstall dba,admadm 或者 oracle oinstall 或者 oracle 1000 oinstall 或者 oracle 1000 oinstall dba,admadm",
             "type": "textarea",
             "required": "true",
             "validate": "",
@@ -23,7 +24,8 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
