@@ -1,9 +1,7 @@
 #!/usr/bin/perl
-use FindBin;
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
-use lib "$FindBin::Bin/../lib";
-
 use strict;
+
+use FindBin;
 use POSIX qw(strftime);
 use IO::File;
 use JSON;

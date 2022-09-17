@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+
+use FindBin;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub randChar($) {
+    my ($elements) = @_;
+
+    my $len = scalar(@$elements);
+    my $ch  = $$elements[ int( rand( $len - 1 ) ) ];
+
+    return $ch;
+}
+
+sub randSimpPass($) {
+    my ($len) = @_;
+
+    if ( $len < 8 or $len > 24 ) {
+        die("ERROR: Password length must great than 8 and less than 24.");
+    }
+
+    my @elements =
+        ( '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' );
+
+    my @letters = ( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' );
+
+    my @number = ( '1', '2', '3', '4', '5', '6', '7', '8', '9' );
+
+    my $password = '';
+    my $i;
+    for ( $i = 3 ; $i <= $len ; $i++ ) {
+        $password = $password . randChar( \@elements );
+    }
+
+    return randChar( \@letters ) . randChar( \@number ) . $password;
+}
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --modifyifexist 0|1 --content <user config content>\n");
+    exit(1);
+}
+
+sub main {
+    AutoExecUtils::setEnv();
+
+    my $user;
+
+    GetOptions( 'user:s' => \$user );
+
+    my $hasOptErr = 0;
+    if ( not defined($user) or $user eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined user name by option --user\n");
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $password = randSimpPass(12);
+
+    my $exitCode = 2;
+    my $pipe;
+    my $pid = open( $pipe, '|chpasswd' );
+    if ( not defined($pid) ) {
+        print("ERROR: Can not launch chpasswd, $!\n");
+    }
+    else {
+        print {$pipe} ("$user:$password\n");
+        close($pipe);
+        $exitCode = $?;
+    }
+
+    my $out = { password => $password };
+
+    AutoExecUtils::saveOutput($out);
+
+    return $exitCode;
+}
+
+exit main();
