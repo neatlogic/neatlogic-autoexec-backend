@@ -50,21 +50,21 @@ sub main {
                 if ( $inputInfo[$i] =~ /^\d+$/ ) {
                     $uid = $inputInfo[$i];
                 }
-                elsif ( $inputInfo[$i] =~ /,/ ) {
-                    $groups = $inputInfo[$i];
-                }
                 else {
-                    $defaultGroup = $inputInfo[$i];
+                    $groups = $inputInfo[$i];
                 }
             }
         }
 
-        my $groupNamesMap = { $defaultGroup => 1 };
+        my $groupNamesMap = {};
         if ( defined($groups) and $groups ne '' ) {
-            foreach my $name ( split( /\s*,\s*/, $groups ) ) {
+            my @allGroups = split( /\s*,\s*/, $groups );
+            $defaultGroup = $allGroups[0];
+            foreach my $name (@allGroups) {
                 $groupNamesMap->{$name} = 1;
             }
         }
+
         my @groupNames = sort( keys(%$groupNamesMap) );
         $groups = join( ',', @groupNames );
 
@@ -75,12 +75,22 @@ sub main {
             #用户存在
             if ( defined($uid) and $existId ne $uid ) {
                 if ( $modifyIfExist == 1 ) {
-                    $exitCode = system("usermod -u $uid $name");
+                    my $cmd = "usermod -u $uid '$name'";
+                    print( $cmd, "\n" );
+                    $exitCode = system($cmd);
                     if ( $exitCode != 0 ) {
+                        my $conflictUser = getpwuid($uid);
+                        if ( defined($conflictUser) ) {
+                            print("ERROR: Other user $conflictUser has the same uid:$uid.\n");
+                        }
                         $hasError = 1;
                     }
                     else {
                         print("User $name exists with distinguish uid:$existId, change uid to:$uid\n");
+                        my $homeDir = $userInfo[7];
+                        my $cmd     = "chown -R '$name' '$homeDir'";
+                        print( $cmd, "\n" );
+                        system($cmd);
                     }
                 }
                 else {
@@ -89,15 +99,21 @@ sub main {
                 }
             }
             else {
-                my $existDefaultG = $userInfo[3];
+                my $existDefaultG = getgrgid( $userInfo[3] );
                 if ( defined($defaultGroup) and $existDefaultG ne $defaultGroup ) {
                     if ( $modifyIfExist == 1 ) {
-                        $exitCode = system("usermod -g $defaultGroup $name");
+                        my $cmd = "usermod -g '$defaultGroup' '$name'";
+                        print( $cmd, "\n" );
+                        $exitCode = system($cmd);
                         if ( $exitCode != 0 ) {
                             $hasError = 1;
                         }
                         else {
                             print("User User $name exists with distinguish default group:$existDefaultG, change group to:$defaultGroup\n");
+                            my $homeDir = $userInfo[7];
+                            my $cmd     = "chown -R '$name:$defaultGroup' '$homeDir'";
+                            print( $cmd, "\n" );
+                            system($cmd);
                         }
                     }
                     else {
@@ -105,7 +121,8 @@ sub main {
                         print("ERROR: User $name exists with distinguish default group:$existDefaultG\n");
                     }
                 }
-                else {
+
+                if ( defined($groups) and $groups ne '' ) {
                     my $existsGroups = `id -nG $name`;
                     $existsGroups =~ s/^\s*|\s*$//g;
                     my $existGroupNamesMap = {};
@@ -116,7 +133,9 @@ sub main {
                     $existDefaultG = join( ',', @existGroupNames );
                     if ( defined($groups) and $existDefaultG ne $groups ) {
                         if ( $modifyIfExist == 1 ) {
-                            $exitCode = system("usermod -G '$groups' $name");
+                            my $cmd = "usermod -G '$groups' '$name'";
+                            print( $cmd, "\n" );
+                            $exitCode = system($cmd);
                             if ( $exitCode != 0 ) {
                                 $hasError = 1;
                             }
@@ -142,12 +161,14 @@ sub main {
                 $cmd = $cmd . " -u $uid";
             }
             if ( defined($defaultGroup) and $defaultGroup ne '' ) {
-                $cmd = $cmd . " -g $defaultGroup";
+                $cmd = $cmd . " -g '$defaultGroup'";
             }
             if ( defined($groups) and $groups ne '' ) {
-                $cmd = $cmd . " -G $groups";
+                $cmd = $cmd . " -G '$groups'";
             }
+            $cmd = $cmd . " '$name'";
 
+            print( $cmd, "\n" );
             my $exitCode = system($cmd);
             if ( $exitCode != 0 ) {
                 $hasError = 1;

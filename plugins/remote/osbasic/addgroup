@@ -43,14 +43,25 @@ sub main {
             my $gid      = $2;
             my $existGid = getgrnam($name);
             if ( not defined($existGid) ) {
-                $exitCode = system("groupadd -g $gid $name");
+                my $cmd = "groupadd -g $gid '$name'";
+                print( $cmd, "\n" );
+                $exitCode = system($cmd);
+                if ( $exitCode != 0 ){
+                    my $conflictGroup = getgrgid($gid);
+                    print("ERROR: Other group $conflictGroup has the same gid:$gid.\n");
+                }
             }
             else {
                 if ( $gid ne $existGid ) {
                     if ( $modifyIfExist == 1 ) {
-                        system("groupdel $name");
+                        my $cmd = "groupdel '$name'";
+                        print( $cmd, "\n" );
+                        $exitCode = system($cmd);
                         print("WARn: Group $name exists with distinguish gid:$existGid, deleted.\n");
-                        $exitCode = system("groupadd -g $gid $name");
+
+                        $cmd = "groupadd -g $gid '$name'";
+                        print( $cmd, "\n" );
+                        $exitCode = system($cmd);
                     }
                     else {
                         print("ERROR: Group $name exists with distinguish gid:$existGid.\n");
@@ -65,7 +76,9 @@ sub main {
             my $name     = $1;
             my $existGid = getgrnam($name);
             if ( not defined($existGid) ) {
-                $exitCode = system("groupadd $name");
+                my $cmd = "groupadd '$name'";
+                print( $cmd, "\n" );
+                $exitCode = system($cmd);
             }
             else {
                 print("WARN: Group $name already exists.\n");
