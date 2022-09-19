@@ -7,13 +7,23 @@
     "defaultProfile": null,
     "description": "往用户.ssh/authorized_keys文件添加RSA公钥",
     "option": [{
-        "opt": "pubkeys",
-        "name": "公钥列表",
-        "help": "公钥JSON, 格式: {\"ip1\":\"pubkey1\",\"ip2\":\"pubkey2\"} 或 [\"pubkey1\", \"pubkey2\"]",
-        "type": "json",
-        "required": "true",
-        "validate": "",
-        "defaultValue": ""
-    }],
+            "opt": "user",
+            "name": "用户名",
+            "help": "只需要通过root配置其他用户的authorized_keys时才需要定义, 否则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pubkeys",
+            "name": "公钥列表",
+            "help": "公钥JSON, 格式: {\"ip1\":\"pubkey1\",\"ip2\":\"pubkey2\"} 或 [\"pubkey1\", \"pubkey2\"]",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
     "output": []
 }

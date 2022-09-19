@@ -14,7 +14,8 @@
             "required": "false",
             "validate": "",
             "defaultValue": ""
-        }, {
+        },
+        {
             "opt": "keylen",
             "name": "密钥长度",
             "help": "密钥长度，多少Bits",

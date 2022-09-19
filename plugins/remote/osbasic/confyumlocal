@@ -34,7 +34,7 @@ sub main {
     my $config = "[local]\n" . "name=local]\n" . "baseurl=file://$mountPoint\n" . "gpgcheck=0\n" . "enabled=1\n";
 
     if ( $clean == 1 ) {
-        if ( system('m -f /etc/yum.repos.d/*') != 0 ) {
+        if ( system('rm -f /etc/yum.repos.d/*') != 0 ) {
             $hasError = 1;
             print("ERROR: Remove /etc/yum.repos.d/* failed.\n");
         }

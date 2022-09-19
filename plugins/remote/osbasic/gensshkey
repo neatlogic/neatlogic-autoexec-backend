@@ -14,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --recreate 0|1 --keylen <key bits>\n");
+    print("$pname --user <User Name> --recreate 0|1 --keylen <key bits>\n");
     exit(1);
 }
 

@@ -50,9 +50,29 @@ sub appendPubKey {
 }
 
 sub main {
+    my $CMDLINE = join( ' ', $0, @ARGV );
+    my $user;
     my $pubKeysJson;
 
-    GetOptions( 'pubkeys:s' => \$pubKeysJson );
+    GetOptions(
+        'users:s'   => $user,
+        'pubkeys:s' => \$pubKeysJson
+    );
+
+    if ( defined($user) and $user ne '' ) {
+        my $curUid  = $<;
+        my $curUser = getpwuid($<);
+        if ( $curUser ne $user ) {
+            if ( $curUid ne 0 ) {
+                print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
+                exit(3);
+            }
+            else {
+                my $exitCode = system("sudo -u '$user' $CMDLINE");
+                exit($exitCode);
+            }
+        }
+    }
 
     if ( not defined($pubKeysJson) or $pubKeysJson eq '' ) {
         print("ERROR: Must defined pubkeys by option --pubkeys");
