@@ -25,6 +25,14 @@ if __name__ == "__main__":
 
     outputKey = re.sub(r'^#\{', '', outputKey)
     outputKey = re.sub(r'\}$', '', outputKey)
+    outputKeyInfo = outputKey.split('.')
+
+    if len(outputKeyInfo) != 3:
+        print("ERROR: Malform output key %s." % (outputKey))
+        sys.exit(3)
+
+    opId = outputKeyInfo[1]
+    varKey = outputKeyInfo[2]
 
     jobId = os.getenv('AUTOEXEC_JOBID')
 
@@ -38,12 +46,12 @@ if __name__ == "__main__":
         for nodeOut in outCollection.find(
                 {
                     'jobId': jobId,
-                    'data.%s' % outputKey: {'$ne': None}
+                    'data.%s' % opId: {'$ne': None}
                 },
                 {
                     'host': 1,
                     'port': 1,
-                    'data.%s' % outputKey: 1
+                    'data.%s' % opId: 1
                 }).batch_size(500):
 
             port = nodeOut.get('port')
@@ -53,13 +61,13 @@ if __name__ == "__main__":
             if port is not None and port != '':
                 nodeKey = host + ':' + port
 
-            val = nodeOut['data'].get(outputKey)
+            val = nodeOut['data'].get(opId).get(varKey)
             out[nodeKey] = val
 
         AutoExecUtils.saveOutput(out)
     except:
         print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))
-        exit(-1)
+        sys.exit(1)
     finally:
         if dbclient is not None:
             dbclient.close()
