@@ -1,0 +1,217 @@
+{
+    "opDesc": "创建虚拟机",
+    "opType": "runner",
+    "typeName": "INSTALL",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "基于vshpere创建虚拟机",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "ip",
+            "help": "vsphere 管理IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "user",
+            "help": "vsphere 管理用户",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "password",
+            "help": "vsphere 管理登录用户密码",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "port",
+            "help": "vsphere 管理端口",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "443"
+        },{
+            "opt": "datacenter_name",
+            "name": "datacenter名称",
+            "help": "vsphere datacenter数据中心名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },{
+            "opt": "cluster_name",
+            "name": "cluster名称",
+            "help": "vsphere cluster集群名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },{
+            "opt": "datastore_name",
+            "name": "datastore名称",
+            "help": "vsphere datastore存储名称",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "template_name",
+            "name": "模板名称",
+            "help": "vsphere template模板名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "host_name",
+            "name": "服务器名称",
+            "help": "vsphere 服务器硬件名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "vm_name",
+            "name": "名称",
+            "help": "克隆生成的虚拟机名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "vm_ip",
+            "name": "IP",
+            "help": "克隆生成的虚拟机IP",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "netmask",
+            "name": "掩码",
+            "help": "克隆生成的虚拟机掩码",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "gateway",
+            "name": "网关",
+            "help": "克隆生成的虚拟机网关",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dns",
+            "name": "DNS",
+            "help": "克隆生成的虚拟机DNS,多个逗号分隔。如：1.1.1.1,2.2.2.2",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "hostname",
+            "name": "hostname",
+            "help": "克隆生成的虚拟机主机名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cup_num",
+            "name": "cpu个数",
+            "help": "克隆生成的虚拟机主机CPU数量",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "memory",
+            "name": "内存(GB)",
+            "help": "克隆生成的虚拟机主机内存大小",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "disk_size",
+            "name": "磁盘(GB)",
+            "help": "克隆生成的虚拟机主机磁盘大小",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "disk_type",
+            "name": "磁盘类型",
+            "help": "克隆生成的虚拟机主机磁盘类型",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "精简置备",
+                        "value": "thin"
+                    },
+                    {
+                        "text": "厚置备延迟置零",
+                        "value": "zeroed thick"
+                    },
+                    {
+                        "text": "厚置备置零",
+                        "value": "eager zeroed thick"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "打印明细日志",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}
