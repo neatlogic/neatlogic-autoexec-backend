@@ -19,7 +19,7 @@
             "opt": "filename",
             "name": "Profile文件名",
             "help": "文件名，例如：.bash_profile或者.profile",
-            "type": "textarea",
+            "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": ".bash_profile"
