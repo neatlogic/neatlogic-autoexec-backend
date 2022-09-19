@@ -11,6 +11,8 @@ use IO::File;
 use JSON;
 use Getopt::Long;
 
+use AutoExecUtils;
+
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -25,33 +27,33 @@ sub main {
     my $password;
 
     GetOptions(
-        'user:s'       => \$user,
+        'user:s'     => \$user,
         'password:i' => \$password
     );
 
     my $hasOptErr = 0;
-    if ( not defined($user) or $user eq ''){
+    if ( not defined($user) or $user eq '' ) {
         $hasOptErr = 1;
         print("ERROR: Must defined user name by option --user\n");
     }
-    if ( not defined($password) or $password eq ''){
+    if ( not defined($password) or $password eq '' ) {
         $hasOptErr = 1;
         print("ERROR: Must defined user password by option --password\n");
     }
 
-    if($hasOptErr == 1){
+    if ( $hasOptErr == 1 ) {
         usage();
     }
 
     my $exitCode = 2;
     my $pipe;
-    my $pid = open($pipe, '|chpasswd');
-    if ( not defined($pid) ){
+    my $pid = open( $pipe, '|chpasswd' );
+    if ( not defined($pid) ) {
         print("ERROR: Can not launch chpasswd, $!\n");
     }
-    else{
+    else {
         print {$pipe} ("$user:$password\n");
-        close ($pipe);
+        close($pipe);
         $exitCode = $?;
     }
 

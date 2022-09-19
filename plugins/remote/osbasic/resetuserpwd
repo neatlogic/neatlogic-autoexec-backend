@@ -11,6 +11,8 @@ use IO::File;
 use JSON;
 use Getopt::Long;
 
+use AutoExecUtils;
+
 sub randChar($) {
     my ($elements) = @_;
 
