@@ -5,6 +5,7 @@ import os
 import sys
 import traceback
 import argparse
+import re
 
 import AutoExecUtils
 
@@ -21,6 +22,9 @@ if __name__ == "__main__":
 
     if hasOptError:
         sys.exit(2)
+
+    outputKey = re.sub(r'^#\{', '', outputKey)
+    outputKey = re.sub(r'\}$', '', outputKey)
 
     jobId = os.getenv('AUTOEXEC_JOBID')
 
