@@ -27,14 +27,16 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $filePath = '/etc/security/limits.conf';
 
+    my $domain;
     my $fileName;
     my $needBackup = 0;
     my $contentJson;
 
     GetOptions(
-        'backup:i'   => \$needBackup,
-        'filename:s' => \$fileName,
-        'content:s'  => \$contentJson
+        'backup=i'   => \$needBackup,
+        'domain=s'   => \$domain,
+        'filename=s' => \$fileName,
+        'content=s'  => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
@@ -69,7 +71,13 @@ sub main {
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
-        my ( $domain, $type, $item, $val ) = split( /\s+/, $line );
+        my @confs = split( /\s+/, $line );
+        if ( scalar(@confs) != 3 ) {
+            $hasError = 1;
+            print("ERROR: Malform line: $line\n");
+            next;
+        }
+        my ( $type, $item, $val ) = @confs;
         $confMap->{"$domain $type $item"} = $val;
     }
 
@@ -82,10 +90,10 @@ sub main {
             if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
-                my ( $domain, $type, $item, $val ) = split( /\s+/, $tmpLine );
-                my $newVal = $confMap->{"$domain $type $item"};
+                my ( $thisDomain, $type, $item, $val ) = split( /\s+/, $tmpLine );
+                my $newVal = $confMap->{"$thisDomain $type $item"};
                 if ( defined($newVal) ) {
-                    delete( $confMap->{"$domain $type $item"} );
+                    delete( $confMap->{"$thisDomain $type $item"} );
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
                         $line =~ s/\d+$/$newVal/;
