@@ -71,12 +71,14 @@ sub main {
     my $contentObj = from_json($contentJson);
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
-        my @confs = split( /\s+/, $line );
-        if ( scalar(@confs) == 3 ) {
+        my @confs       = split( /\s+/, $line );
+        my $fieldsCount = scalar(@confs);
+
+        if ( $fieldsCount == 3 ) {
             my ( $type, $item, $val ) = @confs;
             $confMap->{"$defaultDomain $type $item"} = $val;
         }
-        if ( scalar(@confs) == 4 ) {
+        elsif ( $fieldsCount == 4 ) {
             my ( $thisDomain, $type, $item, $val ) = @confs;
             $confMap->{"$thisDomain $type $item"} = $val;
         }
