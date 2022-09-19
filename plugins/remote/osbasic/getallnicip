@@ -25,8 +25,11 @@ sub getWindowsNicInfo {
 
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
-    my $macsMap           = {};
-    my @nicInfoLines      = `wmic nicconfig where "IPEnabled = True" get description,macaddress`;
+    my $macsMap      = {};
+    my @nicInfoLines = `wmic nicconfig where "IPEnabled = True" get description,macaddress`;
+    if ( $? != 0 ) {
+        die("ERROR: Execute wmic nicconfig failed.\n");
+    }
     my $nicInfoLinesCount = scalar(@nicInfoLines);
     for ( my $i = 1 ; $i < $nicInfoLinesCount ; $i++ ) {
         my $line = $nicInfoLines[$i];
@@ -59,6 +62,9 @@ sub getWindowsIpAddrs {
     # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}  00:0C:29:5E:C8:C2
     my $ipMap       = {};
     my @ipInfoLines = `wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet,macaddress'`;
+    if ( $? != 0 ) {
+        die("ERROR: Execute wmic nicconfig failed.\n");
+    }
     foreach my $line (@ipInfoLines) {
         if ( $line =~ /\{(.*?)\}\s+\{(.*?)\}\s+([A-Fa-f0-9:]+)/ ) {
             my @ips      = split( /\s*,\s*/, $1 );
@@ -90,12 +96,20 @@ sub getWindowsIpAddrs {
 }
 
 sub main {
-    my @uname         = uname();
-    my $osType        = $uname[0];
-    my $ipString      = "";
-    my @ifconfigLines = `/usr/sbin/ifconfig -a 2>/dev/null`;
+    my @uname    = uname();
+    my $osType   = $uname[0];
+    my $ipString = "";
+
+    my $hasError = 0;
+
+    my @ifconfigLines = `ifconfig -a`;
     if ( $? != 0 ) {
-        @ifconfigLines = `ip addr 2>/dev/null`;
+        print("WANR: Execute ifconfig failed, try to use ip addr to get nic information.\n");
+        @ifconfigLines = `ip addr`;
+    }
+    if ( $? != 0 ) {
+        $hasError = 1;
+        print("ERROR: Execute ip addr failed.\n");
     }
 
     my $nicMap = {};
@@ -113,45 +127,56 @@ sub main {
 
         my $nicName;
         foreach my $line (@ifconfigLines) {
-            if ( $line =~ /^(\w+):/ ) {
+            if ( $line =~ /^(\w+)[:\s]/ or $line =~ /^\d+:\s+(\w+):/ ) {
                 $nicName = $1;
             }
-            elsif ( $line =~ /ether\s+([0-9A-Fa-f:]+)/ ) {
+            if ( $line =~ /ether\s+([0-9a-f:]+)/i or $line =~ /HWaddr\s+([0-9a-f:]+)/i ) {
                 my $mac = lc($1);
                 $nicMap->{$nicName} = $mac;
             }
         }
 
+        $nicName = undef;
         foreach my $line (@ifconfigLines) {
-            if ( $line =~ /^(\w+):/ ) {
+            if ( $line =~ /^(\w+)[:\s]/ or $line =~ /^\d+:\s+(\w+):/ ) {
                 $nicName = $1;
             }
-            elsif ( $line =~ /inet\s+([\d\.]+)\s+netmask\s+([\d\.]+)/ ) {
+            elsif ( $line =~ /inet\s+([\d\.]+)\s+netmask\s+([\d\.]+)/i or $line =~ /inet addr:\s*([\d\.]+)\s+.*?\s+Mask:\s*([\d\.]+)/i ) {
                 my $ip      = $1;
                 my $netmask = $2;
-                my $ipInfo  = $ipMap->{$ip};
-                if ( not defined($ipInfo) ) {
-                    $ipInfo = {};
-                    $ipMap->{$ip} = $ipInfo;
+                if ( $ip eq '127.0.0.1' or $ip eq '::1' ) {
+                    next;
                 }
-                $ipInfo->{IP}  = $ip;
-                $ipInfo->{NIC} = $nicName;
-                my $netBlock = Net::Mask->safe_new("$ip:$netmask");
-                $ipInfo->{NetMask} = $netBlock->bits();
-            }
-            elsif ( $line =~ /inet6\s+([0-9A-Fa-f:]+)\s+prefixlen\s+([\d]+)/ ) {
-                my $ip      = lc($1);
-                my $netmask = $2;
 
                 my $ipInfo = $ipMap->{$ip};
                 if ( not defined($ipInfo) ) {
                     $ipInfo = {};
                     $ipMap->{$ip} = $ipInfo;
                 }
-                $ipInfo->{IP}      = $ip;
-                $ipInfo->{NIC}     = $nicName;
-                $ipInfo->{MAC}     = $nicMap->{$nicName};
-                $ipInfo->{NetMask} = $netmask;
+                $ipInfo->{ip}   = $ip;
+                $ipInfo->{type} = 'IPV4';
+                $ipInfo->{nic}  = $nicName;
+                $ipInfo->{mac}  = $nicMap->{$nicName};
+                my $netBlock = Net::Netmask->safe_new("$ip:$netmask");
+                $ipInfo->{netmask} = $netBlock->bits();
+            }
+            elsif ( $line =~ /inet6\s+([0-9a-f:]+)\s+prefixlen\s+([\d]+)/i or $line =~ /inet6 addr:\s*([0-9a-f:]+)\/([\d]+)/i ) {
+                my $ip      = lc($1);
+                my $netmask = $2;
+                if ( $ip eq '127.0.0.1' or $ip eq '::1' ) {
+                    next;
+                }
+
+                my $ipInfo = $ipMap->{$ip};
+                if ( not defined($ipInfo) ) {
+                    $ipInfo = {};
+                    $ipMap->{$ip} = $ipInfo;
+                }
+                $ipInfo->{ip}      = $ip;
+                $ipInfo->{type}    = 'IPV6';
+                $ipInfo->{nic}     = $nicName;
+                $ipInfo->{mac}     = $nicMap->{$nicName};
+                $ipInfo->{netmask} = $netmask;
             }
         }
     }
@@ -167,6 +192,8 @@ sub main {
     $out->{allNics}   = $nicsTxt;
 
     AutoExecUtils::saveOutput($out);
+
+    return $hasError;
 }
 
 exit main();
