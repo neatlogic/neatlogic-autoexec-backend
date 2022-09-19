@@ -19,13 +19,31 @@ sub usage {
 }
 
 sub main {
+    my $CMDLINE = join( ' ', $0, @ARGV );
+    my $user;
     my $recreate = 0;
     my $keyLen   = 2048;
 
     GetOptions(
+        'user=s'     => \$user,
         'keylen=i'   => \$keyLen,
         'recreate=i' => \$recreate
     );
+
+    if ( defined($user) and $user ne '' ) {
+        my $curUid  = $<;
+        my $curUser = getpwuid($<);
+        if ( $curUser ne $user ) {
+            if ( $curUid ne 0 ) {
+                print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
+                exit(3);
+            }
+            else {
+                my $exitCode = system("sudo -u '$user' $CMDLINE");
+                exit($exitCode);
+            }
+        }
+    }
 
     my $homePath = $ENV{HOME};
     if ( not defined($homePath) or $homePath eq '' ) {
@@ -39,45 +57,45 @@ sub main {
     my $keyPath    = "$homePath/.ssh/id_rsa";
     my $pubKeyPath = "$homePath/.ssh/id_rsa.pub";
     if ( -f $pubKeyPath and $recreate == 1 ) {
-        if ( not unlink($keyPath) ){
+        if ( not unlink($keyPath) ) {
             $hasError = 1;
             print("ERROR: Can not remove file $keyPath, $!.\n");
         }
-        if ( not unlink($pubKeyPath) ){
+        if ( not unlink($pubKeyPath) ) {
             $hasError = 1;
             print("ERROR: Can not remove file $pubKeyPath, $!.\n");
         }
     }
 
-    if ( not -e "$homePath/.ssh" ){
-        if ( not mkdir("$homePath/.ssh") ){
+    if ( not -e "$homePath/.ssh" ) {
+        if ( not mkdir("$homePath/.ssh") ) {
             $hasError = 1;
             print("ERROR: Can not create directory $homePath/.ssh, $!.\n");
         }
     }
-    
+
     if ( not -f $pubKeyPath ) {
-        if ( system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""}) != 0 ){
+        if ( system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""}) != 0 ) {
             $hasError = 1;
             print("ERROR: Execute ssh-keygen failed.\n");
         }
     }
 
-    if ( not chmod( 0700, "$homePath/.ssh" ) ){
+    if ( not chmod( 0700, "$homePath/.ssh" ) ) {
         $hasError = 1;
         print("ERROR: Can not change directory $homePath/.ssh permission mode to 0700, $!.");
     }
-    if ( not chmod( 0600, $keyPath ) ){
+    if ( not chmod( 0600, $keyPath ) ) {
         $hasError = 1;
-        print("ERROR: Can not change file $keyPath permission mode to 0600, $!.");        
+        print("ERROR: Can not change file $keyPath permission mode to 0600, $!.");
     }
 
     $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
 
-    if ( not defined($pubKey) or $pubKey eq '' ){
+    if ( not defined($pubKey) or $pubKey eq '' ) {
         $hasError = 1;
         print("ERROR: Public key is empty in file $pubKeyPath\n");
-        
+
     }
 
     my $out = {};
