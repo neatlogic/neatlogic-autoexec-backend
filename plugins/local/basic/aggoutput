@@ -36,13 +36,14 @@ if __name__ == "__main__":
 
     jobId = os.getenv('AUTOEXEC_JOBID')
 
-    out = {}
+    aggData = {}
     dbclient = None
 
     try:
         (dbclient, db) = AutoExecUtils.getDB()
         outCollection = db['_node_output']
 
+        print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
         for nodeOut in outCollection.find(
                 {
                     'jobId': jobId,
@@ -62,8 +63,14 @@ if __name__ == "__main__":
                 nodeKey = host + ':' + port
 
             val = nodeOut['data'].get(opId).get(varKey)
-            out[nodeKey] = val
+            aggData[nodeKey] = val
 
+        if not aggData:
+            print("WARN: Can not find any output for:%s." % (outputKey))
+        else:
+            print("FINE: Aggregate output for:%s success." % (outputKey))
+
+        out = {'aggData': aggData}
         AutoExecUtils.saveOutput(out)
     except:
         print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))
