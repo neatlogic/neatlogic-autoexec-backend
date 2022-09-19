@@ -27,16 +27,16 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $filePath = '/etc/security/limits.conf';
 
-    my $domain;
+    my $defaultDomain;
     my $fileName;
     my $needBackup = 0;
     my $contentJson;
 
     GetOptions(
-        'backup=i'   => \$needBackup,
-        'domain=s'   => \$domain,
-        'filename=s' => \$fileName,
-        'content=s'  => \$contentJson
+        'backup=i'        => \$needBackup,
+        'defaultdomain=s' => \$defaultDomain,
+        'filename=s'      => \$fileName,
+        'content=s'       => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
@@ -72,13 +72,19 @@ sub main {
     foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
         $line =~ s/^\s*|\s*$//g;
         my @confs = split( /\s+/, $line );
-        if ( scalar(@confs) != 3 ) {
+        if ( scalar(@confs) == 3 ) {
+            my ( $type, $item, $val ) = @confs;
+            $confMap->{"$defaultDomain $type $item"} = $val;
+        }
+        if ( scalar(@confs) == 4 ) {
+            my ( $thisDomain, $type, $item, $val ) = @confs;
+            $confMap->{"$thisDomain $type $item"} = $val;
+        }
+        else {
             $hasError = 1;
             print("ERROR: Malform line: $line\n");
             next;
         }
-        my ( $type, $item, $val ) = @confs;
-        $confMap->{"$domain $type $item"} = $val;
     }
 
     my $isChanged  = 0;

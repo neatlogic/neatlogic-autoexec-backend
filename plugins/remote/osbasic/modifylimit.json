@@ -7,7 +7,7 @@
     "defaultProfile": null,
     "description": "修改/etc/security下的limit.conf或limit.d下的设置",
     "option": [{
-            "opt": "domain",
+            "opt": "defaultdomain",
             "name": "配置域",
             "help": "规则使用范围，例如：用户名(user), 组名(@group), 所有(*)",
             "type": "textarea",
