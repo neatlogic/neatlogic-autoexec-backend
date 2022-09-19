@@ -5,7 +5,6 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 use POSIX qw(strftime);
-use Cwd 'realpath';
 use IO::File;
 use JSON;
 use Getopt::Long;
@@ -15,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --pubkeys <pub keys json>\n");
+    print("$pname --user <User name> --pubkeys <pub keys json>\n");
     exit(1);
 }
 
@@ -23,8 +22,9 @@ sub appendPubKey {
     my ( $keysPath, $pubKey ) = @_;
 
     my $hasError = 0;
-    my $fh       = IO::File( $keysPath, 'r+' );
+    my $fh       = IO::File->new( $keysPath, 'a+' );
     if ( defined($fh) ) {
+        $fh->seek( 0, 0 );
         my $exist = 0;
         my $line;
         while ( $line = $fh->getline() ) {
@@ -51,16 +51,15 @@ sub appendPubKey {
 }
 
 sub main {
-    my $CMDLINE   = join( ' ', $0, @ARGV );
-    my $scriptDir = realpath($FindBin::Bin);
-
     my $user;
     my $pubKeysJson;
 
     GetOptions(
-        'users:s'   => $user,
-        'pubkeys:s' => \$pubKeysJson
+        'user=s'    => \$user,
+        'pubkeys=s' => \$pubKeysJson
     );
+
+    my $uid = $<;
 
     if ( defined($user) and $user ne '' ) {
         my $curUid  = $<;
@@ -70,31 +69,45 @@ sub main {
                 print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
                 exit(3);
             }
-            else {
-                my $exitCode = system("sudo -u '$user' '$scriptDir'$CMDLINE");
-                exit($exitCode);
-            }
         }
+    }
+    else {
+        $user = getpwuid($uid);
     }
 
     if ( not defined($pubKeysJson) or $pubKeysJson eq '' ) {
-        print("ERROR: Must defined pubkeys by option --pubkeys");
+        print("ERROR: Must defined pubkeys by option --pubkeys.\n");
         return 3;
     }
 
     my $pubKeysSet = from_json($pubKeysJson);
 
-    my $uid      = $<;
-    my $homePath = ( getpwnam($uid) )[7];
+    my $hasError = 0;
+
+    my @userInfo = getpwnam($user);
+    my $homePath = $userInfo[7];
+    my $uid      = $userInfo[2];
+    my $gid      = $userInfo[3];
+    my $group    = getgrgid($gid);
 
     my $keysPath = "$homePath/.ssh/authorized_keys";
-    chmod( 0700, "$homePath/.ssh" );
-    chmod( 0600, $keysPath );
+    if ( not -e "$homePath/.ssh" ) {
+        if ( not mkdir("$homePath/.ssh") ) {
+            $hasError = 1;
+            print("ERROR: Can not create directory $homePath/.ssh, $!.\n");
+        }
+        else {
+            chown( $uid, $gid, "$homePath/.ssh" );
+        }
+    }
+    if ( not chown( $uid, $gid, "$homePath/.ssh" ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh owner to $user:$group, $!.\n");
+    }
 
-    my $hasError = 0;
     if ( ref($pubKeysSet) eq 'HASH' ) {
         while ( my ( $key, $val ) = each(%$pubKeysSet) ) {
-            $hasError = appendPubKey($val);
+            $hasError = appendPubKey( $keysPath, $val );
             if ( $hasError != 0 ) {
                 last;
             }
@@ -102,18 +115,33 @@ sub main {
     }
     elsif ( ref($pubKeysSet) eq 'ARRAY' ) {
         foreach my $pubKey (@$pubKeysSet) {
-            $hasError = appendPubKey($pubKey);
+            $hasError = appendPubKey( $keysPath, $pubKey );
             if ( $hasError != 0 ) {
                 last;
             }
         }
     }
     elsif ( ref($pubKeysSet) eq '' ) {
-        $hasError = appendPubKey($pubKeysSet);
+        $hasError = appendPubKey( $keysPath, $pubKeysSet );
     }
     else {
         $hasError = 1;
         print("ERROR: Malform pubKey options defined: $pubKeysJson\n");
+    }
+
+    if ( not chmod( 0700, "$homePath/.ssh" ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh permission mode to 0700, $!.\n");
+    }
+
+    if ( not chmod( 0600, $keysPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $keysPath permission mode to 0600, $!.\n");
+    }
+
+    if ( not chown( $uid, $gid, $keysPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $keysPath owner to $user:$group, $!.\n");
     }
 
     return $hasError;
