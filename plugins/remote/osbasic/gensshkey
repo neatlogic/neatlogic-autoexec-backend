@@ -5,6 +5,7 @@ use lib "$FindBin::Bin/../lib";
 
 use strict;
 use POSIX qw(strftime);
+use Cwd 'realpath';
 use IO::File;
 use JSON;
 use Getopt::Long;
@@ -19,7 +20,9 @@ sub usage {
 }
 
 sub main {
-    my $CMDLINE = join( ' ', $0, @ARGV );
+    my $CMDLINE   = join( ' ', $0, @ARGV );
+    my $scriptDir = realpath($FindBin::Bin);
+
     my $user;
     my $recreate = 0;
     my $keyLen   = 2048;
@@ -39,17 +42,14 @@ sub main {
                 exit(3);
             }
             else {
-                my $exitCode = system("sudo -u '$user' $CMDLINE");
+                my $exitCode = system("sudo -u '$user' '$scriptDir'$CMDLINE");
                 exit($exitCode);
             }
         }
     }
 
-    my $homePath = $ENV{HOME};
-    if ( not defined($homePath) or $homePath eq '' ) {
-        my $uid = $<;
-        $homePath = ( getpwnam($uid) )[7];
-    }
+    my $uid      = $<;
+    my $homePath = ( getpwnam($uid) )[7];
 
     my $hasError = 0;
 
