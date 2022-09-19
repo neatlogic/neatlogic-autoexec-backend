@@ -17,25 +17,42 @@ sub usage {
 }
 
 sub main {
-    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
-    my $homePath = $ENV{HOME};
-    if ( not defined($homePath) or $homePath eq '' ) {
-        my $uid = $<;
-        $homePath = ( getpwnam($uid) )[7];
-    }
-
+    my $user;
     my $fileName;
     my $contentJson;
 
     GetOptions(
-        'filename:i' => \$fileName,
-        'content:s'  => \$contentJson
+        'user=s'     => \$user,
+        'filename=i' => \$fileName,
+        'content=s'  => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
         print("ERROR: Must defined modify content by option --content\n");
         usage();
     }
+
+    my $uid = $<;
+
+    if ( defined($user) and $user ne '' ) {
+        my $curUid  = $<;
+        my $curUser = getpwuid($<);
+        if ( $curUser ne $user ) {
+            if ( $curUid ne 0 ) {
+                print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
+                exit(3);
+            }
+        }
+    }
+    else {
+        $user = getpwuid($uid);
+    }
+
+    my @userInfo = getpwnam($user);
+    my $homePath = $userInfo[7];
+    my $uid      = $userInfo[2];
+    my $gid      = $userInfo[3];
+    my $group    = getgrgid($gid);
 
     my $filePath = "$homePath/$fileName";
 
@@ -65,8 +82,9 @@ sub main {
 
     my $isChanged  = 0;
     my $newContent = '';
-    my $fh         = IO::File->new("+<$filePath");
+    my $fh         = IO::File->new( $filePath, 'a+' );
     if ( defined($fh) ) {
+        $fh->seek( 0, 0 );
         my $line;
         while ( $line = $fh->getline() ) {
             if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
@@ -137,6 +155,11 @@ sub main {
     else {
         $hasError = 1;
         print("ERROR: Can not open file:$filePath, $!\n");
+    }
+
+    if ( not chown( $uid, $gid, $filePath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $filePath owner to $user:$group, $!.\n");
     }
 
     return $hasError;

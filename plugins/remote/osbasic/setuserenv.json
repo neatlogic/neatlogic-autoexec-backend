@@ -7,6 +7,15 @@
     "defaultProfile": null,
     "description": "修改用户profile文件，设置用户环境变量",
     "option": [{
+            "opt": "user",
+            "name": "用户名",
+            "help": "只需要通过root设置其他用户的profile时才需要定义, 否则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
             "opt": "filename",
             "name": "Profile文件名",
             "help": "文件名，例如：.bash_profile或者.profile",
