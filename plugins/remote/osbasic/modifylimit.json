@@ -10,7 +10,7 @@
             "opt": "defaultdomain",
             "name": "默认配置域",
             "help": "规则使用范围，例如：用户名(user), 组名(@group), 所有(*)",
-            "type": "textarea",
+            "type": "text",
             "required": "false",
             "validate": "",
             "defaultValue": ""
@@ -39,7 +39,7 @@
             "opt": "filename",
             "name": "文件名",
             "help": "如果修改/etc/security下的limit.conf则保持空,如需修改limit.d下的文件, 需给出文件名",
-            "type": "textarea",
+            "type": "text",
             "required": "false",
             "validate": "",
             "defaultValue": ""
