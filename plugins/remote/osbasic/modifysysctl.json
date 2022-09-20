@@ -27,6 +27,26 @@
             "defaultValue": "0"
         },
         {
+            "opt": "autosetshm",
+            "name": "自动SHM参数",
+            "help": "自动设置kernel.shmmax和kernel.shmall为内存的一半",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
             "opt": "content",
             "name": "需修改内容",
             "help": "支持多行, 例如：kernel.shmmni=4096",

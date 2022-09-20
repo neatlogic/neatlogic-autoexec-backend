@@ -23,16 +23,42 @@ sub backup {
     return $exitCode;
 }
 
+sub getShmAllAndMax {
+    my $pageSizeTxt = `getconf PAGESIZE`;
+    my $pageSize    = int($pageSizeTxt);
+
+    #MemTotal:        3880620 kB
+    #Mem in KB
+    my $memTotalTxt = `grep MemTotal /proc/meminfo`;
+    my $memTotal    = int($memTotalTxt);
+    if ( $memTotalTxt =~ /(\d+)[^\d]+kB/i ) {
+        $memTotal = int($1) * 1024;
+    }
+    elsif ( $memTotalTxt =~ /(\d+)[^\d]+MB/i ) {
+        $memTotal = int($1) * 1024 * 1024;
+    }
+    elsif ( $memTotalTxt =~ /(\d+)[^\d]+GB/i ) {
+        $memTotal = int($1) * 1024 * 1024 * 1024;
+    }
+
+    my $shmall = $memTotal / 2 / $pageSize;
+    my $shmmax = $memTotal / 2 - 1;
+
+    return ( $shmall, $shmmax );
+}
+
 sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     my $filePath = '/etc/sysctl.conf';
 
     my $needBackup = 0;
+    my $autoSetShm = 0;
     my $contentJson;
 
     GetOptions(
-        'backup:i'  => \$needBackup,
-        'content:s' => \$contentJson
+        'backup=i'     => \$needBackup,
+        'autosetshm=i' => \$autoSetShm,
+        'content=s'    => \$contentJson
     );
 
     if ( not defined($contentJson) or $contentJson eq '' ) {
@@ -51,6 +77,13 @@ sub main {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line );
         $confMap->{$key} = $val;
+    }
+
+    my ( $shmall, $shmmax );
+    if ( $autoSetShm == 1 ) {
+        ( $shmall, $shmmax ) = getShmAllAndMax();
+        $confMap->{'kernel.shmall'} = $shmall;
+        $confMap->{'kernel.shmmax'} = $shmmax;
     }
 
     my $isChanged  = 0;
