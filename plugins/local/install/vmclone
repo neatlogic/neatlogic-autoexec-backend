@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+import os
+import json
+import argparse
+import traceback
+import VmManage
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <vcenter ip> --user <user> --password <password> ")
+    exit(1)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='vcenter管理IP')
+    parser.add_argument('--port', default='443', help='vcenter管理端口')
+    parser.add_argument('--user', default='', help='vcenter console login user')
+    parser.add_argument('--password', default='', help='vcenter console login user password')
+
+    parser.add_argument('--datacenter_name', default='', help='vcenter datacenter name')
+    parser.add_argument('--cluster_name', default='', help='vcenter cluster name')
+    parser.add_argument('--datastore_name', default='', help='vcenter datastore name')
+    parser.add_argument('--template_name', default='', help='virtual machine template name')
+    parser.add_argument('--host_name', default='', help='vcenter host machine host name')
+    #parser.add_argument('--resource_pool', default='', help='vcenter resource name')
+
+    parser.add_argument('--vm_name', default='', help='clone new virtual machine name')
+    parser.add_argument('--vm_ip', default='', help='clone new virtual machine ip')
+    parser.add_argument('--netmask', default='', help='clone new virtual machine netmask')
+    parser.add_argument('--gateway', default='', help='clone new virtual machine gateway')
+    parser.add_argument('--dns', default='', help='clone new virtual machine dns')
+    parser.add_argument('--hostname', default='', help='clone new virtual machine os hostname')
+    parser.add_argument('--cup_num', default='', help='new virtual machine os cup num')
+    parser.add_argument('--memory', default='', help='new virtual machine os memory(GB)')
+    parser.add_argument('--disk_size', default='', help='clone new virtual machine disk size(GB)')
+    parser.add_argument('--disk_type', default='', help='clone new virtual machine disk type')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+    args = parser.parse_args()
+    
+    ip = args.ip
+    user = args.user
+    password = args.password
+    port = args.port
+
+    datacenter_name = args.datacenter_name
+    cluster_name = args.cluster_name
+    datastore_name = args.datastore_name
+    template_name = args.template_name
+    host_name = args.host_name
+    #resource_pool = args.resource_pool
+    vm_name = args.vm_name
+    vm_ip = args.vm_ip
+    netmask = args.netmask
+    gateway = args.gateway
+    dns = args.dns
+    hostname = args.hostname
+    cup_num = args.cup_num
+    memory = args.memory
+    disk_size = args.disk_size
+    disk_type = args.disk_type
+    verbose = int(args.verbose)
+
+    node = os.getenv('AUTOEXEC_NODE')
+    if node != None and node != '':
+        node = json.loads(node)
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == None or password == '') and (node == None or node == '')):
+        usage()
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
+        ip = node['host']
+        port = node['port']
+        if port is None or port == '' : 
+            port = node['protocolPort']
+        user = node['username']
+        password = node['password']
+
+    
+    dns = dns.split(',')
+
+    param ={}
+    param['datacenter_name']=datacenter_name
+    param['cluster_name']=cluster_name
+    param['datastore_name']=datastore_name
+    param['template_name']=template_name
+    param['host_name']=host_name
+    #param['resource_pool'] =resource_pool
+    param['vm_name']=vm_name
+    param['vm_ip']=vm_ip
+    param['netmask']=netmask
+    param['gateway']=gateway
+    param['dns']=dns
+    param['hostname']=hostname
+    param['cup_num']=cup_num
+    param['memory']=memory
+    param['disk_size']=disk_size
+    param['disk_type']=disk_type
+
+    param['verbose']=verbose
+
+    vm = VmManage.VmManage(ip, user, password, port)
+    ret = vm.clone_vm(param)
+    if ret != 0 :
+        #创建的OS存在问题直接销毁
+        ret = vm.destroy_vm(param)
+    vm.close()
+    exit(ret)
+
+    
