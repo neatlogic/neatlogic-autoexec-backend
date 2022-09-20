@@ -27,9 +27,9 @@
             "defaultValue": "0"
         },
         {
-            "opt": "autosetshm",
+            "opt": "autotuneshm",
             "name": "自动SHM参数",
-            "help": "自动设置kernel.shmmax和kernel.shmall为内存的一半",
+            "help": "自动调整kernel.shmmax和kernel.shmall为内存的一半",
             "type": "select",
             "required": "false",
             "validate": "",

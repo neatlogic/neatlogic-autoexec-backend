@@ -44,6 +44,16 @@ sub getShmAllAndMax {
     my $shmall = $memTotal / 2 / $pageSize;
     my $shmmax = $memTotal / 2 - 1;
 
+    #最小4G
+    my $mem4G      = 4294967296;
+    my $mem4GPages = 4294967296 / $pageSize;
+    if ( $shmmax < $mem4G ) {
+        $shmmax = $mem4G - 1;
+    }
+    if ( $shmall < $mem4GPages ) {
+        $shmall = $mem4GPages;
+    }
+
     return ( $shmall, $shmmax );
 }
 
@@ -52,13 +62,13 @@ sub main {
     my $filePath = '/etc/sysctl.conf';
 
     my $needBackup = 0;
-    my $autoSetShm = 0;
+    my $autoSetShm = 1;
     my $content;
 
     GetOptions(
-        'backup=i'     => \$needBackup,
-        'autosetshm=i' => \$autoSetShm,
-        'content=s'    => \$content
+        'backup=i'      => \$needBackup,
+        'autotuneshm=i' => \$autoSetShm,
+        'content=s'     => \$content
     );
 
     if ( not defined($content) or $content eq '' ) {
@@ -82,8 +92,12 @@ sub main {
     my ( $shmall, $shmmax );
     if ( $autoSetShm == 1 ) {
         ( $shmall, $shmmax ) = getShmAllAndMax();
-        $confMap->{'kernel.shmall'} = $shmall;
-        $confMap->{'kernel.shmmax'} = $shmmax;
+        if ( defined( $confMap->{'kernel.shmall'} ) ) {
+            $confMap->{'kernel.shmall'} = $shmall;
+        }
+        if ( defined( $confMap->{'kernel.shmmax'} ) ) {
+            $confMap->{'kernel.shmmax'} = $shmmax;
+        }
     }
 
     my $isChanged  = 0;
