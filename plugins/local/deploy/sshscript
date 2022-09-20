@@ -32,18 +32,17 @@ sub usage {
     print("       --o:            ssh options, example: \"SendEnv EXEC_PASSWORD;ForwardX11 yes\"\n");
     print("       --destencoding: Target OS encoding\n");
     print("       --interpreter:  Script interperter, such as sh|perl|vbs|powershell\n");
-    print("       --script:       example: '{\"name\":\"t.bat\",\"arguments\":\"\$SYSNAME \$SUBSYSNAME\",\"content\":\"#!/bin/bash\necho helloworld!\n\"}'\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
 
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
-    my ( $node, $destCharset, $supass, $sshOpts, $scriptObj, $eofStr, $failStr, $timeOut );
+    my ( $node, $destCharset, $supass, $sshOpts, $scriptContent, $eofStr, $failStr, $timeOut );
     my $interpreter = 'sh';
     $destCharset = 'utf-8';
     $isVerbose   = 0;
-    $scriptObj   = '';
 
     GetOptions(
         'h|help'         => \$isHelp,
@@ -56,7 +55,7 @@ sub main {
         'timeout=i'      => \$timeOut,
         'o=s'            => \$sshOpts,
         'interpreter=s'  => \$interpreter,
-        'script=s'       => \$scriptObj
+        'script=s'       => \$scriptContent
     );
 
     usage() if ( defined($isHelp) );
@@ -97,19 +96,21 @@ sub main {
         }
     }
 
-    if ( not defined($scriptObj) ) {
+    if ( not defined($scriptContent) ) {
         $optionError = 1;
-        print("ERROR: Must defined script obj with --script option.\n");
+        print("ERROR: Must defined script content with --script option.\n");
     }
 
     if ( $optionError == 1 ) {
         usage();
     }
 
-    my $scriptJson = from_json($scriptObj);
+    if ( $destCharset ne 'utf-8' ) {
+        $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
+    }
+    $scriptContent =~ s/\\n/\n/sg;
 
     my $scriptInterpreter = $interpreter;
-    my $scriptContent     = $scriptJson->{content};
     my $arguments         = '';
     foreach my $arg (@ARGV) {
         $arguments = qq{$arguments "$arg"};
@@ -129,20 +130,6 @@ sub main {
         }
     }
 
-    if ( defined($scriptContent) and $scriptContent ne '' ) {
-        my $unHexContent = pack( 'H*', $scriptContent );
-        my $hexContent   = unpack( 'H*', $unHexContent );
-
-        if ( $hexContent eq lc($scriptContent) ) {
-            $scriptContent = $unHexContent;
-        }
-    }
-
-    #$scriptName = md5_hex($scriptContent);    # . "$scriptName";
-
-    if ( $destCharset ne 'utf-8' ) {
-        $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
-    }
     my $TMPDIR  = $ENV{AUTOEXEC_HOME} . '/tmp';
     my $tmp     = File::Temp->new( DIR => $TMPDIR, SUFFIX => '' );
     my $tmpPath = $tmp->filename;

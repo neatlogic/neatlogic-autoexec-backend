@@ -226,7 +226,7 @@ class Operation:
                     optValue = json.dumps(fileNamesJson, ensure_ascii=False)
             else:
                 if optType == 'textarea':
-                    optValue = {"content": optValue}
+                    optValue = optValue.replace('\n', '\\n')
 
                 optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
 

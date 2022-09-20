@@ -25,7 +25,7 @@ sub usage {
     print("       --destencoding: Server Side encoding\n");
     print("       --timeout:      tiemout for ssh execute\n");
     print("       --interpreter:  Script interperter, such as sh|perl|vbs|powershell\n");
-    print("       --script:       script json\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
 
     exit(1);
 }
@@ -34,7 +34,7 @@ sub usage {
 # tagentexec --inspath "qqqq" -h 192.168.0.178 -p 3939 -u tagent --pass ts9012501  "dir C:"
 sub main {
     my ( $isHelp, $isVerbose, $envPath, $version );
-    my ( $node, $async, $scriptObj, $eofStr, $serverCharset, $timeOut );
+    my ( $node, $async, $scriptContent, $eofStr, $serverCharset, $timeOut );
     my $interpreter = 'sh';
     $isVerbose = 0;
     $async     = 0;
@@ -49,7 +49,7 @@ sub main {
         'timeout=i'      => \$timeOut,
         'destencoding=s' => \$serverCharset,
         'interpreter=s'  => \$interpreter,
-        'script=s'       => \$scriptObj
+        'script=s'       => \$scriptContent
     );
 
     usage() if ( defined($isHelp) );
@@ -63,9 +63,9 @@ sub main {
         print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
     }
 
-    if ( not defined($scriptObj) ) {
+    if ( not defined($scriptContent) ) {
         $optionError = 1;
-        print("ERROR: Must defined script obj with --script option.\n");
+        print("ERROR: Must defined script content with --script option.\n");
     }
 
     if ( $optionError == 1 ) {
@@ -87,10 +87,8 @@ sub main {
 
     my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut, $serverCharset );
 
-    my $scriptJson = from_json($scriptObj);
-
+    $scriptContent =~ s/\\n/\n/sg;
     my $scriptInterpreter = $interpreter;
-    my $scriptContent     = $scriptJson->{content};
     my $arguments         = '';
     foreach my $arg (@ARGV) {
         $arguments = qq{$arguments "$arg"};
@@ -107,15 +105,6 @@ sub main {
         my $varName = $1;
         if ( exists( $ENV{$varName} ) ) {
             $arguments =~ s/(?<!\\)\$\{$varName\}/$ENV{$varName}/g;
-        }
-    }
-
-    if ( defined($scriptContent) and $scriptContent ne '' ) {
-        my $unHexContent = pack( 'H*', $scriptContent );
-        my $hexContent   = unpack( 'H*', $unHexContent );
-
-        if ( $hexContent eq lc($scriptContent) ) {
-            $scriptContent = $unHexContent;
         }
     }
 

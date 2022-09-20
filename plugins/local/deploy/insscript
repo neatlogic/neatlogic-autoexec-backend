@@ -21,7 +21,7 @@ sub usage {
     print("       --eofstr:       when command outpute match eofstr, the execute will be terminated\n");
     print("       --destencoding: server Side charset\n");
     print("       --timeout:      tiemout for ssh execute\n");
-    print("       --script:       script json\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
 
     exit(1);
 }

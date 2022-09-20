@@ -19,15 +19,15 @@ sub usage {
 sub main {
     my $user;
     my $fileName;
-    my $contentJson;
+    my $content;
 
     GetOptions(
         'user=s'     => \$user,
         'filename=i' => \$fileName,
-        'content=s'  => \$contentJson
+        'content=s'  => \$content
     );
 
-    if ( not defined($contentJson) or $contentJson eq '' ) {
+    if ( not defined($content) or $content eq '' ) {
         print("ERROR: Must defined modify content by option --content\n");
         usage();
     }
@@ -58,10 +58,10 @@ sub main {
 
     my $hasError = 0;
 
-    my $exportMap  = {};
-    my $confMap    = {};
-    my $contentObj = from_json($contentJson);
-    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+    my $exportMap = {};
+    my $confMap   = {};
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
         if ( $key =~ s/^export\s+// ) {

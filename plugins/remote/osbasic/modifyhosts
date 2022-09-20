@@ -38,14 +38,14 @@ sub main {
     }
 
     my $needBackup = 0;
-    my $contentJson;
+    my $content;
 
     GetOptions(
-        'backup:i'  => \$needBackup,
-        'content:s' => \$contentJson
+        'backup=i'  => \$needBackup,
+        'content=s' => \$content
     );
 
-    if ( not defined($contentJson) or $contentJson eq '' ) {
+    if ( not defined($content) or $content eq '' ) {
         print("ERROR: Must defined modify content by option --content\n");
         usage();
     }
@@ -55,9 +55,9 @@ sub main {
     my $scriptDir = $FindBin::Bin;
     chdir($scriptDir);
 
-    my $confMap    = {};
-    my $contentObj = from_json($contentJson);
-    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+    my $confMap = {};
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $ip, $name ) = split( /\s+/, $line, 2 );
         $confMap->{$ip} = $name;

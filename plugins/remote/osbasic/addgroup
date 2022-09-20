@@ -18,22 +18,22 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
 
     my $modifyIfExist = 0;
-    my $contentJson;
+    my $content;
 
     GetOptions(
-        'content:s'       => \$contentJson,
-        'modifyifexist:i' => \$modifyIfExist
+        'content=s'       => \$content,
+        'modifyifexist=i' => \$modifyIfExist
     );
 
-    if ( not defined($contentJson) or $contentJson eq '' ) {
+    if ( not defined($content) or $content eq '' ) {
         print("ERROR: Must defined modify content by option --content\n");
         usage();
     }
 
     my $hasError = 0;
 
-    my $contentObj = from_json($contentJson);
-    foreach my $line ( split( /\n/, $contentObj->{content} ) ) {
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
         my $exitCode = 0;
         $line =~ s/^\s*|\s*$//g;
         if ( $line =~ /^(\w+)\s+(\d+)$/ ) {
@@ -44,7 +44,7 @@ sub main {
                 my $cmd = "groupadd -g $gid '$name'";
                 print( $cmd, "\n" );
                 $exitCode = system($cmd);
-                if ( $exitCode != 0 ){
+                if ( $exitCode != 0 ) {
                     my $conflictGroup = getgrgid($gid);
                     print("ERROR: Other group $conflictGroup has the same gid:$gid.\n");
                 }

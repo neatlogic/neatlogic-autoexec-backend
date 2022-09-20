@@ -22,14 +22,14 @@ sub usage {
     print("       --version: version number of sub system\n");
     print("       --buildno: Build number\n");
     print("       --basedir: Base directory for execution\n");
-    print("       --script:  Script json text\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
 
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
-    my ( $baseDir, $scriptJson );
+    my ( $baseDir, $scriptContent );
     my $interpreter = 'sh';
     my $pname       = $FindBin::Script;
 
@@ -42,10 +42,11 @@ sub main {
         'v|verbose=i'   => \$isVerbose,
         'basedir=s'     => \$baseDir,
         'interpreter=s' => \$interpreter,
-        'script=s'      => \$scriptJson
+        'script=s'      => \$scriptContent
     );
     usage() if ( defined($isHelp) );
-    usage() if ( not defined($scriptJson) or $scriptJson eq '' );
+    usage() if ( not defined($scriptContent) or $scriptContent eq '' );
+    $scriptContent =~ s/\\n/\n/sg;
 
     my $deployUtils = DeployUtils->new();
     my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
@@ -88,7 +89,7 @@ sub main {
     my $TMPDIR  = "$autoexecHome/tmp";
     my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );
 
-    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptJson, $lang, $interpreter, \@ARGV );
+    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptContent, $lang, $interpreter, \@ARGV );
     if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
         print("ERROR: Exec $cmd has error.\n");
         $isFail = 1;
@@ -101,11 +102,8 @@ sub main {
 }
 
 sub getScriptCmd {
-    my ( $fileTmp, $autoexecHome, $scriptJson, $lang, $interpreter, $args ) = @_;
-    my $scriptObj = from_json($scriptJson);
-
+    my ( $fileTmp, $autoexecHome, $scriptContent, $lang, $interpreter, $args ) = @_;
     my $scriptInterpreter = $interpreter;
-    my $scriptContent     = $scriptObj->{content};
 
     my $deployUtils = DeployUtils->new();
     my $scriptExt   = $deployUtils->getScriptExtName($scriptInterpreter);

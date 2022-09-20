@@ -91,8 +91,8 @@ sub main {
         exit(1);
     }
     else {
-        my $cmdObj = from_json($cmd);
-        my @cmds   = split( /\n/, $cmdObj->{'content'} );
+        $cmd =~ s/\\n/\n/sg;
+        my @cmds = split( /\n/, $cmd );
         foreach my $line (@cmds) {
             $line =~ s/^\s+|\s+$//g;
             if ( $line ne '' ) {
