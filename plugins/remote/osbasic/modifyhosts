@@ -55,17 +55,20 @@ sub main {
     my $scriptDir = $FindBin::Bin;
     chdir($scriptDir);
 
-    my $confMap = {};
+    my @confKeysArray = ();
+    my $confMap       = {};
     $content =~ s/\\n/\n/sg;
     foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $ip, $name ) = split( /\s+/, $line, 2 );
         $confMap->{$ip} = $name;
+        push( @confKeysArray, $ip );
     }
 
-    my $isChanged  = 0;
-    my $newContent = '';
-    my $fh         = IO::File->new("+<$filePath");
+    my $processedMap = {};
+    my $isChanged    = 0;
+    my $newContent   = '';
+    my $fh           = IO::File->new("+<$filePath");
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
@@ -74,8 +77,10 @@ sub main {
                 $tmpLine =~ s/^\s*|\s*$//g;
                 my ( $ip, $name ) = split( /\s+/, $tmpLine, 2 );
                 my $newName = $confMap->{$ip};
-                if ( defined($newName) ) {
-                    delete( $confMap->{$ip} );
+                if ( defined($newName) and not $processedMap->{$ip} ) {
+
+                    #delete( $confMap->{$ip} );
+                    $processedMap->{$ip} = 1;
                     if ( $newName ne $name ) {
                         $isChanged = 1;
                         $line =~ s/\s+.*$/\t$newName/;
@@ -89,7 +94,12 @@ sub main {
             $newContent = $newContent . $line;
         }
 
-        while ( my ( $ip, $name ) = each(%$confMap) ) {
+        #while ( my ( $ip, $name ) = each(%$confMap) ) {
+        foreach my $ip (@confKeysArray) {
+            if ( $processedMap->{$ip} == 1 ) {
+                next;
+            }
+            my $name = $confMap->{$ip};
             $isChanged  = 1;
             $newContent = $newContent . "$ip\t$name\n";
             print("Append: $ip\t$name\n");

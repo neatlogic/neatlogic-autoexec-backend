@@ -225,10 +225,9 @@ class Operation:
                         fileNamesJson.append('file/' + fileName)
                     optValue = json.dumps(fileNamesJson, ensure_ascii=False)
             else:
+                optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
                 if optType == 'textarea':
                     optValue = optValue.replace('\n', '\\n')
-
-                optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
 
             self.options[optName] = optValue
 

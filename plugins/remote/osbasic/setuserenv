@@ -23,7 +23,7 @@ sub main {
 
     GetOptions(
         'user=s'     => \$user,
-        'filename=i' => \$fileName,
+        'filename=s' => \$fileName,
         'content=s'  => \$content
     );
 
@@ -60,7 +60,9 @@ sub main {
 
     my $exportMap = {};
     my $confMap   = {};
+    my @keysArray = ();
     $content =~ s/\\n/\n/sg;
+
     foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
@@ -78,11 +80,14 @@ sub main {
         else {
             $confMap->{$key} = undef;
         }
+
+        push( @keysArray, $key );
     }
 
-    my $isChanged  = 0;
-    my $newContent = '';
-    my $fh         = IO::File->new( $filePath, 'a+' );
+    my $keyProcessedMap = {};
+    my $isChanged       = 0;
+    my $newContent      = '';
+    my $fh              = IO::File->new( $filePath, 'a+' );
     if ( defined($fh) ) {
         $fh->seek( 0, 0 );
         my $line;
@@ -100,7 +105,9 @@ sub main {
 
                 my $newVal = $confMap->{$key};
                 if ( defined($newVal) ) {
-                    delete( $confMap->{$key} );
+
+                    #delete( $confMap->{$key} );
+                    $keyProcessedMap->{$key} = 1;
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
                         $line =~ s/=.*$/=$newVal/;
@@ -124,7 +131,13 @@ sub main {
             $newContent = $newContent . $line;
         }
 
-        while ( my ( $key, $val ) = each(%$confMap) ) {
+        foreach my $key (@keysArray) {
+            if ( $keyProcessedMap->{$key} == 1 ) {
+                next;
+            }
+
+            my $val = $confMap->{$key};
+
             $isChanged = 1;
             if ( $exportMap->{$key} ) {
                 $newContent = $newContent . "export $key=$val\n";

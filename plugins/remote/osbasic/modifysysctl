@@ -81,12 +81,14 @@ sub main {
     my $scriptDir = $FindBin::Bin;
     chdir($scriptDir);
 
-    my $confMap = {};
+    my $confMap       = {};
+    my @confKeysArray = ();
     $content =~ s/\\n/\n/sg;
     foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
         my ( $key, $val ) = split( /\s*=\s*/, $line );
         $confMap->{$key} = $val;
+        push( @confKeysArray, $key );
     }
 
     my ( $shmall, $shmmax );
@@ -100,9 +102,10 @@ sub main {
         }
     }
 
-    my $isChanged  = 0;
-    my $newContent = '';
-    my $fh         = IO::File->new("+<$filePath");
+    my $processedMap = {};
+    my $isChanged    = 0;
+    my $newContent   = '';
+    my $fh           = IO::File->new("+<$filePath");
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
@@ -112,7 +115,9 @@ sub main {
                 my ( $key, $val ) = split( /\s*=\s*/, $tmpLine );
                 my $newVal = $confMap->{$key};
                 if ( defined($newVal) ) {
-                    delete( $confMap->{$key} );
+
+                    #delete( $confMap->{$key} );
+                    $processedMap->{$key} = 1;
                     if ( $newVal ne $val ) {
                         $isChanged = 1;
                         $line =~ s/\s*=.*$/ = $newVal/;
@@ -126,7 +131,13 @@ sub main {
             $newContent = $newContent . $line;
         }
 
-        while ( my ( $key, $val ) = each(%$confMap) ) {
+        #while ( my ( $key, $val ) = each(%$confMap) ) {
+        foreach my $key (@confKeysArray) {
+            if ( $processedMap->{$key} == 1 ) {
+                next;
+            }
+
+            my $val = $confMap->{$key};
             $isChanged  = 1;
             $newContent = $newContent . "$key = $val\n";
             print("Append: $key = $val\n");

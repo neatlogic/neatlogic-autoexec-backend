@@ -53,7 +53,6 @@ sub main {
 
     my $hasError = 0;
 
-    my $pubKey;
     my $keyPath    = "$homePath/.ssh/id_rsa";
     my $pubKeyPath = "$homePath/.ssh/id_rsa.pub";
     if ( -f $pubKeyPath and $recreate == 1 ) {
@@ -108,7 +107,11 @@ sub main {
         print("ERROR: Can not change file $pubKeyPath permission mode to 0600, $!.\n");
     }
 
-    $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
+    my $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
+
+    if ( defined($pubKey) ) {
+        $pubKey =~ s/^\s*|\s*$//g;
+    }
 
     if ( not defined($pubKey) or $pubKey eq '' ) {
         $hasError = 1;

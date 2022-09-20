@@ -21,6 +21,8 @@ sub usage {
 sub appendPubKey {
     my ( $keysPath, $pubKey ) = @_;
 
+    $pubKey =~ s/^\s*|\s*$//g;
+
     my $hasError = 0;
     my $fh       = IO::File->new( $keysPath, 'a+' );
     if ( defined($fh) ) {
@@ -45,6 +47,48 @@ sub appendPubKey {
     else {
         $hasError = 1;
         print("ERROR: Can not open file $keysPath, $!\n");
+    }
+
+    return $hasError;
+}
+
+sub appendKnownHost {
+    my ( $knownHostsPath, $pubKeysSet ) = @_;
+
+    my $content  = '';
+    my $hasError = 0;
+    my $fh       = IO::File->new( $knownHostsPath, 'r' );
+    if ( defined($fh) ) {
+        my $exist = 0;
+        my $line;
+        while ( $line = $fh->getline() ) {
+            $line =~ s/^\s*|\s*$//g;
+            my ( $thisIp, $thsiPubKey ) = split( /\s+/, $line, 2 );
+            if ( not defined( $pubKeysSet->{$thisIp} ) ) {
+                $content = $content . $line;
+            }
+        }
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file $knownHostsPath, $!\n");
+    }
+
+    while ( my ( $ip, $pubKey ) = each(%$pubKeysSet) ) {
+        $pubKey =~ s/^\s*|\s*$//g;
+        my ( $type, $keyTxt, $user ) = split( /\s+/, $pubKey );
+        $content = $content . "$ip $type $keyTxt\n";
+    }
+
+    $fh = IO::File->new( $knownHostsPath, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($content);
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file $knownHostsPath, $!\n");
     }
 
     return $hasError;
@@ -90,7 +134,9 @@ sub main {
     my $gid      = $userInfo[3];
     my $group    = getgrgid($gid);
 
-    my $keysPath = "$homePath/.ssh/authorized_keys";
+    my $keysPath       = "$homePath/.ssh/authorized_keys";
+    my $knownHostsPath = "$homePath/.ssh/known_hosts";
+
     if ( not -e "$homePath/.ssh" ) {
         if ( not mkdir("$homePath/.ssh") ) {
             $hasError = 1;
@@ -111,6 +157,9 @@ sub main {
             if ( $hasError != 0 ) {
                 last;
             }
+        }
+        if ( $hasError = 0 ) {
+            $hasError = appendKnownHost( $knownHostsPath, $pubKeysSet );
         }
     }
     elsif ( ref($pubKeysSet) eq 'ARRAY' ) {
@@ -142,6 +191,13 @@ sub main {
     if ( not chown( $uid, $gid, $keysPath ) ) {
         $hasError = 1;
         print("ERROR: Can not change file $keysPath owner to $user:$group, $!.\n");
+    }
+
+    if ( -e $knownHostsPath ) {
+        if ( not chown( $uid, $gid, $knownHostsPath ) ) {
+            $hasError = 1;
+            print("ERROR: Can not change file $knownHostsPath owner to $user:$group, $!.\n");
+        }
     }
 
     return $hasError;
