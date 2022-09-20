@@ -92,20 +92,68 @@ class VmManage(object):
         objView.Destroy()
         return vmList
 
+    def get_physical_cdrom(self ,host):
+        for lun in host.configManager.storageSystem.storageDeviceInfo.scsiLun:
+            if lun.lunType == 'cdrom':
+                return lun
+        return None
+
+    def find_free_ide_controller(self ,vm):
+        for dev in vm.config.hardware.device:
+            if isinstance(dev, vim.vm.device.VirtualIDEController):
+                if len(dev.device) < 2:
+                    return dev
+        return None
+
+    def find_device(self , vm, device_type):
+        result = []
+        for dev in vm.config.hardware.device:
+            if isinstance(dev, device_type):
+                result.append(dev)
+        return result
+
+
+    def new_cdrom_spec(self , controller_key, backing):
+        connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+        connectable.allowGuestControl = True
+        connectable.startConnected = True
+
+        cdrom = vim.vm.device.VirtualCdrom()
+        cdrom.controllerKey = controller_key
+        cdrom.key = -1
+        cdrom.connectable = connectable
+        cdrom.backing = backing
+        return cdrom
+
     def get_customspec(self, param):
         nicSpec = vim.vm.customization.IPSettings()
-        #nicSpec.dnsDomain = dnsDomain
-        nicSpec.gateway = param['gateway']
-        nicSpec.subnetMask = param['netmask']
         nicSpec.ip = vim.vm.customization.FixedIp()
-        nicSpec.ip.ipAddress = param['vm_ip']
-
-        linuxprep = vim.vm.customization.LinuxPrep()
-        #linuxprep.domain = dnsDomain
-        linuxprep.hostName = vim.vm.customization.FixedName()
-        linuxprep.hostName.name = param['hostname']
-        linuxprep.hwClockUTC = True
-        linuxprep.timeZone = "Asia/Shanghai"
+        nicSpec.ip.ipAddress = str(param['vm_ip'])
+        nicSpec.subnetMask = str(param['netmask'])
+        nicSpec.gateway = str(param['gateway'])
+        #nicSpec.dnsDomain = dnsDomain
+        print(nicSpec)
+        prep = None
+        if param['os_type'] == 'windows':
+            prep = vim.vm.customization.Sysprep()
+            prep.guiUnattended = vim.vm.customization.GuiUnattended()
+            prep.guiUnattended.autoLogon = False
+            #prep.guiUnattended.passwgitord = vim.vm.customization.Password()
+            #prep.guiUnattended.password.value = 'xxxxxx'
+            #prep.guiUnattended.password.plainText = True
+            prep.userData = vim.vm.customization.UserData()
+            prep.userData.fullName = param['hostname']
+            prep.userData.orgName = "com"
+            prep.userData.computerName = vim.vm.customization.FixedName()
+            prep.userData.computerName.name = param['hostname']
+            prep.identification = vim.vm.customization.Identification()
+        else:
+            prep = vim.vm.customization.LinuxPrep()
+            #prep.domain = dnsDomain
+            prep.hostName = vim.vm.customization.FixedName()
+            prep.hostName.name = param['hostname']
+            prep.hwClockUTC = True
+            prep.timeZone = "Asia/Shanghai"
 
         globalIPSettings = vim.vm.customization.GlobalIPSettings()
         globalIPSettings.dnsServerList =  param['dns']
@@ -117,7 +165,7 @@ class VmManage(object):
 
         nic_adapter = vim.vm.customization.Specification()
         nic_adapter.nicSettingMap = nic_adapter_specs
-        nic_adapter.identity = linuxprep
+        nic_adapter.identity = prep
         nic_adapter.globalIPSettings = globalIPSettings
         return nic_adapter
     
@@ -205,22 +253,136 @@ class VmManage(object):
 
         ret = self.wait_for_task('add nic',vm.ReconfigVM_Task(spec=spec) , param)
     
+    def add_cdrom(self , param):
+        vm = self._get_obj([vim.VirtualMachine], param['vm_name']) 
+        controller = self.find_free_ide_controller(vm)
+        ret = 0 
+        if controller is None:
+            print('ERROR:: Failed to find a free slot on the IDE controller.')
+            ret = 1
+            return ret
+
+        cdrom = None
+        cdrom_lun = self.get_physical_cdrom(vm.runtime.host)
+        if cdrom_lun is not None:
+            backing = vim.vm.device.VirtualCdrom.AtapiBackingInfo()
+            backing.deviceName = cdrom_lun.deviceName
+            device_spec = vim.vm.device.VirtualDeviceSpec()
+            device_spec.device = self.new_cdrom_spec(controller.key, backing)
+            device_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
+            config_spec = vim.vm.ConfigSpec(deviceChange=[device_spec])
+            ret = self.wait_for_task('add cdrom', vm.Reconfigure(config_spec) , param)
+
+            cdroms = self.find_device(vm, vim.vm.device.VirtualCdrom)
+            # TODO isinstance(x.backing, type(backing))
+            cdrom = next(filter(lambda x: type(x.backing) == type(backing) and
+                        x.backing.deviceName == cdrom_lun.deviceName, cdroms))
+        else:
+            print('WARN:: Skipping physical CD-Rom test as no device present.')
+
+        cdrom_operation = vim.vm.device.VirtualDeviceSpec.Operation
+        iso = param['iso']
+        if iso is not None:
+            device_spec = vim.vm.device.VirtualDeviceSpec()
+            if cdrom is None:  # add a cdrom
+                backing = vim.vm.device.VirtualCdrom.IsoBackingInfo(fileName=iso)
+                cdrom = self.new_cdrom_spec(controller.key, backing)
+                device_spec.operation = cdrom_operation.add
+            else:  # edit an existing cdrom
+                backing = vim.vm.device.VirtualCdrom.IsoBackingInfo(fileName=iso)
+                cdrom.backing = backing
+                device_spec.operation = cdrom_operation.edit
+            device_spec.device = cdrom
+            config_spec = vim.vm.ConfigSpec(deviceChange=[device_spec])
+            ret = self.wait_for_task('add cdrom', vm.Reconfigure(config_spec) , param)
+
+            cdroms = self.find_device(vm, vim.vm.device.VirtualCdrom)
+            # TODO isinstance(x.backing, type(backing))
+            cdrom = next(filter(lambda x: type(x.backing) == type(backing) and
+                        x.backing.fileName == iso, cdroms))
+        else:
+            print('WARN::Skipping ISO test as no iso provided.')
+
+        #if cdrom is not None:  # Remove it
+        #    device_spec = vim.vm.device.VirtualDeviceSpec()
+        #    device_spec.device = cdrom
+        #    device_spec.operation = cdrom_operation.remove
+        #    config_spec = vim.vm.ConfigSpec(deviceChange=[device_spec])
+        #    ret = self.wait_for_task('remove cdrom', vm.Reconfigure(config_spec) , param)
+
+    def power_vm(self, param):
+        vm = self._get_obj([vim.VirtualMachine], param['vm_name'])
+        if vm is None : 
+            vm = self.content.searchIndex.FindByIp(None, param['vm_ip'], True)
+        if vm is None: 
+            print("WARN:: not found virtual machine : {}".format(vm.name))
+        else:
+            print("INFO:: {} virtual machine powerState is: {}".format(vm.name , vm.runtime.powerState))
+        
+        ret = 0 
+        if param['power_type'] == 'powerOff' :
+            if format(vm.runtime.powerState) == "poweredOn":
+                print("INFO:: Attempting to power off {}".format(vm.name))
+                ret = self.wait_for_task('powerOff vm', vm.PowerOffVM_Task(),param)
+            else :
+                print("INFO:: {} virtual machine powerState is powerOff. ".format(vm.name))
+        else :
+            if format(vm.runtime.powerState) == "poweredOn":
+                print("INFO:: {} virtual machine powerState is poweredOn. ".format(vm.name))
+            else :
+                ret = self.wait_for_task('powerOn vm', vm.PowerOnVM_Task(),param)
+        return ret
+
     def destroy_vm(self, param):
         vm = self._get_obj([vim.VirtualMachine], param['vm_name'])
+        if vm is None : 
+            vm = self.content.searchIndex.FindByIp(None, param['vm_ip'], True)
         if vm is None: 
-            print("WARN:: not Found virtual machine : {}".format(vm.name))
+            print("WARN:: not found virtual machine : {}".format(vm.name))
         else:
             print("INFO:: {} virtual machine powerState is: {}".format(vm.name , vm.runtime.powerState))
 
         if format(vm.runtime.powerState) == "poweredOn":
-            print("Attempting to power off {0}".format(vm.name))
-            
-            ret = self.wait_for_task('poweroff vm', vm.PowerOffVM_Task(),param)
+            param['power_type'] = 'powerOff'
+            ret = self.power_vm(param)
             if ret == 0:
                 self.wait_for_task('destroy vm', vm.Destroy_Task() , param)
         else :
             self.wait_for_task('destroy vm', vm.Destroy_Task() , param)
         print("INFO:: {} virtual machine destroy vm.".format(param["vm_name"]))
+
+    def setCustomConfig(self , param):
+        vm = self._get_obj([vim.VirtualMachine], param['vm_name'])
+        if vm is None : 
+            vm = self.content.searchIndex.FindByIp(None, param['vm_ip'], True)
+        if vm is None: 
+            print("WARN:: not found virtual machine : {}".format(vm.name))
+        else:
+            print("INFO:: {} virtual machine powerState is: {}".format(vm.name , vm.runtime.powerState))
+        
+        clonespec = vim.vm.CloneSpec()
+        # 个性化设置
+        if all([param['vm_ip'], param['netmask'], param['gateway']]):
+            clonespec.customization = self.get_customspec(param)
+        vmconf = vim.vm.ConfigSpec()
+        vmconf.cpuHotAddEnabled = True
+        vmconf.cpuHotRemoveEnabled = True
+        vmconf.memoryHotAddEnabled = True
+
+        if param['cup_num']:
+            vmconf.numCPUs = int(param['cup_num'])
+            vmconf.numCoresPerSocket = 2
+        if param['memory']:
+            vmconf.memoryMB = int(param['memory']) * 1024
+        if vmconf is not None:
+            clonespec.config = vmconf
+
+        task = vm.ReconfigVM_Task(clonespec)
+        ret = self.wait_for_task('vm setconfig',task , param)
+        if ret == 0 : 
+            print("INFO:: {} virtual machine set custom config success.".format(param["vm_name"]))
+        else :
+            print("ERROR:: {} virtual machine set custom config success.".format(param["vm_name"]))
 
     def create_vm(self, param):
         datacenter = self._get_obj([vim.Datacenter], param['datacenter_name'])
@@ -306,7 +468,13 @@ class VmManage(object):
                     if ret == 0 :
                         print("INFO:: {} add {} {} disk success.".format(param['vm_name'] , param['disk_type'] , param['disk_size']))
                     else :
-                        print("ERRORR:: {} add {} type {} disk failed.".format(param['vm_name'] , param['disk_type'] , param['disk_size']))
+                        print("ERROR:: {} add {} type {} disk failed.".format(param['vm_name'] , param['disk_type'] , param['disk_size']))
+
+                if param['iso'] is not None : 
+                    self.add_cdrom(param)
+                
+                if all([param['vm_ip'], param['netmask'], param['gateway']]):
+                    self.setCustomConfig(param)
             else:
                 print("ERROR:: VM {} created failed ,reason:{} .".format(param['vm_name']),task.info.error.msg)
 

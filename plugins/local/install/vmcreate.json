@@ -1,11 +1,11 @@
 {
-    "opDesc": "克隆虚拟机",
+    "opDesc": "创建虚拟机",
     "opType": "runner",
     "typeName": "INSTALL",
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "基于vshpere克隆虚拟机（虚拟机模板或被克隆的虚拟机必须先安装vmtools）",
+    "description": "基于vshpere创建虚拟机",
     "option": [
         {
             "opt": "ip",
@@ -68,34 +68,37 @@
             "defaultValue": ""
         },
         {
-            "opt": "template_name",
-            "name": "模板名称",
-            "help": "vsphere template模板名称",
+            "opt": "network_name",
+            "name": "网络名称",
+            "help": "vsphere network网络名称",
             "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": ""
         },
         {
-            "opt": "os_type",
-            "name": "操作系统类型",
-            "help": "操作系统类型",
+            "opt": "guest",
+            "name": "操作系统版本",
+            "help": "vsphere操作系统版本",
             "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
                 "dataList": [
                     {
-                        "text": "Unix",
-                        "value": "unix"
+                        "text": "rhel7_64Guest",
+                        "value": "rhel7_64Guest"
                     },
                     {
-                        "text": "Windows",
-                        "value": "windows"
+                        "text": "rhel6_64Guest",
+                        "value": "rhel6_64Guest"
+                    },{
+                        "text": "windows8Server64Guest",
+                        "value": "windows8Server64Guest"
                     }
                 ]
             },
-            "defaultValue": "unix"
+            "defaultValue": ""
         },
         {
             "opt": "host_name",

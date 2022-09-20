@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+import os
+import json
+import argparse
+import traceback
+import VmManage
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <vcenter ip> --user <user> --password <password> --power_type <powerOn|powerOff> [--vm_name <vm_name>|--vm_ip <vm_ip>] ")
+    exit(1)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='vcenter管理IP')
+    parser.add_argument('--port', default='443', help='vcenter管理端口')
+    parser.add_argument('--user', default='', help='vcenter console login user')
+    parser.add_argument('--password', default='', help='vcenter console login user password')
+    parser.add_argument('--vm_name', default='', help='virtual machine name')
+    parser.add_argument('--vm_ip', default='', help='virtual machine ip')
+    parser.add_argument('--power_type', default='', help='virtual machine power state')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+    args = parser.parse_args()
+    
+    ip = args.ip
+    user = args.user
+    password = args.password
+    port = args.port
+    vm_name = args.vm_name
+    vm_ip = args.vm_ip
+    power_type = args.power_type
+
+    verbose = int(args.verbose)
+
+    node = os.getenv('AUTOEXEC_NODE')
+    if node != None and node != '':
+        node = json.loads(node)
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == None or password == '') and (node == None or node == '')):
+        usage()
+
+    if (vm_name is None or  vm_name == '' ) and (vm_ip is None or vm_ip == '' ) :
+        usage()
+    
+    if power_type is None or  power_type == '' :
+        usage()
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
+        ip = node['host']
+        port = node['port']
+        if port is None or port == '' : 
+            port = node['protocolPort']
+        user = node['username']
+        password = node['password']
+
+    param ={}
+    param['vm_name']=vm_name
+    param['vm_ip']=vm_ip
+    param['power_type'] = power_type
+    param['verbose']=verbose
+
+    vm = VmManage.VmManage(ip, user, password, port)
+    ret = vm.power_vm(param)
+    vm.close()
+    exit(ret)
