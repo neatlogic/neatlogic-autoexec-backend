@@ -25,6 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--cluster_name', default='', help='vcenter cluster name')
     parser.add_argument('--datastore_name', default='', help='vcenter datastore name')
     parser.add_argument('--template_name', default='', help='virtual machine template name')
+    parser.add_argument('--vm_folder', default='', help='virtual machine storage folder')
     parser.add_argument('--host_name', default='', help='vcenter host machine host name')
     parser.add_argument('--os_type', default='', help='client virtual os type')
     parser.add_argument('--vm_name', default='', help='clone new virtual machine name')
@@ -49,6 +50,7 @@ if __name__ == '__main__':
     cluster_name = args.cluster_name
     datastore_name = args.datastore_name
     template_name = args.template_name
+    vm_folder = args.vm_folder
     host_name = args.host_name
     os_type = args.os_type
     vm_name = args.vm_name
@@ -121,6 +123,7 @@ if __name__ == '__main__':
     param['cluster_name']=cluster_name
     param['datastore_name']=datastore_name
     param['template_name']=template_name
+    param['vm_folder']=vm_folder
     param['host_name']=host_name
     param['os_type'] =os_type
     param['vm_name']=vm_name

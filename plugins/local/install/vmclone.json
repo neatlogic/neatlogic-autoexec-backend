@@ -77,6 +77,15 @@
             "defaultValue": ""
         },
         {
+            "opt": "vm_folder",
+            "name": "存放目录",
+            "help": "vsphere 新建虚拟机存放目录，不存在会新建。如：codedriver",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
             "opt": "os_type",
             "name": "操作系统类型",
             "help": "操作系统类型",
