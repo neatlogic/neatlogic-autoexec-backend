@@ -26,9 +26,9 @@ use SqlplusExec;
 sub getConfig {
     return {
         enabled  => 0,
-        regExps  => ['\/bin\/ocssd.bin'],       #正则表达是匹配ps输出
+        regExps  => ['\basm_pmon_\w'],          #正则表达是匹配ps输出
                                                 #psAttrs  => { COMM => 'oracle' },       #ps的属性的精确匹配
-        envAttrs => { ORACLE_HOME => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        envAttrs => { ORACLE_BASE => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -691,10 +691,42 @@ sub collectRAC {
 
     $self->{gridUser}     = $osUser;
     $racInfo->{GRID_USER} = $osUser;
+
+    if ( not defined($oraSid) or $oraSid eq '' ) {
+        my $comm    = $procInfo->{COMM};
+        my $command = $procInfo->{COMMAND};
+        if ( ( $comm eq 'oracle' or $command =~ /^\Q$comm\E/ ) and $command =~ /^asm_pmon_(.*)$/ ) {
+            $oraSid = $1;
+        }
+        else {
+            #不是Oracle进程
+            print("WARN: It is not asm pmon process.\n");
+            return undef;
+        }
+    }
     print("INFO: Oracle SID: $oraSid.\n");
 
     my $oraHome = $envMap->{ORACLE_HOME};
     my $oraBase = $envMap->{ORACLE_BASE};
+
+    if ( not defined($oraHome) or $oraHome eq '' or not defined($oraBase) or $oraBase eq '' ) {
+
+        #如果进程没有环境变量ORACLE_HOME，则从用户环境变量里获取
+        my $envLines = $self->getCmdOutLines( 'env', $self->{gridUser} );
+        foreach my $envLine (@$envLines) {
+            my ( $name, $val ) = split( '=', $envLine, 2 );
+            if ( defined($val) and $val ne '' and $name eq 'ORACLE_HOME' ) {
+                if ( not defined($oraHome) or $oraHome eq '' ) {
+                    $oraHome = $val;
+                }
+            }
+            elsif ( defined($val) and $val ne '' and $name eq 'ORACLE_BASE' ) {
+                if ( not defined($oraBase) or $oraBase eq '' ) {
+                    $oraBase = $val;
+                }
+            }
+        }
+    }
 
     $racInfo->{_OBJ_CATEGORY}    = CollectObjCat->get('CLUSTER');
     $racInfo->{_OBJ_TYPE}        = 'DBCluster';
