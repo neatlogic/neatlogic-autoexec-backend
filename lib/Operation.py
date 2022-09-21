@@ -432,7 +432,7 @@ class Operation:
             files = json.loads(val)
             val = ','.join(files)
 
-        if self.interpreter != 'cmd':
+        if desc != 'switch' and self.interpreter != 'cmd':
             if quota == '"':
                 val = re.sub(r'(?<=\\\\)*(?<!\\)"', '\\"', val)
                 val = re.sub(r'(?<=\\\\)+"', '\\"', val)
@@ -440,20 +440,39 @@ class Operation:
                 val = val.replace("'", "'\\''")
 
         if self.interpreter == 'cmd':
-            if re.search('\s', val):
+            if desc == 'swtich':
+                if val == 'true':
+                    optDef = ' /%s ' % (key)
+            elif re.search('\s', val):
                 optDef = ' /%s:"%s" ' % (key, val)
             else:
                 optDef = ' /%s:%s ' % (key, val)
         elif self.interpreter == 'vbscript':
-            optDef = ' /%s:%s%s%s ' % (key, quota, val, quota)
+            if desc == 'swtich':
+                if val == 'true':
+                    optDef = ' /%s ' % (key)
+            else:
+                optDef = ' /%s:%s%s%s ' % (key, quota, val, quota)
         elif self.interpreter == 'powershell':
-            optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
+            if desc == 'swtich':
+                if val == 'true':
+                    optDef = ' -%s ' % (key)
+            else:
+                optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
         else:
             keyLen = len(key)
             if keyLen == 1:
-                optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
+                if desc == 'swtich':
+                    if val == 'true':
+                        optDef = ' -%s ' % (key)
+                else:
+                    optDef = ' -%s %s%s%s ' % (key, quota, val, quota)
             else:
-                optDef = ' --%s %s%s%s ' % (key, quota, val, quota)
+                if desc == 'swtich':
+                    if val == 'true':
+                        optDef = ' --%s ' % (key)
+                else:
+                    optDef = ' --%s %s%s%s ' % (key, quota, val, quota)
 
         return optDef
 
