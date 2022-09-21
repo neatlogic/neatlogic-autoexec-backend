@@ -1463,7 +1463,7 @@ sub getGridProc {
 
     #64936 grid     /u01/app/grid/product/19.0.0/gridhome_1/bin/ocssd.bin
     my $pid;
-    my $gridPsLines = $self->getCmdOutLines('ps -eo pid,args |grep /bin/ocssd.bin');
+    my $gridPsLines = $self->getCmdOutLines('ps -eo pid,args |grep asm_pmon_');
     foreach my $line (@$gridPsLines) {
         if ( $line !~ /grep/ and $line =~ /^\s*(\d+)/ ) {
             $pid = $1;
@@ -1539,9 +1539,13 @@ sub collect {
         $racInfo->{PROC_INFO} = $gridProcInfo;
         $racInfo->{OS_USER}   = $gridProcInfo->{USER};
         $racInfo->{GRID_USER} = $gridProcInfo->{USER};
+
         my $racColletSet = $self->collectRAC($racInfo);
         if ( defined($racColletSet) ) {
             push( @collectSet, @$racColletSet );
+        }
+        else {
+            undef($racInfo);
         }
     }
 
