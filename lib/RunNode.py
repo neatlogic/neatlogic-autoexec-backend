@@ -391,7 +391,7 @@ class RunNode:
             outputFile = None
             try:
                 outputFile = open(localOutputPath, 'r')
-                fcntl.lockf(outputFile, fcntl.LOCK_SH)
+                fcntl.flock(outputFile, fcntl.LOCK_SH)
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
@@ -399,7 +399,7 @@ class RunNode:
                 raise AutoExecError('Load operation output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
-                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
         else:
             # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
@@ -417,7 +417,7 @@ class RunNode:
             outputFile = None
             try:
                 outputFile = open(self.outputPath, 'r')
-                fcntl.lockf(outputFile, fcntl.LOCK_SH)
+                fcntl.flock(outputFile, fcntl.LOCK_SH)
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
@@ -426,7 +426,7 @@ class RunNode:
                 raise AutoExecError('Load output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
-                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
         else:
             # 如果本地output文件不存在则从mongodb加载
@@ -442,14 +442,14 @@ class RunNode:
             outputFile = None
             try:
                 outputFile = open(self.outputPath, 'w')
-                fcntl.lockf(outputFile, fcntl.LOCK_EX)
+                fcntl.flock(outputFile, fcntl.LOCK_EX)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
                 self.outputStore.saveOutput(self.output)
             except Exception as ex:
                 raise AutoExecError('Save output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
-                    fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
 
     def _loadOpOutput(self, op):

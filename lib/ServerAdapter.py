@@ -7,6 +7,7 @@ import os
 import traceback
 import stat
 import fcntl
+from filelock import FileLock
 import ssl
 import time
 import json
@@ -59,8 +60,8 @@ class ServerAdapter:
         }
 
         self.context = context
-        self.fileFeteched = {}
-        self.scriptFetched = {}
+        self.fileFeteched = context.fileFeteched
+        self.scriptFetched = context.scriptFetched
         serverBaseUrl = context.config['server']['server.baseurl']
         if(serverBaseUrl[-1] == '/'):
             serverBaseUrl = serverBaseUrl[0:-1]
@@ -185,7 +186,7 @@ class ServerAdapter:
         paramsFile = None
         try:
             paramsFile = open(paramsFilePath, 'a+')
-            fcntl.lockf(paramsFile, fcntl.LOCK_EX)
+            fcntl.flock(paramsFile, fcntl.LOCK_EX)
 
             response = self.httpJSON(self.apiMap['getParams'],  params)
             charset = response.info().get_content_charset()
@@ -205,7 +206,7 @@ class ServerAdapter:
             raise
         finally:
             if paramsFile:
-                fcntl.lockf(paramsFile, fcntl.LOCK_UN)
+                fcntl.flock(paramsFile, fcntl.LOCK_UN)
                 paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
@@ -238,7 +239,7 @@ class ServerAdapter:
 
             if response.status == 200:
                 nodesFile = open(nodesFilePath, 'a+')
-                fcntl.lockf(nodesFile, fcntl.LOCK_EX)
+                fcntl.flock(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
                 for line in response:
                     nodesFile.write(str(line, encoding='utf-8'))
@@ -255,7 +256,7 @@ class ServerAdapter:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
         finally:
             if nodesFile:
-                fcntl.lockf(nodesFile, fcntl.LOCK_UN)
+                fcntl.flock(nodesFile, fcntl.LOCK_UN)
                 nodesFile.close()
 
     # 更新运行阶段某个节点的状态到服务端
@@ -441,10 +442,6 @@ class ServerAdapter:
 
     # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
-        fileName = self.fileFeteched.get(fileId)
-        if fileName is not None:
-            return fileName
-
         params = {
             'id': fileId
         }
@@ -454,13 +451,16 @@ class ServerAdapter:
         lockFilePath = cachedFilePath + '.lock'
         lockFile = None
 
-        cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
         fileName = None
         response = None
         try:
-            lockFile = open(lockFilePath, 'ab+')
-            fcntl.lockf(lockFile, fcntl.LOCK_EX)
+            lockFile = open(lockFilePath, 'w+')
+            fcntl.flock(lockFile, fcntl.LOCK_EX)
+
+            fileName = self.fileFeteched.get(fileId)
+            if fileName is not None:
+                return fileName
 
             lastModifiedTime = 0
             if os.path.exists(cachedFilePath):
@@ -477,6 +477,7 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
+                cachedFilePathTmp = cachedFilePath + '.tmp'
                 cachedFileTmp = open(cachedFilePathTmp, 'wb')
                 CHUNK = 16 * 1024
                 while True:
@@ -500,15 +501,12 @@ class ServerAdapter:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
             if lockFile is not None:
-                fcntl.lockf(lockFile, fcntl.LOCK_UN)
+                fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
 
     def fetchScript(self, savePath, opId):
-        if self.scriptFetched.get(opId):
-            return
-
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
@@ -520,12 +518,14 @@ class ServerAdapter:
         lockFilePath = cachedFilePath + '.lock'
         lockFile = None
 
-        cachedFilePathTmp = cachedFilePath + '.tmp'
         cachedFileTmp = None
         response = None
         try:
-            lockFile = open(lockFilePath, 'ab+')
-            fcntl.lockf(lockFile, fcntl.LOCK_EX)
+            lockFile = open(lockFilePath, 'w+')
+            fcntl.flock(lockFile, fcntl.LOCK_EX)
+
+            if self.scriptFetched.get(opId):
+                return
 
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -534,6 +534,7 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
+                cachedFilePathTmp = cachedFilePath + '.tmp'
                 cachedFileTmp = open(cachedFilePathTmp, 'w')
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
@@ -556,7 +557,7 @@ class ServerAdapter:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
             if lockFile is not None:
-                fcntl.lockf(lockFile, fcntl.LOCK_UN)
+                fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
 
         return cachedFilePath

@@ -164,7 +164,7 @@ def loadNodeOutput():
         outputFile = None
         try:
             outputFile = open(outputPath, 'r')
-            fcntl.lockf(outputFile, fcntl.LOCK_SH)
+            fcntl.flock(outputFile, fcntl.LOCK_SH)
             content = outputFile.read()
             if content:
                 output = json.loads(content)
@@ -172,7 +172,7 @@ def loadNodeOutput():
             print('ERROR: Load output file:{}, failed {}\n'.format(outputPath, ex))
         finally:
             if outputFile is not None:
-                fcntl.lockf(outputFile, fcntl.LOCK_UN)
+                fcntl.flock(outputFile, fcntl.LOCK_UN)
                 outputFile.close()
     else:
         print('WARN: Output file:{} not found.\n'.format(outputPath))

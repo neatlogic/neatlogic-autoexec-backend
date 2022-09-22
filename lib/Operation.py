@@ -27,6 +27,8 @@ class Operation:
         self.hasFileOpt = False
         self.scriptContent = None
         self.interpreter = ''
+        self.fileFeteched = context.fileFeteched
+        self.scriptFetched = context.scriptFetched
         self.lockedFDs = []
 
         self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "checkbox": 1, "textarea": 1}
@@ -278,27 +280,28 @@ class Operation:
             if isinstance(fileId, str):
                 continue
 
-            fileName = serverAdapter.fetchFile(cachePath, fileId)
-
+            fileName = self.fileFeteched.get(fileId)
+            if fileName is None:
+                fileName = serverAdapter.fetchFile(cachePath, fileId)
             if fileName is not None:
                 cacheFilePath = '{}/{}'.format(cachePath, fileId)
-
                 linkPath = self.runPath + '/file/' + fileName
 
-                cacheFile = None
+                lockFilePath = linkPath + '.lock'
+                lockFile = open(lockFilePath, 'r+')
+
                 try:
-                    cacheFile = open(cacheFilePath, 'r')
-                    fcntl.flock(cacheFile, fcntl.LOCK_EX)
+                    fcntl.flock(lockFile, fcntl.LOCK_EX)
                     if os.path.exists(linkPath):
-                        if not os.path.samefile(linkPath, cacheFilePath):
+                        if os.readlink(linkPath) != cacheFilePath:
                             os.unlink(linkPath)
                             os.symlink(cacheFilePath, linkPath)
                     else:
                         os.symlink(cacheFilePath, linkPath)
                 finally:
-                    if cacheFile is not None:
-                        fcntl.flock(cacheFile, fcntl.LOCK_UN)
-                        cacheFile.close()
+                    if lockFile is not None:
+                        fcntl.flock(lockFile, fcntl.LOCK_UN)
+                        lockFile.close()
 
                 fileNamesArray.append(fileName)
                 self.hasFileOpt = True
@@ -309,17 +312,23 @@ class Operation:
     def fetchScript(self, savePath, opId):
         if self.scriptContent:
             filePathTmp = savePath + '.tmp'
-            fileTmp = open(filePathTmp, 'a+')
-            fcntl.lockf(fileTmp, fcntl.LOCK_EX)
-            fileTmp.truncate(0)
-            fileTmp.write(self.scriptContent)
+            lockFilePath = savePath + '.lock'
+            lockFile = open(lockFilePath, 'w+')
+            fcntl.flock(lockFile, fcntl.LOCK_EX)
+            try:
+                fileTmp = open(filePathTmp, 'w')
+                fileTmp.write(self.scriptContent)
 
-            if os.path.exists(savePath):
-                os.unlink(savePath)
-            os.rename(filePathTmp, savePath)
+                if os.path.exists(savePath):
+                    os.unlink(savePath)
+                os.rename(filePathTmp, savePath)
+                self.scriptFetched[opId] = True
+            finally:
+                fcntl.flock(lockFile, fcntl.LOCK_UN)
         else:
-            serverAdapter = self.context.serverAdapter
-            serverAdapter.fetchScript(savePath, opId)
+            if not self.scriptFetched.get(opId):
+                serverAdapter = self.context.serverAdapter
+                serverAdapter.fetchScript(savePath, opId)
 
     def resolveOptValue(self, optValue, refMap=None, nodeEnv={}):
         if optValue is None or optValue == '':
