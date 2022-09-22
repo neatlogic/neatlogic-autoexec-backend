@@ -462,7 +462,7 @@ class ServerAdapter:
             lockFile = open(lockFilePath, 'ab+')
             fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
-            cachedFileTmp = open(cachedFilePathTmp, 'ab+')
+            cachedFileTmp = open(cachedFilePathTmp, 'wb')
 
             lastModifiedTime = 0
             if os.path.exists(cachedFilePath):
@@ -479,7 +479,6 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
-                cachedFileTmp.truncate(0)
                 CHUNK = 16 * 1024
                 while True:
                     chunk = response.read(CHUNK)
@@ -532,7 +531,7 @@ class ServerAdapter:
             lockFile = open(lockFilePath, 'ab+')
             fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
-            cachedFileTmp = open(cachedFilePathTmp, 'a+')
+            cachedFileTmp = open(cachedFilePathTmp, 'wb')
 
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -545,7 +544,6 @@ class ServerAdapter:
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
-                cachedFileTmp.truncate(0)
                 cachedFileTmp.write(scriptContent)
                 cachedFileTmp.flush()
 
