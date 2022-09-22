@@ -495,11 +495,11 @@ class ServerAdapter:
 
             return fileName
         except:
-            self.writeNodeLog("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
             try:
                 os.unlink(cachedFilePath)
             except:
                 pass
+            raise AutoExecError("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
         finally:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
@@ -554,11 +554,11 @@ class ServerAdapter:
             self.scriptFetched[opId] = True
             return
         except:
-            self.writeNodeLog("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
             try:
                 os.unlink(cachedFilePath)
             except:
                 pass
+            raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
         finally:
             if cachedFileTmp is not None:
                 os.chmod(cachedFilePath, stat.S_IRWXU)
