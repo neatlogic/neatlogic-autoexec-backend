@@ -496,7 +496,7 @@ class ServerAdapter:
 
             return fileName
         except:
-            raise AutoExecError("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
+            raise AutoExecError("ERROR: Fetch file:{} to {} failed.\n".format(fileId, savePath))
         finally:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
@@ -553,7 +553,7 @@ class ServerAdapter:
             self.scriptFetched[opId] = True
             return
         except:
-            raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
+            raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n".format(opId, savePath))
         finally:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
