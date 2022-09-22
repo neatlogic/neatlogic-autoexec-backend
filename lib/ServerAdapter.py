@@ -462,8 +462,6 @@ class ServerAdapter:
             lockFile = open(lockFilePath, 'ab+')
             fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
-            cachedFileTmp = open(cachedFilePathTmp, 'wb')
-
             lastModifiedTime = 0
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -479,6 +477,7 @@ class ServerAdapter:
                     fileName = contentDisposition[fileNameIdx+10:-1]
 
             if response.status == 200:
+                cachedFileTmp = open(cachedFilePathTmp, 'wb')
                 CHUNK = 16 * 1024
                 while True:
                     chunk = response.read(CHUNK)
@@ -528,8 +527,6 @@ class ServerAdapter:
             lockFile = open(lockFilePath, 'ab+')
             fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
-            cachedFileTmp = open(cachedFilePathTmp, 'w')
-
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
             params['lastModified'] = lastModifiedTime
@@ -537,6 +534,7 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
+                cachedFileTmp = open(cachedFilePathTmp, 'w')
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
