@@ -485,7 +485,8 @@ class ServerAdapter:
                     if not chunk:
                         break
                     cachedFileTmp.write(chunk)
-                cachedFileTmp.flush()
+                cachedFileTmp.close()
+                cachedFileTmp = None
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
@@ -541,11 +542,13 @@ class ServerAdapter:
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
                 cachedFileTmp.write(scriptContent)
-                cachedFileTmp.flush()
+                cachedFileTmp.close()
+                cachedFileTmp = None
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
                 os.rename(cachedFilePathTmp, cachedFilePath)
+                os.chmod(cachedFilePath, stat.S_IRWXU)
 
             self.scriptFetched[opId] = True
             return
@@ -553,7 +556,6 @@ class ServerAdapter:
             raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
         finally:
             if cachedFileTmp is not None:
-                os.chmod(cachedFilePath, stat.S_IRWXU)
                 cachedFileTmp.close()
             if lockFile is not None:
                 fcntl.lockf(lockFile, fcntl.LOCK_UN)
