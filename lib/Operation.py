@@ -292,9 +292,9 @@ class Operation:
                     if os.path.exists(linkPath):
                         if not os.path.samefile(linkPath, cacheFilePath):
                             os.unlink(linkPath)
-                            os.link(cacheFilePath, linkPath)
+                            os.symlink(cacheFilePath, linkPath)
                     else:
-                        os.link(cacheFilePath, linkPath)
+                        os.symlink(cacheFilePath, linkPath)
                 finally:
                     if cacheFile is not None:
                         fcntl.flock(cacheFile, fcntl.LOCK_UN)

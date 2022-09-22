@@ -495,10 +495,6 @@ class ServerAdapter:
 
             return fileName
         except:
-            try:
-                os.unlink(cachedFilePath)
-            except:
-                pass
             raise AutoExecError("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
         finally:
             if cachedFileTmp is not None:
