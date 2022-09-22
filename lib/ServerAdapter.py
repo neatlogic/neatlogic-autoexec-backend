@@ -489,7 +489,7 @@ class ServerAdapter:
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
-                os.link(cachedFilePathTmp, cachedFilePath)
+                os.rename(cachedFilePathTmp, cachedFilePath)
 
             self.fileFeteched[fileId] = fileName
 
@@ -545,15 +545,11 @@ class ServerAdapter:
 
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
-                os.link(cachedFilePathTmp, cachedFilePath)
+                os.rename(cachedFilePathTmp, cachedFilePath)
 
             self.scriptFetched[opId] = True
             return
         except:
-            try:
-                os.unlink(cachedFilePath)
-            except:
-                pass
             raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
         finally:
             if cachedFileTmp is not None:
