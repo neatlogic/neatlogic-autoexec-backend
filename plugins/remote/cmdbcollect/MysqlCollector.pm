@@ -105,13 +105,14 @@ sub collect {
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
 
+    my $osType     = $procInfo->{OS_TYPE};
     my $osUser     = $procInfo->{USER};
     my $command    = $procInfo->{COMMAND};
     my $opts       = $self->parseCommandOpts($command);
     my $mysqlHome  = $opts->{mysqlHome};
     my $mysqldPath = $opts->{mysqldPath};
 
-    if ( not -e $mysqldPath ) {
+    if ( not -e $mysqldPath and not -e "$mysqldPath.exe" ) {
         print("ERROR: Mysql bin $mysqldPath not found.\n");
         return undef;
     }
