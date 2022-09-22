@@ -21,8 +21,6 @@ class Context(VContext.VContext):
         super().__init__(jobId=jobId, execUser=execUser, isForce=isForce, devMode=devMode, dataPath=dataPath, runPath=runPath, noFireNext=noFireNext, passThroughEnv=passThroughEnv)
 
         self.firstFire = firstFire
-        self.fileFeteched = {}
-        self.scriptFetched = {}
         # 初始化ServerAdapter，用于调用后台的接口对接处理
         serverAdapter = ServerAdapter.ServerAdapter(self)
         self.serverAdapter = serverAdapter

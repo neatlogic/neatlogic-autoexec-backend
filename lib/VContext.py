@@ -40,6 +40,9 @@ class VContext:
         self.noFireNext = noFireNext
         self.passThroughEnv = passThroughEnv
 
+        self.fileFeteched = {}
+        self.scriptFetched = {}
+
         self.goToStop = False
         # 用于标记全局是否有失败的节点
         self.hasFailNodeInGlobal = False
