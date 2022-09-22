@@ -59,6 +59,7 @@ class ServerAdapter:
         }
 
         self.context = context
+        self.fileFeteched = {}
         serverBaseUrl = context.config['server']['server.baseurl']
         if(serverBaseUrl[-1] == '/'):
             serverBaseUrl = serverBaseUrl[0:-1]
@@ -439,6 +440,10 @@ class ServerAdapter:
 
     # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):
+        fileName = self.fileFeteched.get(fileId)
+        if fileName is not None:
+            return fileName
+
         params = {
             'id': fileId
         }
@@ -486,6 +491,8 @@ class ServerAdapter:
                     os.unlink(cachedFilePath)
                 os.link(cachedFilePathTmp, cachedFilePath)
 
+            self.fileFeteched[fileId] = fileName
+
             return fileName
         except:
             self.writeNodeLog("ERROR: Fetch file:{} to {} failed.\n{}\n".format(fileId, savePath, traceback.format_exc()))
@@ -503,6 +510,9 @@ class ServerAdapter:
     # 从自定义脚本库下载脚本到脚本目录
 
     def fetchScript(self, savePath, opId):
+        if self.scriptFetched.get(opId):
+            return
+
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
@@ -541,6 +551,9 @@ class ServerAdapter:
                 if os.path.exists(cachedFilePath):
                     os.unlink(cachedFilePath)
                 os.link(cachedFilePathTmp, cachedFilePath)
+
+            self.scriptFetched[opId] = True
+            return
         except:
             self.writeNodeLog("ERROR: Fetch {} custom script to {} failed.\n{}\n".format(opId, savePath, traceback.format_exc()))
             try:
