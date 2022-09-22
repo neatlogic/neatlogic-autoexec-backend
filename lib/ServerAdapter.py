@@ -531,7 +531,7 @@ class ServerAdapter:
             lockFile = open(lockFilePath, 'ab+')
             fcntl.lockf(lockFile, fcntl.LOCK_EX)
 
-            cachedFileTmp = open(cachedFilePathTmp, 'wb')
+            cachedFileTmp = open(cachedFilePathTmp, 'w')
 
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
