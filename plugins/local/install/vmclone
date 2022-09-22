@@ -9,7 +9,7 @@ def usage():
     pname = os.path.basename(__file__)
     print(pname + " --ip <vcenter ip> --user <user> --password <password> " +
     "--datacenter_name <datacenter name> --cluster_name <cluster name> --datastore_name <datastore name> --host_name <host name> --template_name <template name>" + 
-    "--os_type <windows|unix> --vm_name <vm name> --vm_ip <vm ip> --netmask <netmask> --gateway <gateway> --hostname <hostname> --dns <dns>" + 
+    "--vm_name <vm name> --vm_ip <vm ip> --netmask <netmask> --gateway <gateway> --hostname <hostname> --dns <dns>" + 
     "--cup_num <cup num> --memory <memory> --disk_type <disk type> --disk_size <disk size> --verbose <0|1>" 
     )
     exit(1)
@@ -27,7 +27,6 @@ if __name__ == '__main__':
     parser.add_argument('--template_name', default='', help='virtual machine template name')
     parser.add_argument('--vm_folder', default='', help='virtual machine storage folder')
     parser.add_argument('--host_name', default='', help='vcenter host machine host name')
-    parser.add_argument('--os_type', default='', help='client virtual os type')
     parser.add_argument('--vm_name', default='', help='clone new virtual machine name')
     parser.add_argument('--vm_ip', default='', help='clone new virtual machine ip')
     parser.add_argument('--netmask', default='', help='clone new virtual machine netmask')
@@ -52,7 +51,6 @@ if __name__ == '__main__':
     template_name = args.template_name
     vm_folder = args.vm_folder
     host_name = args.host_name
-    os_type = args.os_type
     vm_name = args.vm_name
     vm_ip = args.vm_ip
     netmask = args.netmask
@@ -115,9 +113,6 @@ if __name__ == '__main__':
         password = node['password']
 
     dns = dns.split(',')
-    if os_type is None or os_type == '':
-        os_type = 'unix'
-
     param ={}
     param['datacenter_name']=datacenter_name
     param['cluster_name']=cluster_name
@@ -125,7 +120,6 @@ if __name__ == '__main__':
     param['template_name']=template_name
     param['vm_folder']=vm_folder
     param['host_name']=host_name
-    param['os_type'] =os_type
     param['vm_name']=vm_name
     param['vm_ip']=vm_ip
     param['netmask']=netmask

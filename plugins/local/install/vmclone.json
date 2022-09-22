@@ -86,27 +86,6 @@
             "defaultValue": ""
         },
         {
-            "opt": "os_type",
-            "name": "操作系统类型",
-            "help": "操作系统类型",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [
-                    {
-                        "text": "Unix",
-                        "value": "unix"
-                    },
-                    {
-                        "text": "Windows",
-                        "value": "windows"
-                    }
-                ]
-            },
-            "defaultValue": "unix"
-        },
-        {
             "opt": "host_name",
             "name": "服务器名称",
             "help": "vsphere 服务器硬件名称",

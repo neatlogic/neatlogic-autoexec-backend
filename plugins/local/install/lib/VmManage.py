@@ -526,6 +526,12 @@ class VmManage(object):
         if template is None:
             print("ERROR:: VM template {} not found .".format(param['template_name']))
             exit(1)
+
+        os_type = template.config.guestFullName.lower()
+        if("windows" in os_type or "win" in os_type):
+            param['os_type'] = 'windows'
+        else:
+            param['os_type'] = 'unix'
         
         datacenter = self._get_obj([vim.Datacenter], param['datacenter_name'])
         if datacenter is None:
