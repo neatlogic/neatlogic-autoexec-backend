@@ -288,7 +288,7 @@ class Operation:
                 linkPath = self.runPath + '/file/' + fileName
 
                 lockFilePath = linkPath + '.lock'
-                lockFile = open(lockFilePath, 'r+')
+                lockFile = open(lockFilePath, 'w+')
 
                 try:
                     fcntl.flock(lockFile, fcntl.LOCK_EX)
