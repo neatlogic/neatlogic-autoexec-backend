@@ -60,6 +60,7 @@ class ServerAdapter:
 
         self.context = context
         self.fileFeteched = {}
+        self.scriptFetched = {}
         serverBaseUrl = context.config['server']['server.baseurl']
         if(serverBaseUrl[-1] == '/'):
             serverBaseUrl = serverBaseUrl[0:-1]
