@@ -57,6 +57,24 @@ sub appendKnownHost {
     my $hasError = 0;
     my $fh;
 
+    my $knownKeys = {};
+    while ( my ( $ip, $pubKey ) = each(%$pubKeysSet) ) {
+        $pubKey =~ s/^\s*|\s*$//g;
+        my ( $type, $keyTxt, $user ) = split( /\s+/, $pubKey );
+
+        my $fingerPrint = `ssh-keyscan -t $type $ip 2>/dev/null`;
+        if ( $? == 0 ) {
+            $fingerPrint =~ s/^\s*|\s*$//g;
+            if ( $user =~ /\@(.+)$/ ) {
+                my $hostName = $1;
+                $knownKeys->{"$hostName,$ip"} = "$hostName,$fingerPrint";
+            }
+            else {
+                $knownKeys->{$ip} = $fingerPrint;
+            }
+        }
+    }
+
     if ( -e $knownHostsPath ) {
         $fh = IO::File->new( $knownHostsPath, 'r' );
         if ( defined($fh) ) {
@@ -65,8 +83,9 @@ sub appendKnownHost {
             while ( $line = $fh->getline() ) {
                 $line =~ s/^\s*|\s*$//g;
                 my ( $thisIp, $thsiPubKey ) = split( /\s+/, $line, 2 );
-                if ( not defined( $pubKeysSet->{$thisIp} ) ) {
-                    $content = $content . $line;
+                if ( not defined( $knownKeys->{$thisIp} ) ) {
+                    delete( $knownKeys->{$thisIp} );
+                    $content = $content . $line . "\n";
                 }
             }
             $fh->close();
@@ -77,19 +96,8 @@ sub appendKnownHost {
         }
     }
 
-    while ( my ( $ip, $pubKey ) = each(%$pubKeysSet) ) {
-        $pubKey =~ s/^\s*|\s*$//g;
-        my ( $type, $keyTxt, $user ) = split( /\s+/, $pubKey );
-
-        my $fingerPrint = `ssh-keyscan -t $type $ip 2>/dev/null`;
-        $fingerPrint =~ s/^\s*|\s*$//g;
-        if ( $user =~ /\@(.+)$/ ) {
-            my $hostName = $1;
-            $content = $content . "$hostName,$fingerPrint\n";
-        }
-        else {
-            $content = $content . "$fingerPrint\n";
-        }
+    while ( my ( $knownKey, $fingerPrint ) = each(%$knownKeys) ) {
+        $content = $content . $fingerPrint . "\n";
     }
 
     $fh = IO::File->new( $knownHostsPath, 'w' );
