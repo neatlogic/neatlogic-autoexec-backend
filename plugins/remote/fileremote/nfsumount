@@ -5,8 +5,6 @@ use IO::File;
 use Getopt::Long;
 use File::Basename;
 
-use AutoExecUtils;
-
 sub usage {
     my $pname = $FindBin::Script;
 

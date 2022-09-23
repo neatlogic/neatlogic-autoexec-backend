@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 use FindBin;
 use lib "$FindBin::Bin/lib";
-use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 use strict;
 use IO::File;
@@ -9,6 +10,8 @@ use Getopt::Long;
 use File::Basename;
 use Net::FTP::Recursive;
 use File::Spec;
+
+use AutoExecUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
