@@ -72,8 +72,8 @@
         },
         {
             "opt": "type",
-            "name": "文件类型",
-            "help": "文件类型",
+            "name": "协议",
+            "help": "协议",
             "type": "select",
             "required": "false",
             "validate": "",

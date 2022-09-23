@@ -201,7 +201,7 @@ sub main {
 
         #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
         my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAliasRelPrefix$seqNumber" OWNER="$owner", GROUP="$group", MODE="0660"\n];
-        print("Append: $rule");
+        print("New: $rule");
         $udevRules = $udevRules . $rule;
         $seqNumber = $seqNumber + 1;
     }
