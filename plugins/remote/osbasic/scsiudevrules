@@ -22,15 +22,15 @@ sub getDiskScsiId {
     my ($devPath) = @_;
 
     #获取SCSI 磁盘的SCSI ID
-    my $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d DEV_NODE';
+    my $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d';
+
+    my $cmd    = $SCSI_ID_CMD;
+    my $scsiId = `$SCSI_ID_CMD $devPath`;
 
     if ( $? != 0 ) {
         die("ERROR: Can not get dev $devPath scsi id, only support scsi disk.\n");
     }
 
-    my $cmd = $SCSI_ID_CMD;
-    $cmd =~ s/DEV_NODE/$devPath/g;
-    my $scsiId = `$cmd`;
     $scsiId =~ s/^\s*|\s*$//g;
 
     return $scsiId;
