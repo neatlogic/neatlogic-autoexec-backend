@@ -9,8 +9,6 @@ use IO::File;
 use JSON;
 use Getopt::Long;
 
-use AutoExecUtils;
-
 sub usage {
     my $pname = $FindBin::Script;
 
@@ -57,28 +55,41 @@ sub appendKnownHost {
 
     my $content  = '';
     my $hasError = 0;
-    my $fh       = IO::File->new( $knownHostsPath, 'r' );
-    if ( defined($fh) ) {
-        my $exist = 0;
-        my $line;
-        while ( $line = $fh->getline() ) {
-            $line =~ s/^\s*|\s*$//g;
-            my ( $thisIp, $thsiPubKey ) = split( /\s+/, $line, 2 );
-            if ( not defined( $pubKeysSet->{$thisIp} ) ) {
-                $content = $content . $line;
+    my $fh;
+
+    if ( -e $knownHostsPath ) {
+        $fh = IO::File->new( $knownHostsPath, 'r' );
+        if ( defined($fh) ) {
+            my $exist = 0;
+            my $line;
+            while ( $line = $fh->getline() ) {
+                $line =~ s/^\s*|\s*$//g;
+                my ( $thisIp, $thsiPubKey ) = split( /\s+/, $line, 2 );
+                if ( not defined( $pubKeysSet->{$thisIp} ) ) {
+                    $content = $content . $line;
+                }
             }
+            $fh->close();
         }
-        $fh->close();
-    }
-    else {
-        $hasError = 1;
-        print("ERROR: Can not open file $knownHostsPath, $!\n");
+        else {
+            $hasError = 1;
+            print("ERROR: Can not open file $knownHostsPath, $!\n");
+        }
     }
 
     while ( my ( $ip, $pubKey ) = each(%$pubKeysSet) ) {
         $pubKey =~ s/^\s*|\s*$//g;
         my ( $type, $keyTxt, $user ) = split( /\s+/, $pubKey );
-        $content = $content . "$ip $type $keyTxt\n";
+
+        my $fingerPrint = `ssh-keyscan -t $type $ip 2>/dev/null`;
+        $fingerPrint =~ s/^\s*|\s*$//g;
+        if ( $user =~ /\@(.+)$/ ) {
+            my $hostName = $1;
+            $content = $content . "$hostName,$fingerPrint\n";
+        }
+        else {
+            $content = $content . "$fingerPrint\n";
+        }
     }
 
     $fh = IO::File->new( $knownHostsPath, 'w' );
@@ -158,7 +169,7 @@ sub main {
                 last;
             }
         }
-        if ( $hasError = 0 ) {
+        if ( $hasError == 0 ) {
             $hasError = appendKnownHost( $knownHostsPath, $pubKeysSet );
         }
     }
