@@ -9,34 +9,33 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname [--verbose 0|1]\n");
-    print("       --target:    Local mount path .\n");
+    print("       --mountpoint:    Local mount path .\n");
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $isVerbose );
-    my ( $node,   $target );
+    my ( $node,   $mountPoint );
 
-    AutoExecUtils::setEnv();
     my $pname = $FindBin::Script;
 
     my $isVerbose = 0;
 
     GetOptions(
-        'h|help'      => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'target=s'    => \$target
+        'h|help'       => \$isHelp,
+        'v|verbose=i'  => \$isVerbose,
+        'mountpoint=s' => \$mountPoint
     );
 
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
 
-    if ( not defined($target) or $target eq '' ) {
+    if ( not defined($mountPoint) or $mountPoint eq '' ) {
         print("ERROR: Must define local mount path.\n");
         usage();
     }
-    if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
+    if ( $mountPoint =~ /\/\.\.\// or $mountPoint =~ /^\.\.\// or $mountPoint =~ /\/\.\.$/ ) {
         print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
@@ -50,14 +49,14 @@ sub main {
     if ( $isVerbose == 1 ) {
         $cmd = $cmd . ' --verbose';
     }
-    $cmd = $cmd . " $target";
+    $cmd = $cmd . " $mountPoint";
     my $ret = `$cmd`;
 
     if ( $? == 0 ) {
-        print("FINE: Umount $target success.\n");
+        print("FINE: Umount $mountPoint success.\n");
     }
     else {
-        print("ERROR: Umount $target failed.\n");
+        print("ERROR: Umount $mountPoint failed.\n");
     }
     return $ret;
 }

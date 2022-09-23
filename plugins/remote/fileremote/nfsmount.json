@@ -7,16 +7,16 @@
     "defaultProfile": null,
     "description": "Unix环境挂载NAS",
     "option": [{
-            "opt": "addr",
-            "name": "NAS地址",
-            "help": "NAS地址, 例如: 192.168.0.222:/DataVolume/Public",
+            "opt": "location",
+            "name": "共享路径",
+            "help": "共享路径, 例如NFS: 192.168.0.222:/public, CIFS: //192.168.0.222/public",
             "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": ""
         },
         {
-            "opt": "target",
+            "opt": "mountpoint",
             "name": "挂载目录",
             "help": "挂载目录，例如：/mnt/nas",
             "type": "text",

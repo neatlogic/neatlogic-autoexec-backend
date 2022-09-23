@@ -20,15 +20,15 @@ sub usage {
     print("       --username:  Username \n");
     print("       --password:  Password\n");
     print("       --iocharset: Default utf8\n");
-    print("       --addr:      Remote address path .\n");
-    print("       --target:    Local mount path .\n");
+    print("       --location:      Remote locationess path .\n");
+    print("       --mountpoint:    Local mount path .\n");
     print("       --type:      Mount filesystem types.\n");
     exit(1);
 }
 
 sub main {
     my ( $isHelp, $isVerbose );
-    my ( $node, $username, $password, $iocharset, $type, $addr, $target );
+    my ( $node, $username, $password, $iocharset, $type, $location, $mountPoint );
 
     AutoExecUtils::setEnv();
     my $pname = $FindBin::Script;
@@ -36,36 +36,36 @@ sub main {
     my $isVerbose = 0;
 
     GetOptions(
-        'h|help'      => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'username=s'  => \$username,
-        'password=s'  => \$password,
-        'iocharset=s' => \$iocharset,
-        'type=s'      => \$type,
-        'addr=s'      => \$addr,
-        'target=s'    => \$target
+        'h|help'       => \$isHelp,
+        'v|verbose=i'  => \$isVerbose,
+        'username=s'   => \$username,
+        'password=s'   => \$password,
+        'iocharset=s'  => \$iocharset,
+        'type=s'       => \$type,
+        'location=s'   => \$location,
+        'mountpoint=s' => \$mountPoint
     );
 
     usage() if ( defined($isHelp) );
 
     my $optionError = 0;
 
-    if ( not defined($addr) or $addr eq '' ) {
+    if ( not defined($location) or $location eq '' ) {
         print("ERROR: Must define nas path.\n");
         $optionError = 1;
     }
 
-    if ( not defined($target) or $target eq '' ) {
+    if ( not defined($mountPoint) or $mountPoint eq '' ) {
         print("ERROR: Must define local mount path.\n");
         usage();
     }
-    if ( !-d $target ) {
-        system("mkdir -p $target ; chmod 777 $target");
+    if ( !-d $mountPoint ) {
+        system("mkdir -p $mountPoint && chmod 775 $mountPoint");
     }
     else {
-        system("chmod 777 $target");
+        system("chmod 775 $mountPoint");
     }
-    if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
+    if ( $mountPoint =~ /\/\.\.\// or $mountPoint =~ /^\.\.\// or $mountPoint =~ /\/\.\.$/ ) {
         print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
     }
@@ -84,30 +84,31 @@ sub main {
         $cmd = $cmd . " -t $type";
     }
     if ( defined($username) and $username ne '' ) {
-        $cmd = $cmd . " -o username=$username";
+        $cmd = $cmd . " -o 'username=$username";
         if ( defined($password) and $password ne '' ) {
             $cmd = $cmd . ",password=$password";
         }
         if ( defined($iocharset) and $iocharset ne '' ) {
             $cmd = $cmd . ",iocharset=$iocharset";
         }
+        $cmd = $cmd . "'";
     }
 
     if ( $isVerbose == 1 ) {
         $cmd = $cmd . ' --verbose';
     }
-    $cmd = $cmd . " $addr $target";
+    $cmd = $cmd . " $location $mountPoint";
     my $ret = `$cmd`;
 
     if ( $? == 0 ) {
-        print("FINE: Mount $addr to $target success.\n");
+        print("FINE: Mount $location to $mountPoint success.\n");
     }
     else {
-        print("ERROR: Mount $addr to $target failed.\n");
+        print("ERROR: Mount $location to $mountPoint failed.\n");
     }
 
     my $out = {};
-    $out->{mountPoint} = $target;
+    $out->{mountPoint} = $mountPoint;
     AutoExecUtils::saveOutput($out);
     return $ret;
 }
