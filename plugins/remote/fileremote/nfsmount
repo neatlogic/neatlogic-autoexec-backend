@@ -6,7 +6,6 @@ use Getopt::Long;
 use File::Basename;
 use POSIX qw(uname);
 
-use ServerConf;
 use AutoExecUtils;
 
 sub usage {
@@ -64,11 +63,6 @@ sub main {
     if ( $target =~ /\/\.\.\// or $target =~ /^\.\.\// or $target =~ /\/\.\.$/ ) {
         print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
         $optionError = 1;
-    }
-
-    if ( defined($password) and $password ne '' ) {
-        my $serverConf = ServerConf->new();
-        $password = $serverConf->decryptPwd($password);
     }
 
     if ( $optionError == 1 ) {
