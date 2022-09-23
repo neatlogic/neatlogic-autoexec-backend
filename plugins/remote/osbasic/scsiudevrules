@@ -18,14 +18,29 @@ sub usage {
     exit(1);
 }
 
+sub getScsiIdCmd {
+    my $SCSI_ID_CMD;
+    if ( -e '/usr/lib/udev/scsi_id' ) {
+        $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d';
+    }
+    elsif ( -e '/lib/udev/scsi_id' ) {
+        $SCSI_ID_CMD = '/lib/udev/scsi_id -g -u -d';
+    }
+    elsif ( -e '/sbin/scsi_id' ) {
+        $SCSI_ID_CMD = '/sbin/scsi_id -g -u -d';
+    }
+    else {
+        die("ERROR: Can not find tools scsi_id in dirtories:/usr/lib/udev,/lib/udev,/sbin.\n");
+    }
+
+    return $SCSI_ID_CMD;
+}
+
 sub getDiskScsiId {
-    my ($devPath) = @_;
+    my ( $scsiIdCmd, $devPath ) = @_;
 
     #获取SCSI 磁盘的SCSI ID
-    my $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d';
-
-    my $cmd    = $SCSI_ID_CMD;
-    my $scsiId = `$SCSI_ID_CMD $devPath`;
+    my $scsiId = `$scsiIdCmd $devPath`;
 
     if ( $? != 0 ) {
         die("ERROR: Can not get dev $devPath scsi id, only support scsi disk.\n");
@@ -37,14 +52,14 @@ sub getDiskScsiId {
 }
 
 sub getDiskAliases {
-    my ($diskAliasPrefix) = @_;
+    my ( $scsiIdCmd, $diskAliasPrefix ) = @_;
 
     #获取已经存在指定别名前缀的磁盘别名，返回一个从SCSI ID到设备别名的一个MAP
     #返回的别名是去掉了/dev/前缀的
     my $maxAliasSeqNumber = 0;
     my $scsiIdAliasMap    = {};
     for my $diskAliasPath ( glob("$diskAliasPrefix*") ) {
-        my $scsiId = getDiskScsiId($diskAliasPath);
+        my $scsiId = getDiskScsiId( $scsiIdCmd, $diskAliasPath );
         $diskAliasPath =~ s/^\/dev\///;
         $scsiIdAliasMap->{$scsiId} = $diskAliasPath;
 
@@ -115,8 +130,10 @@ sub main {
 
     my $hasError = 0;
 
+    my $scsiIdCmd = getScsiIdCmd();
+
     #获取已经建立了别名的SCSI磁盘的信息，包括SCSI ID到别名的映射MAP和最大序号
-    my ( $scsiIdAliasMap, $maxAliasSeqNumber ) = getDiskAliases($diskAliasPrefix);
+    my ( $scsiIdAliasMap, $maxAliasSeqNumber ) = getDiskAliases( $scsiIdCmd, $diskAliasPrefix );
 
     my $diskAliasRelPrefix = $diskAliasPrefix;
     $diskAliasRelPrefix =~ s/^\/dev\///;
@@ -129,7 +146,7 @@ sub main {
     my @newDisks        = ();
     my $scsiIdProcessed = {};
     foreach my $diskDev ( split( /\s+/, $diskListTxt ) ) {
-        my $diskScsiId = getDiskScsiId($diskDev);
+        my $diskScsiId = getDiskScsiId( $scsiIdCmd, $diskDev );
 
         if ( defined( $scsiIdProcessed->{$diskScsiId} ) ) {
 
@@ -144,7 +161,7 @@ sub main {
         if ( defined($scsiIdAlias) ) {
 
             #如果别名已经存在，则使用原来的信息建立规则
-            my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+            my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
             print("Exist: $rule");
             $udevRules = $udevRules . $rule;
         }
@@ -183,7 +200,7 @@ sub main {
         my $diskScsiId = $diskInfo->{scsiId};
 
         #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
-        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAliasRelPrefix$seqNumber" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAliasRelPrefix$seqNumber" OWNER="$owner", GROUP="$group", MODE="0660"\n];
         print("Append: $rule");
         $udevRules = $udevRules . $rule;
         $seqNumber = $seqNumber + 1;
