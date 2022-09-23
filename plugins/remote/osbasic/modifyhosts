@@ -14,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 <hosts content> --content <modify content>\n");
+    print("$pname --backup 0|1 --content <hosts content>\n");
     exit(1);
 }
 
@@ -23,6 +23,35 @@ sub backup {
     my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
     my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
     return $exitCode;
+}
+
+sub collectIp {
+    my @uname    = uname();
+    my $osType   = $uname[0];
+    my $ipString = "";
+    my @ipTxtList;
+    if ( $osType =~ /Windows/i ) {
+        @ipTxtList = `ipconfig /all | findstr "IP"`;
+    }
+    else {
+        @ipTxtList = `ifconfig -a 2>/dev/null`;
+        if ( $? != 0 ) {
+            @ipTxtList = `ip addr 2>/dev/null`;
+        }
+    }
+
+    my $allIps = {};
+    foreach (@ipTxtList) {
+        my $ip = $_;
+        if ( $ip =~ /(\d+\.\d+\.\d+\.\d+)/ or $ip =~ /([a-f0-9:]+)/ ) {
+            my $realIp = $1;
+            if ( $realIp ne '127.0.0.1' and $realIp ne '::1' ) {
+                $allIps->{$realIp} = 1;
+            }
+        }
+    }
+
+    return $allIps;
 }
 
 sub main {
@@ -52,9 +81,12 @@ sub main {
 
     my $hasError = 0;
 
+    my $allIpsMap = collectIp();
+
     my $scriptDir = $FindBin::Bin;
     chdir($scriptDir);
 
+    my $hostName;
     my @confKeysArray = ();
     my $confMap       = {};
     $content =~ s/\\n/\n/sg;
@@ -63,6 +95,10 @@ sub main {
         my ( $ip, $name ) = split( /\s+/, $line, 2 );
         $confMap->{$ip} = $name;
         push( @confKeysArray, $ip );
+
+        if ( not defined($hostName) and defined( $allIpsMap->{$ip} ) ) {
+            $hostName = $name;
+        }
     }
 
     my $processedMap = {};
@@ -125,6 +161,12 @@ sub main {
         }
 
         $fh->close();
+
+        if ( $hasError == 0 ) {
+            if ( defined($hostName) and $hostName ne '' ) {
+                $hasError = system("hostname '$hostName'");
+            }
+        }
     }
     else {
         $hasError = 1;
