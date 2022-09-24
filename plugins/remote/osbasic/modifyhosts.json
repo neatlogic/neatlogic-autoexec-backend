@@ -53,10 +53,10 @@
             "opt": "ip2hostnamemap",
             "name": "IP主机名对照表",
             "help": "引用工具basic/seqhostname输出参数ip2Hostname",
-            "type": "text",
+            "type": "json",
             "required": "true",
             "validate": "",
-            "defaultValue": "2048"
+            "defaultValue": ""
         },
         {
             "opt": "content",
