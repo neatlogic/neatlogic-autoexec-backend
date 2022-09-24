@@ -29,6 +29,27 @@
             "defaultValue": "0"
         },
         {
+            "opt": "reset",
+            "name": "清空hosts文件",
+            "help": "在修改前清空/etc/hosts文件",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
             "opt": "ip2hostnamemap",
             "name": "IP主机名对照表",
             "help": "引用工具basic/seqhostname输出参数ip2Hostname",

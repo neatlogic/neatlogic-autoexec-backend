@@ -67,13 +67,15 @@ sub main {
     }
 
     my $hostNamesJson;
+    my $reset      = 1;
     my $needBackup = 0;
     my $content;
 
     GetOptions(
-        'backup=i'   => \$needBackup,
+        'backup=i'         => \$needBackup,
+        'reset=i'          => \$reset,
         'ip2hostnamemap=s' => \$hostNamesJson,
-        'content=s'  => \$content
+        'content=s'        => \$content
     );
 
     if ( not defined($content) or $content eq '' ) {
@@ -82,6 +84,19 @@ sub main {
     }
 
     my $hasError = 0;
+
+    if ( $reset == 1 ) {
+        my $fh = IO::File->new( $filePath, 'w' );
+        if ( defined($fh) ) {
+            print $fh ('');
+            $fh->close();
+        }
+        else {
+            $hasError = 1;
+            print("ERROR: Can not write to file $filePath.\n");
+            return $hasError;
+        }
+    }
 
     my $allIpsMap = collectIp();
 

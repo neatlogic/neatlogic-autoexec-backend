@@ -24,6 +24,7 @@ sub backup {
 }
 
 sub main {
+    my $reset = 1;
     my $needBackup = 0;
     my $node;
     my $hostName;
@@ -31,6 +32,7 @@ sub main {
 
     GetOptions(
         'backup=i'         => \$needBackup,
+        'reset=i'          => \$reset,
         'node=s'           => \$node,
         'hostname=s'       => \$hostName,
         'ip2hostnamemap=s' => \$hostNameMapJson
@@ -72,6 +74,22 @@ sub main {
     }
 
     my $hasError = 0;
+    my $newContent   = '';
+
+    if ( $reset == 1 ) {
+        my $fh = IO::File->new( $filePath, 'w' );
+        if ( defined($fh) ) {
+            print $fh ('');
+            $fh->close();
+            $newContent =  "127.0.0.1\tlocalhost localhost.localdomain localhost4 localhost4.localdomain4\n" 
+                            . "::1 \tlocalhost localhost.localdomain localhost6 localhost6.localdomain6\n"
+        }
+        else {
+            $hasError = 1;
+            print("ERROR: Can not write to file $filePath.\n");
+            return $hasError;
+        }
+    }
 
     if ( defined($hostNameMap) ) {
         my $ip = $nodeInfo->{ip};
@@ -98,7 +116,6 @@ sub main {
     if ( $hasError == 0 and defined($hostNameMap) ) {
         my $processedMap = {};
         my $isChanged    = 0;
-        my $newContent   = '';
         my $fh           = IO::File->new("+<$filePath");
         if ( defined($fh) ) {
             my $line;
