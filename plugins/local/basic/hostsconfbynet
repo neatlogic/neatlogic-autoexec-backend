@@ -49,9 +49,7 @@ if __name__ == "__main__":
     nodeIps.sort()
     nodesCount = len(nodeIps)
 
-
     hasError = 0
-    
 
     hostConfTxt = ''
 
@@ -60,9 +58,7 @@ if __name__ == "__main__":
 
     hostNameMap = {}
     nicNameMap = {}
-
     matchedIpConf = []
-
 
     idx = 1
     for nodeIp in nodeIps:

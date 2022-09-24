@@ -101,12 +101,15 @@ sub main {
     my $allIpsMap = collectIp();
 
     my $hostName;
+    my $hostIp;
     if ( defined($hostNamesJson) and $hostNamesJson ne '' ) {
         my $ip2HostnameMap = from_json($hostNamesJson);
         foreach my $ip ( keys(%$allIpsMap) ) {
             $hostName = $ip2HostnameMap->{$ip};
             if ( defined($hostName) and $hostName ne '' ) {
-                $content = "$ip\t$hostName" . $content;
+                $hostIp = $ip;
+
+                #$content = $content . "$ip\t$hostName";
                 last;
             }
         }
@@ -127,8 +130,14 @@ sub main {
         if ( ( not defined($hostName) or $hostName eq '' ) ) {
             if ( defined( $allIpsMap->{$ip} ) ) {
                 $hostName = $name;
+                $hostIp   = $ip;
             }
         }
+    }
+
+    if ( ( defined($hostName) or $hostName ne '' ) and not defined( $confMap->{$hostIp} ) ) {
+        $confMap->{$hostIp} = $hostName;
+        push( @confKeysArray, $hostIp );
     }
 
     my $processedMap = {};
