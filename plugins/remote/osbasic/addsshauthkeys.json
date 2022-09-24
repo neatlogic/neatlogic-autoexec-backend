@@ -6,12 +6,22 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "往用户.ssh/authorized_keys文件添加RSA公钥",
-    "option": [{
+    "option": [
+        {
             "opt": "user",
             "name": "用户名",
             "help": "只需要通过root配置其他用户的authorized_keys时才需要定义, 否则留空",
             "type": "text",
             "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP主机名对照表",
+            "help": "引用工具basic/seqhostname输出参数ip2Hostname",
+            "type": "json",
+            "required": "true",
             "validate": "",
             "defaultValue": ""
         },

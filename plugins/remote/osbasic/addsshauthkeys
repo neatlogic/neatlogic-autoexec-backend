@@ -12,7 +12,7 @@ use Getopt::Long;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --user <User name> --pubkeys <pub keys json>\n");
+    print("$pname --user <User name> --ip2hostnamemap <ip to hostname josn> --pubkeys <pub keys json>\n");
     exit(1);
 }
 
@@ -51,7 +51,7 @@ sub appendPubKey {
 }
 
 sub appendKnownHost {
-    my ( $knownHostsPath, $pubKeysSet ) = @_;
+    my ( $knownHostsPath, $pubKeysSet, $ip2HostnameMap ) = @_;
 
     my $content  = '';
     my $hasError = 0;
@@ -65,8 +65,15 @@ sub appendKnownHost {
         my $fingerPrint = `ssh-keyscan -t $type $ip 2>/dev/null`;
         if ( $? == 0 ) {
             $fingerPrint =~ s/^\s*|\s*$//g;
-            if ( $user =~ /\@(.+)$/ ) {
-                my $hostName = $1;
+            my $hostName = $ip2HostnameMap->{$ip};
+            if ( not defined($hostName) or $hostName eq '' ) {
+                #如果ip到hostname的映射没有对应ip的主机名，则从fingerprint获取
+                if ( $user =~ /\@(.+)$/ ) {
+                    $hostName = $1;
+                }
+            }
+            
+            if ( defined($hostName) and $hostName ne '' ) {
                 $knownKeys->{"$hostName,$ip"} = "$hostName,$fingerPrint";
             }
             else {
@@ -115,11 +122,13 @@ sub appendKnownHost {
 
 sub main {
     my $user;
+    my $hostNamesJson;
     my $pubKeysJson;
 
     GetOptions(
-        'user=s'    => \$user,
-        'pubkeys=s' => \$pubKeysJson
+        'user=s'           => \$user,
+        'ip2hostnamemap=s' => \$hostNamesJson,
+        'pubkeys=s'        => \$pubKeysJson
     );
 
     my $uid = $<;
@@ -141,6 +150,11 @@ sub main {
     if ( not defined($pubKeysJson) or $pubKeysJson eq '' ) {
         print("ERROR: Must defined pubkeys by option --pubkeys.\n");
         return 3;
+    }
+
+    my $ip2HostnameMap = {};
+    if ( defined($hostNamesJson) and $hostNamesJson ne '' ) {
+        $ip2HostnameMap = from_json($hostNamesJson);
     }
 
     my $pubKeysSet = from_json($pubKeysJson);
@@ -178,7 +192,7 @@ sub main {
             }
         }
         if ( $hasError == 0 ) {
-            $hasError = appendKnownHost( $knownHostsPath, $pubKeysSet );
+            $hasError = appendKnownHost( $knownHostsPath, $pubKeysSet, $ip2HostnameMap );
         }
     }
     elsif ( ref($pubKeysSet) eq 'ARRAY' ) {
