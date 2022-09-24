@@ -6,14 +6,44 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "根据提供的节点IP和主机名对应表设置主机名",
-    "option": [{
-        "opt": "hostnamemap",
-        "name": "IP主机名对照表",
-        "help": "引用工具basic/seqhostname输出参数ip2Hostname",
-        "type": "text",
-        "required": "true",
-        "validate": "",
-        "defaultValue": "2048"
-    }],
-    "output": []
+    "option": [
+        {
+            "opt": "backup",
+            "name": "备份文件",
+            "help": "在修改前备份/etc/hosts文件为/etc/hosts.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP主机名对照表",
+            "help": "引用工具basic/seqhostname输出参数ip2Hostname",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "2048"
+        }
+    ],
+    "output": [
+        {
+            "opt": "hostConf",
+            "name": "Hosts配置内容",
+            "help": "更新后的Hosts配置内容",
+            "type": "text"
+        }
+    ]
 }

@@ -11,15 +11,15 @@ import AutoExecUtils
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--nodes', default='', help='Nodes json')
-    parser.add_argument('--hostname', default='', help='Host name prefix')
+    parser.add_argument('--nameprefix', default='', help='Host name prefix')
     args = parser.parse_args()
-    hostNamePrefix = args.hostname
+    hostNamePrefix = args.nameprefix
     nodesJson = args.nodes
 
     hasOptError = False
     if hostNamePrefix == '':
         hasOptError = True
-        print("ERROR: Must defined hostname prefix by option --hostname")
+        print("ERROR: Must defined nameprefix prefix by option --nameprefix")
 
     if nodesJson == '':
         hasOptError = True
@@ -41,12 +41,16 @@ if __name__ == "__main__":
     sortedHostIps = list(hostIps.keys())
     sortedHostIps.sort()
 
+    hostsConfTxt = ''
     ip2Hostname = {}
     hostCount = len(hostIps)
     idx = 1
     for hostIp in sortedHostIps:
         ip2Hostname[hostIp] = '%s%i' % (hostNamePrefix, idx)
+        hostsConfTxt = hostsConfTxt + '%s\t%s%s\n' % (hostIp, hostNamePrefix, idx)
         idx = idx + 1
-    out['ip2Hostname'] = ip2Hostname
+
+    out['nodeIp2Hostname'] = ip2Hostname
+    out['hostsConfTxt'] = hostsConfTxt
 
     AutoExecUtils.saveOutput(out)

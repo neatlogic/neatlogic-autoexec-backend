@@ -27,6 +27,15 @@
             "defaultValue": "0"
         },
         {
+            "opt": "ip2hostnamemap",
+            "name": "IP主机名对照表",
+            "help": "引用工具basic/seqhostname输出参数ip2Hostname",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "2048"
+        },
+        {
             "opt": "content",
             "name": "需修改内容",
             "help": "支持多行, 例如：10.10.0.1 myhost",

@@ -14,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 --hostnames <ip to hostname josn> --content <hosts content>\n");
+    print("$pname --backup 0|1 --ip2hostnamemap <ip to hostname josn> --content <hosts content>\n");
     exit(1);
 }
 
@@ -72,7 +72,7 @@ sub main {
 
     GetOptions(
         'backup=i'   => \$needBackup,
-        'hotnames=s' => \$hostNamesJson,
+        'ip2hostnamemap=s' => \$hostNamesJson,
         'content=s'  => \$content
     );
 
