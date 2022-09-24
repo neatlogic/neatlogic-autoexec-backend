@@ -58,9 +58,10 @@ sub main {
 
     my $hasError = 0;
 
-    my $exportMap = {};
-    my $confMap   = {};
-    my @keysArray = ();
+    my $exportMap  = {};
+    my $confMap    = {};
+    my $noneEnvMap = {};
+    my @keysArray  = ();
     $content =~ s/\\n/\n/sg;
 
     foreach my $line ( split( /\n/, $content ) ) {
@@ -78,7 +79,7 @@ sub main {
             }
         }
         else {
-            $confMap->{$key} = undef;
+            $noneEnvMap->{$key} = '';
         }
 
         push( @keysArray, $key );
@@ -127,6 +128,10 @@ sub main {
                         }
                     }
                 }
+                elsif ( defined( $noneEnvMap->{$key} ) ) {
+                    $keyProcessedMap->{$key} = 1;
+                    print("NotChanged: $line");
+                }
             }
             $newContent = $newContent . $line;
         }
@@ -149,7 +154,6 @@ sub main {
                     print("Append: $key=$val\n");
                 }
                 else {
-                    $newContent = $newContent . "$key\n";
                     print("Append: $key\n");
                 }
             }
