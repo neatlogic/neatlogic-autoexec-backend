@@ -98,9 +98,9 @@ sub main {
         $cmd = $cmd . ' --verbose';
     }
     $cmd = $cmd . " $location $mountPoint";
-    my $ret = `$cmd`;
+    my $exitCode = system($cmd);
 
-    if ( $? == 0 ) {
+    if ( $exitCode == 0 ) {
         print("FINE: Mount $location to $mountPoint success.\n");
     }
     else {
@@ -110,7 +110,8 @@ sub main {
     my $out = {};
     $out->{mountPoint} = $mountPoint;
     AutoExecUtils::saveOutput($out);
-    return $ret;
+    
+    return $exitCode;
 }
 
 exit main();
