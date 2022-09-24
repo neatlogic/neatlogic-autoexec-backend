@@ -14,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 --content <hosts content>\n");
+    print("$pname --backup 0|1 --hostnames <ip to hostname josn> --content <hosts content>\n");
     exit(1);
 }
 
@@ -66,12 +66,14 @@ sub main {
         $filePath = "$winDir/system32/drivers/etc/hosts";
     }
 
+    my $hostNamesJson;
     my $needBackup = 0;
     my $content;
 
     GetOptions(
-        'backup=i'  => \$needBackup,
-        'content=s' => \$content
+        'backup=i'   => \$needBackup,
+        'hotnames=s' => \$hostNamesJson,
+        'content=s'  => \$content
     );
 
     if ( not defined($content) or $content eq '' ) {
@@ -83,10 +85,21 @@ sub main {
 
     my $allIpsMap = collectIp();
 
+    my $hostName;
+    if ( defined($hostNamesJson) and $hostNamesJson ne '' ) {
+        my $ip2HostnameMap = from_json($hostNamesJson);
+        foreach my $ip ( keys(%$allIpsMap) ) {
+            $hostName = $ip2HostnameMap->{$ip};
+            if ( defined($hostName) and $hostName ne '' ) {
+                $content = "$ip\t$hostName" . $content;
+                last;
+            }
+        }
+    }
+
     my $scriptDir = $FindBin::Bin;
     chdir($scriptDir);
 
-    my $hostName;
     my @confKeysArray = ();
     my $confMap       = {};
     $content =~ s/\\n/\n/sg;
@@ -96,8 +109,10 @@ sub main {
         $confMap->{$ip} = $name;
         push( @confKeysArray, $ip );
 
-        if ( not defined($hostName) and defined( $allIpsMap->{$ip} ) ) {
-            $hostName = $name;
+        if ( ( not defined($hostName) or $hostName eq '' ) ) {
+            if ( defined( $allIpsMap->{$ip} ) ) {
+                $hostName = $name;
+            }
         }
     }
 
