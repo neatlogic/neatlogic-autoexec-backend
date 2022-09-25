@@ -83,6 +83,6 @@
         "opt": "udevRules",
         "name": "udev规则文本",
         "help": "生成的udev多条规则文本",
-        "type": "text"
+        "type": "textarea"
     }]
 }
