@@ -52,6 +52,15 @@ sub main {
         print("ERROR: Can not open file:$ruleFilePath to write, $!\n");
     }
 
+    if ( -e '/sbin/udevadm' ) {
+        my $exitCode = system('/sbin/udevadm control --reload');
+        $hasError = $exitCode;
+    }
+    elsif ( -e '/sbin/start_udev' ) {
+        my $exitCode = system('/sbin/start_udev');
+        $hasError = $exitCode;
+    }
+    
     return $hasError;
 }
 
