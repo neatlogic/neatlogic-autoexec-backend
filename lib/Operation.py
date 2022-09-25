@@ -269,7 +269,7 @@ class Operation:
                 else:
                     argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
                     if argType == 'textarea':
-                        argType = argType.replace('\n', '\\n')
+                        argValue = argValue.replace('\n', '\\n')
                 args.append({'type': argType, 'value': argValue})
             self.arguments = args
 
