@@ -11,6 +11,7 @@ import os
 import fcntl
 import re
 import json
+from ssl import ALERT_DESCRIPTION_BAD_CERTIFICATE_HASH_VALUE
 
 import Utils
 import AutoExecError
@@ -267,6 +268,8 @@ class Operation:
                         argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
                     argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
+                    if argType == 'textarea':
+                        argType = argType.replace('\n', '\\n')
                 args.append({'type': argType, 'value': argValue})
             self.arguments = args
 
