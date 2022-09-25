@@ -384,28 +384,28 @@ class RunNode:
 
     def _getLocalOutput(self):
         output = {}
-        localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
-        if os.path.exists(localOutputPath):
-            # 如果runner本地存在local的output文件，则从本地加载
-            # TODO：如果local的运行runner是随机选择的，那就要必须强制从mongodb中加载output
-            outputFile = None
-            try:
-                outputFile = open(localOutputPath, 'r')
-                fcntl.flock(outputFile, fcntl.LOCK_SH)
-                content = outputFile.read()
-                if content:
-                    output = json.loads(content)
-            except Exception as ex:
-                raise AutoExecError('Load operation output file:{}, failed {}'.format(self.outputPath, ex))
-            finally:
-                if outputFile is not None:
-                    fcntl.flock(outputFile, fcntl.LOCK_UN)
-                    outputFile.close()
-        else:
-            # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
-            localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
-            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
-            output = loalOutStore.loadOutput()
+        # localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
+        # if os.path.exists(localOutputPath):
+        #     # 如果runner本地存在local的output文件，则从本地加载
+        #     # TODO：如果local的运行runner是随机选择的，那就要必须强制从mongodb中加载output
+        #     outputFile = None
+        #     try:
+        #         outputFile = open(localOutputPath, 'r')
+        #         fcntl.flock(outputFile, fcntl.LOCK_SH)
+        #         content = outputFile.read()
+        #         if content:
+        #             output = json.loads(content)
+        #     except Exception as ex:
+        #         raise AutoExecError('Load operation output file:{}, failed {}'.format(self.outputPath, ex))
+        #     finally:
+        #         if outputFile is not None:
+        #             fcntl.flock(outputFile, fcntl.LOCK_UN)
+        #             outputFile.close()
+        # else:
+        # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
+        localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
+        loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
+        output = loalOutStore.loadOutput()
 
         return output
 
