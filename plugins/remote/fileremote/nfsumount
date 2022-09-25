@@ -49,16 +49,16 @@ sub main {
     if ( $isVerbose == 1 ) {
         $cmd = $cmd . ' --verbose';
     }
-    $cmd = $cmd . " $mountPoint";
-    my $ret = `$cmd`;
+    $cmd = "$cmd $mountPoint";
+    my $exitCode = system($cmd);
 
-    if ( $? == 0 ) {
+    if ( $exitCode == 0 ) {
         print("FINE: Umount $mountPoint success.\n");
     }
     else {
         print("ERROR: Umount $mountPoint failed.\n");
     }
-    return $ret;
+    return $exitCode;
 }
 
 exit main();
