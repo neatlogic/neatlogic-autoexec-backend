@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --rulefile <Rule file name> <rules text1> <rules text2> ...\n");
+    exit(1);
+}
+
+sub main {
+    my $rulesDir = '/etc/udev/rules.d';
+
+    my $ruleFile;
+
+    GetOptions( 'rulefile=s' => \$ruleFile );
+
+    if ( not defined($ruleFile) or $ruleFile eq '' ) {
+        print("ERROR: Must defined rule file name by option --rulefile\n");
+        usage();
+    }
+
+    my $allRulesTxt = '';
+    foreach my $rulesTxt (@ARGV) {
+        $rulesTxt =~ s/\\n/\n/sg;
+        $rulesTxt =~ s/^\s*|\s*$//sg;
+        $allRulesTxt = $allRulesTxt . "\n" . $rulesTxt;
+    }
+    my $hasError = 0;
+
+    $allRulesTxt =~ s/^\s*|\s*$//sg;
+    if ( $allRulesTxt eq '' ) {
+        print("WARN: Rules is empty, will truncate rule file $ruleFile.\n");
+    }
+
+    my $ruleFilePath = "$rulesDir/$ruleFile";
+    my $fh           = IO::File->new( $ruleFilePath, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($allRulesTxt);
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file:$ruleFilePath to write, $!\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
