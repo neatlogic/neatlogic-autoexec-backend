@@ -140,6 +140,7 @@ sub main {
 
     #根据提供的命令获取原始的设备列表
     my $udevRules   = '';
+    $listDevCmd =~ s/\\n/\n/g;
     my $diskListTxt = `$listDevCmd`;
     $diskListTxt =~ s/^\s*|\s*$//g;
 

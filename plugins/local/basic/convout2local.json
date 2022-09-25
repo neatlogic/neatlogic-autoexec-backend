@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对单个远程节点输出转换为Runner执行的本地输出, 以便提供给其他远程节点作为输入",
+    "description": "对单个远程节点输出转换为Runner执行的本地输出共享给后续运行的其他节点",
     "option": [{
         "opt": "outputkey",
         "name": "变量名",
@@ -15,10 +15,5 @@
         "validate": "",
         "defaultValue": ""
     }],
-    "output": [{
-        "opt": "convData",
-        "name": "转换后数据",
-        "help": "单个远程点输出转换为本地输出",
-        "type": "json"
-    }]
+    "output": []
 }

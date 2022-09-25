@@ -19,7 +19,7 @@
             "opt": "listdevcmd",
             "name": "列取磁盘命令",
             "help": "例如：ls /dev/sd* | grep -v /dev/sda",
-            "type": "text",
+            "type": "textarea",
             "required": "true",
             "validate": "",
             "defaultValue": "ls /dev/sd* | grep -v /dev/sda"
