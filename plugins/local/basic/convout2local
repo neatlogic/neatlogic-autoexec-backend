@@ -48,6 +48,7 @@ if __name__ == "__main__":
         for nodeOut in outCollection.find(
                 {
                     'jobId': jobId,
+                    'resourceId': {'$ne': 0},
                     'data.%s' % opId: {'$ne': None}
                 },
                 {
@@ -75,11 +76,16 @@ if __name__ == "__main__":
             output = {}
             if outData is not None:
                 output = outData['data']
-            else:
-                outData = {'jobId': jobId, 'resourceId': 0, 'host':'local', 'port':0, 'createDate':datetime.datetime.utcnow()}
 
             #Update local output data
-            output[opId] = {varKey:val}
+            outData['host'] = 'local'
+            outData['port'] = 0
+            outData['createDate'] = datetime.datetime.utcnow()
+            outData.update(pk)
+
+            opOut = output.get(opId, {})
+            opOut[varKey] = val
+            output[opId] = opOut
             outData['data'] = output
             outCollection.replace_one(pk, outData, upsert=True)
 
