@@ -70,14 +70,14 @@ if __name__ == "__main__":
         if len(aggDatas) == 0:
             print("WARN: Can not find any output for:%s." % (outputKey))
         elif len(aggDatas) == 1:
-            #Load local output
+            # Load local output
             pk = {'jobId': jobId, 'resourceId': 0}
             outData = outCollection.find_one(pk, {'data': True})
             output = {}
             if outData is not None:
                 output = outData['data']
 
-            #Update local output data
+            # Update local output data
             outData['host'] = 'local'
             outData['port'] = 0
             outData['createDate'] = datetime.datetime.utcnow()
@@ -93,9 +93,6 @@ if __name__ == "__main__":
         else:
             print("ERROR: More than one remote node output found, suggest to use aggoutput.")
             sys.exit(2)
-
-        out = {'convData': aggDatas[0]}
-        AutoExecUtils.saveOutput(out)
     except:
         print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, traceback.format_exc()))
         sys.exit(1)
