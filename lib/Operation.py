@@ -169,7 +169,7 @@ class Operation:
             print(msg, end='')
 
     # 分析操作参数进行相应处理
-    def parseParam(self, refMap=None, resourceId=None, host=None, port=None, nodeEnv={}):
+    def parseParam(self, refMap=None, localRefMap=None, resourceId=None, host=None, port=None, nodeEnv={}):
         opDesc = {}
         if 'desc' in self.param:
             opDesc = self.param['desc']
@@ -214,7 +214,7 @@ class Operation:
             elif optType == 'file':
                 matchObj = re.match(r'^\s*\$\{', str(optValue))
                 if matchObj:
-                    optValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                    optValueStr = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     try:
                         optValue = json.loads(optValueStr)
                     except Exception as err:
@@ -228,7 +228,7 @@ class Operation:
                         fileNamesJson.append('file/' + fileName)
                     optValue = json.dumps(fileNamesJson, ensure_ascii=False)
             else:
-                optValue = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                 if optType == 'textarea':
                     optValue = optValue.replace('\n', '\\n')
 
@@ -253,7 +253,7 @@ class Operation:
                 elif(argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', str(argValue))
                     if matchObj:
-                        argValueStr = self.resolveOptValue(optValue, refMap=refMap, nodeEnv=nodeEnv)
+                        argValueStr = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     try:
                         argValue = json.loads(optValueStr)
                     except Exception as err:
@@ -267,7 +267,7 @@ class Operation:
                             fileNamesJson.append('file/' + fileName)
                         argValue = json.dumps(fileNamesJson, ensure_ascii=False)
                 else:
-                    argValue = self.resolveOptValue(argValue, refMap=refMap, nodeEnv=nodeEnv)
+                    argValue = self.resolveOptValue(argValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     if argType == 'textarea':
                         argValue = argValue.replace('\n', '\\n')
                 args.append({'type': argType, 'value': argValue})
@@ -333,7 +333,7 @@ class Operation:
                 serverAdapter = self.context.serverAdapter
                 serverAdapter.fetchScript(savePath, opId)
 
-    def resolveOptValue(self, optValue, refMap=None, nodeEnv={}):
+    def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':
             return optValue
 
@@ -342,6 +342,8 @@ class Operation:
 
         if not refMap:
             refMap = self.node.output
+        if not localRefMap:
+            localRefMap = self.node.localOutput
 
         matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', optValue)
         for matchObj in matchObjs:
@@ -370,10 +372,12 @@ class Operation:
                     opId = varNames[1]
                     paramName = varNames[2]
 
-                    if opId in refMap:
-                        paramMap = refMap[opId]
-                        if paramName in paramMap:
-                            newVal = paramMap[paramName]
+                    paramMap = refMap.get(opId, None)
+                    if paramMap is None:
+                        paramMap = localRefMap.get(opId, None)
+
+                    if paramMap is not None:
+                        newVal = paramMap.get(paramName)
 
                     if newVal is not None:
                         val = newVal

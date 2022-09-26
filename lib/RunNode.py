@@ -222,6 +222,7 @@ class RunNode:
             self.logger.log(logging.FATAL, "ERROR: Create log dir {} failed, {}\n".format(self.hisLogDir, ex))
             self.updateNodeStatus(NodeStatus.failed)
 
+        self.localOutput = {}
         self.output = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
@@ -403,9 +404,14 @@ class RunNode:
         #             outputFile.close()
         # else:
         # 因为local的phase和remote|localremote的phase很可能不在同一个runner中执行，所以需要远程从mongodb中加载output数据
-        localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
-        loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
-        output = loalOutStore.loadOutput()
+        phaseStatus = self.context.phases[self.phaseName]
+        if phaseStatus.localOutput is None:
+            localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
+            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
+            output = loalOutStore.loadOutput()
+            phaseStatus.localOutput = output
+        else:
+            output = phaseStatus.localOutput
 
         return output
 
@@ -435,7 +441,7 @@ class RunNode:
         # 为了让remote的节点能够引用到local输出的参数，需要加载local节点的output
         localOutput = self._getLocalOutput()
         if localOutput is not None:
-            self.output.update(localOutput)
+            self.localOutput = localOutput
 
     def _saveOutput(self):
         if self.output:
@@ -518,7 +524,7 @@ class RunNode:
 
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)
-            op.parseParam(refMap=self.output, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
+            op.parseParam(refMap=self.output, localRefMap=self.localOutput, resourceId=self.resourceId, host=self.host, port=self.port, nodeEnv=self.nodeEnv)
 
             startTime = time.time()
             if not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != 'sqlfile':
