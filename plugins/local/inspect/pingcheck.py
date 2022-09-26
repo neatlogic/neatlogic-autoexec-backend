@@ -40,10 +40,15 @@ def pingCheck(host, timeOut):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--timeout', default='', help='Output json file path for node')
+    parser.add_argument('--timeout', default=10, help='Output json file path for node')
 
     args = parser.parse_args()
-    timeout = args.timeout
+
+    if args.timeout == '':
+        timeout = 10
+    else:
+        timeout = int(args.timeout)
+
     node = args.node
 
     try:
@@ -60,9 +65,6 @@ if __name__ == "__main__":
         if hasOptError:
             usage()
             exit(1)
-
-        if timeout == '':
-            timeout = 10
 
         errMsg = None
         print("INFO: Try to ping {}.\n".format(nodeInfo['host']))
