@@ -63,12 +63,21 @@ sub getUser {
 }
 
 sub parseCommandOpts {
-    my ( $self, $command ) = @_;
+    my ( $self, $command, $procInfo ) = @_;
 
-    my $opts  = {};
-    my @items = split( /\s+--/, $command );
-    $opts->{mysqldPath} = $items[0];
-    if ( $items[0] =~ /^(.*?)\/bin\/mysqld/ or $items[0] =~ /^(.*?)\/sbin\/mysqld/ ) {
+    my $opts       = {};
+    my @items      = split( /\s+--/, $command );
+    my $mysqldPath = $items[0];
+
+    if ( not -e $mysqldPath ) {
+        my $exeFile = $procInfo->{EXECUTABLE_FILE};
+        if ( defined($exeFile) ) {
+            $mysqldPath = $exeFile;
+        }
+    }
+
+    $opts->{mysqldPath} = $mysqldPath;
+    if ( $mysqldPath =~ /^(.*?)\/bin\/mysqld/ or $mysqldPath =~ /^(.*?)\/sbin\/mysqld/ ) {
         $opts->{mysqlHome} = $1;
     }
 
@@ -108,7 +117,7 @@ sub collect {
     my $osType     = $procInfo->{OS_TYPE};
     my $osUser     = $procInfo->{USER};
     my $command    = $procInfo->{COMMAND};
-    my $opts       = $self->parseCommandOpts($command);
+    my $opts       = $self->parseCommandOpts( $command, $procInfo );
     my $mysqlHome  = $opts->{mysqlHome};
     my $mysqldPath = $opts->{mysqldPath};
 
