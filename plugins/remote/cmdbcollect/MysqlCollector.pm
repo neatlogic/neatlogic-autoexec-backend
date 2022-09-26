@@ -140,7 +140,7 @@ sub collect {
     }
 
     my ( $ports, $port ) = $self->getPortFromProcInfo($mysqlInfo);
-    if ( defined( $opts->{'port'} ) ) {
+    if ( defined( $opts->{'port'} ) and $opts->{'port'} ne '' ) {
         $port = int( $opts->{'port'} );
     }
 
