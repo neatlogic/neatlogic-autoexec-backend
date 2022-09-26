@@ -447,6 +447,10 @@ class RunNode:
         if self.output:
             outputFile = None
             try:
+                if self.resourceId == 0:
+                    phaseStatus = self.context.phases[self.phaseName]
+                    phaseStatus.localOutput = self.output
+
                 outputFile = open(self.outputPath, 'w')
                 fcntl.flock(outputFile, fcntl.LOCK_EX)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
@@ -595,9 +599,10 @@ class RunNode:
                 self._removeOpOutput(op)
                 self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
             else:
-                if op.opType != 'remote':
-                    self._loadOpOutput(op)
-                self._saveOutput()
+                if op.hasOutput:
+                    if op.opType != 'remote':
+                        self._loadOpOutput(op)
+                    self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
         except:
             ret = 3

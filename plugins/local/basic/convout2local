@@ -72,16 +72,16 @@ if __name__ == "__main__":
         elif len(aggDatas) == 1:
             # Load local output
             pk = {'jobId': jobId, 'resourceId': 0}
-            outData = outCollection.find_one(pk, {'data': True})
+            outData = outCollection.find_one(pk, {'_id': False})
             output = {}
             if outData is not None:
                 output = outData['data']
-
-            # Update local output data
-            outData['host'] = 'local'
-            outData['port'] = 0
-            outData['createDate'] = datetime.datetime.utcnow()
-            outData.update(pk)
+            else:
+                # Update local output data
+                outData['host'] = 'local'
+                outData['port'] = 0
+                outData['createDate'] = datetime.datetime.utcnow()
+                outData.update(pk)
 
             opOut = output.get(opId, {})
             opOut[varKey] = val
