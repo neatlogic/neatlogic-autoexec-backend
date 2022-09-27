@@ -13,7 +13,7 @@
             "help": "vsphere 管理IP",
             "type": "text",
             "required": "false",
-            "validate": "",
+            "validate": ["ip"],
             "defaultValue": ""
         },
         {
@@ -40,7 +40,7 @@
             "help": "vsphere 管理端口",
             "type": "text",
             "required": "false",
-            "validate": "",
+            "validate": ["integer_p"],
             "defaultValue": "443"
         },{
             "opt": "datacenter_name",
@@ -109,7 +109,7 @@
             "help": "克隆生成的虚拟机IP",
             "type": "text",
             "required": "true",
-            "validate": "",
+            "validate": ["ip"],
             "defaultValue": ""
         },
         {
@@ -145,7 +145,7 @@
             "help": "克隆生成的虚拟机主机名称",
             "type": "text",
             "required": "true",
-            "validate": "",
+            "validate": ["enchar"],
             "defaultValue": ""
         },
         {
@@ -154,7 +154,7 @@
             "help": "克隆生成的虚拟机主机CPU数量",
             "type": "text",
             "required": "true",
-            "validate": "",
+            "validate": ["integer_p"],
             "defaultValue": ""
         },
         {
@@ -163,7 +163,7 @@
             "help": "克隆生成的虚拟机主机内存大小",
             "type": "text",
             "required": "true",
-            "validate": "",
+            "validate": ["integer_p"],
             "defaultValue": ""
         },
         {
@@ -172,7 +172,7 @@
             "help": "克隆生成的虚拟机主机磁盘大小",
             "type": "text",
             "required": "true",
-            "validate": "",
+            "validate": ["integer_p"],
             "defaultValue": ""
         },
         {

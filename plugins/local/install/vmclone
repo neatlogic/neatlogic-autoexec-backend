@@ -4,42 +4,44 @@ import json
 import argparse
 import traceback
 import VmManage
+import AutoExecUtils
+
 
 def usage():
     pname = os.path.basename(__file__)
     print(pname + " --ip <vcenter ip> --user <user> --password <password> " +
-    "--datacenter_name <datacenter name> --cluster_name <cluster name> --datastore_name <datastore name> --host_name <host name> --template_name <template name>" + 
-    "--vm_name <vm name> --vm_ip <vm ip> --netmask <netmask> --gateway <gateway> --hostname <hostname> --dns <dns>" + 
-    "--cup_num <cup num> --memory <memory> --disk_type <disk type> --disk_size <disk size> --verbose <0|1>" 
-    )
+          "--datacenter_name <datacenter name> --cluster_name <cluster name> --datastore_name <datastore name> --host_name <host name> --template_name <template name>" +
+          "--vm_name <vm name> --vm_ip <vm ip> --netmask <netmask> --gateway <gateway> --hostname <hostname> --dns <dns>" +
+          "--cup_num <cup num> --memory <memory> --disk_type <disk type> --disk_size <disk size> --verbose <0|1>"
+          )
     exit(1)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--ip', default='', help='vcenter管理IP')
     parser.add_argument('--port', default='443', help='vcenter管理端口')
-    parser.add_argument('--user', default='', help='vcenter console login user')
-    parser.add_argument('--password', default='', help='vcenter console login user password')
-
-    parser.add_argument('--datacenter_name', default='', help='vcenter datacenter name')
-    parser.add_argument('--cluster_name', default='', help='vcenter cluster name')
-    parser.add_argument('--datastore_name', default='', help='vcenter datastore name')
-    parser.add_argument('--template_name', default='', help='virtual machine template name')
-    parser.add_argument('--vm_folder', default='', help='virtual machine storage folder')
-    parser.add_argument('--host_name', default='', help='vcenter host machine host name')
-    parser.add_argument('--vm_name', default='', help='clone new virtual machine name')
-    parser.add_argument('--vm_ip', default='', help='clone new virtual machine ip')
-    parser.add_argument('--netmask', default='', help='clone new virtual machine netmask')
-    parser.add_argument('--gateway', default='', help='clone new virtual machine gateway')
-    parser.add_argument('--dns', default='', help='clone new virtual machine dns')
-    parser.add_argument('--hostname', default='', help='clone new virtual machine os hostname')
-    parser.add_argument('--cup_num', default='', help='new virtual machine os cup num')
-    parser.add_argument('--memory', default='', help='new virtual machine os memory(GB)')
-    parser.add_argument('--disk_size', default='', help='clone new virtual machine disk size(GB)')
-    parser.add_argument('--disk_type', default='', help='clone new virtual machine disk type')
+    parser.add_argument('--user', default='',help='vcenter console login user')
+    parser.add_argument('--password', default='',help='vcenter console login user password')
+    parser.add_argument('--datacenter_name', default='',help='vcenter datacenter name')
+    parser.add_argument('--cluster_name', default='',help='vcenter cluster name')
+    parser.add_argument('--datastore_name', default='',help='vcenter datastore name')
+    parser.add_argument('--template_name', default='',help='virtual machine template name')
+    parser.add_argument('--vm_folder', default='',help='virtual machine storage folder')
+    parser.add_argument('--host_name', default='',help='vcenter host machine host name')
+    parser.add_argument('--vm_name', default='',help='clone new virtual machine name')
+    parser.add_argument('--vm_ip', default='',help='clone new virtual machine ip')
+    parser.add_argument('--netmask', default='',help='clone new virtual machine netmask')
+    parser.add_argument('--gateway', default='',help='clone new virtual machine gateway')
+    parser.add_argument('--dns', default='',help='clone new virtual machine dns')
+    parser.add_argument('--hostname', default='',help='clone new virtual machine os hostname')
+    parser.add_argument('--cup_num', default='',help='new virtual machine os cup num')
+    parser.add_argument('--memory', default='',help='new virtual machine os memory(GB)')
+    parser.add_argument('--disk_size', default='',help='clone new virtual machine disk size(GB)')
+    parser.add_argument('--disk_type', default='',help='clone new virtual machine disk type')
     parser.add_argument('--verbose', default='0', help='verbose output')
     args = parser.parse_args()
-    
+
     ip = args.ip
     user = args.user
     password = args.password
@@ -72,73 +74,71 @@ if __name__ == '__main__':
 
     hasError = 0
     if datacenter_name is None or datacenter_name == '':
-        hasError = 1 
+        hasError = 1
 
     if cluster_name is None or cluster_name == '':
-        hasError = 1 
+        hasError = 1
 
     if template_name is None or template_name == '':
-        hasError = 1 
+        hasError = 1
 
     if host_name is None or host_name == '':
-        hasError = 1 
+        hasError = 1
 
     if vm_name is None or vm_name == '':
-        hasError = 1 
+        hasError = 1
 
     if vm_ip is None or vm_ip == '':
-        hasError = 1 
+        hasError = 1
 
     if netmask is None or netmask == '':
-        hasError = 1 
-        
+        hasError = 1
+
     if gateway is None or gateway == '':
-        hasError = 1 
+        hasError = 1
 
     if cup_num is None or cup_num == '':
-        hasError = 1 
+        hasError = 1
 
     if memory is None or memory == '':
-        hasError = 1 
+        hasError = 1
 
-    if(hasError == 1) :
-        usage() 
+    if(hasError == 1):
+        usage()
 
     if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
         ip = node['host']
         port = node['port']
-        if port is None or port == '' : 
+        if port is None or port == '':
             port = node['protocolPort']
         user = node['username']
         password = node['password']
 
     dns = dns.split(',')
-    param ={}
-    param['datacenter_name']=datacenter_name
-    param['cluster_name']=cluster_name
-    param['datastore_name']=datastore_name
-    param['template_name']=template_name
-    param['vm_folder']=vm_folder
-    param['host_name']=host_name
-    param['vm_name']=vm_name
-    param['vm_ip']=vm_ip
-    param['netmask']=netmask
-    param['gateway']=gateway
-    param['dns']=dns
-    param['hostname']=hostname
-    param['cup_num']=cup_num
-    param['memory']=memory
-    param['disk_size']=disk_size
-    param['disk_type']=disk_type
 
-    param['verbose']=verbose
+    param = {}
+    param['datacenter_name'] = datacenter_name
+    param['cluster_name'] = cluster_name
+    param['datastore_name'] = datastore_name
+    param['template_name'] = template_name
+    param['vm_folder'] = vm_folder
+    param['host_name'] = host_name
+    param['vm_name'] = vm_name
+    param['vm_ip'] = vm_ip
+    param['netmask'] = netmask
+    param['gateway'] = gateway
+    param['dns'] = dns
+    param['hostname'] = hostname
+    param['cup_num'] = cup_num
+    param['memory'] = memory
+    param['disk_size'] = disk_size
+    param['disk_type'] = disk_type
+    param['verbose'] = verbose
 
     vm = VmManage.VmManage(ip, user, password, port)
     ret = vm.clone_vm(param)
-    if ret != 0 :
-        #创建的OS存在问题直接销毁
-        ret = vm.destroy_vm(param)
+    # if ret != 0 :
+    # 创建的OS存在问题直接销毁
+    #    ret = vm.destroy_vm(param)
     vm.close()
     exit(ret)
-
-    
