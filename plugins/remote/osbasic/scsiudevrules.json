@@ -84,5 +84,17 @@
         "name": "udev规则文本",
         "help": "生成的udev多条规则文本",
         "type": "textarea"
+    },
+    {
+        "opt": "diskDevsArray",
+        "name": "磁盘列表数组",
+        "help": "多个磁盘的数据",
+        "type": "json"
+    },
+    {
+        "opt": "diskDevs",
+        "name": "磁盘列表",
+        "help": "多个磁盘列,每个磁盘单独一行",
+        "type": "textarea"
     }]
 }

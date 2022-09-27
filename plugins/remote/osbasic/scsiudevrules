@@ -139,6 +139,7 @@ sub main {
     $diskAliasRelPrefix =~ s/^\/dev\///;
 
     #根据提供的命令获取原始的设备列表
+    my @diskDevs = ();
     my $udevRules   = '';
     $listDevCmd =~ s/\\n/\n/g;
     my $diskListTxt = `$listDevCmd`;
@@ -201,7 +202,9 @@ sub main {
         my $diskScsiId = $diskInfo->{scsiId};
 
         #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
-        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAliasRelPrefix$seqNumber" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+        my $diskAlias = "$diskAliasRelPrefix$seqNumber";
+        push(@diskDevs, $diskAlias);
+        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
         print("New: $rule");
         $udevRules = $udevRules . $rule;
         $seqNumber = $seqNumber + 1;
@@ -209,6 +212,8 @@ sub main {
 
     my $out = {};
     $out->{udevRules} = $udevRules;
+    $out->{diskDevs} = join(',', @diskDevs);
+    $out->{diskDevsArray} = \@diskDevs;
     AutoExecUtils::saveOutput($out);
 
     #udevadm control --reload-rules && udevadm trigger
