@@ -26,6 +26,8 @@ class Context:
         self.tenant = tenent
         self.config = config
         self.jobId = os.getenv('AUTOEXEC_JOBID')
+        self.fileFeteched = {}
+        self.scriptFetched = {}
 
 
 def setEnv():
