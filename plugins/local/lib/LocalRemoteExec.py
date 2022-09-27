@@ -458,7 +458,7 @@ class LocalRemoteExec:
         return scriptDef
 
     #巡检内节点绑定的脚本库
-    def executeRemoteScript(self, nodeInfo, timeOut):
+    def executeRemoteScript(self, accessEndPoint , nodeInfo, timeOut):
         ret = False
         errorMsg = ''
         resourceId = nodeInfo['resourceId']
