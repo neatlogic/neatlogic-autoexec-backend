@@ -49,7 +49,7 @@ sub parseListenLines {
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
-            my @fields = split( /\s+/, $line );
+            my @fields  = split( /\s+/, $line );
             my $lastIdx = $#fields;
             if ( index( $fields[$lastIdx], $pid ) < 0 ) {
                 next;
@@ -57,7 +57,7 @@ sub parseListenLines {
 
             my $listenAddr = $fields[$lsnFieldIdx];
             $listenAddr =~ s/^::ffff:(\d+\.)/$1/;
-            +$listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+            $listenAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
             if ( $listenAddr =~ /^(.*):(\d+)$/ ) {
                 my $ip   = $1;
@@ -121,8 +121,8 @@ sub parseConnLines {
                     next;
                 }
 
-                $localAddr =~ s/^::ffff:(\d+\.)/$1/;
-                $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+                $localAddr  =~ s/^::ffff:(\d+\.)/$1/;
+                $localAddr  =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
                 $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
                 $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 
