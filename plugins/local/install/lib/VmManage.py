@@ -2,6 +2,8 @@
 import traceback
 import time
 import sys
+import os
+from ping3 import ping
 from pyVim.connect import SmartConnectNoSSL, Disconnect
 from pyVmomi import vim, vmodl
 
@@ -51,6 +53,10 @@ class VmManage(object):
         while not task_done:
             if param['verbose'] == 1:
                 print("INFO:: VM {} task status {} ... ".format(action,task.info.state))
+            
+            if task.info.state == 'running':
+                time.sleep(2)
+
             if task.info.state == 'success':
                 task_done = True
                 return 0
@@ -158,6 +164,9 @@ class VmManage(object):
         return nic_adapter
     
     def add_disk(self,param):
+        if param['disk_size'] is None :
+            return 0
+        
         spec = vim.vm.ConfigSpec()
         unit_number = 0
         controller = None
@@ -203,6 +212,42 @@ class VmManage(object):
             print("INFO:: {} add {} GB disk success.".format(vm.config.name,param['disk_size']))
         else :
             print("ERROR:: {} create {} GB disk failed , reason:{} ".format(vm.config.name,param['disk_size'],task.info.error.msg))
+        return ret
+
+    def change_disk(self,param):
+        if param['disk_size'] is None :
+            return 0
+
+        vm = self._get_obj([vim.VirtualMachine], param['vm_name'])
+        if vm is None :
+            return -1
+        
+        virtual_disk_device = None
+        #查找虚拟机模板，扩展第一个磁盘
+        for dev in vm.config.hardware.device:
+            if isinstance(dev, vim.vm.device.VirtualDisk) :
+                virtual_disk_device = dev
+                break
+        if not virtual_disk_device:
+            print('virtual machine {} could not be found VirtualDisk.'.format(param['vm_name']))
+            return -1
+
+        virtual_disk_device.capacityInKB = int(param['disk_size']) * 1024 * 1024
+        spec = vim.vm.ConfigSpec()
+        devSpec = vim.vm.device.VirtualDeviceSpec()
+        devSpec.device = virtual_disk_device
+        devSpec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
+        if param['disk_type'] == 'thin':
+            devSpec.device.backing.thinProvisioned = True
+        devSpec.device.backing.diskMode = 'persistent'
+
+        spec.deviceChange.append(devSpec)
+        task = vm.Reconfigure(spec)
+        ret = self.wait_for_task('change disk', task , param)
+        if(ret == 0):
+            print("INFO:: {} change disk to {}GB success.".format(vm.config.name,param['disk_size']))
+        else :
+            print("ERROR:: {} change disk to {}GB failed , reason:{} ".format(vm.config.name,param['disk_size'],task.info.error.msg))
         return ret
 
     def add_nic(self,param):
