@@ -154,6 +154,7 @@ sub main {
                     print("Append: $key=$val\n");
                 }
                 else {
+                    $newContent = $newContent . "$key\n";
                     print("Append: $key\n");
                 }
             }

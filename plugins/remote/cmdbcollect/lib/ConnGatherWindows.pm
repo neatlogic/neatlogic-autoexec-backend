@@ -51,7 +51,7 @@ sub parseListenLines {
         while ( $line = <$pipe> ) {
             my @fields  = split( /\s+/, $line );
             my $lastIdx = $#fields;
-            if ( index( $fields[$lastIdx], $pid ) < 0 ) {
+            if ( $fields[$lastIdx] ne $pid ) {
                 next;
             }
 
