@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     ret = False
     errorMsg = ''
-    (ret, errorMsg) = exec.executeRemotePluginScript(nodeInfo, scriptDef, params)
+    (ret, errorMsg) = exec._remoteExecute(nodeInfo, scriptDef, params)
     if ret:
         print('INFO:: Exec remote script success .')
         exit(0)

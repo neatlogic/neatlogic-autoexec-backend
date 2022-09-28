@@ -39,7 +39,7 @@
             "opt": "password",
             "name": "密码",
             "help": "",
-            "type": "text",
+            "type": "password",
             "required": "true",
             "validate": "",
             "defaultValue": ""
@@ -97,7 +97,7 @@
     ],
     "argument": {
         "name": "脚本动态参数",
-        "help": "脚本动态参数，如需引用作业或上游步骤参数需设置，脚本执行时按参数顺序自动替换。",
+        "help": "脚本内如需获取作业参数、上游步骤输出参数、静态配置参数，需在此定义，脚本内可按顺序获取。",
         "type": "text",
         "count": 0,
         "isConst": "false",

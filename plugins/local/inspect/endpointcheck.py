@@ -106,7 +106,20 @@ if __name__ == "__main__":
                 (ret, errorMsg) = exec.urlSeqCheck(accessEndPoint, nodeInfo, timeOut)
             elif accessType == 'BATCH':
                 print("WARN: Use script in script store to check batch service, input or output parameters not support.")
-                (ret, errorMsg) = exec.executeRemoteScript(accessEndPoint, nodeInfo, timeOut)
+                errorMsg = ''
+                resourceId = nodeInfo['resourceId']
+                endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
+                if 'config' in endPointConf:
+                    scriptConf = endPointConf['config']
+                    if scriptConf['type'] != 'script':
+                        errorMsg = "ERROR: Config error, not script, {}".format(json.dumps(endPointConf))
+                        print(errorMsg)
+                    else:
+                        scriptId = scriptConf['script']
+                        scriptDef = exec.getScriptDef(scriptId)
+                        (ret, errorMsg) = exec._remoteExecute(nodeInfo, scriptDef, None)
+                else:
+                    errorMsg = "ERROR: Script config error."
             else:
                 # ping
                 (ret, errorMsg) = exec.pingCheck(accessEndPoint, timeOut)
