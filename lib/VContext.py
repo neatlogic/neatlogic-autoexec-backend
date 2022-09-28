@@ -33,6 +33,9 @@ class VContext:
         #self.arg = []
         #self.output = {}
         self.maxExecSecs = 86400
+        self.rexecConnTimeout = 60
+        self.rexecReadTimeout = 3600
+        self.rexecWriteTimeout = 60
         self.isForce = isForce
         self.devMode = devMode
         self.dataPath = dataPath
@@ -85,15 +88,18 @@ class VContext:
             for confKey in cfg[section]:
                 config[section][confKey] = cfg[section][confKey]
 
-        maxExecSecs = config['autoexec']['job.maxExecSecs']
-
-        if maxExecSecs:
-            self.maxExecSecs = int(maxExecSecs)
+        self.maxExecSecs = int(config['autoexec'].get('job.maxExecSecs', 86400))
+        self.rexecConnTimeout = int(config['autoexec'].get('rexec.connectTimeout', 60))
+        self.rexecReadTimeout = int(config['autoexec'].get('rexec.readTimeout', 3600))
+        self.rexecWriteTimeout = int(config['autoexec'].get('rexec.writeTimeout', 60))
 
         hasNoEncrypted = False
-        serverPass = cfg.get('server', 'server.password')
-        passKey = cfg.get('server', 'password.key')
-        autoexecDBPass = cfg.get('autoexec', 'db.password')
+        #serverPass = cfg.get('server', 'server.password')
+        serverPass = config['server']['server.password']
+        #passKey = cfg.get('server', 'password.key')
+        passKey = config['server']['password.key']
+        #autoexecDBPass = cfg.get('autoexec', 'db.password')
+        autoexecDBPass = config['autoexec']['db.password']
 
         MY_KEY = 'c3H002LGZRrseEPck9tsNgfXHJcl0USJ'
         if passKey.startswith('{ENCRYPTED}'):

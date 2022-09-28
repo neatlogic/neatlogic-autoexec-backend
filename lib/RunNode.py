@@ -4,6 +4,7 @@
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
  运行节点类
 """
+from distutils.command.upload import upload
 import os
 import traceback
 import fcntl
@@ -920,7 +921,8 @@ class RunNode:
 
                 self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
 
-                tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password, readTimeout=360, writeTimeout=10)
+                context = self.context
+                tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=60, writeTimeout=context.rexecWriteTimeout)
                 self.tagent = tagent
 
                 # 更新节点状态为running
@@ -988,6 +990,7 @@ class RunNode:
                     killCmd = re.sub(r'\\s+', ' ', killCmd)
                     self.killCmd = 'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"' % (killCmd, self.context.jobId)
                 if uploadRet == 0 and not self.context.goToStop:
+                    tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=context.rexecReadTimeout, writeTimeout=context.rexecWriteTimeout)
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
@@ -1062,19 +1065,20 @@ class RunNode:
             scriptFile = None
             uploaded = False
             hasError = False
-            scp = None
+            ssh = None
             sftp = None
             try:
                 self.writeNodeLog("INFO: Begin to upload remote operation...\n")
                 # 建立连接
-                scp = paramiko.Transport((self.host, self.protocolPort))
-                scp.connect(username=self.username, password=self.password)
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout)
+                sftp = ssh.open_sftp()
 
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op=op)
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
-                sftp = paramiko.SFTPClient.from_transport(scp)
                 # Copy a local file (localpath) to the SFTP server as remotepath
                 try:
                     try:
@@ -1179,8 +1183,6 @@ class RunNode:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
                 if sftp is not None:
                     sftp.close()
-                if scp is not None:
-                    scp.close()
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -1188,12 +1190,8 @@ class RunNode:
 
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
-                ssh = None
                 try:
                     # ret = 0
-                    ssh = paramiko.SSHClient()
-                    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh.connect(self.host, self.protocolPort, self.username, self.password)
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
                     channel.exec_command(remoteCmd)
@@ -1255,11 +1253,12 @@ class RunNode:
                 finally:
                     if sftp is not None:
                         sftp.close()
-                    if scp is not None:
-                        scp.close()
-                    if ssh:
+                    if ssh is not None:
                         ssh.close()
-
+            
+            if ssh is not None:
+                ssh.close()
+            
         return ret
 
     def pause(self):
@@ -1294,7 +1293,7 @@ class RunNode:
         killCmd = self.killCmd
         if self.type == 'tagent':
             if killCmd is not None:
-                tagent = TagentClient.TagentClient(self.host, self.port, self.password, readTimeout=360, writeTimeout=10)
+                tagent = TagentClient.TagentClient(self.host, self.port, self.password, connTimeout=60, readTimeout=360, writeTimeout=60)
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
                     self.updateNodeStatus(NodeStatus.aborted)
@@ -1309,7 +1308,7 @@ class RunNode:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host, self.protocolPort, self.username, self.password)
+                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout)
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
                 channel.exec_command(killCmd)

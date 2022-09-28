@@ -99,7 +99,7 @@ class AgentError(RuntimeError):
 
 class TagentClient:
 
-    def __init__(self, host='', port='', password='', readTimeout=0, writeTimeout=0, agentCharset='UTF-8'):
+    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, agentCharset='UTF-8'):
         if host == '':
             host = '127.0.0.1'
         if port == '':
@@ -110,11 +110,7 @@ class TagentClient:
         self.sock = None
         self.password = password
 
-        if readTimeout == 0:
-            readTimeout = 15
-        if writeTimeout == 0:
-            writeTimeout = 15
-
+        self.connectTimeout = connectTimeout
         self.readTimeout = readTimeout
         self.writeTimeout = writeTimeout
         self.agentCharset = agentCharset
@@ -203,6 +199,7 @@ class TagentClient:
         if chunkLen > 65535:
             raise ExecError("Chunk is too long, max is 65535 bytes!")
         try:
+            sock.settimeout(self.writeTimeout)
             sock.sendall(struct.pack('>H', chunkLen))
             if chunk:
                 sock.sendall(chunk)
@@ -210,6 +207,8 @@ class TagentClient:
                 sock.shutdown(1)
         except socket.error as msg:
             raise ExecError("Connection({}:{}) closed:{}".format(self.host, self.port, str(msg)))
+        finally:
+            sock.settimeout(self.readTimeout)
 
     def getConnection(self, isVerbose=0):
         # 创建Agent连接，并完成验证, 返回TCP连接
@@ -221,8 +220,9 @@ class TagentClient:
         sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
-            sock.settimeout(self.readTimeout)
+            sock.settimeout(self.connectTimeout)
             sock.connect((host, port))
+            sock.settimeout(self.readTimeout)
         except Exception as err:
             raise AgentError("ERROR: Connect to {}:{} failed, {}.".format(host, port, err))
 
