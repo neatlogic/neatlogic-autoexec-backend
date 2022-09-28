@@ -453,30 +453,3 @@ class LocalRemoteExec:
         else:
             print("ERROR: Not found script :{}.".format(scriptId))
         return scriptDef
-
-    # 巡检内节点绑定的脚本库
-    def executeRemoteScript(self, accessEndPoint, nodeInfo, timeOut):
-        ret = False
-        errorMsg = ''
-        resourceId = nodeInfo['resourceId']
-        endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
-        if 'config' in endPointConf:
-            scriptConf = endPointConf['config']
-            if scriptConf['type'] != 'script':
-                errorMsg = "ERROR: Config error, not script, {}".format(json.dumps(endPointConf))
-                print(errorMsg)
-            else:
-                scriptId = scriptConf['script']
-                scriptDef = AutoExecUtils.getScript(scriptId)
-                #print(json.dumps(scriptDef, ensure_ascii=False, sort_keys=True, indent=4))
-                (ret, errorMsg) = self._remoteExecute(nodeInfo, scriptDef)
-        else:
-            errorMsg = "ERROR: Script config error."
-        return (ret, errorMsg)
-
-    # 插件自定义脚本
-    def executeRemotePluginScript(self, nodeInfo, scriptDef, args):
-        ret = False
-        errorMsg = ''
-        (ret, errorMsg) = self._remoteExecute(nodeInfo, scriptDef, args)
-        return (ret, errorMsg)
