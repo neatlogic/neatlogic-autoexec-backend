@@ -6,7 +6,6 @@ import os
 import tempfile
 import stat
 import traceback
-import argparse
 import json
 import chardet
 import socket
@@ -16,7 +15,6 @@ import urllib
 from urllib import request, parse, error
 from urllib.error import URLError
 from urllib.error import HTTPError
-import time
 import logging
 import select
 import paramiko
@@ -33,7 +31,7 @@ class LocalRemoteExec:
     def __init__(self):
         self.output = ''
         self.IS_FAIELD = False
-    
+
     def pingCheck(self, host, timeOut):
         second = ping(dest_addr=host, timeout=timeOut)
         second = round(second, 4)
@@ -87,7 +85,7 @@ class LocalRemoteExec:
             response = urllib.request.urlopen(req, timeout=timeOut)
             print('INFO: Http request ' + endPoint + ' success.')
         except HTTPError as ex:
-            errMsg = ex.code
+            errorMsg = ex.code
             if ex.code > 500:
                 content = ex.read()
                 errorMsg = "ERROR: Request failed，status code{}, {}".format(ex.code, content)
@@ -112,7 +110,6 @@ class LocalRemoteExec:
         extractContent = urlConf['extractConf']
 
         dataContent = json.dumps(data, ensure_ascii=False)
-        hasReplaced = False
         for varName, varValue in valuesJar.items():
             dataContent = dataContent.replace('\$\{' + varName + '\}', varValue)
         data = json.loads(dataContent)
@@ -250,7 +247,7 @@ class LocalRemoteExec:
         if (outLen > 1024):
             self.output = self.output[outLen-1024:]
 
-    def _remoteExecute(self, nodeInfo, scriptDef , args=None):
+    def _remoteExecute(self, nodeInfo, scriptDef, args=None):
         jobId = os.getenv('AUTOEXEC_JOBID')
         resourceId = nodeInfo['resourceId']
         host = nodeInfo['host']
@@ -432,33 +429,33 @@ class LocalRemoteExec:
                 scriptFileName = scriptFileName + extNameMap[interpreter]
         return scriptFileName
 
-    def getScriptCmd(self, scriptDef, osType, remotePath ,args):
+    def getScriptCmd(self, scriptDef, osType, remotePath, args):
         scriptFileName = self.getScriptFileName(scriptDef)
         interpreter = scriptDef['config']['parser']
-        #自定义插件动态参数
-        if args is None :
+        # 自定义插件动态参数
+        if args is None:
             args = ''
 
         if interpreter == 'cmd':
-            cmd = 'cmd /c {}/{} {}'.format(remotePath, scriptFileName,args)
+            cmd = 'cmd /c {}/{} {}'.format(remotePath, scriptFileName, args)
         elif interpreter in ('sh', 'bash', 'csh'):
             cmd = '{} -l {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
         elif interpreter == 'vbscript' or interpreter == 'javascript':
             cmd = 'cscript {}/{} {}'.format(remotePath, scriptFileName, args)
         else:
-            cmd = '{} {}/{} {}'.format(interpreter, remotePath, scriptFileName , args)
+            cmd = '{} {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
         return cmd
 
-    def getScriptDef(self , scriptId):
-        scriptDef = None 
-        if scriptId :
+    def getScriptDef(self, scriptId):
+        scriptDef = None
+        if scriptId:
             scriptDef = AutoExecUtils.getScript(scriptId)
         else:
             print("ERROR: Not found script :{}.".format(scriptId))
         return scriptDef
 
-    #巡检内节点绑定的脚本库
-    def executeRemoteScript(self, accessEndPoint , nodeInfo, timeOut):
+    # 巡检内节点绑定的脚本库
+    def executeRemoteScript(self, accessEndPoint, nodeInfo, timeOut):
         ret = False
         errorMsg = ''
         resourceId = nodeInfo['resourceId']
@@ -476,11 +473,10 @@ class LocalRemoteExec:
         else:
             errorMsg = "ERROR: Script config error."
         return (ret, errorMsg)
-    
-    #插件自定义脚本
-    def executeRemotePluginScript(self, nodeInfo, scriptDef , args):
+
+    # 插件自定义脚本
+    def executeRemotePluginScript(self, nodeInfo, scriptDef, args):
         ret = False
         errorMsg = ''
-        (ret, errorMsg) = self._remoteExecute(nodeInfo, scriptDef , args)
+        (ret, errorMsg) = self._remoteExecute(nodeInfo, scriptDef, args)
         return (ret, errorMsg)
-
