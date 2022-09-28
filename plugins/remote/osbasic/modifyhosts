@@ -108,8 +108,6 @@ sub main {
             $hostName = $ip2HostnameMap->{$ip};
             if ( defined($hostName) and $hostName ne '' ) {
                 $hostIp = $ip;
-
-                #$content = $content . "$ip\t$hostName";
                 last;
             }
         }
@@ -135,7 +133,7 @@ sub main {
         }
     }
 
-    if ( ( defined($hostName) or $hostName ne '' ) and not defined( $confMap->{$hostIp} ) ) {
+    if ( defined($hostName) and $hostName ne '' and not defined( $confMap->{$hostIp} ) ) {
         $confMap->{$hostIp} = $hostName;
         push( @confKeysArray, $hostIp );
     }
@@ -143,7 +141,7 @@ sub main {
     my $processedMap = {};
     my $isChanged    = 0;
     my $newContent   = '';
-    my $fh           = IO::File->new("+<$filePath");
+    my $fh           = IO::File->new( $filePath, 'r+' );
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
@@ -152,9 +150,7 @@ sub main {
                 $tmpLine =~ s/^\s*|\s*$//g;
                 my ( $ip, $name ) = split( /\s+/, $tmpLine, 2 );
                 my $newName = $confMap->{$ip};
-                if ( defined($newName) and not $processedMap->{$ip} ) {
-
-                    #delete( $confMap->{$ip} );
+                if ( defined($newName) and not defined( $processedMap->{$ip} ) ) {
                     $processedMap->{$ip} = 1;
                     if ( $newName ne $name ) {
                         $isChanged = 1;
