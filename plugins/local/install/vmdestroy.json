@@ -1,6 +1,6 @@
 {
     "opDesc": "删除克隆虚",
-    "opType": "runner",
+    "opType": "runner_target",
     "typeName": "INSTALL",
     "riskName": "HIGH",
     "interpreter": "python",
