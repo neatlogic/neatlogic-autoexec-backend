@@ -1308,7 +1308,7 @@ class RunNode:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout)
+                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout, banner_timeout=self.context.rexecConnTimeout, auth_timeout=self.context.rexecConnTimeout)
                 channel = ssh.get_transport().open_session()
                 channel.set_combine_stderr(True)
                 channel.exec_command(killCmd)
