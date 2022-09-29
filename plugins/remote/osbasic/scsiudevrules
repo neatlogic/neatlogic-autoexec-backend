@@ -176,7 +176,7 @@ sub main {
         my $scsiIdAlias = $scsiIdAliasMap->{$diskScsiId};
         my $diskSize    = getDiskSize($diskDev);
         if ( defined($scsiIdAlias) ) {
-            push( @diskDevs, $scsiIdAlias );
+            push( @diskDevs, "/dev/$scsiIdAlias" );
             push( @allDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize, isNew => 0 } );
 
             #如果别名已经存在，则使用原来的信息建立规则
@@ -232,7 +232,7 @@ sub main {
 
         #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
         my $diskAlias = "$diskAliasRelPrefix$seqNumber";
-        push( @diskDevs, $diskAlias );
+        push( @diskDevs, "dev/$diskAlias" );
         my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
         print("New: $rule");
         $udevRules = $udevRules . $rule;
