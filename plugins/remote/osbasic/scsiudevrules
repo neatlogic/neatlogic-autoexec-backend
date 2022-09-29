@@ -90,13 +90,14 @@ sub getDiskSize {
 sub main {
     AutoExecUtils::setEnv();
 
-    my ( $ishelp, $node, $diskAliasPrefix, $listDevCmd );
+    my ( $ishelp, $node, $diskAliasPrefix, $listDevCmd, $selectRange );
     my ( $sortMethod, $owner, $group );
     GetOptions(
         'help'          => \$ishelp,
         'node=s'        => \$node,
         'aliasprefix=s' => \$diskAliasPrefix,
         'listdevcmd=s'  => \$listDevCmd,
+        'selectrange=s' => \$selectRange,
         'sortmethod=s'  => \$sortMethod,
         'owner=s'       => \$owner,
         'group=s'       => \$group
@@ -138,6 +139,19 @@ sub main {
     my $diskAliasRelPrefix = $diskAliasPrefix;
     $diskAliasRelPrefix =~ s/^\/dev\///;
 
+    #获取磁盘的序号范围
+    my ( $startSeq, $endSeq ) = split( /\s*,\s*/, $selectRange );
+    $startSeq = int($startSeq);
+    $endSeq   = int($endSeq);
+    if ( $endSeq == 0 ) {
+        $endSeq = 99999999999;
+    }
+    if ( $startSeq > $endSeq ) {
+        $hasError = 1;
+        print("ERROR: Malform disk range:$selectRange, end index must bigger or equal start index.\n");
+        return $hasError;
+    }
+
     #根据提供的命令获取原始的设备列表
     my @diskDevs  = ();
     my $udevRules = '';
@@ -145,7 +159,7 @@ sub main {
     my $diskListTxt = `$listDevCmd`;
     $diskListTxt =~ s/^\s*|\s*$//g;
 
-    my @newDisks        = ();
+    my @allDisks        = ();
     my $scsiIdProcessed = {};
     foreach my $diskDev ( split( /\s+/, $diskListTxt ) ) {
         my $diskScsiId = getDiskScsiId( $scsiIdCmd, $diskDev );
@@ -160,8 +174,10 @@ sub main {
         }
 
         my $scsiIdAlias = $scsiIdAliasMap->{$diskScsiId};
+        my $diskSize    = getDiskSize($diskDev);
         if ( defined($scsiIdAlias) ) {
             push( @diskDevs, $scsiIdAlias );
+            push( @allDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize, isNew => 0 } );
 
             #如果别名已经存在，则使用原来的信息建立规则
             my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
@@ -170,36 +186,47 @@ sub main {
         }
         else {
             #如果是没有对应别名的磁盘，把信息存到一个数组
-            my $diskSize = getDiskSize($diskDev);
-            push( @newDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize } );
+            push( @allDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize, isNew => 1 } );
         }
     }
 
     #对没有建立别名的磁盘数组进行排序
     my @sortedDisks;
     if ( $sortMethod eq 'size' ) {
-        @sortedDisks = sort { $a->{size} <=> $b->{size} } @newDisks;
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @allDisks;
     }
     elsif ( $sortMethod eq 'id' ) {
-        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @newDisks;
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
     }
     elsif ( $sortMethod eq 'name' ) {
-        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @newDisks;
+        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
     }
     elsif ( $sortMethod eq 'sizeandid' ) {
-        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @newDisks;
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
         @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
     }
     elsif ( $sortMethod eq 'sizeandname' ) {
-        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @newDisks;
+        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
         @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
     }
     else {
-        @sortedDisks = @newDisks;
+        @sortedDisks = @allDisks;
     }
 
+    my $idx       = 1;
     my $seqNumber = $maxAliasSeqNumber + 1;
     foreach my $diskInfo (@sortedDisks) {
+        if ( $idx < $startSeq ) {
+            next;
+        }
+        elsif ( $idx > $endSeq ) {
+            last;
+        }
+
+        if ( $diskInfo->{isNew} == 0 ) {
+            next;
+        }
+
         my $diskScsiId = $diskInfo->{scsiId};
 
         #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
@@ -209,7 +236,10 @@ sub main {
         print("New: $rule");
         $udevRules = $udevRules . $rule;
         $seqNumber = $seqNumber + 1;
+        $idx       = $idx + 1;
     }
+
+    @diskDevs = sort(@diskDevs);
 
     my $out = {};
     $out->{diskDiscoveryString} = dirname($diskAliasPrefix) . '/*';
