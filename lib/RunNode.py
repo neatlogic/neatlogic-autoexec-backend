@@ -1072,7 +1072,7 @@ class RunNode:
                 # 建立连接
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout)
+                ssh.connect(self.host, self.protocolPort, self.username, self.password, timeout=self.context.rexecConnTimeout, banner_timeout=self.context.rexecConnTimeout, auth_timeout=self.context.rexecConnTimeout)
                 sftp = ssh.open_sftp()
 
                 # 更新节点状态为running
@@ -1255,10 +1255,10 @@ class RunNode:
                         sftp.close()
                     if ssh is not None:
                         ssh.close()
-            
+
             if ssh is not None:
                 ssh.close()
-            
+
         return ret
 
     def pause(self):
