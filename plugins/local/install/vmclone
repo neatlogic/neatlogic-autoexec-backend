@@ -108,9 +108,11 @@ if __name__ == '__main__':
 
     if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
         ip = node['host']
-        port = node['port']
-        if port is None or port == '':
+        port = 443
+        if 'protocolPort' in node :
             port = node['protocolPort']
+        else:
+            port = node['port']
         user = node['username']
         password = node['password']
 
@@ -141,4 +143,11 @@ if __name__ == '__main__':
     # 创建的OS存在问题直接销毁
     #    ret = vm.destroy_vm(param)
     vm.close()
+
+    out={}
+    nodeList = []
+    nodeList.append({"ip":vm_ip , "port":"3939"})
+    out['node'] = nodeList
+    AutoExecUtils.saveOutput(out)
+
     exit(ret)

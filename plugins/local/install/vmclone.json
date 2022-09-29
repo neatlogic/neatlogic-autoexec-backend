@@ -1,6 +1,6 @@
 {
     "opDesc": "克隆虚拟机",
-    "opType": "runner",
+    "opType": "runner_target",
     "typeName": "INSTALL",
     "riskName": "HIGH",
     "interpreter": "python",
@@ -222,5 +222,12 @@
             "defaultValue": "0"
         }
     ],
-    "output": []
+    "output": [
+        {
+			"opt": "node",
+			"name": "执行节点",
+			"help": "克隆完产生的动态节点",
+			"type": "selectNodeList"
+		}
+    ]
 }

@@ -47,9 +47,11 @@ if __name__ == '__main__':
 
     if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
         ip = node['host']
-        port = node['port']
-        if port is None or port == '' : 
+        port = 443
+        if 'protocolPort' in node :
             port = node['protocolPort']
+        else:
+            port = node['port']
         user = node['username']
         password = node['password']
 
