@@ -12,90 +12,100 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--outputkey', default='', help='Output key')
+    parser.add_argument('rest', nargs=argparse.REMAINDER, help="Output key")
     args = parser.parse_args()
-    outputKey = args.outputkey
+    outputKeys = args.rest
 
-    hasOptError = False
-    if outputKey == '':
-        hasOptError = True
-        print("ERROR: Must define output key name by option --outputkey")
+    exitCode = 0
 
-    if hasOptError:
-        sys.exit(2)
-
-    outputKey = re.sub(r'^#\{', '', outputKey)
-    outputKey = re.sub(r'\}$', '', outputKey)
-    outputKeyInfo = outputKey.split('.')
-
-    if len(outputKeyInfo) != 3:
-        print("ERROR: Malform output key %s." % (outputKey))
-        sys.exit(3)
-
-    opId = outputKeyInfo[1]
-    varKey = outputKeyInfo[2]
-
-    jobId = os.getenv('AUTOEXEC_JOBID')
-
-    aggDatas = []
     dbclient = None
-
+    outCollection = None
     try:
         (dbclient, db) = AutoExecUtils.getDB()
         outCollection = db['_node_output']
+    except Exception as err:
+        exitCode = 2
+        print("ERROR: Can not connect to database, {}".format(err))
 
-        print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
-        for nodeOut in outCollection.find(
-                {
-                    'jobId': jobId,
-                    'resourceId': {'$ne': 0},
-                    'data.%s' % opId: {'$ne': None}
-                },
-                {
-                    'host': 1,
-                    'port': 1,
-                    'data.%s' % opId: 1
-                }).limit(2):
+    for outputKey in outputKeys:
+        hasOptError = False
+        if outputKey == '':
+            hasOptError = True
+            print("ERROR: Must define output key name by option --outputkey")
 
-            port = nodeOut.get('port')
-            host = nodeOut.get('host')
-
-            nodeKey = host
-            if port is not None and port != '':
-                nodeKey = host + ':' + port
-
-            val = nodeOut['data'].get(opId).get(varKey)
-            aggDatas.append(val)
-
-        if len(aggDatas) == 0:
-            print("WARN: Can not find any output for:%s." % (outputKey))
-        elif len(aggDatas) == 1:
-            # Load local output
-            pk = {'jobId': jobId, 'resourceId': 0}
-            outData = outCollection.find_one(pk, {'_id': False})
-            output = {}
-            if outData is not None:
-                output = outData['data']
-            else:
-                # Update local output data
-                outData['host'] = 'local'
-                outData['port'] = 0
-                outData['createDate'] = datetime.datetime.utcnow()
-                outData.update(pk)
-
-            opOut = output.get(opId, {})
-            opOut[varKey] = val
-            output[opId] = opOut
-            outData['data'] = output
-            outCollection.replace_one(pk, outData, upsert=True)
-
-            print("FINE: Convert output for:%s to local success." % (outputKey))
-        else:
-            print("ERROR: More than one remote node output found, suggest to use aggoutput.")
+        if hasOptError:
             sys.exit(2)
-    except:
-        print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, traceback.format_exc()))
-        sys.exit(1)
-    finally:
-        if dbclient is not None:
-            dbclient.close()
+
+        outputKey = re.sub(r'^#\{', '', outputKey)
+        outputKey = re.sub(r'\}$', '', outputKey)
+        outputKeyInfo = outputKey.split('.')
+
+        if len(outputKeyInfo) != 3:
+            print("ERROR: Malform output key %s." % (outputKey))
+            sys.exit(3)
+
+        opId = outputKeyInfo[1]
+        varKey = outputKeyInfo[2]
+
+        jobId = os.getenv('AUTOEXEC_JOBID')
+
+        aggDatas = []
+
+        try:
+            print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
+            for nodeOut in outCollection.find(
+                    {
+                        'jobId': jobId,
+                        'resourceId': {'$ne': 0},
+                        'data.%s' % opId: {'$ne': None}
+                    },
+                    {
+                        'host': 1,
+                        'port': 1,
+                        'data.%s' % opId: 1
+                    }).limit(2):
+
+                port = nodeOut.get('port')
+                host = nodeOut.get('host')
+
+                nodeKey = host
+                if port is not None and port != '':
+                    nodeKey = host + ':' + port
+
+                val = nodeOut['data'].get(opId).get(varKey)
+                aggDatas.append(val)
+
+            if len(aggDatas) == 0:
+                print("WARN: Can not find any output for:%s." % (outputKey))
+            elif len(aggDatas) == 1:
+                # Load local output
+                pk = {'jobId': jobId, 'resourceId': 0}
+                outData = outCollection.find_one(pk, {'_id': False})
+                output = {}
+                if outData is not None:
+                    output = outData['data']
+                else:
+                    # Update local output data
+                    outData['host'] = 'local'
+                    outData['port'] = 0
+                    outData['createDate'] = datetime.datetime.utcnow()
+                    outData.update(pk)
+
+                opOut = output.get(opId, {})
+                opOut[varKey] = val
+                output[opId] = opOut
+                outData['data'] = output
+                outCollection.replace_one(pk, outData, upsert=True)
+
+                print("FINE: Convert output for:%s to local success." % (outputKey))
+            else:
+                print("ERROR: More than one remote node output found, suggest to use aggoutput.")
+                sys.exit(2)
+        except Exception as err:
+            exitCode = 1
+            print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
+
+    if dbclient is not None:
+        dbclient.close()
+
+    sys.exit(exitCode)

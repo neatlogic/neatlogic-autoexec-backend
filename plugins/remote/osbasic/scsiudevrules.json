@@ -83,7 +83,7 @@
             "opt": "diskDiscoveryString",
             "name": "磁盘通配符",
             "help": "磁盘通配符, 磁盘路径目录加上/*",
-            "type": "textarea"
+            "type": "text"
         }, {
             "opt": "udevRules",
             "name": "udev规则文本",

@@ -6,14 +6,15 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "对单个远程节点输出转换为Runner执行的本地输出共享给后续运行的其他节点",
-    "option": [{
-        "opt": "outputkey",
+    "option": [],
+    "argument": {
         "name": "变量名",
-        "help": "上游输出的变量名",
         "type": "text",
-        "required": "true",
+        "defaultValue": "",
+        "help": "上游输出的变量名",
+        "count": 0,
         "validate": "",
-        "defaultValue": ""
-    }],
+        "required": "true"
+    },
     "output": []
 }

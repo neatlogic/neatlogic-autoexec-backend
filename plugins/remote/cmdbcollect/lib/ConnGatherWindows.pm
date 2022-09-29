@@ -45,7 +45,7 @@ sub parseListenLines {
     my $portsMap = {};
     my $status   = 0;
     my $pipe;
-    my $pid = open( $pipe, $cmd );
+    my $pipePid = open( $pipe, $cmd );
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
