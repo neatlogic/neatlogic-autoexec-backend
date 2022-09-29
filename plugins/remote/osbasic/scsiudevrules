@@ -213,9 +213,10 @@ sub main {
         @sortedDisks = @allDisks;
     }
 
-    my $idx       = 1;
+    my $idx       = 0;
     my $seqNumber = $maxAliasSeqNumber + 1;
     foreach my $diskInfo (@sortedDisks) {
+        $idx = $idx + 1;
         if ( $idx < $startSeq ) {
             next;
         }
@@ -236,7 +237,6 @@ sub main {
         print("New: $rule");
         $udevRules = $udevRules . $rule;
         $seqNumber = $seqNumber + 1;
-        $idx       = $idx + 1;
     }
 
     @diskDevs = sort(@diskDevs);
