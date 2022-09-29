@@ -78,9 +78,8 @@ sub getDiskSize {
     my ($devPath) = @_;
 
     my $diskInfoTxt = `LANG=en_US.UTF-8 fdisk -l '$devPath'`;
-
-    my $diskSize = 0;
-    if ( $diskInfoTxt =~ /^Disk\s+$devPath\s+.*?(\d+)bytes/ ) {
+    my $diskSize    = 0;
+    if ( $diskInfoTxt =~ /^Disk\s+$devPath\b.*?(\d+)\s*bytes/ ) {
         $diskSize = int( $1 / 1024 / 1024 );
     }
 
@@ -191,7 +190,7 @@ sub main {
     }
 
     #对没有建立别名的磁盘数组进行排序
-    my @sortedDisks;
+    my @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
     if ( $sortMethod eq 'size' ) {
         @sortedDisks = sort { $a->{size} <=> $b->{size} } @allDisks;
     }
@@ -199,7 +198,8 @@ sub main {
         @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
     }
     elsif ( $sortMethod eq 'name' ) {
-        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
+
+        #@sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
     }
     elsif ( $sortMethod eq 'sizeandid' ) {
         @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
