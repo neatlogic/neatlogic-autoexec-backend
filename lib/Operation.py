@@ -183,6 +183,7 @@ class Operation:
 
             if optType == 'password':
                 try:
+                    optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     if optValue[0:11] == '{ENCRYPTED}':
                         optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[11:])
                     elif optValue[0:5] == '{RC4}':
