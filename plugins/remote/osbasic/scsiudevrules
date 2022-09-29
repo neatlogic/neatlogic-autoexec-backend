@@ -161,6 +161,7 @@ sub main {
 
         my $scsiIdAlias = $scsiIdAliasMap->{$diskScsiId};
         if ( defined($scsiIdAlias) ) {
+            push( @diskDevs, $scsiIdAlias );
 
             #如果别名已经存在，则使用原来的信息建立规则
             my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
