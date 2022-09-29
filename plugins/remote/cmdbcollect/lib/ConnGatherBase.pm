@@ -48,11 +48,11 @@ sub getCPULogicCoreCount {
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
-    print("INFO: Try to collect process listen addressses.\n");
     my $cmd         = $args{cmd};
     my $pid         = $args{pid};
     my $lsnFieldIdx = $args{lsnFieldIdx};
     my $recvQIdx    = $args{recvQIdx};
+    print("INFO: Begin to collect process:$pid listen addresses.\n");
 
     my $portsMap = {};
     my $status   = 0;
@@ -95,7 +95,17 @@ sub parseListenLines {
         }
         close($pipe);
         $status = $?;
-        print("INFO: Collect process listen addressses complete.\n");
+        if ( $status != 0 ) {
+            print("WARN: Collect process:$pid listen addresses failed.\n");
+        }
+        else {
+            if (%$portsMap) {
+                print("INFO: Collect process:$pid listen addresses success.\n");
+            }
+            else {
+                print("INFO: Process:$pid is not listened any addresses.\n");
+            }
+        }
     }
     else {
         $status = -1;
@@ -156,8 +166,8 @@ sub parseConnLines {
                     next;
                 }
 
-                $localAddr =~ s/^::ffff:(\d+\.)/$1/;
-                $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+                $localAddr  =~ s/^::ffff:(\d+\.)/$1/;
+                $localAddr  =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
                 $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
                 $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
 

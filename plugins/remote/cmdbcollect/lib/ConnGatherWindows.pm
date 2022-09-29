@@ -37,10 +37,10 @@ sub getCPULogicCoreCount {
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
-    print("INFO: Begin to collect process listen addresses.\n");
     my $cmd         = $args{cmd};
     my $pid         = $args{pid};
     my $lsnFieldIdx = $args{lsnFieldIdx};
+    print("INFO: Begin to collect process:$pid listen addresses.\n");
 
     my $portsMap = {};
     my $status   = 0;
@@ -72,10 +72,20 @@ sub parseListenLines {
         }
         close($pipe);
         $status = $?;
-        print("INFO: Collect process listen addresses complete.\n");
+        if ( $status != 0 ) {
+            print("WARN: Collect process:$pid listen addresses failed.\n");
+        }
+        else {
+            if (%$portsMap) {
+                print("INFO: Collect process:$pid listen addresses success.\n");
+            }
+            else {
+                print("INFO: Process:$pid is not listened any addresses.\n");
+            }
+        }
     }
     else {
-        print("ERROR: Can not launch command:$cmd to collect process listen addresses.\n");
+        print("ERROR: Can not launch command:$cmd to collect process:$pid listen addresses.\n");
     }
 
     return ( $status, $portsMap );

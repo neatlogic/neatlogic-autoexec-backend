@@ -62,7 +62,7 @@ sub findSockPid {
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
-    print("INFO: Begin to collect process listen addresses.\n");
+    print("INFO: Begin to collect processes listen addresses.\n");
     my $cmd         = $args{cmd};
     my $lsnFieldIdx = $args{lsnFieldIdx};
     my $recvQIdx    = $args{recvQIdx};
@@ -101,7 +101,12 @@ sub parseListenLines {
         }
         close($pipe);
         $status = $?;
-        print("INFO: Collect process listen addresses complete.\n");
+        if ( $status == 0 ) {
+            print("INFO: Collect processes listen addresses success.\n");
+        }
+        else {
+            print("INFO: Collect processes listen addresses failed.\n");
+        }
     }
     else {
         $status = -1;
@@ -202,9 +207,9 @@ sub parseConnLines {
             my $sockAddr   = $fields[0];
             my $localAddr  = $fields[$localFieldIdx];
             my $remoteAddr = $fields[$remoteFieldIdx];
-            $localAddr =~ s/^::ffff:(\d+\.)/$1/;
-            $localAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
-            $localAddr =~ s/\.(\d+)$/:$1/;
+            $localAddr  =~ s/^::ffff:(\d+\.)/$1/;
+            $localAddr  =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
+            $localAddr  =~ s/\.(\d+)$/:$1/;
             $remoteAddr =~ s/^::ffff:(\d+\.)/$1/;
             $remoteAddr =~ s/0000:0000:0000:0000:0000:ffff:(\d+\.)/$1/;
             $remoteAddr =~ s/\.(\d+)$/:$1/;
@@ -329,6 +334,12 @@ sub getListenPorts {
             }
         }
 
+        if (%$portsMap) {
+            print("INFO: Collect process:$pid listen addresses success.\n");
+        }
+        else {
+            print("INFO: Process:$pid is not listened any addresses.\n");
+        }
         return $portsMap;
     }
 }
