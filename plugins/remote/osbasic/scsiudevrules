@@ -211,9 +211,10 @@ sub main {
     }
 
     my $out = {};
-    $out->{udevRules}     = $udevRules;
-    $out->{diskDevs}      = join( "\n", @diskDevs );
-    $out->{diskDevsArray} = \@diskDevs;
+    $out->{diskDiscoveryString} = dirname($diskAliasPrefix) . '/*';
+    $out->{udevRules}           = $udevRules;
+    $out->{diskDevs}            = join( "\n", @diskDevs );
+    $out->{diskDevsArray}       = \@diskDevs;
     AutoExecUtils::saveOutput($out);
 
     #udevadm control --reload-rules && udevadm trigger
