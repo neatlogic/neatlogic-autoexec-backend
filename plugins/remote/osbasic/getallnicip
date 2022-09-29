@@ -43,8 +43,8 @@ sub getWindowsNicInfo {
             $nicName =~ s/^\s*|\s*$//g;
             if ( not defined( $macsMap->{$nicMac} ) ) {
                 my $nicInfo = {};
-                $nicInfo->{NAME}    = $nicName;
-                $nicInfo->{MAC}     = $nicMac;
+                $nicInfo->{name}    = $nicName;
+                $nicInfo->{mac}     = $nicMac;
                 $macsMap->{$nicMac} = $nicInfo;
             }
         }
@@ -84,10 +84,15 @@ sub getWindowsIpAddrs {
                         $ipInfo = {};
                         $ipMap->{$ip} = $ipInfo;
                     }
-                    $ipInfo->{IP}      = $ip;
-                    $ipInfo->{NIC}     = $macsMap->{$mac};
-                    $ipInfo->{MAC}     = $mac;
-                    $ipInfo->{NetMask} = $netmask;
+                    my $ipType = 'IPV6';
+                    if ( $ip =~ /^\d+\.\d+\.\d+\.\d+$/ ) {
+                        $ipType = 'IPV4';
+                    }
+                    $ipInfo->{ip}      = $ip;
+                    $ipInfo->{type}    = $ipType;
+                    $ipInfo->{nic}     = $macsMap->{$mac};
+                    $ipInfo->{mac}     = $mac;
+                    $ipInfo->{netmask} = $netmask;
                 }
             }
         }
@@ -120,7 +125,7 @@ sub main {
         $ipMap = getWindowsIpAddrs($macsMap);
 
         while ( my ( $mac, $nicInfo ) = each(%$macsMap) ) {
-            $nicMap->{ $nicInfo->{NAME} } = $mac;
+            $nicMap->{ $nicInfo->{name} } = $mac;
         }
     }
     else {
