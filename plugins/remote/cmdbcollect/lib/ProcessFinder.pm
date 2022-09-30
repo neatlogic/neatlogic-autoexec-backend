@@ -87,7 +87,7 @@ sub new {
 
         #根据pid获取进程环境变量的powershell脚本，实现类似ps读取进程环境变量的功能
         if ( $uname[4] =~ /64/ ) {
-            $self->{procEnvCmd} = Cwd::abs_path("$FindBin::Bin/lib/windowspenv/getprocenv");
+            $self->{procEnvCmd} = Cwd::abs_path("$FindBin::Bin/lib/windowspenv/getprocenv.exe");
         }
         else {
             $self->{procEnvCmd} = $utils->getWinPs1Cmd("$FindBin::Bin/lib/windowspenv.ps1") . ' getProcessEnv';

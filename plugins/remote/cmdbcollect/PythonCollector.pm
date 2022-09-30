@@ -65,7 +65,7 @@ sub getVersion {
     }
 
     if ( -e $pythonPath ) {
-        my $verInfo = $self->getCmdOut(qq{"$pythonPath" --version});
+        my $verInfo = $self->getCmdOut(qq{"$pythonPath" --version 2>&1});
         if ( $verInfo =~ /([\d\.]+)/ ) {
             $version = $1;
         }
