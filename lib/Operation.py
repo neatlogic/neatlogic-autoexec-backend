@@ -595,14 +595,14 @@ class Operation:
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == 'cmd':
-                            # cmd = 'cd {} & copy {} {} & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
-                            cmd = 'cd {} & copy {} {} & cmd /c {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
+                            # cmd = 'cd {} & copy /y {} {}>NUL & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy /y {} {} >NUL & cmd /c {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
-                            # cmd = 'cd {} & copy {} {} & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
-                            cmd = 'cd {} & copy {} {} & cscript {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
+                            # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy /y {} {} >NUL & cscript {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         else:
-                            # cmd = 'cd {} & copy {} {} & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
-                            cmd = 'cd {} & copy {} {} & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
+                            # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
+                            cmd = 'cd {} & copy /y {} {} >NUL & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
                 else:
                     if self.interpreter in ('sh', 'bash', 'csh'):
                         # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
