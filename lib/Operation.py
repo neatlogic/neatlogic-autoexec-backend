@@ -368,22 +368,24 @@ class Operation:
                 newVal = None
                 opId = None
                 # 变量格式是：${phaseName.opBunndle/opId.varName}，则是在运行过程中产生的内部引用参数
-                varNames = paramName.split('.')
-                if len(varNames) == 3:
-                    opId = varNames[1]
-                    paramName = varNames[2]
+                opVar = paramName.split('.', 1)
+                if len(opVar) == 2:
+                    varNames = opVar[1].rsplit('.', 1)
+                    if len(varNames) == 2:
+                        opId = varNames[0]
+                        paramName = varNames[1]
 
-                    paramMap = refMap.get(opId, None)
-                    if paramMap is None:
-                        paramMap = localRefMap.get(opId, None)
+                        paramMap = refMap.get(opId, None)
+                        if paramMap is None:
+                            paramMap = localRefMap.get(opId, None)
 
-                    if paramMap is not None:
-                        newVal = paramMap.get(paramName)
+                        if paramMap is not None:
+                            newVal = paramMap.get(paramName)
 
-                    if newVal is not None:
-                        val = newVal
-                    else:
-                        raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
+                        if newVal is not None:
+                            val = newVal
+                        else:
+                            raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
             if val is not None:
                 if not isinstance(val, str):
