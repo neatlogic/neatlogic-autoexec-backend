@@ -561,6 +561,7 @@ sub needExecute {
         }
         else {
             $ret = 1;
+            print("INFO: Sql file:$sqlFile has been executed $preStatus, try to execute again.\n");
         }
     }
     else {
