@@ -221,7 +221,7 @@ sub _execSql {
     }
     else {
         use File::Temp;
-        $sqlFH = File::Temp->new( DIR => '.', UNLINK => 1, SUFFIX => '.sql' );
+        $sqlFH = File::Temp->new( UNLINK => 1, SUFFIX => '.sql' );
         my $fname = $sqlFH->filename;
         print $sqlFH ($sql);
         $sqlFH->close();

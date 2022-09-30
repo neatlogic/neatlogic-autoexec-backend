@@ -22,6 +22,7 @@ sub new {
 
     my @uname  = uname();
     my $osType = $uname[0];
+    $osType =~ s/\s.*$//;
     $self->{osType} = $osType;
 
     my $osUser = $args{osUser};
@@ -69,7 +70,7 @@ sub new {
         $redisCmd = "$redisCmd -n $args{dbname}";
     }
 
-    if ( $isRoot and defined( $args{osUser} ) ) {
+    if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
         $redisCmd = qq{su - $osUser -c "$redisCmd"};
     }
     $self->{redisCmd} = $redisCmd;
@@ -124,13 +125,28 @@ sub _execSql {
     my $sql       = $args{sql};
     my $isVerbose = $args{verbose};
 
-    my $cmd = qq{$self->{redisCmd} << EOF
-               $sql
-	       exit
-               EOF
+    my $sqlFH;
+    my $cmd;
+    if ( $self->{osType} ne 'Windows' ) {
+        $cmd = qq{$self->{redisCmd} << EOF
+                $sql
+	            exit
+                EOF
               };
+        $cmd =~ s/^\s*//mg;
+    }
+    else {
+        use File::Temp;
+        $sqlFH = File::Temp->new( UNLINK => 1, SUFFIX => '.sql' );
+        my $fname = $sqlFH->filename;
+        print $sqlFH ($sql);
+        $sqlFH->close();
 
-    $cmd =~ s/^\s*//mg;
+        my $redisCmd = $self->{redisCmd};
+        $redisCmd =~ s/'/"/g;
+        $cmd = qq{$redisCmd < "$fname"};
+    }
+
     if ($isVerbose) {
         print("\nINFO: Execute sql:\n");
         print( $sql, "\n" );
