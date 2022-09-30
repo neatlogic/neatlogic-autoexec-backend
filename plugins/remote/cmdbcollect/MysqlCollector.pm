@@ -31,8 +31,8 @@ use MysqlExec;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps => ['\bmysqld\s'],         #正则表达是匹配ps输出
-        psAttrs => { COMM => 'mysqld' }    #ps的属性的精确匹配
+        regExps => ['\bmysqld\b'],        #正则表达是匹配ps输出
+        psAttrs => { COMM => 'mysqld' }
     };
 }
 
@@ -66,8 +66,10 @@ sub parseCommandOpts {
     my ( $self, $command, $procInfo ) = @_;
 
     my $opts       = {};
-    my @items      = split( /\s+--/, $command );
+    my @items      = split( /[\s"]+--/, $command );
     my $mysqldPath = $items[0];
+    $mysqldPath =~ s/^\s*|\s*$//g;
+    $mysqldPath =~ s/^"|"$//g;
 
     if ( not -e $mysqldPath ) {
         my $exeFile = $procInfo->{EXECUTABLE_FILE};
@@ -76,6 +78,7 @@ sub parseCommandOpts {
         }
     }
 
+    $mysqldPath =~ s/\\/\//g;
     $opts->{mysqldPath} = $mysqldPath;
     if ( $mysqldPath =~ /^(.*?)\/bin\/mysqld/ or $mysqldPath =~ /^(.*?)\/sbin\/mysqld/ ) {
         $opts->{mysqlHome} = $1;

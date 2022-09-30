@@ -19,6 +19,8 @@ Function getAllProcesses{
         $owner = $wmiObj.getOwner();
         $domain=$owner.Domain;
         $user=$owner.User;
+        $user = $user -replace " +", "-";
+        $user = $user -replace "    +", "-";
         $parentPid = $wmiObj.ParentProcessId;
         $pgid = $wmiObj.SessionId;
         $cmdLine = $wmiObj.CommandLine;
