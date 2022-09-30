@@ -6,7 +6,6 @@ use FindBin;
 use POSIX;
 use IO::File;
 use IO::Select;
-use Sys::Hostname;
 use File::Copy;
 use File::Find;
 use File::Path;

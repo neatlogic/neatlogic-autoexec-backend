@@ -7,7 +7,6 @@ package OSGatherBase;
 
 use strict;
 use FindBin;
-use Sys::Hostname;
 use Net::Netmask;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use JSON qw(from_json to_json);
@@ -26,8 +25,11 @@ sub new {
     my @uname  = uname();
     my $ostype = $uname[0];
     $ostype =~ s/\s.*$//;
-    $self->{ostype}   = $ostype;
-    $self->{hostname} = hostname();
+    $self->{ostype} = $ostype;
+
+    my $hostName = `hostname`;
+    $hostName =~ s/^\s*|\s*$//g;
+    $self->{hostname} = $hostName;
 
     $self->{osId}     = '';
     $self->{mgmtIp}   = '';    #此主机节点Agent或ssh连接到此主机，主机节点端的IP

@@ -16,7 +16,6 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use File::Copy;
-use Sys::Hostname;
 use CollectObjCat;
 use RedisExec;
 

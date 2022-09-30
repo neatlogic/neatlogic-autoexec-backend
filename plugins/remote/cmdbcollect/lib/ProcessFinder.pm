@@ -11,7 +11,6 @@ use IPC::Open2;
 use IO::File;
 use Cwd;
 use POSIX qw(uname);
-use Sys::Hostname;
 use JSON qw(from_json to_json);
 use CollectUtils;
 
@@ -54,12 +53,15 @@ sub new {
     my @uname  = uname();
     my $ostype = $uname[0];
     $ostype =~ s/\s.*$//;
+    my $hostName = `hostname`;
+    $hostName =~ s/^\s*|\s*$//g;
+
     $self->{ostype}       = $ostype;
-    $self->{hostname}     = hostname();
+    $self->{hostname}     = $hostName;
     $self->{topProcesses} = [];
     $self->{osId}         = '';
-    $self->{mgmtIp}       = '';           #此主机节点Agent或ssh连接到此主机，主机节点端的IP
-    $self->{mgmtPort}     = '';           #此主机节点Agent或ssh连接到此主机，主机节点端的port
+    $self->{mgmtIp}       = '';          #此主机节点Agent或ssh连接到此主机，主机节点端的IP
+    $self->{mgmtPort}     = '';          #此主机节点Agent或ssh连接到此主机，主机节点端的port
     my $AUTOEXEC_NODE = $ENV{'AUTOEXEC_NODE'};
 
     if ( defined($AUTOEXEC_NODE) and $AUTOEXEC_NODE ne '' ) {
