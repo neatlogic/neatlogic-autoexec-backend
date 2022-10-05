@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use JSON;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--np NoPermission] [--followlinks FollowLinks] [--cpifexists CopyIfExists]]\n");
+    print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:        Host node json\n");
+    print("       --direction:   push from local site to remote site or pull from remote site to local site .\n");
+    print("       --np:          not preserve the mode of file\n");
+    print("       --cpifexists:  copy if local dir or file exists.\n");
+    print("       --followlinks: symbol link as directory\n");
+    print("       --src:         copy source path ,many src path , separated .\n");
+    print("       --dest:        remote target path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $node );
+
+    my $pname  = $FindBin::Script;
+    my $binDir = $FindBin::Bin;
+
+    my @myOpts = @ARGV;
+    GetOptionsFromArray(
+        \@myOpts,
+        'h|help' => \$isHelp,
+        'node=s' => \$node
+    );
+
+    my $deployUtils = DeployUtils->new();
+    my $optionError = 0;
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $protocol = $nodeInfo->{protocol};
+    if ( $protocol eq 'tagent' ) {
+        exec( "$binDir/tagentcopy", @ARGV );
+    }
+    elsif ( $protocol eq 'ssh' ) {
+        exec( "$binDir/scpexec", @ARGV );
+    }
+    else {
+        print("ERROR: Protolc $protocol not supported by $pname, failed.\n");
+        $hasError = 1;
+    }
+
+    return $hasError;
+}
+
+exit main();

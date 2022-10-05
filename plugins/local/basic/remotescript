@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use JSON;
+use Cwd 'abs_path';
+use Getopt::Long qw(GetOptionsFromArray);
+
+use DeployUtils;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--async 0|1] [--eofstr EOFString]\n");
+    print("              [--destencoding ServerSideCharset] [--timeout TimeoutSecs] cmd\n");
+    print("\n");
+    print("       --node:         Host node json\n");
+    print("       --async:        execute remote cmd asynchronized\n");
+    print("       --eofstr:       when command outpute match eofstr, the execute will be terminated\n");
+    print("       --destencoding: server Side charset\n");
+    print("       --timeout:      tiemout for ssh execute\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $node );
+
+    my $pname  = $FindBin::Script;
+    my $binDir = abs_path("$FindBin::Bin/../deploy");
+
+    my @myOpts = @ARGV;
+    GetOptionsFromArray(
+        \@myOpts,
+        'h|help' => \$isHelp,
+        'node=s' => \$node
+    );
+
+    usage() if ( defined($isHelp) );
+    my $deployUtils = DeployUtils->new();
+    my $optionError = 0;
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    $ENV{PERL5LIB}="$binDir/lib:" . $ENV{PERL5LIB};
+    my $protocol = $nodeInfo->{protocol};
+    if ( $protocol eq 'tagent' ) {
+        exec( "$binDir/tagentscript", @ARGV );
+    }
+    elsif ( $protocol eq 'ssh' ) {
+        exec( "$binDir/sshscript", @ARGV );
+    }
+    else {
+        print("ERROR: Protolc $protocol not supported by $pname, failed.\n");
+        $hasError = 1;
+    }
+
+    return $hasError;
+}
+
+exit main();
+
