@@ -3,7 +3,7 @@ use strict;
 use FindBin;
 use JSON;
 use Cwd 'abs_path';
-use Getopt::Long;
+use Getopt::Long qw(GetOptionsFromArray);
 
 use DeployUtils;
 

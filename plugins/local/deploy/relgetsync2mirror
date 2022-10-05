@@ -2,6 +2,7 @@
 use strict;
 use FindBin;
 use Cwd 'abs_path';
+use Getopt::Long qw(GetOptionsFromArray);
 
 use DeployUtils;
 use ServerAdapter;
