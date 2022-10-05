@@ -118,7 +118,7 @@ sub main {
     if ( $direction eq 'push' ) {
         foreach my $targetPat (@src_dirs) {
             foreach my $target ( glob($targetPat) ) {
-                if ( !-d $target ) {
+                if ( ! -e $target ) {
                     $isSuccess = 1;
                     print("ERROR: Src path $target not exists .\n");
                     last;
