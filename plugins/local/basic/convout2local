@@ -2,6 +2,7 @@
 # -*- coding:UTF-8 -*-
 
 import os
+from ssl import create_default_context
 import sys
 import traceback
 import argparse
@@ -65,13 +66,6 @@ if __name__ == "__main__":
                         'data.%s' % opId: 1
                     }).limit(2):
 
-                port = nodeOut.get('port')
-                host = nodeOut.get('host')
-
-                nodeKey = host
-                if port is not None and port != '':
-                    nodeKey = host + ':' + port
-
                 val = nodeOut['data'].get(opId).get(varKey)
                 aggDatas.append(val)
 
@@ -85,10 +79,11 @@ if __name__ == "__main__":
                 if outData is not None:
                     output = outData['data']
                 else:
-                    # Update local output data
-                    outData['host'] = 'local'
-                    outData['port'] = 0
-                    outData['createDate'] = datetime.datetime.utcnow()
+                    outData = {
+                        'host':'local',
+                        'port':0,
+                        'createDate':datetime.datetime.utcnow()
+                    }
                     outData.update(pk)
 
                 opOut = output.get(opId, {})
