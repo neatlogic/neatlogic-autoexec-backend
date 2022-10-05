@@ -8,6 +8,7 @@ use File::Glob qw(bsd_glob);
 use Cwd;
 
 use AutoExecUtils;
+use DeployUtils;
 use TagentClient;
 
 sub usage {

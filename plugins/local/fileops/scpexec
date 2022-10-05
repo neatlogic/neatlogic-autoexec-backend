@@ -6,6 +6,7 @@ use File::Glob qw(bsd_glob);
 use Cwd;
 
 use SCPExec;
+use DeployUtils;
 use AutoExecUtils;
 
 sub usage {
