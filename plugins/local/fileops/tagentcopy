@@ -33,7 +33,7 @@ sub main {
     my ( $node, $direction, $src, $dest, $np, $cpIfExists, $followLinks );
     AutoExecUtils::setEnv();
 
-    my $pname = basename($0);
+    my $pname = $FindBin::Script;
 
     $isVerbose   = 0;
     $np          = 0;
