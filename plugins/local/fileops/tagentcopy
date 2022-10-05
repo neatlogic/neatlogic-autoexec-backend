@@ -116,15 +116,17 @@ sub main {
     my $tagent    = new TagentClient( $host, $port, $pass );
 
     if ( $direction eq 'push' ) {
-        foreach my $target (@src_dirs) {
-            if ( !-d $target ) {
-                $isSuccess = 1;
-                print("ERROR: Src path $target not exists .\n");
-                last;
-            }
-            $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
-            if ( $isSuccess ne 0 ) {
-                last;
+        foreach my $targetPat (@src_dirs) {
+            foreach my $target ( glob($targetPat) ) {
+                if ( !-d $target ) {
+                    $isSuccess = 1;
+                    print("ERROR: Src path $target not exists .\n");
+                    last;
+                }
+                $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
+                if ( $isSuccess ne 0 ) {
+                    last;
+                }
             }
         }
     }
