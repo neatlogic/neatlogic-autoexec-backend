@@ -86,6 +86,10 @@ sub main {
     $content =~ s/\\n/\n/sg;
     foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
+        if ( $line eq '' or $line =~ /^#/ ) {
+            next;
+        }
+
         my ( $key, $val ) = split( /\s*=\s*/, $line );
         $confMap->{$key} = $val;
         push( @confKeysArray, $key );

@@ -72,6 +72,10 @@ sub main {
     $content =~ s/\\n/\n/sg;
     foreach my $line ( split( /\n/, $content ) ) {
         $line =~ s/^\s*|\s*$//g;
+        if ( $line eq '' or $line =~ /^#/ ) {
+            next;
+        }
+
         my @confs       = split( /\s+/, $line );
         my $fieldsCount = scalar(@confs);
 
