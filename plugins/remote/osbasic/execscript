@@ -10,6 +10,7 @@ use Getopt::Long;
 use IO::File;
 use File::Spec;
 use File::Basename;
+use File::Temp;
 
 use AutoExecUtils;
 
@@ -22,46 +23,48 @@ sub usage {
     exit(1);
 }
 
-sub getScriptFileName {
-    my ( $interpreter ) = @_;
+sub getScriptFilePath {
+    my ($interpreter) = @_;
 
     my $extNameMap = {
-        'perl' => '.pl',
-        'python'=> '.py',
-        'ruby'=> '.rb',
-        'cmd'=> '.bat',
-        'powershell'=> '.ps1',
-        'vbscript'=> '.vbs',
-        'bash'=> '.sh',
-        'ksh'=> '.sh',
-        'csh'=> '.sh',
-        'sh'=> '.sh',
-        'javascript=>'=> '.js'
+        'perl'         => '.pl',
+        'python'       => '.py',
+        'ruby'         => '.rb',
+        'cmd'          => '.bat',
+        'powershell'   => '.ps1',
+        'vbscript'     => '.vbs',
+        'bash'         => '.sh',
+        'ksh'          => '.sh',
+        'csh'          => '.sh',
+        'sh'           => '.sh',
+        'javascript=>' => '.js'
     };
-    
-    my $scriptFileName = '';
+
     my $ext = $extNameMap->{$interpreter};
-    if(not defined($ext)){
+    if ( not defined($ext) ) {
         print("Error: Can not determine script file extension name.\n");
         exit(1);
     }
-    $scriptFileName = 'tmp' . $ext ;
-    return $scriptFileName;
+    my $fileTmp = File::Temp->new( DIR => $FindBin::Bin, SUFFIX => "$ext", CLEANUP => 0 );
+    return $fileTmp;
 }
 
 sub getScriptCmd {
-    my($scriptPath , $interpreter , $args) = @_;
+    my ( $scriptPath, $interpreter, $args ) = @_;
     my $cmd = '';
-	if($interpreter eq 'cmd' ){
+    if ( $interpreter eq 'cmd' ) {
         $cmd = "cmd /c $scriptPath $args";
-    }elsif($interpreter eq 'sh' or $interpreter eq 'bash' or $interpreter eq 'csh'){
+    }
+    elsif ( $interpreter eq 'sh' or $interpreter eq 'bash' or $interpreter eq 'csh' ) {
         $cmd = "$interpreter -l $scriptPath $args";
-    }elsif($interpreter eq 'vbscript' or $interpreter eq 'javascript'){
+    }
+    elsif ( $interpreter eq 'vbscript' or $interpreter eq 'javascript' ) {
         $cmd = "cscript $scriptPath $args";
-    }else{
+    }
+    else {
         $cmd = "$interpreter $scriptPath $args";
     }
-	return $cmd;
+    return $cmd;
 }
 
 sub main {
@@ -73,9 +76,9 @@ sub main {
     my $isVerbose = 0;
 
     GetOptions(
-        'h|help'       => \$isHelp,
-        'interpreter=s'   => \$interpreter,
-        'script=s'   => \$script
+        'h|help'        => \$isHelp,
+        'interpreter=s' => \$interpreter,
+        'script=s'      => \$script
     );
 
     usage() if ( defined($isHelp) );
@@ -100,19 +103,18 @@ sub main {
     foreach my $line (@ARGV) {
         $args = $args . " " . $line;
     }
-    my $scriptFileName = getScriptFileName($interpreter);
-    my $scriptPath = File::Spec->catfile( $FindBin::Bin, $scriptFileName );
+    my $scriptFilePath = getScriptFilePath($interpreter);
     $script =~ s/\\n/\n/sg;
-    my $fh           = IO::File->new( $scriptPath, 'w' );
+    my $fh = IO::File->new( $scriptFilePath, 'w' );
     if ( defined($fh) ) {
         print $fh ($script);
         $fh->close();
     }
     else {
-        print("ERROR: Can not open file:$scriptPath to write, $!\n");
+        print("ERROR: Can not open file:$scriptFilePath to write, $!\n");
         exit(1);
     }
-    my $cmd = getScriptCmd($scriptPath , $interpreter , $args);
+    my $cmd      = getScriptCmd( $scriptFilePath, $interpreter, $args );
     my $exitCode = system($cmd);
     if ( $exitCode == 0 ) {
         print("FINE: Exec script success.\n");
@@ -124,4 +126,3 @@ sub main {
 }
 
 exit main();
-
