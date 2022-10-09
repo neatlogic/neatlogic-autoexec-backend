@@ -139,12 +139,17 @@ sub main {
     $diskAliasRelPrefix =~ s/^\/dev\///;
 
     #获取磁盘的序号范围
+    my $rangeCount;
     my ( $startSeq, $endSeq ) = split( /\s*,\s*/, $selectRange );
     $startSeq = int($startSeq);
     $endSeq   = int($endSeq);
     if ( $endSeq == 0 ) {
         $endSeq = 99999999999;
     }
+    else {
+        $rangeCount = $endSeq - $startSeq + 1;
+    }
+
     if ( $startSeq > $endSeq ) {
         $hasError = 1;
         print("ERROR: Malform disk range:$selectRange, end index must bigger or equal start index.\n");
@@ -213,8 +218,9 @@ sub main {
         @sortedDisks = @allDisks;
     }
 
-    my $idx       = 0;
-    my $seqNumber = $maxAliasSeqNumber + 1;
+    my $matchRangeCount = 0;
+    my $idx             = 0;
+    my $seqNumber       = $maxAliasSeqNumber + 1;
     foreach my $diskInfo (@sortedDisks) {
         $idx = $idx + 1;
         if ( $idx < $startSeq ) {
@@ -224,6 +230,7 @@ sub main {
             last;
         }
 
+        $matchRangeCount = $matchRangeCount + 1;
         if ( $diskInfo->{isNew} == 0 ) {
             next;
         }
@@ -249,6 +256,21 @@ sub main {
     AutoExecUtils::saveOutput($out);
 
     #udevadm control --reload-rules && udevadm trigger
+    if ( defined($rangeCount) ) {
+
+        #设置了startSeq和endSeq，校验数量是否一致
+        if ( $rangeCount != $matchRangeCount ) {
+            $hasError = 1;
+            print("ERROR: Can not get disks from line:$startSeq to line:$endSeq, not enough disk infomation lines.");
+        }
+    }
+    else {
+        #没有设置endSeq
+        if ( $matchRangeCount == 0 ) {
+            $hasError = 1;
+            print("ERROR: Can not get disks from line:$startSeq not enough disk infomation lines.");
+        }
+    }
 
     return $hasError;
 }
