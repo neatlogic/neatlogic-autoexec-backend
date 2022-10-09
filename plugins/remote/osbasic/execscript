@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use FindBin;
+use Getopt::Long;
+use IO::File;
+use File::Spec;
+use File::Basename;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-h]\n");
+    print("       --interpreter:  Interpreter \n");
+    print("       --script:  Script\n");
+    exit(1);
+}
+
+sub getScriptFileName {
+    my ( $interpreter ) = @_;
+
+    my $extNameMap = {
+        'perl' => '.pl',
+        'python'=> '.py',
+        'ruby'=> '.rb',
+        'cmd'=> '.bat',
+        'powershell'=> '.ps1',
+        'vbscript'=> '.vbs',
+        'bash'=> '.sh',
+        'ksh'=> '.sh',
+        'csh'=> '.sh',
+        'sh'=> '.sh',
+        'javascript=>'=> '.js'
+    };
+    
+    my $scriptFileName = '';
+    my $ext = $extNameMap->{$interpreter};
+    if(not defined($ext)){
+        print("Error: Can not determine script file extension name.\n");
+        exit(1);
+    }
+    $scriptFileName = 'tmp' . $ext ;
+    return $scriptFileName;
+}
+
+sub getScriptCmd {
+    my($scriptPath , $interpreter , $args) = @_;
+    my $cmd = '';
+	if($interpreter eq 'cmd' ){
+        $cmd = "cmd /c $scriptPath $args";
+    }elsif($interpreter eq 'sh' or $interpreter eq 'bash' or $interpreter eq 'csh'){
+        $cmd = "$interpreter -l $scriptPath $args";
+    }elsif($interpreter eq 'vbscript' or $interpreter eq 'javascript'){
+        $cmd = "cscript $scriptPath $args";
+    }else{
+        $cmd = "$interpreter $scriptPath $args";
+    }
+	return $cmd;
+}
+
+sub main {
+    my ( $node, $interpreter, $script, $isHelp );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'interpreter=s'   => \$interpreter,
+        'script=s'   => \$script
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($interpreter) or $interpreter eq '' ) {
+        print("ERROR: Must define script interpreter.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($script) or $script eq '' ) {
+        print("ERROR: Must define script.\n");
+        usage();
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $args = '';
+    foreach my $line (@ARGV) {
+        $args = $args . " " . $line;
+    }
+    my $scriptFileName = getScriptFileName($interpreter);
+    my $scriptPath = File::Spec->catfile( $FindBin::Bin, $scriptFileName );
+    $script =~ s/\\n/\n/sg;
+    my $fh           = IO::File->new( $scriptPath, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($script);
+        $fh->close();
+    }
+    else {
+        print("ERROR: Can not open file:$scriptPath to write, $!\n");
+        exit(1);
+    }
+    my $cmd = getScriptCmd($scriptPath , $interpreter , $args);
+    my $exitCode = system($cmd);
+    if ( $exitCode == 0 ) {
+        print("FINE: Exec script success.\n");
+    }
+    else {
+        print("ERROR: Exec script failed.\n");
+    }
+    return $exitCode;
+}
+
+exit main();
+

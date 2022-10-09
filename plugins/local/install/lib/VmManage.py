@@ -655,5 +655,5 @@ class VmManage(object):
             print("ERROR:: VM clone task exec failed , reason :{}. ".format(task.info.error.msg))
             if('Customization of the guest operating system is not supported' in task.info.error.msg):
                 print("ERROR:: Please check virtual template or virtual machine {} already installed vmtools .".format(param['template_name']))
-        print("FINST:: cloning VM end...")
+        print("FINE:: cloning VM end...")
         return ret
