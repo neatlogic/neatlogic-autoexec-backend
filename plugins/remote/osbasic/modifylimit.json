@@ -54,5 +54,10 @@
             "defaultValue": ""
         }
     ],
-    "output": []
+    "output": [{
+        "opt": "limitConf",
+        "name": "limit配置内容",
+        "help": "更新后的limit.conf配置内容",
+        "type": "textarea"
+    }]
 }

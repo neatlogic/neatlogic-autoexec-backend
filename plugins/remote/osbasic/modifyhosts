@@ -193,13 +193,12 @@ sub main {
                 $fh->seek( 0, 0 );
                 $fh->truncate(0);
                 $fh->write( $newContent, length($newContent) );
-
-                my $out = { hostsConf => $newContent };
-                AutoExecUtils::saveOutput($out);
             }
         }
-
         $fh->close();
+
+        my $out = { hostsConf => $newContent };
+        AutoExecUtils::saveOutput($out);
 
         if ( $hasError == 0 ) {
             if ( defined($hostName) and $hostName ne '' ) {

@@ -24,7 +24,7 @@ sub backup {
 }
 
 sub main {
-    my $reset = 1;
+    my $reset      = 1;
     my $needBackup = 0;
     my $node;
     my $hostName;
@@ -69,20 +69,19 @@ sub main {
     if ( defined($hostNameMapJson) and $hostNameMapJson ne '' ) {
         $hostNameMap = from_json($hostNameMapJson);
     }
-    else{
+    else {
         print("WARN: Ip to hostname map not provided, set hostname only, would not modify hosts config file.\n");
     }
 
-    my $hasError = 0;
-    my $newContent   = '';
+    my $hasError   = 0;
+    my $newContent = '';
 
     if ( $reset == 1 ) {
         my $fh = IO::File->new( $filePath, 'w' );
         if ( defined($fh) ) {
             print $fh ('');
             $fh->close();
-            $newContent =  "127.0.0.1\tlocalhost localhost.localdomain localhost4 localhost4.localdomain4\n" 
-                            . "::1 \tlocalhost localhost.localdomain localhost6 localhost6.localdomain6\n"
+            $newContent = "127.0.0.1\tlocalhost localhost.localdomain localhost4 localhost4.localdomain4\n" . "::1 \tlocalhost localhost.localdomain localhost6 localhost6.localdomain6\n";
         }
         else {
             $hasError = 1;
@@ -168,13 +167,13 @@ sub main {
                     $fh->seek( 0, 0 );
                     $fh->truncate(0);
                     $fh->write( $newContent, length($newContent) );
-
-                    my $out = { hostsConf => $newContent };
-                    AutoExecUtils::saveOutput($out);
                 }
             }
 
             $fh->close();
+
+            my $out = { hostsConf => $newContent };
+            AutoExecUtils::saveOutput($out);
 
             if ( $hasError == 0 ) {
                 if ( defined($hostName) and $hostName ne '' ) {

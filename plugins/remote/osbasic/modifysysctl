@@ -164,6 +164,8 @@ sub main {
         }
 
         $fh->close();
+        my $out = { sysctlConf => $newContent };
+        AutoExecUtils::saveOutput($out);
     }
     else {
         $hasError = 1;

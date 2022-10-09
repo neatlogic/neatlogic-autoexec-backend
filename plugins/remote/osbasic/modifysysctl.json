@@ -56,5 +56,10 @@
             "defaultValue": ""
         }
     ],
-    "output": []
+    "output": [{
+        "opt": "sysctlConf",
+        "name": "sysctl配置内容",
+        "help": "更新后的sysctl.conf配置内容",
+        "type": "textarea"
+    }]
 }

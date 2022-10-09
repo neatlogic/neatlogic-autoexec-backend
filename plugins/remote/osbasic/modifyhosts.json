@@ -6,8 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "修改/etc/hosts里的IP和域名设置",
-    "option": [
-        {
+    "option": [{
             "opt": "backup",
             "name": "备份文件",
             "help": "在修改前备份/etc/hosts文件为/etc/hosts.%Y%m%d-%H%M%S",
@@ -15,8 +14,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -36,8 +34,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "是",
                         "value": "1"
                     },
@@ -68,12 +65,10 @@
             "defaultValue": ""
         }
     ],
-    "output": [
-        {
-            "opt": "hostConf",
-            "name": "Hosts配置内容",
-            "help": "更新后的Hosts配置内容",
-            "type": "text"
-        }
-    ]
+    "output": [{
+        "opt": "hostConf",
+        "name": "Hosts配置内容",
+        "help": "更新后的Hosts配置内容",
+        "type": "textarea"
+    }]
 }
