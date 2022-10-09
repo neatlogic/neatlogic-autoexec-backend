@@ -1,0 +1,73 @@
+{
+    "opDesc": "远程执行命令",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "远程执行命令",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "interpreter",
+            "name": "脚本解析器",
+            "help": "脚本解析器",
+            "type": "select",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "bash",
+                        "value": "bash"
+                    },
+                    {
+                        "text": "ruby",
+                        "value": "ruby"
+                    },
+                    {
+                        "text": "bat",
+                        "value": "bat"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    },
+                    {
+                        "text": "javascript",
+                        "value": "javascript"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "script",
+            "name": "脚本",
+            "help": "自定义脚本",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "脚本动态参数",
+        "help": "脚本内如需获取作业参数、上游步骤输出参数、静态配置参数，需在此定义，脚本内可按顺序获取。",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}
