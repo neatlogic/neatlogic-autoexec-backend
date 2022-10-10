@@ -3,6 +3,7 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
+from ast import Return
 import os
 import traceback
 import stat
@@ -69,7 +70,7 @@ class ServerAdapter:
 
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
-        #self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
+        # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
         for k, v in headers.items():
@@ -506,21 +507,26 @@ class ServerAdapter:
 
     # 从自定义脚本库下载脚本到脚本目录
 
-    def fetchScript(self, savePath, opId):
+    def fetchScript(self, pluginParentPath, scriptFileName, opId):
+        scriptCatalog = None
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
         }
 
-        cachedFilePath = savePath
+        cachedFilePath = '%s/%s' % (pluginParentPath, opId)
         lastModifiedTime = 0
 
         lockFilePath = cachedFilePath + '.lock'
         lockFile = None
 
-        cachedFileTmp = None
+        #cachedFileTmp = None
+        cachedFile = None
         response = None
         try:
+            if self.scriptFetched.get(opId):
+                return
+
             lockFile = open(lockFilePath, 'w+')
             fcntl.flock(lockFile, fcntl.LOCK_EX)
 
@@ -534,33 +540,48 @@ class ServerAdapter:
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
-                cachedFilePathTmp = cachedFilePath + '.tmp'
-                cachedFileTmp = open(cachedFilePathTmp, 'w')
+                cachedFile = open(cachedFilePath, 'w')
+                fcntl.flock(cachedFile, fcntl.LOCK_EX)
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
-                cachedFileTmp.write(scriptContent)
-                cachedFileTmp.close()
-                cachedFileTmp = None
-
-                if os.path.exists(cachedFilePath):
-                    os.unlink(cachedFilePath)
-                os.rename(cachedFilePathTmp, cachedFilePath)
+                cachedFile.write(scriptContent)
                 os.chmod(cachedFilePath, stat.S_IRWXU)
 
+                scriptCatalog = retObj['Return'].get('scriptCatalog')
+                if scriptCatalog:
+                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
+                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
+
+                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                if os.path.exists(scriptSavePath):
+                    os.unlink(scriptSavePath)
+                os.symlink(cachedFilePath, scriptSavePath)
+            elif response.status == 205:
+                resHeaders = response.info()
+                scriptCatalog = resHeaders['ScriptCatalog']
+                if scriptCatalog:
+                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
+
+                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                if not os.path.exists(scriptSavePath):
+                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
+                    os.symlink(cachedFilePath, scriptSavePath)
+
             self.scriptFetched[opId] = True
-            return
+
+            return scriptCatalog
+
         except:
-            raise AutoExecError("ERROR: Fetch {} custom script to {} failed.\n".format(opId, savePath))
+            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
         finally:
-            if cachedFileTmp is not None:
-                cachedFileTmp.close()
+            if cachedFile is not None:
+                fcntl.flock(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
-
-        return cachedFilePath
 
     def getScript(self, scriptId):
         params = {

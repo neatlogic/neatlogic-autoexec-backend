@@ -145,7 +145,7 @@ class Operation:
             if not os.path.exists(self.pluginParentPath):
                 os.mkdir(self.pluginParentPath)
             self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
-            self.fetchScript(self.pluginPath, self.opId)
+            self.fetchScript(self.pluginParentPath, scriptFileName, self.opId)
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opBunddleName)
@@ -313,8 +313,9 @@ class Operation:
         return fileNamesArray
 
     # 获取script
-    def fetchScript(self, savePath, opId):
+    def fetchScript(self, pluginParentPath, scriptFileName, opId):
         if self.scriptContent:
+            savePath = '{}/{}'.format(pluginParentPath, scriptFileName)
             filePathTmp = savePath + '.tmp'
             lockFilePath = savePath + '.lock'
             lockFile = open(lockFilePath, 'w+')
@@ -332,7 +333,9 @@ class Operation:
         else:
             if not self.scriptFetched.get(opId):
                 serverAdapter = self.context.serverAdapter
-                serverAdapter.fetchScript(savePath, opId)
+                scriptCataLog = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId)
+                if scriptCataLog is not None and scriptCataLog != '/':
+                    self.pluginPath = '%s/%s/%s' % (self.pluginParentPath, scriptCataLog, scriptFileName)
 
     def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':
