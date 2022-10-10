@@ -6,8 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "调用远程命令启动应用，检测应用是否启动的同时tail日志",
-    "option": [
-        {
+    "option": [{
             "opt": "prescript",
             "name": "启动命令",
             "help": "启动应用所需要的Shell命令",
@@ -24,8 +23,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "否",
                         "value": "0"
                     },
@@ -49,7 +47,7 @@
         {
             "opt": "eofstr",
             "name": "启动成功字串",
-            "help": "出现此字串即启动成功，尽量留空少用，少用服务地址检测替代",
+            "help": "如果日志编码不是UTF-8, 则配置:{GBK}启动完成; 尽量留空少用, 少用服务地址检测替代",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -81,8 +79,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "否",
                         "value": "0"
                     },

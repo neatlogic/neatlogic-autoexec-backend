@@ -18,7 +18,7 @@ sub getWindowsNicInfo {
         q{
             use Win32::API;
             if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
-                $codepage = GetACP();
+                $codepage = 'cp'.GetACP();
             }
         }
     };

@@ -6,6 +6,8 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 
 use strict;
 use FindBin;
+use POSIX;
+use Encode;
 use Getopt::Long;
 use IO::File;
 use File::Spec;
@@ -20,6 +22,7 @@ sub usage {
     print("Usage: $pname [-h]\n");
     print("       --interpreter:  Interpreter \n");
     print("       --script:  Script\n");
+    print("       --destencoding: Server Side encoding\n");
     exit(1);
 }
 
@@ -74,11 +77,13 @@ sub main {
     my $pname = $FindBin::Script;
 
     my $isVerbose = 0;
+    my $encoding;
 
     GetOptions(
-        'h|help'        => \$isHelp,
-        'interpreter=s' => \$interpreter,
-        'script=s'      => \$script
+        'h|help'         => \$isHelp,
+        'interpreter=s'  => \$interpreter,
+        'script=s'       => \$script,
+        'destencoding=s' => \$encoding
     );
 
     usage() if ( defined($isHelp) );
@@ -99,12 +104,50 @@ sub main {
         usage();
     }
 
+    my @uname  = uname();
+    my $osType = $uname[0];
+
+    if ( not defined($encoding) or $encoding eq 'auto' ) {
+        if ( $osType =~ /Windows/i ) {
+            eval(
+                q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+            );
+        }
+        else {
+            my $lang = $ENV{LANG};
+            if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+                $encoding = $1;
+            }
+            else {
+                $encoding = 'utf-8';
+            }
+        }
+    }
+    if ( defined($encoding) ) {
+        $encoding = lc($encoding);
+    }
+
     my $args = '';
     foreach my $line (@ARGV) {
         $args = $args . " " . $line;
     }
     my $scriptFilePath = getScriptFilePath($interpreter);
     $script =~ s/\\n/\n/sg;
+
+    if ( $encoding ne 'utf-8' and $encoding ne 'cp65001' ) {
+        my $decodedScript   = Encode::encode( $encoding, Encode::decode( 'utf-8',   $script ) );
+        my $reEncodedScript = Encode::encode( 'utf-8',   Encode::decode( $encoding, $script ) );
+        if ( $script eq $reEncodedScript ) {
+            print("INFO: Convert script encoding from utf-8 to $encoding.\n");
+            $script = $decodedScript;
+        }
+    }
+
     my $fh = IO::File->new( $scriptFilePath, 'w' );
     if ( defined($fh) ) {
         print $fh ($script);
