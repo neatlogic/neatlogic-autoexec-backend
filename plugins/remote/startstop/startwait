@@ -55,7 +55,12 @@ sub main {
     if ( $eofStr =~ /^\{([\w\-\d]+)\}/ ) {
         my $charset = lc($1);
         $eofStr =~ s/^\{[\w\-\d]+\}//;
-        $eofStr = Encode::encode( $charset, Encode::decode( 'utf-8', $eofStr ) );
+
+        my $eofStrDecoded   = Encode::encode( $charset, Encode::decode( 'utf-8',  $eofStr ) );
+        my $eofStrReEncoded = Encode::encode( 'utf-8',  Encode::decode( $charset, $eofStr ) );
+        if ( $eofStr eq $eofStrReEncoded ) {
+            $eofStr = $eofStrDecoded;
+        }
     }
 
     my $optError = 0;
