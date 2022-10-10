@@ -99,7 +99,7 @@ class AgentError(RuntimeError):
 
 class TagentClient:
 
-    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, agentCharset='UTF-8'):
+    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, agentCharset=None):
         if host == '':
             host = '127.0.0.1'
         if port == '':
@@ -258,8 +258,11 @@ class TagentClient:
                 host, port, protocolVer, self.protocolVer))
 
         self.agentOsType = agentOsType
-        if agentCharset:
-            self.agentCharset = agentCharset
+        if self.agentCharset is None:
+            if agentCharset:
+                self.agentCharset = agentCharset
+            else:
+                self.agentCharset = 'UTF-8'
 
         # 挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
         plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode('latin-1')
