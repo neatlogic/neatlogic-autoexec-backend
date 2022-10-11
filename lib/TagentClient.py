@@ -382,7 +382,7 @@ class TagentClient:
         if execTimeout is not None:
             rexecTimeout = execTimeout
         else:
-            self.execTimeout
+            rexecTimeout = self.execTimeout
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(
@@ -414,7 +414,7 @@ class TagentClient:
                     if isVerbose == 1:
                         print("ERROR:%s\n" % (line.strip()))
                     if callback:
-                        callback(line, *cbparams)
+                        callback("ERROR:%s\n" % (line.strip()), *cbparams)
         finally:
             try:
                 if sock:
@@ -452,7 +452,7 @@ class TagentClient:
         if execTimeout is not None:
             rexecTimeout = execTimeout
         else:
-            self.execTimeout
+            rexecTimeout = self.execTimeout
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
