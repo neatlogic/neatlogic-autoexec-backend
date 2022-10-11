@@ -99,7 +99,7 @@ class AgentError(RuntimeError):
 
 class TagentClient:
 
-    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, agentCharset=None):
+    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, execTimeout=86400, agentCharset=None):
         if host == '':
             host = '127.0.0.1'
         if port == '':
@@ -113,6 +113,7 @@ class TagentClient:
         self.connectTimeout = connectTimeout
         self.readTimeout = readTimeout
         self.writeTimeout = writeTimeout
+        self.execTimeout = execTimeout
         self.agentCharset = agentCharset
         self.encrypt = False
         uname = platform.uname()
@@ -368,7 +369,7 @@ class TagentClient:
 
     # 执行远程命令
 
-    def execCmd(self, user, cmd, isVerbose=0, env=None, eofStr='', callback=None, cbparams=()):
+    def execCmd(self, user, cmd, isVerbose=0, env=None, eofStr='', callback=None, cbparams=(), execTimeout=None):
         cmd = cmd.strip()
         sock = self.getConnection(isVerbose)
         agentCharset = self.agentCharset
@@ -377,8 +378,15 @@ class TagentClient:
         if env is not None:
             envJson = json.dumps(env, ensure_ascii=False)
 
+        rexecTimeout = 86400
+        if execTimeout is not None:
+            rexecTimeout = execTimeout
+        else:
+            self.execTimeout
+
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
+        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(
+            eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'), rexecTimeout)
         status = 0
         try:
             while True:
@@ -431,7 +439,7 @@ class TagentClient:
         return content
 
     # 异步执行远程命令，不需要等待远程命令执行完
-    def execCmdAsync(self, user, cmd, isVerbose=0, env=None):
+    def execCmdAsync(self, user, cmd, isVerbose=0, env=None, execTimeout=None):
         cmd = cmd.strip()
         sock = self.getConnection()
         agentCharset = self.agentCharset
@@ -440,9 +448,15 @@ class TagentClient:
         if env is not None:
             envJson = json.dumps(env, ensure_ascii=False)
 
+        rexecTimeout = 86400
+        if execTimeout is not None:
+            rexecTimeout = execTimeout
+        else:
+            self.execTimeout
+
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
-        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
+        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'), rexecTimeout)
         try:
             statusLine = self.__readChunk(sock).decode(errors='ignore')
             if statusLine:

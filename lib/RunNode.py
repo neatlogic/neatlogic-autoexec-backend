@@ -922,7 +922,7 @@ class RunNode:
                 self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
 
                 context = self.context
-                tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=60, writeTimeout=context.rexecWriteTimeout)
+                tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=60, writeTimeout=context.rexecWriteTimeout, execTimeout=context.maxExecSecs)
                 self.tagent = tagent
 
                 # 更新节点状态为running
@@ -990,7 +990,7 @@ class RunNode:
                     killCmd = re.sub(r'\\s+', ' ', killCmd)
                     self.killCmd = 'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"' % (killCmd, self.context.jobId)
                 if uploadRet == 0 and not self.context.goToStop:
-                    tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=context.rexecReadTimeout, writeTimeout=context.rexecWriteTimeout)
+                    tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=context.rexecReadTimeout, writeTimeout=context.rexecWriteTimeout, execTimeout=context.maxExecSecs)
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                     ret = tagent.execCmd(self.username, remoteCmd, env=runEnv, isVerbose=0, callback=self.writeNodeLog)
                     if ret == 0 and op.hasOutput:
