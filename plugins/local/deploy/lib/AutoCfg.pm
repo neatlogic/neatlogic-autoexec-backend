@@ -1071,8 +1071,12 @@ sub updateConfigInZip {
                 $lastSlashIdx = rindex( $subFile, '/', 1 );
             }
 
-            my $firstDotIdx = index( $subFile, '.', $lastSlashIdx );
+            my $firstDotIdx = index( $subFile, '.', $lastSlashIdx + 2 );
             my $orgSubFile  = substr( $subFile, 0, $firstDotIdx );
+
+            if ( $firstDotIdx > 0 ) {
+                $orgSubFile = $orgSubFile . '.';
+            }
 
             $pathInZipPat = "$orgSubFile*";
             if ( $subFile =~ /\/$/ ) {
