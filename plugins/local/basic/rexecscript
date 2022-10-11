@@ -5,6 +5,7 @@ import LocalRemoteExec
 
 import os
 import argparse
+import uuid
 
 
 def usage():
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     scriptDef['script'] = scriptTxt
     config = {}
     config['parser'] = interpreter
-    config['scriptName'] = 'tmp'
+    config['scriptName'] = str(uuid.uuid1())
     scriptDef['config'] = config
 
     nodeInfo = {}
