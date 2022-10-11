@@ -386,7 +386,7 @@ class TagentClient:
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(
-            eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'), rexecTimeout)
+            eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace')), rexecTimeout).encode(agentCharset, 'replace'))
         status = 0
         try:
             while True:
@@ -456,7 +456,7 @@ class TagentClient:
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
-        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'), rexecTimeout)
+        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(envJson.encode(agentCharset, 'replace')), rexecTimeout).encode(agentCharset, 'replace'))
         try:
             statusLine = self.__readChunk(sock).decode(errors='ignore')
             if statusLine:
