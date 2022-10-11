@@ -134,7 +134,7 @@ sub main {
 
     my $args = '';
     foreach my $line (@ARGV) {
-        $args = $args . " " . $line;
+        $args = $args . ' ' . qq{"$line"};
     }
     my $scriptFilePath = getScriptFilePath($interpreter);
     $script =~ s/\\n/\n/sg;
@@ -145,6 +145,9 @@ sub main {
         if ( $script eq $reEncodedScript ) {
             print("INFO: Convert script encoding from utf-8 to $encoding.\n");
             $script = $decodedScript;
+            if ( $args ne '' ) {
+                $args = Encode::encode( $encoding, Encode::decode( 'utf-8', $args ) );
+            }
         }
     }
 
