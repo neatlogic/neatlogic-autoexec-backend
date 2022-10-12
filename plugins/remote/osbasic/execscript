@@ -141,7 +141,7 @@ sub main {
 
     if ( $encoding ne 'utf-8' and $encoding ne 'cp65001' ) {
         my $decodedScript   = Encode::encode( $encoding, Encode::decode( 'utf-8',   $script ) );
-        my $reEncodedScript = Encode::encode( 'utf-8',   Encode::decode( $encoding, $script ) );
+        my $reEncodedScript = Encode::encode( 'utf-8',   Encode::decode( $encoding, $decodedScript ) );
         if ( $script eq $reEncodedScript ) {
             print("INFO: Convert script encoding from utf-8 to $encoding.\n");
             $script = $decodedScript;
