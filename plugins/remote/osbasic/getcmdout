@@ -66,7 +66,11 @@ sub main {
         }
 
         my $cmdOut = `$decodedCmd`;
-        print($cmdOut);
+        $cmdOut =~ s/^\s*|\s*$//g;
+        print( $decodedCmd, "\n" );
+        print("-------------------------------------\n");
+        print( $cmdOut, "\n" );
+        print("-------------------------------------\n");
 
         my $exitCode = $?;
         if ( $exitCode != 0 ) {
