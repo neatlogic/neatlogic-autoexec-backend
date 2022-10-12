@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use POSIX;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname <command1> <command2> <command3>\n");
+    exit(1);
+}
+
+sub main {
+    my ( $node, $interpreter, $script, $isHelp );
+    my $encoding;
+    GetOptions( 'destencoding=s' => \$encoding );
+
+    my @uname  = uname();
+    my $osType = $uname[0];
+
+    if ( not defined($encoding) or $encoding eq 'auto' ) {
+        if ( $osType =~ /Windows/i ) {
+            eval(
+                q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+            );
+        }
+        else {
+            my $lang = $ENV{LANG};
+            if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+                $encoding = $1;
+            }
+            else {
+                $encoding = 'utf-8';
+            }
+        }
+    }
+    if ( defined($encoding) ) {
+        $encoding = lc($encoding);
+    }
+
+    my $hasError = 0;
+
+    my $cmdsCount = scalar(@ARGV);
+    my @outData   = ();
+    foreach my $cmd (@ARGV) {
+        my $decodedCmd = $cmd;
+        if ( $encoding ne 'utf-8' and $encoding ne 'cp65001' ) {
+            $decodedCmd = Encode::encode( $encoding, Encode::decode( 'utf-8', $cmd ) );
+            my $reEncodedCmd = Encode::encode( 'utf-8', Encode::decode( $encoding, $decodedCmd ) );
+            if ( $cmd eq $reEncodedCmd ) {
+                print("INFO: Convert script encoding from utf-8 to $encoding.\n");
+            }
+        }
+
+        my $cmdOut = `$decodedCmd`;
+        print($cmdOut);
+
+        my $exitCode = $?;
+        if ( $exitCode != 0 ) {
+            $hasError = 1;
+            push( @outData, '' );
+            print("ERROR: Execute command line:$cmd failed, exitCode:$exitCode.\n");
+        }
+        else {
+            push( @outData, $cmdOut );
+        }
+    }
+
+    my $out = {};
+    $out->{'commandOutputTxt'}  = join( "\n", @outData );
+    $out->{'commandOutputJson'} = \@outData;
+
+    AutoExecUtils::saveOutput($out);
+
+    return $hasError;
+}
+
+exit main();

@@ -1,0 +1,56 @@
+{
+    "opDesc": "修改/etc/hosts",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改/etc/hosts里的IP和域名设置",
+    "option": [{
+        "opt": "destencoding",
+        "name": "服务端编码",
+        "help": "远程服务端执行编码",
+        "type": "select",
+        "dataSource": {
+            "dataList": [{
+                    "text": "自动(仅支持Agent)",
+                    "value": "auto"
+                },
+                {
+                    "text": "UTF-8",
+                    "value": "UTF-8"
+                },
+                {
+                    "text": "GBK",
+                    "value": "GBK"
+                }
+            ]
+        },
+        "required": "true",
+        "validate": "",
+        "defaultValue": "auto"
+    }],
+    "output": [{
+            "opt": "commandOutputTxt",
+            "name": "输出内容文本",
+            "help": "多条命令输出的执行内容文本",
+            "type": "textarea"
+        },
+        {
+            "opt": "commandOutputJson",
+            "name": "输出内容数组",
+            "help": "多条命令输出的输出内容数组，一条命令一个数组元素",
+            "type": "json"
+        }
+    ],
+    "argument": {
+        "name": "OS命令行",
+        "help": "需要执行的命令行内容",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}
