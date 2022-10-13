@@ -1,11 +1,11 @@
 {
-    "opDesc": "修改/etc/hosts",
+    "opDesc": "获取命令输出",
     "opType": "target",
     "typeName": "BASIC",
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "修改/etc/hosts里的IP和域名设置",
+    "description": "获取命令行输出内容写入输出参数",
     "option": [{
         "opt": "destencoding",
         "name": "服务端编码",
