@@ -36,7 +36,7 @@ class ServerAdapter:
             'getParams': '/codedriver/api/rest/autoexec/job/create/param/get',
             'getNodes': '/codedriver/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/codedriver/api/binary/file/download',
-            'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get',
+            'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get/forautoexec',
             'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
             'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
