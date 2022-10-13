@@ -261,14 +261,14 @@ sub main {
         #设置了startSeq和endSeq，校验数量是否一致
         if ( $rangeCount != $matchRangeCount ) {
             $hasError = 1;
-            print("ERROR: Can not get disks from line:$startSeq to line:$endSeq, not enough disk infomation lines.");
+            print("ERROR: Can not get disks from line:$startSeq to line:$endSeq, not enough disk infomation lines.\n");
         }
     }
     else {
         #没有设置endSeq
         if ( $matchRangeCount == 0 ) {
             $hasError = 1;
-            print("ERROR: Can not get disks from line:$startSeq not enough disk infomation lines.");
+            print("ERROR: Can not get disks from line:$startSeq not enough disk infomation lines.\n");
         }
     }
 
