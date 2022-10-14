@@ -26,9 +26,15 @@
         }
     ],
     "output": [{
-        "opt": "aggData",
-        "name": "聚合数据",
-        "help": "多节点输出聚合后的数据",
+        "opt": "aggTxtData",
+        "name": "聚合文本数据",
+        "help": "多节点输出聚合后的文本数据",
+        "type": "textarea"
+    },
+    {
+        "opt": "aggJsonData",
+        "name": "聚合Jsonß数据",
+        "help": "多节点输出聚合后的Json数据",
         "type": "textarea"
     }]
 }
