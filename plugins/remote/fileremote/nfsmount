@@ -74,6 +74,8 @@ sub main {
         usage();
     }
 
+    my $hasError = 0;
+
     #mount -o username=flt,password=a^6r9SDy,iocharset=utf8 //192.168.2.90/data /mnt/nas
     #mount -t nfs 192.168.10.204:/DataVolume/Public /mnt/Public
     #mount -t cifs -o username=Everyone //192.168.199.123/win  /home/sk/win
@@ -98,21 +100,29 @@ sub main {
         $cmd = $cmd . ' --verbose';
     }
     $cmd = $cmd . " $location $mountPoint";
-    my $exitCode = system($cmd);
+
+    my $exitCode = 0;
+    if ( not glob("$mountPoint/*") ) {
+        $exitCode = system($cmd);
+    }
+    else {
+        print("WARN: Mount point directory $mountPoint is not an empty directory, maybe already mounted.\n");
+    }
 
     if ( $exitCode == 0 ) {
         print("FINE: Mount $location to $mountPoint success.\n");
     }
     else {
+        $hasError = 1;
         print("ERROR: Mount $location to $mountPoint failed.\n");
     }
 
     my $out = {};
     $out->{mountPoint} = $mountPoint;
     AutoExecUtils::saveOutput($out);
-    
-    return $exitCode;
+
+    return $hasError;
 }
 
-exit main();
+exit( main() );
 

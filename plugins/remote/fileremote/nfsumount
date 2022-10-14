@@ -61,5 +61,5 @@ sub main {
     return $exitCode;
 }
 
-exit main();
+exit( main() );
 

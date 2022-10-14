@@ -120,5 +120,5 @@ sub main {
     return $errorCode;
 }
 
-exit main();
+exit( main() );
 
