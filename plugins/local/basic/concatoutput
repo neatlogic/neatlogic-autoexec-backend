@@ -3,6 +3,7 @@
 
 import os
 import sys
+import json
 import traceback
 import argparse
 import re
@@ -83,9 +84,9 @@ if __name__ == "__main__":
         out = {}
         if isStr:
             out['aggTxtData'] = aggData
-            out['aggJsonData'] = {}
+            out['aggJsonData'] = {varKey:aggData}
         else:
-            out['aggTxtData'] = ''
+            out['aggTxtData'] = json.dumps(aggData, ensure_ascii=False)
             out['aggJsonData'] = aggData
         
         AutoExecUtils.saveOutput(out)
