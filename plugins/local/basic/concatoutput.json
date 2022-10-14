@@ -29,6 +29,6 @@
         "opt": "aggData",
         "name": "聚合数据",
         "help": "多节点输出聚合后的数据",
-        "type": "json"
+        "type": "textarea"
     }]
 }

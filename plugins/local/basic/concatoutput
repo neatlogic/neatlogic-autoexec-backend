@@ -80,7 +80,14 @@ if __name__ == "__main__":
                     aggData = aggData[len(delimiter):]
             print("FINE: Aggregate output for:%s success." % (outputKey))
 
-        out = {'aggData': aggData}
+        out = {}
+        if isStr:
+            out['aggTxtData'] = aggData
+            out['aggJsonData'] = None
+        else:
+            out['aggTxtData'] = None
+            out['aggJsonData'] = aggData
+        
         AutoExecUtils.saveOutput(out)
     except:
         print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))
