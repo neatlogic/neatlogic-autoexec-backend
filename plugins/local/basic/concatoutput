@@ -83,9 +83,9 @@ if __name__ == "__main__":
         out = {}
         if isStr:
             out['aggTxtData'] = aggData
-            out['aggJsonData'] = None
+            out['aggJsonData'] = {}
         else:
-            out['aggTxtData'] = None
+            out['aggTxtData'] = ''
             out['aggJsonData'] = aggData
         
         AutoExecUtils.saveOutput(out)
