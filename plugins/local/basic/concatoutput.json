@@ -33,7 +33,7 @@
     },
     {
         "opt": "aggJsonData",
-        "name": "聚合Jsonß数据",
+        "name": "聚合Json数据",
         "help": "多节点输出聚合后的Json数据",
         "type": "textarea"
     }]
