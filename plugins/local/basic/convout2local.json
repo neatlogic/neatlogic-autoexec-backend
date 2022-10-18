@@ -16,5 +16,10 @@
         "validate": "",
         "required": "true"
     },
-    "output": []
+    "output": [{
+        "opt": "dataConverted",
+        "name": "转换的数据",
+        "help": "单远程节点转换为Local的数据",
+        "type": "json"
+    }]
 }

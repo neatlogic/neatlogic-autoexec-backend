@@ -4,7 +4,8 @@
 import os
 from ssl import create_default_context
 import sys
-import traceback
+import fcntl
+import json
 import argparse
 import re
 import datetime
@@ -28,6 +29,7 @@ if __name__ == "__main__":
         exitCode = 2
         print("ERROR: Can not connect to database, {}".format(err))
 
+    dataConverted = {}
     for outputKey in outputKeys:
         hasOptError = False
         if outputKey == '':
@@ -72,40 +74,18 @@ if __name__ == "__main__":
             if len(aggDatas) == 0:
                 print("WARN: Can not find any output for:%s." % (outputKey))
             elif len(aggDatas) == 1:
-                # Load local output
-                pk = {'jobId': jobId, 'resourceId': 0}
-                outData = outCollection.find_one(pk, {'_id': False})
-                output = {}
-                if outData is not None:
-                    outData['host'] = 'local'
-                    outData['port'] = 0
-                    outData['resourceId'] = 0
-                    output = outData['data']
-                else:
-                    outData = {
-                        'host': 'local',
-                        'port': 0,
-                        'resourceId': 0,
-                        'createDate': datetime.datetime.utcnow()
-                    }
-                    outData.update(pk)
-
-                opOut = output.get(opId, {})
-                opOut[varKey] = val
-                output[opId] = opOut
-                outData['data'] = output
-                result = outCollection.replace_one(pk, outData, upsert=True)
-                if result.matched_count == 1 or result.upserted_id is not None:
-                    print("FINE: Convert output for:%s to local success." % (outputKey))
-                else:
-                    print("ERROR: Can not insert output parameters record, convert output for:%s to local failed." % (outputKey))
-                    exitCode = 1
+                opData = dataConverted.get(opId, {})
+                opData[varKey] = aggDatas[0]
+                dataConverted[opId] = opData
             else:
                 print("ERROR: More than one remote node output found, suggest to use aggoutput.")
                 exitCode = 2
         except Exception as err:
             exitCode = 1
             print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
+
+    out = {'dataConverted': dataConverted}
+    AutoExecUtils.saveOutput(out)
 
     if dbclient is not None:
         dbclient.close()
