@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 output[opId] = opOut
                 outData['data'] = output
                 result = outCollection.update_one(pk, {'$set': outData}, upsert=True)
-                if result.matched_count == 1 or result.modified_count == 1:
+                if result.matched_count == 1 or result.upserted_id is not None:
                     print("FINE: Convert output for:%s to local success." % (outputKey))
                 else:
                     print("ERROR: Can not insert output parameters record, convert output for:%s to local failed." % (outputKey))
