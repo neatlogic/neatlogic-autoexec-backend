@@ -10,6 +10,8 @@ package AutoExecUtils;
 
 use POSIX;
 use IO::File;
+use Encode;
+use Encode::Guess;
 use JSON qw(to_json from_json encode_json);
 
 sub setEnv {
