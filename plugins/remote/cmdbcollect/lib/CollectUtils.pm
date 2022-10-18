@@ -456,6 +456,7 @@ sub getExecutablePath {
         my $lines = $self->getCmdOutLines(qq{wmic process where "ProcessID=$pid" get ExecutablePath});
         if ( scalar(@$lines) > 2 ) {
             $executablePath = $$lines[1];
+            $executablePath =~ s/^\s*|\s*$//g;
         }
     }
     else {
