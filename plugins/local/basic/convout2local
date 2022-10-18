@@ -95,10 +95,10 @@ if __name__ == "__main__":
                 output[opId] = opOut
                 outData['data'] = output
                 result = outCollection.update_one(pk, {'$set': outData}, upsert=True)
-                if result.modified_count == 1:
+                if result.matched_count == 1:
                     print("FINE: Convert output for:%s to local success." % (outputKey))
                 else:
-                    print("ERROR: Convert output for:%s to local failed." % (outputKey))
+                    print("ERROR: Can not insert output parameters record, convert output for:%s to local failed." % (outputKey))
                     exitCode = 1
             else:
                 print("ERROR: More than one remote node output found, suggest to use aggoutput.")
