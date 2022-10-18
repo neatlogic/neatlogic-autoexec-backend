@@ -482,8 +482,7 @@ class RunNode:
 
                 if op.opId.startswith('basic/convout2local_'):
                     self.output.update(opOutput.get('dataConverted', {}))
-                else:
-                    self.output[op.opId] = opOutput
+                self.output[op.opId] = opOutput
             except Exception as ex:
                 raise AutoExecError('Load operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:

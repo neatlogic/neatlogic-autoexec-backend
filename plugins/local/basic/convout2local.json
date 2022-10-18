@@ -1,11 +1,11 @@
 {
-    "opDesc": "输出转换",
+    "opDesc": "输出转化",
     "opType": "runner",
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对单个远程节点输出转换为Runner执行的本地输出共享给后续运行的其他节点",
+    "description": "对远程节点输出转化为Runner执行的本地输出共享给后续运行的其他节点",
     "option": [],
     "argument": {
         "name": "变量名",
