@@ -1,6 +1,6 @@
 {
     "opDesc": "启停虚拟机",
-    "opType": "runner_target",
+    "opType": "runner",
     "typeName": "INSTALL",
     "riskName": "HIGH",
     "interpreter": "python",

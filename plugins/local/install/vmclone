@@ -146,8 +146,8 @@ if __name__ == '__main__':
 
     out={}
     nodeList = []
-    nodeList.append({"ip":vm_ip , "port":"3939"})
-    out['node'] = nodeList
+    nodeList.append({"ip":vm_ip})
+    out['selectNodeList'] = nodeList
     AutoExecUtils.saveOutput(out)
 
     exit(ret)
