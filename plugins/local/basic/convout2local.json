@@ -6,15 +6,7 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "对远程节点输出转化为Runner执行的本地输出共享给后续运行的其他节点",
-    "option": [{
-        "opt": "node",
-        "name": "需转化节点",
-        "help": "需要进行输出转化的节点",
-        "type": "node",
-        "required": "false",
-        "validate": "",
-        "defaultValue": ""
-    }],
+    "option": [],
     "argument": {
         "name": "变量名",
         "type": "text",
