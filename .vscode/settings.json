@@ -1,14 +1,14 @@
 {
-    "python.envFile": "${workspaceFolder}/.vscode/.env",
-    "perltidy.profile": "${workspaceFolder}/.vscode/.perltidyrc",
+    "python.envFile": "/Users/wenhb/git/autoexec/.vscode/.env",
+    "perltidy.profile": "/Users/wenhb/git/autoexec/.vscode/.perltidyrc",
     "perl.perlInc": [
         ".",
-        "${workspaceFolder}/plugins/remote/wastool/bin",
-        "${workspaceFolder}/plugins/local/build/lib",
-        "${workspaceFolder}/plugins/local/deploy/lib",
-        "${workspaceFolder}/plugins/local/pllib/lib/perl5",
-        "${workspaceFolder}/plugins/local/lib",
-        "${workspaceFolder}/plugins/remote/lib",
-        "${workspaceFolder}/plugins/remote/cmdbcollect/lib"
+        "/Users/wenhb/git/autoexec/plugins/remote/wastool/bin",
+        "/Users/wenhb/git/autoexec/plugins/local/build/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/deploy/lib",
+        "/Users/wenhb/git/autoexec/plugins/local/pllib/lib/perl5",
+        "/Users/wenhb/git/autoexec/plugins/local/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/lib",
+        "/Users/wenhb/git/autoexec/plugins/remote/cmdbcollect/lib"
     ]
 }

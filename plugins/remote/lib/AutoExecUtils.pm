@@ -101,13 +101,13 @@ sub convertTxtToUtf8 {
     my $decodeData = '';
     foreach my $line ( split( "\n", $data ) ) {
         my $decodedLine = $line;
-        my $enc         = guess_encoding( $data, @possibleEncodings );
+        my $enc         = guess_encoding( $line, @possibleEncodings );
         if ( ref($enc) ) {
             if ( $enc->mime_name ne 'US-ASCII' ) {
                 my $pEnc    = $enc->mime_name;
-                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $line ) );
                 my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
-                if ( $srcTmp eq $data ) {
+                if ( $srcTmp eq $line ) {
                     $decodedLine = $destTmp;
                 }
             }
@@ -115,18 +115,18 @@ sub convertTxtToUtf8 {
         else {
             if ( $enc eq 'utf-8-strict or utf8' ) {
                 my $pEnc    = 'UTF-8';
-                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $line ) );
                 my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
-                if ( $srcTmp eq $data ) {
+                if ( $srcTmp eq $line ) {
                     $decodedLine = $destTmp;
                 }
             }
             elsif ( $enc !~ /ascii/i and $enc !~ /iso/i ) {
                 foreach my $pEnc (@possibleEncodings) {
                     eval {
-                        my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                        my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $line ) );
                         my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
-                        if ( $srcTmp eq $data ) {
+                        if ( $srcTmp eq $line ) {
                             $decodedLine = $destTmp;
                             last;
                         }
