@@ -82,6 +82,10 @@ sub getWinPSCmdOut {
 
     my $out = `$cmd`;
 
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
+    }
+
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
         print($out);
@@ -122,6 +126,10 @@ sub getWinPSCmdOutLines {
     }
 
     my $out = `$cmd`;
+
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
+    }
 
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
@@ -182,6 +190,10 @@ sub getCmdOut {
 
     my $status = $?;
 
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
+    }
+
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
         print($out);
@@ -194,10 +206,6 @@ sub getCmdOut {
         else {
             print("WARN: Execute command:$cmd failed.\n");
         }
-    }
-
-    if ( defined( $opts->{charset} ) ) {
-        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
     }
 
     if ( $opts->{verbose} == 1 ) {
@@ -251,6 +259,13 @@ sub getCmdOutLines {
     }
 
     my $status = $?;
+
+    if ( defined( $opts->{charset} ) ) {
+        for ( my $i = 0 ; $i <= $#out ; $i++ ) {
+            $out[$i] = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out[$i] ) );
+        }
+    }
+
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
         foreach my $line (@out) {
@@ -264,12 +279,6 @@ sub getCmdOutLines {
         }
         else {
             print("WARN: Execute Command:$cmd failed.\n");
-        }
-    }
-
-    if ( defined( $opts->{charset} ) ) {
-        for ( my $i = 0 ; $i <= $#out ; $i++ ) {
-            $out[$i] = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out[$i] ) );
         }
     }
 

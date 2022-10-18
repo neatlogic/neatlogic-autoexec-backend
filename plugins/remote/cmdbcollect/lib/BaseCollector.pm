@@ -100,6 +100,34 @@ sub getFileLines {
     return $utils->getFileLines($filePath);
 }
 
+#获取当前编码，主要给Windows使用
+sub getCodePage {
+    my @uname  = uname();
+    my $osType = $uname[0];
+
+    my $encoding = 'GBK';
+
+    if ( $osType =~ /Windows/i ) {
+        eval(
+            q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+        );
+    }
+    else {
+        $encoding = 'utf-8';
+        my $lang = $ENV{LANG};
+        if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+            $encoding = $1;
+        }
+    }
+
+    return $encoding;
+}
+
 #判断当前进程是否是主进程，如果存在命令行一样的父进程或者Group主进程，则当前进程就不是主进程
 #如果有特殊的实现，需要重写此方法
 #Return：1:主进程，0:不是主进程
@@ -129,7 +157,7 @@ sub isMainProcess {
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();
-                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+                my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
                 my $parentPeerInfo = $parentProcInfo->{CONN_INFO}->{PEER};
@@ -264,7 +292,7 @@ sub getJavaAttrs {
     my ( $jmxPort,     $jmxSsl );
     my ( $minHeapSize, $maxHeapSize );
     my $jvmExtendOpts = '';
-    my @cmdOpts = split( /\s+/, $procInfo->{COMMAND} );
+    my @cmdOpts       = split( /\s+/, $procInfo->{COMMAND} );
     foreach my $cmdOpt (@cmdOpts) {
         if ( $cmdOpt =~ /-Dcom\.sun\.management\.jmxremote\.port=(\d+)/ ) {
             $jmxPort = int($1);

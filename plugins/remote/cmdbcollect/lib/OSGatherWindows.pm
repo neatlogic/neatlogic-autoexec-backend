@@ -553,14 +553,14 @@ sub getCodePage {
     my $codepage;
 
     if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
-        $codepage = GetACP();
+        $codepage = 'cp' . GetACP();
     }
     return $codepage;
 }
 
 sub collect {
     my ($self) = @_;
-    $self->{codepage} = 'cp' . $self->getCodePage();
+    $self->{codepage} = $self->getCodePage();
     $self->{verbose}  = 0;
     my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo();
