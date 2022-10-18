@@ -14,17 +14,8 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='[]', help='Node remote operation to be convert')
     parser.add_argument('rest', nargs=argparse.REMAINDER, help="Output key")
     args = parser.parse_args()
-    nodeArray = json.loads(args.node)
-
-    nodeIp = None
-    if len(nodeArray) > 1:
-        nodeIp = nodeArray[0]['ip']
-        print("WARN: Only one node should be specified, use the first node:%s" % (nodeIp))
-    elif len(nodeArray) > 0:
-        nodeIp = nodeArray[0]['ip']
 
     outputKeys = args.rest
 
@@ -70,8 +61,6 @@ if __name__ == "__main__":
                 'resourceId': {'$ne': 0},
                 'data.%s' % opId: {'$ne': None}
             }
-            if nodeIp is not None:
-                queryCond['host'] = nodeIp
 
             print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
             for nodeOut in outCollection.find(
