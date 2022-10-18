@@ -62,7 +62,7 @@ sub getShellEncoding {
     my @uname  = uname();
     my $osType = $uname[0];
 
-    my $encoding = 'UTF-8';
+    my $encoding = 'GBK';
 
     if ( $osType =~ /Windows/i ) {
         eval(
