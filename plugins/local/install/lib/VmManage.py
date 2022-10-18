@@ -489,7 +489,7 @@ class VmManage(object):
 
         destination_host = self._get_obj([vim.HostSystem], param['host_name'])
         if destination_host is None:
-            print("ERROR:: VM host machine {} anot found.".format(param['host_name']))
+            print("ERROR:: VM host machine {} not found.".format(param['host_name']))
             exit(1)
 
         source_pool = destination_host.parent.resourcePool

@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use POSIX;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--help]\n");
+    print("       --output:  connect output ports \n");
+    print("       --input: connect input ports .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp );
+    my ( $output, $input );
+
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'input:s'       => \$input,
+        'output:s'      => \$output
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $isSuccess = 0;
+
+    if ((not defined($output) or $output eq '') && (not defined($input) or $input eq '')) {
+        print("ERROR: Must define input ports or output ports .\n");
+        usage();
+    }
+    my $exitCode = 0 ;
+    my @uname  = POSIX::uname();
+    my $ostype = $uname[0];
+    if ( $ostype =~ /Windows/i ) {
+        my @inputPorts = split(/,/,$input);
+        my @outputPorts = split(/,/,$output);
+        my $ret = `perl -e "system('powershell -command (Get-WmiObject -class Win32_OperatingSystem).Caption')"`;
+        if ($ret =~ /2003/ or $ret =~ /xp/ ){
+            ###==========demo===============#########
+            #netsh firewall add portopening TCP 3939 "NetBIOS Port 3939"
+            foreach my $port (@inputPorts){
+                $exitCode = system("netsh firewall add portopening TCP $port \"NetBIOS Port $port\" ");
+                if($exitCode == 0){
+                    print("INFO:: Add firewall input port $port success .\n");
+                }else{
+                    print("WARN:: aAdddd firewall input port $port failed. $@\n");
+                }
+            }
+            #windows 2003 没有output
+        }else{
+            #netsh advfirewall firewall add rule name ="NetBIOS TCP Port 3939" dir=in localport=3939 protocol=tcp action=allow
+            #netsh advfirewall firewall add rule name="NetBIOS TCP Port 8848" dir=out localport=8848 protocol=TCP action=allow
+            foreach my $port (@inputPorts){
+                $exitCode = system("netsh advfirewall firewall add rule name =\"NetBIOS TCP Port $port\" dir=in localport=$port protocol=tcp action=allow ");
+                if($exitCode == 0){
+                    print("INFO:: Add firewall input port $port success .\n");
+                }else{
+                    print("WARN:: aAdddd firewall input port $port failed. $@\n");
+                }
+            }
+            foreach my $port (@outputPorts){
+                $exitCode = system("netsh advfirewall firewall add rule name =\"NetBIOS TCP Port $port\" dir=out localport=$port protocol=tcp action=allow ");
+                if($exitCode == 0){
+                    print("INFO:: Add firewall input port $port success .\n");
+                }else{
+                    print("WARN:: aAdddd firewall input port $port failed. $@\n");
+                }
+            }
+        }
+        #print("WARN:: Windows can not support add Firewall.\n");
+    }else{
+        my $ret = `ps -p1 | grep systemd >/dev/null && initType="systemd" || initType="sysvinit" &&  echo \$initType`;
+        #>=redhat7
+        if ($ret =~ /systemd/){
+            ###==========demo===============#########
+            ##firewall-cmd --permanent --add-port=3939/tcp
+            ##firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -p tcp -m multiport --dport 8084,8888 -j ACCEPT
+            ##firewall-cmd --reload
+            my $status = `systemctl status firewalld`;
+            if($status =~ /inactive \(dead\)/){
+                print("Fine:: Os not start Firewall services .\n");
+                exit(0);
+            }
+            my @inputPorts = split(/,/,$input);
+            foreach my $port (@inputPorts){
+                $exitCode = system("firewall-cmd --permanent --add-port=$port/tcp");
+                if($exitCode == 0){
+                    print("INFO:: Add firewall input port $port success .\n");
+                }else{
+                    print("WARN:: aAdddd firewall input port $port failed. $@\n");
+                }
+            }
+            $exitCode = system("firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -p tcp -m multiport --dport $output -j ACCEPT");
+            if($exitCode == 0){
+                print("INFO:: Add firewall output port $output success .\n");
+            }else{
+                print("WARN:: Add firewall output port $output failed. $@\n");
+            }
+            system("firewall-cmd --reload");
+        }else{ #<=redhat6
+            ###==========demo===============#########
+            ##iptables -I OUTPUT -p tcp -m multiport --dports 8084,8888 -j ACCEPT
+            ##iptables -I INPUT -p tcp -m multiport --dports 3939 -j ACCEPT
+            ##service iptables save
+            my $status = `service iptables status`;
+            if($status =~ /Firewall is not running/){
+                print("Fine:: Os not start Firewall services .\n");
+                exit(0);
+            }
+            $exitCode = system("iptables -I INPUT -p tcp -m multiport --dports $input -j ACCEPT");
+            if($exitCode == 0){
+                print("INFO:: Add iptables input port $input success .\n");
+            }else{
+                print("WARN:: Add iptables input port $input failed. $@\n");
+            }
+            $exitCode = system("iptables -I OUTPUT -p tcp -m multiport --dports $output -j ACCEPT");
+            if($exitCode == 0){
+                print("INFO:: Add iptables output port $output success .\n");
+            }else{
+                print("WARN:: Add iptables output port $output failed. $@\n");
+            }
+            system("service iptables save");
+        }
+    }
+    return 0;
+}
+
+exit( main() );
+
