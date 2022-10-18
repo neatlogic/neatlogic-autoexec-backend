@@ -46,7 +46,7 @@ sub collect {
     # -------------
     # Version 10.0
     my $version;
-    my ( $status, $verInfo ) = $utils->getWinPSCmdOut( 'get-itemproperty HKLM:\SOFTWARE\Microsoft\InetStp\  | select versionstring', { charset => $self->{codepage} } );
+    my ( $status, $verInfo ) = $utils->getWinPSCmdOut( 'get-itemproperty HKLM:\SOFTWARE\Microsoft\InetStp\  | select versionstring', 'Administrator', { charset => $self->{codepage} } );
     if ( $verInfo =~ /([\d\.]+)\s*$/ ) {
         $version = $1;
     }
@@ -74,7 +74,7 @@ sub collect {
     # ----             --   -----      -------------                  --------
     # Default Web Site 1    Started    %SystemDrive%\inetpub\wwwroot  http *:80:
     my @sites = ();
-    my ( $status, $siteInfoLines ) = $utils->getWinPSCmdOutLines( 'Get-IISSite', { charset => $self->{codepage} } );
+    my ( $status, $siteInfoLines ) = $utils->getWinPSCmdOutLines( 'Get-IISSite', 'Administrator', { charset => $self->{codepage} } );
     if ( $status ne 0 ) {
         print("ERROR: Powershell module IISAdministration not install.\n");
         print("WARN: Please install by powershell command:Install-Module -Name IISAdministration -force -Scope AllUsers -AllowClobber\n");
@@ -151,7 +151,7 @@ sub collect {
     # ----                 ------       -------  -------------  ----------
     # DefaultAppPool       Started      v4.0     Integrated     OnDemand
     my @appPools         = ();
-    my $appPoolInfoLines = $utils->getWinPSCmdOutLines( 'Get-IISAppPool', { charset => $self->{codepage} } );
+    my $appPoolInfoLines = $utils->getWinPSCmdOutLines( 'Get-IISAppPool', 'Administrator', { charset => $self->{codepage} } );
     my $poolLineCount    = scalar(@$appPoolInfoLines);
     foreach ( my $i = 3 ; $i < $poolLineCount ; $i++ ) {
         my $line = $$appPoolInfoLines[$i];

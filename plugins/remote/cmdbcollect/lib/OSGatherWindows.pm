@@ -19,7 +19,7 @@ sub getUptime {
     my ( $self, $osInfo ) = @_;
 
     my $uptimeSeconds;
-    my $uptimeStr = $self->getCmdOut('wmic path Win32_OperatingSystem get LastBootUpTime');
+    my $uptimeStr = $self->getCmdOut( 'wmic path Win32_OperatingSystem get LastBootUpTime', 'Administrator', { charset => $self->{codepage} } );
     if ( $uptimeStr =~ /([\d\.]+)([\+|\-]{1}\d+)/ ) {
         my $epochSeconds = int($1);
         $uptimeSeconds = time() - $epochSeconds;
@@ -47,7 +47,7 @@ sub getMiscInfo {
         $osInfo->{CPU_BITS} = 64;
     }
 
-    my $biosSerialInfo = $self->getCmdOutLines('wmic bios get serialnumber');
+    my $biosSerialInfo = $self->getCmdOutLines( 'wmic bios get serialnumber', 'Administrator', { charset => $self->{codepage} } );
     my $machineId      = $$biosSerialInfo[1];
     $machineId =~ s/^\s+|\s+$//g;
     $osInfo->{MACHINE_ID} = $machineId;
@@ -63,7 +63,7 @@ sub getDNSInfo {
     my ( $self, $osInfo ) = @_;
 
     my @dnsServers = ();
-    my $dnsInfo    = $self->getCmdOutLines('wmic nicconfig get DNSServerSearchOrder /value|findstr "DNSServerSearchOrder={"');
+    my $dnsInfo    = $self->getCmdOutLines( 'wmic nicconfig get DNSServerSearchOrder /value|findstr "DNSServerSearchOrder={"', { charset => $self->{codepage} } );
     foreach my $line (@$dnsInfo) {
         while ( $line =~ /(\d+\.\d+\.\d+\.\d+)/g ) {
             push( @dnsServers, { VALUE => $1 } );
@@ -218,7 +218,7 @@ sub getIpAddrs {
     # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}  00:0C:29:5E:C8:C2
     my @ipV4Addrs   = ();
     my @ipV6Addrs   = ();
-    my $ipInfoLines = $self->getCmdOutLines('wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet,macaddress');
+    my $ipInfoLines = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet,macaddress', 'Administrator', { charset => $self->{codepage} } );
     foreach my $line (@$ipInfoLines) {
         if ( $line =~ /\{(.*?)\}\s+\{(.*?)\}/ ) {
             my @ips      = split( /\s*,\s*/, $1 );
@@ -259,7 +259,7 @@ sub getCPUCores {
     my ( $self, $osInfo ) = @_;
 
     my $cpuCores         = 0;
-    my $cpuCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfCores');
+    my $cpuCorsInfoLines = $self->getCmdOutLines( 'wmic cpu get NumberOfCores', 'Administrator', { charset => $self->{codepage} } );
     foreach my $line (@$cpuCorsInfoLines) {
         $line =~ s/^\s*|\s*$//g;
         $cpuCores = $cpuCores + int($line);
@@ -267,7 +267,7 @@ sub getCPUCores {
     $osInfo->{CPU_CORES} = $cpuCores;
 
     my $cpuLogicCores         = 0;
-    my $cpuLogicCorsInfoLines = $self->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
+    my $cpuLogicCorsInfoLines = $self->getCmdOutLines( 'wmic cpu get NumberOfLogicaLProcessors', 'Administrator', { charset => $self->{codepage} } );
     foreach my $line (@$cpuLogicCorsInfoLines) {
         $line =~ s/^\s*|\s*$//g;
         $cpuLogicCores = $cpuLogicCores + int($line);
