@@ -94,7 +94,7 @@ if __name__ == "__main__":
                 opOut[varKey] = val
                 output[opId] = opOut
                 outData['data'] = output
-                result = outCollection.update_one(pk, {'$set': outData}, upsert=True)
+                result = outCollection.replace_one(pk, outData, upsert=True)
                 if result.matched_count == 1 or result.upserted_id is not None:
                     print("FINE: Convert output for:%s to local success." % (outputKey))
                 else:
