@@ -5,6 +5,7 @@ use lib $FindBin::Bin;
 package BaseCollector;
 
 use strict;
+use POSIX;
 use File::Basename;
 use ConnGather;
 use CollectObjCat;
