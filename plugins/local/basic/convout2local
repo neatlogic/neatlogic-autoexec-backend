@@ -14,8 +14,18 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='[]', help='Node remote operation to be convert')
     parser.add_argument('rest', nargs=argparse.REMAINDER, help="Output key")
     args = parser.parse_args()
+    nodeArray = json.loads(args.node)
+
+    nodeIp = None
+    if len(nodeArray) > 1:
+        nodeIp = nodeArray[0]['ip']
+        print("WARN: Only one node should be specified, use the first node:%s" % (nodeIp))
+    elif len(nodeArray) > 0:
+        nodeIp = nodeArray[0]['ip']
+
     outputKeys = args.rest
 
     exitCode = 0
@@ -55,16 +65,18 @@ if __name__ == "__main__":
         aggDatas = []
 
         try:
+            queryCond = {
+                'jobId': jobId,
+                'resourceId': {'$ne': 0},
+                'data.%s' % opId: {'$ne': None}
+            }
+            if nodeIp is not None:
+                queryCond['host'] = nodeIp
+
             print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
             for nodeOut in outCollection.find(
+                    queryCond,
                     {
-                        'jobId': jobId,
-                        'resourceId': {'$ne': 0},
-                        'data.%s' % opId: {'$ne': None}
-                    },
-                    {
-                        'host': 1,
-                        'port': 1,
                         'data.%s' % opId: 1
                     }).limit(2):
 
@@ -73,13 +85,13 @@ if __name__ == "__main__":
 
             if len(aggDatas) == 0:
                 print("WARN: Can not find any output for:%s." % (outputKey))
-            elif len(aggDatas) == 1:
+                exitCode = 2
+            else:
+                if len(aggDatas) > 1:
+                    print("WARN: More than one remote node output found, suggest to use aggoutput.")
                 opData = dataConverted.get(opId, {})
                 opData[varKey] = aggDatas[0]
                 dataConverted[opId] = opData
-            else:
-                print("ERROR: More than one remote node output found, suggest to use aggoutput.")
-                exitCode = 2
         except Exception as err:
             exitCode = 1
             print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
