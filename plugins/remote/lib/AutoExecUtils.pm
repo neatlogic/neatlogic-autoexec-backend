@@ -59,6 +59,9 @@ sub getFileContent {
 sub getShellEncoding {
     my @uname  = uname();
     my $osType = $uname[0];
+
+    my $encoding = 'UTF-8';
+
     if ( $osType =~ /Windows/i ) {
         eval(
             q{
@@ -78,6 +81,8 @@ sub getShellEncoding {
             $encoding = 'utf-8';
         }
     }
+
+    return $encoding;
 }
 
 sub convertTxtToUtf8 {
@@ -89,7 +94,7 @@ sub convertTxtToUtf8 {
         'UTF-8'        => 1,
         'UTF-16LE'     => 1
     };
-    @possibleEncodings = keys(%$possibleEncodingsMap);
+    my @possibleEncodings = keys(%$possibleEncodingsMap);
 
     my $decodeData = '';
     foreach my $line ( split( "\n", $data ) ) {
