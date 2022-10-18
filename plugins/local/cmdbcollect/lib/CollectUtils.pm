@@ -58,7 +58,7 @@ sub getWinPs1Cmd {
 
 #执行powershell脚本
 sub getWinPSCmdOut {
-    my ( $self, $psScript ) = @_;
+    my ( $self, $psScript, $opts ) = @_;
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
@@ -70,14 +70,18 @@ sub getWinPSCmdOut {
         print("DEBUG: Begin execute command: $cmd\n");
     }
 
-    my $out = `$cmd`;
+    my $out    = `$cmd`;
+    my $status = $?;
+
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
+    }
 
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
         print($out);
     }
 
-    my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: Execute powershell script:$psScript failed.\n");
     }
@@ -89,7 +93,7 @@ sub getWinPSCmdOut {
 
 #执行powershell脚本
 sub getWinPSCmdOutLines {
-    my ( $self, $psScript ) = @_;
+    my ( $self, $psScript, $opts ) = @_;
 
     $psScript =~ s/\s+/ /g;
     $psScript =~ s/\\/\\\\/g;
@@ -101,7 +105,12 @@ sub getWinPSCmdOutLines {
         print("DEBUG: Begin execute command: $cmd\n");
     }
 
-    my $out = `$cmd`;
+    my $out    = `$cmd`;
+    my $status = $?;
+
+    if ( defined( $opts->{charset} ) ) {
+        $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
+    }
 
     if ( $self->{debug} ) {
         print("DEBUG: Command output==================\n");
@@ -110,7 +119,6 @@ sub getWinPSCmdOutLines {
 
     my @outLines = split( /\n/, $out );
 
-    my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: Execute powershell script:$psScript failed.\n");
     }

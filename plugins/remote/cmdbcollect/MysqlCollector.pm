@@ -85,7 +85,7 @@ sub parseCommandOpts {
 
     #$mysqldPath =~ s/\\/\//g;
     $opts->{mysqldPath} = $mysqldPath;
-    if ( $mysqldPath =~ /^(.*?)\/bin\/mysqld/ or $mysqldPath =~ /^(.*?)\/sbin\/mysqld/ ) {
+    if ( $mysqldPath =~ /^(.*?)[\/\\]bin[\/\\]mysqld/ or $mysqldPath =~ /^(.*?)[\/\\]sbin[\/\\]mysqld/ ) {
         $opts->{mysqlHome} = $1;
     }
 

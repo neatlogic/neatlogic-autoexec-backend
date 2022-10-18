@@ -80,7 +80,8 @@ sub getWinPSCmdOut {
         print("INFO:$cmd\n");
     }
 
-    my $out = `$cmd`;
+    my $out    = `$cmd`;
+    my $status = $?;
 
     if ( defined( $opts->{charset} ) ) {
         $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
@@ -91,7 +92,6 @@ sub getWinPSCmdOut {
         print($out);
     }
 
-    my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: execute powershell script:$psScript failed.\n");
     }
@@ -125,7 +125,8 @@ sub getWinPSCmdOutLines {
         print("INFO:$cmd\n");
     }
 
-    my $out = `$cmd`;
+    my $out    = `$cmd`;
+    my $status = $?;
 
     if ( defined( $opts->{charset} ) ) {
         $out = Encode::encode( "utf-8", Encode::decode( $opts->{charset}, $out ) );
@@ -138,7 +139,6 @@ sub getWinPSCmdOutLines {
 
     my @outLines = split( /\n/, $out );
 
-    my $status = $?;
     if ( $status ne 0 ) {
         print("WARN: execute powershell script:$psScript failed.\n");
     }
