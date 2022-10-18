@@ -76,6 +76,11 @@ sub parseCommandOpts {
         if ( defined($exeFile) ) {
             $mysqldPath = $exeFile;
         }
+        else {
+            my $pid   = $procInfo->{PID};
+            my $utils = $self->{collectUtils};
+            $mysqldPath = $utils->getExecutablePath($pid);
+        }
     }
 
     #$mysqldPath =~ s/\\/\//g;

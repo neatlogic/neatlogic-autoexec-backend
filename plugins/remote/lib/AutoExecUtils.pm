@@ -8,6 +8,7 @@ use strict;
 
 package AutoExecUtils;
 
+use POSIX;
 use IO::File;
 use JSON qw(to_json from_json encode_json);
 
@@ -55,14 +56,95 @@ sub getFileContent {
     return $content;
 }
 
+sub getShellEncoding {
+    my @uname  = uname();
+    my $osType = $uname[0];
+    if ( $osType =~ /Windows/i ) {
+        eval(
+            q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+        );
+    }
+    else {
+        my $lang = $ENV{LANG};
+        if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+            $encoding = $1;
+        }
+        else {
+            $encoding = 'utf-8';
+        }
+    }
+}
+
+sub convertTxtToUtf8 {
+    my ($data) = @_;
+
+    my $shellEncoding        = getShellEncoding();
+    my $possibleEncodingsMap = {
+        $shellEncoding => 1,
+        'UTF-8'        => 1,
+        'UTF-16LE'     => 1
+    };
+    @possibleEncodings = keys(%$possibleEncodingsMap);
+
+    my $decodeData = '';
+    foreach my $line ( split( "\n", $data ) ) {
+        my $decodedLine = $line;
+        my $enc         = guess_encoding( $data, @possibleEncodings );
+        if ( ref($enc) ) {
+            if ( $enc->mime_name ne 'US-ASCII' ) {
+                my $pEnc    = $enc->mime_name;
+                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
+                if ( $srcTmp eq $data ) {
+                    $decodedLine = $destTmp;
+                }
+            }
+        }
+        else {
+            if ( $enc eq 'utf-8-strict or utf8' ) {
+                my $pEnc    = 'UTF-8';
+                my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
+                if ( $srcTmp eq $data ) {
+                    $decodedLine = $destTmp;
+                }
+            }
+            elsif ( $enc !~ /ascii/i and $enc !~ /iso/i ) {
+                foreach my $pEnc (@possibleEncodings) {
+                    eval {
+                        my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $data ) );
+                        my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
+                        if ( $srcTmp eq $data ) {
+                            $decodedLine = $destTmp;
+                            last;
+                        }
+                    };
+                }
+            }
+        }
+        $decodeData = $decodeData . $decodedLine;
+    }
+
+    return $decodeData;
+}
+
 sub saveOutput {
-    my ($outputData) = @_;
+    my ( $outputData, $conv2Utf8 ) = @_;
     my $outputPath = "$FindBin::Bin/output.json";
 
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $fh = IO::File->new(">$outputPath");
         if ( defined($fh) ) {
-            print $fh ( to_json( $outputData, { utf8 => 0, pretty => 1 } ) );
+            my $jsonTxt = to_json( $outputData, { utf8 => 0, pretty => 1 } );
+            if ( $conv2Utf8 == 1 ) {
+                $jsonTxt = convertTxtToUtf8($jsonTxt);
+            }
+            print $fh ($jsonTxt);
             $fh->close();
         }
         else {

@@ -77,12 +77,16 @@ if __name__ == "__main__":
                 outData = outCollection.find_one(pk, {'_id': False})
                 output = {}
                 if outData is not None:
+                    outData['host'] = 'local'
+                    outData['port'] = 0
+                    outData['resourceId'] = 0
                     output = outData['data']
                 else:
                     outData = {
-                        'host':'local',
-                        'port':0,
-                        'createDate':datetime.datetime.utcnow()
+                        'host': 'local',
+                        'port': 0,
+                        'resourceId': 0,
+                        'createDate': datetime.datetime.utcnow()
                     }
                     outData.update(pk)
 
@@ -90,12 +94,15 @@ if __name__ == "__main__":
                 opOut[varKey] = val
                 output[opId] = opOut
                 outData['data'] = output
-                outCollection.replace_one(pk, outData, upsert=True)
-
-                print("FINE: Convert output for:%s to local success." % (outputKey))
+                result = outCollection.update_one(pk, {'$set': outData}, upsert=True)
+                if result.modified_count == 1:
+                    print("FINE: Convert output for:%s to local success." % (outputKey))
+                else:
+                    print("ERROR: Convert output for:%s to local failed." % (outputKey))
+                    exitCode = 1
             else:
                 print("ERROR: More than one remote node output found, suggest to use aggoutput.")
-                sys.exit(2)
+                exitCode = 2
         except Exception as err:
             exitCode = 1
             print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))

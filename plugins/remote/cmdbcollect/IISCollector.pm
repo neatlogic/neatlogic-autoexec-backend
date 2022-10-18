@@ -84,7 +84,7 @@ sub collect {
     foreach ( my $i = 3 ; $i < $siteLineCount ; $i++ ) {
         my $line = $$siteInfoLines[$i];
 
-        if ( $line =~ /^\s*(.*?)\s+(\d+)\s+(Started|Stopped)\s+(.*?)\s+(https|http|ftp)\s(.*)\s*$/ ) {
+        if ( $line =~ /^\s*(.*?)\s+(\d+)\s+(Started|Stopped)\s+(.*?)\s+(https|http|ftp)\s(.?)\s*$/ ) {
             my $siteInfo = {};
             $siteInfo->{NAME}     = $1;
             $siteInfo->{ID}       = $2;

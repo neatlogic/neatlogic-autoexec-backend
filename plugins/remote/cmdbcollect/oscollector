@@ -758,7 +758,7 @@ sub main {
 
     my $out = {};
     $out->{DATA} = \@data;
-    AutoExecUtils::saveOutput($out);
+    AutoExecUtils::saveOutput( $out, 1 );
     print("INFO: All is completed.\n");
 
     if ( $isVerbose == 1 ) {
