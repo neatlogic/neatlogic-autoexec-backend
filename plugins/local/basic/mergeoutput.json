@@ -16,7 +16,7 @@
         "defaultValue": ""
     }],
     "output": [{
-        "opt": "mergeData",
+        "opt": "mergedData",
         "name": "合并后数据",
         "help": "多节点输出合并后的数据",
         "type": "json"
