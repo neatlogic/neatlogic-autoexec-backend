@@ -56,14 +56,19 @@ sub main {
             else {
                 if ( $gid ne $existGid ) {
                     if ( $modifyIfExist == 1 ) {
+                        print("WARN: Group $name exists with distinguish gid:$existGid, Try to delete it.\n");
                         my $cmd = "groupdel '$name'";
                         print( $cmd, "\n" );
                         $exitCode = system($cmd);
-                        print("WARn: Group $name exists with distinguish gid:$existGid, deleted.\n");
 
-                        $cmd = "groupadd -g $gid '$name'";
-                        print( $cmd, "\n" );
-                        $exitCode = system($cmd);
+                        if ( $exitCode == 0 ) {
+                            $cmd = "groupadd -g $gid '$name'";
+                            print( $cmd, "\n" );
+                            $exitCode = system($cmd);
+                        }
+                        else {
+                            print("ERROR: Delete group $name failed.\n");
+                        }
                     }
                     else {
                         print("ERROR: Group $name exists with distinguish gid:$existGid.\n");
