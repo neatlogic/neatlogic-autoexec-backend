@@ -1,11 +1,11 @@
 {
-    "opDesc": "防火墙放行端口",
+    "opDesc": "开启或关闭防火墙策略",
     "opType": "target",
     "typeName": "BASIC",
     "riskName": "HIGH",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "放行防火墙设置",
+    "description": "开启或关闭防火墙策略",
     "option": [
         {
             "opt": "operat",
