@@ -930,7 +930,7 @@ class RunNode:
                 # 更新节点状态为running
                 self.updateNodeStatus(NodeStatus.running, op=op)
 
-                self.writeNodeLog("INFO: Begin to upload operation...\n")
+                self.writeNodeLog("INFO: Begin to upload remote operation...\n")
                 uploadRet = 0
                 if op.isScript == 1:
                     scriptFile = open(op.pluginPath, 'r')
@@ -948,12 +948,9 @@ class RunNode:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
                         if uploadRet != 0:
                             break
-                    if tagent.agentCharset not in ['UTF-8', 'cp65001']:
+                    if uploadRet == 0 and tagent.agentCharset not in ['UTF-8', 'cp65001']:
                         # 如果脚本使用编码与服务端不一致，则执行转换
                         uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/', convertCharset=1)
-
-                remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
-                remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
 
                 if uploadRet == 0 and op.hasFileOpt:
                     uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
@@ -991,6 +988,13 @@ class RunNode:
                     killCmd = killCmd.replace('"', '\\"')
                     killCmd = re.sub(r'\\s+', ' ', killCmd)
                     self.killCmd = 'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"' % (killCmd, self.context.jobId)
+
+                remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
+
+                if uploadRet == 0:
+                    self.writeNodeLog("INFO: Remote operation upload success.\n")
+                    
                 if uploadRet == 0 and not self.context.goToStop:
                     tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=context.rexecReadTimeout, writeTimeout=context.rexecWriteTimeout, execTimeout=context.maxExecSecs)
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
@@ -1180,6 +1184,7 @@ class RunNode:
 
                 if hasError == False:
                     uploaded = True
+                    self.writeNodeLog('ERROR: Remote operation upload success.\n')
 
             except Exception as err:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
