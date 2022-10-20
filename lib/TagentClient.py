@@ -211,11 +211,14 @@ class TagentClient:
         finally:
             sock.settimeout(self.readTimeout)
 
-    def getConnection(self, isVerbose=0):
+    def getConnection(self, isVerbose=0, host=None, port=None, password=None):
         # 创建Agent连接，并完成验证, 返回TCP连接
-        host = self.host
-        port = self.port
-        password = self.password
+        if host is None:
+            host = self.host
+        if port is None:
+            port = self.port
+        if password is None:
+            password = self.password
 
         isAuth = 0
         sock = None
@@ -617,7 +620,6 @@ class TagentClient:
             except:
                 pass
 
-    # 用于读取tar或者7-zip的打包输出内容，并写入网络连接中
     def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
         status = 0
         buf_size = 4096 * 8
@@ -840,3 +842,64 @@ class TagentClient:
                 pass
 
         return status
+
+    # 把某个机器的文件或目录传送到另外机器或目录
+    def transFile(self, srcHost, srcPort, srcUser, sorcPassword, src, destUser, dest, isVerbose=0, followLinks=0):
+        src = src.replace('\\', '/')
+        dest = dest.replace('\\', '/')
+        srcSock = self.getConnection(isVerbose, srcHost, srcPort, sorcPassword)
+        param = src
+        agentCharset = self.agentCharset
+
+        try:
+            self.__writeChunk(srcSock, "{}|download|{}|{}|{}".format(srcUser, agentCharset, bytesEncodeToHex(param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))
+            statusLine = self.__readChunk(srcSock).decode(errors='ignore')
+            status = 0
+            fileType = 'file'
+
+            tmp = re.findall(r"^Status:200,FileType:(\w+)", statusLine)
+            if tmp and tmp[0]:
+                status = 0
+                fileType = tmp[0]
+                if isVerbose == 1:
+                    print("INFO: Download {} {}@{}:{} begin...".format(fileType, srcUser, srcHost, src))
+            else:
+                raise AgentError("ERROR: Download {} {}@{}:{} failed, {}".format(fileType, srcUser, srcHost, src, statusLine))
+
+            destSock = self.getConnection(isVerbose)
+            agentCharset = self.agentCharset
+
+            uploadParam = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset, 'replace')), bytesEncodeToHex(src.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), followLinks)
+            self.__writeChunk(destSock, "{}|upload|{}|{}".format(destUser, agentCharset, uploadParam).encode(agentCharset, 'replace'))
+
+            preStatus = self.__readChunk(destSock).decode(agentCharset, 'ignore')
+            if not preStatus.lstrip().startswith('Status:200'):
+                raise AgentError("INFO: Upload to {}@{}:{} failed, {}".format(destUser, self.host, dest, preStatus))
+
+            if isVerbose == 1:
+                print("INFO: Transfer {} {}@{}:{} to {}@{}:{} begin...".format(fileType, srcUser, srcHost, src, destUser, self.host, dest))
+            while True:
+                chunk = self.__readChunk(srcSock)
+                if chunk:
+                    self.__writeChunk(destSock, chunk)
+                else:
+                    self.__writeChunk(destSock)
+                    break
+
+            if isVerbose == 1:
+                if status == 0:
+                    print("INFO: Transfer succeed.")
+                else:
+                    print("ERROR: Transfer failed.")
+            return status
+        except AgentError:
+            raise
+        finally:
+            try:
+                if srcSock:
+                    srcSock.shutdown(2)
+                if destSock:
+                    self.__writeChunk(destSock, 'upload failed', 0)
+                    destSock.shutdown(2)
+            except:
+                pass
