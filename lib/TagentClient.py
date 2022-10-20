@@ -174,7 +174,7 @@ class TagentClient:
                     if chunk:
                         if encrypt:
                             chunk = _rc4(self.password, chunk)
-                        raise ExecError(chunk.decode(self.agentCharset, 'ignore'))
+                        raise ExecError('Agent operation failed, because of server failed:' + chunk.decode(self.agentCharset, 'ignore'))
         else:
             raise ExecError("Connection({}:{}) reset!".format(self.host, self.port))
 
@@ -622,7 +622,7 @@ class TagentClient:
 
     def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
         status = 0
-        buf_size = 4096 * 8
+        buf_size = 4096 * 2
         try:
             if cwd is None:
                 p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)

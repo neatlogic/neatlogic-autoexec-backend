@@ -1096,7 +1096,7 @@ sub _readCmdOutToSock {
 
     if ( defined($pid) and $pid != 0 ) {
         my ( $len, $buf );
-        while ( $len = read( $pipe, $buf, 8 * 4096 ) ) {
+        while ( $len = read( $pipe, $buf, 2 * 4096 ) ) {
             eval { $self->_writeChunk( $socket, $buf, $len ); };
             if ($@) {
                 $status = -1;
