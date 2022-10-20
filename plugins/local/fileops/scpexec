@@ -110,7 +110,7 @@ sub main {
             host        => $host,
             port        => $port,
             username    => $user,
-            passname    => $pass,
+            password    => $pass,
             source      => $src_path,
             destination => $dest,
             verbose     => $isVerbose,
