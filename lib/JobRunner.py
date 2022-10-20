@@ -231,7 +231,7 @@ class JobRunner:
         return parallelCount
 
     def getRoundParallelCount(self, roundNo, totalNodeCount, roundCount):
-        if roundCount == 0:
+        if roundCount <= 0:
             roundCount = totalNodeCount
 
         parallelCount = int(totalNodeCount / roundCount)
