@@ -218,16 +218,8 @@ class JobRunner:
 
         parallelCount = int(totalNodeCount / roundCount)
         remainder = totalNodeCount % roundCount
-
-        if parallelCount == 0:
-            parallelCount = 1
-            roundCount = totalNodeCount
-        elif remainder > 0:
+        if remainder > 0:
             parallelCount = parallelCount + 1
-
-        if parallelCount > totalNodeCount:
-            parallelCount = totalNodeCount
-
         return parallelCount
 
     def getRoundParallelCount(self, roundNo, totalNodeCount, roundCount):
@@ -236,11 +228,8 @@ class JobRunner:
 
         parallelCount = int(totalNodeCount / roundCount)
         remainder = totalNodeCount % roundCount
-        if parallelCount == 0 and roundNo <= remainder:
-            parallelCount = 1
-        elif roundNo <= remainder:
+        if roundNo <= remainder:
             parallelCount = parallelCount + 1
-
         return parallelCount
 
     def execOperations(self, groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount):
