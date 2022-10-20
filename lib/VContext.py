@@ -24,14 +24,10 @@ class VContext:
             self.execUser = execUser
 
         self.params = {}
-        #self.roundCount = 0
-        #self.parallelCount = 25
         self.runnerId = 1
         self.tenant = 'none'
         self.phases = {}
         self.opt = {}
-        #self.arg = []
-        #self.output = {}
         self.maxExecSecs = 86400
         self.rexecConnTimeout = 60
         self.rexecReadTimeout = 3600

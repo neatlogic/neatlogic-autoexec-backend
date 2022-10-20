@@ -7,6 +7,7 @@ import os
 import socket
 import threading
 import queue
+from tokenize import group
 import traceback
 import json
 import shutil
@@ -213,7 +214,7 @@ class JobRunner:
 
     def getParallelCount(self, totalNodeCount, roundCount):
         if roundCount <= 0:
-            roundCount = 2
+            roundCount = totalNodeCount
 
         parallelCount = int(totalNodeCount / roundCount)
         remainder = totalNodeCount % roundCount
@@ -231,7 +232,7 @@ class JobRunner:
 
     def getRoundParallelCount(self, roundNo, totalNodeCount, roundCount):
         if roundCount == 0:
-            roundCount = 2
+            roundCount = totalNodeCount
 
         parallelCount = int(totalNodeCount / roundCount)
         remainder = totalNodeCount % roundCount
@@ -315,7 +316,7 @@ class JobRunner:
             print("INFO: Execute phase:{} complete, status:{}.\n".format(phaseName, endStatus), end='')
             serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
-    def execOneShotGroup(self, phaseGroup, roundCount, opArgsRefMap):
+    def execOneShotGroup(self, phaseGroup, groupRoundCount, opArgsRefMap):
         groupNo = phaseGroup['groupNo']
         lastPhase = None
         # runFlow是一个数组，每个元素是一个phaseGroup
@@ -326,6 +327,10 @@ class JobRunner:
             phaseType = phaseConfig.get('phaseType')
             phaseName = phaseConfig['phaseName']
             phaseIndex = phaseIndex + 1
+
+            phaseRoundCount = phaseConfig.get('roundCount', None)
+            if phaseRoundCount is None:
+                phaseRoundCount = groupRoundCount
 
             if self.context.goToStop == True:
                 break
@@ -349,7 +354,7 @@ class JobRunner:
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
-                parallelCount = self.getParallelCount(nodesFactory.nodesCount, roundCount)
+                parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
 
                 lastPhase = phaseName
                 serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
@@ -373,7 +378,7 @@ class JobRunner:
 
         return lastPhase
 
-    def execGrayscaleGroup(self, phaseGroup, roundCount, opArgsRefMap):
+    def execGrayscaleGroup(self, phaseGroup, groupRoundCount, opArgsRefMap):
         # runFlow是一个数组，每个元素是一个phaseGroup
         # 启动所有的phase运行的线程，然后分批进行灰度
         groupNo = phaseGroup['groupNo']
@@ -385,7 +390,7 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
 
         # 获取分组运行的最大的并行线程数
-        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, roundCount)
+        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, groupRoundCount)
 
         threads = []
         for phaseConfig in phaseGroup['phases']:
@@ -418,7 +423,7 @@ class JobRunner:
             thread.name = 'PhaseExecutor-' + phaseName
             threads.append(thread)
 
-        maxRoundNo = roundCount
+        maxRoundNo = groupRoundCount
         if nodesFactory.nodesCount < maxRoundNo:
             maxRoundNo = nodesFactory.nodesCount
 
@@ -564,10 +569,7 @@ class JobRunner:
             for k, v in params.items():
                 os.environ[k] = str(v)
 
-        #parallelCount = 0
-        roundCount = 0
-        if 'roundCount' in params:
-            roundCount = int(params['roundCount'])
+        jobRoundCount = params.get('roundCount', 0)
 
         opArgsRefMap = {}
         lastGroupNo = None
@@ -576,6 +578,9 @@ class JobRunner:
         if 'runFlow' in params:
             for phaseGroup in params['runFlow']:
                 groupNo = phaseGroup['groupNo']
+                groupRoundCount = phaseGroup.get('roundCount', None)
+                if groupRoundCount is None:
+                    groupRoundCount = jobRoundCount
 
                 if self.context.hasFailNodeInGlobal:
                     break
@@ -588,11 +593,11 @@ class JobRunner:
 
                 groupLastPhase = None
                 if self.context.phasesToRun is not None and len(self.context.phasesToRun) == 1:
-                    groupLastPhase = self.execOneShotGroup(phaseGroup, roundCount, opArgsRefMap)
+                    groupLastPhase = self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                 elif 'execStrategy' in phaseGroup and phaseGroup['execStrategy'] == 'grayScale':
-                    groupLastPhase = self.execGrayscaleGroup(phaseGroup, roundCount, opArgsRefMap)
+                    groupLastPhase = self.execGrayscaleGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                 else:
-                    groupLastPhase = self.execOneShotGroup(phaseGroup, roundCount, opArgsRefMap)
+                    groupLastPhase = self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
 
                 lastGroupNo = groupNo
                 if groupLastPhase is not None:
