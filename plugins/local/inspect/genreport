@@ -201,6 +201,8 @@ def getInspectData(nodeInfo):
                     if int(data['PORT']) != port:
                         print('WARN: Data not match port:{} but:{}.'.format(port, data['PORT']))
                         continue
+                elif objCat != 'OS':
+                    continue
                 if objCat == 'DBINS' and data.get('INSTANCE_NAME') != nodeName:
                     continue
                 elif objCat == 'DB' and data.get('NAME') != nodeName:
