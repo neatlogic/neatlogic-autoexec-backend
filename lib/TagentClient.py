@@ -844,12 +844,13 @@ class TagentClient:
         return status
 
     # 把某个机器的文件或目录传送到另外机器或目录
-    def transFile(self, srcHost, srcPort, srcUser, sorcPassword, src, destUser, dest, isVerbose=0, followLinks=0):
+    def transFile(self, srcHost, srcPort, srcUser, srcPassword, src, destUser, dest, isVerbose=0, followLinks=0):
         src = src.replace('\\', '/')
         dest = dest.replace('\\', '/')
-        srcSock = self.getConnection(isVerbose, srcHost, srcPort, sorcPassword)
+        srcTagent = TagentClient(srcHost, srcPort, srcPassword, self.connectTimeout, self.readTimeout, self.writeTimeout, self.execTimeout, self.agentCharset)
+        srcSock = srcTagent.getConnection(isVerbose)
         param = src
-        agentCharset = self.agentCharset
+        agentCharset = srcTagent.agentCharset
 
         try:
             self.__writeChunk(srcSock, "{}|download|{}|{}|{}".format(srcUser, agentCharset, bytesEncodeToHex(param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))

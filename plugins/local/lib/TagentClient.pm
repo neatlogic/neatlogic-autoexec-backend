@@ -195,7 +195,7 @@ sub new {
 
             #把运行当前进程的perl所在目录加入PATH
             my $perlDir = Cwd::abs_path( dirname( $Config{perlpath} ) );
-            if ( index( $ENV{PATH}, "$perlDir;" ) < 0 ) {
+            if ( defined( $ENV{PATH} ) and index( $ENV{PATH}, "$perlDir;" ) < 0 ) {
                 $ENV{PATH} = "$perlDir:" . $ENV{PATH};
             }
         };
@@ -892,11 +892,8 @@ sub download {
     $src  =~ s/[\/\\]+/\//g;
     $dest =~ s/[\/\\]+/\//g;
 
-    $src =~ s/^\s+//;
-    $src =~ s/\s*$//;
-
-    $dest =~ s/^\s+//;
-    $dest =~ s/\s*$//;
+    $src  =~ s/^\s*|\s*$//g;
+    $dest =~ s/^\s*|\s*$//g;
 
     if ( not defined($user) ) {
         $user = 'none';
@@ -913,7 +910,7 @@ sub download {
 
     my $followLinksOpt = '';
 
-    if ( defined($followLinks) ) {
+    if ( defined($followLinks) and $followLinks != 0 ) {
         $followLinks    = 1;
         $followLinksOpt = 'h';
     }
@@ -1435,11 +1432,8 @@ sub upload {
     $src  =~ s/\\/\//g;
     $dest =~ s/\\/\//g;
 
-    $src =~ s/^\s+//;
-    $src =~ s/\s*$//;
-
-    $dest =~ s/^\s+//;
-    $dest =~ s/\s*$//;
+    $src  =~ s/^\s*|\s*$//g;
+    $dest =~ s/^\s*|\s*$//g;
 
     if ( not defined($user) ) {
         $user = 'none';
@@ -1456,7 +1450,7 @@ sub upload {
 
     my $followLinksOpt = '';
 
-    if ( defined($followLinks) ) {
+    if ( defined($followLinks) and $followLinks != 0 ) {
         $followLinks    = 1;
         $followLinksOpt = 'h';
     }
@@ -1579,7 +1573,7 @@ sub transFile {
         $isVerbose = 0;
     }
 
-    if ( defined($followLinks) ) {
+    if ( defined($followLinks) and $followLinks != 0 ) {
         $followLinks = 1;
     }
     else {
@@ -1588,8 +1582,9 @@ sub transFile {
 
     my $charset = $self->{charset};
 
-    my $srcSocket    = $self->getConnection( $isVerbose, $srcHost, $srcPort, $srcUser, $srcPassword );
-    my $agentCharset = $self->{agentCharset};
+    my $srcTagent    = new TagentClient( $srcHost, $srcPort, $srcPassword );
+    my $srcSocket    = $srcTagent->getConnection($isVerbose);
+    my $agentCharset = $srcTagent->{agentCharset};
     my $srcEncoded   = $src;
     my $userEncoded  = $srcUser;
 
@@ -1598,10 +1593,10 @@ sub transFile {
         $userEncoded = Encode::encode( $agentCharset, Encode::decode( $charset, $srcUser ) );
     }
 
-    $self->_writeChunk( $srcSocket, "$userEncoded|download|$agentCharset|" . unpack( 'H*', $srcEncoded ) . '|' . unpack( 'H*', $followLinks ) );
+    $srcTagent->_writeChunk( $srcSocket, "$userEncoded|download|$agentCharset|" . unpack( 'H*', $srcEncoded ) . '|' . unpack( 'H*', $followLinks ) );
 
     my $statusLine;
-    eval { $statusLine = $self->_readChunk($srcSocket); };
+    eval { $statusLine = $srcTagent->_readChunk($srcSocket); };
     if ($@) {
         $statusLine = $@;
         $statusLine =~ s/\sat\s+.*$//;
@@ -1622,7 +1617,7 @@ sub transFile {
         if ( $charset ne $agentCharset ) {
             $statusLine = Encode::encode( $charset, Encode::decode( $agentCharset, $statusLine ) );
         }
-        print("ERROR: Downlaod $fileType $srcUser\@$srcHost:$src failed, $statusLine.\n");
+        print("ERROR: Download $fileType $srcUser\@$srcHost:$src failed, $statusLine\n");
         close($srcSocket);
         return $status;
     }
@@ -1663,8 +1658,8 @@ sub transFile {
     $status = 0;
     my $chunk;
     do {
-        eval { $chunk = $self->_readChunk($srcSocket); };
-        if ( defined($@) ) {
+        eval { $chunk = $srcTagent->_readChunk($srcSocket); };
+        if ($@) {
             $status = -1;
             my $errMsg = $@;
             $errMsg =~ s/\sat\s.*$//;
@@ -1685,6 +1680,32 @@ sub transFile {
         }
     } while ( defined($chunk) );
 
+    close($srcSocket);
+
+    if ( $status == 0 ) {
+        eval { $self->_writeChunk( $destSocket, undef, 0 ); };
+        if ($@) {
+            $status = -1;
+        }
+    }
+
+    if ($@) {
+        $status = -1;
+        my $errMsg = $@;
+        $errMsg =~ s/\sat\s.*$//;
+        print("ERROR: $errMsg");
+    }
+
+    $destSocket->shutdown(1);
+
+    eval { $self->_readChunk($destSocket); };
+    if ($@) {
+        $status = -1;
+        my $errMsg = $@;
+        $errMsg =~ s/\sat\s.*$//;
+        print("ERROR: $errMsg");
+    }
+
     #get the error Message, if no errMsg, succeed.
     #my $errMsg = $self->_readChunk($socket);
 
@@ -1697,7 +1718,6 @@ sub transFile {
         }
     }
 
-    close($srcSocket);
     return $status;
 }
 
