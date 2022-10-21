@@ -415,9 +415,9 @@ class TagentClient:
                     status = int(line)
                 else:
                     if isVerbose == 1:
-                        print("ERROR:%s\n" % (line.strip()), end='')
+                        print("ERROR: %s\n" % (line.strip()), end='')
                     if callback:
-                        callback("ERROR:%s\n" % (line.strip()), *cbparams)
+                        callback("ERROR: %s\n" % (line.strip()), *cbparams)
         finally:
             try:
                 if sock:
