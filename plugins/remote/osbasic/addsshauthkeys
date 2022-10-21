@@ -66,13 +66,15 @@ sub appendKnownHost {
         if ( $? == 0 ) {
             $fingerPrint =~ s/^\s*|\s*$//g;
             my $hostName = $ip2HostnameMap->{$ip};
-            if ( not defined($hostName) or $hostName eq '' ) {
+
+            if ( ( not defined($hostName) or $hostName eq '' ) or ref($hostName) ne '' ) {
+
                 #如果ip到hostname的映射没有对应ip的主机名，则从fingerprint获取
                 if ( $user =~ /\@(.+)$/ ) {
                     $hostName = $1;
                 }
             }
-            
+
             if ( defined($hostName) and $hostName ne '' ) {
                 $knownKeys->{"$hostName,$ip"} = "$hostName,$fingerPrint";
             }
