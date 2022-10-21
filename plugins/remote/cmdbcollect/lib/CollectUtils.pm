@@ -459,7 +459,7 @@ sub getNicSpeedFromStr {
 
 sub getExecutablePath {
     my ( $self, $pid ) = @_;
-    my $ostype = $self->{osType};
+    my $ostype = $self->{ostype};
     my $executablePath;
     if ( $ostype eq 'Windows' ) {
         my $lines = $self->getCmdOutLines(qq{wmic process where "ProcessID=$pid" get ExecutablePath});
