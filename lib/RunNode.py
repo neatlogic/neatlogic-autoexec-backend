@@ -249,11 +249,11 @@ class RunNode:
         self._loadNodeStatus()
         self._loadOutput()
 
-        if self.logHandle is None:
-            # 如果文件存在，则删除重建
-            if os.path.exists(self.logPath):
-                os.unlink(self.logPath)
-            self.logHandle = LogFile(open(self.logPath, 'wb').detach(), self)
+        # if self.logHandle is None:
+        #     # 如果文件存在，则删除重建
+        #     if os.path.exists(self.logPath):
+        #         os.unlink(self.logPath)
+        #     self.logHandle = LogFile(open(self.logPath, 'wb').detach(), self)
 
     def __del__(self):
         if self.logHandle is not None:
@@ -267,7 +267,10 @@ class RunNode:
             if msg.startswith('ERROR:') or msg.startswith('WARN:'):
                 self.warnCount = self.warnCount + 1
 
-        self.logHandle.write(msg)
+        if self.logHandle is not None:
+            self.logHandle.write(msg)
+        else:
+            print(msg)
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
@@ -670,6 +673,13 @@ class RunNode:
     def execute(self, ops):
         if self.context.goToStop:
             return 2
+
+        # 初始化日志
+        if self.logHandle is None:
+            # 如果文件存在，则删除重建
+            if os.path.exists(self.logPath):
+                os.unlink(self.logPath)
+            self.logHandle = LogFile(open(self.logPath, 'wb').detach(), self)
 
         finalStatus = None
         hasIgnoreFail = 0
