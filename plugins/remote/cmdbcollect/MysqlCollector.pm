@@ -71,7 +71,9 @@ sub parseCommandOpts {
     $mysqldPath =~ s/^\s*|\s*$//g;
     $mysqldPath =~ s/^"|"$//g;
 
-    if ( not -e $mysqldPath ) {
+    $mysqldPath =~ s/\\/\//g;
+
+    if ( not -e $mysqldPath or not -e "$mysqldPath.exe" ) {
         my $exeFile = $procInfo->{EXECUTABLE_FILE};
         if ( defined($exeFile) ) {
             $mysqldPath = $exeFile;
@@ -83,7 +85,6 @@ sub parseCommandOpts {
         }
     }
 
-    #$mysqldPath =~ s/\\/\//g;
     $opts->{mysqldPath} = $mysqldPath;
     if ( $mysqldPath =~ /^(.*?)[\/\\]bin[\/\\]mysqld/ or $mysqldPath =~ /^(.*?)[\/\\]sbin[\/\\]mysqld/ ) {
         $opts->{mysqlHome} = $1;
