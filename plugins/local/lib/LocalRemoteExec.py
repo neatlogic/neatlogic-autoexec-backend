@@ -270,7 +270,7 @@ class LocalRemoteExec:
                 remotePath = remoteRoot
                 runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
 
-                tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
+                tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
                 uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
                 uploadRet = tagent.writeFile(username, scriptContent.encode(), remotePath + '/' + scriptName, isVerbose=1, convertCharset=1)
 

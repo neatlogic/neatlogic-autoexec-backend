@@ -61,7 +61,7 @@ class RemoteConfBackup:
         if protocol == 'tagent':
             try:
                 runEnv = {'AUTOEXEC_JOBID': jobId, 'HISTSIZE': '0'}
-                tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
+                tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
                 tagent.getConnection(1)
                 if tagent.agentOsType == None:
                     self.IS_FAIELD = True
@@ -157,7 +157,7 @@ class RemoteConfBackup:
 
         if protocol == 'tagent':
             try:
-                tagent = TagentClient.TagentClient(host, protocolPort, password, readTimeout=360, writeTimeout=10)
+                tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
                 status = tagent.download(username, remotePath, savePath)
                 if status == 0:
                     self.addOutputFiles(fileJson)

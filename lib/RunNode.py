@@ -994,7 +994,7 @@ class RunNode:
 
                 if uploadRet == 0:
                     self.writeNodeLog("INFO: Remote operation upload success.\n")
-                    
+
                 if uploadRet == 0 and not self.context.goToStop:
                     tagent = TagentClient.TagentClient(self.host, self.protocolPort, self.password,  connectTimeout=context.rexecConnTimeout, readTimeout=context.rexecReadTimeout, writeTimeout=context.rexecWriteTimeout, execTimeout=context.maxExecSecs)
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
@@ -1300,7 +1300,7 @@ class RunNode:
         killCmd = self.killCmd
         if self.type == 'tagent':
             if killCmd is not None:
-                tagent = TagentClient.TagentClient(self.host, self.port, self.password, connTimeout=60, readTimeout=360, writeTimeout=60)
+                tagent = TagentClient.TagentClient(self.host, self.port, self.password, connectTimeout=60, readTimeout=360, writeTimeout=60)
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
                     self.updateNodeStatus(NodeStatus.aborted)

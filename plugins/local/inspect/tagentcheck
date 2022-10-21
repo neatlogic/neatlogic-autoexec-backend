@@ -48,7 +48,7 @@ if __name__ == "__main__":
         errMsg = None
         print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo['host'], nodeInfo['protocolPort']))
         startTime = time.time()
-        tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], readTimeout=timeout, writeTimeout=timeout)
+        tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], connectTimeout=timeout, readTimeout=timeout, writeTimeout=timeout)
 
         port = nodeInfo.get('port')
         if port is not None:

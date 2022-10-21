@@ -85,7 +85,7 @@ if __name__ == "__main__":
             if ssh is not None:
                 ssh.close()
     elif protocol == 'tagent':
-        tagent = TagentClient.TagentClient(host, protocolPort, password=password, readTimeout=360, writeTimeout=10)
+        tagent = TagentClient.TagentClient(host, protocolPort, password=password, connectTimeout=60, readTimeout=360, writeTimeout=10)
         exitCode = tagent.execCmd('root', 'echo test')
         if exitCode != 0:
             exitCode = 1
