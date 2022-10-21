@@ -578,9 +578,9 @@ class TagentClient:
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE)
                         else:
-                            tarOpt = "-xf"
+                            tarOpt = "-xiBf"
                             if isVerbose == 1:
-                                tarOpt = "-xvf"
+                                tarOpt = "-xiBvf"
                             p = subprocess.Popen(["tar", tarOpt, "-"], cwd=dest, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                     except Exception as ex:
                         raise AgentError("ERROR: Launch tar command failed, {}.".format(ex))
@@ -622,7 +622,7 @@ class TagentClient:
 
     def __readCmdOutToSock(self, sock, cmd, isVerbose=0, cwd=None):
         status = 0
-        buf_size = 4096 * 2
+        buf_size = 4096 * 8
         try:
             if cwd is None:
                 p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)

@@ -1003,7 +1003,7 @@ sub download {
         if ( chdir($dest) ) {
             my $pipe;
 
-            my $cmd = "| tar x${followLinksOpt}${verboseOpt}f - $redirectOpt";
+            my $cmd = "| tar xiB${followLinksOpt}${verboseOpt}f - $redirectOpt";
             if ( $self->{ostype} eq 'windows' ) {
                 $cmd = "| 7z.exe x -aoa -y -si -ttar";
             }
@@ -1022,7 +1022,7 @@ sub download {
                             $wrtLen = syswrite( $pipe, $chunk );
                             if ( not defined($wrtLen) ) {
                                 $status = -1;
-                                die("Untar failed, $!\n");
+                                die("Untar data to $dest failed, $!\n");
                             }
                         }
                     } while ( defined($chunk) );
@@ -1096,7 +1096,7 @@ sub _readCmdOutToSock {
 
     if ( defined($pid) and $pid != 0 ) {
         my ( $len, $buf );
-        while ( $len = read( $pipe, $buf, 2 * 4096 ) ) {
+        while ( $len = read( $pipe, $buf, 8 * 4096 ) ) {
             eval { $self->_writeChunk( $socket, $buf, $len ); };
             if ($@) {
                 $status = -1;

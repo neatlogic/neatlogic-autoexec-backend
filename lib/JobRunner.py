@@ -378,8 +378,12 @@ class JobRunner:
             serverAdapter.getNodes(groupNo=groupNo)
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
 
+        realGroupRoundCount = groupRoundCount
+        if realGroupRoundCount == 0:
+            realGroupRoundCount = nodesFactory.nodesCount
+
         # 获取分组运行的最大的并行线程数
-        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, groupRoundCount)
+        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
 
         threads = []
         for phaseConfig in phaseGroup['phases']:
@@ -412,7 +416,7 @@ class JobRunner:
             thread.name = 'PhaseExecutor-' + phaseName
             threads.append(thread)
 
-        maxRoundNo = groupRoundCount
+        maxRoundNo = realGroupRoundCount
         if nodesFactory.nodesCount < maxRoundNo:
             maxRoundNo = nodesFactory.nodesCount
 
