@@ -228,7 +228,7 @@ class JobRunner:
 
         parallelCount = int(totalNodeCount / roundCount)
         remainder = totalNodeCount % roundCount
-        if roundNo <= remainder:
+        if remainder > 0 and roundNo <= remainder:
             parallelCount = parallelCount + 1
         return parallelCount
 
@@ -379,7 +379,7 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
 
         realGroupRoundCount = groupRoundCount
-        if realGroupRoundCount == 0:
+        if realGroupRoundCount <= 0:
             realGroupRoundCount = nodesFactory.nodesCount
 
         # 获取分组运行的最大的并行线程数
