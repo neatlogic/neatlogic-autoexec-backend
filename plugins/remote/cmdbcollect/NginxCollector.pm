@@ -57,6 +57,13 @@ sub collect {
     my $command  = $procInfo->{COMMAND};
     my $exePath  = $procInfo->{EXECUTABLE_FILE};
 
+    #子进程取父进程的cmd
+    my $masterProcInfo = $self->getMasterProc();
+    if ( defined($masterProcInfo) ) {
+        $self->{procInfo}->{COMMAND} = $masterProcInfo->{COMMAND};
+        $command = $masterProcInfo->{COMMAND};
+    }
+
     if ( $command =~ /^.*?(\/.*?\/nginx)(?=\s)/ or $command =~ /^.*?(\/.*?\/nginx)$/ ) {
         $exePath = $1;
     }
@@ -102,7 +109,6 @@ sub collect {
 
     #nginx子进程读取配置文件目录，子进程读取不到配置就读取父进程的配置，如读取不到直接return
     if ( !-e $configFile ) {
-        my $masterProcInfo = $self->getMasterProc();
         if ( defined($masterProcInfo) ) {
             my $pprocInfo = $masterProcInfo->{procInfo};
             my $pcommand  = $pprocInfo->{COMMAND};
