@@ -1370,12 +1370,9 @@ sub collectRAC {
     my $localNode  = $self->getClusterLocalNode($racInfo);
     $racInfo->{LOCAL_NODE} = $localNode;
 
-    my $nodes = $racInfo->{NODES};
-    if ( $$nodes[0]->{NAME} ne $localNode ) {
-        print("WARN: Rac node:$localNode is not primary node, no need to collect.\n");
-        return undef;
-    }
+    $self->{RAC_INFO} = $racInfo;
 
+    my $nodes = $racInfo->{NODES};
     my $localNodePubIp;
     my $localNodeVip;
     foreach my $nodeInfo (@$nodes) {
@@ -1387,6 +1384,11 @@ sub collectRAC {
     }
     $racInfo->{LOCAL_NODE_PUB_IP} = $localNodePubIp;
     $racInfo->{LOCAL_NODE_VIP}    = $localNodeVip;
+
+    if ( $$nodes[0]->{NAME} ne $localNode ) {
+        print("WARN: Rac node:$localNode is not primary node, no need to collect.\n");
+        return undef;
+    }
 
     $self->getClusterName($racInfo);
     $self->getGridVersion($racInfo);
@@ -1408,7 +1410,6 @@ sub collectRAC {
 
     my @collectSet = ();
     push( @collectSet, $racInfo );
-    $self->{RAC_INFO} = $racInfo;
 
     my $dbNameToDBInfo = {};
     $self->{dbNameToDBInfo} = $dbNameToDBInfo;
@@ -1543,9 +1544,6 @@ sub collect {
         my $racColletSet = $self->collectRAC($racInfo);
         if ( defined($racColletSet) ) {
             push( @collectSet, @$racColletSet );
-        }
-        else {
-            undef($racInfo);
         }
     }
 
