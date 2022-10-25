@@ -103,8 +103,8 @@ sub convertTxtToUtf8 {
         my $decodedLine = $line;
         my $enc         = guess_encoding( $line, @possibleEncodings );
         if ( ref($enc) ) {
-            if ( $enc->mime_name ne 'US-ASCII' ) {
-                my $pEnc    = $enc->mime_name;
+            my $pEnc = $enc->name;
+            if ( $pEnc ne 'ascii' ) {
                 my $destTmp = Encode::encode( 'UTF-8', Encode::decode( $pEnc,   $line ) );
                 my $srcTmp  = Encode::encode( $pEnc,   Encode::decode( 'UTF-8', $destTmp ) );
                 if ( $srcTmp eq $line ) {
