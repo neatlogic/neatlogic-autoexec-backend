@@ -450,7 +450,7 @@ sub getSetVariable {
                     $variables->{$k} = $v;
                 }
             }
-            if ($common_array == 0){
+            if ($common_array == 1){
                 my $k = @$value[0];
                 my $v = @$value[1];
                 $variables->{$k} = $v;
