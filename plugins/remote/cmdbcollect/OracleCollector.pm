@@ -1190,7 +1190,7 @@ sub getScanListenerInfo {
     #获取其中一个Listener，通过lsnrctl获取service names信息
     my $lsnrNamesMap = {};
     my ( $listener, $enableListener, $activeListener );
-    my $scanStatusLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/srvctl status scan_listener", $gridUser );
+    my $scanStatusLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1 $gridHome/bin/srvctl status scan_listener", $gridUser );
     foreach my $line (@$scanStatusLines) {
         if ( $line =~ /^SCAN listener (.*?) is running/i ) {
             $activeListener = $1;
@@ -1206,7 +1206,7 @@ sub getScanListenerInfo {
     my $serviceNameToLsnrMap = {};
     my @listeners            = ();
     foreach my $lsnrName (@lsnrNames) {
-        my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/lsnrctl status $lsnrName", $gridUser );
+        my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1 $gridHome/bin/lsnrctl status $lsnrName", $gridUser );
         my $lsnrInfo = $self->parseListenerInfo( $outLines, $lsnrName, $serviceNameToLsnrMap );
         if ( not defined($lsnrInfo) ) {
             next;
@@ -1260,7 +1260,7 @@ sub getListenerInfo {
     my $insNameToLsnrMap     = {};
     my @listeners            = ();
     foreach my $lsnrName (@lsnrNames) {
-        my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 $gridHome/bin/lsnrctl status $lsnrName", $osUser );
+        my $outLines = $self->getCmdOutLines( "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.WE8ISO8859P1 $gridHome/bin/lsnrctl status $lsnrName", $osUser );
         my $lsnrInfo = $self->parseListenerInfo( $outLines, $lsnrName, $serviceNameToLsnrMap, $insNameToLsnrMap );
         if ( not defined($lsnrInfo) ) {
             next;
