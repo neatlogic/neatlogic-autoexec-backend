@@ -437,8 +437,10 @@ sub getSetVariable {
             return $variables;
         }
         else {
+            my $common_array = 1 ;
             for my $ins (@$value) {
-                if ( scalar(@$ins) > 1 ) {
+                if ( ref($ins) =~ /Array/ and scalar(@$ins) > 1 ) {
+                    $common_array = 0;
                     my $k = @$ins[0];
                     my $v = @$ins[1];
                     $k =~ s/^\s+|\s+$//g;
@@ -447,6 +449,11 @@ sub getSetVariable {
                     $v =~ s/;//;
                     $variables->{$k} = $v;
                 }
+            }
+            if ($common_array == 0){
+                my $k = @$value[0];
+                my $v = @$value[1];
+                $variables->{$k} = $v;
             }
         }
     }
