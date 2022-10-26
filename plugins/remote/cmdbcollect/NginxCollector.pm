@@ -433,10 +433,9 @@ sub getSetVariable {
     }
     if ( exists( $data->{$key} ) ) {
         my $value = $data->{$key};
-        if ( not defined($value) or scalar($value) == 0 ) {
+        if ( not defined($value) or scalar($value) == 0  or ref( $value) =~ /HASH/ ) {
             return $variables;
-        }
-        else {
+        }else {
             my $common_array = 1 ;
             for my $ins (@$value) {
                 if ( ref($ins) =~ /Array/ and scalar(@$ins) > 1 ) {
