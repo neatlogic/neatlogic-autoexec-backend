@@ -1194,7 +1194,7 @@ class RunNode:
 
                 if hasError == False:
                     uploaded = True
-                    self.writeNodeLog('ERROR: Remote operation upload success.\n')
+                    self.writeNodeLog('INFO: Remote operation upload success.\n')
 
             except Exception as err:
                 self.writeNodeLog('ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n'.format(op.opName, remoteRoot, err))
