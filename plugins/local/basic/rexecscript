@@ -42,18 +42,12 @@ if __name__ == "__main__":
         usage()
 
     param = args.param
-    scripts = script.split('\\n')
-    scriptTxt = ''
-    for line in scripts:
-        scriptTxt = scriptTxt + line + '\n'
+    scriptName = str(uuid.uuid1())
 
     exec = LocalRemoteExec.LocalRemoteExec()
     scriptDef = {}
-    scriptDef['script'] = scriptTxt
-    config = {}
-    config['parser'] = interpreter
-    config['scriptName'] = str(uuid.uuid1())
-    scriptDef['config'] = config
+    scriptDef['script'] = script.replace('\\n', '\n')
+    scriptDef['config'] = {'parser': interpreter, 'scriptName': scriptName}
 
     nodeInfo = {}
     nodeInfo['resourceId'] = '0000'

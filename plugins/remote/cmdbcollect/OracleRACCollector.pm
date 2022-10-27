@@ -28,7 +28,7 @@ sub getConfig {
         enabled  => 0,
         regExps  => ['\basm_pmon_\w'],          #正则表达是匹配ps输出
                                                 #psAttrs  => { COMM => 'oracle' },       #ps的属性的精确匹配
-        envAttrs => { ORACLE_BASE => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        envAttrs => { ORACLE_HOME => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 

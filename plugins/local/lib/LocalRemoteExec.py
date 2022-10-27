@@ -241,7 +241,7 @@ class LocalRemoteExec:
         else:
             line = line.decode('utf-8', errors='ignore')
 
-        print(line)
+        print(line, end='')
         self.output = self.output + line
         outLen = len(self.output)
         if (outLen > 1024):

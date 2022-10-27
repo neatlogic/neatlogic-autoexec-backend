@@ -39,6 +39,7 @@ class ServerAdapter:
             'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get/forautoexec',
             'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
             'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
+            'getNodePwd': '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
             'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
@@ -694,6 +695,36 @@ class ServerAdapter:
                 raise AutoExecError("Get Account for {} user:{} failed, status code:{} {}".format(protocol, username, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, ex))
+
+    def getNodePwd(self, resourceId, host, port, username, protocol):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'resourceId': resourceId,
+            'host': host,
+            'port': port,
+            'username': username,
+            'protocol': protocol
+        }
+
+        if username is None:
+            username = 'none'
+        try:
+            response = self.httpJSON(self.apiMap['getNodePwd'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj['Return']
+                else:
+                    raise AutoExecError("Get password for {}://{}@{}:{} failed, {}".format(protocol, username, host, port, retObj['Message']))
+            else:
+                raise AutoExecError("Get password for {}://{}@{}:{} failed, status code:{} {}".format(protocol, username, host, port, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get password for {}://{}@{}:{} failed, {}".format(protocol, username, host, port, ex))
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:

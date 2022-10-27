@@ -1,0 +1,146 @@
+#!/usr/bin/perl -w
+use strict;
+use POSIX;
+use Socket;
+use IO::File;
+
+my $port    = shift || "{LISTEN_PORT}";
+my $token   = shift || "{AUTH_TOKEN}";
+my $destDir = shift || "{DEST_DIR}";
+my $verbose = shift || "{VERBOSE}";
+
+my $proto  = getprotobyname("tcp");
+my $server = "0.0.0.0";
+
+my $socket;
+my $clientSocket;
+
+END {
+    if ( defined($clientSocket) ) {
+        $clientSocket->close();
+    }
+    if ( defined($socket) ) {
+        $socket->close();
+    }
+}
+
+socket( $socket, PF_INET, SOCK_STREAM, $proto )                or die "ERROR: Can not open socket $!\n";
+setsockopt( $socket, SOL_SOCKET, SO_REUSEADDR, 1 )             or die "ERROR: Can not set SO_REUSEADDR $!\n";
+bind( $socket, pack_sockaddr_in( $port, inet_aton($server) ) ) or die "ERROR: Can not bind $port $!\n";
+listen( $socket, 1 )                                           or die "ERROR: Listen failed: $!";
+
+my $exitCode = 0;
+my @uname    = uname();
+my $ostype   = $uname[0];
+
+$SIG{ALRM} = sub {
+    print("ERROR: Waiting connection timeout.\n");
+    exit(-1);
+};
+alarm(15);
+
+my $client_addr;
+if ( $client_addr = accept( $clientSocket, $socket ) ) {
+    alarm(0);
+    binmode($clientSocket);
+
+    my $reqLine = <$clientSocket>;
+    $reqLine =~ s/^\s*|\s*$//g;
+    my ( $transType, $fileName, $authToken ) = split( /\|/, $reqLine, 3 );
+    if ( $authToken ne $token ) {
+        $exitCode = -1;
+        print("ERROR: Auth token not matched, exit.\n");
+        exit($exitCode);
+    }
+
+    if ( $transType eq "dir" ) {
+        if ( $destDir =~ /\/$/ ) {
+            $destDir = "$destDir$fileName";
+            if ( not -e $destDir ) {
+                mkdir($destDir);
+            }
+        }
+        my $verboseOpt = '';
+        if ( $verbose eq 1 ) {
+            $verboseOpt = 'v';
+        }
+        my $cmd = "| tar xiB${verboseOpt}f -";
+        if ( $ostype =~ /Windows/i ) {
+            $cmd = "| 7z.exe x -aoa -y -si -ttar";
+        }
+
+        my $curDir = getcwd();
+        if ( chdir($destDir) ) {
+            my $pipe;
+            my $pid = open( $pipe, $cmd );
+
+            if ( defined($pid) and $pid != 0 ) {
+                binmode($pipe);
+
+                my $maxLen = 4096;
+                my $buf;
+                my $readLen;
+                my $wrtLen = 0;
+                while ( $readLen = $clientSocket->sysread( $buf, $maxLen ) ) {
+                    $wrtLen = syswrite( $pipe, $buf, $readLen );
+                    if ( not defined($wrtLen) and $buf !~ /^\x00+$/ ) {
+                        $exitCode = 1;
+                        print("ERROR: Untar data to $destDir failed, $!\n");
+                        last;
+                    }
+                }
+
+                close($pipe);
+
+                if ( $exitCode == 0 ) {
+                    $exitCode = $?;
+                }
+            }
+            else {
+                print("ERROR: Launch tar command failed:$!\n");
+                $exitCode = 3;
+            }
+
+            chdir($curDir);
+        }
+        else {
+            print("ERROR: Can not cd directory $destDir:$!.\n");
+            $exitCode = 2;
+        }
+    }
+    else {
+        if ( $destDir =~ /\/$/ ) {
+            $destDir = "$destDir$fileName";
+        }
+
+        my $fh = IO::File->new(">$destDir");
+        if ( not defined($fh) ) {
+            print("ERROR: Open file $destDir failed, $!\n");
+        }
+        binmode($fh);
+
+        my $maxLen = 4096 * 8;
+        my $buf;
+        my $readLen;
+        my $wrtLen = 0;
+        while ( $readLen = $clientSocket->sysread( $buf, $maxLen ) ) {
+            $wrtLen = syswrite( $fh, $buf, $readLen );
+            if ( not defined($wrtLen) ) {
+                $exitCode = 1;
+                print("ERROR: Write to file $destDir failed, $!\n");
+                last;
+            }
+        }
+
+        $fh->close();
+    }
+
+    if ( $exitCode == 0 ) {
+        syswrite( $clientSocket, "success\n" );
+    }
+    else {
+        syswrite( $clientSocket, "failed\n" );
+    }
+}
+
+exit($exitCode);

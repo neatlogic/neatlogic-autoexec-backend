@@ -340,6 +340,19 @@ def handleJsonstr(jsonstr):
     return jsonstr
 
 
+def getNodePwd(resourceId, host, port, username, protocol):
+    context = getAutoexecContext()
+    config = context.config
+    passKey = config['server']['password.key']
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    pwdEncrypted = serverAdapter.getNodePwd(resourceId, host, port, username, protocol)
+    if pwdEncrypted.startswith('{ENCRYPTED}'):
+        nodePwd = _rc4_decrypt_hex(passKey, pwdEncrypted[11:])
+    elif pwdEncrypted.startswith('{RC4}'):
+        nodePwd = _rc4_decrypt_hex(passKey, pwdEncrypted[5:])
+    return nodePwd
+
+
 # def getInspectConf(ciType, resourceId):
 #     context = getAutoexecContext()
 #     serverAdapter = ServerAdapter.ServerAdapter(context)
