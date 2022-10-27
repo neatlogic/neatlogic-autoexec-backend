@@ -8,6 +8,7 @@ import argparse
 import json
 import uuid
 
+import TagentClient
 import AutoExecUtils
 import LocalRemoteExec
 
@@ -39,7 +40,6 @@ if __name__ == "__main__":
     parser.add_argument('--srcusername', default='', help='Copy from node username')
     parser.add_argument('--srcdir', default='', help='Copy from directory')
     parser.add_argument('--destdir', default='', help='Copy to directory')
-    parser.add_argument('--transport', default='1025', help='Transfer file tcp port number to use')
 
     args = parser.parse_args()
     node = args.node
@@ -103,39 +103,29 @@ if __name__ == "__main__":
     if srcNodeInfo.get('resourceId') is None:
         srcNodeInfo['resourceId'] = srcScriptName
 
-    recvScriptTxt = None
-    with open(scriptHome + '/filereciver') as f:
-        recvScriptTxt = f.read()
+    protocol = nodeInfo.get('protocol')
+    if protocol == 'tagent':
+        tagent = TagentClient.TagentClient(nodeInfo.get('host'), nodeInfo.get('protocolPort'), nodeInfo.get('password'), readTimeout=360, writeTimeout=10)
+        exitCode = tagent.transFile(srcNodeInfo.get('host'),
+                                    srcNodeInfo.get('protocolPort'),
+                                    srcNodeInfo.get('username'),
+                                    srcNodeInfo.get('password'),
+                                    args.srcdir,
+                                    nodeInfo.get('username'),
+                                    args.destdir,
+                                    args.verbose)
+    elif protocol == 'ssh':
+        cmd = '%s/filesshtripletrans - -verbose "%s" --srchost "%s" - -srcport "%s" - -srcuser "%s" - -srcpassword "%s" - -srcdir "%s" - -desthost "%s" - -destport "%s" - -destuser "%s" - -destpassword "%s" - -destdir "%s"' % (
+            scriptHome, args.verbose, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), srcNodeInfo.get('username'), srcNodeInfo.get('password'), args.srcdir, nodeInfo.get('host'), nodeInfo.get('protocolPort'), nodeInfo.get('username'), nodeInfo.get('password'), args.destdir)
 
-    recvScriptDef = {}
-    recvScriptDef['script'] = recvScriptTxt
-    recvScriptDef['config'] = {'parser': 'perl', 'scriptName': srcScriptName}
-
-    try:
-        _thread.start_new_thread(launchRecv, (nodeInfo, recvScriptDef, args.transport, authToken, args.destdir, args.verbose))
-    except:
-        print("ERROR: Can not create thread to connect to remote host.")
-
-    sndScriptTxt = None
-    with open(scriptHome + '/filesender') as f:
-        sndScriptTxt = f.read()
-
-    sndScriptName = str(uuid.uuid1())
-    sndScriptDef = {}
-    sndScriptDef['script'] = sndScriptTxt
-    sndScriptDef['config'] = {'parser': 'perl', 'scriptName': sndScriptName}
-
-    rexec = LocalRemoteExec.LocalRemoteExec()
-    ret = False
-    errorMsg = ''
-    (ret, errorMsg) = rexec._remoteExecute(srcNodeInfo, sndScriptDef, '{} {} {} "{}"'.format(nodeInfo.get('host'), args.transport, authToken, args.srcdir))
-    if errorMsg:
-        print(errorMsg)
-
-    if ret:
-        print("FINE: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} success.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('port'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
+        exitCode = os.system(cmd)
     else:
-        exitCode = 1
-        print("ERROR: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} failed.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('port'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
+        exitCode = -1
+        print("ERROR: Protocol {} not supported.".format(protocol))
+
+    if exitCode == 0:
+        print("FINE: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} success.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
+    else:
+        print("ERROR: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} failed.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
 
     sys.exit(exitCode)
