@@ -115,9 +115,8 @@ if __name__ == "__main__":
                                     args.destdir,
                                     args.verbose)
     elif protocol == 'ssh':
-        cmd = '%s/filesshtripletrans - -verbose "%s" --srchost "%s" - -srcport "%s" - -srcuser "%s" - -srcpassword "%s" - -srcdir "%s" - -desthost "%s" - -destport "%s" - -destuser "%s" - -destpassword "%s" - -destdir "%s"' % (
+        cmd = '%s/filesshtripletrans --verbose "%s" --srchost "%s" --srcport "%s" --srcuser "%s" --srcpassword "%s" --srcdir "%s" --desthost "%s" --destport "%s" --destuser "%s" --destpassword "%s" --destdir "%s"' % (
             scriptHome, args.verbose, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), srcNodeInfo.get('username'), srcNodeInfo.get('password'), args.srcdir, nodeInfo.get('host'), nodeInfo.get('protocolPort'), nodeInfo.get('username'), nodeInfo.get('password'), args.destdir)
-
         exitCode = os.system(cmd)
     else:
         exitCode = -1

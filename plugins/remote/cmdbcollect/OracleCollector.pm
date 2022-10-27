@@ -927,16 +927,18 @@ sub getClusterNodes {
     my @dbNodes      = ();
     foreach my $dbNode (@$dbNodesLines) {
         $dbNode =~ s/^\s*|\s*$//g;
-        if ( $dbNode ne '' ) {
-            my $ipAddr    = gethostbyname($dbNode);
-            my $nodePubIp = inet_ntoa($ipAddr);
-            my $nodeInfo  = { _OBJ_CATEGORY => 'OS', _OBJ_TYPE => $self->{ostype}, NAME => $dbNode, IP => $nodePubIp };
-            $self->getNodeVip( $racInfo, $nodeInfo );
-            $self->getNodePrivNet( $racInfo, $nodeInfo );
-            $nodeInfo->{HOST_ON} = { _OBJ_TYPE => $self->{ostype}, HOST => $nodePubIp, MGMT_IP => $nodePubIp };
-            push( @nodePubIps, $nodePubIp );
-            push( @dbNodes,    $nodeInfo );
-            $dbNodesMap->{$dbNode} = $nodeInfo;
+        if ( $dbNode ne '' and $dbNode =~ /^\W+$/ ) {
+            my $ipAddr = gethostbyname($dbNode);
+            if ( defined($ipAddr) ) {
+                my $nodePubIp = inet_ntoa($ipAddr);
+                my $nodeInfo  = { _OBJ_CATEGORY => 'OS', _OBJ_TYPE => $self->{ostype}, NAME => $dbNode, IP => $nodePubIp };
+                $self->getNodeVip( $racInfo, $nodeInfo );
+                $self->getNodePrivNet( $racInfo, $nodeInfo );
+                $nodeInfo->{HOST_ON} = { _OBJ_TYPE => $self->{ostype}, HOST => $nodePubIp, MGMT_IP => $nodePubIp };
+                push( @nodePubIps, $nodePubIp );
+                push( @dbNodes,    $nodeInfo );
+                $dbNodesMap->{$dbNode} = $nodeInfo;
+            }
         }
     }
 

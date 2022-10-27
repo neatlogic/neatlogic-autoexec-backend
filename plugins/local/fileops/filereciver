@@ -54,7 +54,7 @@ if ( $client_addr = accept( $clientSocket, $socket ) ) {
     }
 
     if ( $transType eq "dir" ) {
-        if ( $destDir =~ /\/$/ ) {
+        if ( $destDir =~ s/[\/\\]+$// ) {
             $destDir = "$destDir$fileName";
             if ( not -e $destDir ) {
                 mkdir($destDir);

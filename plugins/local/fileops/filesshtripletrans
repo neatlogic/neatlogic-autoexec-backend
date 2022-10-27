@@ -58,7 +58,7 @@ sub main {
         $destPort = 22;
     }
 
-    $srcDir =~ s/\/|\\$//;
+    $srcDir =~ s/[\/\\]+$//;
     my $srcName = basename($srcDir);
     my $srcDir  = dirname($srcDir);
 
@@ -71,15 +71,15 @@ sub main {
         $destDir = dirname($destDir);
     }
     else {
-        $destDir =~ s/\/|\\$//;
+        $destDir =~ s/[\/\\]+$//;
     }
 
     my $verboseOpt = '';
     if ( $isVerbose eq '1' ) {
         $verboseOpt = 'v';
     }
-    my $cmd = qq{ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$srcPort ${srcUser}\@${srcHost} 'cd "$srcDir" && tar -cf - "$srcName"' | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$destPort ${destUser}\@${srcHost} 'cd "$destDir" && tar -x${verboseOpt}f -'};
-    print("DEBUG:$cmd\n");
+    my $cmd =
+qq{ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$srcPort ${srcUser}\@${srcHost} 'cd "$srcDir" && tar -cf - "$srcName"' | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$destPort ${destUser}\@${destHost} 'cd "$destDir" && tar -x${verboseOpt}f -' || exit \$?};
 
     my $pid = fork();
     if ( not defined($pid) ) {
