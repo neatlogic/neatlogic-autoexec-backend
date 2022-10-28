@@ -1518,7 +1518,7 @@ sub collect {
 
     my $comm    = $procInfo->{COMM};
     my $command = $procInfo->{COMMAND};
-    if ( ( $comm eq 'oracle' or $command =~ /^\Q$comm\E/ ) and $command =~ /^ora_pmon_(.*)$/ ) {
+    if ( ( $comm eq 'oracle' or $command =~ /^\Q$comm\E/i ) and $command =~ /^ora_pmon_(.*)$/ ) {
         $oraSid = $1;
     }
     else {
