@@ -1,11 +1,11 @@
 {
-    "opDesc": "FTP远程拷贝",
+    "opDesc": "两主机通过runner传送文件",
     "opType": "runner_target",
     "typeName": "BASIC",
     "riskName": "HIGH",
-    "interpreter": "perl",
+    "interpreter": "python",
     "defaultProfile": null,
-    "description": "基于FTP文件传输",
+    "description": "Runner从源头主机获取文件目录传送到目标主机",
     "option": [{
             "opt": "verbose",
             "name": "输出详细信息",
