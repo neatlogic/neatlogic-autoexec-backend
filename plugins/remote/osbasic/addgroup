@@ -4,7 +4,6 @@ use strict;
 use FindBin;
 use POSIX qw(strftime);
 use IO::File;
-use JSON;
 use Getopt::Long;
 
 sub usage {
