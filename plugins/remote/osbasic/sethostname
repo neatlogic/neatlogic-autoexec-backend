@@ -92,7 +92,7 @@ sub main {
     }
 
     if ( defined($hostNameMap) ) {
-        my $ip = $nodeInfo->{ip};
+        my $ip = $nodeInfo->{host};
         $hostName = $hostNameMap->{$ip};
 
         if ( not defined($hostName) or $hostName eq '' ) {
