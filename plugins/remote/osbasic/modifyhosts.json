@@ -58,15 +58,15 @@
         {
             "opt": "content",
             "name": "需修改内容",
-            "help": "支持多行, 例如：10.10.0.1 myhost",
+            "help": "支持多行,若内容为空自动把“IP主机名对照表”的数据拼接成修改内容, 例如：10.10.0.1 myhost",
             "type": "textarea",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         }
     ],
     "output": [{
-        "opt": "hostConf",
+        "opt": "hostsConf",
         "name": "Hosts配置内容",
         "help": "更新后的Hosts配置内容",
         "type": "textarea"

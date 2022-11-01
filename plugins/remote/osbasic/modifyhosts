@@ -78,9 +78,17 @@ sub main {
         'content=s'        => \$content
     );
 
-    if ( not defined($content) or $content eq '' ) {
-        print("ERROR: Must defined modify content by option --content\n");
+    if (not defined($hostNamesJson) or $hostNamesJson eq '' ) {
+        print("ERROR: Must defined modify hostNamesJson by option --hostNamesJson\n");
         usage();
+    }
+
+    if(not defined($content) or $content eq ''){
+        my $ip2HostnameMap = from_json($hostNamesJson);
+        foreach my $key ( keys(%$ip2HostnameMap) ) {
+            my $val = $ip2HostnameMap->{$key};
+            $content = $content . "$key $val\n" ;
+        }
     }
 
     my $hasError = 0;
