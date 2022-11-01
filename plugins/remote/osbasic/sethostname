@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use strict;
 use JSON;
 use Getopt::Long;
+use POSIX;
 
 use AutoExecUtils;
 
