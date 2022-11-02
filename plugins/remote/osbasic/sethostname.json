@@ -57,7 +57,7 @@
         }
     ],
     "output": [{
-        "opt": "hostConf",
+        "opt": "hostsConf",
         "name": "Hosts配置内容",
         "help": "更新后的Hosts配置内容",
         "type": "textarea"

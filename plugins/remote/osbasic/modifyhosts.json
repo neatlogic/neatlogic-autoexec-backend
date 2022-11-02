@@ -63,6 +63,26 @@
             "required": "false",
             "validate": "",
             "defaultValue": ""
+        },
+        {
+            "opt": "datakey",
+            "name": "数据主键",
+            "help": "数据主键，默认是以IP为主键不允许出现一个IP对应的名称配置，如为映射名称则以名称为主允许一个IP对应多个名称的配置",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "IP",
+                        "value": "ip"
+                    },
+                    {
+                        "text": "映射名称",
+                        "value": "name"
+                    }
+                ]
+            },
+            "defaultValue": "ip"
         }
     ],
     "output": [{
