@@ -3,8 +3,6 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-
-from numpy import real
 from pyVim import connect
 from pyVim.connect import SmartConnect, Disconnect, SmartConnection
 from ipaddress import ip_address, IPv4Address
@@ -197,11 +195,9 @@ class VsphereQuery:
         #先看vmtools拿到的ip是不是ipv6
         os_ip = self.str_format(guest.ipAddress)
         if self.validIPAddress(os_ip) != "IPv4":
-            realIp = self.get_nic_ipv4(vm)
-            if realIp is None :
+            os_ip = self.get_nic_ipv4(vm)
+            if os_ip is None :
                 return None 
-            else:
-                os_ip = realIp
         powerState = vm.summary.runtime.powerState
         hardware = vm.config.hardware
         memory = hardware.memoryMB
