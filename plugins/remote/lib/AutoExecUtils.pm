@@ -58,6 +58,22 @@ sub getFileContent {
     return $content;
 }
 
+sub randString($) {
+    my ($len) = @_;
+
+    my @elements =
+        ( '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' );
+    my $elementsCount = scalar(@elements);
+
+    my $str = '';
+    my $i;
+    for ( $i = 3 ; $i <= $len ; $i++ ) {
+        $str = $str . $elements[ int( rand( $len - 1 ) ) ];
+    }
+
+    return $str;
+}
+
 sub getShellEncoding {
     my @uname  = uname();
     my $osType = $uname[0];
