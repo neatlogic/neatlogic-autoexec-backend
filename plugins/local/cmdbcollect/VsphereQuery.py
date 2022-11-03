@@ -170,7 +170,7 @@ class VsphereQuery:
     #查vm网卡获取所有IP
     def get_nic_ipv4(self , vm):
         net = vm.guest.net
-        if net is None or hasattr(net ,'GuestNicInfo') or len(net) == 0:
+        if net is None or len(net) == 0:
             return None 
         ipAddress_arry = net[0].ipAddress
         ipv4 = None 
