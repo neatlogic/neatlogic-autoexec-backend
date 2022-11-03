@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use strict;
 use JSON;
 use Getopt::Long;
+use POSIX;
 
 use AutoExecUtils;
 
@@ -91,7 +92,7 @@ sub main {
     }
 
     if ( defined($hostNameMap) ) {
-        my $ip = $nodeInfo->{ip};
+        my $ip = $nodeInfo->{host};
         $hostName = $hostNameMap->{$ip};
 
         if ( not defined($hostName) or $hostName eq '' ) {

@@ -3,9 +3,9 @@
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
 """
-
 from pyVim import connect
 from pyVim.connect import SmartConnect, Disconnect, SmartConnection
+from ipaddress import ip_address, IPv4Address
 import traceback
 import atexit
 import ssl
@@ -150,7 +150,7 @@ class VsphereQuery:
 
         host_list = cluster.host
         for host in host_list:
-             data_list.append(self.get_hardware(host))
+            data_list.append(self.get_hardware(host))
         return data_list
 
     def str_format(self, str):
@@ -158,6 +158,25 @@ class VsphereQuery:
             return ''
         else:
             return str
+
+    def validIPAddress(self , ipAddress):
+        try:
+            return "IPv4" if type(ip_address(ipAddress)) is IPv4Address else "IPv6"
+        except ValueError:
+            return "Invalid"
+    
+    #查vm网卡获取所有IP
+    def get_nic_ipv4(self , vm):
+        net = vm.guest.net
+        if net is None or len(net) == 0:
+            return None 
+        ipAddress_arry = net[0].ipAddress
+        ipv4 = None 
+        for ip in ipAddress_arry:
+            if( self.validIPAddress(ip) == 'IPv4' ):
+                ipv4 = ip 
+                break 
+        return ipv4
 
     def get_vm(self, host, vm, cluster):
         ins = {}
@@ -173,7 +192,12 @@ class VsphereQuery:
         else:
             os_type = 'Linux'
 
+        #先看vmtools拿到的ip是不是ipv6
         os_ip = self.str_format(guest.ipAddress)
+        if self.validIPAddress(os_ip) != "IPv4":
+            os_ip = self.get_nic_ipv4(vm)
+            if os_ip is None :
+                return None 
         powerState = vm.summary.runtime.powerState
         hardware = vm.config.hardware
         memory = hardware.memoryMB
@@ -220,12 +244,14 @@ class VsphereQuery:
                     vm_list = host.vm
                     if vm_list != None:
                         for vm in vm_list:
-                            data_list.append(self.get_vm(host, vm, cluster))
+                            vmIns = self.get_vm(host, vm, cluster)
+                            if vmIns is not None :
+                                data_list.append(vmIns)
         return data_list
 
     def disconnect(self):
         Disconnect(self.service_instance)
-  
+
     def get_alarms(self):
         alarms =[]
         for trigger in self.vcontent.rootFolder.triggeredAlarmState:

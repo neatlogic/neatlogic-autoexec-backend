@@ -70,17 +70,34 @@ sub main {
     my $reset      = 1;
     my $needBackup = 0;
     my $content;
+    my $datakey;
 
     GetOptions(
         'backup=i'         => \$needBackup,
         'reset=i'          => \$reset,
         'ip2hostnamemap=s' => \$hostNamesJson,
-        'content=s'        => \$content
+        'content=s'        => \$content,
+        'datakey=s'        => \$datakey
     );
 
-    if ( not defined($content) or $content eq '' ) {
-        print("ERROR: Must defined modify content by option --content\n");
+    if ( not defined($hostNamesJson) or $hostNamesJson eq '' ) {
+        print("ERROR: Must defined modify hostNamesJson by option --hostNamesJson\n");
         usage();
+    }
+
+    #允许content为空，默认根据ip2host map生成hosts内容
+    if ( not defined($content) or $content eq '' ) {
+        my $ip2HostnameMap = from_json($hostNamesJson);
+        foreach my $key ( keys(%$ip2HostnameMap) ) {
+            my $val = $ip2HostnameMap->{$key};
+            $content = $content . "$key $val\n";
+        }
+    }
+
+    #默认在hosts文件内ip与名称映射的规则为：1对1，主键为ip
+    my $ip_key = 1;
+    if ( defined($datakey) && $datakey eq 'name' ) {
+        $ip_key = 0;
     }
 
     my $hasError = 0;
@@ -102,14 +119,13 @@ sub main {
 
     my $hostName;
     my $hostIp;
-    if ( defined($hostNamesJson) and $hostNamesJson ne '' ) {
-        my $ip2HostnameMap = from_json($hostNamesJson);
-        foreach my $ip ( keys(%$allIpsMap) ) {
-            $hostName = $ip2HostnameMap->{$ip};
-            if ( defined($hostName) and $hostName ne '' ) {
-                $hostIp = $ip;
-                last;
-            }
+
+    my $ip2HostnameMap = from_json($hostNamesJson);
+    foreach my $ip ( keys(%$allIpsMap) ) {
+        $hostName = $ip2HostnameMap->{$ip};
+        if ( defined($hostName) and $hostName ne '' ) {
+            $hostIp = $ip;
+            last;
         }
     }
 
@@ -126,8 +142,16 @@ sub main {
         }
 
         my ( $ip, $name ) = split( /\s+/, $line, 2 );
-        $confMap->{$ip} = $name;
-        push( @confKeysArray, $ip );
+
+        if ( $ip_key == 1 && not defined( $confMap->{$ip} ) ) {
+            $confMap->{$ip} = $name;
+            push( @confKeysArray, $ip );
+        }
+
+        if ( $ip_key == 0 && not defined( $confMap->{$name} ) ) {
+            $confMap->{$name} = $ip;
+            push( @confKeysArray, $name );
+        }
 
         if ( ( not defined($hostName) or $hostName eq '' ) ) {
             if ( defined( $allIpsMap->{$ip} ) ) {
@@ -138,8 +162,16 @@ sub main {
     }
 
     if ( defined($hostName) and $hostName ne '' and not defined( $confMap->{$hostIp} ) ) {
-        $confMap->{$hostIp} = $hostName;
-        push( @confKeysArray, $hostIp );
+
+        if ( $ip_key == 1 && not defined( $confMap->{$hostIp} ) ) {
+            $confMap->{$hostIp} = $hostName;
+            push( @confKeysArray, $hostIp );
+        }
+
+        if ( $ip_key == 0 && not defined( $confMap->{$hostName} ) ) {
+            $confMap->{$hostName} = $hostIp;
+            push( @confKeysArray, $hostName );
+        }
     }
 
     my $processedMap = {};
@@ -153,31 +185,58 @@ sub main {
                 my $tmpLine = $line;
                 $tmpLine =~ s/^\s*|\s*$//g;
                 my ( $ip, $name ) = split( /\s+/, $tmpLine, 2 );
-                my $newName = $confMap->{$ip};
-                if ( defined($newName) and not defined( $processedMap->{$ip} ) ) {
-                    $processedMap->{$ip} = 1;
-                    if ( $newName ne $name ) {
-                        $isChanged = 1;
-                        $line =~ s/\s+.*$/\t$newName/;
-                        print("Replace: $tmpLine -> $line");
+
+                my $newValue;
+                if ( $ip_key == 1 ) {
+                    $newValue = $confMap->{$ip};
+                }
+                else {
+                    $newValue = $confMap->{$name};
+                }
+
+                if ( defined($newValue) and not defined( $processedMap->{$ip} ) and not defined( $processedMap->{$name} ) ) {
+                    if ($ip_key) {
+                        $processedMap->{$ip} = 1;
+                        if ( $newValue ne $name ) {
+                            $isChanged = 1;
+                            $line =~ s/\s+.*$/\t$newValue/;
+                            print("Replace: $tmpLine -> $line");
+                        }
+                        else {
+                            print("NotChanged: $line");
+                        }
                     }
                     else {
-                        print("NotChanged: $line");
+                        $processedMap->{$name} = 1;
+                        if ( $newValue ne $ip ) {
+                            $isChanged = 1;
+                            $line      = "$newValue\t$name\n";
+                            print("Replace: $tmpLine -> $line");
+                        }
+                        else {
+                            print("NotChanged: $line");
+                        }
                     }
+
                 }
             }
             $newContent = $newContent . $line;
         }
 
-        #while ( my ( $ip, $name ) = each(%$confMap) ) {
-        foreach my $ip (@confKeysArray) {
-            if ( $processedMap->{$ip} == 1 ) {
+        foreach my $key (@confKeysArray) {
+            if ( $processedMap->{$key} == 1 ) {
                 next;
             }
-            my $name = $confMap->{$ip};
-            $isChanged  = 1;
-            $newContent = $newContent . "$ip\t$name\n";
-            print("Append: $ip\t$name\n");
+            my $value = $confMap->{$key};
+            $isChanged = 1;
+            if ($ip_key) {
+                $newContent = $newContent . "$key\t$value\n";
+                print("Append: $key\t$value\n");
+            }
+            else {
+                $newContent = $newContent . "$value\t$key\n";
+                print("Append: $value\t$key\n");
+            }
         }
 
         if ( $isChanged == 1 ) {
