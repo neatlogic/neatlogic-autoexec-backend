@@ -66,7 +66,7 @@ if __name__ == "__main__":
                     mergedData = {}
                 mergedData.update(val)
             else:
-                print("ERROR: Value for {} can not to be merged, only support dictionary or list object." % (outputKey))
+                print("ERROR: Value for {} can not to be merged, only support dictionary or list object.".format(outputKey))
 
         if not mergedData:
             print("WARN: Can not find any output for:%s." % (outputKey))
