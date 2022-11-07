@@ -608,7 +608,6 @@ class JobRunner:
                 self.context.serverAdapter.fireNextGroup(lastGroupNo)
 
         self.context.goToStop = True
-        self.context.close()
         return status
 
     def stopListen(self):
@@ -624,7 +623,6 @@ class JobRunner:
         self.context.goToStop = True
         print("INFO: Try to kill job...\n", end='')
         self.stopListen()
-        self.context.close()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         for phaseStatus in self.context.phases.values():
             phaseStatus.isAborting = 1
