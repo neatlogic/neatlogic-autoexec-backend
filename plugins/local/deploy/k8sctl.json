@@ -96,7 +96,23 @@
             "required": "true",
             "validate": "",
             "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "超时时间,循环检查k8s滚动更新pods状态的最大超时时间",
+            "type": "text",
+            "required": "true",
+            "validate": ["integer_p"],
+            "defaultValue": "120"
         }
     ],
-    "output": []
+    "output": [
+        {
+            "opt": "k8s_data",
+            "name": "滚动更新数据",
+            "help": "滚动更新数据",
+            "type": "text"
+        }
+    ]
 }

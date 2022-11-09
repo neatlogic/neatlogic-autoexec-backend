@@ -6,7 +6,8 @@ use JSON;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
-use Data::Dumper;
+
+use AutoExecUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -110,8 +111,8 @@ sub getRplicaset {
     my $headers  = { 'jwetoken' => $jwetoken };
     my $newRes   = doGet( $newrsUrl, $headers );
 
-    #历史副本只取最新5条
-    my $oldrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/oldreplicaset?itemsPerPage=5&page=1&sortBy=d,creationTimestamp";
+    #历史副本只取最新1条
+    my $oldrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/oldreplicaset?itemsPerPage=1&page=1&sortBy=d,creationTimestamp";
     my $oldRes   = doGet( $oldrsUrl, $headers );
 
     return ( $newRes, $oldRes );
@@ -119,7 +120,9 @@ sub getRplicaset {
 
 sub getPods {
     my ( $baseUrl, $jwetoken, $namespace, $podName ) = @_;
-    my $url     = $baseUrl . "/api/v1/replicaset/$namespace/$podName/pod?itemsPerPage=10&page=1&sortBy=d,creationTimestamp";
+
+    #pods数量上限最多100
+    my $url     = $baseUrl . "/api/v1/replicaset/$namespace/$podName/pod?itemsPerPage=100&page=1&sortBy=d,creationTimestamp";
     my $headers = { 'jwetoken' => $jwetoken };
     my $res     = doGet( $url, $headers );
 
@@ -133,18 +136,48 @@ sub getRollUpdateInfo {
     if ( defined($jwetoken) ) {
         my $deployment = getDeployment( $baseUrl, $jwetoken, $namespace, $deploymentName );
         if ( defined($deployment) ) {
-            $data->{'selector'}              = $deployment->{'selector'};
-            $data->{'rollingUpdateStrategy'} = $deployment->{'rollingUpdateStrategy'};
-            $data->{'statusInfo'}            = $deployment->{'statusInfo'};
+            $data->{'deployment'} = $deployment;
         }
-        my ( $newRs, $oldRs ) = getRplicaset( $baseUrl, $jwetoken, $namespace, $deploymentName );
-        if ( defined($newRs) ) {
-            my $rsName = $newRs->{'objectMeta'}->{'name'};
 
-            $data->{'replicasetName'}   = $rsName;
-            $data->{'replicasePodInfo'} = $newRs->{'podInfo'};
-            my $pods = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
-            $data->{'pods'} = $pods;
+        my ( $newRs, $oldRs ) = getRplicaset( $baseUrl, $jwetoken, $namespace, $deploymentName );
+
+        #最新副本
+        if ( defined($newRs) ) {
+            $data->{'newreplicaset'} = $newRs;
+            my $rsName = $newRs->{'objectMeta'}->{'name'};
+            my $pods   = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
+            if ( defined($pods) ) {
+                $data->{'newreplicaset'}->{'pod'} = $pods;
+            }
+            else {
+                $data->{'newreplicaset'}->{'pod'} = undef;
+            }
+        }
+        else {
+            $data->{'newreplicaset'} = undef;
+        }
+
+        #上个副本
+        if ( defined($oldRs) ) {
+            my $prevRs = $oldRs->{'replicaSets'};
+            if ( defined($prevRs) && scalar(@$prevRs) > 0 ) {
+                my $prevRsIns = @$prevRs[0];
+                $data->{'oldreplicaset'} = $prevRsIns;
+                my $rsName = $prevRsIns->{'objectMeta'}->{'name'};
+                my $pods   = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
+                if ( defined($pods) ) {
+                    $data->{'oldreplicaset'}->{'pod'} = $pods;
+                }
+                else {
+                    $data->{'oldreplicaset'}->{'pod'} = undef;
+                }
+            }
+            else {
+                $data->{'oldreplicaset'} = undef;
+            }
+        }
+        else {
+            $data->{'oldreplicaset'} = undef;
         }
     }
     return $data;
@@ -152,7 +185,7 @@ sub getRollUpdateInfo {
 
 sub main {
     my ( $host, $apiPort, $managerPort, $token );
-    my ( $image, $name, $namespace, $deployment, $action );
+    my ( $image, $name, $namespace, $deployment, $action, $timeout );
 
     GetOptions(
         'host=s'       => \$host,
@@ -163,7 +196,8 @@ sub main {
         'name=s'       => \$name,
         'namespace=s'  => \$namespace,
         'deployment=s' => \$deployment,
-        'action=s'     => \$action
+        'action=s'     => \$action,
+        'timeout=i'    => \$timeout
     );
 
     my $optionError = 0;
@@ -198,6 +232,11 @@ sub main {
         $optionError = 1;
     }
 
+    if ( not defined($timeout) ) {
+        $timeout = 120;
+    }
+    my $org_timeout = $timeout;
+
     if ( $optionError == 1 ) {
         usage();
     }
@@ -225,10 +264,10 @@ sub main {
             }
         }
     };
-
     my $hasError = 0;
-    my $req      = to_json($reqObj);
-    my $client   = REST::Client->new();
+    my $queryData;
+    my $req    = to_json($reqObj);
+    my $client = REST::Client->new();
 
     $client->addHeader( "Authorization", "Bearer $token" );
     $client->addHeader( 'Content-Type',  'application/strategic-merge-patch+json' );
@@ -261,31 +300,98 @@ sub main {
         #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
         $baseUrl = "https://$host:$managerPort";
         while (1) {
-            my $data = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
-            if ( defined($data) ) {
-                my $podInfo = $data->{'replicasePodInfo'};
+            $queryData = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
+            if ( defined($queryData) ) {
 
-                #desired =  pending + running + failed
-                my $desired = $podInfo->{'desired'};
-                my $pending = $podInfo->{'pending'};
-                my $running = $podInfo->{'running'};
-                my $failed  = $podInfo->{'failed'};
+                if ( not defined( $queryData->{'newreplicaset'} ) or not defined( $queryData->{'newreplicaset'}->{'pod'} ) ) {
+                    last;
+                }
+
+                #print(to_json($queryData));
+                my $pod     = $queryData->{'newreplicaset'}->{'pod'};
+                my $pods    = $pod->{'pods'};
+                my $desired = int( $pod->{'listMeta'}->{'totalItems'} );
+                my $pending = 0;
+                my $running = 0;
+                my $failed  = 0;
+
+                #状态转换，0 正常；1异常 ；2 初始化中
+                my $statusMap = {
+                    'Running'                               => 0,
+                    'CrashLoopBackOff'                      => 1,    #容器退出，kubelet正在将它重启
+                    'InvalidImageName'                      => 1,    #无法解析镜像名称
+                    'ImageInspectError'                     => 1,    #无法校验镜像
+                    'ErrImageNeverPull'                     => 1,    #策略禁止拉取镜像
+                    'ImagePullBackOff'                      => 2,    #正在重试拉取
+                    'RegistryUnavailable'                   => 1,    #连接不到镜像中心
+                    'ErrImagePull'                          => 1,    #拉取镜像出错
+                    'CreateContainerConfigError'            => 1,    #不能创建kubelet使用的容器配置
+                    'CreateContainerError'                  => 1,    #创建容器失败
+                    'm.internalLifecycle.PreStartContainer' => 1,    #执行hook报错
+                    'RunContainerError'                     => 1,    #启动容器失败
+                    'PostStartHookError'                    => 1,    #执行hook报错
+                    'ContainersNotInitialized'              => 2,    #容器没有初始化完毕
+                    'ContainersNotReady'                    => 2,    #容器没有准备完毕
+                    'ContainerCreating'                     => 2,    #容器创建中
+                    'PodInitializing'                       => 2,    #pod 初始化中
+                    'ContainersNotReady'                    => 2,    #容器没有准备完毕
+                    'DockerDaemonNotReady'                  => 2,    #docker还没有完全启动
+                    'NetworkPluginNotReady'                 => 2     #网络插件还没有完全启动
+                };
+
+                foreach my $pod (@$pods) {
+                    my $podStatus    = $pod->{'status'};
+                    my $podStatusVal = $statusMap->{$podStatus};
+                    if ( not defined($podStatusVal) ) {
+                        $podStatusVal = 2;
+                    }
+                    if ( $podStatusVal == 0 ) {
+                        $running++;
+                    }
+                    elsif ( $podStatusVal == 1 ) {
+                        $failed++;
+                    }
+                    elsif ( $podStatusVal == 2 ) {
+                        $pending++;
+                    }
+                }
+
+                print("INFO: Desired pod:$desired, Pending pod :$pending , Running pod: $running , Failed pod: $failed .\n");
                 if ( $desired == ( $running + $failed ) ) {
-                    print("FINE: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
+                    print("FINE: Desired pod:$desired , Running pod: $running , Failed pod: $failed.\n");
+                    if( $failed > 0 ){
+                        $hasError = 1;
+                    }
                     last;
                 }
                 else {
                     sleep(3);
+                    $timeout--;
                 }
             }
             else {
                 last;
             }
+
+            if ( $timeout <= 0 ) {
+                $hasError = 1;
+                print("ERROR: Read application $name(nanmespace:$namespace, deployment:$deployment) with $image timeout ,waiting $org_timeout second.\n");
+                last;
+            }
         }
-        if ( defined($name) and defined($image) ) {
+
+        if ( $hasError > 0 ) {
+            print("ERRORR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed.\n");
+        }
+        else {
             print("FINE: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
         }
     }
+
+    my $out = {};
+    $out->{k8s_data} = $queryData;
+    AutoExecUtils::saveOutput($out);
+    AutoExecUtils::saveLiveData($out);
 
     return $hasError;
 }
