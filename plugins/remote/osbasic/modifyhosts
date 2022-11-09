@@ -92,6 +92,7 @@ sub main {
             my $val = $ip2HostnameMap->{$key};
             $content = $content . "$key $val\n";
         }
+        print("INFO: Host config content is empty, use config content:$content.\n");
     }
 
     #默认在hosts文件内ip与名称映射的规则为：1对1，主键为ip
@@ -151,13 +152,6 @@ sub main {
         if ( $ip_key == 0 && not defined( $confMap->{$name} ) ) {
             $confMap->{$name} = $ip;
             push( @confKeysArray, $name );
-        }
-
-        if ( ( not defined($hostName) or $hostName eq '' ) ) {
-            if ( defined( $allIpsMap->{$ip} ) ) {
-                $hostName = $name;
-                $hostIp   = $ip;
-            }
         }
     }
 
@@ -261,7 +255,21 @@ sub main {
 
         if ( $hasError == 0 ) {
             if ( defined($hostName) and $hostName ne '' ) {
+                if ( -f "/etc/hostname" ) {
+                    my $fh = IO::File->new('>/etc/hostname');
+                    if ( defined($fh) ) {
+                        print $fh ($hostName);
+                        $fh->close();
+                    }
+                }
                 $hasError = system("hostname '$hostName'");
+
+                if ( $hasError == 0 ) {
+                    print("Set hostname:$hostName success.\n");
+                }
+                else {
+                    print("ERROR: Set hostname:$hostName failed.\n");
+                }
             }
         }
     }

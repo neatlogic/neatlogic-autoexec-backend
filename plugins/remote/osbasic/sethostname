@@ -111,6 +111,14 @@ sub main {
         return $hasError;
     }
 
+    if ( -f "/etc/hostname" ) {
+        my $fh = IO::File->new('>/etc/hostname');
+        if ( defined($fh) ) {
+            print $fh ($hostName);
+            $fh->close();
+        }
+    }
+
     $hasError = system("hostname '$hostName'");
 
     if ( $hasError == 0 and defined($hostNameMap) ) {
