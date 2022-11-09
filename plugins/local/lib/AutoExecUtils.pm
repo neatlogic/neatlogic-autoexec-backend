@@ -93,6 +93,31 @@ sub saveOutput {
     }
 }
 
+sub saveLiveData {
+    my ($outputData) = @_;
+    my $outputPath = $ENV{LIVEDATA_PATH};
+
+    print("INFO: Try to save output to $outputPath.\n");
+    if ( defined($outputPath) and $outputPath ne '' ) {
+        my $outputDir = dirname($outputPath);
+        if ( $outputDir ne '' and not -e $outputDir ) {
+            mkpath($outputDir);
+        }
+
+        my $fh = IO::File->new(">$outputPath");
+        if ( defined($fh) ) {
+            print $fh ( to_json( $outputData, { utf8 => 0, pretty => 1 } ) );
+            $fh->close();
+        }
+        else {
+            die("ERROR: Can not open output file:$outputPath to write.\n");
+        }
+    }
+    else {
+        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n");
+    }
+}
+
 sub getMyNode {
     my $nodeJson = $ENV{AUTOEXEC_NODE};
     my $node;

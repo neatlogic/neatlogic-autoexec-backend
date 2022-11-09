@@ -86,6 +86,21 @@ def saveOutput(outputData):
         print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n", end='')
 
 
+def saveLiveData(outputData):
+    outputPath = os.getenv('LIVEDATA_PATH')
+    print("INFO: Try save output to {}.\n".format(outputPath), end='')
+    if outputPath is not None and outputPath != '':
+        outputDir = os.path.dirname(outputPath)
+        if not outputDir == '' and not os.path.exists(outputDir):
+            os.makedirs(outputDir)
+        outputFile = open(outputPath, 'w')
+        outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))
+        outputFile.close()
+        print("INFO: Save output success.\n", end='')
+    else:
+        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n", end='')
+
+
 def getOutput(output_path):
     outputFile = open(output_path, "r", encoding="utf-8")
     data = json.load(outputFile)

@@ -238,6 +238,7 @@ class RunNode:
         self.opOutputRoot = self.runPath + '/output-op'
         self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
+        self.liveDataDir = '{}/livedata/{}/{}-{}-{}'.format(self.runPath, phaseName, self.host, self.port, self.resourceId)
 
         if not os.path.exists(self.outputDir):
             os.makedirs(self.outputDir)
@@ -386,6 +387,10 @@ class RunNode:
     def _getOpOutputPath(self, op):
         opOutPutPath = '{}/{}.json'.format(self.opOutputDir, op.opId)
         return opOutPutPath
+
+    def _getOpLiveDataPath(self, op):
+        opLiveDataDir = '{}/{}.json'.format(self.liveDataDir, op.opId)
+        return opLiveDataDir
 
     def _getLocalOutput(self):
         output = {}
@@ -799,6 +804,7 @@ class RunNode:
         environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['LIVEDATA_PATH'] = self._getOpLiveDataPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
@@ -855,6 +861,7 @@ class RunNode:
         environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['LIVEDATA_PATH'] = self._getOpLiveDataPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
         environment['PYTHONPATH'] = '{}:{}/lib:{}:{}'.format(op.pluginParentPath, op.pluginParentPath, op.localLibPath, os.getenv('PYTHONPATH'))
