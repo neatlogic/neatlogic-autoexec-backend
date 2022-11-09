@@ -574,7 +574,7 @@ class RunNode:
                             self.context.setEnv(envName, envValue)
                             self.context.exportEnv(envName)
                         elif op.opSubName == 'failkeys':
-                            self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(op.arguments)))
+                            self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
                             self.logHandle.setFailPattern(op.options.get('operator'), op.arguments, op.options.get('exclude'))
                     except Exception as ex:
                         ret = 1
