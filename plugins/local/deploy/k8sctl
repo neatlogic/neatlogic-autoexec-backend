@@ -299,12 +299,10 @@ sub main {
 
         #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
         $baseUrl = "https://$host:$managerPort";
-        my $pending = 0;
-        my $running = 0;
-        my $failed  = 0;
         while (1) {
             $queryData = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
             if ( defined($queryData) ) {
+
                 if ( not defined( $queryData->{'newreplicaset'} ) or not defined( $queryData->{'newreplicaset'}->{'pod'} ) ) {
                     last;
                 }
@@ -313,6 +311,9 @@ sub main {
                 my $pod     = $queryData->{'newreplicaset'}->{'pod'};
                 my $pods    = $pod->{'pods'};
                 my $desired = int( $pod->{'listMeta'}->{'totalItems'} );
+                my $pending = 0;
+                my $running = 0;
+                my $failed  = 0;
 
                 #状态转换，0 正常；1异常 ；2 初始化中
                 my $statusMap = {
@@ -358,6 +359,9 @@ sub main {
                 print("INFO: Desired pod:$desired, Pending pod :$pending , Success pod: $running , Failed pod: $failed .\n");
                 if ( $desired == ( $running + $failed ) ) {
                     print("FINE: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
+                    if( $failed > 0 ){
+                        $hasError = 1;
+                    }
                     last;
                 }
                 else {
@@ -370,13 +374,13 @@ sub main {
             }
 
             if ( $timeout <= 0 ) {
+                $hasError = 1;
                 print("ERROR: Read application $name(nanmespace:$namespace, deployment:$deployment) with $image timeout ,waiting $org_timeout second.\n");
                 last;
             }
         }
 
-        if ( $failed > 0 ) {
-            $hasError = 1;
+        if ( $hasError > 0 ) {
             print("ERRORR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed.\n");
         }
         else {
