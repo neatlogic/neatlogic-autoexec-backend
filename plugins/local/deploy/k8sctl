@@ -356,9 +356,9 @@ sub main {
                     }
                 }
 
-                print("INFO: Desired pod:$desired, Pending pod :$pending , Success pod: $running , Failed pod: $failed .\n");
+                print("INFO: Desired pod:$desired, Pending pod :$pending , Running pod: $running , Failed pod: $failed .\n");
                 if ( $desired == ( $running + $failed ) ) {
-                    print("FINE: Desired pod:$desired , Success pod: $running , Failed pod: $failed.\n");
+                    print("FINE: Desired pod:$desired , Running pod: $running , Failed pod: $failed.\n");
                     if( $failed > 0 ){
                         $hasError = 1;
                     }
