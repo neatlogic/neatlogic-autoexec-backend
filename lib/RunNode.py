@@ -516,7 +516,6 @@ class RunNode:
             return fileOutMap
 
     def _removeOpOutput(self, op):
-        opOutputFile = None
         opOutPutPath = self._getOpOutputPath(op)
         if os.path.exists(opOutPutPath):
             os.remove(opOutPutPath)
