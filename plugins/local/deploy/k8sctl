@@ -356,9 +356,9 @@ sub main {
                     }
                 }
 
-                print("INFO: Desired pod:$desired, Pending pod :$pending , Running pod: $running , Failed pod: $failed .\n");
+                print("INFO: Desired pod: $desired, Pending pod: $pending, Running pod: $running, Failed pod: $failed .\n");
                 if ( $desired == ( $running + $failed ) ) {
-                    print("FINE: Desired pod:$desired , Running pod: $running , Failed pod: $failed.\n");
+                    print("INFO: Desired pod: $desired, Running pod: $running, Failed pod: $failed.\n");
                     if( $failed > 0 ){
                         $hasError = 1;
                     }
@@ -381,7 +381,7 @@ sub main {
         }
 
         if ( $hasError > 0 ) {
-            print("ERRORR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed.\n");
+            print("ERROR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed.\n");
         }
         else {
             print("FINE: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
