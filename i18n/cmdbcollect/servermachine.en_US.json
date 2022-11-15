@@ -1,0 +1,417 @@
+{
+    "label": "Server Machine",
+    "collection": "COLLECT_SERVERDEV",
+    "docroot": null,
+    "collection_label": "Server Machine",
+    "filter": {
+        "_OBJ_TYPE": "SERVERMACHINE"
+    },  
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "SYSTEM_POWER",
+            "desc": "System Status",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availabitity",
+            "type": "Int"
+        },
+        {
+            "name": "BOARD_VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Serial",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_PRODUCT",
+            "desc": "Product",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Dev Name",
+            "type": "String"
+        },
+        {
+            "name": "FIRMWARE_REVISION",
+            "desc": "Firmware Version",
+            "type": "String"
+        },
+        {
+            "name": "TEMPERATURE",
+            "desc": "Temperature",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value(℃)",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VOLTAGE",
+            "desc": "Voltage",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CURRENT",
+            "desc": "Current",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "FAN",
+            "desc": "Fan",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PROCESSOR",
+            "desc": "Processor",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "POWER SUPPLY",
+            "desc": "Power Supply",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "POWER UNIT",
+            "desc": "Power Unit",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MEMORY",
+            "desc": "Memory",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DRIVE SLOT / BAY",
+            "desc": "Drive",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CABLE / INTERCONNECT",
+            "desc": "Cable/Interconnect",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "FRU",
+            "desc": "Fru",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "FRU_DEVICE",
+                    "desc": "FRU Device",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_MFG",
+                    "desc": "Board Mfg",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_PRODUCT",
+                    "desc": "Board Product",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "Board Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_NUMBER",
+                    "desc": "Board Part Number",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SEL",
+            "desc": "Sel",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "ENTRIES",
+                    "desc": "Entries",
+                    "type": "String"
+                },
+                {
+                    "name": "PERCENT_USED",
+                    "desc": "Percent Used",
+                    "type": "String"
+                },
+                {
+                    "name": "OVERFLOW",
+                    "desc": "Overflow",
+                    "type": "String"
+                },
+                {
+                    "name": "SEL_LIST",
+                    "desc": "Sel Detail(limit 20)",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "DATE",
+                            "desc": "Date",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TIME",
+                            "desc": "Time",
+                            "type": "String"
+                        },
+                        {
+                            "name": "EVENT",
+                            "desc": "Event",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MESSAGE",
+                            "desc": "Message",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
