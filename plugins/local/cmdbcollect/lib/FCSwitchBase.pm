@@ -15,6 +15,11 @@ sub new {
 
     $self->{snmpHelper} = SnmpHelper->new();
 
+    my $doInspect = $args{doInspect};
+    if ( not defined($doInspect) ) {
+        $doInspect = 0;
+    }
+
     my $scalarOidDef = {
         DEV_NAME         => '1.3.6.1.2.1.1.5.0',                                                                                   #sysName
         SN               => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
@@ -32,19 +37,39 @@ sub new {
             #NETMASK => '1.3.6.1.4.1.1588.2.1.1.1.1.26.0' #swEtherIPMask
     };
 
+    my $portCounterDef = {
+        PORTS_COUNTER => {
+            INDEX             => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
+            WWN               => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
+            IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
+            IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
+            IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
+            IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
+            IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
+            IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
+            OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
+            OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
+            OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
+            OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
+            OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20'     #ifOutErrors
+        }
+    };
+
     my $tableOidDef = {
         PORTS => {
 
             #1.3.6.1.4.1.1588.2.1.1.1.0.3 #swFCPortScn
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',    #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',    #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',    #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',    #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',    #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',    #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',    #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',    #ifMTU
+            INDEX        => '1.3.6.1.2.1.2.2.1.1',          #ifIndex
+            NAME         => '1.3.6.1.2.1.2.2.1.2',          #ifDescr
+            TYPE         => '1.3.6.1.2.1.2.2.1.3',          #ifType
+            WWN          => '1.3.6.1.2.1.2.2.1.6',          #ifPhysAddress
+            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',          #ifAdminStatus
+            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',          #ifOperStatus
+            SPEED        => '1.3.6.1.2.1.2.2.1.5',          #ifSpeed
+            MTU          => '1.3.6.1.2.1.2.2.1.4',          #ifMTU
+            OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21'          #ifOutQLen
         },
+
         ZONES => {
             INDEX => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.1',
             NAME  => '1.3.6.1.4.1.1588.2.1.1.1.2.1.1.2'
@@ -63,8 +88,9 @@ sub new {
         }
     };
 
-    $self->{scalarOidDef} = $scalarOidDef;
-    $self->{tableOidDef}  = $tableOidDef;
+    $self->{scalarOidDef}   = $scalarOidDef;
+    $self->{tableOidDef}    = $tableOidDef;
+    $self->{portCounterDef} = $portCounterDef;
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -230,6 +256,28 @@ sub _getTable {
         }
         else {
             $linkInfo->{PORT_NAME} = undef;
+        }
+    }
+
+    if ( $self->{doInpsect} == 1 ) {
+        my $preCounterMap    = {};
+        my $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
+        my $portsCounterData = $counterTblData->{PORTS_COUNTER};
+        foreach my $portInfo (@$portsCounterData) {
+            $preCounterMap->{ $portInfo->{WWN} } = $portInfo;
+        }
+
+        sleep(1);
+        $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
+        $portsCounterData = $counterTblData->{PORTS_COUNTER};
+        foreach my $portInfo (@$portsCounterData) {
+            my $collectedPortInfo = $portsMap->{ $portInfo->{WWN} };
+            my $preCounterInfo    = $preCounterMap->{ $portInfo->{WWN} };
+            while ( my ( $key, $val ) = each(%$portInfo) ) {
+                if ( $key ne 'WWN' and $key ne 'INDEX' ) {
+                    $collectedPortInfo->{$key} = int( $portInfo->{$key} ) - int( $preCounterInfo->{$key} );
+                }
+            }
         }
     }
 

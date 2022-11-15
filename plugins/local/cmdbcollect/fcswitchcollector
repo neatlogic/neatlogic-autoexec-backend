@@ -30,12 +30,14 @@ sub main {
     my $defaultCommunity;
     my $timeout   = 10;
     my $isVerbose = 0;
+    my $doInspect = 0;
 
     GetOptions(
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'type=s'      => \$type,
         'community=s' => \$defaultCommunity,
+        'inspect=i'   => \$doInspect,
         'timeout=i'   => \$timeout
     );
 
@@ -88,7 +90,7 @@ sub main {
         print("INFO: Has defined class $fcswitchClass, try to load it.\n");
         eval {
             require "$fcswitchClass.pm";
-            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, doInspect => $doInspect );
         };
         if ($@) {
             print("WARN: Load $fcswitchClass failed, $@");

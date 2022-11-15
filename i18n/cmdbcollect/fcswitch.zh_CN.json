@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -46,8 +45,7 @@
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -98,8 +96,7 @@
             "name": "LINK_TABLE",
             "desc": "链接列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "PORT_NAME",
                     "desc": "端口名",
                     "type": "String"
@@ -140,8 +137,7 @@
             "name": "ZONES",
             "desc": "Zone列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -152,6 +148,66 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "OUT_QLEN",
+            "desc": "发送队列",
+            "type": "Int"
+        },
+        {
+            "name": "IN_OCTETS",
+            "desc": "流入流量(bps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_UCAST_PKTS",
+            "desc": "流入单播pps",
+            "type": "Int"
+        },
+        {
+            "name": "IN_NUCAST_PKTS",
+            "desc": "流入非单播放pps",
+            "type": "Int"
+        },
+        {
+            "name": "IN_DISCARDS",
+            "desc": "流入丢弃pps",
+            "type": "Int"
+        },
+        {
+            "name": "IN_ERRORS",
+            "desc": "流入错误pps",
+            "type": "Int"
+        },
+        {
+            "name": "IN_UNKNOWN_PROTOS",
+            "desc": "未知协议pps",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_OCTETS",
+            "desc": "流出bps",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_UCAST_PKTS",
+            "desc": "流出单播pps",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_NUCAST_PKTS",
+            "desc": "流出非单播pps",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_DISCARDS",
+            "desc": "流出丢弃pps",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_ERRORS",
+            "desc": "流出错误pps",
+            "type": "Int"
         }
     ]
 }

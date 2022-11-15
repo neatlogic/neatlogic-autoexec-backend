@@ -46,6 +46,13 @@ sub new {
         exit(-1);
     }
 
+    my $doInspect = $args{doInspect};
+    if ( not defined($doInspect) ) {
+        $doInspect = 0;
+    }
+
+    $self->{doInspect} = $doInspect;
+
     #单值定义
     my $scalarOidDef = {
         DEV_NAME    => '1.3.6.1.2.1.1.5.0',               #sysName
@@ -71,14 +78,28 @@ sub new {
     my $commOidDef = {
 
         #端口信息
-        PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',    #ifIndex
-        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',    #ifDescr
-        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',    #ifType
-        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',    #ifPhysAddress
-        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',    #ifAdminStatus
-        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',    #ifOperStatus
-        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',    #ifSpeed
-        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',    #ifMTU
+        PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
+        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',     #ifDescr
+        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',     #ifType
+        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
+        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',     #ifAdminStatus
+        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',     #ifOperStatus
+        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',     #ifSpeed
+        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',     #ifMTU
+        PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',    #ifOutQLen
+
+        #Counter inspect
+        PORT_IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
+        PORT_IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
+        PORT_IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
+        PORT_IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
+        PORT_IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
+        PORT_IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
+        PORT_OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
+        PORT_OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
+        PORT_OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
+        PORT_OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
+        PORT_OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20',    #ifOutErrors
 
         #MAC地址和端口对照表
         CISCO_VLAN_STATE => '1.3.6.1.4.1.9.9.46.1.3.1.1.2',    #vtpVlanState
@@ -298,7 +319,7 @@ sub _getPorts {
         $portNoMap->{$no}   = $portInfo;
     }
 
-    foreach my $portInfoKey ( 'TYPE', 'NAME', 'MAC', 'ADMIN_STATUS', 'OPER_STATUS', 'SPEED', 'MTU' ) {
+    foreach my $portInfoKey ( 'TYPE', 'NAME', 'MAC', 'ADMIN_STATUS', 'OPER_STATUS', 'SPEED', 'MTU', 'OUT_QLEN' ) {
         my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
         $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"}, "PORT_$portInfoKey" );
 
@@ -334,6 +355,49 @@ sub _getPorts {
                 }
 
                 $portInfo->{$portInfoKey} = $val;
+            }
+        }
+    }
+
+    if ( $self->{doInspect} == 1 ) {
+        my @counterFields = ( 'IN_OCTETS', 'IN_UCAST_PKTS', 'IN_NUCAST_PKTS', 'IN_DISCARDS', 'IN_ERRORS', 'IN_UNKNOWN_PROTOS', 'OUT_OCTETS', 'OUT_UCAST_PKTS', 'OUT_NUCAST_PKTS', 'OUT_DISCARDS', 'OUT_ERRORS' );
+
+        my $preCounterMap = {};
+        foreach my $portInfoKey (@counterFields) {
+            my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
+            $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"}, "PORT_$portInfoKey" );
+
+            while ( my ( $oid, $val ) = each(%$result) ) {
+                if ( $oid =~ /(\d+)$/ ) {
+                    my $idx      = $1;
+                    my $portInfo = $preCounterMap->{$idx};
+                    if ( not defined($portInfo) ) {
+                        $portInfo = {};
+                        $preCounterMap->{$idx} = $portInfo;
+                    }
+                    $portInfo->{$portInfoKey} = int($val);
+                }
+            }
+        }
+
+        sleep(1);
+        foreach my $portInfoKey (@counterFields) {
+            my $result = $snmp->get_table( -baseoid => $commOidDef->{"PORT_$portInfoKey"} );
+            $self->_errCheck( $result, $commOidDef->{"PORT_$portInfoKey"}, "PORT_$portInfoKey" );
+
+            while ( my ( $oid, $val ) = each(%$result) ) {
+                if ( $oid =~ /(\d+)$/ ) {
+                    my $idx      = $1;
+                    my $portInfo = $portsMap->{$idx};
+                    if ( not defined($portInfo) ) {
+                        next;
+                    }
+                    my $preCounterInfo = $preCounterMap->{$idx};
+                    if ( defined($preCounterInfo) ) {
+                        my $gaugeVal = int($val) - $preCounterInfo->{$portInfoKey};
+                        $portInfo->{$portInfoKey} = $gaugeVal;
+                    }
+                }
             }
         }
     }

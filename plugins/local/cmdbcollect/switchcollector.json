@@ -6,8 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "采集交换机信息,支持Cisco、HuaWei、H3C等",
-    "option": [
-        {
+    "option": [{
             "opt": "community",
             "name": "默认团体字",
             "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
@@ -33,8 +32,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "交换机",
                         "value": "Switch"
                     },
@@ -47,6 +45,26 @@
             "defaultValue": "Switch"
         },
         {
+            "opt": "inspect",
+            "name": "巡检检查",
+            "help": "采集更详细的巡检数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",
@@ -54,8 +72,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "不回显",
                         "value": "0"
                     },
@@ -68,12 +85,10 @@
             "defaultValue": "0"
         }
     ],
-    "output": [
-        {
-            "opt": "DATA",
-            "name": "JSON数据",
-            "help": "采集到的数据",
-            "type": "json"
-        }
-    ]
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
 }

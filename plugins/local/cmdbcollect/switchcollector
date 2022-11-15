@@ -25,12 +25,14 @@ sub main {
     my ( $node, $objType, $defaultCommunity, $timeout );
 
     my $isVerbose = 0;
+    my $doInspect = 0;
 
     GetOptions(
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'community=s' => \$defaultCommunity,
         'objtype=s'   => \$objType,
+        'inspect=i'   => \$doInspect,
         'timeout=i'   => \$timeout
     );
 
@@ -83,7 +85,7 @@ sub main {
         print("INFO: Has defined class $switchClass, try to load it.\n");
         eval {
             require "$switchClass.pm";
-            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, doInpsect => $doInspect );
         };
         if ($@) {
             print("WARN: Load $switchClass failed, $@");

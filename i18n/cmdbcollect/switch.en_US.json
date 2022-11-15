@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Switch"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -51,8 +50,7 @@
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -97,6 +95,66 @@
         {
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_QLEN",
+            "desc": "Send Queue Length",
+            "type": "Int"
+        },
+        {
+            "name": "IN_OCTETS",
+            "desc": "InOctets(bps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_UCAST_PKTS",
+            "desc": "InUcastPkts(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_NUCAST_PKTS",
+            "desc": "InNucastPkts(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_DISCARDS",
+            "desc": "InDiscards(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_ERRORS",
+            "desc": "InErrors(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "IN_UNKNOWN_PROTOS",
+            "desc": "InUnknownProtos(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_OCTETS",
+            "desc": "OutOctets(bps)",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_UCAST_PKTS",
+            "desc": "OutUcastPkts(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_NUCAST_PKTS",
+            "desc": "OutNucastPkts(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_DISCARDS",
+            "desc": "OutDiscards(pps)",
+            "type": "Int"
+        },
+        {
+            "name": "OUT_ERRORS",
+            "desc": "OutErrors(pps)",
             "type": "Int"
         }
     ]
