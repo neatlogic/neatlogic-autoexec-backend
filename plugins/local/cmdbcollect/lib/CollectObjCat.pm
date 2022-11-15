@@ -11,6 +11,7 @@ our $TYPES = {
     DBINS        => 'DBINS',           #数据库实例，，_OBJ_TYPE:Oracle、Mysql...
     OS           => 'OS',              #操作系统，_OBJ_TYPE:Linux、Windows、AIX...
     HOST         => 'HOST',            #主机（硬件），_OBJ_TYPE:各个品牌名
+    SERVERDEV    => 'SERVERDEV',       #主机（硬件），_OBJ_TYPE:各个品牌名
     NETDEV       => 'NETDEV',          #网络设备，_OBJ_TYPE:各个品牌名
     SECDEV       => 'SECDEV',          #安全设备，_OBJ_TYPE:各个品牌名
     VIRTUALIZED  => 'VIRTUALIZED',     #虚拟化管理服务
@@ -30,6 +31,7 @@ our $PK_CONFIG = {
     DBINS        => [ 'INSTANCE_NAME', 'MGMT_IP', 'PORT' ],
     OS           => ['MGMT_IP'],
     HOST         => [ 'MGMT_IP', 'BOARD_SERIAL' ],
+    SERVERDEV    => [ 'MGMT_IP', 'BOARD_SERIAL' ],
     NETDEV       => [ 'MGMT_IP', 'SN' ],
     SECDEV       => [ 'MGMT_IP', 'SN' ],
     VIRTUALIZED  => ['MGMT_IP'],
@@ -43,12 +45,11 @@ our $PK_CONFIG = {
 our $INDEX_FIELDS = {
     DBINS    => [ 'IP', 'VIP' ],
     HOST     => ['OS_ID'],
-    OS       => ['OS_ID'],
+    OS       => [ 'OS_ID', 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
     CLUSTER  => ['MEMBER_PEER'],
     SWITCH   => ['DEV_NAME'],
-    OS       => [ 'OS_ID',               'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
     STORAGE  => [ 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
-    FCSWITCH => [ 'WWNN',                'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN' ]
+    FCSWITCH => [ 'WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN' ]
 };
 
 sub get {

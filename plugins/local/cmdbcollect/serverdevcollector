@@ -9,66 +9,67 @@ from datetime import datetime
 
 import AutoExecUtils
 
-class  IpmiManager :
 
-    def __init__(self, host, username , password , isVerbose) :
+class IpmiManager:
+
+    def __init__(self, host, username, password, isVerbose):
         self.host = host
         self.username = username
         self.password = password
         self.isVerbose = isVerbose
 
-    def runCmd(self , cmd , skipLine=None):
-        runCmd = "ipmitool -I lanplus -H {} -U {} -P {} {}".format(self.host ,self.username , self.password , cmd)
-        viewCmd = "ipmitool -I lanplus -H {} -U {} -P {} {}".format(self.host ,self.username , "******" , cmd)
-        print("INFO:: Exec command " ,viewCmd)
+    def runCmd(self, cmd, skipLine=None):
+        runCmd = "ipmitool -I lanplus -H {} -U {} -P {} {}".format(self.host, self.username, self.password, cmd)
+        viewCmd = "ipmitool -I lanplus -H {} -U {} -P {} {}".format(self.host, self.username, "******", cmd)
+        print("INFO:: Exec command ", viewCmd)
         child = subprocess.Popen(runCmd, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if skipLine is None :
-            skipLine = 0 
+        if skipLine is None:
+            skipLine = 0
 
         result = None
         while True:
             line = child.stdout.readline(4096)
-            if not line :
+            if not line:
                 break
 
-            if (skipLine > 0 ):
+            if (skipLine > 0):
                 skipLine = skipLine - 1
                 continue
 
             line = line.strip()
             line = line.decode('utf-8')
-            if result is None :
+            if result is None:
                 result = line
-            else :
+            else:
                 result = result + "\n" + line
-        
-        #把error错误，追加到cmd最后
+
+        # 把error错误，追加到cmd最后
         count = 0
         while True:
-            if child.stderr is None :
-                break 
+            if child.stderr is None:
+                break
 
             line = child.stderr.readline(4096)
-            if not line :
+            if not line:
                 break
-            
+
             line = line.strip()
             line = line.decode('utf-8')
-            if result is None :
+            if result is None:
                 result = line
-            elif count==0 :
+            elif count == 0:
                 result = result + line
-            else :
+            else:
                 result = result + "\n" + line
-            count=count+1
+            count = count+1
 
         if (self.isVerbose == 1):
-            print("INFO::" , result)
+            print("INFO::", result)
         return result
 
-    #传感器列表
-    def getSdrList(self) :
-        result = self.runCmd("sdr type list",1)
+    # 传感器列表
+    def getSdrList(self):
+        result = self.runCmd("sdr type list", 1)
         '''
         Sensor Types:
             Temperature               (0x01)   Voltage                   (0x02)
@@ -104,196 +105,196 @@ class  IpmiManager :
             'Power Unit': '0x09',
             'Memory': '0x0c',
             'Drive Slot / Bay': '0x0d',
-            'Cable / Interconnect' : '0x1b'
+            'Cable / Interconnect': '0x1b'
         }
 
-        if len(result) == 0 :
-            return None 
-        
-        rsMap={}
-        rs=result.split('\n')
-        for line in rs :
-            if line == '' :
-                continue 
+        if len(result) == 0:
+            return None
+
+        rsMap = {}
+        rs = result.split('\n')
+        for line in rs:
+            if line == '':
+                continue
             info = re.split(r'\s\s+', line)
-            rsMap[info[0].strip()]= (info[1].strip()).replace('(','').replace(')','')
-            if (len(info) > 2) :
-                rsMap[info[2].strip()] = (info[3].strip()).replace('(','').replace(')','')
-        
-        for key in sdrMap :
+            rsMap[info[0].strip()] = (info[1].strip()).replace('(', '').replace(')', '')
+            if (len(info) > 2):
+                rsMap[info[2].strip()] = (info[3].strip()).replace('(', '').replace(')', '')
+
+        for key in sdrMap:
             rsVal = rsMap[key]
-            if rsVal is not None and sdrMap[key] != rsVal :
+            if rsVal is not None and sdrMap[key] != rsVal:
                 rsMap[key] = rsVal
         return sdrMap
 
-    #按空格行切分
-    def split_blank_lines(self,s):
+    # 按空格行切分
+    def split_blank_lines(self, s):
         blank_line_regex = r"(?:\r?\n){2,}"
         return re.split(blank_line_regex, s.strip())
 
-    #传感器明细数据
-    def getSdrDetail(self , cmd):
+    # 传感器明细数据
+    def getSdrDetail(self, cmd):
         sdrList = []
         result = self.runCmd("sdr type {} -v".format(cmd))
-        if result is None :
+        if result is None:
             return sdrList
         rs = self.split_blank_lines(result.strip())
-        for block in rs :
+        for block in rs:
             ins = {}
-            for line in block.split('\n') :
+            for line in block.split('\n'):
                 info = line.split(':')
-                if len(info) > 1 :
-                    ins[info[0].strip()]= info[1].strip()
+                if len(info) > 1:
+                    ins[info[0].strip()] = info[1].strip()
             sdrList.append(ins)
         return sdrList
-    
-    #传感器数据
-    def getSdr(self , cmd , type):
+
+    # 传感器数据
+    def getSdr(self, cmd, type):
         sdrList = []
         result = self.runCmd("sdr type {} ".format(cmd))
-        if result is None :
+        if result is None:
             return sdrList
 
         rs = result.split('\n')
-        for line in rs :
+        for line in rs:
             ins = {}
             info = line.split('|')
-            if len(info) > 1 :
-                ins['SENSOR_ID']= info[0].strip()
-                ins['ENTITY_ID']= info[3].strip()
-                if ( type == "Temperature" ):
-                    value = info[4].strip().replace('degrees C' , '')
+            if len(info) > 1:
+                ins['SENSOR_ID'] = info[0].strip()
+                ins['ENTITY_ID'] = info[3].strip()
+                if (type == "Temperature"):
+                    value = info[4].strip().replace('degrees C', '')
                     value = int(value)
                     ins['SENSOR_READING'] = value
                 else:
-                    ins['SENSOR_READING']= info[4].strip()
-                ins['STATUS']= info[2].strip()
+                    ins['SENSOR_READING'] = info[4].strip()
+                ins['STATUS'] = info[2].strip()
                 sdrList.append(ins)
         return sdrList
-    
-    #可替换部件
-    def getFru(self , data):
+
+    # 可替换部件
+    def getFru(self, data):
         fruList = []
         result = self.runCmd("fru")
-        if result is None :
+        if result is None:
             return fruList
-        
+
         rs = self.split_blank_lines(result.strip())
-        for block in rs :
-            if ('Unknown FRU header' in block  or 'Device not present' in block) :
-                print("WARN::" , block)
+        for block in rs:
+            if ('Unknown FRU header' in block or 'Device not present' in block):
+                print("WARN::", block)
                 continue
 
             ins = {}
-            for line in block.split('\n') :
+            for line in block.split('\n'):
                 info = line.split(':')
-                if len(info) < 1 :
-                    continue 
+                if len(info) < 1:
+                    continue
 
                 key = info[0].strip()
                 value = info[1].strip()
-                
+
                 if('FRU Device Description' in key):
                     ins['FRU_DEVICE'] = value
 
-                elif('Board Mfg' in key) :
+                elif('Board Mfg' in key):
                     ins['BOARD_MFG'] = value
-                elif('Board Product' in key) :
+                elif('Board Product' in key):
                     ins['BOARD_PRODUCT'] = value
-                elif('Board Serial' in key) :
+                elif('Board Serial' in key):
                     ins['BOARD_SERIAL'] = value
-                elif('Board Part Number' in key) :
+                elif('Board Part Number' in key):
                     ins['BOARD_NUMBER'] = value
 
-            if 'BOARD_NUMBER' not in ins :
+            if 'BOARD_NUMBER' not in ins:
                 ins['BOARD_NUMBER'] = ''
-            if 'BOARD_SERIAL' not in ins :
-                ins['BOARD_SERIAL'] = '' 
-            if 'BOARD_PRODUCT' not in ins :
-                ins['BOARD_PRODUCT'] = '' 
-            if 'BOARD_MFG' not in ins :
-                ins['BOARD_MFG'] = ''   
+            if 'BOARD_SERIAL' not in ins:
+                ins['BOARD_SERIAL'] = ''
+            if 'BOARD_PRODUCT' not in ins:
+                ins['BOARD_PRODUCT'] = ''
+            if 'BOARD_MFG' not in ins:
+                ins['BOARD_MFG'] = ''
             fruList.append(ins)
 
-            #主板
-            if '(ID 0)' in ins['FRU_DEVICE'] :
-                data['BOARD_PRODUCT'] = ins['BOARD_PRODUCT']    
-                data['BOARD_NUMBER'] = ins['BOARD_NUMBER'] 
-                data['BOARD_SERIAL'] = ins['BOARD_SERIAL'] 
-                data['BOARD_VENDOR'] = ins['BOARD_MFG']    
+            # 主板
+            if '(ID 0)' in ins['FRU_DEVICE']:
+                data['BOARD_PRODUCT'] = ins['BOARD_PRODUCT']
+                data['BOARD_NUMBER'] = ins['BOARD_NUMBER']
+                data['BOARD_SERIAL'] = ins['BOARD_SERIAL']
+                data['BOARD_VENDOR'] = ins['BOARD_MFG']
 
         return fruList
 
-    #主板状态
-    def getChassisStatus(self , ins):
+    # 主板状态
+    def getChassisStatus(self, ins):
         result = self.runCmd('chassis status')
         rs = result.split('\n')
-        for line in rs :
+        for line in rs:
             info = line.split(':')
             key = info[0].strip().upper()
-            key = key.replace(' ','_')
+            key = key.replace(' ', '_')
             ins[key] = info[1].strip()
         return ins
 
-    #基础信息
+    # 基础信息
     def getBaseInfo(self):
-        ins = {} 
+        ins = {}
         result = self.runCmd('lan print')
         rs = result.split('\n')
-        for line in rs :
+        for line in rs:
             info = line.split(':')
             key = info[0].strip()
-            key2 = key.replace(' ','_').upper()
+            key2 = key.replace(' ', '_').upper()
             if ('IP Address' in key
-                or 'Subnet Mask' in key 
-                or 'MAC Address' in key 
-                or 'Default Gateway IP' in key
-            ) :
+                        or 'Subnet Mask' in key
+                        or 'MAC Address' in key
+                        or 'Default Gateway IP' in key
+                    ) :
                 ins[key2] = info[1].strip()
-        
+
         result = self.runCmd('mc info')
         rs = result.split('\n')
-        for line in rs :
+        for line in rs:
             info = line.split(':')
             key = info[0].strip()
-            key2 = key.replace(' ','_').upper()
-            if ( 'Firmware Revision' in key ) :
+            key2 = key.replace(' ', '_').upper()
+            if ('Firmware Revision' in key):
                 ins[key2] = info[1].strip()
         return ins
-    
-    def transDate(self , str ):
-        strDate=datetime.strptime(str, "%m/%d/%Y").date()
-        fmtstr = datetime.strftime( strDate , "%Y-%m-%d")
+
+    def transDate(self, str):
+        strDate = datetime.strptime(str, "%m/%d/%Y").date()
+        fmtstr = datetime.strftime(strDate, "%Y-%m-%d")
         return fmtstr
-    
-    #系统日志
-    def  getSel(self):
+
+    # 系统日志
+    def getSel(self):
         selIns = {}
         result = self.runCmd("sel info")
-        if result is None :
+        if result is None:
             return None
         rs = result.split('\n')
-        for line in rs :
+        for line in rs:
             info = line.split(':')
-            if len(info) > 1 :
+            if len(info) > 1:
                 key = info[0].strip().upper()
-                key = key.replace(' ','_')
-                selIns[key]= info[1].strip()
+                key = key.replace(' ', '_')
+                selIns[key] = info[1].strip()
         selList = []
         rslist = self.runCmd("sel list")
-        if rslist is None :
+        if rslist is None:
             return selIns
         rs = rslist.split('\n')
         total = len(rs)
         num = 0
-        for line in rs :
+        for line in rs:
             num = num + 1
-            #只保留最后的20行数据
-            if ( total > 20 and total - num > 20 ) :
-                continue 
+            # 只保留最后的20行数据
+            if (total > 20 and total - num > 20):
+                continue
             ins = {}
             info = line.split('|')
-            if len(info) > 1 :
+            if len(info) > 1:
                 date = info[1].strip()
                 time = info[2].strip()
                 event = info[3].strip()
@@ -314,6 +315,7 @@ def usage():
     print(pname + " --node <host node> --user <user> --password <password> --verbose")
     exit(1)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--user', default='', help='default user ')
@@ -325,45 +327,45 @@ if __name__ == "__main__":
     node = os.getenv('AUTOEXEC_NODE')
     if node != None and node != '':
         node = json.loads(node)
-    
+
     host = ''
     user = ''
     password = ''
     port = 623
-    if ( node != None ):
+    if (node != None):
         host = node['host']
-        if 'port' in node : 
+        if 'port' in node:
             port = node['port']
 
-        if 'username' in node :
+        if 'username' in node:
             user = node['username']
         else:
             user = args.user
-        
-        if 'password' in node :
+
+        if 'password' in node:
             password = node['password']
         else:
             password = args.password
-        
-    if ( host == '' or  user == '' or password == '' ) :
+
+    if (host == '' or user == '' or password == ''):
         usage()
 
     autoexecHome = os.environ.get('AUTOEXEC_HOME')
     os.environ['PATH'] = '%s:%s/tools' % (os.environ['PATH'], autoexecHome)
 
-    ipmi = IpmiManager(host , user , password , isVerbose)
+    ipmi = IpmiManager(host, user, password, isVerbose)
     data = ipmi.getBaseInfo()
     data['MGMT_IP'] = host
     data['_OBJ_CATEGORY'] = 'SERVERDEV'
-    data['_OBJ_TYPE'] = 'SERVERMACHINE'
+    data['_OBJ_TYPE'] = 'SERVERDEV'
     data['MGMT_PORT'] = port
     data['PK'] = ["MGMT_IP"]
 
     ipmi.getChassisStatus(data)
     sdrMap = ipmi.getSdrList()
     for key in sdrMap:
-        rlist = ipmi.getSdr(sdrMap[key] , key)
-        
+        rlist = ipmi.getSdr(sdrMap[key], key)
+
         data[key.upper()] = rlist
     fru = ipmi.getFru(data)
     data['FRU'] = fru
@@ -373,13 +375,9 @@ if __name__ == "__main__":
     slist = []
     slist.append(data)
 
-    if( isVerbose == 1):
+    if(isVerbose == 1):
         print(slist)
-    
+
     out = {}
     out['DATA'] = slist
     AutoExecUtils.saveOutput(out)
-
-
-
-

@@ -6,8 +6,8 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "使用IPMI采集服务器硬件信息",
-    "option": [
-        {
+    "enabled": 0,
+    "option": [{
             "opt": "user",
             "name": "带外网卡管理用户",
             "help": "带外网卡管理用户",
@@ -33,8 +33,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "不回显",
                         "value": "0"
                     },
@@ -47,12 +46,10 @@
             "defaultValue": "0"
         }
     ],
-    "output": [
-        {
-            "opt": "DATA",
-            "name": "JSON数据",
-            "help": "采集到的数据",
-            "type": "json"
-        }
-    ]
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
 }
