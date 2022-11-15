@@ -33,7 +33,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' ) {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -46,12 +46,12 @@ sub new {
         exit(-1);
     }
 
-    my $doInspect = $args{doInspect};
-    if ( not defined($doInspect) ) {
-        $doInspect = 0;
+    my $inspect = $args{inspect};
+    if ( not defined($inspect) ) {
+        $inspect = 0;
     }
 
-    $self->{doInspect} = $doInspect;
+    $self->{inspect} = $inspect;
 
     #单值定义
     my $scalarOidDef = {

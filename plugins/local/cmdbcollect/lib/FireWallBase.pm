@@ -29,14 +29,14 @@ sub new {
 
     my $tableOidDef = {
         PORTS => {
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',        #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',        #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',        #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',        #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',        #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',        #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',        #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',        #ifMTU
+            INDEX        => '1.3.6.1.2.1.2.2.1.1',    #ifIndex
+            NAME         => '1.3.6.1.2.1.2.2.1.2',    #ifDescr
+            TYPE         => '1.3.6.1.2.1.2.2.1.3',    #ifType
+            WWN          => '1.3.6.1.2.1.2.2.1.6',    #ifPhysAddress
+            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',    #ifAdminStatus
+            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',    #ifOperStatus
+            SPEED        => '1.3.6.1.2.1.2.2.1.5',    #ifSpeed
+            MTU          => '1.3.6.1.2.1.2.2.1.4',    #ifMTU
         },
         IP_ADDRS => {
             IP      => '1.3.6.1.2.1.4.20.1.1',
@@ -64,7 +64,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' ) {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -181,7 +181,7 @@ sub _getTable {
     my $tableOidDef = $self->{tableOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-    my $tableData = $snmpHelper->getTable( $snmp, $tableOidDef );
+    my $tableData  = $snmpHelper->getTable( $snmp, $tableOidDef );
 
     my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$tableData) ) {
