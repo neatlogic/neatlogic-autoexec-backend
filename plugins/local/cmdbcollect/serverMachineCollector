@@ -148,7 +148,7 @@ class  IpmiManager :
         return sdrList
     
     #传感器数据
-    def getSdr(self , cmd):
+    def getSdr(self , cmd , type):
         sdrList = []
         result = self.runCmd("sdr type {} ".format(cmd))
         if result is None :
@@ -161,7 +161,12 @@ class  IpmiManager :
             if len(info) > 1 :
                 ins['SENSOR_ID']= info[0].strip()
                 ins['ENTITY_ID']= info[3].strip()
-                ins['SENSOR_READING']= info[4].strip()
+                if ( type == "Temperature" ):
+                    value = info[4].strip().replace('degrees C' , '')
+                    value = int(value)
+                    ins['SENSOR_READING'] = value
+                else:
+                    ins['SENSOR_READING']= info[4].strip()
                 ins['STATUS']= info[2].strip()
                 sdrList.append(ins)
         return sdrList
@@ -357,7 +362,8 @@ if __name__ == "__main__":
     ipmi.getChassisStatus(data)
     sdrMap = ipmi.getSdrList()
     for key in sdrMap:
-        rlist = ipmi.getSdr(sdrMap[key])
+        rlist = ipmi.getSdr(sdrMap[key] , key)
+        
         data[key.upper()] = rlist
     fru = ipmi.getFru(data)
     data['FRU'] = fru

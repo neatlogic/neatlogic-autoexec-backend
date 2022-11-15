@@ -74,8 +74,8 @@
                 },
                 {
                     "name": "SENSOR_READING",
-                    "desc": "Value",
-                    "type": "String"
+                    "desc": "Value(℃)",
+                    "type": "Int"
                 },
                 {
                     "name": "STATUS",
@@ -381,7 +381,7 @@
                 },
                 {
                     "name": "SEL_LIST",
-                    "desc": "Sel Detail",
+                    "desc": "Sel Detail(limit 20)",
                     "type": "JsonArray",
                     "subset": [
                         {
