@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
 
-package StorageIBM_DS;
 use strict;
 
+package StorageIBM_DS;
+use Cwd qw(abs_path);
 use JSON;
 use CollectUtils;
 

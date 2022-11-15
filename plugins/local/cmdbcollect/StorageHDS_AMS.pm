@@ -1,12 +1,14 @@
 #!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
 
 package StorageHDS_AMS;
-use strict;
-use FindBin;
 use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
 use CollectUtils;
 
 sub new {

@@ -158,7 +158,7 @@ def getInspectData(nodeInfo):
         collectData = []
         for key, value in outputData.items():
             if key.startswith("inspect/") or key.startswith("svcinspect/"):
-                # 这一步是抽取可用性检测插件（urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
+                # 这一步是抽取可用性检测插件（pingcheck,urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
                 aInspectData = value.get('DATA')
                 if aInspectData is not None:
                     inspectData.update(aInspectData)
@@ -171,6 +171,9 @@ def getInspectData(nodeInfo):
                 print('WARN: Plugin {} did not return collect data.'.format(key))
                 continue
 
+        if not collectData:
+            print("WARN: Can not find collect data in node output.")
+
         if 'AVAILABILITY' in inspectData:
             if inspectData['AVAILABILITY'] == 0:
                 inspectData['AVAILABILITY'] = False
@@ -178,7 +181,7 @@ def getInspectData(nodeInfo):
                 inspectData['AVAILABILITY'] = True
         else:
             inspectData['AVAILABILITY'] = False
-            errMsg = 'AVAILABILITY flag not found in :' + json.dumps(outputData)
+            errMsg = 'AVAILABILITY attribute not found in inspect data, must use availability tools(pingcheck,urlcheck,sshcheck,agentcheck,tcpcheck...) to collect availability first.'
             inspectData['ERROR_MESSAGE'] = errMsg
 
         for data in collectData:

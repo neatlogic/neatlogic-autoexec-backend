@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
 
 package StorageFUJITSU;
-use strict;
 
 use Net::OpenSSH;
 use JSON;
@@ -150,7 +151,7 @@ sub collect {
         my $line = $raidGroupInfoLines[$i];
         $line =~ s/^\s*|\s*$//g;
         my @splits = split( /,/, $line );
-        my $rgNo = $splits[0];
+        my $rgNo   = $splits[0];
 
         my $size = ( $splits[5] * 100 / 1024 + 0.5 ) / 100;
         my $free = ( $splits[6] * 100 / 1024 + 0.5 ) / 100;

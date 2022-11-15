@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
 
 package StorageIBM_F900;
-use strict;
 
 use Net::OpenSSH;
 use JSON;
@@ -55,7 +56,7 @@ sub collect {
         $data->{MODEL} = $1;
     }
     my $snInfo = $ssh->capture('lsenclosure -delim : -nohdr');
-    my $sn = ( split( /:/, $snInfo ) )[4];
+    my $sn     = ( split( /:/, $snInfo ) )[4];
     $data->{SN} = $sn;
 
     #lun
@@ -153,7 +154,7 @@ sub collect {
     my @ctrlInfoLines = $ssh->capture('svcinfo lsnode -nohdr');
     foreach my $line (@ctrlInfoLines) {
         chomp($line);
-        my $name = ( split( /\s+/, $line ) )[1];
+        my $name     = ( split( /\s+/, $line ) )[1];
         my $ctrlInfo = {};
         $ctrlInfo->{NAME}           = $name;
         $ctrlInfo->{ETH_INTERFACES} = $ctrlNicsMap->{$name};

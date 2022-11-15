@@ -1,7 +1,13 @@
 #!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
+use lib "$FindBin::Bin/../../plib/lib/perl5";
+
 use strict;
 
 package StorageBase;
+
 use Net::OpenSSH;
 use Net::SNMP qw(:snmp);
 use SnmpHelper;

@@ -1,10 +1,12 @@
 #!/usr/bin/perl
-use strict;
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
 
 package FCSwitchBrocade;
 
@@ -136,7 +138,7 @@ sub after {
             foreach my $line (@zoneCfgInfo) {
                 $line =~ s/^\s*|\s*$//g;
                 $line =~ s/;/\n/g;
-                my @splits = split( /\s+/, $line );
+                my @splits   = split( /\s+/, $line );
                 my $zoneName = $splits[0];
                 if ( defined $zoneName and $zoneName ne '' ) {
                     my @zoneAliases = ();
