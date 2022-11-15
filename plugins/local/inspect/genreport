@@ -204,8 +204,7 @@ def getInspectData(nodeInfo):
                     if int(data['PORT']) != port:
                         print('WARN: Data not match port:{} but:{}.'.format(port, data['PORT']))
                         continue
-                elif objCat != 'OS':
-                    continue
+
                 if objCat == 'DBINS' and data.get('INSTANCE_NAME') != nodeName:
                     continue
                 elif objCat == 'DB' and data.get('NAME') != nodeName:
@@ -215,7 +214,9 @@ def getInspectData(nodeInfo):
                 nodeData = data
                 nodeData.update(inspectData)
                 dataRecords.append(nodeData)
-                break
+
+                if objCat != 'HOST':
+                    break
             else:
                 print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
