@@ -1006,7 +1006,7 @@ sub removeEmptyDir {
 }
 
 sub updateConfigInZip {
-    my ( $self, $autoCfgDocRoot, $cwd, $preZipDir, $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo ) = @_;
+    my ( $self, $autoCfgDocRoot, $cwd, $orgFileMap, $preZipDir, $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo ) = @_;
 
     my $charset           = $self->{charset};
     my $env               = $self->{envName};
@@ -1071,13 +1071,7 @@ sub updateConfigInZip {
                 $lastSlashIdx = rindex( $subFile, '/', 1 );
             }
 
-            my $orgSubFile = $subFile;
-            if ( not $orgSubFile =~ s/\.$env\.[^\/]?\.$suffix$//i ) {
-                if ( not $orgSubFile =~ s/\.$env\.$suffix$//i ) {
-                    $orgSubFile =~ s/.$suffix$//i;
-                }
-            }
-
+            my $orgSubFile = $orgFileMap->{$subFile};
             $pathInZipPat = "$orgSubFile*";
             if ( $subFile =~ /\/$/ ) {
                 $pathInZipPat = "$orgSubFile*/*";
@@ -1113,7 +1107,7 @@ sub updateConfigInZip {
         my $insCfgCount = 0;
 
         if ( $pkgFiles->{$nextCwd} eq 1 ) {
-            ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$zipTmpDir/$subFile", $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo );
+            ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $orgFileMap, "$zipTmpDir/$subFile", $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo );
         }
         else {
             if ( defined($insInfo) ) {
@@ -1238,6 +1232,54 @@ sub updateConfig {
         }
 
         if ( $pkgFiles->{$nextCwd} eq 1 ) {
+
+            #计算下一个zip子目录下的所有autocfg文件，计算源文件路径，用于给出解压pattern
+            my $orgFileMap       = {};
+            my @orgFiles         = {};
+            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd );
+            foreach my $cfgFileInZip (@$allCfgFilesInZip) {
+
+                #先算出基于环境替换类的autocfg文件的源头文件路径
+                my $orgFileInZip = $cfgFileInZip;
+                if ( $orgFileInZip =~ s/\.$env\.[^\/]+?\.$suffix(\/|$)//i ) {
+                    $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                    push( @orgFiles, $orgFileInZip );
+                }
+                elsif ( $orgFileInZip =~ s/\.$env\.$suffix(\/|$)//i ) {
+                    $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                    push( @orgFiles, $orgFileInZip );
+                }
+            }
+
+            foreach my $cfgFileInZip (@$allCfgFilesInZip) {
+                if ( defined( $orgFileMap->{$cfgFileInZip} ) ) {
+
+                    #当前环境的环境替换类的autocfg文件已经处理过了，skip
+                    next;
+                }
+
+                my $orgFileInZip = $cfgFileInZip;
+                if ( $orgFileInZip =~ s/\.$suffix(\/|$)//i ) {
+
+                    #剩下的就是跟当前环境不匹配的整环境替换类的autocfg文件或key-value替换的autocfg文件
+                    my $hasEnvConf = 0;
+                    foreach my $aOrgFile (@orgFiles) {
+                        if ( $orgFileInZip =~ /^$aOrgFile\.[^\/]+?/ ) {
+
+                            #如果文件路径匹配上面已经计算出的源文件，则代表当前文件是整环境替换的autofg文件
+                            $hasEnvConf = 1;
+                            last;
+                        }
+                    }
+
+                    if ( $hasEnvConf == 0 ) {
+
+                        #只需补充非整环境替换的autocfg文件的源文件
+                        $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                    }
+                }
+            }
+
             my $cfgZipPath = $nextCwd;
 
             #my $instance;
@@ -1298,7 +1340,7 @@ sub updateConfig {
 
                 if ($hasInsCfg) {
                     DeployUtils->copyTree( "$autoCfgDocRoot/$cfgZipPath", $insCfgZipPath );
-                    my ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $insCfgZipPath, $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo );
+                    my ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $orgFileMap, $insCfgZipPath, $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo );
                     if ( $insCfgCount == 0 ) {
                         rmtree($insCfgZipPath);
                         $self->removeEmptyDir( "$autoCfgDocRoot.ins/$insUniqName", dirname($insCfgZipPath) );
@@ -1311,7 +1353,7 @@ sub updateConfig {
 
             #如果是包，则根据实例差异配置进行拷贝并进行修改
             if ( $diffInsCount < scalar(@$insCfgList) or scalar(@$insCfgList) == 0 ) {
-                $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, "$autoCfgDocRoot/$nextCwd", $pkgFiles, $rplOrgFiles, $dirsMap, undef );
+                $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $orgFileMap, "$autoCfgDocRoot/$nextCwd", $pkgFiles, $rplOrgFiles, $dirsMap, undef );
             }
         }
         else {

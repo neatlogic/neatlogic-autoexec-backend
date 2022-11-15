@@ -1,18 +1,19 @@
 #!/usr/bin/perl
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
+
+package StorageIBM_Flash;
 
 use Net::OpenSSH;
 use JSON;
 use CollectUtils;
-
-package StorageIBM_Flash;
-use strict;
-
 use StorageIBM_V7000;
+
 our @ISA = qw(StorageIBM_V7000);
 
 sub collect {

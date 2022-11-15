@@ -26,7 +26,7 @@ cd $PERL_MEDIA_HOME/perl-pkgs || exit 1
 
 echo "Delete directory in media path"
 for dir in $*; do
-        if [ "$dir" != "." -a "$dir" != ".." ]; then
+        if [ "$dir" != "." -a "$dir" != ".." -a -d "$dir" ]; then
                 echo -e "${BLUE}Delete directory $dir${NC}"
                 rm -rf $dir
                 if [[ $? != 0 ]]; then
@@ -37,7 +37,12 @@ done
 
 echo "Extrace perl packages in $PERL_MEDIA_HOME..."
 for file in $*; do
-        tarFile="$file.tar.gz"
+        if [ ! -e "$file" ]; then
+                tarFile="$file.tar.gz"
+        else
+                tarFile=$file
+        fi
+
         echo -e "${BLUE}Extract file '$tarFile'${NC}"
         tar -xzf "$tarFile"
         if [[ $? != 0 ]]; then
@@ -59,6 +64,8 @@ echo "Begin install perl pkgs......"
 pwd
 
 for dir in $*; do
+        dir=${dir%.tgz}
+        dir=${dir%.tar.gz}
         dir=${dir#*/}
         if [[ $dir == DBD-Oracle* ]]; then
                 #oracle DBD

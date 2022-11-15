@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use FindBin;
-use Cwd qw(abs_path);
-use lib abs_path("$FindBin::Bin/lib");
-use lib abs_path("$FindBin::Bin/../lib");
-use lib abs_path("$FindBin::Bin/../pllib/lib/perl5");
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
 
 package StorageIBM_V7000;
-use strict;
 
 use Net::OpenSSH;
 use JSON;
@@ -90,7 +91,7 @@ sub collect {
     for ( my $i = 0 ; $i <= $#macInfoLines ; $i++ ) {
         my $line = $macInfoLines[$i];
         chomp($line);
-        my @tmp = split( /\[/, $line );
+        my @tmp     = split( /\[/, $line );
         my $macAddr = $tmp[9];
         if ( not defined( $macsMap->{$macAddr} ) ) {
             $macsMap->{ $tmp[9] } = 1;
@@ -173,7 +174,7 @@ sub collect {
     for ( my $i = 0 ; $i <= $#lunInfoLines ; $i++ ) {
         my $line = $lunInfoLines[$i];
         $line =~ s/^\s+|\s+$//;
-        my @tmp = split( /:/, $line );
+        my @tmp     = split( /:/, $line );
         my $lunInfo = {};
         $lunInfo->{WWN}      = $tmp[-13];
         $lunInfo->{NAME}     = $tmp[1];
