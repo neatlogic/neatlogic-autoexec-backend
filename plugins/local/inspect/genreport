@@ -28,6 +28,7 @@ def getObjCatPkDef(objCat, customPkDef):
         'HOST': ['MGMT_IP', 'BOARD_SERIAL'],
         'NETDEV': ['MGMT_IP', 'SN'],
         'SECDEV': ['MGMT_IP', 'SN'],
+        'SERVERDEV': ['MGMT_IP'],
         'VIRTUALIZED': ['MGMT_IP'],
         'SWITCH': ['MGMT_IP', 'SN'],
         'FIREWALL': ['MGMT_IP', 'SN'],
