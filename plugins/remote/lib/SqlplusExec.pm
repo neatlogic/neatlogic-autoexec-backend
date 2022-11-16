@@ -229,6 +229,14 @@ sub _parseOutput {
     my $hasData = 0;
     for ( $pos = 0 ; $pos < $linesCount ; $pos++ ) {
         my $line = $lines[$pos];
+        if ( $line =~ /^ERROR/ ) {
+            if ( $lines[ $pos + 1 ] =~ /^ORA-\d+:/ ) {
+                $hasError = 1;
+                print( $line,              "\n" );
+                print( $lines[ $pos + 1 ], "\n" );
+            }
+        }
+
         if ( $line =~ /^[-\s]+$/ ) {
             $hasData = 1;
             last;
@@ -411,6 +419,9 @@ sub _parseOutput {
 
 sub _execSql {
     my ( $self, %args ) = @_;
+
+    $ENV{NLS_LANG} = 'AMERICAN_AMERICA.AL32UTF8';
+
     my $sql       = $args{sql};
     my $isVerbose = $args{verbose};
     my $parseData = $args{parseData};

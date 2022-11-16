@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 opData = dataConverted.get(opId, {})
                 opData[varKey] = aggDatas[0]
                 dataConverted[opId] = opData
-                print("INFO: Output for operation id:%s output:%s convert to local success.")
+                print("INFO: Output for operation id:%s output:%s convert to local success." % (opId, varKey))
         except Exception as err:
             exitCode = 1
             print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
