@@ -15,9 +15,9 @@ sub new {
 
     $self->{snmpHelper} = SnmpHelper->new();
 
-    my $doInspect = $args{doInspect};
-    if ( not defined($doInspect) ) {
-        $doInspect = 0;
+    my $inspect = $args{inspect};
+    if ( not defined($inspect) ) {
+        $inspect = 0;
     }
 
     my $scalarOidDef = {
@@ -259,7 +259,7 @@ sub _getTable {
         }
     }
 
-    if ( $self->{doInpsect} == 1 ) {
+    if ( $self->{inspect} == 1 ) {
         my $preCounterMap    = {};
         my $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         my $portsCounterData = $counterTblData->{PORTS_COUNTER};

@@ -62,6 +62,13 @@ sub new {
     }
     $self->{timeout} = $timeout;
 
+    my $inspect = $args{inspect};
+    if ( not defined($inspect) ) {
+        $inspect = 0;
+    }
+
+    $self->{inspect} = $inspect;
+
     my $options = {};
     foreach my $key ( keys(%args) ) {
         if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {

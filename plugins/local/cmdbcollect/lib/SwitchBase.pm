@@ -31,6 +31,13 @@ sub new {
         $args{retries} = 2;
     }
 
+    my $inspect = $args{inspect};
+    if ( not defined($inspect) ) {
+        $inspect = 0;
+    }
+
+    $self->{inspect} = $inspect;
+
     my $options = {};
     foreach my $key ( keys(%args) ) {
         if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
@@ -45,13 +52,6 @@ sub new {
         print("ERROR: Create snmp session to $args{hostname} failed, $error\n");
         exit(-1);
     }
-
-    my $inspect = $args{inspect};
-    if ( not defined($inspect) ) {
-        $inspect = 0;
-    }
-
-    $self->{inspect} = $inspect;
 
     #单值定义
     my $scalarOidDef = {
@@ -359,7 +359,7 @@ sub _getPorts {
         }
     }
 
-    if ( $self->{doInspect} == 1 ) {
+    if ( $self->{inspect} == 1 ) {
         my @counterFields = ( 'IN_OCTETS', 'IN_UCAST_PKTS', 'IN_NUCAST_PKTS', 'IN_DISCARDS', 'IN_ERRORS', 'IN_UNKNOWN_PROTOS', 'OUT_OCTETS', 'OUT_UCAST_PKTS', 'OUT_NUCAST_PKTS', 'OUT_DISCARDS', 'OUT_ERRORS' );
 
         my $preCounterMap = {};
