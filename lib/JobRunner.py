@@ -488,7 +488,7 @@ class JobRunner:
                             phaseNodeFactory.putRunNode(None)
                             break
                         if self.context.runnerId == node['runnerId']:
-                            runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, phaseType, node)
+                            runNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, phaseType, node, nodesFactory.totalNodesCount)
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
                     if lastRound:

@@ -157,7 +157,7 @@ class LogFile:
 
 class RunNode:
 
-    def __init__(self, context, groupNo, phaseIndex, phaseName, phaseType, node):
+    def __init__(self, context, groupNo, phaseIndex, phaseName, phaseType, node, totalNodesCount=0):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
         self.nodeEnv = {}
@@ -171,6 +171,7 @@ class RunNode:
         self.phaseType = phaseType
         self.runPath = context.runPath
         self.node = node
+        self.totalNodesCount = totalNodesCount
         self.warnCount = 0
         self.isAborting = False
         self.hasFailLog = False
@@ -455,6 +456,7 @@ class RunNode:
     def _saveOutput(self):
         if self.output:
             outputFile = None
+            localOutFile = None
             try:
                 if self.resourceId == 0:
                     phaseStatus = self.context.phases[self.phaseName]
@@ -464,12 +466,24 @@ class RunNode:
                 fcntl.flock(outputFile, fcntl.LOCK_EX)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
                 self.outputStore.saveOutput(self.output)
+
+                if self.resourceId != 0 and self.totalNodesCount == 1:
+                    phaseStatus = self.context.phases[self.phaseName]
+                    phaseStatus.localOutput.update(self.output)
+                    localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
+                    localOutFile = open(localOutputPath, 'w')
+                    fcntl.flock(outputFile, fcntl.LOCK_EX)
+                    localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
+                    self.outputStore.saveOutputToLocal(phaseStatus.localOutput)
             except Exception as ex:
                 raise AutoExecError('Save output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
                 if outputFile is not None:
                     fcntl.flock(outputFile, fcntl.LOCK_UN)
                     outputFile.close()
+                if localOutFile is not None:
+                    fcntl.flock(localOutFile, fcntl.LOCK_UN)
+                    localOutFile.close()
 
     def _loadOpOutput(self, op):
         # 加载操作输出并进行合并

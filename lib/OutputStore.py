@@ -39,7 +39,27 @@ class OutputStore:
         outData.update(pk)
 
         try:
-            collection.replace_one(pk, outData, upsert=True)
+            collection.update_one(pk, {'$set': outData}, upsert=True)
+        except Exception as ex:
+            raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
+
+    def saveOutputToLocal(self, output):
+        db = self.db
+
+        if db is None:
+            return
+
+        collection = db['_node_output']
+        pk = {'jobId': self.jobId, 'resourceId': 0}
+        outData = {}
+        outData['host'] = 'local'
+        outData['port'] = 0
+        outData['data'] = output
+        outData['createDate'] = datetime.datetime.utcnow()
+        outData.update(pk)
+
+        try:
+            collection.update_one(pk, {'$set': outData}, upsert=True)
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not save output for node({}:{}) {}'.format(self.node['host'],  self.port, ex))
 

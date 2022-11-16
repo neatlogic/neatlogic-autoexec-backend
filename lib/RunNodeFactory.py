@@ -29,12 +29,14 @@ class RunNodeFactory:
         line = self.nodesFile.readline()
         # self.nodesFile.seek(0)
         self.nodesCount = 0
+        self.totalNodesCount = 1
         self.localRunnerId = 1
         self.jobRunnerIds = []
         self.jobRunnerCount = 0
         try:
             nodesDescObj = json.loads(line)
             self.nodesCount = int(nodesDescObj['totalCount'])
+            self.totalNodesCount = self.nodesCount
             self.localRunnerId = nodesDescObj['localRunnerId']
             self.jobRunnerIds = nodesDescObj['jobRunnerIds']
             self.jobRunnerCount = len(self.jobRunnerIds)
@@ -59,7 +61,7 @@ class RunNodeFactory:
         runNode = None
         nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
-            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj)
+            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount)
         return runNode
 
     def localNode(self):
