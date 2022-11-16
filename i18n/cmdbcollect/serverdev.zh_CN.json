@@ -4,7 +4,7 @@
     "docroot": null,
     "collection_label": "服务器硬件",
     "filter": {
-        "_OBJ_TYPE": "SERVERMACHINE"
+        "_OBJ_TYPE": "SERVERDEV"
     },  
     "fields": [
         {
@@ -23,8 +23,8 @@
             "type": "String"
         },
         {
-            "name": "SYSTEM_POWER",
-            "desc": "系统状态",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -33,7 +33,7 @@
             "type": "Int"
         },
         {
-            "name": "BOARD_VENDOR",
+            "name": "MANUFACTURER",
             "desc": "厂商",
             "type": "String"
         },
@@ -193,7 +193,7 @@
             ]
         },
         {
-            "name": "POWER SUPPLY",
+            "name": "POWER_SUPPLY",
             "desc": "供电",
             "type": "JsonArray",
             "subset": [
@@ -220,7 +220,7 @@
             ]
         },
         {
-            "name": "POWER UNIT",
+            "name": "POWER_UNIT",
             "desc": "电源",
             "type": "JsonArray",
             "subset": [
@@ -274,8 +274,8 @@
             ]
         },
         {
-            "name": "DRIVE SLOT / BAY",
-            "desc": "驱动器插槽/托架",
+            "name": "DRIVE_SLOT",
+            "desc": "驱动器插槽",
             "type": "JsonArray",
             "subset": [
                 {
@@ -301,8 +301,8 @@
             ]
         },
         {
-            "name": "CABLE / INTERCONNECT",
-            "desc": "电缆/互连",
+            "name": "CABLE",
+            "desc": "电缆",
             "type": "JsonArray",
             "subset": [
                 {
@@ -366,13 +366,13 @@
             "subset": [
                 {
                     "name": "ENTRIES",
-                    "desc": "条目",
+                    "desc": "日志数量",
                     "type": "String"
                 },
                 {
                     "name": "PERCENT_USED",
-                    "desc": "使用百分比",
-                    "type": "String"
+                    "desc": "使用百分比(%)",
+                    "type": "Int"
                 },
                 {
                     "name": "OVERFLOW",
@@ -380,36 +380,46 @@
                     "type": "String"
                 },
                 {
-                    "name": "SEL_LIST",
-                    "desc": "明细(最新20条)",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "DATE",
-                            "desc": "日期",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TIME",
-                            "desc": "时间",
-                            "type": "String"
-                        },
-                        {
-                            "name": "EVENT",
-                            "desc": "Event",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MESSAGE",
-                            "desc": "Message",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TYPE",
-                            "desc": "类别",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "LAST_ADD_TIME",
+                    "desc": "最新日志时间",
+                    "type": "String"
+                },
+                {
+                    "name": "LAST_DEL_TIME",
+                    "desc": "最后清除时间",
+                    "type": "String"
+                }
+            ]
+        }, 
+        {
+            "name": "SEL_LIST",
+            "desc": "系统日志明细(最新20条)",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "DATE",
+                    "desc": "日期",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "时间",
+                    "type": "String"
+                },
+                {
+                    "name": "EVENT",
+                    "desc": "Event",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "Message",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类别",
+                    "type": "String"
                 }
             ]
         }

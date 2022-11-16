@@ -65,6 +65,10 @@ class IpmiManager:
 
         if (self.isVerbose == 1):
             print("INFO::", result)
+        
+        if(result is not None and 'Unable to establish IPMI' in result ) :
+            print("ERROR:: Not allow exec command , Maybe user account and password wrong or account permission denied.")
+            exit(1)
         return result
 
     # 传感器列表
@@ -125,7 +129,18 @@ class IpmiManager:
             rsVal = rsMap[key]
             if rsVal is not None and sdrMap[key] != rsVal:
                 rsMap[key] = rsVal
-        return sdrMap
+
+        #处理key 
+        newSdrMap = {}
+        for key in sdrMap:
+            value = sdrMap[key]
+            if ('/' in key ):
+                slen = key.index('/')
+                key = key[0:slen].strip()
+            if (' ' in key ) : 
+                key = key.strip().replace(' ', '_')
+            newSdrMap[key] = value
+        return newSdrMap
 
     # 按空格行切分
     def split_blank_lines(self, s):
@@ -163,8 +178,11 @@ class IpmiManager:
                 ins['SENSOR_ID'] = info[0].strip()
                 ins['ENTITY_ID'] = info[3].strip()
                 if (type == "Temperature"):
-                    value = info[4].strip().replace('degrees C', '')
-                    value = int(value)
+                    value = info[4].strip().replace('degrees C', '').replace('unspecified' , '')
+                    try:
+                        value = int(value)
+                    except Exception as ex:
+                        value = 0
                     ins['SENSOR_READING'] = value
                 else:
                     ins['SENSOR_READING'] = info[4].strip()
@@ -221,7 +239,7 @@ class IpmiManager:
                 data['BOARD_PRODUCT'] = ins['BOARD_PRODUCT']
                 data['BOARD_NUMBER'] = ins['BOARD_NUMBER']
                 data['BOARD_SERIAL'] = ins['BOARD_SERIAL']
-                data['BOARD_VENDOR'] = ins['BOARD_MFG']
+                data['MANUFACTURER'] = ins['BOARD_MFG']
 
         return fruList
 
@@ -231,9 +249,9 @@ class IpmiManager:
         rs = result.split('\n')
         for line in rs:
             info = line.split(':')
-            key = info[0].strip().upper()
-            key = key.replace(' ', '_')
-            ins[key] = info[1].strip()
+            key = info[0].strip()
+            if ( 'System Power' in key ) :
+                ins['STATE'] = info[1].strip()
         return ins
 
     # 基础信息
@@ -242,15 +260,17 @@ class IpmiManager:
         result = self.runCmd('lan print')
         rs = result.split('\n')
         for line in rs:
-            info = line.split(':')
-            key = info[0].strip()
-            key2 = key.replace(' ', '_').upper()
-            if ('IP Address' in key
-                        or 'Subnet Mask' in key
-                        or 'MAC Address' in key
-                        or 'Default Gateway IP' in key
-                    ) :
-                ins[key2] = info[1].strip()
+            info = line.split(":")
+            if ( len(info) > 1
+            and 'IP Address' in line
+            or 'Subnet Mask' in line
+            or 'Default Gateway IP' in line
+            or 'MAC Address' in line
+            ) :
+                slen = line.index(":")
+                key = line[0:slen].strip().replace(' ', '_').upper()
+                value = line[slen+1:].strip()
+                ins[key] = value
 
         result = self.runCmd('mc info')
         rs = result.split('\n')
@@ -262,9 +282,9 @@ class IpmiManager:
                 ins[key2] = info[1].strip()
         return ins
 
-    def transDate(self, str):
-        strDate = datetime.strptime(str, "%m/%d/%Y").date()
-        fmtstr = datetime.strftime(strDate, "%Y-%m-%d")
+    def transDate(self, str ,parsefrm , outfrm ) :
+        strDate = datetime.strptime(str, parsefrm).date()
+        fmtstr = datetime.strftime(strDate, outfrm)
         return fmtstr
 
     # 系统日志
@@ -275,15 +295,23 @@ class IpmiManager:
             return None
         rs = result.split('\n')
         for line in rs:
-            info = line.split(':')
-            if len(info) > 1:
-                key = info[0].strip().upper()
-                key = key.replace(' ', '_')
-                selIns[key] = info[1].strip()
+            info = line.split(":")
+            if len(info) > 1 :
+                slen = line.index(":")
+                key = line[0:slen].strip().replace(' ', '_').upper()
+                value = line[slen+1:].strip()
+                if ( 'Last Add Time' in line or 'Last Del Time' in line ) :
+                    value = self.transDate(value , "%m/%d/%Y %H:%M:%S" , "%Y-%m-%d %H:%M:%S")
+                elif( 'Percent Used' in line ) :
+                    value = int(value.replace('%' , ''))
+                selIns[key] = value
+        return selIns
+    
+    def getSelDetail(self):
         selList = []
         rslist = self.runCmd("sel list")
         if rslist is None:
-            return selIns
+            return selList
         rs = rslist.split('\n')
         total = len(rs)
         num = 0
@@ -300,14 +328,13 @@ class IpmiManager:
                 event = info[3].strip()
                 message = info[4].strip()
                 type = info[5].strip()
-                ins['DATE'] = self.transDate(date)
+                ins['DATE'] = self.transDate(date , "%m/%d/%Y" , "%Y-%m-%d")
                 ins['TIME'] = time
                 ins['EVENT'] = event
                 ins['MESSAGE'] = message
                 ins['TYPE'] = type
                 selList.append(ins)
-        selIns['SEL_LIST'] = selList
-        return selIns
+        return selList
 
 
 def usage():
@@ -371,6 +398,8 @@ if __name__ == "__main__":
     data['FRU'] = fru
     sel = ipmi.getSel()
     data['SEL'] = sel
+    selDetail = ipmi.getSelDetail()
+    data['SEL_LIST'] = selDetail
 
     slist = []
     slist.append(data)

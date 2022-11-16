@@ -4,7 +4,7 @@
     "docroot": null,
     "collection_label": "Server Machine",
     "filter": {
-        "_OBJ_TYPE": "SERVERMACHINE"
+        "_OBJ_TYPE": "SERVERDEV"
     },  
     "fields": [
         {
@@ -23,8 +23,8 @@
             "type": "String"
         },
         {
-            "name": "SYSTEM_POWER",
-            "desc": "System Status",
+            "name": "STATE",
+            "desc": "Use Status",
             "type": "String"
         },
         {
@@ -43,7 +43,7 @@
             "type": "String"
         },
         {
-            "name": "BOARD_PRODUCT",
+            "name": "MANUFACTURER",
             "desc": "Product",
             "type": "String"
         },
@@ -193,7 +193,7 @@
             ]
         },
         {
-            "name": "POWER SUPPLY",
+            "name": "POWER_SUPPLY",
             "desc": "Power Supply",
             "type": "JsonArray",
             "subset": [
@@ -220,7 +220,7 @@
             ]
         },
         {
-            "name": "POWER UNIT",
+            "name": "POWER_UNIT",
             "desc": "Power Unit",
             "type": "JsonArray",
             "subset": [
@@ -274,7 +274,7 @@
             ]
         },
         {
-            "name": "DRIVE SLOT / BAY",
+            "name": "DRIVE_SLOT",
             "desc": "Drive",
             "type": "JsonArray",
             "subset": [
@@ -301,8 +301,8 @@
             ]
         },
         {
-            "name": "CABLE / INTERCONNECT",
-            "desc": "Cable/Interconnect",
+            "name": "CABLE",
+            "desc": "Cable",
             "type": "JsonArray",
             "subset": [
                 {
@@ -361,7 +361,7 @@
         },
         {
             "name": "SEL",
-            "desc": "Sel",
+            "desc": "Sel Log",
             "type": "JsonObject",
             "subset": [
                 {
@@ -371,8 +371,8 @@
                 },
                 {
                     "name": "PERCENT_USED",
-                    "desc": "Percent Used",
-                    "type": "String"
+                    "desc": "Percent Used(%)",
+                    "type": "Int"
                 },
                 {
                     "name": "OVERFLOW",
@@ -380,36 +380,46 @@
                     "type": "String"
                 },
                 {
-                    "name": "SEL_LIST",
-                    "desc": "Sel Detail(limit 20)",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "DATE",
-                            "desc": "Date",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TIME",
-                            "desc": "Time",
-                            "type": "String"
-                        },
-                        {
-                            "name": "EVENT",
-                            "desc": "Event",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MESSAGE",
-                            "desc": "Message",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TYPE",
-                            "desc": "Type",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "LAST_ADD_TIME",
+                    "desc": "Last Add Time",
+                    "type": "String"
+                },
+                {
+                    "name": "LAST_DEL_TIME",
+                    "desc": "Last Del Time",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SEL_LIST",
+            "desc": "Sel Log Detail(limit 20)",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "DATE",
+                    "desc": "Date",
+                    "type": "String"
+                },
+                {
+                    "name": "TIME",
+                    "desc": "Time",
+                    "type": "String"
+                },
+                {
+                    "name": "EVENT",
+                    "desc": "Event",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "Message",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
                 }
             ]
         }
