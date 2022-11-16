@@ -113,7 +113,7 @@ sub main {
         $data->{VENDOR} = $data->{BRAND};
     }
 
-    my $objCat = CollectObjCat->get('FCDEV');
+    my $objCat = CollectObjCat->get('FCSWITCH');
     $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'FCSwitch';
     $data->{_APP_TYPE}     = $brand;
