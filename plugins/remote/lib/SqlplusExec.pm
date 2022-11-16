@@ -461,10 +461,15 @@ sub _execSql {
         $sql = $sql . ';';
     }
 
+    my $sqlplusCmd = $self->{sqlplusCmd};
+    if ( not $parseData ) {
+        $sqlplusCmd =~ s/sqlplus -s -R 1 -L /sqlplus -R 1 -L /;
+    }
+
     my $sqlFH;
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
-        $cmd = qq{$self->{sqlplusCmd} << "EOF"
+        $cmd = qq{$sqlplusCmd << "EOF"
                set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on wrap on;
                $sql
                exit;
@@ -480,7 +485,6 @@ sub _execSql {
         print $sqlFH ("\nexit;\n");
         $sqlFH->close();
 
-        my $sqlplusCmd = $self->{sqlplusCmd};
         $cmd = qq{$sqlplusCmd @"$fname"};
     }
 
