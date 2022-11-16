@@ -210,6 +210,36 @@ sub evalProfile {
     }
 }
 
+sub _checkError {
+    my ( $self, $output, $isVerbose ) = @_;
+    my @lines      = split( /\n/, $output );
+    my $linesCount = scalar(@lines);
+
+    my $hasError = 0;
+
+    for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
+        my $line = $lines[$i];
+        if ( $isVerbose == 1 ) {
+            print( $line, "\n" );
+        }
+
+        #错误识别
+        #ERROR at line 1:
+        #ORA-00907: missing right parenthesis
+        if ( $line =~ /^ERROR/ ) {
+            if ( $lines[ $i + 1 ] =~ /^ORA-\d+:/ ) {
+                $hasError = 1;
+                if ( $isVerbose != 1 ) {
+                    print( $line,            "\n" );
+                    print( $lines[ $i + 1 ], "\n" );
+                }
+            }
+        }
+    }
+
+    return ( undef, undef, $hasError );
+}
+
 sub _parseOutput {
     my ( $self, $output, $isVerbose ) = @_;
     my @lines      = split( /\n/, $output );
@@ -472,9 +502,8 @@ sub _execSql {
     if ($parseData) {
         return $self->_parseOutput( $output, $isVerbose );
     }
-    elsif ($isVerbose) {
-        print($output);
-        return ( undef, undef, $status );
+    else {
+        return $self->_checkError( $output, $isVerbose );
     }
 }
 
