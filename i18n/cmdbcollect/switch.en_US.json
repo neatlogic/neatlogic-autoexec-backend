@@ -98,64 +98,105 @@
             "type": "Int"
         },
         {
-            "name": "OUT_QLEN",
-            "desc": "Send Queue Length",
-            "type": "Int"
-        },
-        {
-            "name": "IN_OCTETS",
-            "desc": "InOctets(bps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_UCAST_PKTS",
-            "desc": "InUcastPkts(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_NUCAST_PKTS",
-            "desc": "InNucastPkts(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_DISCARDS",
-            "desc": "InDiscards(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_ERRORS",
-            "desc": "InErrors(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_UNKNOWN_PROTOS",
-            "desc": "InUnknownProtos(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_OCTETS",
-            "desc": "OutOctets(bps)",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_UCAST_PKTS",
-            "desc": "OutUcastPkts(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_NUCAST_PKTS",
-            "desc": "OutNucastPkts(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_DISCARDS",
-            "desc": "OutDiscards(pps)",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_ERRORS",
-            "desc": "OutErrors(pps)",
-            "type": "Int"
+            "name": "PORTS",
+            "desc": "SWitch Ports",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Interface Name",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operate Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Int"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Interface Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_QLEN",
+                    "desc": "Send Queue Length",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_OCTETS",
+                    "desc": "InOctets(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UCAST_PKTS",
+                    "desc": "InUcastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_NUCAST_PKTS",
+                    "desc": "InNucastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_DISCARDS",
+                    "desc": "InDiscards(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_ERRORS",
+                    "desc": "InErrors(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UNKNOWN_PROTOS",
+                    "desc": "InUnknownProtos(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_OCTETS",
+                    "desc": "OutOctets(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_UCAST_PKTS",
+                    "desc": "OutUcastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_NUCAST_PKTS",
+                    "desc": "OutNucastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_DISCARDS",
+                    "desc": "OutDiscards(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_ERRORS",
+                    "desc": "OutErrors(pps)",
+                    "type": "Int"
+                }
+            ]
         }
     ]
 }

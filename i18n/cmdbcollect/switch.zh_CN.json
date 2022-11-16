@@ -98,64 +98,105 @@
             "type": "Int"
         },
         {
-            "name": "OUT_QLEN",
-            "desc": "发送队列",
-            "type": "Int"
-        },
-        {
-            "name": "IN_OCTETS",
-            "desc": "流入流量(bps)",
-            "type": "Int"
-        },
-        {
-            "name": "IN_UCAST_PKTS",
-            "desc": "流入单播pps",
-            "type": "Int"
-        },
-        {
-            "name": "IN_NUCAST_PKTS",
-            "desc": "流入非单播放pps",
-            "type": "Int"
-        },
-        {
-            "name": "IN_DISCARDS",
-            "desc": "流入丢弃pps",
-            "type": "Int"
-        },
-        {
-            "name": "IN_ERRORS",
-            "desc": "流入错误pps",
-            "type": "Int"
-        },
-        {
-            "name": "IN_UNKNOWN_PROTOS",
-            "desc": "未知协议pps",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_OCTETS",
-            "desc": "流出bps",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_UCAST_PKTS",
-            "desc": "流出单播pps",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_NUCAST_PKTS",
-            "desc": "流出非单播pps",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_DISCARDS",
-            "desc": "流出丢弃pps",
-            "type": "Int"
-        },
-        {
-            "name": "OUT_ERRORS",
-            "desc": "流出错误pps",
-            "type": "Int"
+            "name": "PORTS",
+            "desc": "SWitch Ports",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "操作状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "管理状态",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "端口类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_QLEN",
+                    "desc": "发送队列",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_OCTETS",
+                    "desc": "流入流量(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UCAST_PKTS",
+                    "desc": "流入单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_NUCAST_PKTS",
+                    "desc": "流入非单播放pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_DISCARDS",
+                    "desc": "流入丢弃pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_ERRORS",
+                    "desc": "流入错误pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UNKNOWN_PROTOS",
+                    "desc": "未知协议pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_OCTETS",
+                    "desc": "流出bps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_UCAST_PKTS",
+                    "desc": "流出单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_NUCAST_PKTS",
+                    "desc": "流出非单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_DISCARDS",
+                    "desc": "流出丢弃pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_ERRORS",
+                    "desc": "流出错误pps",
+                    "type": "Int"
+                }
+            ]
         }
     ]
 }
