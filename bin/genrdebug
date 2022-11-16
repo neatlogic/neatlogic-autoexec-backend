@@ -22,4 +22,5 @@ cp -rf $AUTOEXEC_DIR/plugins/remote/lib /tmp/autoexec-debug && echo Directory /t
 
 for plugin in $*; do
     cp -rf $AUTOEXEC_DIR/plugins/remote/$plugin /tmp/autoexec-debug/
+    chmod 775 /tmp/autoexec-debug/$plugin
 done
