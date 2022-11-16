@@ -236,7 +236,7 @@ sub _checkError {
             }
         }
     }
-
+    print("----------------------------------------------------------\n");
     return ( undef, undef, $hasError );
 }
 
@@ -490,7 +490,8 @@ sub _execSql {
 
     if ($isVerbose) {
         print("INFO: Execute sql:\n");
-        print( $sql, "\n\n" );
+        print( $sql, "\n" );
+        print("----------------------------------------------------------\n");
 
         #my $len = length($sql);
         #print( '=' x $len, "\n" );
@@ -500,14 +501,16 @@ sub _execSql {
     my $status = $?;
     if ( $status ne 0 ) {
         print("ERROR: Execute cmd failed\n $output\n");
+        print("----------------------------------------------------------\n");
         return ( undef, undef, $status );
     }
-
-    if ($parseData) {
-        return $self->_parseOutput( $output, $isVerbose );
-    }
     else {
-        return $self->_checkError( $output, $isVerbose );
+        if ($parseData) {
+            return $self->_parseOutput( $output, $isVerbose );
+        }
+        else {
+            return $self->_checkError( $output, $isVerbose );
+        }
     }
 }
 
