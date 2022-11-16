@@ -84,6 +84,7 @@ class VContext:
             for confKey in cfg[section]:
                 config[section][confKey] = cfg[section][confKey]
 
+        self.fialRserveDir = int(config['autoexec'].get('rexec.fail.reservedir', 0))
         self.maxExecSecs = int(config['autoexec'].get('job.maxExecSecs', 86400))
         self.rexecConnTimeout = int(config['autoexec'].get('rexec.connectTimeout', 60))
         self.rexecReadTimeout = int(config['autoexec'].get('rexec.readTimeout', 3600))
