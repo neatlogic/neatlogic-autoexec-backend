@@ -1107,6 +1107,56 @@ sub updateConfigInZip {
         my $insCfgCount = 0;
 
         if ( $pkgFiles->{$nextCwd} eq 1 ) {
+
+            #计算下一个zip子目录下的所有autocfg文件，计算源文件路径，用于给出解压pattern
+            my $orgFileMap       = {};
+            my @orgFiles         = ();
+            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
+            foreach my $cfgFileInZip (@$allCfgFilesInZip) {
+
+                #先算出基于环境替换类的autocfg文件的源头文件路径
+                my $orgFileInZip = $cfgFileInZip;
+                if ( $orgFileInZip =~ s/\.$env\.[^\/]+?\.$suffix(\/|$)//i ) {
+                    $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                    push( @orgFiles, $orgFileInZip );
+                }
+                elsif ( $orgFileInZip =~ s/\.$env\.$suffix(\/|$)//i ) {
+                    $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                    push( @orgFiles, $orgFileInZip );
+                }
+            }
+
+            foreach my $cfgFileInZip (@$allCfgFilesInZip) {
+                if ( defined( $orgFileMap->{$cfgFileInZip} ) ) {
+
+                    #当前环境的环境替换类的autocfg文件已经处理过了，skip
+                    next;
+                }
+
+                my $orgFileInZip = $cfgFileInZip;
+                if ( $orgFileInZip =~ s/\.$suffix(\/|$)//i ) {
+
+                    #剩下的就是跟当前环境不匹配的整环境替换类的autocfg文件或key-value替换的autocfg文件
+                    my $hasEnvConf = 0;
+                    foreach my $aOrgFile (@orgFiles) {
+                        if ( $orgFileInZip =~ /^$aOrgFile\.[^\/]+?/ ) {
+
+                            #如果文件路径匹配上面已经计算出的源文件，则代表当前文件是整环境替换的autofg文件
+                            $orgFileMap->{$cfgFileInZip} = $aOrgFile;
+                            $hasEnvConf = 1;
+                            last;
+                        }
+                    }
+
+                    if ( $hasEnvConf == 0 ) {
+
+                        #只需补充非整环境替换的autocfg文件的源文件
+                        $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                        push( @orgFiles, $orgFileInZip );
+                    }
+                }
+            }
+
             ( $cfgCount, $insCfgCount ) = $self->updateConfigInZip( $autoCfgDocRoot, $nextCwd, $orgFileMap, "$zipTmpDir/$subFile", $pkgFiles, $rplOrgFiles, $dirsMap, $insInfo );
         }
         else {
@@ -1235,8 +1285,8 @@ sub updateConfig {
 
             #计算下一个zip子目录下的所有autocfg文件，计算源文件路径，用于给出解压pattern
             my $orgFileMap       = {};
-            my @orgFiles         = {};
-            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd );
+            my @orgFiles         = ();
+            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
             foreach my $cfgFileInZip (@$allCfgFilesInZip) {
 
                 #先算出基于环境替换类的autocfg文件的源头文件路径
@@ -1267,6 +1317,7 @@ sub updateConfig {
                         if ( $orgFileInZip =~ /^$aOrgFile\.[^\/]+?/ ) {
 
                             #如果文件路径匹配上面已经计算出的源文件，则代表当前文件是整环境替换的autofg文件
+                            $orgFileMap->{$cfgFileInZip} = $aOrgFile;
                             $hasEnvConf = 1;
                             last;
                         }
@@ -1276,6 +1327,7 @@ sub updateConfig {
 
                         #只需补充非整环境替换的autocfg文件的源文件
                         $orgFileMap->{$cfgFileInZip} = $orgFileInZip;
+                        push( @orgFiles, $orgFileInZip );
                     }
                 }
             }
