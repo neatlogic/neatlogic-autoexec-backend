@@ -1,5 +1,11 @@
 #!/bin/bash
-GOSYS_DIR=$(dirname $(which gosys))
+BIN_DIR=$0
+HAS_DIR=$(echo $BIN_DIR | grep /)
+if [ -z "$HAS_DIR" ]; then
+    BIN_DIR=$(which gosys)
+fi
+
+GOSYS_DIR=$(dirname "$BIN_DIR")
 AUTOEXEC_DIR=$(
     cd $GOSYS_DIR/..
     pwd

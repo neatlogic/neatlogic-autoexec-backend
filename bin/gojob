@@ -1,5 +1,11 @@
 #!/bin/bash
-GOJOB_DIR=$(dirname $(which gojob))
+BIN_DIR=$0
+HAS_DIR=$(echo $BIN_DIR | grep /)
+if [ -z "$HAS_DIR" ]; then
+    BIN_DIR=$(which gosys)
+fi
+
+GOJOB_DIR=$(dirname "$BIN_DIR")
 AUTOEXEC_DIR=$(
     cd $GOJOB_DIR/..
     pwd

@@ -222,6 +222,7 @@ def getInspectData(nodeInfo):
                 print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
         if not dataRecords:
+            print("WARN: Inspect data is empty, set _OBJ_CATEGORY to EMPTY.")
             nodeData = inspectData
             nodeData['_OBJ_CATEGORY'] = 'EMPTY'
             nodeData['_OBJ_TYPE'] = 'EMPTY'

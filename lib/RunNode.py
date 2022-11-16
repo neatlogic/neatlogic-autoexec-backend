@@ -1051,11 +1051,10 @@ class RunNode:
 
                             self._saveOpOutput(op)
                     try:
-                        if not self.context.devMode and ret == 0:
-                            if tagent.agentOsType == 'windows':
-                                tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
-                            else:
-                                tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
+                        if tagent.agentOsType == 'windows':
+                            tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
+                        else:
+                            tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
                     except Exception as ex:
                         self.writeNodeLog('WARN: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
             except Exception as ex:
@@ -1266,8 +1265,7 @@ class RunNode:
                             self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
                             ret = 2
                     try:
-                        if not self.context.devMode and ret == 0:
-                            ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
+                        ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
                     except Exception as ex:
                         self.writeNodeLog("WARN: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
 
