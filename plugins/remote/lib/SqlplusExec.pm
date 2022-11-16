@@ -88,7 +88,7 @@ sub new {
     }
 
     if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
-        $sqlplusCmd = qq{su - $osUser -c "ORACLE_SID=$oraSid $sqlplusCmd"};
+        $sqlplusCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.AL32UTF8 ORACLE_SID=$oraSid $sqlplusCmd"};
     }
 
     if (    defined( $args{username} )
@@ -421,6 +421,7 @@ sub _execSql {
     my ( $self, %args ) = @_;
 
     $ENV{NLS_LANG} = 'AMERICAN_AMERICA.AL32UTF8';
+    $ENV{LANG}     = 'en_US.UTF-8';
 
     my $sql       = $args{sql};
     my $isVerbose = $args{verbose};
