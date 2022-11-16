@@ -1,6 +1,6 @@
 {
     "label": "Switch",
-    "collection": "COLLECT_NETDEV",
+    "collection": "COLLECT_SWITCH",
     "docroot": null,
     "collection_label": "Net Device",
     "filter": {

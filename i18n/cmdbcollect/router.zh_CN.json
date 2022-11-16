@@ -1,13 +1,12 @@
 {
     "label": "路由器",
-    "collection": "COLLECT_NETDEV",
+    "collection": "COLLECT_SWITCH",
     "docroot": null,
     "collection_label": "网络设备",
     "filter": {
         "_OBJ_TYPE": "Router"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"

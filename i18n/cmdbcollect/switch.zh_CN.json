@@ -1,6 +1,6 @@
 {
     "label": "交换机",
-    "collection": "COLLECT_NETDEV",
+    "collection": "COLLECT_SWITCH",
     "docroot": null,
     "collection_label": "网络设备",
     "filter": {
