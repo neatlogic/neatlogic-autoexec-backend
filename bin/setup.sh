@@ -2,7 +2,7 @@
 AUTOEXEC_DIR=$(cd $(dirname $0)/.. && pwd)
 AUTOEXEC_PDIR=$(basename $AUTOEXEC_DIR)
 
-if [ "$AUTOEXEC_PDIR" = "systems" ]; then
+if [ "$AUTOEXEC_PDIR" = "systems" ] || [ "$AUTOEXEC_PDIR" = "autoexec" ]; then
     TS_HOME=$(
         cd $AUTOEXEC_DIR/..
         pwd
