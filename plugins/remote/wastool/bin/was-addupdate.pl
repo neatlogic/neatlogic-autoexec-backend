@@ -3,7 +3,6 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin";
 
-#use Data::Dumper;
 use CommonConfig;
 use Cwd 'abs_path';
 use File::Basename;
@@ -69,6 +68,7 @@ my $wasPwd      = $sectionConfig->{"was_pwd"};
 my $needDeploy  = $sectionConfig->{"need_deploy"};
 my $cellname    = $sectionConfig->{"cellname"};
 my $nodename    = $sectionConfig->{"nodename"};
+
 if ( not defined($needDeploy) or $needDeploy =~ /[1|true]/i ) {
     $needDeploy = 1;
 }

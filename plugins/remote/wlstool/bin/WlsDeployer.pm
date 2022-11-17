@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 package WlsDeployer;
 use strict;
-use Data::Dumper;
 use XML::MyXML qw(:all);
 use IO::Socket::INET;
 use File::Path;

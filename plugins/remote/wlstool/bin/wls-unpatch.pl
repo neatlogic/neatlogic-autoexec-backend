@@ -5,7 +5,6 @@ use FindBin;
 use lib "$FindBin::Bin";
 use lib "$FindBin::Bin/../../patch/bin";
 
-#use Data::Dumper;
 use Utils;
 use CommonConfig;
 use Cwd 'abs_path';

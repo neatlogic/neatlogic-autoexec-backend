@@ -3,7 +3,6 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin";
 
-#use Data::Dumper;
 use POSIX qw(uname);
 use Utils;
 use CommonConfig;
@@ -296,7 +295,7 @@ sub main {
                 }
             }
 
-            my $ret = system("$cmd 2>&1");
+            my $ret    = system("$cmd 2>&1");
             my $isStop = &$checkWlsStop( 1, 1 );
             if ( $isStop == 0 ) {
                 $isStop = &$checkWlsStop( 1, 1 );

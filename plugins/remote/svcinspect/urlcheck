@@ -123,7 +123,6 @@ sub main {
     my $out = {};
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);
-    print Dumper ($data);
 }
 
 exit main();

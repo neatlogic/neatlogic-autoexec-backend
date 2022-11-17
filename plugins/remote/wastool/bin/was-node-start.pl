@@ -2,7 +2,6 @@
 use strict;
 use FindBin;
 use lib "$FindBin::Bin";
-#use Data::Dumper;
 use Utils;
 
 use POSIX qw(uname);
@@ -27,6 +26,7 @@ use CommonConfig;
 use Cwd 'abs_path';
 my $homePath = $FindBin::Bin;
 $homePath = abs_path("$homePath/..");
+
 #$ENV{LANG} = 'utf-8';
 
 if ( scalar(@ARGV) < 2 ) {

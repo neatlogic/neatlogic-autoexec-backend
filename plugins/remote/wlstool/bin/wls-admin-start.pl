@@ -3,7 +3,6 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin";
 
-#use Data::Dumper;
 use POSIX qw(uname);
 use Utils;
 use CommonConfig;
@@ -52,7 +51,7 @@ sub main {
         }
     }
 
-    my $wlsDeployer = WlsDeployer->new( $configName, $insName );
+    my $wlsDeployer     = WlsDeployer->new( $configName, $insName );
     my $adminServerName = $wlsDeployer->getAdminServerName();
 
     chdir( $wlsDeployer->getHomePath() );

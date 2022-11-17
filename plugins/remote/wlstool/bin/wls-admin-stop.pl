@@ -3,7 +3,6 @@ use strict;
 use FindBin;
 use lib "$FindBin::Bin";
 
-#use Data::Dumper;
 use POSIX qw(uname);
 use Utils;
 use CommonConfig;
@@ -136,7 +135,7 @@ sub main {
     my $configName = $ARGV[0];
     my $insName    = $ARGV[1];
 
-    my $wlsDeployer = WlsDeployer->new( $configName, $insName );
+    my $wlsDeployer     = WlsDeployer->new( $configName, $insName );
     my $adminServerName = $wlsDeployer->getAdminServerName();
 
     chdir( $wlsDeployer->getHomePath() );
@@ -155,9 +154,9 @@ sub main {
     my $timeout = 300;
 
     if ( defined($domainDir) and $domainDir ne '' and defined($adminServerName) and $adminServerName ne '' ) {
-        $ENV{MW_HOME}   = $wlsHome  if ( defined($wlsHome)  and $wlsHome ne '' );
-        $ENV{JAVA_HOME} = $javaHome if ( defined($javaHome) and $javaHome ne '' );
-        $ENV{ADMIN_URL} = $adminUrl;
+        $ENV{MW_HOME}     = $wlsHome  if ( defined($wlsHome)  and $wlsHome ne '' );
+        $ENV{JAVA_HOME}   = $javaHome if ( defined($javaHome) and $javaHome ne '' );
+        $ENV{ADMIN_URL}   = $adminUrl;
         $ENV{SERVER_NAME} = $adminServerName;
 
         my $lsnPort = getAdminLsnPort($config);
@@ -200,7 +199,7 @@ sub main {
         }
 
         my $waitCount = 0;
-        my $pid = getAdminServerPid( $ostype, $domainDir, $adminServerName, $lsnPort );
+        my $pid       = getAdminServerPid( $ostype, $domainDir, $adminServerName, $lsnPort );
         while ( $waitCount < 5 and defined($pid) and $pid ne '' ) {
             $waitCount = $waitCount + 1;
             sleep(1);
