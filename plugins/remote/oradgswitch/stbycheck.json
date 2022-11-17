@@ -6,8 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "切换前对原备库进行检查，确认可以切换",
-    "option": [
-        {
+    "enable": 0,
+    "option": [{
             "opt": "sid",
             "name": "SID",
             "help": "如不设置则直接使用环境变量ORACLE_SID",
