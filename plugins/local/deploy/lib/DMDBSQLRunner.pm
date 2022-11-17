@@ -163,6 +163,11 @@ sub run {
     my $sqlFile     = $self->{sqlFile};
     my $sqlFileName = $self->{sqlFileName};
 
+    if ( not -e $sqlFileName ) {
+        print("ERROR: SQL file:$sqlFileName not found.\n");
+        return 2;
+    }
+
     my $isAutoCommit = $self->{isAutoCommit};
 
     my $pipeFile = $logFilePath;
@@ -310,7 +315,7 @@ sub run {
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
 
         $self->{hasLogon} = 1;
-        $spawn->send("\`$sqlFileName\n");
+        $spawn->send(qq{\`"$sqlFileName"\n});
         $spawn->expect(
             undef,
             [
@@ -361,7 +366,7 @@ sub run {
                 #找不到SQL脚本
                 #fail to open include file [/test/ttttttt.sql]
                 #invalid file path [/test/ttttttt.sql;]
-                qr/(?<=\n)(fail to open include file |invalid file path )\[\Q$sqlFileName\E\]/ => sub {
+                qr/(fail to open include file |invalid file path )\[\Q$sqlFileName\E\]/ => sub {
                     $hasError     = 1;
                     $hasHardError = 1;
                     print( "\nERROR: " . $spawn->match() . "\n" );
