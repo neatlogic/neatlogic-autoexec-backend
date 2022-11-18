@@ -241,10 +241,8 @@ class RunNode:
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
         self.liveDataDir = '{}/livedata/{}/{}-{}-{}'.format(self.runPath, phaseName, self.host, self.port, self.resourceId)
 
-        if not os.path.exists(self.outputDir):
-            os.makedirs(self.outputDir)
-        if not os.path.exists(self.opOutputDir):
-            os.makedirs(self.opOutputDir)
+        os.makedirs(self.outputDir, exist_ok=True)
+        os.makedirs(self.opOutputDir, exist_ok=True)
 
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)

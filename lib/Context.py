@@ -32,7 +32,7 @@ class Context(VContext.VContext):
 
         # 如果任务数据目录不存在，则创建目录
         if not os.path.exists(self.runPath):
-            os.makedirs(self.runPath)
+            os.makedirs(self.runPath, exist_ok=True)
 
         paramsLoaded = False
         # 获取运行参数和运行节点参数文件，如果命令行提供的文件路径则不到服务端进行下载

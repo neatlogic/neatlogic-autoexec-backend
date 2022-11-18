@@ -7380,7 +7380,7 @@ def ensureDirectory(path):
     sop(m,"Entry. path=%s" % ( path ))
     if not os.path.exists(path):
         sop(m,"Path does not exist. Creating it.")
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
     else:
         sop(m,"Path exists.")
 

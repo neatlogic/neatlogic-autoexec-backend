@@ -17,12 +17,23 @@
         },
         {
             "opt": "charset",
-            "name": "数据字符集",
-            "help": "JSON数据的字符集合",
+            "name": "字符集",
+            "help": "JSON数据的字符集",
             "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": ""
+            "dataSource": {
+                "dataList": [{
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GB18030",
+                        "value": "GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
         },
         {
             "opt": "disfields",

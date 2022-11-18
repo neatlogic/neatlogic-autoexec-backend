@@ -77,7 +77,7 @@ def saveOutput(outputData):
     if outputPath is not None and outputPath != '':
         outputDir = os.path.dirname(outputPath)
         if not outputDir == '' and not os.path.exists(outputDir):
-            os.makedirs(outputDir)
+            os.makedirs(outputDir, exist_ok=True)
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))
         outputFile.close()
@@ -92,7 +92,7 @@ def saveLiveData(outputData):
     if outputPath is not None and outputPath != '':
         outputDir = os.path.dirname(outputPath)
         if not outputDir == '' and not os.path.exists(outputDir):
-            os.makedirs(outputDir)
+            os.makedirs(outputDir, exist_ok=True)
         outputFile = open(outputPath, 'w')
         outputFile.write(json.dumps(outputData, indent=4, ensure_ascii=False))
         outputFile.close()
