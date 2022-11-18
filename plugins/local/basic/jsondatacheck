@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+use FindBin;
+
+use strict;
+
+use Getopt::Long;
+use IO::File;
+use JSON;
+use Encode;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--data JsonData] [--charset CharSet] [--disfields DisplayFieldNames]\n");
+    print("       [--filter DataFilter] [--chkdsl CheckDsl]\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $dataJson, $disFieldsTxt, $filter, $chkDsl );
+
+    my $charSet = 'UTF-8';
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'charset=s'   => \$charSet,
+        'data=s'      => \$dataJson,
+        'disfields=s' => \$disFieldsTxt,
+        'filter=s'    => \$filter,
+        'chkdsl=s'    => \$chkDsl
+    );
+
+    if ( defined($isHelp) ) {
+        usage();
+    }
+
+    my $disFields;
+    if ( defined($disFieldsTxt) and $disFieldsTxt ne '' ) {
+        $disFields = [];
+        foreach my $field ( split( /\s*,\s*/, $disFieldsTxt ) ) {
+            push( @$disFields, $field );
+        }
+    }
+    else {
+        undef($disFields);
+    }
+
+    if ( $chkDsl eq '' ) {
+        undef($chkDsl);
+    }
+    if ( $filter eq '' ) {
+        undef($filter);
+    }
+    $charSet = uc($charSet);
+
+    my $jsonObj;
+    if ( defined($dataJson) and $dataJson ne '' ) {
+        if ( $charSet ne '' and $charSet ne 'UTF-8' ) {
+            $dataJson = Encode::encode( "UTF-8", Encode::decode( $charSet, $dataJson ) );
+        }
+        $jsonObj = from_json($dataJson);
+    }
+
+    my $errorCode = AutoExecUtils::JsonToTableCheck( $jsonObj, $disFields, $filter, $chkDsl );
+    return $errorCode;
+}
+
+exit main();

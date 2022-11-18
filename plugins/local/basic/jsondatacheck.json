@@ -1,0 +1,56 @@
+{
+    "opDesc": "检查JSON数据",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "依据配置的规则对Json数据进行过滤匹配检查, 如果不符合规则，则报错",
+    "option": [{
+            "opt": "data",
+            "name": "JSON数据",
+            "help": "需要执行检查规则的JSON数据",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "charset",
+            "name": "数据字符集",
+            "help": "JSON数据的字符集合",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "disfields",
+            "name": "显示字段",
+            "help": "多字段逗号相隔，多层对象用点连接，例如：applicationModels.applicationStatus",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "filter",
+            "name": "过滤条件",
+            "help": "对象过滤，例如：[applicationModels.applicationName] == 'ATMP_ Subscriber' and [managePath] == 'ATMP'",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "chkdsl",
+            "name": "检查DSL",
+            "help": "检查DSL，例如：[applicationModels.applicationStatus] == '1'",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}
