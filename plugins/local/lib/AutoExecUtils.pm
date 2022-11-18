@@ -555,7 +555,7 @@ sub JsonToTableCheck {
         if ( defined($checkDsl) ) {
             my $ret = evalDsl( $row, $checkDsl );
             if ($ret) {
-                print("FINEST: ");
+                print("FINE: ");
             }
             else {
                 $errorCode = 1;
