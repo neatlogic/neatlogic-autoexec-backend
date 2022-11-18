@@ -178,7 +178,7 @@ sub saveOutput {
 
 sub evalDsl {
     my ( $data, $checkDsl ) = @_;
-    $checkDsl =~ s/\[\s*([^\}]+)\s*\]/\$data->\{'$1'\}/g;
+    $checkDsl =~ s/\[\s*([^\]]+)\s*\]/\$data->\{'$1'\}/g;
 
     my $ret = eval($checkDsl);
 
