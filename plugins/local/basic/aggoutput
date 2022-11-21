@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
             nodeKey = host
             if port is not None and port != '':
-                nodeKey = host + ':' + port
+                nodeKey = '{}:{}'.format(host, port)
 
             val = nodeOut['data'].get(opId).get(varKey)
             aggData[nodeKey] = val
